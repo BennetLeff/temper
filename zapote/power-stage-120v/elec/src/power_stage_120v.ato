@@ -22,8 +22,8 @@
 
 from "parts.ato" import MainsTerminal2, PowerTerminalM4, PeBranchTerminal, MainsFuse25A, Tmov175, Cmc20A
 from "parts.ato" import CapX2_1u, CapY1_2n2, R100k1206, BridgeGbj2510, BusFilm2u7, LocalBus100n
-from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BDWK
-from "parts.ato" import R3R9Gate, R49k9Dt, R10k0603, R100k0603, R100R0603
+from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BDWK, Driver2EDR8259X
+from "parts.ato" import R3R9Gate, R8R2Gate, R49k9Dt, R10k0603, R100k0603, R100R0603
 from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, ResB32654
 from "parts.ato" import C100n0805, C1u0805
 from "parts.ato" import CST3015_200E, Irm20_15, TcoLoopHeader, BranchFuseT3A15, BranchLimiter0R15, MainsTapHeader
@@ -62,7 +62,7 @@ module BridgeLeg:
     signal out_l
     signal permit_gate
 
-    driver = new UCC21550BDWK
+    driver = new Driver2EDR8259X   # stage 29 (DECISIONS 31): 2EDR8259X, CMTI >= 150 V/ns
     driver.VCCI_1 ~ v3v3
     driver.VCCI_2 ~ v3v3
     driver.GNDI ~ selv_gnd
@@ -154,8 +154,8 @@ module BridgeLeg:
 
     # Gate networks: series 3.9 ohm, 10 k gate-source hold-off.
     driver.OUTA ~ out_h
-    r_gh = new R3R9Gate
-    r_gh.value = 3.9ohm
+    r_gh = new R8R2Gate
+    r_gh.value = 8.2ohm   # stage 29: 8.2 ohm with the 2EDR8259X
     r_gh.p1 ~ out_h
     r_gh.p2 ~ gate_h
     r_gh_pd = new R10k0603
@@ -163,8 +163,8 @@ module BridgeLeg:
     r_gh_pd.p1 ~ gate_h
     r_gh_pd.p2 ~ sw
     driver.OUTB ~ out_l
-    r_gl = new R3R9Gate
-    r_gl.value = 3.9ohm
+    r_gl = new R8R2Gate
+    r_gl.value = 8.2ohm
     r_gl.p1 ~ out_l
     r_gl.p2 ~ gate_l
     r_gl_pd = new R10k0603

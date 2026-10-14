@@ -104,7 +104,7 @@ separately. Do not silently reuse a native-20 timing certificate.
 
 | Crossing | Part | Insulation | Clearance / creepage | CMTI |
 | --- | --- | --- | --- | --- |
-| Gate drivers (existing) | UCC21550BDWKR | reinforced | per FOOTPRINTS.md F8 | per UCC21550 datasheet |
+| Gate drivers (stage 29) | 2EDR8259XXUMA1 | reinforced (IEC 60747-17) | FOOTPRINTS.md F8 pads (DWK outline) | Infineon datasheet Rev 1.7 Table 24 |
 | Bus sense (existing) | AMC1311BDWVR | reinforced | existing D5 evidence | — |
 | OCP fault (existing) | ISO7710DWR (U9) | reinforced (VDE) | 8 mm CLR/CPG (DW, SLLSER9E p.8); TI HV land pattern 8.1 mm across the barrier | 85 kV/µs min (p.11) |
 | **Rail monitors LS/HS-A/HS-B (new)** | **ISO7710DWR (U32–U34)** | reinforced (VDE) | 8 mm CLR/CPG (DW, SLLSER9E p.8) with the same `SOIC16W_DW0016B_HV` 8.1 mm pattern | 85 kV/µs min, plus 10 µs SELV filter |

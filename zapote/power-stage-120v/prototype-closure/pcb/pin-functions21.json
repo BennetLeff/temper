@@ -1,9 +1,9 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "passive-two-terminal": 208,
-  "native19-reviewed": 114,
-  "passive-untyped": 14,
+  "passive-two-terminal": 212,
+  "native19-reviewed": 108,
+  "passive-untyped": 16,
   "eco-pin-table": 14
  },
  "components": {
@@ -173,9 +173,9 @@
    }
   },
   "R10": {
-   "mpn": "RC1206FR-073R9L",
+   "mpn": "RS-06L8R20FT",
    "source_instance": "leg_a.r_gh",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -188,9 +188,9 @@
    }
   },
   "R12": {
-   "mpn": "RC1206FR-073R9L",
+   "mpn": "RS-06L8R20FT",
    "source_instance": "leg_a.r_gl",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -263,9 +263,9 @@
    }
   },
   "R18": {
-   "mpn": "RC1206FR-073R9L",
+   "mpn": "RS-06L8R20FT",
    "source_instance": "leg_b.r_gh",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -278,9 +278,9 @@
    }
   },
   "R20": {
-   "mpn": "RC1206FR-073R9L",
+   "mpn": "RS-06L8R20FT",
    "source_instance": "leg_b.r_gl",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -723,128 +723,128 @@
    }
   },
   "U1": {
-   "mpn": "UCC21550BDWKR",
+   "mpn": "2EDR8259XXUMA1",
    "source_instance": "leg_a.driver",
-   "basis": "native19-reviewed",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "INA",
-     "type": "input"
+     "function": "p1",
+     "type": "passive"
     },
     "2": {
-     "function": "INB",
-     "type": "input"
+     "function": "p2",
+     "type": "passive"
     },
     "3": {
-     "function": "VCCI_1",
-     "type": "power_in"
+     "function": "p3",
+     "type": "passive"
     },
     "4": {
-     "function": "GNDI",
-     "type": "power_in"
+     "function": "p4",
+     "type": "passive"
     },
     "5": {
-     "function": "DIS",
-     "type": "input"
+     "function": "p5",
+     "type": "passive"
     },
     "6": {
-     "function": "DT",
+     "function": "p6",
      "type": "passive"
     },
     "7": {
-     "function": "NC_7",
+     "function": "p7",
      "type": "passive"
     },
     "8": {
-     "function": "VCCI_2",
-     "type": "power_in"
+     "function": "p8",
+     "type": "passive"
     },
     "9": {
-     "function": "VSSB",
-     "type": "power_in"
+     "function": "p9",
+     "type": "passive"
     },
     "10": {
-     "function": "OUTB",
-     "type": "output"
+     "function": "p10",
+     "type": "passive"
     },
     "11": {
-     "function": "VDDB",
-     "type": "power_in"
+     "function": "p11",
+     "type": "passive"
     },
     "14": {
-     "function": "VSSA",
-     "type": "power_in"
+     "function": "p14",
+     "type": "passive"
     },
     "15": {
-     "function": "OUTA",
-     "type": "output"
+     "function": "p15",
+     "type": "passive"
     },
     "16": {
-     "function": "VDDA",
-     "type": "power_in"
+     "function": "p16",
+     "type": "passive"
     }
    }
   },
   "U2": {
-   "mpn": "UCC21550BDWKR",
+   "mpn": "2EDR8259XXUMA1",
    "source_instance": "leg_b.driver",
-   "basis": "native19-reviewed",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "INA",
-     "type": "input"
+     "function": "p1",
+     "type": "passive"
     },
     "2": {
-     "function": "INB",
-     "type": "input"
+     "function": "p2",
+     "type": "passive"
     },
     "3": {
-     "function": "VCCI_1",
-     "type": "power_in"
+     "function": "p3",
+     "type": "passive"
     },
     "4": {
-     "function": "GNDI",
-     "type": "power_in"
+     "function": "p4",
+     "type": "passive"
     },
     "5": {
-     "function": "DIS",
-     "type": "input"
+     "function": "p5",
+     "type": "passive"
     },
     "6": {
-     "function": "DT",
+     "function": "p6",
      "type": "passive"
     },
     "7": {
-     "function": "NC_7",
+     "function": "p7",
      "type": "passive"
     },
     "8": {
-     "function": "VCCI_2",
-     "type": "power_in"
+     "function": "p8",
+     "type": "passive"
     },
     "9": {
-     "function": "VSSB",
-     "type": "power_in"
+     "function": "p9",
+     "type": "passive"
     },
     "10": {
-     "function": "OUTB",
-     "type": "output"
+     "function": "p10",
+     "type": "passive"
     },
     "11": {
-     "function": "VDDB",
-     "type": "power_in"
+     "function": "p11",
+     "type": "passive"
     },
     "14": {
-     "function": "VSSA",
-     "type": "power_in"
+     "function": "p14",
+     "type": "passive"
     },
     "15": {
-     "function": "OUTA",
-     "type": "output"
+     "function": "p15",
+     "type": "passive"
     },
     "16": {
-     "function": "VDDA",
-     "type": "power_in"
+     "function": "p16",
+     "type": "passive"
     }
    }
   },

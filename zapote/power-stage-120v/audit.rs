@@ -253,8 +253,9 @@ const SELV_NETS: &[&str] = &[
 
 /// Parts allowed to have pins in both domains, and which pins are SELV.
 const BARRIER_PARTS: &[(&str, &str, &[&str])] = &[
-    ("leg_a.driver", "UCC21550BDWKR", &["1", "2", "3", "4", "5", "6", "7", "8"]),
-    ("leg_b.driver", "UCC21550BDWKR", &["1", "2", "3", "4", "5", "6", "7", "8"]),
+    // stage 29 (DECISIONS 31): Infineon 2EDR8259X, same DWK pads; SELV side pins 1-8 as before
+    ("leg_a.driver", "2EDR8259XXUMA1", &["1", "2", "3", "4", "5", "6", "7", "8"]),
+    ("leg_b.driver", "2EDR8259XXUMA1", &["1", "2", "3", "4", "5", "6", "7", "8"]),
     ("u_vsense", "AMC1311BDWVR", &["5", "6", "7", "8"]),
     ("u_iso", "ISO7710DWR", &["9", "13", "14", "16"]),
     ("t_ct", "CST3015-200ED", &["3", "4"]),
@@ -301,6 +302,11 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_hb.ren_bot", "0603WAF2702T5E"),
     ("r_shunt", "CSS2H-2512R-1L00F"),   // stage 17: replaces WSK25121L000FEA (derating, DECISIONS 17)
     // DECISIONS.md 2026-10-03: dead-time resistors (native-18 onward).
+    // stage 29: 8.2 ohm gate resistors set the edge the 2EDR8259X's CMTI ratio (1.58) is computed at
+    ("leg_a.r_gh", "RS-06L8R20FT"),
+    ("leg_a.r_gl", "RS-06L8R20FT"),
+    ("leg_b.r_gh", "RS-06L8R20FT"),
+    ("leg_b.r_gl", "RS-06L8R20FT"),
     ("leg_a.r_dt", "RT0603BRD0749K9L"),
     ("leg_b.r_dt", "RT0603BRD0749K9L"),
     ("leg_a.q_high", "IPW65R018CFD7"),
@@ -583,13 +589,11 @@ fn min_reference_cathode_current_ua(bias_ohm: f64) -> f64 {
     (bias_current - ocp_offset_load - ocp_threshold_load - ovp_threshold_load) * 1e6
 }
 
-// Dead-time window (validation task 01, round 17, FINDINGS F7). The D2
-// switching grid passes the hot off-gate screen with ZVS for every nominal
-// and overcurrent case only for driver dead times in [391, 498] ns
-// (`grid-best-longdt`). TI SLUSE89C gives DT only at 20 and 50 kOhm; D-1/D-12
-// interpolate the min and max columns linearly and stack resistor tolerance
-// and TCR over -40..150 C (|dT| = 125 K). An estimate, not a TI guarantee.
-const DT_WINDOW_NS: (f64, f64) = (391.0, 498.0);
+// Dead-time window. Stage 29 (DECISIONS 31; 11-candidates/c25-driver/results/dtband): on the as-built F6
+// deck (-1.6 V off bias, PMEG discharge) with the 2EDR8259X and 8.2 ohm gates, 3095/3095 D2 runs pass every
+// screen for driver dead times 340-600 ns at 27/100/150 C and the weak / strong output corners. The former
+// [391, 498] ns window came from the pre-F6 unipolar deck (`grid-best-longdt`, FINDINGS F7).
+const DT_WINDOW_NS: (f64, f64) = (340.0, 600.0);
 const DT_RESISTORS: &[(&str, f64, f64, f64)] = &[
     // (MPN, kOhm, tolerance, TCR ppm/K) from the Yageo datasheets (out-D12/SOURCES.md)
     ("RC0603FR-0739KL", 39.0, 0.01, 100.0),
@@ -597,12 +601,40 @@ const DT_RESISTORS: &[(&str, f64, f64, f64)] = &[
     ("RT0603BRD0749K9L", 49.9, 0.001, 25.0),
 ];
 
-/// (min, max) estimated driver dead time in ns for a DT resistor (D-12 `estimate`).
+/// 2EDR8259 STP/DTC dead time (Infineon datasheet Rev 1.7 Table 19: kOhm, min / typ / max ns; the 100 k row is
+/// characterisation only) - c25-driver/scripts/dt_window.py.
+const DT_TABLE_2EDR: &[(f64, f64, f64, f64)] = &[(10.0, 85.0, 100.0, 115.0), (30.0, 255.0, 300.0, 345.0), (100.0, 800.0, 950.0, 1100.0)];
+
+fn dt_lin(r: f64, col: usize) -> f64 {
+    for w in DT_TABLE_2EDR.windows(2) {
+        let (a, b) = (w[0], w[1]);
+        let (ya, yb) = ([a.1, a.2, a.3][col], [b.1, b.2, b.3][col]);
+        if r >= a.0 && r <= b.0 {
+            return ya + (r - a.0) * (yb - ya) / (b.0 - a.0);
+        }
+    }
+    f64::NAN
+}
+
+fn dt_ratio(r: f64, col: usize) -> f64 {
+    for w in DT_TABLE_2EDR.windows(2) {
+        let (a, b) = (w[0], w[1]);
+        let (q0, q1) = ([a.1, a.2, a.3][col] / (10.0 * a.0), [b.1, b.2, b.3][col] / (10.0 * b.0));
+        if r >= a.0 && r <= b.0 {
+            return 10.0 * r * (q0 + (r - a.0) * (q1 - q0) / (b.0 - a.0));
+        }
+    }
+    f64::NAN
+}
+
+/// (min, max) estimated 2EDR8259 dead time in ns for a DT resistor: the min / max columns at the resistor's
+/// tolerance and TCR corners over -40..150 C (|dT| = 125 K), the envelope of linear and ratio interpolation.
+/// An estimate from the datasheet table, not an Infineon guarantee.
 fn dead_time_window_ns(r_kohm: f64, tol: f64, tcr_ppm: f64) -> (f64, f64) {
     let drift = tcr_ppm * 1e-6 * 125.0;
     let rmin = r_kohm * (1.0 - tol) * (1.0 - drift);
     let rmax = r_kohm * (1.0 + tol) * (1.0 + drift);
-    (167.0 + (rmin - 20.0) * (399.0 - 167.0) / 30.0, 203.0 + (rmax - 20.0) * (487.0 - 203.0) / 30.0)
+    (dt_lin(rmin, 0).min(dt_ratio(rmin, 0)), dt_lin(rmax, 2).max(dt_ratio(rmax, 2)))
 }
 
 fn audit(m: &Model) -> Vec<String> {
@@ -1730,11 +1762,12 @@ mod tests {
     }
 
     #[test]
-    fn dead_time_window_matches_d12() {
+    fn dead_time_window_matches_c25() {
+        // c25-driver/results/dt_window.json: 49.9 k 0.1 % 25 ppm -> 408.3-569.0 ns
         let (lo, hi) = dead_time_window_ns(49.9, 0.001, 25.0);
-        assert!((lo - 396.636).abs() < 0.01 && (hi - 488.003).abs() < 0.01, "{lo} {hi}");
+        assert!((lo - 408.3).abs() < 0.1 && (hi - 569.0).abs() < 0.1, "{lo} {hi}");
         let (lo, _) = dead_time_window_ns(39.0, 0.01, 100.0);
-        assert!((lo - 307.2).abs() < 0.1, "{lo}");
+        assert!(lo < DT_WINDOW_NS.0, "{lo}");
     }
 
     #[test]
@@ -1745,11 +1778,19 @@ mod tests {
     }
 
     #[test]
-    fn standard_tolerance_49k9_fails_window() {
-        // the +-1 % 49.9 kOhm part reaches 389.6 ns: below 391 ns (D-12)
+    fn standard_tolerance_49k9_inside_2edr_window() {
+        // stage 29: with the 2EDR8259X and the F6-deck window (340-600 ns) the +-1 % 49.9 kOhm part gives about
+        // 401-579 ns, inside; only the identity check still pins R9/R17 to the 0.1 % part
+        let (lo, hi) = dead_time_window_ns(49.9, 0.01, 100.0);
+        assert!(lo >= DT_WINDOW_NS.0 && hi <= DT_WINDOW_NS.1, "{lo} {hi}");
+    }
+
+    #[test]
+    fn enable_polarity_sibling_2edr8258x_fails() {
+        // 2EDR8258X has EN (active high, open = disabled), not DIS: the NAND drive would invert; it must fail
         let mut m = built();
-        m.resolved.insert("leg_b.r_dt".into(), "RC0603FR-0749K9L".into());
-        fails(&m, "leg_b.r_dt: RC0603FR-0749K9L gives estimated dead time");
+        m.set_part("leg_a.driver", "2EDR8258XXUMA1");
+        fails(&m, "barrier part leg_a.driver is Some(\"2EDR8258XXUMA1\")");
     }
 
     #[test]

@@ -68,26 +68,26 @@
   },
   {
    "ref": "U1",
-   "mpn": "UCC21550BDWKR",
+   "mpn": "2EDR8259XXUMA1",
    "land_gap_mm": 8.1,
    "board_pass": true,
    "package": {
     "clr": 8.0,
     "cpg": 8.0,
-    "src": "TI UCC21550 datasheet, DWK insulation table",
-    "rating": "reinforced"
+    "src": "Infineon 2EDR8259H/X datasheet Rev 1.7 Table 24 (PG-DSO-14, CPG/CLR 8 mm, CTI > 400, MG II)",
+    "rating": "reinforced (IEC 60747-17 cert 40055138)"
    }
   },
   {
    "ref": "U2",
-   "mpn": "UCC21550BDWKR",
+   "mpn": "2EDR8259XXUMA1",
    "land_gap_mm": 8.1,
    "board_pass": true,
    "package": {
     "clr": 8.0,
     "cpg": 8.0,
-    "src": "TI UCC21550 datasheet, DWK insulation table",
-    "rating": "reinforced"
+    "src": "Infineon 2EDR8259H/X datasheet Rev 1.7 Table 24 (PG-DSO-14, CPG/CLR 8 mm, CTI > 400, MG II)",
+    "rating": "reinforced (IEC 60747-17 cert 40055138)"
    }
   },
   {

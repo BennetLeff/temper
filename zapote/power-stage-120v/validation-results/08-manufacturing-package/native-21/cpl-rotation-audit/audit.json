@@ -1,11 +1,11 @@
 {
  "meta": {
   "lines_in_cpl": 350,
-  "lines_placed_by_jlc": 337,
-  "lines_excluded_not_placed": 13,
+  "lines_placed_by_jlc": 339,
+  "lines_excluded_not_placed": 11,
   "counts": {
    "OK": 276,
-   "NEEDS-PREVIEW": 51,
+   "NEEDS-PREVIEW": 53,
    "CORRECTED": 10
   },
   "controls": {
@@ -3535,21 +3535,21 @@
   {
    "designator": "R10",
    "footprint": "R_1206_3216Metric",
-   "lcsc": "C137280",
+   "lcsc": "C323355",
    "mount": "SMD",
    "kicad_rot": 90,
    "proposed_jlc_rot": 90,
    "class": "OK",
    "db_rule": "",
    "db_offset": "",
-   "easyeda_package": "R1206",
-   "easyeda_offset": "0/180",
-   "easyeda_rot": "90/270",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
    "db_rot": "",
-   "fit_method": "axis (non-polar)",
-   "fit_rms_mm": 0.033,
-   "pin1_evidence": "KiCad pad 1 at (-0.00,+1.46) mm = down of centre at board rotation 90; EasyEDA pad 1 left of centre at JLC rot 0",
-   "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-0.00,+1.46) mm = down of centre at board rotation 90",
+   "reason": "standard two-pad chip footprint, no JLC offset rule; EasyEDA footprint not available offline, JLC chip models are 0 deg = pads along X like KiCad"
   },
   {
    "designator": "R11",
@@ -3573,21 +3573,21 @@
   {
    "designator": "R12",
    "footprint": "R_1206_3216Metric",
-   "lcsc": "C137280",
+   "lcsc": "C323355",
    "mount": "SMD",
    "kicad_rot": 90,
    "proposed_jlc_rot": 90,
    "class": "OK",
    "db_rule": "",
    "db_offset": "",
-   "easyeda_package": "R1206",
-   "easyeda_offset": "0/180",
-   "easyeda_rot": "90/270",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
    "db_rot": "",
-   "fit_method": "axis (non-polar)",
-   "fit_rms_mm": 0.033,
-   "pin1_evidence": "KiCad pad 1 at (-0.00,+1.46) mm = down of centre at board rotation 90; EasyEDA pad 1 left of centre at JLC rot 0",
-   "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-0.00,+1.46) mm = down of centre at board rotation 90",
+   "reason": "standard two-pad chip footprint, no JLC offset rule; EasyEDA footprint not available offline, JLC chip models are 0 deg = pads along X like KiCad"
   },
   {
    "designator": "R13",
@@ -3668,21 +3668,21 @@
   {
    "designator": "R18",
    "footprint": "R_1206_3216Metric",
-   "lcsc": "C137280",
+   "lcsc": "C323355",
    "mount": "SMD",
    "kicad_rot": 90,
    "proposed_jlc_rot": 90,
    "class": "OK",
    "db_rule": "",
    "db_offset": "",
-   "easyeda_package": "R1206",
-   "easyeda_offset": "0/180",
-   "easyeda_rot": "90/270",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
    "db_rot": "",
-   "fit_method": "axis (non-polar)",
-   "fit_rms_mm": 0.033,
-   "pin1_evidence": "KiCad pad 1 at (-0.00,+1.46) mm = down of centre at board rotation 90; EasyEDA pad 1 left of centre at JLC rot 0",
-   "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-0.00,+1.46) mm = down of centre at board rotation 90",
+   "reason": "standard two-pad chip footprint, no JLC offset rule; EasyEDA footprint not available offline, JLC chip models are 0 deg = pads along X like KiCad"
   },
   {
    "designator": "R19",
@@ -3706,21 +3706,21 @@
   {
    "designator": "R20",
    "footprint": "R_1206_3216Metric",
-   "lcsc": "C137280",
+   "lcsc": "C323355",
    "mount": "SMD",
    "kicad_rot": 90,
    "proposed_jlc_rot": 90,
    "class": "OK",
    "db_rule": "",
    "db_offset": "",
-   "easyeda_package": "R1206",
-   "easyeda_offset": "0/180",
-   "easyeda_rot": "90/270",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
    "db_rot": "",
-   "fit_method": "axis (non-polar)",
-   "fit_rms_mm": 0.033,
-   "pin1_evidence": "KiCad pad 1 at (-0.00,+1.46) mm = down of centre at board rotation 90; EasyEDA pad 1 left of centre at JLC rot 0",
-   "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-0.00,+1.46) mm = down of centre at board rotation 90",
+   "reason": "standard two-pad chip footprint, no JLC offset rule; EasyEDA footprint not available offline, JLC chip models are 0 deg = pads along X like KiCad"
   },
   {
    "designator": "R21",
@@ -5794,6 +5794,44 @@
    "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
   },
   {
+   "designator": "U1",
+   "footprint": "SOIC16W_Isolated",
+   "lcsc": "C17455725",
+   "mount": "SMD",
+   "kicad_rot": 90,
+   "proposed_jlc_rot": 0,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "^SOIC- (via alias SOIC-16W_Isolated)",
+   "db_offset": 270,
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": 0,
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-4.45,+4.18) mm = down-left of centre at board rotation 90",
+   "reason": "only the JLC rotation DB speaks (rule '^SOIC- (via alias SOIC-16W_Isolated)' offset +270); no EasyEDA footprint for this LCSC number"
+  },
+  {
+   "designator": "U2",
+   "footprint": "SOIC16W_Isolated",
+   "lcsc": "C17455725",
+   "mount": "SMD",
+   "kicad_rot": 90,
+   "proposed_jlc_rot": 0,
+   "class": "NEEDS-PREVIEW",
+   "db_rule": "^SOIC- (via alias SOIC-16W_Isolated)",
+   "db_offset": 270,
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
+   "db_rot": 0,
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-4.45,+4.18) mm = down-left of centre at board rotation 90",
+   "reason": "only the JLC rotation DB speaks (rule '^SOIC- (via alias SOIC-16W_Isolated)' offset +270); no EasyEDA footprint for this LCSC number"
+  },
+  {
    "designator": "U3",
    "footprint": "SOT-23-5",
    "lcsc": "C96028",
@@ -6530,22 +6568,6 @@
    "mount": "THT",
    "lcsc": "",
    "kicad_rot": 0,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
-  },
-  {
-   "designator": "U1",
-   "footprint": "SOIC16W_Isolated",
-   "mount": "SMD",
-   "lcsc": "",
-   "kicad_rot": 90,
-   "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
-  },
-  {
-   "designator": "U2",
-   "footprint": "SOIC16W_Isolated",
-   "mount": "SMD",
-   "lcsc": "",
-   "kicad_rot": 90,
    "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
   },
   {

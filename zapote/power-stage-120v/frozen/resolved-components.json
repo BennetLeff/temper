@@ -1,11 +1,11 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "b1c0d3e90f907b5756b500041cec290d522d45da00ad27a89f942ef53acde295",
+    "build/default.csv": "97200c99911bcebd22e174a590eee0a1627e6c6b4b21fcbfd73c3af9a400de5f",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "fc960f956bd45183bedabad862355e0b29110ea54e802cfba0403ea83f557df1",
+    "build/default.net": "f3b930968940d0da711917aeb6fa80f69a3b9a3dba51c5b3cdd7f7f50c3a5a2a",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
-    "build/resolved-components.json": "1d33f91e24993d2e38d5bf1e5a2e60dc279efc654b016691f4a5d494b6d0e2ee"
+    "build/resolved-components.json": "dc9f36e1e165a018e5a8534383ad0ad6c403305467c58d62167804622c4d4925"
   },
   "components": [
     {
@@ -178,8 +178,8 @@
         "designator": "U1",
         "designator_prefix": "U",
         "footprint": "lib:SOIC16W_Isolated",
-        "manufacturer": "Texas Instruments",
-        "mpn": "UCC21550BDWKR"
+        "manufacturer": "Infineon",
+        "mpn": "2EDR8259XXUMA1"
       }
     },
     {
@@ -572,9 +572,9 @@
         "designator": "R10",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC1206FR-073R9L",
-        "value": "3.9ohm"
+        "manufacturer": "FH",
+        "mpn": "RS-06L8R20FT",
+        "value": "8.2ohm"
       }
     },
     {
@@ -594,9 +594,9 @@
         "designator": "R12",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC1206FR-073R9L",
-        "value": "3.9ohm"
+        "manufacturer": "FH",
+        "mpn": "RS-06L8R20FT",
+        "value": "8.2ohm"
       }
     },
     {
@@ -720,8 +720,8 @@
         "designator": "U2",
         "designator_prefix": "U",
         "footprint": "lib:SOIC16W_Isolated",
-        "manufacturer": "Texas Instruments",
-        "mpn": "UCC21550BDWKR"
+        "manufacturer": "Infineon",
+        "mpn": "2EDR8259XXUMA1"
       }
     },
     {
@@ -1114,9 +1114,9 @@
         "designator": "R18",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC1206FR-073R9L",
-        "value": "3.9ohm"
+        "manufacturer": "FH",
+        "mpn": "RS-06L8R20FT",
+        "value": "8.2ohm"
       }
     },
     {
@@ -1136,9 +1136,9 @@
         "designator": "R20",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "Yageo",
-        "mpn": "RC1206FR-073R9L",
-        "value": "3.9ohm"
+        "manufacturer": "FH",
+        "mpn": "RS-06L8R20FT",
+        "value": "8.2ohm"
       }
     },
     {
@@ -3771,8 +3771,8 @@
   "source_sha256": {
     "elec/src/f6_bias.ato": "ebe1ff0a3e74d40abfbb9d5f6bddfd9bae374286960e6f06cdf5f9e57fa84d8f",
     "elec/src/f6_parts.ato": "5374ab0a53c9ce5ccaf085ede34c74c820b63f77ea9f8110839ecd236ce58b96",
-    "elec/src/parts.ato": "5c3706c32450eb6c234b76ba20f05d0d4f07d52db51f3ca0b08c89bbd3449959",
-    "elec/src/power_stage_120v.ato": "0ad71b33f2b8b7b5e5ffa8b53a243fa14cf27f7f28bd6d78936207fd47e58e48",
+    "elec/src/parts.ato": "c2e606f8ad6875b1cb87a146e764f4af8d5a7400af19e1c8856ef211e31eb30e",
+    "elec/src/power_stage_120v.ato": "e5e1cec323312f784eae10148b71790b7b18f83ad38b2254a1aa370c9512cab9",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

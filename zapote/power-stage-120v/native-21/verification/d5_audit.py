@@ -31,6 +31,8 @@ FLOOR = rules21.BARRIER
 PKG = {
     "ISO7710DWR": {"clr": 8.0, "cpg": 8.0, "src": "TI SLLSER9E p.8 (DW-16)", "rating": "reinforced (VDE 0884-17)"},
     "UCC21550BDWKR": {"clr": 8.0, "cpg": 8.0, "src": "TI UCC21550 datasheet, DWK insulation table", "rating": "reinforced"},
+    # stage 29 (DECISIONS 31): 8.0 mm is the package value itself (= the 8.0 mm floor, not > 8); material group II (CTI > 400)
+    "2EDR8259XXUMA1": {"clr": 8.0, "cpg": 8.0, "src": "Infineon 2EDR8259H/X datasheet Rev 1.7 Table 24 (PG-DSO-14, CPG/CLR 8 mm, CTI > 400, MG II)", "rating": "reinforced (IEC 60747-17 cert 40055138)"},
     "AMC1311BDWVR": {"clr": 8.5, "cpg": 8.5, "src": "TI AMC1311 datasheet, DWV insulation table", "rating": "reinforced"},
     "VOL628A-3X001T": {"clr": 8.0, "cpg": 8.0, "src": "Vishay doc 82401 rev 1.9 p.4", "rating": "option 1 (VDE)"},
     "CST3015-100ED": {"clr": 8.0, "cpg": 8.0, "src": "Coilcraft CST3015 datasheet (≥8 mm spacing, 5 kVrms test)", "rating": "no CTI/PD certificate"},

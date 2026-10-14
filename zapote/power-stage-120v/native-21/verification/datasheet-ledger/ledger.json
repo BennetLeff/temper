@@ -1235,146 +1235,6 @@
    "finding": null,
    "notes": null
   },
-  "UCC21550BDWKR": {
-   "mpn": "UCC21550BDWKR",
-   "designators": [
-    "U1",
-    "U2"
-   ],
-   "class": "SAFETY",
-   "function": "Isolated dual gate drivers U1/U2 (HS/LS per leg), reinforced barrier",
-   "status": "PARTIAL",
-   "datasheet": {
-    "url": "https://www.ti.com/lit/ds/symlink/ucc21550.pdf",
-    "revision": "TI SLUSE89C May 2023, revised Aug 2024",
-    "fetched": "repo copy",
-    "repo_copy": "validation-results/01-switching-parasitics/round5/bench-plan/sources/ti-ucc21550-revc.pdf",
-    "note": null,
-    "sha256_prefix16": null
-   },
-   "ratings": [
-    {
-     "parameter": "VDD abs max",
-     "datasheet_limit": 30,
-     "unit": "V",
-     "basis": "VDDA/B to VSS",
-     "source": "5.1 Absolute Maximum Ratings"
-    },
-    {
-     "parameter": "VIORM",
-     "datasheet_limit": 2121,
-     "unit": "V",
-     "basis": "VDE 0884-17 reinforced, DW package",
-     "source": "6.x Insulation specifications"
-    },
-    {
-     "parameter": "VIOWM",
-     "datasheet_limit": 1500,
-     "unit": "Vrms",
-     "basis": "TDDB",
-     "source": "Insulation specifications"
-    },
-    {
-     "parameter": "CMTI min",
-     "datasheet_limit": 125,
-     "unit": "V/ns",
-     "basis": "Table 5.9",
-     "source": "validation-results/06-controller-interface/cmti/README.md:18"
-    },
-    {
-     "parameter": "Tj max",
-     "datasheet_limit": 150,
-     "unit": "C",
-     "basis": "operating",
-     "source": "5.1"
-    }
-   ],
-   "stresses": [
-    {
-     "parameter": "VDD",
-     "worst_case_value": 16.91,
-     "unit": "V",
-     "condition": "RECOM module output 2.5 V x (1 + 63.4/11)",
-     "evidence": "DECISIONS.md:442-444"
-    },
-    {
-     "parameter": "Barrier peak",
-     "worst_case_value": 451,
-     "unit": "V",
-     "condition": "bus worst stacked corner (barrier is HOT-to-HOT functional here)",
-     "evidence": "validation-results/11-candidates/r2-cost/PROPOSALS.md:89"
-    },
-    {
-     "parameter": "CMTI edge",
-     "worst_case_value": 95,
-     "unit": "V/ns",
-     "condition": "modelled hard edge, rule: CMTI >= 1.5x",
-     "evidence": "validation-results/06-controller-interface/cmti/README.md:8"
-    },
-    {
-     "parameter": "Tj converged",
-     "worst_case_value": 79,
-     "unit": "C",
-     "condition": "28 A, 29.4 A tank, h25",
-     "evidence": "DECISIONS.md:826"
-    }
-   ],
-   "derating_rule": "VDD <= 80% abs max; barrier peak <= 50% VIORM; CMTI >= 1.5x modelled edge; Tj <= 125 C.",
-   "checks": [
-    {
-     "id": "VDD",
-     "rating": "VDD abs max",
-     "stress": "VDD",
-     "max_ratio": 0.8,
-     "severity": "violation",
-     "rule": "<= 24 V",
-     "ratio": 0.5637
-    },
-    {
-     "id": "barrier",
-     "rating": "VIORM",
-     "stress": "Barrier peak",
-     "max_ratio": 0.5,
-     "severity": "violation",
-     "rule": "<= 50%",
-     "ratio": 0.2126
-    },
-    {
-     "id": "CMTI",
-     "rating": "CMTI min",
-     "stress": "CMTI edge",
-     "max_ratio": 0.6666666666666666,
-     "severity": "gap",
-     "rule": "CMTI >= 1.5x edge (RESOLUTION-PLAN F6): 1.32x",
-     "ratio": 0.76
-    },
-    {
-     "id": "Tj",
-     "rating": "Tj max",
-     "stress": "Tj converged",
-     "max_ratio": 0.83,
-     "severity": "violation",
-     "rule": "Tj <= 125 C (83% of 150)",
-     "ratio": 0.5267
-    }
-   ],
-   "layout_guidance": [
-    {
-     "item": "100 nF + >= 1 uF within 2 mm of VDD/VSS (straddle stack)",
-     "enforced_by": "UNCHECKED (hand placed per DECISIONS.md:189; bypass_check.py does not list U1/U2)"
-    },
-    {
-     "item": "barrier creepage >= 8 mm DW footprint",
-     "enforced_by": "native-21/layout/barrier_gate21.py"
-    }
-   ],
-   "gaps": [
-    "CMTI 125 V/ns min vs modelled 95 V/ns hard edge is 1.32x, short of the 1.5x rule (DECISIONS.md:845 F6 FAIL); bench measures S4/S5 dv/dt, above 83 V/ns raise turn-on R.",
-    "Zero distributor stock until 2027-06 (DECISIONS.md:846 F13)."
-   ],
-   "finding": null,
-   "notes": null
-  },
   "CC0603KRX7R9BB104": {
    "mpn": "CC0603KRX7R9BB104",
    "designators": [
@@ -1785,29 +1645,6 @@
    ],
    "class": "SIGNAL",
    "function": "10 k 0603",
-   "status": "UNAUDITED",
-   "datasheet": null,
-   "ratings": [],
-   "stresses": [],
-   "derating_rule": "",
-   "checks": [],
-   "layout_guidance": [],
-   "gaps": [
-    "Not audited (outside SAFETY/POWER)."
-   ],
-   "finding": null,
-   "notes": null
-  },
-  "RC1206FR-073R9L": {
-   "mpn": "RC1206FR-073R9L",
-   "designators": [
-    "R10",
-    "R12",
-    "R18",
-    "R20"
-   ],
-   "class": "SIGNAL",
-   "function": "3.9 R gate resistors R10/R12/R18/R20 (gate loop, Tj 107 C vs 155 C class, unverified)",
    "status": "UNAUDITED",
    "datasheet": null,
    "ratings": [],
@@ -4884,6 +4721,139 @@
     "The pulse chart was read by eye (+-25 %)."
    ],
    "notes": "Stocked: LCSC C1382388 (245 at 2026-10-13)."
+  },
+  "2EDR8259XXUMA1": {
+   "mpn": "2EDR8259XXUMA1",
+   "designators": [
+    "U1",
+    "U2"
+   ],
+   "class": "SAFETY",
+   "function": "Isolated dual gate driver, leg A / leg B (stage 29, DECISIONS 31; Infineon 2EDR8259X, PG-DSO-14 on the DWK pads)",
+   "status": "PARTIAL",
+   "datasheet": {
+    "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-eicedriver-2edr8259h-2edrx259x-2edrx258x-datasheet-en.pdf",
+    "revision": "Infineon EiceDRIVER 2EDR8259H/2EDRx259X/2EDRx258X datasheet Rev 1.7 (2026-04-09)",
+    "fetched": "2026-10-13",
+    "repo_copy": null,
+    "note": "Lead read Table 23 (static CMTI >= 150 V/ns at VCM 1500 V, characterisation) and Table 24 (CIO 2 pF); the c25 study read Tables 9/11/15/19/24."
+   },
+   "ratings": [
+    {
+     "parameter": "VDD operating max",
+     "datasheet_limit": 21,
+     "unit": "V",
+     "basis": "recommended operating VDDA/VDDB",
+     "source": "Tables 9/11 (c25 README:102)"
+    },
+    {
+     "parameter": "VIORM",
+     "datasheet_limit": 1767,
+     "unit": "V",
+     "basis": "reinforced, IEC 60747-17 cert 40055138 (peak)",
+     "source": "Table 24"
+    },
+    {
+     "parameter": "CMTI min",
+     "datasheet_limit": 150,
+     "unit": "V/ns",
+     "basis": "static |CM_H|, |CM_L| at VCM 1500 V, characterisation (not production tested)",
+     "source": "Table 23 p.17"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "VDD at the span OV trip",
+     "worst_case_value": 17.84,
+     "unit": "V",
+     "condition": "rails 17.0 V; the span monitor trips DIS at 17.84 V",
+     "evidence": "validation-results/11-candidates/c25-driver/README.md:102"
+    },
+    {
+     "parameter": "Barrier peak",
+     "worst_case_value": 451,
+     "unit": "V",
+     "condition": "bus worst stacked corner (HOT-to-HOT functional here) (peak)",
+     "evidence": "validation-results/11-candidates/r2-cost/PROPOSALS.md:89"
+    },
+    {
+     "parameter": "CMTI edge",
+     "worst_case_value": 95,
+     "unit": "V/ns",
+     "condition": "modelled hard edge with 8.2 ohm gates (0.99x the as-built edge), rule CMTI >= 1.5x",
+     "evidence": "validation-results/11-candidates/c25-driver/README.md:129"
+    }
+   ],
+   "derating_rule": "VDD <= recommended operating max; barrier <= 50 % VIORM; CMTI >= 1.5x the hard edge (RESOLUTION-PLAN F6).",
+   "checks": [
+    {
+     "id": "VDD",
+     "rating": "VDD operating max",
+     "stress": "VDD at the span OV trip",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "<= 21 V operating",
+     "ratio": 0.8495
+    },
+    {
+     "id": "barrier",
+     "rating": "VIORM",
+     "stress": "Barrier peak",
+     "max_ratio": 0.5,
+     "severity": "violation",
+     "rule": "<= 50 %",
+     "ratio": 0.2552
+    },
+    {
+     "id": "CMTI",
+     "rating": "CMTI min",
+     "stress": "CMTI edge",
+     "max_ratio": 0.6666666666666666,
+     "severity": "violation",
+     "rule": "CMTI >= 1.5x edge: 1.58x",
+     "ratio": 0.6333
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "100 nF + >= 1 uF within 2 mm of VDD/VSS (straddle stack)",
+     "enforced_by": "UNCHECKED (hand placed per DECISIONS.md:189; bypass_check.py does not list U1/U2)"
+    },
+    {
+     "item": "barrier creepage >= 8 mm DW footprint",
+     "enforced_by": "native-21/layout/barrier_gate21.py"
+    }
+   ],
+   "gaps": [
+    "CMTI is a characterisation figure (not production tested); the 1.5x rule needs the bench S4/S5 dv/dt <= 100 V/ns.",
+    "No DIS-to-output delay is specified (the protection budget assumed TI's 80 ns); no channel-to-channel voltage rating (X: 3.3 mm creepage).",
+    "DIS has an internal pull-down (open = enabled): R73 / R76 alone hold an open DIS disabled.",
+    "Single source (Infineon), 39-week lead time; VDD start-up overshoot < 21 V and driver / Rg temperature are bench items."
+   ],
+   "notes": "Replaces UCC21550BDWKR (stage 29): CMTI 1.32x -> 1.58x; no distributor stock gap (Digi-Key 1,043; LCSC C17455725)."
+  },
+  "RS-06L8R20FT": {
+   "mpn": "RS-06L8R20FT",
+   "designators": [
+    "R10",
+    "R12",
+    "R18",
+    "R20"
+   ],
+   "class": "SIGNAL",
+   "function": "Gate resistors R10/R12/R18/R20, 8.2 ohm (stage 29: keeps the 2EDR8259X edge at 0.99x the as-built one)",
+   "status": "UNAUDITED",
+   "datasheet": null,
+   "ratings": [],
+   "stresses": [],
+   "derating_rule": "",
+   "checks": [],
+   "layout_guidance": [],
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "finding": null,
+   "notes": null
   }
  }
 }

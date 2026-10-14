@@ -267,6 +267,45 @@ component UCC21550BDWK:
     signal OUTA ~ pin 15
     signal VDDA ~ pin 16
 
+component Driver2EDR8259X:
+    """Infineon EiceDRIVER 2EDR8259XXUMA1, reinforced isolated dual gate driver, PG-DSO-14 (the DWK outline: positions
+    12/13 absent, so its pins 12/13/14 GNDA/OUTA/VDDA sit on footprint pads 14/15/16). Stage 29 (DECISIONS 31; candidate
+    25): replaces UCC21550BDWKR (no stock until 2027-06; CMTI 125 V/ns = 1.32x the modelled 95 V/ns edge). CMTI >= 150 V/ns
+    static; VIORM 1767 Vpk; 5 A / 9 A; VDD 8.5-21 V (abs max 22 V; rails 17.0 V); VDDI UVLO on <= 2.95 V; VINH <= 2.36 V.
+    STP/DTC pin: tdt = 10 x R[kohm] (Table 19 spread +-15 %). DIS is active high with an internal PULL-DOWN (open =
+    enabled), the opposite of the UCC21550's pull-up: R73 / R76 (10 k to V3V3) alone hold an open DIS disabled.
+    Infineon 2EDR8259H/X datasheet Rev 1.7 (2026-04-09); 11-candidates/c25-driver."""
+    designator_prefix = "U"
+    footprint = "lib:SOIC16W_Isolated"
+    mpn = "2EDR8259XXUMA1"
+    manufacturer = "Infineon"
+    signal INA ~ pin 1
+    signal INB ~ pin 2
+    signal VCCI_1 ~ pin 3
+    signal GNDI ~ pin 4
+    signal DIS ~ pin 5
+    signal DT ~ pin 6
+    signal NC_7 ~ pin 7
+    signal VCCI_2 ~ pin 8
+    signal VSSB ~ pin 9
+    signal OUTB ~ pin 10
+    signal VDDB ~ pin 11
+    signal VSSA ~ pin 14
+    signal OUTA ~ pin 15
+    signal VDDA ~ pin 16
+
+component R8R2Gate:
+    """FH RS-06L8R20FT 8.2 ohm 1 % 1206 (LCSC C323355). Stage 29 (DECISIONS 31): the 2EDR8259X's stronger output stage
+    (0.95 / 0.39 ohm) with 8.2 ohm restores the as-built edge (0.99x, 144/144 F6 cases; c25-driver), keeping the dv/dt
+    that the CMTI ratio is computed at."""
+    designator_prefix = "R"
+    mpn = "RS-06L8R20FT"
+    manufacturer = "FH"
+    footprint = "Resistor_SMD:R_1206_3216Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component BootDiode:
     """Vishay UF4007-E3/54 1000 V 1 A ultrafast, bootstrap."""
     designator_prefix = "D"

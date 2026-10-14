@@ -1033,3 +1033,29 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - Costs: parts +$0.34 at 500 ($221.82 → $222.16). One more line and placement (R130). JLC Extended lines +2. Zero-stock +1: the UMT-H is stocked at Digi-Key (7,183), not at LCSC/JLC.
       - Lines without an LCSC code −1.
     - **Bench:** a short at J11 with R130 fitted (record i(t), integrate I²t; R130 intact or open, never shorted). F2 / R130 temperature at the PS3 load.
+31. **Stage 29: U1 / U2 become the Infineon 2EDR8259X with 8.2 Ω gates (2026-10-14; board `3ae1ddb47c8c4c4e7c26c663ce54248c8797651e0066dc3bf516225403cba128`, copper.json `88e296e6…` unchanged from stage 28, schematic `bbcab1c6…`, frozen netlist `f3b930968940d0da711917aeb6fa80f69a3b9a3dba51c5b3cdd7f7f50c3a5a2a`, Gerber ZIP `20ae8c0bf7b1c54397574e873baf3e98c361fd52897c79fcd40bbad8257646e7`; tag `native21s29`; F6, candidate 25, `11-candidates/c25-driver/`; SAFETY: gate drive).**
+    - **Why:** the UCC21550BDWKR's 125 V/ns CMTI was 1.32× the modelled 95 V/ns hard edge, against the 1.5× rule (F6). It also had no distributor stock until 2027-06.
+    - **Change:**
+      - **U1 / U2 → 2EDR8259XXUMA1:** PG-DSO-14 in the DWK outline, so its pins 12/13/14 sit on footprint pads 14/15/16 and the signals keep their pads. Static CMTI ≥ 150 V/ns at 1500 V (Table 23, by characterisation). Reinforced, VIORM 1767 Vpk. VDD 8.5–21 V against the 17.0 V rails, with the span OV trip at 17.84 V. 2EDR8259HXUMA1 is the same-pad second source.
+      - **R10 / R12 / R18 / R20 → 8.2 Ω** (FH RS-06L8R20FT). With the stronger output stage, 3.9 Ω failed 5 of 144 F6 cases at 595 V. 8.2 Ω passes 144/144, with the edge at 0.99× the as-built one.
+      - **R9 / R17 stay 49.9 kΩ.** The 2EDR's ±15 % dead-time spread gives an estimated 408–569 ns. The audit window moves from [391, 498] (the pre-F6 unipolar deck) to [340, 600]: on the as-built F6 deck, 3095 / 3095 D2 runs pass over 340–600 ns at 27/100/150 °C and at the weak / strong corners (`c25-driver/results/dtband`).
+      - **DIS polarity:** active high on both, but the 2EDR pulls DIS down internally (open = enabled), where the UCC21550 pulled it up. The NAND drive and R73 / R76 (10 k to V3V3) keep the truth table, and R73 / R76 now alone hold an open DIS disabled.
+    - **Evidence:**
+      - The atopile rebuild changes only the six MPNs; connectivity is identical.
+      - audit.rs PASS, 80/80: new BARRIER_PARTS MPN, Rg identity checks, the 2EDR dead-time model (Table 19 interpolation as `dt_window.py`), and a negative control for the EN-polarity sibling 2EDR8258X.
+      - verify_source asserts the new parts.
+      - cmti_table.py regenerated. U1 / U2 1.316 FAIL → 1.579 PASS. The script had been stale since stage 20 (CST3015_100E), and its CT note now reads the turns from the MPN (200).
+      - D5 audit: 2EDR package CPG/CLR 8.0 mm, material group II. D5-BASIS re-cited.
+      - Chain on the unchanged copper: every gate clean, task 04 and B3 cache hits (374 s), CPL 350 / 350.
+      - Ledger gate PASS (2EDR PARTIAL: the CMTI is a characterisation figure, and no DIS-to-output delay is specified).
+    - **Scorecard: ACCEPT against 19c and 28.**
+      - Better: `cmti_gate_ratio_min` 1.316 → 1.579 (F6 closed on the datasheet minimum).
+      - Cheaper / simpler: zero-stock lines 10 → 9, hand / consign 22 → 21, no-LCSC-code 7 → 6.
+      - Costs: parts +$0.52 at 500 (Digi-Key prices on the old part's channel), +1 Extended line.
+    - **Bench:**
+      1. S4/S5 dv/dt ≤ 100 V/ns for the 1.5× claim.
+      2. Gate dead time cold / hot (expect 408–569 ns).
+      3. DIS-to-output delay.
+      4. Open-NAND fault with and without R73.
+      5. 17 V start-up overshoot < 21 V.
+      6. Driver and Rg temperature.

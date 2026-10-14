@@ -37,6 +37,18 @@ DV_SRC = ("ALT-BIAS.md R10 (08-manufacturing-package/native-21/sourcing/alt-circ
           "01-switching-parasitics/FINDINGS.md F2/F11 (S4 hard turn-on, S5 burst-start edge)")
 
 URL_UCC = "https://www.ti.com/lit/ds/symlink/ucc21550.pdf"
+URL_2EDR = "https://www.infineon.com/assets/row/public/documents/24/49/infineon-eicedriver-2edr8259h-2edrx259x-2edrx258x-datasheet-en.pdf"
+# Stage 29 (DECISIONS 31): the legs carry the Infineon 2EDR8259X. Table 23: static |CM_H| = |CM_L| >= 150 V/ns at VCM = 1500 V
+# (specified by characterisation, not production tested); CIO 2 pF (Table 24). 8.2 ohm gates keep the as-built edge (c25-driver).
+DRIVER_DATA = {
+    "2EDR8259XXUMA1": dict(cmti=150.0, cio=2.0, url=URL_2EDR,
+                           dyn="|CM_static,H| = |CM_static,L| >= 150 V/ns, VCM = 1500 V (characterisation, not production tested)",
+                           cite="Infineon 2EDR8259H/2EDRx259X datasheet Rev 1.7 (2026-04-09) Table 23 p.17 (static CMTI min 150 V/ns, "
+                                "VCM 1500 V); Table 24 CIO 2 pF; 8.2 ohm gate resistors hold the as-built edge (11-candidates/c25-driver)"),
+    "UCC21550BDWKR": dict(cmti=125.0, cio=1.2, url=URL_UCC,
+                          dyn="|CMH|=|CML|=125 V/ns min, VCM=1500 V (single figure; no separate static/dynamic)",
+                          cite="UCC21550 SLUSE89C (Aug 2024) p.10 Table 5.9 Switching Characteristics rows |CMH| and |CML| (min 125 V/ns, VCM = 1500 V); p.1 Features/Description; CIO ~1.2 pF p.7 Table 5.6"),
+}
 URL_ISO = "https://www.ti.com/lit/ds/symlink/iso7710.pdf"
 URL_AMC = "https://www.ti.com/lit/ds/symlink/amc1311.pdf"
 URL_VOL = "https://www.vishay.com/docs/82401/vol628a.pdf"
@@ -71,14 +83,14 @@ def schematic_facts():
     n_highbias = n("HighBias")
     facts = {
         "bridge_legs": n("BridgeLeg"),
-        "drivers_in_leg": len(re.findall(r"=\s*new\s+UCC21550BDWK\b", top)),
+        "drivers_in_leg": len(re.findall(r"driver\s*=\s*new\s+(?:UCC21550BDWK|Driver2EDR8259X)\b", top)),
         "iso7710_rail_monitors": n("RailMonitor") + n_highbias * 0,   # RailMonitor sites (see below)
         "highbias": n_highbias,
         "iso7710_bus_fault": len(re.findall(r"u_iso\s*=\s*new\s+Iso7710", top)),
         "iso7710_in_railmonitor": len(re.findall(r"=\s*new\s+Iso7710", bias)),
         "amc1311": n("Amc1311"),
         "line_opto": len(re.findall(r"=\s*new\s+LineOpto\b", bias)),
-        "ct": n("CST3015_100E"),
+        "ct": n("CST3015_200E") + n("CST3015_100E"),   # stage 20: the 1:200 CT
         "ps1": n("Irm20_15"),
         "ps2": n("HotSupply24"),
         "bias_opto_unused": n("BiasOpto"),
@@ -94,11 +106,13 @@ def schematic_facts():
     facts["ct_C"] = parse_value(top, "c_ct_burden", um)
     facts["filt_buf_mpn"] = re.search(r'component Hot5SchmittBuffer:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["amc_mpn"] = re.search(r'component Amc1311:.*?mpn = "([^"]+)"', parts, re.S).group(1)
-    facts["ucc_mpn"] = re.search(r'component UCC21550BDWK:.*?mpn = "([^"]+)"', parts, re.S).group(1)
+    # the driver actually instantiated in the leg (stage 29: Driver2EDR8259X), and its MPN
+    drv_comp = re.search(r"driver\s*=\s*new\s+(\w+)", top).group(1)
+    facts["ucc_mpn"] = re.search(rf'component {drv_comp}:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["iso_mpn"] = re.search(r'component Iso7710:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["mod_mpn"] = re.search(r'component IsoBiasModule:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["opto_mpn"] = re.search(r'component LineOpto:.*?mpn = "([^"]+)"', parts, re.S).group(1)
-    facts["ct_mpn"] = re.search(r'component CST3015_100E:.*?mpn = "([^"]+)"', parts, re.S).group(1)
+    facts["ct_mpn"] = re.search(r'component CST3015_[0-9]+E:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     # Completeness scan: any MPN in the source that looks like an isolator / isolated supply
     # must be one of the rows below (guards against a crossing being added without a row).
     watch = re.compile(r"ISO\d|UCC2|AMC\d|VOL?6|CST\d|IRM-|R24C|ADuM|Si8\d|TLP|PC817|HCPL|ACPL|SN6507|MGJ|UCC14", re.I)
@@ -132,10 +146,10 @@ def build_rows(f):
     for ref, leg, node in (("U1", "A", "SW_A"), ("U2", "B", "SW_B")):
         row(ref=ref, mpn=f["ucc_mpn"], role=f"Gate driver, leg {leg} (INA/INB/DIS -> OUTA/OUTB)", cls="GATE",
             node=f"{node} (channel A VSS rides the switch node; channel B on N_LS/LEG_RET)",
-            cmti_static=125.0, cmti_dyn="|CMH|=|CML|=125 V/ns min, VCM=1500 V (single figure; no separate static/dynamic)",
-            cio_pf=1.2,
-            cite="UCC21550 SLUSE89C (Aug 2024) p.10 Table 5.9 Switching Characteristics rows |CMH| and |CML| (min 125 V/ns, VCM = 1500 V); p.1 Features/Description; CIO ~1.2 pF p.7 Table 5.6",
-            url=URL_UCC,
+            cmti_static=DRIVER_DATA[f["ucc_mpn"]]["cmti"], cmti_dyn=DRIVER_DATA[f["ucc_mpn"]]["dyn"],
+            cio_pf=DRIVER_DATA[f["ucc_mpn"]]["cio"],
+            cite=DRIVER_DATA[f["ucc_mpn"]]["cite"],
+            url=DRIVER_DATA[f["ucc_mpn"]]["url"],
             effect="FALSE GATE COMMAND: a barrier upset on INA/INB is downstream of the dead-time logic, so it can turn on a "
                    "FET (the DT interlock sits on the input side; this reasoning is mine, not a datasheet claim). DIS upset: "
                    "outputs forced low (off), the safe direction.")
@@ -299,11 +313,12 @@ def main():
     for r in rows:
         if r["i_inj_hard_mA"] is not None and r["ref"] != "CTRL":
             print(f"  {r['ref']:4s} Cio {r['cio_pf']:g} pF -> {r['i_inj_hard_mA']:.0f} mA peak, {r['q_inj_nC']:.2f} nC")
-    i_sec = 64.55 / 100.0                       # A; OCP trip-band minimum / 100 turns
+    n_ct = int(re.search(r"CST3015-(\d+)E", f["ct_mpn"]).group(1))   # stage 20: 1:200 (CST3015-200ED)
+    i_sec = 64.55 / n_ct                        # A; OCP trip-band minimum / CT turns
     v_trip = i_sec * f["ct_R"]
     q_per_pf = 1e-12 * V_SW_PEAK                # C per pF of Cww for a full 520 V swing
     dv_per_pf = q_per_pf / f["ct_C"]
-    print(f"CST3015: OCP trip-band min 64.55 A (power_stage_120v.ato comment) / 100 turns = {i_sec*1e3:.0f} mA x burden "
+    print(f"CST3015: OCP trip-band min 64.55 A (power_stage_120v.ato comment) / {n_ct} turns = {i_sec*1e3:.0f} mA x burden "
           f"{f['ct_R']:g} ohm = {v_trip:.3f} V trip level; burden C {f['ct_C']*1e9:g} nF, burden RC = {f['ct_R']*f['ct_C']*1e9:.0f} ns "
           f"(>> {V_SW_PEAK/DVDT_HARD:.1f} ns edge, so the edge is charge-dominated)")
     print(f"  each pF of unspecified Cww moves the burden node by {dv_per_pf*1e3:.2f} mV (Q = Cww x {V_SW_PEAK:g} V into the burden C); "

@@ -91,7 +91,7 @@ Required on the controller side (not on this board):
 HOT reference is `LEG_RET`, the leg side of the 1 mΩ shunt; layout must star it at shunt pad 2.
 Only these parts may cross HOT↔SELV, and the audit enforces each pin's side:
 
-- UCC21550 (U1, U2)
+- Infineon 2EDR8259X (U1, U2; UCC21550 until stage 28, DECISIONS 31)
 - AMC1311 (U4)
 - ISO7710 (U9)
 - CST3015 (T1)
@@ -115,7 +115,7 @@ tank peak is not a sufficient basis for selecting creepage bands. See
 | Tank over-current / pan fault | CT (T1) → on-board comparators U10/U11, ORed with the bus fault in U13 → bus_fault → controller interlock latch |
 | Heatsink or glass over-temperature | Off-board Microtemp cutoffs in the J3 loop open the IRM-05-15 input: gate drive and HOT 5 V drop; BUS_FAULT defaults high if controller 3.3 V remains valid. No electronics or firmware involved |
 | Controller hang / reset | Interlock-board watchdog; PERMIT floating = disabled |
-| Gate-supply loss | UCC21550 UVLO holds outputs low; 10 kΩ gate-source hold-off |
+| Gate-supply loss | 2EDR8259X UVLO and active output clamp hold outputs low; 10 kΩ gate-source hold-off |
 | Line surge | TMOV20RP175E (175 Vrms, 455 V clamp) ahead of 650 V MOSFETs |
 
 ## Open before fabrication and powered qualification

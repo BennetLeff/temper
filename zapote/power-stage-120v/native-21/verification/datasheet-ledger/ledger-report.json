@@ -382,6 +382,54 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
+  "2EDR8259XXUMA1": {
+   "checks": [
+    {
+     "id": "VDD",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "VDD operating max",
+     "ratio": 0.8495,
+     "severity": "violation",
+     "stress": "VDD at the span OV trip"
+    },
+    {
+     "id": "barrier",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIORM",
+     "ratio": 0.2552,
+     "severity": "violation",
+     "stress": "Barrier peak"
+    },
+    {
+     "id": "CMTI",
+     "max_ratio": 0.6666666666666666,
+     "ok": true,
+     "rating": "CMTI min",
+     "ratio": 0.6333,
+     "severity": "violation",
+     "stress": "CMTI edge"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "U1",
+    "U2"
+   ],
+   "finding": null,
+   "function": "Isolated dual gate driver, leg A / leg B (stage 29, DECISIONS 31; Infineon 2EDR8259X, PG-DSO-14 on the DWK pads)",
+   "gaps": [
+    "CMTI is a characterisation figure (not production tested); the 1.5x rule needs the bench S4/S5 dv/dt <= 100 V/ns.",
+    "No DIS-to-output delay is specified (the protection budget assumed TI's 80 ns); no channel-to-channel voltage rating (X: 3.3 mm creepage).",
+    "DIS has an internal pull-down (open = enabled): R73 / R76 alone hold an open DIS disabled.",
+    "Single source (Infineon), 39-week lead time; VDD start-up overshoot < 21 V and driver / Rg temperature are bench items."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "100 nF + >= 1 uF within 2 mm of VDD/VSS (straddle stack)"
+   ]
+  },
   "30KPA150CA": {
    "checks": [
     {
@@ -1754,23 +1802,6 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
-  "RC1206FR-073R9L": {
-   "checks": [],
-   "class": "SIGNAL",
-   "designators": [
-    "R10",
-    "R12",
-    "R18",
-    "R20"
-   ],
-   "finding": null,
-   "function": "3.9 R gate resistors R10/R12/R18/R20 (gate loop, Tj 107 C vs 155 C class, unverified)",
-   "gaps": [
-    "Not audited (outside SAFETY/POWER)."
-   ],
-   "status": "UNAUDITED",
-   "unchecked_layout": []
-  },
   "RC1206FR-073RL": {
    "checks": [],
    "class": "SIGNAL",
@@ -1837,6 +1868,23 @@
    ],
    "finding": null,
    "function": "0.68 R 1206 rail reservoir resistors",
+   "gaps": [
+    "Not audited (outside SAFETY/POWER)."
+   ],
+   "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "RS-06L8R20FT": {
+   "checks": [],
+   "class": "SIGNAL",
+   "designators": [
+    "R10",
+    "R12",
+    "R18",
+    "R20"
+   ],
+   "finding": null,
+   "function": "Gate resistors R10/R12/R18/R20, 8.2 ohm (stage 29: keeps the 2EDR8259X edge at 0.99x the as-built one)",
    "gaps": [
     "Not audited (outside SAFETY/POWER)."
    ],
@@ -2317,61 +2365,6 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
-  "UCC21550BDWKR": {
-   "checks": [
-    {
-     "id": "VDD",
-     "max_ratio": 0.8,
-     "ok": true,
-     "rating": "VDD abs max",
-     "ratio": 0.5637,
-     "severity": "violation",
-     "stress": "VDD"
-    },
-    {
-     "id": "barrier",
-     "max_ratio": 0.5,
-     "ok": true,
-     "rating": "VIORM",
-     "ratio": 0.2126,
-     "severity": "violation",
-     "stress": "Barrier peak"
-    },
-    {
-     "id": "CMTI",
-     "max_ratio": 0.6666666666666666,
-     "ok": false,
-     "rating": "CMTI min",
-     "ratio": 0.76,
-     "severity": "gap",
-     "stress": "CMTI edge"
-    },
-    {
-     "id": "Tj",
-     "max_ratio": 0.83,
-     "ok": true,
-     "rating": "Tj max",
-     "ratio": 0.5267,
-     "severity": "violation",
-     "stress": "Tj converged"
-    }
-   ],
-   "class": "SAFETY",
-   "designators": [
-    "U1",
-    "U2"
-   ],
-   "finding": null,
-   "function": "Isolated dual gate drivers U1/U2 (HS/LS per leg), reinforced barrier",
-   "gaps": [
-    "CMTI 125 V/ns min vs modelled 95 V/ns hard edge is 1.32x, short of the 1.5x rule (DECISIONS.md:845 F6 FAIL); bench measures S4/S5 dv/dt, above 83 V/ns raise turn-on R.",
-    "Zero distributor stock until 2027-06 (DECISIONS.md:846 F13)."
-   ],
-   "status": "PARTIAL",
-   "unchecked_layout": [
-    "100 nF + >= 1 uF within 2 mm of VDD/VSS (straddle stack)"
-   ]
-  },
   "UMK325AB7106KM-T": {
    "checks": [],
    "class": "SIGNAL",
@@ -2444,6 +2437,7 @@
  "partial": [
   "1206W4F1003T5E",
   "1714971",
+  "2EDR8259XXUMA1",
   "30KPA150CA",
   "74650074",
   "AC05000001507JAC00",
@@ -2468,7 +2462,6 @@
   "RC1206FR-07220KL",
   "RC1206FR-07470KL",
   "TMOV20RP175E",
-  "UCC21550BDWKR",
   "VOL628A-2X001T"
  ],
  "result": "PASS",
@@ -2512,9 +2505,9 @@
   "PMEG6030EP,115",
   "RC1206FR-0716K5L",
   "RC1206FR-072K2L",
-  "RC1206FR-073R9L",
   "RC1206FR-073RL",
   "RL1206FR-070R68L",
+  "RS-06L8R20FT",
   "RT0603BRD07105KL",
   "RT0603BRD0710KL",
   "RT0603BRD0711KL",

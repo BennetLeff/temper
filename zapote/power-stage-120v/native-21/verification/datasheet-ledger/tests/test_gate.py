@@ -54,8 +54,8 @@ def main():
     expect("real ledger: no VIOLATION; F2 3403.0279.23 not PARTIAL, R130 AC05 PARTIAL",
            rep and rep["violations"] == [] and "3403.0279.23" not in rep["partial"] and "AC05000001507JAC00" in rep["partial"])
     expect("real ledger: no BOM MPN missing", rep and rep["missing_from_ledger"] == [])
-    expect("real ledger: UCC21550 and IPW65R018CFD7 are PARTIAL",
-           rep and {"UCC21550BDWKR", "IPW65R018CFD7"} <= set(rep["partial"]))
+    expect("real ledger: 2EDR8259X and IPW65R018CFD7 are PARTIAL",
+           rep and {"2EDR8259XXUMA1", "IPW65R018CFD7"} <= set(rep["partial"]))
     expect("real ledger: report names every violation in failures",
            rep and all(any(v in f for f in rep["failures"]) for v in rep["violations"]))
 

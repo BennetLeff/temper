@@ -59,7 +59,9 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 # stage 27 (DECISIONS 29): J1 Phoenix MKDS 5/2-9,5, UL group B 30 A (c27-j1-terminal; LCSC 75 / JLC 164 on 2026-10-13)
                 "1714971": "C92145",
                 # stage 28 (DECISIONS 30): F2 UMT-H 1.5 kA (zero LCSC/JLC stock: consign from DigiKey) and the 0.15 ohm limiter R130
-                "3403.0279.23": "C3163739", "AC05000001507JAC00": "C1382388"})
+                "3403.0279.23": "C3163739", "AC05000001507JAC00": "C1382388",
+                # stage 29 (DECISIONS 31): Infineon 2EDR8259X drivers and the 8.2 ohm gate resistors (c25-driver, 2026-10-13/14)
+                "2EDR8259XXUMA1": "C17455725", "RS-06L8R20FT": "C323355"})
 ACCEPT_ALT = {"GRM31A5C3A102JW01D"}
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))
