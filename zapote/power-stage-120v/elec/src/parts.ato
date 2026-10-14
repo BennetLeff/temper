@@ -3,18 +3,21 @@
 # Each distinct MPN is its own component type: Atopile 0.2.69 can alias
 # unlike MPNs that share a footprint, and the Rust audit checks every
 # reference's MPN in the built BOM.
-# Footprints named temper:*_ReviewOnly do not exist yet and must be drawn
-# from the manufacturer drawing before native board work.
+# Footprints named temper:*_ReviewOnly are drawn from the manufacturer drawing; the suffix is a
+# legacy name kept so library references do not change (FOOTPRINTS.md; checks recorded in
+# 13-external-review-2026-10-13/FINDINGS.md #8).
 
 # ---------------------------------------------------------------- mains entry
 
 component MainsTerminal2:
-    """Phoenix MKDS 3/2-5,08, L/N only. IEC 24 A; applicable UL use-group
-    rating must be checked. PE uses a separate chassis branch terminal."""
+    """Phoenix MKDS 5/2-9,5 (1714971), L/N only. UL/cUL use group B 300 V 30 A, CSA 300 V 30 A
+    (UL file E60425), IEC 32 A; 9.52 mm pitch, 14-10 AWG. Stage 27 (DECISIONS 29): the former
+    MKDS 3/2-5,08 (1711725) is only 15 A cULus / 10 A CSA against the 13.5-15 A input.
+    PE uses a separate chassis branch terminal."""
     designator_prefix = "J"
-    mpn = "1711725"
+    mpn = "1714971"
     manufacturer = "Phoenix Contact"
-    footprint = "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal"
+    footprint = "temper:Phoenix_MKDS-5-2-9.52_1714971"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 

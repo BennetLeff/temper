@@ -28,10 +28,15 @@ python3 native-21/layout/plan_board_only21.py "$PASS/copper-dump.json" | grep -E
 python3 $G/zone_priority_gate.py native-21/layout/copper.json   # stage 17b: no fill-order-dependent pours
 mkdir -p "$B"
 # ---- build, then settle: trim KiCad-reported dangling tracks / vias and rebuild the board only
-for k in 1 2 3 4; do
+# Every trim is followed by a rebuild, so the gated board is always the build of the committed copper.json (stage 27: a
+# stub chain on leg_b-permit_gate needed four trims, and the old 4-pass loop gated the board built before the last one).
+k=0
+while :; do
+  k=$((k + 1))
   sh native-21/layout/incr_iter.sh native-21/layout/copper.json - "$B" > "$B.log" 2>&1
   N=$(python3 -c "import json;print(sum(v['type'] in ('track_dangling','via_dangling') for v in json.load(open('$B/drc.json'))['violations']))")
   [ "$N" = 0 ] && break
+  [ "$k" -ge 8 ] && { echo "settle: still $N dangling item(s) after $k builds" >&2; exit 1; }
   echo "settle $k: $N dangling item(s)"; python3 $G/trim_tails.py "$B/drc.json" native-21/layout/copper.json --write | sed 's/^/  /'
 done
 grep -E "^unconnected|thermal reliefs|labels|plane splits" "$B.log"; head -1 "$B/barrier.txt"

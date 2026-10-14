@@ -267,7 +267,7 @@ const BARRIER_PARTS: &[(&str, &str, &[&str])] = &[
 
 /// Safety-relevant part identities (path -> MPN).
 const IDENTITY: &[(&str, &str)] = &[
-    ("j_mains", "1711725"),
+    ("j_mains", "1714971"),   // stage 27: UL group B 30 A (DECISIONS 29)
     ("j_pe", "1704004"),
     ("j_coil", "74650074"),
     ("j_coil_return", "74650074"),

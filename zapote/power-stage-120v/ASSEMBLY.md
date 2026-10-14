@@ -8,7 +8,7 @@ spacing, insulation, heat, torque retention and powered tests have not run.
 
 | Function | PCB reference / source instance | Exact PCB part |
 | --- | --- | --- |
-| Mains L/N | J1 / `j_mains` | Phoenix 1711725, 5.08 mm two-position |
+| Mains L/N | J1 / `j_mains` | Phoenix 1714971 (MKDS 5/2-9,5), 9.52 mm two-position, UL/CSA group B 30 A; wire entry at the top (rear) edge (stage 27) |
 | Coil feed | J2 / `j_coil` | Würth 74650074 M4 REDCUBE THR |
 | Coil return | J5 / `j_coil_return` | Würth 74650074 M4 REDCUBE THR |
 | PE branch | J6 / `j_pe` | Phoenix KDS 3 / 1704004, one potential, two solder pins |

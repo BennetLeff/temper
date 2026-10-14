@@ -48,7 +48,7 @@ DIVIDER = {"native21s13": (12.4e3, 11.7e3), "native21s13b": (12.4e3, 11.7e3), "n
            "native21s15": (12.6e3, 11.7e3), "native21s15b": (12.6e3, 11.7e3),
            "native21s16": (12.6e3, 11.7e3), "native21s17": (12.6e3, 11.7e3),
            "native21s17b": (12.6e3, 11.7e3), "native21s18": (12.6e3, 11.7e3),
-           "native21s19": (12.6e3, 11.7e3), "native21s19b": (12.6e3, 11.7e3), "native21s19c": (12.6e3, 11.7e3), "native21s20": (12.6e3, 11.7e3), "native21s21": (12.6e3, 11.7e3), "native21s21b": (12.6e3, 11.7e3), "native21s22": (12.6e3, 11.7e3), "native21s26": (12.6e3, 11.7e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
+           "native21s19": (12.6e3, 11.7e3), "native21s19b": (12.6e3, 11.7e3), "native21s19c": (12.6e3, 11.7e3), "native21s20": (12.6e3, 11.7e3), "native21s21": (12.6e3, 11.7e3), "native21s21b": (12.6e3, 11.7e3), "native21s22": (12.6e3, 11.7e3), "native21s26": (12.6e3, 11.7e3), "native21s27": (12.6e3, 11.7e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
 PLATING_UM, PITCH, TEMP = 18.0, 0.1, 125.0
 
 
@@ -80,7 +80,8 @@ def main() -> None:
               "native21s21": "fac94215369b6c285472a98e4cc255def9739f19fe2cf43e3439f6884e2bcae3",
               "native21s21b": "c015804959add81e948055279cb78946e3a762ac9077c0b21bfbde3c89d0cb56",
               "native21s22": "cab63cec89dbd3e5111467373d461759e6a4bc49cc1a929f5d05964d65efaba6",
-              "native21s26": "d9eb6e9eef70577ef40b5c7ba54be91a5c217a1639b185f96ff6f56b190bbf24"}
+              "native21s26": "d9eb6e9eef70577ef40b5c7ba54be91a5c217a1639b185f96ff6f56b190bbf24",
+              "native21s27": "44644390f1ee41760407400ac4a620d97512e388c9902c625c50d84a37dfd124"}
     assert data["board_sha256"] == PINNED[tag], f"{export} is not the pinned {tag} board"
     net = kit.Net(pitch_mm=PITCH, temp_c=TEMP)
     shapes, vias, pads = defaultdict(list), {}, {}

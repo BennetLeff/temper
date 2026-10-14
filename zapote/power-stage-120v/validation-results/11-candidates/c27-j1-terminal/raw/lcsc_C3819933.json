@@ -1,0 +1,294 @@
+{
+ "code": 200,
+ "msg": null,
+ "result": {
+  "parentCatalogList": [
+   {
+    "catalogId": 10,
+    "catalogNameEn": "Connectors, Interconnects"
+   },
+   {
+    "catalogId": 174,
+    "catalogNameEn": "Terminal Blocks"
+   }
+  ],
+  "isCableCategory": true,
+  "productId": 4387607,
+  "productCode": "C3819933",
+  "productModel": "1868076",
+  "productNameEn": "TERM BLK 2POS 7.62mm",
+  "productKeyAttributes": "TERM BLK 2POS 7.62mm",
+  "parentCatalogId": 365,
+  "parentCatalogName": "Connectors",
+  "catalogId": 819,
+  "catalogName": "Wire to Board",
+  "brandId": 968,
+  "brandNameEn": "Phoenix Contact",
+  "encapStandard": "Through Hole,P=7.62mm",
+  "split": 1,
+  "productUnit": "Piece",
+  "minPacketUnit": "Box",
+  "minBuyNumber": 1,
+  "maxBuyNumber": -1,
+  "minPacketNumber": 50,
+  "isEnvironment": true,
+  "allHotLevel": null,
+  "isHot": false,
+  "isPreSale": false,
+  "isReel": false,
+  "reelPrice": 0,
+  "stockNumber": 7,
+  "stockSz": 7,
+  "domesticStockVO": {
+   "total": 7,
+   "shipImmediately": 7,
+   "ship3Days": 0
+  },
+  "overseasStockVO": {
+   "total": 7,
+   "shipImmediately": 7,
+   "ship3Days": 0
+  },
+  "productPriceList": [
+   {
+    "ladder": 1,
+    "productPrice": "1.5982",
+    "usdPrice": 1.5982,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 1.5982,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 10,
+    "productPrice": "1.3814",
+    "usdPrice": 1.3814,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 1.3814,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 50,
+    "productPrice": "1.2615",
+    "usdPrice": 1.2615,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 1.2615,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 100,
+    "productPrice": "1.1268",
+    "usdPrice": 1.1268,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 1.1268,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 500,
+    "productPrice": "1.0660",
+    "usdPrice": 1.066,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 1.066,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   },
+   {
+    "ladder": 1000,
+    "productPrice": "1.0397",
+    "usdPrice": 1.0397,
+    "cnyProductPriceList": null,
+    "discountRate": "1",
+    "currencyPrice": 1.0397,
+    "currencySymbol": "$",
+    "isForeignDiscount": null,
+    "ladderLevel": null
+   }
+  ],
+  "productImages": [],
+  "edaSvgInfo": {
+   "schSvg": "//image.easyeda.com/component_svgs/prod/1ad9484f35d34781b6eb1fbcb6d20e3e.svg?t=1748325475",
+   "pcbSvg": "//image.easyeda.com/component_svgs/prod/6dbc8c32e0bf4c2d9e3665b556e7831d.svg?t=1748325475"
+  },
+  "faqs": null,
+  "pdfUrl": "https://datasheet.lcsc.com/datasheet/pdf/45496b76f0179747f4779ae2772960c3.pdf?productCode=C3819933",
+  "authenticationList": [
+   "ROHS3 \u8ba4\u8bc1"
+  ],
+  "isRohsCert": true,
+  "rohsCertType": "ROHS3",
+  "rohsCertList": [
+   {
+    "fileCode": "wj1759600",
+    "fileName": "\u5168\u91cf\u901a\u7528_ROHS\u8ba4\u8bc1_Phoenix Contact(\u83f2\u5c3c\u514b\u65af).pdf",
+    "url": "https://datasheet.lcsc.com/certification/rohs/f1d7485240cbb7fdc173f54d0bb44e43.pdf"
+   }
+  ],
+  "productDescEn": "2 Position Wire to Board Terminal Block 7.62mm",
+  "productIntroEn": "2 Position Wire to Board Terminal Block 7.62mm",
+  "paramVOList": [
+   {
+    "paramCode": "param_13341_s",
+    "paramName": "\u5de5\u4f5c\u6e29\u5ea6",
+    "paramNameEn": "Operating Temperature",
+    "paramValue": "-",
+    "paramValueEn": "-",
+    "paramValueEnForSearch": null,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 40
+   },
+   {
+    "paramCode": "param_13335_n",
+    "paramName": "\u989d\u5b9a\u7535\u6d41",
+    "paramNameEn": "Current Rating",
+    "paramValue": "30A",
+    "paramValueEn": "30A",
+    "paramValueEnForSearch": 30.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 29
+   },
+   {
+    "paramCode": "param_15630",
+    "paramName": "\u7ed3\u6784",
+    "paramNameEn": "Number of Positions or Pins",
+    "paramValue": "1x2P",
+    "paramValueEn": "1x2P",
+    "paramValueEnForSearch": -1.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 1
+   },
+   {
+    "paramCode": "param_13336_n",
+    "paramName": "\u989d\u5b9a\u7535\u538b",
+    "paramNameEn": "Voltage Rating (Max)",
+    "paramValue": "300V",
+    "paramValueEn": "300V",
+    "paramValueEnForSearch": 300.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 32
+   },
+   {
+    "paramCode": "param_13408",
+    "paramName": "\u989c\u8272",
+    "paramNameEn": "Color",
+    "paramValue": "\u7eff\u8272",
+    "paramValueEn": "Green",
+    "paramValueEnForSearch": -1.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 19
+   },
+   {
+    "paramCode": "param_18213",
+    "paramName": "\u603bPIN\u6570",
+    "paramNameEn": "Number of Pins",
+    "paramValue": "2P",
+    "paramValueEn": "2P",
+    "paramValueEnForSearch": -1.0,
+    "isMain": false,
+    "sortNumber": 1,
+    "sort": 17
+   },
+   {
+    "paramCode": "param_13337",
+    "paramName": "\u7ebf\u89c4 - AWG",
+    "paramNameEn": "Wire Gauge - AWG",
+    "paramValue": "10~30",
+    "paramValueEn": "10~30",
+    "paramValueEnForSearch": -1.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 35
+   },
+   {
+    "paramCode": "param_13676_n",
+    "paramName": "\u6bcf\u6392PIN\u6570",
+    "paramNameEn": "Number of PINs Per Row",
+    "paramValue": "2",
+    "paramValueEn": "2",
+    "paramValueEnForSearch": 2.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 18
+   },
+   {
+    "paramCode": "param_13677_n",
+    "paramName": "\u6392\u6570",
+    "paramNameEn": "Number of Rows",
+    "paramValue": "1",
+    "paramValueEn": "1",
+    "paramValueEnForSearch": 1.0,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 14
+   },
+   {
+    "paramCode": "param_13333_n",
+    "paramName": "\u95f4\u8ddd",
+    "paramNameEn": "Pitch",
+    "paramValue": "7.62mm",
+    "paramValueEn": "7.62mm",
+    "paramValueEnForSearch": 7.62,
+    "isMain": true,
+    "sortNumber": 1,
+    "sort": 5
+   }
+  ],
+  "wmCatalogId": 819,
+  "wmCatalogNameEn": "Wire to Board",
+  "productArrange": "Box-packed",
+  "productWeight": 0.001,
+  "foreignWeight": null,
+  "isForeignOnsale": true,
+  "isForeignDisplay": true,
+  "isNotOverstock": false,
+  "productCycle": "normal",
+  "isHasBattery": false,
+  "pdfLinkUrl": null,
+  "isShowForeignPrice": true,
+  "isRealPrice": true,
+  "productLadderPrice": null,
+  "ladderDiscountRate": null,
+  "eccn": "EAR99",
+  "currencyType": "USD",
+  "currencySymbol": "$",
+  "title": "Phoenix Contact 1868076",
+  "weight": 1.0,
+  "hasThirdPartyStock": false,
+  "flashSaleProductPO": null,
+  "htsMap": {
+   "BR": "85369010",
+   "TARIC": "8536901000",
+   "IN": "85369010",
+   "CN": "8536901100",
+   "MX": "8536.90.11",
+   "CA": "8536900090",
+   "US": "8536908585"
+  },
+  "isAsianBrand": null,
+  "isMro": false,
+  "isInfringement": false,
+  "isSample": false,
+  "sampleNumber": null,
+  "alternatePartList": []
+ },
+ "ok": true,
+ "_url": "https://wmsc.lcsc.com/ftps/wm/product/detail?productCode=C3819933",
+ "_fetched_utc": "2026-10-14T02:48:37Z"
+}

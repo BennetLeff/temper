@@ -48,7 +48,8 @@ def main():
     rc, out, rep = run(LEDGER)
     expect("real ledger exits 1", rc == 1, out[-300:])
     expect("real ledger: no malformed entries", rep and not rep["errors"], str(rep and rep["errors"][:3]))
-    expect("real ledger: J1 1711725 is VIOLATION", rep and "1711725" in rep["violations"])
+    # stage 27: J1 is the MKDS 5/2-9,5 (UL group B 30 A); its ratings source keeps it PARTIAL
+    expect("real ledger: J1 1714971 is PARTIAL, not VIOLATION", rep and "1714971" in rep["partial"] and "1714971" not in rep["violations"])
     expect("real ledger: F2 3403.0171 is VIOLATION", rep and "3403.0171" in rep["violations"])
     expect("real ledger: no BOM MPN missing", rep and rep["missing_from_ledger"] == [])
     expect("real ledger: UCC21550 and IPW65R018CFD7 are PARTIAL",
@@ -82,13 +83,13 @@ def main():
     # 5. a lie: VERIFIED with a failing check, and with a tampered ratio
     with tempfile.TemporaryDirectory() as td:
         d = copy.deepcopy(base)
-        d["entries"]["1711725"]["status"] = "VERIFIED"
+        d["entries"]["3403.0171"]["status"] = "VERIFIED"
         rc, out, rep = run(write(td, d))
-        expect("J1 relabelled VERIFIED is rejected as inconsistent",
+        expect("F2 relabelled VERIFIED is rejected as inconsistent",
                rc == 1 and any("violation-severity" in e or "VERIFIED" in e for e in rep["errors"]))
     with tempfile.TemporaryDirectory() as td:
         d = copy.deepcopy(base)
-        d["entries"]["1711725"]["stresses"][0]["worst_case_value"] = 9.0  # hide the stress
+        d["entries"]["1714971"]["stresses"][0]["worst_case_value"] = 9.0  # hide the stress
         rc, out, rep = run(write(td, d))
         expect("tampered stress (stored ratio stale) is rejected", rc == 1 and any("stored ratio" in e for e in rep["errors"]))
     with tempfile.TemporaryDirectory() as td:

@@ -6,8 +6,8 @@
   (components
     (comp (ref "J1")
       (value "?")
-      (footprint "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal")
-      (libsource (lib "lib") (part "1711725") (description "elec/src/parts.ato:MainsTerminal2"))
+      (footprint "temper:Phoenix_MKDS-5-2-9.52_1714971")
+      (libsource (lib "lib") (part "1714971") (description "elec/src/parts.ato:MainsTerminal2"))
       (sheetpath (names "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_mains") (tstamps "4595cd4c-dd61-3b43-b534-fdcaaf1f040c"))
       (tstamps "4595cd4c-dd61-3b43-b534-fdcaaf1f040c"))
     (comp (ref "F1")
@@ -2099,7 +2099,7 @@
       (sheetpath (names "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.opto") (tstamps "a2827a30-c65d-19a7-d1bf-545a5ed3fa24"))
       (tstamps "a2827a30-c65d-19a7-d1bf-545a5ed3fa24")))
   (libparts
-    (libpart (lib "lib") (part "1711725")
+    (libpart (lib "lib") (part "1714971")
       (description "elec/src/parts.ato:MainsTerminal2")
       (docs "~")
       (footprints

@@ -66,11 +66,16 @@ SWB_CLIP = (34.0, 12.0, 42.0, 18.0)
 # pours are redrawn round its new pads: ac_l_in shrinks to x 257-283 (pads 262.08 / 272.88 and J1.1);
 # l_f's top block reaches x 243.5 (pads 231.12 / 241.92) and its strip under the ac_l_in clip starts at
 # y 12.3, 3.2 mm from the clip pads (pad edge y 9.10).
-MAINS_POURS = {("ac_l_in", "F.Cu"): [[257.0, 0.6], [257.0, 9.1], [283.0, 9.1], [283.0, 0.6]],
+MAINS_POURS = {("ac_l_in", "F.Cu"): [[251.35, 0.6], [251.35, 9.1], [271.0, 9.1], [271.0, 10.9], [279.4, 10.9], [279.4, 0.6]],
                ("l_f", "F.Cu"): [[229.5, 9.0], [229.5, 33.5], [236.8, 33.5], [236.8, 25.6], [240.0, 25.6],
-                                 [240.0, 15.1], [273.5, 15.1], [273.5, 26.5], [279.5, 26.5], [279.5, 12.3],
-                                 [240.0, 12.3], [240.0, 9.0], [243.5, 9.0], [243.5, 0.6], [223.5, 0.6],
-                                 [223.5, 9.0]]}
+                                 [240.0, 15.1], [265.0, 15.1], [265.0, 17.3], [273.5, 17.3], [273.5, 26.5],
+                                 [279.5, 26.5], [279.5, 14.1], [267.8, 14.1], [267.8, 12.3], [240.0, 12.3],
+                                 [240.0, 9.0], [237.85, 9.0], [237.85, 0.6], [223.5, 0.6], [223.5, 9.0]]}
+# Stage 27 (DECISIONS 29): F1 moves 5.65 mm left and J1 becomes the 9.52 mm MKDS 5 with pin 1 (ac_l_in) at (274.6, 9.2)
+# and pin 2 (ac_n_in) at (284.12, 9.2). ac_l_in follows F1 (x 251.35, the same 13.5 mm gap to l_f under the cartridge) and
+# takes a tab round J1.1 down to y 10.9, ending 3.2 mm short of J1.2. l_f's top block ends 0.38 mm past F1's moved pads;
+# beside J1 its strip and the RV1 column start at y 14.1 (3.2 mm from the tab) and the strip widens to y 17.3 there
+# (3.2 mm thick; RV1's surge path), starting at x 265.0, 3.4 mm from C1's ac_n_in pad.
 
 
 # Stage 13: resonant bank becomes 5 radial TDK B32654 (pins x 163.0 / 190.5, rows y 53.2-111.5). The B.Cu
@@ -86,6 +91,11 @@ SWB_BAND_TRIM = (150.0, 46.8, 188.0, 50.1)
 # U22/U23.1 now join permit_gate (re-joined by the pair passes). BIAS_BAD becomes BIAS_GOOD on the same three pins.
 REMOVE += [{"net": "leg_a-dis"}, {"net": "leg_b-dis"}]
 RENAME_NETS = {"bias_bad": "bias_good"}
+
+# Stage 27 (DECISIONS 29): R1 / R2 (the X-cap bleed pair) move 0.9 mm down with F1's clip courtyard; their bounded pad
+# escapes follow (the R1.1 l_f escape also reaches the moved pad's track end).
+MOVE_ESCAPES = {("R1", "2"): [223.637, 15.0, 228.363, 24.8], ("R2", "1"): [223.637, 15.0, 228.363, 24.8],
+                ("R1", "1"): [223.4, 8.0, 225.7, 17.0], ("R2", "2"): [226.3, 22.9, 229.9, 26.8]}
 
 STAGE21_DROP = {"J8 stud land", "J10 stud land"}   # with every rect_p / rect_n pour: the link studs are gone
 STAGE21_FEED = ((74.0, 0.6), (136.0, 0.6), (136.0, 29.0), (74.0, 29.0))   # BR1 window, overlaps both trunks
@@ -265,6 +275,7 @@ def add(g):
     add_stage18(g)
     add_stage19(g)
     add_stage19_si(g)
+    add_stage27(g)
     add_stage21b_kn(g)   # last: routes round every fixed patch
     resolve_zone_priorities(g["ZONES"])
 
@@ -400,6 +411,18 @@ def add_stage16(g):
                     ("blw_l", CU, box, 1.0, ["F2.2", "J11.1"]),
                     ("n_filt", CU, box, 1.0, ["PS1.2", "J11.2"])])
 
+
+
+def add_stage27(g):
+    """Stage 27 (DECISIONS 29): R1 / R2 moved 0.9 mm down with F1, so their base links (served by the moved pads) were
+    dropped and the pair router cannot fit them in the 3.2 mm mains corner. Re-laid on their base geometry: l_f drops
+    from F1's top block to R1.1, and R2.2's ac_n_in stub goes to the base via at (229.0, 25.0) and on B.Cu into the
+    ac_n_in pour (both inside the moved bounded pad escapes, MOVE_ESCAPES)."""
+    from patches21_v1 import put, drill
+    put(g, "l_f", "F.Cu", 0.4, [224.54, 8.6], "R1.1", escape="xbleed_mid")
+    drill(g, "ac_n_in", 229.0, 25.0, size=0.85)
+    put(g, "ac_n_in", "F.Cu", 0.4, "R2.2", [229.0, 25.0], escape="xbleed_mid")
+    put(g, "ac_n_in", "B.Cu", 0.6, [229.0, 25.0], [238.5, 25.0], [240.5, 26.8])
 
 
 def add_stage19(g):

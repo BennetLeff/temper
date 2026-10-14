@@ -531,7 +531,9 @@ def load(base_path, patches=True):
         g["VIAS"].append(v)
         GEO.add_via(v["net"], *v["at"], v["size"])
     rm_esc = set(getattr(patches21, "REMOVE_ESCAPES", ()))
-    g["ESCAPES"].extend(e for e in base.get("escapes", []) if (e["ref"], e["pad"]) not in rm_esc)
+    mv_esc = getattr(patches21, "MOVE_ESCAPES", {})   # (ref, pad) -> rect: a moved part's escape area follows it
+    g["ESCAPES"].extend({**e, "rect": mv_esc.get((e["ref"], e["pad"]), e["rect"])}
+                        for e in base.get("escapes", []) if (e["ref"], e["pad"]) not in rm_esc)
     if n_pad:
         print(f"{n_pad} base items dropped: they served a moved part's old pads or meet its new ones")
     # island rail pours (the -2 V banks and island planes) and the OCP Kelvin sense pours: later

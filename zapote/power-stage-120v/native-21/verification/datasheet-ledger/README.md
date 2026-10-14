@@ -26,14 +26,21 @@ referenced by `parameter`, same unit, numeric), `layout_guidance [{item, enforce
 or starts with `UNCHECKED`), `gaps`, and `finding` (required for VIOLATION). When a BOM line is added or an MPN changes, add
 the entry in the same commit or the gate fails.
 
-## Current findings (seed, 2026-10-13: 91 BOM lines, 1 VERIFIED / 24 PARTIAL / 64 UNAUDITED / 2 VIOLATION)
+## Current findings (after stage 27, 2026-10-13: 91 BOM lines, 1 VERIFIED / 28 PARTIAL / 62 UNAUDITED / 1 VIOLATION)
+History: seed 1 / 24 / 64 / 2. Stage 27 replaced J1 (VIOLATION -> PARTIAL); R1/R2 and the snubber caps were audited
+(UNAUDITED -> PARTIAL). `ledger.json` is the record from here on; `seed_ledger.py` reproduces only the first seed.
 **VIOLATION**
-- **J1 1711725**: 24 A is IEC only; cULus group B 15 A, CSA 10 A. Design: 13.5 A regulated (CSA 1.35x), 15 A trip (zero margin), 16.5 A envelope.
 - **F2 3403.0171**: 200 A IEC breaking capacity vs 373-3,567 A prospective fault at J11; F1 cannot back it (DECISIONS.md:843).
 
-**UNAUDITED SAFETY/POWER (gate fails until audited)**: R1/R2 1206W4F1003T5E (mains X-cap bleed); C12/C13/C19/C20 GRM31A5C3A102JW01D (1 kV snubbers).
+**UNAUDITED SAFETY/POWER**: none.
+
+**Resolved:** J1 1711725 (24 A IEC only; 15 A cULus / 10 A CSA) was replaced at stage 27 by 1714971, MKDS 5/2-9,5 (UL/cUL
+and CSA group B 30 A, 300 V): 45-55 % across 13.5-16.5 A, 83 % at F1's 25 A.
 
 **PARTIAL** (gap in one line)
+- J1 1714971: ratings from a 2017 Phoenix catalog extract (distributor copy); confirm on UL Product iQ (E60425) and CSA 13631.
+- R1/R2 1206W4F1003T5E: 44 % of continuous working voltage, 58 % of the 5 s overload in a surge (RV1 455 V clamp); no maker pulse rating.
+- C12/C13/C19/C20 GRM31A5C3A102JW01D: 490 V die VDS at 49 % of 1 kV (50 % rule, modelled); exact-MPN sheet and ripple/pulse rating not obtained.
 - F1 KLDR025: overload through J1 not interrupted (25 A fuse vs 15 A terminal); clip datasheet not read.
 - BR1 GBJ2510-F: I2t 510 < F1 clearing 1,710 (sacrificial, accepted); Tj not computed.
 - Q2/Q3/Q5/Q6: switching loss/dv/dt unmeasured; Tj 128.7 C vs 125 C design on K1 contingency sink; F7 open.

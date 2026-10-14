@@ -9,131 +9,6 @@
   "VIOLATION"
  ],
  "entries": {
-  "1711725": {
-   "mpn": "1711725",
-   "designators": [
-    "J1"
-   ],
-   "class": "SAFETY",
-   "function": "Mains inlet terminal (L/N), Phoenix MKDS 3/2-5,08",
-   "status": "VIOLATION",
-   "datasheet": {
-    "url": "https://docs.rs-online.com/7382/0900766b81380186.pdf",
-    "revision": "Phoenix Contact data sheet generated 2025-03-21 (10 pp), RS Components copy; Phoenix site not fetched",
-    "fetched": "2026-10-13",
-    "repo_copy": null,
-    "note": "Same copy as FINDINGS #4. The nominal 24 A is an IEC figure.",
-    "sha256_prefix16": "88008f659b038fc3"
-   },
-   "ratings": [
-    {
-     "parameter": "I_cont IEC",
-     "datasheet_limit": 24,
-     "unit": "A",
-     "basis": "IEC 60664-1, 400 V (III/2) nominal current",
-     "source": "p.1 Technical data, 'Nominal current IN 24 A'"
-    },
-    {
-     "parameter": "I_cont cULus group B",
-     "datasheet_limit": 15,
-     "unit": "A",
-     "basis": "cULus Recognized E60425, use group B, 300 V, screw connection",
-     "source": "p.8 Approvals"
-    },
-    {
-     "parameter": "I_cont cULus group D",
-     "datasheet_limit": 10,
-     "unit": "A",
-     "basis": "cULus Recognized E60425, use group D, 300 V",
-     "source": "p.8 Approvals"
-    },
-    {
-     "parameter": "I_cont CSA group B",
-     "datasheet_limit": 10,
-     "unit": "A",
-     "basis": "CSA 13631, use group B and D, 300 V",
-     "source": "p.8 Approvals"
-    }
-   ],
-   "stresses": [
-    {
-     "parameter": "I inlet regulated",
-     "worst_case_value": 13.5,
-     "unit": "A",
-     "condition": "fullbridge_adapter regulates reported inlet current at inlet_target_a <= 13.5 A",
-     "evidence": "DECISIONS.md:182"
-    },
-    {
-     "parameter": "I inlet trip",
-     "worst_case_value": 15,
-     "unit": "A",
-     "condition": "adapter trip; owner cap: total RMS mains current <= 15 A",
-     "evidence": "DECISIONS.md:168-182"
-    },
-    {
-     "parameter": "I inlet envelope",
-     "worst_case_value": 16.5,
-     "unit": "A",
-     "condition": "earlier recorded RMS input envelope (superseded by the 15 A cap but still the L/N copper and J1 envelope in the notes)",
-     "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/F1-J3-PARTS.md:56"
-    }
-   ],
-   "derating_rule": "North-American (NEMA 5-15) product: continuous current <= 100% of the lowest applicable UL/CSA approval rating of the terminal; the IEC 24 A is not the basis. Anything above the cULus/CSA group-B rating needs an end-product temperature-rise test.",
-   "checks": [
-    {
-     "id": "cULus-B at regulated",
-     "rating": "I_cont cULus group B",
-     "stress": "I inlet regulated",
-     "max_ratio": 1.0,
-     "severity": "violation",
-     "rule": "<= 100% of cULus B",
-     "ratio": 0.9
-    },
-    {
-     "id": "cULus-B at trip",
-     "rating": "I_cont cULus group B",
-     "stress": "I inlet trip",
-     "max_ratio": 1.0,
-     "severity": "violation",
-     "rule": "<= 100% of cULus B (zero margin at the trip)",
-     "ratio": 1.0
-    },
-    {
-     "id": "CSA-B at regulated",
-     "rating": "I_cont CSA group B",
-     "stress": "I inlet regulated",
-     "max_ratio": 1.0,
-     "severity": "violation",
-     "rule": "<= 100% of CSA 13631 group B",
-     "ratio": 1.35
-    },
-    {
-     "id": "cULus-B at 16.5 A envelope",
-     "rating": "I_cont cULus group B",
-     "stress": "I inlet envelope",
-     "max_ratio": 1.0,
-     "severity": "gap",
-     "rule": "<= 100%; envelope superseded by the 15 A cap",
-     "ratio": 1.1
-    }
-   ],
-   "layout_guidance": [
-    {
-     "item": "creepage/clearance of J1 L/N pads (line voltage)",
-     "enforced_by": "native-21/verification/d5_audit.py (D5 audit)"
-    },
-    {
-     "item": "copper at J1 pins carries 13.5-15 A",
-     "enforced_by": "DECISIONS.md:841 (task-04 DC run at 15 A)"
-    }
-   ],
-   "gaps": [
-    "Lab has not ruled whether cULus covers Canada (CSA 13631 10 A is then the binding figure).",
-    "No line-current hardware sensing: the 15 A limit is a firmware estimate with unqualified error (FINDINGS #11)."
-   ],
-   "finding": "J1 is rated 24 A only on the IEC basis. On the North-American approval basis it is 15 A cULus use group B (10 A group D) and 10 A CSA. The design carries 13.5 A regulated (1.35x the CSA 10 A, 90% of cULus), 15 A at the trip (100%, no margin) and a 16.5 A recorded envelope (110%). parts.ato and the F1 note still cite the IEC 24 A (FINDINGS #4). Fix: record 15 A, then a >= 20 A UL group-B terminal at the next re-spin or an end-product temperature-rise test at 13.5-15 A and maximum ambient.",
-   "notes": null
-  },
   "KLDR025.TXP": {
    "mpn": "KLDR025.TXP",
    "designators": [
@@ -423,18 +298,149 @@
    ],
    "class": "SAFETY",
    "function": "X-capacitor bleed R1/R2 (two 100 k in series across the mains)",
-   "status": "UNAUDITED",
-   "datasheet": null,
-   "ratings": [],
-   "stresses": [],
-   "derating_rule": "",
-   "checks": [],
-   "layout_guidance": [],
+   "status": "PARTIAL",
+   "datasheet": {
+    "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
+    "revision": "UniOhm (Uniroyal Electronics Global) Thick Film Chip Resistors Data Sheet V.3, Feb.12 2019, series sheet 01005-2512 (not part specific); linked from the LCSC C17900 page",
+    "fetched": "2026-10-13",
+    "repo_copy": null,
+    "note": "Part code decoded from p.2 ordering table: 1206 / W4 = 1/4 W / F = 1 % / 1003 = 100 k. Local copy kept outside the repo.",
+    "sha256_prefix16": "11cd644d5d8a34a6"
+   },
+   "ratings": [
+    {
+     "parameter": "Max working voltage (1206 table)",
+     "datasheet_limit": 200,
+     "unit": "V",
+     "basis": "DC or sine RMS continuous, lower of table max and RCWV",
+     "source": "p.5 sec.7 Ratings (1206 row)"
+    },
+    {
+     "parameter": "RCWV at 100 kOhm",
+     "datasheet_limit": 158.1,
+     "unit": "V",
+     "basis": "RCWV = sqrt(P x R) = sqrt(0.25 W x 100 k); the table max is a cap on this, so this is the governing continuous voltage",
+     "source": "p.5 voltage rating formula"
+    },
+    {
+     "parameter": "Max overload voltage",
+     "datasheet_limit": 395.3,
+     "unit": "V",
+     "basis": "min(2.5 x RCWV = 395.3 V, table 400 V); 5 s test, dR <= 1 %+0.05 ohm; not an impulse rating",
+     "source": "p.5 sec.7 and voltage rating text; p.7 short-time overload row"
+    },
+    {
+     "parameter": "Rated power at 85 C ambient",
+     "datasheet_limit": 205.9,
+     "unit": "mW",
+     "basis": "250 mW at 70 C, derated linearly to 0 at 155 C (read from the p.5 Figure 1 graph, 0201-2512 line)",
+     "source": "p.4 sec.6 (1/4 W at 70 C), p.5 sec.9 Figure 1"
+    },
+    {
+     "parameter": "X-cap discharge time limit (requirement, not a datasheet limit)",
+     "datasheet_limit": 1.0,
+     "unit": "s",
+     "basis": "repo criterion: 198 V crest to below 34 V within 1 s at the plug pins; the clause of the standard behind it is not re-read here",
+     "source": "DECISIONS.md:345; validation-results/08-manufacturing-package/native-21/bom-simplification/calc_discharge.py:2-3"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "Per-resistor working voltage",
+     "worst_case_value": 69.85,
+     "unit": "V",
+     "condition": "139.7 Vrms line high corner (127 V + 10 %) across the 2 x 100 k pair, equal split (peak 98.8 V). F1 is upstream, R1.1 on l_f, R2.2 on ac_n_in, midpoint xbleed_mid",
+     "evidence": "DECISIONS.md:306; native-21/verification/datasheet-ledger/scripts/audit_bleed_snubber.py:10-12"
+    },
+    {
+     "parameter": "Per-resistor power",
+     "worst_case_value": 49.3,
+     "unit": "mW",
+     "condition": "69.85 V rms across 99 kOhm (R -1 %), 60 Hz continuous",
+     "evidence": "native-21/verification/datasheet-ledger/scripts/audit_bleed_snubber.py:13"
+    },
+    {
+     "parameter": "Per-resistor surge voltage",
+     "worst_case_value": 227.5,
+     "unit": "V",
+     "condition": "pair voltage limited by RV1 (TMOV20RP175E, Vc 455 V at 100 A), half per resistor; the 1-2 kV combination wave drives 245-750 A through RV1, where Vc is higher than 455 V and is not in the repo",
+     "evidence": "elec/src/parts.ato:85; validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:100; native-21/verification/datasheet-ledger/scripts/audit_bleed_snubber.py:20"
+    },
+    {
+     "parameter": "X-cap discharge time 198 V to 34 V",
+     "worst_case_value": 0.854,
+     "unit": "s",
+     "condition": "C1+C2 = 2 uF at +20 %, R +1 %, 2 x 100 k only (IRM-20 inputs and ZC string ignored, they only help)",
+     "evidence": "DECISIONS.md:345; native-21/verification/datasheet-ledger/scripts/audit_bleed_snubber.py:23"
+    }
+   ],
+   "derating_rule": "Working voltage <= 100 % of RCWV (158.1 V, itself below the 200 V table maximum); continuous power <= 50 % of the rating derated to the local temperature (85 C assumed); surge voltage per resistor <= max overload voltage (short-time); discharge to 34 V within 1 s.",
+   "checks": [
+    {
+     "id": "working voltage vs RCWV",
+     "rating": "RCWV at 100 kOhm",
+     "stress": "Per-resistor working voltage",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "69.85 V <= 158.1 V",
+     "ratio": 0.4418
+    },
+    {
+     "id": "working voltage vs table max",
+     "rating": "Max working voltage (1206 table)",
+     "stress": "Per-resistor working voltage",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "69.85 V <= 200 V",
+     "ratio": 0.3492
+    },
+    {
+     "id": "power at 85 C",
+     "rating": "Rated power at 85 C ambient",
+     "stress": "Per-resistor power",
+     "max_ratio": 0.5,
+     "severity": "violation",
+     "rule": "<= 50 % of 205.9 mW",
+     "ratio": 0.2394
+    },
+    {
+     "id": "surge vs overload",
+     "rating": "Max overload voltage",
+     "stress": "Per-resistor surge voltage",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "227.5 V <= 395.3 V; true only while RV1 Vc stays below 790 V",
+     "ratio": 0.5755
+    },
+    {
+     "id": "discharge",
+     "rating": "X-cap discharge time limit (requirement, not a datasheet limit)",
+     "stress": "X-cap discharge time 198 V to 34 V",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "0.854 s <= 1 s",
+     "ratio": 0.854
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "R1/R2 pad-to-pad escape inside the footprint at 98.8 V peak per resistor",
+     "enforced_by": "native-21/routed/section.kicad_dru rule 'R1 bounded pad escapes' (and R2); pad_escapes.json:9"
+    },
+    {
+     "item": "Local air temperature at R1/R2 (85 C assumed); keep them away from the L1 / bridge hot spots",
+     "enforced_by": "UNCHECKED (no thermal result at R1/R2; the 85 C is a bound from DECISIONS.md:457, not a measurement)"
+    }
+   ],
    "gaps": [
-    "Not audited: UNI-ROYAL 1206 working voltage and pulse rating vs 140 Vrms line and 1-2 kV surge; bleed time claim (FINDINGS #10) uses it."
+    "UniOhm publishes no pulse or surge rating (only a 5 s overload voltage test and a 500 V dielectric withstand); the surge check compares an impulse against the overload voltage as the nearest published number.",
+    "Voltage across the pair at 245-750 A through RV1 (ALT-D3.md:119) is not in the repo or the ledger; only Vc 455 V at 100 A is. The check holds up to Vc = 790 V. RV1's own datasheet is still not obtained (ledger entry TMOV20RP175E).",
+    "Datasheet is the UniOhm series sheet V.3 (2019) from LCSC, not an MPN-specific sheet; the 0.25 W / 1206 mapping comes from its ordering code table, and the derating line is read from a graph.",
+    "Local ambient at R1/R2 is an assumed 85 C bound; no thermal or IR result for these two parts (power ratio would stay under 0.5 up to about 121 C).",
+    "Discharge time (0.854 s) uses the repo's own X-cap +20 % tolerance and 2 uF; the regulatory clause behind the 34 V / 1 s criterion is not re-read, and the real C1/C2 measurements are not compared."
    ],
    "finding": null,
-   "notes": null
+   "notes": "Series pair means a single shorted or open resistor changes the discharge: one open resistor ends the bleed (the other half of the pair does not bleed alone), so the X-cap discharge relies on both parts; IEC 60384-14 X-cap bleed practice not assessed. Inputs reproduced by scripts/audit_bleed_snubber.py."
   },
   "B82726S2203A020": {
    "mpn": "B82726S2203A020",
@@ -1889,18 +1895,131 @@
    ],
    "class": "POWER",
    "function": "Drain-source snubber capacitors C12/C13/C19/C20, 1 nF 1 kV C0G 1206",
-   "status": "UNAUDITED",
-   "datasheet": null,
-   "ratings": [],
-   "stresses": [],
-   "derating_rule": "",
-   "checks": [],
-   "layout_guidance": [],
+   "status": "PARTIAL",
+   "datasheet": {
+    "url": "https://prod-parts-data.s3.amazonaws.com/GRM31A5C3A220JW01D/datasheet/1_GRM31A5C3A220JW01D-Murata-datasheet-12559435.pdf",
+    "revision": "Murata 'Chip Monolithic Ceramic Capacitors' GRM series catalogue (PDF created 2010-12, modified 2012-09, 221 pp), a distributor-hosted copy (lioncircuits.com part page for the 1 kV sibling GRM31A5C3A220JW01D). The exact 1 nF part is NOT listed in this edition (1 kV 1206 C0G list ends at GRM31A5C3A101JW01D); Murata's own product page is a JavaScript shell and its PDF endpoint was not retrievable.",
+    "fetched": "2026-10-13",
+    "repo_copy": null,
+    "note": "Ratings are for the GRM31A5C3A series (same 1206 body, DC1000, C0G), read as applying to the 1 nF member; sibling Murata sheets GRM31A5C2J221JW01D (630 V, 2022-07, chipdip mirror) agree on the 1.5 mm terminal gap. Local copy kept outside the repo.",
+    "sha256_prefix16": null
+   },
+   "ratings": [
+    {
+     "parameter": "Rated voltage DC",
+     "datasheet_limit": 1000,
+     "unit": "V",
+     "basis": "DC1000, C0G (EIA), GRM31A5C3A series (3A = DC1 kV); no AC or frequency-dependent voltage rating published in this catalogue",
+     "source": "p.162 medium-voltage part list (GRM31A5C3A100..101JW01D rows); series code table"
+    },
+    {
+     "parameter": "Terminal gap g min",
+     "datasheet_limit": 1.5,
+     "unit": "mm",
+     "basis": "Electrode gap g, min., for GRM31A5C3A (1206, 3.2 x 1.6 mm); terminal size e 0.3 mm min",
+     "source": "p.162 same rows"
+    },
+    {
+     "parameter": "Dissipation factor max (1 MHz, Q min 1000)",
+     "datasheet_limit": 0.001,
+     "unit": "tan delta",
+     "basis": "Q >= 1000 min for medium-voltage C0G, measured at 1 MHz (<=1000 pF) / 1 kHz (>1000 pF) per the catalogue table; not guaranteed at edge frequencies",
+     "source": "p.165 specifications table items 4-7"
+    },
+    {
+     "parameter": "Operating temperature max",
+     "datasheet_limit": 125,
+     "unit": "C",
+     "basis": "-55 to 125 C, TC 0 +/-30 ppm/C (C0G)",
+     "source": "p.162 / sibling Murata sheet GRM31A5C2J221JW01D (2022); lioncircuits part page"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "Die VDS worst (switch-node spike)",
+     "worst_case_value": 490,
+     "unit": "V",
+     "condition": "worst die VDS over the F6 decision matrix (252/252 per leg, +2 nH gate bound), across each MOSFET, i.e. across the snubber",
+     "evidence": "DECISIONS.md:197"
+    },
+    {
+     "parameter": "Bus, worst stacked no-clamp case",
+     "worst_case_value": 451,
+     "unit": "V",
+     "condition": "static-OVP start 286 V, 500 uH / 30 A line event, C -19 %, no D3 clamp credit (script value 450.7 V)",
+     "evidence": "validation-results/11-candidates/r2-cost/PROPOSALS.md:89"
+    },
+    {
+     "parameter": "Bus static OVP (continuous)",
+     "worst_case_value": 286,
+     "unit": "V",
+     "condition": "DC bus at the OVP threshold; snubbers sit bus_p-sw and sw-hot_gnd",
+     "evidence": "validation-results/11-candidates/r2-cost/PROPOSALS.md:82"
+    },
+    {
+     "parameter": "Edge charging current C dv/dt",
+     "worst_case_value": 95,
+     "unit": "A",
+     "condition": "1 nF x 95 V/ns modelled hard edge, lasting 286 V / 95 V/ns = 3.0 ns; a bound: the real edge current is limited by the commutating load current, not computed here",
+     "evidence": "DECISIONS.md:845; native-21/verification/datasheet-ledger/scripts/audit_bleed_snubber.py:30"
+    },
+    {
+     "parameter": "RMS current bound at 60 kHz",
+     "worst_case_value": 1.81,
+     "unit": "A",
+     "condition": "two 95 A / 3.0 ns edges per cycle at 60 kHz (rectangular-pulse bound)",
+     "evidence": "DECISIONS.md:450; native-21/verification/datasheet-ledger/scripts/audit_bleed_snubber.py:32"
+    }
+   ],
+   "derating_rule": "DC voltage <= 50 % of the 1 kV rating for the continuous bus and for the modelled die-VDS and no-clamp spikes (C0G has no DC-bias capacitance loss); dissipation / ripple current <= the maker's allowance (none published for this series).",
+   "checks": [
+    {
+     "id": "die VDS",
+     "rating": "Rated voltage DC",
+     "stress": "Die VDS worst (switch-node spike)",
+     "max_ratio": 0.5,
+     "severity": "violation",
+     "rule": "490 V <= 500 V (margin 2 %)",
+     "ratio": 0.49
+    },
+    {
+     "id": "bus no-clamp worst",
+     "rating": "Rated voltage DC",
+     "stress": "Bus, worst stacked no-clamp case",
+     "max_ratio": 0.5,
+     "severity": "violation",
+     "rule": "451 V <= 500 V",
+     "ratio": 0.451
+    },
+    {
+     "id": "bus static OVP",
+     "rating": "Rated voltage DC",
+     "stress": "Bus static OVP (continuous)",
+     "max_ratio": 0.5,
+     "severity": "violation",
+     "rule": "286 V <= 500 V",
+     "ratio": 0.286
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "Pad escape 1.8 mm (C12/C13/C19/C20 'bounded pad escapes: intrinsic component gap') vs the 3.2 mm HOT functional rule: the part's own terminal gap (1.5 mm min, Murata p.162) is the limit, so 1.8 mm is no worse than the part; the board rule is waived for copper on the two pads only",
+     "enforced_by": "native-21/routed/section.kicad_dru rule 'C12 bounded pad escapes' (min 1.8 mm); pad_escapes.json:5; native-21/layout/route21.py:391"
+    },
+    {
+     "item": "Physical functional-insulation qualification of the bounded escapes (up to 490 V across 1.8 mm on the surface)",
+     "enforced_by": "UNCHECKED (pad_escapes.json:3 records it as open: provisional no-worse-than-pad-gap only)"
+    }
+   ],
    "gaps": [
-    "Not audited: 1 kV rating, DC-bias and dV/dt pulse current vs the 95 V/ns edge, no datasheet cited."
+    "Exact-MPN datasheet not obtained: Murata's product page and PDF endpoint were not retrievable, and the only Murata catalogue found (2010/2012 edition, distributor-hosted) does not list the 1 nF GRM31A5C3A member; ratings are the series values (DC1000 V, g min 1.5 mm, Q >= 1000). Thickness, exact DF and any 1 nF-specific limit are unread.",
+    "No allowable ripple current, self-heating or dv/dt / pulse-current rating is published in the catalogue; the 95 A edge current and the 1.81 A RMS bound (60 kHz) are not compared with any limit. Dissipation = I_rms^2 x ESR, and ESR at the edge spectrum (above self-resonance) is not published (Q >= 1000 is only at 1 MHz); 1.81 A and an ESR of 0.1 ohm (assumption) would be 0.33 W.",
+    "Die VDS margin is thin against the 50 % rule (0.49): the 490 V is a modelled transient (F6 matrix), not a measurement; the bench should confirm it before the 1 kV part is called derated.",
+    "Capacitor temperature next to the FET row (Q2/Q3/Q5/Q6 sink contingency Tj 128.7 C) is not computed; the 125 C maximum is not compared.",
+    "The 1.8 mm escape is below the 3.2 mm HOT rule by design; the 1.5 mm part gap is from the sibling-series catalogue, and the surface creepage at 490 V over 1.8 mm is unqualified (pad_escapes.json:3)."
    ],
    "finding": null,
-   "notes": null
+   "notes": "Four caps: one across each MOSFET, c_snub_h bus_p-sw, c_snub_l sw-hot_gnd (power_stage_120v.ato:209-214). Inputs reproduced by scripts/audit_bleed_snubber.py."
   },
   "CST3015-200ED": {
    "mpn": "CST3015-200ED",
@@ -4222,6 +4341,147 @@
    ],
    "finding": null,
    "notes": null
+  },
+  "1714971": {
+   "mpn": "1714971",
+   "designators": [
+    "J1"
+   ],
+   "class": "SAFETY",
+   "function": "Mains inlet terminal (L/N), Phoenix MKDS 5/2-9,5 (stage 27, DECISIONS 29)",
+   "status": "PARTIAL",
+   "datasheet": {
+    "url": "https://datasheet.lcsc.com/datasheet/pdf/e4ee02a851284c4488deac61edbcf0ad.pdf?productCode=C92145",
+    "revision": "Phoenix Contact catalog extract 01/04/2017 (Chinese), LCSC copy; dimensions also from the 2010-02-23 extract (DigiKey copy). phoenixcontact.com returned 403.",
+    "fetched": "2026-10-13",
+    "repo_copy": null,
+    "note": "Ratings read by the lead from the extract text (CSA 300 V 30 A, CUL 30 A, UL 30 A; certification list CCA, CSA, CUL, UL) and the dimensioned drawing p.4. Local copy validation-results/11-candidates/c27-j1-terminal/raw/ds/ (not committed).",
+    "sha256_prefix16": "22408e340fdc42d9"
+   },
+   "ratings": [
+    {
+     "parameter": "I_cont IEC",
+     "datasheet_limit": 32,
+     "unit": "A",
+     "basis": "IEC, 690 V (III/3)",
+     "source": "p.1 'Nominal current 32 A'"
+    },
+    {
+     "parameter": "I_cont cULus group B",
+     "datasheet_limit": 30,
+     "unit": "A",
+     "basis": "UL/cUL Recognized E60425, use group B, 300 V",
+     "source": "approvals table (UL / CUL nominal current 30 A); c27 PARTS [1] p.5"
+    },
+    {
+     "parameter": "I_cont CSA group B",
+     "datasheet_limit": 30,
+     "unit": "A",
+     "basis": "CSA 13631, use group B, 300 V",
+     "source": "approvals table (CSA nominal voltage 300 V, nominal current 30 A); c27 PARTS [1] p.4"
+    },
+    {
+     "parameter": "wire range UL",
+     "datasheet_limit": 10,
+     "unit": "AWG (largest)",
+     "basis": "UL 30-10 AWG",
+     "source": "c27 PARTS [1]"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "I inlet regulated",
+     "worst_case_value": 13.5,
+     "unit": "A",
+     "condition": "fullbridge_adapter regulates reported inlet current at inlet_target_a <= 13.5 A",
+     "evidence": "DECISIONS.md:182"
+    },
+    {
+     "parameter": "I inlet trip",
+     "worst_case_value": 15,
+     "unit": "A",
+     "condition": "adapter trip; owner cap: total RMS mains current <= 15 A",
+     "evidence": "DECISIONS.md:168-182"
+    },
+    {
+     "parameter": "I inlet envelope",
+     "worst_case_value": 16.5,
+     "unit": "A",
+     "condition": "earlier recorded RMS input envelope (superseded by the 15 A cap but still the L/N copper and J1 envelope in the notes)",
+     "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/F1-J3-PARTS.md:56"
+    },
+    {
+     "parameter": "I F1 non-interrupting ceiling",
+     "worst_case_value": 25,
+     "unit": "A",
+     "condition": "a 25 A UL 248 fuse carries its rating indefinitely, so J1 can see up to 25 A before F1 acts (13-external-review FINDINGS #11)",
+     "evidence": "DECISIONS.md:160"
+    }
+   ],
+   "derating_rule": "North-American (NEMA 5-15) product: continuous current <= 100% of the lowest applicable UL/CSA approval rating of the terminal; the IEC 24 A is not the basis. Anything above the cULus/CSA group-B rating needs an end-product temperature-rise test.",
+   "checks": [
+    {
+     "id": "cULus-B at regulated",
+     "rating": "I_cont cULus group B",
+     "stress": "I inlet regulated",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "<= 100% of cULus B",
+     "ratio": 0.45
+    },
+    {
+     "id": "cULus-B at trip",
+     "rating": "I_cont cULus group B",
+     "stress": "I inlet trip",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "<= 100% of cULus B",
+     "ratio": 0.5
+    },
+    {
+     "id": "CSA-B at regulated",
+     "rating": "I_cont CSA group B",
+     "stress": "I inlet regulated",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "<= 100% of CSA 13631 group B",
+     "ratio": 0.45
+    },
+    {
+     "id": "cULus-B at 16.5 A envelope",
+     "rating": "I_cont cULus group B",
+     "stress": "I inlet envelope",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "<= 100%",
+     "ratio": 0.55
+    },
+    {
+     "id": "cULus-B at F1 25 A",
+     "rating": "I_cont cULus group B",
+     "stress": "I F1 non-interrupting ceiling",
+     "max_ratio": 1.0,
+     "severity": "gap",
+     "rule": "the terminal covers the overload band below F1's rating",
+     "ratio": 0.8333
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "creepage/clearance of J1 L/N pads (line voltage)",
+     "enforced_by": "native-21/verification/d5_audit.py (D5 audit)"
+    },
+    {
+     "item": "copper at J1 pins carries 13.5-15 A",
+     "enforced_by": "DECISIONS.md:841 (task-04 DC run at 15 A)"
+    }
+   ],
+   "gaps": [
+    "Ratings from a 2017 Phoenix catalog extract (distributor copy); confirm 1714971 on UL Product iQ (E60425, XCFR2) and CSA 13631 before the certification submission.",
+    "No 3D model in temper.pretty: the enclosure fit uses a 22 mm courtyard envelope (native21-envelopes.json)."
+   ],
+   "finding": "Stage 27 replacement for 1711725 (15 A cULus / 10 A CSA). UL/cUL and CSA group B 30 A at 300 V: 45-55 % across the 13.5 A hold, 15 A trip and 16.5 A envelope, 83 % at F1's 25 A non-interrupting ceiling (FINDINGS #4 / #11 closed on rating).",
+   "notes": "Wire range UL 30-10 AWG; the cord and inlet leads are 14 AWG (F1-RECOMMENDATION.md). Pitch 9.52 mm: L-N copper gap 6.52 mm with 3.0 mm pads."
   }
  }
 }

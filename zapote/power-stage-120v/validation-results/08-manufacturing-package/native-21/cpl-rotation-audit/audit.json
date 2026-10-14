@@ -4,8 +4,8 @@
   "lines_placed_by_jlc": 335,
   "lines_excluded_not_placed": 14,
   "counts": {
-   "OK": 277,
-   "NEEDS-PREVIEW": 48,
+   "OK": 276,
+   "NEEDS-PREVIEW": 49,
    "CORRECTED": 10
   },
   "controls": {
@@ -3078,22 +3078,22 @@
   },
   {
    "designator": "J1",
-   "footprint": "TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal",
-   "lcsc": "C89120",
+   "footprint": "Phoenix_MKDS-5-2-9.52_1714971",
+   "lcsc": "C92145",
    "mount": "THT",
    "kicad_rot": 0,
    "proposed_jlc_rot": 0,
-   "class": "OK",
+   "class": "NEEDS-PREVIEW",
    "db_rule": "",
    "db_offset": "",
-   "easyeda_package": "CONN-TH_MKDS3-2-5.08",
-   "easyeda_offset": "0",
-   "easyeda_rot": "0",
+   "easyeda_package": "",
+   "easyeda_offset": "",
+   "easyeda_rot": "",
    "db_rot": "",
-   "fit_method": "pad number",
-   "fit_rms_mm": 0.0,
-   "pin1_evidence": "KiCad pad 1 at (-2.54,+0.00) mm = left of centre at board rotation 0; EasyEDA pad 1 left of centre at JLC rot 0",
-   "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
+   "fit_method": "",
+   "fit_rms_mm": "",
+   "pin1_evidence": "KiCad pad 1 at (-4.76,+0.00) mm = left of centre at board rotation 0",
+   "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
   },
   {
    "designator": "J2",

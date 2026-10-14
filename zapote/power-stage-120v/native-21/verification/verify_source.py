@@ -20,6 +20,8 @@ def main() -> None:
         # stage 22 (DECISIONS 27): DIS = NAND(permit_gate, bias_good); the PERMIT FET and 330 ohm pull-up are gone
         assert parts[f'{leg}.dis_or']['mpn'] == 'SN74LVC1G00DBVR' and f'{leg}.permit_fet' not in parts and f'{leg}.r_dis_pu' not in parts
     assert parts['u_bias_flt']['mpn'] == 'SN74LVC1G14DBVR'   # inverting Schmitt: BIAS_GOOD
+    # stage 27 (DECISIONS 29): J1 carries UL/CSA group B 30 A (the MKDS 3 1711725 was 15 A cULus / 10 A CSA)
+    assert parts['j_mains']['mpn'] == '1714971' and parts['j_mains']['footprint'] == 'temper:Phoenix_MKDS-5-2-9.52_1714971'
     for leg in ('leg_a', 'leg_b'):   # stage 26 (DECISIONS 28): low-ESR SVPC variant, same can
         assert parts[f'{leg}.bias_h.cbulk']['mpn'] == parts[f'{leg}.bias_l.cbulk']['mpn'] == '6SVPC220MV'
     assert parts['r_th_top']['mpn'] == 'RT0603BRD0712K6L'   # stage 15, 28 A hardware

@@ -157,7 +157,7 @@ The rear band (240 × 150) was rejected: the sink cannot be placed without cross
 - **M3:** low-current THT pads get 0.5 mm × 4 spoke reliefs; the 15–45 A nets stay solid (`layout/pad_reliefs21.py`).
 - **M5, barrier margin:** **kept at 8.0 mm**, not re-routed to 8.3. The 8.0 mm floor is the owner-approved provisional distance (D5-BASIS). The certification lab sets the final distance, and etch undercut widens copper gaps rather than narrowing them.
 - **M7, J3:** JST B2P-VH (1.26 mm copper gap at line voltage) → **B2P3-VH(LF)(SN)**, the same series with post 2 omitted: 7.92 mm pitch, 5.22 mm gap, 250 V 10 A. Unshrouded, because the shrouded -FB-B's 14.9 × 10.8 mm courtyard doesn't fit between PS2 and F1. Hand-soldered.
-- **M8, F1:** the stock footprint's 102071 clips are rated 10 A. F1 moves to the 34.21 × 7.62 mm pattern for **Littelfuse 01220088Z (30 A)**, two per board, which get their own BOM line (`scripts/apply_lcsc.py`). **The fuse itself was undersized:** Littelfuse 326 takes a 25 % continuous derating plus temperature re-rating (≈ 97 % at 50 °C), so 20 A carries ≈ 14.5 A continuous against 14–16.5 A RMS line current. F1 becomes **0326025.MXP (25 A, same body, 400 A @ 250 Vac)**, ≈ 18.2 A continuous; the CMC (20 A), terminal (24 A) and BR1 (25 A) carry the line current, and the branch breaker protects the wiring (`sourcing/F1-J3-PARTS.md`). Source rebuilt (atopile 0.2.69, verify_source PASS, audit 74/74). **Then F1 → Eaton Bussmann MDA-25-R** (same day). 0326025's table gives no 125 Vac breaking figure, only 400 A @ 250 Vac. MDA-25-R breaks **10 kA @ 125 Vac and 1.5 kA @ 250 Vac**, typical melting I²t 734.7 A²s, cULus Recognized E19180. These are Eaton Technical Data 2002 (Nov 2025) pp.1–2, read by the owner in a browser; screenshots are in `sourcing/eaton-browser-2026-10-08/`. Eaton's p.4 derating is ~96 % at 50 °C, so about 18 A continuous with a 25 % margin. It is a BOM-only change in the same clips: the board copper is unchanged, and the BOM is regenerated from the source. It dominates 0326025 at every voltage. **Still open on F1, whichever part:** the prospective fault current at the 127 V high-line corner must stay within 1.5 kA, since no 10 kA figure applies above 125 Vac; plus the Recognized-component and clip acceptance, and clearing coordination with the enclosure's upstream MDA-30-R (melting I²t 734.7 vs 1096.7 A²s).
+- **M8, F1:** the stock footprint's 102071 clips are rated 10 A. F1 moves to the 34.21 × 7.62 mm pattern for **Littelfuse 01220088Z (30 A)**, two per board, which get their own BOM line (`scripts/apply_lcsc.py`). **The fuse itself was undersized:** Littelfuse 326 takes a 25 % continuous derating plus temperature re-rating (≈ 97 % at 50 °C), so 20 A carries ≈ 14.5 A continuous against 14–16.5 A RMS line current. F1 becomes **0326025.MXP (25 A, same body, 400 A @ 250 Vac)**, ≈ 18.2 A continuous; the CMC (20 A), terminal (24 A) and BR1 (25 A) carry the line current [2026-10-13 correction: 24 A was J1's IEC rating; its cULus group-B rating was 15 A and CSA 10 A, so stage 27 (item 29) fits the 30 A UL/CSA MKDS 5/2-9,5], and the branch breaker protects the wiring (`sourcing/F1-J3-PARTS.md`). Source rebuilt (atopile 0.2.69, verify_source PASS, audit 74/74). **Then F1 → Eaton Bussmann MDA-25-R** (same day). 0326025's table gives no 125 Vac breaking figure, only 400 A @ 250 Vac. MDA-25-R breaks **10 kA @ 125 Vac and 1.5 kA @ 250 Vac**, typical melting I²t 734.7 A²s, cULus Recognized E19180. These are Eaton Technical Data 2002 (Nov 2025) pp.1–2, read by the owner in a browser; screenshots are in `sourcing/eaton-browser-2026-10-08/`. Eaton's p.4 derating is ~96 % at 50 °C, so about 18 A continuous with a 25 % margin. It is a BOM-only change in the same clips: the board copper is unchanged, and the BOM is regenerated from the source. It dominates 0326025 at every voltage. **Still open on F1, whichever part:** the prospective fault current at the 127 V high-line corner must stay within 1.5 kA, since no 10 kA figure applies above 125 Vac; plus the Recognized-component and clip acceptance, and clearing coordination with the enclosure's upstream MDA-30-R (melting I²t 734.7 vs 1096.7 A²s).
 - **M14, PE branch:** the J6 PE/Y-cap track stays thin. It carries Y-cap leakage only: the cord PE bonds to the chassis directly, and R38 is the single functional bond (D5-BASIS). R38 not sitting near J6 is recorded for the owner.
 - **m7, fab note:** **ENIG** finish (0.5 mm HVSSOP, VQFN EPs, capped vias); CTI ≥ 175 V becomes a hard order condition, not a question; JLC order number removed.
 - **m10:** T1 (CST3015) gets the SMD attribute.
@@ -973,3 +973,41 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - `dump_pads.py` sorts its output, so `pads.json` is stable.
       - The fab block runs the CPL rotation audit and asserts that it covers every CPL line. An exclusion counts only while the part still has no LCSC code. Stage 22's committed audit had excluded U22 / U23 / U40 as "no LCSC" because it ran before their codes were added, and this check fails on it.
       - Chain time on stage 26 is 769 s with one task-04 / B3 recompute, against 1,260 s for stage 22. A cache-hit run is about 380 s.
+29. **Stage 27: J1 becomes a terminal rated for North America, the Phoenix MKDS 5/2-9,5 (2026-10-13; board `44644390f1ee41760407400ac4a620d97512e388c9902c625c50d84a37dfd124`, copper.json `ac376fbe45e9e2492fb9e28df4336d9ec92813c876f4a8341b42a12e53b1c61e`, schematic `5963327d…`, frozen netlist `0a54ae3fc223bb566d84acaf672bd1a0001a023e8b04bfb6aebf5b3fedac8e65`, Gerber ZIP `1e77ccaba84124fa613823485c39f6970107210c98188d67cdc207143ce40631`; tag `native21s27`; `13-external-review-2026-10-13/FINDINGS.md` #4 / #11, `11-candidates/c27-j1-terminal/`; SAFETY: mains entry).**
+    - **Why:** J1, the Phoenix 1711725 (MKDS 3/2-5,08), is rated 24 A only under IEC. Its North-American ratings are 15 A cULus use group B (10 A group D) and 10 A CSA, against an input regulated to 13.5 A, a 15 A trip and a recorded 16.5 A envelope. The F1 note (item 160) used the IEC 24 A figure.
+    - **Change:**
+      - **J1 → Phoenix 1714971, MKDS 5/2-9,5:** UL/cUL use group B 30 A at 300 V, CSA 13631 30 A, UL file E60425, IEC 32 A, UL wire range 30–10 AWG. That puts J1 at 45–55 % of its rating across 13.5–16.5 A, and 83 % at F1's 25 A non-interrupting ceiling.
+        - The ratings were read by the lead from the Phoenix catalogue extract (LCSC copy, 2017).
+        - LCSC C92145, $1.03 at 500 (was $1.487).
+      - **Footprint:** the new `temper:Phoenix_MKDS-5-2-9.52_1714971` is drawn from the dimensioned drawing in the 2010 extract (p.4).
+        - Pitch 9.52 mm, holes Ø1.3 mm, 3.0 mm pads.
+        - Pins 4.76 mm from each body end; pin row 7.9 / 4.6 mm from the front / rear faces.
+        - Wire entry stays at the top (rear) edge.
+        - The L–N copper gap goes from 2.48 to 6.52 mm.
+      - **Placement:**
+        - J1 pin 1 is at (274.6, 9.2), with the courtyard at its former top and right extents.
+        - F1 moves 5.65 mm left; its courtyard is 0.7 mm from J3.
+        - R1 / R2 move 0.9 mm down together; their bounded pad escapes follow (`MOVE_ESCAPES`, a new incr21 hook).
+        - These overrides sit after place.py's stage-14 pose freeze (STAGE27_ORIGINS).
+      - **Copper:**
+        - The ac_l_in / l_f mains pours are redrawn: ac_l_in follows F1 and gains a tab round J1.1.
+        - l_f's strip and the RV1 column start 3.2 mm below that tab. The strip is widened to 3.2 mm there for RV1's surge path.
+        - Every outline-to-pad distance is ≥ 3.2 mm (checked with shapely before routing; DRC 0).
+        - The router could not re-lay the R1.1 / R2.2 links in the 3.2 mm corner, so `add_stage27` puts back their base geometry.
+    - **Evidence:**
+      - **Source:** audit.rs PASS, 79/79; `j_mains` is now 1714971. verify_source asserts the MPN and footprint. Routing passes clean at i3 (unconnected 0, errors 0).
+      - **Chain (board `44644390…`):**
+        - The settle loop trimmed a dead leg_b-permit_gate In2 branch over 7 rebuilds.
+        - DRC 0 / 0 / 0. Barrier 0, RES_A 0. Rust 0 (5,812).
+        - D5 8.047 / 8.507. Fit 0, with a 22 mm J1 envelope since the part has no 3D model.
+        - DFM PASS (744). CPL audit covers 349 of 349.
+        - Kelvin 67.77–116.44 A. Task 04 39/39, BUS_P span 2.92 %. B3 135.1 °C. Fault copper 0.993. OCP pickup unchanged.
+      - **Datasheet ledger:** J1 goes from VIOLATION to PARTIAL. The remaining gap is confirming the rating on UL Product iQ and CSA before certification.
+    - **Scorecard: ACCEPT against 19c and 26.**
+      - Cheaper: parts $222.28 → $221.82.
+      - Better: ledger violations 2 → 1, unaudited SAFETY/POWER lines 2 → 0. The R1 / R2 bleed pair and the C12–C20 snubber caps were audited into the ledger with this stage.
+      - Every other performance metric is identical.
+    - **Flow fix:** the chain's settle loop now rebuilds after every trim, up to 8 builds, and fails if dangling copper remains. In this stage's first chain, the old 4-pass loop gated the board built before its last trim.
+    - **Open:**
+      - Overload coordination (FINDINGS #11) is now a margin question, not a failed rating. The certifier's abnormal-operation test, with the firmware current limit defeated, still applies.
+      - The enclosure harness lands L / N 6.4 / 1.9 mm further left at the same rear edge (for the enclosure session's next harness revision).

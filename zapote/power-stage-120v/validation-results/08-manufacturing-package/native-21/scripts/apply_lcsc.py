@@ -55,7 +55,9 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 # stage 22 (DECISIONS 27): DIS NAND and the inverting BIAS_GOOD Schmitt (JLC part API 2026-10-13, g05-g07 evidence)
                 "SN74LVC1G00DBVR": "C7826", "SN74LVC1G14DBVR": "C7835",
                 # stage 26 (DECISIONS 28; r2-cost R2-05): the low-ESR SVPC variant, same 6.3 x 5.9 can (lcsc.com 2026-10-13, 845 in stock)
-                "6SVPC220MV": "C128504"})
+                "6SVPC220MV": "C128504",
+                # stage 27 (DECISIONS 29): J1 Phoenix MKDS 5/2-9,5, UL group B 30 A (c27-j1-terminal; LCSC 75 / JLC 164 on 2026-10-13)
+                "1714971": "C92145"})
 ACCEPT_ALT = {"GRM31A5C3A102JW01D"}
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))

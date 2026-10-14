@@ -1,16 +1,16 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "native19-reviewed": 115,
-  "passive-two-terminal": 206,
+  "passive-two-terminal": 207,
+  "native19-reviewed": 114,
   "passive-untyped": 14,
   "eco-pin-table": 14
  },
  "components": {
   "J1": {
-   "mpn": "1711725",
+   "mpn": "1714971",
    "source_instance": "j_mains",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",

@@ -451,6 +451,17 @@ STAGE21B = {"c_ocp_node": (99.76, 63.09, 270.0), "c_th": (102.93, 64.78, 180.0)}
 for path, pose in STAGE21B.items():
     POSE[path] = pose
 
+# Stage 27 (DECISIONS 29; 13-external-review FINDINGS #4): J1 becomes the Phoenix MKDS 5/2-9,5 (1714971, UL group B
+# 30 A), 19.05 mm long against the MKDS 3's 10.2 mm. Its pin 1 (ac_l_in) goes to (274.6, 9.2) with the wire entry at the
+# top edge and the courtyard at the former top / right extents; F1 moves 5.65 mm left (courtyard 0.7 mm from J3) and R1
+# with R2 (one bleed pair, unchanged relative geometry) 0.9 mm down to clear F1's clip courtyard. Footprint origins (as placement-stage13b.json), converted like stage 14.
+STAGE27_ORIGINS = {"j_mains": (274.6, 9.2, 0.0), "f1": (246.35, 7.25, 0.0), "rb1a": (226.0, 15.9, 0.0), "rb1b": (226.0, 23.9, 0.0)}
+for path, (x, y, ang) in STAGE27_ORIGINS.items():
+    q = PARTS[path]
+    a = math.radians(ang)
+    POSE[path] = (round(x + q["ox"] * math.cos(a) + q["oy"] * math.sin(a), 3),
+                  round(y - q["ox"] * math.sin(a) + q["oy"] * math.cos(a), 3), ang)
+
 missing = sorted(set(PARTS) - set(POSE))
 if missing:
     raise SystemExit(f"{len(missing)} unplaced: {missing}")

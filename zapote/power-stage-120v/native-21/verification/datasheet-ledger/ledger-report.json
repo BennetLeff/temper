@@ -2,16 +2,16 @@
  "bom_lines": 91,
  "counts_by_class": {
   "POWER": {
-   "PARTIAL": 8,
-   "UNAUDITED": 1,
+   "PARTIAL": 9,
+   "UNAUDITED": 0,
    "VERIFIED": 0,
    "VIOLATION": 0
   },
   "SAFETY": {
-   "PARTIAL": 16,
-   "UNAUDITED": 1,
+   "PARTIAL": 18,
+   "UNAUDITED": 0,
    "VERIFIED": 1,
-   "VIOLATION": 2
+   "VIOLATION": 1
   },
   "SIGNAL": {
    "PARTIAL": 0,
@@ -200,7 +200,53 @@
    "unchecked_layout": []
   },
   "1206W4F1003T5E": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "working voltage vs RCWV",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "RCWV at 100 kOhm",
+     "ratio": 0.4418,
+     "severity": "violation",
+     "stress": "Per-resistor working voltage"
+    },
+    {
+     "id": "working voltage vs table max",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Max working voltage (1206 table)",
+     "ratio": 0.3492,
+     "severity": "violation",
+     "stress": "Per-resistor working voltage"
+    },
+    {
+     "id": "power at 85 C",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Rated power at 85 C ambient",
+     "ratio": 0.2394,
+     "severity": "violation",
+     "stress": "Per-resistor power"
+    },
+    {
+     "id": "surge vs overload",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Max overload voltage",
+     "ratio": 0.5755,
+     "severity": "violation",
+     "stress": "Per-resistor surge voltage"
+    },
+    {
+     "id": "discharge",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "X-cap discharge time limit (requirement, not a datasheet limit)",
+     "ratio": 0.854,
+     "severity": "violation",
+     "stress": "X-cap discharge time 198 V to 34 V"
+    }
+   ],
    "class": "SAFETY",
    "designators": [
     "R1",
@@ -209,10 +255,16 @@
    "finding": null,
    "function": "X-capacitor bleed R1/R2 (two 100 k in series across the mains)",
    "gaps": [
-    "Not audited: UNI-ROYAL 1206 working voltage and pulse rating vs 140 Vrms line and 1-2 kV surge; bleed time claim (FINDINGS #10) uses it."
+    "UniOhm publishes no pulse or surge rating (only a 5 s overload voltage test and a 500 V dielectric withstand); the surge check compares an impulse against the overload voltage as the nearest published number.",
+    "Voltage across the pair at 245-750 A through RV1 (ALT-D3.md:119) is not in the repo or the ledger; only Vc 455 V at 100 A is. The check holds up to Vc = 790 V. RV1's own datasheet is still not obtained (ledger entry TMOV20RP175E).",
+    "Datasheet is the UniOhm series sheet V.3 (2019) from LCSC, not an MPN-specific sheet; the 0.25 W / 1206 mapping comes from its ordering code table, and the derating line is read from a graph.",
+    "Local ambient at R1/R2 is an assumed 85 C bound; no thermal or IR result for these two parts (power ratio would stay under 0.5 up to about 121 C).",
+    "Discharge time (0.854 s) uses the repo's own X-cap +20 % tolerance and 2 uF; the regulatory clause behind the 34 V / 1 s criterion is not re-read, and the real C1/C2 measurements are not compared."
    ],
-   "status": "UNAUDITED",
-   "unchecked_layout": []
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "Local air temperature at R1/R2 (85 C assumed); keep them away from the L1 / bridge hot spots"
+   ]
   },
   "1206W4F100KT5E": {
    "checks": [],
@@ -253,14 +305,14 @@
    "status": "VERIFIED",
    "unchecked_layout": []
   },
-  "1711725": {
+  "1714971": {
    "checks": [
     {
      "id": "cULus-B at regulated",
      "max_ratio": 1.0,
      "ok": true,
      "rating": "I_cont cULus group B",
-     "ratio": 0.9,
+     "ratio": 0.45,
      "severity": "violation",
      "stress": "I inlet regulated"
     },
@@ -269,40 +321,49 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "I_cont cULus group B",
-     "ratio": 1.0,
+     "ratio": 0.5,
      "severity": "violation",
      "stress": "I inlet trip"
     },
     {
      "id": "CSA-B at regulated",
      "max_ratio": 1.0,
-     "ok": false,
+     "ok": true,
      "rating": "I_cont CSA group B",
-     "ratio": 1.35,
+     "ratio": 0.45,
      "severity": "violation",
      "stress": "I inlet regulated"
     },
     {
      "id": "cULus-B at 16.5 A envelope",
      "max_ratio": 1.0,
-     "ok": false,
+     "ok": true,
      "rating": "I_cont cULus group B",
-     "ratio": 1.1,
-     "severity": "gap",
+     "ratio": 0.55,
+     "severity": "violation",
      "stress": "I inlet envelope"
+    },
+    {
+     "id": "cULus-B at F1 25 A",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "I_cont cULus group B",
+     "ratio": 0.8333,
+     "severity": "gap",
+     "stress": "I F1 non-interrupting ceiling"
     }
    ],
    "class": "SAFETY",
    "designators": [
     "J1"
    ],
-   "finding": "J1 is rated 24 A only on the IEC basis. On the North-American approval basis it is 15 A cULus use group B (10 A group D) and 10 A CSA. The design carries 13.5 A regulated (1.35x the CSA 10 A, 90% of cULus), 15 A at the trip (100%, no margin) and a 16.5 A recorded envelope (110%). parts.ato and the F1 note still cite the IEC 24 A (FINDINGS #4). Fix: record 15 A, then a >= 20 A UL group-B terminal at the next re-spin or an end-product temperature-rise test at 13.5-15 A and maximum ambient.",
-   "function": "Mains inlet terminal (L/N), Phoenix MKDS 3/2-5,08",
+   "finding": "Stage 27 replacement for 1711725 (15 A cULus / 10 A CSA). UL/cUL and CSA group B 30 A at 300 V: 45-55 % across the 13.5 A hold, 15 A trip and 16.5 A envelope, 83 % at F1's 25 A non-interrupting ceiling (FINDINGS #4 / #11 closed on rating).",
+   "function": "Mains inlet terminal (L/N), Phoenix MKDS 5/2-9,5 (stage 27, DECISIONS 29)",
    "gaps": [
-    "Lab has not ruled whether cULus covers Canada (CSA 13631 10 A is then the binding figure).",
-    "No line-current hardware sensing: the 15 A limit is a firmware estimate with unqualified error (FINDINGS #11)."
+    "Ratings from a 2017 Phoenix catalog extract (distributor copy); confirm 1714971 on UL Product iQ (E60425, XCFR2) and CSA 13631 before the certification submission.",
+    "No 3D model in temper.pretty: the enclosure fit uses a 22 mm courtyard envelope (native21-envelopes.json)."
    ],
-   "status": "VIOLATION",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "1N4148W": {
@@ -1093,7 +1154,35 @@
    "unchecked_layout": []
   },
   "GRM31A5C3A102JW01D": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "die VDS",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Rated voltage DC",
+     "ratio": 0.49,
+     "severity": "violation",
+     "stress": "Die VDS worst (switch-node spike)"
+    },
+    {
+     "id": "bus no-clamp worst",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Rated voltage DC",
+     "ratio": 0.451,
+     "severity": "violation",
+     "stress": "Bus, worst stacked no-clamp case"
+    },
+    {
+     "id": "bus static OVP",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Rated voltage DC",
+     "ratio": 0.286,
+     "severity": "violation",
+     "stress": "Bus static OVP (continuous)"
+    }
+   ],
    "class": "POWER",
    "designators": [
     "C12",
@@ -1104,10 +1193,16 @@
    "finding": null,
    "function": "Drain-source snubber capacitors C12/C13/C19/C20, 1 nF 1 kV C0G 1206",
    "gaps": [
-    "Not audited: 1 kV rating, DC-bias and dV/dt pulse current vs the 95 V/ns edge, no datasheet cited."
+    "Exact-MPN datasheet not obtained: Murata's product page and PDF endpoint were not retrievable, and the only Murata catalogue found (2010/2012 edition, distributor-hosted) does not list the 1 nF GRM31A5C3A member; ratings are the series values (DC1000 V, g min 1.5 mm, Q >= 1000). Thickness, exact DF and any 1 nF-specific limit are unread.",
+    "No allowable ripple current, self-heating or dv/dt / pulse-current rating is published in the catalogue; the 95 A edge current and the 1.81 A RMS bound (60 kHz) are not compared with any limit. Dissipation = I_rms^2 x ESR, and ESR at the edge spectrum (above self-resonance) is not published (Q >= 1000 is only at 1 MHz); 1.81 A and an ESR of 0.1 ohm (assumption) would be 0.33 W.",
+    "Die VDS margin is thin against the 50 % rule (0.49): the 490 V is a modelled transient (F6 matrix), not a measurement; the bench should confirm it before the 1 kV part is called derated.",
+    "Capacitor temperature next to the FET row (Q2/Q3/Q5/Q6 sink contingency Tj 128.7 C) is not computed; the 125 C maximum is not compared.",
+    "The 1.8 mm escape is below the 3.2 mm HOT rule by design; the 1.5 mm part gap is from the sibling-series catalogue, and the surface creepage at 490 V over 1.8 mm is unqualified (pad_escapes.json:3)."
    ],
-   "status": "UNAUDITED",
-   "unchecked_layout": []
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "Physical functional-insulation qualification of the bounded escapes (up to 490 V across 1.8 mm on the surface)"
+   ]
   },
   "GRM31C5C1H104JA01L": {
    "checks": [],
@@ -2201,13 +2296,12 @@
  },
  "errors": [],
  "failures": [
-  "VIOLATION: 1711725 (J1): J1 is rated 24 A only on the IEC basis. On the North-American approval basis it is 15 A cULus use group B (10 A group D) and 10 A CSA. The design carries 13.5 A regulated (1.35x the CSA 10 A, 90% of cULus), 15 A at the trip (100%, no margin) and a 16.5 A recorded envelope (110%). parts.ato and the F1 note still cite the IEC 24 A (FINDINGS #4). Fix: record 15 A, then a >= 20 A UL group-B terminal at the next re-spin or an end-product temperature-rise test at 13.5-15 A and maximum ambient.",
-  "VIOLATION: 3403.0171 (F2): F2 (UMT 250, 200 A @ 250 VAC IEC) has a prospective fault of 373-3,567 A at J11 and melts 19.5x sooner than F1, so it must interrupt alone: exceeded 1.9x-18x (DECISIONS.md:843, F4 FAIL). Open decision: >= 1,500 A 5x20 ceramic fuse (candidate 02153.15MXP, datasheet figure unverified) or drop the PS3 mains tap.",
-  "SAFETY/POWER line UNAUDITED: 1206W4F1003T5E (R1,R2)",
-  "SAFETY/POWER line UNAUDITED: GRM31A5C3A102JW01D (C12,C13,C19,C20)"
+  "VIOLATION: 3403.0171 (F2): F2 (UMT 250, 200 A @ 250 VAC IEC) has a prospective fault of 373-3,567 A at J11 and melts 19.5x sooner than F1, so it must interrupt alone: exceeded 1.9x-18x (DECISIONS.md:843, F4 FAIL). Open decision: >= 1,500 A 5x20 ceramic fuse (candidate 02153.15MXP, datasheet figure unverified) or drop the PS3 mains tap."
  ],
  "missing_from_ledger": [],
  "partial": [
+  "1206W4F1003T5E",
+  "1714971",
   "30KPA150CA",
   "74650074",
   "AMC1311BDWVR",
@@ -2220,6 +2314,7 @@
   "CST3015-200ED",
   "DE1E3RA222MA4BP01F",
   "GBJ2510-F",
+  "GRM31A5C3A102JW01D",
   "IPW65R018CFD7",
   "IRM-20-15",
   "IRM-20-24",
@@ -2236,10 +2331,10 @@
  "result": "FAIL",
  "strict": false,
  "totals": {
-  "PARTIAL": 24,
-  "UNAUDITED": 64,
+  "PARTIAL": 27,
+  "UNAUDITED": 62,
   "VERIFIED": 1,
-  "VIOLATION": 2
+  "VIOLATION": 1
  },
  "unaudited_other": [
   "0430451612",
@@ -2305,13 +2400,9 @@
   "TPS7A4700RGWR",
   "UMK325AB7106KM-T"
  ],
- "unaudited_safety_power": [
-  "1206W4F1003T5E",
-  "GRM31A5C3A102JW01D"
- ],
- "unchecked_layout_items": 7,
+ "unaudited_safety_power": [],
+ "unchecked_layout_items": 9,
  "violations": [
-  "1711725",
   "3403.0171"
  ],
  "warnings": [

@@ -94,6 +94,7 @@ Controls run 2026-10-13: 19c vs 19b gives ACCEPT (better `return_path_open_chang
 
 | Stage | Change | Verdict | Card |
 |---|---|---|---|
+| 27 | J1 → Phoenix 1714971 MKDS 5/2-9,5 (UL / CSA group B 30 A); F1 5.65 mm left; mains pours redrawn | **ACCEPT** against 19c and 26. Cheaper: parts $222.28 → $221.82. Better: ledger violations 2 → 1, unaudited SAFETY/POWER 2 → 0. Every other metric identical. | [`scorecard-native21s27.json`](scorecard-native21s27.json) |
 | 26 | C126–C129 6SVPC220M → 6SVPC220MV (BOM only) | **ACCEPT** against 19c and 22. Cheaper: parts $223.10 → $222.28; stock 13 → 845 on that line. Performance identical. | [`scorecard-native21s26.json`](scorecard-native21s26.json) |
 | 22 | DIS = NAND(PERMIT, BIAS_GOOD); Q1 / Q4, R8 / R16 deleted | **ACCEPT** against 19c and 21b. Cheaper: −4 placements, −1 line (+1 Extended). Better: return-path open changes 39 → 37, OCP pickup 4.78 → 4.17 A. | [`scorecard-native21s22.json`](scorecard-native21s22.json) |
 | 21b | Stage 21 plus KELVIN_N under its pour, C30 / C31 beside U6 (F8) | **ACCEPT** against 19c and 21. Better: OCP pickup 8.71 → 4.78 A (gate 6.5 A), Kelvin band +0.05 A, at equal cost. | [`scorecard-native21s21b.json`](scorecard-native21s21b.json) |
