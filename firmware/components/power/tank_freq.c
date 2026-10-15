@@ -46,7 +46,8 @@ bool tank_freq_config_ok(const tank_freq_cfg_t *c)
            isfinite(c->peak_margin_a) && c->peak_margin_a >= TANK_PEAK_PICKUP_A && c->peak_margin_a <= 10.0f &&
            isfinite(c->pan_q_max) && c->pan_q_max > 1.0f && c->pan_q_max <= 50.0f &&
            isfinite(c->pan_r_min_ohm) && c->pan_r_min_ohm > 0 && c->pan_r_min_ohm <= 10.0f &&
-           isfinite(c->pan_min_rms_a) && c->pan_min_rms_a >= 1.0f && c->pan_min_rms_a <= 20.0f &&
+           isfinite(c->pan_min_rms_a) && c->pan_min_rms_a >= 1.0f &&
+           c->pan_min_rms_a < TANK_CEILING_DEFAULT_A && /* reachable under the no-pan clamp */
            c->pan_confirm_halves >= 1u && c->pan_confirm_halves <= 120u &&
            c->overrun_halves >= 1u && c->overrun_halves <= 60u && c->block_halves <= 1200u &&
            isfinite(c->power_band) && c->power_band >= 0.03f && c->power_band <= 0.2f;

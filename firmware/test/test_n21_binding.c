@@ -733,7 +733,7 @@ static void test_tank_ceiling_config(void)
     c.tank_peak_trip_a = 62;                        /* 62 A with the 18 A default ceiling: refused */
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
     c = commissioned_cfg();
-    c.tank_rms_trip_a = 20;                         /* > 1.1 x 18 A (config_ok's bound) */
+    c.tank_rms_trip_a = 19.0f;                      /* > 1.05 x 18 A = 18.9 A (config_ok's bound) */
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
     c = commissioned_cfg();
     c.tank_crest_guard_a = 28;                      /* > 1.5 x 18 A */
