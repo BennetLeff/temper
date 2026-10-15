@@ -16,7 +16,7 @@
   "d5": true,
   "enclosure_fit": true,
   "audit_rs": true,
-  "b3_ratings": false
+  "b3_ratings": true
  },
  "performance": {
   "d5_hot_selv_mm": 8.047,
@@ -27,8 +27,9 @@
   "kelvin_band_low_A": 67.77,
   "b3_c28_h25_peak_C": 147.2,
   "b3_nominal_h10_peak_C": 165.3,
-  "b3_laminate_margin_K": -30.6,
+  "b3_laminate_margin_K": -30.7,
   "b3_rated_part_margin_K": -33.4,
+  "b3_release_margin_K": 0.7,
   "emi_min_margin_dB": 12.4,
   "leakage_touch_mA": 0.241,
   "fuse_copper_fusing_ratio": 0.993,
@@ -72,7 +73,7 @@
  "sources": {
   "d5": "native-21/verification/d5-audit.json",
   "kelvin": "02-protection-timing/kelvin/budget-native21s42.json",
-  "b3_ratings": "04-board-current-thermal/round5-native21/b3-ratings/margins.json {'cases': ['c22_h10', 'c28_h10'], 'bay_c': 55.0, 'k_mesh': 3.0, 'mot_c': 130.0} worst R12: 2512 terminal derating at 0.217 W (20 % margin)",
+  "b3_ratings": "04-board-current-thermal/round5-native21/b3-ratings/margins.json {'cases': {'c18_h10': {'bay_c': 61.0, 'i_line_a': 13.5, 'i_t_a': 18.9, 'h': 10, 'role': 'release'}, 'c22_h10': {'bay_c': 55.0, 'i_line_a': 13.5, 'i_t_a': 23.1, 'h': 10, 'role': 'ratchet'}, 'c28_h10': {'bay_c': 55.0, 'i_line_a': 13.5, 'i_t_a': 29.4, 'h': 10, 'role': 'ratchet'}}, 'release': ['c18_h10'], 'k_mesh': 3.0, 'mot_c': 130.0} worst R12: 2512 terminal derating at 0.217 W (20 % margin); release worst c18_h10: R10: 2512 terminal derating at 0.217 W (20 % margin)",
   "emi": "07-conducted-emi/s19b/results.json scenarios.nominal (min margin_dB)",
   "leakage": "07-conducted-emi/leakage/result.json DESIGN row",
   "fuse_copper": "02-protection-timing/shoot-through-f1/s42_necks.json (min_ratio_all)",

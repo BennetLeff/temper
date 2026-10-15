@@ -137,8 +137,10 @@ PY
   python3 -c "
 import json;d=json.load(open('outputs/summary.json'))
 print('B3',[(r,round(d['runs'][r]['peak']['temperature_c'],1)) for r in ('nominal_h10_p1p0','nominal_h25_p1p0','extreme_h10_p1p0','c28_h10_p1p0','c28_h25_p1p0')])"
-  # B3 ratings (DECISIONS 46): body-model margins to the laminate MOT and part limits, ~6 min. Its FAIL is a release
-  # verdict the scorecard reads, not a chain failure; a margins.json not solved on this board is.
+  # B3 ratings (DECISIONS 46): body-model margins to the laminate MOT and part limits, ~9 min (b3_ratings_gate.BASIS:
+  # release case c18_h10 at bay 61 C, ratchet cases c22_h10 / c28_h10 at bay 55 C, all at I_line 13.5 A; six solves,
+  # at most 4 workers). Its FAIL is a release verdict the scorecard reads, not a chain failure; a margins.json not solved
+  # on this board is.
   # run_basis.py exits with the gate's status (1 on a FAIL verdict); under set -e that ended the block on every board
   # that fails the release gate (all of them today), so its status is not used: the board check below catches a crash
   ( cd ../b3-ratings && python3 run_basis.py --workers 4 > "$B/b3-ratings.log" 2>&1 ) || true; tail -1 "$B/b3-ratings.log"

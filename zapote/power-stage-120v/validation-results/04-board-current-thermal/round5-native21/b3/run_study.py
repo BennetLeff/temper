@@ -20,6 +20,13 @@ UNIT = HERE.parents[3]
 GEOM = UNIT / "native-21/verification/native21s42-all-copper.json.gz"
 HEAT = HERE / "inputs/native21-board-heat-sources.json"
 HEAT_C28 = HERE / "inputs/native21-board-heat-sources-c28.json"   # make_heat_sources.py, stage 15
+# The board's line-path current (J1 -> F1 -> L1 -> BR1) at the ceiling cases, one value for every B3 consumer (OPS c28
+# below, ../b3-ratings/run_basis.py, ../b3-ratings/fet_case.py). It is the firmware bound, not a hold: the controller
+# limits inlet_bound = I_ps x (1 + est_error) + I_aux <= inlet_target_a 13.5 A (firmware/components/power/include/
+# input_limits.h, input_limits.c est_error 0.10, n21_binding.c inlet_target_a = 13.5f), so the line path carries at most
+# 13.5 A and BR1 less. Until 2026-10-15 the cases used the 11.1 A inlet hold, which the true power-stage current can
+# exceed whenever the estimator reads low (b3-ratings/line-hold-2026-10-15: gated rows move <= 0.1 K at 13.5 A).
+I_LINE_A = 13.5
 # Operating points (task 05 round 3 / task 03 round 3): tank RMS I_t through the bridge, R5 and
 # the tank; line current P / V. Copper heat scales as (I_operating / I_case)^2.
 OPS = {"nominal": {"I_t": 21.47, "I_line": 1710 / 120, "parts": "nominal",
@@ -28,11 +35,13 @@ OPS = {"nominal": {"I_t": 21.47, "I_line": 1710 / 120, "parts": "nominal",
        # sustained tank current at 29.4 A. Worst-case parts (tan d limit ESR, 740 nC gate charge, 80 kHz bias).
        "extreme": {"I_t": 29.4, "I_line": 1710 / 108, "parts": "worst",
                    "basis": "29.4 A firmware RMS trip at the 28 A ceiling, 108 V line, worst-case parts (stage 15)"},
-       # stage 15 (DECISIONS 2026-10-10): the 28 A ceiling at its 1.05 x firmware RMS trip, inlet at the 11.1 A hold.
+       # stage 15 (DECISIONS 2026-10-10): the 28 A ceiling at its 1.05 x firmware RMS trip; line current I_LINE_A (the
+       # 13.5 A firmware inlet bound since 2026-10-15; was the 11.1 A round-6 hold). The c28 heat file's L1 row is still
+       # built at 11.1 A (make_heat_sources.C28_SCALE); b3-ratings/run_basis.py rescales it, these legacy runs do not.
        # Not a gate: the "<= 105 C" stated here was never enforced, and these single-cell peaks are mesh artefacts.
        # The ratings gate is ../b3-ratings/b3_ratings_gate.py (body model, laminate MOT 130 C; DECISIONS 46).
-       "c28": {"I_t": 29.4, "I_line": 11.1, "parts": "nominal", "heat": "c28",
-               "basis": "28 A tank ceiling, 1.05 x firmware RMS trip; 11.1 A inlet hold (round 6)"}}
+       "c28": {"I_t": 29.4, "I_line": I_LINE_A, "parts": "nominal", "heat": "c28",
+               "basis": f"28 A tank ceiling, 1.05 x firmware RMS trip; {I_LINE_A:g} A firmware inlet bound"}}
 
 
 def cases(op):

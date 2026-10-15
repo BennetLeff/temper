@@ -58,8 +58,10 @@ def one(job):
     c = inputs(op, i_line, runs)
     br.op_inputs = lambda _op, _c=c: _c
     brd = tb.Board(rs.GEOM, rb.RUNS / "cache")
-    # the base check: at 11.1 A this function must give fet_case.t_case() exactly
-    assert all(abs(a - b) < 1e-9 for a, b in zip(t_case(rb.CEIL[op], I_LINE_BASE).values(), fc.t_case(rb.CEIL[op]).values()))
+    # the base check: at 11.1 A this function must give fet_case.t_case() exactly (fet_case takes i_line since the basis
+    # moved to 13.5 A; its default is now run_study.I_LINE_A)
+    assert all(abs(a - b) < 1e-9 for a, b in zip(t_case(rb.CEIL[op], I_LINE_BASE).values(),
+                                                 fc.t_case(rb.CEIL[op], i_line=I_LINE_BASE).values()))
     leads = {"pad": "2", "g": rb.LEAD_G, "t_rise": {r: t - rb.BAY_C for r, t in t_case(rb.CEIL[op], i_line).items()}}
     res = br.run_case(brd, op, h, pitch, "fraction", "network", {}, None, None, True, True, label=name, leads=leads)
     res["board_sha256"] = brd.data["board_sha256"]

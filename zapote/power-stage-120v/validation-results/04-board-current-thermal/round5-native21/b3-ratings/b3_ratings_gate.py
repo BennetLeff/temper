@@ -3,7 +3,14 @@
 limit, at the declared operating basis. Proposed home: validation-results/04-board-current-thermal/round5-native21/
 b3-ratings/ (thermal-ratings audit, 2026-10-15).
 
-    python3 b3_ratings_gate.py --runs DIR [--out margins.json] [--bay-c 55] [--cases c22_h10,c28_h10]
+    python3 b3_ratings_gate.py --runs DIR [--out margins.json] [--cases c18_h10@61,c22_h10@55,c28_h10@55]
+                               [--release c18_h10] [--bay-c 55]
+
+--cases takes CASE or CASE@BAY. A case's bay is, first to apply: its @BAY, --bay-c, the bay_c its run files were solved
+at (run_basis.py writes it), BASIS, 55 C. A run file solved at another bay than the one asked for stops the gate (the FET
+tab tie is absolute, so a bay is solved, not shifted). Default --cases: BASIS (with --bay-c alone: c22_h10,c28_h10,
+the pre-2026-10-15 form). --release: the cases whose gated rows decide the verdict (default: the BASIS release cases
+present); with none, every case decides it (the pre-2026-10-15 rule, still what gate_control.py uses).
 
 DIR holds body-level B3 solves (b3-convergence/body_runs.run_case JSON, fill-fraction copper + package networks) named
 <case>_p0p25.json and <case>_p0p5.json. The legacy thermal.py single-cell peak is NOT an input: it is a point-deposit
@@ -14,11 +21,15 @@ Estimate per quantity: Q(0.25) + K_MESH * |Q(0.25) - Q(0.5)| + (bay - 50 C). K_M
 orders p >= 0.4); R5's element converges more slowly (p ~ 0.2) and is under-corrected by ~4 K - see the audit's
 gate_control G6 table.
 
-Basis (decided in the audit; change only with evidence):
-  * cases c22_h10 (default 22 A ceiling) and c28_h10 (28 A Kconfig ceiling): h 10 W/m2K is still air - the enclosure's
-    bay model has no through-flow and D-18 ducts the blower through the sink only. A forced-air case counts only once
-    an enclosure record gives the board-face airflow.
-  * bay air 55 C: enclosure R33 study 14, expected value at a 40 C kitchen (61 C worst with B3 heat only).
+Basis (decided in the audit, DECISIONS 46; release case after DECISIONS 55; change only with evidence):
+  * h 10 W/m2K is still air - the enclosure's bay model has no through-flow and D-18 ducts the blower through the sink
+    only. A forced-air case counts only once an enclosure record gives the board-face airflow.
+  * release case c18_h10 at bay 61 C: the 18.0 A release ceiling (DECISIONS 55) at its 1.05 x trip, at the enclosure R33
+    study 14 worst bay with B3 heat (61 C). The b3_ratings release gate passes only if every gated row passes here;
+    metric b3_release_margin_K = its worst gated margin.
+  * ratchet cases c22_h10 (22 A) and c28_h10 (28 A Kconfig ceiling) at bay 55 C (study 14 expected value at a 40 C
+    kitchen): b3_laminate_margin_K / b3_rated_part_margin_K, the card-to-card ratchets since s32.
+  * line current 13.5 A in every case (run_study.I_LINE_A, the firmware inlet bound; was the 11.1 A hold to 2026-10-15).
 Limits (sources re-read 2026-10-15; see the audit's ratings.py for page-level quotes):
   laminate 130 C   Kingboard KB-616(X) (KB-6164 / KB-6064) UL QMTS2 E123995 (2026-02-20): multilayer Max Oper Temp 130,
                    RTI elec 130 - applied to the 1 mm-block copper peak and the FET-row copper
@@ -38,7 +49,8 @@ Limits (sources re-read 2026-10-15; see the audit's ratings.py for page-level qu
   advisory (limit known, package path assumed): bank MKP 110 C (board share only), B82726 125 C (p.4), other 1206
                    (MPNs not re-read)
 
-Exit 0 if every gated margin >= 0, else 1. Advisory rows never fail the gate.
+Exit 0 if every gated margin of the release case(s) (or, with none, of every case) is >= 0, else 1. Advisory rows never
+fail the gate.
 """
 from __future__ import annotations
 
@@ -61,6 +73,28 @@ GATE_R_PKG = {("on", "chip1206"): ("1206 element 155 C (FH RS-06L V11.0 p.2)", 1
               ("off", "chip1206"): ("1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)", 155.0, 0.25),
               ("on", "chip2512"): ("2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)", 155.0, 1.0)}
 PKG_NAME = {"chip1206": "1206", "chip2512": "2512"}
+BASIS = {"c18_h10": {"ceiling_a": 18.0, "h": 10, "bay_c": 61.0, "role": "release"},
+         "c22_h10": {"ceiling_a": 22.0, "h": 10, "bay_c": 55.0, "role": "ratchet"},
+         "c28_h10": {"ceiling_a": 28.0, "h": 10, "bay_c": 55.0, "role": "ratchet"}}
+
+
+def case_ceiling_h(case: str):
+    """'c18_h10' -> (18.0, 10)."""
+    c, h = case.split("_")
+    assert c[0] == "c" and h[0] == "h", case
+    return float(c[1:]), int(h[1:])
+
+
+def parse_cases(spec, bay):
+    """'c18_h10@61,c22_h10' -> {case: bay or None}; an entry's @BAY wins over `bay`."""
+    if isinstance(spec, dict):
+        return dict(spec)
+    items = spec.split(",") if isinstance(spec, str) else list(spec)
+    out = {}
+    for it in items:
+        c, _, b = it.strip().partition("@")
+        out[c] = float(b) if b else bay
+    return out
 
 
 def est(v25, v05, bay):
@@ -108,10 +142,17 @@ def evaluate(r25: dict, r05: dict, bay: float):
     return rows
 
 
-def run(runs: Path, cases, bay: float):
-    out = {"basis": {"cases": cases, "bay_c": bay, "k_mesh": K_MESH, "mot_c": MOT_C}, "cases": {}}
-    lam, part, adv = [], [], []
-    for c in cases:
+def run(runs: Path, cases, bay: float | None = None, release=None):
+    """cases: CASE / CASE@BAY strings or {case: bay}. release: cases whose gated rows decide `pass` (None: the BASIS
+    release cases present; empty: every case). Ratchet metrics are over the other cases."""
+    cases = parse_cases(cases, bay)
+    if release is None:
+        release = [c for c in cases if BASIS.get(c, {}).get("role") == "release"]
+    release = list(release)
+    if set(release) - set(cases):
+        raise SystemExit(f"b3_ratings_gate: release case(s) {sorted(set(release) - set(cases))} not among {list(cases)}")
+    out = {"basis": {"cases": {}, "release": release, "k_mesh": K_MESH, "mot_c": MOT_C}, "cases": {}}
+    for c, want in cases.items():
         f25, f05 = runs / f"{c}_p0p25.json", runs / f"{c}_p0p5.json"
         if not (f25.exists() and f05.exists()):
             raise SystemExit(f"b3_ratings_gate: missing {f25.name} or {f05.name} in {runs}")
@@ -120,15 +161,35 @@ def run(runs: Path, cases, bay: float):
         if len(shas) != 1:
             raise SystemExit(f"b3_ratings_gate: {c} meshes come from different boards {shas}")
         out.setdefault("board_sha256", {})[c] = shas.pop()
-        rows = evaluate(r25, r05, bay)
+        solved = {r25.get("bay_c"), r05.get("bay_c")} - {None}
+        b = want if want is not None else (solved.pop() if len(solved) == 1 else BASIS.get(c, {}).get("bay_c", 55.0))
+        if solved and solved != {b}:
+            raise SystemExit(f"b3_ratings_gate: {c} was solved at bay {sorted(solved)} C, asked for {b} C "
+                             "(the FET tab tie is absolute: solve the bay, do not shift it)")
+        lines = {r25.get("i_line_a"), r05.get("i_line_a")}
+        if len(lines) != 1:
+            raise SystemExit(f"b3_ratings_gate: {c} meshes use different line currents {lines}")
+        out["basis"]["cases"][c] = {"bay_c": b, "i_line_a": lines.pop(), "i_t_a": None if r25.get("i_t_a") is None else round(r25["i_t_a"], 3), "h": r25.get("h"),
+                                    "role": "release" if c in release else "ratchet"}
+        rows = evaluate(r25, r05, b)
         out["cases"][c] = sorted(rows, key=lambda r: r["margin_k"])
-        lam += [r["margin_k"] for r in rows if r["item"].startswith("laminate")]
-        part += [r["margin_k"] for r in rows if r["gated"] and not r["item"].startswith("laminate")]
-        adv += [r["margin_k"] for r in rows if not r["gated"]]
-    worst = min((r for rows in out["cases"].values() for r in rows if r["gated"]), key=lambda r: r["margin_k"])
+    ratchet = [c for c in cases if c not in release] or list(cases)
+    rr = [r for c in ratchet for r in out["cases"][c]]
+    lam = [r["margin_k"] for r in rr if r["item"].startswith("laminate")]
+    part = [r["margin_k"] for r in rr if r["gated"] and not r["item"].startswith("laminate")]
+    adv = [r["margin_k"] for r in rr if not r["gated"]]
+    worst = min((r for r in rr if r["gated"]), key=lambda r: r["margin_k"])
     out["metrics"] = {"b3_laminate_margin_K": min(lam), "b3_rated_part_margin_K": min(part),
-                      "b3_advisory_margin_K": min(adv) if adv else None, "worst_gated": worst["item"]}
-    out["pass"] = min(lam) >= 0 and min(part) >= 0
+                      "b3_advisory_margin_K": min(adv) if adv else None, "worst_gated": worst["item"],
+                      "ratchet_cases": ratchet}
+    decide = release or list(cases)
+    gated = [(c, r) for c in decide for r in out["cases"][c] if r["gated"]]
+    if release:
+        wc, wr = min(gated, key=lambda t: t[1]["margin_k"])
+        out["metrics"].update(b3_release_margin_K=wr["margin_k"], release_worst_gated=f"{wc}: {wr['item']}",
+                              release_failing_rows=[f"{c}: {r['item']} {r['margin_k']:+.1f} K"
+                                                    for c, r in gated if r["margin_k"] < 0])
+    out["pass"] = all(r["margin_k"] >= 0 for _, r in gated)
     return out
 
 
@@ -136,16 +197,24 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs", required=True)
     ap.add_argument("--out")
-    ap.add_argument("--bay-c", type=float, default=55.0)
-    ap.add_argument("--cases", default="c22_h10,c28_h10")
+    ap.add_argument("--bay-c", type=float, help="bay for cases without @BAY (default: the run files' own, then BASIS)")
+    ap.add_argument("--cases", help="default: BASIS; with --bay-c alone, the pre-2026-10-15 pair c22_h10,c28_h10")
+    ap.add_argument("--release", help="comma list of release cases (default: BASIS release cases present; '' = none)")
     a = ap.parse_args()
-    res = run(Path(a.runs), a.cases.split(","), a.bay_c)
+    rel = None if a.release is None else [c for c in a.release.split(",") if c]
+    if a.cases is None:
+        a.cases = ("c22_h10,c28_h10" if a.bay_c is not None else
+                   ",".join(f"{c}@{b['bay_c']:g}" for c, b in BASIS.items()))
+    res = run(Path(a.runs), a.cases, a.bay_c, rel)
     if a.out:
         Path(a.out).write_text(json.dumps(res, indent=1) + "\n")
-    m = res["metrics"]
-    print(f"b3 ratings gate ({a.cases}, bay {a.bay_c} C): laminate margin {m['b3_laminate_margin_K']} K, rated-part "
-          f"margin {m['b3_rated_part_margin_K']} K, advisory {m['b3_advisory_margin_K']} K; worst gated: {m['worst_gated']} "
-          f"-> {'PASS' if res['pass'] else 'FAIL'}")
+    m, bs = res["metrics"], res["basis"]
+    desc = ", ".join(f"{c} bay {v['bay_c']:g} C I_line {v['i_line_a']} A" + (" (release)" if v["role"] == "release" else "")
+                     for c, v in bs["cases"].items())
+    rel_s = (f"release margin {m['b3_release_margin_K']} K ({m['release_worst_gated']}); " if bs["release"] else "")
+    print(f"b3 ratings gate ({desc}): {rel_s}ratchet laminate margin {m['b3_laminate_margin_K']} K, rated-part "
+          f"margin {m['b3_rated_part_margin_K']} K, advisory {m['b3_advisory_margin_K']} K; ratchet worst gated: "
+          f"{m['worst_gated']} -> {'PASS' if res['pass'] else 'FAIL'}")
     raise SystemExit(0 if res["pass"] else 1)
 
 

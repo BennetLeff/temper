@@ -62,3 +62,38 @@ current, and L1 / F1 local air, which the ledger still lists as bench gaps.
 - **The basis should be 13.5 A, not 11.1 A**, because 11.1 A is not a bound. Moving `run_basis.py` / `fet_case.py` /
   `run_study.py` to I_line 13.5 waits until candidate 39 has merged: that lane edits the heat model. It is recorded as
   a follow-on in OPEN-ITEMS.
+
+## Adopted: the gate basis at 13.5 A, with a release case (2026-10-15, after DECISIONS 55; board s42 9e075b4b)
+
+`run_study.I_LINE_A = 13.5` is now the one line-current value: it feeds OPS c28, `run_basis.py` and
+`fet_case.t_case(i_line=)`. The three inputs above move exactly as in `line_hold.py` (checked: identical case strings and
+heat files for c22 / c28). `b3_ratings_gate.BASIS` gives each case its own bay:
+
+- **Release case `c18_h10` at bay 61 °C.** This is the 18.0 A release ceiling at 18.9 A trip. The `b3_ratings` release
+  gate is decided on this case alone. The card metric is `b3_release_margin_K`.
+- **Ratchet cases `c22_h10` and `c28_h10` at bay 55 °C.** These feed `b3_laminate_margin_K` and `b3_rated_part_margin_K`.
+
+`python3 run_basis.py` (6 solves, ~12 min at 4 workers) produces `../margins.json`: **PASS**.
+
+| c18_h10, bay 61 °C, I_line 13.5 A | margin |
+|---|---|
+| R10 2512 terminal derating (worst) | +0.7 K (131.2 / 131.9 °C) |
+| R20 derating; C40 | +1.1 K; +1.1 K (108.9 °C) |
+| R18 derating; C41 | +1.8 K; +3.7 K |
+| Laminate, 1 mm block; FET row | +4.1 K; +7.0 K |
+
+The ratchet cases move as the s41 table above predicted. Every gated row moves 0.1 K or less: the c22 FET row goes
+−3.5 → −3.6 K and the c28 FET row −30.6 → −30.7 K, so the card's laminate value goes −30.6 → −30.7 K. Rated parts stay
+at −33.4 K. On the advisory rows, L1 loses 12.0 K and C5 / C6 lose about 1.3–1.5 K.
+
+**Ceiling at bay 61 °C and 13.5 A.** `python3 run_basis.py --cases c22_h10@61,c28_h10@61 --runs runs/bay61-line13p5
+--out line-hold-2026-10-15/margins-bay61-line13p5.json` gives this pair. `c39-gate-network/scripts/ceilings.py` then
+gives:
+
+- all gated rows **18.3 A** (R10 derating);
+- laminate 18.5 A, laminate + film 18.4 A (C40), R_off 21.4 A.
+
+These are identical to the 11.1 A result (`c39-gate-network/results/margins/s42-bay61.json`).
+
+The I_trip² interpolation to 18.9 A agrees with the direct c18 solve within 0.2 K on R10, R20, C40 and the FET row. On
+the laminate block it reads 2.7 K low (+1.4 against +4.1 K), so for that row it is conservative.

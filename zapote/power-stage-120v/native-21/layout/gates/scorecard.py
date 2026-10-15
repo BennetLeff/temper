@@ -51,6 +51,11 @@ PERF = {
     # temperature and to the hot parts' datasheet limits at the declared basis (b3-ratings/b3_ratings_gate.py).
     "b3_laminate_margin_K": ("higher", 1.0),
     "b3_rated_part_margin_K": ("higher", 1.0),
+    # added 2026-10-15 (after DECISIONS 55): worst gated margin at the release case (c18_h10: the 18.0 A release ceiling's
+    # 1.05 x trip, bay 61 C, still air, I_line 13.5 A) - the margin behind the b3_ratings release gate, ratcheted like the
+    # two above (which stay on c22 / c28 at bay 55 C so cards remain comparable). Cards before s42's re-score lack it and
+    # are skipped by compare().
+    "b3_release_margin_K": ("higher", 1.0),
     "emi_min_margin_dB": ("higher", 0.5),
     "leakage_touch_mA": ("lower", 0.0),
     "cmti_gate_ratio_min": ("higher", 0.0),
@@ -87,6 +92,7 @@ def b3_ratings(b):
 
 # Release gates: absolute pass / fail at the declared basis. Reported on the card, but not part of the candidate-vs-
 # benchmark rule while the benchmark itself fails them; their margins are ratcheted in PERF instead (DECISIONS 46).
+# b3_ratings is decided on the release case alone since 2026-10-15 (c18_h10 at bay 61 C, b3_ratings_gate.BASIS).
 RELEASE_GATES = {"b3_ratings"}
 
 
@@ -127,8 +133,10 @@ def gates(b, tag, audit):
         g["enclosure_fit"] = fit.get("unattributed", 1) == 0 and not fit.get("part_overlaps") and not r4.get("hits")
     if audit:
         g["audit_rs"] = audit == "PASS"
-    # B3 ratings gate: laminate (KB-6164 UL MOT 130 C) and datasheet-limited parts at the declared basis (c22/c28 ceilings,
-    # still-air board bay h 10, 55 C bay air); the file is written by b3-ratings/b3_ratings_gate.py --out
+    # B3 ratings gate: laminate (KB-6164 UL MOT 130 C) and datasheet-limited parts at the release case (c18_h10: the
+    # 18.0 A release ceiling of DECISIONS 55 at its 1.05 x trip, still air h 10, bay 61 C, I_line 13.5 A); every gated
+    # row must pass there. The file is written by b3-ratings/b3_ratings_gate.py --out (via run_basis.py). margins.json
+    # files from before 2026-10-15 have no release case; their pass is over c22 / c28 at bay 55.
     br = b3_ratings(b)
     if br:
         g["b3_ratings"] = bool(br["pass"])
@@ -178,8 +186,12 @@ def performance(b, tag):
     if br:
         m["b3_laminate_margin_K"] = br["metrics"]["b3_laminate_margin_K"]
         m["b3_rated_part_margin_K"] = br["metrics"]["b3_rated_part_margin_K"]
+        if br["metrics"].get("b3_release_margin_K") is not None:
+            m["b3_release_margin_K"] = br["metrics"]["b3_release_margin_K"]
         src["b3_ratings"] = (f"04-board-current-thermal/round5-native21/b3-ratings/margins.json {br['basis']} "
-                             f"worst {br['metrics']['worst_gated']}")
+                             f"worst {br['metrics']['worst_gated']}"
+                             + (f"; release worst {br['metrics']['release_worst_gated']}"
+                                if br["metrics"].get("release_worst_gated") else ""))
     emi = jload(VR / "07-conducted-emi/s19b/results.json")
     if emi:
         def margins(o):
