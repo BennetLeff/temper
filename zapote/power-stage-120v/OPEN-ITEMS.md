@@ -1,7 +1,7 @@
 # native-21 open items (register, updated 2026-10-15)
 
-One row per open item on the power board, so nothing falls between lanes. Board of record: **s40** (board 33ed17f3,
-4 layers; DECISIONS 52, on s38 of DECISIONS 50). Keep this current: when an item closes, give the DECISIONS number
+One row per open item on the power board, so nothing falls between lanes. Board of record: **s41** (board d4b2445c,
+4 layers; DECISIONS 53, on s40 of DECISIONS 52). Keep this current: when an item closes, give the DECISIONS number
 and move it to "Closed" at the end. Agents marked "running" write to scratch; the integration session reviews and
 commits their results.
 
@@ -10,7 +10,7 @@ Lanes:
   scorecard. At most 2–3 run at once.
 - **Analysis lanes** build nothing and run in parallel.
 
-Scorecard (DECISIONS 43, 45, 46): compare against `10-benchmark/scorecard-native21s40.json`. The release gates
+Scorecard (DECISIONS 43, 45, 46): compare against `10-benchmark/scorecard-native21s41.json`. The release gates
 (`RELEASE_GATES`: `b3_ratings`) and the leakage limit are absolute conditions for an order. A candidate is graded on
 their ratchets.
 
@@ -18,7 +18,7 @@ their ratchets.
 
 | # | Item | Evidence | Lane / owner | Status | Next |
 |---|---|---|---|---|---|
-| S2 | **Board temperatures vs ratings (corrected model, DECISIONS 51; s38, still air, bay 55 °C):** laminate −2.5 K at 22 A, −38.0 K at 28 A (R5.4 block); C40 film −3.1 K at 22 A; **1206 gate resistors fail their derating line at every ceiling** (−39.7 K at 22 A, −63.9 K at 28 A). Laminate-only still-air ceiling 21.5 A (bay 55) / 20.4 A (bay 61) | DECISIONS 46, 51; `b3-ratings/` | Candidate 36 (tank copper, 0.5 mΩ shunt option; ps-selv); candidate 39 (gate resistors → 2512); enclosure airflow reply | Running | Release when the gate passes; ceiling request to the controller stays ≤ 18 A until then |
+| S2 | **Board temperatures vs ratings (s41, still air, bay 55 °C, DECISIONS 53):** 22 A: laminate **+1.2 K (passes)**, C40 film −2.7 K; 28 A: laminate −25.1 K, films −15 to −25 K, R5 element −0.3 K. **1206 gate resistors fail derating at every ceiling** (−39.6 K). Still-air ceiling: laminate 22.3 A, + film 21.1 A. 28 A in still air is not reachable by layout on 2 oz (JLC has no 3 oz multilayer) | DECISIONS 46, 51, 53; `b3-ratings/`, `c36-tank-copper/` | Candidate 39 (gate R → 2512); enclosure airflow reply (only route to 28 A); C40 at 22 A | Open | After 39: re-run targets at bay 61 °C on s41; set the release ceiling |
 | S14 | **IPW65R018CFD7 reverse-diode dv/dt 70 V/ns exceeded in S4** (IL −20 A hard commutation): 85.8 V/ns modelled, 1.23× the rating, 1.5× the 80 % rule (56 V/ns). Ledger VIOLATION (ledger_violations 1 on every card) | DECISIONS 49; device study | Analysis: candidate 39 gate network (split R_on / R_off, CM8 alongside); then a layout lane | Running | Fix ≤ 56 V/ns at every S4 corner; bench D-8 double pulse measures it |
 | S1 | Touch leakage: was 0.974 mA. **Built in s38 (DECISIONS 50):** 0.2412 mA DESIGN (budget 0.25, margin 8.8 µA) with the off-board D-22 module Y removed + SCF31X choke and PS3 → MPM-65-15ST; s19b EMI 12.37 / 8.19 dB | `c23-supply-topology/README.md`; co-design study | Controller (J13 merge, PS3); D-22 module (`c23-supply-topology/MODULE-REQUEST.md`); certifier (MPM approvals: IEC 60601-1 / 60335-1, no UL file) | Passes on the model | Bench: measured supply leakage, SCF31X DM leakage, HF touch with the lab's meter network. Robust variant (L1 → SCF31X) needs an L1-slot re-layout |
 | S12 | Laminate UL scope: KB-6164 (35 µm) and KB-6165 (54 µm) multilayer rows don't cover 61 µm (2 oz) inner copper; KB-6164F / 6165F / 6167F list 102 µm, and JLC's "TG155" option links KB-6165F. Item 41 named KB-6164 for CTI; `stackup.json` still says Nan Ya NP-155F | DECISIONS 41, 51 | Owner → JLC (UL Product iQ needs a login) | Open | Which recognised JLC-4 construction covers 4 L, 2 oz inner, CTI ≥ 175 V; then fix the order remark and stackup.json together |
@@ -54,11 +54,11 @@ their ratchets.
 | C5 | PS1 deletion (candidate 23) | 4.20 saved net of PS2 → MPM | Done (DECISIONS 50) | Closed |
 | C7 | Bare board: six layers $19.11 vs four $17.28 pinned; area compaction ~$1.5 per 10 % | DECISIONS 40 | After candidate 23 (compaction) | Open |
 
-## 4. Layout lanes (one building: ps-selv; ps-layers free)
+## 4. Layout lanes (none building; ps-layers and ps-selv free)
 
 | Lane (island) | Candidate | Status | Blocked on |
 |---|---|---|---|
-| Tank / FET row (WS3 / WS4 boundary) | 36: tank-copper heat at R5.4 / FET row; 0.5 mΩ shunt option; stage tag s41 | Running (ps-selv, branch claude/native21-c36-tank-copper) | Targets: f ≤ 0.895 (c22), 0.369 (c28; 0.551 with the shunt) |
+| Tank / FET row (WS3 / WS4 boundary) | 36: done, stage 41 (DECISIONS 53); shunt not adopted | Merged | — |
 | Gate networks (HS / LS driver outputs) | 39: S4 dv/dt fix (S14) by a larger turn-on R (the PMEG + 1 Ω turn-off path exists); gate resistors to 2512 (S2); CM8 option | After its analysis | The gate-network study (running) |
 | SELV side (WS5, spine owner) | 23: done, stage 38 (DECISIONS 50); spine baseline re-issued (s38) | Merged | — |
 | HS-B / LS (WS4) | 30a / 30b done, stage 40 (DECISIONS 52) | Merged | — |
