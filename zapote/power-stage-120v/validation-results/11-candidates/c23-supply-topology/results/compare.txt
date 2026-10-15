@@ -1,0 +1,1 @@
+ACCEPT native21s38 vs validation-results/10-benchmark/scorecard-native21s35.json: cheaper ['parts_usd_at_500', 'bom_lines', 'placements', 'jlc_extended_lines', 'hand_or_consign_lines', 'zero_stock_lines'], better ['emi_min_margin_dB', 'leakage_touch_mA', 'track_acute_corners', 'track_right_angle_corners', 'track_any_angle_mm']

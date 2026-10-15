@@ -1,0 +1,225 @@
+{
+ "system": {
+  "board": "PS1 deleted; PS2 MPM-20-24; L1 TDK B82726S2203A020 1.6 mH; C3/C4 2.2 nF",
+  "chassis": "PS3 MPM-65-15ST",
+  "d22_module": "Y caps removed; CM choke SCF31X-220-2R1A011JH 5.68 mH (1 % DM leakage assumed)",
+  "codesign_filter": "B2.2 module Y removed, board 2.2 nF, module choke NC5.68",
+  "supplies_charged": [
+   "MPM-20-24",
+   "MPM-65-15ST"
+  ]
+ },
+ "touch": {
+  "design_mA": 0.241225042138699,
+  "terms_mA": {
+   "Y (board 2.2 nF/line, +20 %)": 0.13137386495075654,
+   "coil 31 pF (+20 %)": 0.0018511771879424787,
+   "MPM-20-24 (datasheet max)": 0.048,
+   "MPM-65-15ST (datasheet max)": 0.06
+  },
+  "budget_mA": 0.25,
+  "margin_uA": 8.774957861301003,
+  "verdicts": {
+   "portable_0.5_50pct_budget_0.250": true,
+   "portable_0.5_100pct": true,
+   "stationary_0.75_50pct_budget_0.375": true,
+   "stationary_0.75_100pct": true
+  },
+  "pe_conductor_mA_pe_intact": 0.482450084277398,
+  "sweep": {
+   "V120.0_ff1.0_tol0.1_coil31pF": 0.1929792909631539,
+   "V120.0_ff1.0_tol0.1_coil51pF": 0.19406502538423454,
+   "V120.0_ff1.0_tol0.2_coil31pF": 0.20293185648972634,
+   "V120.0_ff1.0_tol0.2_coil51pF": 0.20401759091080698,
+   "V120.0_ff1.2_tol0.1_coil31pF": 0.20934292732679025,
+   "V120.0_ff1.2_tol0.1_coil51pF": 0.2104286617478709,
+   "V120.0_ff1.2_tol0.2_coil31pF": 0.2192954928533627,
+   "V120.0_ff1.2_tol0.2_coil51pF": 0.22038122727444334,
+   "V127.0_ff1.0_tol0.1_coil31pF": 0.2042364162693379,
+   "V127.0_ff1.0_tol0.1_coil51pF": 0.2053854851983149,
+   "V127.0_ff1.0_tol0.2_coil31pF": 0.21476954811829377,
+   "V127.0_ff1.0_tol0.2_coil51pF": 0.21591861704727075,
+   "V127.0_ff1.2_tol0.1_coil31pF": 0.2215545980875197,
+   "V127.0_ff1.2_tol0.1_coil51pF": 0.22270366701649671,
+   "V127.0_ff1.2_tol0.2_coil31pF": 0.23208772993647558,
+   "V127.0_ff1.2_tol0.2_coil51pF": 0.23323679886545257,
+   "V132.0_ff1.0_tol0.1_coil31pF": 0.21227722005946928,
+   "V132.0_ff1.0_tol0.1_coil51pF": 0.21347152792265797,
+   "V132.0_ff1.0_tol0.2_coil31pF": 0.22322504213869898,
+   "V132.0_ff1.0_tol0.2_coil51pF": 0.22441935000188767,
+   "V132.0_ff1.2_tol0.1_coil31pF": 0.23027722005946927,
+   "V132.0_ff1.2_tol0.1_coil51pF": 0.23147152792265796,
+   "V132.0_ff1.2_tol0.2_coil31pF": 0.241225042138699,
+   "V132.0_ff1.2_tol0.2_coil51pF": 0.2424193500018877,
+   "V134.6_ff1.0_tol0.1_coil31pF": 0.2164584380303376,
+   "V134.6_ff1.0_tol0.1_coil51pF": 0.21767627013931637,
+   "V134.6_ff1.0_tol0.2_coil31pF": 0.22762189902930968,
+   "V134.6_ff1.0_tol0.2_coil51pF": 0.22883973113828845,
+   "V134.6_ff1.2_tol0.1_coil31pF": 0.23481298348488305,
+   "V134.6_ff1.2_tol0.1_coil51pF": 0.23603081559386183,
+   "V134.6_ff1.2_tol0.2_coil31pF": 0.24597644448385514,
+   "V134.6_ff1.2_tol0.2_coil51pF": 0.2471942765928339
+  },
+  "sweep_worst": {
+   "key": "V134.6_ff1.2_tol0.2_coil51pF",
+   "mA": 0.2471942765928339
+  },
+  "flip_points": {
+   "extra_Y_nF_per_line_to_fail": 0.14694632986628164,
+   "supply_scale_factor_to_fail": 1.081249609826861
+  },
+  "s35_design_mA": 0.9741421213647918
+ },
+ "emi": {
+  "s38": {
+   "nominal_dB": 12.374473525419013,
+   "compliance_min_dB": 8.18631501597065,
+   "min_case": "coil_PE_study16_plus_board_51pF",
+   "nominal_worst": {
+    "margin_dB": 12.374473525419013,
+    "band": "hi",
+    "cfg": "198V/pan_22A",
+    "f_hz": 180000.0,
+    "fs_hz": 60000.0,
+    "CM_dBuV": 42.11118786415657,
+    "DM_dBuV": -79.88668721793076,
+    "per_cfg": {
+     "170V/pan_22A": {
+      "lo": 16.16206357120258,
+      "hi": 13.700198642142439
+     },
+     "170V/pan_28A": {
+      "lo": 14.067360113325861,
+      "hi": 13.700198642142439
+     },
+     "170V/nopan_22A": {
+      "lo": 17.283367779257887,
+      "hi": 18.894359022926487
+     },
+     "198V/pan_22A": {
+      "lo": 16.162065114616013,
+      "hi": 12.374473525419013
+     },
+     "198V/pan_28A": {
+      "lo": 14.067360867785112,
+      "hi": 12.374473525419013
+     },
+     "198V/nopan_22A": {
+      "lo": 15.95904513083326,
+      "hi": 23.045461885045697
+     }
+    }
+   },
+   "per_scenario_dB": {
+    "nominal": 12.374473525419013,
+    "tabs_mismatch_AlN_range": 13.078161819214706,
+    "tabs_mismatch_reversed": 10.160174181973488,
+    "enclosure_metal_5mm": 11.327365887212615,
+    "no_enclosure_coupling": 12.765592686441508,
+    "coil_caps_at_sw_nodes_(D-22 convention)": 14.06735607471039,
+    "coil_PE_study16_low_28p5pF": 13.043643882466895,
+    "coil_PE_study16_high_35p1pF": 11.358063637425587,
+    "coil_PE_study16_plus_board_51pF": 8.18631501597065,
+    "Y_caps_minus20pct": 10.42743110086132,
+    "Y_caps_ESL_x3": 12.375209856831638,
+    "L1_minus30pct_and_module_choke_minus30pct": 10.278332218688554,
+    "L1_winding_C_x2": 11.622758707131524,
+    "module_DM_80uH": 12.368749891714252,
+    "module_DM_L_parasitic_C_100pF": 12.374560044277032,
+    "X_caps_minus20pct": 9.859524179129181,
+    "PE_bond_200nH": 12.357933132238912,
+    "edge_B_x1.2": 12.37650269213205,
+    "edge_x0.5_slower": 12.381214930933552,
+    "edge_x2_faster": 12.37278847065879,
+    "INFO_pan_earthed_91pF": 3.319672696537026
+   },
+   "info_pan_earthed_dB": 3.319672696537026
+  },
+  "s38_rin": {
+   "nominal_dB": 14.067360707771769,
+   "compliance_min_dB": 9.859524292128683,
+   "min_case": "X_caps_minus20pct"
+  },
+  "s35_E00": {
+   "nominal_dB": 10.479333840513334,
+   "compliance_min_dB": 6.502787056540967,
+   "min_case": "X_caps_minus20pct"
+  }
+ },
+ "hf_touch_estimate": {
+  "none": {
+   "weighted_mA": {
+    "lisn_mains_iec60990": 0.028212132088103664,
+    "stiff_mains_iec60990": 0.02839709051898365,
+    "lisn_mains_ul101": 0.04509351366019966
+   },
+   "rss_iec60990_mA": 0.24286919391263626,
+   "rss_ul_style_mA": 0.24540363878524646
+  },
+  "chokes -30 % (L1 + module)": {
+   "weighted_mA": {
+    "lisn_mains_iec60990": 0.04184074404353899,
+    "stiff_mains_iec60990": 0.0421284692379946,
+    "lisn_mains_ul101": 0.17679189801196654
+   },
+   "rss_iec60990_mA": 0.24482681392554625,
+   "rss_ul_style_mA": 0.29907339593733623
+  },
+  "module choke -30 %": {
+   "weighted_mA": {
+    "lisn_mains_iec60990": 0.039795371036014576,
+    "stiff_mains_iec60990": 0.04009936464456017,
+    "lisn_mains_ul101": 0.11725116731467487
+   },
+   "rss_iec60990_mA": 0.2444855670805767,
+   "rss_ul_style_mA": 0.26821140391763915
+  },
+  "module choke +50 %": {
+   "weighted_mA": {
+    "lisn_mains_iec60990": 0.017482351757569906,
+    "stiff_mains_iec60990": 0.01755664298460999,
+    "lisn_mains_ul101": 0.022310740679400407
+   },
+   "rss_iec60990_mA": 0.2418577134965774,
+   "rss_ul_style_mA": 0.24225459769523583
+  },
+  "Y -20 %": {
+   "weighted_mA": {
+    "lisn_mains_iec60990": 0.04037716200520524,
+    "stiff_mains_iec60990": 0.04064372313885888,
+    "lisn_mains_ul101": 0.0864211982579898
+   },
+   "rss_iec60990_mA": 0.2445809399082678,
+   "rss_ul_style_mA": 0.2562384523508599
+  },
+  "Y +20 %": {
+   "weighted_mA": {
+    "lisn_mains_iec60990": 0.021114065123592204,
+    "stiff_mains_iec60990": 0.021242749447250377,
+    "lisn_mains_ul101": 0.029884329884528438
+   },
+   "rss_iec60990_mA": 0.24214732024298843,
+   "rss_ul_style_mA": 0.24306911389040037
+  },
+  "coil + board 51 pF": {
+   "weighted_mA": {
+    "lisn_mains_iec60990": 0.046197349598221374,
+    "stiff_mains_iec60990": 0.04649977190821489,
+    "lisn_mains_ul101": 0.07354736758762022
+   },
+   "rss_iec60990_mA": 0.24560886804982712,
+   "rss_ul_style_mA": 0.25218789866662045
+  }
+ },
+ "sources": {
+  "cores": "validation-results/07-conducted-emi/leakage/co-design-2026-10-15/{leakage_core,emi_core,hf_touch,candidates}.py",
+  "supplies": {
+   "MPM-20-24": "MEAN WELL MPM-20-SPEC 2024-10-30, p.2 (as MPM-20-15)",
+   "MPM-65-15ST": "MEAN WELL MPM-65-SPEC 2024-10-30, p.2 spec table, LEAKAGE CURRENT (max.) 'Touch current <100uA/264VAC', Note 6 'measured from primary input to DC output'"
+  },
+  "module_choke": "KEMET SCF31X-220-2R1A011JH spec sheet (generated 2026-10-15): 5.68 mH, 22 A, 500 VAC, 4.39 mOhm, nanocrystalline, D 45 x T 42 x H 33 mm, 45 K rise max.  DM leakage not published: 1 % (56.8 uH) assumed",
+  "l1": "TDK B82726S2203A020, 1.6 mH/winding, 18 uH leakage typ, 4.5 mOhm, 20 A (TDK data sheet May 2026 p.4, https://www.tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s22x3.pdf; datasheet ledger entry); as built (L1) and as specified in D-22 (module)"
+ },
+ "controls_failed": [],
+ "runtime_s": 261.9
+}

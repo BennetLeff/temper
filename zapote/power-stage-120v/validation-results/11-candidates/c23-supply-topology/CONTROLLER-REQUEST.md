@@ -43,3 +43,16 @@ driver UVLO still holds; please restate the line with the new part.
    with 55 °C bay air, the board copper at R5 exceeds the laminate's UL MOT of 130 °C at the 22 A default ceiling.
    Fixes are in progress (enclosure airflow, board copper candidate 36, shunt). Please treat 22 / 28 A as gated on them,
    and tell us which ceiling the firmware commissions in the meantime.
+
+## Addendum 2, 2026-10-15: stage 38 is built (power board), what the controller now sees
+
+8. **J4 pin 1 is not connected on the power board.** PS1 and its net V15_SELV are deleted; J4.1 sits on a named
+   single-pin SELV net `j4_nc1` (no copper beyond the pad). A controller that still drives or expects 15 V on J4.1 sees
+   an open pin: nothing on the power board is powered from it, and nothing is back-fed. Items 1 and 2 above (J13 merge,
+   remove the J4.1 15 V input path) are therefore required before a stage-38 board is powered with the controller; the
+   J4 re-pin (P5) stays a separate step.
+9. **PS2 is MEAN WELL MPM-20-24** (was IRM-20-24, same Case 219A and pin map). It still feeds only the HOT-side bias
+   (V24_RAW / N_LS, TCO-switched); nothing changes at J4.
+10. **PS3 = MPM-65-15ST (item 6) is part of the leakage pass.** The stage-38 touch current (0.2412 mA against the
+    0.25 mA budget, margin 8.8 uA) counts PS3 at the MPM-65 maximum (100 uA at 264 VAC). With an IRM-60-15ST in PS3 the
+    system fails the budget (0.324 mA: 0.2412 - 0.0600 + 0.1430). Please confirm the PS3 MPN when it is chosen.
