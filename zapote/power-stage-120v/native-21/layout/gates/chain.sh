@@ -76,6 +76,8 @@ case "$CUL" in F.Cu,*,B.Cu) ;; *) echo "layers21 failed: $CUL" >&2; exit 1;; esa
   $KP $E/body_collisions.py --dump-courtyards "$BP" $E/native21-courtyards.json >/dev/null 2>&1
   python3 $E/body_collisions.py $E/native21-boxes.json $E/native21-courtyards.json $E/native21-envelopes.json > $E/native21-body-collisions.json 2>&1
   python3 $E/board_in_enclosure.py $E/native21-boxes.json $E/native21-courtyards.json $E/native21-envelopes.json > $E/native21-in-r4.json 2>&1 || echo "R4 FAIL"
+  # OPEN-ITEMS S2 airflow route: nothing over 4 mm under the jet box (temper-8d airflow-r1 D6.2)
+  python3 native-21/layout/gates/jet_strip_height.py $E/native21-boxes.json $E/native21-courtyards.json $E/native21-jet-strip.json || echo "JET STRIP FAIL"
   python3 -c "import json;a=json.load(open('$E/native21-body-collisions.json'));b=json.load(open('$E/native21-in-r4.json'));print('FIT',a['solids'],a['unattributed'],len(a['part_overlaps']),b['bodies'],len(b['hits']))"
 ) > "$B/blk-fit.log" 2>&1 &
 P_FIT=$!

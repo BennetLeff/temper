@@ -131,6 +131,10 @@ def gates(b, tag, audit):
     r4 = jload(UNIT / "validation-plan/enclosure-fit/native21-in-r4.json")
     if fit and r4:
         g["enclosure_fit"] = fit.get("unattributed", 1) == 0 and not fit.get("part_overlaps") and not r4.get("hits")
+    # jet strip: nothing over 4 mm under the airflow jet box (OPEN-ITEMS S2; jet_strip_height.py)
+    js = jload(UNIT / "validation-plan/enclosure-fit/native21-jet-strip.json")
+    if js:
+        g["jet_strip_height"] = js["pass"]
     if audit:
         g["audit_rs"] = audit == "PASS"
     # B3 ratings gate: laminate (KB-6164 UL MOT 130 C) and datasheet-limited parts at the release case (c18_h10: the
