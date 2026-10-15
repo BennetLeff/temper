@@ -6,8 +6,8 @@ Send log at the end.
 
 It replaces the unsent four-layer draft [`CTI-JLC.md`](CTI-JLC.md), whose findings still apply: every listed JLC FR-4
 laminate with a findable datasheet is PLC 3 (CTI 175–249 V, group IIIa), and JLC names no laminate for a stackup ID. One
-message asks about both stackups, so the answer serves whichever one is adopted (six layers is candidate 33, accepted on
-the data, adoption pending).
+message asks about both stackups. Four layers is the board of record; six layers (candidate 33) was not adopted on
+price (DECISIONS 40), and question 6 decides whether its cheaper unpinned route is worth reopening.
 
 Six-layer stack: JLC061622-1080A, 1.6 mm, 2 oz outer and inner (`native-21/stackup-6L.json`). From JLC's API it is
 1080 ×3 prepreg / 0.30 mm core / 1080 + 2116 + 1080 prepreg / 0.30 mm core / 1080 ×3 prepreg, with no laminate brand
@@ -42,7 +42,6 @@ Live chat is the fallback, with the reply requested by email.
 >    material certificate shipped with the order?
 > 5. **Thickness.** Can you hold a finished thickness of **1.60–1.76 mm** on each stackup? Our through-hole terminals
 >    need at least 1.6 mm.
->
 > 6. **Unspecified stackup.** If we leave "Specify Stackup" at "No requirement" for a 6-layer, 1.6 mm, 2 oz / 2 oz
 >    board, is the build always the stack your quote page displays for it (0.35 mm cores, two-ply outer prepreg), or
 >    can it be any of JLC061622-1080 / -1080A / -1080B / -2116 / -2116A, or something else? The same question for
