@@ -139,20 +139,47 @@ void enter_hardware_latched_fault(fault_code_t fault) {
     transition_to(STATE_FAULT);
 }
 
+/* The RTD sinks below are called by the converter service, which runs in
+ * every state, including FAULT and RUNAWAY_FAULT. A report that arrives while
+ * a fault is already latched keeps the first fault: it re-asserts the
+ * hardware cut but neither overwrites the latched fault code (which decides
+ * fault_cleared() and is what the user sees) nor re-enters the fault state
+ * (each entry logs to EEPROM). A MAX31865 holds register 07h until cleared,
+ * so without this a latched threshold fault re-entered FAULT and logged on
+ * every conversion, 50 times a second. A terminal sensor report absorbed
+ * here (stale, frozen) still blocks the reset: fault_cleared() checks the
+ * converter service in C1 builds. output/temper-sensor-r3/firmware/
+ * DECISIONS.md D-LATCH. */
+static bool fault_already_latched(void) {
+    return sm_ctx.current_state == STATE_FAULT ||
+           sm_ctx.current_state == STATE_RUNAWAY_FAULT;
+}
+
 void state_machine_report_rtd_device_fault(bool short_fault, bool open_fault,
                                            void *context) {
     (void)context;
 
+    if (!short_fault && !open_fault) {
+        return;
+    }
+    if (fault_already_latched()) {
+        assert_hardware_fault_cut();
+        return;
+    }
     /* Both decoded MAX31865 threshold bits still represent a terminal RTD
      * safety failure. Prefer the short diagnosis when both are reported. */
     if (short_fault) {
         enter_hardware_latched_fault(FAULT_PROBE_SHORT);
-    } else if (open_fault) {
+    } else {
         enter_hardware_latched_fault(FAULT_PROBE_OPEN);
     }
 }
 
 void state_machine_report_rtd_frozen(void) {
+    if (fault_already_latched()) {
+        assert_hardware_fault_cut();
+        return;
+    }
     enter_hardware_latched_fault(FAULT_ADC_STUCK);
 }
 
@@ -573,6 +600,16 @@ bool fault_cleared(void) {
     if (sm_ctx.current_state == STATE_RUNAWAY_FAULT) {
         return false;
     }
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* A stopped MAX31865 service (no DRDY, frozen code, SPI or fault-cycle
+     * failure) is terminal: only a power cycle bootstraps it again, and until
+     * then the last conversion is stale. Its report may have been absorbed by
+     * an already-latched fault (D-LATCH), so this holds for every fault.
+     * output/temper-sensor-r3/firmware/DECISIONS.md D-RESET. */
+    if (!pan_control_sensor_ready()) {
+        return false;
+    }
+#endif
     
     switch (sm_ctx.fault_code) {
         case FAULT_OVER_TEMP:
@@ -585,9 +622,11 @@ bool fault_cleared(void) {
         case FAULT_PROBE_SHORT:
             rtd_resistance = read_rtd_resistance();
             /* Do not permit reset while the inclusive MAX31865 guard window
-             * still reports a short or open/out-of-range PT100 condition. */
-            return (rtd_resistance > RTD_SHORT_FAULT_OHM &&
-                    rtd_resistance < RTD_OPEN_FAULT_OHM);
+             * still reports a short or open/out-of-range PT100 condition. The
+             * window is the one the interlock uses: the C1 84.27 / 233.21 ohm
+             * window in C1 builds (D-RESET), the legacy one otherwise. */
+            return (rtd_resistance > SM_RTD_SHORT_FAULT_OHM &&
+                    rtd_resistance < SM_RTD_OPEN_FAULT_OHM);
 
         case FAULT_SELF_TEST_FAILED:
             return run_self_test();

@@ -64,9 +64,19 @@ float pan_control_resistance_ohm(void)
     return latest(&smp) ? smp.r_ohm : NAN;
 }
 
+bool pan_control_sensor_ready(void)
+{
+    return rtd_service_is_ready();
+}
+
 float pan_control_t_hat(void)
 {
     return s_t_hat;
+}
+
+int pan_control_supervisor_latch(void)
+{
+    return s_inited ? (int)s_sup.latched : 0;
 }
 
 bool pan_control_rate_sample(float reading_c, uint32_t now_ms)

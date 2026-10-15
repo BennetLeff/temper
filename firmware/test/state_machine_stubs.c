@@ -75,8 +75,9 @@ static struct {
     uint32_t buzzer_beep_calls;
     uint32_t display_message_calls;
     
-    /* Last logged fault */
+    /* Last logged fault, and the first one since mock_sm_reset() */
     fault_code_t last_logged_fault;
+    fault_code_t first_logged_fault;
     
     /* Last display message */
     char last_display_message[64];
@@ -226,6 +227,7 @@ bool mock_sm_get_pll_enabled(void) { return mock_sm_state.pll_enabled; }
 led_pattern_t mock_sm_get_led_pattern(void) { return mock_sm_state.led_pattern; }
 fan_speed_t mock_sm_get_fan_speed(void) { return mock_sm_state.fan_speed; }
 fault_code_t mock_sm_get_last_logged_fault(void) { return mock_sm_state.last_logged_fault; }
+fault_code_t mock_sm_get_first_logged_fault(void) { return mock_sm_state.first_logged_fault; }
 const char* mock_sm_get_last_display_message(void) { return mock_sm_state.last_display_message; }
 
 /* Call counters */
@@ -420,6 +422,9 @@ bool test_eeprom_read(void) { return mock_sm_state.test_eeprom_pass; }
 
 /* EEPROM */
 void eeprom_log_fault(fault_code_t code, uint32_t timestamp) {
+    if (mock_sm_state.eeprom_log_fault_calls == 0u) {
+        mock_sm_state.first_logged_fault = code;
+    }
     mock_sm_state.eeprom_log_fault_calls++;
     mock_sm_state.last_logged_fault = code;
     (void)timestamp;

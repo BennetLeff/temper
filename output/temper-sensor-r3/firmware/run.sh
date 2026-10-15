@@ -4,7 +4,9 @@
 #   2. build + run the seven C1 host test targets (firmware/test/CMakeLists.txt):
 #      loop modules, D1, the contact-lost event, and the C1 runtime
 #      (supervisor/conversion units, state machine + pan_control, MAX31865 C1
-#      service through the SPI mock; TEMPER_PAN_CONTROL_C1)
+#      service through the SPI mock; TEMPER_PAN_CONTROL_C1), and the SIL
+#      fault-injection suite in both configurations (legacy and C1) with its
+#      coverage gate (DECISIONS.md D-SIL)
 #   3. build the C1 sources as a host library and run the C-in-the-loop co-sim
 #      (cosim-results.json, gates bars B1-B5 in three gain modes, with the
 #      runtime runaway supervisor in the loop)
@@ -28,9 +30,13 @@ echo "== 2. host tests"
 cmake -S "$repo/firmware/test" -B "$tmp/build" > /dev/null
 cmake --build "$tmp/build" -j 8 --target test_pan_temp_estimator_only \
     test_contact_check_only test_pan_temp_loop_only test_pan_contact_sm_only \
-    test_c1_units_only test_c1_runtime_only test_c1_rtd_service_only > /dev/null
+    test_c1_units_only test_c1_runtime_only test_c1_rtd_service_only \
+    test_sil_fault_injection test_sil_fault_injection_c1 > /dev/null
 (cd "$tmp/build" && ctest --output-on-failure \
-    -R '^(pan_temp_estimator|contact_check|pan_temp_loop|pan_contact_sm|c1_units|c1_runtime|c1_rtd_service)_tests$')
+    -R '^(pan_temp_estimator|contact_check|pan_temp_loop|pan_contact_sm|c1_units|c1_runtime|c1_rtd_service|sil_fault)_tests(_c1)?$')
+"$py" "$repo/firmware/test/test_sil_coverage.py" --gate > "$tmp/cov.log" 2>&1 \
+    || { cat "$tmp/cov.log"; exit 1; }
+grep '^SUMMARY' "$tmp/cov.log"
 
 echo "== 3. co-simulation"
 lib=$("$here/build_lib.sh" "$tmp/lib")

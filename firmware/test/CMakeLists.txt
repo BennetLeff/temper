@@ -472,7 +472,9 @@ add_executable(test_sil_fault_injection
 target_include_directories(test_sil_fault_injection PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_sil_fault_injection m)
 
-# CTest registration
+# CTest registration. The C1 configuration of the same suite
+# (test_sil_fault_injection_c1, sil_fault_tests_c1) is registered with the
+# other TEMPER_PAN_CONTROL_C1 targets below.
 add_test(NAME sil_fault_tests
     COMMAND test_sil_fault_injection
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -607,3 +609,30 @@ add_dependencies(test_c1_rtd_service_only gen_config gen_fault_list gen_transiti
 add_test(NAME c1_units_tests COMMAND test_c1_units_only)
 add_test(NAME c1_runtime_tests COMMAND test_c1_runtime_only)
 add_test(NAME c1_rtd_service_tests COMMAND test_c1_rtd_service_only)
+
+# SIL fault injection in the C1 configuration: the same runner and manifest
+# (test_sil_fault_injection.c, traces/manifest.json "modes"), built with
+# TEMPER_PAN_CONTROL_C1 as the ESP-IDF target is, with the C1 loop and
+# supervisor and the real MAX31865 service driven through the SPI mock by a
+# register-level converter model. output/temper-sensor-r3/firmware/
+# DECISIONS.md D-SIL; coverage of both configurations is gated by
+# test_sil_coverage.py (scripts/check_sil_coverage.py).
+add_executable(test_sil_fault_injection_c1
+    ${UNITY_SOURCES}
+    ${MOCK_HAL_SOURCES}
+    ${C1_RUNTIME_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/max31865.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_sil_fault_injection.c
+)
+target_compile_definitions(test_sil_fault_injection_c1 PRIVATE TEMPER_PAN_CONTROL_C1=1)
+target_include_directories(test_sil_fault_injection_c1 PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_sil_fault_injection_c1 m)
+add_dependencies(test_sil_fault_injection_c1 gen_config gen_fault_list gen_transition_table)
+
+add_test(NAME sil_fault_tests_c1
+    COMMAND test_sil_fault_injection_c1
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)

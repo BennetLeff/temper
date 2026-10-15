@@ -1,49 +1,75 @@
 #!/usr/bin/env python3
 """
-SIL fault-injection coverage check (plan 2026-08-02-031, U1/KTD4).
+SIL fault-injection coverage check (plan 2026-08-02-031, U1/KTD4), for both
+SIL configurations: the legacy loop (test_sil_fault_injection) and the C1
+pan-sensor loop (test_sil_fault_injection_c1, TEMPER_PAN_CONTROL_C1;
+output/temper-sensor-r3/firmware/DECISIONS.md D-SIL).
 
-Coverage is a matrix over (fault class, origin state): for every safety
-fault class with a manifest-defined path, the machine must be injected from
-*every* state that path is designed to be reachable from -- not just one
-origin trajectory.
+Coverage is a matrix over (fault class, origin state), per mode: for every
+safety fault class with a manifest-defined path, the machine must be injected
+from *every* state that path is designed to be reachable from -- not just one
+origin trajectory. A scenario counts for a mode when its manifest "modes"
+list includes that mode (default: both).
 
-"Designed" pairs come from two sources, because the firmware itself expresses
-fault paths two different ways:
+"Designed" pairs come from these sources, because the firmware expresses
+fault paths in different ways:
 
   1. firmware/transition_table.yaml -- event-dispatched rows with a `fault:`
-     field. This is the single source of truth for FAULT_SELF_TEST_FAILED,
-     FAULT_OVER_TEMP, FAULT_OVER_CURRENT, FAULT_FAN_FAILURE,
-     FAULT_PROBE_OPEN, FAULT_PROBE_SHORT, FAULT_THERMAL_RUNAWAY and
-     FAULT_COOLDOWN_OVERHEAT.
+     field (both modes). This is the single source of truth for
+     FAULT_SELF_TEST_FAILED, FAULT_OVER_TEMP, FAULT_OVER_CURRENT,
+     FAULT_FAN_FAILURE, FAULT_PROBE_OPEN, FAULT_PROBE_SHORT,
+     FAULT_THERMAL_RUNAWAY and FAULT_COOLDOWN_OVERHEAT.
 
-  2. SUPPLEMENTAL_PAIRS below -- fault classes the firmware raises directly
-     from C (bypassing the event table), so they have no transition_table.yaml
-     row at all:
-       - FAULT_IGBT_SHORT and FAULT_ADC_STUCK: raised by
-         check_safety_interlocks() in firmware/main/state_machine.c, called
-         only from state_preheat_update() and state_heating_update() in
-         firmware/main/state_handlers.c.
-       - FAULT_RUNAWAY_BOUNDARY: raised by check_runaway_boundary() in
-         firmware/main/state_machine.c, called unconditionally at the top of
-         state_machine_update() every tick regardless of state ("any-state"
-         reach). Representative coverage is required from at least two
-         operational states (HEATING, PREHEAT) rather than every state the
-         interlock technically runs in, to keep the matrix finite; see
-         REPRESENTATIVE_ANY_STATE_ORIGINS.
+  2. SUPPLEMENTAL_PAIRS below (both modes) -- fault classes the firmware
+     raises directly from C (bypassing the event table):
+       - FAULT_IGBT_SHORT: check_safety_interlocks() in
+         firmware/main/state_machine.c, called only from
+         state_preheat_update() and state_heating_update().
+       - FAULT_ADC_STUCK: legacy -- the same interlock's equal-reading
+         check; C1 -- rtd_service.c's frozen-code check (the interlock's is
+         compiled out), which runs in every state.
+       - FAULT_RUNAWAY_BOUNDARY: check_runaway_boundary(), called at the
+         top of state_machine_update() every tick regardless of state.
+         Representative coverage from two operational states (HEATING,
+         PREHEAT); see REPRESENTATIVE_ANY_STATE_ORIGINS.
+
+  3. C1_SUPPLEMENTAL_PAIRS (C1 only) -- the C1 converter service
+     (rtd_service.c) reports register-07h, DRDY-stale and frozen-code faults
+     from every state, so C1 adds IDLE (a non-power state, where no legacy
+     interlock runs) as a representative origin for those classes.
+
+C1 also replaces rules, not only paths, so a second C1 matrix is gated:
+C1_MECHANISMS x origin (R1, the absolute 300 degC check, supervisor R2
+stages 1/2a/2b, register 07h, DRDY stale, frozen code). A scenario covers a
+cell through its manifest "c1_mechanism"; the C1 runner checks the attribution
+where the firmware exposes it (supervisor latch, reading at the trip, 07h,
+service stopped).
+
+Structural rules (gated):
+  * C1 designed pairs are a superset of legacy designed pairs, and C1 covers
+    at least as many pairs as legacy;
+  * a legacy-only scenario names why (legacy_only_reason) and its C1
+    replacement(s) (c1_replaced_by), each an existing scenario run in C1;
+  * a C1-only scenario says why (c1_only_reason);
+  * a C1 latency bound above the legacy one names why
+    (c1_later_than_legacy_reason) -- never a silent loosening;
+  * every trace file exists, and the generated traces match
+    gen_sil_traces.py.
 
 This script is intentionally standalone (no CMake/pytest wiring) so it can
 run identically from a developer shell or a CI step:
 
     python3 firmware/test/test_sil_coverage.py [--gate]
 
-Without --gate it always exits 0 and just prints the matrix (useful for
-`git diff`-style before/after comparisons). With --gate it exits 1 if any
-designed pair is uncovered, matching the plan's Verification Contract.
+Without --gate it always exits 0 and just prints the matrices (useful for
+`git diff`-style before/after comparisons). With --gate it exits 1 on any
+uncovered designed pair or mechanism cell, or a structural-rule violation.
 """
 
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import re
 import sys
@@ -57,26 +83,58 @@ except ImportError:  # pragma: no cover
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 MANIFEST_PATH = REPO_ROOT / "firmware" / "test" / "traces" / "manifest.json"
+TRACE_DIR = MANIFEST_PATH.parent
 TRANSITION_TABLE_PATH = REPO_ROOT / "firmware" / "transition_table.yaml"
+TRACE_GENERATOR = REPO_ROOT / "firmware" / "test" / "gen_sil_traces.py"
+
+MODES = ("legacy", "c1")
+
+REPRESENTATIVE_ANY_STATE_ORIGINS = ("HEATING", "PREHEAT")
 
 # Fault classes raised directly from C, with no transition_table.yaml row.
 # (fault_code, origin_state) pairs, each with the call site that makes it
-# "designed" rather than incidental.
+# "designed" rather than incidental. Both modes.
 SUPPLEMENTAL_PAIRS = {
     ("FAULT_IGBT_SHORT", "PREHEAT"):
         "check_safety_interlocks() <- state_preheat_update() (state_handlers.c)",
     ("FAULT_IGBT_SHORT", "HEATING"):
         "check_safety_interlocks() <- state_heating_update() (state_handlers.c)",
     ("FAULT_ADC_STUCK", "PREHEAT"):
-        "check_safety_interlocks() <- state_preheat_update() (state_handlers.c)",
+        "legacy: check_safety_interlocks() <- state_preheat_update(); "
+        "C1: rtd_service.c frozen-code check, any state",
     ("FAULT_ADC_STUCK", "HEATING"):
-        "check_safety_interlocks() <- state_heating_update() (state_handlers.c)",
-    ("FAULT_RUNAWAY_BOUNDARY", "HEATING"):
-        "check_runaway_boundary() <- state_machine_update(), any state (state_machine.c); "
-        "representative sample",
-    ("FAULT_RUNAWAY_BOUNDARY", "PREHEAT"):
-        "check_runaway_boundary() <- state_machine_update(), any state (state_machine.c); "
-        "representative sample",
+        "legacy: check_safety_interlocks() <- state_heating_update(); "
+        "C1: rtd_service.c frozen-code check, any state",
+}
+for _origin in REPRESENTATIVE_ANY_STATE_ORIGINS:
+    SUPPLEMENTAL_PAIRS[("FAULT_RUNAWAY_BOUNDARY", _origin)] = (
+        "check_runaway_boundary() <- state_machine_update(), any state "
+        "(state_machine.c); representative sample")
+
+_C1_SERVICE = ("rtd_service_control_tick() (C1, every state) -> "
+               "state_machine_report_rtd_{device_fault,frozen}(); representative non-power state")
+C1_SUPPLEMENTAL_PAIRS = {
+    ("FAULT_PROBE_OPEN", "IDLE"): _C1_SERVICE,
+    ("FAULT_PROBE_SHORT", "IDLE"): _C1_SERVICE,
+    ("FAULT_ADC_STUCK", "IDLE"): _C1_SERVICE,
+}
+
+# C1 rules x the origins each must be injected from.
+C1_MECHANISMS = {
+    "R1": (("HEATING", "PREHEAT"),
+           "pan_supervisor R1 sustained rise <- check_runaway_boundary(), any state"),
+    "absolute-300": (("HEATING", "PREHEAT"),
+                     "check_runaway_boundary() absolute limit on the C1 reading"),
+    "R2-stage1": (("HEATING",),
+                  "supervisor stage 1: over target + 10 K forces the command to 0, no latch"),
+    "R2-2a": (("HEATING", "PREHEAT"),
+              "supervisor stage 2a: bus current the command cannot explain"),
+    "R2-2b": (("HEATING",),
+              "supervisor stage 2b: over target, command 0 for 20 s, still rising"),
+    "rtd-07h": (("IDLE", "PREHEAT", "HEATING"),
+                "MAX31865 threshold fault, register 07h (C1 window)"),
+    "rtd-stale": (("IDLE", "HEATING"), "no DRDY for 60 ms"),
+    "rtd-frozen": (("IDLE", "PREHEAT", "HEATING"), "250 identical conversions"),
 }
 
 # Fault classes with NO manifest path at all (no transition_table.yaml row,
@@ -99,8 +157,19 @@ def strip_state_prefix(state: str) -> str:
     return m.group(1) if m else state
 
 
-def load_designed_pairs():
-    """Return {(fault_code, origin_state): source_description}."""
+def scenario_modes(scenario: dict) -> list[str]:
+    return list(scenario.get("modes", MODES))
+
+
+def load_manifest() -> list[dict]:
+    if not MANIFEST_PATH.exists():
+        return []
+    with open(MANIFEST_PATH) as f:
+        return json.load(f)
+
+
+def load_designed_pairs(mode: str = "legacy"):
+    """Return {(fault_code, origin_state): source_description} for a mode."""
     pairs = {}
     with open(TRANSITION_TABLE_PATH) as f:
         table = yaml.safe_load(f)
@@ -115,29 +184,93 @@ def load_designed_pairs():
         )
     for pair, source in SUPPLEMENTAL_PAIRS.items():
         pairs[pair] = source
+    if mode == "c1":
+        for pair, source in C1_SUPPLEMENTAL_PAIRS.items():
+            pairs[pair] = source
     return pairs
 
 
-def load_covered_pairs():
-    """Return {(fault_code, origin_state): [scenario names]} from manifest.json.
+def load_covered_pairs(mode: str = "legacy", manifest: list[dict] | None = None):
+    """Return {(fault_code, origin_state): [scenario names]} for a mode.
 
     Only scenarios whose `expected.fault_code` is non-FAULT_NONE and whose
-    `origin_state` is set are counted -- the demonstrated-gap scenario
-    (FAULT_NONE expected) is intentionally excluded, it documents an
+    `origin_state` is set are counted -- the demonstrated-gap scenarios
+    (FAULT_NONE expected) are intentionally excluded, they document an
     *undesigned* gap, not a covered designed pair.
     """
+    manifest = load_manifest() if manifest is None else manifest
     covered = {}
-    if not MANIFEST_PATH.exists():
-        return covered
-    with open(MANIFEST_PATH) as f:
-        manifest = json.load(f)
     for scenario in manifest:
+        if mode not in scenario_modes(scenario):
+            continue
         fault = scenario.get("expected", {}).get("fault_code")
         origin = scenario.get("origin_state")
         if not fault or fault == "FAULT_NONE" or not origin:
             continue
         covered.setdefault((fault, origin), []).append(scenario.get("name", "<unnamed>"))
     return covered
+
+
+def load_mechanism_cells(manifest: list[dict]):
+    """Return {(mechanism, origin): [scenario names]} for C1 scenarios."""
+    cells = {}
+    for scenario in manifest:
+        mech = scenario.get("c1_mechanism")
+        if not mech or "c1" not in scenario_modes(scenario):
+            continue
+        cells.setdefault((mech, scenario.get("origin_state")), []).append(scenario["name"])
+    return cells
+
+
+def structural_errors(manifest: list[dict]) -> list[str]:
+    errors = []
+    by_name = {s.get("name"): s for s in manifest}
+    for s in manifest:
+        name = s.get("name", "<unnamed>")
+        modes = scenario_modes(s)
+        unknown = set(modes) - set(MODES)
+        if unknown or not modes:
+            errors.append(f"{name}: bad modes {modes}")
+        trace = s.get("trace_file")
+        if trace and not (TRACE_DIR / trace).exists():
+            errors.append(f"{name}: trace {trace} missing")
+        if modes == ["legacy"]:
+            if not s.get("legacy_only_reason"):
+                errors.append(f"{name}: legacy-only without legacy_only_reason")
+            repl = s.get("c1_replaced_by") or []
+            if not repl:
+                errors.append(f"{name}: legacy-only without c1_replaced_by")
+            for r in repl:
+                if r not in by_name:
+                    errors.append(f"{name}: C1 replacement '{r}' not in the manifest")
+                elif "c1" not in scenario_modes(by_name[r]):
+                    errors.append(f"{name}: C1 replacement '{r}' does not run in C1")
+        if modes == ["c1"] and not s.get("c1_only_reason"):
+            errors.append(f"{name}: C1-only without c1_only_reason")
+        exp = s.get("expected", {})
+        lat, lat_c1 = exp.get("max_latency_ticks"), exp.get("max_latency_ticks_c1")
+        if lat_c1 is not None and lat is not None and lat_c1 > lat and \
+                not s.get("c1_later_than_legacy_reason"):
+            errors.append(f"{name}: C1 bound {lat_c1} > legacy {lat} without "
+                          "c1_later_than_legacy_reason")
+        mech = s.get("c1_mechanism")
+        if mech and mech not in C1_MECHANISMS:
+            errors.append(f"{name}: unknown c1_mechanism '{mech}'")
+        if mech and "c1" not in modes:
+            errors.append(f"{name}: c1_mechanism on a scenario that does not run in C1")
+    return errors
+
+
+def trace_drift() -> list[str]:
+    spec = importlib.util.spec_from_file_location("gen_sil_traces", TRACE_GENERATOR)
+    gen = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gen)
+    drift = []
+    for name, make in gen.TRACES.items():
+        path = TRACE_DIR / name
+        if not path.exists() or path.read_text() != gen.render(make()):
+            drift.append(name)
+    return drift
 
 
 def render_matrix(designed: dict, covered: dict) -> str:
@@ -161,46 +294,119 @@ def render_matrix(designed: dict, covered: dict) -> str:
     return "\n".join(lines)
 
 
+def render_mechanisms(cells: dict) -> tuple[str, int, int]:
+    origins = ("IDLE", "PREHEAT", "HEATING")
+    header = "C1 mechanism".ljust(16) + "".join(o.ljust(11) for o in origins)
+    lines = [header, "-" * len(header)]
+    required = covered = 0
+    for mech, (need, _why) in C1_MECHANISMS.items():
+        row = mech.ljust(16)
+        for o in origins:
+            if o not in need:
+                cell = "."
+            else:
+                required += 1
+                if (mech, o) in cells:
+                    covered += 1
+                    cell = f"OK({len(cells[(mech, o)])})"
+                else:
+                    cell = "MISSING"
+            row += cell.ljust(11)
+        lines.append(row)
+    return "\n".join(lines), required, covered
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
-                                      formatter_class=argparse.RawDescriptionHelpFormatter)
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--gate", action="store_true",
-                         help="Exit 1 if any designed pair is uncovered")
+                        help="Exit 1 on any uncovered pair/mechanism or rule violation")
     args = parser.parse_args()
 
-    designed = load_designed_pairs()
-    covered = load_covered_pairs()
-
-    missing = sorted(set(designed) - set(covered))
-    extra_designed_not_in_manifest_faults = set()
+    manifest = load_manifest()
+    failures = []
+    summary = {}
 
     print("=== SIL fault-class x origin-state coverage ===")
     print(f"Manifest:          {MANIFEST_PATH.relative_to(REPO_ROOT)}")
     print(f"Transition table:  {TRANSITION_TABLE_PATH.relative_to(REPO_ROOT)}")
-    print()
-    print(render_matrix(designed, covered))
-    print()
-    print(f"Designed pairs: {len(designed)}")
-    print(f"Covered pairs:  {len(designed) - len(missing)}")
-    print(f"Missing pairs:  {len(missing)}")
-    if missing:
+    designed_by_mode = {}
+    for mode in MODES:
+        designed = load_designed_pairs(mode)
+        designed_by_mode[mode] = designed
+        covered = load_covered_pairs(mode, manifest)
+        missing = sorted(set(designed) - set(covered))
+        n_scen = sum(1 for s in manifest if mode in scenario_modes(s))
         print()
-        print("Uncovered (fault class, origin state) pairs:")
-        for fc, origin in missing:
-            print(f"  - {fc} from {origin}  [{designed[(fc, origin)]}]")
+        print(f"--- mode: {mode} ({n_scen} scenarios) ---")
+        print(render_matrix(designed, covered))
+        print()
+        print(f"Designed pairs: {len(designed)}")
+        print(f"Covered pairs:  {len(designed) - len(missing)}")
+        print(f"Missing pairs:  {len(missing)}")
+        summary[mode] = (n_scen, len(designed), len(designed) - len(missing))
+        if missing:
+            print()
+            print("Uncovered (fault class, origin state) pairs:")
+            for fc, origin in missing:
+                print(f"  - {fc} from {origin}  [{designed[(fc, origin)]}]")
+            failures.append(f"{mode}: {len(missing)} uncovered designed pair(s)")
+
+    if not set(designed_by_mode["legacy"]) <= set(designed_by_mode["c1"]):
+        failures.append("C1 designed pairs are not a superset of legacy designed pairs")
+    if summary["c1"][2] < summary["legacy"][2]:
+        failures.append("C1 covers fewer designed pairs than legacy")
+
+    print()
+    print("--- C1 mechanism x origin ---")
+    text, required, covered_cells = render_mechanisms(load_mechanism_cells(manifest))
+    print(text)
+    print()
+    print(f"Required cells: {required}")
+    print(f"Covered cells:  {covered_cells}")
+    if covered_cells < required:
+        failures.append(f"c1: {required - covered_cells} uncovered mechanism cell(s)")
+
+    errors = structural_errors(manifest)
+    drift = trace_drift()
+    if drift:
+        errors.append("generated traces differ from gen_sil_traces.py: " + ", ".join(drift))
+    print()
+    print("--- structural rules ---")
+    legacy_only = [s["name"] for s in manifest if scenario_modes(s) == ["legacy"]]
+    c1_only = [s["name"] for s in manifest if scenario_modes(s) == ["c1"]]
+    print(f"Legacy-only scenarios: {len(legacy_only)} (each names its C1 replacement)")
+    for s in manifest:
+        if scenario_modes(s) == ["legacy"]:
+            print(f"  - {s['name']}\n      -> " + "\n      -> ".join(s.get("c1_replaced_by", [])))
+    print(f"C1-only scenarios:     {len(c1_only)}")
+    for e in errors:
+        print(f"  ERROR: {e}")
+    if errors:
+        failures.append(f"{len(errors)} structural rule violation(s)")
+    else:
+        print("  all rules hold")
+
     if NO_MANIFEST_PATH:
         print()
         print("Fault classes with no manifest path (excluded from matrix, not missed):")
         for fc, why in sorted(NO_MANIFEST_PATH.items()):
             print(f"  - {fc}: {why}")
 
-    if args.gate and missing:
+    print()
+    for mode in MODES:
+        n, d, c = summary[mode]
+        print(f"SUMMARY {mode}: {n} scenarios, {c}/{d} designed pairs covered")
+    print(f"SUMMARY c1 mechanisms: {covered_cells}/{required} cells covered")
+
+    if args.gate and failures:
         print()
-        print(f"FAIL: {len(missing)} uncovered designed pair(s)", file=sys.stderr)
+        for f in failures:
+            print(f"FAIL: {f}", file=sys.stderr)
         sys.exit(1)
 
     print()
-    print("PASS" if not missing else "PASS (matrix printed; --gate not set, not failing)")
+    print("PASS" if not failures else "PASS (matrix printed; --gate not set, not failing)")
     return 0
 
 
