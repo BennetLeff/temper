@@ -18,10 +18,10 @@ their ratchets.
 
 | # | Item | Evidence | Lane / owner | Status | Next |
 |---|---|---|---|---|---|
-| S2 | **Board copper over the laminate MOT in still air.** R5.4 copper ~12 K over 130 °C at 22 A with 55 °C bay air (~56 K at 28 A). HF film C38 / C40 over 110 °C at 22 A. At 28 A also R5's element (197 / 170 °C), the gate resistors and C21. Release gate FAIL: laminate −56.4 K, parts −38.9 K | DECISIONS 46; `b3-ratings/` | Analysis: model refinement (FET-lead path, c28 heat file, film-cap / 1206 limits, fix targets) | Running | Then: candidate 36 (tank copper at R5.4 / FET row), 0.5 mΩ shunt option, enclosure airflow reply. Until it passes: still-air ceiling ≤ 18 A (owner → controller) |
+| S2 | **Board temperatures vs ratings (corrected model, DECISIONS 51; s38, still air, bay 55 °C):** laminate −2.5 K at 22 A, −38.0 K at 28 A (R5.4 block); C40 film −3.1 K at 22 A; **1206 gate resistors fail their derating line at every ceiling** (−39.7 K at 22 A, −63.9 K at 28 A). Laminate-only still-air ceiling 21.5 A (bay 55) / 20.4 A (bay 61) | DECISIONS 46, 51; `b3-ratings/` | Candidate 36 (tank copper, 0.5 mΩ shunt option; ps-selv); candidate 39 (gate resistors → 2512); enclosure airflow reply | Running | Release when the gate passes; ceiling request to the controller stays ≤ 18 A until then |
 | S14 | **IPW65R018CFD7 reverse-diode dv/dt 70 V/ns exceeded in S4** (IL −20 A hard commutation): 85.8 V/ns modelled, 1.23× the rating, 1.5× the 80 % rule (56 V/ns). Ledger VIOLATION (ledger_violations 1 on every card) | DECISIONS 49; device study | Analysis: candidate 39 gate network (split R_on / R_off, CM8 alongside); then a layout lane | Running | Fix ≤ 56 V/ns at every S4 corner; bench D-8 double pulse measures it |
 | S1 | Touch leakage: was 0.974 mA. **Built in s38 (DECISIONS 50):** 0.2412 mA DESIGN (budget 0.25, margin 8.8 µA) with the off-board D-22 module Y removed + SCF31X choke and PS3 → MPM-65-15ST; s19b EMI 12.37 / 8.19 dB | `c23-supply-topology/README.md`; co-design study | Controller (J13 merge, PS3); D-22 module (`c23-supply-topology/MODULE-REQUEST.md`); certifier (MPM approvals: IEC 60601-1 / 60335-1, no UL file) | Passes on the model | Bench: measured supply leakage, SCF31X DM leakage, HF touch with the lab's meter network. Robust variant (L1 → SCF31X) needs an L1-slot re-layout |
-| S12 | Laminate UL scope: KB-616(X) multilayer recognition lists max inner copper 35 µm; the stack has 2 oz (61 µm) inner layers. KB-6164F / KB-6165F list 102 µm | DECISIONS 46 side finding | Analysis: model refinement (task 5, public sources) | Running | Pick the order material in scope; certifier packet A3 |
+| S12 | Laminate UL scope: KB-6164 (35 µm) and KB-6165 (54 µm) multilayer rows don't cover 61 µm (2 oz) inner copper; KB-6164F / 6165F / 6167F list 102 µm, and JLC's "TG155" option links KB-6165F. Item 41 named KB-6164 for CTI; `stackup.json` still says Nan Ya NP-155F | DECISIONS 41, 51 | Owner → JLC (UL Product iQ needs a login) | Open | Which recognised JLC-4 construction covers 4 L, 2 oz inner, CTI ≥ 175 V; then fix the order remark and stackup.json together |
 | S3 | F6's 252/252 result rests on round-17 loop matrices from board 76ec8cca, not s35 | `c33-six-layer/adoption/README.md` | FEM (remote box) | Blocked: box offline | Owner restarts the box; run `adoption/fem/chain_c33.sh` for s35 |
 | S8 | C5 / C6 ripple at 28 A: on the vendor basis the fitted part carries 28 A only at cap ambient ≤ 80 °C; no stocked part fixes 28 A at 85 °C. 28 % of the HF ripple power is above TDK's 95 kHz chart edge | DECISIONS 45 | Parts | Verdict recorded | B32676G1106K once "Z 1" = catalogue part is confirmed (owner or distributor); bench C5 case temperature |
 | S9 | Resonant bank 1.045× TDK's curve at 28 A; no ≤ 0.85 option in authorised stock | DECISIONS 37, 45 | Candidate 34 | Waits on stock | Moot below 28 A while S2 limits the ceiling |
@@ -53,12 +53,12 @@ their ratchets.
 | C5 | PS1 deletion (candidate 23) | 4.20 saved net of PS2 → MPM | Done (DECISIONS 50) | Closed |
 | C7 | Bare board: six layers $19.11 vs four $17.28 pinned; area compaction ~$1.5 per 10 % | DECISIONS 40 | After candidate 23 (compaction) | Open |
 
-## 4. Layout lanes (one building: ps-layers; ps-selv free)
+## 4. Layout lanes (two building: ps-layers, ps-selv)
 
 | Lane (island) | Candidate | Status | Blocked on |
 |---|---|---|---|
-| Tank / FET row (WS3 / WS4 boundary) | 36: tank-copper heat at R5.4 / FET row (wider, more parallel layers, or 3 oz outer); option: 0.5 mΩ shunt | Next | The model-refinement targets (S2) |
-| Gate networks (HS / LS driver outputs) | 39: S4 dv/dt fix (S14), CM8 option | After its analysis | The gate-network study |
+| Tank / FET row (WS3 / WS4 boundary) | 36: tank-copper heat at R5.4 / FET row; 0.5 mΩ shunt option; stage tag s41 | Running (ps-selv, branch claude/native21-c36-tank-copper) | Targets: f ≤ 0.895 (c22), 0.369 (c28; 0.551 with the shunt) |
+| Gate networks (HS / LS driver outputs) | 39: S4 dv/dt fix (S14) by a larger turn-on R (the PMEG + 1 Ω turn-off path exists); gate resistors to 2512 (S2); CM8 option | After its analysis | The gate-network study (running) |
 | SELV side (WS5, spine owner) | 23: done, stage 38 (DECISIONS 50); spine baseline re-issued (s38) | Merged | — |
 | HS-B / LS (WS4) | 30a (HS-B → LS ISO6721FB), 30b (C161), return-path fixes (S10); stage tag s40 | Running (ps-layers, branch claude/native21-c30-ls-pocket) | — (U42 stays RECOM, DECISIONS 49) |
 | Tank / bank | 34: resonant bank | Waits on stock | S9 |
