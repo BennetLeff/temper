@@ -20,7 +20,7 @@ The firmware pieces are:
 - **Faults latch until MCU reset.** Any input fault, or a stale sample, makes `sample()` return false. `power_service` then forces the pads low and trips; it does not rebind. Hardware trips latch PERMIT independently and need the operator reset.
 - **Isolation.** Every measurement on the HOT side uses isolated or differential probes. Use the isolation transformer for every AC step, and the power analyser in the inlet path.
 - **Never weaken a check to make a step pass.** If a step needs a lower trip to demonstrate it, lower it in the bench `sdkconfig` only, and restore it before the next step.
-- **Board revision.** The trip numbers below are for the **stage-15** board (R34 12.6 kΩ, R43/R46 2.21 kΩ). On a stage-14 board (CT band 50.56–60.01 A) the derived 22 A firmware peak trip (50.74 A) is *not* below the CT band's low corner. Do not run this firmware on a stage-14 board at power without lowering `tank_peak_trip_a` below the measured CT trip in the bench config.
+- **Board revision.** The trip numbers below are for the **stage-15** board (R34 12.6 kΩ, R43/R46 2.21 kΩ). On a stage-14 board (CT band 50.56–60.01 A) the derived peak trip at the 18 A shipping ceiling (42.06 A) is below the CT band's low corner, but at a commissioned 22 A or above (50.74 A) it is *not*. Do not run this firmware on a stage-14 board at power with a raised ceiling without lowering `tank_peak_trip_a` below the measured CT trip in the bench config.
 
 ## Modes and what flips `commissioned=true`
 
@@ -120,7 +120,7 @@ Gates stay disconnected and the bus stays dead unless stated otherwise.
    - Raise slowly until BUS_FAULT goes high, then repeat for each polarity (use a half-wave drive per polarity).
    - Record the trip current, both polarities, and the latency to DIS high.
    - **Pass:** both polarities ≥ 64.17 A (round-6 floor at 28 A) and inside the band.
-   - Firmware: the raw CT_MON supplementary trip (`tank_peak_trip_a` = min(2.17 × ceiling + 3, 62) A: 50.74 A at 22 A, 62 A at 28 A; config cap < 64.5 A) must latch `N21_FAULT_TANK_PEAK` before or at the hardware trip. Check it at the commissioned ceiling's value. It is asynchronous sampling, so record its hit rate; it is not a qualified protection.
+   - Firmware: the raw CT_MON supplementary trip (`tank_peak_trip_a` = min(2.17 × ceiling + 3, 62) A: 42.06 A at the 18 A shipping ceiling, 62 A at 28 A; config cap < 64.5 A) must latch `N21_FAULT_TANK_PEAK` before or at the hardware trip. Check it at the commissioned ceiling's value. It is asynchronous sampling, so record its hit rate; it is not a qualified protection.
 2. **Shunt OCP** (R5 1 mΩ; stage 15: R34 12.6 kΩ / R35 11.7 kΩ, band **66.30–118.74 A** after the Kelvin shift, nominal 92.6 A, stage-15 PLAN §1):
    - With the bus dead, inject a current pulse through R5 from a pulse source, for example a capacitor discharge through a resistor, with the current probe on the loop.
    - Find the trip level with 10 µs pulses of rising amplitude.
@@ -166,7 +166,7 @@ Setup: isolation transformer → variac → power analyser → native-21 inlet. 
    - cos φ;
    - bus voltage;
    - tank and heatsink temperatures.
-2. **Tank envelope at the commissioned ceiling** (22 A ships; DECISIONS 10): the per-pan loop (step 9a) *regulates* the half-cycle tank RMS to the ceiling; the binding *trips* (`N21_FAULT_TANK_RMS`) at `tank_rms_trip_a` = 1.05 × ceiling **on the half-cycle RMS** (23.1 A at 22 A), and on any single AD8436 sample above the crest guard 1.5 × ceiling (33 A at 22 A). The per-sample reading is the 120 Hz envelope crest, about 1.41 × the half-cycle RMS (round 6), so it is not the trip quantity.
+2. **Tank envelope at the commissioned ceiling** (18 A ships; power-stage DECISIONS 55): the per-pan loop (step 9a) *regulates* the half-cycle tank RMS to the ceiling; the binding *trips* (`N21_FAULT_TANK_RMS`) at `tank_rms_trip_a` = 1.05 × ceiling **on the half-cycle RMS** (18.9 A at 18 A), and on any single AD8436 sample above the crest guard 1.5 × ceiling (27 A at 18 A). The per-sample reading is the 120 Hz envelope crest, about 1.41 × the half-cycle RMS (round 6), so it is not the trip quantity.
    - Demonstrate the half-cycle trip with `tank_rms_trip_a` temporarily lowered in the bench config to 10 A, then restore it.
    - Record per pan and line case the frequency the loop settles at, the telemetry reason (`freq_reason`) and the half-cycle RMS.
 3. **AD8436 envelope smoothing** (C19 open item): compare the per-half-cycle mean of telemetry against the current probe's 120 Hz envelope. The resulting error feeds step 7.
@@ -206,7 +206,7 @@ Firmware: `components/control/thermal_mgmt.{c,h}` (host-tested by `test/test_the
 - **Reset / brown-out speed accepted as fail-safe.** GPIO46 floats on its 100 kΩ strap pull-down: 11.0–11.4 V, near full speed.
 - **Rim / coil plausibility (ADC top ~3.1 V: a cold NTC and an open one read alike).** Latched until MCU reset, shown on the display, all PROVISIONAL:
   - rim below its range (< ~70 °C, or open) while the pan RTD reads > 150 °C for > 30 s → rim-sensor fault; the 250 °C cap runs on the pan RTD alone;
-  - coil below 25 °C after > 5 min (cumulative) at > 50 % power → coil-sensor fault; the tank ceiling is clamped to 22 A (`n21_set_thermal_tank_limit()`) and the blower runs full speed. A true open coil NTC is still latched by the thermal-sense OPEN_REF comparator.
+  - coil below 25 °C after > 5 min (cumulative) at > 50 % power → coil-sensor fault; the tank ceiling is clamped to 18 A (`COIL_SENSOR_FAULT_TANK_MAX_A`, never above the shipping ceiling; `n21_set_thermal_tank_limit()`) and the blower runs full speed. A true open coil NTC is still latched by the thermal-sense OPEN_REF comparator.
 
 Bench (record below):
 1. FG pulses per revolution (`BLOWER_TACH_PULSES_PER_REV`, `config.yaml`): FG frequency against an optical rpm at fixed V_BLOWER.
@@ -258,14 +258,16 @@ The loop (`tank_freq.h`) starts at F_MAX (60 kHz), steps down 250 Hz per closed 
 3. **Each limit, demonstrated:** with bench-lowered limits one at a time (ceiling via `TANK_CEILING_DA`=150, inlet via `inlet_target_a`, peak via `tank_peak_trip_a`), the loop settles on that limit (`freq_reason` HOLD_LIMIT / UP_x) without tripping. Remove CT_ZC (lift the lead at low power): `N21_FAULT_CT_ZC_STALE` latches above 2 A.
 4. **Pan-detect tuning (no-pan clamp):** for the empty coil and every pan class (cold and hot), record at the settled point the telemetry `q` and p_inv / I² (`last_half.est.p_inv_w / tank_rms_a²`). Set `TEMPER_POWER_PAN_Q_MAX_X10` and `TEMPER_POWER_PAN_R_MIN_MOHM` between the empty-coil and the lowest-R pan values with ≥ 30 % margin each side. **Provisional:** Q ≤ 10, R ≥ 0.8 Ω (empty coil ~0.12–0.25 Ω, Q 50–100; a pan needing 28 A: ~1.4 Ω, Q 4–8).
 5. **Power tracking:** per pan class at 120 V, `power_set_level` 15 / 35 / 60 / 100 %, and steps 20 → 60 → 15 % while running. Pass: analyser input power within ±6 % of the request (plus the e_est error) where the limits allow it, `freq_reason` HOLD_POWER, no frequency change over 60 s once settled; at 100 % the limit reason shows instead. Record the 60 kHz minimum power per pan (H12).
-6. **No-pan clamp:** empty coil, ceiling set to 28 A in the bench config, 120 V and 132 V. Pass: `pan_present` stays false, `ceiling_eff_a` = 22 and the half RMS ≤ 22 A throughout; then lift a pan off mid-run at the 28 A ceiling: `pan_present` drops on the first half and the tank is back ≤ 22 A within 100 ms (otherwise the overrun latch `N21_FAULT_TANK_RMS` must fire). Measure the ferrite bar temperature in the no-pan case (enclosure item).
+6. **No-pan clamp:** empty coil, ceiling set to 28 A in the bench config, 120 V and 132 V. Pass: `pan_present` stays false, `ceiling_eff_a` = 18 and the half RMS ≤ 18 A throughout; then lift a pan off mid-run at the 28 A ceiling: `pan_present` drops on the first half and the tank is back ≤ 18 A within 100 ms (otherwise the overrun latch `N21_FAULT_TANK_RMS` must fire). Measure the ferrite bar temperature in the no-pan case (enclosure item).
 
-## Raising the commissioned tank ceiling (22 → 24 → 26 → 28 A)
+## Raising the commissioned tank ceiling (18 → 20 → 22 → 24 → 26 → 28 A)
 
-The hardware is sized for 28 A (stage 15, DECISIONS 10). The firmware ships at **22 A** (`TEMPER_POWER_TANK_CEILING_DA=220`). The ceiling is one parameter; the RMS trip (1.05 ×), crest guard (1.5 ×) and peak trip (min(2.17 × + 3, 62) A) derive from it and cannot be set above their derived values (`config_ok`).
+The hardware is sized for 28 A (stage 15, DECISIONS 10). The firmware ships at **18 A** (`TEMPER_POWER_TANK_CEILING_DA=180`): power-stage DECISIONS 55 rates the s42 board in still air at 18.3 A at the worst bay air (61 °C) and 20.0 A at the expected 55 °C, and sets the release ceiling at 18.0 A. The ceiling is one parameter; the RMS trip (1.05 ×), crest guard (1.5 ×) and peak trip (min(2.17 × + 3, 62) A) derive from it and cannot be set above their derived values (`config_ok`). With no pan established the loop holds the tank at or below 18 A (`TANK_CEILING_DEFAULT_A`) whatever the ceiling.
 
 | Ceiling | Peak trip | Half-cycle RMS trip | Crest guard |
 |---|---|---|---|
+| 18 A (ships) | 42.06 A | 18.9 A | 27 A |
+| 20 A | 46.4 A | 21.0 A | 30 A |
 | 22 A | 50.74 A | 23.1 A | 33 A |
 | 24 A | 55.08 A | 25.2 A | 36 A |
 | 26 A | 59.42 A | 27.3 A | 39 A |
@@ -273,18 +275,22 @@ The hardware is sized for 28 A (stage 15, DECISIONS 10). The firmware ships at *
 
 At 28 A the 62 A cap binds: with the peak estimate at 2.17 × RMS, the loop's peak limit (59 A) holds the line RMS to **27.2 A** until the bench calibrates the peak ratio (gate 5 below).
 
-**Precondition for any raise above 22 A (once):**
+**Precondition for any raise above 18 A (once):**
 - Stage-15 board confirmed: R34 = 12.6 kΩ (RT0603BRD0712K6L), R43/R46 = 2.21 kΩ (RT0603BRD072K21L).
-- **B3 28 A pass** (task 04, the `c28` case with the `sw_a_low` path and the corrected bank rows): copper and pad cells ≤ 105 °C at 50 °C ambient, h 10 and h 25.
-- Steps 0–9a above passed at 22 A, with the record filed.
+- Steps 0–9a above passed at 18 A, with the record filed.
+- The bench R_on gate-row reading (DECISIONS 55 open item: the R_on power basis, 0.217 W charge split against ~0.17 W simulated), filed.
 
-**Per step N = 24, then 26, then 28 A — never skip a step.** Set N only in the bench config, run every gate at N A on the worst-case pan for the gate (and the 132 V line where it matters), and file the evidence:
+**Per step N = 20, then 22, 24, 26, 28 A — never skip a step.** Each step first needs the B3 thermal basis at N (gate 0); without it the ceiling stays where it is. Set N only in the bench config, run every gate at N A on the worst-case pan for the gate (and the 132 V line where it matters), and file the evidence:
+
+0. **B3 thermal basis at N A passes** (task 04, the board-thermal B3 gate at a tank current of N A, every row: laminate, film caps, rated-part derating; on the board revision fitted; at 28 A the `c28` case with the `sw_a_low` path and the corrected bank rows). In still air on s42 it passes only to 18.3 A at 61 °C bay air (20.0 A at 55 °C), so a raise needs one of:
+   - board-face airflow over the FET-row / R5 region per `zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/ENCLOSURE-REQUEST.md`, with the B3 basis re-run at the airflow fitted; or
+   - a measured bay air below 61 °C in the enclosure (worst case, B3 heat included) and the B3 basis re-run at that bay air.
 1. **Bank hot-spot:** 10 min at N A, IR / thermocouple on the hottest TDK B32654A part. Rise ≤ 20 K at the enclosure ambient, or within TDK's p.57 curve at the measured local ambient (round 6: 0.89× at 22 A, 1.05× at 26 A, 1.12× at 28 A of the 85 °C curve).
 2. **Coil:** R_ac ≤ 0.23 Ω at 40 kHz / 100 °C on the fitted coil (DECISIONS 10/12; 0.25 Ω is the acceptance limit but holds only 27.2 A), and winding temperature at N A, full blower, within the enclosure's coil limit; the coil-NTC derating loop stays enabled.
 3. **Switching loss** at 45–50 kHz at N A (basis A vs B): FET Tj ≤ 125 °C with the fitted sink (basis A needs R_SA ≤ 0.233 °C/W at 28 A).
 4. **Measured trip points:** the step 3 CT trip (both polarities) and shunt OCP measurements on this board; the derived firmware peak trip at N must be below the measured CT low trip, and the measured CT and shunt low trips must clear the round-6 envelope peak at N + 3 A pickup + 2 A (64.17 A at 28 A, stage-15 PLAN §1 basis A).
 5. **Coil pickup at U6 INP−INN at 45–55 kHz** at N A (PICKUP.md; closes basis C of stage-15 PLAN §1), and the measured tank peak / half-cycle RMS ratio over the pan set (CT_MON raw max against the current probe). If the measured ratio is below 2.17 the `TANK_PEAK_PER_RMS` constant may be lowered in a reviewed change.
-6. **B3 28 A pass** (above) still current for this board revision.
+6. **B3 basis at N** (gate 0) still current for this board revision and enclosure airflow.
 7. **Loop at N:** 50 × 10 min sessions across the pan set: half RMS settles ≤ N, no `N21_FAULT_*` latch, `freq_reason` and peak estimate logged.
 
 Then one reviewed change sets `TEMPER_POWER_TANK_CEILING_DA` = 10 × N in the product sdkconfig for that unit or lot, and the record gains a row for N. **Any gate failing:** stay at the previous step (no partial raises); a gate failing at the current step after a hardware change lowers the ceiling back to the last step that passes.
@@ -326,7 +332,7 @@ Then one reviewed change sets `CONFIG_TEMPER_POWER_CALIBRATED=y`, enters the mea
 | Loop window (Hz) | `F_MAX_HZ`, `F_MIN_HZ` | 60000, 35000 | | 4, 9a |
 | Live retiming HIL | — | not done | | 9a.1 |
 | Pan detect: Q max, R min | `PAN_Q_MAX_X10`, `PAN_R_MIN_MOHM` | 100 (10), 800 (0.8 Ω) | | 9a.4 |
-| Commissioned tank ceiling (A) | `TANK_CEILING_DA` | 220 (22 A) | | ceiling procedure |
+| Commissioned tank ceiling (A) | `TANK_CEILING_DA` | 180 (18 A) | | ceiling procedure |
 | Measured tank peak / RMS ratio | (`TANK_PEAK_PER_RMS`) | 2.17 | | ceiling gate 5 |
 | Switch-node delay (ns) | `VSW_DELAY_NS` | 100 | | 4 |
 | CT_ZC delay (ns), polarity | `CT_ZC_DELAY_NS`, `CT_ZC_INVERTED` | 0, n | | 4 |
@@ -366,7 +372,7 @@ Then one reviewed change sets `CONFIG_TEMPER_POWER_CALIBRATED=y`, enters the mea
   - The PWM feedback is a loop-back capture of the MCU's own pads. Round 5 used an external capture over JFAST, so this is not independent of the MCU. Confirm it is acceptable to the safety review.
   - It uses all six MCPWM capture channels (both groups), with HA captured in each group as the phase reference.
 - **H6. C12 / C19 bench items:** repeated ADC1 channels in one continuous pattern; the AD8436 settling with CAVG = 100 nF and its envelope smoothing (steps 1 and 6).
-- **H7. CT_MON raw path.** It is sampled asynchronously at 20 kS/s, so its peak trip (derived from the ceiling, 50.74 A at 22 A) is supplementary. The qualified over-current protection is the hardware CT comparators and the shunt OCP.
+- **H7. CT_MON raw path.** It is sampled asynchronously at 20 kS/s, so its peak trip (derived from the ceiling, 42.06 A at 18 A) is supplementary. The qualified over-current protection is the hardware CT comparators and the shunt OCP.
 - **H8. Precharge and contactors.** `energy_supervisor` (precharge, K1/K2/KB) runs on an AUX-powered owner. Native-21 and this controller have no such owner. Confirm the inrush path, so this binding's assumption that the bus is simply present holds.
 - **H9. LINE_ZC on J4.16.** The pin took a return contact; recheck it against the D-10/D-20 return allocation (DECISIONS 2026-10-06).
 - **H10. Live MCPWM retiming.** `hw_pwm_update` relies on `update_period_on_empty` and `update_cmp_on_tez` shadow loading; never compiled against ESP-IDF or scoped (step 9a.1). Per-leg non-overlap does not depend on the load timing (one comparator per leg), but a period and its compares landing on different timer zeros gives one period of up to half-step duty error.

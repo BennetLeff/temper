@@ -479,7 +479,7 @@ void test_sm_rim_below_range_cool_pan_no_fault(void) {
 }
 
 /* Coil reading below 25 C after > 5 min of heating at > 50 % power: coil-sensor fault, latched,
- * handed to the thermal glue (tank <= 22 A, blower full speed) and shown. */
+ * handed to the thermal glue (tank <= 18 A, blower full speed) and shown. */
 void test_sm_coil_sensor_plausibility_fault(void) {
     reach_hot_pan(120.0f);
     mock_sm_set_coil_temperature(20.0f);

@@ -190,7 +190,7 @@ static void fake_reset(bool with_gate)
     F.line_present = true;
     F.acquiring = true;
     F.vbus_peak = 170.0f;
-    F.tank_rms_on = 20.0f;  /* RMS envelope peak; well inside the 22 A ceiling on average */
+    F.tank_rms_on = 20.0f;  /* RMS envelope peak; well inside the 18 A ceiling on average */
     F.lag_deg = 30.0f;
     F.ref_v3v3 = 3.30f;
     F.ct_scale = F.rms_gain = 1.0f;
@@ -446,9 +446,12 @@ static void test_default_is_inhibited(void)
     fake_reset(true);
     n21_config_t c = n21_config_default();
     assert(c.mode == N21_MODE_INHIBITED && !c.calibrated);
-    /* Shipping tank ceiling 22 A and its derived trips; the loop starts at 60 kHz. */
-    assert(c.limits.tank_limit_a == 22.0f && NEAR(c.tank_rms_trip_a, 23.1, 1e-4) &&
-           NEAR(c.tank_peak_trip_a, 50.74, 1e-4) && NEAR(c.tank_crest_guard_a, 33.0, 1e-4));
+    /* Shipping tank ceiling 18 A (power-stage DECISIONS 55: s42 still-air rating 18.3 A at bay
+     * 61 C) and its derived trips: half-cycle RMS 1.05 x = 18.9 A, peak 2.17 x + 3 = 42.06 A, crest
+     * guard 1.5 x = 27 A; the loop starts at 60 kHz. */
+    assert(c.limits.tank_limit_a == 18.0f && c.limits.tank_limit_a == TANK_CEILING_DEFAULT_A);
+    assert(NEAR(c.tank_rms_trip_a, 18.9, 1e-4) && NEAR(c.tank_rms_trip_a, 1.05 * c.limits.tank_limit_a, 1e-4) &&
+           NEAR(c.tank_peak_trip_a, 42.06, 1e-4) && NEAR(c.tank_crest_guard_a, 27.0, 1e-4));
     assert(c.freq.f_max_hz == 60000 && c.freq.f_min_hz == 35000);
     power_binding_t pb;
     n21_hw_ops_t o = ops();
@@ -474,7 +477,7 @@ static void test_default_is_inhibited(void)
     c.freq.f_max_hz = 0;
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
     c = commissioned_cfg();
-    c.tank_peak_trip_a = 60;                        /* above the 22 A derivation (50.74 A): refused */
+    c.tank_peak_trip_a = 60;                        /* above the 18 A derivation (42.06 A): refused */
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
     c = commissioned_cfg();
     o.pwm_update = NULL;                            /* the loop needs live retiming */
@@ -525,12 +528,12 @@ static void inj_status_fail(void) { F.status_fail = true; }
 static void inj_vbus_over(void) { F.vbus_force_mv = 1215; }
 static void inj_vbus_invalid(void) { F.vbus_force_mv = 50; }
 static void inj_adc_fail(void) { F.adc_fail = true; }
-static void inj_ct_peak(void) { F.ct_mon_extra_a = 52; } /* > 50.74 A */
+static void inj_ct_peak(void) { F.ct_mon_extra_a = 52; } /* > 42.06 A */
 static void inj_spi(void) { F.ext_fail = true; }
 static void inj_ref(void) { F.ref_code_force = 2800; }
-/* Half-cycle RMS 32.9 / sqrt 2 = 23.26 A > 23.1 A, every sample under the 33 A crest guard. */
-static void inj_tank_rms(void) { F.tank_rms_on = 32.9f; F.lag_deg = 80; }
-static void inj_crest(void) { F.tank_rms_on = 34.0f; F.lag_deg = 80; } /* one sample > 33 A */
+/* Half-cycle RMS 26.9 / sqrt 2 = 19.02 A > 18.9 A, every sample under the 27 A crest guard. */
+static void inj_tank_rms(void) { F.tank_rms_on = 26.9f; F.lag_deg = 80; }
+static void inj_crest(void) { F.tank_rms_on = 28.0f; F.lag_deg = 80; } /* one sample > 27 A */
 static void inj_capacitive(void) { F.lag_deg = -10; }
 static void inj_ct_zc_stale(void) { F.ct_zc_age = 5000; }
 static void inj_ct_zc_fail(void) { F.ct_zc_fail = true; }
@@ -550,8 +553,8 @@ static void test_any_fault_inhibits(void)
         {"vbus invalid", inj_vbus_invalid, N21_FAULT_NONE}, {"adc1 read", inj_adc_fail, N21_FAULT_NONE},
         {"ct_mon peak", inj_ct_peak, N21_FAULT_TANK_PEAK}, {"mcp3202 spi", inj_spi, N21_FAULT_RMS_CHANNEL},
         {"lm4040 ref", inj_ref, N21_FAULT_RMS_CHANNEL},
-        {"half-cycle tank rms > 1.05 x 22 A", inj_tank_rms, N21_FAULT_TANK_RMS},
-        {"tank rms sample > 1.5 x 22 A crest guard", inj_crest, N21_FAULT_TANK_RMS},
+        {"half-cycle tank rms > 1.05 x 18 A", inj_tank_rms, N21_FAULT_TANK_RMS},
+        {"tank rms sample > 1.5 x 18 A crest guard", inj_crest, N21_FAULT_TANK_RMS},
         {"capacitive phase", inj_capacitive, N21_FAULT_PHASE},
         {"ct_zc stale", inj_ct_zc_stale, N21_FAULT_CT_ZC_STALE},
         {"ct_zc missing", inj_ct_zc_fail, N21_FAULT_CT_ZC_STALE},
@@ -706,9 +709,10 @@ static void test_tank_ceiling_config(void)
     n21_hw_ops_t o = ops();
     power_binding_t pb;
     /* Each commissioning step's ceiling binds with its derived trips (PLAN section 4). */
-    static const struct { float a, peak, rms; } step[] = {{22, 50.74f, 23.1f}, {24, 55.08f, 25.2f},
+    static const struct { float a, peak, rms; } step[] = {{18, 42.06f, 18.9f}, {20, 46.4f, 21.0f},
+                                                          {22, 50.74f, 23.1f}, {24, 55.08f, 25.2f},
                                                           {26, 59.42f, 27.3f}, {28, 62.0f, 29.4f}};
-    for (unsigned i = 0; i < 4; i++) {
+    for (unsigned i = 0; i < sizeof step / sizeof step[0]; i++) {
         n21_config_t c = commissioned_cfg();
         assert(n21_config_set_tank_ceiling(&c, step[i].a));
         assert(NEAR(c.tank_peak_trip_a, step[i].peak, 1e-3) && NEAR(c.tank_rms_trip_a, step[i].rms, 1e-3));
@@ -726,13 +730,13 @@ static void test_tank_ceiling_config(void)
     c.tank_crest_guard_a = 30;
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_BIND);
     c = commissioned_cfg();
-    c.tank_peak_trip_a = 62;                        /* 62 A with a 22 A ceiling: refused */
+    c.tank_peak_trip_a = 62;                        /* 62 A with the 18 A default ceiling: refused */
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
     c = commissioned_cfg();
-    c.tank_rms_trip_a = 25;                         /* > 1.1 x 22 A */
+    c.tank_rms_trip_a = 20;                         /* > 1.1 x 18 A (config_ok's bound) */
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
     c = commissioned_cfg();
-    c.tank_crest_guard_a = 34;                      /* > 1.5 x 22 A */
+    c.tank_crest_guard_a = 28;                      /* > 1.5 x 18 A */
     assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
     c = commissioned_cfg();
     assert(!n21_config_set_tank_ceiling(&c, 28.5f)); /* above the hardware basis: config made invalid */
@@ -748,10 +752,10 @@ static void test_tank_ceiling_config(void)
 
 static void test_rms_trip_is_half_cycle(void)
 {
-    /* Envelope crest 30 A per sample (the old per-sample 23.1 A trip would latch) but the half-cycle
-     * RMS is 30 / sqrt 2 = 21.2 A: runs. */
+    /* Envelope crest 26 A per sample (a per-sample 18.9 A trip would latch; under the 27 A crest
+     * guard) but the half-cycle RMS is 26 / sqrt 2 = 18.4 A, under the 18.9 A trip: runs. */
     fake_reset(true);
-    F.tank_rms_on = 30.0f;
+    F.tank_rms_on = 26.0f;
     F.lag_deg = 80; /* low power: inside the 15 A inlet trip */
     assert(bind_commissioned(commissioned_cfg()));
     power_set_level(80);
@@ -759,7 +763,7 @@ static void test_rms_trip_is_half_cycle(void)
     n21_telemetry_t t;
     n21_telemetry(&B, &t);
     assert(F.gate && test_pwm_generation() && t.fault == N21_FAULT_NONE);
-    assert(NEAR(t.last_half.est.tank_rms_a, 21.2, 0.4) && t.last_half.rms_sample_max_a > 29);
+    assert(NEAR(t.last_half.est.tank_rms_a, 18.4, 0.4) && t.last_half.rms_sample_max_a > 25);
     tests++;
 }
 
@@ -810,22 +814,23 @@ static void test_freq_loop_live(void)
     tests++;
 }
 
-/* Controller L3 coil-sensor fault: the thermal clamp lowers the ceiling the loop holds (24 -> 22 A
- * here) at run time, without a trip; clearing it restores the commissioned ceiling. */
+/* Controller L3 coil-sensor fault: the thermal clamp lowers the ceiling the loop holds (a raised
+ * 24 A -> the 18 A shipping ceiling, COIL_SENSOR_FAULT_TANK_MAX_A) at run time, without a trip;
+ * clearing it restores the commissioned ceiling. */
 static void test_thermal_tank_limit_live(void)
 {
     fake_reset(true);
     model_pan();
     assert(bind_commissioned(loop_cfg(24)));
     assert(!n21_set_thermal_tank_limit(&B, true, NAN) && !n21_set_thermal_tank_limit(&B, true, 5.0f));
-    assert(!n21_set_thermal_tank_limit(NULL, true, 22.0f) && !B.thermal_limited);
+    assert(!n21_set_thermal_tank_limit(NULL, true, TANK_CEILING_DEFAULT_A) && !B.thermal_limited);
     run_ms(100);
     power_set_level(100);
     run_ms(2500);
     n21_telemetry_t t;
     n21_telemetry(&B, &t);
     assert(t.pan_present && t.ceiling_eff_a == 24.0f && t.fault == N21_FAULT_NONE);
-    assert(n21_set_thermal_tank_limit(&B, true, 22.0f));
+    assert(n21_set_thermal_tank_limit(&B, true, TANK_CEILING_DEFAULT_A));
     float worst = 0;
     for (int k = 0; k < 20; k++) {
         run_ms(100);
@@ -833,7 +838,8 @@ static void test_thermal_tank_limit_live(void)
         assert(t.fault == N21_FAULT_NONE);
         if (k >= 5 && t.have_half && t.last_half.est.tank_rms_a > worst) worst = t.last_half.est.tank_rms_a;
     }
-    assert(t.ceiling_eff_a == 22.0f && worst <= 22.0f * 1.005f && worst > 19.0f);
+    assert(t.ceiling_eff_a == TANK_CEILING_DEFAULT_A && worst <= TANK_CEILING_DEFAULT_A * 1.005f &&
+           worst > TANK_CEILING_DEFAULT_A - 3);
     /* A clamp above the commissioned ceiling changes nothing; clearing restores 24 A. */
     assert(n21_set_thermal_tank_limit(&B, true, 26.0f));
     run_ms(200);
@@ -848,7 +854,7 @@ static void test_thermal_tank_limit_live(void)
 static void test_no_pan_clamp_live(void)
 {
     /* Empty coil (R 0.2 ohm, 66.5 uH, bank at its -10 % corner 0.45 uF): with a 28 A ceiling
-     * configured the tank stays <= 22 A. */
+     * configured the tank stays <= the 18 A no-pan clamp. */
     fake_reset(true);
     F.model_L = 66.5e-6; F.model_C = 0.45e-6; F.model_R = 0.2;
     F.vbus_peak = 190.0f; /* enough drive that the empty coil would pass 22 A at the floor */
@@ -859,11 +865,11 @@ static void test_no_pan_clamp_live(void)
         run_ms(100);
         n21_telemetry_t t;
         n21_telemetry(&B, &t);
-        assert(!t.pan_present && t.ceiling_eff_a == 22.0f && t.fault == N21_FAULT_NONE);
+        assert(!t.pan_present && t.ceiling_eff_a == TANK_CEILING_DEFAULT_A && t.fault == N21_FAULT_NONE);
         if (t.have_half && t.last_half.est.tank_rms_a > worst) worst = t.last_half.est.tank_rms_a;
     }
-    assert(worst <= 22.0f * 1.005f && worst > 19.0f && test_pwm_generation());
-    /* The empty coil really would exceed 22 A at the 35 kHz floor. */
+    assert(worst <= TANK_CEILING_DEFAULT_A * 1.005f && worst > TANK_CEILING_DEFAULT_A - 3 && test_pwm_generation());
+    /* The empty coil really would exceed the clamp (and the old 22 A one) at the 35 kHz floor. */
     F.programmed.period = 2286;
     assert(0.900316316 * 190.0 / sqrt(2.0) / model_z(NULL) > 22.5);
     tests++;

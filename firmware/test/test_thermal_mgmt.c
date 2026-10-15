@@ -3,6 +3,7 @@
  * (inverted PWM, tach, stall derate). Assertions are the oracle (built with -UNDEBUG). */
 #include "thermal_mgmt.h"
 #include "../config.h"
+#include "../components/power/include/tank_freq.h"
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -768,8 +769,8 @@ static void test_coil_plausibility(void)
     assert(p.coil_ms == 0u);
     for (t += 100; t < 500000; t += 100) thermal_plaus_update(&p, t, false, 100.0f, true, NAN, 100);
     assert(!p.coil_fault && p.coil_ms == 0u);
-    /* The clamp the fault applies is the shipping commissioned ceiling. */
-    assert(COIL_SENSOR_FAULT_TANK_MAX_A <= 22.0f);
+    /* The clamp the fault applies is never above the shipping commissioned ceiling. */
+    assert(COIL_SENSOR_FAULT_TANK_MAX_A <= TANK_CEILING_DEFAULT_A);
 }
 
 int main(void)
