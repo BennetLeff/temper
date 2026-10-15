@@ -1326,3 +1326,19 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       1.6–2.0 mm. A 1.8 mm stack changes every dielectric depth, so it is a design candidate (re-run the chain, F8 and
       B3 on the stack file), not an order note. It is queued with the stud datasheet re-read first, to check whether
       1.6 mm is a hard minimum.
+
+42. **Coil-terminal board thickness: the REDCUBE THR datasheet makes 1.6 mm a hard minimum; candidate 35 (SMT terminals) queued (2026-10-14; no board change).**
+    - **Datasheet read** (Würth 74650074, WP-THRBU REDCUBE, rev 002.002, 2022-08-01; ledger entry updated, gate PASS):
+      "PCB Thickness min 1.6 mm", max 2 mm; IR 50 A max at 20 °C, with no derating curve; 1.2 N·m. Wave soldering is not
+      applicable; reflow is recommended.
+    - **Conflict:** JLC publishes ±10 % for boards ≥ 1.0 mm, and its 4-layer thicknesses go 1.6 → 2.0 mm with no 1.8 mm
+      (quote form; JLC stack data, 2 / 2 oz: 0.8 / 1.0 / 1.2 / 1.6 / 2.0). 1.6 mm can finish at 1.44 mm, and 2.0 mm can
+      finish at 2.2 mm. FAB-NOTE's "re-stack at 1.8 mm" fallback does not exist at JLC.
+    - **Interim (order):** keep 1.6 mm (JLC041622-7628, 1.633 mm nominal by layer sum). Add the order remark "finished
+      thickness 1.60–1.76 mm required (terminal specification)". "Confirm production file" is selected, so JLC's
+      engineering review answers it before production. That costs no time now.
+    - **Candidate 35:** J2 / J5 → Würth WP-SMBU 7466004R (SMT, M4 internal through-hole thread, 50 A at 20 °C, 1.2 N·m,
+      tape and reel; rev 001.003, 2023-07-03). Its datasheet states no PCB thickness, and it removes the THR process
+      question. To check: footprint against the RES_A 12.6 mm keep-out, terminal heat in B3 at the 29.4 A trip (one F.Cu
+      pad plus vias against four THT pads into every layer), and the lug and screw stack with the enclosure session.
+      It goes in the tank (WS3) lane.

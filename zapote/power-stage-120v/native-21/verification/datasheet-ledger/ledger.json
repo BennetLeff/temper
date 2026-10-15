@@ -2116,20 +2116,20 @@
    "function": "Resonant-tank coil terminals J2/J5, Wuerth REDCUBE THR M4",
    "status": "PARTIAL",
    "datasheet": {
-    "url": null,
-    "revision": "Wuerth WP-THRBU 74650074; datasheet not fetched; limit is the parts.ato docstring",
-    "fetched": null,
+    "url": "https://www.we-online.com/components/products/datasheet/74650074.pdf",
+    "revision": "Wuerth WP-THRBU REDCUBE 74650074, revision 002.002, 2022-08-01",
+    "fetched": "2026-10-14",
     "repo_copy": null,
-    "note": null,
-    "sha256_prefix16": null
+    "note": "p.1 properties: IR 50 A max @ 20 C ('Operating current depends on PCB, cable lug and cross section of the cable'); tightening torque 1.2 N*m; PCB Thickness min 1.6 mm / max 2 mm; operating temperature -55 to +150 C. p.3: 'Wave soldering is not applicable. Reflow soldering is recommended.'",
+    "sha256_prefix16": "fc0cdb43ce6cb534"
    },
    "ratings": [
     {
      "parameter": "I max @ 20C",
      "datasheet_limit": 50,
      "unit": "A",
-     "basis": "50 A max at 20 C, 1.2 N m torque (parts.ato docstring)",
-     "source": "elec/src/parts.ato:21-28"
+     "basis": "50 A max at 20 C (datasheet p.1); operating current depends on PCB, lug and cable",
+     "source": "74650074 datasheet rev 002.002 p.1 (Rated Current IR @ 20 C)"
     }
    ],
    "stresses": [
@@ -2160,8 +2160,8 @@
     }
    ],
    "gaps": [
-    "Datasheet not fetched: temperature derating of the 50 A rating at the operating ambient is unknown; no voltage rating (PCB/lug spacing governs).",
-    "Terminal contact temperature at 28 A not evidenced; bench IR list covers J2/J5 window only."
+    "No temperature derating curve in the datasheet: the 50 A rating is at 20 C only; terminal contact temperature at 28 A not evidenced (bench IR list covers the J2/J5 window only).",
+    "PCB thickness: the datasheet requires 1.6-2.0 mm (p.1); JLC publishes +/-10 % for boards >= 1.0 mm, so the 1.6 mm build can finish at 1.44 mm; no JLC thickness option lands inside 1.6-2.0 under +/-10 % (DECISIONS 42)."
    ],
    "finding": null,
    "notes": null
