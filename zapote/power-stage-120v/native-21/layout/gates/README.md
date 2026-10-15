@@ -12,6 +12,11 @@ Before `chain.sh`, add the TAG's `DIVIDER` / `BAND_BEFORE` / `FLOOR` entries to
 the repo (they are large). Clear `board_only21.json` test points before routing passes; `chain.sh`
 re-plans them.
 
+Step timing (laps.sh): `incr_iter.sh`, `passes.sh`, `chain.sh` (and its parallel blocks) and `regate.sh` append each
+step's wall time to `steps.jsonl` in their output dir (BUILDDIR, OUTROOT, OUTROOT/iN); `LAPS=0` turns it off.
+
+    python3 laps.py BUILDDIR_OR_OUTROOT       # per script: seconds per step, slowest first
+
 `zone_priority_gate.py [copper.json]` (stage 17b, run first by `chain.sh`): fails when two different-net pours on one
 layer sit closer than their clearance at the same priority, since KiCad's fill order would then decide the contested
 copper. `patches21.ZONE_WINNERS` declares each such pair's winner; `resolve_zone_priorities` keeps every existing order.
