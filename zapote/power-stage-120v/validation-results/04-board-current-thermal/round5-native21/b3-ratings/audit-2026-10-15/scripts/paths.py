@@ -7,8 +7,7 @@ sys.dont_write_bytecode = True          # importing the repo's thermal.py / run_
 os.environ.setdefault("PYTHONDONTWRITEBYTECODE", "1")
 
 JOB = Path(__file__).resolve().parents[1]
-UNIT = Path(os.environ.get("TEMPER_UNIT",
-                           "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v"))
+UNIT = Path(os.environ.get("TEMPER_UNIT", JOB.parents[4]))      # zapote/power-stage-120v (committed copy, DECISIONS 46)
 ROUND5 = UNIT / "validation-results/04-board-current-thermal/round5-native21"
 B3 = ROUND5 / "b3"
 CONV = ROUND5 / "b3-convergence"
