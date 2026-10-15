@@ -50,6 +50,7 @@ import argparse
 import gzip
 import json
 import math
+import os
 import time
 from collections import defaultdict
 
@@ -76,6 +77,24 @@ LOOP_NETS["B21"] = {"bus_p", "hv_ret", "leg_ret", "sw_b", "leg_b-out_h", "leg_b-
                     "leg_b-gate_l", "n_hb", "n_ls"}
 LAYERS = {"B.Cu": (-0.07, 0.0), "In2.Cu": (0.4355, 0.4965), "In1.Cu": (0.9965, 1.0575), "F.Cu": (1.493, 1.563)}
 Z_BOTTOM, Z_TOP = -0.07, 1.563
+
+
+def stack_layers(path):
+    """Copper z ranges (bottom to top, B.Cu top at z 0, masks excluded) from a native-21 stackup json.
+    native-21/stackup.json gives the table above exactly (test_stack_layers.py)."""
+    body = [l for l in json.load(open(path))["layers"] if "Mask" not in l["type"]]
+    z, out = -body[-1]["thickness_mm"], {}
+    for l in reversed(body):
+        if l["type"] == "copper":
+            out[l["name"]] = (round(z, 6), round(z + l["thickness_mm"], 6))
+        z += l["thickness_mm"]
+    return out, out["B.Cu"][0], out["F.Cu"][1]
+
+
+# c33 adoption (DECISIONS 39 item 1): MESH_STACKUP=<stackup json> takes the stack from the file (six layers:
+# native-21/stackup-6L.json). Unset, the committed four-layer table above is used unchanged.
+if os.environ.get("MESH_STACKUP"):
+    LAYERS, Z_BOTTOM, Z_TOP = stack_layers(os.environ["MESH_STACKUP"])
 LEG_W, SPAN_W, BAR_T, LEG_EXTRA = 0.6, 0.6, 0.1, 0.3
 # Driven port strips are narrower than the legs and are not snapped: their
 # sides must stay exactly parallel to the current. Snapped 0.6 mm strips took
@@ -150,6 +169,12 @@ def load_copper(path, crop, simplify, min_area, no_barrels, nets, open_r):
             fp = Point(it["centre"]).buffer(drill / 2, 4)
             if crop.buffer(-0.05).contains(fp):
                 barrels[it["net"]].append(fp)
+    # Loop-net copper in the crop on a layer the stack does not have would be dropped silently (a six-layer
+    # export meshed with the four-layer table loses In3 / In4): refuse instead.
+    unknown = sorted({str(l) for v in shapes.values() for l in v if l not in LAYERS})
+    if unknown:
+        raise SystemExit(f"loop-net copper on layers not in the mesh stack {list(LAYERS)}: {unknown} "
+                         f"(six-layer export: set MESH_STACKUP)")
     barrel_union = Polygon()
     if not no_barrels:
         barrel_union = shapely.set_precision(unary_union([b_ for v in barrels.values() for b_ in v]), GRID)
