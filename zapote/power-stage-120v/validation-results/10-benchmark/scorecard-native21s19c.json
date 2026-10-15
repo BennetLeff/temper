@@ -31,7 +31,8 @@
   "fuse_copper_fusing_ratio": 0.208,
   "cmti_gate_ratio_min": 1.316,
   "bank_ratio_tdk_28A_40k": 1.105,
-  "ocp_pickup_stack_pan60_A": 8.71
+  "ocp_pickup_stack_pan60_A": 8.71,
+  "bank_ratio_tdk_28A_35k": 1.13
  },
  "cost": {
   "bom_lines": 92,
@@ -57,7 +58,8 @@
   "fuse_copper": "02-protection-timing/shoot-through-f1/result.json (min copper fusing I2t / F1 clearing I2t)",
   "cmti": "06-controller-interface/cmti/cmti.csv (GATE rows, ratio at 95 V/ns)",
   "bank": "added 2026-10-13 with stage 20: bank_options.json baseline K (19c fits B32654A1104K000); same script and source as every later card",
-  "ocp_pickup": "added with stage 21b: coil-pickup/s21b/run_ocp.py on the 19c copper (stage 20 shares it), result-s19c.json"
+  "ocp_pickup": "added with stage 21b: coil-pickup/s21b/run_ocp.py on the 19c copper (stage 20 shares it), result-s19c.json",
+  "bank_35k": "11-candidates/c34-bank-margin/results/bank_margin.json basis_comparison K_at_35k"
  },
  "backfilled": {
   "consign_lines": "2026-10-13, from the tag's fab/bom-jlcpcb.csv (r2-dfm P4)"
@@ -72,5 +74,11 @@
   "parts_usd_at_5_before": 329.58,
   "parts_usd_at_500_before": 221.04,
   "reason": "UMK325AB7106KM-T at the JLC ladder ($0.2545 / $0.2186, C386167), not the class-default estimate ($0.25 / $0.12): sourcing/STOCK-2026-10-13_pricefix-umk325.csv (DECISIONS 34). Recomputed with scorecard.cost() on this tag's fab BOM; the same call without the fix file reproduces the before values."
+ },
+ "restated_bank35k": {
+  "date": "2026-10-14",
+  "added_metric": "bank_ratio_tdk_28A_35k",
+  "value": 1.13,
+  "reason": "DECISIONS 37: the bank metric at the 35 kHz window floor (worst legal frequency), K share, from c34-bank-margin/scripts/bank_margin.py. Added to this card without re-scoring; for s32 a full re-score with the updated scorecard.py differs from this card only in this metric."
  }
 }

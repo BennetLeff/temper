@@ -33,7 +33,8 @@
   "bank_ratio_tdk_28A_40k": 1.022,
   "ocp_pickup_stack_pan60_A": 4.17,
   "ledger_violations": 0,
-  "ledger_unaudited_safety_power": 0
+  "ledger_unaudited_safety_power": 0,
+  "bank_ratio_tdk_28A_35k": 1.045
  },
  "cost": {
   "bom_lines": 94,
@@ -60,6 +61,13 @@
   "cmti": "06-controller-interface/cmti/cmti.csv (GATE rows, ratio at 95 V/ns)",
   "bank": "11-candidates/g04-g09-tank-detect/results/bank_options.json baseline J",
   "ocp_pickup": "02-protection-timing/coil-pickup/s21b/result-s31.json",
-  "ledger": "native-21/verification/datasheet-ledger: {'PARTIAL': 32, 'UNAUDITED': 59, 'VERIFIED': 3, 'VIOLATION': 0}"
+  "ledger": "native-21/verification/datasheet-ledger: {'PARTIAL': 32, 'UNAUDITED': 59, 'VERIFIED': 3, 'VIOLATION': 0}",
+  "bank_35k": "11-candidates/c34-bank-margin/results/bank_margin.json basis_comparison J_at_35k"
+ },
+ "restated_bank35k": {
+  "date": "2026-10-14",
+  "added_metric": "bank_ratio_tdk_28A_35k",
+  "value": 1.045,
+  "reason": "DECISIONS 37: the bank metric at the 35 kHz window floor (worst legal frequency), J share, from c34-bank-margin/scripts/bank_margin.py. Added to this card without re-scoring; for s32 a full re-score with the updated scorecard.py differs from this card only in this metric."
  }
 }

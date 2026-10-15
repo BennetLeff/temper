@@ -49,6 +49,7 @@ PERF = {
     "cmti_gate_ratio_min": ("higher", 0.0),
     "fuse_copper_fusing_ratio": ("higher", 0.0),
     "bank_ratio_tdk_28A_40k": ("lower", 0.0),     # added 2026-10-13 (stage 20): DECISIONS item 21 / 23 thermal margin
+    "bank_ratio_tdk_28A_35k": ("lower", 0.0),     # added 2026-10-14: DECISIONS 37, worst legal frequency (c34-bank-margin)
     "ocp_pickup_stack_pan60_A": ("lower", 0.1),   # added 2026-10-13 (stage 21b): F8, any-phase +50 % stack, gate 6.5 A
     # added 2026-10-13 (after stage 26): datasheet-ratings ledger (native-21/verification/datasheet-ledger) as a ratchet - a
     # candidate may not add a rating violation, a BOM line missing from the ledger, or an unaudited SAFETY/POWER line
@@ -185,6 +186,11 @@ def performance(b, tag):
         if grade in ("K", "J"):
             m["bank_ratio_tdk_28A_40k"] = bo["baseline"][{"K": "5x100nF_K(+-10%)", "J": "5x100nF_J(+-5%)"}[grade]]["ratio_to_curve_28A_40k"]
             src["bank"] = f"11-candidates/g04-g09-tank-detect/results/bank_options.json baseline {grade}"
+        # same, at the 35 kHz window floor, the worst legal frequency for every TDK 1600 V curve (DECISIONS 37)
+        bm = jload(VR / "11-candidates/c34-bank-margin/results/bank_margin.json")
+        if bm and grade in ("K", "J"):
+            m["bank_ratio_tdk_28A_35k"] = bm["basis_comparison"][f"{grade}_at_35k"]
+            src["bank_35k"] = f"11-candidates/c34-bank-margin/results/bank_margin.json basis_comparison {grade}_at_35k"
     # F8 coil-field pickup into the OCP Kelvin / comparator loops: 60 kHz, 59.2 A pk, pan, conservative closure (base_A),
     # one script (02-protection-timing/coil-pickup/s21b/run_ocp.py) run on each stage's copper
     pk = jload(VR / f"02-protection-timing/coil-pickup/s21b/result-{tag.replace('native21', '')}.json")
