@@ -1103,7 +1103,7 @@ def add_stage32_in2(g):
                       for q in geo.pads)
             if lays == {"In2.Cu"} and not pad:
                 g["VIAS"].remove(v)
-                unregister(net, ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"), Point(*v["at"]).buffer(v["size"] / 2))
+                unregister(net, CU, Point(*v["at"]).buffer(v["size"] / 2))
                 dropped.append(p)
         print(f"stage 32: {net} hop {pts} on In2" + (f", via(s) {dropped} dropped" if dropped else ""))
     pieces = [(Point(*a).buffer(0.3), CU) if k == "via" else

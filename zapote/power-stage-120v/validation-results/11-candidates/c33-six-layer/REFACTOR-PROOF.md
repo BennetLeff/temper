@@ -4,8 +4,8 @@
 on the same board file (86 of 86 artefacts equal, table below). A fresh rebuild gives the same board inputs
 (footprints, tracks, vias, zone outlines and rules). It also prints the same chain summary as the pre-refactor
 chain and the accepted s31 chain: every gate line, Kelvin, task 04 and B3 peaks, and the fab counts. The scorecard
-is unchanged against `scorecard-native21s31.json`. Proven on s31 (38e856ef3); the s32 re-proof is in the section
-appended below.
+is unchanged against `scorecard-native21s31.json`. Proven on s31 (38e856ef3) and again on s32 after the rebase onto
+d35219516 (last section).
 
 ## What changed (code)
 - `native-21/stackup.json` is now tracked and is native-21's single layer-stack source (schema v2: the KiCad stackup
@@ -195,3 +195,135 @@ plan_board_only21, trim_tails, test_trim_tails, zone_priority_gate, xfer_spots a
   correct for this board.
 - kit_topology_native13.py (round 3, shared) builds Net() with the kit's default z. That is equal on this stack; it is
   not wired to the stackup.
+
+## Re-proof on s32 (branch rebased onto d35219516: stage 32 + records)
+The rebase was clean. Stage 32 added one more whole-stack tuple, in patches21.add_stage32_in2 (`unregister(... CU ...)`);
+it now uses CU. Its In2 hops are authored geometry and stay literal. test_layers21 and b3/test_layers PASS on s32's
+copper.json.
+
+**Baseline** (d35219516 checked out, unmodified): `chain.sh native21s32 $R/s32/p3/i2 $R/refactor/s32-base`, caches
+cleared.
+- Board 277ff2f5… vs the accepted 2fb346dc…. Uuid- and fill-normalised, both are `4abd302e7d21`.
+- Chain summary: equal to s32/chain2.log with three exceptions. The accepted run's settle-loop trims are absent: they
+  were committed with copper.json. The Rust census is 5753 vs 5749 (refill). The CPL-audit counts changed because of
+  b10228f62.
+- OCP equals result-s32.json; necks equal s32_necks.json except board_sha256; scorecard equals
+  scorecard-native21s32.json except the build path.
+
+**A. Same board file, refactored code**: `refactor_same_input.sh $R/refactor/s32-base $R/refactor/s32-xin native21s32`.
+Result: **86 of 86 artefacts equal** (`$R/refactor/s32-xin-table.md`). This covers the copper dump, all gates, the
+all-copper and power-copper exports, the Gerber ZIP, Kelvin, all 39 task-04 cases and summaries recomputed, every B3
+run and the ceiling sweep, necks, OCP and scorecard.
+
+**B. Fresh rebuild, refactored code**: `chain.sh native21s32 $R/s32/p3/i2 $R/refactor/s32-after`, CHAIN_DONE.
+- Builder output `7aeeb8753200` before and after. Final board 906392c2…, uuid- and fill-normalised `4abd302e7d21`.
+- The chain summary is identical to the s32 baseline except the refill census: 5749, the accepted run's figure.
+- Equal to the accepted s32 artefacts: OCP (result-s32.json), necks (s32_necks.json) and scorecard
+  (scorecard-native21s32.json, compare: no change).
+- Equal to the baseline: pads, test-point plan, DFM, bypass, PI distances, drill report, Kelvin plane and budget.
+- 70 fill-bearing artefacts differ by refill noise: B3 peak at most 0.018 K, task-04 R at most 3.3e-4 relative. These
+  are the same sizes as two runs of the unmodified chain.
+
+**C. Layout scripts** (`refactor_layout_runs.sh OUT $R/s32/p3/i2 $R/s32/p3/i1`, d35219516 files vs refactored):
+incr21.json (with stage 32's std_vias and add_stage32_in2), board_only21.json, every log and return-path.json are
+equal. route21.log differs in traceback line numbers only.
+
+## Rerun notes
+Order: baseline on the old code (checkout, place.py + build_native21.py, `chain.sh` with caches cleared, then necks,
+OCP and scorecard; snapshot the tracked outputs with rsync), then `refactor_layout_runs.sh` on the old code. Then, on
+the refactored branch: layout runs, `refactor_same_input.sh` (pin the tag's Kelvin hash to the baseline board first),
+`refactor_table.py`, and the full chain. Finally restore the chain-written tracked files and the Kelvin pin before
+committing.
+
+### Appendix: s32 same-input table (A)
+
+| artefact | before | after | equal? |
+|---|---|---|---|
+| board (section.kicad_pcb, uuid-normalised, fills included) | `83e3b38c4696` | `83e3b38c4696` | yes |
+| copper-dump.json | `9e39782d09b8` | `9e39782d09b8` | yes |
+| pads-board.json | `15eb01b0bdea` | `15eb01b0bdea` | yes |
+| evidence.json | `afd0ac49e4b5` | `afd0ac49e4b5` | yes |
+| barrier-gate-rust.json | `a640b50fca15` | `a640b50fca15` | yes |
+| jlc-dfm.json | `51cef01b2600` | `51cef01b2600` | yes |
+| bypass-check.json | `8798d465075a` | `8798d465075a` | yes |
+| native21-all-copper.json.gz | `6c1f2227bfa3` | `6c1f2227bfa3` | yes |
+| power_copper.json.gz | `87d060935d8e` | `87d060935d8e` | yes |
+| res-a-creepage.json | `9d6d10e3ca42` | `9d6d10e3ca42` | yes |
+| pi-distances.json | `519d457eebc0` | `519d457eebc0` | yes |
+| return-path.json | `49b910dbbd41` | `49b910dbbd41` | yes |
+| barrier.txt | `7f3334164c93` | `7f3334164c93` | yes |
+| d5-audit.json | `fbe8bceb8d98` | `fbe8bceb8d98` | yes |
+| Gerber ZIP (date lines removed) | `a804b4c07a7f` | `a804b4c07a7f` | yes |
+| drill-report.txt | `342942dc6ff7` | `342942dc6ff7` | yes |
+| kelvin plane-native21s32.json | `5336f693e9f8` | `5336f693e9f8` | yes |
+| kelvin budget-native21s32.json | `cd7c8863e80e` | `cd7c8863e80e` | yes |
+| task04 ac_l_main-p0125-pl18.json | `8a99395d4651` | `8a99395d4651` | yes |
+| task04 ac_n_main-p0125-pl18.json | `8e9230910d38` | `8e9230910d38` | yes |
+| task04 bus-dc-q2-p00625-pl18.json | `32217a613a9b` | `32217a613a9b` | yes |
+| task04 bus-dc-q2-p025-pl18.json | `75ded339d0f7` | `75ded339d0f7` | yes |
+| task04 bus_dc_q2-p0125-pl12.json | `f11871776b8f` | `f11871776b8f` | yes |
+| task04 bus_dc_q2-p0125-pl18.json | `031338258938` | `031338258938` | yes |
+| task04 bus_dc_q5-p0125-pl18.json | `1c5bda4714c5` | `1c5bda4714c5` | yes |
+| task04 bus_hf_q2-p0125-pl18.json | `fd61a9ba3f1f` | `fd61a9ba3f1f` | yes |
+| task04 bus_hf_q5-p0125-pl18.json | `31fea869fb19` | `31fea869fb19` | yes |
+| task04 bus_mixed_q2-p0125-pl12.json | `e6ab0669d5bb` | `e6ab0669d5bb` | yes |
+| task04 bus_mixed_q2-p0125-pl18.json | `4d797242b9ec` | `4d797242b9ec` | yes |
+| task04 bus_mixed_q5-p0125-pl12.json | `d467e5b433e9` | `d467e5b433e9` | yes |
+| task04 bus_mixed_q5-p0125-pl18.json | `9a213ae56886` | `9a213ae56886` | yes |
+| task04 cases.json | `95768c90b225` | `95768c90b225` | yes |
+| task04 coil_feed-p0125-pl12.json | `b28cc967e8fc` | `b28cc967e8fc` | yes |
+| task04 coil_feed-p0125-pl18.json | `da626e31657e` | `da626e31657e` | yes |
+| task04 compare_native17.json | `d8e5871ab248` | `d8e5871ab248` | yes |
+| task04 hv_dc-p00625-pl12.json | `9a0549dface1` | `9a0549dface1` | yes |
+| task04 hv_dc-p00625-pl18.json | `a362f21c05b0` | `a362f21c05b0` | yes |
+| task04 hv_hf_a-p00625-pl18.json | `2a65e17976d8` | `2a65e17976d8` | yes |
+| task04 hv_hf_b-p00625-pl18.json | `d169d46fa104` | `d169d46fa104` | yes |
+| task04 hv_mixed_a-p00625-pl12.json | `6daf812f417c` | `6daf812f417c` | yes |
+| task04 hv_mixed_a-p00625-pl18.json | `d51e5bdacbc0` | `d51e5bdacbc0` | yes |
+| task04 hv_mixed_b-p00625-pl12.json | `e6c26981ece6` | `e6c26981ece6` | yes |
+| task04 hv_mixed_b-p00625-pl18.json | `599fadbfdf9d` | `599fadbfdf9d` | yes |
+| task04 kit_topology_p00625.json | `11753a976459` | `11753a976459` | yes |
+| task04 kit_topology_p0125.json | `61cd2567dc54` | `61cd2567dc54` | yes |
+| task04 leg_a_15-p00625-pl18.json | `c4dc549e08ff` | `c4dc549e08ff` | yes |
+| task04 leg_a_18p7-p00625-pl12.json | `2e3b220f902b` | `2e3b220f902b` | yes |
+| task04 leg_a_18p7-p00625-pl18.json | `dee11feb5d10` | `dee11feb5d10` | yes |
+| task04 leg_a_19-p00625-pl18.json | `f0518312e165` | `f0518312e165` | yes |
+| task04 leg_a_34-p00625-pl18.json | `51173750cbf9` | `51173750cbf9` | yes |
+| task04 leg_b_18p7-p00625-pl12.json | `2a076afb97e5` | `2a076afb97e5` | yes |
+| task04 leg_b_18p7-p00625-pl18.json | `757d68d8afdd` | `757d68d8afdd` | yes |
+| task04 leg_b_34-p00625-pl18.json | `124756bb2b1f` | `124756bb2b1f` | yes |
+| task04 res_a-p0125-pl12.json | `4f352d765b48` | `4f352d765b48` | yes |
+| task04 res_a-p0125-pl18.json | `bb0e0aa2ec0a` | `bb0e0aa2ec0a` | yes |
+| task04 summary.json | `d2091a681327` | `d2091a681327` | yes |
+| task04 sw_a-p00625-pl12.json | `4cb194a0156f` | `4cb194a0156f` | yes |
+| task04 sw_a-p00625-pl18.json | `19a61d1f35c9` | `19a61d1f35c9` | yes |
+| task04 sw_a_low-p00625-pl12.json | `7aa8db49c934` | `7aa8db49c934` | yes |
+| task04 sw_a_low-p00625-pl18.json | `ba40250bb86b` | `ba40250bb86b` | yes |
+| task04 sw_b_high-p00625-pl12.json | `23064948ce00` | `23064948ce00` | yes |
+| task04 sw_b_high-p00625-pl18.json | `7908486332dd` | `7908486332dd` | yes |
+| task04 sw_b_low-p00625-pl12.json | `68b508b1fa80` | `68b508b1fa80` | yes |
+| task04 sw_b_low-p00625-pl18.json | `f74be81eea0a` | `f74be81eea0a` | yes |
+| task04 via_currents.json | `2d3b23df823f` | `2d3b23df823f` | yes |
+| B3 c28_h10_p0p5.json | `10d525c90777` | `10d525c90777` | yes |
+| B3 c28_h10_p1p0.json | `3d76b507c6d2` | `3d76b507c6d2` | yes |
+| B3 c28_h25_p0p5.json | `6f96fc9c9480` | `6f96fc9c9480` | yes |
+| B3 c28_h25_p1p0.json | `6bbfebe838ae` | `6bbfebe838ae` | yes |
+| B3 ceiling_sweep.json | `b9100343eb9c` | `b9100343eb9c` | yes |
+| B3 extreme_h10_p0p5.json | `2b108c83a65b` | `2b108c83a65b` | yes |
+| B3 extreme_h10_p1p0.json | `c522f7e93f7e` | `c522f7e93f7e` | yes |
+| B3 extreme_h25_p0p5.json | `9883c2e0480f` | `9883c2e0480f` | yes |
+| B3 extreme_h25_p1p0.json | `7c3b5e918477` | `7c3b5e918477` | yes |
+| B3 nominal_h10_p0p5.json | `00155c5939f9` | `00155c5939f9` | yes |
+| B3 nominal_h10_p1p0.json | `bbc16b3f1a14` | `bbc16b3f1a14` | yes |
+| B3 nominal_h25_p0p5.json | `edec0683ee25` | `edec0683ee25` | yes |
+| B3 nominal_h25_p1p0.json | `8a7700b29824` | `8a7700b29824` | yes |
+| B3 summary.json | `efc90e895f00` | `efc90e895f00` | yes |
+| B3 sweep_c22_h25_p1p0.json | `893e76ed327c` | `893e76ed327c` | yes |
+| B3 sweep_c24_h25_p1p0.json | `afe2b51a0c24` | `afe2b51a0c24` | yes |
+| B3 sweep_c26_h25_p1p0.json | `c13a8d2d9036` | `c13a8d2d9036` | yes |
+| B3 sweep_c28_h25_p1p0.json | `6bbfebe838ae` | `6bbfebe838ae` | yes |
+| necks s32_necks.json | `102c73cd5af1` | `102c73cd5af1` | yes |
+| OCP pickup result.json | `083ff75336fe` | `083ff75336fe` | yes |
+| scorecard.json | `5de74c3683d0` | `5de74c3683d0` | yes |
+
+86 artefacts, 0 different
