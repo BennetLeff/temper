@@ -64,6 +64,7 @@ transfer → verdict), with known truth.
 | `bench.example.json` | Channel map and 1σ uncertainties; copied to `bench.json` on first use |
 | `bom.py` → `bom.json` | Lean BOM with estimates |
 | `air.py` | Air properties (Sutherland) |
+| `demo/` | Interactive walkthrough page `jet-bench-demo.html` (3D rig, air path, simulated bench day). `export_mesh.py` (build123d venv) → `rig-mesh.json`, then `python3 build_demo.py` fills `page.html` from the kit's JSON |
 
 ## Rerun
 
