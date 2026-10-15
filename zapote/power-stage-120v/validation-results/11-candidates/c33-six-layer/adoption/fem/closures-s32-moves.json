@@ -1,0 +1,67 @@
+{
+ "board_sha256": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e",
+ "export": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s32/b2/native21-all-copper.json.gz",
+ "moved": [
+  {
+   "leg": "A",
+   "closure": "R5_1_4",
+   "end": "a",
+   "pad": "R5.1",
+   "net": "leg_ret",
+   "old": [
+    39.135,
+    10.12
+   ],
+   "new": [
+    38.5,
+    10.0
+   ]
+  },
+  {
+   "leg": "A",
+   "closure": "R5_1_4",
+   "end": "b",
+   "pad": "R5.4",
+   "net": "hv_ret",
+   "old": [
+    37.865,
+    15.08
+   ],
+   "new": [
+    38.5,
+    15.2
+   ]
+  },
+  {
+   "leg": "B",
+   "closure": "R5_1_4",
+   "end": "a",
+   "pad": "R5.1",
+   "net": "leg_ret",
+   "old": [
+    39.135,
+    10.12
+   ],
+   "new": [
+    38.5,
+    10.0
+   ]
+  },
+  {
+   "leg": "B",
+   "closure": "R5_1_4",
+   "end": "b",
+   "pad": "R5.4",
+   "net": "hv_ret",
+   "old": [
+    37.865,
+    15.08
+   ],
+   "new": [
+    38.5,
+    15.2
+   ]
+  }
+ ],
+ "unchanged": 72
+}

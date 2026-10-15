@@ -1,0 +1,28 @@
+{
+ "sw_a": [
+  {
+   "layer": "F.Cu",
+   "area_mm2": 1702.3252172237262,
+   "edge_mm_facing_sink": 4.58839900000001
+  },
+  {
+   "layer": "F.Cu",
+   "area_mm2": 24.251425270471373,
+   "edge_mm_facing_sink": 0.0
+  },
+  {
+   "layer": "B.Cu",
+   "area_mm2": 201.78137024474563,
+   "edge_mm_facing_sink": 12.914515999999978
+  }
+ ],
+ "sw_b": [
+  {
+   "layer": "B.Cu",
+   "area_mm2": 3307.8537941088434,
+   "edge_mm_facing_sink": 7.616955000000003
+  }
+ ],
+ "board_sha256": "3401884643954fbef4f48b672ffdd2a1f4fec37f0985019c54049550b9e9ecdd",
+ "board_sha256_note": "sha256 of the copper dump this summary was taken from (emi_board.py; s19b's own key is its board file's)"
+}
