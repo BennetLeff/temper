@@ -535,6 +535,9 @@ Candidate 30 re-placed U42's pocket. A legal ISO6721FB pose that straddles HS-B 
   LS corridor now carries the GOOD node (one trace for both HS verdicts) where it carried MON_GOOD_HA (one HS verdict);
   an open in that trace would lose both HS vetoes instead of one. The trace is 0.25 mm inner-layer copper with no
   connector or joint along it.
+- **Production screen (DECISIONS 52):** because that open is latent (the node is pulled up, so it reads "good"), every
+  board gets an end-of-line test that forces MON_GOOD_HA low, then MON_GOOD_HB low, and checks the heartbeat stops and
+  BIAS_GOOD drops within its hold time.
 - Crossings: the monitor group has **one** reinforced HOT -> SELV crossing (U32), as the candidate-24 recommendation
   intended (stage 30-38: two). One ISO6721FB line serves U43 and U44; the CA-IS3720LW line is gone.
 

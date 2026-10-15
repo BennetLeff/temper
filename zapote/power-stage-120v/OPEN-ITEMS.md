@@ -1,7 +1,7 @@
 # native-21 open items (register, updated 2026-10-15)
 
-One row per open item on the power board, so nothing falls between lanes. Board of record: **s38** (board b5bf428d,
-4 layers; DECISIONS 50, on s35 of DECISIONS 44). Keep this current: when an item closes, give the DECISIONS number
+One row per open item on the power board, so nothing falls between lanes. Board of record: **s40** (board 33ed17f3,
+4 layers; DECISIONS 52, on s38 of DECISIONS 50). Keep this current: when an item closes, give the DECISIONS number
 and move it to "Closed" at the end. Agents marked "running" write to scratch; the integration session reviews and
 commits their results.
 
@@ -10,7 +10,7 @@ Lanes:
   scorecard. At most 2–3 run at once.
 - **Analysis lanes** build nothing and run in parallel.
 
-Scorecard (DECISIONS 43, 45, 46): compare against `10-benchmark/scorecard-native21s38.json`. The release gates
+Scorecard (DECISIONS 43, 45, 46): compare against `10-benchmark/scorecard-native21s40.json`. The release gates
 (`RELEASE_GATES`: `b3_ratings`) and the leakage limit are absolute conditions for an order. A candidate is graded on
 their ratchets.
 
@@ -27,7 +27,7 @@ their ratchets.
 | S9 | Resonant bank 1.045× TDK's curve at 28 A; no ≤ 0.85 option in authorised stock | DECISIONS 37, 45 | Candidate 34 | Waits on stock | Moot below 28 A while S2 limits the ceiling |
 | S6 | CMTI 1.5× rule not met on FILTERED / OPEN rows (1.05×) | `c31-bom/README.md` | Parts / certifier | Open | Covered by the isolator review; NSi822xW rejected (no open-input state) |
 | S7 | Datasheet ledger: 3 VERIFIED / 32 PARTIAL / 59 UNAUDITED of 94 lines | `datasheet-ledger/` | Parts verification lane | Deferred until the BOM settles (device and bias studies) | Then PARTIAL SAFETY / POWER lines to VERIFIED, in parallel |
-| S10 | Return-path open changes 18; six layers took them to 8 | DECISIONS 39–40 | Layout (LS / HS-B) | Open | Targeted four-layer fixes with the LS-pocket lane |
+| S10 | Return-path open changes: 18 → 15 (s40, DECISIONS 52). The 14 left outside HS-B / LS are on SELV / Kelvin nets (bus_fault_hot ×3, ocp_ok_hot, ovp_ok_hot ×2, permit ×3, bus_fault_iso, bus_fault, bias_good ×3); 1 is the GOOD node at U45.1 | DECISIONS 39–40, 52 | Layout (SELV side) | Open | A SELV-side return-path pass |
 | S11 | Certifier questions (CERTIFIER-PACKET A1–A4: F1, insulation, PEC / FMEA, supply approvals, RES_A, coil-lane voltage); add S12 to A3 | `owner-items/CERTIFIER-PACKET.md` | Owner | Draft, not sent | Owner sends the packet |
 | S13 | temper-8d requests: AMC1301 measured input current on R5 (HOT5 domain; J4 +2 pins; +7–9 % power at the 15 A plug); pan-detect re-validation on the full bridge (Al / Cu / small / warped pans); ±1 kHz dither at 120 Hz (check ZVS at fs − 1 kHz). Split-R coil EMI model: right physics, no verdict change (DECISIONS 47) | `git show sensor-c1-impulse-mining:output/temper-coil-driver-r1/RECOMMENDATIONS.md` | AMC1301: a later candidate (kept out of 23 to hold its scope; its power argument is capped by S2); firmware items to the controller | Logged | After S2 |
 
@@ -41,6 +41,7 @@ their ratchets.
 | B5 | Track-geometry hygiene: 104 right angles, 206 acute corners (44 fold-backs), 704 mm any-angle on s35 | DECISIONS 43, 48 | Cleanup pass (tool merged) | Proved on s35 as s37 (ACCEPT) | Apply last, on the merged copper, then the chain |
 | B6 | Stencil: J2 / J5 want 150 µm paste; fine-pitch parts' stencil not chosen; J2 / J5 CPL rows NEEDS-PREVIEW | DECISIONS 44 | Order (owner) | Open | Step stencil or aperture choice at order |
 | B7 | `PROTOTYPE-LOT.md` lists superseded parts (UCC21550, ISO7710, 74650074R) | `08-manufacturing-package/native-21/` | Integration | Stale | Regenerate from the snapshot when the BOM settles |
+| B8 | End-of-line veto test: force MON_GOOD_HA low, then MON_GOOD_HB low; the heartbeat stops and BIAS_GOOD drops within its hold time (screens the GOOD-node corridor open, DECISIONS 52) | FMEA §6c | Bring-up / test plan (owner) | New | Add to the production test spec |
 
 ## 3. Cost (scorecard parts $206.44 at 500 on the 2026-10-13 survey; $186.54 on the 2026-10-15 snapshot; bare board $17.28)
 
@@ -53,14 +54,14 @@ their ratchets.
 | C5 | PS1 deletion (candidate 23) | 4.20 saved net of PS2 → MPM | Done (DECISIONS 50) | Closed |
 | C7 | Bare board: six layers $19.11 vs four $17.28 pinned; area compaction ~$1.5 per 10 % | DECISIONS 40 | After candidate 23 (compaction) | Open |
 
-## 4. Layout lanes (two building: ps-layers, ps-selv)
+## 4. Layout lanes (one building: ps-selv; ps-layers free)
 
 | Lane (island) | Candidate | Status | Blocked on |
 |---|---|---|---|
 | Tank / FET row (WS3 / WS4 boundary) | 36: tank-copper heat at R5.4 / FET row; 0.5 mΩ shunt option; stage tag s41 | Running (ps-selv, branch claude/native21-c36-tank-copper) | Targets: f ≤ 0.895 (c22), 0.369 (c28; 0.551 with the shunt) |
 | Gate networks (HS / LS driver outputs) | 39: S4 dv/dt fix (S14) by a larger turn-on R (the PMEG + 1 Ω turn-off path exists); gate resistors to 2512 (S2); CM8 option | After its analysis | The gate-network study (running) |
 | SELV side (WS5, spine owner) | 23: done, stage 38 (DECISIONS 50); spine baseline re-issued (s38) | Merged | — |
-| HS-B / LS (WS4) | 30a (HS-B → LS ISO6721FB), 30b (C161), return-path fixes (S10); stage tag s40 | Running (ps-layers, branch claude/native21-c30-ls-pocket) | — (U42 stays RECOM, DECISIONS 49) |
+| HS-B / LS (WS4) | 30a / 30b done, stage 40 (DECISIONS 52) | Merged | — |
 | Tank / bank | 34: resonant bank | Waits on stock | S9 |
 | Whole board (last) | Geometry cleanup pass (B5; tool merged, DECISIONS 48: s35 → s37 right angles 104 → 50, acute 206 → 23, fold-backs 44 → 3, any-angle 704 → 308 mm; ACCEPT); compaction (C7) | Tool ready; ps-layers free | Run on the merged copper after c23 / c36 / c30 land |
 
