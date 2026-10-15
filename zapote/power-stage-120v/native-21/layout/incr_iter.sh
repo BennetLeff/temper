@@ -48,6 +48,9 @@ $KPY tools/apply_reference_labels.py "$OUT/section.kicad_pcb" native-21/referenc
 lap apply_reference_labels
 # schematic beside the board for parity (native-21/section.kicad_sch, build_schematic21.py)
 cp native-21/section.kicad_sch native-21/native21.kicad_sym native-21/sym-lib-table "$OUT/"
+# DRC_FAST (passes.sh, router_bench.py): this build's rules without the creepage constraints, ~1/3 of the DRC time;
+# barrier21 below checks the creepage groups in plan view (gates/drc_rules_fast.py). chain.sh never sets it.
+if [ -n "${DRC_FAST:-}" ]; then python3 native-21/layout/gates/drc_rules_fast.py "$OUT/section.kicad_dru"; fi
 $CLI pcb drc --refill-zones --save-board --schematic-parity --format json -o "$OUT/drc.json" "$OUT/section.kicad_pcb" >/dev/null 2>&1 || true
 lap kicad_drc
 $KPY native-21/layout/plot_copper.py --dump "$OUT/section.kicad_pcb" "$OUT/copper-dump.json" >/dev/null 2>&1

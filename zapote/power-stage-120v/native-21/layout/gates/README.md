@@ -3,19 +3,28 @@
 Committed copies of the stage pass / gate scripts (they used to live in a session scratchpad and were lost
 when it was wiped, 2026-10-12).
 
-    sh passes.sh OUTROOT [HISTORY_ROOT ...]    # routing passes until clean (OUTROOT/passes.out)
+    sh passes.sh OUTROOT [BASE.json [FILLS]]   # routing passes on a frozen base until clean (OUTROOT/passes.out)
+    python3 router_bench.py OUTDIR [--seed N] # rip seeded signal nets, re-route, report closure / errors / barrier
     sh chain.sh TAG PASSDIR BUILDDIR          # board build + every gate + Kelvin + B3 + fab package
     sh regate.sh BUILDDIR                     # barrier (Rust), DFM, copper exports, task 04 A4 cases
 
 Before `chain.sh`, add the TAG's `DIVIDER` / `BAND_BEFORE` / `FLOOR` entries to
 `validation-results/02-protection-timing/kelvin/kelvin_{plane,budget}.py`. Keep OUTROOT / BUILDDIR outside
-the repo (they are large). Clear `board_only21.json` test points before routing passes; `chain.sh`
-re-plans them.
+the repo (they are large). `passes.sh` routes on the accepted copper.json (or BASE) frozen, as the stage-33+
+candidate passes scripts did, and builds without the test points (BOARD_ONLY21_NO_TEST_POINTS); `chain.sh` re-plans
+them on the result. `router_bench.py` restores copper.json when it ends; like `passes.sh` and `chain.sh` it is one
+writer of the layout files.
 
 Step timing (laps.sh): `incr_iter.sh`, `passes.sh`, `chain.sh` (and its parallel blocks) and `regate.sh` append each
 step's wall time to `steps.jsonl` in their output dir (BUILDDIR, OUTROOT, OUTROOT/iN); `LAPS=0` turns it off.
 
     python3 laps.py BUILDDIR_OR_OUTROOT       # per script: seconds per step, slowest first
+
+DRC tiers (2026-10-15, one board, kicad-cli 10.0.4, no refill): the full rules take 146 s, 48 s without the three
+creepage constraints, 2.1 s with no custom rules (refill + connectivity alone, KiCad Python API: 12 s). The routing
+passes and `router_bench.py` check with `DRC_FAST` (`drc_rules_fast.py`: the build's copy of the rules without the
+creepage constraints; every clearance rule stays, and barrier21 bounds the creepage groups in plan view on every build).
+`chain.sh` unsets `DRC_FAST`: the gated board always gets the full rules.
 
 `zone_priority_gate.py [copper.json]` (stage 17b, run first by `chain.sh`): fails when two different-net pours on one
 layer sit closer than their clearance at the same priority, since KiCad's fill order would then decide the contested
@@ -42,8 +51,8 @@ Stage 19 (DECISIONS item 19), also run by `chain.sh`:
         # transfer-cap distance; asserts bus_fault_hot on ocp_kelvin_p end to end, every ct_zc / pwm_hb change
         # <= 3 mm and the 19b transfer caps' plane vias (C153-C156)
 
-Clear `board_only21.json` `test_points` before `passes.sh` (stale test pads sit on the router's paths); `chain.sh`
-re-plans them from the clean pass. After the passes, `trim_tails.py DRC.json copper.json --write` drops the router's
+`passes.sh` leaves the test points off its builds (stale test pads sit on the router's paths); `chain.sh` re-plans them
+from the clean pass. After the passes, `trim_tails.py DRC.json copper.json --write` drops the router's
 dangling stubs (K6); rebuild before the chain.
 
 Stage 19c (DECISIONS item 19c) and the benchmark (item 22, `validation-results/10-benchmark/`):

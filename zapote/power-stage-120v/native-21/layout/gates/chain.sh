@@ -16,6 +16,8 @@ set -e
 # a failing step must stop the chain even when its output is piped through grep / tail (a wrong PASSDIR once
 # ran a whole chain on the previous test-point plan because `planner | grep` hid the traceback)
 set -o pipefail
+# the gated board always gets the full DRC rules (incr_iter.sh DRC_FAST is for routing passes only)
+unset DRC_FAST
 TAG=$1; PASS=$2; B=$3
 [ -f "$PASS/copper-dump.json" ] || { echo "chain: no $PASS/copper-dump.json (PASSDIR is a pass's iN dir)" >&2; exit 1; }
 U=$(cd "$(dirname "$0")/../../.." && pwd)
