@@ -28,6 +28,7 @@
 
 /* ESP-IDF includes (available when building with ESP-IDF) */
 #ifdef ESP_PLATFORM
+#include "sdkconfig.h"
 #include "esp_task_wdt.h"
 #include "esp_system.h"
 #include "freertos/FreeRTOS.h"
@@ -142,7 +143,14 @@ void safety_wdt_init(void) {
         .idle_core_mask = (1 << 0) | (1 << 1), /* Watch both cores' Idle tasks */
         .trigger_panic = true,                  /* Panic (Reboot) on timeout */
     };
+#if CONFIG_ESP_TASK_WDT_INIT
+    /* The IDF startup code already initialised the TWDT
+     * (sdkconfig.defaults: CONFIG_ESP_TASK_WDT=y); esp_task_wdt_init() would
+     * return ESP_ERR_INVALID_STATE and ESP_ERROR_CHECK would abort every boot. */
+    ESP_ERROR_CHECK(esp_task_wdt_reconfigure(&config));
+#else
     ESP_ERROR_CHECK(esp_task_wdt_init(&config));
+#endif
     ESP_LOGI(TAG, "Task WDT Initialized with %d ms timeout", WDT_TIMEOUT_MS);
 #endif
 }

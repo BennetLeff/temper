@@ -29,7 +29,8 @@ firmware/
 │   └── main.c             # Application entry point
 ├── components/
 │   ├── control/           # PID controller, PLL tracking
-│   ├── hal/               # Hardware abstraction layer
+│   ├── temper_hal/        # Hardware abstraction layer (not `hal`: that name
+│   │                      #   would replace ESP-IDF's own hal component)
 │   └── safety/            # Safety monitoring and fault handling
 └── test/                  # Host-based unit and integration tests
 ```
@@ -54,18 +55,41 @@ board-imposed contracts MUST be honored:
 
 ### Prerequisites
 
-- ESP-IDF v5.0+ (for target builds)
+- ESP-IDF v5.3.6 (target builds; CI uses the `espressif/idf:v5.3.6` image)
 - CMake 3.16+
 - GCC (for host-based tests)
 
 ### Target Build (ESP32-S3)
 
 ```bash
+. ~/esp/esp-idf-v5.3.6/export.sh          # activates the IDF Python env
 cd firmware
+python -m pip install -r tools/requirements.txt   # once per IDF env: jinja2 + pyyaml
 idf.py set-target esp32s3
 idf.py build
 idf.py flash monitor
 ```
+
+- The configure step regenerates `config.h` and `main/transition_table.h`
+  from their YAML with the IDF env's `python3`. The IDF env does not ship
+  jinja2, so the `pip install` line is required; without it the configure
+  stops with an error rather than building from a possibly stale header.
+- `main/CMakeLists.txt` builds the C1 pan-temperature loop
+  (`TEMPER_PAN_CONTROL_C1=1`).
+- `partitions.csv` is a single 1984 KB factory slot in the 4 MB flash that
+  `sdkconfig.defaults` selects. The first linked image (2026-10-15) was
+  `induction_cooker.bin` at 0x4F500 bytes (317 KB, 84 % of the slot free).
+- CI builds the target as the last step of the Firmware Tests job
+  (`.github/workflows/firmware-tests.yml`).
+
+**The target image is not yet bench-ready.** `main/board_peripherals.c`
+holds `TODO(hardware)` implementations for every peripheral without a driver
+(display, buttons, buzzer, LEDs, fan, heatsink NTC, bus current, power stage,
+the self-tests, the fault log), and `components/sensors/rim_ntc_stub.c` stands
+in for the rim NTC. They all fail safe: temperatures and currents read
++INFINITY, the fan reads stopped, buttons read released, the self-tests fail,
+and the power outputs refuse any non-zero command. A unit flashed with this
+image stops in FAULT (`FAULT_SELF_TEST_FAILED`) with the coil off.
 
 ### Host Build (Tests Only)
 

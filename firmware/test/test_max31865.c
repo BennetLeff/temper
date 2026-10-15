@@ -5,8 +5,8 @@
 
 #include "unity/unity.h"
 
-#include "../components/hal/include/hal.h"
-#include "../components/hal/include/temper_pins.h"
+#include "../components/temper_hal/include/hal.h"
+#include "../components/temper_hal/include/temper_pins.h"
 #include "../components/sensors/include/max31865.h"
 #include "../components/sensors/include/rtd_service.h"
 #include "../config.h"

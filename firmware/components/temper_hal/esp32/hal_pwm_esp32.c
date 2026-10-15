@@ -70,7 +70,7 @@ static hal_status_t esp32_pwm_init(hal_pwm_channel_t channel, const hal_pwm_conf
     }
     
     if (s_channels[channel].initialized) {
-        ESP_LOGW(TAG, "PWM channel %d already initialized", channel);
+        ESP_LOGW(TAG, "PWM channel %d already initialized", (int)channel);
         return HAL_ERROR_BUSY;
     }
     
@@ -209,7 +209,7 @@ static hal_status_t esp32_pwm_init(hal_pwm_channel_t channel, const hal_pwm_conf
     ch->initialized = true;
     
     ESP_LOGI(TAG, "PWM channel %d initialized: %lu Hz, %.1f%% duty, %u ns dead-time",
-             channel, (unsigned long)config->frequency_hz, config->duty_percent, config->dead_time_ns);
+             (int)channel, (unsigned long)config->frequency_hz, config->duty_percent, config->dead_time_ns);
     return HAL_OK;
 }
 
@@ -335,7 +335,7 @@ static hal_status_t esp32_pwm_start(hal_pwm_channel_t channel)
     }
     
     ch->state.running = true;
-    ESP_LOGI(TAG, "PWM channel %d started", channel);
+    ESP_LOGI(TAG, "PWM channel %d started", (int)channel);
     return HAL_OK;
 }
 
@@ -363,7 +363,7 @@ static hal_status_t esp32_pwm_stop(hal_pwm_channel_t channel)
     }
     
     ch->state.running = false;
-    ESP_LOGI(TAG, "PWM channel %d stopped", channel);
+    ESP_LOGI(TAG, "PWM channel %d stopped", (int)channel);
     return HAL_OK;
 }
 
@@ -455,7 +455,7 @@ static hal_status_t esp32_pwm_deinit(hal_pwm_channel_t channel)
     
     memset(ch, 0, sizeof(pwm_channel_t));
     
-    ESP_LOGI(TAG, "PWM channel %d deinitialized", channel);
+    ESP_LOGI(TAG, "PWM channel %d deinitialized", (int)channel);
     return HAL_OK;
 }
 

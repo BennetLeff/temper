@@ -1,0 +1,24 @@
+# Temper ESP32-S3 partition table (selected by sdkconfig.defaults:
+# CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv").
+#
+# Sized for CONFIG_ESPTOOLPY_FLASHSIZE_4MB (0x400000). The BOM module is the
+# ESP32-S3-WROOM-1-N8R8 (8 MB), so this table also fits the fitted part; it
+# uses only the first 4 MB until the flash size config is raised.
+#
+# No OTA slots: Wi-Fi and BT are disabled in sdkconfig.defaults and no
+# esp_ota_* code exists, so the config has no OTA transport. Updates are by
+# UART/USB (idf.py flash). The factory slot ends at 0x200000 and the upper
+# 2 MB is left unallocated, so a later OTA layout keeps the same slot size:
+# ota_0 at 0x10000 and ota_1 at 0x200000 (0x1F0000 each), otadata at
+# 0x3F0000. nvs keeps its offset, so stored settings survive that change.
+#
+# nvs      24 KB  IDF default; settings only (main.c nvs_flash_init).
+# phy_init  4 KB  IDF default; unused while RF is off, kept so enabling
+#                 Wi-Fi later with PHY data in flash needs no re-layout.
+# factory  1984 KB (0x1F0000). First linked image (C1, IDF v5.3.6,
+#                 2026-10-15): 0x4F500 = 317 KB, 84 % of the slot free.
+#
+# Name,   Type, SubType, Offset,   Size,     Flags
+nvs,      data, nvs,     0x9000,   0x6000,
+phy_init, data, phy,     0xf000,   0x1000,
+factory,  app,  factory, 0x10000,  0x1F0000,

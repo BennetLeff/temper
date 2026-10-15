@@ -402,24 +402,52 @@ Unit tests in `test_pan_temp_loop_only` cover:
 
 ## Open items for the firmware owner
 
-1. **The ESP-IDF target has never linked**, before or after this work
-   (IDF v5.3.6, esp32s3). The blockers are all pre-existing:
-   - `partitions.csv` is missing (`sdkconfig.defaults` selects a custom
-     table);
-   - the project's `components/hal` shadows IDF's `hal`, so `driver/gpio.h`
-     and mbedtls cannot find `hal/*_types.h`;
-   - `components/webui` needs `esp_vfs_fat` and `json`;
-   - the IDF Python env lacks jinja2;
-   - many peripheral externs exist only in test stubs (`read_pan_temperature`,
-     `peripherals_init`, …). This work adds `read_rim_ntc_temperature`.
+1. **The ESP-IDF target links** (resolved 2026-10-15, branch
+   `sensor-c1-idf-link`; IDF v5.3.6, esp32s3, `TEMPER_PAN_CONTROL_C1=1`).
+   `induction_cooker.bin` is 0x4F500 bytes (317 KB), 84 % of the 1984 KB
+   factory slot free. CI builds it as the last step of the Firmware Tests
+   job. The former blockers and their fixes:
+   - `partitions.csv` was missing: added, a single factory slot sized for the
+     4 MB flash in `sdkconfig.defaults` (no OTA: Wi-Fi/BT are off and no OTA
+     code exists; the upper 2 MB is left free for a later ota_0/ota_1 pair).
+   - The project's `components/hal` replaced IDF's `hal`: renamed to
+     `components/temper_hal`. Its ESP32 sources had never compiled; they now
+     do (format and include fixes only).
+   - `components/webui` asked for `esp_vfs_fat` and `json`, but uses
+     neither: it now requires only `esp_http_server`. (`json` is still an
+     IDF 5.3 core component; there is no `esp_vfs_fat` component, that
+     header lives in `fatfs`.)
+   - jinja2 was missing from the IDF Python env: installed locally with
+     `pip install -r firmware/tools/requirements.txt`, which the README and
+     both IDF CI steps now do. The configure now fails instead of falling
+     back to the committed `config.h`.
+   - Undefined externs (55 at first link). Real implementations already in
+     the repo are now linked: `safety.c` (watchdogs, boot reason, hardware
+     shutdown), `config.c` (`g_config`, now statically initialised), and
+     `thermal_mass`, `pid_control`, `profiles`, `pll_control`, `pan_detect`,
+     `zvs_monitor`. `main/board_peripherals.c` adds `get_time_ms` and
+     `read_rtd_resistance` (real), and `TODO(hardware)` fail-safe versions of
+     every peripheral without a driver. `components/sensors/rim_ntc_stub.c`
+     is the `read_rim_ntc_temperature` stand-in: it latches safe mode and
+     returns NAN; delete it when the rim driver lands (item 2).
 
-   All C1 objects compile with the real IDF flags (`xtensa-esp32s3-elf-gcc`,
-   `TEMPER_PAN_CONTROL_C1=1`):
-   - the 7 `control` sources;
-   - `pan_control.c`, `rtd_service.c`, `rtd_convert.c`, `max31865.c` and
-     `state_handlers.c`;
-   - `state_machine.c` and `main.c`, which compile once IDF's hal includes
-     are put ahead of the shadow.
+   Defects fixed while linking (never compiled for the target before):
+   - `safety_wdt_init()` called `esp_task_wdt_init()` on the task watchdog
+     the IDF startup had already initialised, so `ESP_ERROR_CHECK` would
+     abort every boot. It now reconfigures it.
+   - `g_config` stayed zero until `config_init()`, which nothing calls on the
+     target, so `runaway.max_absolute_temp_c` was 0 degC. It is now
+     statically initialised to the `config.yaml` defaults.
+   - `webui` `/api/status` returned a fixed 25.0 degC. It now returns 503.
+
+   **The image is not bench-ready.** The self-tests fail by design, so it
+   stops in FAULT with the coil off. Defects seen while linking, not fixed:
+   - `pll_control.c` stores the capture channel but never registers
+     `pwm_edge_cb`/`zcd_edge_cb`, so the PLL cannot lock on the target;
+   - `pan_detect_init()` and the MCPWM bring-up are never called, so
+     `detect_pan_presence()` always reports no pan;
+   - the control task is not subscribed to the task watchdog, so each
+     `watchdog_feed()` logs "task not found".
 2. **Rim NTC driver and rim faults** (CR-7 rim ADC attenuation): not
    implemented. The loop's cross-check needs `read_rim_ntc_temperature()`.
 3. **Manual fault-detection cycle** (needs the CR-1 filter): not implemented.

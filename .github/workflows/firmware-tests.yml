@@ -46,7 +46,7 @@ jobs:
     # that staying true.
     name: Firmware Tests (state-machine + fault-injection)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     steps:
       - uses: actions/checkout@v7
@@ -169,3 +169,23 @@ jobs:
       # rather than folded into the CMake/CTest build above.
       - name: SIL fault-injection coverage gate
         run: python3 scripts/check_sil_coverage.py
+
+      # ESP-IDF target build (esp32s3, TEMPER_PAN_CONTROL_C1 per
+      # firmware/main/CMakeLists.txt). Until 2026-10-15 the target had never
+      # linked and nothing in CI built it, so link breaks (missing externs,
+      # component shadowing) went unseen. A step here, not a new job: CI is
+      # capacity-bound on concurrent jobs. `docker run` (not `container:`)
+      # so the image's entrypoint sources export.sh, and the host steps
+      # above keep the runner's toolchain. Pinned to the IDF the README
+      # documents. The codegen deps (jinja2) are not in the IDF Python env;
+      # the top-level CMakeLists fails the configure without them. Last step:
+      # the container writes firmware/build as root.
+      - name: ESP-IDF target build (esp32s3, C1)
+        timeout-minutes: 10
+        run: |
+          docker run --rm -v "$GITHUB_WORKSPACE:/project" -w /project/firmware \
+            espressif/idf:v5.3.6 bash -c '
+              git config --global --add safe.directory /project &&
+              python -m pip install -q -r tools/requirements.txt &&
+              idf.py set-target esp32s3 &&
+              idf.py build'
