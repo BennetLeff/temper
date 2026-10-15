@@ -19,7 +19,7 @@ their ratchets.
 | # | Item | Evidence | Lane / owner | Status | Next |
 |---|---|---|---|---|---|
 | S2 | **Board temperatures vs ratings (s41, still air, bay 55 °C, DECISIONS 53):** 22 A: laminate **+1.2 K (passes)**, C40 film −2.7 K; 28 A: laminate −25.1 K, films −15 to −25 K, R5 element −0.3 K. **1206 gate resistors fail derating at every ceiling** (−39.6 K). Still-air ceiling: laminate 22.3 A, + film 21.1 A. 28 A in still air is not reachable by layout on 2 oz (JLC has no 3 oz multilayer) | DECISIONS 46, 51, 53; `b3-ratings/`, `c36-tank-copper/` | Candidate 39 (gate R → 2512); enclosure airflow reply (only route to 28 A); C40 at 22 A | Open | After 39: re-run targets at bay 61 °C on s41; set the release ceiling |
-| S14 | **IPW65R018CFD7 reverse-diode dv/dt 70 V/ns exceeded in S4** (IL −20 A hard commutation): 85.8 V/ns modelled, 1.23× the rating, 1.5× the 80 % rule (56 V/ns). Ledger VIOLATION (ledger_violations 1 on every card) | DECISIONS 49; device study | Analysis: candidate 39 gate network (split R_on / R_off, CM8 alongside); then a layout lane | Running | Fix ≤ 56 V/ns at every S4 corner; bench D-8 double pulse measures it |
+| S14 | **IPW65R018CFD7 body-diode limits broken in S4:** dv/dt 85.8 V/ns (70 rated) and diF/dt 2,101 A/µs (1,300 rated) on the vendor model; at typical Qrr 109–112 V/ns and die VDS 620 V. S4 is a burst design case (370–740 edges per leg before the software latch) | DECISIONS 49, 54; gate-network study | Candidate 39 layout lane (R_on 68 Ω 2512 + Cgs 4.7 nF; ps-layers, stage tag s42) | Running | Max-Qrr basis open: D-8 bench (R_on 39 / 68 / 100 Ω × Cgs 1 / 4.7 nF, repeated S4 edges); controller: hardware capacitive-mode detector |
 | S1 | Touch leakage: was 0.974 mA. **Built in s38 (DECISIONS 50):** 0.2412 mA DESIGN (budget 0.25, margin 8.8 µA) with the off-board D-22 module Y removed + SCF31X choke and PS3 → MPM-65-15ST; s19b EMI 12.37 / 8.19 dB | `c23-supply-topology/README.md`; co-design study | Controller (J13 merge, PS3); D-22 module (`c23-supply-topology/MODULE-REQUEST.md`); certifier (MPM approvals: IEC 60601-1 / 60335-1, no UL file) | Passes on the model | Bench: measured supply leakage, SCF31X DM leakage, HF touch with the lab's meter network. Robust variant (L1 → SCF31X) needs an L1-slot re-layout |
 | S12 | Laminate UL scope: KB-6164 (35 µm) and KB-6165 (54 µm) multilayer rows don't cover 61 µm (2 oz) inner copper; KB-6164F / 6165F / 6167F list 102 µm, and JLC's "TG155" option links KB-6165F. Item 41 named KB-6164 for CTI; `stackup.json` still says Nan Ya NP-155F | DECISIONS 41, 51 | Owner → JLC (UL Product iQ needs a login) | Open | Which recognised JLC-4 construction covers 4 L, 2 oz inner, CTI ≥ 175 V; then fix the order remark and stackup.json together |
 | S3 | F6's 252/252 result rests on round-17 loop matrices from board 76ec8cca, not s35 | `c33-six-layer/adoption/README.md` | FEM (remote box) | Blocked: box offline | Owner restarts the box; run `adoption/fem/chain_c33.sh` for s35 |
@@ -42,6 +42,7 @@ their ratchets.
 | B6 | Stencil: J2 / J5 want 150 µm paste; fine-pitch parts' stencil not chosen; J2 / J5 CPL rows NEEDS-PREVIEW | DECISIONS 44 | Order (owner) | Open | Step stencil or aperture choice at order |
 | B7 | `PROTOTYPE-LOT.md` lists superseded parts (UCC21550, ISO7710, 74650074R) | `08-manufacturing-package/native-21/` | Integration | Stale | Regenerate from the snapshot when the BOM settles |
 | B8 | End-of-line veto test: force MON_GOOD_HA low, then MON_GOOD_HB low; the heartbeat stops and BIAS_GOOD drops within its hold time (screens the GOOD-node corridor open, DECISIONS 52) | FMEA §6c | Bring-up / test plan (owner) | New | Add to the production test spec |
+| B9 | PMEG6030EP,115 (gate turn-off diode): JLC holds 3; the JSMSEMI clone C53114006 is not qualified | DECISIONS 54 | Sourcing (owner pre-order) | New | Add to the pre-order list or qualify an alternate |
 
 ## 3. Cost (scorecard parts $206.44 at 500 on the 2026-10-13 survey; $186.54 on the 2026-10-15 snapshot; bare board $17.28)
 
@@ -54,12 +55,12 @@ their ratchets.
 | C5 | PS1 deletion (candidate 23) | 4.20 saved net of PS2 → MPM | Done (DECISIONS 50) | Closed |
 | C7 | Bare board: six layers $19.11 vs four $17.28 pinned; area compaction ~$1.5 per 10 % | DECISIONS 40 | After candidate 23 (compaction) | Open |
 
-## 4. Layout lanes (none building; ps-layers and ps-selv free)
+## 4. Layout lanes (one building: ps-layers; ps-selv free)
 
 | Lane (island) | Candidate | Status | Blocked on |
 |---|---|---|---|
 | Tank / FET row (WS3 / WS4 boundary) | 36: done, stage 41 (DECISIONS 53); shunt not adopted | Merged | — |
-| Gate networks (HS / LS driver outputs) | 39: S4 dv/dt fix (S14) by a larger turn-on R (the PMEG + 1 Ω turn-off path exists); gate resistors to 2512 (S2); CM8 option | After its analysis | The gate-network study (running) |
+| Gate networks (HS / LS driver outputs) | 39: R_on 68 Ω 2512 + Cgs 4.7 nF (DECISIONS 54); fixes S14 (typical Qrr) and the S2 gate-R derating; stage tag s42 | Running (ps-layers, branch claude/native21-c39-gate-network) | — |
 | SELV side (WS5, spine owner) | 23: done, stage 38 (DECISIONS 50); spine baseline re-issued (s38) | Merged | — |
 | HS-B / LS (WS4) | 30a / 30b done, stage 40 (DECISIONS 52) | Merged | — |
 | Tank / bank | 34: resonant bank | Waits on stock | S9 |
