@@ -50,3 +50,14 @@ Stage 19c (DECISIONS item 19c) and the benchmark (item 22, `validation-results/1
         # ACCEPT / REJECT against the benchmark (rule fixed 2026-10-13)
 
 `return_path19.py` asserts ct_zc and every PWM input from 19c on; on 19b it fails (pwm_ha 7.59, pwm_la 5.11 mm).
+
+SELV-spine lock (13-coupling contract WS4 ↔ WS5, `validation-results/13-coupling/README.md` §8 and §10 item 1):
+
+    python3 -I gates/spine_lock.py native-21/verification/TAG-all-copper.json.gz [--owner selv]
+        # the spine region x 30-110 / y 130-180 must match the locked baseline (selv_spine_lock.json, s32 export):
+        # default = every track / via / pad / pour in the region (any lane that does not own the spine);
+        # --owner selv = only the contract nets, the selv_gnd / v3v3 planes and J4 + the transfer caps
+    python3 -I gates/test_spine_lock.py        # 11 controls: mutations per mode, and s31 must fail
+
+A lane that has to change the spine re-issues `selv_spine_lock.json` (new baseline export and board hash) under its own
+DECISIONS item. It does not loosen the gate.

@@ -1,0 +1,12 @@
+{
+ "purpose": "SELV-spine contract between WS4 (drive / bias / monitor / protect islands) and WS5 (SELV side), validation-results/13-coupling/README.md section 8 and section 10 item 1. Checked by gates/spine_lock.py.",
+ "baseline": "native-21/verification/native21s32-all-copper.json.gz",
+ "baseline_board_sha256": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e",
+ "region": [30.0, 130.0, 110.0, 180.0],
+ "contract_nets": ["pwm_ha", "pwm_la", "pwm_hb", "pwm_lb", "permit", "vbus_p", "vbus_n", "bus_fault_iso", "bias_good", "sw_a"],
+ "plane_nets": ["selv_gnd", "v3v3"],
+ "frozen_refs": ["J4", "C47", "C144", "C153", "C154", "C155", "C156"],
+ "zone_inset_mm": 1.0,
+ "zone_tolerance_mm2": 0.5,
+ "owner_lanes": ["selv"]
+}
