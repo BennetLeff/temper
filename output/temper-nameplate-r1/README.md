@@ -73,8 +73,24 @@ The Control Freak's measured time is 10:55.
 ## What the model assumes
 
 - **The round-6 per-pan frequency rule** (lowest legal frequency, closed
-  loop). Today's firmware uses a single commissioned frequency and delivers
-  far less than either limit (round-6 verdict 1).
+  loop). The firmware implements it.
+  - `firmware/components/power/tank_freq.c` approaches from f_max 60 kHz down
+    to max(35 kHz, 1.05·f_res), with a phase check.
+  - `n21_binding.c` wires it in: `.freq = tank_freq_default()`, plus
+    `tank_freq_reset` / obs in the step.
+
+  This was corrected on 2026-10-15 after the power-stage review. The earlier
+  "single commissioned frequency" caveat was stale.
+- **Bay temperature.** The 21 A column is the still-air ceiling at a 55 °C
+  bay. At the 61 °C worst bay, the power-stage session's rough I²
+  interpolation of the s41 C40 rows puts it near 19 A, between the 18 A and
+  21 A columns. They will compute it properly after candidate 39 merges.
+  Firmware `tank_limit_a` is still 22 A (`input_limits.c:13`). It will be set
+  to the release ceiling and recorded as a release constant.
+- **Model cross-check (power-stage review).** At 22 A, 120 V, 220 mm this
+  study gives 931 W pooled. The round-6 ngspice grid gives a 904 W mean
+  (15 deterministic cases, 13 tank-limited). The 3 % gap is consistent with
+  Monte Carlo draws against grid corners.
 - **η_min 0.93,** the firmware's conservative inverter efficiency. With a
   measured input current, the real efficiency would add a little.
 - **Pan classes and coupling are ASSUMED,** from published anchors, not

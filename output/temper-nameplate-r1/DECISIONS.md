@@ -25,8 +25,15 @@ board-side items from round 6 come with it:
 - a bank hot-spot measurement (1.12× the TDK curve at 28 A);
 - FET R_SA ≤ 0.233 °C/W.
 
-**Firmware:** the per-pan closed-loop frequency rule. Without it, neither
-limit is reached at all.
+**Firmware:** the per-pan closed-loop frequency rule. It is already
+implemented (`tank_freq.c`, wired in `n21_binding.c`), as confirmed by the
+power-stage review on 2026-10-15. It needs bench confirmation on real pans.
+
+**Still-air ceiling at the 61 °C bay:** about 19 A (the power stage's rough
+estimate), not 21 A. In still air, layout can add at most about +1 A: C40
+limits at 21.1 A and the laminate at 22.3 A. Board-face airflow
+(`b3-ratings/ENCLOSURE-REQUEST.md` on codex/power-stage-integration) is the
+real lever, and the owner has to push it with the enclosure line.
 
 **Owners:**
 - enclosure line: airflow;
