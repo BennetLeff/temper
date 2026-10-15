@@ -1,0 +1,4573 @@
+{
+ "before": {
+  "right_angle_corners": 104,
+  "acute_corners": 206,
+  "fold_backs": 44,
+  "any_angle_mm": 704.4
+ },
+ "after": {
+  "right_angle_corners": 50,
+  "acute_corners": 23,
+  "fold_backs": 3,
+  "any_angle_mm": 308.4
+ },
+ "applied": {
+  "acute B.Cu": 17,
+  "acute F.Cu": 97,
+  "acute In1.Cu": 9,
+  "acute In2.Cu": 13,
+  "any B.Cu": 43,
+  "any F.Cu": 293,
+  "any In1.Cu": 16,
+  "any In2.Cu": 29,
+  "fold B.Cu": 5,
+  "fold F.Cu": 28,
+  "fold In1.Cu": 2,
+  "fold In2.Cu": 4,
+  "right B.Cu": 5,
+  "right F.Cu": 49,
+  "right In1.Cu": 12,
+  "right In2.Cu": 3
+ },
+ "applied_total": 625,
+ "left": {
+  "acute | clearance: fill v3v3": {
+   "In1.Cu": 1
+  },
+  "acute | fill: growth near barrier": {
+   "In2.Cu": 1
+  },
+  "acute | metric: fold_backs would rise": {
+   "B.Cu": 2
+  },
+  "acute | metric: no improvement": {
+   "F.Cu": 2,
+   "In2.Cu": 1
+  },
+  "acute | metric: right_angle_corners would rise": {
+   "In2.Cu": 1
+  },
+  "acute | net: locked (RES_A / OCP sense)": {
+   "F.Cu": 3,
+   "In1.Cu": 1
+  },
+  "acute | pad: no trunk to merge the shorter arm onto": {
+   "F.Cu": 1
+  },
+  "acute | spine: segment in the lock region": {
+   "B.Cu": 1,
+   "F.Cu": 5,
+   "In2.Cu": 1
+  },
+  "any | barrier: closer to the other side": {
+   "B.Cu": 1,
+   "F.Cu": 6
+  },
+  "any | clearance: H1 metal hole": {
+   "In1.Cu": 1
+  },
+  "any | clearance: fill bus_p": {
+   "In2.Cu": 1
+  },
+  "any | clearance: fill hv_ret": {
+   "F.Cu": 1,
+   "In1.Cu": 2
+  },
+  "any | clearance: fill l_f": {
+   "F.Cu": 1
+  },
+  "any | clearance: fill n_hb": {
+   "B.Cu": 1,
+   "F.Cu": 1
+  },
+  "any | clearance: fill n_ls": {
+   "F.Cu": 2
+  },
+  "any | clearance: fill ocp_kelvin_p": {
+   "In1.Cu": 1
+  },
+  "any | clearance: fill selv_gnd": {
+   "In2.Cu": 3
+  },
+  "any | clearance: fill sw_a": {
+   "F.Cu": 2
+  },
+  "any | clearance: fill v3v3": {
+   "In1.Cu": 4
+  },
+  "any | clearance: pad bus_p": {
+   "F.Cu": 3
+  },
+  "any | clearance: pad crbleed_3": {
+   "F.Cu": 1
+  },
+  "any | clearance: pad leg_a-gate_h": {
+   "F.Cu": 1
+  },
+  "any | clearance: pad leg_b-gate_l": {
+   "F.Cu": 1
+  },
+  "any | clearance: pad leg_b-off_h": {
+   "F.Cu": 1
+  },
+  "any | clearance: pad leg_ret": {
+   "F.Cu": 2
+  },
+  "any | clearance: pad ocp_kelvin_p": {
+   "F.Cu": 1
+  },
+  "any | clearance: pad p_ha": {
+   "F.Cu": 1
+  },
+  "any | clearance: pad sw_a": {
+   "F.Cu": 2
+  },
+  "any | clearance: pad sw_b": {
+   "F.Cu": 2
+  },
+  "any | clearance: pad xbleed_mid": {
+   "F.Cu": 1
+  },
+  "any | clearance: protected n_ha": {
+   "B.Cu": 1
+  },
+  "any | clearance: track leg_ret": {
+   "F.Cu": 1
+  },
+  "any | clearance: track n_ls": {
+   "In1.Cu": 1
+  },
+  "any | metric: acute_corners would rise": {
+   "F.Cu": 1
+  },
+  "any | metric: right_angle_corners would rise": {
+   "B.Cu": 1,
+   "F.Cu": 7,
+   "In1.Cu": 1,
+   "In2.Cu": 3
+  },
+  "any | net: locked (RES_A / OCP sense)": {
+   "F.Cu": 15,
+   "In2.Cu": 2
+  },
+  "any | room: pieces shorter than 0.05 mm (1 mm at a loose end)": {
+   "B.Cu": 20,
+   "F.Cu": 130,
+   "In1.Cu": 11,
+   "In2.Cu": 20
+  },
+  "any | spine: segment in the lock region": {
+   "B.Cu": 8,
+   "F.Cu": 18
+  },
+  "fold | fill: growth near barrier": {
+   "In1.Cu": 1
+  },
+  "fold | shape: fold not handled (widths or polyline)": {
+   "F.Cu": 2
+  },
+  "right | clearance: protected ocp_kelvin_p": {
+   "In1.Cu": 1
+  },
+  "right | net: locked (RES_A / OCP sense)": {
+   "In1.Cu": 7
+  },
+  "right | pad: corner tip on a pad": {
+   "F.Cu": 1
+  },
+  "right | pad: square exit, the inner corner inside the pad's copper": {
+   "F.Cu": 15
+  },
+  "right | room: arms too short for a mitre of radius >= track width": {
+   "B.Cu": 8,
+   "F.Cu": 9,
+   "In2.Cu": 2
+  },
+  "right | spine: segment in the lock region": {
+   "B.Cu": 1
+  },
+  "right | via: square exit, the inner corner inside the via's copper": {
+   "B.Cu": 1,
+   "F.Cu": 4,
+   "In2.Cu": 1
+  }
+ },
+ "export_board_sha256": "fba59ef3d8169ee71a81a08d29c72f4e76acf8f420c91fd2515227adaabc8be4",
+ "log": [
+  [
+   "fold",
+   "bias_ha-fbm",
+   "F.Cu",
+   "(59.975, 75.42)",
+   "tip pad"
+  ],
+  [
+   "fold",
+   "bias_ha-fbm",
+   "F.Cu",
+   "(60.075, 71.175)",
+   "tip pad"
+  ],
+  [
+   "fold",
+   "bias_ha.monitor-ref",
+   "B.Cu",
+   "(62.0, 109.885)",
+   "free"
+  ],
+  [
+   "fold",
+   "bias_hb-fbm",
+   "F.Cu",
+   "(13.225, 70.42)",
+   "tip pad"
+  ],
+  [
+   "fold",
+   "bus_fault_iso",
+   "F.Cu",
+   "(113.225, 125.875)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "bus_fault_iso",
+   "F.Cu",
+   "(113.635, 125.875)",
+   "tip pad"
+  ],
+  [
+   "fold",
+   "ct_ref_hi",
+   "B.Cu",
+   "(11.65, 134.24)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "ct_s2",
+   "F.Cu",
+   "(29.183, 130.695)",
+   "tip pad"
+  ],
+  [
+   "fold",
+   "ct_sense_mon",
+   "B.Cu",
+   "(28.507, 129.795)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "ct_sense_mon",
+   "F.Cu",
+   "(28.507, 129.795)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "ct_sense_mon",
+   "F.Cu",
+   "(124.107, 130.995)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "leg_a-permit_gate",
+   "F.Cu",
+   "(80.828, 59.795)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "leg_ret",
+   "B.Cu",
+   "(109.9, 108.535)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "leg_ret",
+   "F.Cu",
+   "(39.52, 43.6)",
+   "tip pad"
+  ],
+  [
+   "fold",
+   "leg_ret",
+   "F.Cu",
+   "(86.52, 43.6)",
+   "tip pad"
+  ],
+  [
+   "fold",
+   "leg_ret",
+   "F.Cu",
+   "(109.9, 108.535)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "leg_ret",
+   "F.Cu",
+   "(115.663, 110.58)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "line_zc",
+   "F.Cu",
+   "(10.023, 130.695)",
+   "tip pad"
+  ],
+  [
+   "fold",
+   "monitor_ls-spanov",
+   "In2.Cu",
+   "(116.15, 106.36)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "monitor_ls-spanov",
+   "In2.Cu",
+   "(116.926, 110.361)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "n_ls",
+   "F.Cu",
+   "(15.325, 50.025)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "n_ls",
+   "F.Cu",
+   "(39.937, 42.289)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "n_ls",
+   "F.Cu",
+   "(40.48, 43.6)",
+   "tip pad"
+  ],
+  [
+   "fold",
+   "n_ls",
+   "F.Cu",
+   "(89.58, 41.665)",
+   "tip pad"
+  ],
+  [
+   "fold",
+   "n_ls",
+   "F.Cu",
+   "(99.845, 115.725)",
+   "free"
+  ],
+  [
+   "fold",
+   "p_hb",
+   "F.Cu",
+   "(5.6, 104.435)",
+   "tip pad"
+  ],
+  [
+   "fold",
+   "ref25",
+   "In2.Cu",
+   "(112.618, 56.785)",
+   "free"
+  ],
+  [
+   "fold",
+   "ref25",
+   "In2.Cu",
+   "(113.324, 70.219)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "selv_gnd",
+   "F.Cu",
+   "(25.22, 129.745)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "selv_gnd",
+   "F.Cu",
+   "(33.093, 57.632)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "selv_gnd",
+   "F.Cu",
+   "(80.093, 57.632)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "sw_a",
+   "B.Cu",
+   "(57.5, 116.635)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "sw_a",
+   "F.Cu",
+   "(51.288, 94.4)",
+   "free"
+  ],
+  [
+   "fold",
+   "sw_a",
+   "F.Cu",
+   "(57.5, 116.635)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "v15_ls",
+   "F.Cu",
+   "(107.95, 111.635)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "v15_ls",
+   "In1.Cu",
+   "(109.07, 78.775)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "v24_raw",
+   "In1.Cu",
+   "(117.6, 77.0)",
+   "free"
+  ],
+  [
+   "fold",
+   "vsense_in",
+   "F.Cu",
+   "(109.8, 60.355)",
+   "tip via"
+  ],
+  [
+   "fold",
+   "line_zc",
+   "F.Cu",
+   "(55.5, 183.08)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "bias_ha.monitor-halfref",
+   "F.Cu",
+   "(47.67, 79.795)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "bias_ha.monitor-halfref",
+   "F.Cu",
+   "(47.67, 81.065)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "bias_ha.monitor-ov",
+   "In2.Cu",
+   "(58.4, 107.635)",
+   "free"
+  ],
+  [
+   "acute",
+   "bias_ha.monitor-ov",
+   "In2.Cu",
+   "(58.844, 106.562)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "bias_ha.monitor-spanuv",
+   "B.Cu",
+   "(50.65, 113.985)",
+   "free"
+  ],
+  [
+   "acute",
+   "bias_ha.monitor-spanuv",
+   "F.Cu",
+   "(47.2, 109.265)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "bias_ha.monitor-spanuv",
+   "F.Cu",
+   "(50.85, 114.385)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "bias_ha.monitor-uv",
+   "F.Cu",
+   "(58.35, 114.385)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "bias_ha.monitor-v5",
+   "In2.Cu",
+   "(58.4, 112.135)",
+   "free"
+  ],
+  [
+   "acute",
+   "bias_hb.monitor-good",
+   "F.Cu",
+   "(2.07, 69.715)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "bias_hb.monitor-good",
+   "In2.Cu",
+   "(7.2, 112.165)",
+   "free"
+  ],
+  [
+   "acute",
+   "bias_hb.monitor-ov",
+   "In2.Cu",
+   "(3.2, 112.135)",
+   "free"
+  ],
+  [
+   "acute",
+   "bias_hb.monitor-ref",
+   "F.Cu",
+   "(9.6, 109.535)",
+   "free"
+  ],
+  [
+   "acute",
+   "bias_hb.monitor-spanov",
+   "B.Cu",
+   "(1.55, 106.985)",
+   "free"
+  ],
+  [
+   "acute",
+   "bias_hb.monitor-spanuv",
+   "B.Cu",
+   "(5.4, 106.865)",
+   "free"
+  ],
+  [
+   "acute",
+   "bias_hb.monitor-spanuv",
+   "F.Cu",
+   "(5.6, 106.985)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "bias_hb.monitor-v5",
+   "In2.Cu",
+   "(1.6, 104.435)",
+   "free"
+  ],
+  [
+   "acute",
+   "bias_ls-fb",
+   "F.Cu",
+   "(101.7, 103.235)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "bias_ls-fb",
+   "In2.Cu",
+   "(102.0, 103.035)",
+   "free"
+  ],
+  [
+   "acute",
+   "ct_s2",
+   "B.Cu",
+   "(36.4, 129.175)",
+   "free"
+  ],
+  [
+   "acute",
+   "ct_s2",
+   "B.Cu",
+   "(85.4, 128.795)",
+   "free"
+  ],
+  [
+   "acute",
+   "ct_s2",
+   "B.Cu",
+   "(119.82, 130.175)",
+   "free"
+  ],
+  [
+   "acute",
+   "ct_sense_mon",
+   "B.Cu",
+   "(26.75, 130.695)",
+   "free"
+  ],
+  [
+   "acute",
+   "hb_rc",
+   "F.Cu",
+   "(108.475, 99.89)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "hot5",
+   "F.Cu",
+   "(104.233, 52.195)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "hot5",
+   "F.Cu",
+   "(105.85, 71.045)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "hot5",
+   "F.Cu",
+   "(105.905, 115.675)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "hot5",
+   "F.Cu",
+   "(110.05, 65.745)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "hot5",
+   "In1.Cu",
+   "(99.9, 112.35)",
+   "free"
+  ],
+  [
+   "acute",
+   "hot5_uv_sense",
+   "F.Cu",
+   "(111.65, 71.045)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "l_filt",
+   "F.Cu",
+   "(255.8, 136.4)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "leg_b-driver_dis",
+   "F.Cu",
+   "(31.833, 61.675)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "leg_b-permit_gate",
+   "F.Cu",
+   "(34.0, 68.165)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "leg_ret",
+   "F.Cu",
+   "(49.525, 42.75)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "leg_ret",
+   "F.Cu",
+   "(105.3, 103.235)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "leg_ret",
+   "F.Cu",
+   "(108.9, 109.535)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "ls_v5",
+   "B.Cu",
+   "(107.15, 95.2)",
+   "free"
+  ],
+  [
+   "acute",
+   "ls_v5",
+   "F.Cu",
+   "(99.8, 96.885)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "ls_v5",
+   "F.Cu",
+   "(107.11, 95.225)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "ls_v5",
+   "In1.Cu",
+   "(102.55, 112.935)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "monitor_ls-good",
+   "B.Cu",
+   "(107.638, 78.0)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "monitor_ls-good",
+   "B.Cu",
+   "(118.35, 92.745)",
+   "free"
+  ],
+  [
+   "acute",
+   "monitor_ls-good",
+   "F.Cu",
+   "(107.62, 78.085)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "monitor_ls-ov",
+   "F.Cu",
+   "(110.3, 109.335)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "monitor_ls-uv",
+   "F.Cu",
+   "(112.5, 111.635)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "n_ha",
+   "B.Cu",
+   "(59.858, 100.645)",
+   "free"
+  ],
+  [
+   "acute",
+   "n_ha",
+   "F.Cu",
+   "(50.975, 73.975)",
+   "free"
+  ],
+  [
+   "acute",
+   "n_ha",
+   "F.Cu",
+   "(52.62, 77.255)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "n_ha",
+   "In1.Cu",
+   "(50.975, 73.975)",
+   "free"
+  ],
+  [
+   "acute",
+   "n_hb",
+   "F.Cu",
+   "(11.425, 73.305)",
+   "free"
+  ],
+  [
+   "acute",
+   "n_hb",
+   "F.Cu",
+   "(24.78, 40.49)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "n_hb",
+   "F.Cu",
+   "(24.78, 45.0)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "n_hb",
+   "F.Cu",
+   "(31.095, 46.125)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "n_ls",
+   "B.Cu",
+   "(99.445, 116.125)",
+   "free"
+  ],
+  [
+   "acute",
+   "n_ls",
+   "F.Cu",
+   "(9.8, 55.2)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "n_ls",
+   "F.Cu",
+   "(12.975, 53.2)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "n_ls",
+   "F.Cu",
+   "(15.725, 56.225)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "n_ls",
+   "F.Cu",
+   "(17.8, 50.175)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "n_ls",
+   "F.Cu",
+   "(38.556, 43.444)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "n_ls",
+   "F.Cu",
+   "(84.445, 46.125)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "n_ls",
+   "F.Cu",
+   "(89.575, 39.1)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "n_ls",
+   "F.Cu",
+   "(97.25, 112.075)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "n_ls",
+   "F.Cu",
+   "(104.82, 95.225)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "n_ls",
+   "F.Cu",
+   "(108.858, 87.145)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "n_ls",
+   "F.Cu",
+   "(114.1, 101.135)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "n_ls",
+   "In1.Cu",
+   "(9.725, 55.425)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "n_ls",
+   "In1.Cu",
+   "(97.25, 112.475)",
+   "free"
+  ],
+  [
+   "acute",
+   "ovp_thresh",
+   "F.Cu",
+   "(101.7, 73.695)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "p_ha",
+   "B.Cu",
+   "(55.8, 108.735)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "p_ha",
+   "F.Cu",
+   "(48.275, 84.662)",
+   "free"
+  ],
+  [
+   "acute",
+   "p_ha",
+   "F.Cu",
+   "(52.3, 106.235)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "p_ha",
+   "F.Cu",
+   "(54.37, 103.135)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "p_ha",
+   "F.Cu",
+   "(55.8, 104.235)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "p_ha",
+   "F.Cu",
+   "(58.325, 75.42)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "p_ha",
+   "F.Cu",
+   "(58.375, 73.82)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "p_ha",
+   "In2.Cu",
+   "(54.4, 103.135)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "p_ha",
+   "In2.Cu",
+   "(55.8, 108.735)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "p_hb",
+   "F.Cu",
+   "(1.613, 81.025)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "p_hb",
+   "F.Cu",
+   "(2.4, 72.655)",
+   "free"
+  ],
+  [
+   "acute",
+   "p_hb",
+   "F.Cu",
+   "(2.675, 79.963)",
+   "free"
+  ],
+  [
+   "acute",
+   "p_hb",
+   "F.Cu",
+   "(13.175, 72.02)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "p_hb",
+   "F.Cu",
+   "(13.65, 112.085)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "p_hb",
+   "F.Cu",
+   "(14.35, 112.685)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "p_hb",
+   "F.Cu",
+   "(14.758, 95.945)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "p_hb",
+   "F.Cu",
+   "(14.842, 100.745)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "p_hb",
+   "F.Cu",
+   "(28.555, 46.125)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "selv_gnd",
+   "F.Cu",
+   "(15.64, 129.745)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "selv_gnd",
+   "F.Cu",
+   "(75.957, 62.595)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "selv_gnd",
+   "F.Cu",
+   "(76.205, 69.17)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "selv_gnd",
+   "F.Cu",
+   "(77.3, 63.865)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "selv_gnd",
+   "F.Cu",
+   "(101.341, 128.146)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "sw_a",
+   "F.Cu",
+   "(51.688, 93.995)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "sw_a",
+   "F.Cu",
+   "(52.087, 93.595)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "sw_a",
+   "F.Cu",
+   "(64.375, 21.8)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "sw_a",
+   "F.Cu",
+   "(70.82, 43.6)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "sw_a",
+   "In2.Cu",
+   "(49.888, 112.1)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "sw_b",
+   "F.Cu",
+   "(1.5, 112.085)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "sw_b",
+   "F.Cu",
+   "(25.92, 43.6)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "sw_b",
+   "In2.Cu",
+   "(13.6, 114.685)",
+   "free"
+  ],
+  [
+   "acute",
+   "sw_b",
+   "In2.Cu",
+   "(13.65, 114.635)",
+   "free"
+  ],
+  [
+   "acute",
+   "sw_b",
+   "In2.Cu",
+   "(14.724, 115.709)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "v15_ls",
+   "B.Cu",
+   "(108.27, 63.4)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "v15_ls",
+   "B.Cu",
+   "(111.07, 54.4)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "v15_ls",
+   "F.Cu",
+   "(34.905, 43.525)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v15_ls",
+   "F.Cu",
+   "(101.7, 111.635)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v15_ls",
+   "F.Cu",
+   "(101.87, 95.225)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v15_ls",
+   "F.Cu",
+   "(102.4, 111.595)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "v15_ls",
+   "F.Cu",
+   "(108.858, 88.095)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v15_ls",
+   "F.Cu",
+   "(109.522, 53.145)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v15_ls",
+   "F.Cu",
+   "(110.23, 79.575)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v15_ls",
+   "F.Cu",
+   "(114.112, 77.85)",
+   "free"
+  ],
+  [
+   "acute",
+   "v15_ls",
+   "In1.Cu",
+   "(108.8, 111.595)",
+   "free"
+  ],
+  [
+   "acute",
+   "v24_raw",
+   "B.Cu",
+   "(118.9, 81.85)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "v24_raw",
+   "F.Cu",
+   "(17.8, 53.125)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v24_raw",
+   "F.Cu",
+   "(64.1, 58.125)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v24_raw",
+   "F.Cu",
+   "(101.9, 87.5)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "v24_raw",
+   "F.Cu",
+   "(102.225, 87.495)",
+   "free"
+  ],
+  [
+   "acute",
+   "v24_raw",
+   "F.Cu",
+   "(117.425, 76.165)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v3v3",
+   "F.Cu",
+   "(10.023, 128.795)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v3v3",
+   "F.Cu",
+   "(19.602, 128.795)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v3v3",
+   "F.Cu",
+   "(29.183, 128.795)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v3v3",
+   "F.Cu",
+   "(30.3, 57.85)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v3v3",
+   "F.Cu",
+   "(32.9, 109.275)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v3v3",
+   "F.Cu",
+   "(78.233, 59.795)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v3v3",
+   "F.Cu",
+   "(79.15, 66.015)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v3v3",
+   "F.Cu",
+   "(97.305, 126.675)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "v3v3",
+   "F.Cu",
+   "(105.905, 126.325)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v3v3",
+   "In1.Cu",
+   "(34.989, 113.975)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "vsense_in",
+   "In1.Cu",
+   "(109.8, 60.355)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "ls_v5",
+   "F.Cu",
+   "(108.51, 95.195)",
+   "tip via"
+  ],
+  [
+   "acute",
+   "v24_raw",
+   "F.Cu",
+   "(102.025, 87.695)",
+   "tip via"
+  ],
+  [
+   "right",
+   "bias_ha.monitor-halfref",
+   "F.Cu",
+   "(47.67, 80.904)",
+   "tip pad"
+  ],
+  [
+   "right",
+   "bias_ha.monitor-ref",
+   "In2.Cu",
+   "(62.1, 109.885)",
+   "free"
+  ],
+  [
+   "right",
+   "bias_ha.monitor-spanuv",
+   "B.Cu",
+   "(51.676, 113.985)",
+   "free"
+  ],
+  [
+   "right",
+   "bias_hb-fbm",
+   "F.Cu",
+   "(13.775, 67.72)",
+   "free"
+  ],
+  [
+   "right",
+   "bias_hb.monitor-halfref",
+   "F.Cu",
+   "(2.07, 76.065)",
+   "tip pad"
+  ],
+  [
+   "right",
+   "bias_hb.monitor-ref",
+   "F.Cu",
+   "(1.837, 89.195)",
+   "tip pad"
+  ],
+  [
+   "right",
+   "bias_hb.monitor-spanuv",
+   "F.Cu",
+   "(1.5, 113.785)",
+   "free"
+  ],
+  [
+   "right",
+   "bus_fault_hot",
+   "B.Cu",
+   "(102.45, 74.9)",
+   "free"
+  ],
+  [
+   "right",
+   "bus_fault_hot",
+   "In2.Cu",
+   "(101.2, 115.5)",
+   "free"
+  ],
+  [
+   "right",
+   "busbleed_mid",
+   "F.Cu",
+   "(248.04, 100.8)",
+   "free"
+  ],
+  [
+   "right",
+   "ct_s1",
+   "F.Cu",
+   "(132.333, 123.75)",
+   "free"
+  ],
+  [
+   "right",
+   "hot5",
+   "F.Cu",
+   "(99.5, 111.95)",
+   "tip pad"
+  ],
+  [
+   "right",
+   "hot5",
+   "F.Cu",
+   "(110.0, 71.045)",
+   "tip pad"
+  ],
+  [
+   "right",
+   "led1",
+   "F.Cu",
+   "(229.3, 101.5)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_a-gate_h",
+   "F.Cu",
+   "(61.25, 21.8)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_a-gate_h",
+   "F.Cu",
+   "(69.4, 20.3)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_a-gate_l",
+   "F.Cu",
+   "(43.25, 21.8)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_a-gate_l",
+   "F.Cu",
+   "(51.4, 20.3)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_a-off_h",
+   "F.Cu",
+   "(65.0, 15.6)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_a-off_h",
+   "F.Cu",
+   "(72.1, 15.6)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_a-off_l",
+   "F.Cu",
+   "(47.0, 15.6)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_a-off_l",
+   "F.Cu",
+   "(54.1, 15.6)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_a-out_l",
+   "In1.Cu",
+   "(56.0, 34.7)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_a.bias_h-damp",
+   "F.Cu",
+   "(62.05, 34.538)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_b-gate_h",
+   "F.Cu",
+   "(3.15, 21.8)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_b-gate_h",
+   "F.Cu",
+   "(11.3, 20.3)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_b-gate_l",
+   "F.Cu",
+   "(21.15, 21.8)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_b-gate_l",
+   "F.Cu",
+   "(29.3, 20.3)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_b-off_h",
+   "F.Cu",
+   "(6.9, 15.6)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_b-off_h",
+   "F.Cu",
+   "(14.0, 15.6)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_b-off_l",
+   "F.Cu",
+   "(24.9, 15.6)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_b-off_l",
+   "F.Cu",
+   "(32.0, 15.6)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_b-out_h",
+   "F.Cu",
+   "(12.6, 32.9)",
+   "free"
+  ],
+  [
+   "right",
+   "n_filt",
+   "B.Cu",
+   "(237.5, 113.0)",
+   "free"
+  ],
+  [
+   "right",
+   "n_ha",
+   "F.Cu",
+   "(58.775, 72.75)",
+   "free"
+  ],
+  [
+   "right",
+   "n_ha",
+   "F.Cu",
+   "(59.925, 72.75)",
+   "free"
+  ],
+  [
+   "right",
+   "n_ha",
+   "F.Cu",
+   "(71.78, 42.75)",
+   "free"
+  ],
+  [
+   "right",
+   "n_ha",
+   "In1.Cu",
+   "(51.121, 73.941)",
+   "tip via"
+  ],
+  [
+   "right",
+   "n_hb",
+   "F.Cu",
+   "(15.075, 68.82)",
+   "free"
+  ],
+  [
+   "right",
+   "n_ls",
+   "F.Cu",
+   "(50.82, 47.396)",
+   "free"
+  ],
+  [
+   "right",
+   "n_ls",
+   "In1.Cu",
+   "(9.8, 55.3)",
+   "tip via"
+  ],
+  [
+   "right",
+   "n_ls",
+   "In1.Cu",
+   "(15.325, 50.025)",
+   "tip via"
+  ],
+  [
+   "right",
+   "n_ls",
+   "In1.Cu",
+   "(121.0, 39.2)",
+   "free"
+  ],
+  [
+   "right",
+   "n_ls",
+   "In1.Cu",
+   "(211.0, 75.0)",
+   "free"
+  ],
+  [
+   "right",
+   "p_ha",
+   "B.Cu",
+   "(55.77, 104.235)",
+   "tip via"
+  ],
+  [
+   "right",
+   "p_ha",
+   "F.Cu",
+   "(48.87, 102.125)",
+   "tip via"
+  ],
+  [
+   "right",
+   "p_ha",
+   "F.Cu",
+   "(56.825, 72.6)",
+   "free"
+  ],
+  [
+   "right",
+   "p_hb",
+   "F.Cu",
+   "(28.555, 36.025)",
+   "free"
+  ],
+  [
+   "right",
+   "p_hb",
+   "In2.Cu",
+   "(19.3, 72.6)",
+   "free"
+  ],
+  [
+   "right",
+   "pe",
+   "F.Cu",
+   "(215.0, 134.5)",
+   "free"
+  ],
+  [
+   "right",
+   "sw_a",
+   "B.Cu",
+   "(49.888, 112.095)",
+   "tip via"
+  ],
+  [
+   "right",
+   "sw_a",
+   "F.Cu",
+   "(75.6, 29.8)",
+   "free"
+  ],
+  [
+   "right",
+   "v15_ls",
+   "F.Cu",
+   "(105.67, 79.555)",
+   "free"
+  ],
+  [
+   "right",
+   "v15_ls",
+   "F.Cu",
+   "(108.9, 111.635)",
+   "tip pad"
+  ],
+  [
+   "right",
+   "v15_ls",
+   "F.Cu",
+   "(110.858, 85.175)",
+   "tip via"
+  ],
+  [
+   "right",
+   "v15_ls",
+   "F.Cu",
+   "(111.07, 54.4)",
+   "tip via"
+  ],
+  [
+   "right",
+   "v15_ls",
+   "F.Cu",
+   "(111.75, 100.935)",
+   "tip via"
+  ],
+  [
+   "right",
+   "v15_ls",
+   "F.Cu",
+   "(112.1, 77.85)",
+   "free"
+  ],
+  [
+   "right",
+   "v15_ls",
+   "F.Cu",
+   "(112.1, 81.05)",
+   "free"
+  ],
+  [
+   "right",
+   "v15_ls",
+   "F.Cu",
+   "(112.55, 98.595)",
+   "free"
+  ],
+  [
+   "right",
+   "v15_ls",
+   "In1.Cu",
+   "(108.355, 112.04)",
+   "free"
+  ],
+  [
+   "right",
+   "v15_ls",
+   "In1.Cu",
+   "(110.858, 85.175)",
+   "tip via"
+  ],
+  [
+   "right",
+   "v24_raw",
+   "F.Cu",
+   "(102.022, 87.498)",
+   "tip via"
+  ],
+  [
+   "right",
+   "v24_raw",
+   "In1.Cu",
+   "(101.9, 45.5)",
+   "free"
+  ],
+  [
+   "right",
+   "v24_raw",
+   "In1.Cu",
+   "(121.8, 77.0)",
+   "free"
+  ],
+  [
+   "right",
+   "v24_raw",
+   "In1.Cu",
+   "(212.2, 76.0)",
+   "free"
+  ],
+  [
+   "right",
+   "busbleed_mid",
+   "F.Cu",
+   "(288.0, 100.8)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_a-out_l",
+   "In1.Cu",
+   "(82.0, 34.7)",
+   "free"
+  ],
+  [
+   "right",
+   "leg_b-out_h",
+   "F.Cu",
+   "(29.82, 32.9)",
+   "free"
+  ],
+  [
+   "any",
+   "ac_n_in",
+   "B.Cu",
+   "(238.5, 25.0)",
+   "(240.5, 26.8)"
+  ],
+  [
+   "any",
+   "bias_good",
+   "F.Cu",
+   "(29.2, 60.8)",
+   "(28.957, 60.745)"
+  ],
+  [
+   "any",
+   "bias_good",
+   "F.Cu",
+   "(75.957, 60.745)",
+   "(76.2, 60.8)"
+  ],
+  [
+   "any",
+   "bias_ha-en",
+   "F.Cu",
+   "(64.7, 65.175)",
+   "(64.5, 65.475)"
+  ],
+  [
+   "any",
+   "bias_ha-en",
+   "F.Cu",
+   "(65.175, 62.575)",
+   "(65.1, 62.775)"
+  ],
+  [
+   "any",
+   "bias_ha-fbm",
+   "F.Cu",
+   "(61.6, 73.795)",
+   "(61.725, 74.02)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-good",
+   "B.Cu",
+   "(56.8, 103.535)",
+   "(57.02, 103.585)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-good",
+   "F.Cu",
+   "(47.67, 74.715)",
+   "(48.129, 75.824)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-good",
+   "In2.Cu",
+   "(47.635, 74.725)",
+   "(48.129, 75.824)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-halfref",
+   "F.Cu",
+   "(47.67, 81.065)",
+   "(47.211, 79.956)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-halfref",
+   "F.Cu",
+   "(52.62, 82.335)",
+   "(52.4, 82.265)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-halfref",
+   "In2.Cu",
+   "(58.55, 109.885)",
+   "(57.418, 110.817)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-halfref",
+   "In2.Cu",
+   "(62.95, 106.685)",
+   "(63.02, 106.535)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-ov",
+   "F.Cu",
+   "(50.85, 112.135)",
+   "(50.8, 112.335)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-ov",
+   "F.Cu",
+   "(56.2, 112.335)",
+   "(56.25, 112.135)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-ov",
+   "F.Cu",
+   "(58.4, 107.635)",
+   "(58.844, 106.562)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-ov",
+   "In2.Cu",
+   "(56.2, 113.335)",
+   "(56.25, 113.035)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-ov",
+   "In2.Cu",
+   "(58.45, 107.635)",
+   "(58.844, 106.562)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-ref",
+   "B.Cu",
+   "(48.2, 110.995)",
+   "(48.4, 111.085)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-ref",
+   "F.Cu",
+   "(47.438, 93.595)",
+   "(47.4, 93.795)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-ref",
+   "F.Cu",
+   "(62.5, 104.445)",
+   "(62.767, 104.245)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-spanov",
+   "F.Cu",
+   "(48.8, 114.535)",
+   "(48.75, 114.385)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-spanov",
+   "F.Cu",
+   "(52.62, 79.795)",
+   "(51.174, 79.196)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-spanov",
+   "F.Cu",
+   "(62.15, 107.635)",
+   "(62.02, 107.395)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-spanov",
+   "F.Cu",
+   "(62.15, 107.635)",
+   "(62.1, 107.835)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-spanov",
+   "F.Cu",
+   "(62.3, 111.835)",
+   "(62.2, 111.535)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-spanov",
+   "In2.Cu",
+   "(52.82, 79.795)",
+   "(51.174, 79.196)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-spanuv",
+   "F.Cu",
+   "(47.15, 109.885)",
+   "(47.2, 109.265)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-spanuv",
+   "F.Cu",
+   "(47.15, 109.885)",
+   "(47.2, 109.665)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-spanuv",
+   "F.Cu",
+   "(47.15, 109.885)",
+   "(47.2, 110.085)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-spanuv",
+   "F.Cu",
+   "(52.62, 81.065)",
+   "(51.174, 80.466)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-spanuv",
+   "In2.Cu",
+   "(52.6, 81.065)",
+   "(51.174, 80.466)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-v5",
+   "B.Cu",
+   "(64.933, 107.695)",
+   "(64.8, 107.895)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-v5",
+   "F.Cu",
+   "(45.095, 68.725)",
+   "(46.225, 71.0)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-v5",
+   "F.Cu",
+   "(47.0, 96.935)",
+   "(47.2, 97.045)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-v5",
+   "F.Cu",
+   "(47.0, 96.935)",
+   "(47.27, 96.735)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-v5",
+   "F.Cu",
+   "(47.15, 107.635)",
+   "(47.2, 107.535)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-v5",
+   "F.Cu",
+   "(62.0, 99.4)",
+   "(62.133, 99.695)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-v5",
+   "In2.Cu",
+   "(58.35, 112.135)",
+   "(58.4, 111.895)"
+  ],
+  [
+   "any",
+   "bias_ha.split-fb",
+   "F.Cu",
+   "(55.6, 115.635)",
+   "(55.688, 115.495)"
+  ],
+  [
+   "any",
+   "bias_hb-en",
+   "F.Cu",
+   "(17.8, 58.575)",
+   "(18.075, 59.9)"
+  ],
+  [
+   "any",
+   "bias_hb-fbm",
+   "F.Cu",
+   "(14.825, 72.02)",
+   "(16.9, 70.775)"
+  ],
+  [
+   "any",
+   "bias_hb-fbm",
+   "In2.Cu",
+   "(14.1, 67.72)",
+   "(14.025, 68.0)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-halfref",
+   "B.Cu",
+   "(1.4, 109.535)",
+   "(1.5, 110.56)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-ov",
+   "B.Cu",
+   "(13.8, 104.525)",
+   "(13.7, 105.46)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-ov",
+   "F.Cu",
+   "(2.07, 73.525)",
+   "(1.8, 73.6)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-ov",
+   "F.Cu",
+   "(2.07, 73.525)",
+   "(2.2, 73.725)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-ov",
+   "F.Cu",
+   "(13.65, 109.535)",
+   "(13.6, 109.735)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-ov",
+   "F.Cu",
+   "(13.7, 104.435)",
+   "(13.85, 104.725)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-ref",
+   "F.Cu",
+   "(15.8, 102.745)",
+   "(15.7, 102.795)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-spanov",
+   "F.Cu",
+   "(9.4, 112.195)",
+   "(9.6, 112.085)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-spanov",
+   "F.Cu",
+   "(15.0, 111.885)",
+   "(15.3, 112.085)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-spanov",
+   "In2.Cu",
+   "(1.6, 106.995)",
+   "(1.55, 108.01)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-spanov",
+   "In2.Cu",
+   "(9.4, 112.195)",
+   "(9.6, 112.285)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-spanuv",
+   "In2.Cu",
+   "(5.4, 106.865)",
+   "(4.749, 106.134)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-spanuv",
+   "In2.Cu",
+   "(5.4, 106.865)",
+   "(5.6, 106.985)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-uv",
+   "F.Cu",
+   "(2.2, 77.535)",
+   "(2.07, 77.335)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-uv",
+   "F.Cu",
+   "(10.8, 113.735)",
+   "(10.85, 113.585)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-v5",
+   "F.Cu",
+   "(1.67, 92.635)",
+   "(1.6, 92.835)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-v5",
+   "F.Cu",
+   "(5.6, 111.835)",
+   "(5.55, 112.085)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-v5",
+   "In2.Cu",
+   "(1.55, 104.435)",
+   "(1.6, 104.635)"
+  ],
+  [
+   "any",
+   "bias_ls-fb",
+   "In2.Cu",
+   "(102.448, 103.909)",
+   "(102.526, 104.061)"
+  ],
+  [
+   "any",
+   "bias_ls-fb",
+   "In2.Cu",
+   "(106.4, 103.235)",
+   "(106.55, 103.195)"
+  ],
+  [
+   "any",
+   "blw_l",
+   "F.Cu",
+   "(276.225, 117.6)",
+   "(282.9, 116.5)"
+  ],
+  [
+   "any",
+   "bus_fault",
+   "B.Cu",
+   "(37.5, 183.08)",
+   "(37.572, 182.895)"
+  ],
+  [
+   "any",
+   "ct_mon",
+   "F.Cu",
+   "(49.2, 182.865)",
+   "(49.5, 183.08)"
+  ],
+  [
+   "any",
+   "ct_oc_neg",
+   "F.Cu",
+   "(33.928, 128.595)",
+   "(33.972, 128.795)"
+  ],
+  [
+   "any",
+   "ct_ref_hi",
+   "B.Cu",
+   "(6.55, 133.065)",
+   "(5.4, 132.865)"
+  ],
+  [
+   "any",
+   "ct_ref_hi",
+   "B.Cu",
+   "(11.55, 132.865)",
+   "(11.65, 134.24)"
+  ],
+  [
+   "any",
+   "ct_ref_lo",
+   "F.Cu",
+   "(17.328, 130.695)",
+   "(18.95, 132.865)"
+  ],
+  [
+   "any",
+   "ct_s2",
+   "B.Cu",
+   "(29.183, 130.695)",
+   "(29.383, 130.595)"
+  ],
+  [
+   "any",
+   "ct_s2",
+   "B.Cu",
+   "(84.51, 129.12)",
+   "(84.303, 129.196)"
+  ],
+  [
+   "any",
+   "ct_s2",
+   "F.Cu",
+   "(4.35, 132.865)",
+   "(4.6, 132.695)"
+  ],
+  [
+   "any",
+   "ct_s2",
+   "F.Cu",
+   "(29.383, 130.595)",
+   "(29.183, 130.695)"
+  ],
+  [
+   "any",
+   "ct_s2",
+   "F.Cu",
+   "(85.32, 128.775)",
+   "(84.303, 129.196)"
+  ],
+  [
+   "any",
+   "ct_s2",
+   "F.Cu",
+   "(141.88, 123.75)",
+   "(135.257, 130.175)"
+  ],
+  [
+   "any",
+   "ct_sense_mon",
+   "F.Cu",
+   "(26.907, 130.695)",
+   "(27.107, 130.595)"
+  ],
+  [
+   "any",
+   "ct_sense_mon",
+   "F.Cu",
+   "(26.907, 130.695)",
+   "(27.107, 130.595)"
+  ],
+  [
+   "any",
+   "ct_sense_mon",
+   "F.Cu",
+   "(140.225, 130.375)",
+   "(140.507, 130.175)"
+  ],
+  [
+   "any",
+   "ct_zc",
+   "B.Cu",
+   "(46.307, 183.2)",
+   "(46.5, 183.08)"
+  ],
+  [
+   "any",
+   "hb_rc",
+   "F.Cu",
+   "(108.575, 98.25)",
+   "(108.475, 99.89)"
+  ],
+  [
+   "any",
+   "hb_rx",
+   "F.Cu",
+   "(95.635, 125.875)",
+   "(95.7, 126.1)"
+  ],
+  [
+   "any",
+   "hot5",
+   "B.Cu",
+   "(100.032, 53.595)",
+   "(98.957, 53.869)"
+  ],
+  [
+   "any",
+   "hot5",
+   "F.Cu",
+   "(100.03, 53.425)",
+   "(98.957, 53.869)"
+  ],
+  [
+   "any",
+   "hot5",
+   "F.Cu",
+   "(105.75, 68.145)",
+   "(105.9, 68.395)"
+  ],
+  [
+   "any",
+   "hot5",
+   "F.Cu",
+   "(106.1, 68.145)",
+   "(105.9, 68.395)"
+  ],
+  [
+   "any",
+   "hot5",
+   "F.Cu",
+   "(114.725, 116.0)",
+   "(114.905, 116.125)"
+  ],
+  [
+   "any",
+   "hot5",
+   "F.Cu",
+   "(116.2, 52.2)",
+   "(116.3, 52.4)"
+  ],
+  [
+   "any",
+   "hot5",
+   "F.Cu",
+   "(118.09, 65.635)",
+   "(118.35, 65.745)"
+  ],
+  [
+   "any",
+   "hot5",
+   "F.Cu",
+   "(118.4, 65.945)",
+   "(118.35, 65.745)"
+  ],
+  [
+   "any",
+   "hot5",
+   "In1.Cu",
+   "(98.743, 112.847)",
+   "(98.499, 112.951)"
+  ],
+  [
+   "any",
+   "hot5",
+   "In1.Cu",
+   "(106.9, 115.95)",
+   "(107.105, 115.675)"
+  ],
+  [
+   "any",
+   "hot5",
+   "In1.Cu",
+   "(107.4, 115.6)",
+   "(107.105, 115.675)"
+  ],
+  [
+   "any",
+   "hot5",
+   "In2.Cu",
+   "(110.0, 73.645)",
+   "(109.05, 73.695)"
+  ],
+  [
+   "any",
+   "hot5_uv_raw",
+   "F.Cu",
+   "(101.957, 53.145)",
+   "(102.2, 53.2)"
+  ],
+  [
+   "any",
+   "hot5_uv_sense",
+   "F.Cu",
+   "(102.0, 71.245)",
+   "(101.7, 71.045)"
+  ],
+  [
+   "any",
+   "hot5_uv_sense",
+   "F.Cu",
+   "(111.65, 71.045)",
+   "(111.448, 70.895)"
+  ],
+  [
+   "any",
+   "hv_ret",
+   "F.Cu",
+   "(287.4, 106.2)",
+   "(283.24, 106.0)"
+  ],
+  [
+   "any",
+   "l_filt",
+   "B.Cu",
+   "(230.0, 89.0)",
+   "(230.5, 90.0)"
+  ],
+  [
+   "any",
+   "l_filt",
+   "B.Cu",
+   "(263.1, 49.2)",
+   "(263.25, 49.5)"
+  ],
+  [
+   "any",
+   "l_filt",
+   "F.Cu",
+   "(232.0, 56.0)",
+   "(230.0, 60.0)"
+  ],
+  [
+   "any",
+   "leg_a-out_h",
+   "F.Cu",
+   "(77.0, 38.3)",
+   "(76.83, 38.6)"
+  ],
+  [
+   "any",
+   "leg_a-out_l",
+   "F.Cu",
+   "(57.1, 18.9)",
+   "(56.0, 20.5)"
+  ],
+  [
+   "any",
+   "leg_a-out_l",
+   "F.Cu",
+   "(82.0, 37.0)",
+   "(83.17, 39.9)"
+  ],
+  [
+   "any",
+   "leg_a-permit_gate",
+   "F.Cu",
+   "(75.957, 59.795)",
+   "(75.544, 58.797)"
+  ],
+  [
+   "any",
+   "leg_a-permit_gate",
+   "F.Cu",
+   "(81.228, 67.995)",
+   "(81.0, 68.165)"
+  ],
+  [
+   "any",
+   "leg_a.bias_l-damp",
+   "F.Cu",
+   "(92.6, 37.138)",
+   "(92.75, 37.1)"
+  ],
+  [
+   "any",
+   "leg_a.driver-dt",
+   "F.Cu",
+   "(75.7, 68.165)",
+   "(75.9, 67.875)"
+  ],
+  [
+   "any",
+   "leg_a.driver-dt",
+   "F.Cu",
+   "(81.905, 55.875)",
+   "(82.451, 57.193)"
+  ],
+  [
+   "any",
+   "leg_b-driver_dis",
+   "F.Cu",
+   "(31.233, 61.695)",
+   "(30.819, 60.697)"
+  ],
+  [
+   "any",
+   "leg_b-driver_dis",
+   "F.Cu",
+   "(31.833, 61.675)",
+   "(31.433, 61.895)"
+  ],
+  [
+   "any",
+   "leg_b-out_l",
+   "F.Cu",
+   "(35.0, 18.9)",
+   "(35.95, 21.5)"
+  ],
+  [
+   "any",
+   "leg_b-out_l",
+   "F.Cu",
+   "(35.95, 39.6)",
+   "(36.17, 39.9)"
+  ],
+  [
+   "any",
+   "leg_b-permit_gate",
+   "B.Cu",
+   "(28.957, 59.795)",
+   "(28.544, 58.797)"
+  ],
+  [
+   "any",
+   "leg_b-permit_gate",
+   "F.Cu",
+   "(28.957, 59.795)",
+   "(28.544, 58.797)"
+  ],
+  [
+   "any",
+   "leg_b-permit_gate",
+   "F.Cu",
+   "(29.558, 67.195)",
+   "(29.5, 67.365)"
+  ],
+  [
+   "any",
+   "leg_b-permit_gate",
+   "F.Cu",
+   "(33.7, 67.965)",
+   "(34.0, 68.165)"
+  ],
+  [
+   "any",
+   "leg_b.bias_l-damp",
+   "F.Cu",
+   "(45.6, 37.138)",
+   "(45.75, 37.1)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "B.Cu",
+   "(113.8, 87.9)",
+   "(115.515, 88.095)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "B.Cu",
+   "(116.1, 111.735)",
+   "(115.663, 110.58)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "B.Cu",
+   "(116.1, 111.735)",
+   "(115.663, 110.58)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "B.Cu",
+   "(116.1, 111.735)",
+   "(115.663, 110.58)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "B.Cu",
+   "(116.1, 111.735)",
+   "(115.663, 110.58)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "F.Cu",
+   "(41.62, 43.6)",
+   "(41.025, 41.6)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "F.Cu",
+   "(41.62, 43.6)",
+   "(41.52, 43.8)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "F.Cu",
+   "(42.4, 37.462)",
+   "(39.8, 34.375)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "F.Cu",
+   "(42.4, 37.462)",
+   "(41.025, 39.6)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "F.Cu",
+   "(42.525, 37.75)",
+   "(42.4, 37.462)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "F.Cu",
+   "(86.8, 34.375)",
+   "(89.4, 37.462)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "F.Cu",
+   "(88.025, 41.6)",
+   "(88.62, 43.6)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "F.Cu",
+   "(88.72, 43.8)",
+   "(88.62, 43.6)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "F.Cu",
+   "(89.4, 37.462)",
+   "(88.025, 39.6)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "F.Cu",
+   "(113.8, 87.9)",
+   "(113.677, 88.095)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "F.Cu",
+   "(116.1, 111.635)",
+   "(115.663, 110.58)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "In1.Cu",
+   "(55.325, 40.15)",
+   "(55.6, 40.0)"
+  ],
+  [
+   "any",
+   "leg_ret",
+   "In1.Cu",
+   "(96.525, 39.95)",
+   "(96.8, 40.0)"
+  ],
+  [
+   "any",
+   "line_zc",
+   "F.Cu",
+   "(55.223, 182.895)",
+   "(55.5, 183.08)"
+  ],
+  [
+   "any",
+   "line_zc_raw",
+   "F.Cu",
+   "(79.67, 128.775)",
+   "(79.4, 128.575)"
+  ],
+  [
+   "any",
+   "line_zc_raw",
+   "F.Cu",
+   "(79.87, 128.67)",
+   "(79.67, 128.775)"
+  ],
+  [
+   "any",
+   "ls_v5",
+   "F.Cu",
+   "(101.55, 99.112)",
+   "(101.75, 99.0)"
+  ],
+  [
+   "any",
+   "ls_v5",
+   "F.Cu",
+   "(112.5, 109.535)",
+   "(112.55, 109.335)"
+  ],
+  [
+   "any",
+   "ls_v5",
+   "In2.Cu",
+   "(108.55, 95.335)",
+   "(108.51, 95.195)"
+  ],
+  [
+   "any",
+   "mon_good_ha",
+   "F.Cu",
+   "(103.4, 87.8)",
+   "(103.562, 87.5)"
+  ],
+  [
+   "any",
+   "monitor_ls-good",
+   "B.Cu",
+   "(106.438, 87.6)",
+   "(106.4, 87.85)"
+  ],
+  [
+   "any",
+   "monitor_ls-good",
+   "B.Cu",
+   "(114.435, 110.535)",
+   "(114.35, 110.345)"
+  ],
+  [
+   "any",
+   "monitor_ls-good",
+   "F.Cu",
+   "(101.6, 101.25)",
+   "(101.55, 101.388)"
+  ],
+  [
+   "any",
+   "monitor_ls-good",
+   "F.Cu",
+   "(105.638, 88.4)",
+   "(105.438, 88.45)"
+  ],
+  [
+   "any",
+   "monitor_ls-good",
+   "F.Cu",
+   "(114.15, 109.535)",
+   "(114.235, 109.735)"
+  ],
+  [
+   "any",
+   "monitor_ls-halfref",
+   "F.Cu",
+   "(105.82, 83.225)",
+   "(102.27, 82.765)"
+  ],
+  [
+   "any",
+   "monitor_ls-halfref",
+   "F.Cu",
+   "(112.5, 107.435)",
+   "(112.62, 107.235)"
+  ],
+  [
+   "any",
+   "monitor_ls-ov",
+   "F.Cu",
+   "(112.5, 105.535)",
+   "(112.55, 105.335)"
+  ],
+  [
+   "any",
+   "monitor_ls-ov",
+   "F.Cu",
+   "(112.55, 105.335)",
+   "(112.6, 105.225)"
+  ],
+  [
+   "any",
+   "monitor_ls-ref",
+   "F.Cu",
+   "(102.0, 109.635)",
+   "(101.7, 109.535)"
+  ],
+  [
+   "any",
+   "monitor_ls-ref",
+   "F.Cu",
+   "(120.5, 98.795)",
+   "(120.427, 98.595)"
+  ],
+  [
+   "any",
+   "monitor_ls-spanov",
+   "In2.Cu",
+   "(116.4, 105.095)",
+   "(116.15, 106.36)"
+  ],
+  [
+   "any",
+   "monitor_ls-spanov",
+   "In2.Cu",
+   "(116.4, 105.095)",
+   "(116.3, 105.335)"
+  ],
+  [
+   "any",
+   "monitor_ls-spanuv",
+   "B.Cu",
+   "(101.75, 107.435)",
+   "(101.8, 107.635)"
+  ],
+  [
+   "any",
+   "monitor_ls-spanuv",
+   "F.Cu",
+   "(110.3, 111.835)",
+   "(110.55, 111.635)"
+  ],
+  [
+   "any",
+   "monitor_ls-uv",
+   "F.Cu",
+   "(102.27, 84.035)",
+   "(102.4, 84.235)"
+  ],
+  [
+   "any",
+   "n_filt",
+   "B.Cu",
+   "(238.0, 62.0)",
+   "(237.5, 64.0)"
+  ],
+  [
+   "any",
+   "n_filt",
+   "B.Cu",
+   "(242.0, 56.0)",
+   "(241.0, 59.0)"
+  ],
+  [
+   "any",
+   "n_ha",
+   "B.Cu",
+   "(45.375, 75.8)",
+   "(45.47, 74.705)"
+  ],
+  [
+   "any",
+   "n_ha",
+   "B.Cu",
+   "(64.258, 105.845)",
+   "(64.326, 106.123)"
+  ],
+  [
+   "any",
+   "n_ha",
+   "F.Cu",
+   "(50.22, 96.735)",
+   "(51.174, 99.038)"
+  ],
+  [
+   "any",
+   "n_ha",
+   "F.Cu",
+   "(52.62, 77.255)",
+   "(50.735, 76.474)"
+  ],
+  [
+   "any",
+   "n_ha",
+   "F.Cu",
+   "(63.7, 107.635)",
+   "(64.326, 106.123)"
+  ],
+  [
+   "any",
+   "n_ha",
+   "F.Cu",
+   "(72.375, 41.6)",
+   "(71.78, 43.6)"
+  ],
+  [
+   "any",
+   "n_ha",
+   "F.Cu",
+   "(73.78, 43.4)",
+   "(73.88, 43.6)"
+  ],
+  [
+   "any",
+   "n_ha",
+   "F.Cu",
+   "(78.095, 46.125)",
+   "(77.78, 43.95)"
+  ],
+  [
+   "any",
+   "n_ha",
+   "In1.Cu",
+   "(51.121, 73.941)",
+   "(51.175, 74.175)"
+  ],
+  [
+   "any",
+   "n_ha",
+   "In1.Cu",
+   "(64.8, 50.0)",
+   "(63.6, 52.0)"
+  ],
+  [
+   "any",
+   "n_ha",
+   "In2.Cu",
+   "(62.2, 72.545)",
+   "(62.5, 72.3)"
+  ],
+  [
+   "any",
+   "n_hb",
+   "F.Cu",
+   "(4.62, 92.635)",
+   "(5.574, 90.332)"
+  ],
+  [
+   "any",
+   "n_hb",
+   "F.Cu",
+   "(7.02, 72.255)",
+   "(8.905, 71.474)"
+  ],
+  [
+   "any",
+   "n_hb",
+   "F.Cu",
+   "(9.985, 71.865)",
+   "(11.0, 73.5)"
+  ],
+  [
+   "any",
+   "n_hb",
+   "F.Cu",
+   "(10.2, 89.695)",
+   "(9.906, 89.489)"
+  ],
+  [
+   "any",
+   "n_hb",
+   "F.Cu",
+   "(11.139, 73.436)",
+   "(11.0, 73.5)"
+  ],
+  [
+   "any",
+   "n_hb",
+   "F.Cu",
+   "(24.78, 43.6)",
+   "(26.088, 40.442)"
+  ],
+  [
+   "any",
+   "n_hb",
+   "F.Cu",
+   "(26.562, 40.413)",
+   "(26.88, 40.465)"
+  ],
+  [
+   "any",
+   "n_hb",
+   "In2.Cu",
+   "(12.85, 82.875)",
+   "(13.134, 83.089)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "B.Cu",
+   "(107.645, 110.325)",
+   "(107.569, 110.141)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(5.2, 51.725)",
+   "(5.0, 52.0)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(9.725, 55.425)",
+   "(9.8, 55.2)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(14.775, 51.6)",
+   "(14.9, 51.675)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(19.925, 59.625)",
+   "(19.725, 59.9)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(37.4, 46.0)",
+   "(37.445, 46.125)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(37.445, 46.125)",
+   "(37.12, 43.95)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(37.445, 46.125)",
+   "(38.321, 44.012)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(38.17, 43.95)",
+   "(38.321, 44.012)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(40.071, 42.613)",
+   "(39.937, 42.289)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(42.58, 43.6)",
+   "(43.343, 41.758)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(42.58, 45.0)",
+   "(43.573, 47.396)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(51.1, 52.725)",
+   "(50.82, 52.645)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(53.075, 39.35)",
+   "(53.35, 39.2)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(59.1, 57.925)",
+   "(59.275, 58.2)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(64.6, 63.6)",
+   "(64.5, 63.825)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(84.445, 46.125)",
+   "(85.166, 44.383)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(86.235, 41.804)",
+   "(86.708, 41.735)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(86.235, 41.804)",
+   "(86.708, 41.735)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(87.48, 43.6)",
+   "(86.708, 41.735)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(89.575, 39.6)",
+   "(91.074, 38.979)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(96.875, 38.75)",
+   "(96.95, 38.5)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(97.109, 112.133)",
+   "(96.177, 112.519)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(97.109, 112.133)",
+   "(97.25, 112.475)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(97.25, 112.075)",
+   "(97.109, 112.133)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(103.3, 107.435)",
+   "(102.856, 106.362)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(103.3, 107.435)",
+   "(103.926, 105.923)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(103.35, 103.235)",
+   "(103.969, 101.741)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(103.912, 91.285)",
+   "(104.519, 89.821)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(103.969, 101.741)",
+   "(103.45, 101.388)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(104.82, 95.225)",
+   "(105.457, 96.763)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(105.615, 96.697)",
+   "(105.457, 96.763)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(106.9, 105.335)",
+   "(107.526, 106.847)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(106.9, 107.435)",
+   "(107.526, 105.923)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(107.569, 108.041)",
+   "(106.9, 107.435)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(109.525, 81.695)",
+   "(109.323, 80.703)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(109.525, 81.695)",
+   "(109.323, 80.703)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(109.525, 81.695)",
+   "(109.323, 81.353)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(110.23, 82.525)",
+   "(113.037, 82.35)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(110.274, 93.488)",
+   "(110.06, 95.225)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(114.1, 101.135)",
+   "(114.412, 101.889)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(114.1, 105.335)",
+   "(114.726, 103.823)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(114.15, 107.435)",
+   "(114.769, 105.941)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(114.726, 103.823)",
+   "(114.969, 103.735)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(114.769, 101.741)",
+   "(114.412, 101.889)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(120.925, 80.4)",
+   "(121.6, 81.5)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(121.3, 79.9)",
+   "(120.925, 80.4)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "In1.Cu",
+   "(109.525, 81.695)",
+   "(109.323, 80.703)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "In1.Cu",
+   "(109.525, 81.695)",
+   "(109.323, 80.703)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "In1.Cu",
+   "(109.525, 81.695)",
+   "(109.323, 81.353)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "In1.Cu",
+   "(208.7, 24.4)",
+   "(211.0, 26.0)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "In2.Cu",
+   "(111.625, 97.09)",
+   "(111.747, 96.912)"
+  ],
+  [
+   "any",
+   "ocp_ok_hot",
+   "F.Cu",
+   "(102.1, 56.695)",
+   "(101.957, 56.785)"
+  ],
+  [
+   "any",
+   "ovp_ok_hot",
+   "F.Cu",
+   "(107.448, 56.495)",
+   "(107.248, 56.785)"
+  ],
+  [
+   "any",
+   "ovp_thresh",
+   "F.Cu",
+   "(101.7, 73.695)",
+   "(102.0, 73.495)"
+  ],
+  [
+   "any",
+   "ovp_thresh",
+   "F.Cu",
+   "(101.75, 68.395)",
+   "(101.8, 68.595)"
+  ],
+  [
+   "any",
+   "ovp_thresh",
+   "F.Cu",
+   "(101.8, 68.285)",
+   "(101.75, 68.395)"
+  ],
+  [
+   "any",
+   "p_ha",
+   "F.Cu",
+   "(47.1, 114.385)",
+   "(47.3, 114.525)"
+  ],
+  [
+   "any",
+   "p_ha",
+   "F.Cu",
+   "(47.8, 77.315)",
+   "(47.67, 77.255)"
+  ],
+  [
+   "any",
+   "p_ha",
+   "F.Cu",
+   "(50.67, 107.525)",
+   "(50.9, 107.635)"
+  ],
+  [
+   "any",
+   "p_ha",
+   "F.Cu",
+   "(55.93, 73.915)",
+   "(55.8, 74.115)"
+  ],
+  [
+   "any",
+   "p_ha",
+   "F.Cu",
+   "(59.843, 104.245)",
+   "(59.24, 105.699)"
+  ],
+  [
+   "any",
+   "p_ha",
+   "F.Cu",
+   "(75.555, 46.125)",
+   "(75.6, 46.0)"
+  ],
+  [
+   "any",
+   "p_ha",
+   "F.Cu",
+   "(75.555, 46.125)",
+   "(75.88, 43.95)"
+  ],
+  [
+   "any",
+   "p_ha",
+   "In2.Cu",
+   "(58.075, 89.262)",
+   "(58.25, 89.535)"
+  ],
+  [
+   "any",
+   "p_hb",
+   "B.Cu",
+   "(2.6, 71.975)",
+   "(2.4, 71.925)"
+  ],
+  [
+   "any",
+   "p_hb",
+   "B.Cu",
+   "(14.2, 112.435)",
+   "(14.35, 112.685)"
+  ],
+  [
+   "any",
+   "p_hb",
+   "F.Cu",
+   "(2.07, 68.025)",
+   "(2.4, 68.8)"
+  ],
+  [
+   "any",
+   "p_hb",
+   "F.Cu",
+   "(2.07, 72.255)",
+   "(2.2, 72.455)"
+  ],
+  [
+   "any",
+   "p_hb",
+   "F.Cu",
+   "(2.2, 72.175)",
+   "(2.07, 72.255)"
+  ],
+  [
+   "any",
+   "p_hb",
+   "F.Cu",
+   "(2.6, 71.975)",
+   "(2.4, 71.925)"
+  ],
+  [
+   "any",
+   "p_hb",
+   "F.Cu",
+   "(12.2, 72.6)",
+   "(13.175, 72.02)"
+  ],
+  [
+   "any",
+   "p_hb",
+   "F.Cu",
+   "(13.95, 112.285)",
+   "(13.65, 112.085)"
+  ],
+  [
+   "any",
+   "p_hb",
+   "F.Cu",
+   "(14.6, 100.635)",
+   "(14.842, 100.745)"
+  ],
+  [
+   "any",
+   "p_hb",
+   "F.Cu",
+   "(14.758, 95.945)",
+   "(14.8, 95.745)"
+  ],
+  [
+   "any",
+   "permit",
+   "B.Cu",
+   "(40.8, 127.8)",
+   "(40.9, 128.0)"
+  ],
+  [
+   "any",
+   "permit",
+   "F.Cu",
+   "(33.15, 119.965)",
+   "(33.2, 120.2)"
+  ],
+  [
+   "any",
+   "permit",
+   "F.Cu",
+   "(34.7, 182.8)",
+   "(34.5, 183.08)"
+  ],
+  [
+   "any",
+   "permit",
+   "F.Cu",
+   "(79.4, 68.4)",
+   "(79.35, 68.165)"
+  ],
+  [
+   "any",
+   "pwm_ha",
+   "F.Cu",
+   "(75.555, 55.875)",
+   "(75.7, 56.075)"
+  ],
+  [
+   "any",
+   "pwm_hb",
+   "B.Cu",
+   "(28.955, 55.875)",
+   "(29.155, 55.8)"
+  ],
+  [
+   "any",
+   "ref25",
+   "F.Cu",
+   "(111.65, 73.695)",
+   "(111.85, 73.445)"
+  ],
+  [
+   "any",
+   "ref25",
+   "F.Cu",
+   "(114.05, 71.245)",
+   "(114.15, 71.045)"
+  ],
+  [
+   "any",
+   "ref25",
+   "F.Cu",
+   "(114.15, 71.045)",
+   "(114.45, 71.245)"
+  ],
+  [
+   "any",
+   "ref25",
+   "In2.Cu",
+   "(114.05, 71.245)",
+   "(113.324, 70.219)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "B.Cu",
+   "(88.355, 128.675)",
+   "(88.395, 128.775)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(8.0, 132.865)",
+   "(7.381, 134.359)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(8.473, 127.1)",
+   "(8.898, 127.836)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(15.3, 132.865)",
+   "(14.681, 134.359)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(27.825, 133.1)",
+   "(27.675, 132.865)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(28.957, 61.695)",
+   "(29.773, 63.664)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(32.365, 55.875)",
+   "(32.911, 57.193)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(32.475, 126.845)",
+   "(32.423, 127.1)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(32.65, 57.25)",
+   "(32.911, 57.193)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(32.675, 107.845)",
+   "(32.9, 107.725)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(79.365, 55.875)",
+   "(79.911, 57.193)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(79.65, 57.25)",
+   "(79.911, 57.193)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(99.645, 126.475)",
+   "(99.375, 126.275)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(101.394, 128.019)",
+   "(101.045, 127.875)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(101.394, 128.019)",
+   "(101.341, 128.146)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(102.095, 126.325)",
+   "(101.394, 128.019)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(107.375, 128.85)",
+   "(107.468, 128.562)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(130.025, 130.195)",
+   "(130.692, 128.584)"
+  ],
+  [
+   "any",
+   "sw_a",
+   "F.Cu",
+   "(54.487, 112.195)",
+   "(54.6, 112.135)"
+  ],
+  [
+   "any",
+   "sw_a",
+   "F.Cu",
+   "(58.35, 116.635)",
+   "(58.55, 116.585)"
+  ],
+  [
+   "any",
+   "sw_a",
+   "F.Cu",
+   "(62.82, 44.2)",
+   "(60.925, 42.75)"
+  ],
+  [
+   "any",
+   "sw_a",
+   "F.Cu",
+   "(63.288, 45.0)",
+   "(63.42, 44.8)"
+  ],
+  [
+   "any",
+   "sw_a",
+   "F.Cu",
+   "(64.375, 21.8)",
+   "(72.8, 22.6)"
+  ],
+  [
+   "any",
+   "sw_a",
+   "F.Cu",
+   "(65.82, 42.55)",
+   "(65.925, 42.75)"
+  ],
+  [
+   "any",
+   "sw_a",
+   "F.Cu",
+   "(71.0, 37.462)",
+   "(70.825, 39.6)"
+  ],
+  [
+   "any",
+   "sw_a",
+   "F.Cu",
+   "(71.4, 36.3)",
+   "(71.22, 36.2)"
+  ],
+  [
+   "any",
+   "sw_a",
+   "F.Cu",
+   "(73.02, 43.8)",
+   "(72.92, 43.6)"
+  ],
+  [
+   "any",
+   "sw_a",
+   "F.Cu",
+   "(73.5, 29.8)",
+   "(73.4, 30.1)"
+  ],
+  [
+   "any",
+   "sw_b",
+   "F.Cu",
+   "(6.4, 23.55)",
+   "(6.28, 23.3)"
+  ],
+  [
+   "any",
+   "sw_b",
+   "F.Cu",
+   "(13.925, 42.75)",
+   "(14.0, 42.55)"
+  ],
+  [
+   "any",
+   "sw_b",
+   "F.Cu",
+   "(18.987, 42.6)",
+   "(18.925, 42.75)"
+  ],
+  [
+   "any",
+   "sw_b",
+   "F.Cu",
+   "(23.525, 45.15)",
+   "(23.82, 45.2)"
+  ],
+  [
+   "any",
+   "sw_b",
+   "F.Cu",
+   "(23.825, 39.6)",
+   "(24.0, 37.462)"
+  ],
+  [
+   "any",
+   "sw_b",
+   "F.Cu",
+   "(26.6, 34.375)",
+   "(24.0, 37.462)"
+  ],
+  [
+   "any",
+   "sw_b",
+   "In2.Cu",
+   "(13.65, 117.035)",
+   "(14.476, 118.011)"
+  ],
+  [
+   "any",
+   "tco_l",
+   "F.Cu",
+   "(217.5, 3.6)",
+   "(217.65, 3.89)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "B.Cu",
+   "(34.905, 43.525)",
+   "(35.105, 43.625)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "B.Cu",
+   "(34.905, 43.525)",
+   "(35.22, 42.675)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "B.Cu",
+   "(34.905, 43.525)",
+   "(35.22, 42.675)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "B.Cu",
+   "(35.105, 43.625)",
+   "(35.22, 42.675)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "B.Cu",
+   "(47.905, 52.525)",
+   "(48.995, 52.645)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "B.Cu",
+   "(106.47, 65.145)",
+   "(106.67, 65.0)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "F.Cu",
+   "(34.905, 46.125)",
+   "(35.22, 43.95)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "F.Cu",
+   "(39.8, 36.025)",
+   "(39.505, 36.225)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "F.Cu",
+   "(81.905, 46.125)",
+   "(82.22, 43.95)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "F.Cu",
+   "(86.8, 36.025)",
+   "(86.505, 36.225)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "F.Cu",
+   "(102.0, 94.995)",
+   "(101.87, 95.225)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "F.Cu",
+   "(105.15, 105.195)",
+   "(105.35, 105.335)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "F.Cu",
+   "(108.2, 101.195)",
+   "(108.15, 101.395)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "F.Cu",
+   "(112.1, 79.7)",
+   "(110.23, 79.575)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "F.Cu",
+   "(112.337, 53.995)",
+   "(112.537, 54.095)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "F.Cu",
+   "(112.4, 101.195)",
+   "(112.55, 101.135)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "F.Cu",
+   "(112.55, 101.135)",
+   "(112.35, 101.195)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "F.Cu",
+   "(113.037, 79.75)",
+   "(112.1, 79.7)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "F.Cu",
+   "(115.84, 61.355)",
+   "(116.284, 62.428)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "In1.Cu",
+   "(102.4, 111.595)",
+   "(102.3, 111.635)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "In1.Cu",
+   "(108.9, 111.735)",
+   "(107.95, 111.635)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "In1.Cu",
+   "(108.9, 111.735)",
+   "(107.95, 111.635)"
+  ],
+  [
+   "any",
+   "v15_ls",
+   "In1.Cu",
+   "(109.0, 40.8)",
+   "(108.9, 41.0)"
+  ],
+  [
+   "any",
+   "v24_raw",
+   "B.Cu",
+   "(118.9, 81.85)",
+   "(118.6, 77.0)"
+  ],
+  [
+   "any",
+   "v24_raw",
+   "F.Cu",
+   "(11.875, 55.625)",
+   "(11.825, 55.361)"
+  ],
+  [
+   "any",
+   "v24_raw",
+   "F.Cu",
+   "(14.6, 53.4)",
+   "(14.9, 53.225)"
+  ],
+  [
+   "any",
+   "v24_raw",
+   "F.Cu",
+   "(60.925, 58.4)",
+   "(61.2, 58.225)"
+  ],
+  [
+   "any",
+   "v24_raw",
+   "F.Cu",
+   "(61.2, 58.225)",
+   "(64.1, 58.125)"
+  ],
+  [
+   "any",
+   "v24_raw",
+   "F.Cu",
+   "(106.37, 91.185)",
+   "(106.225, 91.095)"
+  ],
+  [
+   "any",
+   "v24_raw",
+   "F.Cu",
+   "(116.7, 78.688)",
+   "(117.293, 76.624)"
+  ],
+  [
+   "any",
+   "v24_raw",
+   "F.Cu",
+   "(118.45, 77.6)",
+   "(118.6, 77.0)"
+  ],
+  [
+   "any",
+   "v24_raw",
+   "F.Cu",
+   "(118.6, 81.05)",
+   "(118.9, 81.85)"
+  ],
+  [
+   "any",
+   "v24_raw",
+   "In1.Cu",
+   "(208.7, 16.4)",
+   "(212.2, 17.6)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(10.023, 128.5)",
+   "(10.127, 128.752)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(10.023, 128.795)",
+   "(10.127, 128.752)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(19.602, 128.795)",
+   "(19.707, 128.752)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(19.603, 128.5)",
+   "(19.707, 128.752)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(20.992, 127.995)",
+   "(20.828, 128.287)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(31.233, 59.795)",
+   "(31.665, 60.84)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(33.972, 129.745)",
+   "(33.789, 129.789)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(34.9, 114.475)",
+   "(35.0, 114.25)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(35.173, 129.5)",
+   "(35.235, 129.745)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(56.275, 128.68)",
+   "(56.85, 129.676)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(76.15, 64.815)",
+   "(76.213, 64.984)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(76.15, 64.815)",
+   "(76.213, 64.984)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(76.15, 64.815)",
+   "(76.213, 64.984)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(79.15, 66.015)",
+   "(79.4, 65.365)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(79.633, 64.395)",
+   "(79.35, 64.515)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(84.445, 55.875)",
+   "(85.173, 57.632)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(96.905, 126.275)",
+   "(97.222, 126.732)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(114.95, 126.525)",
+   "(115.087, 126.314)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(121.95, 130.325)",
+   "(122.135, 130.195)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(122.135, 130.195)",
+   "(121.468, 128.584)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "In2.Cu",
+   "(76.15, 64.815)",
+   "(76.213, 64.984)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "In2.Cu",
+   "(76.15, 64.815)",
+   "(76.213, 64.984)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "In2.Cu",
+   "(76.15, 64.815)",
+   "(76.213, 64.984)"
+  ],
+  [
+   "any",
+   "vbus_n",
+   "B.Cu",
+   "(43.5, 183.08)",
+   "(43.7, 183.0)"
+  ],
+  [
+   "any",
+   "vbus_n",
+   "F.Cu",
+   "(103.1, 126.525)",
+   "(103.365, 126.325)"
+  ],
+  [
+   "any",
+   "vbus_p",
+   "F.Cu",
+   "(104.635, 126.325)",
+   "(104.7, 126.525)"
+  ],
+  [
+   "any",
+   "vsense_in",
+   "F.Cu",
+   "(107.8, 61.155)",
+   "(107.54, 61.355)"
+  ],
+  [
+   "any",
+   "vsense_in",
+   "F.Cu",
+   "(109.522, 58.685)",
+   "(107.54, 61.355)"
+  ],
+  [
+   "any",
+   "vsense_in",
+   "F.Cu",
+   "(118.3, 68.395)",
+   "(118.14, 68.155)"
+  ],
+  [
+   "any",
+   "bias_ha-fbm",
+   "F.Cu",
+   "(63.125, 75.62)",
+   "(63.2, 75.775)"
+  ],
+  [
+   "any",
+   "bias_ha.monitor-spanov",
+   "F.Cu",
+   "(62.3, 111.835)",
+   "(62.1, 112.135)"
+  ],
+  [
+   "any",
+   "bias_hb.monitor-ov",
+   "F.Cu",
+   "(13.6, 104.2)",
+   "(13.7, 104.435)"
+  ],
+  [
+   "any",
+   "n_filt",
+   "B.Cu",
+   "(250.0, 113.0)",
+   "(255.8, 115.6)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(38.321, 44.012)",
+   "(38.556, 43.444)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(85.166, 44.383)",
+   "(86.235, 41.804)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(105.457, 96.763)",
+   "(105.774, 97.528)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(114.412, 101.889)",
+   "(114.726, 102.647)"
+  ],
+  [
+   "any",
+   "n_ls",
+   "F.Cu",
+   "(117.569, 105.135)",
+   "(117.7, 105.335)"
+  ],
+  [
+   "any",
+   "ovp_thresh",
+   "F.Cu",
+   "(107.4, 73.495)",
+   "(107.5, 73.695)"
+  ],
+  [
+   "any",
+   "ref25",
+   "F.Cu",
+   "(118.25, 73.445)",
+   "(118.3, 73.695)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(32.911, 57.193)",
+   "(33.093, 57.632)"
+  ],
+  [
+   "any",
+   "selv_gnd",
+   "F.Cu",
+   "(79.911, 57.193)",
+   "(80.093, 57.632)"
+  ],
+  [
+   "any",
+   "sw_a",
+   "F.Cu",
+   "(62.15, 114.585)",
+   "(62.1, 114.385)"
+  ],
+  [
+   "any",
+   "v24_raw",
+   "F.Cu",
+   "(117.293, 76.624)",
+   "(117.425, 76.165)"
+  ],
+  [
+   "any",
+   "v24_raw",
+   "F.Cu",
+   "(118.6, 77.0)",
+   "(117.293, 76.624)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(10.127, 128.752)",
+   "(11.248, 128.287)"
+  ],
+  [
+   "any",
+   "v3v3",
+   "F.Cu",
+   "(19.707, 128.752)",
+   "(20.828, 128.287)"
+  ],
+  [
+   "acute",
+   "n_ha",
+   "B.Cu",
+   "(45.375, 75.8)",
+   "free"
+  ],
+  [
+   "acute",
+   "n_ha",
+   "F.Cu",
+   "(78.095, 46.125)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "n_hb",
+   "F.Cu",
+   "(9.985, 71.865)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "p_hb",
+   "F.Cu",
+   "(2.6, 71.975)",
+   "tip pad"
+  ],
+  [
+   "acute",
+   "v15_ls",
+   "In1.Cu",
+   "(102.3, 111.635)",
+   "tip via"
+  ]
+ ]
+}
