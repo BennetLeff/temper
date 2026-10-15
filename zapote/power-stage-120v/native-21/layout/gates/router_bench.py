@@ -10,6 +10,8 @@
 3. route them, frozen base (INCR21_FROZEN), and build (OUTDIR/r1);
 4. report OUTDIR/bench.json: open pairs before / after, what incr21 says it left open, KiCad errors added by type
    (r1 against r0), the plan-view barrier line, copper re-added against ripped, and the per-step times (laps).
+   Open pairs of a net whose accepted copper enters another net's protected pour (gates/protected_cross.py: a patch
+   authored it on purpose; the router may not) count as "policy", the rest as router failures.
 Test points stay off both builds (BOARD_ONLY21_NO_TEST_POINTS): they sit on the old copper of their net. Both builds
 check with the inner-loop rules (DRC_FAST, gates/drc_rules_fast.py) unless --full-drc.
 copper.json and reference-labels.json are rewritten by the builds and restored from snapshots at the end, also on
@@ -71,6 +73,21 @@ def errors(drc_path):
     return collections.Counter(v["type"] for v in d["violations"] if v["severity"] == "error"), len(d.get("unconnected_items", []))
 
 
+def open_split(drc_path, out, nets):
+    """Open pairs after routing: (policy, router). Policy: the pair's net is a ripped net whose accepted copper
+    enters another net's protected pour (protected_cross.py)."""
+    pairs = json.loads(Path(drc_path).read_text()).get("unconnected_items", [])
+    pnet = [re.search(r"\[([^\]]*)\]", v["items"][0]["description"]).group(1) for v in pairs]
+    ask = sorted({n for n in pnet if n in nets})
+    flagged = {}
+    if ask:
+        r = subprocess.run([sys.executable, str(L / "gates" / "protected_cross.py"), str(out / "ripped.json"),
+                            str(out / "accepted.json"), *ask], cwd=U, capture_output=True, text=True, check=True)
+        flagged = json.loads(r.stdout.strip().splitlines()[-1])
+    policy = [n for n in pnet if n in flagged]
+    return {"policy": policy, "router": [n for n in pnet if n not in flagged], "protected_cross": flagged}
+
+
 def laps(out):
     p = Path(out) / "steps.jsonl"
     rows = [json.loads(x) for x in p.read_text().splitlines()] if p.exists() else []
@@ -123,7 +140,7 @@ def main():
                    "vias": len(copper["vias"]) - len(ripped["vias"])},
         "readded": {"tracks": len(routed["tracks"]) - len(ripped["tracks"]),
                     "vias": len(routed["vias"]) - len(ripped["vias"])},
-        "open_before": open0, "open_after": open1,
+        "open_before": open0, "open_after": open1, "open_split": open_split(out / "r1" / "drc.json", out, set(nets)),
         "incr21": {"tried": int(tried.group(1)), "still_open": int(tried.group(2))} if tried else None,
         "settle_open": settles,
         "errors_before": dict(e0), "errors_after": dict(e1), "errors_added": dict(e1 - e0),
@@ -136,7 +153,7 @@ def main():
     (out / "bench.json").write_text(json.dumps(rep, indent=1) + "\n")
     s = rep["seconds"]
     print(f"router_bench seed {a.seed}: {len(nets)} nets ({rep['ripped']['tracks']} tracks, {rep['ripped']['vias']} vias) "
-          f"-> open {open0} -> {open1}; errors added {rep['errors_added'] or 0}; barrier {'clean' if rep['barrier_clean'] else 'VIOLATED'}; "
+          f"-> open {open0} -> {open1} (router {len(rep['open_split']['router'])}, policy {len(rep['open_split']['policy'])}); errors added {rep['errors_added'] or 0}; barrier {'clean' if rep['barrier_clean'] else 'VIOLATED'}; "
           f"router {s['router']} s, settle {s['settle']} s {settles}, build {s['build_r1']} s (DRC {s['kicad_drc_r1']} s)")
 
 

@@ -40,6 +40,20 @@ Determinism: KiCad's DRC lists the same unconnected pairs in a different order f
 pairs in list order, so incr21 sorts each DRC file's pairs (2026-10-15). Router comparisons made before that
 (different copper from identical inputs) are not like for like.
 
+Router failure classes found with `router_bench.py` (2026-10-15, `--nets 30 --max-tracks 40`) and what closed them:
+- pad escapes: a pad whose part's other pin sits closer than the group clearance (copper.json `escapes`, the KiCad
+  rule apply_copper21 writes) was sealed in the maze; incr21 now offers the maze escape portals (`incr21.portals`)
+  and adds the straight stub inside the escape area (led1 / led2 at R68 / R69, vsense_in at R29);
+- layer clearance: maze21's class rasters used rules21.clearance, not clearance_on, so SELV / PE paths on F.Cu /
+  B.Cu passed through the 8.0-12.6 mm RES_A band and the final check rejected every one (line_zc_raw);
+- pour cuts: maze21 did not see other nets' unprotected pours, and a new F.Cu track split the stage-40 n_ls pours;
+  a step into another net's pour now costs `maze21.POUR_COST` more;
+- congestion: a pair blocked by copper of the same run is retried with one nearby net ripped and re-routed after it,
+  kept only when all close (`incr21.ripup`; `INCR21_RIPUP=0` turns it off) (ovp_thresh behind vsense_in);
+- policy: the accepted copper enters another net's protected pour (stage 40's U44 HS-B link through n_hb on B.Cu,
+  authored before the pour was merged round it); the router may not, and `router_bench.py` reports such pairs as
+  "policy" (`protected_cross.py`) apart from router failures.
+
 `zone_priority_gate.py [copper.json]` (stage 17b, run first by `chain.sh`): fails when two different-net pours on one
 layer sit closer than their clearance at the same priority, since KiCad's fill order would then decide the contested
 copper. `patches21.ZONE_WINNERS` declares each such pair's winner; `resolve_zone_priorities` keeps every existing order.
