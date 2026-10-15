@@ -149,11 +149,12 @@ derivations:
     formula: max31865_high_threshold_word
     compare: "=="
     description: >-
-      MAX31865 high fault-threshold register word for the 233.21 ohm C1
-      Pt100 high boundary (360 degC, sensor-r3 CR-7): the largest 15-bit
-      ratiometric ADC code at-or-below RTD/RREF * 2^15 (so an RTD AT or
-      ABOVE 233.21 ohm trips), shifted left one bit. CR-7 lists word 35544;
-      this rule gives 35542 (code 17771).
+      MAX31865 high fault-threshold register word for the C1 Pt100 high
+      boundary R(360 degC) = 233.2144 ohm (IEC 60751; sensor-r3 CR-7): the
+      largest 15-bit ratiometric ADC code at-or-below RTD/RREF * 2^15 (so an
+      RTD AT or ABOVE R(360 degC) trips), shifted left one bit: code 17772,
+      word 35544, as CR-7 lists. (The CR's 2-decimal 233.21 ohm gives 35542,
+      0.04 K early; output/temper-sensor-r3/firmware/cr7_thresholds.py.)
     inputs:
       - name: rtd_resistance
         provenance: declared-assumed

@@ -142,8 +142,10 @@ The low reading must also have risen < 2 K from its lowest value during the
 not. A suspect result requests a D1 probe; it is not a fault.
 
 In the co-sim the cross-check never fires, at either 15 or 25 K, because D1
-catches every loss first: the results are identical at both margins. It is
-covered by unit tests only.
+catches every loss first: the results are identical at both margins. There
+is a second reason: cosim.py's rim stays below the real channel's saturation.
+`xcheck_cosim.py` gives the plant a rim and exercises the cross-check
+(D-RIM).
 
 ## D-SM. State machine mapping
 
@@ -187,7 +189,8 @@ With the switch on:
   (`psup_t`). It runs `ptl_step` every 100 ms from the 10 ms state-machine
   update and holds the command in between. Its inputs are:
   - `rtd_service_latest_sample()`;
-  - `read_rim_ntc_temperature()` (a new peripherals extern);
+  - the rim NTC driver, one period per control period (D-RIM; it also
+    defines `read_rim_ntc_temperature()`);
   - the last command, as `PG_POWER_ESTIMATED`.
 
   Its output is `power_set_level()` in percent of 1.8 kW. The intensity level
@@ -205,25 +208,41 @@ With the switch on:
     `state_machine_report_rtd_frozen`.
 - Every `read_pan_temperature()` / `read_rtd_resistance()` in
   `state_machine.c` and `state_handlers.c` reads the latest conversion. The
-  RTD resistance interlock uses the C1 window, 84.27 / 233.21 Ω.
+  RTD resistance interlock uses the C1 window, 84.27 / 233.2144 Ω.
 
-## D-THRESH. C1 threshold words: 12844 / 35542 (CR-7 lists 35544)
+## D-THRESH. C1 threshold words: 12844 / 35544, as CR-7 lists
 
-These are new `config.yaml` constants with `board_derivation: true` and
+These are `config.yaml` constants with `board_derivation: true` and
 derivations in `firmware/tools/board_derivations.yaml`:
 - `RTD_C1_SHORT_FAULT_OHM` 84.27;
-- `RTD_C1_OPEN_FAULT_OHM` 233.21;
+- `RTD_C1_OPEN_FAULT_OHM` 233.2144, which is R(360 °C);
 - `MAX31865_C1_LOW_THRESHOLD_WORD` 12844;
-- `MAX31865_C1_HIGH_THRESHOLD_WORD` 35542.
+- `MAX31865_C1_HIGH_THRESHOLD_WORD` 35544.
 
-The board contract rounds the low code up and the high code down, so the
-window stays inside the requested resistances:
-- 84.27 Ω gives code 6421.7, which rounds up to 6422 (word 12844);
-- 233.21 Ω gives code 17771.95, which rounds down to 17771 (word 35542).
+The MAX31865 sets the RTD High bit when the code is ≥ the high threshold, and
+the Low bit when it is ≤ the low threshold (`datasheets/max31865.pdf`, "Fault
+Threshold Registers"). The board contract therefore rounds the low code up and
+the high code down. A resistance at or beyond the boundary then trips whether
+the converter truncates or rounds.
 
-CR-7's 35544 is 233.22 Ω, just outside the window. The oracle caught it, and
-`scripts/check_firmware_board_contract.py` passes 5/5. The legacy words
-1526/45722 are unchanged.
+**Open item 7, resolved** (`cr7_thresholds.py` → `cr7-thresholds.json`, gated
+in `run.sh`). The CR-7 inputs are temperatures: R(−40 °C) = 84.27065 Ω and
+R(360 °C) = 233.21440 Ω (IEC 60751, RREF 430 Ω).
+- High: code 17772.022 rounds down to 17772, word **35544**. That is what
+  CR-7 lists.
+- Low: code 6421.816 rounds up to 6422, word 12844. Both sides agree.
+
+The firmware was wrong by one code. It derived its word from the 2-decimal
+233.21 Ω printed in CR-7, which is 0.0044 Ω below R(360 °C), and got 35542.
+- 35542 trips at 359.96 °C, early and on the safe side.
+- 35544 trips at 359.9992 °C, still at or below 360 °C.
+- The earlier note here, that 35544 is "233.22 Ω, just outside the window",
+  was wrong: 35544 is 233.21411 Ω, below R(360 °C).
+
+`config.yaml` now carries 233.2144 Ω and 35544. `config.h` is regenerated, and
+`scripts/check_firmware_board_contract.py` passes 5/5. The CR-7 document
+is right, so the PCB owner needs no change. The legacy words 1526/45722 are
+unchanged.
 
 ## D-CR7. Where each CR-7 item landed
 
@@ -231,11 +250,11 @@ CR-7's 35544 is 233.22 Ω, just outside the window. The oracle caught it, and
 |---|---|
 | CONFIG 0xC0 (VBIAS, auto conversion, 60 Hz) | `max31865_start_conversions`, after the power-up cycle |
 | One automatic fault cycle at power-up, coil off; completion by polling CONFIG D3:D2 | `rtd_service` C1 bootstrap / `max31865_fault_cycle_busy`. **Manual** cycle (needs CR-1 filter): open |
-| Thresholds 84.27 / 233.21 Ω | D-THRESH |
+| Thresholds 84.27 / 233.21 Ω (R(−40) / R(360 °C)) | D-THRESH |
 | Self-heating 0.061 K subtracted | `rtd_convert_code_to_c` |
 | Loading correction R − (7.86e-4·R − 0.0331) | `rtd_convert`, behind `RTD_FRONT_END_CR1` (default 0: the captured controller has no CR-1) |
 | Stale: no DRDY for 3 × 20 ms | `RTD_C1_STALE_CONTROL_TICKS` 6 (60 ms) |
-| Rim ADC attenuation and rim faults | no rim driver exists (open) |
+| Rim ADC attenuation and rim faults | `components/sensors/rim_ntc.c` (D-RIM) |
 | 25 K cross-check | the guard (D-XCHK) |
 
 ## D-STALE. Stale means no DRDY; a frozen code means 250 identical codes
@@ -400,6 +419,170 @@ Unit tests in `test_pan_temp_loop_only` cover:
 - requiring a clean phase that starts from a hold;
 - limiting a decrease per phase.
 
+## D-RIM. Rim NTC driver; a rim fault latches through the RTD sink
+
+**Driver.** The driver is `components/sensors/rim_ntc.{c,h}`.
+- It reads hardware only through `rim_ntc_hal_t`, so the host tests drive it
+  through a mock.
+- `rim_ntc_board.c` binds it to `hal_adc` on ADC1_CH8 (GPIO9). The HAL's
+  ESP32 port keeps the one ADC1 one-shot unit and the curve-fitting
+  calibration. An attenuation change re-initialises the channel and rebuilds
+  its calibration.
+- `main/pan_control.c` runs one driver period per 10 Hz control period.
+
+Each period:
+- **Read.** Eight one-shot samples. The mean drops the lowest and highest.
+- **Attenuation (CR-7).** ATTEN0 below 0.80 V, ATTEN2 below 1.55 V, otherwise
+  ATTEN3.
+  - Switching down needs 30 mV of hysteresis.
+  - A sample within 10 mV of the calibrated full scale (850 / 1600 / 2900 mV)
+    is read again, one range up, in the same period.
+- **Ratio.** The node is divided by v3v3, and R = 1 k·x/(1 − x).
+- **Temperature.** From the datasheet table, with 1/T linear in ln R between
+  points.
+- **Filter.** First order, τ 1 s. The bead's own still-air time constant is
+  7 s, so the filter adds no lag the cross-check or the KF sink would see.
+
+**Table.** The 104GT-2 column of the Semitec GT-2 datasheet R-T table, −50 to
+300 °C in 10 K steps plus 25 and 85 °C: 38 points.
+- **Source:** `https://www.semitec.co.jp/uploads/GT-2シリーズ.pdf`, retrieved
+  2026-10-15, sha256 c0a2841d….
+- **Transcription:** in `rim_ntc.py`, which generates `rim_ntc_table.h`.
+- **Checks:**
+  - `--verify-pdf` re-extracts the column from the PDF and matches all 38
+    values;
+  - all 23 points that `pcb/checks.py` uses agree;
+  - B25/85 computed from the table is 4267 K.
+
+**Accuracy.** Numbers from `rim-ntc.json` and `test_c1_rim_ntc_only`:
+- **Interpolation.** Leave-one-out over a 20 K step, 100–280 °C: worst
+  0.030 K. pcb/checks.py's log-linear-in-T rule gives 0.257 K. The table
+  step is 10 K, so the real error is smaller.
+- **Datasheet points through `rim_ntc_r_to_c`.** At 25, 100, 150, 200 and
+  250 °C the error is 0.00000 K.
+- **The whole chain.** From the node voltage, rounded to whole mV as the IDF
+  calibration returns it, to the filtered output:
+
+  | °C | v3v3 3.300 V | v3v3 3.242 V | Attenuation |
+  |---|---|---|---|
+  | 100 | −0.026 K | +0.037 K | ATTEN3 |
+  | 150 | −0.015 K | +0.014 K | ATTEN3 |
+  | 200 | +0.015 K | −0.035 K | ATTEN2 |
+  | 250 | +0.014 K | −0.073 K | ATTEN0 |
+
+- **Resolution.** The worst is 0.143 K/mV, at 250 °C. That meets "≤ 0.3 K,
+  100–250 °C" with whole-mV output; the PCB agent's 0.057 K assumed raw LSBs.
+- **Not in these numbers:** the sensor's own tolerance (R25 ±3 %, B ±2 %,
+  the PCB agent's 10.2 K at 250 °C), the rail and self-heating:
+  - **The rail.** The MCP3202 CH1 rail reading (CR-7) has no firmware driver.
+    The board binding reports "no rail", and the driver assumes 3.300 V. That
+    costs up to 4.37 K at the contract limits.
+  - **Self-heating is not subtracted.** In still air it is at most 4.53 K over
+    100–250 °C (0.6 mW/K, datasheet). Bearing on the glass the dissipation is
+    higher, so the true offset is smaller, and correcting with the still-air
+    figure would make the rim read low. Reading high is the safe direction
+    for the cross-check: it can only add probes.
+  - **Stacked against the 25 K margin:** 10.2 + 4.37 + 4.53 = 19.1 K, still
+    under 25 K. Some of the PCB's 10.2 K is its own 0.2 % rail term, so this
+    stack double-counts slightly and is conservative.
+
+**States.**
+- **SATURATED.** The node is at or above 2900 mV at ATTEN3, which is
+  87.05–96.51 °C over the v3v3 range (91.76 °C at 3.300 V). This is the
+  normal cold state, not a fault. The reading is an upper bound only.
+- **Loop input** (`pan_control.c` `loop_rim_input`):
+  - VALID: the filtered rim.
+  - SATURATED: min(bound, Pt100 reading). The glass under a heated pan is not
+    hotter than the pan, so this is the closer of the two known limits. It
+    never exceeds the reading, so the cross-check cannot fire without rim
+    information (`test_saturated_rim_never_cross_checks`; with the bound alone
+    it fires).
+  - No data or fault: the Pt100 reading.
+
+  The value is always finite, because a NaN sink would corrupt the KF.
+- **Faults:**
+
+  | Fault | Condition | Persistence | Reported as |
+  |---|---|---|---|
+  | SHORT | node < 0.25 V (297.5–300.4 °C) | 3 periods | short |
+  | OVER_RANGE | T > 290 °C, above the CR-5 band top of 288.1 °C | 3 periods | short |
+  | OPEN | saturated while T̂ ≥ 150 °C | 600 s (CR-7) | open |
+  | ADC | no reading | 10 periods | open |
+
+  While a fault is only a candidate, the last reading is held.
+
+**Fault policy: latch, through `state_machine_report_rtd_device_fault`.**
+SHORT and OVER_RANGE map to FAULT_PROBE_SHORT; OPEN and ADC map to
+FAULT_PROBE_OPEN. This is the same sink and priority that `pan_sensor_guard`
+uses. The power is cut in the same period. The detail is in
+`rim_ntc_reading_t.diag` (`pan_control_rim_reading`). Why latch, not degrade
+to suspect:
+1. **Convention.** Every C1 sensor-path electrical fault latches: register
+   07h, SPI, stale, range, rate and frozen. Only plausibility verdicts (D1
+   suspect, the cross-check) are non-latching. A shorted, open or unreadable
+   rim is an electrical fault, not a plausibility verdict.
+2. **No other check covers leakage.** The rim is the only electrical check on
+   element-parallel leakage (REQUIREMENTS R3.1 exception), and an open bead
+   also disables the CR-5 hardware rim trip (it reads cold). Degrading would
+   keep heating with that layer silently gone.
+3. **The hardware already latches a short.** The node at 0.25 V is below the
+   CR-5 comparator threshold (v3v3·10/96.6 = 0.342 V), so the hardware latches
+   RUNAWAY_FAULT anyway. Firmware agrees with it.
+4. **No new state-machine event.** The transition table, proof record and
+   mutation counts are unchanged.
+
+Each heating session re-detects: `pan_control_begin` re-initialises the
+driver, as `ptl_init` clears the guard. The cost is that a rim fault stops
+cooking with a "probe" fault code. UI wording for a rim fault is open.
+
+**Evidence:**
+- `test_c1_rim_ntc_only`, 13 tests. Conversion, chain accuracy, the CR-7
+  attenuation and hysteresis, the clip re-read, saturation, the rail fallback,
+  short, glitch rejection, over-range, open, ADC failure, the filter τ, the
+  trimmed mean, and the board binding over the `hal_adc` mock.
+- `test_c1_runtime_only`, 6 new tests through the real state machine and
+  `pan_control`:
+  - the cross-check fires on a low, flat Pt100 at 30 s;
+  - it ignores a quench that is rising at 0.25 K/s (with the rise rule
+    disabled, this test fails);
+  - a saturated rim never cross-checks;
+  - a rim short gives FAULT_PROBE_SHORT and zero power within 3 periods;
+  - an open rim gives FAULT_PROBE_OPEN at 600 s hot;
+  - an ADC failure gives FAULT_PROBE_OPEN.
+
+**Co-sim** (`xcheck_cosim.py` → `xcheck-cosim.json`, gated in `run.sh` step
+3b).
+
+*Why cosim.py cannot do it.* Its "rim" is the r2 leak sink, which stays at
+≤ 78 °C. The real channel saturates below 87 °C, so the cross-check can
+never fire there. cosim.py is unchanged.
+
+*The model here.* The plant gains a glass node under the NTC: a lag toward
+T_c − Δ with τ_g 60 s.
+- Δ is 12 or 46 K, study 08's glass-underside spread.
+- τ_g is an assumption: there is no transient glass data.
+- The cartridge leaks to the glass.
+- The NTC runs at its tolerance corners, through the C driver.
+
+Results:
+- **Benign:** 28 runs (4 pans × nominal/food × Δ × corner).
+  - 0 D1 lost latches, 0 guard faults, 0 rim faults, 0 supervisor latches
+    (gated).
+  - 2 cross-check suspects, both cast iron food at Δ 12 K, 50 s after the
+    food. These are probes on intact contact, which D-B5 shows never latch.
+  - Worst estimate error 1.96 K nominal and 9.92 K food. cosim.py's own food
+    runs reach 8.47 K.
+- **Element-parallel leakage** from 250 s, 16 runs (cold corner):
+  - **1 kΩ:** the cross-check fires in 7 of 8, 208–292 s after the leak. D1's
+    probe then (correctly) finds the sensor in contact, so heating continues.
+    T_c reaches SP + 121.9 K, about 352 °C.
+  - **3 kΩ:** no cross-check. T_c settles at SP + 35.4 K.
+  - **CR-5 hardware trip:** the glass reaches the band's low edge (262.3 °C)
+    in 6 of 16 runs and its top (288.1 °C) in 4.
+
+  So the cross-check as specified (D-XCHK: suspect → probe) does not stop
+  leakage. See open item 10.
+
 ## Open items for the firmware owner
 
 1. **The ESP-IDF target has never linked**, before or after this work
@@ -411,7 +594,8 @@ Unit tests in `test_pan_temp_loop_only` cover:
    - `components/webui` needs `esp_vfs_fat` and `json`;
    - the IDF Python env lacks jinja2;
    - many peripheral externs exist only in test stubs (`read_pan_temperature`,
-     `peripherals_init`, …). This work adds `read_rim_ntc_temperature`.
+     `peripherals_init`, …). `read_rim_ntc_temperature` is now defined, in
+     `pan_control.c` (D-RIM).
 
    All C1 objects compile with the real IDF flags (`xtensa-esp32s3-elf-gcc`,
    `TEMPER_PAN_CONTROL_C1=1`):
@@ -420,9 +604,27 @@ Unit tests in `test_pan_temp_loop_only` cover:
      `state_handlers.c`;
    - `state_machine.c` and `main.c`, which compile once IDF's hal includes
      are put ahead of the shadow.
-2. **Rim NTC driver and rim faults** (CR-7 rim ADC attenuation): not
-   implemented. The loop's cross-check needs `read_rim_ntc_temperature()`.
-3. **Manual fault-detection cycle** (needs the CR-1 filter): not implemented.
+2. **Rim NTC driver and rim faults: closed by D-RIM.** What remains:
+   - **MCP3202 CH1 rail driver.** Without it the rim assumes 3.300 V, which
+     costs up to 4.37 K.
+   - **Bench:** the bead's dissipation constant on the glass (self-heating is
+     not subtracted), and a transient glass log to replace the 60 s τ_g
+     assumption in `xcheck_cosim.py`.
+   - **Pin header.** The legacy `hal/include/temper_pins.h` still names GPIO9
+     `PIN_RTD_DRDY`. On zapote DRDY is on TCA9555 P07, and GPIO9 is the rim.
+   - **UI wording** for a rim fault, which today shows as a probe fault.
+
+   The three changed sources (`rim_ntc.c`, `rim_ntc_board.c`,
+   `pan_control.c`) compile with `xtensa-esp32s3-elf-gcc` (`-Wall -Wextra
+   -Werror`, C1 on). The IDF link is still item 1.
+3. **Manual fault-detection cycle** (needs the CR-1 filter): still open. It is
+   not trivially doable:
+   - the captured controller has no CR-1, so `RTD_FRONT_END_CR1` defaults
+     to 0;
+   - the manual sequence (FORCE− open, ≥ 5 ms waits, CONFIG D3:D2 steps) is
+     only meaningful against the filter's settling, which the SPI mock does
+     not model.
+
    C1 runs the automatic cycle at power-up with the coil off.
 4. **The double-fault trade-off (D-RUN)** is for the safety owner to accept or
    tighten. Options:
@@ -434,11 +636,31 @@ Unit tests in `test_pan_temp_loop_only` cover:
    - the bus-current sense scaling for stage 2a;
    - whether the end hold is steady on clad pans (D-ID2 rejections).
 6. **The SIL suite is not run in C1 mode.** It encodes the legacy loop.
-7. **CR-7 high threshold word:** CR-7 lists 35544 and the firmware has 35542
-   (D-THRESH). The PCB agent should confirm.
+7. **CR-7 high threshold word: closed (D-THRESH).** Recomputed from R(360 °C)
+   by `cr7_thresholds.py`, CR-7's 35544 is right. The firmware's 35542 came
+   from the rounded 233.21 Ω and is fixed to 35544. The PCB side needs no
+   change.
 8. **Hot-pan starts run on the prior.** a is never identified (no updates,
    src_mask 0), so a0 is used. For cast iron that is 2.34 × a_true. B1–B3
    still pass.
 9. **h_c steps are reported, not gated:** B1 0/4, B2 0/4, overshoot up to
    13.09 K for 1000 → 300 (`cosim-results.json` h_step). C1 no longer latches
    on them (D-RUN).
+10. **Element-parallel leakage is not stopped by firmware (safety owner).**
+    In `xcheck-cosim.json`:
+    - 1 kΩ drives the pan to SP + 121.9 K;
+    - 3 kΩ holds it at SP + 35.4 K;
+    - the cross-check fires on 7 of the 8 1 kΩ runs only, and its D1 probe
+      correctly confirms contact.
+
+    Only the CR-5 hardware trip remains: the glass reaches the band's low edge
+    in 6 of 16 runs and its top in 4.
+
+    The obvious rule is to latch when a cross-check suspect is followed by a
+    probe that confirms contact. That is the leakage signature, but 2 of 28
+    benign runs (cast iron food, Δ 12 K) raise a suspect, so it needs a
+    further qualifier before adoption, for example:
+    - two consecutive suspect-and-confirm cycles;
+    - the rim's own rise.
+
+    D-XCHK is unchanged here.

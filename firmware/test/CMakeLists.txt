@@ -556,6 +556,7 @@ set(C1_RUNTIME_SOURCES
     ${PAN_TEMP_LOOP_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_supervisor.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/pan_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
@@ -604,6 +605,21 @@ target_include_directories(test_c1_rtd_service_only PRIVATE ${INCLUDE_DIRS}
 target_link_libraries(test_c1_rtd_service_only m)
 add_dependencies(test_c1_rtd_service_only gen_config gen_fault_list gen_transition_table)
 
+# sensor-r3 C1 rim NTC driver (CR-7 rim channel; DECISIONS.md D-RIM): the
+# driver through a mock HAL, and its board binding through the hal_adc mock.
+add_executable(test_c1_rim_ntc_only
+    ${UNITY_SOURCES}
+    ${MOCK_HAL_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc_board.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_rim_ntc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_rim_ntc.c
+)
+target_include_directories(test_c1_rim_ntc_only PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_c1_rim_ntc_only m)
+
 add_test(NAME c1_units_tests COMMAND test_c1_units_only)
 add_test(NAME c1_runtime_tests COMMAND test_c1_runtime_only)
 add_test(NAME c1_rtd_service_tests COMMAND test_c1_rtd_service_only)
+add_test(NAME c1_rim_ntc_tests COMMAND test_c1_rim_ntc_only)

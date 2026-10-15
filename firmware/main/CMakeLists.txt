@@ -10,6 +10,8 @@ idf_component_register(
         "../components/sensors/max31865.c"
         "../components/sensors/rtd_service.c"
         "../components/sensors/rtd_convert.c"
+        "../components/sensors/rim_ntc.c"
+        "../components/sensors/rim_ntc_board.c"
     INCLUDE_DIRS 
         "."
         ".."
