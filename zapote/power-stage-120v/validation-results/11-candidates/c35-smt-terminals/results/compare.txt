@@ -1,0 +1,2 @@
+ACCEPT native21s35 vs validation-results/10-benchmark/scorecard-native21s32.json: cheaper ['parts_usd_at_500', 'hand_or_consign_lines'], better []
+ACCEPT native21s35 vs validation-results/10-benchmark/scorecard-native21s19c.json: cheaper ['parts_usd_at_500', 'placements', 'hand_or_consign_lines', 'consign_lines', 'zero_stock_lines'], better ['return_path_open_changes', 'kelvin_band_low_A', 'b3_c28_h25_peak_C', 'b3_nominal_h10_peak_C', 'cmti_gate_ratio_min', 'fuse_copper_fusing_ratio', 'bank_ratio_tdk_28A_40k', 'bank_ratio_tdk_28A_35k', 'ocp_pickup_stack_pan60_A']

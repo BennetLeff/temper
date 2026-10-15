@@ -1,0 +1,156 @@
+{
+ "label": "s32-THR",
+ "radius_mm": 9.0,
+ "terminals": {
+  "J5": {
+   "net": "res_a",
+   "layers": {
+    "F.Cu": {
+     "other_terminal": {
+      "mm": 5.0,
+      "net": "coil_feed"
+     },
+     "other_hot": {
+      "mm": 5.0,
+      "net": "sw_a"
+     },
+     "selv_pe": {
+      "mm": null,
+      "net": null
+     }
+    },
+    "In1.Cu": {
+     "other_terminal": {
+      "mm": 5.94,
+      "net": "coil_feed"
+     },
+     "other_hot": {
+      "mm": 5.002,
+      "net": "n_ls"
+     },
+     "selv_pe": {
+      "mm": null,
+      "net": null
+     }
+    },
+    "In2.Cu": {
+     "other_terminal": {
+      "mm": 5.94,
+      "net": "coil_feed"
+     },
+     "other_hot": {
+      "mm": 7.273,
+      "net": "ocp_kelvin_p"
+     },
+     "selv_pe": {
+      "mm": null,
+      "net": null
+     }
+    },
+    "B.Cu": {
+     "other_terminal": {
+      "mm": 5.0,
+      "net": "coil_feed"
+     },
+     "other_hot": {
+      "mm": 6.75,
+      "net": "ocp_kelvin_n"
+     },
+     "selv_pe": {
+      "mm": null,
+      "net": null
+     }
+    },
+    "PLAN": {
+     "other_terminal": {
+      "mm": null,
+      "net": null
+     },
+     "other_hot": {
+      "mm": null,
+      "net": null
+     },
+     "selv_pe": {
+      "mm": null,
+      "net": null
+     }
+    }
+   }
+  },
+  "J2": {
+   "net": "coil_feed",
+   "layers": {
+    "F.Cu": {
+     "other_terminal": {
+      "mm": 5.0,
+      "net": "res_a"
+     },
+     "other_hot": {
+      "mm": 2.4,
+      "net": "sw_a"
+     },
+     "selv_pe": {
+      "mm": null,
+      "net": null
+     }
+    },
+    "In1.Cu": {
+     "other_terminal": {
+      "mm": 5.94,
+      "net": "res_a"
+     },
+     "other_hot": {
+      "mm": 4.47,
+      "net": "n_ls"
+     },
+     "selv_pe": {
+      "mm": null,
+      "net": null
+     }
+    },
+    "In2.Cu": {
+     "other_terminal": {
+      "mm": 5.94,
+      "net": "res_a"
+     },
+     "other_hot": {
+      "mm": 5.645,
+      "net": "n_ls"
+     },
+     "selv_pe": {
+      "mm": null,
+      "net": null
+     }
+    },
+    "B.Cu": {
+     "other_terminal": {
+      "mm": 5.0,
+      "net": "res_a"
+     },
+     "other_hot": {
+      "mm": 4.1,
+      "net": "n_ls"
+     },
+     "selv_pe": {
+      "mm": null,
+      "net": null
+     }
+    },
+    "PLAN": {
+     "other_terminal": {
+      "mm": null,
+      "net": null
+     },
+     "other_hot": {
+      "mm": null,
+      "net": null
+     },
+     "selv_pe": {
+      "mm": null,
+      "net": null
+     }
+    }
+   }
+  }
+ }
+}

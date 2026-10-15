@@ -1,0 +1,171 @@
+{
+ "board_sha256": "fba59ef3d8169ee71a81a08d29c72f4e76acf8f420c91fd2515227adaabc8be4",
+ "input_sha256": "c16181a2d6c5891275b22bebefe926270ea80e1f41bd27480526ae8fedb4bff7",
+ "run_board_sha256": "cbfeb317b041648c186b0970081e1b55f8a9f9f8c678b0afa4095a80e996d609",
+ "script_sha256": "d3b8591d6739dd702087d7aeee44c091c67a963e72b0d482ce3ca32fef50d603",
+ "pitch_mm": 0.125,
+ "r_near_mm": 7.0,
+ "scale_to_29p4A": 2.471789299093483,
+ "cases": {
+  "res_a_pl18_as_run": {
+   "sink_points": 1,
+   "r_path_mohm": 0.9428,
+   "path_loss_w_at_29p4A": 0.8149,
+   "near_terminal_loss_w_at_29p4A": 0.3801,
+   "near_sheet_w_at_29p4A": 0.2752,
+   "near_barrel_w_at_29p4A": 0.1049,
+   "max_via_or_lead_amps_at_29p4A": 3.672,
+   "energy_balance_error_w": 1.2815859484760495e-12
+  },
+  "res_a_pl18_ring_8": {
+   "sink_points": 8,
+   "r_path_mohm": 0.7131,
+   "path_loss_w_at_29p4A": 0.6164,
+   "near_terminal_loss_w_at_29p4A": 0.1806,
+   "near_sheet_w_at_29p4A": 0.1022,
+   "near_barrel_w_at_29p4A": 0.0784,
+   "max_via_or_lead_amps_at_29p4A": 2.505,
+   "energy_balance_error_w": 7.049916206369744e-13
+  },
+  "res_a_pl18_ring_24": {
+   "sink_points": 24,
+   "r_path_mohm": 0.6996,
+   "path_loss_w_at_29p4A": 0.6047,
+   "near_terminal_loss_w_at_29p4A": 0.1689,
+   "near_sheet_w_at_29p4A": 0.0891,
+   "near_barrel_w_at_29p4A": 0.0798,
+   "max_via_or_lead_amps_at_29p4A": 2.568,
+   "energy_balance_error_w": 6.679379271901098e-13
+  },
+  "res_a_pl18_face": {
+   "sink_points": 820,
+   "r_path_mohm": 0.6974,
+   "path_loss_w_at_29p4A": 0.6028,
+   "near_terminal_loss_w_at_29p4A": 0.1671,
+   "near_sheet_w_at_29p4A": 0.087,
+   "near_barrel_w_at_29p4A": 0.0801,
+   "max_via_or_lead_amps_at_29p4A": 2.572,
+   "energy_balance_error_w": 6.694089726977381e-13
+  },
+  "res_a_pl12_as_run": {
+   "sink_points": 1,
+   "r_path_mohm": 1.0414,
+   "path_loss_w_at_29p4A": 0.9002,
+   "near_terminal_loss_w_at_29p4A": 0.4308,
+   "near_sheet_w_at_29p4A": 0.2896,
+   "near_barrel_w_at_29p4A": 0.1412,
+   "max_via_or_lead_amps_at_29p4A": 3.197,
+   "energy_balance_error_w": 1.4286349880876514e-12
+  },
+  "res_a_pl12_ring_8": {
+   "sink_points": 8,
+   "r_path_mohm": 0.7984,
+   "path_loss_w_at_29p4A": 0.6901,
+   "near_terminal_loss_w_at_29p4A": 0.2197,
+   "near_sheet_w_at_29p4A": 0.1074,
+   "near_barrel_w_at_29p4A": 0.1124,
+   "max_via_or_lead_amps_at_29p4A": 2.268,
+   "energy_balance_error_w": 8.037459586773821e-13
+  },
+  "res_a_pl12_ring_24": {
+   "sink_points": 24,
+   "r_path_mohm": 0.7854,
+   "path_loss_w_at_29p4A": 0.6789,
+   "near_terminal_loss_w_at_29p4A": 0.2086,
+   "near_sheet_w_at_29p4A": 0.0951,
+   "near_barrel_w_at_29p4A": 0.1135,
+   "max_via_or_lead_amps_at_29p4A": 2.308,
+   "energy_balance_error_w": 7.72715225139109e-13
+  },
+  "res_a_pl12_face": {
+   "sink_points": 820,
+   "r_path_mohm": 0.7834,
+   "path_loss_w_at_29p4A": 0.6771,
+   "near_terminal_loss_w_at_29p4A": 0.2069,
+   "near_sheet_w_at_29p4A": 0.0931,
+   "near_barrel_w_at_29p4A": 0.1137,
+   "max_via_or_lead_amps_at_29p4A": 2.31,
+   "energy_balance_error_w": 7.549516567451064e-13
+  },
+  "coil_feed_pl18_as_run": {
+   "sink_points": 1,
+   "r_path_mohm": 0.8015,
+   "path_loss_w_at_29p4A": 0.6928,
+   "near_terminal_loss_w_at_29p4A": 0.4056,
+   "near_sheet_w_at_29p4A": 0.3791,
+   "near_barrel_w_at_29p4A": 0.0266,
+   "max_via_or_lead_amps_at_29p4A": 1.821,
+   "energy_balance_error_w": -5.800915303666443e-14
+  },
+  "coil_feed_pl18_ring_8": {
+   "sink_points": 8,
+   "r_path_mohm": 0.4465,
+   "path_loss_w_at_29p4A": 0.3859,
+   "near_terminal_loss_w_at_29p4A": 0.1002,
+   "near_sheet_w_at_29p4A": 0.0974,
+   "near_barrel_w_at_29p4A": 0.0027,
+   "max_via_or_lead_amps_at_29p4A": 0.574,
+   "energy_balance_error_w": 1.4155343563970746e-15
+  },
+  "coil_feed_pl18_ring_24": {
+   "sink_points": 24,
+   "r_path_mohm": 0.4257,
+   "path_loss_w_at_29p4A": 0.368,
+   "near_terminal_loss_w_at_29p4A": 0.0826,
+   "near_sheet_w_at_29p4A": 0.0807,
+   "near_barrel_w_at_29p4A": 0.0019,
+   "max_via_or_lead_amps_at_29p4A": 0.503,
+   "energy_balance_error_w": 1.7208456881689926e-15
+  },
+  "coil_feed_pl18_face": {
+   "sink_points": 824,
+   "r_path_mohm": 0.422,
+   "path_loss_w_at_29p4A": 0.3648,
+   "near_terminal_loss_w_at_29p4A": 0.0795,
+   "near_sheet_w_at_29p4A": 0.0778,
+   "near_barrel_w_at_29p4A": 0.0017,
+   "max_via_or_lead_amps_at_29p4A": 0.489,
+   "energy_balance_error_w": 2.7755575615628914e-17
+  },
+  "coil_feed_pl12_as_run": {
+   "sink_points": 1,
+   "r_path_mohm": 0.8142,
+   "path_loss_w_at_29p4A": 0.7037,
+   "near_terminal_loss_w_at_29p4A": 0.4165,
+   "near_sheet_w_at_29p4A": 0.3902,
+   "near_barrel_w_at_29p4A": 0.0264,
+   "max_via_or_lead_amps_at_29p4A": 1.43,
+   "energy_balance_error_w": -6.833422716567839e-14
+  },
+  "coil_feed_pl12_ring_8": {
+   "sink_points": 8,
+   "r_path_mohm": 0.4477,
+   "path_loss_w_at_29p4A": 0.387,
+   "near_terminal_loss_w_at_29p4A": 0.1012,
+   "near_sheet_w_at_29p4A": 0.0988,
+   "near_barrel_w_at_29p4A": 0.0025,
+   "max_via_or_lead_amps_at_29p4A": 0.433,
+   "energy_balance_error_w": 1.4710455076283324e-15
+  },
+  "coil_feed_pl12_ring_24": {
+   "sink_points": 24,
+   "r_path_mohm": 0.4265,
+   "path_loss_w_at_29p4A": 0.3686,
+   "near_terminal_loss_w_at_29p4A": 0.0833,
+   "near_sheet_w_at_29p4A": 0.0817,
+   "near_barrel_w_at_29p4A": 0.0016,
+   "max_via_or_lead_amps_at_29p4A": 0.372,
+   "energy_balance_error_w": 1.7763568394002505e-15
+  },
+  "coil_feed_pl12_face": {
+   "sink_points": 824,
+   "r_path_mohm": 0.4227,
+   "path_loss_w_at_29p4A": 0.3654,
+   "near_terminal_loss_w_at_29p4A": 0.0801,
+   "near_sheet_w_at_29p4A": 0.0787,
+   "near_barrel_w_at_29p4A": 0.0015,
+   "max_via_or_lead_amps_at_29p4A": 0.36,
+   "energy_balance_error_w": 2.7755575615628914e-17
+  }
+ }
+}
