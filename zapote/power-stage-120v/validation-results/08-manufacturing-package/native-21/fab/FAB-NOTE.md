@@ -1,11 +1,11 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 43, the board of record (DECISIONS.md item 57: stage 42's gate network, item 55, with the
-track-geometry cleanup pass and the snubber MPN fix; the stage history is DECISIONS.md items 12–57). Built by
-`sh native-21/layout/gates/chain.sh native21s43 …`; SHA-256
-`61447816b9dd4921525b4f610aca40486989964368d69abb17bf7071cbf4d8df`.
+Board: native-21 stage 44, the board of record (DECISIONS.md item 58: stage 43, item 57, plus seven SELV transfer caps
+C169–C175; the stage history is DECISIONS.md items 12–58). Built by
+`SPINE_OWNER=selv sh native-21/layout/gates/chain.sh native21s44 …`; SHA-256
+`2a84051f251e03a3206e99fdef4bb48e7862c233bcbdf344e61b09952e423136`.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`4442ef0a708488118845d5f5b5e3274aece9204a41af01eba69bd692733648b6`.
+`d5707f035d94395ceb4c250b0ac407717a96e044db110a68cf12137de8a34880`.
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).
 
@@ -35,8 +35,8 @@ Ordering is a purchase and needs the owner.
 | Solder mask / silk | Green / white |
 | Impedance control | None |
 | Order number | **Remove** (JLC's "remove order number" option); the silk carries the board ID instead |
-| **Via covering** | **Epoxy-filled and capped (POFV) for all 738 × 0.3 mm vias (693 × 0.6/0.3, 45 × 0.85/0.3; stage 43), no exceptions.** 59 sit fully inside SMD pads and 75 more overlap a pad edge (`native-21/verification/via_in_pad.py`), including the R5 shunt current-pad arrays and the exposed-pad thermal fields (U26–U28 3 × 3, U35 2 × 2). The ten 1.6/0.8 current vias stay tented (JLC fills holes ≤ 0.5 mm only). Via sizes (stage 32, `via_in_pad.py` census): 691 × 0.6/0.3 and 4 × 0.85/0.3 (the 695 POFV vias), 5 × 0.8/0.5 (R5.4, in or at the pad), 10 × 1.6/0.8 (tented). The KiCad file says `filling/capping no`; this note is the requirement. Select "Confirm production files" |
-| Drills | 847 plated (753 vias, 94 component holes, 4 of them **plated slots 1.2 × 2.5 mm** for F1's 10 × 38 clips: routed slots, G85 in the PTH drill file), 14 non-plated (drill report, stage 43: 2 × 1.02, 10 × 3.2, 2 × 5.2 mm) |
+| **Via covering** | **Epoxy-filled and capped (POFV) for all 750 × 0.3 mm vias (705 × 0.6/0.3, 45 × 0.85/0.3; stage 44), no exceptions.** 60 sit fully inside SMD pads and 75 more overlap a pad edge (`native-21/verification/via_in_pad.py`), including the R5 shunt current-pad arrays and the exposed-pad thermal fields (U26–U28 3 × 3, U35 2 × 2). The ten 1.6/0.8 current vias stay tented (JLC fills holes ≤ 0.5 mm only). Via sizes (stage 32, `via_in_pad.py` census): 691 × 0.6/0.3 and 4 × 0.85/0.3 (the 695 POFV vias), 5 × 0.8/0.5 (R5.4, in or at the pad), 10 × 1.6/0.8 (tented). The KiCad file says `filling/capping no`; this note is the requirement. Select "Confirm production files" |
+| Drills | 859 plated (765 vias, 94 component holes, 4 of them **plated slots 1.2 × 2.5 mm** for F1's 10 × 38 clips: routed slots, G85 in the PTH drill file), 14 non-plated (drill report, stage 44: 2 × 1.02, 10 × 3.2, 2 × 5.2 mm) |
 | Board-only parts | 39 bring-up test pads (bare copper), 3 fiducials (1 mm, 3 mm mask opening), 7 M3 holes at the positions the enclosure adopted; none in BOM/CPL. **H2–H7: the whole fixing chain is insulating** (nylon screw, washer and standoff; no metal screw, nut or insert within 10 mm of the board), with outer copper clear under the 7 mm washer. H1 may take metal hardware (native-21/BRINGUP-PROBES.md). Enclosure R30: male-female standoffs threaded into the tapped base (nylon at H2–H7 with a nylon top screw and washer, ≥ 10 mm; brass at H1). H1 is a bare NPTH, so its metal hardware bonds the chassis only; the board's PE comes in at J6 |
 
 JLC rules (`tools/jlc_dfm_check.py`, capabilities page re-read verbatim 2026-10-08):
@@ -44,7 +44,7 @@ JLC rules (`tools/jlc_dfm_check.py`, capabilities page re-read verbatim 2026-10-
 - Via diameter ≥ hole + 0.1 mm; our floor is a 0.15 mm ring.
 - Track/space at 2 oz multilayer: JLC allows 0.15/0.15 mm. Our floor is 0.2/0.2 mm, and the tightest gap is the U41/U42 modules' 0.20 mm pad-to-pad (0.45 mm pads at 0.65 mm pitch).
 - Via drill ≥ 0.15 mm.
-- Result: **PASS**. 753 vias (stage 43), 94 plated pads (slot rings checked per axis: 0.60 mm), minimum track 0.2 mm, 0 failures (`../jlc-dfm.json`).
+- Result: **PASS**. 765 vias (stage 44), 94 plated pads (slot rings checked per axis: 0.60 mm), minimum track 0.2 mm, 0 failures (`../jlc-dfm.json`).
 
 Assembly:
 - **LCSC numbers:** stage 43: 93 BOM lines, 87 JLC-assembled (19 Basic, 68 Extended) and 6 consigned or hand-assembled (`../PROTOTYPE-LOT.md`); the earlier census: 84 of 94 source lines map to a checked LCSC part (48 exact from the survey, 35 changed or added since, most of them the 2026-10-09 Basic swaps, the stage-14 bias parts, stage 17's R5 CSS2H-2512R-1L00F (C4175647, JLC Extended) and the stage-30 heartbeat parts, 1 accepted substitute; `../sourcing/`, `../bom-simplification/`). Ten are consigned or hand-assembled: F1 fuse, F2 (Schurter UMT-H 3403.0279.23, 1.5 kA, blower-supply tap; LCSC C3163739 carries no stock, so consign it from Digi-Key), C1/C2 (KEMET R463N410050N1K, Digi-Key), C5/C6 (TDK B32676G1905K000), T1, the resonant bank C21–C23/C151/C152 (TDK B32654A1104K000), J3, D3/D17 (Good-Ark 30KPA150CA, P600 axial) and U41/U42 (RECOM R24C2T25/R-R). Check stock again before ordering. U9 / U32 / U44 (Chipanalog CA-IS3720HW C428883 / CA-IS3720LW C2890049, stage 31): JLC had 1,640 / 2,542 on 2026-10-14. U1/U2 (Infineon 2EDR8259XXUMA1, LCSC C17455725, stage 29) are now JLC-assembled; Digi-Key holds the volume stock. R130 (Vishay AC05 0.15 ohm, LCSC C1382388, stage 28) is THT and mounted upright: body seated on pad 1 (square), the top lead bent down into pad 2.

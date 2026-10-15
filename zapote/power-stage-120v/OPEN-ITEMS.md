@@ -1,7 +1,7 @@
 # native-21 open items (register, updated 2026-10-15)
 
-One row per open item on the power board, so nothing falls between lanes. Board of record: **s43** (board 61447816,
-4 layers; DECISIONS 57, on s42 of DECISIONS 55 / 56). Keep this current: when an item closes, give the DECISIONS number
+One row per open item on the power board, so nothing falls between lanes. Board of record: **s44** (board 2a84051f,
+4 layers; DECISIONS 58, on s43 of DECISIONS 57). Keep this current: when an item closes, give the DECISIONS number
 and move it to "Closed" at the end. Agents marked "running" write to scratch; the integration session reviews and
 commits their results.
 
@@ -10,7 +10,7 @@ Lanes:
   scorecard. At most 2–3 run at once.
 - **Analysis lanes** build nothing and run in parallel.
 
-Scorecard (DECISIONS 43, 45, 46): compare against `10-benchmark/scorecard-native21s41.json`. The release gates
+Scorecard (DECISIONS 43, 45, 46): compare against `10-benchmark/scorecard-native21s44.json` (the board of record). The release gates
 (`RELEASE_GATES`: `b3_ratings`) and the leakage limit are absolute conditions for an order. A candidate is graded on
 their ratchets.
 
@@ -29,7 +29,7 @@ their ratchets.
 | S9 | Resonant bank 1.045× TDK's curve at 28 A; no ≤ 0.85 option in authorised stock | DECISIONS 37, 45 | Candidate 34 | Waits on stock | Moot below 28 A while S2 limits the ceiling |
 | S6 | CMTI 1.5× rule not met on FILTERED / OPEN rows (1.05×) | `c31-bom/README.md` | Parts / certifier | Open | Covered by the isolator review; NSi822xW rejected (no open-input state) |
 | S7 | Datasheet ledger: **3 VERIFIED / 32 PARTIAL / 58 UNAUDITED (SIGNAL) / 0 VIOLATION** of 93 lines; gate PASS | `datasheet-ledger/` (3367e789b) | Batches A (14) + B (13) merged on s42 under the DECISIONS 56 stress basis: thermal ratings judged at c18 / bay 61 °C; c22 / c28 overruns are `owner: airflow route (c22/c28)` gaps; electrical ratings at s42's 49.7 V/ns S4 edge; max-Qrr (106 V/ns) is a D-8 gap on every CMTI line | Merged | Cleared: 25121WF680JT4E (0.775 at c18), R5 (0.14; element 0.72), bank (0.71 of the curve, 90.0 °C), ISO6721FB CMTI 2.0×, 2EDR8259X 3.0×. B3 advisory C5 / C6 Top,max 110 → 105 °C (TDK p.13). Thin at c18: C40 0.99, GRM31A5C3A102 FET-row 0.984. Owner: correct the C12 / C13 / C19 / C20 source MPN to CC1206JKNPOCBN102 (JLC already orders it). Next: the 58 SIGNAL lines; bench D-8 (max Qrr) and the gate-row IR reading |
-| S10 | Return-path open changes: 18 → 15 (s40, DECISIONS 52). The 14 left outside HS-B / LS are on SELV / Kelvin nets (bus_fault_hot ×3, ocp_ok_hot, ovp_ok_hot ×2, permit ×3, bus_fault_iso, bus_fault, bias_good ×3); 1 is the GOOD node at U45.1 | DECISIONS 39–40, 52 | Layout (SELV side) | Open | A SELV-side return-path pass |
+| S10 | Return-path open changes: 18 → 15 (s40) → **7 (s44, DECISIONS 58: all 8 SELV-net opens closed by transfer caps C169–C175)**. The 7 left are HOT side: bus_fault_hot ×3, ocp_ok_hot, ovp_ok_hot ×2, the GOOD node at U45.1. Their vias sit off the In1 ocp_kelvin_p / n_ls pours with In2 / B bare | DECISIONS 39–40, 52, 58 | Layout (WS4 / G08) | Open (7) | A HOT-side pass: Kelvin / n_ls reference copper at those vias, with the stage-28 OCP lock, OCP pickup (4.17 A) and Kelvin band re-checked |
 | S11 | Certifier questions (CERTIFIER-PACKET A1–A4: F1, insulation, PEC / FMEA, supply approvals, RES_A, coil-lane voltage); add S12 to A3 | `owner-items/CERTIFIER-PACKET.md` | Owner | Draft, not sent | Owner sends the packet |
 | S13 | temper-8d requests: AMC1301 measured input current on R5 (HOT5 domain; J4 +2 pins; +7–9 % power at the 15 A plug); pan-detect re-validation on the full bridge (Al / Cu / small / warped pans); ±1 kHz dither at 120 Hz (check ZVS at fs − 1 kHz). Split-R coil EMI model: right physics, no verdict change (DECISIONS 47) | `git show sensor-c1-impulse-mining:output/temper-coil-driver-r1/RECOMMENDATIONS.md` | AMC1301: a later candidate (kept out of 23 to hold its scope; its power argument is capped by S2); firmware items to the controller | Logged | After S2 |
 
@@ -72,7 +72,7 @@ on every non-owner stage since s32 (0 locked items changed).
 |---|---|---|---|
 | Tank / FET row (WS3 / WS4 boundary) | 36: done, stage 41 (DECISIONS 53); shunt not adopted | Merged | — |
 | Gate networks (HS / LS driver outputs) | 39: done, stage 42 (DECISIONS 55); laminate REJECT overridden | Merged | — |
-| SELV side (WS5, spine owner) | 23: done, stage 38 (DECISIONS 50); spine baseline re-issued (s38) | Merged | — |
+| SELV side (WS5, spine owner) | 23: done, stage 38 (DECISIONS 50); 44: SELV return-path pass, stage 44 (DECISIONS 58); spine baseline re-issued (s44) | Merged | — |
 | HS-B / LS (WS4) | 30a / 30b done, stage 40 (DECISIONS 52) | Merged | — |
 | Tank / bank | 34: resonant bank | Waits on stock | S9 |
 | Whole board (last) | Geometry cleanup pass: done on s43 (DECISIONS 57); (B5; tool merged, DECISIONS 48: s35 → s37 right angles 104 → 50, acute 206 → 23, fold-backs 44 → 3, any-angle 704 → 308 mm; ACCEPT); compaction (C7) | Done; ps-layers free | — |
