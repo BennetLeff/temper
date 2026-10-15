@@ -524,6 +524,86 @@ def edit_base41(base):
     return moved
 
 
+# Stage 42 (candidate 39, DECISIONS 54; 11-candidates/c39-gate-network): R10 / R12 / R18 / R20 become 68 ohm 2512 on the
+# same axis, turned 180 deg by place.py (pad 1 = OUT at y 9.4375 north, pad 2 = gate at y 15.3625 south; centre y 12.4,
+# 0.2 mm north so the courtyard clears the PMEG's), and the 0603 pull-downs R11 / R13 / R19 / R21 move 0.5 mm west. The
+# 2512's pads would sit on the old gate run (x g - 1.35), and a gate run down the resistor's west side to y 20 would
+# come within 3.2 mm of the other potential group's R_off / OUT copper (R54 / R57 at x g - 5.5), so each gate is re-laid
+# locally, edited into the frozen base before it is loaded, like edit_base41:
+#  - FET gate pin -> pad 2: the 0.8 mm stub to y 6.2, then 0.4 mm down x g - 2.15 (between the pull-down and the OUT
+#    pad, 0.375 / 0.275 mm) into pad 2's north-west corner; every point keeps >= 3.4 mm from the R_off pad / OUT track;
+#  - pad 2 -> D6 anode / Cgs: the old run down x g - 1.35, unchanged below pad 2;
+#  - pull-down pad 1 -> the new run; the pull-down moves 0.5 mm west and 0.5 mm north (its gate pad keeps 3.2 mm from
+#    the other group's OUT run), its source via 0.5 mm west with any track that ended on it (R21's In2 leg_ret run);
+#  - OUT run: the old one, turned north at x g + 2.4 (it ran along y 14.3, now 0.15 mm from pad 2) and up x g + 1.0
+#    under the resistor body to pad 1;
+#  - R10 only: the sw_a stub via at (60.925, 11.275) (a redundant second via of R11.2) goes: it sits in the new channel;
+#  - R11 only: turned 180 deg (gate pad north, sw_a pad south) and its sw_a via goes to (59.6, 13.3), south-east of the
+#    pad. Left at (59.4, 9.7), the via's 3.5 mm In1 antipad narrowed the Q3 source -> R5 leg_ret neck 2.869 -> 2.415 mm
+#    (shoot-through-f1 s42 first build: F1 ratio 0.993 -> 0.882); east of x 59.75 it would meet the channel.
+S42_GATES = (("leg_a-gate_h", "leg_a-out_h", "R11", 62.6), ("leg_a-gate_l", "leg_a-out_l", "R13", 44.6),
+             ("leg_b-gate_h", "leg_b-out_h", "R19", 4.5), ("leg_b-gate_l", "leg_b-out_l", "R21", 22.5))
+S42_PD_VIAS = {"R11": ("sw_a", (59.9, 9.7), (59.6, 13.3)), "R19": ("sw_b", (1.8, 9.9), (1.3, 9.9)),
+               "R21": ("leg_ret", (19.8, 9.7), (19.3, 9.7))}
+S42_PD_FLIP = {"R11"}                              # pull-downs at rotation 270 (place.py): pad 1 (gate) north
+S42_DROP = {"sw_a": [((59.9, 11.275), (60.925, 11.275))]}, [("sw_a", (60.925, 11.275))]
+S42_PAD1_Y, S42_PAD2_Y = 9.4375, 15.3625         # 2512 pad centres at rotation 270, centre y 12.4
+
+
+def edit_base42(base):
+    """Stage 42 edit of a frozen base copper dict (in place); a no-op on a base that already carries it."""
+    r3 = lambda q: (round(q[0], 3), round(q[1], 3))
+    pts = lambda t: [q if isinstance(q, str) else r3(q) for q in t["points"]]
+    tr = base["tracks"]
+    if any(t["net"] == "leg_a-gate_h" and pts(t)[:2] == [(62.6, 4.21), (62.6, 6.2)] for t in tr):
+        return 0
+
+    def take(net, width, want, layer="F.Cu"):
+        hit = [t for t in tr if t["net"] == net and t["layer"] == layer and abs(t["width"] - width) < 1e-6 and want(pts(t))]
+        if len(hit) != 1:
+            raise SystemExit(f"stage 42: {net} {width} mm base track not found once ({len(hit)})")
+        return hit[0]
+
+    n = 0
+    for gate, out, pd, g in S42_GATES:
+        x_c, x_d = round(g - 2.15, 3), round(g - 1.35, 3)
+        t = take(gate, 0.8, lambda p: p == [(g, 4.21), (g, 11.14)])
+        t["points"] = [[g, 4.21], [g, 6.2]]
+        tr.append({"net": gate, "layer": "F.Cu", "width": 0.4,
+                   "points": [[g, 6.2], [x_c, 8.35], [x_c, 14.55], [x_d, 15.35]]})
+        t = take(gate, 0.4, lambda p: p[:3] == [(g, 11.14), (x_d, 12.0), (x_d, 20.3)])
+        t["points"] = [[x_d, S42_PAD2_Y]] + t["points"][2:]
+        t = take(gate, 0.4, lambda p: len(p) == 2 and abs(p[0][0] - (g - 2.7)) < 1e-3 and p[1] == (x_d, 12.93))
+        y_pd1 = 10.775 if pd in S42_PD_FLIP else 12.425
+        t["points"] = [[round(g - 3.2, 3), y_pd1], [x_c, y_pd1]]
+        t = take(out, 0.6, lambda p: p[-1] == (g, 14.3) and p[-2][1] == 14.3)
+        t["points"] = t["points"][:-1] + [[round(g + 2.4, 3), 14.3], [round(g + 1.0, 3), 12.9], [round(g + 1.0, 3), S42_PAD1_Y]]
+        n += 4
+    for pd, (net, at, new) in S42_PD_VIAS.items():
+        hv = [v for v in base["vias"] if v["net"] == net and r3(v["at"]) == at]
+        ht = [t for t in tr if t["net"] == net and pts(t) == [f"{pd}.2", at]]
+        if len(hv) != 1 or len(ht) != 1:
+            raise SystemExit(f"stage 42: {pd} source via / track at {at} not found once ({len(hv)}, {len(ht)})")
+        hv[0]["at"] = list(new)
+        ht[0]["points"] = [f"{pd}.2", list(new)]
+        for t in tr:                     # other tracks that ended on the via (any layer) follow it
+            if t is not ht[0] and t["net"] == net:
+                t["points"] = [list(new) if not isinstance(q, str) and r3(q) == at else q for q in t["points"]]
+    drop_t, drop_v = S42_DROP
+    for net, segs in drop_t.items():
+        for a, b in segs:
+            t = take(net, 0.25, lambda p: p == [a, b])
+            tr.remove(t)
+    for net, at in drop_v:
+        hv = [v for v in base["vias"] if v["net"] == net and r3(v["at"]) == at]
+        if len(hv) != 1:
+            raise SystemExit(f"stage 42: {net} via at {at} not found once ({len(hv)})")
+        base["vias"].remove(hv[0])
+    print(f"stage 42: four gate runs re-laid for the 68 ohm 2512 turn-on resistors ({n} tracks edited, 4 added); "
+          f"pull-down source vias moved (R11's to (59.6, 13.3)); R10's sw_a stub via removed")
+    return n
+
+
 def add_stage33(g):
     """Six-layer phase A additions (no-op without image_planes): image pours, then their stitching vias."""
     if not IMAGE_PLANES:

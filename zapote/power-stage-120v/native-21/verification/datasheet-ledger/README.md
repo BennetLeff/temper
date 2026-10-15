@@ -31,6 +31,13 @@ Stage 38 (2026-10-15): 93 BOM lines, 3 VERIFIED / 31 PARTIAL / 59 UNAUDITED / 0 
 Stage 40 (2026-10-15, candidate 30a): 92 BOM lines. CA-IS3720LW removed (U44 is now the second ISO6721FBDR); D20 joins
 BAT54S-7-F (its reverse stress is D18's), R135 joins 0603WAF1002T5E and C168 joins CC0603KRX7R9BB104. The one VIOLATION is
 IPW65R018CFD7 (DECISIONS 49), unchanged.
+Stage 42 (2026-10-15, candidate 39, DECISIONS 54): 93 BOM lines, 3 VERIFIED / 31 PARTIAL / 58 UNAUDITED / 1 VIOLATION.
+R10/R12/R18/R20 RS-06L8R20FT -> 25121WF680JT4E (68 ohm 2512, new POWER entry) and C55/C56/C62/C63 leave
+C0603C102J5GACTU for GRM1885C1H472JA01D (4.7 nF C0G, new SIGNAL entry, PARTIAL). IPW65R018CFD7 VIOLATION -> PARTIAL: the
+S4 diode limits are met at typical Qrr (49.7 V/ns, 244 A/us); the maximum-Qrr basis is its open gap (D-8 bench). The one
+VIOLATION is now **25121WF680JT4E**: at the 22 A c22 ceiling (bay 55 C) its B3 terminal is 138.1 C, where 0.217 W is 109 %
+of the derated power against the 80 % rule; the gated still-air ceiling with this network is 20.0 A
+(validation-results/11-candidates/c39-gate-network).
 History: seed 1 / 24 / 64 / 2. Stage 27 replaced J1 (VIOLATION -> PARTIAL); R1/R2 and the snubber caps were audited
 (UNAUDITED -> PARTIAL). Stage 28 replaced F2 (VIOLATION -> VERIFIED) and added its limiter R130 (PARTIAL). `ledger.json` is the record from here on; `seed_ledger.py` reproduces only the first seed.
 **VIOLATION**: none.

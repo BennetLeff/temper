@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "4f76f47950de4595a2209f5695564e9fb43f5aa60cb632da11c065edb5ce2ffd",
+    "build/default.csv": "30e4cab06f1f4b3b93ef78cb7a8fef825dd56292d138b04bbdec092b55882253",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "b78a5061365874a7c5055a967dfa829df1ee9a56487d2bc5ca89aff16e4c2d74",
+    "build/default.net": "1f03d1d013d044327d682ad4bfd38f361fe0974400311f82f328ea1bf9a6729f",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -570,10 +570,10 @@
       "attributes": {
         "designator": "R10",
         "designator_prefix": "R",
-        "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "FH",
-        "mpn": "RS-06L8R20FT",
-        "value": "8.2ohm"
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "25121WF680JT4E",
+        "value": "68ohm"
       }
     },
     {
@@ -592,10 +592,10 @@
       "attributes": {
         "designator": "R12",
         "designator_prefix": "R",
-        "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "FH",
-        "mpn": "RS-06L8R20FT",
-        "value": "8.2ohm"
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "25121WF680JT4E",
+        "value": "68ohm"
       }
     },
     {
@@ -615,9 +615,9 @@
         "designator": "C55",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C102J5GACTU",
-        "value": "1nF"
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H472JA01D",
+        "value": "4.7nF"
       }
     },
     {
@@ -647,9 +647,9 @@
         "designator": "C56",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C102J5GACTU",
-        "value": "1nF"
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H472JA01D",
+        "value": "4.7nF"
       }
     },
     {
@@ -1112,10 +1112,10 @@
       "attributes": {
         "designator": "R18",
         "designator_prefix": "R",
-        "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "FH",
-        "mpn": "RS-06L8R20FT",
-        "value": "8.2ohm"
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "25121WF680JT4E",
+        "value": "68ohm"
       }
     },
     {
@@ -1134,10 +1134,10 @@
       "attributes": {
         "designator": "R20",
         "designator_prefix": "R",
-        "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "FH",
-        "mpn": "RS-06L8R20FT",
-        "value": "8.2ohm"
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "25121WF680JT4E",
+        "value": "68ohm"
       }
     },
     {
@@ -1157,9 +1157,9 @@
         "designator": "C62",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C102J5GACTU",
-        "value": "1nF"
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H472JA01D",
+        "value": "4.7nF"
       }
     },
     {
@@ -1189,9 +1189,9 @@
         "designator": "C63",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C102J5GACTU",
-        "value": "1nF"
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H472JA01D",
+        "value": "4.7nF"
       }
     },
     {
@@ -3784,7 +3784,8 @@
   "source_sha256": {
     "elec/src/f6_bias.ato": "82b0be9402b4d45bb4270b6a8cb4b750a1927cb0b91064d9d9ff27fbe4473896",
     "elec/src/f6_parts.ato": "fd04ced5a61043be957e53c397ba4f75ac90c74074024f2fd48ce70a743052ac",
-    "elec/src/parts.ato": "8088379b42c92430dcedf04aa9667a91127c4b804c0202074fcd42d997b47300",
-    "elec/src/power_stage_120v.ato": "bdf9476ca52e40176d14ca0cdc42ba9c75694a5d8e856a561af20a4b0c6ccfb8"
+    "elec/src/parts.ato": "951e2a94fdf39b1f094e3c68bb815868c76a573bc1c668b822a0771de2f894a2",
+    "elec/src/power_stage_120v.ato": "e0f925c4460aacb467b1fb3f202a73d98c75d75e2b0c68aa65041df0cfe4e70b",
+    "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

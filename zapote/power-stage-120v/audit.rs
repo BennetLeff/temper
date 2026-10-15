@@ -310,11 +310,13 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_hb.ren_bot", "0603WAF2702T5E"),
     ("r_shunt", "CSS2H-2512R-1L00F"),   // stage 17: replaces WSK25121L000FEA (derating, DECISIONS 17)
     // DECISIONS.md 2026-10-03: dead-time resistors (native-18 onward).
-    // stage 29: 8.2 ohm gate resistors set the edge the 2EDR8259X's CMTI ratio (1.58) is computed at
-    ("leg_a.r_gh", "RS-06L8R20FT"),
-    ("leg_a.r_gl", "RS-06L8R20FT"),
-    ("leg_b.r_gh", "RS-06L8R20FT"),
-    ("leg_b.r_gl", "RS-06L8R20FT"),
+    // stage 29: 8.2 ohm gate resistors set the edge the 2EDR8259X's CMTI ratio (1.58) is computed at.
+    // stage 42 (candidate 39, DECISIONS 54): 68 ohm 2512 turn-on resistors (with Cgs 4.7 nF) hold the CFD7's S4
+    // reverse-diode dv/dt and diF/dt; the 8.2 ohm 1206 broke both limits (85.8 V/ns, 2,101 A/us)
+    ("leg_a.r_gh", "25121WF680JT4E"),
+    ("leg_a.r_gl", "25121WF680JT4E"),
+    ("leg_b.r_gh", "25121WF680JT4E"),
+    ("leg_b.r_gl", "25121WF680JT4E"),
     ("leg_a.r_dt", "RT0603BRD0749K9L"),
     ("leg_b.r_dt", "RT0603BRD0749K9L"),
     ("leg_a.q_high", "IPW65R018CFD7"),
@@ -395,10 +397,10 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_a.dis_or", "SN74LVC1G00DBVR"),
     ("leg_a.c_dis_or", "CC0603KRX7R9BB104"),
     ("leg_a.r_driver_dis", "0603WAF1002T5E"),
-    ("leg_a.cgs_h", "C0603C102J5GACTU"),
+    ("leg_a.cgs_h", "GRM1885C1H472JA01D"),   // stage 42: Cgs 4.7 nF C0G (candidate 39)
     ("leg_a.doff_h", "PMEG6030EP,115"),
     ("leg_a.roff_h", "1206W4F100KT5E"),
-    ("leg_a.cgs_l", "C0603C102J5GACTU"),
+    ("leg_a.cgs_l", "GRM1885C1H472JA01D"),
     ("leg_a.doff_l", "PMEG6030EP,115"),
     ("leg_a.roff_l", "1206W4F100KT5E"),
     ("leg_b.bias_h.clocal1", "CL32B106KBJNNNE"),
@@ -426,10 +428,10 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_b.dis_or", "SN74LVC1G00DBVR"),
     ("leg_b.c_dis_or", "CC0603KRX7R9BB104"),
     ("leg_b.r_driver_dis", "0603WAF1002T5E"),
-    ("leg_b.cgs_h", "C0603C102J5GACTU"),
+    ("leg_b.cgs_h", "GRM1885C1H472JA01D"),
     ("leg_b.doff_h", "PMEG6030EP,115"),
     ("leg_b.roff_h", "1206W4F100KT5E"),
-    ("leg_b.cgs_l", "C0603C102J5GACTU"),
+    ("leg_b.cgs_l", "GRM1885C1H472JA01D"),
     ("leg_b.doff_l", "PMEG6030EP,115"),
     ("leg_b.roff_l", "1206W4F100KT5E"),
     ("bias_ls.ldo", "TPS7A4700RGWR"),
@@ -1734,6 +1736,17 @@ mod tests {
         let mut m = built();
         m.set_part("j_coil", "74650074");
         fails(&m, "j_coil is 74650074");
+    }
+
+    #[test]
+    fn stage42_gate_network_holds() {
+        // candidate 39 (DECISIONS 54): the 8.2 ohm 1206 turn-on resistor or the 1 nF Cgs back on any gate must fail
+        let mut m = built();
+        m.set_part("leg_b.r_gl", "RS-06L8R20FT");
+        fails(&m, "leg_b.r_gl is RS-06L8R20FT");
+        let mut m = built();
+        m.set_part("leg_a.cgs_h", "C0603C102J5GACTU");
+        fails(&m, "leg_a.cgs_h is C0603C102J5GACTU");
     }
 
     #[test]

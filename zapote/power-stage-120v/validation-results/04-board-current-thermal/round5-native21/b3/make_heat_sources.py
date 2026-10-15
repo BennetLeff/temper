@@ -21,6 +21,7 @@ share is overstated.
 """
 import json
 import math
+import re
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -148,36 +149,68 @@ C28_SCALE = {"C5": (I_T["c28"] / 21.47) ** 2, "C6": (I_T["c28"] / 21.47) ** 2, "
 # p.15) + 8.2 + Rg,int 2.7 (IPW65R018CFD7 p.5); off = 2.7 + [8.2 || (PMEG Vf 0.35 V, 0.1 ohm + 1.0)] + Ron_SNK 0.39.
 # Driver quiescent 2 x 1.14 mA x 17 V + 2.12 mA x 3.3 V (2EDR8259 Table 12 p.12).
 F_WIN, Q_DECK = 60e3, 382.6e-9
-I_CH = Q_DECK * F_WIN + 0.0044 + 0.003 + 0.0015 + 0.014
-E_F = Q_DECK * SWING * F_WIN                                     # W of gate drive per FET
+# Candidate 39 (DECISIONS 54, stage 42): the gate network is read from the frozen BOM (native-21/frozen/resolved-
+# components.json), so the c28 gate rows follow the board: R_on = R10/R12/R18/R20, Cgs = C55/C56/C62/C63. The FET's own
+# charge stays Q_DECK (382.6 nC, the deck's worst S2 charge with the as-built 1 nF Cgs). A larger external Cgs adds its
+# own charge per edge, taken from the gate-network study (validation-results/01-switching-parasitics/gate-network-
+# 2026-10-15/README.md section 3a note "R_on power": "With 4.7 nF the charge is +61 nC, so it is scaled to 444 nC");
+# an unlisted Cgs value raises instead of extrapolating. That charge flows through the driver source / sink and R_on or
+# the PMEG branch only (Cgs sits on the board side of the FET's Rg,int). With R_on 8.2 ohm and Cgs 1 nF (s29-s41) the
+# rows are exactly those of the thermal-refine model.
+R_SRC, R_SNK, RG_INT, R_BR, VF_OFF = 0.95, 0.39, 2.7, 1.0 + 0.1, 0.35
+Q_CGS_EXTRA = {1.0e-9: 0.0, 4.7e-9: 61e-9}                       # C per edge over the 1 nF deck basis
+RC = {c["attributes"]["designator"]: c["attributes"]
+      for c in json.loads((UNIT / "native-21/frozen/resolved-components.json").read_text())["components"]}
 
 
-def gate_split():
-    on = 0.95 + 8.2 + 2.7
-    vf = Q_DECK * 0.35 / (0.5 * Q_DECK * SWING)                 # diode forward-drop share of the turn-off energy
-    rbr = 1.0 + 0.1
-    rpar = 8.2 * rbr / (8.2 + rbr)
-    tot, res = 2.7 + rpar + 0.39, 1.0 - vf
+def _si(v, unit):
+    m = re.fullmatch(r"([0-9.]+)\s*([munpkM]?)" + unit, v.strip())
+    assert m, (v, unit)
+    return float(m.group(1)) * {"": 1.0, "m": 1e-3, "u": 1e-6, "n": 1e-9, "p": 1e-12, "k": 1e3, "M": 1e6}[m.group(2)]
+
+
+def _one(refs, unit):
+    vals = {round(_si(RC[r]["value"], unit), 15) for r in refs}
+    assert len(vals) == 1, (refs, vals)
+    return vals.pop()
+
+
+R_ON = _one(("R10", "R12", "R18", "R20"), "ohm")
+C_GS = _one(("C55", "C56", "C62", "C63"), "F")
+Q_EXT = Q_CGS_EXTRA[round(C_GS, 15)]
+I_CH = (Q_DECK + Q_EXT) * F_WIN + 0.0044 + 0.003 + 0.0015 + 0.014
+E_F = Q_DECK * SWING * F_WIN                                     # W of gate drive per FET (the FET's own charge)
+E_X = Q_EXT * SWING * F_WIN                                      # W per FET for the extra Cgs charge
+
+
+def gate_split(r_on, rg_int):
+    """Shares of Q x 17 V x f per FET: half on turn-on (R_SRC + r_on + rg_int), half on turn-off (rg_int + [r_on ||
+    PMEG branch] + R_SNK, less the diode's forward-drop share). rg_int = 0 for the external Cgs charge."""
+    on = R_SRC + r_on + rg_int
+    vf = VF_OFF / (0.5 * SWING)                                  # diode forward-drop share of the turn-off energy
+    rpar = r_on * R_BR / (r_on + R_BR)
+    tot, res = rg_int + rpar + R_SNK, 1.0 - vf
     p_par = res * rpar / tot
-    return {"rg": 0.5 * 8.2 / on + 0.5 * p_par * rbr / (8.2 + rbr),
-            "roff": 0.5 * p_par * 8.2 / (8.2 + rbr) * 1.0 / rbr,
-            "drv": 0.5 * 0.95 / on + 0.5 * res * 0.39 / tot}
+    return {"rg": 0.5 * r_on / on + 0.5 * p_par * R_BR / (r_on + R_BR),
+            "roff": 0.5 * p_par * r_on / (r_on + R_BR) * 1.0 / R_BR,
+            "drv": 0.5 * R_SRC / on + 0.5 * res * R_SNK / tot}
 
 
-SPLIT = gate_split()
+SPLIT, SPLIT_X = gate_split(R_ON, RG_INT), gate_split(R_ON, 0.0)
 C28_F = {"U41": 17.0 * I_CH * (1 / 0.45 - 1), "U42": 17.0 * I_CH * (1 / 0.45 - 1), "U26": (24 - 17) * (2 * I_CH + 0.030),
          "PS2": (2 * 17.0 * I_CH / 0.45 + 24 * (2 * I_CH + 0.030) + 24 * 0.010) * (1 / 0.84 - 1)}
 for drv, rg, roff in (("U1", ("R10", "R12"), ("R53", "R54")), ("U2", ("R18", "R20"), ("R57", "R58"))):
-    C28_F[drv] = 2 * SPLIT["drv"] * E_F + 2 * 1.14e-3 * 17.0 + 2.12e-3 * 3.3
-    C28_F.update({r: SPLIT["rg"] * E_F for r in rg})
-    C28_F.update({r: SPLIT["roff"] * E_F for r in roff})
+    C28_F[drv] = 2 * (SPLIT["drv"] * E_F + SPLIT_X["drv"] * E_X) + 2 * 1.14e-3 * 17.0 + 2.12e-3 * 3.3
+    C28_F.update({r: SPLIT["rg"] * E_F + SPLIT_X["rg"] * E_X for r in rg})
+    C28_F.update({r: SPLIT["roff"] * E_F + SPLIT_X["roff"] * E_X for r in roff})
 C28.update(C28_F)
 c28_rows = []
 for r in rows:
     w = C28.get(r["ref"], r["watts_nominal"] * C28_SCALE.get(r["ref"], 1.0))
     c28_rows.append({**r, "watts_nominal": w, "watts_worst": w})
     if r["ref"] in C28_F:
-        c28_rows[-1]["note"] = f"60 kHz window top, 2EDR8259X / 8.2 ohm drive, Q {Q_DECK * 1e9:.1f} nC (thermal-refine 2026-10-15)"
+        c28_rows[-1]["note"] = (f"60 kHz window top, 2EDR8259X / {R_ON:g} ohm turn-on, Cgs {C_GS * 1e9:g} nF, Q {Q_DECK * 1e9:.1f}"
+                                + (f" + {Q_EXT * 1e9:.0f}" if Q_EXT else "") + " nC (thermal-refine 2026-10-15; candidate 39)")
 (HERE / "inputs").mkdir(exist_ok=True)
 (HERE / "inputs" / "native21-board-heat-sources-c28.json").write_text(json.dumps(
     {"status": "native-21 board heat at the 28 A ceiling case (stage 15; watts_nominal = watts_worst = the case)",

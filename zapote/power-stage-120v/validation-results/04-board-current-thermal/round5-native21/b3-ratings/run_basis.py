@@ -3,6 +3,8 @@
 
     python3 run_basis.py [--workers 4]     # about 6 min (two 0.25 mm and two 0.5 mm body-level solves)
         -> runs/<case>_p0p25.json, runs/<case>_p0p5.json (gitignored), margins.json, exit = gate exit
+    python3 run_basis.py --bay-c 61 --runs DIR --out FILE   # another bay (candidate 39: the bay-61 ceiling); the FET
+        tab tie is absolute (fet_case), so a bay is solved, not shifted
 
 Uses the committed body-level model in place (../b3-convergence/thermal_body.py + body_runs.py, fill-fraction copper and
 datasheet package networks) on run_study.GEOM (the chain's current copper) and the committed c28 heat file.
@@ -36,7 +38,7 @@ BAY_C = 55.0                                       # enclosure R33 study 14 expe
 LEAD_G = tb.drain_lead_conductance()
 
 
-def op_c22():
+def op_c22(runs):
     rs = br.rs
     rs.OPS["c22"] = {"I_t": 1.05 * 22.0, "I_line": 11.1, "parts": "nominal", "heat": "c28"}
     heat = json.loads(rs.HEAT_C28.read_text())
@@ -45,41 +47,48 @@ def op_c22():
         if p["ref"] in br.TANK_ROWS:
             p["watts_nominal"] *= k
             p["watts_worst"] *= k
-    path = RUNS / "heat_c22.json"
+    path = runs / "heat_c22.json"
     path.write_text(json.dumps(heat))
     return rs.cases("c22"), path, "nominal"
 
 
 def one(job):
-    name, op, h, pitch = job
+    name, op, h, pitch, runs, bay = job
+    runs = Path(runs)
     if op == "c22":
-        c = op_c22()
+        c = op_c22(runs)
         br.op_inputs = lambda _op, _c=c: _c
     brd = tb.Board(br.rs.GEOM, RUNS / "cache")
-    leads = {"pad": "2", "g": LEAD_G, "t_rise": {r: t - BAY_C for r, t in fet_case.t_case(CEIL[op]).items()}}
+    leads = {"pad": "2", "g": LEAD_G, "t_rise": {r: t - bay for r, t in fet_case.t_case(CEIL[op]).items()}}
     res = br.run_case(brd, op, h, pitch, "fraction", "network", {}, None, None, True, True, label=name, leads=leads)
     res["board_sha256"] = brd.data["board_sha256"]
-    (RUNS / f"{name}.json").write_text(json.dumps(res, indent=1) + "\n")
+    (runs / f"{name}.json").write_text(json.dumps(res, indent=1) + "\n")
     return name
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--bay-c", type=float, default=BAY_C)
+    ap.add_argument("--runs", default=str(RUNS))
+    ap.add_argument("--out", default=str(HERE / "margins.json"))
     a = ap.parse_args()
+    runs = Path(a.runs)
     # the task-04 heat fields are gitignored: after a merge they can belong to another board (DECISIONS 51)
     sys.path.insert(0, str(HERE.parent))
     import a4_fields
     if not a4_fields.check():
         raise SystemExit(2)
     RUNS.mkdir(exist_ok=True)
+    runs.mkdir(parents=True, exist_ok=True)
     tb.Board(br.rs.GEOM, RUNS / "cache").fine()
-    jobs = [(f"{c}_p{str(p).replace('.', 'p')}", op, h, p) for c, (op, h) in CASES.items() for p in (0.25, 0.5)]
+    jobs = [(f"{c}_p{str(p).replace('.', 'p')}", op, h, p, str(runs), a.bay_c) for c, (op, h) in CASES.items()
+            for p in (0.25, 0.5)]
     with ProcessPoolExecutor(max_workers=min(a.workers, 4)) as ex:
         for n in ex.map(one, jobs):
             print("  solved", n, flush=True)
-    r = subprocess.run([sys.executable, str(HERE / "b3_ratings_gate.py"), "--runs", str(RUNS),
-                        "--out", str(HERE / "margins.json"), "--bay-c", str(BAY_C)])
+    r = subprocess.run([sys.executable, str(HERE / "b3_ratings_gate.py"), "--runs", str(runs),
+                        "--out", a.out, "--bay-c", str(a.bay_c)])
     raise SystemExit(r.returncode)
 
 

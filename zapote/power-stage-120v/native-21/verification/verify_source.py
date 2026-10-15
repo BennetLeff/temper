@@ -36,7 +36,10 @@ def main() -> None:
     assert parts['r_blw']['mpn'] == 'AC05000001507JAC00'   # stage 28: J11 fault-current limiter
     for leg in ('leg_a', 'leg_b'):   # stage 29 (DECISIONS 31): 2EDR8259X drivers with 8.2 ohm gates
         assert parts[f'{leg}.driver']['mpn'] == '2EDR8259XXUMA1'
-        assert parts[f'{leg}.r_gh']['mpn'] == parts[f'{leg}.r_gl']['mpn'] == 'RS-06L8R20FT'
+        # stage 42 (candidate 39, DECISIONS 54): 68 ohm 2512 turn-on resistors and 4.7 nF C0G Cgs
+        assert parts[f'{leg}.r_gh']['mpn'] == parts[f'{leg}.r_gl']['mpn'] == '25121WF680JT4E'
+        assert parts[f'{leg}.r_gh']['footprint'] == parts[f'{leg}.r_gl']['footprint'] == 'Resistor_SMD:R_2512_6332Metric'
+        assert parts[f'{leg}.cgs_h']['mpn'] == parts[f'{leg}.cgs_l']['mpn'] == 'GRM1885C1H472JA01D'
     assert parts['r_shunt']['mpn'] == 'CSS2H-2512R-1L00F' and parts['r_shunt']['footprint'] == 'temper:R_Shunt_Bourns_CSS2H-2512_Kelvin'   # stage 17 (DECISIONS 17)
     assert parts['r_ct_hi_top']['mpn'] == parts['r_ct_lo_bot']['mpn'] == 'RT0603BRD072K21L'
     assert all(parts[f'c_ref_xfer_{i}']['mpn'] == parts['c_fault_or']['mpn'] == 'CC0603KRX7R9BB104' for i in range(1, 6))   # stage 19b; 5: stage 40

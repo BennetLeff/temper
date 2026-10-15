@@ -44,9 +44,11 @@ def main():
     base = json.loads(LEDGER.read_text())
     ent = base["entries"]
 
-    # 1. the real ledger: one known VIOLATION since 2026-10-15 (DECISIONS 49: IPW65R018CFD7 reverse-diode dv/dt in S4),
-    # no unaudited SAFETY/POWER line. Update KNOWN_VIOLATIONS when a fix lands or a new finding is recorded.
-    KNOWN_VIOLATIONS = ["IPW65R018CFD7"]
+    # 1. the real ledger: one known VIOLATION, no unaudited SAFETY/POWER line. Update KNOWN_VIOLATIONS when a fix lands
+    # or a new finding is recorded. 2026-10-15 DECISIONS 49: IPW65R018CFD7 reverse-diode dv/dt in S4; stage 42
+    # (candidate 39) meets it at typical Qrr (PARTIAL) and its 68 ohm 2512 R_on, 25121WF680JT4E, fails the 80 % derating
+    # rule at the 22 A c22 ceiling (B3 terminal 138.1 C).
+    KNOWN_VIOLATIONS = ["25121WF680JT4E"]
     rc, out, rep = run(LEDGER)
     expect("real ledger exits 1 on exactly the known violations", rc == 1 and rep and rep["violations"] == KNOWN_VIOLATIONS,
            str(rep and rep["violations"]))

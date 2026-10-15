@@ -1622,10 +1622,6 @@
     "C27",
     "C31",
     "C33",
-    "C55",
-    "C56",
-    "C62",
-    "C63",
     "C66",
     "C67",
     "C68",
@@ -1713,7 +1709,7 @@
    ],
    "class": "POWER",
    "function": "Full-bridge switches Q2/Q3/Q5/Q6, 650 V CoolMOS CFD7, TO-247",
-   "status": "VIOLATION",
+   "status": "PARTIAL",
    "datasheet": {
     "url": "https://www.infineon.com/dgdl/Infineon-IPW65R018CFD7-DataSheet-v02_00-EN.pdf",
     "revision": "Infineon Rev.2.0, 2021-04-19",
@@ -1817,18 +1813,39 @@
      "evidence": "validation-results/06-controller-interface/cmti/README.md:8"
     },
     {
-     "parameter": "dv/dt diode commutation (S4)",
+     "parameter": "dv/dt diode commutation (S4), as built s29-s41",
      "worst_case_value": 85.8,
      "unit": "V/ns",
-     "condition": "S4 hard turn-on, IL -20 A: the partner's body diode is hard-commutated; as-built deck, 2EDR8259X + 8.2 ohm, ESL 10 nH (1.06 nH: 81.9)",
+     "condition": "HISTORY (no check): stages 29-41 network, 2EDR8259X + 8.2 ohm 1206 turn-on, Cgs 1 nF; S4 hard turn-on, IL -20 A, ESL 10 nH (1.06 nH: 81.9), vendor-model recovery charge (1.74 uC); 109-112 V/ns at typical charge (DECISIONS 54). Replaced at stage 42",
      "evidence": "validation-results/01-switching-parasitics/device-study-2026-10-15/README.md:84"
     },
     {
-     "parameter": "diF/dt diode commutation (S4)",
+     "parameter": "diF/dt diode commutation (S4), as built s29-s41",
      "worst_case_value": 2101,
      "unit": "A/us",
-     "condition": "S4 hard turn-on, IL -20 A, as-built 8.2 ohm turn-on, vendor-model recovery charge (1.74 uC, under the 2.30 uC typical); 75->25 % chord (50->0 %: 2538)",
+     "condition": "HISTORY (no check): stages 29-41 network (8.2 ohm turn-on, Cgs 1 nF), S4 hard turn-on, IL -20 A, vendor-model recovery charge (1.74 uC, under the 2.30 uC typical); 75->25 % chord (50->0 %: 2538). Replaced at stage 42",
      "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:3"
+    },
+    {
+     "parameter": "dv/dt diode commutation (S4)",
+     "worst_case_value": 49.7,
+     "unit": "V/ns",
+     "condition": "Stage 42 network (candidate 39, DECISIONS 54): 68 ohm 2512 turn-on + Cgs 4.7 nF C0G, PMEG6030EP + 1 ohm turn-off; S4 hard turn-on, IL -20 A, full grid 640/640 at typical recovery charge (TT 125 ns model, 2.36 uC against the 2.30 uC typical), ESL 10 nH (1.06 nH: 49.15); die VDS 347 V",
+     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15"
+    },
+    {
+     "parameter": "diF/dt diode commutation (S4)",
+     "worst_case_value": 244,
+     "unit": "A/us",
+     "condition": "Stage 42 network (68 ohm + Cgs 4.7 nF), S4 hard turn-on, IL -20 A, typical recovery charge (TT 125 ns), full grid 640/640, 75->25 % chord of the commutated diode's die current",
+     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15"
+    },
+    {
+     "parameter": "dv/dt diode commutation (S4), maximum Qrr",
+     "worst_case_value": 106.21,
+     "unit": "V/ns",
+     "condition": "Maximum recovery charge (TT 260 ns model, Qrr at the 4.60 uC datasheet maximum): no tested network meets the limit. The adopted 68 ohm + 4.7 nF was not run on this basis; the nearest tested network (47 ohm, Cgs 1 nF, 280 V screen) reads 106.2 V/ns. The D-8 double-pulse bench (S4 at 198 / 280 V, -20 A, R_on 39 / 68 / 100 ohm x Cgs 1 / 4.7 nF, repeated-pulse run) decides",
+     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/s4screen.md:80"
     }
    ],
    "derating_rule": "VDS <= 80% of 650 V (the 520 V screen); ID <= 80% of the Tc=100 C rating; Tj <= 125 C design (150 C absolute); dv/dt <= 80% of ruggedness.",
@@ -1875,8 +1892,8 @@
      "stress": "dv/dt diode commutation (S4)",
      "max_ratio": 0.8,
      "severity": "violation",
-     "rule": "<= 80% of 70 V/ns (56 V/ns)",
-     "ratio": 1.2257
+     "rule": "<= 80% of 70 V/ns (56 V/ns); stage 42 network at typical Qrr",
+     "ratio": 0.71
     },
     {
      "id": "diF/dt diode",
@@ -1884,8 +1901,17 @@
      "stress": "diF/dt diode commutation (S4)",
      "max_ratio": 0.8,
      "severity": "violation",
-     "rule": "<= 80% of 1300 A/us (1040)",
-     "ratio": 1.6162
+     "rule": "<= 80% of 1300 A/us (1040); stage 42 network at typical Qrr",
+     "ratio": 0.1877
+    },
+    {
+     "id": "dv/dt diode, max Qrr",
+     "rating": "dv/dt reverse diode",
+     "stress": "dv/dt diode commutation (S4), maximum Qrr",
+     "max_ratio": 0.8,
+     "severity": "gap",
+     "rule": "<= 80% of 70 V/ns at maximum recovery charge: basis not closed (bench D-8)",
+     "ratio": 1.5173
     }
    ],
    "layout_guidance": [
@@ -1903,11 +1929,12 @@
     }
    ],
    "gaps": [
+    "Maximum-Qrr basis not closed: the S4 diode limits are met at typical recovery charge (49.7 V/ns, 244 A/us) but no tested network meets 56 V/ns at the 4.60 uC maximum; the D-8 double-pulse bench (S4 dv/dt and diF/dt, R_on x Cgs bracket, repeated-pulse run) decides (DECISIONS 54).",
     "Switching loss, S4/S5 dv/dt and VDS are not measured (bench).",
     "Tj at 28 A / 50 kHz exceeds the 125 C design value on the K1 contingency sink (128.7 C); S8 baseline Tj not recorded.",
     "F7 loop re-extraction open (FINDINGS #1)."
    ],
-   "finding": "Reverse-diode dv/dt (70 V/ns, Table 2 p.3) is exceeded outright in the modelled S4 hard-commutation case: 85.8 V/ns (1.23x; the 80 % rule is 56 V/ns). Found by the 2026-10-15 device study (DECISIONS 49). S4 was already an open risk for die VDS and off-gate (D-24); the ledger had compared its 95 V/ns edge only with the 120 V/ns MOSFET rating. Fix: slower turn-on of the commutating switch (gate network), candidate 39; bench: D-8 double-pulse S4 measurement. Also diF/dt: 2101 A/us against the 1300 A/us maximum diode commutation speed (1.62x), and at typical recovery charge the as-built S4 runs 109-112 V/ns with die VDS 620 V (gate-network study, DECISIONS 54). Fix: candidate 39, R_on 68 ohm 2512 + Cgs 4.7 nF (49.7 V/ns, 244 A/us at typical charge); no tested network passes at maximum recovery charge, so the D-8 bench decides.",
+   "finding": "Stage 42 (candidate 39, DECISIONS 54) resolves the VIOLATION at typical recovery charge. History: the 2026-10-15 device study (DECISIONS 49) found the reverse-diode dv/dt (70 V/ns, Table 2 p.3) exceeded in the modelled S4 hard-commutation case, 85.8 V/ns as built (1.23x; 80 % rule 56 V/ns), and the gate-network study (DECISIONS 54) the diF/dt (2101 A/us against 1300, 1.62x), 109-112 V/ns at typical charge. The 68 ohm 2512 turn-on + Cgs 4.7 nF network gives 49.7 V/ns and 244 A/us at typical charge (640/640 full grid). Open: the maximum-Qrr basis (gap check), bench D-8.",
    "notes": null
   },
   "GRM31A5C3A102JW01D": {
@@ -4645,29 +4672,6 @@
    ],
    "notes": "Replaces UCC21550BDWKR (stage 29): CMTI 1.32x -> 1.58x; no distributor stock gap (Digi-Key 1,043; LCSC C17455725)."
   },
-  "RS-06L8R20FT": {
-   "mpn": "RS-06L8R20FT",
-   "designators": [
-    "R10",
-    "R12",
-    "R18",
-    "R20"
-   ],
-   "class": "SIGNAL",
-   "function": "Gate resistors R10/R12/R18/R20, 8.2 ohm (stage 29: keeps the 2EDR8259X edge at 0.99x the as-built one)",
-   "status": "UNAUDITED",
-   "datasheet": null,
-   "ratings": [],
-   "stresses": [],
-   "derating_rule": "",
-   "checks": [],
-   "layout_guidance": [],
-   "gaps": [
-    "Not audited (outside SAFETY/POWER)."
-   ],
-   "finding": null,
-   "notes": null
-  },
   "ISO6721FBDR": {
    "mpn": "ISO6721FBDR",
    "designators": [
@@ -5171,6 +5175,243 @@
    ],
    "finding": null,
    "notes": "Stage 31 (DECISIONS 34) replaces Taiyo Yuden UMK325AB7106KM-T (JLC 3,921 against 12,000 per 500 boards; 'non-preferred' on TY-COMPAS)."
+  },
+  "25121WF680JT4E": {
+   "mpn": "25121WF680JT4E",
+   "designators": [
+    "R10",
+    "R12",
+    "R18",
+    "R20"
+   ],
+   "class": "POWER",
+   "function": "Turn-on gate resistors R10/R12/R18/R20, 68 ohm 1 % 1 W 2512 (stage 42, candidate 39, DECISIONS 54): with Cgs 4.7 nF they hold the CFD7's S4 reverse-diode dv/dt and diF/dt",
+   "status": "VIOLATION",
+   "datasheet": {
+    "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf?productCode=C50371",
+    "revision": "UniRoyal (Uniohm) Thick Film Chip Resistors data sheet V.3, Feb.12,2019, 9 pp.",
+    "fetched": "2026-10-15",
+    "repo_copy": null,
+    "note": "LCSC-hosted copy (JLC C50371 record, 08-manufacturing-package/native-21/sourcing/study-2026-10-15/scripts/jlc-raw/detail_C50371.json), sha256 11cd644d5d8a34a6; not committed",
+    "sha256_prefix16": "11cd644d5d8a34a6"
+   },
+   "ratings": [
+    {
+     "parameter": "Power 70 C",
+     "datasheet_limit": 1.0,
+     "unit": "W",
+     "basis": "rated power at 70 C ambient, 2512",
+     "source": "p.4/9 section 6 table"
+    },
+    {
+     "parameter": "Power derated at the c22 terminal estimate",
+     "datasheet_limit": 0.1988,
+     "unit": "W",
+     "basis": "1 W x (155 - T) / 85 at T = 138.1 C (R10 terminal, B3 c22_h10, bay 55 C); the curve is an ambient curve, applied at the terminal (conservative)",
+     "source": "p.5/9 section 9 figure 1 (100 % at 70 C to 0 % at 155 C)"
+    },
+    {
+     "parameter": "Operating temperature max",
+     "datasheet_limit": 155,
+     "unit": "C",
+     "basis": "-55 to +155 C, 2512",
+     "source": "p.5/9 section 7 table"
+    },
+    {
+     "parameter": "Max working voltage",
+     "datasheet_limit": 200,
+     "unit": "V",
+     "basis": "2512; RCWV = sqrt(P R) = 8.25 V at 68 ohm",
+     "source": "p.5/9 section 7 table"
+    },
+    {
+     "parameter": "Short-time overload voltage",
+     "datasheet_limit": 20.6,
+     "unit": "V",
+     "basis": "2.5 x RCWV (2.5 x 8.25 V) for 5 s, less than the 500 V max overload",
+     "source": "p.6/9 section 11 (4.13 short-time overload)"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "R_on dissipation, 60 kHz window top",
+     "worst_case_value": 0.217,
+     "unit": "W",
+     "condition": "c28 heat file: (382.6 + 61 nC) x 17 V x 60 kHz per FET, split by resistance (half on turn-on through 0.95 + 68 + 2.7 ohm, the off half through the PMEG branch); the gate-network study's simulated R_on power is lower, ~0.17 W at 444 nC (ron_power.md)",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3/inputs/native21-board-heat-sources-c28.json"
+    },
+    {
+     "parameter": "Element estimate c22",
+     "worst_case_value": 143.5,
+     "unit": "C",
+     "condition": "R10, B3 body model c22_h10 (22 A default ceiling at its 23.1 A trip, still air h 10), bay 55 C, mesh allowance K 3",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json"
+    },
+    {
+     "parameter": "Element estimate c28",
+     "worst_case_value": 171.3,
+     "unit": "C",
+     "condition": "R12, B3 body model c28_h10 (28 A ceiling, still air h 10), bay 55 C, mesh allowance K 3",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json"
+    },
+    {
+     "parameter": "Gate-drive step across R_on",
+     "worst_case_value": 17.0,
+     "unit": "V",
+     "condition": "driver swing at the turn-on edge (2EDR8259X, 17 V supply), for well under 1 us per edge; continuous RMS voltage is far lower",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3/make_heat_sources.py"
+    }
+   ],
+   "derating_rule": "Dissipation <= 80 % of the curve-derated power at the B3 terminal estimate (the B3 gate's rule); element <= 155 C; voltage <= 80 % of the working voltage.",
+   "checks": [
+    {
+     "id": "power c22",
+     "rating": "Power derated at the c22 terminal estimate",
+     "stress": "R_on dissipation, 60 kHz window top",
+     "max_ratio": 0.8,
+     "severity": "violation",
+     "rule": "<= 80 % of the derated power at the c22 terminal estimate (the B3 gate's 20 % margin)",
+     "ratio": 1.0915
+    },
+    {
+     "id": "element c22",
+     "rating": "Operating temperature max",
+     "stress": "Element estimate c22",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "element <= 155 C at c22",
+     "ratio": 0.9258
+    },
+    {
+     "id": "element c28",
+     "rating": "Operating temperature max",
+     "stress": "Element estimate c28",
+     "max_ratio": 1.0,
+     "severity": "gap",
+     "rule": "element <= 155 C at c28 (28 A still air is not a supported ceiling on this board, DECISIONS 53)",
+     "ratio": 1.1052
+    },
+    {
+     "id": "voltage",
+     "rating": "Max working voltage",
+     "stress": "Gate-drive step across R_on",
+     "max_ratio": 0.8,
+     "severity": "violation",
+     "rule": "<= 80 %",
+     "ratio": 0.085
+    },
+    {
+     "id": "edge pulse",
+     "rating": "Short-time overload voltage",
+     "stress": "Gate-drive step across R_on",
+     "max_ratio": 1.0,
+     "severity": "gap",
+     "rule": "the < 1 us edge step under the 5 s short-time overload level (no single-pulse rating is published)",
+     "ratio": 0.8252
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "2512 terminal temperature (derating line, 20 % margin) and element",
+     "enforced_by": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py"
+    },
+    {
+     "item": "gate run clearances round the 2512 (3.2 mm to the other potential group)",
+     "enforced_by": "native-21/section.kicad_dru"
+    }
+   ],
+   "gaps": [
+    "No single-pulse rating is published: the < 1 us 17 V gate-edge step (~4.3 W peak) is compared with the 5 s short-time overload level (2.5 x RCWV).",
+    "The terminal temperatures are B3 body-model estimates (still air, bay 55 C); the gate-row temperature is a bench item.",
+    "28 A still air (c28) is not a supported ceiling (DECISIONS 53): the c28 terminal estimate (165.3 C, R12) is past the curve's 155 C zero-power point, so no derated-power check exists there; the c28 element row is recorded as a gap."
+   ],
+   "finding": "Derating at the 22 A default ceiling: B3 c22_h10 (bay 55 C) puts R10's terminal at 138.1 C, where the 1 W / 70-155 C curve allows 0.199 W; the 0.217 W window-top dissipation is 109 % of it against the 80 % rule (the B3 gate's own c22 row, R10 -6.2 K). The gated still-air ceiling with this network is 20.0 A at bay 55 C (11-candidates/c39-gate-network README section 4). Clears when the commissioned still-air ceiling is <= 20 A at bay 55 C or the gate row gets airflow; the dissipation is the charge-split upper bound (the gate-network study simulates ~0.17 W).",
+   "notes": "JLC C50371, extended, 3,131 in stock 2026-10-15; 1000+ $0.0294. Second source per the study: none checked for 68 ohm (Yageo RC2512FK-0739RL is the 39 ohm CM8-route part)."
+  },
+  "GRM1885C1H472JA01D": {
+   "mpn": "GRM1885C1H472JA01D",
+   "designators": [
+    "C55",
+    "C56",
+    "C62",
+    "C63"
+   ],
+   "class": "SIGNAL",
+   "function": "Gate-source capacitors C55/C56/C62/C63 of the CFD7s, 4.7 nF 5 % 50 V C0G 0603 (stage 42, candidate 39, DECISIONS 54)",
+   "status": "PARTIAL",
+   "datasheet": {
+    "url": "https://datasheet.lcsc.com/datasheet/pdf/a4d1e2744bd5d44ba57842651a3fd598.pdf?productCode=C85980",
+    "revision": "Murata catalog C02E (Chip Multilayer Ceramic Capacitors for General), Nov.27,2017, 296 pp.",
+    "fetched": "2026-10-15",
+    "repo_copy": null,
+    "note": "LCSC-hosted copy (JLC C85980), sha256 9a8a89cd730ba1b1; pages are PDF page numbers; not committed",
+    "sha256_prefix16": "9a8a89cd730ba1b1"
+   },
+   "ratings": [
+    {
+     "parameter": "Rated voltage",
+     "datasheet_limit": 50,
+     "unit": "V",
+     "basis": "GRM1885C1H472JA01#: 4700 pF +/-5 %, 50 Vdc, C0G, 1.6 x 0.8 mm, T max 0.9 mm",
+     "source": "PDF p.88 (GRM temperature-compensating part list, 1.6 x 0.8 mm)"
+    },
+    {
+     "parameter": "Operating temperature max",
+     "datasheet_limit": 125,
+     "unit": "C",
+     "basis": "temperature characteristic 5C (EIA C0G): 0 +/- 30 ppm/C, -55 to 125 C",
+     "source": "PDF p.8 (part numbering, temperature characteristics table)"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "Gate-source voltage",
+     "worst_case_value": 17.0,
+     "unit": "V",
+     "condition": "driver on-level (17 V supply) plus no more than the off-gate excursion (+0.50 V worst, gate-network study full grid)",
+     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15"
+    },
+    {
+     "parameter": "Board temperature bound at the cap (c22)",
+     "worst_case_value": 133.5,
+     "unit": "C",
+     "condition": "no B3 row for the cap: bounded by the c22_h10 FET-row copper estimate (133.5 C, bay 55 C), which is the hottest copper of the FET row the caps sit 17 mm south of",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json"
+    }
+   ],
+   "derating_rule": "Voltage <= 50 % of rated (C0G, no DC-bias loss); temperature <= 125 C.",
+   "checks": [
+    {
+     "id": "voltage",
+     "rating": "Rated voltage",
+     "stress": "Gate-source voltage",
+     "max_ratio": 0.5,
+     "severity": "violation",
+     "rule": "<= 50 % of 50 V",
+     "ratio": 0.34
+    },
+    {
+     "id": "temperature (bound)",
+     "rating": "Operating temperature max",
+     "stress": "Board temperature bound at the cap (c22)",
+     "max_ratio": 1.0,
+     "severity": "gap",
+     "rule": "upper bound <= 125 C; the cap's own temperature is not modelled",
+     "ratio": 1.068
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "next to the FET's gate run (0603, same pads as the 1 nF it replaces)",
+     "enforced_by": "UNCHECKED (placement unchanged from stage 41)"
+    }
+   ],
+   "gaps": [
+    "The caps' local temperature is not modelled in B3 (no heat row); only the FET-row copper maximum bounds it.",
+    "Pulse current (gate charge, ~0.1-1 A for < 1 us) is not compared with a rating; C0G MLCC dissipation is negligible."
+   ],
+   "finding": null,
+   "notes": "JLC C85980, extended, 76,738 in stock 2026-10-15; 1500+ $0.015."
   }
  }
 }

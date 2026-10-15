@@ -84,6 +84,13 @@ SPECS = {
              "96 % alumina, handbook), path (L/2)/(2 k W t) = 1.6 mm / (2 x 24 x 1.6 mm x 0.635 mm) = 33 K/W. "
              "Rating 0.25 W at 70 C derated to 0 at 155 C is the vendor-typical 1206 curve (Yageo RC_L / UniRoyal "
              "datasheets were not retrievable from this host: NOT re-verified here)"),
+    "chip2512": dict(  # thick-film chip resistors, 2512 (6.35 x 3.20 x 0.55 mm alumina): R10/R12/R18/R20 from stage 42
+        label="2512 chip resistor", r_pad=37.6, r_top=0.0, body_mm=(6.35, 3.2), standoff_mm=0.05,
+        pad_filter=None, tj_limit=155.0,
+        cite="DERIVED as chip1206: element-to-termination conduction through the 96 % alumina substrate, k = 24 W/mK, "
+             "path (L/2)/(2 k W t) = 3.175 mm / (2 x 24 x 3.20 mm x 0.55 mm) = 37.6 K/W (L 6.35, W 3.20, H 0.55 mm: "
+             "UniRoyal thick-film chip resistor data sheet V.3 2019-02-12 p.4/9). Rating 1 W at 70 C derated to 0 at "
+             "155 C (p.4/9 table 6, p.5/9 section 9 figure 1); operating -55..155 C (p.5/9 table 7) - candidate 39"),
     "css2h": dict(  # R5  Bourns CSS2H-2512R-1L00F
         label="Bourns CSS2H-2512R-1L00F", r_pad=20.0, r_top=0.0, body_mm=(6.35, 3.05), standoff_mm=0.05,
         pad_filter=None, tj_limit=170.0,
@@ -183,6 +190,8 @@ def spec_for(ref: str, mpn: str, fp: str) -> str:
         return "css2h"
     if "R_1206" in fp:
         return "chip1206"
+    if "Resistor_SMD:R_2512" in fp:     # stage 42 (candidate 39): the 68 ohm 2512 turn-on resistors
+        return "chip2512"
     if mpn.startswith("B32654") or mpn.startswith("B32652"):
         return "film_radial"
     if mpn.startswith("B32676") or mpn.startswith("B32656"):

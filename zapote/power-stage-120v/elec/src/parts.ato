@@ -309,6 +309,20 @@ component R8R2Gate:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
+component R68Gate2512:
+    """UniRoyal 25121WF680JT4E 68 ohm 1 % 1 W 2512 thick film (LCSC C50371). Stage 42 (candidate 39, DECISIONS 54): the
+    turn-on resistor of the split gate network (the PMEG6030EP + 1 ohm turn-off path is unchanged). With Cgs 4.7 nF it
+    holds the S4 reverse-diode commutation of the CFD7 to 49.7 V/ns and 244 A/us at typical Qrr (gate-network study
+    2026-10-15, full grid 640/640). 2512 because R_on dissipates 0.17-0.22 W at 60 kHz: 1 W at 70 C derating to 0 W at
+    155 C (UniRoyal thick-film chip resistor data sheet V.3 2019-02-12 p.4/9, p.5/9)."""
+    designator_prefix = "R"
+    mpn = "25121WF680JT4E"
+    manufacturer = "UNI-ROYAL(Uniroyal Elec)"
+    footprint = "Resistor_SMD:R_2512_6332Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component BootDiode:
     """Vishay UF4007-E3/54 1000 V 1 A ultrafast, bootstrap."""
     designator_prefix = "D"
@@ -555,6 +569,18 @@ component C1nC0G0603:
     designator_prefix = "C"
     mpn = "C0603C102J5GACTU"
     manufacturer = "KEMET"
+    footprint = "Capacitor_SMD:C_0603_1608Metric"
+    value: capacitance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component C4n7C0G0603:
+    """Murata GRM1885C1H472JA01D 4.7 nF 5 % 50 V C0G 0603 (LCSC C85980). Stage 42 (candidate 39, DECISIONS 54): the
+    gate-source capacitor of each CFD7 (C55 / C56 / C62 / C63), with the 68 ohm turn-on resistor. Murata C02E
+    2017-11-27 p.88 (part list, 50 Vdc C0G 4700 pF +/-5 %) and p.8 (5C = C0G, 0 +/- 30 ppm/C, -55 to 125 C)."""
+    designator_prefix = "C"
+    mpn = "GRM1885C1H472JA01D"
+    manufacturer = "Murata"
     footprint = "Capacitor_SMD:C_0603_1608Metric"
     value: capacitance
     signal p1 ~ pin 1

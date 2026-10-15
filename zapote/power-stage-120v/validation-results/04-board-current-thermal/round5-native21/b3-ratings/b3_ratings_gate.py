@@ -28,9 +28,13 @@ Limits (sources re-read 2026-10-15; see the audit's ratings.py for page-level qu
   HF film C38-C41 TDK B32652A0104K000 Top,max 110 C = TA + self-heating (B3265* June 2026 p.2, p.35, p.78) - gated
                    (thermal-refine 2026-10-15: the limit is a datasheet maximum; the body node is reached through the
                    assumed 50 K/W lead path with no body-to-air path, an upper bound for a cap heated from its leads)
-  1206 gate resistors R10/R12/R18/R20 FH RS-06L8R20FT (V11.0 2026-04-28 p.2) and R53/R54/R57/R58 UniRoyal
-                   1206W4F100KT5E (V.3 p.4/9, p.5/9): 1/4 W at 70 C derating to 0 W at 155 C, range -55..155 C - gated
-                   on the element (155 C) and on the derating line at the terminal with the R5 20 % power margin
+  gate resistors   package-aware (candidate 39): the body model's package spec of each part picks the rating.
+                   1206: R10/R12/R18/R20 FH RS-06L8R20FT (V11.0 2026-04-28 p.2) to stage 41 and R53/R54/R57/R58 UniRoyal
+                   1206W4F100KT5E (V.3 p.4/9, p.5/9): 1/4 W at 70 C derating to 0 W at 155 C, range -55..155 C.
+                   2512: R10/R12/R18/R20 UniRoyal 25121WF680JT4E from stage 42 (thick-film chip resistor data sheet V.3
+                   2019-02-12: p.4/9 table 6 1 W at 70 C; p.5/9 table 7 -55..155 C, section 9 figure 1 linear to 0 W
+                   at 155 C). Gated on the element (155 C) and on the derating line at the terminal with the R5 20 %
+                   power margin; a gate resistor in any other package stops the gate
   advisory (limit known, package path assumed): bank MKP 110 C (board share only), B82726 125 C (p.4), other 1206
                    (MPNs not re-read)
 
@@ -50,9 +54,13 @@ GATED = {"recom": ("Tj abs max (RECOM Rev.1-2024 p.2)", 150.0), "rgw": ("TJ max 
          "css2h": ("element max (Bourns CSS2H p.1)", 170.0)}
 ADVISORY = {"film_radial": ("MKP Top,max (TDK June 2026 p.35)", 110.0), "film_4pin": ("MKP Top,max", 110.0),
             "choke": ("B82726 climatic upper (TDK p.4)", 125.0), "chip1206": ("1206 thick film (unverified)", 155.0)}
-GATED_REFS = {**{r: ("MKP Top,max 110 C (TDK B3265* June 2026 p.35)", 110.0, None) for r in ("C38", "C39", "C40", "C41")},
-              **{r: ("1206 element 155 C (FH RS-06L V11.0 p.2)", 155.0, 0.25) for r in ("R10", "R12", "R18", "R20")},
-              **{r: ("1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)", 155.0, 0.25) for r in ("R53", "R54", "R57", "R58")}}
+GATED_REFS = {r: ("MKP Top,max 110 C (TDK B3265* June 2026 p.35)", 110.0, None) for r in ("C38", "C39", "C40", "C41")}
+# gate resistors: (ref group, body-model package spec) -> (basis, element limit C, rated W at 70 C); 0 W at 155 C
+GATE_R = {"R10": "on", "R12": "on", "R18": "on", "R20": "on", "R53": "off", "R54": "off", "R57": "off", "R58": "off"}
+GATE_R_PKG = {("on", "chip1206"): ("1206 element 155 C (FH RS-06L V11.0 p.2)", 155.0, 0.25),
+              ("off", "chip1206"): ("1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)", 155.0, 0.25),
+              ("on", "chip2512"): ("2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)", 155.0, 1.0)}
+PKG_NAME = {"chip1206": "1206", "chip2512": "2512"}
 
 
 def est(v25, v05, bay):
@@ -71,13 +79,19 @@ def evaluate(r25: dict, r05: dict, bay: float):
         spec, q = p.get("spec"), p05.get(p["ref"])
         if spec is None or q is None:
             continue
-        if p["ref"] in GATED_REFS:
+        if p["ref"] in GATE_R:
+            key = (GATE_R[p["ref"]], spec)
+            if key not in GATE_R_PKG:
+                raise SystemExit(f"b3_ratings_gate: no rating for gate resistor {p['ref']} in package spec {spec!r}")
+            basis, lim, rated_w = GATE_R_PKG[key]
+            rows.append(dict(item=f"{p['ref']}: {basis}", gated=True, limit_c=lim, est_c=est(p["tj_c"], q["tj_c"], bay)))
+            lim_t = 155.0 - 85.0 * p["watts_into_model"] / (0.8 * rated_w)
+            rows.append(dict(item=f"{p['ref']}: {PKG_NAME[spec]} terminal derating at {p['watts_into_model']:.3f} W "
+                                  f"(20 % margin)", gated=True, limit_c=lim_t,
+                             est_c=est(p["pad_max_cell_c"], q["pad_max_cell_c"], bay)))
+        elif p["ref"] in GATED_REFS:
             basis, lim, rated_w = GATED_REFS[p["ref"]]
             rows.append(dict(item=f"{p['ref']}: {basis}", gated=True, limit_c=lim, est_c=est(p["tj_c"], q["tj_c"], bay)))
-            if rated_w:
-                lim_t = 155.0 - 85.0 * p["watts_into_model"] / (0.8 * rated_w)
-                rows.append(dict(item=f"{p['ref']}: 1206 terminal derating at {p['watts_into_model']:.3f} W (20 % margin)",
-                                 gated=True, limit_c=lim_t, est_c=est(p["pad_max_cell_c"], q["pad_max_cell_c"], bay)))
         elif spec in GATED:
             basis, lim = GATED[spec]
             rows.append(dict(item=f"{p['ref']}: {basis}", gated=True, limit_c=lim, est_c=est(p["tj_c"], q["tj_c"], bay)))

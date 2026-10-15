@@ -76,7 +76,10 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 "7466004R": "C6708126",
                 # stage 38 (candidate 23, DECISIONS 47): PS2 MEAN WELL MPM-20-24 (JLC part API 2026-10-15,
                 # sourcing/study-2026-10-15/scripts/jlc-raw/detail_C6675337.json)
-                "MPM-20-24": "C6675337"})
+                "MPM-20-24": "C6675337",
+                # stage 42 (candidate 39, DECISIONS 54): 68 ohm 2512 turn-on resistors and the 4.7 nF C0G Cgs (JLC part
+                # API 2026-10-15, sourcing/study-2026-10-15/scripts/jlc-raw)
+                "25121WF680JT4E": "C50371", "GRM1885C1H472JA01D": "C85980"})
 ACCEPT_ALT = {"GRM31A5C3A102JW01D"}
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))
