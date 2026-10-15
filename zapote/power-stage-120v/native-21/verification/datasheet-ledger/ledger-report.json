@@ -1289,7 +1289,7 @@
    "finding": null,
    "function": "Mains common-mode choke L1, 20 A 1.6 mH",
    "gaps": [
-    "bench: L1 local air is not evidenced; the B3 body (102.2 C at the c18 release case, bay 61 C; 97.5 / 100.0 C at c22 / c28; inlet 13.5 A) is a body, not the TDK ambient TA. At the 61 C release bay taken as local air, 15 A is 76 % of Iop. 15 A meets 80 % of Iop only up to 67.7 C local air, and IR itself only up to 85.3 C (13.5 A: 77.0 / 91.0 C). Bench IR item (DECISIONS.md:836).",
+    "bench: L1 local air is not evidenced; the B3 body (102.2 C at the c18 release case, bay 61 C; 97.6 / 100.0 C at c22 / c28; inlet 13.5 A) is a body, not the TDK ambient TA. At the 61 C release bay taken as local air, 15 A is 76 % of Iop. 15 A meets 80 % of Iop only up to 67.7 C local air, and IR itself only up to 85.3 C (13.5 A: 77.0 / 91.0 C). Bench IR item (DECISIONS.md:836).",
     "desk: derating curve digitised from the p.5 figure (+/-3 % of full scale); the 67.7 C boundary moves about +/-2 C.",
     "certifier: TDK lists EN 60938-2 design compliance only, no UL / CSA recognition, so the end-product evaluation must cover L1.",
     "owner: core stock zero, 29 weeks (DECISIONS.md:846); sets the build date (DECISIONS 45)."
@@ -2526,7 +2526,7 @@
    "finding": null,
    "function": "X2 across-the-line capacitors C1/C2, 1 uF 310 VAC",
    "gaps": [
-    "bench: body temperature next to L1 / BR1 is not evidenced (B3 has no C1/C2 row; its L1 body is 102.2 C at the c18 release case, bay 61 C, and 97.5 / 100.0 C at c22 / c28, bay 55 C, validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json rows \"L1: B82726 climatic\" (keyed, cases c18_h10 / c22_h10 / c28_h10)); limit 110 C.",
+    "bench: body temperature next to L1 / BR1 is not evidenced (B3 has no C1/C2 row; its L1 body is 102.2 C at the c18 release case, bay 61 C, and 97.6 / 100.0 C at c22 / c28, bay 55 C, validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json rows \"L1: B82726 climatic\" (keyed, cases c18_h10 / c22_h10 / c28_h10)); limit 110 C.",
     "desk: the 35-60 kHz differential-mode current through C1/C2 is not compared with the p.6 'Maximum Irms vs Th' derating (the s19b EMI model carries these currents)."
    ],
    "status": "PARTIAL",
