@@ -1,0 +1,1154 @@
+{
+ "audited_stage_vs_baseline": {
+  "locked_items": 522,
+  "owner": "none",
+  "pass": true
+ },
+ "controls": [
+  {
+   "control": "lock baseline export is the board the lock names",
+   "detail": "6f080b0d",
+   "pass": true
+  },
+  {
+   "control": "native21s43: the gate's scope reproduces the chain's SPINE_LOCK verdict and locked-item count",
+   "detail": "pass True, 522 locked items (chain 522)",
+   "pass": true
+  }
+ ],
+ "lock": {
+  "baseline": "native-21/verification/spine-baseline-native21s38-all-copper.json.gz",
+  "contract_nets": [
+   "pwm_ha",
+   "pwm_la",
+   "pwm_hb",
+   "pwm_lb",
+   "permit",
+   "vbus_p",
+   "vbus_n",
+   "bus_fault_iso",
+   "bias_good",
+   "sw_a"
+  ],
+  "frozen_refs": [
+   "J4",
+   "C47",
+   "C144",
+   "C153",
+   "C154",
+   "C155",
+   "C156"
+  ],
+  "owner_lanes": [
+   "selv"
+  ],
+  "plane_nets": [
+   "selv_gnd",
+   "v3v3"
+  ],
+  "region": [
+   30.0,
+   130.0,
+   110.0,
+   180.0
+  ]
+ },
+ "method": "Did the SELV-spine lock keep the spine still, the way the stage-28 OCP lock kept OCP pickup at 4.17 A?\n\n    python3 -I validation-results/13-coupling/scripts/spine.py [--stage TAG ...]   (after history.py)\n\nThe lock (native-21/layout/selv_spine_lock.json, gate native-21/layout/gates/spine_lock.py) came after stage 32 (commit\n5b379ff51, the WS4 <-> WS5 contract of this audit): every later chain checks the board's spine copper against a\nbaseline. Here the gate's own scope function (spine_lock.items / check, loaded from ROOT, unchanged) is applied to every\nconsecutive pair of the adopted chain 19c -> TAG, before and after the lock:\n  default scope   what a lane that does not own the spine may not touch: every track / via of a net touching the region\n                  x 30-110 / y 130-180, every pad centred in it, J4 and the SELV transfer caps, zone fills inside it;\n  owner scope     what even the SELV lane must keep: the contract nets and the selv_gnd / v3v3 planes.\nPer stage: items removed / added and zone fills changed, the nets they are on, the stage's intended groups\n(history.json) and whether a SELV lane owned the change (DECISIONS 50: stage 38 re-issued the lock). Beside it, the\ncontract's 'must not move' card values (return path, D5) and the changed routed items history.json placed in G09 / G10\nterritory (the spine's groups). The chain's own SPINE_LOCK verdicts (BUILDDIR/spine-lock.json) are read where present.",
+ "stages": [
+  {
+   "chain_spine_lock": null,
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     39,
+     39
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s19c",
+   "intended_groups": [
+    "G04",
+    "G09"
+   ],
+   "locked": false,
+   "selv_territory_items": {
+    "G09": 0,
+    "G10": 0
+   },
+   "spine": {
+    "default": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 499,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    },
+    "owner": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 246,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s20"
+  },
+  {
+   "chain_spine_lock": null,
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     39,
+     39
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s20",
+   "intended_groups": [
+    "G01",
+    "G02",
+    "G03",
+    "G08"
+   ],
+   "locked": false,
+   "selv_territory_items": {
+    "G09": 0,
+    "G10": 0
+   },
+   "spine": {
+    "default": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 499,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    },
+    "owner": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 246,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s21"
+  },
+  {
+   "chain_spine_lock": null,
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     39,
+     39
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s21",
+   "intended_groups": [
+    "G08"
+   ],
+   "locked": false,
+   "selv_territory_items": {
+    "G09": 0,
+    "G10": 0
+   },
+   "spine": {
+    "default": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 499,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    },
+    "owner": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 246,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s21b"
+  },
+  {
+   "chain_spine_lock": null,
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     39,
+     37
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s21b",
+   "intended_groups": [
+    "G05",
+    "G07"
+   ],
+   "locked": false,
+   "selv_territory_items": {
+    "G09": 38,
+    "G10": 12
+   },
+   "spine": {
+    "default": {
+     "added": 4,
+     "changed": 6,
+     "locked_items_before": 499,
+     "nets": {
+      "bus_fault": 2,
+      "ct_zc": 2,
+      "pwm_hb": 1,
+      "selv_gnd": 1
+     },
+     "removed": 2,
+     "zone_diffs": []
+    },
+    "owner": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 246,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s22"
+  },
+  {
+   "chain_spine_lock": null,
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     37,
+     37
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s22",
+   "intended_groups": [
+    "G05"
+   ],
+   "locked": false,
+   "selv_territory_items": {
+    "G09": 0,
+    "G10": 0
+   },
+   "spine": {
+    "default": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 501,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    },
+    "owner": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 246,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s26"
+  },
+  {
+   "chain_spine_lock": null,
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     37,
+     37
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s26",
+   "intended_groups": [
+    "G01"
+   ],
+   "locked": false,
+   "selv_territory_items": {
+    "G09": 0,
+    "G10": 0
+   },
+   "spine": {
+    "default": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 501,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    },
+    "owner": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 246,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s27"
+  },
+  {
+   "chain_spine_lock": null,
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     37,
+     37
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s27",
+   "intended_groups": [
+    "G10"
+   ],
+   "locked": false,
+   "selv_territory_items": {
+    "G09": 64,
+    "G10": 33
+   },
+   "spine": {
+    "default": {
+     "added": 0,
+     "changed": 1,
+     "locked_items_before": 501,
+     "nets": {
+      "ct_zc": 1
+     },
+     "removed": 1,
+     "zone_diffs": []
+    },
+    "owner": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 246,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s28"
+  },
+  {
+   "chain_spine_lock": null,
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     37,
+     37
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s28",
+   "intended_groups": [
+    "G05"
+   ],
+   "locked": false,
+   "selv_territory_items": {
+    "G09": 0,
+    "G10": 0
+   },
+   "spine": {
+    "default": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 500,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    },
+    "owner": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 246,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s29"
+  },
+  {
+   "chain_spine_lock": null,
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     37,
+     23
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s29",
+   "intended_groups": [
+    "G07",
+    "G09"
+   ],
+   "locked": false,
+   "selv_territory_items": {
+    "G09": 237,
+    "G10": 81
+   },
+   "spine": {
+    "default": {
+     "added": 241,
+     "changed": 440,
+     "locked_items_before": 500,
+     "nets": {
+      "bias_bad_flt": 33,
+      "bias_bad_raw": 19,
+      "bias_good": 9,
+      "bias_ha_bad": 19,
+      "bias_ls_bad": 28,
+      "bus_fault": 12,
+      "bus_fault_flt": 7,
+      "bus_fault_iso": 28,
+      "ct_s2": 21,
+      "ct_sense_mon": 31,
+      "ct_zc": 1,
+      "hb_bufo": 5,
+      "hb_hold": 22,
+      "hb_m": 3,
+      "hb_rx": 6,
+      "hb_s": 3,
+      "hb_x": 3,
+      "hsb_good": 15,
+      "pe": 62,
+      "pwm_ha": 1,
+      "pwm_hb": 1,
+      "pwm_lb": 18,
+      "selv_gnd": 52,
+      "u_bias_flt-nc": 1,
+      "v3v3": 33,
+      "vbus_n": 5
+     },
+     "removed": 197,
+     "zone_diffs": [
+      {
+       "layer": "In2.Cu",
+       "net": "selv_gnd",
+       "sym_diff_mm2": 32.784
+      },
+      {
+       "layer": "In1.Cu",
+       "net": "v3v3",
+       "sym_diff_mm2": 32.501
+      }
+     ]
+    },
+    "owner": {
+     "added": 101,
+     "changed": 133,
+     "locked_items_before": 246,
+     "nets": {
+      "bias_good": 8,
+      "bus_fault_iso": 27,
+      "pwm_lb": 18,
+      "selv_gnd": 43,
+      "v3v3": 30,
+      "vbus_n": 5
+     },
+     "removed": 30,
+     "zone_diffs": [
+      {
+       "layer": "In2.Cu",
+       "net": "selv_gnd",
+       "sym_diff_mm2": 32.784
+      },
+      {
+       "layer": "In1.Cu",
+       "net": "v3v3",
+       "sym_diff_mm2": 32.501
+      }
+     ]
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s30"
+  },
+  {
+   "chain_spine_lock": null,
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     23,
+     23
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s30",
+   "intended_groups": [
+    "G05",
+    "G06",
+    "G07",
+    "G08"
+   ],
+   "locked": false,
+   "selv_territory_items": {
+    "G09": 0,
+    "G10": 0
+   },
+   "spine": {
+    "default": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 544,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    },
+    "owner": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 317,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s31"
+  },
+  {
+   "chain_spine_lock": null,
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     23,
+     18
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s31",
+   "intended_groups": [
+    "G07",
+    "G08",
+    "G09"
+   ],
+   "locked": false,
+   "selv_territory_items": {
+    "G09": 45,
+    "G10": 4
+   },
+   "spine": {
+    "default": {
+     "added": 19,
+     "changed": 37,
+     "locked_items_before": 544,
+     "nets": {
+      "bias_good": 2,
+      "bus_fault": 2,
+      "bus_fault_iso": 4,
+      "ct_zc": 2,
+      "hsb_good": 2,
+      "selv_gnd": 15,
+      "v3v3": 9
+     },
+     "removed": 17,
+     "zone_diffs": [
+      {
+       "layer": "In2.Cu",
+       "net": "selv_gnd",
+       "sym_diff_mm2": 4.238
+      }
+     ]
+    },
+    "owner": {
+     "added": 15,
+     "changed": 29,
+     "locked_items_before": 317,
+     "nets": {
+      "bias_good": 2,
+      "bus_fault_iso": 4,
+      "selv_gnd": 13,
+      "v3v3": 9
+     },
+     "removed": 13,
+     "zone_diffs": [
+      {
+       "layer": "In2.Cu",
+       "net": "selv_gnd",
+       "sym_diff_mm2": 4.238
+      }
+     ]
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s32"
+  },
+  {
+   "chain_spine_lock": {
+    "baseline_board": "2fb346dc",
+    "file": "s35/b4/spine-lock.json",
+    "n_added": 0,
+    "n_removed": 0,
+    "owner": "none",
+    "pass": true,
+    "zone_diffs": []
+   },
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     18,
+     18
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s32",
+   "intended_groups": [
+    "G04"
+   ],
+   "locked": true,
+   "selv_territory_items": {
+    "G09": 0,
+    "G10": 0
+   },
+   "spine": {
+    "default": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 546,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    },
+    "owner": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 319,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s35"
+  },
+  {
+   "chain_spine_lock": {
+    "baseline_board": "6f080b0d",
+    "file": "s38/c2/spine-lock.json",
+    "n_added": 0,
+    "n_removed": 0,
+    "owner": "selv",
+    "pass": true,
+    "zone_diffs": []
+   },
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     18,
+     18
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s35",
+   "intended_groups": [
+    "G01",
+    "G06",
+    "G10"
+   ],
+   "locked": true,
+   "selv_territory_items": {
+    "G09": 2,
+    "G10": 16
+   },
+   "spine": {
+    "default": {
+     "added": 8,
+     "changed": 42,
+     "locked_items_before": 546,
+     "nets": {
+      "bus_fault": 2,
+      "ct_zc": 2,
+      "j4_nc1": 4,
+      "pwm_ha": 2,
+      "selv_gnd": 2,
+      "v15_selv": 28
+     },
+     "removed": 32,
+     "zone_diffs": [
+      {
+       "layer": "In2.Cu",
+       "net": "selv_gnd",
+       "sym_diff_mm2": 2.374
+      },
+      {
+       "layer": "In1.Cu",
+       "net": "v3v3",
+       "sym_diff_mm2": 2.374
+      }
+     ]
+    },
+    "owner": {
+     "added": 4,
+     "changed": 10,
+     "locked_items_before": 319,
+     "nets": {
+      "j4_nc1": 4,
+      "v15_selv": 4
+     },
+     "removed": 4,
+     "zone_diffs": [
+      {
+       "layer": "In2.Cu",
+       "net": "selv_gnd",
+       "sym_diff_mm2": 2.374
+      },
+      {
+       "layer": "In1.Cu",
+       "net": "v3v3",
+       "sym_diff_mm2": 2.374
+      }
+     ]
+    }
+   },
+   "spine_owner": "selv lane, candidate 23 (DECISIONS 50 item 6: lock re-issued, J4.1 net and v15_selv antipads)",
+   "to": "native21s38"
+  },
+  {
+   "chain_spine_lock": {
+    "baseline_board": "6f080b0d",
+    "file": "s40/c2/spine-lock.json",
+    "n_added": 0,
+    "n_removed": 0,
+    "owner": "none",
+    "pass": true,
+    "zone_diffs": []
+   },
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     18,
+     15
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s38",
+   "intended_groups": [
+    "G06",
+    "G07",
+    "G10"
+   ],
+   "locked": true,
+   "selv_territory_items": {
+    "G09": 0,
+    "G10": 11
+   },
+   "spine": {
+    "default": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 522,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    },
+    "owner": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 319,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s40"
+  },
+  {
+   "chain_spine_lock": {
+    "baseline_board": "6f080b0d",
+    "file": "s41/c2/spine-lock.json",
+    "n_added": 0,
+    "n_removed": 0,
+    "owner": "none",
+    "pass": true,
+    "zone_diffs": []
+   },
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     15,
+     15
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s40",
+   "intended_groups": [
+    "G02",
+    "G03",
+    "G08"
+   ],
+   "locked": true,
+   "selv_territory_items": {
+    "G09": 0,
+    "G10": 0
+   },
+   "spine": {
+    "default": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 522,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    },
+    "owner": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 319,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s41"
+  },
+  {
+   "chain_spine_lock": {
+    "baseline_board": "6f080b0d",
+    "file": "s42/c42b/spine-lock.json",
+    "n_added": 0,
+    "n_removed": 0,
+    "owner": "none",
+    "pass": true,
+    "zone_diffs": []
+   },
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     15,
+     15
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s41",
+   "intended_groups": [
+    "G05"
+   ],
+   "locked": true,
+   "selv_territory_items": {
+    "G09": 0,
+    "G10": 0
+   },
+   "spine": {
+    "default": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 522,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    },
+    "owner": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 319,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s42"
+  },
+  {
+   "chain_spine_lock": {
+    "baseline_board": "6f080b0d",
+    "file": "s43/c43/spine-lock.json",
+    "n_added": 0,
+    "n_removed": 0,
+    "owner": "none",
+    "pass": true,
+    "zone_diffs": []
+   },
+   "contract_metrics": {
+    "d5_hot_pe_mm": [
+     8.507,
+     8.507
+    ],
+    "d5_hot_selv_mm": [
+     8.047,
+     8.047
+    ],
+    "return_path_open_changes": [
+     15,
+     15
+    ],
+    "return_path_worst_asserted_mm": [
+     2.72,
+     2.72
+    ]
+   },
+   "from": "native21s42",
+   "intended_groups": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "locked": true,
+   "selv_territory_items": {
+    "G09": 128,
+    "G10": 41
+   },
+   "spine": {
+    "default": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 522,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    },
+    "owner": {
+     "added": 0,
+     "changed": 0,
+     "locked_items_before": 319,
+     "nets": {},
+     "removed": 0,
+     "zone_diffs": []
+    }
+   },
+   "spine_owner": null,
+   "to": "native21s43"
+  }
+ ],
+ "summary": {
+  "contract_metrics_post_lock": {
+   "d5_hot_pe_mm": [
+    8.507,
+    8.507,
+    8.507,
+    8.507,
+    8.507,
+    8.507
+   ],
+   "d5_hot_selv_mm": [
+    8.047,
+    8.047,
+    8.047,
+    8.047,
+    8.047,
+    8.047
+   ],
+   "return_path_open_changes": [
+    18,
+    18,
+    15,
+    15,
+    15,
+    15
+   ],
+   "return_path_worst_asserted_mm": [
+    2.72,
+    2.72,
+    2.72,
+    2.72,
+    2.72,
+    2.72
+   ]
+  },
+  "post_lock_non_owner_spine_items_changed": 0,
+  "post_lock_non_owner_stages": [
+   "native21s35",
+   "native21s40",
+   "native21s41",
+   "native21s42",
+   "native21s43"
+  ],
+  "post_lock_owner_stages": {
+   "native21s38": 42
+  },
+  "post_lock_selv_territory_items_non_owner": 180,
+  "pre_lock_copper_stages": 7,
+  "pre_lock_copper_stages_touching_spine": 4,
+  "pre_lock_spine_items_changed": 484
+ }
+}

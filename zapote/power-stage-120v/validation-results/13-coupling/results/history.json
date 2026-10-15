@@ -1,4 +1,30 @@
 {
+ "basis_changes": [
+  {
+   "decisions_item": 51,
+   "metric": "b3_laminate_margin_K",
+   "stage": "native21s38",
+   "why": "B3 ratings model corrected (FET lead path, 60 kHz heat file); s38 re-scored on it, s35 not"
+  },
+  {
+   "decisions_item": 51,
+   "metric": "b3_rated_part_margin_K",
+   "stage": "native21s38",
+   "why": "B3 ratings model corrected; film caps and gate resistors gated (more rows)"
+  },
+  {
+   "decisions_item": 51,
+   "metric": "b3_c28_h25_peak_C",
+   "stage": "native21s40",
+   "why": "first chain on the corrected c28 heat file (60 kHz, deck gate charge) in the shared model key"
+  },
+  {
+   "decisions_item": 51,
+   "metric": "b3_nominal_h10_peak_C",
+   "stage": "native21s40",
+   "why": "first chain after the heat-file / model-key change"
+  }
+ ],
  "controls": [
   {
    "control": "native21s20: routed copper unchanged (DECISIONS: BOM only)",
@@ -28,6 +54,66 @@
   {
    "control": "native21s32: BOM identical to s31 (DECISIONS 35)",
    "detail": "",
+   "pass": true
+  },
+  {
+   "control": "native21s35: commit 65c6bd08e netlist parts == the parts with pads in its copper dump (less the board-only test points / fiducials); dump is the card's board",
+   "detail": "349 parts (+44 board-only TP / FID), board fba59ef3",
+   "pass": true
+  },
+  {
+   "control": "native21s35: parts / BOM changes are the DECISIONS item's (+[] -[] MPN ['J2', 'J5'])",
+   "detail": "+[] -[] MPN ['J2', 'J5']",
+   "pass": true
+  },
+  {
+   "control": "native21s38: commit 7f1fe9d3a netlist parts == the parts with pads in its copper dump (less the board-only test points / fiducials); dump is the card's board",
+   "detail": "348 parts (+42 board-only TP / FID), board b5bf428d",
+   "pass": true
+  },
+  {
+   "control": "native21s38: parts / BOM changes are the DECISIONS item's (+[] -['PS1'] MPN ['PS2'])",
+   "detail": "+[] -['PS1'] MPN ['PS2']",
+   "pass": true
+  },
+  {
+   "control": "native21s40: commit 95e24e554 netlist parts == the parts with pads in its copper dump (less the board-only test points / fiducials); dump is the card's board",
+   "detail": "351 parts (+42 board-only TP / FID), board 33ed17f3",
+   "pass": true
+  },
+  {
+   "control": "native21s40: parts / BOM changes are the DECISIONS item's (+['C168', 'D20', 'R135'] -[] MPN ['U44'])",
+   "detail": "+['C168', 'D20', 'R135'] -[] MPN ['U44']",
+   "pass": true
+  },
+  {
+   "control": "native21s41: commit 57fc55409 netlist parts == the parts with pads in its copper dump (less the board-only test points / fiducials); dump is the card's board",
+   "detail": "351 parts (+42 board-only TP / FID), board d4b2445c",
+   "pass": true
+  },
+  {
+   "control": "native21s41: parts / BOM changes are the DECISIONS item's (+[] -[] MPN [], nets identical)",
+   "detail": "+[] -[] MPN []",
+   "pass": true
+  },
+  {
+   "control": "native21s42: commit 5ff4aded2 netlist parts == the parts with pads in its copper dump (less the board-only test points / fiducials); dump is the card's board",
+   "detail": "351 parts (+42 board-only TP / FID), board 9e075b4b",
+   "pass": true
+  },
+  {
+   "control": "native21s42: parts / BOM changes are the DECISIONS item's (+[] -[] MPN ['C55', 'C56', 'C62', 'C63', 'R10', 'R12', 'R18', 'R20'])",
+   "detail": "+[] -[] MPN ['C55', 'C56', 'C62', 'C63', 'R10', 'R12', 'R18', 'R20']",
+   "pass": true
+  },
+  {
+   "control": "native21s43: commit 719084486 netlist parts == the parts with pads in its copper dump (less the board-only test points / fiducials); dump is the card's board",
+   "detail": "351 parts (+42 board-only TP / FID), board 61447816",
+   "pass": true
+  },
+  {
+   "control": "native21s43: parts / BOM changes are the DECISIONS item's (+[] -[] MPN ['C12', 'C13', 'C19', 'C20'], nets identical)",
+   "detail": "+[] -[] MPN ['C12', 'C13', 'C19', 'C20']",
    "pass": true
   }
  ],
@@ -125,6 +211,28 @@
     "G05",
     "G10"
    ]
+  },
+  {
+   "decisions_item": 52,
+   "from": [
+    "G07"
+   ],
+   "mechanism": "the HS-B verdict change took the SELV decoupler that served pwm_hb's via at (34.4, 110.6): the change measured 16.5 mm and failed the asserted return_path19 limit; C168 added",
+   "stage": "native21s40",
+   "to": [
+    "G05"
+   ]
+  },
+  {
+   "decisions_item": 55,
+   "from": [
+    "G05"
+   ],
+   "mechanism": "first build: R11's sw_a via at (59.4, 9.7) cut the leg-A In1 fuse neck to 2.42 mm (ratio 0.882); and the network's own +0.68 W cost the FET-row laminate 7.8 K at c28 (card REJECT, overridden)",
+   "stage": "native21s42",
+   "to": [
+    "G03"
+   ]
   }
  ],
  "global_events": [
@@ -135,9 +243,50 @@
    ],
    "mechanism": "global via resize 0.85 -> 0.6 failed task 04's topology check on ac_n_in / l_filt / n_filt; 4 vias kept",
    "stage": "native21s32"
+  },
+  {
+   "decisions_item": 57,
+   "groups": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "mechanism": "cleanup pass: every island edited by design, so the stage has no outside group",
+   "stage": "native21s43"
   }
  ],
- "method": "Layer 5 input, what each accepted stage 19c -> 32 actually changed and what moved.\n\n    python3 -I validation-results/13-coupling/scripts/history.py      (after assign32.py)\n\nFor each consecutive pair of accepted stages (tags native21s19c, s20, s21, s21b, s22, s26, s27, s28, s29, s30, s31, s32):\n* schematic: parts added / removed, MPN changed (frozen BOM), pin -> net changed (frozen netlist), all read with\n  `git show TAG:...` (read-only);\n* placement: parts whose pose moved (> 0.01 mm or any rotation; native-21/placement.json at the tag);\n* copper: per net, routed copper (tracks + vias, rounded to 1 um) added or removed, and poured copper whose fill\n  area moved by more than 1 % and 0.5 mm2 (the as-built all-copper dumps native-21/verification/<tag>-all-copper.json.gz);\n* scorecard: every gate and performance metric that changed between the two stages' cards (10-benchmark).\nEach changed item is mapped to groups (stage-32 rule applied to that stage's parts.json; a removed part takes its\ngroup from the earlier stage). 'Intended' groups = groups with a schematic or placement change, plus the authored\ncopper the DECISIONS item names (AUTHORED, with the item number). Changed routed copper is placed in the territory of\nthe nearest stage-32 courtyard (as physical.py; 'open' beyond 6 mm); a territory with >= 2 changed items that is not\nintended is 'ripple'. Via-size-only changes (stage 32's global resize) are counted apart. DOCUMENTED_RIPPLE lists the\ncross-group effects the DECISIONS items describe in words (router re-lays, blocked routes, gate failures).",
+ "method": "Layer 5 input, what each accepted stage 19c -> 43 actually changed and what moved.\n\n    python3 -I validation-results/13-coupling/scripts/history.py      (after assign.py)\n\nFor each consecutive pair of accepted stages (tags native21s19c, s20, s21, s21b, s22, s26, s27, s28, s29, s30, s31, s32; then the commits s35 65c6bd08e, s38 7f1fe9d3a, s40 95e24e554, s41 57fc55409, s42 5ff4aded2, s43 719084486):\n* schematic: parts added / removed, MPN changed (frozen BOM), pin -> net changed (frozen netlist), all read with\n  `git show TAG:...` (read-only);\n* placement: parts whose pose moved (> 0.01 mm or any rotation; native-21/placement.json at the tag);\n* copper: per net, routed copper (tracks + vias, rounded to 1 um) added or removed, and poured copper whose fill\n  area moved by more than 1 % and 0.5 mm2 (the as-built all-copper dumps native-21/verification/<tag>-all-copper.json.gz);\n* scorecard: every gate and performance metric that changed between the two stages' cards (10-benchmark).\nEach changed item is mapped to groups (stage-43 rule applied to that stage's parts.json; a removed part takes its\ngroup from the earlier stage). 'Intended' groups = groups with a schematic or placement change, plus the authored\ncopper the DECISIONS item names (AUTHORED, with the item number). Changed routed copper is placed in the territory of\nthe nearest stage-43 courtyard (as physical.py; 'open' beyond 6 mm); a territory with >= 2 changed items that is not\nintended is 'ripple'. Via-size-only changes (stage 32's global resize) are counted apart. DOCUMENTED_RIPPLE lists the\ncross-group effects the DECISIONS items describe in words (router re-lays, blocked routes, gate failures).\nBASIS_CHANGES lists scorecard moves that DECISIONS attributes to a model or basis change, not to the board;\nthe metric check leaves them out.",
+ "not_adopted": {
+  "native21s33": "six layers, phase A; not adopted on price (DECISIONS 39, 40)",
+  "native21s37": "cleanup pass on s35; tool merged, board commit 5e81ba1c6 not merged (DECISIONS 48)"
+ },
+ "refs": {
+  "native21s19c": "native21s19c",
+  "native21s20": "native21s20",
+  "native21s21": "native21s21",
+  "native21s21b": "native21s21b",
+  "native21s22": "native21s22",
+  "native21s26": "native21s26",
+  "native21s27": "native21s27",
+  "native21s28": "native21s28",
+  "native21s29": "native21s29",
+  "native21s30": "native21s30",
+  "native21s31": "native21s31",
+  "native21s32": "native21s32",
+  "native21s35": "65c6bd08e",
+  "native21s38": "7f1fe9d3a",
+  "native21s40": "95e24e554",
+  "native21s41": "57fc55409",
+  "native21s42": "5ff4aded2",
+  "native21s43": "719084486"
+ },
  "stages": [
   {
    "added": [],
@@ -603,11 +752,11 @@
    "changed_items_by_territory": {
     "G05": 157,
     "G06": 20,
-    "G07": 85,
+    "G07": 72,
     "G08": 78,
     "G09": 38,
-    "G10": 2,
-    "open": 31
+    "G10": 12,
+    "open": 34
    },
    "decisions_item": 27,
    "from": "native21s21b",
@@ -1235,13 +1384,13 @@
    "board_from": "3ae1ddb47c8c4c4e7c26c663ce54248c8797651e0066dc3bf516225403cba128",
    "board_to": "4fcae4bf8971718d38fc2fc9cb257e2ec044de2914e6f31d2df0204b1736ddfd",
    "changed_items_by_territory": {
-    "G05": 71,
+    "G05": 63,
     "G06": 102,
-    "G07": 967,
+    "G07": 938,
     "G08": 36,
     "G09": 237,
-    "G10": 46,
-    "open": 141
+    "G10": 81,
+    "open": 143
    },
    "decisions_item": 33,
    "from": "native21s29",
@@ -1917,7 +2066,9 @@
     "G08"
    ],
    "metrics_moved": {},
-   "metrics_new": [],
+   "metrics_new": [
+    "bank_ratio_tdk_28A_35k"
+   ],
    "moved": [],
    "mpn_changed": [
     "C100",
@@ -1978,12 +2129,13 @@
    "board_from": "5ef1c37a41914825db33138bbbf765390b1fa5ae9ea4391b45c92fc8c2854bad",
    "board_to": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e",
    "changed_items_by_territory": {
-    "G05": 17,
+    "G05": 13,
     "G06": 8,
-    "G07": 90,
+    "G07": 93,
     "G08": 12,
     "G09": 45,
-    "G10": 4
+    "G10": 4,
+    "open": 1
    },
    "decisions_item": 35,
    "from": "native21s31",
@@ -1998,12 +2150,23 @@
      135.2,
      135.0
     ],
+    "ledger_violations": [
+     0,
+     1
+    ],
     "return_path_open_changes": [
      23,
      18
     ]
    },
-   "metrics_new": [],
+   "metrics_new": [
+    "track_acute_corners",
+    "track_fold_backs",
+    "track_right_angle_corners",
+    "track_any_angle_mm",
+    "b3_laminate_margin_K",
+    "b3_rated_part_margin_K"
+   ],
    "moved": [],
    "mpn_changed": [],
    "pin_changed": [],
@@ -2200,6 +2363,1891 @@
    ],
    "schematic_groups": [],
    "to": "native21s32"
+  },
+  {
+   "added": [],
+   "authored_groups": [
+    "G04"
+   ],
+   "authored_note": "J2 / J5 SMT ring lands and 20 land vias per terminal (patches21.add_stage35); nothing else moves",
+   "board_from": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e",
+   "board_to": "fba59ef3d8169ee71a81a08d29c72f4e76acf8f420c91fd2515227adaabc8be4",
+   "changed_items_by_territory": {
+    "G04": 40
+   },
+   "decisions_item": 44,
+   "from": "native21s32",
+   "gates_changed": {},
+   "intended_groups": [
+    "G04"
+   ],
+   "metrics_moved": {},
+   "metrics_new": [],
+   "moved": [],
+   "mpn_changed": [
+    "J2",
+    "J5"
+   ],
+   "pin_changed": [],
+   "placement_groups": [],
+   "pour_fill_changed": {
+    "coil_feed|B.Cu": {
+     "groups": [
+      "G04",
+      "G09"
+     ],
+     "mm2_after": 183.11,
+     "mm2_before": 190.56
+    },
+    "coil_feed|F.Cu": {
+     "groups": [
+      "G04",
+      "G09"
+     ],
+     "mm2_after": 183.13,
+     "mm2_before": 190.56
+    },
+    "res_a|F.Cu": {
+     "groups": [
+      "G04"
+     ],
+     "mm2_after": 59.07,
+     "mm2_before": 66.5
+    }
+   },
+   "pour_fill_groups": [
+    "G04",
+    "G09"
+   ],
+   "removed": [],
+   "renamed_nets": {},
+   "resized_vias": 0,
+   "ripple_groups_routed": [],
+   "routed_copper_changed_nets": {
+    "coil_feed": {
+     "added": 20,
+     "groups": [
+      "G04",
+      "G09"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "res_a": {
+     "added": 20,
+     "groups": [
+      "G04"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    }
+   },
+   "routed_copper_net_groups": [
+    "G04",
+    "G09"
+   ],
+   "routed_copper_territories": [
+    "G04"
+   ],
+   "schematic_groups": [
+    "G04"
+   ],
+   "to": "native21s35"
+  },
+  {
+   "added": [],
+   "authored_groups": [
+    "G01",
+    "G10"
+   ],
+   "authored_note": "PS1 area cleared; L_FILT re-laid to F2 and N_FILT's J11 via re-made 0.85 / 0.3 (l_filt / n_filt are G01 / G10 nets); spine lock re-issued by the selv lane (J4.1 net, v15_selv antipads)",
+   "board_from": "fba59ef3d8169ee71a81a08d29c72f4e76acf8f420c91fd2515227adaabc8be4",
+   "board_to": "b5bf428d2ff59574027fae92f248996804fdabb4363d479d3ea7c30762b09983",
+   "changed_items_by_territory": {
+    "G01": 2,
+    "G02": 2,
+    "G07": 2,
+    "G09": 2,
+    "G10": 16,
+    "open": 16
+   },
+   "decisions_item": 50,
+   "from": "native21s35",
+   "gates_changed": {},
+   "intended_groups": [
+    "G01",
+    "G06",
+    "G10"
+   ],
+   "metrics_moved": {
+    "b3_laminate_margin_K": [
+     -56.4,
+     -38.0
+    ],
+    "b3_rated_part_margin_K": [
+     -38.9,
+     -63.9
+    ],
+    "emi_min_margin_dB": [
+     10.5,
+     12.4
+    ],
+    "leakage_touch_mA": [
+     0.974,
+     0.241
+    ],
+    "track_acute_corners": [
+     206,
+     205
+    ],
+    "track_any_angle_mm": [
+     704.4,
+     678.5
+    ],
+    "track_right_angle_corners": [
+     104,
+     103
+    ]
+   },
+   "metrics_moved_basis_change": {
+    "b3_laminate_margin_K": "B3 ratings model corrected (FET lead path, 60 kHz heat file); s38 re-scored on it, s35 not",
+    "b3_rated_part_margin_K": "B3 ratings model corrected; film caps and gate resistors gated (more rows)"
+   },
+   "metrics_new": [],
+   "moved": [],
+   "mpn_changed": [
+    "PS2"
+   ],
+   "pin_changed": [
+    "J4"
+   ],
+   "placement_groups": [],
+   "pour_fill_changed": {},
+   "pour_fill_groups": [],
+   "removed": [
+    "PS1"
+   ],
+   "renamed_nets": {
+    "v15_selv": [
+     "j4_nc1"
+    ]
+   },
+   "resized_vias": 0,
+   "ripple_groups_routed": [
+    "G02",
+    "G07",
+    "G09"
+   ],
+   "routed_copper_changed_nets": {
+    "l_filt": {
+     "added": 3,
+     "groups": [
+      "G01",
+      "G06",
+      "G09",
+      "G10"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "n_filt": {
+     "added": 4,
+     "groups": [
+      "G01",
+      "G06",
+      "G09",
+      "G10"
+     ],
+     "removed": 5,
+     "resized_vias": 0
+    },
+    "selv_gnd": {
+     "added": 0,
+     "groups": [
+      "G05",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "v15_selv": {
+     "added": 0,
+     "groups": [
+      "G10"
+     ],
+     "removed": 23,
+     "resized_vias": 0
+    }
+   },
+   "routed_copper_net_groups": [
+    "G01",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "routed_copper_territories": [
+    "G01",
+    "G02",
+    "G07",
+    "G09",
+    "G10"
+   ],
+   "schematic_groups": [
+    "G06",
+    "G10"
+   ],
+   "to": "native21s38"
+  },
+  {
+   "added": [
+    "C168",
+    "D20",
+    "R135"
+   ],
+   "authored_groups": [
+    "G06",
+    "G07",
+    "G10"
+   ],
+   "authored_note": "U44 in U42's pocket, D18 / D20 vote beside U43, GOOD node in MON_GOOD_HA's corridor lane (G07); C161 via into In1 n_ls, F n_ls pour over an In1 n_ls patch, U41 heat-spread pours to x 46.35 (G06); C168 (G10)",
+   "board_from": "b5bf428d2ff59574027fae92f248996804fdabb4363d479d3ea7c30762b09983",
+   "board_to": "33ed17f3ad50289edeba11ac1ac008680bcc2e307b660043fc324a0118c4c900",
+   "changed_items_by_territory": {
+    "G05": 34,
+    "G06": 56,
+    "G07": 167,
+    "G08": 2,
+    "G10": 11
+   },
+   "decisions_item": 52,
+   "from": "native21s38",
+   "gates_changed": {},
+   "intended_groups": [
+    "G06",
+    "G07",
+    "G10"
+   ],
+   "metrics_moved": {
+    "b3_c28_h25_peak_C": [
+     135.0,
+     136.7
+    ],
+    "b3_laminate_margin_K": [
+     -38.0,
+     -38.3
+    ],
+    "b3_nominal_h10_peak_C": [
+     162.1,
+     165.4
+    ],
+    "b3_rated_part_margin_K": [
+     -63.9,
+     -64.1
+    ],
+    "return_path_open_changes": [
+     18,
+     15
+    ],
+    "track_acute_corners": [
+     205,
+     199
+    ],
+    "track_any_angle_mm": [
+     678.5,
+     680.3
+    ],
+    "track_fold_backs": [
+     44,
+     43
+    ],
+    "track_right_angle_corners": [
+     103,
+     101
+    ]
+   },
+   "metrics_moved_basis_change": {
+    "b3_c28_h25_peak_C": "first chain on the corrected c28 heat file (60 kHz, deck gate charge) in the shared model key",
+    "b3_nominal_h10_peak_C": "first chain after the heat-file / model-key change"
+   },
+   "metrics_new": [],
+   "moved": [
+    "D18"
+   ],
+   "mpn_changed": [
+    "U44"
+   ],
+   "pin_changed": [
+    "C160",
+    "U43",
+    "U44"
+   ],
+   "placement_groups": [
+    "G07"
+   ],
+   "pour_fill_changed": {
+    "n_hb|B.Cu": {
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "mm2_after": 497.87,
+     "mm2_before": 425.04
+    },
+    "n_hb|F.Cu": {
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "mm2_after": 84.87,
+     "mm2_before": 89.27
+    },
+    "n_ls|F.Cu": {
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "mm2_after": 241.04,
+     "mm2_before": 163.58
+    },
+    "n_ls|In1.Cu": {
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "mm2_after": 800.15,
+     "mm2_before": 762.63
+    },
+    "n_ls|In2.Cu": {
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "mm2_after": 105.97,
+     "mm2_before": 107.55
+    }
+   },
+   "pour_fill_groups": [
+    "G05",
+    "G06",
+    "G07"
+   ],
+   "removed": [],
+   "renamed_nets": {
+    "bias_hb.monitor-good": [
+     "n_hb"
+    ],
+    "bias_hb.monitor-v5": [
+     "bias_hb.monitor-good"
+    ],
+    "bias_hb.verdict-nc2": [
+     "bias_hb-outa_nc"
+    ],
+    "bias_hb.verdict-nc5": [
+     "n_ls"
+    ],
+    "bias_hb.verdict-nc6": [
+     "mon_good_hb"
+    ],
+    "bias_hb.verdict-nc8": [
+     "ls_v5"
+    ],
+    "n_hb": [
+     "bias_hb.monitor-v5",
+     "n_ls"
+    ],
+    "outa_nc": [
+     "bias_ha-outa_nc"
+    ],
+    "selv_gnd": [
+     "n_ls"
+    ],
+    "v3v3": [
+     "ls_v5"
+    ]
+   },
+   "resized_vias": 0,
+   "ripple_groups_routed": [
+    "G05",
+    "G08"
+   ],
+   "routed_copper_changed_nets": {
+    "bias_hb.monitor-good": {
+     "added": 38,
+     "groups": [
+      "G07"
+     ],
+     "removed": 28,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-v5": {
+     "added": 25,
+     "groups": [
+      "G07"
+     ],
+     "removed": 21,
+     "resized_vias": 0
+    },
+    "hsb_good": {
+     "added": 1,
+     "groups": [
+      "G07"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "ls_v5": {
+     "added": 18,
+     "groups": [
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "mon_good_ha": {
+     "added": 2,
+     "groups": [
+      "G07"
+     ],
+     "removed": 20,
+     "resized_vias": 0
+    },
+    "mon_good_hb": {
+     "added": 14,
+     "groups": [
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "monitor_ls-good": {
+     "added": 27,
+     "groups": [
+      "G07"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "n_hb": {
+     "added": 4,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 8,
+     "resized_vias": 0
+    },
+    "n_ls": {
+     "added": 11,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 22,
+     "resized_vias": 0
+    },
+    "selv_gnd": {
+     "added": 3,
+     "groups": [
+      "G05",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ],
+     "removed": 10,
+     "resized_vias": 0
+    },
+    "v24_raw": {
+     "added": 5,
+     "groups": [
+      "G06"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "v3v3": {
+     "added": 2,
+     "groups": [
+      "G05",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ],
+     "removed": 5,
+     "resized_vias": 0
+    }
+   },
+   "routed_copper_net_groups": [
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "routed_copper_territories": [
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G10"
+   ],
+   "schematic_groups": [
+    "G07",
+    "G10"
+   ],
+   "to": "native21s40"
+  },
+  {
+   "added": [],
+   "authored_groups": [
+    "G02",
+    "G03",
+    "G08"
+   ],
+   "authored_note": "hv_ret spreader at R5.4, leg_ret pours at R5.1 / Q3.1 / Q6.3, In1 leg-A neck, two R5.4 hv_ret vias moved, sw_b B.Cu lane over R5 (patches21.edit_base41)",
+   "board_from": "33ed17f3ad50289edeba11ac1ac008680bcc2e307b660043fc324a0118c4c900",
+   "board_to": "d4b2445ce1ca47801271c2ac34843b10134cd6c509c158a6f570718b8b91cd57",
+   "changed_items_by_territory": {
+    "G08": 4
+   },
+   "decisions_item": 53,
+   "from": "native21s40",
+   "gates_changed": {},
+   "intended_groups": [
+    "G02",
+    "G03",
+    "G08"
+   ],
+   "metrics_moved": {
+    "b3_c28_h25_peak_C": [
+     136.7,
+     126.5
+    ],
+    "b3_laminate_margin_K": [
+     -38.3,
+     -25.2
+    ],
+    "b3_nominal_h10_peak_C": [
+     165.4,
+     165.1
+    ]
+   },
+   "metrics_new": [],
+   "moved": [],
+   "mpn_changed": [],
+   "pin_changed": [],
+   "placement_groups": [],
+   "pour_fill_changed": {
+    "hv_ret|F.Cu": {
+     "groups": [
+      "G01",
+      "G02",
+      "G03",
+      "G08"
+     ],
+     "mm2_after": 541.64,
+     "mm2_before": 469.28
+    },
+    "leg_ret|B.Cu": {
+     "groups": [
+      "G03",
+      "G05",
+      "G06",
+      "G07",
+      "G08"
+     ],
+     "mm2_after": 105.7,
+     "mm2_before": 0.0
+    },
+    "leg_ret|F.Cu": {
+     "groups": [
+      "G03",
+      "G05",
+      "G06",
+      "G07",
+      "G08"
+     ],
+     "mm2_after": 124.59,
+     "mm2_before": 100.48
+    },
+    "leg_ret|In1.Cu": {
+     "groups": [
+      "G03",
+      "G05",
+      "G06",
+      "G07",
+      "G08"
+     ],
+     "mm2_after": 318.33,
+     "mm2_before": 284.63
+    }
+   },
+   "pour_fill_groups": [
+    "G01",
+    "G02",
+    "G03",
+    "G05",
+    "G06",
+    "G07",
+    "G08"
+   ],
+   "removed": [],
+   "renamed_nets": {},
+   "resized_vias": 0,
+   "ripple_groups_routed": [],
+   "routed_copper_changed_nets": {
+    "hv_ret": {
+     "added": 2,
+     "groups": [
+      "G01",
+      "G02",
+      "G03",
+      "G08"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    }
+   },
+   "routed_copper_net_groups": [
+    "G01",
+    "G02",
+    "G03",
+    "G08"
+   ],
+   "routed_copper_territories": [
+    "G08"
+   ],
+   "schematic_groups": [],
+   "to": "native21s41"
+  },
+  {
+   "added": [],
+   "authored_groups": [
+    "G05"
+   ],
+   "authored_note": "gate runs re-laid (patches21.edit_base42), pull-downs moved, R11 turned with its sw_a via, R10's sw_a stub via removed",
+   "board_from": "d4b2445ce1ca47801271c2ac34843b10134cd6c509c158a6f570718b8b91cd57",
+   "board_to": "9e075b4b90320e1e19c7b9740278715a4dabe6c80779fe8082a5bb844083ef86",
+   "changed_items_by_territory": {
+    "G03": 12,
+    "G05": 60
+   },
+   "decisions_item": 55,
+   "from": "native21s41",
+   "gates_changed": {
+    "b3_ratings": [
+     false,
+     true
+    ]
+   },
+   "intended_groups": [
+    "G05"
+   ],
+   "metrics_moved": {
+    "b3_c28_h25_peak_C": [
+     126.5,
+     147.2
+    ],
+    "b3_laminate_margin_K": [
+     -25.2,
+     -30.7
+    ],
+    "b3_nominal_h10_peak_C": [
+     165.1,
+     165.3
+    ],
+    "b3_rated_part_margin_K": [
+     -64.1,
+     -33.4
+    ],
+    "ledger_violations": [
+     1,
+     0
+    ],
+    "track_any_angle_mm": [
+     680.3,
+     675.0
+    ],
+    "track_right_angle_corners": [
+     101,
+     100
+    ]
+   },
+   "metrics_new": [
+    "b3_release_margin_K"
+   ],
+   "moved": [
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R18",
+    "R19",
+    "R20",
+    "R21"
+   ],
+   "mpn_changed": [
+    "C55",
+    "C56",
+    "C62",
+    "C63",
+    "R10",
+    "R12",
+    "R18",
+    "R20"
+   ],
+   "pin_changed": [],
+   "placement_groups": [
+    "G05"
+   ],
+   "pour_fill_changed": {
+    "leg_ret|F.Cu": {
+     "groups": [
+      "G03",
+      "G05",
+      "G06",
+      "G07",
+      "G08"
+     ],
+     "mm2_after": 117.66,
+     "mm2_before": 124.59
+    }
+   },
+   "pour_fill_groups": [
+    "G03",
+    "G05",
+    "G06",
+    "G07",
+    "G08"
+   ],
+   "removed": [],
+   "renamed_nets": {},
+   "resized_vias": 0,
+   "ripple_groups_routed": [
+    "G03"
+   ],
+   "routed_copper_changed_nets": {
+    "leg_a-gate_h": {
+     "added": 6,
+     "groups": [
+      "G03",
+      "G05"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "leg_a-gate_l": {
+     "added": 6,
+     "groups": [
+      "G03",
+      "G05"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "leg_a-out_h": {
+     "added": 3,
+     "groups": [
+      "G05"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "leg_a-out_l": {
+     "added": 3,
+     "groups": [
+      "G05"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "leg_b-gate_h": {
+     "added": 6,
+     "groups": [
+      "G03",
+      "G05"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "leg_b-gate_l": {
+     "added": 6,
+     "groups": [
+      "G03",
+      "G05"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "leg_b-out_h": {
+     "added": 3,
+     "groups": [
+      "G05"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "leg_b-out_l": {
+     "added": 3,
+     "groups": [
+      "G05"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "leg_ret": {
+     "added": 3,
+     "groups": [
+      "G03",
+      "G05",
+      "G06",
+      "G07",
+      "G08"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "sw_a": {
+     "added": 2,
+     "groups": [
+      "G03",
+      "G05",
+      "G06",
+      "G07",
+      "G09"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "sw_b": {
+     "added": 2,
+     "groups": [
+      "G03",
+      "G04",
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    }
+   },
+   "routed_copper_net_groups": [
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09"
+   ],
+   "routed_copper_territories": [
+    "G03",
+    "G05"
+   ],
+   "schematic_groups": [
+    "G05"
+   ],
+   "to": "native21s42"
+  },
+  {
+   "added": [],
+   "authored_groups": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "authored_note": "DECISIONS 48 cleanup pass on every island by design (621 edits on 100 nets); snubber MPN C12 / C13 / C19 / C20",
+   "board_from": "9e075b4b90320e1e19c7b9740278715a4dabe6c80779fe8082a5bb844083ef86",
+   "board_to": "61447816b9dd4921525b4f610aca40486989964368d69abb17bf7071cbf4d8df",
+   "changed_items_by_territory": {
+    "G01": 15,
+    "G02": 23,
+    "G03": 23,
+    "G04": 4,
+    "G05": 419,
+    "G06": 285,
+    "G07": 549,
+    "G08": 166,
+    "G09": 128,
+    "G10": 41,
+    "open": 17
+   },
+   "decisions_item": 57,
+   "from": "native21s42",
+   "gates_changed": {},
+   "intended_groups": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "metrics_moved": {
+    "b3_laminate_margin_K": [
+     -30.7,
+     -30.2
+    ],
+    "b3_nominal_h10_peak_C": [
+     165.3,
+     165.0
+    ],
+    "b3_rated_part_margin_K": [
+     -33.4,
+     -32.3
+    ],
+    "b3_release_margin_K": [
+     0.7,
+     1.2
+    ],
+    "track_acute_corners": [
+     199,
+     23
+    ],
+    "track_any_angle_mm": [
+     675.0,
+     272.6
+    ],
+    "track_fold_backs": [
+     43,
+     3
+    ],
+    "track_right_angle_corners": [
+     100,
+     49
+    ]
+   },
+   "metrics_new": [],
+   "moved": [],
+   "mpn_changed": [
+    "C12",
+    "C13",
+    "C19",
+    "C20"
+   ],
+   "pin_changed": [],
+   "placement_groups": [],
+   "pour_fill_changed": {},
+   "pour_fill_groups": [],
+   "removed": [],
+   "renamed_nets": {},
+   "resized_vias": 0,
+   "ripple_groups_routed": [],
+   "routed_copper_changed_nets": {
+    "ac_n_in": {
+     "added": 2,
+     "groups": [
+      "G01"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "bias_good": {
+     "added": 4,
+     "groups": [
+      "G05",
+      "G07"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "bias_ha-en": {
+     "added": 4,
+     "groups": [
+      "G06"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "bias_ha-fbm": {
+     "added": 4,
+     "groups": [
+      "G06"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-good": {
+     "added": 6,
+     "groups": [
+      "G07"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-halfref": {
+     "added": 9,
+     "groups": [
+      "G07"
+     ],
+     "removed": 6,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-ov": {
+     "added": 11,
+     "groups": [
+      "G07"
+     ],
+     "removed": 7,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-ref": {
+     "added": 10,
+     "groups": [
+      "G07"
+     ],
+     "removed": 7,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-spanov": {
+     "added": 14,
+     "groups": [
+      "G07"
+     ],
+     "removed": 7,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-spanuv": {
+     "added": 13,
+     "groups": [
+      "G07"
+     ],
+     "removed": 9,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-uv": {
+     "added": 0,
+     "groups": [
+      "G07"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-v5": {
+     "added": 15,
+     "groups": [
+      "G07"
+     ],
+     "removed": 9,
+     "resized_vias": 0
+    },
+    "bias_ha.split-fb": {
+     "added": 2,
+     "groups": [
+      "G06"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "bias_hb-en": {
+     "added": 2,
+     "groups": [
+      "G06"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "bias_hb-fbm": {
+     "added": 8,
+     "groups": [
+      "G06"
+     ],
+     "removed": 5,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-good": {
+     "added": 6,
+     "groups": [
+      "G07"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-halfref": {
+     "added": 2,
+     "groups": [
+      "G07"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-ov": {
+     "added": 16,
+     "groups": [
+      "G07"
+     ],
+     "removed": 8,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-ref": {
+     "added": 3,
+     "groups": [
+      "G07"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-spanov": {
+     "added": 10,
+     "groups": [
+      "G07"
+     ],
+     "removed": 6,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-spanuv": {
+     "added": 12,
+     "groups": [
+      "G07"
+     ],
+     "removed": 7,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-uv": {
+     "added": 4,
+     "groups": [
+      "G07"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-v5": {
+     "added": 10,
+     "groups": [
+      "G07"
+     ],
+     "removed": 6,
+     "resized_vias": 0
+    },
+    "bias_ls-fb": {
+     "added": 10,
+     "groups": [
+      "G06"
+     ],
+     "removed": 5,
+     "resized_vias": 0
+    },
+    "blw_l": {
+     "added": 2,
+     "groups": [
+      "G10"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "bus_fault": {
+     "added": 2,
+     "groups": [
+      "G09",
+      "G10"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "bus_fault_hot": {
+     "added": 6,
+     "groups": [
+      "G08"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "bus_fault_iso": {
+     "added": 0,
+     "groups": [
+      "G08",
+      "G09"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "busbleed_mid": {
+     "added": 5,
+     "groups": [
+      "G02"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "ct_mon": {
+     "added": 2,
+     "groups": [
+      "G09",
+      "G10"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "ct_oc_neg": {
+     "added": 2,
+     "groups": [
+      "G09"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "ct_ref_hi": {
+     "added": 4,
+     "groups": [
+      "G09"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "ct_ref_lo": {
+     "added": 2,
+     "groups": [
+      "G09"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "ct_s1": {
+     "added": 3,
+     "groups": [
+      "G09"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "ct_s2": {
+     "added": 17,
+     "groups": [
+      "G09"
+     ],
+     "removed": 11,
+     "resized_vias": 0
+    },
+    "ct_sense_mon": {
+     "added": 8,
+     "groups": [
+      "G09"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "ct_zc": {
+     "added": 2,
+     "groups": [
+      "G09",
+      "G10"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "hb_rc": {
+     "added": 2,
+     "groups": [
+      "G07"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "hb_rx": {
+     "added": 2,
+     "groups": [
+      "G07"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "hot5": {
+     "added": 33,
+     "groups": [
+      "G08"
+     ],
+     "removed": 21,
+     "resized_vias": 0
+    },
+    "hot5_uv_raw": {
+     "added": 2,
+     "groups": [
+      "G08"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "hot5_uv_sense": {
+     "added": 4,
+     "groups": [
+      "G08"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "hv_ret": {
+     "added": 2,
+     "groups": [
+      "G01",
+      "G02",
+      "G03",
+      "G08"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "l_filt": {
+     "added": 8,
+     "groups": [
+      "G01",
+      "G06",
+      "G09",
+      "G10"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "led1": {
+     "added": 3,
+     "groups": [
+      "G09"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "leg_a-gate_h": {
+     "added": 6,
+     "groups": [
+      "G03",
+      "G05"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "leg_a-gate_l": {
+     "added": 6,
+     "groups": [
+      "G03",
+      "G05"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "leg_a-off_h": {
+     "added": 5,
+     "groups": [
+      "G05"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "leg_a-off_l": {
+     "added": 5,
+     "groups": [
+      "G05"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "leg_a-out_h": {
+     "added": 2,
+     "groups": [
+      "G05"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "leg_a-out_l": {
+     "added": 9,
+     "groups": [
+      "G05"
+     ],
+     "removed": 5,
+     "resized_vias": 0
+    },
+    "leg_a-permit_gate": {
+     "added": 5,
+     "groups": [
+      "G05"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "leg_a.bias_h-damp": {
+     "added": 3,
+     "groups": [
+      "G05"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "leg_a.bias_l-damp": {
+     "added": 2,
+     "groups": [
+      "G05"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "leg_a.driver-dt": {
+     "added": 4,
+     "groups": [
+      "G05"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "leg_b-driver_dis": {
+     "added": 4,
+     "groups": [
+      "G05"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "leg_b-gate_h": {
+     "added": 6,
+     "groups": [
+      "G03",
+      "G05"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "leg_b-gate_l": {
+     "added": 6,
+     "groups": [
+      "G03",
+      "G05"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "leg_b-off_h": {
+     "added": 5,
+     "groups": [
+      "G05"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "leg_b-off_l": {
+     "added": 5,
+     "groups": [
+      "G05"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "leg_b-out_h": {
+     "added": 5,
+     "groups": [
+      "G05"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "leg_b-out_l": {
+     "added": 4,
+     "groups": [
+      "G05"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "leg_b-permit_gate": {
+     "added": 8,
+     "groups": [
+      "G05"
+     ],
+     "removed": 5,
+     "resized_vias": 0
+    },
+    "leg_b.bias_l-damp": {
+     "added": 2,
+     "groups": [
+      "G05"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "leg_ret": {
+     "added": 35,
+     "groups": [
+      "G03",
+      "G05",
+      "G06",
+      "G07",
+      "G08"
+     ],
+     "removed": 21,
+     "resized_vias": 0
+    },
+    "line_zc": {
+     "added": 2,
+     "groups": [
+      "G09",
+      "G10"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "line_zc_raw": {
+     "added": 4,
+     "groups": [
+      "G09"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "ls_v5": {
+     "added": 10,
+     "groups": [
+      "G07"
+     ],
+     "removed": 9,
+     "resized_vias": 0
+    },
+    "mon_good_ha": {
+     "added": 2,
+     "groups": [
+      "G07"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "monitor_ls-good": {
+     "added": 10,
+     "groups": [
+      "G07"
+     ],
+     "removed": 8,
+     "resized_vias": 0
+    },
+    "monitor_ls-halfref": {
+     "added": 4,
+     "groups": [
+      "G07"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "monitor_ls-ov": {
+     "added": 4,
+     "groups": [
+      "G07"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "monitor_ls-ref": {
+     "added": 4,
+     "groups": [
+      "G07"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "monitor_ls-spanov": {
+     "added": 4,
+     "groups": [
+      "G07"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "monitor_ls-spanuv": {
+     "added": 4,
+     "groups": [
+      "G07"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "monitor_ls-uv": {
+     "added": 2,
+     "groups": [
+      "G07"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "n_filt": {
+     "added": 9,
+     "groups": [
+      "G01",
+      "G06",
+      "G09",
+      "G10"
+     ],
+     "removed": 5,
+     "resized_vias": 0
+    },
+    "n_ha": {
+     "added": 39,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 24,
+     "resized_vias": 0
+    },
+    "n_hb": {
+     "added": 26,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 15,
+     "resized_vias": 0
+    },
+    "n_ls": {
+     "added": 127,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 70,
+     "resized_vias": 0
+    },
+    "ocp_ok_hot": {
+     "added": 2,
+     "groups": [
+      "G08"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "ovp_ok_hot": {
+     "added": 2,
+     "groups": [
+      "G08"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "ovp_thresh": {
+     "added": 8,
+     "groups": [
+      "G08"
+     ],
+     "removed": 5,
+     "resized_vias": 0
+    },
+    "p_ha": {
+     "added": 26,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 23,
+     "resized_vias": 0
+    },
+    "p_hb": {
+     "added": 37,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 27,
+     "resized_vias": 0
+    },
+    "pe": {
+     "added": 3,
+     "groups": [
+      "G01",
+      "G10"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "permit": {
+     "added": 8,
+     "groups": [
+      "G05",
+      "G10"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "pwm_ha": {
+     "added": 2,
+     "groups": [
+      "G05",
+      "G10"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "pwm_hb": {
+     "added": 2,
+     "groups": [
+      "G05",
+      "G10"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "ref25": {
+     "added": 11,
+     "groups": [
+      "G08"
+     ],
+     "removed": 7,
+     "resized_vias": 0
+    },
+    "selv_gnd": {
+     "added": 40,
+     "groups": [
+      "G05",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ],
+     "removed": 24,
+     "resized_vias": 0
+    },
+    "sw_a": {
+     "added": 30,
+     "groups": [
+      "G03",
+      "G05",
+      "G06",
+      "G07",
+      "G09"
+     ],
+     "removed": 22,
+     "resized_vias": 0
+    },
+    "sw_b": {
+     "added": 24,
+     "groups": [
+      "G03",
+      "G04",
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 14,
+     "resized_vias": 0
+    },
+    "tco_l": {
+     "added": 2,
+     "groups": [
+      "G06"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "v15_ls": {
+     "added": 60,
+     "groups": [
+      "G05",
+      "G06",
+      "G07",
+      "G08"
+     ],
+     "removed": 47,
+     "resized_vias": 0
+    },
+    "v24_raw": {
+     "added": 37,
+     "groups": [
+      "G06"
+     ],
+     "removed": 26,
+     "resized_vias": 0
+    },
+    "v3v3": {
+     "added": 52,
+     "groups": [
+      "G05",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ],
+     "removed": 29,
+     "resized_vias": 0
+    },
+    "vbus_n": {
+     "added": 4,
+     "groups": [
+      "G08",
+      "G10"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "vbus_p": {
+     "added": 2,
+     "groups": [
+      "G08",
+      "G10"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "vsense_in": {
+     "added": 7,
+     "groups": [
+      "G08"
+     ],
+     "removed": 5,
+     "resized_vias": 0
+    }
+   },
+   "routed_copper_net_groups": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "routed_copper_territories": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "schematic_groups": [
+    "G03"
+   ],
+   "to": "native21s43"
   }
  ],
  "tags": [
@@ -2214,6 +4262,12 @@
   "native21s29",
   "native21s30",
   "native21s31",
-  "native21s32"
+  "native21s32",
+  "native21s35",
+  "native21s38",
+  "native21s40",
+  "native21s41",
+  "native21s42",
+  "native21s43"
  ]
 }

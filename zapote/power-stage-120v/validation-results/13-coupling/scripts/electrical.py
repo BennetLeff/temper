@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Layer 1, electrical coupling: component-net bipartite graph of the stage-32 netlist.
+"""Layer 1, electrical coupling: component-net bipartite graph of the stage-$n netlist.
 
-    python3 -I validation-results/13-coupling/scripts/electrical.py      (after assign32.py)
+    python3 -I validation-results/13-coupling/scripts/electrical.py      (after $assign)
 
 Projection: clique expansion with weight 1/(k-1) per net per pair of distinct parts on it (k = parts on the net), so
 every net adds exactly 1 to each of its parts' weighted degree and a 70-pin rail weighs no more per part than a
@@ -115,6 +115,7 @@ def fiedler(H):
 
 
 def main():
+    C.init()
     ctl = C.Controls()
     alt = sys.argv[sys.argv.index("--alt") + 1] if "--alt" in sys.argv else None     # alternative partition (regroup.py)
     asg = C.load(f"assignment-{alt}.json" if alt else "assignment.json")["assignment"]
@@ -133,7 +134,7 @@ def main():
         L = [{"net": n, "class": C.net_class(n), "groups": g} for n, g in sorted(net_groups.items()) if i in g and j in g]
         pair_nets[f"{i}-{j}"] = {"nets": L, "by_class": dict(Counter(x["class"] for x in L))}
 
-    out = {"board_sha256": C.BOARD_SHA, "method": __doc__.split("Controls:")[0].strip(),
+    out = {"board_sha256": C.BOARD_SHA, "method": C.method(__doc__),
            "net_classes": {n: C.net_class(n) for n in sorted(nets)},
            "pair_shared_nets": pair_nets, "variants": {}}
     for vname, keep in VARIANTS.items():
@@ -170,7 +171,22 @@ def main():
         for r, g in zip(sorted(H), lab):
             rpart[g].append(r)
         Qr = nx.community.modularity(H, list(rpart.values()), weight="weight")
-        ctl.check(f"[{vname}] random relabelling modularity ~ 0", abs(Qr) < 0.05, f"Q_random {Qr:.4f}")
+        ok, detail, null = abs(Qr) < 0.05, f"Q_random {Qr:.4f}", None
+        if not ok:      # one seeded draw past 0.05: judge it against the null of 200 seeded relabellings instead
+            qs = []
+            for k in range(200):
+                lab_k = [gid[r] for r in sorted(H)]
+                random.Random(1000 + k).shuffle(lab_k)
+                part_k = defaultdict(list)
+                for r, g in zip(sorted(H), lab_k):
+                    part_k[g].append(r)
+                qs.append(nx.community.modularity(H, list(part_k.values()), weight="weight"))
+            mu, sd = float(np.mean(qs)), float(np.std(qs))
+            z = (Qr - mu) / sd
+            ok = abs(mu) < 0.02 and abs(z) <= 3.0 and Qg > mu + 10 * sd
+            null = {"n": 200, "seeds": "1000-1199", "mean": mu, "sd": sd, "max": float(max(qs)), "z_seed7": z}
+            detail += f"; null of 200 seeded relabellings mean {mu:.4f} sd {sd:.4f} (z {z:.2f}), Q_groups {Qg:.3f}"
+        ctl.check(f"[{vname}] random relabelling modularity ~ 0", ok, detail)
         sweep = []
         best = None
         for res in (0.25, 0.5, 0.75, 1.0, 1.5, 2.0):
@@ -246,6 +262,8 @@ def main():
             "resolution_sweep": sweep, "communities": comm_rows, "misfits": misfits,
             "group_split_over_communities": split, "intra_group": intra,
         }
+        if null:
+            out["variants"][vname]["Q_random_null"] = null
         print(f"[{vname}] Q groups {Qg:.3f} | Louvain {Qd:.3f} ({len(best)} comms) | greedy {Qgr:.3f} | ato {Qh:.3f} | "
               f"ARI {out['variants'][vname]['ARI_detected_vs_groups']:.3f} | misfits {len(misfits)} | isolated {len(iso)}")
     out["controls"] = ctl.rows

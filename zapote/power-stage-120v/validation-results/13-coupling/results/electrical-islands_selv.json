@@ -1,5 +1,5 @@
 {
- "board_sha256": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e",
+ "board_sha256": "61447816b9dd4921525b4f610aca40486989964368d69abb17bf7071cbf4d8df",
  "controls": [
   {
    "control": "[all] weighted degree == multi-part nets per part",
@@ -8,7 +8,7 @@
   },
   {
    "control": "[all] random relabelling modularity ~ 0",
-   "detail": "Q_random -0.0024",
+   "detail": "Q_random -0.0101",
    "pass": true
   },
   {
@@ -18,7 +18,7 @@
   },
   {
    "control": "[all] detected Q >= group Q",
-   "detail": "Q_detected 0.6818, Q_groups 0.6258",
+   "detail": "Q_detected 0.6907, Q_groups 0.6268",
    "pass": true
   },
   {
@@ -28,7 +28,7 @@
   },
   {
    "control": "[no_rails] random relabelling modularity ~ 0",
-   "detail": "Q_random -0.0024",
+   "detail": "Q_random 0.0021",
    "pass": true
   },
   {
@@ -38,7 +38,7 @@
   },
   {
    "control": "[no_rails] detected Q >= group Q",
-   "detail": "Q_detected 0.7753, Q_groups 0.6131",
+   "detail": "Q_detected 0.7776, Q_groups 0.6165",
    "pass": true
   },
   {
@@ -48,7 +48,7 @@
   },
   {
    "control": "[no_rails_no_planes] random relabelling modularity ~ 0",
-   "detail": "Q_random -0.0189",
+   "detail": "Q_random 0.0228",
    "pass": true
   },
   {
@@ -58,17 +58,18 @@
   },
   {
    "control": "[no_rails_no_planes] detected Q >= group Q",
-   "detail": "Q_detected 0.8355, Q_groups 0.6577",
+   "detail": "Q_detected 0.8388, Q_groups 0.6625",
    "pass": true
   }
  ],
- "method": "Layer 1, electrical coupling: component-net bipartite graph of the stage-32 netlist.\n\n    python3 -I validation-results/13-coupling/scripts/electrical.py      (after assign32.py)\n\nProjection: clique expansion with weight 1/(k-1) per net per pair of distinct parts on it (k = parts on the net), so\nevery net adds exactly 1 to each of its parts' weighted degree and a 70-pin rail weighs no more per part than a\n2-pin signal. Three variants: all nets; no_rails (supply / ground / plane rails removed: common.RAIL); and\nno_rails_no_planes (also the poured power nets leg_ret, hv_ret, bus_p, sw_a, sw_b).\nPer group pair: shared nets (with class: power path, rail, signal, sense), weighted cut (raw) and cut normalised by\nthe smaller group's volume; per group: conductance cut / min(vol, vol_rest).\nCommunities: networkx Louvain (seed 1, sorted node order; resolution sweep) and greedy modularity; modularity Q of the\nten-group partition against the detected partition, adjusted Rand index, and the parts whose community's majority\ngroup differs from their own. Intra-group: components and Louvain sub-blocks of each group's own subgraph, the nets\nthat join the sub-blocks, and the normalised algebraic connectivity of its largest component.",
+ "method": "Layer 1, electrical coupling: component-net bipartite graph of the stage-43 netlist.\n\n    python3 -I validation-results/13-coupling/scripts/electrical.py      (after assign.py)\n\nProjection: clique expansion with weight 1/(k-1) per net per pair of distinct parts on it (k = parts on the net), so\nevery net adds exactly 1 to each of its parts' weighted degree and a 70-pin rail weighs no more per part than a\n2-pin signal. Three variants: all nets; no_rails (supply / ground / plane rails removed: common.RAIL); and\nno_rails_no_planes (also the poured power nets leg_ret, hv_ret, bus_p, sw_a, sw_b).\nPer group pair: shared nets (with class: power path, rail, signal, sense), weighted cut (raw) and cut normalised by\nthe smaller group's volume; per group: conductance cut / min(vol, vol_rest).\nCommunities: networkx Louvain (seed 1, sorted node order; resolution sweep) and greedy modularity; modularity Q of the\nten-group partition against the detected partition, adjusted Rand index, and the parts whose community's majority\ngroup differs from their own. Intra-group: components and Louvain sub-blocks of each group's own subgraph, the nets\nthat join the sub-blocks, and the normalised algebraic connectivity of its largest component.",
  "net_classes": {
   "ac_l_in": "power",
   "ac_n_in": "power",
   "bias_good": "signal",
   "bias_ha-en": "signal",
   "bias_ha-fbm": "sense",
+  "bias_ha-outa_nc": "signal",
   "bias_ha.iso-p3": "signal",
   "bias_ha.iso-p32": "signal",
   "bias_ha.monitor-good": "signal",
@@ -83,6 +84,7 @@
   "bias_ha.split-fb": "sense",
   "bias_hb-en": "signal",
   "bias_hb-fbm": "sense",
+  "bias_hb-outa_nc": "signal",
   "bias_hb.iso-p3": "signal",
   "bias_hb.iso-p32": "signal",
   "bias_hb.monitor-good": "signal",
@@ -95,14 +97,6 @@
   "bias_hb.monitor-v5": "rail",
   "bias_hb.monitor.ldo5-nc": "signal",
   "bias_hb.split-fb": "sense",
-  "bias_hb.verdict-nc10": "signal",
-  "bias_hb.verdict-nc11": "signal",
-  "bias_hb.verdict-nc12": "signal",
-  "bias_hb.verdict-nc15": "signal",
-  "bias_hb.verdict-nc2": "signal",
-  "bias_hb.verdict-nc5": "signal",
-  "bias_hb.verdict-nc6": "signal",
-  "bias_hb.verdict-nc8": "signal",
   "bias_ls-fb": "sense",
   "blw_l": "power",
   "blw_lr": "power",
@@ -147,6 +141,7 @@
   "hot5_uv_sense": "sense",
   "hsb_good": "signal",
   "hv_ret": "power",
+  "j4_nc1": "signal",
   "l_f": "power",
   "l_filt": "power",
   "ldo_nr": "sense",
@@ -184,6 +179,7 @@
   "line_zc_raw": "sense",
   "ls_v5": "rail",
   "mon_good_ha": "signal",
+  "mon_good_hb": "signal",
   "monitor_ls-good": "signal",
   "monitor_ls-halfref": "sense",
   "monitor_ls-ov": "sense",
@@ -201,7 +197,6 @@
   "ocp_node": "sense",
   "ocp_ok_hot": "signal",
   "ocp_thresh": "sense",
-  "outa_nc": "signal",
   "outb": "signal",
   "ovp_ok_hot": "signal",
   "ovp_thresh": "sense",
@@ -241,7 +236,6 @@
   "u_ldo-nc": "signal",
   "u_ref-nc": "signal",
   "v15_ls": "rail",
-  "v15_selv": "rail",
   "v24_raw": "rail",
   "v3v3": "rail",
   "vbus_n": "sense",
@@ -249,6 +243,7 @@
   "vdiv_1": "sense",
   "vdiv_2": "sense",
   "vdiv_3": "sense",
+  "vote_b_nc": "signal",
   "vote_nc": "signal",
   "vsense_in": "sense",
   "xbleed_mid": "power"
@@ -679,31 +674,8 @@
    "nets": []
   },
   "G08-HSB": {
-   "by_class": {
-    "rail": 2
-   },
-   "nets": [
-    {
-     "class": "rail",
-     "groups": [
-      "G08",
-      "HSB",
-      "LS",
-      "SELV"
-     ],
-     "net": "selv_gnd"
-    },
-    {
-     "class": "rail",
-     "groups": [
-      "G08",
-      "HSB",
-      "LS",
-      "SELV"
-     ],
-     "net": "v3v3"
-    }
-   ]
+   "by_class": {},
+   "nets": []
   },
   "G08-LS": {
    "by_class": {
@@ -724,7 +696,6 @@
      "class": "rail",
      "groups": [
       "G08",
-      "HSB",
       "LS",
       "SELV"
      ],
@@ -742,7 +713,6 @@
      "class": "rail",
      "groups": [
       "G08",
-      "HSB",
       "LS",
       "SELV"
      ],
@@ -769,7 +739,6 @@
      "class": "rail",
      "groups": [
       "G08",
-      "HSB",
       "LS",
       "SELV"
      ],
@@ -779,7 +748,6 @@
      "class": "rail",
      "groups": [
       "G08",
-      "HSB",
       "LS",
       "SELV"
      ],
@@ -805,9 +773,18 @@
   },
   "HSA-HSB": {
    "by_class": {
-    "rail": 2
+    "rail": 3
    },
    "nets": [
+    {
+     "class": "rail",
+     "groups": [
+      "HSA",
+      "HSB",
+      "LS"
+     ],
+     "net": "ls_v5"
+    },
     {
      "class": "rail",
      "groups": [
@@ -854,6 +831,7 @@
      "class": "rail",
      "groups": [
       "HSA",
+      "HSB",
       "LS"
      ],
      "net": "ls_v5"
@@ -920,8 +898,8 @@
   },
   "HSB-LS": {
    "by_class": {
-    "rail": 6,
-    "signal": 2
+    "rail": 5,
+    "signal": 3
    },
    "nets": [
     {
@@ -939,6 +917,23 @@
       "LS"
      ],
      "net": "leg_b-out_h"
+    },
+    {
+     "class": "rail",
+     "groups": [
+      "HSA",
+      "HSB",
+      "LS"
+     ],
+     "net": "ls_v5"
+    },
+    {
+     "class": "signal",
+     "groups": [
+      "HSB",
+      "LS"
+     ],
+     "net": "mon_good_hb"
     },
     {
      "class": "rail",
@@ -968,69 +963,17 @@
     {
      "class": "rail",
      "groups": [
-      "G08",
-      "HSB",
-      "LS",
-      "SELV"
-     ],
-     "net": "selv_gnd"
-    },
-    {
-     "class": "rail",
-     "groups": [
       "HSA",
       "HSB",
       "LS"
      ],
      "net": "v24_raw"
-    },
-    {
-     "class": "rail",
-     "groups": [
-      "G08",
-      "HSB",
-      "LS",
-      "SELV"
-     ],
-     "net": "v3v3"
     }
    ]
   },
   "HSB-SELV": {
-   "by_class": {
-    "rail": 2,
-    "signal": 1
-   },
-   "nets": [
-    {
-     "class": "signal",
-     "groups": [
-      "HSB",
-      "SELV"
-     ],
-     "net": "hsb_good"
-    },
-    {
-     "class": "rail",
-     "groups": [
-      "G08",
-      "HSB",
-      "LS",
-      "SELV"
-     ],
-     "net": "selv_gnd"
-    },
-    {
-     "class": "rail",
-     "groups": [
-      "G08",
-      "HSB",
-      "LS",
-      "SELV"
-     ],
-     "net": "v3v3"
-    }
-   ]
+   "by_class": {},
+   "nets": []
   },
   "LS-SELV": {
    "by_class": {
@@ -1133,7 +1076,6 @@
      "class": "rail",
      "groups": [
       "G08",
-      "HSB",
       "LS",
       "SELV"
      ],
@@ -1143,7 +1085,6 @@
      "class": "rail",
      "groups": [
       "G08",
-      "HSB",
       "LS",
       "SELV"
      ],
@@ -1154,12 +1095,12 @@
  },
  "variants": {
   "all": {
-   "ARI_detected_vs_groups": 0.7834,
-   "Q_ato_top_module": 0.3031,
-   "Q_detected_louvain": 0.6818,
-   "Q_greedy": 0.6747,
-   "Q_groups": 0.6258,
-   "Q_random_relabel": -0.0024,
+   "ARI_detected_vs_groups": 0.7855,
+   "Q_ato_top_module": 0.3055,
+   "Q_detected_louvain": 0.6907,
+   "Q_greedy": 0.6857,
+   "Q_groups": 0.6268,
+   "Q_random_relabel": -0.0101,
    "W_norm_min_volume": {
     "G01": {
      "G01": 0.0,
@@ -1169,8 +1110,8 @@
      "G08": 0.007,
      "HSA": 0.0,
      "HSB": 0.0,
-     "LS": 0.0423,
-     "SELV": 0.164
+     "LS": 0.0494,
+     "SELV": 0.1358
     },
     "G02": {
      "G01": 0.0627,
@@ -1212,9 +1153,9 @@
      "G04": 0.0,
      "G08": 0.0,
      "HSA": 0.0,
-     "HSB": 0.002,
-     "LS": 0.0459,
-     "SELV": 0.1024
+     "HSB": 0.0,
+     "LS": 0.046,
+     "SELV": 0.1041
     },
     "HSA": {
      "G01": 0.0,
@@ -1223,8 +1164,8 @@
      "G04": 0.0,
      "G08": 0.0,
      "HSA": 0.0,
-     "HSB": 0.0008,
-     "LS": 0.0739,
+     "HSB": 0.0019,
+     "LS": 0.0729,
      "SELV": 0.0067
     },
     "HSB": {
@@ -1232,46 +1173,46 @@
      "G02": 0.0,
      "G03": 0.1271,
      "G04": 0.192,
-     "G08": 0.002,
-     "HSA": 0.0008,
+     "G08": 0.0,
+     "HSA": 0.0019,
      "HSB": 0.0,
-     "LS": 0.0502,
-     "SELV": 0.0221
+     "LS": 0.0729,
+     "SELV": 0.0
     },
     "LS": {
-     "G01": 0.0423,
+     "G01": 0.0494,
      "G02": 0.0,
      "G03": 0.1964,
      "G04": 0.0,
-     "G08": 0.0459,
-     "HSA": 0.0739,
-     "HSB": 0.0502,
+     "G08": 0.046,
+     "HSA": 0.0729,
+     "HSB": 0.0729,
      "LS": 0.0,
-     "SELV": 0.0819
+     "SELV": 0.0828
     },
     "SELV": {
-     "G01": 0.164,
+     "G01": 0.1358,
      "G02": 0.0,
      "G03": 0.0071,
      "G04": 0.05,
-     "G08": 0.1024,
+     "G08": 0.1041,
      "HSA": 0.0067,
-     "HSB": 0.0221,
-     "LS": 0.0819,
+     "HSB": 0.0,
+     "LS": 0.0828,
      "SELV": 0.0
     }
    },
    "W_raw": {
     "G01": {
-     "G01": 9.7143,
+     "G01": 10.0,
      "G02": 0.7521,
      "G03": 1.0598,
      "G04": 0.0,
      "G08": 0.188,
      "HSA": 0.0,
      "HSB": 0.0,
-     "LS": 1.1429,
-     "SELV": 4.4286
+     "LS": 1.3333,
+     "SELV": 3.6667
     },
     "G02": {
      "G01": 0.7521,
@@ -1311,11 +1252,11 @@
      "G02": 0.7521,
      "G03": 1.1848,
      "G04": 0.0,
-     "G08": 45.6742,
+     "G08": 45.6822,
      "HSA": 0.0,
-     "HSB": 0.2171,
-     "LS": 5.0463,
-     "SELV": 11.2633
+     "HSB": 0.0,
+     "LS": 5.0583,
+     "SELV": 11.4524
     },
     "HSA": {
      "G01": 0.0,
@@ -1323,9 +1264,9 @@
      "G03": 4.2,
      "G04": 0.0,
      "G08": 0.0,
-     "HSA": 53.0145,
-     "HSB": 0.1004,
-     "LS": 8.8706,
+     "HSA": 53.0141,
+     "HSB": 0.2278,
+     "LS": 8.7441,
      "SELV": 0.8
     },
     "HSB": {
@@ -1333,43 +1274,41 @@
      "G02": 0.0,
      "G03": 3.56,
      "G04": 3.84,
-     "G08": 0.2171,
-     "HSA": 0.1004,
-     "HSB": 51.8,
-     "LS": 6.0298,
-     "SELV": 2.6527
+     "G08": 0.0,
+     "HSA": 0.2278,
+     "HSB": 51.8141,
+     "LS": 8.7441,
+     "SELV": 0.0
     },
     "LS": {
-     "G01": 1.1429,
+     "G01": 1.3333,
      "G02": 0.0,
      "G03": 5.5,
      "G04": 0.0,
-     "G08": 5.0463,
-     "HSA": 8.8706,
-     "HSB": 6.0298,
-     "LS": 92.7977,
-     "SELV": 14.8151
+     "G08": 5.0583,
+     "HSA": 8.7441,
+     "HSB": 8.7441,
+     "LS": 93.4411,
+     "SELV": 14.7381
     },
     "SELV": {
-     "G01": 4.4286,
+     "G01": 3.6667,
      "G02": 0.0,
      "G03": 0.2,
      "G04": 1.0,
-     "G08": 11.2633,
+     "G08": 11.4524,
      "HSA": 0.8,
-     "HSB": 2.6527,
-     "LS": 14.8151,
-     "SELV": 72.9202
+     "HSB": 0.0,
+     "LS": 14.7381,
+     "SELV": 73.0714
     }
    },
    "communities": [
     {
      "ato_modules": {
-      "bias_ha": 5,
-      "bias_hb": 7,
+      "bias_ha": 8,
+      "bias_hb": 5,
       "bias_ls": 9,
-      "c_hot5_uv": 1,
-      "c_ldo_in": 1,
       "c_v15": 1,
       "hb": 6,
       "leg_a": 21,
@@ -1379,9 +1318,8 @@
      "community": 0,
      "groups": {
       "G03": 4,
-      "G08": 2,
-      "HSB": 1,
-      "LS": 87
+      "HSA": 1,
+      "LS": 88
      },
      "majority_group": "LS",
      "parts": [
@@ -1411,12 +1349,11 @@
       "C15",
       "C158",
       "C16",
+      "C160",
       "C161",
       "C162",
       "C20",
       "C24",
-      "C25",
-      "C48",
       "C52",
       "C53",
       "C56",
@@ -1445,8 +1382,7 @@
       "Q3",
       "Q6",
       "R12",
-      "R128",
-      "R129",
+      "R127",
       "R13",
       "R131",
       "R20",
@@ -1456,6 +1392,7 @@
       "R56",
       "R58",
       "R59",
+      "R62",
       "R72",
       "R75",
       "R77",
@@ -1477,14 +1414,13 @@
       "U29",
       "U32",
       "U37",
-      "U42",
+      "U41",
       "U45"
      ],
-     "size": 94
+     "size": 93
     },
     {
      "ato_modules": {
-      "bias_hb": 1,
       "c_bf": 1,
       "c_bias_flt_vcc": 1,
       "c_ct_bias": 1,
@@ -1498,17 +1434,17 @@
       "c_ref_xfer_2": 1,
       "c_ref_xfer_3": 1,
       "c_ref_xfer_4": 1,
+      "c_ref_xfer_5": 1,
       "c_vs2": 1,
       "c_vs2_1u": 1,
       "d_ct_hi": 1,
       "d_ct_lo": 1,
-      "hb": 9,
+      "hb": 10,
       "j_coil": 1,
       "j_selv": 1,
       "leg_a": 8,
       "leg_b": 8,
-      "line_zc": 6,
-      "ps_selv": 1,
+      "line_zc": 3,
       "r_bf": 1,
       "r_ct_bias_bot": 1,
       "r_ct_bias_top": 1,
@@ -1524,15 +1460,14 @@
       "u_ct_neg": 1,
       "u_ct_pos": 1,
       "u_ct_zc": 1,
-      "u_fault_or": 1,
-      "u_vsense": 1
+      "u_fault_or": 1
      },
      "community": 1,
      "groups": {
       "G04": 1,
-      "G08": 4,
+      "G08": 3,
       "LS": 2,
-      "SELV": 62
+      "SELV": 59
      },
      "majority_group": "SELV",
      "parts": [
@@ -1544,12 +1479,12 @@
       "C154",
       "C155",
       "C156",
-      "C160",
       "C163",
       "C164",
       "C165",
       "C166",
       "C167",
+      "C168",
       "C29",
       "C37",
       "C42",
@@ -1567,11 +1502,11 @@
       "D5",
       "J2",
       "J4",
-      "PS1",
       "R125",
       "R132",
       "R133",
       "R134",
+      "R135",
       "R14",
       "R15",
       "R17",
@@ -1585,9 +1520,7 @@
       "R46",
       "R47",
       "R6",
-      "R69",
       "R7",
-      "R70",
       "R73",
       "R76",
       "R9",
@@ -1601,23 +1534,22 @@
       "U22",
       "U23",
       "U24",
-      "U36",
-      "U4",
       "U40",
       "U46"
      ],
-     "size": 69
+     "size": 65
     },
     {
      "ato_modules": {
-      "bias_hb": 32,
+      "bias_hb": 35,
       "c_res1": 1,
       "c_res2": 1,
       "c_res3": 1,
       "c_res4": 1,
       "c_res5": 1,
+      "hb": 1,
       "j_coil_return": 1,
-      "leg_b": 20,
+      "leg_b": 14,
       "r_crb1": 1,
       "r_crb2": 1,
       "r_crb3": 1,
@@ -1625,9 +1557,9 @@
      },
      "community": 2,
      "groups": {
-      "G03": 1,
       "G04": 10,
-      "HSB": 51
+      "HSB": 47,
+      "LS": 3
      },
      "majority_group": "HSB",
      "parts": [
@@ -1650,7 +1582,6 @@
       "C23",
       "C57",
       "C58",
-      "C62",
       "C72",
       "C82",
       "C83",
@@ -1660,9 +1591,8 @@
       "C87",
       "C94",
       "C95",
-      "D8",
+      "D20",
       "J5",
-      "Q5",
       "R110",
       "R111",
       "R112",
@@ -1676,14 +1606,13 @@
       "R120",
       "R121",
       "R124",
-      "R18",
-      "R19",
+      "R128",
+      "R129",
       "R22",
       "R23",
       "R24",
       "R25",
       "R55",
-      "R57",
       "R61",
       "R65",
       "R74",
@@ -1692,20 +1621,22 @@
       "U21",
       "U31",
       "U39",
+      "U42",
       "U44"
      ],
-     "size": 62
+     "size": 60
     },
     {
      "ato_modules": {
-      "bias_ha": 35,
+      "bias_ha": 32,
       "hb": 1,
-      "leg_a": 14
+      "leg_a": 20
      },
      "community": 3,
      "groups": {
-      "HSA": 47,
-      "LS": 3
+      "G03": 1,
+      "HSA": 51,
+      "LS": 1
      },
      "majority_group": "HSA",
      "parts": [
@@ -1723,6 +1654,7 @@
       "C157",
       "C50",
       "C51",
+      "C55",
       "C71",
       "C75",
       "C76",
@@ -1733,6 +1665,9 @@
       "C90",
       "C91",
       "D18",
+      "D6",
+      "Q2",
+      "R10",
       "R100",
       "R101",
       "R102",
@@ -1741,9 +1676,9 @@
       "R105",
       "R106",
       "R109",
-      "R127",
+      "R11",
       "R51",
-      "R62",
+      "R53",
       "R63",
       "R71",
       "R92",
@@ -1757,16 +1692,17 @@
       "U19",
       "U30",
       "U38",
-      "U41",
       "U43"
      ],
-     "size": 50
+     "size": 53
     },
     {
      "ato_modules": {
       "c_div": 1,
       "c_hot5_schmitt": 1,
+      "c_hot5_uv": 1,
       "c_iso1": 1,
+      "c_ldo_in": 1,
       "c_ldo_out": 1,
       "c_nand_vcc": 1,
       "c_ocp_node": 1,
@@ -1795,15 +1731,17 @@
       "u_nand": 1,
       "u_ocp": 1,
       "u_ovp": 1,
-      "u_ref": 1
+      "u_ref": 1,
+      "u_vsense": 1
      },
      "community": 4,
      "groups": {
-      "G08": 32
+      "G08": 35
      },
      "majority_group": "G08",
      "parts": [
       "C149",
+      "C25",
       "C26",
       "C27",
       "C28",
@@ -1814,6 +1752,7 @@
       "C34",
       "C35",
       "C36",
+      "C48",
       "C49",
       "R30",
       "R31",
@@ -1830,13 +1769,14 @@
       "U14",
       "U15",
       "U3",
+      "U4",
       "U5",
       "U6",
       "U7",
       "U8",
       "U9"
      ],
-     "size": 32
+     "size": 35
     },
     {
      "ato_modules": {
@@ -1847,8 +1787,8 @@
       "c_hf_a2": 1,
       "c_hf_b1": 1,
       "c_hf_b2": 1,
-      "leg_a": 7,
-      "leg_b": 1,
+      "leg_a": 1,
+      "leg_b": 7,
       "r_bus1": 1,
       "r_bus2": 1,
       "r_div1": 1,
@@ -1864,7 +1804,7 @@
       "G02": 6,
       "G03": 7,
       "G08": 4,
-      "HSA": 5
+      "HSB": 5
      },
      "majority_group": "G03",
      "parts": [
@@ -1876,21 +1816,21 @@
       "C40",
       "C41",
       "C5",
-      "C55",
       "C6",
+      "C62",
       "D17",
       "D3",
-      "D6",
-      "Q2",
-      "R10",
-      "R11",
+      "D8",
+      "Q5",
+      "R18",
+      "R19",
       "R26",
       "R27",
       "R28",
       "R29",
       "R3",
       "R4",
-      "R53"
+      "R57"
      ],
      "size": 23
     },
@@ -1907,7 +1847,7 @@
       "j_pe": 1,
       "j_tco": 1,
       "l1": 1,
-      "line_zc": 2,
+      "line_zc": 5,
       "ps_gate": 1,
       "r_blw": 1,
       "r_fe": 1,
@@ -1919,7 +1859,7 @@
      "groups": {
       "G01": 11,
       "LS": 2,
-      "SELV": 6
+      "SELV": 9
      },
      "majority_group": "G01",
      "parts": [
@@ -1941,32 +1881,35 @@
       "R38",
       "R67",
       "R68",
-      "RV1"
+      "R69",
+      "R70",
+      "RV1",
+      "U36"
      ],
-     "size": 19
+     "size": 22
     }
    ],
    "conductance": {
-    "G01": 0.2804,
+    "G01": 0.2593,
     "G02": 0.4786,
     "G03": 0.7466,
     "G04": 0.29,
-    "G08": 0.1696,
+    "G08": 0.1694,
     "HSA": 0.1164,
-    "HSB": 0.1367,
-    "LS": 0.1824,
-    "SELV": 0.1943
+    "HSB": 0.1364,
+    "LS": 0.191,
+    "SELV": 0.179
    },
    "cut": {
-    "G01": 7.5714,
+    "G01": 7.0,
     "G02": 5.7436,
     "G03": 20.904,
     "G04": 5.8,
-    "G08": 18.6517,
-    "HSA": 13.971,
-    "HSB": 16.4,
-    "LS": 41.4047,
-    "SELV": 35.1597
+    "G08": 18.6356,
+    "HSA": 13.9718,
+    "HSB": 16.3718,
+    "LS": 44.1178,
+    "SELV": 31.8571
    },
    "group_split_over_communities": {
     "G01": {
@@ -1978,7 +1921,7 @@
     },
     "G03": {
      "0": 4,
-     "2": 1,
+     "3": 1,
      "5": 7
     },
     "G04": {
@@ -1986,28 +1929,28 @@
      "2": 10
     },
     "G08": {
-     "0": 2,
-     "1": 4,
-     "4": 32,
+     "1": 3,
+     "4": 35,
      "5": 4
     },
     "HSA": {
-     "3": 47,
-     "5": 5
+     "0": 1,
+     "3": 51
     },
     "HSB": {
-     "0": 1,
-     "2": 51
+     "2": 47,
+     "5": 5
     },
     "LS": {
-     "0": 87,
+     "0": 88,
      "1": 2,
-     "3": 3,
+     "2": 3,
+     "3": 1,
      "6": 2
     },
     "SELV": {
-     "1": 62,
-     "6": 6
+     "1": 59,
+     "6": 9
     }
    },
    "intra_group": {
@@ -2016,8 +1959,8 @@
       12
      ],
      "components": 1,
-     "fiedler_normalised_largest": 0.1613,
-     "louvain_Q_inside": 0.2958,
+     "fiedler_normalised_largest": 0.1709,
+     "louvain_Q_inside": 0.295,
      "louvain_subblocks": 3,
      "parts_total": 12,
      "parts_with_internal_edges": 12,
@@ -2054,30 +1997,30 @@
       {
        "ato_modules": {
         "cx1": 1,
-        "f1": 1,
-        "j_mains": 1,
         "l1": 1,
+        "rb1a": 1,
+        "rb1b": 1,
         "rv1": 1
        },
        "block": 1,
        "parts": [
         "C1",
-        "F1",
-        "J1",
         "L1",
+        "R1",
+        "R2",
         "RV1"
        ],
        "size": 5
       },
       {
        "ato_modules": {
-        "rb1a": 1,
-        "rb1b": 1
+        "f1": 1,
+        "j_mains": 1
        },
        "block": 2,
        "parts": [
-        "R1",
-        "R2"
+        "F1",
+        "J1"
        ],
        "size": 2
       }
@@ -2285,7 +2228,7 @@
      ],
      "components": 1,
      "fiedler_normalised_largest": 0.0765,
-     "louvain_Q_inside": 0.3193,
+     "louvain_Q_inside": 0.3194,
      "louvain_subblocks": 4,
      "parts_total": 42,
      "parts_with_internal_edges": 42,
@@ -2660,7 +2603,7 @@
      ],
      "components": 1,
      "fiedler_normalised_largest": 0.1,
-     "louvain_Q_inside": 0.368,
+     "louvain_Q_inside": 0.3679,
      "louvain_subblocks": 6,
      "parts_total": 52,
      "parts_with_internal_edges": 52,
@@ -2703,6 +2646,7 @@
       ],
       "2-3": [
        "n_hb",
+       "n_ls",
        "p_hb"
       ],
       "2-4": [
@@ -2838,7 +2782,6 @@
       "0-4",
       "0-5",
       "1-4",
-      "2-3",
       "2-4",
       "2-5",
       "3-5"
@@ -2846,14 +2789,14 @@
     },
     "LS": {
      "component_sizes": [
-      94
+      96
      ],
      "components": 1,
-     "fiedler_normalised_largest": 0.1937,
-     "louvain_Q_inside": 0.4174,
+     "fiedler_normalised_largest": 0.1926,
+     "louvain_Q_inside": 0.4237,
      "louvain_subblocks": 7,
-     "parts_total": 94,
-     "parts_with_internal_edges": 94,
+     "parts_total": 96,
+     "parts_with_internal_edges": 96,
      "small_components": [],
      "subblock_joins": {
       "0-1": [
@@ -2875,7 +2818,7 @@
        "n_ls"
       ],
       "0-6": [
-       "leg_a-gate_l",
+       "leg_ret",
        "n_ls"
       ],
       "1-2": [
@@ -2914,6 +2857,7 @@
        "v15_ls"
       ],
       "2-6": [
+       "leg_ret",
        "n_ls",
        "v15_ls"
       ],
@@ -2927,6 +2871,7 @@
        "v15_ls"
       ],
       "3-6": [
+       "leg_ret",
        "n_ls",
        "v15_ls"
       ],
@@ -2943,6 +2888,7 @@
        "v3v3"
       ],
       "5-6": [
+       "leg_ret",
        "n_ls",
        "selv_gnd",
        "v15_ls",
@@ -2953,7 +2899,6 @@
       {
        "ato_modules": {
         "bias_ls": 3,
-        "leg_a": 2,
         "leg_a.bias_l": 10,
         "leg_b.bias_l": 10
        },
@@ -2971,21 +2916,19 @@
         "C129",
         "C52",
         "C53",
-        "C56",
         "C59",
         "C60",
         "C92",
         "C93",
         "C96",
         "C97",
-        "R13",
         "R52",
         "R56",
         "R77",
         "R78",
         "U16"
        ],
-       "size": 25
+       "size": 23
       },
       {
        "ato_modules": {
@@ -3074,7 +3017,8 @@
       {
        "ato_modules": {
         "bias_ha": 1,
-        "hb": 7,
+        "bias_hb": 1,
+        "hb": 8,
         "monitor_ls": 3
        },
        "block": 4,
@@ -3082,22 +3026,39 @@
         "C132",
         "C133",
         "C158",
+        "C160",
         "C161",
         "C162",
         "D18",
+        "D20",
         "R131",
         "R91",
         "U32",
         "U37",
         "U45"
        ],
-       "size": 11
+       "size": 13
+      },
+      {
+       "ato_modules": {
+        "leg_a": 6
+       },
+       "block": 5,
+       "parts": [
+        "C56",
+        "D7",
+        "R12",
+        "R13",
+        "R54",
+        "U1"
+       ],
+       "size": 6
       },
       {
        "ato_modules": {
         "leg_b": 6
        },
-       "block": 5,
+       "block": 6,
        "parts": [
         "C63",
         "D9",
@@ -3107,19 +3068,6 @@
         "U2"
        ],
        "size": 6
-      },
-      {
-       "ato_modules": {
-        "leg_a": 4
-       },
-       "block": 6,
-       "parts": [
-        "D7",
-        "R12",
-        "R54",
-        "U1"
-       ],
-       "size": 4
       }
      ],
      "weak_joins": [
@@ -3134,9 +3082,7 @@
       "1-4",
       "1-5",
       "1-6",
-      "2-6",
-      "3-4",
-      "3-6"
+      "3-4"
      ]
     },
     "SELV": {
@@ -3144,9 +3090,9 @@
       68
      ],
      "components": 1,
-     "fiedler_normalised_largest": 0.0861,
-     "louvain_Q_inside": 0.4284,
-     "louvain_subblocks": 6,
+     "fiedler_normalised_largest": 0.0443,
+     "louvain_Q_inside": 0.4345,
+     "louvain_subblocks": 7,
      "parts_total": 68,
      "parts_with_internal_edges": 68,
      "small_components": [],
@@ -3172,9 +3118,6 @@
        "v3v3"
       ],
       "1-2": [
-       "l_filt",
-       "line_zc",
-       "n_filt",
        "selv_gnd",
        "v3v3"
       ],
@@ -3185,11 +3128,12 @@
        "v3v3"
       ],
       "1-4": [
+       "permit",
        "selv_gnd",
        "v3v3"
       ],
       "1-5": [
-       "permit",
+       "line_zc",
        "selv_gnd",
        "v3v3"
       ],
@@ -3198,6 +3142,7 @@
        "v3v3"
       ],
       "2-4": [
+       "bias_good",
        "selv_gnd",
        "v3v3"
       ],
@@ -3214,9 +3159,12 @@
        "v3v3"
       ],
       "4-5": [
-       "bias_good",
        "selv_gnd",
        "v3v3"
+      ],
+      "5-6": [
+       "l_filt",
+       "n_filt"
       ]
      },
      "subblocks": [
@@ -3238,8 +3186,8 @@
         "C154",
         "C155",
         "C156",
-        "C160",
         "C163",
+        "C168",
         "C44",
         "C45",
         "C46",
@@ -3261,7 +3209,7 @@
         "d_ct_hi": 1,
         "d_ct_lo": 1,
         "j_selv": 1,
-        "ps_selv": 1
+        "r_ct_burden": 1
        },
        "block": 1,
        "parts": [
@@ -3270,7 +3218,6 @@
         "D4",
         "D5",
         "J4",
-        "PS1",
         "R39",
         "R40",
         "R41",
@@ -3279,29 +3226,26 @@
         "T1",
         "U12"
        ],
-       "size": 13
+       "size": 12
       },
       {
        "ato_modules": {
-        "f_blw": 1,
-        "j_blw_ac": 1,
-        "line_zc": 7,
-        "r_blw": 1
+        "hb": 8,
+        "u_bias_flt": 1
        },
        "block": 2,
        "parts": [
-        "F2",
-        "J11",
-        "R125",
-        "R130",
-        "R67",
-        "R68",
-        "R69",
-        "R70",
-        "U24",
-        "U36"
+        "C164",
+        "C165",
+        "C166",
+        "D19",
+        "R132",
+        "R133",
+        "R135",
+        "U40",
+        "U46"
        ],
-       "size": 10
+       "size": 9
       },
       {
        "ato_modules": {
@@ -3328,28 +3272,10 @@
       },
       {
        "ato_modules": {
-        "hb": 7,
-        "u_bias_flt": 1
-       },
-       "block": 4,
-       "parts": [
-        "C164",
-        "C165",
-        "C166",
-        "D19",
-        "R132",
-        "R133",
-        "U40",
-        "U46"
-       ],
-       "size": 8
-      },
-      {
-       "ato_modules": {
         "leg_a": 4,
         "leg_b": 4
        },
-       "block": 5,
+       "block": 4,
        "parts": [
         "R14",
         "R15",
@@ -3361,6 +3287,36 @@
         "U23"
        ],
        "size": 8
+      },
+      {
+       "ato_modules": {
+        "line_zc": 7
+       },
+       "block": 5,
+       "parts": [
+        "R125",
+        "R67",
+        "R68",
+        "R69",
+        "R70",
+        "U24",
+        "U36"
+       ],
+       "size": 7
+      },
+      {
+       "ato_modules": {
+        "f_blw": 1,
+        "j_blw_ac": 1,
+        "r_blw": 1
+       },
+       "block": 6,
+       "parts": [
+        "F2",
+        "J11",
+        "R130"
+       ],
+       "size": 3
       }
      ],
      "weak_joins": [
@@ -3369,12 +3325,13 @@
       "0-3",
       "0-4",
       "0-5",
-      "1-4",
+      "1-2",
       "2-3",
-      "2-4",
       "2-5",
       "3-4",
-      "3-5"
+      "3-5",
+      "4-5",
+      "5-6"
      ]
     }
    },
@@ -3383,7 +3340,7 @@
      "community": 0,
      "community_majority": "LS",
      "group": "G03",
-     "mpn": "GRM31A5C3A102JW01D",
+     "mpn": "CC1206JKNPOCBN102",
      "path": "leg_a.c_snub_l",
      "ref": "C13"
     },
@@ -3391,25 +3348,9 @@
      "community": 0,
      "community_majority": "LS",
      "group": "G03",
-     "mpn": "GRM31A5C3A102JW01D",
+     "mpn": "CC1206JKNPOCBN102",
      "path": "leg_b.c_snub_l",
      "ref": "C20"
-    },
-    {
-     "community": 0,
-     "community_majority": "LS",
-     "group": "G08",
-     "mpn": "CC0603KRX7R9BB104",
-     "path": "c_ldo_in",
-     "ref": "C25"
-    },
-    {
-     "community": 0,
-     "community_majority": "LS",
-     "group": "G08",
-     "mpn": "CC0603KRX7R9BB104",
-     "path": "c_hot5_uv",
-     "ref": "C48"
     },
     {
      "community": 0,
@@ -3430,10 +3371,10 @@
     {
      "community": 0,
      "community_majority": "LS",
-     "group": "HSB",
+     "group": "HSA",
      "mpn": "R24C2T25/R-R",
-     "path": "bias_hb.iso",
-     "ref": "U42"
+     "path": "bias_ha.iso",
+     "ref": "U41"
     },
     {
      "community": 1,
@@ -3463,7 +3404,7 @@
      "community": 1,
      "community_majority": "SELV",
      "group": "G04",
-     "mpn": "74650074",
+     "mpn": "7466004R",
      "path": "j_coil",
      "ref": "J2"
     },
@@ -3482,14 +3423,6 @@
      "mpn": "2EDR8259XXUMA1",
      "path": "leg_b.driver",
      "ref": "U2"
-    },
-    {
-     "community": 1,
-     "community_majority": "SELV",
-     "group": "G08",
-     "mpn": "AMC1311BDWVR",
-     "path": "u_vsense",
-     "ref": "U4"
     },
     {
      "community": 2,
@@ -3534,18 +3467,34 @@
     {
      "community": 2,
      "community_majority": "HSB",
+     "group": "LS",
+     "mpn": "BAT54S-7-F",
+     "path": "hb.vote_b",
+     "ref": "D20"
+    },
+    {
+     "community": 2,
+     "community_majority": "HSB",
      "group": "G04",
-     "mpn": "74650074",
+     "mpn": "7466004R",
      "path": "j_coil_return",
      "ref": "J5"
     },
     {
      "community": 2,
      "community_majority": "HSB",
-     "group": "G03",
-     "mpn": "IPW65R018CFD7",
-     "path": "leg_b.q_high",
-     "ref": "Q5"
+     "group": "LS",
+     "mpn": "0603WAF1003T5E",
+     "path": "bias_hb.ren_top",
+     "ref": "R128"
+    },
+    {
+     "community": 2,
+     "community_majority": "HSB",
+     "group": "LS",
+     "mpn": "0603WAF2702T5E",
+     "path": "bias_hb.ren_bot",
+     "ref": "R129"
     },
     {
      "community": 2,
@@ -3590,18 +3539,10 @@
     {
      "community": 3,
      "community_majority": "HSA",
-     "group": "LS",
-     "mpn": "0603WAF2702T5E",
-     "path": "bias_ha.ren_bot",
-     "ref": "R127"
-    },
-    {
-     "community": 3,
-     "community_majority": "HSA",
-     "group": "LS",
-     "mpn": "0603WAF1003T5E",
-     "path": "bias_ha.ren_top",
-     "ref": "R62"
+     "group": "G03",
+     "mpn": "IPW65R018CFD7",
+     "path": "leg_a.q_high",
+     "ref": "Q2"
     },
     {
      "community": 5,
@@ -3622,18 +3563,18 @@
     {
      "community": 5,
      "community_majority": "G03",
-     "group": "HSA",
-     "mpn": "C0603C102J5GACTU",
-     "path": "leg_a.cgs_h",
-     "ref": "C55"
-    },
-    {
-     "community": 5,
-     "community_majority": "G03",
      "group": "G02",
      "mpn": "B32676G1905K000",
      "path": "c_bus2",
      "ref": "C6"
+    },
+    {
+     "community": 5,
+     "community_majority": "G03",
+     "group": "HSB",
+     "mpn": "GRM1885C1H472JA01D",
+     "path": "leg_b.cgs_h",
+     "ref": "C62"
     },
     {
      "community": 5,
@@ -3654,26 +3595,26 @@
     {
      "community": 5,
      "community_majority": "G03",
-     "group": "HSA",
+     "group": "HSB",
      "mpn": "PMEG6030EP,115",
-     "path": "leg_a.doff_h",
-     "ref": "D6"
+     "path": "leg_b.doff_h",
+     "ref": "D8"
     },
     {
      "community": 5,
      "community_majority": "G03",
-     "group": "HSA",
-     "mpn": "RS-06L8R20FT",
-     "path": "leg_a.r_gh",
-     "ref": "R10"
+     "group": "HSB",
+     "mpn": "25121WF680JT4E",
+     "path": "leg_b.r_gh",
+     "ref": "R18"
     },
     {
      "community": 5,
      "community_majority": "G03",
-     "group": "HSA",
+     "group": "HSB",
      "mpn": "0603WAF1002T5E",
-     "path": "leg_a.r_gh_pd",
-     "ref": "R11"
+     "path": "leg_b.r_gh_pd",
+     "ref": "R19"
     },
     {
      "community": 5,
@@ -3726,10 +3667,10 @@
     {
      "community": 5,
      "community_majority": "G03",
-     "group": "HSA",
+     "group": "HSB",
      "mpn": "1206W4F100KT5E",
-     "path": "leg_a.roff_h",
-     "ref": "R53"
+     "path": "leg_b.roff_h",
+     "ref": "R57"
     },
     {
      "community": 6,
@@ -3759,7 +3700,7 @@
      "community": 6,
      "community_majority": "G01",
      "group": "LS",
-     "mpn": "IRM-20-24",
+     "mpn": "MPM-20-24",
      "path": "ps_gate",
      "ref": "PS2"
     },
@@ -3794,45 +3735,69 @@
      "mpn": "RC1206FR-0716K5L",
      "path": "line_zc.r2",
      "ref": "R68"
+    },
+    {
+     "community": 6,
+     "community_majority": "G01",
+     "group": "SELV",
+     "mpn": "RC1206FR-0716K5L",
+     "path": "line_zc.r3",
+     "ref": "R69"
+    },
+    {
+     "community": 6,
+     "community_majority": "G01",
+     "group": "SELV",
+     "mpn": "RC1206FR-0716K5L",
+     "path": "line_zc.r4",
+     "ref": "R70"
+    },
+    {
+     "community": 6,
+     "community_majority": "G01",
+     "group": "SELV",
+     "mpn": "VOL628A-2X001T",
+     "path": "line_zc.opto",
+     "ref": "U36"
     }
    ],
    "nets_kept": 138,
    "parts_isolated": [],
    "resolution_sweep": [
     {
-     "ARI_vs_groups": 0.5806,
-     "Q_resolution1": 0.6078,
-     "communities": 4,
+     "ARI_vs_groups": 0.8031,
+     "Q_resolution1": 0.6705,
+     "communities": 5,
      "resolution": 0.25
     },
     {
-     "ARI_vs_groups": 0.7869,
-     "Q_resolution1": 0.6725,
-     "communities": 7,
+     "ARI_vs_groups": 0.8414,
+     "Q_resolution1": 0.6873,
+     "communities": 6,
      "resolution": 0.5
     },
     {
-     "ARI_vs_groups": 0.7469,
-     "Q_resolution1": 0.6805,
+     "ARI_vs_groups": 0.8205,
+     "Q_resolution1": 0.6929,
      "communities": 6,
      "resolution": 0.75
     },
     {
-     "ARI_vs_groups": 0.7834,
-     "Q_resolution1": 0.6818,
+     "ARI_vs_groups": 0.7855,
+     "Q_resolution1": 0.6907,
      "communities": 7,
      "resolution": 1.0
     },
     {
-     "ARI_vs_groups": 0.6383,
-     "Q_resolution1": 0.6652,
-     "communities": 11,
+     "ARI_vs_groups": 0.6687,
+     "Q_resolution1": 0.6726,
+     "communities": 10,
      "resolution": 1.5
     },
     {
-     "ARI_vs_groups": 0.5455,
-     "Q_resolution1": 0.6364,
-     "communities": 15,
+     "ARI_vs_groups": 0.5506,
+     "Q_resolution1": 0.6429,
+     "communities": 13,
      "resolution": 2.0
     }
    ],
@@ -3844,17 +3809,17 @@
     "G08": 110.0,
     "HSA": 120.0,
     "HSB": 120.0,
-    "LS": 227.0,
-    "SELV": 181.0
+    "LS": 231.0,
+    "SELV": 178.0
    }
   },
   "no_rails": {
-   "ARI_detected_vs_groups": 0.4472,
-   "Q_ato_top_module": 0.4253,
-   "Q_detected_louvain": 0.7753,
-   "Q_greedy": 0.7717,
-   "Q_groups": 0.6131,
-   "Q_random_relabel": -0.0024,
+   "ARI_detected_vs_groups": 0.4507,
+   "Q_ato_top_module": 0.4297,
+   "Q_detected_louvain": 0.7776,
+   "Q_greedy": 0.7756,
+   "Q_groups": 0.6165,
+   "Q_random_relabel": 0.0021,
    "W_norm_min_volume": {
     "G01": {
      "G01": 0.0,
@@ -3864,8 +3829,8 @@
      "G08": 0.0078,
      "HSA": 0.0,
      "HSB": 0.0,
-     "LS": 0.0476,
-     "SELV": 0.1429
+     "LS": 0.0556,
+     "SELV": 0.1111
     },
     "G02": {
      "G01": 0.0627,
@@ -3930,43 +3895,43 @@
      "G08": 0.0,
      "HSA": 0.0,
      "HSB": 0.0,
-     "LS": 0.0333,
-     "SELV": 0.0167
+     "LS": 0.05,
+     "SELV": 0.0
     },
     "LS": {
-     "G01": 0.0476,
+     "G01": 0.0556,
      "G02": 0.0,
      "G03": 0.1964,
      "G04": 0.0,
      "G08": 0.0194,
      "HSA": 0.05,
-     "HSB": 0.0333,
+     "HSB": 0.05,
      "LS": 0.0,
-     "SELV": 0.0976
+     "SELV": 0.0967
     },
     "SELV": {
-     "G01": 0.1429,
+     "G01": 0.1111,
      "G02": 0.0,
      "G03": 0.0071,
      "G04": 0.05,
      "G08": 0.0667,
      "HSA": 0.0133,
-     "HSB": 0.0167,
-     "LS": 0.0976,
+     "HSB": 0.0,
+     "LS": 0.0967,
      "SELV": 0.0
     }
    },
    "W_raw": {
     "G01": {
-     "G01": 8.7143,
+     "G01": 9.0,
      "G02": 0.7521,
      "G03": 1.0598,
      "G04": 0.0,
      "G08": 0.188,
      "HSA": 0.0,
      "HSB": 0.0,
-     "LS": 1.1429,
-     "SELV": 3.4286
+     "LS": 1.3333,
+     "SELV": 2.6667
     },
     "G02": {
      "G01": 0.7521,
@@ -4031,42 +3996,42 @@
      "G08": 0.0,
      "HSA": 0.0,
      "HSB": 24.8,
-     "LS": 2.0,
-     "SELV": 1.0
+     "LS": 3.0,
+     "SELV": 0.0
     },
     "LS": {
-     "G01": 1.1429,
+     "G01": 1.3333,
      "G02": 0.0,
      "G03": 5.5,
      "G04": 0.0,
      "G08": 0.875,
      "HSA": 3.0,
-     "HSB": 2.0,
-     "LS": 42.3125,
-     "SELV": 9.8571
+     "HSB": 3.0,
+     "LS": 42.8125,
+     "SELV": 9.6667
     },
     "SELV": {
-     "G01": 3.4286,
+     "G01": 2.6667,
      "G02": 0.0,
      "G03": 0.2,
      "G04": 1.0,
      "G08": 3.0,
      "HSA": 0.8,
-     "HSB": 1.0,
-     "LS": 9.8571,
-     "SELV": 40.8571
+     "HSB": 0.0,
+     "LS": 9.6667,
+     "SELV": 41.3333
     }
    },
    "communities": [
     {
      "ato_modules": {
       "bias_ls": 3,
-      "leg_a": 18,
+      "leg_a": 17,
       "leg_b": 18
      },
      "community": 0,
      "groups": {
-      "G03": 4,
+      "G03": 3,
       "LS": 35
      },
      "majority_group": "LS",
@@ -4081,7 +4046,6 @@
       "C125",
       "C127",
       "C129",
-      "C13",
       "C20",
       "C52",
       "C53",
@@ -4111,7 +4075,7 @@
       "R78",
       "U16"
      ],
-     "size": 39
+     "size": 38
     },
     {
      "ato_modules": {
@@ -4317,7 +4281,6 @@
       "l1": 1,
       "line_zc": 7,
       "ps_gate": 1,
-      "ps_selv": 1,
       "r_blw": 1,
       "rb1a": 1,
       "rb1b": 1,
@@ -4327,7 +4290,7 @@
      "groups": {
       "G01": 10,
       "LS": 2,
-      "SELV": 11
+      "SELV": 10
      },
      "majority_group": "SELV",
      "parts": [
@@ -4341,7 +4304,6 @@
       "J11",
       "J3",
       "L1",
-      "PS1",
       "PS2",
       "R1",
       "R125",
@@ -4355,16 +4317,16 @@
       "U24",
       "U36"
      ],
-     "size": 23
+     "size": 22
     },
     {
      "ato_modules": {
       "bias_ha": 3,
-      "leg_a": 18
+      "leg_a": 19
      },
      "community": 5,
      "groups": {
-      "G03": 2,
+      "G03": 3,
       "HSA": 19
      },
      "majority_group": "HSA",
@@ -4375,6 +4337,7 @@
       "C113",
       "C12",
       "C126",
+      "C13",
       "C50",
       "C51",
       "C55",
@@ -4391,7 +4354,7 @@
       "R96",
       "U18"
      ],
-     "size": 21
+     "size": 22
     },
     {
      "ato_modules": {
@@ -4432,9 +4395,44 @@
     },
     {
      "ato_modules": {
-      "monitor_ls": 17
+      "bias_hb": 19,
+      "hb": 1
      },
      "community": 7,
+     "groups": {
+      "HSB": 19,
+      "LS": 1
+     },
+     "majority_group": "HSB",
+     "parts": [
+      "C83",
+      "C84",
+      "C85",
+      "C86",
+      "D20",
+      "R112",
+      "R113",
+      "R114",
+      "R115",
+      "R116",
+      "R117",
+      "R118",
+      "R119",
+      "R120",
+      "R121",
+      "R124",
+      "R65",
+      "U21",
+      "U31",
+      "U44"
+     ],
+     "size": 20
+    },
+    {
+     "ato_modules": {
+      "monitor_ls": 17
+     },
+     "community": 8,
      "groups": {
       "LS": 17
      },
@@ -4457,36 +4455,6 @@
       "R88",
       "U17",
       "U29"
-     ],
-     "size": 17
-    },
-    {
-     "ato_modules": {
-      "bias_hb": 17
-     },
-     "community": 8,
-     "groups": {
-      "HSB": 17
-     },
-     "majority_group": "HSB",
-     "parts": [
-      "C83",
-      "C84",
-      "C85",
-      "C86",
-      "R112",
-      "R113",
-      "R114",
-      "R115",
-      "R116",
-      "R117",
-      "R118",
-      "R119",
-      "R120",
-      "R121",
-      "R65",
-      "U21",
-      "U31"
      ],
      "size": 17
     },
@@ -4535,15 +4503,13 @@
     },
     {
      "ato_modules": {
-      "bias_hb": 2,
-      "hb": 11,
+      "hb": 12,
       "u_bias_flt": 1
      },
      "community": 10,
      "groups": {
-      "HSB": 2,
       "LS": 4,
-      "SELV": 8
+      "SELV": 9
      },
      "majority_group": "SELV",
      "parts": [
@@ -4552,17 +4518,16 @@
       "C165",
       "C166",
       "D19",
-      "R124",
       "R131",
       "R132",
       "R133",
+      "R135",
       "U32",
       "U40",
-      "U44",
       "U45",
       "U46"
      ],
-     "size": 14
+     "size": 13
     },
     {
      "ato_modules": {
@@ -4621,26 +4586,26 @@
     }
    ],
    "conductance": {
-    "G01": 0.2738,
+    "G01": 0.25,
     "G02": 0.4786,
     "G03": 0.7466,
     "G04": 0.29,
     "G08": 0.1333,
     "HSA": 0.1333,
     "HSB": 0.1733,
-    "LS": 0.2091,
-    "SELV": 0.1909
+    "LS": 0.2144,
+    "SELV": 0.1733
    },
    "cut": {
-    "G01": 6.5714,
+    "G01": 6.0,
     "G02": 5.7436,
     "G03": 20.904,
     "G04": 5.8,
     "G08": 6.0,
     "HSA": 8.0,
     "HSB": 10.4,
-    "LS": 22.375,
-    "SELV": 19.2857
+    "LS": 23.375,
+    "SELV": 17.3333
    },
    "group_split_over_communities": {
     "G01": {
@@ -4651,9 +4616,9 @@
      "9": 6
     },
     "G03": {
-     "0": 4,
+     "0": 3,
      "2": 1,
-     "5": 2,
+     "5": 3,
      "9": 5
     },
     "G04": {
@@ -4671,10 +4636,9 @@
      "6": 19
     },
     "HSB": {
-     "10": 2,
      "12": 4,
      "2": 19,
-     "8": 17
+     "7": 19
     },
     "LS": {
      "0": 35,
@@ -4685,13 +4649,14 @@
      "13": 2,
      "4": 2,
      "6": 2,
-     "7": 17
+     "7": 1,
+     "8": 17
     },
     "SELV": {
      "1": 29,
-     "10": 8,
+     "10": 9,
      "3": 2,
-     "4": 11
+     "4": 10
     }
    },
    "intra_group": {
@@ -4700,8 +4665,8 @@
       11
      ],
      "components": 1,
-     "fiedler_normalised_largest": 0.2739,
-     "louvain_Q_inside": 0.238,
+     "fiedler_normalised_largest": 0.2678,
+     "louvain_Q_inside": 0.2531,
      "louvain_subblocks": 3,
      "parts_total": 12,
      "parts_with_internal_edges": 11,
@@ -5424,18 +5389,18 @@
     },
     "LS": {
      "component_sizes": [
-      60,
+      61,
       2,
       2,
       2,
       2
      ],
      "components": 5,
-     "fiedler_normalised_largest": 0.0342,
-     "louvain_Q_inside": 0.6253,
+     "fiedler_normalised_largest": 0.0331,
+     "louvain_Q_inside": 0.6292,
      "louvain_subblocks": 8,
-     "parts_total": 94,
-     "parts_with_internal_edges": 68,
+     "parts_total": 96,
+     "parts_with_internal_edges": 69,
      "small_components": [
       [
        "C64",
@@ -5564,19 +5529,20 @@
       },
       {
        "ato_modules": {
-        "hb": 5,
+        "hb": 6,
         "monitor_ls": 1
        },
        "block": 2,
        "parts": [
         "C162",
         "D18",
+        "D20",
         "R131",
         "R91",
         "U32",
         "U45"
        ],
-       "size": 6
+       "size": 7
       },
       {
        "ato_modules": {
@@ -5669,14 +5635,14 @@
       48
      ],
      "components": 1,
-     "fiedler_normalised_largest": 0.018,
-     "louvain_Q_inside": 0.6553,
+     "fiedler_normalised_largest": 0.0158,
+     "louvain_Q_inside": 0.661,
      "louvain_subblocks": 6,
      "parts_total": 68,
      "parts_with_internal_edges": 48,
      "small_components": [],
      "subblock_joins": {
-      "0-1": [
+      "0-2": [
        "bus_fault",
        "ct_sense_mon"
       ],
@@ -5686,7 +5652,7 @@
       "0-4": [
        "line_zc"
       ],
-      "2-3": [
+      "1-3": [
        "bias_good"
       ],
       "4-5": [
@@ -5723,6 +5689,25 @@
       },
       {
        "ato_modules": {
+        "hb": 8,
+        "u_bias_flt": 1
+       },
+       "block": 1,
+       "parts": [
+        "C164",
+        "C165",
+        "C166",
+        "D19",
+        "R132",
+        "R133",
+        "R135",
+        "U40",
+        "U46"
+       ],
+       "size": 9
+      },
+      {
+       "ato_modules": {
         "c_bf": 1,
         "r_bf": 1,
         "r_ct_hi_bot": 1,
@@ -5730,7 +5715,7 @@
         "r_ct_lo_bot": 1,
         "r_ct_lo_top": 1
        },
-       "block": 1,
+       "block": 2,
        "parts": [
         "C167",
         "R134",
@@ -5743,24 +5728,6 @@
         "U13"
        ],
        "size": 9
-      },
-      {
-       "ato_modules": {
-        "hb": 7,
-        "u_bias_flt": 1
-       },
-       "block": 2,
-       "parts": [
-        "C164",
-        "C165",
-        "C166",
-        "D19",
-        "R132",
-        "R133",
-        "U40",
-        "U46"
-       ],
-       "size": 8
       },
       {
        "ato_modules": {
@@ -5800,24 +5767,22 @@
        "ato_modules": {
         "f_blw": 1,
         "j_blw_ac": 1,
-        "ps_selv": 1,
         "r_blw": 1
        },
        "block": 5,
        "parts": [
         "F2",
         "J11",
-        "PS1",
         "R130"
        ],
-       "size": 4
+       "size": 3
       }
      ],
      "weak_joins": [
-      "0-1",
+      "0-2",
       "0-3",
       "0-4",
-      "2-3",
+      "1-3",
       "4-5"
      ]
     }
@@ -5827,15 +5792,7 @@
      "community": 0,
      "community_majority": "LS",
      "group": "G03",
-     "mpn": "GRM31A5C3A102JW01D",
-     "path": "leg_a.c_snub_l",
-     "ref": "C13"
-    },
-    {
-     "community": 0,
-     "community_majority": "LS",
-     "group": "G03",
-     "mpn": "GRM31A5C3A102JW01D",
+     "mpn": "CC1206JKNPOCBN102",
      "path": "leg_b.c_snub_l",
      "ref": "C20"
     },
@@ -5859,7 +5816,7 @@
      "community": 1,
      "community_majority": "SELV",
      "group": "G04",
-     "mpn": "74650074",
+     "mpn": "7466004R",
      "path": "j_coil",
      "ref": "J2"
     },
@@ -5931,7 +5888,7 @@
      "community": 2,
      "community_majority": "HSB",
      "group": "G04",
-     "mpn": "74650074",
+     "mpn": "7466004R",
      "path": "j_coil_return",
      "ref": "J5"
     },
@@ -6059,7 +6016,7 @@
      "community": 4,
      "community_majority": "SELV",
      "group": "LS",
-     "mpn": "IRM-20-24",
+     "mpn": "MPM-20-24",
      "path": "ps_gate",
      "ref": "PS2"
     },
@@ -6091,9 +6048,17 @@
      "community": 5,
      "community_majority": "HSA",
      "group": "G03",
-     "mpn": "GRM31A5C3A102JW01D",
+     "mpn": "CC1206JKNPOCBN102",
      "path": "leg_a.c_snub_h",
      "ref": "C12"
+    },
+    {
+     "community": 5,
+     "community_majority": "HSA",
+     "group": "G03",
+     "mpn": "CC1206JKNPOCBN102",
+     "path": "leg_a.c_snub_l",
+     "ref": "C13"
     },
     {
      "community": 5,
@@ -6120,6 +6085,14 @@
      "ref": "R91"
     },
     {
+     "community": 7,
+     "community_majority": "HSB",
+     "group": "LS",
+     "mpn": "BAT54S-7-F",
+     "path": "hb.vote_b",
+     "ref": "D20"
+    },
+    {
      "community": 9,
      "community_majority": "G02",
      "group": "G01",
@@ -6131,7 +6104,7 @@
      "community": 9,
      "community_majority": "G02",
      "group": "G03",
-     "mpn": "GRM31A5C3A102JW01D",
+     "mpn": "CC1206JKNPOCBN102",
      "path": "leg_b.c_snub_h",
      "ref": "C19"
     },
@@ -6194,14 +6167,6 @@
     {
      "community": 10,
      "community_majority": "SELV",
-     "group": "HSB",
-     "mpn": "0603WAF1002T5E",
-     "path": "bias_hb.monitor.rpull",
-     "ref": "R124"
-    },
-    {
-     "community": 10,
-     "community_majority": "SELV",
      "group": "LS",
      "mpn": "0603WAF4991T5E",
      "path": "hb.rosc",
@@ -6214,14 +6179,6 @@
      "mpn": "CA-IS3720HW",
      "path": "hb.iso",
      "ref": "U32"
-    },
-    {
-     "community": 10,
-     "community_majority": "SELV",
-     "group": "HSB",
-     "mpn": "CA-IS3720LW",
-     "path": "bias_hb.verdict",
-     "ref": "U44"
     },
     {
      "community": 10,
@@ -6264,7 +6221,7 @@
      "ref": "R129"
     }
    ],
-   "nets_kept": 121,
+   "nets_kept": 122,
    "parts_isolated": [
     "C10",
     "C100",
@@ -6305,6 +6262,7 @@
     "C160",
     "C161",
     "C163",
+    "C168",
     "C17",
     "C18",
     "C24",
@@ -6350,39 +6308,39 @@
    ],
    "resolution_sweep": [
     {
-     "ARI_vs_groups": 0.5519,
-     "Q_resolution1": 0.7367,
+     "ARI_vs_groups": 0.5552,
+     "Q_resolution1": 0.7377,
      "communities": 9,
      "resolution": 0.25
     },
     {
-     "ARI_vs_groups": 0.5967,
-     "Q_resolution1": 0.7574,
+     "ARI_vs_groups": 0.6109,
+     "Q_resolution1": 0.7598,
      "communities": 10,
      "resolution": 0.5
     },
     {
-     "ARI_vs_groups": 0.439,
-     "Q_resolution1": 0.7733,
+     "ARI_vs_groups": 0.4303,
+     "Q_resolution1": 0.7776,
      "communities": 14,
      "resolution": 0.75
     },
     {
-     "ARI_vs_groups": 0.4472,
-     "Q_resolution1": 0.7753,
+     "ARI_vs_groups": 0.4507,
+     "Q_resolution1": 0.7776,
      "communities": 14,
      "resolution": 1.0
     },
     {
-     "ARI_vs_groups": 0.3976,
-     "Q_resolution1": 0.7715,
-     "communities": 17,
+     "ARI_vs_groups": 0.4177,
+     "Q_resolution1": 0.7767,
+     "communities": 16,
      "resolution": 1.5
     },
     {
-     "ARI_vs_groups": 0.4008,
-     "Q_resolution1": 0.7686,
-     "communities": 18,
+     "ARI_vs_groups": 0.3618,
+     "Q_resolution1": 0.763,
+     "communities": 20,
      "resolution": 2.0
     }
    ],
@@ -6394,17 +6352,17 @@
     "G08": 45.0,
     "HSA": 60.0,
     "HSB": 60.0,
-    "LS": 107.0,
-    "SELV": 101.0
+    "LS": 109.0,
+    "SELV": 100.0
    }
   },
   "no_rails_no_planes": {
-   "ARI_detected_vs_groups": 0.3388,
-   "Q_ato_top_module": 0.4866,
-   "Q_detected_louvain": 0.8355,
-   "Q_greedy": 0.8334,
-   "Q_groups": 0.6577,
-   "Q_random_relabel": -0.0189,
+   "ARI_detected_vs_groups": 0.3461,
+   "Q_ato_top_module": 0.4918,
+   "Q_detected_louvain": 0.8388,
+   "Q_greedy": 0.8366,
+   "Q_groups": 0.6625,
+   "Q_random_relabel": 0.0228,
    "W_norm_min_volume": {
     "G01": {
      "G01": 0.0,
@@ -6414,8 +6372,8 @@
      "G08": 0.0,
      "HSA": 0.0,
      "HSB": 0.0,
-     "LS": 0.0519,
-     "SELV": 0.1558
+     "LS": 0.0606,
+     "SELV": 0.1212
     },
     "G02": {
      "G01": 0.0,
@@ -6480,43 +6438,43 @@
      "G08": 0.0,
      "HSA": 0.0,
      "HSB": 0.0,
-     "LS": 0.0455,
-     "SELV": 0.0227
+     "LS": 0.0682,
+     "SELV": 0.0
     },
     "LS": {
-     "G01": 0.0519,
+     "G01": 0.0606,
      "G02": 0.0,
      "G03": 0.5,
      "G04": 0.0,
      "G08": 0.0,
      "HSA": 0.0682,
-     "HSB": 0.0455,
+     "HSB": 0.0682,
      "LS": 0.0,
-     "SELV": 0.1248
+     "SELV": 0.1193
     },
     "SELV": {
-     "G01": 0.1558,
+     "G01": 0.1212,
      "G02": 0.0,
      "G03": 0.0,
      "G04": 0.0714,
      "G08": 0.0714,
      "HSA": 0.0,
-     "HSB": 0.0227,
-     "LS": 0.1248,
+     "HSB": 0.0,
+     "LS": 0.1193,
      "SELV": 0.0
     }
    },
    "W_raw": {
     "G01": {
-     "G01": 8.7143,
+     "G01": 9.0,
      "G02": 0.0,
      "G03": 0.0,
      "G04": 0.0,
      "G08": 0.0,
      "HSA": 0.0,
      "HSB": 0.0,
-     "LS": 1.1429,
-     "SELV": 3.4286
+     "LS": 1.3333,
+     "SELV": 2.6667
     },
     "G02": {
      "G01": 0.0,
@@ -6581,30 +6539,30 @@
      "G08": 0.0,
      "HSA": 0.0,
      "HSB": 20.0,
-     "LS": 2.0,
-     "SELV": 1.0
+     "LS": 3.0,
+     "SELV": 0.0
     },
     "LS": {
-     "G01": 1.1429,
+     "G01": 1.3333,
      "G02": 0.0,
      "G03": 2.0,
      "G04": 0.0,
      "G08": 0.0,
      "HSA": 3.0,
-     "HSB": 2.0,
-     "LS": 30.5,
-     "SELV": 9.8571
+     "HSB": 3.0,
+     "LS": 31.0,
+     "SELV": 9.6667
     },
     "SELV": {
-     "G01": 3.4286,
+     "G01": 2.6667,
      "G02": 0.0,
      "G03": 0.0,
      "G04": 1.0,
      "G08": 3.0,
      "HSA": 0.0,
-     "HSB": 1.0,
-     "LS": 9.8571,
-     "SELV": 40.8571
+     "HSB": 0.0,
+     "LS": 9.6667,
+     "SELV": 41.3333
     }
    },
    "communities": [
@@ -6623,7 +6581,6 @@
       "l1": 1,
       "line_zc": 7,
       "ps_gate": 1,
-      "ps_selv": 1,
       "r_blw": 1,
       "rb1a": 1,
       "rb1b": 1,
@@ -6633,9 +6590,9 @@
      "groups": {
       "G01": 11,
       "LS": 2,
-      "SELV": 11
+      "SELV": 10
      },
-     "majority_group": "SELV",
+     "majority_group": "G01",
      "parts": [
       "BR1",
       "C1",
@@ -6648,7 +6605,6 @@
       "J11",
       "J3",
       "L1",
-      "PS1",
       "PS2",
       "R1",
       "R125",
@@ -6662,7 +6618,7 @@
       "U24",
       "U36"
      ],
-     "size": 24
+     "size": 23
     },
     {
      "ato_modules": {
@@ -6703,6 +6659,41 @@
     },
     {
      "ato_modules": {
+      "bias_hb": 19,
+      "hb": 1
+     },
+     "community": 2,
+     "groups": {
+      "HSB": 19,
+      "LS": 1
+     },
+     "majority_group": "HSB",
+     "parts": [
+      "C83",
+      "C84",
+      "C85",
+      "C86",
+      "D20",
+      "R112",
+      "R113",
+      "R114",
+      "R115",
+      "R116",
+      "R117",
+      "R118",
+      "R119",
+      "R120",
+      "R121",
+      "R124",
+      "R65",
+      "U21",
+      "U31",
+      "U44"
+     ],
+     "size": 20
+    },
+    {
+     "ato_modules": {
       "c_ocp_node": 1,
       "c_ovp_th": 1,
       "c_th": 1,
@@ -6723,7 +6714,7 @@
       "u_ocp": 1,
       "u_ovp": 1
      },
-     "community": 2,
+     "community": 3,
      "groups": {
       "G08": 19
      },
@@ -6762,7 +6753,7 @@
       "u_ct_zc": 1,
       "u_vsense": 1
      },
-     "community": 3,
+     "community": 4,
      "groups": {
       "G08": 1,
       "LS": 2,
@@ -6795,7 +6786,7 @@
      "ato_modules": {
       "monitor_ls": 17
      },
-     "community": 4,
+     "community": 5,
      "groups": {
       "LS": 17
      },
@@ -6823,45 +6814,13 @@
     },
     {
      "ato_modules": {
-      "bias_hb": 17
-     },
-     "community": 5,
-     "groups": {
-      "HSB": 17
-     },
-     "majority_group": "HSB",
-     "parts": [
-      "C83",
-      "C84",
-      "C85",
-      "C86",
-      "R112",
-      "R113",
-      "R114",
-      "R115",
-      "R116",
-      "R117",
-      "R118",
-      "R119",
-      "R120",
-      "R121",
-      "R65",
-      "U21",
-      "U31"
-     ],
-     "size": 17
-    },
-    {
-     "ato_modules": {
-      "bias_hb": 2,
-      "hb": 11,
+      "hb": 12,
       "u_bias_flt": 1
      },
      "community": 6,
      "groups": {
-      "HSB": 2,
       "LS": 4,
-      "SELV": 8
+      "SELV": 9
      },
      "majority_group": "SELV",
      "parts": [
@@ -6870,17 +6829,16 @@
       "C165",
       "C166",
       "D19",
-      "R124",
       "R131",
       "R132",
       "R133",
+      "R135",
       "U32",
       "U40",
-      "U44",
       "U45",
       "U46"
      ],
-     "size": 14
+     "size": 13
     },
     {
      "ato_modules": {
@@ -7262,26 +7220,26 @@
     }
    ],
    "conductance": {
-    "G01": 0.2078,
+    "G01": 0.1818,
     "G02": 0.0,
     "G03": 1.0,
     "G04": 0.0714,
     "G08": 0.0714,
     "HSA": 0.0909,
     "HSB": 0.0909,
-    "LS": 0.2278,
-    "SELV": 0.1829
+    "LS": 0.2346,
+    "SELV": 0.165
    },
    "cut": {
-    "G01": 4.5714,
+    "G01": 4.0,
     "G02": 0.0,
     "G03": 4.0,
     "G04": 1.0,
     "G08": 3.0,
     "HSA": 4.0,
     "HSB": 4.0,
-    "LS": 18.0,
-    "SELV": 18.2857
+    "LS": 19.0,
+    "SELV": 16.3333
    },
    "group_split_over_communities": {
     "G01": {
@@ -7302,8 +7260,8 @@
     },
     "G08": {
      "10": 6,
-     "2": 19,
-     "3": 1
+     "3": 19,
+     "4": 1
     },
     "HSA": {
      "1": 19,
@@ -7316,9 +7274,8 @@
      "13": 5,
      "16": 4,
      "18": 3,
-     "23": 2,
-     "5": 17,
-     "6": 2
+     "2": 19,
+     "23": 2
     },
     "LS": {
      "0": 2,
@@ -7328,17 +7285,18 @@
      "15": 2,
      "16": 2,
      "19": 3,
+     "2": 1,
      "22": 2,
      "24": 2,
      "25": 2,
-     "3": 2,
-     "4": 17,
+     "4": 2,
+     "5": 17,
      "6": 4
     },
     "SELV": {
-     "0": 11,
-     "3": 15,
-     "6": 8,
+     "0": 10,
+     "4": 15,
+     "6": 9,
      "8": 9,
      "9": 7
     }
@@ -7349,8 +7307,8 @@
       11
      ],
      "components": 1,
-     "fiedler_normalised_largest": 0.2739,
-     "louvain_Q_inside": 0.238,
+     "fiedler_normalised_largest": 0.2678,
+     "louvain_Q_inside": 0.2531,
      "louvain_subblocks": 3,
      "parts_total": 12,
      "parts_with_internal_edges": 11,
@@ -7891,7 +7849,7 @@
     },
     "LS": {
      "component_sizes": [
-      23,
+      24,
       6,
       6,
       3,
@@ -7903,11 +7861,11 @@
       2
      ],
      "components": 10,
-     "fiedler_normalised_largest": 0.0979,
-     "louvain_Q_inside": 0.4883,
+     "fiedler_normalised_largest": 0.0919,
+     "louvain_Q_inside": 0.494,
      "louvain_subblocks": 5,
-     "parts_total": 94,
-     "parts_with_internal_edges": 50,
+     "parts_total": 96,
+     "parts_with_internal_edges": 51,
      "small_components": [
       [
        "C56",
@@ -7959,22 +7917,39 @@
       "0-1": [
        "monitor_ls-good"
       ],
-      "0-2": [
+      "1-2": [
        "monitor_ls-halfref"
       ],
-      "0-3": [
+      "1-3": [
        "monitor_ls-spanuv"
       ],
-      "0-4": [
+      "1-4": [
        "monitor_ls-spanov"
       ]
      },
      "subblocks": [
       {
        "ato_modules": {
-        "monitor_ls": 7
+        "hb": 6,
+        "monitor_ls": 1
        },
        "block": 0,
+       "parts": [
+        "C162",
+        "D18",
+        "D20",
+        "R131",
+        "R91",
+        "U32",
+        "U45"
+       ],
+       "size": 7
+      },
+      {
+       "ato_modules": {
+        "monitor_ls": 7
+       },
+       "block": 1,
        "parts": [
         "C66",
         "C67",
@@ -7985,22 +7960,6 @@
         "U29"
        ],
        "size": 7
-      },
-      {
-       "ato_modules": {
-        "hb": 5,
-        "monitor_ls": 1
-       },
-       "block": 1,
-       "parts": [
-        "C162",
-        "D18",
-        "R131",
-        "R91",
-        "U32",
-        "U45"
-       ],
-       "size": 6
       },
       {
        "ato_modules": {
@@ -8042,9 +8001,9 @@
      ],
      "weak_joins": [
       "0-1",
-      "0-2",
-      "0-3",
-      "0-4"
+      "1-2",
+      "1-3",
+      "1-4"
      ]
     },
     "SELV": {
@@ -8052,14 +8011,14 @@
       48
      ],
      "components": 1,
-     "fiedler_normalised_largest": 0.018,
-     "louvain_Q_inside": 0.6553,
+     "fiedler_normalised_largest": 0.0158,
+     "louvain_Q_inside": 0.661,
      "louvain_subblocks": 6,
      "parts_total": 68,
      "parts_with_internal_edges": 48,
      "small_components": [],
      "subblock_joins": {
-      "0-1": [
+      "0-2": [
        "bus_fault",
        "ct_sense_mon"
       ],
@@ -8069,7 +8028,7 @@
       "0-4": [
        "line_zc"
       ],
-      "2-3": [
+      "1-3": [
        "bias_good"
       ],
       "4-5": [
@@ -8106,6 +8065,25 @@
       },
       {
        "ato_modules": {
+        "hb": 8,
+        "u_bias_flt": 1
+       },
+       "block": 1,
+       "parts": [
+        "C164",
+        "C165",
+        "C166",
+        "D19",
+        "R132",
+        "R133",
+        "R135",
+        "U40",
+        "U46"
+       ],
+       "size": 9
+      },
+      {
+       "ato_modules": {
         "c_bf": 1,
         "r_bf": 1,
         "r_ct_hi_bot": 1,
@@ -8113,7 +8091,7 @@
         "r_ct_lo_bot": 1,
         "r_ct_lo_top": 1
        },
-       "block": 1,
+       "block": 2,
        "parts": [
         "C167",
         "R134",
@@ -8126,24 +8104,6 @@
         "U13"
        ],
        "size": 9
-      },
-      {
-       "ato_modules": {
-        "hb": 7,
-        "u_bias_flt": 1
-       },
-       "block": 2,
-       "parts": [
-        "C164",
-        "C165",
-        "C166",
-        "D19",
-        "R132",
-        "R133",
-        "U40",
-        "U46"
-       ],
-       "size": 8
       },
       {
        "ato_modules": {
@@ -8183,24 +8143,22 @@
        "ato_modules": {
         "f_blw": 1,
         "j_blw_ac": 1,
-        "ps_selv": 1,
         "r_blw": 1
        },
        "block": 5,
        "parts": [
         "F2",
         "J11",
-        "PS1",
         "R130"
        ],
-       "size": 4
+       "size": 3
       }
      ],
      "weak_joins": [
-      "0-1",
+      "0-2",
       "0-3",
       "0-4",
-      "2-3",
+      "1-3",
       "4-5"
      ]
     }
@@ -8208,63 +8166,23 @@
    "misfits": [
     {
      "community": 0,
-     "community_majority": "SELV",
-     "group": "G01",
-     "mpn": "GBJ2510-F",
-     "path": "br1",
-     "ref": "BR1"
+     "community_majority": "G01",
+     "group": "SELV",
+     "mpn": "3403.0279.23",
+     "path": "f_blw",
+     "ref": "F2"
     },
     {
      "community": 0,
-     "community_majority": "SELV",
-     "group": "G01",
-     "mpn": "R463N410050N1K",
-     "path": "cx1",
-     "ref": "C1"
+     "community_majority": "G01",
+     "group": "SELV",
+     "mpn": "B2P3-VH(LF)(SN)",
+     "path": "j_blw_ac",
+     "ref": "J11"
     },
     {
      "community": 0,
-     "community_majority": "SELV",
-     "group": "G01",
-     "mpn": "R463N410050N1K",
-     "path": "cx2",
-     "ref": "C2"
-    },
-    {
-     "community": 0,
-     "community_majority": "SELV",
-     "group": "G01",
-     "mpn": "DE1E3RA222MA4BP01F",
-     "path": "cy1",
-     "ref": "C3"
-    },
-    {
-     "community": 0,
-     "community_majority": "SELV",
-     "group": "G01",
-     "mpn": "DE1E3RA222MA4BP01F",
-     "path": "cy2",
-     "ref": "C4"
-    },
-    {
-     "community": 0,
-     "community_majority": "SELV",
-     "group": "G01",
-     "mpn": "KLDR025.TXP",
-     "path": "f1",
-     "ref": "F1"
-    },
-    {
-     "community": 0,
-     "community_majority": "SELV",
-     "group": "G01",
-     "mpn": "1714971",
-     "path": "j_mains",
-     "ref": "J1"
-    },
-    {
-     "community": 0,
-     "community_majority": "SELV",
+     "community_majority": "G01",
      "group": "LS",
      "mpn": "B2P3-VH(LF)(SN)",
      "path": "j_tco",
@@ -8272,43 +8190,75 @@
     },
     {
      "community": 0,
-     "community_majority": "SELV",
-     "group": "G01",
-     "mpn": "B82726S2203A020",
-     "path": "l1",
-     "ref": "L1"
-    },
-    {
-     "community": 0,
-     "community_majority": "SELV",
+     "community_majority": "G01",
      "group": "LS",
-     "mpn": "IRM-20-24",
+     "mpn": "MPM-20-24",
      "path": "ps_gate",
      "ref": "PS2"
     },
     {
      "community": 0,
-     "community_majority": "SELV",
-     "group": "G01",
-     "mpn": "1206W4F1003T5E",
-     "path": "rb1a",
-     "ref": "R1"
+     "community_majority": "G01",
+     "group": "SELV",
+     "mpn": "0603WAF3302T5E",
+     "path": "line_zc.pullup",
+     "ref": "R125"
     },
     {
      "community": 0,
-     "community_majority": "SELV",
-     "group": "G01",
-     "mpn": "1206W4F1003T5E",
-     "path": "rb1b",
-     "ref": "R2"
+     "community_majority": "G01",
+     "group": "SELV",
+     "mpn": "AC05000001507JAC00",
+     "path": "r_blw",
+     "ref": "R130"
     },
     {
      "community": 0,
-     "community_majority": "SELV",
-     "group": "G01",
-     "mpn": "TMOV20RP175E",
-     "path": "rv1",
-     "ref": "RV1"
+     "community_majority": "G01",
+     "group": "SELV",
+     "mpn": "RC1206FR-0716K5L",
+     "path": "line_zc.r1",
+     "ref": "R67"
+    },
+    {
+     "community": 0,
+     "community_majority": "G01",
+     "group": "SELV",
+     "mpn": "RC1206FR-0716K5L",
+     "path": "line_zc.r2",
+     "ref": "R68"
+    },
+    {
+     "community": 0,
+     "community_majority": "G01",
+     "group": "SELV",
+     "mpn": "RC1206FR-0716K5L",
+     "path": "line_zc.r3",
+     "ref": "R69"
+    },
+    {
+     "community": 0,
+     "community_majority": "G01",
+     "group": "SELV",
+     "mpn": "RC1206FR-0716K5L",
+     "path": "line_zc.r4",
+     "ref": "R70"
+    },
+    {
+     "community": 0,
+     "community_majority": "G01",
+     "group": "SELV",
+     "mpn": "SN74LVC1G17DBVR",
+     "path": "line_zc.buffer",
+     "ref": "U24"
+    },
+    {
+     "community": 0,
+     "community_majority": "G01",
+     "group": "SELV",
+     "mpn": "VOL628A-2X001T",
+     "path": "line_zc.opto",
+     "ref": "U36"
     },
     {
      "community": 1,
@@ -8327,7 +8277,15 @@
      "ref": "R91"
     },
     {
-     "community": 3,
+     "community": 2,
+     "community_majority": "HSB",
+     "group": "LS",
+     "mpn": "BAT54S-7-F",
+     "path": "hb.vote_b",
+     "ref": "D20"
+    },
+    {
+     "community": 4,
      "community_majority": "SELV",
      "group": "LS",
      "mpn": "2EDR8259XXUMA1",
@@ -8335,7 +8293,7 @@
      "ref": "U1"
     },
     {
-     "community": 3,
+     "community": 4,
      "community_majority": "SELV",
      "group": "LS",
      "mpn": "2EDR8259XXUMA1",
@@ -8343,7 +8301,7 @@
      "ref": "U2"
     },
     {
-     "community": 3,
+     "community": 4,
      "community_majority": "SELV",
      "group": "G08",
      "mpn": "AMC1311BDWVR",
@@ -8357,14 +8315,6 @@
      "mpn": "CL10C331JB8NNNC",
      "path": "hb.cosc",
      "ref": "C162"
-    },
-    {
-     "community": 6,
-     "community_majority": "SELV",
-     "group": "HSB",
-     "mpn": "0603WAF1002T5E",
-     "path": "bias_hb.monitor.rpull",
-     "ref": "R124"
     },
     {
      "community": 6,
@@ -8385,14 +8335,6 @@
     {
      "community": 6,
      "community_majority": "SELV",
-     "group": "HSB",
-     "mpn": "CA-IS3720LW",
-     "path": "bias_hb.verdict",
-     "ref": "U44"
-    },
-    {
-     "community": 6,
-     "community_majority": "SELV",
      "group": "LS",
      "mpn": "SN74LVC1G132DBVR",
      "path": "hb.osc",
@@ -8402,7 +8344,7 @@
      "community": 9,
      "community_majority": "SELV",
      "group": "G04",
-     "mpn": "74650074",
+     "mpn": "7466004R",
      "path": "j_coil",
      "ref": "J2"
     },
@@ -8471,7 +8413,7 @@
      "ref": "R129"
     }
    ],
-   "nets_kept": 116,
+   "nets_kept": 117,
    "parts_isolated": [
     "C10",
     "C100",
@@ -8530,6 +8472,7 @@
     "C160",
     "C161",
     "C163",
+    "C168",
     "C17",
     "C18",
     "C19",
@@ -8603,38 +8546,38 @@
    ],
    "resolution_sweep": [
     {
-     "ARI_vs_groups": 0.3214,
-     "Q_resolution1": 0.7912,
-     "communities": 17,
+     "ARI_vs_groups": 0.3368,
+     "Q_resolution1": 0.7979,
+     "communities": 18,
      "resolution": 0.25
     },
     {
-     "ARI_vs_groups": 0.386,
-     "Q_resolution1": 0.8161,
-     "communities": 20,
+     "ARI_vs_groups": 0.4045,
+     "Q_resolution1": 0.8236,
+     "communities": 21,
      "resolution": 0.5
     },
     {
-     "ARI_vs_groups": 0.4462,
-     "Q_resolution1": 0.8329,
+     "ARI_vs_groups": 0.4517,
+     "Q_resolution1": 0.8363,
      "communities": 23,
      "resolution": 0.75
     },
     {
-     "ARI_vs_groups": 0.3388,
-     "Q_resolution1": 0.8355,
+     "ARI_vs_groups": 0.3461,
+     "Q_resolution1": 0.8388,
      "communities": 26,
      "resolution": 1.0
     },
     {
-     "ARI_vs_groups": 0.3408,
-     "Q_resolution1": 0.8319,
+     "ARI_vs_groups": 0.3474,
+     "Q_resolution1": 0.8352,
      "communities": 27,
      "resolution": 1.5
     },
     {
-     "ARI_vs_groups": 0.3102,
-     "Q_resolution1": 0.832,
+     "ARI_vs_groups": 0.3212,
+     "Q_resolution1": 0.8329,
      "communities": 28,
      "resolution": 2.0
     }
@@ -8647,8 +8590,8 @@
     "G08": 42.0,
     "HSA": 44.0,
     "HSB": 44.0,
-    "LS": 79.0,
-    "SELV": 100.0
+    "LS": 81.0,
+    "SELV": 99.0
    }
   }
  }

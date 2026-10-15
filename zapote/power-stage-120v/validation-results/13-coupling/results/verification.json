@@ -1,19 +1,19 @@
 {
- "board_sha256": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e",
+ "board_sha256": "61447816b9dd4921525b4f610aca40486989964368d69abb17bf7071cbf4d8df",
  "controls": [
   {
    "control": "[barrier_8mm] reads >= 1 item, shares sum to 1",
-   "detail": "88 items",
+   "detail": "76 items",
    "pass": true
   },
   {
    "control": "[d5] reads >= 1 item, shares sum to 1",
-   "detail": "88 items",
+   "detail": "76 items",
    "pass": true
   },
   {
    "control": "[d5_hot_selv_mm] reads >= 1 item, shares sum to 1",
-   "detail": "63 items",
+   "detail": "52 items",
    "pass": true
   },
   {
@@ -23,22 +23,22 @@
   },
   {
    "control": "[res_a_outer_12p6mm] reads >= 1 item, shares sum to 1",
-   "detail": "6 items",
+   "detail": "5 items",
    "pass": true
   },
   {
    "control": "[res_a_creepage18] reads >= 1 item, shares sum to 1",
-   "detail": "6 items",
+   "detail": "5 items",
    "pass": true
   },
   {
    "control": "[res_a_outer_min_mm] reads >= 1 item, shares sum to 1",
-   "detail": "6 items",
+   "detail": "5 items",
    "pass": true
   },
   {
    "control": "[return_path19] reads >= 1 item, shares sum to 1",
-   "detail": "36 items",
+   "detail": "38 items",
    "pass": true
   },
   {
@@ -68,12 +68,32 @@
   },
   {
    "control": "[b3_c28_h25_peak_C] reads >= 1 item, shares sum to 1",
-   "detail": "50 items",
+   "detail": "49 items",
    "pass": true
   },
   {
    "control": "[b3_nominal_h10_peak_C] reads >= 1 item, shares sum to 1",
-   "detail": "50 items",
+   "detail": "49 items",
+   "pass": true
+  },
+  {
+   "control": "[b3_ratings] reads >= 1 item, shares sum to 1",
+   "detail": "49 items",
+   "pass": true
+  },
+  {
+   "control": "[b3_laminate_margin_K] reads >= 1 item, shares sum to 1",
+   "detail": "49 items",
+   "pass": true
+  },
+  {
+   "control": "[b3_rated_part_margin_K] reads >= 1 item, shares sum to 1",
+   "detail": "49 items",
+   "pass": true
+  },
+  {
+   "control": "[b3_release_margin_K] reads >= 1 item, shares sum to 1",
+   "detail": "49 items",
    "pass": true
   },
   {
@@ -98,7 +118,7 @@
   },
   {
    "control": "[cmti_table_all_rows] reads >= 1 item, shares sum to 1",
-   "detail": "13 items",
+   "detail": "12 items",
    "pass": true
   },
   {
@@ -113,7 +133,17 @@
   },
   {
    "control": "[leakage_touch_mA] reads >= 1 item, shares sum to 1",
+   "detail": "4 items",
+   "pass": true
+  },
+  {
+   "control": "[bank_ratio_tdk_28A_35k] reads >= 1 item, shares sum to 1",
    "detail": "5 items",
+   "pass": true
+  },
+  {
+   "control": "[jet_strip_height] reads >= 1 item, shares sum to 1",
+   "detail": "24 items",
    "pass": true
   },
   {
@@ -178,6 +208,10 @@
   "jlc_dfm",
   "ledger_unaudited_safety_power",
   "ledger_violations",
+  "track_acute_corners",
+  "track_any_angle_mm",
+  "track_fold_backs",
+  "track_right_angle_corners",
   "vias"
  ],
  "group_x_metric_share": {
@@ -194,28 +228,88 @@
    "G10": 0.1
   },
   "b3_c28_h25_peak_C": {
-   "G01": 0.112,
-   "G02": 0.094,
-   "G03": 0.1348,
-   "G04": 0.1298,
-   "G05": 0.0893,
-   "G06": 0.1981,
-   "G07": 0.055,
-   "G08": 0.108,
-   "G09": 0.0489,
-   "G10": 0.0302
+   "G01": 0.185,
+   "G02": 0.0631,
+   "G03": 0.0972,
+   "G04": 0.0902,
+   "G05": 0.1323,
+   "G06": 0.2694,
+   "G07": 0.0419,
+   "G08": 0.0766,
+   "G09": 0.0443,
+   "G10": 0.0
+  },
+  "b3_laminate_margin_K": {
+   "G01": 0.185,
+   "G02": 0.0631,
+   "G03": 0.0972,
+   "G04": 0.0902,
+   "G05": 0.1323,
+   "G06": 0.2694,
+   "G07": 0.0419,
+   "G08": 0.0766,
+   "G09": 0.0443,
+   "G10": 0.0
   },
   "b3_nominal_h10_peak_C": {
-   "G01": 0.112,
-   "G02": 0.094,
-   "G03": 0.1348,
-   "G04": 0.1298,
-   "G05": 0.0893,
-   "G06": 0.1981,
-   "G07": 0.055,
-   "G08": 0.108,
-   "G09": 0.0489,
-   "G10": 0.0302
+   "G01": 0.185,
+   "G02": 0.0631,
+   "G03": 0.0972,
+   "G04": 0.0902,
+   "G05": 0.1323,
+   "G06": 0.2694,
+   "G07": 0.0419,
+   "G08": 0.0766,
+   "G09": 0.0443,
+   "G10": 0.0
+  },
+  "b3_rated_part_margin_K": {
+   "G01": 0.185,
+   "G02": 0.0631,
+   "G03": 0.0972,
+   "G04": 0.0902,
+   "G05": 0.1323,
+   "G06": 0.2694,
+   "G07": 0.0419,
+   "G08": 0.0766,
+   "G09": 0.0443,
+   "G10": 0.0
+  },
+  "b3_ratings": {
+   "G01": 0.185,
+   "G02": 0.0631,
+   "G03": 0.0972,
+   "G04": 0.0902,
+   "G05": 0.1323,
+   "G06": 0.2694,
+   "G07": 0.0419,
+   "G08": 0.0766,
+   "G09": 0.0443,
+   "G10": 0.0
+  },
+  "b3_release_margin_K": {
+   "G01": 0.185,
+   "G02": 0.0631,
+   "G03": 0.0972,
+   "G04": 0.0902,
+   "G05": 0.1323,
+   "G06": 0.2694,
+   "G07": 0.0419,
+   "G08": 0.0766,
+   "G09": 0.0443,
+   "G10": 0.0
+  },
+  "bank_ratio_tdk_28A_35k": {
+   "G01": 0.0,
+   "G02": 0.0,
+   "G03": 0.0,
+   "G04": 1.0,
+   "G05": 0.0,
+   "G06": 0.0,
+   "G07": 0.0,
+   "G08": 0.0,
+   "G09": 0.0,
+   "G10": 0.0
   },
   "bank_ratio_tdk_28A_40k": {
    "G01": 0.0,
@@ -230,16 +324,16 @@
    "G10": 0.0
   },
   "barrier_8mm": {
-   "G01": 0.0398,
-   "G02": 0.0057,
-   "G03": 0.0102,
-   "G04": 0.0023,
-   "G05": 0.2241,
-   "G06": 0.0547,
-   "G07": 0.3206,
-   "G08": 0.1892,
-   "G09": 0.0864,
-   "G10": 0.067
+   "G01": 0.0461,
+   "G02": 0.0066,
+   "G03": 0.0118,
+   "G04": 0.0026,
+   "G05": 0.2594,
+   "G06": 0.0634,
+   "G07": 0.2265,
+   "G08": 0.2191,
+   "G09": 0.1,
+   "G10": 0.0645
   },
   "bypass": {
    "G01": 0.0,
@@ -270,12 +364,12 @@
    "G02": 0.0,
    "G03": 0.0,
    "G04": 0.0,
-   "G05": 0.1538,
-   "G06": 0.2308,
-   "G07": 0.2308,
-   "G08": 0.1538,
-   "G09": 0.1538,
-   "G10": 0.0769
+   "G05": 0.1667,
+   "G06": 0.25,
+   "G07": 0.25,
+   "G08": 0.1667,
+   "G09": 0.1667,
+   "G10": 0.0
   },
   "cost_parts_lines_stock": {
    "G01": 0.1,
@@ -302,16 +396,16 @@
    "G10": 0.1
   },
   "d5": {
-   "G01": 0.0398,
-   "G02": 0.0057,
-   "G03": 0.0102,
-   "G04": 0.0023,
-   "G05": 0.2241,
-   "G06": 0.0547,
-   "G07": 0.3206,
-   "G08": 0.1892,
-   "G09": 0.0864,
-   "G10": 0.067
+   "G01": 0.0461,
+   "G02": 0.0066,
+   "G03": 0.0118,
+   "G04": 0.0026,
+   "G05": 0.2594,
+   "G06": 0.0634,
+   "G07": 0.2265,
+   "G08": 0.2191,
+   "G09": 0.1,
+   "G10": 0.0645
   },
   "d5_hot_pe_mm": {
    "G01": 0.5714,
@@ -326,16 +420,16 @@
    "G10": 0.2857
   },
   "d5_hot_selv_mm": {
-   "G01": 0.004,
-   "G02": 0.004,
-   "G03": 0.0071,
-   "G04": 0.0032,
-   "G05": 0.2701,
-   "G06": 0.0336,
-   "G07": 0.413,
-   "G08": 0.1968,
-   "G09": 0.0302,
-   "G10": 0.0381
+   "G01": 0.0048,
+   "G02": 0.0048,
+   "G03": 0.0087,
+   "G04": 0.0038,
+   "G05": 0.3272,
+   "G06": 0.0407,
+   "G07": 0.2888,
+   "G08": 0.2385,
+   "G09": 0.0365,
+   "G10": 0.0462
   },
   "drc_errors_0": {
    "G01": 0.1,
@@ -409,6 +503,18 @@
    "G09": 0.0294,
    "G10": 0.0294
   },
+  "jet_strip_height": {
+   "G01": 0.0,
+   "G02": 0.0,
+   "G03": 0.1667,
+   "G04": 0.0,
+   "G05": 0.8333,
+   "G06": 0.0,
+   "G07": 0.0,
+   "G08": 0.0,
+   "G09": 0.0,
+   "G10": 0.0
+  },
   "jlc_dfm": {
    "G01": 0.1,
    "G02": 0.1,
@@ -434,16 +540,16 @@
    "G10": 0.0
   },
   "leakage_touch_mA": {
-   "G01": 0.4,
+   "G01": 0.5,
    "G02": 0.0,
    "G03": 0.0,
    "G04": 0.0,
    "G05": 0.0,
-   "G06": 0.2,
+   "G06": 0.25,
    "G07": 0.0,
    "G08": 0.0,
    "G09": 0.0,
-   "G10": 0.4
+   "G10": 0.25
   },
   "ledger_unaudited_safety_power": {
    "G01": 0.1,
@@ -494,52 +600,52 @@
    "G10": 0.0
   },
   "res_a_creepage18": {
-   "G01": 0.0833,
+   "G01": 0.1,
    "G02": 0.0,
    "G03": 0.0,
-   "G04": 0.1667,
-   "G05": 0.0333,
+   "G04": 0.2,
+   "G05": 0.04,
    "G06": 0.0,
-   "G07": 0.0333,
-   "G08": 0.0333,
-   "G09": 0.3667,
-   "G10": 0.2833
+   "G07": 0.04,
+   "G08": 0.04,
+   "G09": 0.44,
+   "G10": 0.14
   },
   "res_a_outer_12p6mm": {
-   "G01": 0.0833,
+   "G01": 0.1,
    "G02": 0.0,
    "G03": 0.0,
-   "G04": 0.1667,
-   "G05": 0.0333,
+   "G04": 0.2,
+   "G05": 0.04,
    "G06": 0.0,
-   "G07": 0.0333,
-   "G08": 0.0333,
-   "G09": 0.3667,
-   "G10": 0.2833
+   "G07": 0.04,
+   "G08": 0.04,
+   "G09": 0.44,
+   "G10": 0.14
   },
   "res_a_outer_min_mm": {
-   "G01": 0.0833,
+   "G01": 0.1,
    "G02": 0.0,
    "G03": 0.0,
-   "G04": 0.1667,
-   "G05": 0.0333,
+   "G04": 0.2,
+   "G05": 0.04,
    "G06": 0.0,
-   "G07": 0.0333,
-   "G08": 0.0333,
-   "G09": 0.3667,
-   "G10": 0.2833
+   "G07": 0.04,
+   "G08": 0.04,
+   "G09": 0.44,
+   "G10": 0.14
   },
   "return_path19": {
-   "G01": 0.0069,
-   "G02": 0.0069,
-   "G03": 0.0125,
+   "G01": 0.0066,
+   "G02": 0.0066,
+   "G03": 0.0118,
    "G04": 0.0,
-   "G05": 0.1926,
-   "G06": 0.0148,
-   "G07": 0.1787,
-   "G08": 0.2042,
-   "G09": 0.15,
-   "G10": 0.2333
+   "G05": 0.1825,
+   "G06": 0.014,
+   "G07": 0.1956,
+   "G08": 0.1934,
+   "G09": 0.1421,
+   "G10": 0.2474
   },
   "return_path_open_changes": {
    "G01": 0.0,
@@ -577,6 +683,54 @@
    "G09": 0.1,
    "G10": 0.0417
   },
+  "track_acute_corners": {
+   "G01": 0.1,
+   "G02": 0.1,
+   "G03": 0.1,
+   "G04": 0.1,
+   "G05": 0.1,
+   "G06": 0.1,
+   "G07": 0.1,
+   "G08": 0.1,
+   "G09": 0.1,
+   "G10": 0.1
+  },
+  "track_any_angle_mm": {
+   "G01": 0.1,
+   "G02": 0.1,
+   "G03": 0.1,
+   "G04": 0.1,
+   "G05": 0.1,
+   "G06": 0.1,
+   "G07": 0.1,
+   "G08": 0.1,
+   "G09": 0.1,
+   "G10": 0.1
+  },
+  "track_fold_backs": {
+   "G01": 0.1,
+   "G02": 0.1,
+   "G03": 0.1,
+   "G04": 0.1,
+   "G05": 0.1,
+   "G06": 0.1,
+   "G07": 0.1,
+   "G08": 0.1,
+   "G09": 0.1,
+   "G10": 0.1
+  },
+  "track_right_angle_corners": {
+   "G01": 0.1,
+   "G02": 0.1,
+   "G03": 0.1,
+   "G04": 0.1,
+   "G05": 0.1,
+   "G06": 0.1,
+   "G07": 0.1,
+   "G08": 0.1,
+   "G09": 0.1,
+   "G10": 0.1
+  },
   "vias": {
    "G01": 0.1,
    "G02": 0.1,
@@ -590,7 +744,7 @@
    "G10": 0.1
   }
  },
- "method": "Layer 4, verification coupling: which gates and scorecard metrics a change in each group re-triggers.\n\n    python3 -I validation-results/13-coupling/scripts/verification.py      (after assign32.py, physical.py, physics.py)\n\nEach gate of chain.sh / scorecard.py and each scorecard metric is given the parts and nets it reads, taken from the\ngate's own stage-32 output or input file (named per row). A metric is 'global' when it reads every part or all copper\n(DRC, DFM, enclosure fit, audit.rs, ledger, cost): any change re-runs it, so it does not separate groups. For the\nothers, share[g] = fraction of the metric's read items (parts + nets; a shared net counts 1/k to each of its k groups)\nthat belong to group g (B3: share of the board heat each group deposits, physics.json). Group x metric matrix = share; verification coupling of two groups = sum over non-global\nmetrics of min(share_i, share_j) (how much of a re-check two groups' changes have in common).",
+ "method": "Layer 4, verification coupling: which gates and scorecard metrics a change in each group re-triggers.\n\n    python3 -I validation-results/13-coupling/scripts/verification.py      (after assign.py, physical.py, physics.py)\n\nEach gate of chain.sh / scorecard.py and each scorecard metric is given the parts and nets it reads, taken from the\ngate's own stage-43 output or input file (named per row). A metric is 'global' when it reads every part or all copper\n(DRC, DFM, enclosure fit, audit.rs, ledger, cost): any change re-runs it, so it does not separate groups. For the\nothers, share[g] = fraction of the metric's read items (parts + nets; a shared net counts 1/k to each of its k groups)\nthat belong to group g (B3: share of the board heat each group deposits, physics.json). Group x metric matrix = share; verification coupling of two groups = sum over non-global\nmetrics of min(share_i, share_j) (how much of a re-check two groups' changes have in common).\nA check run that reports several card values (the B3 ratings gate and its three margins) counts once in that sum.",
  "reads": {
   "audit_rs": {
    "global": true,
@@ -628,7 +782,6 @@
     "C5",
     "C6",
     "L1",
-    "PS1",
     "PS2",
     "R10",
     "R12",
@@ -658,7 +811,67 @@
     "U41",
     "U42"
    ],
-   "source": "B3 heat sources (c28) + Joule nets; peak at R5 (G08), then U42 (G06)"
+   "source": "B3 heat sources (c28) + Joule nets; peak at U42 (G06), then R20 (G05)"
+  },
+  "b3_laminate_margin_K": {
+   "family": "b3_ratings",
+   "global": false,
+   "kind": "metric",
+   "nets": [
+    "ac_l_in",
+    "ac_n_in",
+    "bus_p",
+    "coil_feed",
+    "hv_ret",
+    "leg_ret",
+    "res_a",
+    "sw_a",
+    "sw_b"
+   ],
+   "note": "",
+   "parts": [
+    "C151",
+    "C152",
+    "C21",
+    "C22",
+    "C23",
+    "C38",
+    "C39",
+    "C40",
+    "C41",
+    "C5",
+    "C6",
+    "L1",
+    "PS2",
+    "R10",
+    "R12",
+    "R18",
+    "R20",
+    "R22",
+    "R23",
+    "R24",
+    "R25",
+    "R39",
+    "R5",
+    "R53",
+    "R54",
+    "R57",
+    "R58",
+    "R67",
+    "R68",
+    "R69",
+    "R70",
+    "U1",
+    "U2",
+    "U26",
+    "U3",
+    "U37",
+    "U38",
+    "U39",
+    "U41",
+    "U42"
+   ],
+   "source": "B3 heat sources (c28) + Joule nets; peak at U42 (G06), then R20 (G05); body-level ratings run set (c18 release, c22 / c28 ratchets)"
   },
   "b3_nominal_h10_peak_C": {
    "global": false,
@@ -688,7 +901,6 @@
     "C5",
     "C6",
     "L1",
-    "PS1",
     "PS2",
     "R10",
     "R12",
@@ -718,7 +930,201 @@
     "U41",
     "U42"
    ],
-   "source": "B3 heat sources (c28) + Joule nets; peak at R5 (G08), then U42 (G06)"
+   "source": "B3 heat sources (c28) + Joule nets; peak at U42 (G06), then R20 (G05)"
+  },
+  "b3_rated_part_margin_K": {
+   "family": "b3_ratings",
+   "global": false,
+   "kind": "metric",
+   "nets": [
+    "ac_l_in",
+    "ac_n_in",
+    "bus_p",
+    "coil_feed",
+    "hv_ret",
+    "leg_ret",
+    "res_a",
+    "sw_a",
+    "sw_b"
+   ],
+   "note": "",
+   "parts": [
+    "C151",
+    "C152",
+    "C21",
+    "C22",
+    "C23",
+    "C38",
+    "C39",
+    "C40",
+    "C41",
+    "C5",
+    "C6",
+    "L1",
+    "PS2",
+    "R10",
+    "R12",
+    "R18",
+    "R20",
+    "R22",
+    "R23",
+    "R24",
+    "R25",
+    "R39",
+    "R5",
+    "R53",
+    "R54",
+    "R57",
+    "R58",
+    "R67",
+    "R68",
+    "R69",
+    "R70",
+    "U1",
+    "U2",
+    "U26",
+    "U3",
+    "U37",
+    "U38",
+    "U39",
+    "U41",
+    "U42"
+   ],
+   "source": "B3 heat sources (c28) + Joule nets; peak at U42 (G06), then R20 (G05); body-level ratings run set (c18 release, c22 / c28 ratchets)"
+  },
+  "b3_ratings": {
+   "family": "b3_ratings",
+   "global": false,
+   "kind": "gate",
+   "nets": [
+    "ac_l_in",
+    "ac_n_in",
+    "bus_p",
+    "coil_feed",
+    "hv_ret",
+    "leg_ret",
+    "res_a",
+    "sw_a",
+    "sw_b"
+   ],
+   "note": "",
+   "parts": [
+    "C151",
+    "C152",
+    "C21",
+    "C22",
+    "C23",
+    "C38",
+    "C39",
+    "C40",
+    "C41",
+    "C5",
+    "C6",
+    "L1",
+    "PS2",
+    "R10",
+    "R12",
+    "R18",
+    "R20",
+    "R22",
+    "R23",
+    "R24",
+    "R25",
+    "R39",
+    "R5",
+    "R53",
+    "R54",
+    "R57",
+    "R58",
+    "R67",
+    "R68",
+    "R69",
+    "R70",
+    "U1",
+    "U2",
+    "U26",
+    "U3",
+    "U37",
+    "U38",
+    "U39",
+    "U41",
+    "U42"
+   ],
+   "source": "B3 heat sources (c28) + Joule nets; peak at U42 (G06), then R20 (G05); body-level ratings run set (c18 release, c22 / c28 ratchets)"
+  },
+  "b3_release_margin_K": {
+   "family": "b3_ratings",
+   "global": false,
+   "kind": "metric",
+   "nets": [
+    "ac_l_in",
+    "ac_n_in",
+    "bus_p",
+    "coil_feed",
+    "hv_ret",
+    "leg_ret",
+    "res_a",
+    "sw_a",
+    "sw_b"
+   ],
+   "note": "",
+   "parts": [
+    "C151",
+    "C152",
+    "C21",
+    "C22",
+    "C23",
+    "C38",
+    "C39",
+    "C40",
+    "C41",
+    "C5",
+    "C6",
+    "L1",
+    "PS2",
+    "R10",
+    "R12",
+    "R18",
+    "R20",
+    "R22",
+    "R23",
+    "R24",
+    "R25",
+    "R39",
+    "R5",
+    "R53",
+    "R54",
+    "R57",
+    "R58",
+    "R67",
+    "R68",
+    "R69",
+    "R70",
+    "U1",
+    "U2",
+    "U26",
+    "U3",
+    "U37",
+    "U38",
+    "U39",
+    "U41",
+    "U42"
+   ],
+   "source": "B3 heat sources (c28) + Joule nets; peak at U42 (G06), then R20 (G05); body-level ratings run set (c18 release, c22 / c28 ratchets)"
+  },
+  "bank_ratio_tdk_28A_35k": {
+   "global": false,
+   "kind": "metric",
+   "nets": [],
+   "note": "",
+   "parts": [
+    "C151",
+    "C152",
+    "C21",
+    "C22",
+    "C23"
+   ],
+   "source": "c34-bank-margin bank_margin.json (DECISIONS 37)"
   },
   "bank_ratio_tdk_28A_40k": {
    "global": false,
@@ -740,17 +1146,7 @@
    "nets": [
     "bias_good",
     "bias_hb-en",
-    "bias_hb.monitor-good",
-    "bias_hb.monitor-v5",
     "bias_hb.split-fb",
-    "bias_hb.verdict-nc10",
-    "bias_hb.verdict-nc11",
-    "bias_hb.verdict-nc12",
-    "bias_hb.verdict-nc15",
-    "bias_hb.verdict-nc2",
-    "bias_hb.verdict-nc5",
-    "bias_hb.verdict-nc6",
-    "bias_hb.verdict-nc8",
     "bus_fault_hot",
     "bus_fault_iso",
     "bus_p",
@@ -766,7 +1162,6 @@
     "hb_rx",
     "hb_tx",
     "hot5",
-    "hsb_good",
     "hv_ret",
     "l_filt",
     "led1",
@@ -785,7 +1180,8 @@
     "leg_b.driver-nc_7",
     "line_zc_raw",
     "ls_v5",
-    "mon_good_ha",
+    "mon_good_hb",
+    "monitor_ls-good",
     "n_filt",
     "n_ha",
     "n_hb",
@@ -820,14 +1216,12 @@
    "parts": [
     "C3",
     "C4",
-    "PS1",
     "T1",
     "U1",
     "U2",
     "U32",
     "U36",
     "U4",
-    "U44",
     "U9"
    ],
    "source": "barrier-gate-rust.json; nets within 9 mm of the opposite domain (physical.json)"
@@ -883,7 +1277,7 @@
     "U45",
     "U46"
    ],
-   "source": "bypass-check.json (s32): ICs and their nearest caps"
+   "source": "bypass-check.json (s43): ICs and their nearest caps"
   },
   "cmti_gate_ratio_min": {
    "global": false,
@@ -902,7 +1296,6 @@
    "nets": [],
    "note": "",
    "parts": [
-    "PS1",
     "PS2",
     "T1",
     "U1",
@@ -940,17 +1333,7 @@
    "nets": [
     "bias_good",
     "bias_hb-en",
-    "bias_hb.monitor-good",
-    "bias_hb.monitor-v5",
     "bias_hb.split-fb",
-    "bias_hb.verdict-nc10",
-    "bias_hb.verdict-nc11",
-    "bias_hb.verdict-nc12",
-    "bias_hb.verdict-nc15",
-    "bias_hb.verdict-nc2",
-    "bias_hb.verdict-nc5",
-    "bias_hb.verdict-nc6",
-    "bias_hb.verdict-nc8",
     "bus_fault_hot",
     "bus_fault_iso",
     "bus_p",
@@ -966,7 +1349,6 @@
     "hb_rx",
     "hb_tx",
     "hot5",
-    "hsb_good",
     "hv_ret",
     "l_filt",
     "led1",
@@ -985,7 +1367,8 @@
     "leg_b.driver-nc_7",
     "line_zc_raw",
     "ls_v5",
-    "mon_good_ha",
+    "mon_good_hb",
+    "monitor_ls-good",
     "n_filt",
     "n_ha",
     "n_hb",
@@ -1020,14 +1403,12 @@
    "parts": [
     "C3",
     "C4",
-    "PS1",
     "T1",
     "U1",
     "U2",
     "U32",
     "U36",
     "U4",
-    "U44",
     "U9"
    ],
    "source": "native-21/verification/d5-audit.json"
@@ -1054,16 +1435,6 @@
    "kind": "metric",
    "nets": [
     "bias_good",
-    "bias_hb.monitor-good",
-    "bias_hb.monitor-v5",
-    "bias_hb.verdict-nc10",
-    "bias_hb.verdict-nc11",
-    "bias_hb.verdict-nc12",
-    "bias_hb.verdict-nc15",
-    "bias_hb.verdict-nc2",
-    "bias_hb.verdict-nc5",
-    "bias_hb.verdict-nc6",
-    "bias_hb.verdict-nc8",
     "bus_fault_hot",
     "bus_fault_iso",
     "bus_p",
@@ -1078,7 +1449,6 @@
     "hb_rx",
     "hb_tx",
     "hot5",
-    "hsb_good",
     "leg_a-driver_dis",
     "leg_a-out_h",
     "leg_a-out_l",
@@ -1093,7 +1463,7 @@
     "leg_b.driver-nc_7",
     "line_zc_raw",
     "ls_v5",
-    "mon_good_ha",
+    "monitor_ls-good",
     "n_ha",
     "n_hb",
     "n_ls",
@@ -1200,7 +1570,40 @@
     "Q6",
     "R5"
    ],
-   "source": "s32_necks.json segments"
+   "source": "s43_necks.json segments"
+  },
+  "jet_strip_height": {
+   "global": false,
+   "kind": "gate",
+   "nets": [],
+   "note": "",
+   "parts": [
+    "C12",
+    "C13",
+    "C19",
+    "C20",
+    "C55",
+    "C56",
+    "C62",
+    "C63",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "R10",
+    "R11",
+    "R12",
+    "R13",
+    "R18",
+    "R19",
+    "R20",
+    "R21",
+    "R53",
+    "R54",
+    "R57",
+    "R58"
+   ],
+   "source": "native21-jet-strip.json parts in the strip [0.0, 90.0, 7.0, 23.5] (temper-8d airflow)"
   },
   "jlc_dfm": {
    "global": true,
@@ -1233,7 +1636,7 @@
     "U8",
     "U9"
    ],
-   "source": "kelvin_plane.py (ocp_kelvin_p sheet, R5.2 -> R35.2) + budget-native21s32.json load rows"
+   "source": "kelvin_plane.py (ocp_kelvin_p sheet, R5.2 -> R35.2) + budget-native21s43.json load rows"
   },
   "leakage_touch_mA": {
    "global": false,
@@ -1314,7 +1717,7 @@
     "U41",
     "U42"
    ],
-   "source": "pi-distances.json (s32)"
+   "source": "pi-distances.json (s43)"
   },
   "res_a_creepage18": {
    "global": false,
@@ -1324,12 +1727,11 @@
     "line_zc_raw",
     "pe",
     "res_a",
-    "selv_gnd",
-    "v15_selv"
+    "selv_gnd"
    ],
    "note": "",
    "parts": [],
-   "source": "res-a-creepage.json pairs_under_25mm (s32)"
+   "source": "res-a-creepage.json pairs_under_25mm (s43)"
   },
   "res_a_outer_12p6mm": {
    "global": false,
@@ -1339,12 +1741,11 @@
     "line_zc_raw",
     "pe",
     "res_a",
-    "selv_gnd",
-    "v15_selv"
+    "selv_gnd"
    ],
    "note": "",
    "parts": [],
-   "source": "res-a-creepage.json pairs_under_25mm (s32)"
+   "source": "res-a-creepage.json pairs_under_25mm (s43)"
   },
   "res_a_outer_min_mm": {
    "global": false,
@@ -1354,12 +1755,11 @@
     "line_zc_raw",
     "pe",
     "res_a",
-    "selv_gnd",
-    "v15_selv"
+    "selv_gnd"
    ],
    "note": "",
    "parts": [],
-   "source": "res-a-creepage.json pairs_under_25mm (s32)"
+   "source": "res-a-creepage.json pairs_under_25mm (s43)"
   },
   "return_path19": {
    "global": false,
@@ -1378,6 +1778,8 @@
     "leg_ret",
     "line_zc",
     "mon_good_ha",
+    "mon_good_hb",
+    "monitor_ls-good",
     "n_ls",
     "ocp_kelvin_p",
     "ocp_ok_hot",
@@ -1398,14 +1800,14 @@
     "C154",
     "C155",
     "C156",
-    "C160",
+    "C168",
     "C37",
     "C46",
     "C47",
     "C61",
     "C7"
    ],
-   "source": "return-path.json (s32): signals, transfer caps, reference planes"
+   "source": "return-path.json (s43): signals, transfer caps, reference planes"
   },
   "return_path_open_changes": {
    "global": false,
@@ -1415,7 +1817,7 @@
     "bus_fault",
     "bus_fault_hot",
     "bus_fault_iso",
-    "mon_good_ha",
+    "monitor_ls-good",
     "ocp_ok_hot",
     "ovp_ok_hot",
     "permit",
@@ -1429,7 +1831,7 @@
     "C47",
     "C61"
    ],
-   "source": "return-path.json open changes (18)"
+   "source": "return-path.json open changes (15)"
   },
   "return_path_worst_asserted_mm": {
    "global": false,
@@ -1473,7 +1875,39 @@
    ],
    "note": "",
    "parts": [],
-   "source": "power_copper.json.gz nets (s32)"
+   "source": "power_copper.json.gz nets (s43)"
+  },
+  "track_acute_corners": {
+   "global": true,
+   "kind": "metric",
+   "nets": [],
+   "note": "",
+   "parts": [],
+   "source": "gates/track_geometry.py over every track (DECISIONS 43)"
+  },
+  "track_any_angle_mm": {
+   "global": true,
+   "kind": "metric",
+   "nets": [],
+   "note": "",
+   "parts": [],
+   "source": "gates/track_geometry.py over every track (DECISIONS 43)"
+  },
+  "track_fold_backs": {
+   "global": true,
+   "kind": "metric",
+   "nets": [],
+   "note": "",
+   "parts": [],
+   "source": "gates/track_geometry.py over every track (DECISIONS 43)"
+  },
+  "track_right_angle_corners": {
+   "global": true,
+   "kind": "metric",
+   "nets": [],
+   "note": "",
+   "parts": [],
+   "source": "gates/track_geometry.py over every track (DECISIONS 43)"
   },
   "vias": {
    "global": true,
@@ -1487,7 +1921,11 @@
  "retriggers_by_group": {
   "G01": [
    "b3_c28_h25_peak_C",
+   "b3_laminate_margin_K",
    "b3_nominal_h10_peak_C",
+   "b3_rated_part_margin_K",
+   "b3_ratings",
+   "b3_release_margin_K",
    "barrier_8mm",
    "d5",
    "d5_hot_pe_mm",
@@ -1503,7 +1941,11 @@
   ],
   "G02": [
    "b3_c28_h25_peak_C",
+   "b3_laminate_margin_K",
    "b3_nominal_h10_peak_C",
+   "b3_rated_part_margin_K",
+   "b3_ratings",
+   "b3_release_margin_K",
    "barrier_8mm",
    "d5",
    "d5_hot_selv_mm",
@@ -1514,18 +1956,28 @@
   ],
   "G03": [
    "b3_c28_h25_peak_C",
+   "b3_laminate_margin_K",
    "b3_nominal_h10_peak_C",
+   "b3_rated_part_margin_K",
+   "b3_ratings",
+   "b3_release_margin_K",
    "barrier_8mm",
    "d5",
    "d5_hot_selv_mm",
    "emi_min_margin_dB",
    "fuse_copper_fusing_ratio",
+   "jet_strip_height",
    "return_path19",
    "task04_dc_cases"
   ],
   "G04": [
    "b3_c28_h25_peak_C",
+   "b3_laminate_margin_K",
    "b3_nominal_h10_peak_C",
+   "b3_rated_part_margin_K",
+   "b3_ratings",
+   "b3_release_margin_K",
+   "bank_ratio_tdk_28A_35k",
    "bank_ratio_tdk_28A_40k",
    "barrier_8mm",
    "d5",
@@ -1539,7 +1991,11 @@
   ],
   "G05": [
    "b3_c28_h25_peak_C",
+   "b3_laminate_margin_K",
    "b3_nominal_h10_peak_C",
+   "b3_rated_part_margin_K",
+   "b3_ratings",
+   "b3_release_margin_K",
    "barrier_8mm",
    "bypass",
    "cmti_gate_ratio_min",
@@ -1547,6 +2003,7 @@
    "d5",
    "d5_hot_selv_mm",
    "fuse_copper_fusing_ratio",
+   "jet_strip_height",
    "pi_distances",
    "res_a_creepage18",
    "res_a_outer_12p6mm",
@@ -1558,7 +2015,11 @@
   ],
   "G06": [
    "b3_c28_h25_peak_C",
+   "b3_laminate_margin_K",
    "b3_nominal_h10_peak_C",
+   "b3_rated_part_margin_K",
+   "b3_ratings",
+   "b3_release_margin_K",
    "barrier_8mm",
    "bypass",
    "cmti_table_all_rows",
@@ -1573,7 +2034,11 @@
   ],
   "G07": [
    "b3_c28_h25_peak_C",
+   "b3_laminate_margin_K",
    "b3_nominal_h10_peak_C",
+   "b3_rated_part_margin_K",
+   "b3_ratings",
+   "b3_release_margin_K",
    "barrier_8mm",
    "bypass",
    "cmti_table_all_rows",
@@ -1591,7 +2056,11 @@
   ],
   "G08": [
    "b3_c28_h25_peak_C",
+   "b3_laminate_margin_K",
    "b3_nominal_h10_peak_C",
+   "b3_rated_part_margin_K",
+   "b3_ratings",
+   "b3_release_margin_K",
    "barrier_8mm",
    "bypass",
    "cmti_table_all_rows",
@@ -1611,7 +2080,11 @@
   ],
   "G09": [
    "b3_c28_h25_peak_C",
+   "b3_laminate_margin_K",
    "b3_nominal_h10_peak_C",
+   "b3_rated_part_margin_K",
+   "b3_ratings",
+   "b3_release_margin_K",
    "barrier_8mm",
    "bypass",
    "cmti_table_all_rows",
@@ -1628,11 +2101,8 @@
    "task04_dc_cases"
   ],
   "G10": [
-   "b3_c28_h25_peak_C",
-   "b3_nominal_h10_peak_C",
    "barrier_8mm",
    "bypass",
-   "cmti_table_all_rows",
    "d5",
    "d5_hot_pe_mm",
    "d5_hot_selv_mm",
@@ -1650,244 +2120,244 @@
  "shared_metric_count": {
   "G01": {
    "G01": 0,
-   "G02": 9,
-   "G03": 9,
-   "G04": 10,
-   "G05": 11,
-   "G06": 10,
-   "G07": 11,
-   "G08": 11,
-   "G09": 12,
-   "G10": 13
+   "G02": 10,
+   "G03": 10,
+   "G04": 11,
+   "G05": 12,
+   "G06": 11,
+   "G07": 12,
+   "G08": 12,
+   "G09": 13,
+   "G10": 11
   },
   "G02": {
-   "G01": 9,
+   "G01": 10,
    "G02": 0,
-   "G03": 9,
-   "G04": 7,
-   "G05": 8,
-   "G06": 8,
-   "G07": 8,
-   "G08": 8,
-   "G09": 8,
-   "G10": 8
+   "G03": 10,
+   "G04": 8,
+   "G05": 9,
+   "G06": 9,
+   "G07": 9,
+   "G08": 9,
+   "G09": 9,
+   "G10": 6
   },
   "G03": {
-   "G01": 9,
-   "G02": 9,
+   "G01": 10,
+   "G02": 10,
    "G03": 0,
-   "G04": 7,
-   "G05": 8,
-   "G06": 8,
-   "G07": 8,
-   "G08": 8,
-   "G09": 8,
-   "G10": 8
+   "G04": 8,
+   "G05": 10,
+   "G06": 9,
+   "G07": 9,
+   "G08": 9,
+   "G09": 9,
+   "G10": 6
   },
   "G04": {
-   "G01": 10,
-   "G02": 7,
-   "G03": 7,
+   "G01": 11,
+   "G02": 8,
+   "G03": 8,
    "G04": 0,
-   "G05": 9,
-   "G06": 6,
-   "G07": 9,
-   "G08": 10,
-   "G09": 9,
-   "G10": 9
+   "G05": 10,
+   "G06": 7,
+   "G07": 10,
+   "G08": 11,
+   "G09": 10,
+   "G10": 7
   },
   "G05": {
-   "G01": 11,
-   "G02": 8,
-   "G03": 8,
-   "G04": 9,
+   "G01": 12,
+   "G02": 9,
+   "G03": 10,
+   "G04": 10,
    "G05": 0,
-   "G06": 11,
-   "G07": 16,
-   "G08": 16,
-   "G09": 15,
-   "G10": 15
-  },
-  "G06": {
-   "G01": 10,
-   "G02": 8,
-   "G03": 8,
-   "G04": 6,
-   "G05": 11,
-   "G06": 0,
-   "G07": 11,
-   "G08": 11,
-   "G09": 11,
+   "G06": 12,
+   "G07": 17,
+   "G08": 17,
+   "G09": 16,
    "G10": 12
   },
-  "G07": {
+  "G06": {
    "G01": 11,
-   "G02": 8,
-   "G03": 8,
-   "G04": 9,
-   "G05": 16,
-   "G06": 11,
+   "G02": 9,
+   "G03": 9,
+   "G04": 7,
+   "G05": 12,
+   "G06": 0,
+   "G07": 12,
+   "G08": 12,
+   "G09": 12,
+   "G10": 9
+  },
+  "G07": {
+   "G01": 12,
+   "G02": 9,
+   "G03": 9,
+   "G04": 10,
+   "G05": 17,
+   "G06": 12,
    "G07": 0,
-   "G08": 16,
-   "G09": 15,
-   "G10": 15
+   "G08": 17,
+   "G09": 16,
+   "G10": 12
   },
   "G08": {
-   "G01": 11,
-   "G02": 8,
-   "G03": 8,
-   "G04": 10,
-   "G05": 16,
-   "G06": 11,
-   "G07": 16,
+   "G01": 12,
+   "G02": 9,
+   "G03": 9,
+   "G04": 11,
+   "G05": 17,
+   "G06": 12,
+   "G07": 17,
    "G08": 0,
-   "G09": 15,
-   "G10": 15
+   "G09": 16,
+   "G10": 12
   },
   "G09": {
-   "G01": 12,
-   "G02": 8,
-   "G03": 8,
-   "G04": 9,
-   "G05": 15,
-   "G06": 11,
-   "G07": 15,
-   "G08": 15,
+   "G01": 13,
+   "G02": 9,
+   "G03": 9,
+   "G04": 10,
+   "G05": 16,
+   "G06": 12,
+   "G07": 16,
+   "G08": 16,
    "G09": 0,
-   "G10": 16
+   "G10": 13
   },
   "G10": {
-   "G01": 13,
-   "G02": 8,
-   "G03": 8,
-   "G04": 9,
-   "G05": 15,
-   "G06": 12,
-   "G07": 15,
-   "G08": 15,
-   "G09": 16,
+   "G01": 11,
+   "G02": 6,
+   "G03": 6,
+   "G04": 7,
+   "G05": 12,
+   "G06": 9,
+   "G07": 12,
+   "G08": 12,
+   "G09": 13,
    "G10": 0
   }
  },
  "verification_coupling": {
   "G01": {
    "G01": 0.0,
-   "G02": 0.4353,
-   "G03": 0.9312,
-   "G04": 0.7772,
-   "G05": 0.4309,
-   "G06": 0.7187,
-   "G07": 0.3622,
-   "G08": 0.5647,
-   "G09": 0.6391,
-   "G10": 1.1576
+   "G02": 0.4386,
+   "G03": 1.0025,
+   "G04": 0.8752,
+   "G05": 0.6821,
+   "G06": 1.1129,
+   "G07": 0.411,
+   "G08": 0.6116,
+   "G09": 0.7372,
+   "G10": 1.0103
   },
   "G02": {
-   "G01": 0.4353,
+   "G01": 0.4386,
    "G02": 0.0,
-   "G03": 0.4353,
-   "G04": 0.3913,
-   "G05": 0.2544,
-   "G06": 0.2815,
-   "G07": 0.1857,
-   "G08": 0.2815,
-   "G09": 0.1911,
-   "G10": 0.1537
+   "G03": 0.4386,
+   "G04": 0.3938,
+   "G05": 0.2671,
+   "G06": 0.2848,
+   "G07": 0.2038,
+   "G08": 0.2848,
+   "G09": 0.2285,
+   "G10": 0.0956
   },
   "G03": {
-   "G01": 0.9312,
-   "G02": 0.4353,
+   "G01": 1.0025,
+   "G02": 0.4386,
    "G03": 0.0,
-   "G04": 0.5128,
-   "G05": 0.2805,
-   "G06": 0.4425,
-   "G07": 0.2118,
-   "G08": 0.4144,
-   "G09": 0.259,
-   "G10": 0.1715
+   "G04": 0.5252,
+   "G05": 0.5643,
+   "G06": 0.4687,
+   "G07": 0.2317,
+   "G08": 0.4323,
+   "G09": 0.2982,
+   "G10": 0.1153
   },
   "G04": {
-   "G01": 0.7772,
-   "G02": 0.3913,
-   "G03": 0.5128,
+   "G01": 0.8752,
+   "G02": 0.3938,
+   "G03": 0.5252,
    "G04": 0.0,
-   "G05": 0.3364,
-   "G06": 0.3589,
-   "G07": 0.2677,
-   "G08": 0.5358,
-   "G09": 0.7055,
-   "G10": 0.6098
+   "G05": 0.4497,
+   "G06": 0.3714,
+   "G07": 0.3049,
+   "G08": 0.5711,
+   "G09": 0.842,
+   "G10": 0.4708
   },
   "G05": {
-   "G01": 0.4309,
-   "G02": 0.2544,
-   "G03": 0.2805,
-   "G04": 0.3364,
+   "G01": 0.6821,
+   "G02": 0.2671,
+   "G03": 0.5643,
+   "G04": 0.4497,
    "G05": 0.0,
-   "G06": 0.7032,
-   "G07": 1.685,
-   "G08": 1.6859,
-   "G09": 1.0608,
-   "G10": 1.0208
+   "G06": 0.9579,
+   "G07": 1.7611,
+   "G08": 1.8611,
+   "G09": 1.1545,
+   "G10": 0.8963
   },
   "G06": {
-   "G01": 0.7187,
-   "G02": 0.2815,
-   "G03": 0.4425,
-   "G04": 0.3589,
-   "G05": 0.7032,
+   "G01": 1.1129,
+   "G02": 0.2848,
+   "G03": 0.4687,
+   "G04": 0.3714,
+   "G05": 0.9579,
    "G06": 0.0,
-   "G07": 0.7114,
-   "G08": 0.6856,
-   "G09": 0.6431,
-   "G10": 0.647
+   "G07": 0.7701,
+   "G08": 0.7359,
+   "G09": 0.714,
+   "G10": 0.5833
   },
   "G07": {
-   "G01": 0.3622,
-   "G02": 0.1857,
-   "G03": 0.2118,
-   "G04": 0.2677,
-   "G05": 1.685,
-   "G06": 0.7114,
+   "G01": 0.411,
+   "G02": 0.2038,
+   "G03": 0.2317,
+   "G04": 0.3049,
+   "G05": 1.7611,
+   "G06": 0.7701,
    "G07": 0.0,
-   "G08": 1.5394,
-   "G09": 1.2103,
-   "G10": 0.8531
+   "G08": 1.7042,
+   "G09": 1.2969,
+   "G10": 0.7556
   },
   "G08": {
-   "G01": 0.5647,
-   "G02": 0.2815,
-   "G03": 0.4144,
-   "G04": 0.5358,
-   "G05": 1.6859,
-   "G06": 0.6856,
-   "G07": 1.5394,
+   "G01": 0.6116,
+   "G02": 0.2848,
+   "G03": 0.4323,
+   "G04": 0.5711,
+   "G05": 1.8611,
+   "G06": 0.7359,
+   "G07": 1.7042,
    "G08": 0.0,
-   "G09": 1.1411,
-   "G10": 1.0501
+   "G09": 1.2348,
+   "G10": 0.9249
   },
   "G09": {
-   "G01": 0.6391,
-   "G02": 0.1911,
-   "G03": 0.259,
-   "G04": 0.7055,
-   "G05": 1.0608,
-   "G06": 0.6431,
-   "G07": 1.2103,
-   "G08": 1.1411,
+   "G01": 0.7372,
+   "G02": 0.2285,
+   "G03": 0.2982,
+   "G04": 0.842,
+   "G05": 1.1545,
+   "G06": 0.714,
+   "G07": 1.2969,
+   "G08": 1.2348,
    "G09": 0.0,
-   "G10": 1.694
+   "G10": 1.1201
   },
   "G10": {
-   "G01": 1.1576,
-   "G02": 0.1537,
-   "G03": 0.1715,
-   "G04": 0.6098,
-   "G05": 1.0208,
-   "G06": 0.647,
-   "G07": 0.8531,
-   "G08": 1.0501,
-   "G09": 1.694,
+   "G01": 1.0103,
+   "G02": 0.0956,
+   "G03": 0.1153,
+   "G04": 0.4708,
+   "G05": 0.8963,
+   "G06": 0.5833,
+   "G07": 0.7556,
+   "G08": 0.9249,
+   "G09": 1.1201,
    "G10": 0.0
   }
  }

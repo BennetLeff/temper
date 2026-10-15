@@ -1,23 +1,27 @@
 #!/usr/bin/env python3
-"""Layer 5 input, what each accepted stage 19c -> 32 actually changed and what moved.
+"""Layer 5 input, what each accepted stage 19c -> $n actually changed and what moved.
 
-    python3 -I validation-results/13-coupling/scripts/history.py      (after assign32.py)
+    python3 -I validation-results/13-coupling/scripts/history.py      (after $assign)
 
-For each consecutive pair of accepted stages (tags native21s19c, s20, s21, s21b, s22, s26, s27, s28, s29, s30, s31, s32):
+For each consecutive pair of accepted stages ($chainlist):
 * schematic: parts added / removed, MPN changed (frozen BOM), pin -> net changed (frozen netlist), all read with
   `git show TAG:...` (read-only);
 * placement: parts whose pose moved (> 0.01 mm or any rotation; native-21/placement.json at the tag);
 * copper: per net, routed copper (tracks + vias, rounded to 1 um) added or removed, and poured copper whose fill
   area moved by more than 1 % and 0.5 mm2 (the as-built all-copper dumps native-21/verification/<tag>-all-copper.json.gz);
 * scorecard: every gate and performance metric that changed between the two stages' cards (10-benchmark).
-Each changed item is mapped to groups (stage-32 rule applied to that stage's parts.json; a removed part takes its
+Each changed item is mapped to groups (stage-$n rule applied to that stage's parts.json; a removed part takes its
 group from the earlier stage). 'Intended' groups = groups with a schematic or placement change, plus the authored
 copper the DECISIONS item names (AUTHORED, with the item number). Changed routed copper is placed in the territory of
-the nearest stage-32 courtyard (as physical.py; 'open' beyond 6 mm); a territory with >= 2 changed items that is not
+the nearest stage-$n courtyard (as physical.py; 'open' beyond 6 mm); a territory with >= 2 changed items that is not
 intended is 'ripple'. Via-size-only changes (stage 32's global resize) are counted apart. DOCUMENTED_RIPPLE lists the
-cross-group effects the DECISIONS items describe in words (router re-lays, blocked routes, gate failures).
+cross-group effects the DECISIONS items describe in words (router re-lays, blocked routes, gate failures).$basisnote
 Controls: stages that DECISIONS records as copper-unchanged (20, 26, 29, 31) show no routed-copper change; stage 31's
-netlist nets are byte-identical to stage 30 (DECISIONS 34); stage 32's BOM equals stage 31's (DECISIONS 35).
+netlist nets are byte-identical to stage 30 (DECISIONS 34); stage 32's BOM equals stage 31's (DECISIONS 35). Later
+stages: each commit's netlist parts are the parts with pads in that stage's copper dump, and the dump is the board the
+stage's scorecard names; the BOM / parts changes are the ones the DECISIONS item records (44: J2 / J5 MPN only;
+50: PS1 out, PS2 MPN; 52: C168 / D20 / R135 in, U44 MPN; 53: none, netlist identical; 55: R10 / R12 / R18 / R20 and
+C55 / C56 / C62 / C63 MPN only; 57: C12 / C13 / C19 / C20 MPN only, nets identical).
 """
 import gzip
 import json
@@ -28,9 +32,8 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import common as C  # noqa: E402
+import stages as STG  # noqa: E402
 
-TAGS = ["native21s19c", "native21s20", "native21s21", "native21s21b", "native21s22", "native21s26", "native21s27",
-        "native21s28", "native21s29", "native21s30", "native21s31", "native21s32"]
 COPPER_SAME = {"native21s20", "native21s26", "native21s29", "native21s31"}
 # authored copper named by the DECISIONS item for each copper-changing stage: (item, groups, note)
 AUTHORED = {
@@ -41,6 +44,18 @@ AUTHORED = {
     "native21s28": (30, ["G10"], "F2 / R130 limiter (the OCP routing lock that followed is a response to ripple, below)"),
     "native21s30": (33, ["G07", "G09"], "heartbeat block, HSB_GOOD In2 leg, BUS_FAULT RC"),
     "native21s32": (35, ["G07", "G08", "G09"], "three SELV hops to In2 (HSB_GOOD, BUS_FAULT_ISO, BIAS_GOOD); the via resize is global"),
+    "native21s35": (44, ["G04"], "J2 / J5 SMT ring lands and 20 land vias per terminal (patches21.add_stage35); nothing else moves"),
+    "native21s38": (50, ["G01", "G10"], "PS1 area cleared; L_FILT re-laid to F2 and N_FILT's J11 via re-made 0.85 / 0.3 (l_filt / "
+                    "n_filt are G01 / G10 nets); spine lock re-issued by the selv lane (J4.1 net, v15_selv antipads)"),
+    "native21s40": (52, ["G06", "G07", "G10"], "U44 in U42's pocket, D18 / D20 vote beside U43, GOOD node in MON_GOOD_HA's corridor "
+                    "lane (G07); C161 via into In1 n_ls, F n_ls pour over an In1 n_ls patch, U41 heat-spread pours to x 46.35 "
+                    "(G06); C168 (G10)"),
+    "native21s41": (53, ["G02", "G03", "G08"], "hv_ret spreader at R5.4, leg_ret pours at R5.1 / Q3.1 / Q6.3, In1 leg-A neck, two "
+                    "R5.4 hv_ret vias moved, sw_b B.Cu lane over R5 (patches21.edit_base41)"),
+    "native21s42": (55, ["G05"], "gate runs re-laid (patches21.edit_base42), pull-downs moved, R11 turned with its sw_a via, R10's "
+                    "sw_a stub via removed"),
+    "native21s43": (57, list(C.GIDS), "DECISIONS 48 cleanup pass on every island by design (621 edits on 100 nets); snubber MPN "
+                    "C12 / C13 / C19 / C20"),
 }
 # ripple the DECISIONS items record in words: (stage, from groups, to groups, mechanism, item)
 DOCUMENTED_RIPPLE = [
@@ -52,9 +67,30 @@ DOCUMENTED_RIPPLE = [
     ("native21s30", ["G07"], ["G02", "G03"], "HS-B -> LS link blocked by the protected In2 bus_p trunk (y <= 51)", 33),
     ("native21s30", ["G07"], ["G05", "G10"], "HSB_GOOD pocket closed by the permit / PWM / bias_good bundle on F and B", 33),
     ("native21s32", ["G08", "G09", "G07"], ["G05", "G10"], "7 open return-path changes need the PWM bundle re-routed to reach C47 / C144 / C153", 35),
+    ("native21s40", ["G07"], ["G05"], "the HS-B verdict change took the SELV decoupler that served pwm_hb's via at (34.4, 110.6): the "
+     "change measured 16.5 mm and failed the asserted return_path19 limit; C168 added", 52),
+    ("native21s42", ["G05"], ["G03"], "first build: R11's sw_a via at (59.4, 9.7) cut the leg-A In1 fuse neck to 2.42 mm (ratio 0.882); "
+     "and the network's own +0.68 W cost the FET-row laminate 7.8 K at c28 (card REJECT, overridden)", 55),
 ] # stage 32's first chain also failed task 04 on the mains nets' resized vias (4 kept at 0.85): a board-wide via policy
   # meeting G01, not a group-to-group ripple, so it is recorded in GLOBAL_EVENTS instead
-GLOBAL_EVENTS = [("native21s32", ["G01"], "global via resize 0.85 -> 0.6 failed task 04's topology check on ac_n_in / l_filt / n_filt; 4 vias kept", 35)]
+GLOBAL_EVENTS = [("native21s32", ["G01"], "global via resize 0.85 -> 0.6 failed task 04's topology check on ac_n_in / l_filt / n_filt; 4 vias kept", 35),
+                 ("native21s43", list(C.GIDS), "cleanup pass: every island edited by design, so the stage has no outside group", 57)]
+# scorecard moves that DECISIONS attributes to a model / basis change rather than to the stage's board: (stage, metric, why, item)
+BASIS_CHANGES = [
+    ("native21s38", "b3_laminate_margin_K", "B3 ratings model corrected (FET lead path, 60 kHz heat file); s38 re-scored on it, s35 not", 51),
+    ("native21s38", "b3_rated_part_margin_K", "B3 ratings model corrected; film caps and gate resistors gated (more rows)", 51),
+    ("native21s40", "b3_c28_h25_peak_C", "first chain on the corrected c28 heat file (60 kHz, deck gate charge) in the shared model key", 51),
+    ("native21s40", "b3_nominal_h10_peak_C", "first chain after the heat-file / model-key change", 51),
+]
+# per-stage parts / BOM checks for the later stages (DECISIONS items): stage -> (added, removed, mpn changed, nets identical)
+EXPECT = {
+    "native21s35": ([], [], ["J2", "J5"], None),
+    "native21s38": ([], ["PS1"], ["PS2"], None),
+    "native21s40": (["C168", "D20", "R135"], [], ["U44"], None),
+    "native21s41": ([], [], [], True),
+    "native21s42": ([], [], ["C55", "C56", "C62", "C63", "R10", "R12", "R18", "R20"], None),
+    "native21s43": ([], [], ["C12", "C13", "C19", "C20"], True),
+}
 
 
 def card(tag):
@@ -72,6 +108,7 @@ def pin_map(nets):
 
 def copper_sig(tag):
     d = json.load(gzip.open(C.N21 / f"verification/{tag}-all-copper.json.gz"))
+    pad_refs = {x["ref"].split(".")[0] for x in d["primitives"] if x["kind"] == "pad"}
     routed = defaultdict(set)
     zarea = defaultdict(float)
     sg, so = C.shapely()
@@ -86,10 +123,21 @@ def copper_sig(tag):
             routed[n].add(("v", tuple(round(v, 3) for v in x["centre"]), round(x["diameter_mm"], 3), round(x["drill_mm"], 3)))
         elif x["kind"] == "zone":
             zarea[(n, x["layer"])] += sg.Polygon(x["shell"], x.get("holes") or []).area
-    return d["board_sha256"], routed, zarea
+    return d["board_sha256"], routed, zarea, pad_refs
 
 
 def main():
+    C.init()
+    chain = STG.chain_upto(C.TAG)
+    TAGS = [t for t, _ in chain]
+    REF = dict(chain)
+    old = [t for t, r in chain if t == r]
+    new = [f"{STG.short(t)} {r}" for t, r in chain if t != r]
+    C.FMT["chainlist"] = "tags " + ", ".join([old[0]] + [STG.short(t) for t in old[1:]]) + (
+        "; then the commits " + ", ".join(new) if new else "")
+    stages_in = set(TAGS)
+    C.FMT["basisnote"] = ("\nBASIS_CHANGES lists scorecard moves that DECISIONS attributes to a model or basis change, not to the "
+                          "board;\nthe metric check leaves them out." if any(a in stages_in for a, *_ in BASIS_CHANGES) else "")
     ctl = C.Controls()
     import numpy as np
     asg32 = C.load("assignment.json")["assignment"]
@@ -98,7 +146,7 @@ def main():
     box = np.array([cy[r] for r in refs])
 
     def territory(xy):
-        """group of the nearest stage-32 courtyard (edge gap); 'open' beyond 6 mm (as physical.py)."""
+        """group of the nearest courtyard of the audited stage (edge gap); 'open' beyond 6 mm (as physical.py)."""
         dx = np.maximum.reduce([box[:, 0] - xy[0], xy[0] - box[:, 2], np.zeros(len(box))])
         dy = np.maximum.reduce([box[:, 1] - xy[1], xy[1] - box[:, 3], np.zeros(len(box))])
         dd = np.hypot(dx, dy)
@@ -107,16 +155,23 @@ def main():
     rows = []
     prev = None
     for tag in TAGS:
-        comps, nets = C.netlist(tag)
-        bom = C.bom(tag)
-        prt = C.parts(tag)
-        plc = C.placement(tag)
+        comps, nets = C.netlist(REF[tag])
+        bom = C.bom(REF[tag])
+        prt = C.parts(REF[tag])
+        plc = C.placement(REF[tag])
         asg = {}
         for p in prt:
-            g, _ = C.assign_32(p["path"], p["group"])
+            g, _ = C.assign_stage(p["path"], p["group"])
             asg[p["ref"]] = g
         path_ref = {p["path"]: p["ref"] for p in prt}
-        sha, routed, zarea = copper_sig(tag)
+        sha, routed, zarea, pad_refs = copper_sig(tag)
+        if tag != REF[tag]:                 # a later stage read from a commit, not a tag: check the commit is that board
+            cd = card(tag)
+            ctl.check(f"{tag}: commit {REF[tag]} netlist parts == the parts with pads in its copper dump (less the board-only test "
+                      f"points / fiducials); dump is the card's board",
+                      set(comps) == {r for r in pad_refs if not r.startswith(("TP", "FID", "MH", "H"))}
+                      and cd is not None and cd["board_sha256"] == sha,
+                      f"{len(comps)} parts (+{len(pad_refs) - len(comps)} board-only TP / FID), board {sha[:8]}")
         cur = {"tag": tag, "comps": comps, "nets": nets, "bom": bom, "asg": asg, "plc": plc, "path_ref": path_ref,
                "sha": sha, "routed": routed, "zarea": zarea, "card": card(tag)}
         if prev:
@@ -213,11 +268,25 @@ def main():
                 ctl.check("native21s31: netlist nets identical to s30 (DECISIONS 34)", A["nets"] == B["nets"])
             if B["tag"] == "native21s32":
                 ctl.check("native21s32: BOM identical to s31 (DECISIONS 35)", A["bom"] == B["bom"])
+            if B["tag"] in EXPECT:
+                ea, er, em, same_nets = EXPECT[B["tag"]]
+                ok = added == ea and removed == er and mpn == em and (not same_nets or A["nets"] == B["nets"])
+                ctl.check(f"{B['tag']}: parts / BOM changes are the DECISIONS item's (+{ea} -{er} MPN {em}"
+                          + (", nets identical" if same_nets else "") + ")", ok, f"+{added} -{removed} MPN {mpn}")
+            bc = {m: w for s_, m, w, _ in BASIS_CHANGES if s_ == B["tag"]}
+            if bc:
+                row["metrics_moved_basis_change"] = {m: w for m, w in bc.items() if m in moved_m}
         prev = cur
-    out = {"method": __doc__.split("Controls:")[0].strip(), "tags": TAGS, "stages": rows,
-           "documented_ripple": [{"stage": a, "from": b, "to": c, "mechanism": d_, "decisions_item": e} for a, b, c, d_, e in DOCUMENTED_RIPPLE],
-           "global_events": [{"stage": a, "groups": b, "mechanism": c_, "decisions_item": e} for a, b, c_, e in GLOBAL_EVENTS],
+    out = {"method": C.method(__doc__), "tags": TAGS, "stages": rows,
+           "documented_ripple": [{"stage": a, "from": b, "to": c, "mechanism": d_, "decisions_item": e} for a, b, c, d_, e in DOCUMENTED_RIPPLE
+                                 if a in stages_in],
+           "global_events": [{"stage": a, "groups": b, "mechanism": c_, "decisions_item": e} for a, b, c_, e in GLOBAL_EVENTS
+                             if a in stages_in],
            "controls": ctl.rows}
+    if any(t != r for t, r in chain):
+        out["refs"] = {t: r for t, r in chain}
+        out["not_adopted"] = STG.NOT_ADOPTED
+        out["basis_changes"] = [{"stage": a, "metric": b, "why": c_, "decisions_item": e} for a, b, c_, e in BASIS_CHANGES if a in stages_in]
     h = C.write("history.json", out)
     print("history.json", h[:12])
     ctl.finish()

@@ -1,0 +1,2219 @@
+{
+ "controls": [
+  {
+   "control": "native21s20: routed copper unchanged (DECISIONS: BOM only)",
+   "detail": "0 nets changed",
+   "pass": true
+  },
+  {
+   "control": "native21s26: routed copper unchanged (DECISIONS: BOM only)",
+   "detail": "0 nets changed",
+   "pass": true
+  },
+  {
+   "control": "native21s29: routed copper unchanged (DECISIONS: BOM only)",
+   "detail": "0 nets changed",
+   "pass": true
+  },
+  {
+   "control": "native21s31: routed copper unchanged (DECISIONS: BOM only)",
+   "detail": "0 nets changed",
+   "pass": true
+  },
+  {
+   "control": "native21s31: netlist nets identical to s30 (DECISIONS 34)",
+   "detail": "",
+   "pass": true
+  },
+  {
+   "control": "native21s32: BOM identical to s31 (DECISIONS 35)",
+   "detail": "",
+   "pass": true
+  }
+ ],
+ "documented_ripple": [
+  {
+   "decisions_item": 27,
+   "from": [
+    "G05"
+   ],
+   "mechanism": "router: with Q4 gone pwm_lb took pwm_hb's via spot (35.2, 125.0); pwm_hb vias reserved",
+   "stage": "native21s22",
+   "to": [
+    "G10"
+   ]
+  },
+  {
+   "decisions_item": 27,
+   "from": [
+    "G05",
+    "G07"
+   ],
+   "mechanism": "router re-laid ocp_thresh all on F.Cu; OCP pickup 4.78 -> 4.17 A",
+   "stage": "native21s22",
+   "to": [
+    "G08"
+   ]
+  },
+  {
+   "decisions_item": 29,
+   "from": [
+    "G01"
+   ],
+   "mechanism": "settle loop trimmed a dead leg_b-permit_gate In2 branch over 7 rebuilds",
+   "stage": "native21s27",
+   "to": [
+    "G05"
+   ]
+  },
+  {
+   "decisions_item": 30,
+   "from": [
+    "G10"
+   ],
+   "mechanism": "first chain re-routed ocp_node / ocp_thresh; pickup 4.17 -> 4.78 A, card REJECT; OCP lock",
+   "stage": "native21s28",
+   "to": [
+    "G08"
+   ]
+  },
+  {
+   "decisions_item": 33,
+   "from": [
+    "G07"
+   ],
+   "mechanism": "HS-B -> LS link blocked by U42's n_ls pocket (y 47-60); C161 bypass exception (no legal pose)",
+   "stage": "native21s30",
+   "to": [
+    "G06"
+   ]
+  },
+  {
+   "decisions_item": 33,
+   "from": [
+    "G07"
+   ],
+   "mechanism": "HS-B -> LS link blocked by the protected In2 bus_p trunk (y <= 51)",
+   "stage": "native21s30",
+   "to": [
+    "G02",
+    "G03"
+   ]
+  },
+  {
+   "decisions_item": 33,
+   "from": [
+    "G07"
+   ],
+   "mechanism": "HSB_GOOD pocket closed by the permit / PWM / bias_good bundle on F and B",
+   "stage": "native21s30",
+   "to": [
+    "G05",
+    "G10"
+   ]
+  },
+  {
+   "decisions_item": 35,
+   "from": [
+    "G08",
+    "G09",
+    "G07"
+   ],
+   "mechanism": "7 open return-path changes need the PWM bundle re-routed to reach C47 / C144 / C153",
+   "stage": "native21s32",
+   "to": [
+    "G05",
+    "G10"
+   ]
+  }
+ ],
+ "global_events": [
+  {
+   "decisions_item": 35,
+   "groups": [
+    "G01"
+   ],
+   "mechanism": "global via resize 0.85 -> 0.6 failed task 04's topology check on ac_n_in / l_filt / n_filt; 4 vias kept",
+   "stage": "native21s32"
+  }
+ ],
+ "method": "Layer 5 input, what each accepted stage 19c -> 32 actually changed and what moved.\n\n    python3 -I validation-results/13-coupling/scripts/history.py      (after assign32.py)\n\nFor each consecutive pair of accepted stages (tags native21s19c, s20, s21, s21b, s22, s26, s27, s28, s29, s30, s31, s32):\n* schematic: parts added / removed, MPN changed (frozen BOM), pin -> net changed (frozen netlist), all read with\n  `git show TAG:...` (read-only);\n* placement: parts whose pose moved (> 0.01 mm or any rotation; native-21/placement.json at the tag);\n* copper: per net, routed copper (tracks + vias, rounded to 1 um) added or removed, and poured copper whose fill\n  area moved by more than 1 % and 0.5 mm2 (the as-built all-copper dumps native-21/verification/<tag>-all-copper.json.gz);\n* scorecard: every gate and performance metric that changed between the two stages' cards (10-benchmark).\nEach changed item is mapped to groups (stage-32 rule applied to that stage's parts.json; a removed part takes its\ngroup from the earlier stage). 'Intended' groups = groups with a schematic or placement change, plus the authored\ncopper the DECISIONS item names (AUTHORED, with the item number). Changed routed copper is placed in the territory of\nthe nearest stage-32 courtyard (as physical.py; 'open' beyond 6 mm); a territory with >= 2 changed items that is not\nintended is 'ripple'. Via-size-only changes (stage 32's global resize) are counted apart. DOCUMENTED_RIPPLE lists the\ncross-group effects the DECISIONS items describe in words (router re-lays, blocked routes, gate failures).",
+ "stages": [
+  {
+   "added": [],
+   "authored_groups": [],
+   "authored_note": null,
+   "board_from": "3d3a2c69c07a210262f0dc66789a2631e29370f6816c45869a7dea1813460d92",
+   "board_to": "2d5a4b05a9a1e627132e4372cac5065d1ad72b19efd45a8b7b9e22c8de1b7acd",
+   "changed_items_by_territory": {},
+   "decisions_item": null,
+   "from": "native21s19c",
+   "gates_changed": {},
+   "intended_groups": [
+    "G04",
+    "G09"
+   ],
+   "metrics_moved": {
+    "bank_ratio_tdk_28A_40k": [
+     1.105,
+     1.022
+    ]
+   },
+   "metrics_new": [],
+   "moved": [],
+   "mpn_changed": [
+    "C151",
+    "C152",
+    "C21",
+    "C22",
+    "C23",
+    "R39",
+    "T1",
+    "U36"
+   ],
+   "pin_changed": [],
+   "placement_groups": [],
+   "pour_fill_changed": {},
+   "pour_fill_groups": [],
+   "removed": [],
+   "renamed_nets": {},
+   "resized_vias": 0,
+   "ripple_groups_routed": [],
+   "routed_copper_changed_nets": {},
+   "routed_copper_net_groups": [],
+   "routed_copper_territories": [],
+   "schematic_groups": [
+    "G04",
+    "G09"
+   ],
+   "to": "native21s20"
+  },
+  {
+   "added": [],
+   "authored_groups": [
+    "G01",
+    "G02",
+    "G03",
+    "G08"
+   ],
+   "authored_note": "BR1 window merged into the hv_ret (In1) / bus_p (In2) trunks; R5.4 via field",
+   "board_from": "2d5a4b05a9a1e627132e4372cac5065d1ad72b19efd45a8b7b9e22c8de1b7acd",
+   "board_to": "fac94215369b6c285472a98e4cc255def9739f19fe2cf43e3439f6884e2bcae3",
+   "changed_items_by_territory": {
+    "G08": 42
+   },
+   "decisions_item": 25,
+   "from": "native21s20",
+   "gates_changed": {},
+   "intended_groups": [
+    "G01",
+    "G02",
+    "G03",
+    "G08"
+   ],
+   "metrics_moved": {
+    "b3_c28_h25_peak_C": [
+     136.0,
+     135.1
+    ],
+    "b3_nominal_h10_peak_C": [
+     163.2,
+     162.0
+    ],
+    "fuse_copper_fusing_ratio": [
+     0.208,
+     0.993
+    ]
+   },
+   "metrics_new": [],
+   "moved": [],
+   "mpn_changed": [],
+   "pin_changed": [
+    "BR1"
+   ],
+   "placement_groups": [],
+   "pour_fill_changed": {
+    "bus_p|B.Cu": {
+     "groups": [
+      "G01",
+      "G02",
+      "G03",
+      "G08"
+     ],
+     "mm2_after": 0.0,
+     "mm2_before": 66.5
+    },
+    "bus_p|F.Cu": {
+     "groups": [
+      "G01",
+      "G02",
+      "G03",
+      "G08"
+     ],
+     "mm2_after": 0.0,
+     "mm2_before": 66.5
+    },
+    "bus_p|In2.Cu": {
+     "groups": [
+      "G01",
+      "G02",
+      "G03",
+      "G08"
+     ],
+     "mm2_after": 9405.74,
+     "mm2_before": 8079.23
+    },
+    "hv_ret|B.Cu": {
+     "groups": [
+      "G01",
+      "G02",
+      "G03",
+      "G08"
+     ],
+     "mm2_after": 457.24,
+     "mm2_before": 523.74
+    },
+    "hv_ret|F.Cu": {
+     "groups": [
+      "G01",
+      "G02",
+      "G03",
+      "G08"
+     ],
+     "mm2_after": 469.29,
+     "mm2_before": 535.79
+    },
+    "hv_ret|In1.Cu": {
+     "groups": [
+      "G01",
+      "G02",
+      "G03",
+      "G08"
+     ],
+     "mm2_after": 9816.24,
+     "mm2_before": 8485.77
+    },
+    "rect_n|B.Cu": {
+     "groups": [
+      "G01",
+      "G02"
+     ],
+     "mm2_after": 0.0,
+     "mm2_before": 66.5
+    },
+    "rect_n|F.Cu": {
+     "groups": [
+      "G01",
+      "G02"
+     ],
+     "mm2_after": 0.0,
+     "mm2_before": 66.5
+    },
+    "rect_n|In2.Cu": {
+     "groups": [
+      "G01",
+      "G02"
+     ],
+     "mm2_after": 0.0,
+     "mm2_before": 296.68
+    },
+    "rect_p|B.Cu": {
+     "groups": [
+      "G01",
+      "G02"
+     ],
+     "mm2_after": 0.0,
+     "mm2_before": 66.5
+    },
+    "rect_p|F.Cu": {
+     "groups": [
+      "G01",
+      "G02"
+     ],
+     "mm2_after": 0.0,
+     "mm2_before": 66.5
+    },
+    "rect_p|In1.Cu": {
+     "groups": [
+      "G01",
+      "G02"
+     ],
+     "mm2_after": 0.0,
+     "mm2_before": 729.85
+    }
+   },
+   "pour_fill_groups": [
+    "G01",
+    "G02",
+    "G03",
+    "G08"
+   ],
+   "removed": [
+    "J10",
+    "J7",
+    "J8",
+    "J9"
+   ],
+   "renamed_nets": {
+    "rect_n": [
+     "hv_ret"
+    ],
+    "rect_p": [
+     "bus_p"
+    ]
+   },
+   "resized_vias": 0,
+   "ripple_groups_routed": [],
+   "routed_copper_changed_nets": {
+    "hot5": {
+     "added": 17,
+     "groups": [
+      "G08"
+     ],
+     "removed": 15,
+     "resized_vias": 0
+    },
+    "hv_ret": {
+     "added": 5,
+     "groups": [
+      "G01",
+      "G02",
+      "G03",
+      "G08"
+     ],
+     "removed": 5,
+     "resized_vias": 0
+    }
+   },
+   "routed_copper_net_groups": [
+    "G01",
+    "G02",
+    "G03",
+    "G08"
+   ],
+   "routed_copper_territories": [
+    "G08"
+   ],
+   "schematic_groups": [
+    "G01",
+    "G02"
+   ],
+   "to": "native21s21"
+  },
+  {
+   "added": [],
+   "authored_groups": [
+    "G08"
+   ],
+   "authored_note": "KELVIN_N under the KELVIN_P pour; C30 / C31 at U6",
+   "board_from": "fac94215369b6c285472a98e4cc255def9739f19fe2cf43e3439f6884e2bcae3",
+   "board_to": "c015804959add81e948055279cb78946e3a762ac9077c0b21bfbde3c89d0cb56",
+   "changed_items_by_territory": {
+    "G06": 50,
+    "G07": 70,
+    "G08": 202
+   },
+   "decisions_item": 26,
+   "from": "native21s21",
+   "gates_changed": {},
+   "intended_groups": [
+    "G08"
+   ],
+   "metrics_moved": {
+    "kelvin_band_low_A": [
+     67.72,
+     67.77
+    ],
+    "ocp_pickup_stack_pan60_A": [
+     8.71,
+     4.78
+    ]
+   },
+   "metrics_new": [],
+   "moved": [
+    "C30",
+    "C31"
+   ],
+   "mpn_changed": [],
+   "pin_changed": [],
+   "placement_groups": [
+    "G08"
+   ],
+   "pour_fill_changed": {
+    "n_ls|In1.Cu": {
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "mm2_after": 788.17,
+     "mm2_before": 802.17
+    },
+    "ocp_kelvin_p|In1.Cu": {
+     "groups": [
+      "G08"
+     ],
+     "mm2_after": 370.85,
+     "mm2_before": 350.25
+    }
+   },
+   "pour_fill_groups": [
+    "G05",
+    "G06",
+    "G07",
+    "G08"
+   ],
+   "removed": [],
+   "renamed_nets": {},
+   "resized_vias": 0,
+   "ripple_groups_routed": [
+    "G06",
+    "G07"
+   ],
+   "routed_copper_changed_nets": {
+    "bus_fault_hot": {
+     "added": 13,
+     "groups": [
+      "G08"
+     ],
+     "removed": 14,
+     "resized_vias": 0
+    },
+    "hot5": {
+     "added": 13,
+     "groups": [
+      "G08"
+     ],
+     "removed": 23,
+     "resized_vias": 0
+    },
+    "monitor_ls-spanov": {
+     "added": 11,
+     "groups": [
+      "G07"
+     ],
+     "removed": 12,
+     "resized_vias": 0
+    },
+    "n_hb": {
+     "added": 5,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "n_ls": {
+     "added": 14,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 7,
+     "resized_vias": 0
+    },
+    "ocp_kelvin_n": {
+     "added": 21,
+     "groups": [
+      "G08"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "ocp_kelvin_p": {
+     "added": 6,
+     "groups": [
+      "G08"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "ocp_node": {
+     "added": 24,
+     "groups": [
+      "G08"
+     ],
+     "removed": 15,
+     "resized_vias": 0
+    },
+    "ocp_thresh": {
+     "added": 30,
+     "groups": [
+      "G08"
+     ],
+     "removed": 15,
+     "resized_vias": 0
+    },
+    "p_hb": {
+     "added": 6,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 6,
+     "resized_vias": 0
+    },
+    "v15_ls": {
+     "added": 29,
+     "groups": [
+      "G05",
+      "G06",
+      "G07",
+      "G08"
+     ],
+     "removed": 34,
+     "resized_vias": 0
+    },
+    "v24_raw": {
+     "added": 7,
+     "groups": [
+      "G06"
+     ],
+     "removed": 7,
+     "resized_vias": 0
+    }
+   },
+   "routed_copper_net_groups": [
+    "G05",
+    "G06",
+    "G07",
+    "G08"
+   ],
+   "routed_copper_territories": [
+    "G06",
+    "G07",
+    "G08"
+   ],
+   "schematic_groups": [],
+   "to": "native21s21b"
+  },
+  {
+   "added": [],
+   "authored_groups": [
+    "G05",
+    "G07"
+   ],
+   "authored_note": "NAND drive-disable; BIAS_BAD -> BIAS_GOOD copper renamed",
+   "board_from": "c015804959add81e948055279cb78946e3a762ac9077c0b21bfbde3c89d0cb56",
+   "board_to": "cab63cec89dbd3e5111467373d461759e6a4bc49cc1a929f5d05964d65efaba6",
+   "changed_items_by_territory": {
+    "G05": 157,
+    "G06": 20,
+    "G07": 85,
+    "G08": 78,
+    "G09": 38,
+    "G10": 2,
+    "open": 31
+   },
+   "decisions_item": 27,
+   "from": "native21s21b",
+   "gates_changed": {},
+   "intended_groups": [
+    "G05",
+    "G07"
+   ],
+   "metrics_moved": {
+    "ocp_pickup_stack_pan60_A": [
+     4.78,
+     4.17
+    ],
+    "return_path_open_changes": [
+     39,
+     37
+    ]
+   },
+   "metrics_new": [],
+   "moved": [],
+   "mpn_changed": [
+    "U22",
+    "U23",
+    "U40"
+   ],
+   "pin_changed": [
+    "U22",
+    "U23",
+    "U40"
+   ],
+   "placement_groups": [],
+   "pour_fill_changed": {},
+   "pour_fill_groups": [],
+   "removed": [
+    "Q1",
+    "Q4",
+    "R16",
+    "R8"
+   ],
+   "renamed_nets": {
+    "bias_bad": [
+     "bias_good"
+    ],
+    "leg_a-dis": [
+     "leg_a-permit_gate"
+    ],
+    "leg_b-dis": [
+     "leg_b-permit_gate"
+    ]
+   },
+   "resized_vias": 0,
+   "ripple_groups_routed": [
+    "G06",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "routed_copper_changed_nets": {
+    "bias_bad": {
+     "added": 0,
+     "groups": [
+      "G05",
+      "G07"
+     ],
+     "removed": 58,
+     "resized_vias": 0
+    },
+    "bias_good": {
+     "added": 53,
+     "groups": [
+      "G05",
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "hot5": {
+     "added": 5,
+     "groups": [
+      "G08"
+     ],
+     "removed": 6,
+     "resized_vias": 0
+    },
+    "leg_a-dis": {
+     "added": 0,
+     "groups": [
+      "G05"
+     ],
+     "removed": 13,
+     "resized_vias": 0
+    },
+    "leg_a-permit_gate": {
+     "added": 10,
+     "groups": [
+      "G05"
+     ],
+     "removed": 10,
+     "resized_vias": 0
+    },
+    "leg_b-dis": {
+     "added": 0,
+     "groups": [
+      "G05"
+     ],
+     "removed": 13,
+     "resized_vias": 0
+    },
+    "leg_b-driver_dis": {
+     "added": 3,
+     "groups": [
+      "G05"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "leg_b-permit_gate": {
+     "added": 10,
+     "groups": [
+      "G05"
+     ],
+     "removed": 11,
+     "resized_vias": 0
+    },
+    "n_hb": {
+     "added": 4,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 5,
+     "resized_vias": 0
+    },
+    "ocp_node": {
+     "added": 23,
+     "groups": [
+      "G08"
+     ],
+     "removed": 24,
+     "resized_vias": 0
+    },
+    "ocp_thresh": {
+     "added": 32,
+     "groups": [
+      "G08"
+     ],
+     "removed": 27,
+     "resized_vias": 0
+    },
+    "p_hb": {
+     "added": 6,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 6,
+     "resized_vias": 0
+    },
+    "pwm_hb": {
+     "added": 6,
+     "groups": [
+      "G05",
+      "G10"
+     ],
+     "removed": 9,
+     "resized_vias": 0
+    },
+    "pwm_lb": {
+     "added": 7,
+     "groups": [
+      "G05",
+      "G10"
+     ],
+     "removed": 9,
+     "resized_vias": 0
+    },
+    "selv_gnd": {
+     "added": 13,
+     "groups": [
+      "G05",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "v3v3": {
+     "added": 18,
+     "groups": [
+      "G05",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ],
+     "removed": 26,
+     "resized_vias": 0
+    }
+   },
+   "routed_copper_net_groups": [
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "routed_copper_territories": [
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "schematic_groups": [
+    "G05",
+    "G07"
+   ],
+   "to": "native21s22"
+  },
+  {
+   "added": [],
+   "authored_groups": [],
+   "authored_note": null,
+   "board_from": "cab63cec89dbd3e5111467373d461759e6a4bc49cc1a929f5d05964d65efaba6",
+   "board_to": "d9eb6e9eef70577ef40b5c7ba54be91a5c217a1639b185f96ff6f56b190bbf24",
+   "changed_items_by_territory": {},
+   "decisions_item": null,
+   "from": "native21s22",
+   "gates_changed": {},
+   "intended_groups": [
+    "G05"
+   ],
+   "metrics_moved": {},
+   "metrics_new": [
+    "ledger_violations",
+    "ledger_unaudited_safety_power"
+   ],
+   "moved": [],
+   "mpn_changed": [
+    "C126",
+    "C127",
+    "C128",
+    "C129"
+   ],
+   "pin_changed": [],
+   "placement_groups": [],
+   "pour_fill_changed": {},
+   "pour_fill_groups": [],
+   "removed": [],
+   "renamed_nets": {},
+   "resized_vias": 0,
+   "ripple_groups_routed": [],
+   "routed_copper_changed_nets": {},
+   "routed_copper_net_groups": [],
+   "routed_copper_territories": [],
+   "schematic_groups": [
+    "G05"
+   ],
+   "to": "native21s26"
+  },
+  {
+   "added": [],
+   "authored_groups": [
+    "G01"
+   ],
+   "authored_note": "mains pours redrawn round the new J1",
+   "board_from": "d9eb6e9eef70577ef40b5c7ba54be91a5c217a1639b185f96ff6f56b190bbf24",
+   "board_to": "44644390f1ee41760407400ac4a620d97512e388c9902c625c50d84a37dfd124",
+   "changed_items_by_territory": {
+    "G01": 6,
+    "G07": 21
+   },
+   "decisions_item": 29,
+   "from": "native21s26",
+   "gates_changed": {},
+   "intended_groups": [
+    "G01"
+   ],
+   "metrics_moved": {
+    "ledger_unaudited_safety_power": [
+     2,
+     0
+    ],
+    "ledger_violations": [
+     2,
+     1
+    ]
+   },
+   "metrics_new": [],
+   "moved": [
+    "F1",
+    "J1",
+    "R1",
+    "R2"
+   ],
+   "mpn_changed": [
+    "J1"
+   ],
+   "pin_changed": [],
+   "placement_groups": [
+    "G01"
+   ],
+   "pour_fill_changed": {
+    "ac_l_in|F.Cu": {
+     "groups": [
+      "G01"
+     ],
+     "mm2_after": 253.39,
+     "mm2_before": 215.29
+    },
+    "ac_n_in|B.Cu": {
+     "groups": [
+      "G01"
+     ],
+     "mm2_after": 692.0,
+     "mm2_before": 679.97
+    },
+    "l_f|F.Cu": {
+     "groups": [
+      "G01"
+     ],
+     "mm2_after": 501.49,
+     "mm2_before": 549.85
+    }
+   },
+   "pour_fill_groups": [
+    "G01"
+   ],
+   "removed": [],
+   "renamed_nets": {},
+   "resized_vias": 0,
+   "ripple_groups_routed": [
+    "G07"
+   ],
+   "routed_copper_changed_nets": {
+    "ac_n_in": {
+     "added": 1,
+     "groups": [
+      "G01"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "l_f": {
+     "added": 1,
+     "groups": [
+      "G01"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "n_hb": {
+     "added": 5,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "p_hb": {
+     "added": 6,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 6,
+     "resized_vias": 0
+    },
+    "xbleed_mid": {
+     "added": 1,
+     "groups": [
+      "G01"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    }
+   },
+   "routed_copper_net_groups": [
+    "G01",
+    "G05",
+    "G06",
+    "G07"
+   ],
+   "routed_copper_territories": [
+    "G01",
+    "G07"
+   ],
+   "schematic_groups": [
+    "G01"
+   ],
+   "to": "native21s27"
+  },
+  {
+   "added": [
+    "R130"
+   ],
+   "authored_groups": [
+    "G10"
+   ],
+   "authored_note": "F2 / R130 limiter (the OCP routing lock that followed is a response to ripple, below)",
+   "board_from": "44644390f1ee41760407400ac4a620d97512e388c9902c625c50d84a37dfd124",
+   "board_to": "e3fe94099405ebcf2cccdd49695c969cad9473455cca3cc4df234a4a8ab323c6",
+   "changed_items_by_territory": {
+    "G07": 3,
+    "G08": 6,
+    "G09": 64,
+    "G10": 33
+   },
+   "decisions_item": 30,
+   "from": "native21s27",
+   "gates_changed": {},
+   "intended_groups": [
+    "G10"
+   ],
+   "metrics_moved": {
+    "ledger_violations": [
+     1,
+     0
+    ]
+   },
+   "metrics_new": [],
+   "moved": [
+    "F2"
+   ],
+   "mpn_changed": [
+    "F2"
+   ],
+   "pin_changed": [
+    "J11"
+   ],
+   "placement_groups": [
+    "G10"
+   ],
+   "pour_fill_changed": {},
+   "pour_fill_groups": [],
+   "removed": [],
+   "renamed_nets": {
+    "blw_l": [
+     "blw_lr"
+    ]
+   },
+   "resized_vias": 0,
+   "ripple_groups_routed": [
+    "G07",
+    "G08",
+    "G09"
+   ],
+   "routed_copper_changed_nets": {
+    "blw_l": {
+     "added": 1,
+     "groups": [
+      "G10"
+     ],
+     "removed": 10,
+     "resized_vias": 0
+    },
+    "blw_lr": {
+     "added": 5,
+     "groups": [
+      "G10"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "l_filt": {
+     "added": 2,
+     "groups": [
+      "G01",
+      "G06",
+      "G09",
+      "G10"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "n_filt": {
+     "added": 6,
+     "groups": [
+      "G01",
+      "G06",
+      "G09",
+      "G10"
+     ],
+     "removed": 7,
+     "resized_vias": 0
+    },
+    "n_ls": {
+     "added": 5,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "selv_gnd": {
+     "added": 20,
+     "groups": [
+      "G05",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ],
+     "removed": 19,
+     "resized_vias": 0
+    },
+    "v3v3": {
+     "added": 15,
+     "groups": [
+      "G05",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ],
+     "removed": 10,
+     "resized_vias": 0
+    }
+   },
+   "routed_copper_net_groups": [
+    "G01",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "routed_copper_territories": [
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "schematic_groups": [
+    "G10"
+   ],
+   "to": "native21s28"
+  },
+  {
+   "added": [],
+   "authored_groups": [],
+   "authored_note": null,
+   "board_from": "e3fe94099405ebcf2cccdd49695c969cad9473455cca3cc4df234a4a8ab323c6",
+   "board_to": "3ae1ddb47c8c4c4e7c26c663ce54248c8797651e0066dc3bf516225403cba128",
+   "changed_items_by_territory": {},
+   "decisions_item": null,
+   "from": "native21s28",
+   "gates_changed": {},
+   "intended_groups": [
+    "G05"
+   ],
+   "metrics_moved": {
+    "cmti_gate_ratio_min": [
+     1.316,
+     1.579
+    ]
+   },
+   "metrics_new": [],
+   "moved": [],
+   "mpn_changed": [
+    "R10",
+    "R12",
+    "R18",
+    "R20",
+    "U1",
+    "U2"
+   ],
+   "pin_changed": [],
+   "placement_groups": [],
+   "pour_fill_changed": {},
+   "pour_fill_groups": [],
+   "removed": [],
+   "renamed_nets": {},
+   "resized_vias": 0,
+   "ripple_groups_routed": [],
+   "routed_copper_changed_nets": {},
+   "routed_copper_net_groups": [],
+   "routed_copper_territories": [],
+   "schematic_groups": [
+    "G05"
+   ],
+   "to": "native21s29"
+  },
+  {
+   "added": [
+    "C157",
+    "C158",
+    "C159",
+    "C160",
+    "C161",
+    "C162",
+    "C163",
+    "C164",
+    "C165",
+    "C166",
+    "C167",
+    "D18",
+    "D19",
+    "R131",
+    "R132",
+    "R133",
+    "R134",
+    "U43",
+    "U44",
+    "U45",
+    "U46"
+   ],
+   "authored_groups": [
+    "G07",
+    "G09"
+   ],
+   "authored_note": "heartbeat block, HSB_GOOD In2 leg, BUS_FAULT RC",
+   "board_from": "3ae1ddb47c8c4c4e7c26c663ce54248c8797651e0066dc3bf516225403cba128",
+   "board_to": "4fcae4bf8971718d38fc2fc9cb257e2ec044de2914e6f31d2df0204b1736ddfd",
+   "changed_items_by_territory": {
+    "G05": 71,
+    "G06": 102,
+    "G07": 967,
+    "G08": 36,
+    "G09": 237,
+    "G10": 46,
+    "open": 141
+   },
+   "decisions_item": 33,
+   "from": "native21s29",
+   "gates_changed": {},
+   "intended_groups": [
+    "G07",
+    "G09"
+   ],
+   "metrics_moved": {
+    "b3_c28_h25_peak_C": [
+     135.1,
+     135.2
+    ],
+    "b3_nominal_h10_peak_C": [
+     162.0,
+     162.1
+    ],
+    "return_path_open_changes": [
+     37,
+     23
+    ]
+   },
+   "metrics_new": [],
+   "moved": [
+    "C144",
+    "U40"
+   ],
+   "mpn_changed": [
+    "U40"
+   ],
+   "pin_changed": [
+    "C132",
+    "C133",
+    "R109",
+    "R124",
+    "R91",
+    "U13",
+    "U32",
+    "U37",
+    "U40"
+   ],
+   "placement_groups": [
+    "G07"
+   ],
+   "pour_fill_changed": {
+    "n_ha|B.Cu": {
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "mm2_after": 400.97,
+     "mm2_before": 418.52
+    },
+    "n_hb|F.Cu": {
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "mm2_after": 89.27,
+     "mm2_before": 84.82
+    },
+    "n_ls|B.Cu": {
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "mm2_after": 588.51,
+     "mm2_before": 595.31
+    },
+    "n_ls|In1.Cu": {
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "mm2_after": 763.33,
+     "mm2_before": 786.14
+    }
+   },
+   "pour_fill_groups": [
+    "G05",
+    "G06",
+    "G07"
+   ],
+   "removed": [
+    "C137",
+    "C138",
+    "C141",
+    "C142",
+    "C143",
+    "C88",
+    "D14",
+    "D15",
+    "D16",
+    "Q7",
+    "Q8",
+    "Q9",
+    "R107",
+    "R108",
+    "R122",
+    "R123",
+    "R126",
+    "R89",
+    "R90",
+    "U25",
+    "U33",
+    "U34"
+   ],
+   "renamed_nets": {
+    "bias_bad_flt": [
+     "hb_hold"
+    ],
+    "bias_ha.monitor-isoin": [
+     "bias_ha.monitor-good"
+    ],
+    "bias_hb.monitor-isoin": [
+     "bias_hb.monitor-good"
+    ],
+    "bias_ls_bad": [
+     "hb_rx"
+    ],
+    "bus_fault_iso": [
+     "bus_fault_flt"
+    ],
+    "monitor_ls-isoin": [
+     "hb_tx",
+     "monitor_ls-good"
+    ],
+    "monitor_ls-v5": [
+     "ls_v5"
+    ],
+    "monitor_ls.iso-nc10": [
+     "hb.iso-nc10"
+    ],
+    "monitor_ls.iso-nc11": [
+     "hb.iso-nc11"
+    ],
+    "monitor_ls.iso-nc12": [
+     "hb.iso-nc12"
+    ],
+    "monitor_ls.iso-nc15": [
+     "hb.iso-nc15"
+    ],
+    "monitor_ls.iso-nc2": [
+     "hb.iso-nc2"
+    ],
+    "monitor_ls.iso-nc5": [
+     "hb.iso-nc5"
+    ],
+    "monitor_ls.iso-nc6": [
+     "hb.iso-nc6"
+    ],
+    "monitor_ls.iso-nc8": [
+     "hb.iso-nc8"
+    ]
+   },
+   "resized_vias": 0,
+   "ripple_groups_routed": [
+    "G05",
+    "G06",
+    "G08",
+    "G10"
+   ],
+   "routed_copper_changed_nets": {
+    "bias_bad_flt": {
+     "added": 0,
+     "groups": [
+      "G07"
+     ],
+     "removed": 35,
+     "resized_vias": 0
+    },
+    "bias_bad_raw": {
+     "added": 0,
+     "groups": [
+      "G07"
+     ],
+     "removed": 23,
+     "resized_vias": 0
+    },
+    "bias_good": {
+     "added": 17,
+     "groups": [
+      "G05",
+      "G07"
+     ],
+     "removed": 24,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-base": {
+     "added": 0,
+     "groups": [
+      "G07"
+     ],
+     "removed": 21,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-good": {
+     "added": 16,
+     "groups": [
+      "G07"
+     ],
+     "removed": 23,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-halfref": {
+     "added": 6,
+     "groups": [
+      "G07"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-isoin": {
+     "added": 0,
+     "groups": [
+      "G07"
+     ],
+     "removed": 18,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-ref": {
+     "added": 0,
+     "groups": [
+      "G07"
+     ],
+     "removed": 3,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-spanuv": {
+     "added": 4,
+     "groups": [
+      "G07"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "bias_ha.monitor-v5": {
+     "added": 33,
+     "groups": [
+      "G07"
+     ],
+     "removed": 30,
+     "resized_vias": 0
+    },
+    "bias_ha_bad": {
+     "added": 0,
+     "groups": [
+      "G07"
+     ],
+     "removed": 30,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-base": {
+     "added": 0,
+     "groups": [
+      "G07"
+     ],
+     "removed": 16,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-good": {
+     "added": 28,
+     "groups": [
+      "G07"
+     ],
+     "removed": 28,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-isoin": {
+     "added": 0,
+     "groups": [
+      "G07"
+     ],
+     "removed": 26,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-ov": {
+     "added": 15,
+     "groups": [
+      "G07"
+     ],
+     "removed": 15,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-spanuv": {
+     "added": 4,
+     "groups": [
+      "G07"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "bias_hb.monitor-v5": {
+     "added": 11,
+     "groups": [
+      "G07"
+     ],
+     "removed": 11,
+     "resized_vias": 0
+    },
+    "bias_hb_bad": {
+     "added": 0,
+     "groups": [
+      "G07"
+     ],
+     "removed": 15,
+     "resized_vias": 0
+    },
+    "bias_ls_bad": {
+     "added": 0,
+     "groups": [
+      "G07"
+     ],
+     "removed": 29,
+     "resized_vias": 0
+    },
+    "bus_fault": {
+     "added": 3,
+     "groups": [
+      "G09",
+      "G10"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "bus_fault_flt": {
+     "added": 7,
+     "groups": [
+      "G09"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "bus_fault_iso": {
+     "added": 15,
+     "groups": [
+      "G08",
+      "G09"
+     ],
+     "removed": 23,
+     "resized_vias": 0
+    },
+    "ct_ref_hi": {
+     "added": 3,
+     "groups": [
+      "G09"
+     ],
+     "removed": 1,
+     "resized_vias": 0
+    },
+    "ct_s2": {
+     "added": 28,
+     "groups": [
+      "G09"
+     ],
+     "removed": 13,
+     "resized_vias": 0
+    },
+    "ct_sense_mon": {
+     "added": 13,
+     "groups": [
+      "G09"
+     ],
+     "removed": 10,
+     "resized_vias": 0
+    },
+    "hb_bufo": {
+     "added": 3,
+     "groups": [
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "hb_hold": {
+     "added": 12,
+     "groups": [
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "hb_m": {
+     "added": 1,
+     "groups": [
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "hb_rc": {
+     "added": 14,
+     "groups": [
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "hb_rx": {
+     "added": 7,
+     "groups": [
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "hb_s": {
+     "added": 1,
+     "groups": [
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "hb_tx": {
+     "added": 37,
+     "groups": [
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "hb_x": {
+     "added": 1,
+     "groups": [
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "hsb_good": {
+     "added": 21,
+     "groups": [
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "leg_a-permit_gate": {
+     "added": 17,
+     "groups": [
+      "G05"
+     ],
+     "removed": 10,
+     "resized_vias": 0
+    },
+    "leg_ret": {
+     "added": 14,
+     "groups": [
+      "G03",
+      "G05",
+      "G06",
+      "G07",
+      "G08"
+     ],
+     "removed": 31,
+     "resized_vias": 0
+    },
+    "ls_v5": {
+     "added": 103,
+     "groups": [
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "mon_good_ha": {
+     "added": 28,
+     "groups": [
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 0
+    },
+    "monitor_ls-base": {
+     "added": 0,
+     "groups": [
+      "G07"
+     ],
+     "removed": 20,
+     "resized_vias": 0
+    },
+    "monitor_ls-good": {
+     "added": 36,
+     "groups": [
+      "G07"
+     ],
+     "removed": 21,
+     "resized_vias": 0
+    },
+    "monitor_ls-isoin": {
+     "added": 0,
+     "groups": [
+      "G07"
+     ],
+     "removed": 37,
+     "resized_vias": 0
+    },
+    "monitor_ls-v5": {
+     "added": 0,
+     "groups": [
+      "G07"
+     ],
+     "removed": 47,
+     "resized_vias": 0
+    },
+    "n_ha": {
+     "added": 16,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 27,
+     "resized_vias": 0
+    },
+    "n_hb": {
+     "added": 16,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 18,
+     "resized_vias": 0
+    },
+    "n_ls": {
+     "added": 21,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 19,
+     "resized_vias": 0
+    },
+    "p_ha": {
+     "added": 17,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 10,
+     "resized_vias": 0
+    },
+    "p_hb": {
+     "added": 35,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 30,
+     "resized_vias": 0
+    },
+    "pe": {
+     "added": 14,
+     "groups": [
+      "G01",
+      "G10"
+     ],
+     "removed": 18,
+     "resized_vias": 0
+    },
+    "permit": {
+     "added": 4,
+     "groups": [
+      "G05",
+      "G10"
+     ],
+     "removed": 12,
+     "resized_vias": 0
+    },
+    "pwm_lb": {
+     "added": 8,
+     "groups": [
+      "G05",
+      "G10"
+     ],
+     "removed": 10,
+     "resized_vias": 0
+    },
+    "selv_gnd": {
+     "added": 66,
+     "groups": [
+      "G05",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ],
+     "removed": 70,
+     "resized_vias": 0
+    },
+    "sw_b": {
+     "added": 8,
+     "groups": [
+      "G03",
+      "G04",
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 11,
+     "resized_vias": 0
+    },
+    "v3v3": {
+     "added": 41,
+     "groups": [
+      "G05",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ],
+     "removed": 48,
+     "resized_vias": 0
+    },
+    "vbus_n": {
+     "added": 12,
+     "groups": [
+      "G08",
+      "G10"
+     ],
+     "removed": 6,
+     "resized_vias": 0
+    }
+   },
+   "routed_copper_net_groups": [
+    "G01",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "routed_copper_territories": [
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "schematic_groups": [
+    "G07",
+    "G09"
+   ],
+   "to": "native21s30"
+  },
+  {
+   "added": [],
+   "authored_groups": [],
+   "authored_note": null,
+   "board_from": "4fcae4bf8971718d38fc2fc9cb257e2ec044de2914e6f31d2df0204b1736ddfd",
+   "board_to": "5ef1c37a41914825db33138bbbf765390b1fa5ae9ea4391b45c92fc8c2854bad",
+   "changed_items_by_territory": {},
+   "decisions_item": null,
+   "from": "native21s30",
+   "gates_changed": {},
+   "intended_groups": [
+    "G05",
+    "G06",
+    "G07",
+    "G08"
+   ],
+   "metrics_moved": {},
+   "metrics_new": [],
+   "moved": [],
+   "mpn_changed": [
+    "C100",
+    "C102",
+    "C103",
+    "C104",
+    "C106",
+    "C107",
+    "C108",
+    "C132",
+    "C136",
+    "C140",
+    "C16",
+    "C24",
+    "C26",
+    "C9",
+    "C90",
+    "C91",
+    "C92",
+    "C93",
+    "C94",
+    "C95",
+    "C96",
+    "C97",
+    "C98",
+    "C99",
+    "U32",
+    "U44",
+    "U9"
+   ],
+   "pin_changed": [],
+   "placement_groups": [],
+   "pour_fill_changed": {},
+   "pour_fill_groups": [],
+   "removed": [],
+   "renamed_nets": {},
+   "resized_vias": 0,
+   "ripple_groups_routed": [],
+   "routed_copper_changed_nets": {},
+   "routed_copper_net_groups": [],
+   "routed_copper_territories": [],
+   "schematic_groups": [
+    "G05",
+    "G06",
+    "G07",
+    "G08"
+   ],
+   "to": "native21s31"
+  },
+  {
+   "added": [],
+   "authored_groups": [
+    "G07",
+    "G08",
+    "G09"
+   ],
+   "authored_note": "three SELV hops to In2 (HSB_GOOD, BUS_FAULT_ISO, BIAS_GOOD); the via resize is global",
+   "board_from": "5ef1c37a41914825db33138bbbf765390b1fa5ae9ea4391b45c92fc8c2854bad",
+   "board_to": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e",
+   "changed_items_by_territory": {
+    "G05": 17,
+    "G06": 8,
+    "G07": 90,
+    "G08": 12,
+    "G09": 45,
+    "G10": 4
+   },
+   "decisions_item": 35,
+   "from": "native21s31",
+   "gates_changed": {},
+   "intended_groups": [
+    "G07",
+    "G08",
+    "G09"
+   ],
+   "metrics_moved": {
+    "b3_c28_h25_peak_C": [
+     135.2,
+     135.0
+    ],
+    "return_path_open_changes": [
+     23,
+     18
+    ]
+   },
+   "metrics_new": [],
+   "moved": [],
+   "mpn_changed": [],
+   "pin_changed": [],
+   "placement_groups": [],
+   "pour_fill_changed": {},
+   "pour_fill_groups": [],
+   "removed": [],
+   "renamed_nets": {},
+   "resized_vias": 120,
+   "ripple_groups_routed": [
+    "G05",
+    "G06",
+    "G10"
+   ],
+   "routed_copper_changed_nets": {
+    "bias_good": {
+     "added": 2,
+     "groups": [
+      "G05",
+      "G07"
+     ],
+     "removed": 4,
+     "resized_vias": 0
+    },
+    "bus_fault_iso": {
+     "added": 2,
+     "groups": [
+      "G08",
+      "G09"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "bus_p": {
+     "added": 0,
+     "groups": [
+      "G01",
+      "G02",
+      "G03",
+      "G08"
+     ],
+     "removed": 0,
+     "resized_vias": 1
+    },
+    "hsb_good": {
+     "added": 1,
+     "groups": [
+      "G07"
+     ],
+     "removed": 2,
+     "resized_vias": 0
+    },
+    "hv_ret": {
+     "added": 0,
+     "groups": [
+      "G01",
+      "G02",
+      "G03",
+      "G08"
+     ],
+     "removed": 0,
+     "resized_vias": 1
+    },
+    "leg_a-out_l": {
+     "added": 0,
+     "groups": [
+      "G05"
+     ],
+     "removed": 0,
+     "resized_vias": 2
+    },
+    "leg_ret": {
+     "added": 0,
+     "groups": [
+      "G03",
+      "G05",
+      "G06",
+      "G07",
+      "G08"
+     ],
+     "removed": 0,
+     "resized_vias": 3
+    },
+    "ls_v5": {
+     "added": 29,
+     "groups": [
+      "G07"
+     ],
+     "removed": 35,
+     "resized_vias": 0
+    },
+    "n_ha": {
+     "added": 0,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 15
+    },
+    "n_hb": {
+     "added": 0,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 16
+    },
+    "n_ls": {
+     "added": 21,
+     "groups": [
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 10,
+     "resized_vias": 29
+    },
+    "ocp_kelvin_n": {
+     "added": 0,
+     "groups": [
+      "G08"
+     ],
+     "removed": 0,
+     "resized_vias": 1
+    },
+    "ocp_kelvin_p": {
+     "added": 4,
+     "groups": [
+      "G08"
+     ],
+     "removed": 3,
+     "resized_vias": 16
+    },
+    "selv_gnd": {
+     "added": 25,
+     "groups": [
+      "G05",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ],
+     "removed": 17,
+     "resized_vias": 21
+    },
+    "sw_b": {
+     "added": 0,
+     "groups": [
+      "G03",
+      "G04",
+      "G05",
+      "G06",
+      "G07"
+     ],
+     "removed": 0,
+     "resized_vias": 1
+    },
+    "v3v3": {
+     "added": 10,
+     "groups": [
+      "G05",
+      "G07",
+      "G08",
+      "G09",
+      "G10"
+     ],
+     "removed": 9,
+     "resized_vias": 14
+    }
+   },
+   "routed_copper_net_groups": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "routed_copper_territories": [
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10"
+   ],
+   "schematic_groups": [],
+   "to": "native21s32"
+  }
+ ],
+ "tags": [
+  "native21s19c",
+  "native21s20",
+  "native21s21",
+  "native21s21b",
+  "native21s22",
+  "native21s26",
+  "native21s27",
+  "native21s28",
+  "native21s29",
+  "native21s30",
+  "native21s31",
+  "native21s32"
+ ]
+}

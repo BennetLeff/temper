@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Re-derive the ten-group assignment for the stage-32 board (native21s32).
+"""Re-derive the ten-group assignment for the audited stage's board (default the board of record).
 
-    python3 -I validation-results/13-coupling/scripts/assign32.py
+    python3 -I validation-results/13-coupling/scripts/assign.py [--stage TAG --root DIR ...]   (common.init options)
 
-Rule: common.assign_32 = the stage-19c map_groups rule plus four stage 20-32 rules (R1-R4). Every part that is new since
-19c, removed, reassigned, or whose electrical / physical neighbourhood votes for another group is listed with the rule.
+Rule: common.assign_stage = the stage-19c map_groups rule plus the stage 20+ rules introduced up to the audited stage
+(common.RULES: R1-R4 at stage 32, R5 at stage 40). Every part that is new since 19c, removed, reassigned, or whose
+electrical / physical neighbourhood votes for another group is listed with the rule.
 Electrical vote: sum over the part's non-rail nets of 1/(k-1) per neighbouring part (k = parts on the net), by group.
 Physical vote: the group of the nearest other part's courtyard (edge gap).
 Writes results/assignment.json. Controls: every netlist component and every placed part is assigned exactly once;
@@ -21,6 +22,7 @@ import common as C  # noqa: E402
 
 
 def main():
+    C.init()
     ctl = C.Controls()
     comps, nets = C.netlist()
     prt = C.parts()
@@ -28,7 +30,7 @@ def main():
     old = json.loads((C.VR / "11-candidates/groups.json").read_text())["assignment"]
     asg, rule = {}, {}
     for p in prt:
-        g, r = C.assign_32(p["path"], p["group"])
+        g, r = C.assign_stage(p["path"], p["group"])
         asg[p["ref"]] = g
         rule[p["ref"]] = r
     ctl.check("every parts.json entry assigned", all(asg.values()), f"{sum(1 for v in asg.values() if v)}/{len(prt)}")
@@ -37,17 +39,18 @@ def main():
     ctl.check("no duplicate refs", len(prt) == len({p['ref'] for p in prt}))
     ctl.check("netlist paths == parts.json paths", all(comps[p["ref"]]["path"] == p["path"] for p in prt))
 
-    # 19c reproduction: surviving parts keep their group unless a stage 20-32 rule applies
+    # 19c reproduction: surviving parts keep their group unless a stage 20+ rule applies
     moved = {r: (old[r], asg[r]) for r in asg if r in old and old[r] != asg[r]}
     unexplained = [r for r in moved if rule[r].startswith("R0")]
-    ctl.check("19c assignment reproduced for surviving parts (except R1-R4)", not unexplained, f"unexplained {unexplained}")
+    ctl.check(f"19c assignment reproduced for surviving parts (except R1-R{len(C.rules_for())})", not unexplained,
+              f"unexplained {unexplained}")
 
-    # courtyard control (courtyards file is the stage-32 chain's)
+    # courtyard control (courtyards file is the stage's chain's)
     cy = C.courtyards()
     pb = C.pads_board()
     bad = [p["ref"] + "." + p["pad"] for p in pb if p["ref"] in asg and p["ref"] in cy and not (
         cy[p["ref"]][0] - 0.05 <= p["x"] <= cy[p["ref"]][2] + 0.05 and cy[p["ref"]][1] - 0.05 <= p["y"] <= cy[p["ref"]][3] + 0.05)]
-    ctl.check("stage-32 pads inside their courtyard boxes", not bad, f"{len(bad)} outside: {bad[:5]}")
+    ctl.check(f"stage-{C.N} pads inside their courtyard boxes", not bad, f"{len(bad)} outside: {bad[:5]}")
     ctl.check("every assigned part has a courtyard", all(r in cy for r in asg), str([r for r in asg if r not in cy][:5]))
 
     # electrical vote (non-rail nets)
@@ -101,9 +104,9 @@ def main():
     new_parts = sorted(r for r in asg if r not in old)
     ambiguous_e = sorted(r for r, v in listed.items() if any(w.startswith("electrical") for w in v["why_listed"]))
     out = {
-        "board": "native-21 stage 32 (native21s32)", "board_sha256": C.BOARD_SHA,
+        "board": f"native-21 stage {C.N} ({C.TAG})", "board_sha256": C.BOARD_SHA,
         "netlist_sha256": C.sha_file(C.N21 / "frozen/default.net"),
-        "rule": "common.assign_32: R1-R4 (stage 20-32) then the stage-19c map_groups rule (R0)",
+        "rule": C.rule_text(),
         "rules": sorted(set(rule.values())),
         "assignment": dict(sorted(asg.items())),
         "group_part_counts": {g: counts[g] for g in C.GIDS},

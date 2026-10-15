@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Layer 2, physical / layout coupling on the stage-32 board (native21s32, all-copper dump 2fb346dc...).
+"""Layer 2, physical / layout coupling on the stage-$n board ($tag, all-copper dump $board8...).
 
-    python3 -I validation-results/13-coupling/scripts/physical.py      (after assign32.py)
+    python3 -I validation-results/13-coupling/scripts/physical.py      (after $assign)
 
-1. Courtyard proximity: part pairs of two groups whose courtyard boxes (stage-32 chain, native21-courtyards.json) are
+1. Courtyard proximity: part pairs of two groups whose courtyard boxes (stage-$n chain, native21-courtyards.json) are
    within 2 mm and 3 mm; bounding-box and convex-hull overlap of the groups' courtyards.
 2. Territory: every 0.25 mm board cell belongs to the group whose courtyard is nearest (cells over 6 mm from every
    courtyard are 'open'). Copper interleaving = copper (tracks, vias, zone fills; pads excluded) of nets owned by
@@ -38,6 +38,7 @@ HOTSIDE = ("HOT", "MAINS", "SW_A", "SW_B")
 
 
 def main():
+    C.init()
     ctl = C.Controls()
     sg, so = C.shapely()
     import shapely
@@ -46,7 +47,7 @@ def main():
     GIDS = sorted(set(asg.values()))
     cy = C.courtyards()
     d = C.dump()
-    ctl.check("dump is the stage-32 board", d["board_sha256"] == C.BOARD_SHA)
+    ctl.check(f"dump is the stage-{C.N} board", d["board_sha256"] == C.BOARD_SHA)
     dom, _ = C.domains()
     gidx = {g: i for i, g in enumerate(GIDS)}
 
@@ -323,9 +324,10 @@ def main():
         for i in set(r["hot_groups"]) & set(r["selv_groups"]):
             bar_intra[i] += 1
     bar_floor = bar_rows[0]["mm"] if bar_rows else None
-    ctl.check("barrier: min HOT-side to SELV/PE copper >= 8.0 mm and equals the D5 audit's 8.047 (HOT-SELV) / 8.507 (HOT-PE)",
-              bar_floor is not None and bar_floor >= 8.0 - 1e-6 and abs(bar_floor - 8.047) < 0.01
-              and abs(min(r["mm"] for r in bar_rows if dom(r["selv_net"]) == "PE") - 8.507) < 0.01,
+    d5s, d5p = C.card()["performance"]["d5_hot_selv_mm"], C.card()["performance"]["d5_hot_pe_mm"]    # the stage's D5 audit
+    ctl.check(f"barrier: min HOT-side to SELV/PE copper >= 8.0 mm and equals the D5 audit's {d5s} (HOT-SELV) / {d5p} (HOT-PE)",
+              bar_floor is not None and bar_floor >= 8.0 - 1e-6 and abs(bar_floor - d5s) < 0.01
+              and abs(min(r["mm"] for r in bar_rows if dom(r["selv_net"]) == "PE") - d5p) < 0.01,
               f"min {bar_floor} ({bar_rows[0]['hot_net']} / {bar_rows[0]['selv_net']})")
     domain_mix = {}
     for g in GIDS:
@@ -342,7 +344,7 @@ def main():
     il_sh_tot = {i: {j: sum(il[L]["shared_weighted"][i][j] for L in C.LAYERS) for j in GIDS} for i in GIDS}
     adj_tot = tot(adj)
     out = {
-        "board_sha256": C.BOARD_SHA, "method": __doc__.split("Controls:")[0].strip(), "pitch_mm": PITCH,
+        "board_sha256": C.BOARD_SHA, "method": C.method(__doc__), "pitch_mm": PITCH,
         "proximity": {"pairs_within_2mm": near2, "pairs_within_3mm": near3, "touch_fraction_2mm": prox_norm,
                       "touch_parts_2mm": {i: {j: sorted(touch_parts[i][j]) for j in GIDS if touch_parts[i][j]} for i in GIDS}},
         "regions": {"bbox": {g: [round(v, 2) for v in boxes[g].bounds] for g in GIDS},

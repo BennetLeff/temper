@@ -62,7 +62,7 @@
   "C158": "LS",
   "C159": "HSB",
   "C16": "LS",
-  "C160": "SLOG",
+  "C160": "LS",
   "C161": "LS",
   "C162": "LS",
   "C163": "SLOG",
@@ -70,6 +70,7 @@
   "C165": "SLOG",
   "C166": "SLOG",
   "C167": "G09",
+  "C168": "G10",
   "C17": "HSB",
   "C18": "HSB",
   "C19": "G03",
@@ -162,6 +163,7 @@
   "D17": "G02",
   "D18": "LS",
   "D19": "SLOG",
+  "D20": "LS",
   "D3": "G02",
   "D4": "G09",
   "D5": "G09",
@@ -179,7 +181,6 @@
   "J5": "G04",
   "J6": "G01",
   "L1": "G01",
-  "PS1": "G10",
   "PS2": "LS",
   "Q2": "G03",
   "Q3": "G03",
@@ -220,6 +221,7 @@
   "R132": "SLOG",
   "R133": "SLOG",
   "R134": "G09",
+  "R135": "SLOG",
   "R14": "SLOG",
   "R15": "SLOG",
   "R17": "SLOG",
@@ -360,7 +362,7 @@
   "G10": 10,
   "HSA": 52,
   "HSB": 52,
-  "LS": 94,
+  "LS": 96,
   "SLOG": 26
  },
  "rule": "Alternative partitions: re-cut gate drive / bias / monitors (G05 / G06 / G07) by isolation island.\n\n    python3 -I validation-results/13-coupling/scripts/regroup.py make       # writes results/assignment-<alt>.json\n    python3 -I validation-results/13-coupling/scripts/electrical.py --alt islands   (and physical.py; also islands_selv)\n    python3 -I validation-results/13-coupling/scripts/regroup.py compare    # writes results/regroup.json\n\nThe electrical communities (electrical.json, all nets) follow the isolation islands, not the functions: each of G05,\nG06 and G07 has parts on the HS-A island (SW_A), the HS-B island (SW_B), the low-side (LOW) island and the SELV side.\nRule (pin domains from native-21/layout/domains.py over each part's pins):\n  islands:       G05 / G06 / G07 parts become HSA (pins on SW_A, incl. U41 and U43), HSB (SW_B, incl. U42 and U44),\n                 LS (LOW / HOT, incl. U1 / U2 drivers whose isolated outputs and supply are LS-referenced, U32, PS2, J3)\n                 and SLOG (SELV-only drive / supervision logic); G01-G04, G08, G09, G10 unchanged.\n  islands_selv:  as islands, with SLOG, G09 and G10 merged into one SELV-side group (SELV).",
@@ -427,7 +429,7 @@
    "G07",
    "HSB",
    [
-    "SELV",
+    "HOT",
     "SW_B"
    ]
   ]

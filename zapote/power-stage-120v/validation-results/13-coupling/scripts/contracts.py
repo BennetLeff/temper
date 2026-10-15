@@ -5,11 +5,11 @@
 
 Workstreams (WS) are unions of today's groups. For every pair of workstreams joined by any group pair with combined
 coupling >= 0.2 (the threshold table's 2/3-recall point), and for every workstream's outside boundary, the contract is
-computed from the stage-32 data, not written by hand:
+computed from the stage-$n data, not written by hand:
   nets      - every net with pins in both workstreams, with the pins (ref.pin) on each side and the net class;
   geometry  - routed copper of one workstream lying in the other's territory (mm2, physical.json), contested 10 mm
               corridor tiles both use, HOT / SELV net pairs within 9 mm that span the two (barrier floor);
-  metrics   - the non-global gates / metrics both workstreams re-trigger (verification.json), with the stage-32 value
+  metrics   - the non-global gates / metrics both workstreams re-trigger (verification.json), with the stage-$n value
               from the scorecard where it has one: these must not move when either side changes.
 BOM-only lane: per group, the pins and footprints that a part swap must keep, and the metrics it re-triggers.
 Controls: every group is in exactly one workstream; every interface net listed has pins on both sides.
@@ -35,12 +35,17 @@ TAU = 0.2
 
 
 def main():
+    global WS
+    C.init()
     ctl = C.Controls()
     asg = C.load("assignment.json")["assignment"]
+    if "PS1" not in asg:                # PS1 deleted at stage 38 (DECISIONS 50)
+        WS = {k.replace(", PS1)", ")"): v for k, v in WS.items()}
     cb = C.load("combined.json")
     ph = C.load("physical.json")
     ve = C.load("verification.json")
-    card = json.loads((C.VR / "10-benchmark/scorecard-native21s32.json").read_text())
+    card = C.card()
+    key = f"stage{C.N}"
     comps, nets = C.netlist()
     g2w = {g: w for w, gs in WS.items() for g in gs}
     ctl.check("every group in exactly one workstream", sorted(g2w) == C.GIDS and sum(len(v) for v in WS.values()) == 10)
@@ -85,7 +90,7 @@ def main():
             "contested_corridor_tiles": [[t["x"], t["y"]] for t in tiles],
             "barrier_pairs_within_9mm": len(bar_cross), "barrier_min_mm": min((r["mm"] for r in bar_cross), default=None),
             "barrier_closest": [f"{r['hot_net']} / {r['selv_net']} {r['mm']} mm ({r['layer']})" for r in bar_cross[:6]],
-            "must_not_move": [{"metric": m, "stage32": value(m)} for m in mets],
+            "must_not_move": [{"metric": m, key: value(m)} for m in mets],
         })
     lane = {}
     for g in C.GIDS:
@@ -93,8 +98,8 @@ def main():
         lane[g] = {"parts": sum(1 for r in asg if asg[r] == g),
                    "keep": "footprint, pad numbering and pin -> net map of every swapped part; courtyard and height inside "
                            "the enclosure envelopes; heat at or under the B3 c28 input; a datasheet-ledger row",
-                   "retriggers": [{"metric": m, "share": share[m][g], "stage32": value(m)} for m in mets]}
-    out = {"method": __doc__.split("Controls:")[0].strip(), "workstreams": WS, "threshold": TAU, "contracts": contracts,
+                   "retriggers": [{"metric": m, "share": share[m][g], key: value(m)} for m in mets]}
+    out = {"method": C.method(__doc__), "workstreams": WS, "threshold": TAU, "contracts": contracts,
            "bom_only_lane": lane, "controls": ctl.rows}
     h = C.write("contracts.json", out)
     for c in contracts:

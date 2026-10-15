@@ -63,6 +63,11 @@ their ratchets.
 
 ## 4. Layout lanes (none building; ps-layers and ps-selv free)
 
+Coupling model (13-coupling, refreshed on s43): out of sample on s33–s43 it keeps part of its power (AUC 0.70 vs 0.81 in
+sample; 0.86 without s38's mains re-lay). Use it to schedule lanes, never to skip the scorecard. New interface contract
+WS1↔WS4 (0.212): a shared re-check of leakage (0.241 / 0.25 mA) and release-case heat, not shared layout. Spine lock held
+on every non-owner stage since s32 (0 locked items changed).
+
 | Lane (island) | Candidate | Status | Blocked on |
 |---|---|---|---|
 | Tank / FET row (WS3 / WS4 boundary) | 36: done, stage 41 (DECISIONS 53); shunt not adopted | Merged | — |
