@@ -1,0 +1,508 @@
+# GENERATED for zapote/controller by tools/port_rtd_c1.py from elec/src/modules.ato RTDSensing
+# (library sha256 1f9acff6493bad71bdb145ca6a42f7567d70f3c0b30f6bc6c22d082aec01ba0d; module text sha256 76d4c8612d8894c3b3c067f15163ae6131d5ac4d5f2e92674b23cda2477cb4dd). sensor-r3 CR-1 / CR-2
+# (DECISIONS C37): 17 exact line edits plus the appended C1 section. Do not edit by hand.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+import Resistor from "components.ato"
+import Capacitor from "components.ato"
+import MAX31865 from "components.ato"
+import REF2025 from "components.ato"
+import TLV3201 from "components.ato"
+import TPS3890 from "components.ato"
+import SN74LVC1G08 from "components.ato"
+import SN74LVC1G38 from "components.ato"
+import JST_XH_B4B_XH_A from "components.ato"
+import ElectricPower from "generics/interfaces.ato"
+import SPI from "generics/interfaces.ato"
+import ElectricLogic from "generics/interfaces.ato"
+from "controller_parts.ato" import EsdTvs3v3
+
+module RTDSensingC1:
+    """MAX31865 RTD interface for PT100.
+
+    Isolation (corrected 2026-07-26, SELV isolation redesign -- this
+    docstring previously asserted a claim the netlist contradicted; see
+    docs/hardware/SELV_ISOLATION_REDESIGN.md for the full finding and fix):
+
+    The RTD probe and MAX31865 are on the SELV side (power.gnd here chains
+    to Top's `gnd`), galvanically isolated from the HV power domain by the
+    AuxSupply module's Mean Well IRM-10-15 transformer (4.2kVAC I/O
+    withstand). `gnd` is bonded to protective earth (PE) and is no longer
+    tied to `power_return` (the doubler midpoint) -- the star join that used
+    to join them has been removed. That means the RTD probe's SELV
+    reference is now PE, not AC Neutral, and does not shift under an L/N
+    reversal fault.
+
+    This claim now holds ONLY if every other HV/SELV crossing is actually
+    isolated. As of this change it is NOT fully true end-to-end: the OVP
+    bus-sense divider in SafetyInterlock/OVPComparator still connects
+    resistively from the HV half-bus into this same `gnd` net (see
+    OVPComparator's docstring and SELV_ISOLATION_REDESIGN.md), so `gnd` --
+    and therefore this module -- is not yet on a domain with ZERO galvanic
+    connection to HV, only a high-impedance (~1.3M ohm / ~520k ohm) one.
+    The isolation barrier is intended to sit between the HV domain (DC bus,
+    IGBTs, resonant tank) and the SELV control domain (MCU, sensors,
+    gate-driver control side), NOT at the RTD interface itself -- but that
+    intent is not yet fully realized. Do not restate the old unqualified
+    "separated from AC mains potential" claim until the OVP crossing is
+    also resolved.
+    """
+    
+    power = new ElectricPower
+    power.voltage = 3.3V
+    spi = new SPI
+    cs = new ElectricLogic
+    drdy = new ElectricLogic
+    rtd_hw_fault = new ElectricLogic
+    rtd_hw_fault.reference ~ power.gnd
+    rtd_hw_fault.line.required = true
+    
+    # Assertions
+    assert power.voltage within 3.3V +/- 10%
+    
+    signal rtd_force_p
+    rtd_force_p.required = true
+    signal rtd_force_n
+    rtd_force_n.required = true
+    signal rtd_sense_p
+    rtd_sense_p.required = true
+    signal rtd_sense_n
+    rtd_sense_n.required = true
+    # C1 (CR-1): J3.2 / J3.3 land here; rtd_sense_p/n stay the converter pins (adc.RTDIN_P/N)
+    signal rtd_sense_p_ext
+    signal rtd_sense_n_ext
+    signal rtd_sense_p_mid
+    signal rtd_sense_n_mid
+    
+    adc = new MAX31865
+    
+    r_ref = new Resistor
+    r_ref.value = 430ohm +/- 0.05%
+    r_ref.mpn = "RG2012V-431-W-T1"
+    r_ref.footprint = "Resistor_SMD:R_0805_2012Metric"
+    
+    c_vdd = new Capacitor
+    c_vdd.value = 100nF
+    c_vdd.voltage_rating = 10V
+    c_vdd.mpn = "C0603C104K5RACTU"
+    c_vdd.footprint = "Capacitor_SMD:C_0603_1608Metric"
+
+    # DVDD remains on the upstream host rail so driven SPI inputs never see
+    # an unpowered MAX31865 while the post-ferrite analogue VDD is disabled.
+    # It has its own local 100 nF bypass, as required for each MAX supply pin.
+    c_dvdd = new Capacitor
+    c_dvdd.value = 100nF
+    c_dvdd.voltage_rating = 10V
+    c_dvdd.mpn = "C0603C104K5RACTU"
+    c_dvdd.footprint = "Capacitor_SMD:C_0603_1608Metric"
+
+    # A differential RTDIN filter is required at the converter pins. The
+    # datasheet shows 100 nF as a typical 100 ohm application value, but that
+    # value cannot meet the 100 ms open-lead response requirement here.
+    # A 1 Mohm diagnostic pullup paired with 1 nF C0G gives a worst-case
+    # 1.31 ms tau including a 200 pF harness/PCB parasitic budget (10.5 tau =
+    # 13.8 ms). The MAX's 10 Mohm recommendation is too slow with its
+    # typical 100 nF filter. Input-leakage and connected-load error still need
+    # electrical acceptance.
+    # C1 (CR-1): the comment above is the library's 1 nF / 1 M design. This block uses 100 nF C0G
+    # here, the 2-pole filter and 499 k connector-side pull-ups below (open lead caught in
+    # <= 33 ms by comparator crossing, evidence/sensor-r3-checks).
+    c_rtd_input = new Capacitor
+    c_rtd_input.value = 100nF +/- 5%
+    c_rtd_input.dielectric = "C0G"
+    c_rtd_input.voltage_rating = 50V
+    c_rtd_input.mpn = "GRM31C5C1H104JA01L"
+    c_rtd_input.footprint = "Capacitor_SMD:C_1206_3216Metric"
+    adc.RTDIN_P ~ c_rtd_input.p1
+    c_rtd_input.p2 ~ adc.RTDIN_N
+
+    # MAX31865 datasheet p20 recommends this optional bias for a broken
+    # RTDIN+ lead. The 1 Mohm value requires the recorded loading/error
+    # allocation. A matched pullup on RTDIN- gives the open-SENSE- case a bounded
+    # negative differential rather than leaving it unclassified.
+    # C1 (CR-1): 499 k 1 %, on the connector-side node rtd_sense_p_ext (not the converter pin).
+    r_rtdin_p_bias = new Resistor
+    r_rtdin_p_bias.value = 499kohm +/- 1%
+    r_rtdin_p_bias.mpn = "RC0603FR-07499KL"
+    r_rtdin_p_bias.footprint = "Resistor_SMD:R_0603_1608Metric"
+    rtd_sense_p_ext ~ r_rtdin_p_bias.p1
+    r_rtdin_p_bias.p2 ~ adc.BIAS
+
+    # Apply the same bounded bias to RTDIN-. This is not in the MAX typical
+    # figure, but it gives an open-SENSE- lead a deterministic negative RTD
+    # differential (short/low code) with negligible connected-load error.
+    r_rtdin_n_bias = new Resistor
+    r_rtdin_n_bias.value = 499kohm +/- 1%
+    r_rtdin_n_bias.mpn = "RC0603FR-07499KL"
+    r_rtdin_n_bias.footprint = "Resistor_SMD:R_0603_1608Metric"
+    rtd_sense_n_ext ~ r_rtdin_n_bias.p1
+    r_rtdin_n_bias.p2 ~ adc.BIAS
+    
+    # EMI Filtering (temper-en5)
+    # Series resistors on SPI lines to dampen ringing
+    r_sclk = new Resistor
+    r_mosi = new Resistor
+    r_cs = new Resistor
+    r_miso = new Resistor
+    
+    r_sclk.value = 33ohm +/- 1%
+    r_sclk.mpn = "RC0603FR-0733RL"
+    r_sclk.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_mosi.value = 33ohm +/- 1%
+    r_mosi.mpn = "RC0603FR-0733RL"
+    r_mosi.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_cs.value = 33ohm +/- 1%
+    r_cs.mpn = "RC0603FR-0733RL"
+    r_cs.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_miso.value = 33ohm +/- 1%
+    r_miso.mpn = "RC0603FR-0733RL"
+    r_miso.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # Ferrite bead on power input for high frequency noise rejection (temper-en5)
+    # Target: ~120ohm @ 100MHz
+    fb_power = new Resistor # Using Resistor component as generic placeholder for Ferrite Bead
+    fb_power.value = 120ohm 
+    fb_power.mpn = "BLM18AG121SN1D"
+    fb_power.footprint = "Inductor_SMD:L_0603_1608Metric"
+    
+    # Power connections through Ferrite Bead
+    power.vcc ~ fb_power.p1
+    fb_power.p2 ~ adc.VDD
+    power.vcc ~ adc.DVDD
+    fb_power.p2 ~ c_vdd.p1 # VDD decoupling cap after bead
+    power.vcc ~ c_dvdd.p1 # Independent DVDD decoupling cap
+    c_dvdd.p2 ~ power.gnd
+    
+    c_vdd.p2 ~ power.gnd
+    power.gnd ~ adc.GND1
+    power.gnd ~ adc.GND2
+    power.gnd ~ adc.DGND
+
+    # Each added analogue/logic IC gets a local 100 nF bypass footprint.  They
+    # share the electrical rail in the netlist, but the separate references
+    # force placement review to keep each capacitor at its IC supply pins.
+    c_reference = new Capacitor
+    c_low_window = new Capacitor
+    c_high_window = new Capacitor
+    c_window_and = new Capacitor
+    c_rail_monitor = new Capacitor
+    c_fault_nand = new Capacitor
+    c_reference.value = 100nF
+    c_low_window.value = 100nF
+    c_high_window.value = 100nF
+    c_window_and.value = 100nF
+    c_rail_monitor.value = 100nF
+    c_fault_nand.value = 100nF
+    c_reference.voltage_rating = 10V
+    c_low_window.voltage_rating = 10V
+    c_high_window.voltage_rating = 10V
+    c_window_and.voltage_rating = 10V
+    c_rail_monitor.voltage_rating = 10V
+    c_fault_nand.voltage_rating = 10V
+    c_reference.dielectric = "X7R"
+    c_low_window.dielectric = "X7R"
+    c_high_window.dielectric = "X7R"
+    c_window_and.dielectric = "X7R"
+    c_rail_monitor.dielectric = "X7R"
+    c_fault_nand.dielectric = "X7R"
+    c_reference.mpn = "C0603C104K5RACTU"
+    c_low_window.mpn = "C0603C104K5RACTU"
+    c_high_window.mpn = "C0603C104K5RACTU"
+    c_window_and.mpn = "C0603C104K5RACTU"
+    c_rail_monitor.mpn = "C0603C104K5RACTU"
+    c_fault_nand.mpn = "C0603C104K5RACTU"
+    power.vcc ~ c_reference.p1
+    c_reference.p2 ~ power.gnd
+    fb_power.p2 ~ c_low_window.p1
+    c_low_window.p2 ~ power.gnd
+    fb_power.p2 ~ c_high_window.p1
+    c_high_window.p2 ~ power.gnd
+    fb_power.p2 ~ c_window_and.p1
+    c_window_and.p2 ~ power.gnd
+    power.vcc ~ c_rail_monitor.p1
+    c_rail_monitor.p2 ~ power.gnd
+    # The fault NAND is upstream powered so it remains a qualified sink
+    # during post-ferrite RTD_AVDD loss.
+    power.vcc ~ c_fault_nand.p1
+    c_fault_nand.p2 ~ power.gnd
+    
+    # SPI connections through Series Resistors
+    cs.line ~ r_cs.p1
+    r_cs.p2 ~ adc.CS_N
+    
+    spi.sclk ~ r_sclk.p1
+    r_sclk.p2 ~ adc.SCLK
+    
+    spi.mosi ~ r_mosi.p1
+    r_mosi.p2 ~ adc.SDI
+    
+    adc.SDO ~ r_miso.p1
+    r_miso.p2 ~ spi.miso
+    
+    adc.DRDY ~ drdy.line
+    
+    # MAX31865 4-wire reference network (datasheet Figure 4): BIAS drives
+    # REFIN+, the 430 ohm RREF spans REFIN+ to REFIN-, and ISENSOR returns
+    # to REFIN-.  Do not put RREF in series with BIAS: that leaves the
+    # converter reference network and sensor-current monitor disconnected.
+    adc.BIAS ~ adc.REFIN_P
+    adc.REFIN_P ~ r_ref.p1
+    r_ref.p2 ~ adc.REFIN_N
+    adc.ISENSOR ~ adc.REFIN_N
+
+    # Independent hardware RTD window. REF2025 runs from upstream 3.3 V so
+    # its 1.25 V VBIAS threshold reference remains defined while the
+    # post-ferrite RTD_AVDD rail browns out. Both comparators observe RTDIN_P;
+    # the low divider returns to RTDIN_N, making all four RTD conductors
+    # observable without relying on an undocumented ADC filter behavior.
+    reference = new REF2025
+    reference.VIN ~ power.vcc
+    reference.EN ~ power.vcc
+    reference.GND ~ power.gnd
+
+    # r_low_top/r_high_top were ERA-3AEB6132V (61.3k) and ERA-3AEB5931V
+    # (5.93k): neither value is an E96/E192 member and neither MPN exists at
+    # any distributor (confirmed 2026-07-27, DigiKey direct fetch -- "did not
+    # return any results" for both). Replaced with the nearest E192 values
+    # that are BOTH legal series members AND real, stocked/orderable Panasonic
+    # ERA-3A part numbers (verified by DigiKey product-page fetch, not by
+    # naming-pattern similarity alone -- see
+    # docs/evidence/2026-07-27-era-resistor-resolution.md for the distributor
+    # evidence, the rejected 61.2k/5.97k/5.83k candidates that do NOT exist as
+    # real parts, and the worst-case threshold-margin arithmetic including
+    # 25 ppm/C tempco at ΔT=60C).
+    r_low_top = new Resistor
+    r_low_top.value = 61.9kohm +/- 0.1%
+    r_low_top.mpn = "ERA-3AEB6192V"
+    r_low_bottom = new Resistor
+    r_low_bottom.value = 10kohm +/- 0.1%
+    r_low_bottom.mpn = "ERA-3AEB103V"
+    r_high_top = new Resistor
+    r_high_top.value = 5.9kohm +/- 0.1%
+    r_high_top.mpn = "ERA-3AEB5901V"
+    r_high_bottom = new Resistor
+    r_high_bottom.value = 10kohm +/- 0.1%
+    r_high_bottom.mpn = "ERA-3AEB103V"
+
+    low_window = new TLV3201
+    high_window = new TLV3201
+    low_window.VCC ~ fb_power.p2
+    high_window.VCC ~ fb_power.p2
+    low_window.GND ~ power.gnd
+    high_window.GND ~ power.gnd
+
+    # A shared 100 kohm branch resistor limits TLV3201 input-clamp current
+    # during a bounded off-board transient while its <=20 nA combined input
+    # and board-leakage bound contributes <=2 mV at the window node.
+    signal window_rtdin_p
+    r_window_sense_p = new Resistor
+    r_window_sense_p.value = 100kohm +/- 1%
+    r_window_sense_p.mpn = "RC0603FR-07100KL"
+    r_window_sense_p.footprint = "Resistor_SMD:R_0603_1608Metric"
+    rtd_sense_p_ext ~ r_window_sense_p.p1
+    r_window_sense_p.p2 ~ window_rtdin_p
+    window_rtdin_p ~ low_window.INP
+    reference.VBIAS ~ r_low_top.p1
+    r_low_top.p2 ~ low_window.INN
+    low_window.INN ~ r_low_bottom.p1
+    r_low_bottom.p2 ~ rtd_sense_n_ext
+    # Invert the high comparison so both outputs are high only inside the
+    # permitted RTD voltage window.
+    reference.VBIAS ~ r_high_top.p1
+    r_high_top.p2 ~ high_window.INP
+    high_window.INP ~ r_high_bottom.p1
+    r_high_bottom.p2 ~ power.gnd
+    window_rtdin_p ~ high_window.INN
+
+    window_and = new SN74LVC1G08
+    window_and.VCC ~ fb_power.p2
+    window_and.GND ~ power.gnd
+    low_window.OUT ~ window_and.A
+    high_window.OUT ~ window_and.B
+    # Keep the downstream NAND input deterministically low if the post-rail
+    # AND output is unpowered or high impedance during a fault transition.
+    r_window_ok_pulldown = new Resistor
+    r_window_ok_pulldown.value = 100kohm +/- 1%
+    r_window_ok_pulldown.mpn = "RC0603FR-07100KL"
+    window_and.Y ~ r_window_ok_pulldown.p1
+    r_window_ok_pulldown.p2 ~ power.gnd
+
+    # TPS389001 is powered upstream of the ferrite while SENSE monitors the
+    # post-ferrite RTD_AVDD rail. Its 1% threshold and <=0.825% hysteresis
+    # provide a bounded trip/release window around the MAX31865 3.0 V minimum.
+    rail_monitor = new TPS3890
+    rail_monitor.VDD ~ power.vcc
+    rail_monitor.GND ~ power.gnd
+    rail_monitor.MR ~ power.vcc
+    # CT intentionally unconnected: TI specifies approximately 25 us minimum
+    # delay with no capacitor; deassertion delay is not in the fault assertion path.
+    # ERA-3AEB1652V is a real 0603 16.5k, 0.1%, 25 ppm/C part. Together with
+    # the existing ERA-3AEB103V 10k bottom, nominal falling threshold is
+    # 1.15 V * (1 + 16.5k/10k) = 3.0475 V.
+    r_avdd_top = new Resistor
+    r_avdd_top.value = 16.5kohm +/- 0.1%
+    r_avdd_top.mpn = "ERA-3AEB1652V"
+    r_avdd_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    r_avdd_bottom = new Resistor
+    r_avdd_bottom.value = 10kohm +/- 0.1%
+    r_avdd_bottom.mpn = "ERA-3AEB103V"
+    r_avdd_bottom.footprint = "Resistor_SMD:R_0603_1608Metric"
+    fb_power.p2 ~ r_avdd_top.p1
+    r_avdd_top.p2 ~ rail_monitor.SENSE
+    rail_monitor.SENSE ~ r_avdd_bottom.p1
+    r_avdd_bottom.p2 ~ power.gnd
+    r_rail_ok_pullup = new Resistor
+    r_rail_ok_pullup.value = 10kohm +/- 1%
+    r_rail_ok_pullup.mpn = "RC0603FR-0710KL"
+    power.vcc ~ r_rail_ok_pullup.p1
+    r_rail_ok_pullup.p2 ~ rail_monitor.RESET
+
+    # The open-drain NAND is powered from the upstream +3V3 rail. This keeps
+    # its RESET-qualified fault sink alive when post-ferrite RTD_AVDD is lost;
+    # otherwise its VCC would be in the unqualified brownout interval and its
+    # output state could not be used as a fault proof. SN74LVC1G38 Ioff is
+    # specified for VCC=0 partial-power-down, but is not a guarantee for every
+    # intermediate brownout voltage. The upstream rail monitor drives B low
+    # on local-rail loss, which makes Y high-Z and lets the upstream pull-up
+    # assert RTD_HW_FAULT. A local window loss is similarly represented by A.
+    fault_nand = new SN74LVC1G38
+    fault_nand.VCC ~ power.vcc
+    fault_nand.GND ~ power.gnd
+    window_and.Y ~ fault_nand.A
+    rail_monitor.RESET ~ fault_nand.B
+    r_fault_pullup = new Resistor
+    r_fault_pullup.value = 10kohm +/- 1%
+    r_fault_pullup.mpn = "RC0603FR-0710KL"
+    power.vcc ~ r_fault_pullup.p1
+    r_fault_pullup.p2 ~ rtd_hw_fault.line
+    fault_nand.Y ~ rtd_hw_fault.line
+
+    # This board uses the datasheet's 4-wire topology. FORCE2 is grounded;
+    # FORCE+/RTDIN+ and FORCE-/RTDIN- remain separate connector conductors.
+    adc.FORCE2 ~ power.gnd
+    adc.FORCE_P ~ rtd_force_p
+    adc.FORCE_N ~ rtd_force_n
+    adc.RTDIN_P ~ rtd_sense_p
+    adc.RTDIN_N ~ rtd_sense_n
+    # Both sense inputs have explicit diagnostic pullups above; their
+    # individual open-lead response is qualified in the RTD circuit contract.
+
+    # J_RTD1 (docs/CONNECTORS_AND_WIRING.md Sec 1, 2.3): the external PT100
+    # pan-probe connector these four force/sense conductors dead-ended
+    # without (docs/hardware/RTD_PROBE_INTERFACE_ANALYSIS.md). JST XH 4-pin,
+    # pinout 1:Bias+ 2:Sense+ 3:Sense- 4:Bias-, which the doc states maps
+    # 1:1 onto MAX31865 FORCE+/RTDIN+/RTDIN-/FORCE- -- verified directly
+    # against this module's own adc.FORCE_P/FORCE_N/RTDIN_P/RTDIN_N wiring
+    # immediately above before wiring the connector, not assumed from the
+    # doc alone.
+    j_rtd1 = new JST_XH_B4B_XH_A
+    j_rtd1.p1 ~ rtd_force_p   # Bias+  = MAX31865 FORCE+
+    j_rtd1.p2 ~ rtd_sense_p_ext   # Sense+ -> 2-pole filter -> MAX31865 RTDIN+ (C1 CR-1)
+    j_rtd1.p3 ~ rtd_sense_n_ext   # Sense- -> 2-pole filter -> MAX31865 RTDIN- (C1 CR-1)
+    j_rtd1.p4 ~ rtd_force_n   # Bias-  = MAX31865 FORCE-
+
+    # ---- sensor-r3 CR-1 (DECISIONS C37): C1 cartridge front end -----------------------------
+    # Generated by tools/port_rtd_c1.py. Numbers: evidence/sensor-r3-checks (checks.py on the
+    # as-built values). rtd_sense_p/n stay the converter-pin nets (== adc.RTDIN_P/N); J3 now
+    # lands on rtd_sense_p_ext / rtd_sense_n_ext (declared at the top of the module).
+
+    # 2-pole differential filter: 1.00 k / 100 nF C0G across the pair / 1.00 k / 100 nF C0G
+    # (c_rtd_input) across RTDIN+-; no series R in FORCE+/- (it would move the runaway trip).
+    r_s1p = new Resistor
+    r_s1p.value = 1kohm +/- 0.1%
+    r_s1p.mpn = "RT0603BRD071KL"
+    rtd_sense_p_ext ~ r_s1p.p1
+    r_s1p.p2 ~ rtd_sense_p_mid
+    r_s1n = new Resistor
+    r_s1n.value = 1kohm +/- 0.1%
+    r_s1n.mpn = "RT0603BRD071KL"
+    rtd_sense_n_ext ~ r_s1n.p1
+    r_s1n.p2 ~ rtd_sense_n_mid
+    c_s1 = new Capacitor
+    c_s1.value = 100nF +/- 5%
+    c_s1.dielectric = "C0G"
+    c_s1.voltage_rating = 50V
+    c_s1.mpn = "GRM31C5C1H104JA01L"
+    c_s1.footprint = "Capacitor_SMD:C_1206_3216Metric"
+    rtd_sense_p_mid ~ c_s1.p1
+    c_s1.p2 ~ rtd_sense_n_mid
+    r_s2p = new Resistor
+    r_s2p.value = 1kohm +/- 0.1%
+    r_s2p.mpn = "RT0603BRD071KL"
+    rtd_sense_p_mid ~ r_s2p.p1
+    r_s2p.p2 ~ rtd_sense_p
+    r_s2n = new Resistor
+    r_s2n.value = 1kohm +/- 0.1%
+    r_s2n.mpn = "RT0603BRD071KL"
+    rtd_sense_n_mid ~ r_s2n.p1
+    r_s2n.p2 ~ rtd_sense_n
+
+    # 1 nF C0G from each converter pin to ground (common mode)
+    c_cm_p = new Capacitor
+    c_cm_p.value = 1nF +/- 5%
+    c_cm_p.dielectric = "C0G"
+    c_cm_p.voltage_rating = 50V
+    c_cm_p.mpn = "C0603C102J5GACTU"
+    adc.RTDIN_P ~ c_cm_p.p1
+    c_cm_p.p2 ~ power.gnd
+    c_cm_n = new Capacitor
+    c_cm_n.value = 1nF +/- 5%
+    c_cm_n.dielectric = "C0G"
+    c_cm_n.voltage_rating = 50V
+    c_cm_n.mpn = "C0603C102J5GACTU"
+    adc.RTDIN_N ~ c_cm_n.p1
+    c_cm_n.p2 ~ power.gnd
+
+    # Window / runaway node: 10 nF C0G to ground, tau 1 ms with the 100 k branch
+    c_window = new Capacitor
+    c_window.value = 10nF +/- 5%
+    c_window.dielectric = "C0G"
+    c_window.voltage_rating = 50V
+    c_window.mpn = "GRM1885C1H103JA01D"
+    window_rtdin_p ~ c_window.p1
+    c_window.p2 ~ power.gnd
+
+    # Cable entry, every J3 pin: 220 nF X7R + ESD5Z3.3 to ground (each within 3 mm of its pad)
+    c_j_fp = new Capacitor
+    c_j_fp.value = 220nF +/- 10%
+    c_j_fp.dielectric = "X7R"
+    c_j_fp.voltage_rating = 50V
+    c_j_fp.mpn = "CC0603KRX7R9BB224"
+    rtd_force_p ~ c_j_fp.p1
+    c_j_fp.p2 ~ power.gnd
+    c_j_sp = new Capacitor
+    c_j_sp.value = 220nF +/- 10%
+    c_j_sp.dielectric = "X7R"
+    c_j_sp.voltage_rating = 50V
+    c_j_sp.mpn = "CC0603KRX7R9BB224"
+    rtd_sense_p_ext ~ c_j_sp.p1
+    c_j_sp.p2 ~ power.gnd
+    c_j_sn = new Capacitor
+    c_j_sn.value = 220nF +/- 10%
+    c_j_sn.dielectric = "X7R"
+    c_j_sn.voltage_rating = 50V
+    c_j_sn.mpn = "CC0603KRX7R9BB224"
+    rtd_sense_n_ext ~ c_j_sn.p1
+    c_j_sn.p2 ~ power.gnd
+    c_j_fn = new Capacitor
+    c_j_fn.value = 220nF +/- 10%
+    c_j_fn.dielectric = "X7R"
+    c_j_fn.voltage_rating = 50V
+    c_j_fn.mpn = "CC0603KRX7R9BB224"
+    rtd_force_n ~ c_j_fn.p1
+    c_j_fn.p2 ~ power.gnd
+    d_j_fp = new EsdTvs3v3
+    rtd_force_p ~ d_j_fp.K
+    d_j_fp.A ~ power.gnd
+    d_j_sp = new EsdTvs3v3
+    rtd_sense_p_ext ~ d_j_sp.K
+    d_j_sp.A ~ power.gnd
+    d_j_sn = new EsdTvs3v3
+    rtd_sense_n_ext ~ d_j_sn.K
+    d_j_sn.A ~ power.gnd
+    d_j_fn = new EsdTvs3v3
+    rtd_force_n ~ d_j_fn.K
+    d_j_fn.A ~ power.gnd

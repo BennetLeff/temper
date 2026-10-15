@@ -518,3 +518,85 @@ component IndSwrb1205_10u:
     footprint = "Temper_Controller:L_Sunlord_SWRB1205S"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
+
+# ------------------------------------------------------------------ C1 change requests (DECISIONS C37-C41)
+
+component EsdTvs5v0:
+    """onsemi ESD5Z5.0T1G, 5.0 V unidirectional TVS, SOD-523 (LCSC C82044). Same ESD5Z series
+    datasheet and pin table as ESD5Z3.3T1G: cathode = pin 1 (band). Rim NTC line (sensor-r3 CR-6):
+    its 5.0 V stand-off sits above v3v3 max 3.367 V; the ESD5Z3.3's 3.3 V did not."""
+    designator_prefix = "D"
+    mpn = "ESD5Z5.0T1G"
+    manufacturer = "onsemi"
+    footprint = "Diode_SMD:D_SOD-523"
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component Lvc1g32:
+    """TI SN74LVC1G32DBVR single 2-input OR, Ioff, SOT-23-5 (LCSC C10096; already on the BOM in the
+    thermal-sense block). SCES219W DBV: A1 B2 GND3 Y4 VCC5."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G32DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component Lvc1g86:
+    """TI SN74LVC1G86DBVR single 2-input XOR, Ioff, SOT-23-5 (LCSC C402161).
+    SCES222 DBV: A1 B2 GND3 Y4 VCC5 (same pin table as the 1G08/1G32)."""
+    designator_prefix = "U"
+    mpn = "SN74LVC1G86DBVR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component Lvc74a:
+    """TI SN74LVC74APWR dual positive-edge D flip-flop with clear and preset, TSSOP-14 (LCSC C350561).
+    SCAS287 PW pin table: 1CLR_N 1, 1D 2, 1CLK 3, 1PRE_N 4, 1Q 5, 1Q_N 6, GND 7, 2Q_N 8, 2Q 9,
+    2PRE_N 10, 2CLK 11, 2D 12, 2CLR_N 13, VCC 14."""
+    designator_prefix = "U"
+    mpn = "SN74LVC74APWR"
+    manufacturer = "Texas Instruments"
+    footprint = "Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+    signal CLR1_N ~ pin 1
+    signal D1 ~ pin 2
+    signal CLK1 ~ pin 3
+    signal PRE1_N ~ pin 4
+    signal Q1 ~ pin 5
+    signal Q1_N ~ pin 6
+    signal GND ~ pin 7
+    signal Q2_N ~ pin 8
+    signal Q2 ~ pin 9
+    signal PRE2_N ~ pin 10
+    signal CLK2 ~ pin 11
+    signal D2 ~ pin 12
+    signal CLR2_N ~ pin 13
+    signal VCC ~ pin 14
+
+component TagConnectPads10:
+    """Bring-up / programming pads (DECISIONS C41): a Tag-Connect TC2050-IDC-NL land pattern, ten
+    0.79 mm copper pads on 1.27 mm pitch plus three NPTH alignment holes. Board copper only: no part
+    is fitted (the KiCad footprint carries exclude_from_bom / exclude_from_pos_files), so nothing
+    protrudes that a harness, ribbon or loose housing could press, short or mate."""
+    designator_prefix = "J"
+    mpn = "TC2050-IDC-NL-LAND"
+    manufacturer = "board copper (no part)"
+    footprint = "Connector:Tag-Connect_TC2050-IDC-NL_2x05_P1.27mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5
+    signal p6 ~ pin 6
+    signal p7 ~ pin 7
+    signal p8 ~ pin 8
+    signal p9 ~ pin 9
+    signal p10 ~ pin 10
