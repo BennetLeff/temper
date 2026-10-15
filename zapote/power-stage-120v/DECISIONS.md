@@ -1288,8 +1288,18 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       scoring s33 on each JLC 6-layer 2 / 2 oz stack, or on the envelope of them. Question 6 of the CTI inquiry
       (`08-manufacturing-package/native-21/sourcing/inquiries/CTI-JLC-6L.md`) asks JLC whether the "No requirement" stack
       is fixed; the route reopens only if JLC says it is.
-    - **Adoption checks (item 39):** the ZVS and EMI confirmations finish and stay on record. The FEM loop re-extraction is
-      deferred; the remote box was offline anyway.
+    - **Adoption checks (item 39), on record in `c33-six-layer/adoption/` (merged as `667184760`, `e241cb208`):**
+      - **ZVS** (as-built F6 / 2EDR deck plus the screen's board node capacitance, 2016 runs: 170 / 198 / 280 V, typical /
+        weak / strong driver, 27–150 °C; the zero-capacitance control reproduces 24 committed c25 rows to 0.5 mV): the
+        margin at the 340 ns audit edge is leg A 151.1 → 150.6 ns, leg B 149.6 → 150.0 ns. The worse leg improves, and
+        leg A loses 0.5 ns (0.3 %). ZVS holds at 37 A in every worst-corner case.
+      - **EMI:** `emi_min_margin_dB` is 10.5 dB on both boards (the outer switch-node pours are identical; the control
+        reproduces s19b's committed results).
+      - **FEM: deferred.** Round 17's 37.6 / 24.5 nH came from native-21's first routed board (76ec8cca), not s32, so a
+        comparison needs both boards re-extracted. The campaign is ready (`adoption/fem/chain_c33.sh`). The round-17
+        mesher now takes `MESH_STACKUP` and refuses copper on a layer outside its stack; unset, it is unchanged
+        (`test_stack_layers.py`, 4 pass, run in the `temper-fem` environment). The remote box was offline.
+      - Nothing here argues against six layers on engineering grounds; the decision is on price alone.
     - **Lanes:** the island lanes and the SELV-spine lock stay on the four-layer s32 board (`selv_spine_lock.json` as
       committed). 30a / 30b stay blocked on four layers (stage 31 analysis), so the next layout lane is the SELV side
       (candidate 23) once the controller merges J13.
