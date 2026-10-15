@@ -1,0 +1,38 @@
+{
+ "K1_repo_reproduces_committed_margins": {
+  "pass": true,
+  "rows_compared": 72,
+  "mismatches": [],
+  "metrics": {
+   "b3_laminate_margin_K": -56.4,
+   "b3_rated_part_margin_K": -38.9,
+   "b3_advisory_margin_K": -41.4,
+   "worst_gated": "laminate: 1 mm-block copper peak"
+  },
+  "committed_metrics": {
+   "b3_laminate_margin_K": -56.4,
+   "b3_rated_part_margin_K": -38.9,
+   "b3_advisory_margin_K": -41.4,
+   "worst_gated": "laminate: 1 mm-block copper peak"
+  }
+ },
+ "K2_g0_reproduces_repo": {
+  "pass": true,
+  "max_abs_diff_K": 0.0
+ },
+ "K3_energy": {
+  "pass": true,
+  "solves": 86,
+  "worst_balance_rel": 6.48844971995531e-11,
+  "failures": []
+ },
+ "K4_analytic_disc_lead": {
+  "pass": true,
+  "disc_mean_exact_K": 31.87167765789793,
+  "disc_mean_numeric_K": 31.871246106437184,
+  "rel_err": 1.3540280664808642e-05,
+  "lead_to_board_W": 4.064376946781408,
+  "convection_W": 4.064376946781025,
+  "lead_sink_w_receipt": -4.064376946781405
+ }
+}

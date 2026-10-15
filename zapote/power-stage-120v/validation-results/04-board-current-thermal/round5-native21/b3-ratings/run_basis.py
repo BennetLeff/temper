@@ -8,6 +8,9 @@ Uses the committed body-level model in place (../b3-convergence/thermal_body.py 
 datasheet package networks) on run_study.GEOM (the chain's current copper) and the committed c28 heat file.
 c22 = the 22 A default ceiling at its 1.05 x trip (23.1 A) with the tank-current rows of the c28 heat file scaled by
 (23.1 / 29.4)^2, the same construction as body_runs.op_inputs('der14').
+FET drain-lead path (thermal-refine 2026-10-15): each TO-247's drain pad is tied to its tab at the fet_case.t_case()
+central case temperature through thermal_body.drain_lead_conductance() (IPW65R018CFD7 p.12 drawing, mid values). The tie
+temperature is relative to the bay air, so the solves are for BAY_C and the gate is run at BAY_C.
 Note: b3-convergence/inputs/part-bodies.json is the stage-19b extraction; it carries to the s32 board unchanged in
 footprint and position (checked 2026-10-15 against fab/positions-kicad.csv) - re-run extract_bodies.py if parts move.
 """
@@ -23,10 +26,14 @@ HERE = Path(__file__).resolve().parent
 CONV = HERE.parent / "b3-convergence"
 sys.path.insert(0, str(CONV))
 import body_runs as br  # noqa: E402
+import fet_case  # noqa: E402
 import thermal_body as tb  # noqa: E402
 
 RUNS = HERE / "runs"
 CASES = {"c22_h10": ("c22", 10), "c28_h10": ("c28", 10)}
+CEIL = {"c22": 22.0, "c28": 28.0}
+BAY_C = 55.0                                       # enclosure R33 study 14 expected bay air (the gate's default)
+LEAD_G = tb.drain_lead_conductance()
 
 
 def op_c22():
@@ -49,7 +56,8 @@ def one(job):
         c = op_c22()
         br.op_inputs = lambda _op, _c=c: _c
     brd = tb.Board(br.rs.GEOM, RUNS / "cache")
-    res = br.run_case(brd, op, h, pitch, "fraction", "network", {}, None, None, True, True, label=name)
+    leads = {"pad": "2", "g": LEAD_G, "t_rise": {r: t - BAY_C for r, t in fet_case.t_case(CEIL[op]).items()}}
+    res = br.run_case(brd, op, h, pitch, "fraction", "network", {}, None, None, True, True, label=name, leads=leads)
     res["board_sha256"] = brd.data["board_sha256"]
     (RUNS / f"{name}.json").write_text(json.dumps(res, indent=1) + "\n")
     return name
@@ -66,7 +74,7 @@ def main():
         for n in ex.map(one, jobs):
             print("  solved", n, flush=True)
     r = subprocess.run([sys.executable, str(HERE / "b3_ratings_gate.py"), "--runs", str(RUNS),
-                        "--out", str(HERE / "margins.json")])
+                        "--out", str(HERE / "margins.json"), "--bay-c", str(BAY_C)])
     raise SystemExit(r.returncode)
 
 

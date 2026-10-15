@@ -136,7 +136,10 @@ def bc_from_global(rise_g, pitch_g, origin_g, brd, pitch, i0, i1, j0, j1):
 
 
 def run_case(brd, op, h, pitch, copper="fraction", source="network", sens=None, window=None, bc=None,
-             use_a4=True, use_parts=True, label="", return_rise=False):
+             use_a4=True, use_parts=True, label="", return_rise=False, leads=None):
+    """leads: None (no FET-lead path, the stage-19b model) or {"pad": "2", "g": W/K or {ref: W/K},
+    "t_rise": K or {ref: K}} - each FET's drain pad tied to its tab at t_rise over the model ambient (thermal_body
+    LeadLink; t_rise = T_case - bay air, since the gate shifts the whole field by bay - 50)."""
     t0 = time.time()
     sens = sens or {}
     case_str, heat_json, mode = op_inputs(op)
@@ -187,8 +190,19 @@ def run_case(brd, op, h, pitch, copper="fraction", source="network", sens=None, 
                 return (x[0] + m <= px <= x[-1] - m) and (y[0] + m <= py <= y[-1] - m)
             parts, omitted = tb.build_network_parts(brd, heat_json, mode, nz, nx, ny, brd.xmin, brd.ymin, pitch, i0, j0,
                                                     h, PART_BODIES, sens, inside)
+    lead_links = []
+    if leads is not None:
+        spec = {}
+        for ref in FET_REFS:
+            fp = PART_BODIES[ref]
+            if window and not ((x[0] + WIN_MARGIN <= fp["at"][0] <= x[-1] - WIN_MARGIN) and (y[0] + WIN_MARGIN <= fp["at"][1] <= y[-1] - WIN_MARGIN)):
+                continue
+            g = leads["g"][ref] if isinstance(leads["g"], dict) else leads["g"]
+            t = leads["t_rise"][ref] if isinstance(leads["t_rise"], dict) else leads["t_rise"]
+            spec[ref] = (leads.get("pad", "2"), float(g), float(t))
+        lead_links = tb.build_lead_links(brd, spec, nx, ny, brd.xmin, brd.ymin, pitch, i0, j0)
     rise, riseJ, rec = tb.solve_system(board, k, tb.THK_MM * 1e-3, heat, h, pitch_m, links, parts,
-                                       dirichlet=bc, label=label)
+                                       dirichlet=bc, label=label, leads=lead_links)
     # ------------------------------------------------------------------ metrics
     hp = json.loads(Path(heat_json).read_text())["parts"]
     by_net = {p.ref: (s, p) for s, p in enumerate(parts)}
@@ -263,10 +277,18 @@ def run_case(brd, op, h, pitch, copper="fraction", source="network", sens=None, 
     fet_row = None
     if (x <= 80).any() and (y <= 12.5).any():
         fet_row = tb.TAMB_C + float(max(rise[z][fet_sel].max() for z in T.CU_INDEX.values()))
+    lead_rows = []
+    flat = rise.ravel()
+    for lk in lead_links:
+        tw = sum(sh * float((flat[gids] * w).sum()) for (gids, w, _, _), sh in zip(lk.groups, lk.shares))
+        lead_rows.append({"ref": lk.ref, "pad": lk.pad, "g_w_per_k": lk.g, "t_case_c": tb.TAMB_C + lk.t_rise,
+                          "pad_mean_c": tb.TAMB_C + tw, "w_to_sink": lk.g * (tw - lk.t_rise)})
     out = {"label": label, "op": op, "h": h, "pitch_mm": pitch, "copper": copper, "source": source, "sens": sens,
            "window": list(window) if window else None, "use_a4": use_a4, "use_parts": use_parts,
            "balance": rec, "a4_placed_w": a4_w, "peak": peak, "peak_1mm_block": b1, "fet_row_max_c": fet_row, "parts": rows, "fets": q_rows,
            "omitted_parts": omitted, "board_cells": int(board.sum()), "runtime_s": round(time.time() - t0, 1)}
+    if leads is not None:
+        out["leads"] = lead_rows
     if return_rise:
         return out, rise
     return out

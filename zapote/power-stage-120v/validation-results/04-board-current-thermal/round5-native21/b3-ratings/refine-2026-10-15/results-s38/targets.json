@@ -1,0 +1,6591 @@
+{
+ "basis": "drain-lead path central (G 0.0845 W/K, T_case sink_model central) + corrected heat. Suffix '_deck' = the file of record heat-c28-corrected-deck.json (as-built deck gate charge 382.6 nC; q = 0.976779); no suffix = heat-c28-corrected.json (740 nC allocation, upper bound); '_dsq' = the datasheet-Q file (374.1 nC)",
+ "q_deck": 0.9767788144378474,
+ "validation": {
+  "S1_self_reproduction_max_K": 0.0,
+  "S2_c22_superposed_vs_direct_max_K": 0.00011096168250901428,
+  "pass": true,
+  "note": "S2 tolerance 2e-3 K: run_study.cases() and solve.py round each A4 scale factor to 6 significant digits"
+ },
+ "fix_targets": {
+  "c22_h10_R5x1_deck": {
+   "at_f1": {
+    "lam": -2.5,
+    "min_gated": -2.5,
+    "min_gated_ext": -39.7,
+    "min_gated_ext_noder": -3.1,
+    "detail": {
+     "lam_block": -2.5,
+     "lam_fet_row": -1.6,
+     "block_est_c": 132.5,
+     "fet_row_est_c": 131.6,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.1
+     ],
+     "R5_el": 31.2,
+     "R5_term": 23.7,
+     "U26": 12.1,
+     "U42": 24.5,
+     "C40": -3.1,
+     "C38": -0.0,
+     "gateR_el": 15.8,
+     "gateR_der": -39.7,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": -2.5,
+     "min_gated_ext": -39.7,
+     "lead_sink_w": 1.201327880563831,
+     "balance_rel_max": 1.613910804859123e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 135.0
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 129.3
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 122.6
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 118.6
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 135.0,
+      "gated": "proposed",
+      "margin_k": -39.7
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 129.3,
+      "gated": "proposed",
+      "margin_k": -33.9
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 122.6,
+      "gated": "proposed",
+      "margin_k": -27.2
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 118.6,
+      "gated": "proposed",
+      "margin_k": -23.2
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 113.1,
+      "gated": "proposed",
+      "margin_k": -3.1
+     }
+    ]
+   },
+   "f_lam": 0.934,
+   "at_f_lam": {
+    "lam": -0.0,
+    "min_gated": -0.0,
+    "min_gated_ext": -37.3,
+    "min_gated_ext_noder": -1.2,
+    "detail": {
+     "lam_block": -0.0,
+     "lam_fet_row": 0.7,
+     "block_est_c": 130.0,
+     "fet_row_est_c": 129.3,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.6
+     ],
+     "R5_el": 33.6,
+     "R5_term": 26.1,
+     "U26": 12.6,
+     "U42": 25.0,
+     "C40": -1.2,
+     "C38": 2.1,
+     "gateR_el": 18.0,
+     "gateR_der": -37.3,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": -0.0,
+     "min_gated_ext": -37.3,
+     "lead_sink_w": 1.0724315617543294,
+     "balance_rel_max": 1.7472662833892492e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 132.7
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 127.1
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 120.7
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 117.1
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 132.7,
+      "gated": "proposed",
+      "margin_k": -37.3
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 127.1,
+      "gated": "proposed",
+      "margin_k": -31.7
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 120.7,
+      "gated": "proposed",
+      "margin_k": -25.3
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 117.1,
+      "gated": "proposed",
+      "margin_k": -21.8
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 111.2,
+      "gated": "proposed",
+      "margin_k": -1.2
+     }
+    ]
+   },
+   "f_min_gated": 0.934,
+   "at_f_min_gated": {
+    "lam": -0.0,
+    "min_gated": -0.0,
+    "min_gated_ext": -37.3,
+    "min_gated_ext_noder": -1.2,
+    "detail": {
+     "lam_block": -0.0,
+     "lam_fet_row": 0.7,
+     "block_est_c": 130.0,
+     "fet_row_est_c": 129.3,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.6
+     ],
+     "R5_el": 33.6,
+     "R5_term": 26.1,
+     "U26": 12.6,
+     "U42": 25.0,
+     "C40": -1.2,
+     "C38": 2.1,
+     "gateR_el": 18.0,
+     "gateR_der": -37.3,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": -0.0,
+     "min_gated_ext": -37.3,
+     "lead_sink_w": 1.0724315617543294,
+     "balance_rel_max": 1.7472662833892492e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 132.7
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 127.1
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 120.7
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 117.1
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 132.7,
+      "gated": "proposed",
+      "margin_k": -37.3
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 127.1,
+      "gated": "proposed",
+      "margin_k": -31.7
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 120.7,
+      "gated": "proposed",
+      "margin_k": -25.3
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 117.1,
+      "gated": "proposed",
+      "margin_k": -21.8
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 111.2,
+      "gated": "proposed",
+      "margin_k": -1.2
+     }
+    ]
+   },
+   "f_min_gated_ext": null,
+   "f_min_gated_ext_noder": 0.895,
+   "at_f_min_gated_ext_noder": {
+    "lam": 1.5,
+    "min_gated": 1.5,
+    "min_gated_ext": -36.0,
+    "min_gated_ext_noder": -0.0,
+    "detail": {
+     "lam_block": 1.5,
+     "lam_fet_row": 2.0,
+     "block_est_c": 128.5,
+     "fet_row_est_c": 128.0,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.8
+     ],
+     "R5_el": 35.0,
+     "R5_term": 27.6,
+     "U26": 12.8,
+     "U42": 25.3,
+     "C40": -0.0,
+     "C38": 3.3,
+     "gateR_el": 19.4,
+     "gateR_der": -36.0,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": 1.5,
+     "min_gated_ext": -36.0,
+     "lead_sink_w": 0.9966101977487398,
+     "balance_rel_max": 1.8300541035643348e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 131.4
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 125.8
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 119.6
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 116.3
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 131.4,
+      "gated": "proposed",
+      "margin_k": -36.0
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 125.8,
+      "gated": "proposed",
+      "margin_k": -30.4
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 119.6,
+      "gated": "proposed",
+      "margin_k": -24.2
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 116.3,
+      "gated": "proposed",
+      "margin_k": -20.9
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 110.0,
+      "gated": "proposed",
+      "margin_k": -0.0
+     }
+    ]
+   }
+  },
+  "c22_h10_R5x0.5_deck": {
+   "at_f1": {
+    "lam": 1.3,
+    "min_gated": 1.3,
+    "min_gated_ext": -38.4,
+    "min_gated_ext_noder": -0.8,
+    "detail": {
+     "lam_block": 2.2,
+     "lam_fet_row": 1.3,
+     "block_est_c": 127.8,
+     "fet_row_est_c": 128.7,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.1
+     ],
+     "R5_el": 44.6,
+     "R5_term": 39.4,
+     "U26": 12.1,
+     "U42": 25.1,
+     "C40": -0.8,
+     "C38": 1.4,
+     "gateR_el": 18.5,
+     "gateR_der": -38.4,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": 1.3,
+     "min_gated_ext": -38.4,
+     "lead_sink_w": 1.1180972161593346,
+     "balance_rel_max": 2.374330125720035e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 133.8
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 128.5
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 119.5
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 117.0
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 133.8,
+      "gated": "proposed",
+      "margin_k": -38.4
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 128.5,
+      "gated": "proposed",
+      "margin_k": -33.1
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 119.5,
+      "gated": "proposed",
+      "margin_k": -24.1
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 117.0,
+      "gated": "proposed",
+      "margin_k": -21.7
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 110.8,
+      "gated": "proposed",
+      "margin_k": -0.8
+     }
+    ]
+   },
+   "f_lam": 1.0,
+   "at_f_lam": {
+    "lam": 1.3,
+    "min_gated": 1.3,
+    "min_gated_ext": -38.4,
+    "min_gated_ext_noder": -0.8,
+    "detail": {
+     "lam_block": 2.2,
+     "lam_fet_row": 1.3,
+     "block_est_c": 127.8,
+     "fet_row_est_c": 128.7,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.1
+     ],
+     "R5_el": 44.6,
+     "R5_term": 39.4,
+     "U26": 12.1,
+     "U42": 25.1,
+     "C40": -0.8,
+     "C38": 1.4,
+     "gateR_el": 18.5,
+     "gateR_der": -38.4,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": 1.3,
+     "min_gated_ext": -38.4,
+     "lead_sink_w": 1.1180972161593346,
+     "balance_rel_max": 2.374330125720035e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 133.8
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 128.5
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 119.5
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 117.0
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 133.8,
+      "gated": "proposed",
+      "margin_k": -38.4
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 128.5,
+      "gated": "proposed",
+      "margin_k": -33.1
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 119.5,
+      "gated": "proposed",
+      "margin_k": -24.1
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 117.0,
+      "gated": "proposed",
+      "margin_k": -21.7
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 110.8,
+      "gated": "proposed",
+      "margin_k": -0.8
+     }
+    ]
+   },
+   "f_min_gated": 1.0,
+   "at_f_min_gated": {
+    "lam": 1.3,
+    "min_gated": 1.3,
+    "min_gated_ext": -38.4,
+    "min_gated_ext_noder": -0.8,
+    "detail": {
+     "lam_block": 2.2,
+     "lam_fet_row": 1.3,
+     "block_est_c": 127.8,
+     "fet_row_est_c": 128.7,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.1
+     ],
+     "R5_el": 44.6,
+     "R5_term": 39.4,
+     "U26": 12.1,
+     "U42": 25.1,
+     "C40": -0.8,
+     "C38": 1.4,
+     "gateR_el": 18.5,
+     "gateR_der": -38.4,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": 1.3,
+     "min_gated_ext": -38.4,
+     "lead_sink_w": 1.1180972161593346,
+     "balance_rel_max": 2.374330125720035e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 133.8
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 128.5
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 119.5
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 117.0
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 133.8,
+      "gated": "proposed",
+      "margin_k": -38.4
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 128.5,
+      "gated": "proposed",
+      "margin_k": -33.1
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 119.5,
+      "gated": "proposed",
+      "margin_k": -24.1
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 117.0,
+      "gated": "proposed",
+      "margin_k": -21.7
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 110.8,
+      "gated": "proposed",
+      "margin_k": -0.8
+     }
+    ]
+   },
+   "f_min_gated_ext": null,
+   "f_min_gated_ext_noder": 0.975,
+   "at_f_min_gated_ext_noder": {
+    "lam": 2.2,
+    "min_gated": 2.2,
+    "min_gated_ext": -37.5,
+    "min_gated_ext_noder": -0.0,
+    "detail": {
+     "lam_block": 3.0,
+     "lam_fet_row": 2.2,
+     "block_est_c": 127.0,
+     "fet_row_est_c": 127.8,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.3
+     ],
+     "R5_el": 45.5,
+     "R5_term": 40.4,
+     "U26": 12.3,
+     "U42": 25.3,
+     "C40": -0.0,
+     "C38": 2.2,
+     "gateR_el": 19.4,
+     "gateR_der": -37.5,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": 2.2,
+     "min_gated_ext": -37.5,
+     "lead_sink_w": 1.0688133295557016,
+     "balance_rel_max": 2.4349295922770197e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 132.9
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 127.6
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 118.7
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 116.5
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 132.9,
+      "gated": "proposed",
+      "margin_k": -37.5
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 127.6,
+      "gated": "proposed",
+      "margin_k": -32.3
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 118.7,
+      "gated": "proposed",
+      "margin_k": -23.4
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 116.5,
+      "gated": "proposed",
+      "margin_k": -21.1
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 110.0,
+      "gated": "proposed",
+      "margin_k": -0.0
+     }
+    ]
+   }
+  },
+  "c28_h10_R5x1_deck": {
+   "at_f1": {
+    "lam": -38.0,
+    "min_gated": -38.0,
+    "min_gated_ext": -63.9,
+    "min_gated_ext_noder": -38.0,
+    "detail": {
+     "lam_block": -38.0,
+     "lam_fet_row": -27.9,
+     "block_est_c": 168.0,
+     "fet_row_est_c": 157.9,
+     "worst_part": [
+      "R5: terminal derating at 0.864 W (20 % margin)",
+      -20.5
+     ],
+     "R5_el": -8.3,
+     "R5_term": -20.5,
+     "U26": 7.4,
+     "U42": 18.8,
+     "C40": -25.1,
+     "C38": -22.2,
+     "gateR_el": -10.0,
+     "gateR_der": -63.9,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": -38.0,
+     "min_gated_ext": -63.9,
+     "lead_sink_w": 2.3965889364047395,
+     "balance_rel_max": 6.965970989528303e-12
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 159.2
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 151.8
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 144.3
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 135.2
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 159.2,
+      "gated": "proposed",
+      "margin_k": -63.9
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 151.8,
+      "gated": "proposed",
+      "margin_k": -56.4
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 144.3,
+      "gated": "proposed",
+      "margin_k": -49.0
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 135.2,
+      "gated": "proposed",
+      "margin_k": -39.8
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 168.0,
+      "at": [
+       39.5,
+       15.5,
+       "F.Cu"
+      ],
+      "margin_k": -38.0
+     }
+    ]
+   },
+   "f_lam": 0.369,
+   "at_f_lam": {
+    "lam": 0.1,
+    "min_gated": 0.1,
+    "min_gated_ext": -28.2,
+    "min_gated_ext_noder": 0.1,
+    "detail": {
+     "lam_block": 0.1,
+     "lam_fet_row": 6.6,
+     "block_est_c": 129.9,
+     "fet_row_est_c": 123.4,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      14.5
+     ],
+     "R5_el": 27.7,
+     "R5_term": 17.4,
+     "U26": 14.5,
+     "U42": 26.6,
+     "C40": 4.8,
+     "C38": 9.9,
+     "gateR_el": 25.0,
+     "gateR_der": -28.2,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": 0.1,
+     "min_gated_ext": -28.2,
+     "lead_sink_w": 0.41307698910480567,
+     "balance_rel_max": 2.4293081431556885e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 123.6
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 117.8
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 116.0
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 112.3
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 123.6,
+      "gated": "proposed",
+      "margin_k": -28.2
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 117.8,
+      "gated": "proposed",
+      "margin_k": -22.5
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 116.0,
+      "gated": "proposed",
+      "margin_k": -20.6
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 112.3,
+      "gated": "proposed",
+      "margin_k": -16.9
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 129.9,
+      "at": [
+       39.5,
+       15.5,
+       "F.Cu"
+      ],
+      "margin_k": 0.1
+     }
+    ]
+   },
+   "f_min_gated": 0.369,
+   "at_f_min_gated": {
+    "lam": 0.1,
+    "min_gated": 0.1,
+    "min_gated_ext": -28.2,
+    "min_gated_ext_noder": 0.1,
+    "detail": {
+     "lam_block": 0.1,
+     "lam_fet_row": 6.6,
+     "block_est_c": 129.9,
+     "fet_row_est_c": 123.4,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      14.5
+     ],
+     "R5_el": 27.7,
+     "R5_term": 17.4,
+     "U26": 14.5,
+     "U42": 26.6,
+     "C40": 4.8,
+     "C38": 9.9,
+     "gateR_el": 25.0,
+     "gateR_der": -28.2,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": 0.1,
+     "min_gated_ext": -28.2,
+     "lead_sink_w": 0.41307698910480567,
+     "balance_rel_max": 2.4293081431556885e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 123.6
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 117.8
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 116.0
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 112.3
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 123.6,
+      "gated": "proposed",
+      "margin_k": -28.2
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 117.8,
+      "gated": "proposed",
+      "margin_k": -22.5
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 116.0,
+      "gated": "proposed",
+      "margin_k": -20.6
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 112.3,
+      "gated": "proposed",
+      "margin_k": -16.9
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 129.9,
+      "at": [
+       39.5,
+       15.5,
+       "F.Cu"
+      ],
+      "margin_k": 0.1
+     }
+    ]
+   },
+   "f_min_gated_ext": null,
+   "f_min_gated_ext_noder": 0.369,
+   "at_f_min_gated_ext_noder": {
+    "lam": 0.1,
+    "min_gated": 0.1,
+    "min_gated_ext": -28.2,
+    "min_gated_ext_noder": 0.1,
+    "detail": {
+     "lam_block": 0.1,
+     "lam_fet_row": 6.6,
+     "block_est_c": 129.9,
+     "fet_row_est_c": 123.4,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      14.5
+     ],
+     "R5_el": 27.7,
+     "R5_term": 17.4,
+     "U26": 14.5,
+     "U42": 26.6,
+     "C40": 4.8,
+     "C38": 9.9,
+     "gateR_el": 25.0,
+     "gateR_der": -28.2,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": 0.1,
+     "min_gated_ext": -28.2,
+     "lead_sink_w": 0.41307698910480567,
+     "balance_rel_max": 2.4293081431556885e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 123.6
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 117.8
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 116.0
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 112.3
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 123.6,
+      "gated": "proposed",
+      "margin_k": -28.2
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 117.8,
+      "gated": "proposed",
+      "margin_k": -22.5
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 116.0,
+      "gated": "proposed",
+      "margin_k": -20.6
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 112.3,
+      "gated": "proposed",
+      "margin_k": -16.9
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 129.9,
+      "at": [
+       39.5,
+       15.5,
+       "F.Cu"
+      ],
+      "margin_k": 0.1
+     }
+    ]
+   }
+  },
+  "c28_h10_R5x0.5_deck": {
+   "at_f1": {
+    "lam": -23.1,
+    "min_gated": -23.1,
+    "min_gated_ext": -61.8,
+    "min_gated_ext_noder": -23.1,
+    "detail": {
+     "lam_block": -23.1,
+     "lam_fet_row": -22.7,
+     "block_est_c": 153.1,
+     "fet_row_est_c": 152.7,
+     "worst_part": [
+      "R5: terminal derating at 0.432 W (20 % margin)",
+      5.0
+     ],
+     "R5_el": 13.4,
+     "R5_term": 5.0,
+     "U26": 7.5,
+     "U42": 19.7,
+     "C40": -21.2,
+     "C38": -19.8,
+     "gateR_el": -5.5,
+     "gateR_der": -61.8,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": -23.1,
+     "min_gated_ext": -61.8,
+     "lead_sink_w": 2.2617690172040676,
+     "balance_rel_max": 1.571654378362915e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 157.2
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 150.5
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 139.8
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 132.7
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 157.2,
+      "gated": "proposed",
+      "margin_k": -61.8
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 150.5,
+      "gated": "proposed",
+      "margin_k": -55.1
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 139.8,
+      "gated": "proposed",
+      "margin_k": -44.5
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 132.7,
+      "gated": "proposed",
+      "margin_k": -37.3
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 153.1,
+      "at": [
+       39.5,
+       15.5,
+       "F.Cu"
+      ],
+      "margin_k": -23.1
+     }
+    ]
+   },
+   "f_lam": 0.59,
+   "at_f_lam": {
+    "lam": -0.0,
+    "min_gated": -0.0,
+    "min_gated_ext": -38.7,
+    "min_gated_ext_noder": -1.8,
+    "detail": {
+     "lam_block": 1.7,
+     "lam_fet_row": -0.0,
+     "block_est_c": 128.3,
+     "fet_row_est_c": 130.0,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.1
+     ],
+     "R5_el": 36.8,
+     "R5_term": 30.5,
+     "U26": 12.1,
+     "U42": 24.8,
+     "C40": -1.8,
+     "C38": 1.1,
+     "gateR_el": 17.2,
+     "gateR_der": -38.7,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": -0.0,
+     "min_gated_ext": -38.7,
+     "lead_sink_w": 0.9721792062660302,
+     "balance_rel_max": 2.8116618237487875e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 134.0
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 128.4
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 121.2
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 118.2
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 134.0,
+      "gated": "proposed",
+      "margin_k": -38.7
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 128.4,
+      "gated": "proposed",
+      "margin_k": -33.1
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 121.2,
+      "gated": "proposed",
+      "margin_k": -25.8
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 118.2,
+      "gated": "proposed",
+      "margin_k": -22.9
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 111.8,
+      "gated": "proposed",
+      "margin_k": -1.8
+     }
+    ]
+   },
+   "f_min_gated": 0.59,
+   "at_f_min_gated": {
+    "lam": -0.0,
+    "min_gated": -0.0,
+    "min_gated_ext": -38.7,
+    "min_gated_ext_noder": -1.8,
+    "detail": {
+     "lam_block": 1.7,
+     "lam_fet_row": -0.0,
+     "block_est_c": 128.3,
+     "fet_row_est_c": 130.0,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.1
+     ],
+     "R5_el": 36.8,
+     "R5_term": 30.5,
+     "U26": 12.1,
+     "U42": 24.8,
+     "C40": -1.8,
+     "C38": 1.1,
+     "gateR_el": 17.2,
+     "gateR_der": -38.7,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": -0.0,
+     "min_gated_ext": -38.7,
+     "lead_sink_w": 0.9721792062660302,
+     "balance_rel_max": 2.8116618237487875e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 134.0
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 128.4
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 121.2
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 118.2
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 134.0,
+      "gated": "proposed",
+      "margin_k": -38.7
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 128.4,
+      "gated": "proposed",
+      "margin_k": -33.1
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 121.2,
+      "gated": "proposed",
+      "margin_k": -25.8
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 118.2,
+      "gated": "proposed",
+      "margin_k": -22.9
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 111.8,
+      "gated": "proposed",
+      "margin_k": -1.8
+     }
+    ]
+   },
+   "f_min_gated_ext": null,
+   "f_min_gated_ext_noder": 0.551,
+   "at_f_min_gated_ext_noder": {
+    "lam": 2.1,
+    "min_gated": 2.1,
+    "min_gated_ext": -36.5,
+    "min_gated_ext_noder": 0.0,
+    "detail": {
+     "lam_block": 4.0,
+     "lam_fet_row": 2.1,
+     "block_est_c": 126.0,
+     "fet_row_est_c": 127.9,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.5
+     ],
+     "R5_el": 39.1,
+     "R5_term": 32.8,
+     "U26": 12.5,
+     "U42": 25.3,
+     "C40": 0.0,
+     "C38": 3.0,
+     "gateR_el": 19.4,
+     "gateR_der": -36.5,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "min_gated": 2.1,
+     "min_gated_ext": -36.5,
+     "lead_sink_w": 0.8493611290338361,
+     "balance_rel_max": 2.972735643866359e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.14,
+      "T_term_c": 131.8
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.14,
+      "T_term_c": 126.3
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.14,
+      "T_term_c": 119.4
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.14,
+      "T_term_c": 116.8
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 131.8,
+      "gated": "proposed",
+      "margin_k": -36.5
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 126.3,
+      "gated": "proposed",
+      "margin_k": -30.9
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 119.4,
+      "gated": "proposed",
+      "margin_k": -24.0
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+      "limit_c": 95.4,
+      "est_c": 116.8,
+      "gated": "proposed",
+      "margin_k": -21.4
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 110.0,
+      "gated": "proposed",
+      "margin_k": 0.0
+     }
+    ]
+   }
+  },
+  "c22_h10_R5x1": {
+   "at_f1": {
+    "lam": -22.4,
+    "min_gated": -22.4,
+    "min_gated_ext": -122.5,
+    "min_gated_ext_noder": -22.4,
+    "detail": {
+     "lam_block": -20.7,
+     "lam_fet_row": -22.4,
+     "block_est_c": 150.7,
+     "fet_row_est_c": 152.4,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      -4.8
+     ],
+     "R5_el": 24.8,
+     "R5_term": 17.1,
+     "U26": -4.8,
+     "U42": -3.0,
+     "C40": -9.3,
+     "C38": -4.9,
+     "gateR_el": -12.5,
+     "gateR_der": -122.5,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "min_gated": -22.4,
+     "min_gated_ext": -122.5,
+     "lead_sink_w": 1.4812891345337051,
+     "balance_rel_max": 7.242861140581102e-12
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.271,
+      "T_term_c": 162.2
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.271,
+      "T_term_c": 155.4
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.271,
+      "T_term_c": 139.0
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.271,
+      "T_term_c": 138.2
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 162.2,
+      "gated": "proposed",
+      "margin_k": -122.5
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 155.4,
+      "gated": "proposed",
+      "margin_k": -115.7
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 139.0,
+      "gated": "proposed",
+      "margin_k": -99.3
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 138.2,
+      "gated": "proposed",
+      "margin_k": -98.6
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 152.4,
+      "margin_k": -22.4
+     }
+    ]
+   },
+   "f_lam": 0.014,
+   "at_f_lam": {
+    "lam": -0.0,
+    "min_gated": -0.0,
+    "min_gated_ext": -88.1,
+    "min_gated_ext_noder": -0.0,
+    "detail": {
+     "lam_block": -0.0,
+     "lam_fet_row": 12.4,
+     "block_est_c": 130.0,
+     "fet_row_est_c": 117.6,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      2.1
+     ],
+     "R5_el": 59.6,
+     "R5_term": 53.7,
+     "U26": 2.1,
+     "U42": 4.5,
+     "C40": 19.5,
+     "C38": 25.7,
+     "gateR_el": 21.3,
+     "gateR_der": -88.1,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "min_gated": -0.0,
+     "min_gated_ext": -88.1,
+     "lead_sink_w": -0.43320030660742276,
+     "balance_rel_max": 2.6329995870063835e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.271,
+      "T_term_c": 127.8
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.271,
+      "T_term_c": 122.6
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.271,
+      "T_term_c": 117.6
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.271,
+      "T_term_c": 112.8
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 127.8,
+      "gated": "proposed",
+      "margin_k": -88.1
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 122.6,
+      "gated": "proposed",
+      "margin_k": -82.9
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 117.6,
+      "gated": "proposed",
+      "margin_k": -77.9
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 112.8,
+      "gated": "proposed",
+      "margin_k": -73.2
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 130.0,
+      "at": [
+       15.5,
+       56.5,
+       "F.Cu"
+      ],
+      "margin_k": -0.0
+     }
+    ]
+   },
+   "f_min_gated": 0.014,
+   "at_f_min_gated": {
+    "lam": -0.0,
+    "min_gated": -0.0,
+    "min_gated_ext": -88.1,
+    "min_gated_ext_noder": -0.0,
+    "detail": {
+     "lam_block": -0.0,
+     "lam_fet_row": 12.4,
+     "block_est_c": 130.0,
+     "fet_row_est_c": 117.6,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      2.1
+     ],
+     "R5_el": 59.6,
+     "R5_term": 53.7,
+     "U26": 2.1,
+     "U42": 4.5,
+     "C40": 19.5,
+     "C38": 25.7,
+     "gateR_el": 21.3,
+     "gateR_der": -88.1,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "min_gated": -0.0,
+     "min_gated_ext": -88.1,
+     "lead_sink_w": -0.43320030660742276,
+     "balance_rel_max": 2.6329995870063835e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.271,
+      "T_term_c": 127.8
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.271,
+      "T_term_c": 122.6
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.271,
+      "T_term_c": 117.6
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.271,
+      "T_term_c": 112.8
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 127.8,
+      "gated": "proposed",
+      "margin_k": -88.1
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 122.6,
+      "gated": "proposed",
+      "margin_k": -82.9
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 117.6,
+      "gated": "proposed",
+      "margin_k": -77.9
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 112.8,
+      "gated": "proposed",
+      "margin_k": -73.2
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 130.0,
+      "at": [
+       15.5,
+       56.5,
+       "F.Cu"
+      ],
+      "margin_k": -0.0
+     }
+    ]
+   },
+   "f_min_gated_ext": null,
+   "f_min_gated_ext_noder": 0.014,
+   "at_f_min_gated_ext_noder": {
+    "lam": -0.0,
+    "min_gated": -0.0,
+    "min_gated_ext": -88.1,
+    "min_gated_ext_noder": -0.0,
+    "detail": {
+     "lam_block": -0.0,
+     "lam_fet_row": 12.4,
+     "block_est_c": 130.0,
+     "fet_row_est_c": 117.6,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      2.1
+     ],
+     "R5_el": 59.6,
+     "R5_term": 53.7,
+     "U26": 2.1,
+     "U42": 4.5,
+     "C40": 19.5,
+     "C38": 25.7,
+     "gateR_el": 21.3,
+     "gateR_der": -88.1,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "min_gated": -0.0,
+     "min_gated_ext": -88.1,
+     "lead_sink_w": -0.43320030660742276,
+     "balance_rel_max": 2.6329995870063835e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.271,
+      "T_term_c": 127.8
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.271,
+      "T_term_c": 122.6
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.271,
+      "T_term_c": 117.6
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.271,
+      "T_term_c": 112.8
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 127.8,
+      "gated": "proposed",
+      "margin_k": -88.1
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 122.6,
+      "gated": "proposed",
+      "margin_k": -82.9
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 117.6,
+      "gated": "proposed",
+      "margin_k": -77.9
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 112.8,
+      "gated": "proposed",
+      "margin_k": -73.2
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 130.0,
+      "at": [
+       15.5,
+       56.5,
+       "F.Cu"
+      ],
+      "margin_k": -0.0
+     }
+    ]
+   }
+  },
+  "c22_h10_R5x0.5": {
+   "at_f1": {
+    "lam": -19.8,
+    "min_gated": -19.8,
+    "min_gated_ext": -121.2,
+    "min_gated_ext_noder": -19.8,
+    "detail": {
+     "lam_block": -19.8,
+     "lam_fet_row": -19.5,
+     "block_est_c": 149.8,
+     "fet_row_est_c": 149.5,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      -4.7
+     ],
+     "R5_el": 38.2,
+     "R5_term": 32.8,
+     "U26": -4.7,
+     "U42": -2.4,
+     "C40": -7.0,
+     "C38": -3.5,
+     "gateR_el": -9.7,
+     "gateR_der": -121.2,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "min_gated": -19.8,
+     "min_gated_ext": -121.2,
+     "lead_sink_w": 1.3980584701292087,
+     "balance_rel_max": 1.1463614414278742e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.271,
+      "T_term_c": 160.9
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.271,
+      "T_term_c": 154.5
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.271,
+      "T_term_c": 136.8
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.271,
+      "T_term_c": 136.4
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 160.9,
+      "gated": "proposed",
+      "margin_k": -121.2
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 154.5,
+      "gated": "proposed",
+      "margin_k": -114.9
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 136.8,
+      "gated": "proposed",
+      "margin_k": -97.1
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 136.4,
+      "gated": "proposed",
+      "margin_k": -96.7
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 149.8,
+      "at": [
+       44.5,
+       14.5,
+       "F.Cu"
+      ],
+      "margin_k": -19.8
+     }
+    ]
+   },
+   "f_lam": 0.105,
+   "at_f_lam": {
+    "lam": -0.0,
+    "min_gated": -0.0,
+    "min_gated_ext": -90.0,
+    "min_gated_ext_noder": -0.0,
+    "detail": {
+     "lam_block": -0.0,
+     "lam_fet_row": 11.9,
+     "block_est_c": 130.0,
+     "fet_row_est_c": 118.1,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      1.5
+     ],
+     "R5_el": 69.8,
+     "R5_term": 66.5,
+     "U26": 1.5,
+     "U42": 4.4,
+     "C40": 19.2,
+     "C38": 24.5,
+     "gateR_el": 20.9,
+     "gateR_der": -90.0,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "min_gated": -0.0,
+     "min_gated_ext": -90.0,
+     "lead_sink_w": -0.3382507655987839,
+     "balance_rel_max": 3.4438598819189354e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.271,
+      "T_term_c": 129.7
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.271,
+      "T_term_c": 124.8
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.271,
+      "T_term_c": 118.1
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.271,
+      "T_term_c": 112.6
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 129.7,
+      "gated": "proposed",
+      "margin_k": -90.0
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 124.8,
+      "gated": "proposed",
+      "margin_k": -85.1
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 118.1,
+      "gated": "proposed",
+      "margin_k": -78.4
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 112.6,
+      "gated": "proposed",
+      "margin_k": -73.0
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 130.0,
+      "at": [
+       15.5,
+       56.5,
+       "F.Cu"
+      ],
+      "margin_k": -0.0
+     }
+    ]
+   },
+   "f_min_gated": 0.105,
+   "at_f_min_gated": {
+    "lam": -0.0,
+    "min_gated": -0.0,
+    "min_gated_ext": -90.0,
+    "min_gated_ext_noder": -0.0,
+    "detail": {
+     "lam_block": -0.0,
+     "lam_fet_row": 11.9,
+     "block_est_c": 130.0,
+     "fet_row_est_c": 118.1,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      1.5
+     ],
+     "R5_el": 69.8,
+     "R5_term": 66.5,
+     "U26": 1.5,
+     "U42": 4.4,
+     "C40": 19.2,
+     "C38": 24.5,
+     "gateR_el": 20.9,
+     "gateR_der": -90.0,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "min_gated": -0.0,
+     "min_gated_ext": -90.0,
+     "lead_sink_w": -0.3382507655987839,
+     "balance_rel_max": 3.4438598819189354e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.271,
+      "T_term_c": 129.7
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.271,
+      "T_term_c": 124.8
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.271,
+      "T_term_c": 118.1
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.271,
+      "T_term_c": 112.6
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 129.7,
+      "gated": "proposed",
+      "margin_k": -90.0
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 124.8,
+      "gated": "proposed",
+      "margin_k": -85.1
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 118.1,
+      "gated": "proposed",
+      "margin_k": -78.4
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 112.6,
+      "gated": "proposed",
+      "margin_k": -73.0
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 130.0,
+      "at": [
+       15.5,
+       56.5,
+       "F.Cu"
+      ],
+      "margin_k": -0.0
+     }
+    ]
+   },
+   "f_min_gated_ext": null,
+   "f_min_gated_ext_noder": 0.105,
+   "at_f_min_gated_ext_noder": {
+    "lam": -0.0,
+    "min_gated": -0.0,
+    "min_gated_ext": -90.0,
+    "min_gated_ext_noder": -0.0,
+    "detail": {
+     "lam_block": -0.0,
+     "lam_fet_row": 11.9,
+     "block_est_c": 130.0,
+     "fet_row_est_c": 118.1,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      1.5
+     ],
+     "R5_el": 69.8,
+     "R5_term": 66.5,
+     "U26": 1.5,
+     "U42": 4.4,
+     "C40": 19.2,
+     "C38": 24.5,
+     "gateR_el": 20.9,
+     "gateR_der": -90.0,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "min_gated": -0.0,
+     "min_gated_ext": -90.0,
+     "lead_sink_w": -0.3382507655987839,
+     "balance_rel_max": 3.4438598819189354e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.271,
+      "T_term_c": 129.7
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.271,
+      "T_term_c": 124.8
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.271,
+      "T_term_c": 118.1
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.271,
+      "T_term_c": 112.6
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 129.7,
+      "gated": "proposed",
+      "margin_k": -90.0
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 124.8,
+      "gated": "proposed",
+      "margin_k": -85.1
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 118.1,
+      "gated": "proposed",
+      "margin_k": -78.4
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 112.6,
+      "gated": "proposed",
+      "margin_k": -73.0
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 130.0,
+      "at": [
+       15.5,
+       56.5,
+       "F.Cu"
+      ],
+      "margin_k": -0.0
+     }
+    ]
+   }
+  },
+  "c28_h10_R5x1": {
+   "at_f1": {
+    "lam": -48.3,
+    "min_gated": -48.3,
+    "min_gated_ext": -146.7,
+    "min_gated_ext_noder": -48.3,
+    "detail": {
+     "lam_block": -44.6,
+     "lam_fet_row": -48.3,
+     "block_est_c": 174.6,
+     "fet_row_est_c": 178.3,
+     "worst_part": [
+      "R5: terminal derating at 0.864 W (20 % margin)",
+      -27.1
+     ],
+     "R5_el": -14.7,
+     "R5_term": -27.1,
+     "U26": -9.4,
+     "U42": -8.7,
+     "C40": -31.3,
+     "C38": -27.1,
+     "gateR_el": -38.2,
+     "gateR_der": -146.7,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "min_gated": -48.3,
+     "min_gated_ext": -146.7,
+     "lead_sink_w": 2.6765501903746136,
+     "balance_rel_max": 7.026885744833503e-12
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.271,
+      "T_term_c": 186.4
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.271,
+      "T_term_c": 177.9
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.271,
+      "T_term_c": 161.2
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.271,
+      "T_term_c": 155.1
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 186.4,
+      "gated": "proposed",
+      "margin_k": -146.7
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 177.9,
+      "gated": "proposed",
+      "margin_k": -138.2
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 161.2,
+      "gated": "proposed",
+      "margin_k": -121.6
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 155.1,
+      "gated": "proposed",
+      "margin_k": -115.5
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 178.3,
+      "margin_k": -48.3
+     }
+    ]
+   },
+   "f_lam": null,
+   "f_min_gated": null,
+   "f_min_gated_ext": null,
+   "f_min_gated_ext_noder": null
+  },
+  "c28_h10_R5x0.5": {
+   "at_f1": {
+    "lam": -43.6,
+    "min_gated": -43.6,
+    "min_gated_ext": -144.7,
+    "min_gated_ext_noder": -43.6,
+    "detail": {
+     "lam_block": -43.1,
+     "lam_fet_row": -43.6,
+     "block_est_c": 173.1,
+     "fet_row_est_c": 173.6,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      -9.4
+     ],
+     "R5_el": 7.0,
+     "R5_term": -1.6,
+     "U26": -9.4,
+     "U42": -7.8,
+     "C40": -27.5,
+     "C38": -24.7,
+     "gateR_el": -33.7,
+     "gateR_der": -144.7,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "min_gated": -43.6,
+     "min_gated_ext": -144.7,
+     "lead_sink_w": 2.541730271173942,
+     "balance_rel_max": 8.661364017791404e-12
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.271,
+      "T_term_c": 184.3
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.271,
+      "T_term_c": 176.6
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.271,
+      "T_term_c": 156.1
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.271,
+      "T_term_c": 152.2
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 184.3,
+      "gated": "proposed",
+      "margin_k": -144.7
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 176.6,
+      "gated": "proposed",
+      "margin_k": -136.9
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 156.1,
+      "gated": "proposed",
+      "margin_k": -116.5
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+      "limit_c": 39.7,
+      "est_c": 152.2,
+      "gated": "proposed",
+      "margin_k": -112.5
+     },
+     {
+      "item": "laminate: FET-row copper",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 173.6,
+      "margin_k": -43.6
+     }
+    ]
+   },
+   "f_lam": null,
+   "f_min_gated": null,
+   "f_min_gated_ext": null,
+   "f_min_gated_ext_noder": null
+  },
+  "c22_h10_R5x1_dsq": {
+   "at_f1": {
+    "lam": -2.3,
+    "min_gated": -2.3,
+    "min_gated_ext": -37.7,
+    "min_gated_ext_noder": -3.0,
+    "detail": {
+     "lam_block": -2.3,
+     "lam_fet_row": -1.1,
+     "block_est_c": 132.3,
+     "fet_row_est_c": 131.1,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.5
+     ],
+     "R5_el": 31.4,
+     "R5_term": 23.8,
+     "U26": 12.5,
+     "U42": 25.2,
+     "C40": -3.0,
+     "C38": 0.1,
+     "gateR_el": 16.4,
+     "gateR_der": -37.7,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": -2.3,
+     "min_gated_ext": -37.7,
+     "lead_sink_w": 1.1946722978131048,
+     "balance_rel_max": 1.644165360295623e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 134.4
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 128.7
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 122.2
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 118.1
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 134.4,
+      "gated": "proposed",
+      "margin_k": -37.7
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 128.7,
+      "gated": "proposed",
+      "margin_k": -32.0
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 122.2,
+      "gated": "proposed",
+      "margin_k": -25.5
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 118.1,
+      "gated": "proposed",
+      "margin_k": -21.4
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 113.0,
+      "gated": "proposed",
+      "margin_k": -3.0
+     }
+    ]
+   },
+   "f_lam": 0.938,
+   "at_f_lam": {
+    "lam": 0.0,
+    "min_gated": 0.0,
+    "min_gated_ext": -35.5,
+    "min_gated_ext_noder": -1.1,
+    "detail": {
+     "lam_block": 0.0,
+     "lam_fet_row": 1.0,
+     "block_est_c": 130.0,
+     "fet_row_est_c": 129.0,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.9
+     ],
+     "R5_el": 33.6,
+     "R5_term": 26.1,
+     "U26": 12.9,
+     "U42": 25.6,
+     "C40": -1.1,
+     "C38": 2.1,
+     "gateR_el": 18.6,
+     "gateR_der": -35.5,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": 0.0,
+     "min_gated_ext": -35.5,
+     "lead_sink_w": 1.073358115404162,
+     "balance_rel_max": 1.770788996240919e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 132.2
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 126.6
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 120.4
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 116.7
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 132.2,
+      "gated": "proposed",
+      "margin_k": -35.5
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 126.6,
+      "gated": "proposed",
+      "margin_k": -29.9
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 120.4,
+      "gated": "proposed",
+      "margin_k": -23.7
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 116.7,
+      "gated": "proposed",
+      "margin_k": -20.0
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 111.1,
+      "gated": "proposed",
+      "margin_k": -1.1
+     }
+    ]
+   },
+   "f_min_gated": 0.938,
+   "at_f_min_gated": {
+    "lam": 0.0,
+    "min_gated": 0.0,
+    "min_gated_ext": -35.5,
+    "min_gated_ext_noder": -1.1,
+    "detail": {
+     "lam_block": 0.0,
+     "lam_fet_row": 1.0,
+     "block_est_c": 130.0,
+     "fet_row_est_c": 129.0,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.9
+     ],
+     "R5_el": 33.6,
+     "R5_term": 26.1,
+     "U26": 12.9,
+     "U42": 25.6,
+     "C40": -1.1,
+     "C38": 2.1,
+     "gateR_el": 18.6,
+     "gateR_der": -35.5,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": 0.0,
+     "min_gated_ext": -35.5,
+     "lead_sink_w": 1.073358115404162,
+     "balance_rel_max": 1.770788996240919e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 132.2
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 126.6
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 120.4
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 116.7
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 132.2,
+      "gated": "proposed",
+      "margin_k": -35.5
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 126.6,
+      "gated": "proposed",
+      "margin_k": -29.9
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 120.4,
+      "gated": "proposed",
+      "margin_k": -23.7
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 116.7,
+      "gated": "proposed",
+      "margin_k": -20.0
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 111.1,
+      "gated": "proposed",
+      "margin_k": -1.1
+     }
+    ]
+   },
+   "f_min_gated_ext": null,
+   "f_min_gated_ext_noder": 0.898,
+   "at_f_min_gated_ext_noder": {
+    "lam": 1.5,
+    "min_gated": 1.5,
+    "min_gated_ext": -34.2,
+    "min_gated_ext_noder": 0.0,
+    "detail": {
+     "lam_block": 1.5,
+     "lam_fet_row": 2.4,
+     "block_est_c": 128.5,
+     "fet_row_est_c": 127.6,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      13.2
+     ],
+     "R5_el": 35.0,
+     "R5_term": 27.6,
+     "U26": 13.2,
+     "U42": 25.9,
+     "C40": 0.0,
+     "C38": 3.3,
+     "gateR_el": 19.9,
+     "gateR_der": -34.2,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": 1.5,
+     "min_gated_ext": -34.2,
+     "lead_sink_w": 0.9975367513985727,
+     "balance_rel_max": 1.8541740441655298e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 130.8
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 125.3
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 119.3
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 115.9
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 130.8,
+      "gated": "proposed",
+      "margin_k": -34.2
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 125.3,
+      "gated": "proposed",
+      "margin_k": -28.6
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 119.3,
+      "gated": "proposed",
+      "margin_k": -22.6
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 115.9,
+      "gated": "proposed",
+      "margin_k": -19.2
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 110.0,
+      "gated": "proposed",
+      "margin_k": 0.0
+     }
+    ]
+   }
+  },
+  "c22_h10_R5x0.5_dsq": {
+   "at_f1": {
+    "lam": 1.8,
+    "min_gated": 1.8,
+    "min_gated_ext": -36.4,
+    "min_gated_ext_noder": -0.6,
+    "detail": {
+     "lam_block": 2.7,
+     "lam_fet_row": 1.8,
+     "block_est_c": 127.3,
+     "fet_row_est_c": 128.2,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.5
+     ],
+     "R5_el": 44.8,
+     "R5_term": 39.5,
+     "U26": 12.5,
+     "U42": 25.7,
+     "C40": -0.6,
+     "C38": 1.5,
+     "gateR_el": 19.2,
+     "gateR_der": -36.4,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": 1.8,
+     "min_gated_ext": -36.4,
+     "lead_sink_w": 1.1114416334086084,
+     "balance_rel_max": 2.40738457433574e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 133.1
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 127.8
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 119.1
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 116.6
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 133.1,
+      "gated": "proposed",
+      "margin_k": -36.4
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 127.8,
+      "gated": "proposed",
+      "margin_k": -31.1
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 119.1,
+      "gated": "proposed",
+      "margin_k": -22.4
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 116.6,
+      "gated": "proposed",
+      "margin_k": -19.9
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 110.6,
+      "gated": "proposed",
+      "margin_k": -0.6
+     }
+    ]
+   },
+   "f_lam": 1.0,
+   "at_f_lam": {
+    "lam": 1.8,
+    "min_gated": 1.8,
+    "min_gated_ext": -36.4,
+    "min_gated_ext_noder": -0.6,
+    "detail": {
+     "lam_block": 2.7,
+     "lam_fet_row": 1.8,
+     "block_est_c": 127.3,
+     "fet_row_est_c": 128.2,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.5
+     ],
+     "R5_el": 44.8,
+     "R5_term": 39.5,
+     "U26": 12.5,
+     "U42": 25.7,
+     "C40": -0.6,
+     "C38": 1.5,
+     "gateR_el": 19.2,
+     "gateR_der": -36.4,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": 1.8,
+     "min_gated_ext": -36.4,
+     "lead_sink_w": 1.1114416334086084,
+     "balance_rel_max": 2.40738457433574e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 133.1
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 127.8
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 119.1
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 116.6
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 133.1,
+      "gated": "proposed",
+      "margin_k": -36.4
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 127.8,
+      "gated": "proposed",
+      "margin_k": -31.1
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 119.1,
+      "gated": "proposed",
+      "margin_k": -22.4
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 116.6,
+      "gated": "proposed",
+      "margin_k": -19.9
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 110.6,
+      "gated": "proposed",
+      "margin_k": -0.6
+     }
+    ]
+   },
+   "f_min_gated": 1.0,
+   "at_f_min_gated": {
+    "lam": 1.8,
+    "min_gated": 1.8,
+    "min_gated_ext": -36.4,
+    "min_gated_ext_noder": -0.6,
+    "detail": {
+     "lam_block": 2.7,
+     "lam_fet_row": 1.8,
+     "block_est_c": 127.3,
+     "fet_row_est_c": 128.2,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.5
+     ],
+     "R5_el": 44.8,
+     "R5_term": 39.5,
+     "U26": 12.5,
+     "U42": 25.7,
+     "C40": -0.6,
+     "C38": 1.5,
+     "gateR_el": 19.2,
+     "gateR_der": -36.4,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": 1.8,
+     "min_gated_ext": -36.4,
+     "lead_sink_w": 1.1114416334086084,
+     "balance_rel_max": 2.40738457433574e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 133.1
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 127.8
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 119.1
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 116.6
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 133.1,
+      "gated": "proposed",
+      "margin_k": -36.4
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 127.8,
+      "gated": "proposed",
+      "margin_k": -31.1
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 119.1,
+      "gated": "proposed",
+      "margin_k": -22.4
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 116.6,
+      "gated": "proposed",
+      "margin_k": -19.9
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 110.6,
+      "gated": "proposed",
+      "margin_k": -0.6
+     }
+    ]
+   },
+   "f_min_gated_ext": null,
+   "f_min_gated_ext_noder": 0.98,
+   "at_f_min_gated_ext_noder": {
+    "lam": 2.5,
+    "min_gated": 2.5,
+    "min_gated_ext": -35.7,
+    "min_gated_ext_noder": -0.0,
+    "detail": {
+     "lam_block": 3.4,
+     "lam_fet_row": 2.5,
+     "block_est_c": 126.6,
+     "fet_row_est_c": 127.5,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.7
+     ],
+     "R5_el": 45.5,
+     "R5_term": 40.3,
+     "U26": 12.7,
+     "U42": 25.9,
+     "C40": -0.0,
+     "C38": 2.2,
+     "gateR_el": 19.9,
+     "gateR_der": -35.7,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": 2.5,
+     "min_gated_ext": -35.7,
+     "lead_sink_w": 1.0735309514058136,
+     "balance_rel_max": 2.4543322307937078e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 132.4
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 127.2
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 118.5
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 116.1
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 132.4,
+      "gated": "proposed",
+      "margin_k": -35.7
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 127.2,
+      "gated": "proposed",
+      "margin_k": -30.5
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 118.5,
+      "gated": "proposed",
+      "margin_k": -21.8
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 116.1,
+      "gated": "proposed",
+      "margin_k": -19.4
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 110.0,
+      "gated": "proposed",
+      "margin_k": -0.0
+     }
+    ]
+   }
+  },
+  "c28_h10_R5x1_dsq": {
+   "at_f1": {
+    "lam": -37.9,
+    "min_gated": -37.9,
+    "min_gated_ext": -61.9,
+    "min_gated_ext_noder": -37.9,
+    "detail": {
+     "lam_block": -37.9,
+     "lam_fet_row": -27.7,
+     "block_est_c": 167.9,
+     "fet_row_est_c": 157.7,
+     "worst_part": [
+      "R5: terminal derating at 0.864 W (20 % margin)",
+      -20.4
+     ],
+     "R5_el": -8.2,
+     "R5_term": -20.4,
+     "U26": 7.8,
+     "U42": 19.5,
+     "C40": -24.9,
+     "C38": -22.0,
+     "gateR_el": -9.3,
+     "gateR_der": -61.9,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": -37.9,
+     "min_gated_ext": -61.9,
+     "lead_sink_w": 2.3899333536540133,
+     "balance_rel_max": 7.1642504955714485e-12
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 158.6
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 151.2
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 143.9
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 134.7
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 158.6,
+      "gated": "proposed",
+      "margin_k": -61.9
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 151.2,
+      "gated": "proposed",
+      "margin_k": -54.5
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 143.9,
+      "gated": "proposed",
+      "margin_k": -47.2
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 134.7,
+      "gated": "proposed",
+      "margin_k": -38.0
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 167.9,
+      "at": [
+       39.5,
+       15.5,
+       "F.Cu"
+      ],
+      "margin_k": -37.9
+     }
+    ]
+   },
+   "f_lam": 0.373,
+   "at_f_lam": {
+    "lam": -0.0,
+    "min_gated": -0.0,
+    "min_gated_ext": -26.5,
+    "min_gated_ext_noder": -0.0,
+    "detail": {
+     "lam_block": -0.0,
+     "lam_fet_row": 6.5,
+     "block_est_c": 130.0,
+     "fet_row_est_c": 123.5,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      14.9
+     ],
+     "R5_el": 27.7,
+     "R5_term": 17.3,
+     "U26": 14.9,
+     "U42": 27.2,
+     "C40": 4.8,
+     "C38": 9.9,
+     "gateR_el": 25.5,
+     "gateR_der": -26.5,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": -0.0,
+     "min_gated_ext": -26.5,
+     "lead_sink_w": 0.4187032140772988,
+     "balance_rel_max": 2.4495702902958964e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 123.2
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 117.4
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 115.8
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 112.0
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 123.2,
+      "gated": "proposed",
+      "margin_k": -26.5
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 117.4,
+      "gated": "proposed",
+      "margin_k": -20.7
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 115.8,
+      "gated": "proposed",
+      "margin_k": -19.1
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 112.0,
+      "gated": "proposed",
+      "margin_k": -15.3
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 130.0,
+      "at": [
+       39.5,
+       15.5,
+       "F.Cu"
+      ],
+      "margin_k": -0.0
+     }
+    ]
+   },
+   "f_min_gated": 0.373,
+   "at_f_min_gated": {
+    "lam": -0.0,
+    "min_gated": -0.0,
+    "min_gated_ext": -26.5,
+    "min_gated_ext_noder": -0.0,
+    "detail": {
+     "lam_block": -0.0,
+     "lam_fet_row": 6.5,
+     "block_est_c": 130.0,
+     "fet_row_est_c": 123.5,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      14.9
+     ],
+     "R5_el": 27.7,
+     "R5_term": 17.3,
+     "U26": 14.9,
+     "U42": 27.2,
+     "C40": 4.8,
+     "C38": 9.9,
+     "gateR_el": 25.5,
+     "gateR_der": -26.5,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": -0.0,
+     "min_gated_ext": -26.5,
+     "lead_sink_w": 0.4187032140772988,
+     "balance_rel_max": 2.4495702902958964e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 123.2
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 117.4
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 115.8
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 112.0
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 123.2,
+      "gated": "proposed",
+      "margin_k": -26.5
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 117.4,
+      "gated": "proposed",
+      "margin_k": -20.7
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 115.8,
+      "gated": "proposed",
+      "margin_k": -19.1
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 112.0,
+      "gated": "proposed",
+      "margin_k": -15.3
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 130.0,
+      "at": [
+       39.5,
+       15.5,
+       "F.Cu"
+      ],
+      "margin_k": -0.0
+     }
+    ]
+   },
+   "f_min_gated_ext": null,
+   "f_min_gated_ext_noder": 0.373,
+   "at_f_min_gated_ext_noder": {
+    "lam": -0.0,
+    "min_gated": -0.0,
+    "min_gated_ext": -26.5,
+    "min_gated_ext_noder": -0.0,
+    "detail": {
+     "lam_block": -0.0,
+     "lam_fet_row": 6.5,
+     "block_est_c": 130.0,
+     "fet_row_est_c": 123.5,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      14.9
+     ],
+     "R5_el": 27.7,
+     "R5_term": 17.3,
+     "U26": 14.9,
+     "U42": 27.2,
+     "C40": 4.8,
+     "C38": 9.9,
+     "gateR_el": 25.5,
+     "gateR_der": -26.5,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": -0.0,
+     "min_gated_ext": -26.5,
+     "lead_sink_w": 0.4187032140772988,
+     "balance_rel_max": 2.4495702902958964e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 123.2
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 117.4
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 115.8
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 112.0
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 123.2,
+      "gated": "proposed",
+      "margin_k": -26.5
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 117.4,
+      "gated": "proposed",
+      "margin_k": -20.7
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 115.8,
+      "gated": "proposed",
+      "margin_k": -19.1
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 112.0,
+      "gated": "proposed",
+      "margin_k": -15.3
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 130.0,
+      "at": [
+       39.5,
+       15.5,
+       "F.Cu"
+      ],
+      "margin_k": -0.0
+     }
+    ]
+   }
+  },
+  "c28_h10_R5x0.5_dsq": {
+   "at_f1": {
+    "lam": -23.0,
+    "min_gated": -23.0,
+    "min_gated_ext": -59.9,
+    "min_gated_ext_noder": -23.0,
+    "detail": {
+     "lam_block": -23.0,
+     "lam_fet_row": -22.2,
+     "block_est_c": 153.0,
+     "fet_row_est_c": 152.2,
+     "worst_part": [
+      "R5: terminal derating at 0.432 W (20 % margin)",
+      5.2
+     ],
+     "R5_el": 13.5,
+     "R5_term": 5.2,
+     "U26": 7.9,
+     "U42": 20.4,
+     "C40": -21.1,
+     "C38": -19.7,
+     "gateR_el": -4.8,
+     "gateR_der": -59.9,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": -23.0,
+     "min_gated_ext": -59.9,
+     "lead_sink_w": 2.2551134344533414,
+     "balance_rel_max": 1.593779592920849e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 156.6
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 149.9
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 139.4
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 132.2
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 156.6,
+      "gated": "proposed",
+      "margin_k": -59.9
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 149.9,
+      "gated": "proposed",
+      "margin_k": -53.2
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 139.4,
+      "gated": "proposed",
+      "margin_k": -42.7
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 132.2,
+      "gated": "proposed",
+      "margin_k": -35.5
+     },
+     {
+      "item": "laminate: 1 mm-block copper peak",
+      "gated": true,
+      "limit_c": 130.0,
+      "est_c": 153.0,
+      "at": [
+       39.5,
+       15.5,
+       "F.Cu"
+      ],
+      "margin_k": -23.0
+     }
+    ]
+   },
+   "f_lam": 0.598,
+   "at_f_lam": {
+    "lam": 0.0,
+    "min_gated": 0.0,
+    "min_gated_ext": -37.1,
+    "min_gated_ext_noder": -2.0,
+    "detail": {
+     "lam_block": 1.3,
+     "lam_fet_row": 0.0,
+     "block_est_c": 128.7,
+     "fet_row_est_c": 130.0,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.4
+     ],
+     "R5_el": 36.5,
+     "R5_term": 30.1,
+     "U26": 12.4,
+     "U42": 25.3,
+     "C40": -2.0,
+     "C38": 0.8,
+     "gateR_el": 17.5,
+     "gateR_der": -37.1,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": 0.0,
+     "min_gated_ext": -37.1,
+     "lead_sink_w": 0.9900872389617428,
+     "balance_rel_max": 2.8132488724197973e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 133.8
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 128.2
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 121.2
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 118.0
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 133.8,
+      "gated": "proposed",
+      "margin_k": -37.1
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 128.2,
+      "gated": "proposed",
+      "margin_k": -31.5
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 121.2,
+      "gated": "proposed",
+      "margin_k": -24.5
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 118.0,
+      "gated": "proposed",
+      "margin_k": -21.3
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 112.0,
+      "gated": "proposed",
+      "margin_k": -2.0
+     }
+    ]
+   },
+   "f_min_gated": 0.598,
+   "at_f_min_gated": {
+    "lam": 0.0,
+    "min_gated": 0.0,
+    "min_gated_ext": -37.1,
+    "min_gated_ext_noder": -2.0,
+    "detail": {
+     "lam_block": 1.3,
+     "lam_fet_row": 0.0,
+     "block_est_c": 128.7,
+     "fet_row_est_c": 130.0,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.4
+     ],
+     "R5_el": 36.5,
+     "R5_term": 30.1,
+     "U26": 12.4,
+     "U42": 25.3,
+     "C40": -2.0,
+     "C38": 0.8,
+     "gateR_el": 17.5,
+     "gateR_der": -37.1,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": 0.0,
+     "min_gated_ext": -37.1,
+     "lead_sink_w": 0.9900872389617428,
+     "balance_rel_max": 2.8132488724197973e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 133.8
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 128.2
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 121.2
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 118.0
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 133.8,
+      "gated": "proposed",
+      "margin_k": -37.1
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 128.2,
+      "gated": "proposed",
+      "margin_k": -31.5
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 121.2,
+      "gated": "proposed",
+      "margin_k": -24.5
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 118.0,
+      "gated": "proposed",
+      "margin_k": -21.3
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 112.0,
+      "gated": "proposed",
+      "margin_k": -2.0
+     }
+    ]
+   },
+   "f_min_gated_ext": null,
+   "f_min_gated_ext_noder": 0.555,
+   "at_f_min_gated_ext_noder": {
+    "lam": 2.4,
+    "min_gated": 2.4,
+    "min_gated_ext": -34.7,
+    "min_gated_ext_noder": -0.0,
+    "detail": {
+     "lam_block": 3.9,
+     "lam_fet_row": 2.4,
+     "block_est_c": 126.1,
+     "fet_row_est_c": 127.6,
+     "worst_part": [
+      "U26: TJ max (TI SBVS204G p.4)",
+      12.9
+     ],
+     "R5_el": 39.0,
+     "R5_term": 32.7,
+     "U26": 12.9,
+     "U42": 25.9,
+     "C40": -0.0,
+     "C38": 3.0,
+     "gateR_el": 19.9,
+     "gateR_der": -34.7,
+     "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "min_gated": 2.4,
+     "min_gated_ext": -34.7,
+     "lead_sink_w": 0.8549873540063293,
+     "balance_rel_max": 2.990458550193367e-11
+    },
+    "gateR_on_terminal": [
+     {
+      "ref": "R12",
+      "P_W": 0.137,
+      "T_term_c": 131.4
+     },
+     {
+      "ref": "R10",
+      "P_W": 0.137,
+      "T_term_c": 125.9
+     },
+     {
+      "ref": "R20",
+      "P_W": 0.137,
+      "T_term_c": 119.2
+     },
+     {
+      "ref": "R18",
+      "P_W": 0.137,
+      "T_term_c": 116.5
+     }
+    ],
+    "worst_rows": [
+     {
+      "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 131.4,
+      "gated": "proposed",
+      "margin_k": -34.7
+     },
+     {
+      "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 125.9,
+      "gated": "proposed",
+      "margin_k": -29.2
+     },
+     {
+      "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 119.2,
+      "gated": "proposed",
+      "margin_k": -22.5
+     },
+     {
+      "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+      "limit_c": 96.7,
+      "est_c": 116.5,
+      "gated": "proposed",
+      "margin_k": -19.8
+     },
+     {
+      "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+      "limit_c": 110.0,
+      "est_c": 110.0,
+      "gated": "proposed",
+      "margin_k": -0.0
+     }
+    ]
+   }
+  }
+ },
+ "ceilings": {
+  "b55_lam_deck": 21.52,
+  "b55_min_gated_deck": 21.52,
+  "b55_min_gated_ext_deck": null,
+  "b55_min_gated_ext_noder_deck": 21.02,
+  "b61_lam_deck": 20.42,
+  "b61_min_gated_deck": 20.42,
+  "b61_min_gated_ext_deck": null,
+  "b61_min_gated_ext_noder_deck": 19.51,
+  "b55_lam": 10.39,
+  "b55_min_gated": 10.39,
+  "b55_min_gated_ext": null,
+  "b55_min_gated_ext_noder": 10.39,
+  "b61_lam": null,
+  "b61_min_gated": null,
+  "b61_min_gated_ext": null,
+  "b61_min_gated_ext_noder": null,
+  "b55_lam_dsq": 21.56,
+  "b55_min_gated_dsq": 21.56,
+  "b55_min_gated_ext_dsq": null,
+  "b55_min_gated_ext_noder_dsq": 21.07,
+  "b61_lam_dsq": 20.56,
+  "b61_min_gated_dsq": 20.56,
+  "b61_min_gated_ext_dsq": null,
+  "b61_min_gated_ext_noder_dsq": 19.55
+ },
+ "anchors": {
+  "b55_c16_deck": {
+   "lam": 18.1,
+   "min_gated": 15.6,
+   "min_gated_ext": -21.3,
+   "min_gated_ext_noder": 13.6,
+   "detail": {
+    "lam_block": 19.3,
+    "lam_fet_row": 18.1,
+    "block_est_c": 110.7,
+    "fet_row_est_c": 111.9,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     15.6
+    ],
+    "R5_el": 61.3,
+    "R5_term": 57.2,
+    "U26": 15.6,
+    "U42": 28.8,
+    "C40": 13.6,
+    "C38": 16.8,
+    "gateR_el": 35.3,
+    "gateR_der": -21.3,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+    "min_gated": 15.6,
+    "min_gated_ext": -21.3,
+    "lead_sink_w": 0.2929294781247401,
+    "balance_rel_max": 2.979112759865939e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.14,
+     "T_term_c": 116.6
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.14,
+     "T_term_c": 112.1
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.14,
+     "T_term_c": 105.8
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.14,
+     "T_term_c": 105.5
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 116.6,
+     "gated": "proposed",
+     "margin_k": -21.3
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 112.1,
+     "gated": "proposed",
+     "margin_k": -16.8
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 105.8,
+     "gated": "proposed",
+     "margin_k": -10.4
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 105.5,
+     "gated": "proposed",
+     "margin_k": -10.1
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 96.4,
+     "gated": "proposed",
+     "margin_k": 13.6
+    }
+   ]
+  },
+  "b55_c18_deck": {
+   "lam": 12.2,
+   "min_gated": 12.2,
+   "min_gated_ext": -26.8,
+   "min_gated_ext_noder": 8.6,
+   "detail": {
+    "lam_block": 14.0,
+    "lam_fet_row": 12.2,
+    "block_est_c": 116.0,
+    "fet_row_est_c": 117.8,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     14.6
+    ],
+    "R5_el": 52.3,
+    "R5_term": 47.2,
+    "U26": 14.6,
+    "U42": 27.6,
+    "C40": 8.6,
+    "C38": 11.8,
+    "gateR_el": 29.5,
+    "gateR_der": -26.8,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+    "min_gated": 12.2,
+    "min_gated_ext": -26.8,
+    "lead_sink_w": 0.5638553174486796,
+    "balance_rel_max": 2.4667115827990926e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.14,
+     "T_term_c": 122.1
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.14,
+     "T_term_c": 117.2
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.14,
+     "T_term_c": 110.5
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.14,
+     "T_term_c": 109.1
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 122.1,
+     "gated": "proposed",
+     "margin_k": -26.8
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 117.2,
+     "gated": "proposed",
+     "margin_k": -21.9
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 110.5,
+     "gated": "proposed",
+     "margin_k": -15.1
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 109.1,
+     "gated": "proposed",
+     "margin_k": -13.8
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 101.4,
+     "gated": "proposed",
+     "margin_k": 8.6
+    }
+   ]
+  },
+  "b55_c20_deck": {
+   "lam": 5.7,
+   "min_gated": 5.7,
+   "min_gated_ext": -32.9,
+   "min_gated_ext_noder": 3.0,
+   "detail": {
+    "lam_block": 7.5,
+    "lam_fet_row": 5.7,
+    "block_est_c": 122.5,
+    "fet_row_est_c": 124.3,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     13.4
+    ],
+    "R5_el": 42.3,
+    "R5_term": 36.0,
+    "U26": 13.4,
+    "U42": 26.1,
+    "C40": 3.0,
+    "C38": 6.2,
+    "gateR_el": 23.0,
+    "gateR_der": -32.9,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+    "min_gated": 5.7,
+    "min_gated_ext": -32.9,
+    "lead_sink_w": 0.8666547849283757,
+    "balance_rel_max": 2.012693629247992e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.14,
+     "T_term_c": 128.3
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.14,
+     "T_term_c": 123.0
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.14,
+     "T_term_c": 116.2
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.14,
+     "T_term_c": 113.7
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 128.3,
+     "gated": "proposed",
+     "margin_k": -32.9
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 123.0,
+     "gated": "proposed",
+     "margin_k": -27.6
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 116.2,
+     "gated": "proposed",
+     "margin_k": -20.8
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 113.7,
+     "gated": "proposed",
+     "margin_k": -18.3
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 107.0,
+     "gated": "proposed",
+     "margin_k": 3.0
+    }
+   ]
+  },
+  "b55_c22_deck": {
+   "lam": -2.5,
+   "min_gated": -2.5,
+   "min_gated_ext": -39.7,
+   "min_gated_ext_noder": -3.1,
+   "detail": {
+    "lam_block": -2.5,
+    "lam_fet_row": -1.6,
+    "block_est_c": 132.5,
+    "fet_row_est_c": 131.6,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     12.1
+    ],
+    "R5_el": 31.2,
+    "R5_term": 23.7,
+    "U26": 12.1,
+    "U42": 24.5,
+    "C40": -3.1,
+    "C38": -0.0,
+    "gateR_el": 15.8,
+    "gateR_der": -39.7,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+    "min_gated": -2.5,
+    "min_gated_ext": -39.7,
+    "lead_sink_w": 1.201327880563831,
+    "balance_rel_max": 1.613910804859123e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.14,
+     "T_term_c": 135.0
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.14,
+     "T_term_c": 129.3
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.14,
+     "T_term_c": 122.6
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.14,
+     "T_term_c": 118.6
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 135.0,
+     "gated": "proposed",
+     "margin_k": -39.7
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 129.3,
+     "gated": "proposed",
+     "margin_k": -33.9
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 122.6,
+     "gated": "proposed",
+     "margin_k": -27.2
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 118.6,
+     "gated": "proposed",
+     "margin_k": -23.2
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 113.1,
+     "gated": "proposed",
+     "margin_k": -3.1
+    }
+   ]
+  },
+  "b55_c24_deck": {
+   "lam": -13.4,
+   "min_gated": -13.4,
+   "min_gated_ext": -47.1,
+   "min_gated_ext_noder": -13.4,
+   "detail": {
+    "lam_block": -13.4,
+    "lam_fet_row": -8.9,
+    "block_est_c": 143.4,
+    "fet_row_est_c": 138.9,
+    "worst_part": [
+     "R5: terminal derating at 0.635 W (20 % margin)",
+     10.1
+    ],
+    "R5_el": 19.1,
+    "R5_term": 10.1,
+    "U26": 10.7,
+    "U42": 22.8,
+    "C40": -9.8,
+    "C38": -6.8,
+    "gateR_el": 7.9,
+    "gateR_der": -47.1,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+    "min_gated": -13.4,
+    "min_gated_ext": -47.1,
+    "lead_sink_w": 1.567874604355043,
+    "balance_rel_max": 1.2654499808986189e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.14,
+     "T_term_c": 142.5
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.14,
+     "T_term_c": 136.2
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.14,
+     "T_term_c": 129.5
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.14,
+     "T_term_c": 123.7
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 142.5,
+     "gated": "proposed",
+     "margin_k": -47.1
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 136.2,
+     "gated": "proposed",
+     "margin_k": -40.8
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 129.5,
+     "gated": "proposed",
+     "margin_k": -34.1
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 123.7,
+     "gated": "proposed",
+     "margin_k": -28.3
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 143.4,
+     "at": [
+      39.5,
+      15.5,
+      "F.Cu"
+     ],
+     "margin_k": -13.4
+    }
+   ]
+  },
+  "b61_c16_deck": {
+   "lam": 13.8,
+   "min_gated": 9.7,
+   "min_gated_ext": -25.6,
+   "min_gated_ext_noder": 9.1,
+   "detail": {
+    "lam_block": 14.9,
+    "lam_fet_row": 13.8,
+    "block_est_c": 115.1,
+    "fet_row_est_c": 116.2,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     9.7
+    ],
+    "R5_el": 57.1,
+    "R5_term": 52.9,
+    "U26": 9.7,
+    "U42": 23.3,
+    "C40": 9.1,
+    "C38": 12.1,
+    "gateR_el": 31.1,
+    "gateR_der": -25.6,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+    "min_gated": 9.7,
+    "min_gated_ext": -25.6,
+    "lead_sink_w": 0.4964224613880493,
+    "balance_rel_max": 3.120137469842733e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.14,
+     "T_term_c": 121.0
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.14,
+     "T_term_c": 116.8
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.14,
+     "T_term_c": 109.8
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.14,
+     "T_term_c": 109.4
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 121.0,
+     "gated": "proposed",
+     "margin_k": -25.6
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 116.8,
+     "gated": "proposed",
+     "margin_k": -21.5
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 109.8,
+     "gated": "proposed",
+     "margin_k": -14.4
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 109.4,
+     "gated": "proposed",
+     "margin_k": -14.1
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 100.9,
+     "gated": "proposed",
+     "margin_k": 9.1
+    }
+   ]
+  },
+  "b61_c18_deck": {
+   "lam": 8.0,
+   "min_gated": 8.0,
+   "min_gated_ext": -31.1,
+   "min_gated_ext_noder": 4.1,
+   "detail": {
+    "lam_block": 9.5,
+    "lam_fet_row": 8.0,
+    "block_est_c": 120.5,
+    "fet_row_est_c": 122.0,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     8.6
+    ],
+    "R5_el": 48.1,
+    "R5_term": 42.9,
+    "U26": 8.6,
+    "U42": 22.0,
+    "C40": 4.1,
+    "C38": 7.1,
+    "gateR_el": 25.2,
+    "gateR_der": -31.1,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+    "min_gated": 8.0,
+    "min_gated_ext": -31.1,
+    "lead_sink_w": 0.7673483007119888,
+    "balance_rel_max": 2.5922455935463784e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.14,
+     "T_term_c": 126.5
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.14,
+     "T_term_c": 122.0
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.14,
+     "T_term_c": 114.6
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.14,
+     "T_term_c": 113.0
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 126.5,
+     "gated": "proposed",
+     "margin_k": -31.1
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 122.0,
+     "gated": "proposed",
+     "margin_k": -26.6
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 114.6,
+     "gated": "proposed",
+     "margin_k": -19.2
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 113.0,
+     "gated": "proposed",
+     "margin_k": -17.7
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 105.9,
+     "gated": "proposed",
+     "margin_k": 4.1
+    }
+   ]
+  },
+  "b61_c20_deck": {
+   "lam": 1.4,
+   "min_gated": 1.4,
+   "min_gated_ext": -37.3,
+   "min_gated_ext_noder": -1.5,
+   "detail": {
+    "lam_block": 3.2,
+    "lam_fet_row": 1.4,
+    "block_est_c": 126.8,
+    "fet_row_est_c": 128.6,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     7.5
+    ],
+    "R5_el": 38.1,
+    "R5_term": 31.7,
+    "U26": 7.5,
+    "U42": 20.6,
+    "C40": -1.5,
+    "C38": 1.5,
+    "gateR_el": 18.7,
+    "gateR_der": -37.3,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+    "min_gated": 1.4,
+    "min_gated_ext": -37.3,
+    "lead_sink_w": 1.070147768191685,
+    "balance_rel_max": 2.124500667683376e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.14,
+     "T_term_c": 132.6
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.14,
+     "T_term_c": 127.7
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.14,
+     "T_term_c": 120.4
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.14,
+     "T_term_c": 117.7
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 132.6,
+     "gated": "proposed",
+     "margin_k": -37.3
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 127.7,
+     "gated": "proposed",
+     "margin_k": -32.3
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 120.4,
+     "gated": "proposed",
+     "margin_k": -25.0
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 117.7,
+     "gated": "proposed",
+     "margin_k": -22.3
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 111.5,
+     "gated": "proposed",
+     "margin_k": -1.5
+    }
+   ]
+  },
+  "b61_c22_deck": {
+   "lam": -6.8,
+   "min_gated": -6.8,
+   "min_gated_ext": -44.0,
+   "min_gated_ext_noder": -7.6,
+   "detail": {
+    "lam_block": -6.8,
+    "lam_fet_row": -5.8,
+    "block_est_c": 136.8,
+    "fet_row_est_c": 135.8,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     6.2
+    ],
+    "R5_el": 27.0,
+    "R5_term": 19.4,
+    "U26": 6.2,
+    "U42": 19.0,
+    "C40": -7.6,
+    "C38": -4.7,
+    "gateR_el": 11.5,
+    "gateR_der": -44.0,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+    "min_gated": -6.8,
+    "min_gated_ext": -44.0,
+    "lead_sink_w": 1.4048208638271402,
+    "balance_rel_max": 1.7136625651486296e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.14,
+     "T_term_c": 139.4
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.14,
+     "T_term_c": 134.0
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.14,
+     "T_term_c": 126.8
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.14,
+     "T_term_c": 122.5
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 139.4,
+     "gated": "proposed",
+     "margin_k": -44.0
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 134.0,
+     "gated": "proposed",
+     "margin_k": -38.6
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 126.8,
+     "gated": "proposed",
+     "margin_k": -31.4
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 122.5,
+     "gated": "proposed",
+     "margin_k": -27.1
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 117.6,
+     "gated": "proposed",
+     "margin_k": -7.6
+    }
+   ]
+  },
+  "b61_c24_deck": {
+   "lam": -17.7,
+   "min_gated": -17.7,
+   "min_gated_ext": -51.5,
+   "min_gated_ext_noder": -17.7,
+   "detail": {
+    "lam_block": -17.7,
+    "lam_fet_row": -13.3,
+    "block_est_c": 147.7,
+    "fet_row_est_c": 143.3,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     4.7
+    ],
+    "R5_el": 14.9,
+    "R5_term": 5.8,
+    "U26": 4.7,
+    "U42": 17.3,
+    "C40": -14.3,
+    "C38": -11.5,
+    "gateR_el": 3.6,
+    "gateR_der": -51.5,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+    "min_gated": -17.7,
+    "min_gated_ext": -51.5,
+    "lead_sink_w": 1.7713675876183523,
+    "balance_rel_max": 1.3546672508218735e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.14,
+     "T_term_c": 146.8
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.14,
+     "T_term_c": 140.9
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.14,
+     "T_term_c": 133.6
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.14,
+     "T_term_c": 127.6
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 146.8,
+     "gated": "proposed",
+     "margin_k": -51.5
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 140.9,
+     "gated": "proposed",
+     "margin_k": -45.5
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 133.6,
+     "gated": "proposed",
+     "margin_k": -38.2
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+     "limit_c": 95.4,
+     "est_c": 127.6,
+     "gated": "proposed",
+     "margin_k": -32.2
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 147.7,
+     "at": [
+      39.5,
+      15.5,
+      "F.Cu"
+     ],
+     "margin_k": -17.7
+    }
+   ]
+  },
+  "b55_c16": {
+   "lam": -4.0,
+   "min_gated": -4.0,
+   "min_gated_ext": -104.1,
+   "min_gated_ext_noder": -4.0,
+   "detail": {
+    "lam_block": -4.0,
+    "lam_fet_row": -2.8,
+    "block_est_c": 134.0,
+    "fet_row_est_c": 132.8,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     -1.2
+    ],
+    "R5_el": 54.9,
+    "R5_term": 50.7,
+    "U26": -1.2,
+    "U42": 1.3,
+    "C40": 7.4,
+    "C38": 11.9,
+    "gateR_el": 7.1,
+    "gateR_der": -104.1,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+    "min_gated": -4.0,
+    "min_gated_ext": -104.1,
+    "lead_sink_w": 0.5728907320946142,
+    "balance_rel_max": 1.2507106465418622e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.271,
+     "T_term_c": 143.8
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.271,
+     "T_term_c": 138.2
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.271,
+     "T_term_c": 126.1
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.271,
+     "T_term_c": 123.1
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 143.8,
+     "gated": "proposed",
+     "margin_k": -104.1
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 138.2,
+     "gated": "proposed",
+     "margin_k": -98.6
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 126.1,
+     "gated": "proposed",
+     "margin_k": -86.4
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 123.1,
+     "gated": "proposed",
+     "margin_k": -83.5
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 134.0,
+     "at": [
+      15.5,
+      56.5,
+      "F.Cu"
+     ],
+     "margin_k": -4.0
+    }
+   ]
+  },
+  "b55_c18": {
+   "lam": -8.6,
+   "min_gated": -8.6,
+   "min_gated_ext": -109.6,
+   "min_gated_ext_noder": -8.6,
+   "detail": {
+    "lam_block": -8.0,
+    "lam_fet_row": -8.6,
+    "block_est_c": 138.0,
+    "fet_row_est_c": 138.6,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     -2.3
+    ],
+    "R5_el": 45.9,
+    "R5_term": 40.6,
+    "U26": -2.3,
+    "U42": 0.1,
+    "C40": 2.4,
+    "C38": 6.9,
+    "gateR_el": 1.3,
+    "gateR_der": -109.6,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+    "min_gated": -8.6,
+    "min_gated_ext": -109.6,
+    "lead_sink_w": 0.8438165714185537,
+    "balance_rel_max": 9.72505834175203e-12
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.271,
+     "T_term_c": 149.3
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.271,
+     "T_term_c": 143.3
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.271,
+     "T_term_c": 129.7
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.271,
+     "T_term_c": 127.9
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 149.3,
+     "gated": "proposed",
+     "margin_k": -109.6
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 143.3,
+     "gated": "proposed",
+     "margin_k": -103.7
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 129.7,
+     "gated": "proposed",
+     "margin_k": -90.0
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 127.9,
+     "gated": "proposed",
+     "margin_k": -88.2
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 138.6,
+     "margin_k": -8.6
+    }
+   ]
+  },
+  "b55_c20": {
+   "lam": -15.2,
+   "min_gated": -15.2,
+   "min_gated_ext": -115.7,
+   "min_gated_ext_noder": -15.2,
+   "detail": {
+    "lam_block": -14.1,
+    "lam_fet_row": -15.2,
+    "block_est_c": 144.1,
+    "fet_row_est_c": 145.2,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     -3.5
+    ],
+    "R5_el": 35.9,
+    "R5_term": 29.4,
+    "U26": -3.5,
+    "U42": -1.4,
+    "C40": -3.2,
+    "C38": 1.2,
+    "gateR_el": -5.3,
+    "gateR_der": -115.7,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+    "min_gated": -15.2,
+    "min_gated_ext": -115.7,
+    "lead_sink_w": 1.1466160388982498,
+    "balance_rel_max": 7.332993113827682e-12
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.271,
+     "T_term_c": 155.4
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.271,
+     "T_term_c": 149.0
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.271,
+     "T_term_c": 133.8
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.271,
+     "T_term_c": 133.1
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 155.4,
+     "gated": "proposed",
+     "margin_k": -115.7
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 149.0,
+     "gated": "proposed",
+     "margin_k": -109.4
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 133.8,
+     "gated": "proposed",
+     "margin_k": -94.1
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 133.1,
+     "gated": "proposed",
+     "margin_k": -93.5
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 145.2,
+     "margin_k": -15.2
+    }
+   ]
+  },
+  "b55_c22": {
+   "lam": -22.4,
+   "min_gated": -22.4,
+   "min_gated_ext": -122.5,
+   "min_gated_ext_noder": -22.4,
+   "detail": {
+    "lam_block": -20.7,
+    "lam_fet_row": -22.4,
+    "block_est_c": 150.7,
+    "fet_row_est_c": 152.4,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     -4.8
+    ],
+    "R5_el": 24.8,
+    "R5_term": 17.1,
+    "U26": -4.8,
+    "U42": -3.0,
+    "C40": -9.3,
+    "C38": -4.9,
+    "gateR_el": -12.5,
+    "gateR_der": -122.5,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+    "min_gated": -22.4,
+    "min_gated_ext": -122.5,
+    "lead_sink_w": 1.4812891345337051,
+    "balance_rel_max": 7.242861140581102e-12
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.271,
+     "T_term_c": 162.2
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.271,
+     "T_term_c": 155.4
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.271,
+     "T_term_c": 139.0
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.271,
+     "T_term_c": 138.2
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 162.2,
+     "gated": "proposed",
+     "margin_k": -122.5
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 155.4,
+     "gated": "proposed",
+     "margin_k": -115.7
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 139.0,
+     "gated": "proposed",
+     "margin_k": -99.3
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 138.2,
+     "gated": "proposed",
+     "margin_k": -98.6
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 152.4,
+     "margin_k": -22.4
+    }
+   ]
+  },
+  "b55_c24": {
+   "lam": -30.4,
+   "min_gated": -30.4,
+   "min_gated_ext": -129.9,
+   "min_gated_ext_noder": -30.4,
+   "detail": {
+    "lam_block": -28.1,
+    "lam_fet_row": -30.4,
+    "block_est_c": 158.1,
+    "fet_row_est_c": 160.4,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     -6.2
+    ],
+    "R5_el": 12.7,
+    "R5_term": 3.5,
+    "U26": -6.2,
+    "U42": -4.7,
+    "C40": -16.0,
+    "C38": -11.7,
+    "gateR_el": -20.3,
+    "gateR_der": -129.9,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+    "min_gated": -30.4,
+    "min_gated_ext": -129.9,
+    "lead_sink_w": 1.847835858324917,
+    "balance_rel_max": 7.162541540995671e-12
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.271,
+     "T_term_c": 169.6
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.271,
+     "T_term_c": 162.3
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.271,
+     "T_term_c": 145.4
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.271,
+     "T_term_c": 143.1
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 169.6,
+     "gated": "proposed",
+     "margin_k": -129.9
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 162.3,
+     "gated": "proposed",
+     "margin_k": -122.6
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 145.4,
+     "gated": "proposed",
+     "margin_k": -105.8
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 143.1,
+     "gated": "proposed",
+     "margin_k": -103.5
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 160.4,
+     "margin_k": -30.4
+    }
+   ]
+  },
+  "b61_c16": {
+   "lam": -9.5,
+   "min_gated": -9.5,
+   "min_gated_ext": -108.5,
+   "min_gated_ext_noder": -9.5,
+   "detail": {
+    "lam_block": -9.5,
+    "lam_fet_row": -7.0,
+    "block_est_c": 139.5,
+    "fet_row_est_c": 137.0,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     -7.2
+    ],
+    "R5_el": 50.7,
+    "R5_term": 46.4,
+    "U26": -7.2,
+    "U42": -4.2,
+    "C40": 2.9,
+    "C38": 7.2,
+    "gateR_el": 2.9,
+    "gateR_der": -108.5,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+    "min_gated": -9.5,
+    "min_gated_ext": -108.5,
+    "lead_sink_w": 0.7763837153579234,
+    "balance_rel_max": 1.3703243542285523e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.271,
+     "T_term_c": 148.1
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.271,
+     "T_term_c": 142.9
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.271,
+     "T_term_c": 130.0
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.271,
+     "T_term_c": 127.2
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 148.1,
+     "gated": "proposed",
+     "margin_k": -108.5
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 142.9,
+     "gated": "proposed",
+     "margin_k": -103.3
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 130.0,
+     "gated": "proposed",
+     "margin_k": -90.3
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 127.2,
+     "gated": "proposed",
+     "margin_k": -87.5
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 139.5,
+     "at": [
+      15.5,
+      56.5,
+      "F.Cu"
+     ],
+     "margin_k": -9.5
+    }
+   ]
+  },
+  "b61_c18": {
+   "lam": -12.9,
+   "min_gated": -12.9,
+   "min_gated_ext": -114.0,
+   "min_gated_ext_noder": -12.9,
+   "detail": {
+    "lam_block": -12.4,
+    "lam_fet_row": -12.9,
+    "block_est_c": 142.4,
+    "fet_row_est_c": 142.9,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     -8.2
+    ],
+    "R5_el": 41.7,
+    "R5_term": 36.4,
+    "U26": -8.2,
+    "U42": -5.5,
+    "C40": -2.1,
+    "C38": 2.1,
+    "gateR_el": -3.0,
+    "gateR_der": -114.0,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+    "min_gated": -12.9,
+    "min_gated_ext": -114.0,
+    "lead_sink_w": 1.047309554681863,
+    "balance_rel_max": 1.0807871902675245e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.271,
+     "T_term_c": 153.6
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.271,
+     "T_term_c": 148.0
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.271,
+     "T_term_c": 133.6
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.271,
+     "T_term_c": 131.9
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 153.6,
+     "gated": "proposed",
+     "margin_k": -114.0
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 148.0,
+     "gated": "proposed",
+     "margin_k": -108.4
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 133.6,
+     "gated": "proposed",
+     "margin_k": -94.0
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 131.9,
+     "gated": "proposed",
+     "margin_k": -92.2
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 142.9,
+     "margin_k": -12.9
+    }
+   ]
+  },
+  "b61_c20": {
+   "lam": -19.4,
+   "min_gated": -19.4,
+   "min_gated_ext": -120.1,
+   "min_gated_ext_noder": -19.4,
+   "detail": {
+    "lam_block": -18.5,
+    "lam_fet_row": -19.4,
+    "block_est_c": 148.5,
+    "fet_row_est_c": 149.4,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     -9.4
+    ],
+    "R5_el": 31.7,
+    "R5_term": 25.2,
+    "U26": -9.4,
+    "U42": -6.9,
+    "C40": -7.7,
+    "C38": -3.5,
+    "gateR_el": -9.5,
+    "gateR_der": -120.1,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+    "min_gated": -19.4,
+    "min_gated_ext": -120.1,
+    "lead_sink_w": 1.350109022161559,
+    "balance_rel_max": 8.158994588559847e-12
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.271,
+     "T_term_c": 159.8
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.271,
+     "T_term_c": 153.8
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.271,
+     "T_term_c": 137.7
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.271,
+     "T_term_c": 137.2
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 159.8,
+     "gated": "proposed",
+     "margin_k": -120.1
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 153.8,
+     "gated": "proposed",
+     "margin_k": -114.1
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 137.7,
+     "gated": "proposed",
+     "margin_k": -98.0
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 137.2,
+     "gated": "proposed",
+     "margin_k": -97.5
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 149.4,
+     "margin_k": -19.4
+    }
+   ]
+  },
+  "b61_c22": {
+   "lam": -26.7,
+   "min_gated": -26.7,
+   "min_gated_ext": -126.9,
+   "min_gated_ext_noder": -26.7,
+   "detail": {
+    "lam_block": -25.1,
+    "lam_fet_row": -26.7,
+    "block_est_c": 155.1,
+    "fet_row_est_c": 156.7,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     -10.7
+    ],
+    "R5_el": 20.6,
+    "R5_term": 12.8,
+    "U26": -10.7,
+    "U42": -8.5,
+    "C40": -13.8,
+    "C38": -9.7,
+    "gateR_el": -16.7,
+    "gateR_der": -126.9,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+    "min_gated": -26.7,
+    "min_gated_ext": -126.9,
+    "lead_sink_w": 1.6847821177970144,
+    "balance_rel_max": 5.764736731356986e-12
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.271,
+     "T_term_c": 166.5
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.271,
+     "T_term_c": 160.1
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.271,
+     "T_term_c": 143.0
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.271,
+     "T_term_c": 142.2
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 166.5,
+     "gated": "proposed",
+     "margin_k": -126.9
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 160.1,
+     "gated": "proposed",
+     "margin_k": -120.4
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 143.0,
+     "gated": "proposed",
+     "margin_k": -103.3
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 142.2,
+     "gated": "proposed",
+     "margin_k": -102.5
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 156.7,
+     "margin_k": -26.7
+    }
+   ]
+  },
+  "b61_c24": {
+   "lam": -34.6,
+   "min_gated": -34.6,
+   "min_gated_ext": -134.3,
+   "min_gated_ext_noder": -34.6,
+   "detail": {
+    "lam_block": -32.5,
+    "lam_fet_row": -34.6,
+    "block_est_c": 162.5,
+    "fet_row_est_c": 164.6,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     -12.1
+    ],
+    "R5_el": 8.5,
+    "R5_term": -0.8,
+    "U26": -12.1,
+    "U42": -10.2,
+    "C40": -20.5,
+    "C38": -16.4,
+    "gateR_el": -24.6,
+    "gateR_der": -134.3,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+    "min_gated": -34.6,
+    "min_gated_ext": -134.3,
+    "lead_sink_w": 2.0513288415882265,
+    "balance_rel_max": 3.618856279104517e-12
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.271,
+     "T_term_c": 174.0
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.271,
+     "T_term_c": 167.0
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.271,
+     "T_term_c": 149.6
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.271,
+     "T_term_c": 147.1
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 174.0,
+     "gated": "proposed",
+     "margin_k": -134.3
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 167.0,
+     "gated": "proposed",
+     "margin_k": -127.3
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 149.6,
+     "gated": "proposed",
+     "margin_k": -109.9
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.271 W (20 % margin)",
+     "limit_c": 39.7,
+     "est_c": 147.1,
+     "gated": "proposed",
+     "margin_k": -107.4
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 164.6,
+     "margin_k": -34.6
+    }
+   ]
+  },
+  "b55_c16_dsq": {
+   "lam": 18.6,
+   "min_gated": 16.0,
+   "min_gated_ext": -19.3,
+   "min_gated_ext_noder": 13.7,
+   "detail": {
+    "lam_block": 19.9,
+    "lam_fet_row": 18.6,
+    "block_est_c": 110.1,
+    "fet_row_est_c": 111.4,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     16.0
+    ],
+    "R5_el": 61.5,
+    "R5_term": 57.4,
+    "U26": 16.0,
+    "U42": 29.5,
+    "C40": 13.7,
+    "C38": 16.9,
+    "gateR_el": 36.0,
+    "gateR_der": -19.3,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+    "min_gated": 16.0,
+    "min_gated_ext": -19.3,
+    "lead_sink_w": 0.2862738953740138,
+    "balance_rel_max": 3.0277599298935255e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.137,
+     "T_term_c": 116.0
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.137,
+     "T_term_c": 111.5
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.137,
+     "T_term_c": 105.4
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.137,
+     "T_term_c": 105.0
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 116.0,
+     "gated": "proposed",
+     "margin_k": -19.3
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 111.5,
+     "gated": "proposed",
+     "margin_k": -14.8
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 105.4,
+     "gated": "proposed",
+     "margin_k": -8.7
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 105.0,
+     "gated": "proposed",
+     "margin_k": -8.3
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 96.3,
+     "gated": "proposed",
+     "margin_k": 13.7
+    }
+   ]
+  },
+  "b55_c18_dsq": {
+   "lam": 12.7,
+   "min_gated": 12.7,
+   "min_gated_ext": -24.8,
+   "min_gated_ext_noder": 8.7,
+   "detail": {
+    "lam_block": 14.9,
+    "lam_fet_row": 12.7,
+    "block_est_c": 115.1,
+    "fet_row_est_c": 117.3,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     15.0
+    ],
+    "R5_el": 52.5,
+    "R5_term": 47.4,
+    "U26": 15.0,
+    "U42": 28.2,
+    "C40": 8.7,
+    "C38": 11.9,
+    "gateR_el": 30.2,
+    "gateR_der": -24.8,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+    "min_gated": 12.7,
+    "min_gated_ext": -24.8,
+    "lead_sink_w": 0.5571997346979534,
+    "balance_rel_max": 2.5080596373599817e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.137,
+     "T_term_c": 121.5
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.137,
+     "T_term_c": 116.6
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.137,
+     "T_term_c": 110.1
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.137,
+     "T_term_c": 108.6
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 121.5,
+     "gated": "proposed",
+     "margin_k": -24.8
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 116.6,
+     "gated": "proposed",
+     "margin_k": -19.9
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 110.1,
+     "gated": "proposed",
+     "margin_k": -13.4
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 108.6,
+     "gated": "proposed",
+     "margin_k": -11.9
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 101.3,
+     "gated": "proposed",
+     "margin_k": 8.7
+    }
+   ]
+  },
+  "b55_c20_dsq": {
+   "lam": 6.2,
+   "min_gated": 6.2,
+   "min_gated_ext": -30.9,
+   "min_gated_ext_noder": 3.2,
+   "detail": {
+    "lam_block": 7.6,
+    "lam_fet_row": 6.2,
+    "block_est_c": 122.4,
+    "fet_row_est_c": 123.8,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     13.8
+    ],
+    "R5_el": 42.5,
+    "R5_term": 36.2,
+    "U26": 13.8,
+    "U42": 26.8,
+    "C40": 3.2,
+    "C38": 6.3,
+    "gateR_el": 23.6,
+    "gateR_der": -30.9,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+    "min_gated": 6.2,
+    "min_gated_ext": -30.9,
+    "lead_sink_w": 0.8599992021776495,
+    "balance_rel_max": 2.047968301935931e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.137,
+     "T_term_c": 127.6
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.137,
+     "T_term_c": 122.3
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.137,
+     "T_term_c": 115.8
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.137,
+     "T_term_c": 113.3
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 127.6,
+     "gated": "proposed",
+     "margin_k": -30.9
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 122.3,
+     "gated": "proposed",
+     "margin_k": -25.6
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 115.8,
+     "gated": "proposed",
+     "margin_k": -19.1
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 113.3,
+     "gated": "proposed",
+     "margin_k": -16.6
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 106.8,
+     "gated": "proposed",
+     "margin_k": 3.2
+    }
+   ]
+  },
+  "b55_c22_dsq": {
+   "lam": -2.3,
+   "min_gated": -2.3,
+   "min_gated_ext": -37.7,
+   "min_gated_ext_noder": -3.0,
+   "detail": {
+    "lam_block": -2.3,
+    "lam_fet_row": -1.1,
+    "block_est_c": 132.3,
+    "fet_row_est_c": 131.1,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     12.5
+    ],
+    "R5_el": 31.4,
+    "R5_term": 23.8,
+    "U26": 12.5,
+    "U42": 25.2,
+    "C40": -3.0,
+    "C38": 0.1,
+    "gateR_el": 16.4,
+    "gateR_der": -37.7,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+    "min_gated": -2.3,
+    "min_gated_ext": -37.7,
+    "lead_sink_w": 1.1946722978131048,
+    "balance_rel_max": 1.644165360295623e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.137,
+     "T_term_c": 134.4
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.137,
+     "T_term_c": 128.7
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.137,
+     "T_term_c": 122.2
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.137,
+     "T_term_c": 118.1
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 134.4,
+     "gated": "proposed",
+     "margin_k": -37.7
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 128.7,
+     "gated": "proposed",
+     "margin_k": -32.0
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 122.2,
+     "gated": "proposed",
+     "margin_k": -25.5
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 118.1,
+     "gated": "proposed",
+     "margin_k": -21.4
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 113.0,
+     "gated": "proposed",
+     "margin_k": -3.0
+    }
+   ]
+  },
+  "b55_c24_dsq": {
+   "lam": -13.2,
+   "min_gated": -13.2,
+   "min_gated_ext": -45.1,
+   "min_gated_ext_noder": -13.2,
+   "detail": {
+    "lam_block": -13.2,
+    "lam_fet_row": -7.9,
+    "block_est_c": 143.2,
+    "fet_row_est_c": 137.9,
+    "worst_part": [
+     "R5: terminal derating at 0.635 W (20 % margin)",
+     10.3
+    ],
+    "R5_el": 19.3,
+    "R5_term": 10.3,
+    "U26": 11.1,
+    "U42": 23.4,
+    "C40": -9.7,
+    "C38": -6.7,
+    "gateR_el": 8.5,
+    "gateR_der": -45.1,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+    "min_gated": -13.2,
+    "min_gated_ext": -45.1,
+    "lead_sink_w": 1.5612190216043167,
+    "balance_rel_max": 1.2915609731292956e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.137,
+     "T_term_c": 141.8
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.137,
+     "T_term_c": 135.6
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.137,
+     "T_term_c": 129.1
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.137,
+     "T_term_c": 123.2
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 141.8,
+     "gated": "proposed",
+     "margin_k": -45.1
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 135.6,
+     "gated": "proposed",
+     "margin_k": -38.9
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 129.1,
+     "gated": "proposed",
+     "margin_k": -32.4
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 123.2,
+     "gated": "proposed",
+     "margin_k": -26.5
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 143.2,
+     "at": [
+      39.5,
+      15.5,
+      "F.Cu"
+     ],
+     "margin_k": -13.2
+    }
+   ]
+  },
+  "b61_c16_dsq": {
+   "lam": 14.3,
+   "min_gated": 10.1,
+   "min_gated_ext": -23.7,
+   "min_gated_ext_noder": 9.2,
+   "detail": {
+    "lam_block": 15.5,
+    "lam_fet_row": 14.3,
+    "block_est_c": 114.5,
+    "fet_row_est_c": 115.7,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     10.1
+    ],
+    "R5_el": 57.2,
+    "R5_term": 53.1,
+    "U26": 10.1,
+    "U42": 24.0,
+    "C40": 9.2,
+    "C38": 12.2,
+    "gateR_el": 31.7,
+    "gateR_der": -23.7,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+    "min_gated": 10.1,
+    "min_gated_ext": -23.7,
+    "lead_sink_w": 0.48976687863732304,
+    "balance_rel_max": 3.1693873263856245e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.137,
+     "T_term_c": 120.4
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.137,
+     "T_term_c": 116.2
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.137,
+     "T_term_c": 109.4
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.137,
+     "T_term_c": 108.9
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 120.4,
+     "gated": "proposed",
+     "margin_k": -23.7
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 116.2,
+     "gated": "proposed",
+     "margin_k": -19.5
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 109.4,
+     "gated": "proposed",
+     "margin_k": -12.7
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 108.9,
+     "gated": "proposed",
+     "margin_k": -12.2
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 100.8,
+     "gated": "proposed",
+     "margin_k": 9.2
+    }
+   ]
+  },
+  "b61_c18_dsq": {
+   "lam": 8.5,
+   "min_gated": 8.5,
+   "min_gated_ext": -29.2,
+   "min_gated_ext_noder": 4.2,
+   "detail": {
+    "lam_block": 10.4,
+    "lam_fet_row": 8.5,
+    "block_est_c": 119.6,
+    "fet_row_est_c": 121.5,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     9.0
+    ],
+    "R5_el": 48.3,
+    "R5_term": 43.1,
+    "U26": 9.0,
+    "U42": 22.7,
+    "C40": 4.2,
+    "C38": 7.2,
+    "gateR_el": 25.9,
+    "gateR_der": -29.2,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+    "min_gated": 8.5,
+    "min_gated_ext": -29.2,
+    "lead_sink_w": 0.7606927179612626,
+    "balance_rel_max": 2.6340709795350342e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.137,
+     "T_term_c": 125.9
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.137,
+     "T_term_c": 121.3
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.137,
+     "T_term_c": 114.2
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.137,
+     "T_term_c": 112.6
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 125.9,
+     "gated": "proposed",
+     "margin_k": -29.2
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 121.3,
+     "gated": "proposed",
+     "margin_k": -24.6
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 114.2,
+     "gated": "proposed",
+     "margin_k": -17.5
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 112.6,
+     "gated": "proposed",
+     "margin_k": -15.9
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 105.8,
+     "gated": "proposed",
+     "margin_k": 4.2
+    }
+   ]
+  },
+  "b61_c20_dsq": {
+   "lam": 1.9,
+   "min_gated": 1.9,
+   "min_gated_ext": -35.3,
+   "min_gated_ext_noder": -1.3,
+   "detail": {
+    "lam_block": 3.4,
+    "lam_fet_row": 1.9,
+    "block_est_c": 126.6,
+    "fet_row_est_c": 128.1,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     7.9
+    ],
+    "R5_el": 38.2,
+    "R5_term": 31.9,
+    "U26": 7.9,
+    "U42": 21.3,
+    "C40": -1.3,
+    "C38": 1.6,
+    "gateR_el": 19.4,
+    "gateR_der": -35.3,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+    "min_gated": 1.9,
+    "min_gated_ext": -35.3,
+    "lead_sink_w": 1.0634921854409587,
+    "balance_rel_max": 2.160152413750646e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.137,
+     "T_term_c": 132.0
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.137,
+     "T_term_c": 127.0
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.137,
+     "T_term_c": 120.0
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.137,
+     "T_term_c": 117.3
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 132.0,
+     "gated": "proposed",
+     "margin_k": -35.3
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 127.0,
+     "gated": "proposed",
+     "margin_k": -30.4
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 120.0,
+     "gated": "proposed",
+     "margin_k": -23.3
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 117.3,
+     "gated": "proposed",
+     "margin_k": -20.6
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 111.3,
+     "gated": "proposed",
+     "margin_k": -1.3
+    }
+   ]
+  },
+  "b61_c22_dsq": {
+   "lam": -6.6,
+   "min_gated": -6.6,
+   "min_gated_ext": -42.1,
+   "min_gated_ext_noder": -7.5,
+   "detail": {
+    "lam_block": -6.6,
+    "lam_fet_row": -5.3,
+    "block_est_c": 136.6,
+    "fet_row_est_c": 135.3,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     6.6
+    ],
+    "R5_el": 27.2,
+    "R5_term": 19.5,
+    "U26": 6.6,
+    "U42": 19.7,
+    "C40": -7.5,
+    "C38": -4.6,
+    "gateR_el": 12.2,
+    "gateR_der": -42.1,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+    "min_gated": -6.6,
+    "min_gated_ext": -42.1,
+    "lead_sink_w": 1.398165281076414,
+    "balance_rel_max": 1.744219549908635e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.137,
+     "T_term_c": 138.8
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.137,
+     "T_term_c": 133.4
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.137,
+     "T_term_c": 126.4
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.137,
+     "T_term_c": 122.0
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 138.8,
+     "gated": "proposed",
+     "margin_k": -42.1
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 133.4,
+     "gated": "proposed",
+     "margin_k": -36.7
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 126.4,
+     "gated": "proposed",
+     "margin_k": -29.7
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 122.0,
+     "gated": "proposed",
+     "margin_k": -25.3
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* p.35)",
+     "limit_c": 110.0,
+     "est_c": 117.5,
+     "gated": "proposed",
+     "margin_k": -7.5
+    }
+   ]
+  },
+  "b61_c24_dsq": {
+   "lam": -17.5,
+   "min_gated": -17.5,
+   "min_gated_ext": -49.5,
+   "min_gated_ext_noder": -17.5,
+   "detail": {
+    "lam_block": -17.5,
+    "lam_fet_row": -12.3,
+    "block_est_c": 147.5,
+    "fet_row_est_c": 142.3,
+    "worst_part": [
+     "U26: TJ max (TI SBVS204G p.4)",
+     5.1
+    ],
+    "R5_el": 15.0,
+    "R5_term": 6.0,
+    "U26": 5.1,
+    "U42": 17.9,
+    "C40": -14.2,
+    "C38": -11.4,
+    "gateR_el": 4.3,
+    "gateR_der": -49.5,
+    "gateR_der_item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+    "min_gated": -17.5,
+    "min_gated_ext": -49.5,
+    "lead_sink_w": 1.7647120048676261,
+    "balance_rel_max": 1.3810179434950793e-11
+   },
+   "gateR_on_terminal": [
+    {
+     "ref": "R12",
+     "P_W": 0.137,
+     "T_term_c": 146.2
+    },
+    {
+     "ref": "R10",
+     "P_W": 0.137,
+     "T_term_c": 140.3
+    },
+    {
+     "ref": "R20",
+     "P_W": 0.137,
+     "T_term_c": 133.1
+    },
+    {
+     "ref": "R18",
+     "P_W": 0.137,
+     "T_term_c": 127.1
+    }
+   ],
+   "worst_rows": [
+    {
+     "item": "R12: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 146.2,
+     "gated": "proposed",
+     "margin_k": -49.5
+    },
+    {
+     "item": "R10: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 140.3,
+     "gated": "proposed",
+     "margin_k": -43.6
+    },
+    {
+     "item": "R20: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 133.1,
+     "gated": "proposed",
+     "margin_k": -36.4
+    },
+    {
+     "item": "R18: 1206 terminal derating at 0.137 W (20 % margin)",
+     "limit_c": 96.7,
+     "est_c": 127.1,
+     "gated": "proposed",
+     "margin_k": -30.4
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 147.5,
+     "at": [
+      39.5,
+      15.5,
+      "F.Cu"
+     ],
+     "margin_k": -17.5
+    }
+   ]
+  }
+ },
+ "gateR_package_at_ceiling": {
+  "b55": {
+   "ceiling_A": 21.02,
+   "ref": "R12",
+   "P_W": 0.14,
+   "T_term_c": 131.6,
+   "margin_k": {
+    "1206 (as fitted)": -36.1,
+    "2 x 1206 in parallel": -6.3,
+    "1210": -6.3,
+    "2010": 3.6,
+    "2512": 8.5
+   }
+  },
+  "b61": {
+   "ceiling_A": 19.51,
+   "ref": "R12",
+   "P_W": 0.14,
+   "T_term_c": 131.1,
+   "margin_k": {
+    "1206 (as fitted)": -35.6,
+    "2 x 1206 in parallel": -5.8,
+    "1210": -5.8,
+    "2010": 4.1,
+    "2512": 9.0
+   }
+  }
+ }
+}

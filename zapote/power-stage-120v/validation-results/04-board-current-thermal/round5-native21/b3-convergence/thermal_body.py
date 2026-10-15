@@ -113,6 +113,63 @@ SPECS = {
 }
 
 
+# --------------------------------------------------------------------------------------------------------------
+# FET drain-lead path to the heatsink (thermal-refine 2026-10-15). The TO-247 FETs stand on the board with the tab
+# clamped to the sink; pin 2 (drain) is part of the tab lead frame, so it ties the board's drain pad to the tab at the
+# case temperature. Pins 1 / 3 reach the die only through bond wires and are left out (stage 15b lead_bias.py).
+# Geometry: Infineon IPW65R018CFD7 Rev.2.0 p.12, PG-TO247-3 drawing Z8B00003327 rev 06. The board seats on the lead
+# shoulders (b2 >= 2.57 mm against the 1.5 mm drill, m11 RECOMMENDATION sec.1), so the exposed drain lead is the
+# shoulder: width b2, thickness c, length L1 (body bottom to the seat).
+# --------------------------------------------------------------------------------------------------------------
+TO247_DRAIN_LEAD = dict(
+    b2_mm=(2.57, 3.43), c_mm=(0.38, 0.89), l1_mm=(3.85, 4.50),       # drawing min / max
+    l_int_mm=(0.0, 7.91),   # in-body lead frame, body bottom to the exposed drain metal: 0 .. D - D2 - D1 (21.50 - 0.51 - 13.08)
+    k_w_mk=(262.0, 390.0),  # ASSUMED lead-frame copper class: C19400 (262) .. pure Cu (390, thermal.py K_CU); not on the datasheet
+    g_joint_w_k=(1.0, 3.0), # DERIVED solder joint (SAC k 58): shoulder seat 1.9 mm^2 / 0.05 mm + barrel fill 5.3 mm^2 / 0.3 mm
+    cite="Infineon IPW65R018CFD7 Rev.2.0 p.12 (PG-TO247-3, Z8B00003327 rev 06): b2 2.57-3.43, c 0.38-0.89, L1 3.85-4.50, "
+         "D 20.70-21.50, D1 13.08-17.65, D2 0.51-1.35 mm; R_thJC 0.28 K/W p.4")
+
+
+def drain_lead_conductance(b2_mm=3.0, c_mm=0.635, l1_mm=4.175, l_int_mm=2.4, k_w_mk=300.0, g_joint_w_k=3.0) -> float:
+    """Tab-to-pad conductance [W/K] of one drain lead: shoulder (L1) + in-body frame (l_int) in series, same section
+    b2 x c, plus the solder joint. Defaults = the central estimate (drawing mid values; l_int half of the nominal
+    D - D2 - D1 = 4.8 mm, crediting the wider in-body frame; k mid-class)."""
+    a = b2_mm * c_mm * 1e-6
+    return 1.0 / ((l1_mm + l_int_mm) * 1e-3 / (k_w_mk * a) + 1.0 / g_joint_w_k)
+
+
+class LeadLink:
+    """A fixed-temperature node (FET tab at the case temperature, t_rise over the model ambient) tied to one pad's
+    copper through g [W/K]: flux into the pad cells = g (t_rise - w.T) w, split over the pad's copper on every layer
+    by overlap area (the same convention as NetPart pad groups)."""
+
+    def __init__(self, ref, pad, g, t_rise):
+        self.ref, self.pad, self.g, self.t_rise = ref, pad, g, t_rise
+        self.groups = []         # (flat_ids, weights(sum 1), g_share_W_per_K, tag)
+        self.shares = []         # pad-copper area share of each group (sums to 1)
+
+
+def build_lead_links(board_obj, leads, nx, ny, xmin, ymin, pitch, i0, j0):
+    """leads: {ref: (pad_number, g_W_per_K, t_rise_K)} -> [LeadLink]."""
+    nxy = nx * ny
+    out = []
+    for ref, (pad, g, t_rise) in sorted(leads.items()):
+        ents = []
+        for layer, poly in board_obj.pads_of(ref)[pad]:
+            ii, jj, a = pad_overlap(poly, xmin, ymin, pitch, i0, j0, nx, ny)
+            if a.size:
+                ents.append((layer, CU_INDEX[layer], ii, jj, a))
+        if not ents:
+            raise ValueError(f"{ref}.{pad}: no pad overlap on this mesh")
+        tot = sum(e[4].sum() for e in ents)
+        link = LeadLink(ref, pad, g, t_rise)
+        for layer, z, ii, jj, a in ents:
+            link.groups.append((z * nxy + ii * ny + jj, a / a.sum(), g * a.sum() / tot, f"lead{pad}.{layer}"))
+            link.shares.append(a.sum() / tot)
+        out.append(link)
+    return out
+
+
 def spec_for(ref: str, mpn: str, fp: str) -> str:
     if mpn.startswith("R24C2T25"):
         return "recom"
@@ -415,9 +472,10 @@ def build_network_parts(board_obj, heat_json, mode, nz, nx, ny, xmin, ymin, pitc
     return parts, omitted
 
 
-def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=None, rtol=1e-10, label=""):
+def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=None, rtol=1e-10, label="", leads=()):
     """Solve for rises. `heat` (nz,nx,ny) W injected into cells (point-source part heat is already in it).
     dirichlet: None or (T_bc array (nz,nx,ny)) - the outer ring of cells (all sheets) is held at T_bc.
+    leads: LeadLink fixed-temperature ties (FET drain leads to the sink); their heat to the sink is lead_sink_w.
     Returns rise (nz,nx,ny), rise_J (len(parts)), receipt."""
     nz, nx, ny = k.shape
     nxy = nx * ny
@@ -445,6 +503,18 @@ def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=N
             c2.extend((np.full(len(gids), J), gids))
             v2.extend((-g * w, -g * w))
             diagJ[s] += g
+    lead_groups = []
+    for lk in leads:
+        for gids, w, g, _ in lk.groups:
+            onb = board.ravel()[gids % nxy]
+            if not onb.all():
+                gids, w = gids[onb], w[onb] / w[onb].sum()
+            # flux into cells = g (T_s - w.T) w   =>   M_cc' += g w w',  rhs_c += g T_s w
+            r2.append(np.repeat(gids, len(gids)))
+            c2.append(np.tile(gids, len(gids)))
+            v2.append((g * np.outer(w, w)).ravel())
+            np.add.at(rhs, gids, g * lk.t_rise * w)
+            lead_groups.append((gids, w, g, lk.t_rise))
     diag_full = np.concatenate([diag, diagJ])
     # outer-product blocks add to the cell diagonal: pull them out of the COO so Jacobi sees the true diagonal
     diag_extra = np.zeros(N + nJ)
@@ -507,14 +577,16 @@ def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=N
         inner[0, :] = inner[-1, :] = inner[:, 0] = inner[:, -1] = False
         conv_w = float(conv * (rise[0][inner].sum() + rise[-1][inner].sum()))
     air_w = float(sum(p.g_air * riseJ[s] for s, p in enumerate(parts)))
+    lead_w = float(sum(g * (float((x[gids] * w).sum()) - ts) for gids, w, g, ts in lead_groups))   # board -> sink
     if dirichlet is None:
         src = float(heat[:, board].sum() + sum(p.watts for p in parts))
     else:
         inner = board.copy()
         inner[0, :] = inner[-1, :] = inner[:, 0] = inner[:, -1] = False
         src = float(heat[:, inner].sum() + sum(p.watts for p in parts))
-    rec = {"source_w": src, "convection_w": conv_w, "body_air_w": air_w, "boundary_flux_w": bc_flux,
-           "balance_w": src - conv_w - air_w - bc_flux, "balance_rel": (src - conv_w - air_w - bc_flux) / max(abs(src), 1e-30),
+    out_w = conv_w + air_w + bc_flux + lead_w
+    rec = {"source_w": src, "convection_w": conv_w, "body_air_w": air_w, "boundary_flux_w": bc_flux, "lead_sink_w": lead_w,
+           "balance_w": src - out_w, "balance_rel": (src - out_w) / max(abs(src), 1e-30),
            "cg_iterations": iters[0], "relative_residual": resid}
     return rise, riseJ, rec
 

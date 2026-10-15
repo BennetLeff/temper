@@ -1,0 +1,23 @@
+{
+ "board": "s35",
+ "pin": "c36251e4158e7c75af21ae9c3fdf74b7edd66404",
+ "pin_ok": true,
+ "geometry_sha_ok": true,
+ "symlink": true,
+ "repo_head_now": "f8cca7d21ee1d65dd8c149b2cd053fa827959fd2",
+ "patches": {
+  "lead-path.diff": true,
+  "heat-c28-60khz.diff": true,
+  "gate-proposed-rows.diff": true,
+  "run-basis-lead.diff": true
+ },
+ "git_apply_check_all": true,
+ "git_apply_check_repo_head_now": true,
+ "part_bodies_equal_pinned": true,
+ "part_bodies_vs_pick_and_place": {
+  "parts": 45,
+  "problems": []
+ },
+ "fet_case_vs_sink_model_max_K": 0.0,
+ "pass": true
+}

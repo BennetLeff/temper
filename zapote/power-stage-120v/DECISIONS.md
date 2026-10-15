@@ -1692,3 +1692,65 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       (79 / 93 against 80 / 94).
     - **Interface:** a stage-38 power board needs the controller's J13 merge before it is powered from an un-updated
       controller, where J4.1 is an open pin, so the failure is benign. Owner relay with addendum 2.
+
+51. **B3 ratings model corrected: FET lead path, 60 kHz heat on the deck gate charge, film caps and gate resistors
+    gated (2026-10-15; model and gate, no board change).** Study:
+    `validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/`. The integration session
+    applied its patches and reproduced its end-to-end result on s38.
+    - **Corrections (each with a control):**
+      - **FET drain-lead path to the sink** (`thermal_body.py`, `body_runs.py`, `fet_case.py`):
+        - lead conductance 0.0845 W/K central (0.020–0.280) from the IPW65R018CFD7 p.12 drawing;
+        - sink on the S8 baseline (R_SA 0.29, 13 CFM, 50 °C inlet) and the firmware fan law: 88.6 °C, case
+          94.6 / 98.0 °C;
+        - G = 0 reproduces the old model exactly. 1.2 / 2.4 W leaves through the leads.
+      - **c28 heat file at the 60 kHz window top, on the as-built deck gate charge** (382.6 nC worst edge, DECISIONS 49)
+        (`make_heat_sources.py`):
+        - U41 / U42 0.953 W each (checked against the RECOM Rev. 1-2024 p.2 curves);
+        - U26 0.852, PS2 1.262 W;
+        - driver and gate-network rows on the 2EDR8259X / 8.2 Ω / PMEG + 1 Ω topology.
+        The 740 nC allocation stays the bias-sizing allowance. It is not a physical charge: on it the ceiling would be
+        10.4 A. The bench gate-charge measurement confirms the deck value.
+      - **Gated rows added** (`b3_ratings_gate.py`):
+        - film caps C38–C41 at Top,max 110 °C (TDK B3265* June 2026 p.2 / p.35; body including self-heating);
+        - gate resistors: element 155 °C, and the terminal-derating line 155 − 85·P / (0.8 · 0.25 W) (FH RS-06L p.2;
+          1206 1/4 W at 70 °C → 0 at 155 °C).
+        The bank caps stay advisory.
+    - **s38 on the corrected model (bay 55 °C):**
+
+      | | c22 | c28 |
+      |---|---|---|
+      | Laminate MOT 130 °C, 1 mm block | −2.5 K | −38.0 K |
+      | Laminate, FET row | −1.6 K | −27.9 K |
+
+      - **Rated parts −63.9 K: the 1206 gate resistor R12 fails its derating line** (−39.7 K at c22), and fails at every
+        ceiling and basis. At ~21 A only a 2010 (+3.6 K) or a 2512 (+8.5 K) passes; at c28 none does (the terminal sits at
+        159 °C from board heat).
+      - C40 −3.1 K at c22. U42 Tj +24.5 K.
+      - Card re-scored: `b3_laminate_margin_K` −56.4 → −38.0, `b3_rated_part_margin_K` −38.9 → −63.9 (more rows gated).
+        This is a basis change, not a board change: earlier cards keep their old-basis values.
+    - **Still-air ceiling on the laminate:** 21.5 A at bay 55 °C, 20.4 A at 61 °C. With the film-cap and gate-R element
+      rows: 21.0 / 19.5 A. The gate-R derating row has no ceiling with 1206 parts.
+      The release condition stays as item 46 (still-air ceiling ≤ 18 A requested) until candidates 36 and 39 land.
+    - **Targets** (tank-copper Joule factor f near R5.4 / the FET row, for the laminate and film rows):
+
+      | | f needed | with a 0.5 mΩ shunt |
+      |---|---|---|
+      | c22 | 0.895 | 0.975 |
+      | c28 | 0.369 | 0.551 |
+
+      The gate-resistor derating needs a package change (candidate 39: 2512, or moved out of the block). No copper
+      factor fixes it.
+    - **Laminate UL scope (S12): open on public sources.**
+      - UL Product iQ needs a login, so the reading stopped there. JLC's public UL page lists E479892 JLC-4 (KB-6164,
+        KB-6165, S1141, S1000H, S1000-2M) without copper limits.
+      - Kingboard's QMTS2 rows give max internal copper 35 µm (KB-6164) and 54 µm (KB-6165), against our 61 µm. The
+        KB-6164F / 6165F / 6167F rows allow 102 µm. JLC's "TG155" option links the KB-6165F datasheet.
+      - So the KB-6164 named on the order (item 41, for CTI) may be outside its UL multilayer scope with 2 oz inner
+        copper.
+      - `native-21/stackup.json` still names Nan Ya NP-155F. It is corrected once the order laminate is settled.
+      - This is an owner question to JLC: which recognised construction covers 4 L, 2 oz inner, CTI ≥ 175 V.
+    - **Process:**
+      - The c28 heat file is in the shared model key, so the next chain of every lane recomputes task 04 and B3 once.
+      - The committed legacy `b3/outputs` (reference only) are from the old heat file until then.
+      - s38's task-04 `-heat.npz` fields were copied from ps-selv after a JSON match and a 41 / 41 energy check (the
+        second occurrence; a sync tool follows).

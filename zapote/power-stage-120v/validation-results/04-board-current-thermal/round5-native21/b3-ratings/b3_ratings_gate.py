@@ -25,8 +25,14 @@ Limits (sources re-read 2026-10-15; see the audit's ratings.py for page-level qu
   RECOM R24C2T25/R junction 150 C (Rev. 1-2024 p.2; OTP 160 +/- 10 C p.8)
   TPS7A4700        junction 125 C (SBVS204G p.4, p.6)
   CSS2H-2512R      element 170 C (REV 06/17/20 p.1); terminal <= 170 - 100 * P / (0.8 * 5 W) (p.3 curve, G6 20 % rule)
-  advisory (limit known, package path assumed): TDK MKP Top,max 110 C (June 2026 p.35), B82726 125 C (p.4),
-                   1206 thick film 155 C (unverified)
+  HF film C38-C41 TDK B32652A0104K000 Top,max 110 C = TA + self-heating (B3265* June 2026 p.2, p.35, p.78) - gated
+                   (thermal-refine 2026-10-15: the limit is a datasheet maximum; the body node is reached through the
+                   assumed 50 K/W lead path with no body-to-air path, an upper bound for a cap heated from its leads)
+  1206 gate resistors R10/R12/R18/R20 FH RS-06L8R20FT (V11.0 2026-04-28 p.2) and R53/R54/R57/R58 UniRoyal
+                   1206W4F100KT5E (V.3 p.4/9, p.5/9): 1/4 W at 70 C derating to 0 W at 155 C, range -55..155 C - gated
+                   on the element (155 C) and on the derating line at the terminal with the R5 20 % power margin
+  advisory (limit known, package path assumed): bank MKP 110 C (board share only), B82726 125 C (p.4), other 1206
+                   (MPNs not re-read)
 
 Exit 0 if every gated margin >= 0, else 1. Advisory rows never fail the gate.
 """
@@ -44,6 +50,9 @@ GATED = {"recom": ("Tj abs max (RECOM Rev.1-2024 p.2)", 150.0), "rgw": ("TJ max 
          "css2h": ("element max (Bourns CSS2H p.1)", 170.0)}
 ADVISORY = {"film_radial": ("MKP Top,max (TDK June 2026 p.35)", 110.0), "film_4pin": ("MKP Top,max", 110.0),
             "choke": ("B82726 climatic upper (TDK p.4)", 125.0), "chip1206": ("1206 thick film (unverified)", 155.0)}
+GATED_REFS = {**{r: ("MKP Top,max 110 C (TDK B3265* June 2026 p.35)", 110.0, None) for r in ("C38", "C39", "C40", "C41")},
+              **{r: ("1206 element 155 C (FH RS-06L V11.0 p.2)", 155.0, 0.25) for r in ("R10", "R12", "R18", "R20")},
+              **{r: ("1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)", 155.0, 0.25) for r in ("R53", "R54", "R57", "R58")}}
 
 
 def est(v25, v05, bay):
@@ -62,7 +71,14 @@ def evaluate(r25: dict, r05: dict, bay: float):
         spec, q = p.get("spec"), p05.get(p["ref"])
         if spec is None or q is None:
             continue
-        if spec in GATED:
+        if p["ref"] in GATED_REFS:
+            basis, lim, rated_w = GATED_REFS[p["ref"]]
+            rows.append(dict(item=f"{p['ref']}: {basis}", gated=True, limit_c=lim, est_c=est(p["tj_c"], q["tj_c"], bay)))
+            if rated_w:
+                lim_t = 155.0 - 85.0 * p["watts_into_model"] / (0.8 * rated_w)
+                rows.append(dict(item=f"{p['ref']}: 1206 terminal derating at {p['watts_into_model']:.3f} W (20 % margin)",
+                                 gated=True, limit_c=lim_t, est_c=est(p["pad_max_cell_c"], q["pad_max_cell_c"], bay)))
+        elif spec in GATED:
             basis, lim = GATED[spec]
             rows.append(dict(item=f"{p['ref']}: {basis}", gated=True, limit_c=lim, est_c=est(p["tj_c"], q["tj_c"], bay)))
             if spec == "css2h":

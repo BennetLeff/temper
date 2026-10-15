@@ -1,0 +1,111 @@
+{
+ "question": "Does JLC's UL recognition (E479892) cover a 4-layer board with 2 oz (61 um finished) inner copper on KB-6164? Which JLC laminate option is in scope?",
+ "board": "s35 / s38 (same stackup.json): 4 layers, 2 oz outer, 2 oz inner (61 um finished, native-21/stackup.json), KB-6164 / KB-6064 (JLC 'TG135' option)",
+ "evidence": [
+  {
+   "source": "jlcpcb.com/help/article/ul-certification",
+   "quote": "JLCPCB's UL identification number is E479892"
+  },
+  {
+   "source": "jlcpcb.com/help/article/ul-certification (type table)",
+   "quote": "JLC-4 KB-6164 TG135 S1141 TG140 KB-6165 TG155 S1000H TG155 Shengyi S1000-2M - TG170 FR-4 Multi-layer (4-32 layers)"
+  },
+  {
+   "source": "jlcpcb.com/help/article/jlcpcb-copper-weight",
+   "quote": "Inner layer 0.5oz (default), 1oz, 2oz Availability depends on total layers and overall thickness"
+  },
+  {
+   "source": "rs.jlcpcb.com/static/file/ul-certificate.pdf p.1",
+   "quote": "File E479892, Volume 1"
+  },
+  {
+   "source": "ul-certificate.pdf p.1 (scope: JLC-1/JLC-2 only)",
+   "quote": "to type JLC-1. 3.Add CUL recognition to type JLC-1 and JLC-2."
+  },
+  {
+   "source": "jlcpcb.com/certifications (hosted file list)",
+   "quote": "kb-6164-datasheet.pdf"
+  },
+  {
+   "source": "jlcpcb.com/certifications (hosted file list)",
+   "quote": "kb-6165f-datasheet.pdf"
+  },
+  {
+   "source": "jlcpcb.com/certifications (hosted file list)",
+   "quote": "s1000-2m-tg170-datasheet.pdf"
+  },
+  {
+   "source": "jlcpcb.com/certifications (hosted file list)",
+   "quote": "ul-certificate.pdf"
+  },
+  {
+   "source": "jlcpcb.com/help/article/ul-certification (type table)",
+   "quote": "JLC-1 Nan Ya NP-140F Nan Ya NP-155F FR-4 Multi-layer (4-32 layers)"
+  },
+  {
+   "source": "rs.jlcpcb.com/static/file/nan-ya-np-155f-test-report.pdf p.1",
+   "quote": "LAMINATE (UL E98983)"
+  },
+  {
+   "source": "native-21/stackup.json status",
+   "quote": "The laminate is Nan Ya NP-155F ... JLCPCB may substitute KB or Shengyi"
+  },
+  {
+   "source": "rs.jlcpcb.com/static/file/kb-6165f-datasheet.pdf p.1",
+   "quote": "Laminate: KB-6165F"
+  },
+  {
+   "source": "kb-6165f-datasheet.pdf p.1",
+   "quote": "UL: E123995"
+  }
+ ],
+ "kingboard_QMTS2_multilayer_rows": {
+  "KB-616(X) (KB-6160, KB-6164)": {
+   "pdf_page": 7,
+   "row": "KB-616(X) KB-6160, KB-6060, FR- 0.38 17 102 35 50.8 V-0 130 - - 288 30",
+   "min_thk_mm": 0.38,
+   "max_ext_um": 102.0,
+   "max_int_um": 35.0
+  },
+  "KB-6165": {
+   "pdf_page": 6,
+   "row": "KB-6165 KB-6165 KB-6065 FR- 0.38 12 102 54 50.8 V-0 130 - - 288 60",
+   "min_thk_mm": 0.38,
+   "max_ext_um": 102.0,
+   "max_int_um": 54.0
+  },
+  "KB-6164F": {
+   "pdf_page": 6,
+   "row": "KB-6164F KB-6164F KB-6064F FR- 0.38 12 102 102 50.8 V-0 130 - - 288 60",
+   "min_thk_mm": 0.38,
+   "max_ext_um": 102.0,
+   "max_int_um": 102.0
+  },
+  "KB-6165F": {
+   "pdf_page": 6,
+   "row": "KB-6165F KB-6165F KB-6065F FR- 0.38 12 102 102 50.8 V-0 130 - - 288 60",
+   "min_thk_mm": 0.38,
+   "max_ext_um": 102.0,
+   "max_int_um": 102.0
+  },
+  "KB-6167F": {
+   "pdf_page": 6,
+   "row": "KB-6167F KB-6167F KB-6067F FR- 0.38 12 102 102 50.8 V-0 130 - - 288 60",
+   "min_thk_mm": 0.38,
+   "max_ext_um": 102.0,
+   "max_int_um": 102.0
+  }
+ },
+ "product_iq": {
+  "url": "https://productiq.ulprospector.com/en/search?q=E479892",
+  "http": 403,
+  "bytes": 293774,
+  "note": "UL Product iQ (the only public-index source for the ZPMV2 detail of E479892 type JLC-4: copper limits, MOT) needs a registered login; per the task rules the search stopped there. Shengyi's QMTS2 (S1141 / S1000H / S1000-2M) detail is likewise only in Product iQ."
+ },
+ "answer": {
+  "which_laminate": "The repo's stack (native-21/stackup.json) is designed to JLC041622-7628 and names Nan Ya NP-155F (JLC type JLC-1, Nan Ya UL E98983), with KB or Shengyi as possible JLC substitutes; the audit read KB-6164 (JLC-4). Both cases are open: NP-155F's QMTS2 multilayer row (Max Int) is not public either (Product iQ, login). Ordering the material explicitly fixes which card and row apply.",
+  "jlc_e479892_2oz_inner": "UNDETERMINED from public pages. JLC's public UL article lists type JLC-4 (FR-4 multilayer, 4-32 layers) with KB-6164 TG135, S1141, KB-6165 TG155, S1000H and S1000-2M, but gives no copper limits; the public UL letter JLC hosts (2021-08-27) covers JLC-1 / JLC-2 only. The ZPMV2 conductor limits for JLC-4 are in UL Product iQ, which needs a login (HTTP 403).",
+  "laminate_constraint": "KB-616(X) (KB-6164) multilayer Max Int 35 um and KB-6165 54 um are both below 61 um, so the s35 / s38 stack on either is outside Kingboard's own QMTS2 multilayer recognition. A board maker can still hold a ZPMV2 card beyond the laminate's ML row on its own UL 796 tests, so only JLC's E479892 JLC-4 detail (Product iQ, login) settles it for KB-6164.",
+  "in_scope_option": "KB-6164F, KB-6165F and KB-6167F are recognised to 102 um inner (QMTS2 multilayer table). JLC offers none of them by that name, but the datasheet JLC hosts for its 'TG155' option is KB-6165F (UL E123995), while its UL article names 'KB-6165 TG155'. If JLC's TG155 stock is KB-6165F, the TG155 option is the in-scope Kingboard choice (MOT still 130 C). Confirm the exact grade with JLC before a UL-marked build; S1000-2M (TG170, also in JLC-4) needs its Shengyi QMTS2 row (login)."
+ }
+}

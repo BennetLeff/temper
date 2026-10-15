@@ -1,0 +1,384 @@
+{
+ "source_file": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/frozen/s38/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3/inputs/native21-board-heat-sources-c28.json",
+ "committed_total_W": 9.97,
+ "f_Hz": 60000.0,
+ "resistances_ohm": {
+  "src": 0.95,
+  "snk": 0.39,
+  "rg": 8.2,
+  "roff": 1.0,
+  "rgi": 2.7,
+  "vf": 0.35,
+  "rd": 0.1
+ },
+ "variants": {
+  "allocation": {
+   "Q_swing_nC": 740.0,
+   "file": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/runs-s38/heat/heat-c28-corrected.json",
+   "total_W": 12.029,
+   "rows": [
+    {
+     "ref": "U1",
+     "old_W": 0.2313,
+     "new_W": 0.1758,
+     "board_fraction": 1.0,
+     "note": "2EDR8259X: Ron_SRC/SNK share of two FETs' Q x 17 V x 60 kHz (Rev.1.7 p.15) + quiescent (Table 12 p.12) [Q 740 nC]"
+    },
+    {
+     "ref": "R10",
+     "old_W": 0.0328,
+     "new_W": 0.2714,
+     "board_fraction": 1.0,
+     "note": "RS-06L8R20FT 8.2 ohm turn-on resistor: share of one FET's Q x 17 V x 60 kHz (on-path 0.95 + 8.2 + 2.7 ohm) [Q 740 nC]"
+    },
+    {
+     "ref": "R12",
+     "old_W": 0.0328,
+     "new_W": 0.2714,
+     "board_fraction": 1.0,
+     "note": "RS-06L8R20FT 8.2 ohm turn-on resistor: share of one FET's Q x 17 V x 60 kHz (on-path 0.95 + 8.2 + 2.7 ohm) [Q 740 nC]"
+    },
+    {
+     "ref": "R53",
+     "old_W": 0.0328,
+     "new_W": 0.0693,
+     "board_fraction": 1.0,
+     "note": "1206W4F100KT5E 1 ohm turn-off resistor (PMEG6030EP path): share of one FET's Q x 17 V x 60 kHz [Q 740 nC]"
+    },
+    {
+     "ref": "R54",
+     "old_W": 0.0328,
+     "new_W": 0.0693,
+     "board_fraction": 1.0,
+     "note": "1206W4F100KT5E 1 ohm turn-off resistor (PMEG6030EP path): share of one FET's Q x 17 V x 60 kHz [Q 740 nC]"
+    },
+    {
+     "ref": "U2",
+     "old_W": 0.2313,
+     "new_W": 0.1758,
+     "board_fraction": 1.0,
+     "note": "2EDR8259X: Ron_SRC/SNK share of two FETs' Q x 17 V x 60 kHz (Rev.1.7 p.15) + quiescent (Table 12 p.12) [Q 740 nC]"
+    },
+    {
+     "ref": "R18",
+     "old_W": 0.0328,
+     "new_W": 0.2714,
+     "board_fraction": 1.0,
+     "note": "RS-06L8R20FT 8.2 ohm turn-on resistor: share of one FET's Q x 17 V x 60 kHz (on-path 0.95 + 8.2 + 2.7 ohm) [Q 740 nC]"
+    },
+    {
+     "ref": "R20",
+     "old_W": 0.0328,
+     "new_W": 0.2714,
+     "board_fraction": 1.0,
+     "note": "RS-06L8R20FT 8.2 ohm turn-on resistor: share of one FET's Q x 17 V x 60 kHz (on-path 0.95 + 8.2 + 2.7 ohm) [Q 740 nC]"
+    },
+    {
+     "ref": "R57",
+     "old_W": 0.0328,
+     "new_W": 0.0693,
+     "board_fraction": 1.0,
+     "note": "1206W4F100KT5E 1 ohm turn-off resistor (PMEG6030EP path): share of one FET's Q x 17 V x 60 kHz [Q 740 nC]"
+    },
+    {
+     "ref": "R58",
+     "old_W": 0.0328,
+     "new_W": 0.0693,
+     "board_fraction": 1.0,
+     "note": "1206W4F100KT5E 1 ohm turn-off resistor (PMEG6030EP path): share of one FET's Q x 17 V x 60 kHz [Q 740 nC]"
+    },
+    {
+     "ref": "U41",
+     "old_W": 1.09,
+     "new_W": 1.3983,
+     "board_fraction": 1.0,
+     "note": "R24C2T25/R module loss at 60 kHz: 17 V x (Q f + 22.9 mA) x (1/0.45 - 1) (bias_sizing.py load, ALT-BIAS 45 % allocation) [Q 740 nC]"
+    },
+    {
+     "ref": "U42",
+     "old_W": 1.09,
+     "new_W": 1.3983,
+     "board_fraction": 1.0,
+     "note": "R24C2T25/R module loss at 60 kHz: 17 V x (Q f + 22.9 mA) x (1/0.45 - 1) (bias_sizing.py load, ALT-BIAS 45 % allocation) [Q 740 nC]"
+    },
+    {
+     "ref": "U26",
+     "old_W": 0.8725,
+     "new_W": 1.1522,
+     "board_fraction": 1.0,
+     "note": "TPS7A4700 LS span: (24 - 17 V) x (2 I_ch + 30 mA) at 60 kHz (bias_sizing.py) [Q 740 nC]"
+    },
+    {
+     "ref": "PS2",
+     "old_W": 1.419,
+     "new_W": 1.7667,
+     "board_fraction": 0.5,
+     "note": "IRM-20-24 HOT bias supply at 60 kHz (ALT-BIAS budget model), eta 0.84, board share 0.5 [Q 740 nC]"
+    }
+   ],
+   "detail": {
+    "I_ch_A": 0.0673,
+    "module_W": 1.3983444444444444,
+    "PS2_out_W": 9.27528888888889,
+    "gate_W_per_FET": 0.7548,
+    "split": {
+     "rg": 0.35953807304211866,
+     "drv": 0.08613747690001786,
+     "rgi": 0.432753126347738,
+     "roff": 0.09180280765091636,
+     "diode": 0.029768516059209285
+    },
+    "driver_quiescent_W": 0.045756,
+    "Rg_int_W_per_FET_to_sink": 0.3266420597672727
+   }
+  },
+  "datasheet": {
+   "Q_swing_nC": 374.1034482758621,
+   "file": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/runs-s38/heat/heat-c28-corrected-dsq.json",
+   "total_W": 9.749,
+   "rows": [
+    {
+     "ref": "U1",
+     "old_W": 0.2313,
+     "new_W": 0.1115,
+     "board_fraction": 1.0,
+     "note": "2EDR8259X: Ron_SRC/SNK share of two FETs' Q x 17 V x 60 kHz (Rev.1.7 p.15) + quiescent (Table 12 p.12) [Q 374 nC]"
+    },
+    {
+     "ref": "R10",
+     "old_W": 0.0328,
+     "new_W": 0.1372,
+     "board_fraction": 1.0,
+     "note": "RS-06L8R20FT 8.2 ohm turn-on resistor: share of one FET's Q x 17 V x 60 kHz (on-path 0.95 + 8.2 + 2.7 ohm) [Q 374 nC]"
+    },
+    {
+     "ref": "R12",
+     "old_W": 0.0328,
+     "new_W": 0.1372,
+     "board_fraction": 1.0,
+     "note": "RS-06L8R20FT 8.2 ohm turn-on resistor: share of one FET's Q x 17 V x 60 kHz (on-path 0.95 + 8.2 + 2.7 ohm) [Q 374 nC]"
+    },
+    {
+     "ref": "R53",
+     "old_W": 0.0328,
+     "new_W": 0.035,
+     "board_fraction": 1.0,
+     "note": "1206W4F100KT5E 1 ohm turn-off resistor (PMEG6030EP path): share of one FET's Q x 17 V x 60 kHz [Q 374 nC]"
+    },
+    {
+     "ref": "R54",
+     "old_W": 0.0328,
+     "new_W": 0.035,
+     "board_fraction": 1.0,
+     "note": "1206W4F100KT5E 1 ohm turn-off resistor (PMEG6030EP path): share of one FET's Q x 17 V x 60 kHz [Q 374 nC]"
+    },
+    {
+     "ref": "U2",
+     "old_W": 0.2313,
+     "new_W": 0.1115,
+     "board_fraction": 1.0,
+     "note": "2EDR8259X: Ron_SRC/SNK share of two FETs' Q x 17 V x 60 kHz (Rev.1.7 p.15) + quiescent (Table 12 p.12) [Q 374 nC]"
+    },
+    {
+     "ref": "R18",
+     "old_W": 0.0328,
+     "new_W": 0.1372,
+     "board_fraction": 1.0,
+     "note": "RS-06L8R20FT 8.2 ohm turn-on resistor: share of one FET's Q x 17 V x 60 kHz (on-path 0.95 + 8.2 + 2.7 ohm) [Q 374 nC]"
+    },
+    {
+     "ref": "R20",
+     "old_W": 0.0328,
+     "new_W": 0.1372,
+     "board_fraction": 1.0,
+     "note": "RS-06L8R20FT 8.2 ohm turn-on resistor: share of one FET's Q x 17 V x 60 kHz (on-path 0.95 + 8.2 + 2.7 ohm) [Q 374 nC]"
+    },
+    {
+     "ref": "R57",
+     "old_W": 0.0328,
+     "new_W": 0.035,
+     "board_fraction": 1.0,
+     "note": "1206W4F100KT5E 1 ohm turn-off resistor (PMEG6030EP path): share of one FET's Q x 17 V x 60 kHz [Q 374 nC]"
+    },
+    {
+     "ref": "R58",
+     "old_W": 0.0328,
+     "new_W": 0.035,
+     "board_fraction": 1.0,
+     "note": "1206W4F100KT5E 1 ohm turn-off resistor (PMEG6030EP path): share of one FET's Q x 17 V x 60 kHz [Q 374 nC]"
+    },
+    {
+     "ref": "U41",
+     "old_W": 1.09,
+     "new_W": 0.9422,
+     "board_fraction": 1.0,
+     "note": "R24C2T25/R module loss at 60 kHz: 17 V x (Q f + 22.9 mA) x (1/0.45 - 1) (bias_sizing.py load, ALT-BIAS 45 % allocation) [Q 374 nC]"
+    },
+    {
+     "ref": "U42",
+     "old_W": 1.09,
+     "new_W": 0.9422,
+     "board_fraction": 1.0,
+     "note": "R24C2T25/R module loss at 60 kHz: 17 V x (Q f + 22.9 mA) x (1/0.45 - 1) (bias_sizing.py load, ALT-BIAS 45 % allocation) [Q 374 nC]"
+    },
+    {
+     "ref": "U26",
+     "old_W": 0.8725,
+     "new_W": 0.8448,
+     "board_fraction": 1.0,
+     "note": "TPS7A4700 LS span: (24 - 17 V) x (2 I_ch + 30 mA) at 60 kHz (bias_sizing.py) [Q 374 nC]"
+    },
+    {
+     "ref": "PS2",
+     "old_W": 1.419,
+     "new_W": 1.2501,
+     "board_fraction": 0.5,
+     "note": "IRM-20-24 HOT bias supply at 60 kHz (ALT-BIAS budget model), eta 0.84, board share 0.5 [Q 374 nC]"
+    }
+   ],
+   "detail": {
+    "I_ch_A": 0.04534620689655172,
+    "module_W": 0.9421934099616859,
+    "PS2_out_W": 6.562775785440612,
+    "gate_W_per_FET": 0.3815855172413793,
+    "split": {
+     "rg": 0.35953807304211866,
+     "drv": 0.08613747690001786,
+     "rgi": 0.432753126347738,
+     "roff": 0.09180280765091636,
+     "diode": 0.029768516059209285
+    },
+    "driver_quiescent_W": 0.045756,
+    "Rg_int_W_per_FET_to_sink": 0.16513232555522556
+   }
+  },
+  "deck": {
+   "Q_swing_nC": 382.6,
+   "file": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/runs-s38/heat/heat-c28-corrected-deck.json",
+   "total_W": 9.802,
+   "rows": [
+    {
+     "ref": "U1",
+     "old_W": 0.2313,
+     "new_W": 0.113,
+     "board_fraction": 1.0,
+     "note": "2EDR8259X: Ron_SRC/SNK share of two FETs' Q x 17 V x 60 kHz (Rev.1.7 p.15) + quiescent (Table 12 p.12) [Q 383 nC]"
+    },
+    {
+     "ref": "R10",
+     "old_W": 0.0328,
+     "new_W": 0.1403,
+     "board_fraction": 1.0,
+     "note": "RS-06L8R20FT 8.2 ohm turn-on resistor: share of one FET's Q x 17 V x 60 kHz (on-path 0.95 + 8.2 + 2.7 ohm) [Q 383 nC]"
+    },
+    {
+     "ref": "R12",
+     "old_W": 0.0328,
+     "new_W": 0.1403,
+     "board_fraction": 1.0,
+     "note": "RS-06L8R20FT 8.2 ohm turn-on resistor: share of one FET's Q x 17 V x 60 kHz (on-path 0.95 + 8.2 + 2.7 ohm) [Q 383 nC]"
+    },
+    {
+     "ref": "R53",
+     "old_W": 0.0328,
+     "new_W": 0.0358,
+     "board_fraction": 1.0,
+     "note": "1206W4F100KT5E 1 ohm turn-off resistor (PMEG6030EP path): share of one FET's Q x 17 V x 60 kHz [Q 383 nC]"
+    },
+    {
+     "ref": "R54",
+     "old_W": 0.0328,
+     "new_W": 0.0358,
+     "board_fraction": 1.0,
+     "note": "1206W4F100KT5E 1 ohm turn-off resistor (PMEG6030EP path): share of one FET's Q x 17 V x 60 kHz [Q 383 nC]"
+    },
+    {
+     "ref": "U2",
+     "old_W": 0.2313,
+     "new_W": 0.113,
+     "board_fraction": 1.0,
+     "note": "2EDR8259X: Ron_SRC/SNK share of two FETs' Q x 17 V x 60 kHz (Rev.1.7 p.15) + quiescent (Table 12 p.12) [Q 383 nC]"
+    },
+    {
+     "ref": "R18",
+     "old_W": 0.0328,
+     "new_W": 0.1403,
+     "board_fraction": 1.0,
+     "note": "RS-06L8R20FT 8.2 ohm turn-on resistor: share of one FET's Q x 17 V x 60 kHz (on-path 0.95 + 8.2 + 2.7 ohm) [Q 383 nC]"
+    },
+    {
+     "ref": "R20",
+     "old_W": 0.0328,
+     "new_W": 0.1403,
+     "board_fraction": 1.0,
+     "note": "RS-06L8R20FT 8.2 ohm turn-on resistor: share of one FET's Q x 17 V x 60 kHz (on-path 0.95 + 8.2 + 2.7 ohm) [Q 383 nC]"
+    },
+    {
+     "ref": "R57",
+     "old_W": 0.0328,
+     "new_W": 0.0358,
+     "board_fraction": 1.0,
+     "note": "1206W4F100KT5E 1 ohm turn-off resistor (PMEG6030EP path): share of one FET's Q x 17 V x 60 kHz [Q 383 nC]"
+    },
+    {
+     "ref": "R58",
+     "old_W": 0.0328,
+     "new_W": 0.0358,
+     "board_fraction": 1.0,
+     "note": "1206W4F100KT5E 1 ohm turn-off resistor (PMEG6030EP path): share of one FET's Q x 17 V x 60 kHz [Q 383 nC]"
+    },
+    {
+     "ref": "U41",
+     "old_W": 1.09,
+     "new_W": 0.9528,
+     "board_fraction": 1.0,
+     "note": "R24C2T25/R module loss at 60 kHz: 17 V x (Q f + 22.9 mA) x (1/0.45 - 1) (bias_sizing.py load, ALT-BIAS 45 % allocation) [Q 383 nC]"
+    },
+    {
+     "ref": "U42",
+     "old_W": 1.09,
+     "new_W": 0.9528,
+     "board_fraction": 1.0,
+     "note": "R24C2T25/R module loss at 60 kHz: 17 V x (Q f + 22.9 mA) x (1/0.45 - 1) (bias_sizing.py load, ALT-BIAS 45 % allocation) [Q 383 nC]"
+    },
+    {
+     "ref": "U26",
+     "old_W": 0.8725,
+     "new_W": 0.852,
+     "board_fraction": 1.0,
+     "note": "TPS7A4700 LS span: (24 - 17 V) x (2 I_ch + 30 mA) at 60 kHz (bias_sizing.py) [Q 383 nC]"
+    },
+    {
+     "ref": "PS2",
+     "old_W": 1.419,
+     "new_W": 1.2621,
+     "board_fraction": 0.5,
+     "note": "IRM-20-24 HOT bias supply at 60 kHz (ALT-BIAS budget model), eta 0.84, board share 0.5 [Q 383 nC]"
+    }
+   ],
+   "detail": {
+    "I_ch_A": 0.04585600000000001,
+    "module_W": 0.9527857777777781,
+    "PS2_out_W": 6.625763555555556,
+    "gate_W_per_FET": 0.3902520000000001,
+    "split": {
+     "rg": 0.35953807304211866,
+     "drv": 0.08613747690001786,
+     "rgi": 0.432753126347738,
+     "roff": 0.09180280765091636,
+     "diode": 0.029768516059209285
+    },
+    "driver_quiescent_W": 0.045756,
+    "Rg_int_W_per_FET_to_sink": 0.1688827730634575
+   }
+  }
+ },
+ "deck_q_rows_nC": {
+  "IPW65R018CFD7_L1 deck ZVS S1 max": 370.0,
+  "IPW65R018CFD7_L1 deck S2 max": 382.6,
+  "IPW65R018CFD7_L1 deck S4 max": 381.4,
+  "IPW65R018CFD7_L1 deck S5 max": 374.7
+ },
+ "q_deck_weight": 0.9767788144378474,
+ "affine_check_max_W": 1.1102230246251565e-16
+}

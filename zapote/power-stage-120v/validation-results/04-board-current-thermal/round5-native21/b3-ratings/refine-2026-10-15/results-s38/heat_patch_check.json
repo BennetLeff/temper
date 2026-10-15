@@ -1,0 +1,25 @@
+{
+ "pass": true,
+ "max_abs_W_vs_heat_c28_corrected_deck": 2.220446049250313e-16,
+ "unchanged_rows_differ": [],
+ "nominal_file_identical": true,
+ "changed_rows": [
+  "PS2",
+  "R10",
+  "R12",
+  "R18",
+  "R20",
+  "R53",
+  "R54",
+  "R57",
+  "R58",
+  "U1",
+  "U2",
+  "U26",
+  "U41",
+  "U42"
+ ],
+ "totals_W": {
+  "c28": 9.802
+ }
+}

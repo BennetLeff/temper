@@ -1,0 +1,20 @@
+{
+ "board": "s38",
+ "scratch": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/thermal-refine/work/e2e-s38",
+ "heat_c28_max_abs_W": 2.220446049250313e-16,
+ "margins_rows_max_abs_est_K": 0.0,
+ "rows_missing": [],
+ "run_basis_metrics": {
+  "b3_laminate_margin_K": -38.0,
+  "b3_rated_part_margin_K": -63.9,
+  "b3_advisory_margin_K": -6.9,
+  "worst_gated": "R12: 1206 terminal derating at 0.140 W (20 % margin)"
+ },
+ "gate_on_record_metrics": {
+  "b3_laminate_margin_K": -38.0,
+  "b3_rated_part_margin_K": -63.9,
+  "b3_advisory_margin_K": -6.9,
+  "worst_gated": "R12: 1206 terminal derating at 0.140 W (20 % margin)"
+ },
+ "pass": true
+}
