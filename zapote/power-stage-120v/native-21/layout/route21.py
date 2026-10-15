@@ -120,7 +120,7 @@ def add_signal_via(net, x, y, la, lb, width):
     pitch, short joins on both layers to that via instead (no stacked drills)."""
     for v in VIAS:
         if v["net"] == net and math.dist(v["at"], (x, y)) < 0.8:
-            for lay in {la, lb}:
+            for lay in dict.fromkeys((la, lb)):   # ordered: a set's order follows the string hash seed
                 if math.dist(v["at"], (x, y)) > 1e-3:
                     track(net, lay, width, [x, y], list(v["at"]))
             return

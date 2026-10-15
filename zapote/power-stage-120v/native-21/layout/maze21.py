@@ -28,8 +28,36 @@ _RES = 8
 _CIRC = 1 / math.cos(math.pi / (4 * _RES))
 
 
+# Grown obstacles repeat across calls (the same base copper around every connection): cached per (geometry, distance).
+# The geometry is kept in the value so its id cannot be reused by a new object while the entry lives.
+_GROWN = {}
+
+
 def _grow(g, d):
-    return g.buffer(d * _CIRC, resolution=_RES)
+    hit = _GROWN.get((id(g), d))
+    if hit is not None and hit[0] is g:
+        return hit[1]
+    grown = g.buffer(d * _CIRC, resolution=_RES)
+    _GROWN[(id(g), d)] = (g, grown)
+    return grown
+
+
+def _goal_distance(goal_cells, nx, ny):
+    """h for A*: Euclidean distance in cells from every grid cell to its nearest goal cell (one distance transform
+    instead of a min over all goals on every push), as nested lists for fast indexing: h[j][i]."""
+    import numpy as np
+    from scipy.ndimage import distance_transform_edt
+    far = np.ones((ny, nx), dtype=bool)
+    for i, j in goal_cells:
+        far[j, i] = False
+    _, (gj, gi) = distance_transform_edt(far, return_indices=True)
+    jj, ii = np.indices((ny, nx))
+    # math.hypot per distinct offset, as the per-goal min computed it (np.hypot can differ in the last bit and so
+    # break A* ties differently)
+    off = np.stack([np.abs(ii - gi).ravel(), np.abs(jj - gj).ravel()], axis=1)
+    uniq, inv = np.unique(off, axis=0, return_inverse=True)
+    vals = np.array([math.hypot(int(a), int(b)) for a, b in uniq])
+    return vals[inv.ravel()].reshape(ny, nx).tolist()
 
 
 def _blocked(geo, net, layer, bx, width):
@@ -76,11 +104,10 @@ def connect(geo, net, layer, bx, width, starts, goals):
         grid[c[1] * nx + c[0]] = 0
     start_cells = {cell(s): s for s in starts}
     openq, came, cost = [], {}, {}
-    gx = [c[0] for c in goal_cells]
-    gy = [c[1] for c in goal_cells]
+    hd = _goal_distance(goal_cells, nx, ny)
 
     def h(c):
-        return min(math.hypot(c[0] - a, c[1] - b) for a, b in zip(gx, gy))
+        return hd[c[1]][c[0]]
     for c in start_cells:
         grid[c[1] * nx + c[0]] = 0
         cost[c] = 0.0
@@ -180,10 +207,10 @@ def connect2(geo, net, bx, width, starts, goals, layers=OUTER, via=0.75, via_cos
         for li in (range(len(layers)) if gl is None else [gl]):
             goal[(c[0], c[1], li)] = (gx, gy)
             grids[li][c[1] * nx + c[0]] = 0
-    gl_ = [(c[0], c[1]) for c in goal]
+    hd = _goal_distance({(c[0], c[1]) for c in goal}, nx, ny)
 
     def h(c):
-        return min(math.hypot(c[0] - a, c[1] - b) for a, b in gl_)
+        return hd[c[1]][c[0]]
     openq, came, cost = [], {}, {}
     startpt = {}
     for sx, sy, sl in starts:
