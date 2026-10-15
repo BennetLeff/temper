@@ -39,7 +39,7 @@ their ratchets.
 | B1 | **L1 B82726S2203A020 sets the build date:** no authorised stock, 29-week lead, so a 500-board build lands ~2027-05 if ordered now. 14 lines short for 500 boards, 3 for 5; JLC-assemblable share 0.851 / 0.968 | DECISIONS 45; `sourcing/study-2026-10-15/` | Owner (ordering); EMI re-run for L1 alternate B82726S2243A020 | Plan ready | Owner pre-orders (README §4). L1 alternate: c29 / D-22 EMI re-run with 0.75 mH / 8 µH |
 | B2 | Five "short" lines are read gaps (DigiKey bot check, Octopart 403), not proven shortages | DECISIONS 45 | Sourcing | Open | Re-take the snapshot when the sites read again |
 | B4 | Order remarks: KB-6164 with KB-6064 prepreg (S12 may change this), stack JLC041622-7628 named, Confirm production file. Thickness remark dropped (DECISIONS 44) | FAB-NOTE | Order (owner) | Ready | Answered at JLC's file review |
-| B5 | Track-geometry hygiene: 104 right angles, 206 acute corners (44 fold-backs), 704 mm any-angle on s35 | DECISIONS 43, 48 | Cleanup pass (tool merged) | Proved on s35 as s37 (ACCEPT) | Apply last, on the merged copper, then the chain |
+| B5 | Track-geometry hygiene: **done on s43** (DECISIONS 57): right angles 100 → 49, acute 199 → 23, fold-backs 43 → 3, any-angle 675 → 273 mm | DECISIONS 43, 48, 57 | — | Done | Later lanes re-run the pass after merging (it is idempotent) |
 | B6 | Stencil: J2 / J5 want 150 µm paste; fine-pitch parts' stencil not chosen; J2 / J5 CPL rows NEEDS-PREVIEW | DECISIONS 44 | Order (owner) | Open | Step stencil or aperture choice at order |
 | B7 | `PROTOTYPE-LOT.md` lists superseded parts (UCC21550, ISO7710, 74650074R) | `08-manufacturing-package/native-21/` | Integration | Stale | Regenerate from the snapshot when the BOM settles |
 | B10 | **Validation cases from temper-8d mining round 3** (`sensor-c1-impulse-mining:output/temper-mining-r3/`): UL 858 59.6 iron bar (2 × 100 × 20 mm, ≤ 35 °C rise at the highest setting) plus fork / spoon / knife on pan detection; 47.8 off within 30 s of vessel removal, manual reset; bad-pan set (multi-ply Al with a thin stainless base, Demeyere ControlInduc cold → 250 °C, Demeyere Proline) at full power, showing pll_control stays stable and the hardware OCP (R5 Kelvin) / OVP (U7, 280 V) / tank-CT trips act before any device is overstressed (ties to S14's capacitive-mode case) | temper-8d round 3 | Bring-up / test plan (owner, controller) | New | Add to the bench plan beside D-8 |
@@ -67,7 +67,7 @@ their ratchets.
 | SELV side (WS5, spine owner) | 23: done, stage 38 (DECISIONS 50); spine baseline re-issued (s38) | Merged | — |
 | HS-B / LS (WS4) | 30a / 30b done, stage 40 (DECISIONS 52) | Merged | — |
 | Tank / bank | 34: resonant bank | Waits on stock | S9 |
-| Whole board (last) | Geometry cleanup pass (B5; tool merged, DECISIONS 48: s35 → s37 right angles 104 → 50, acute 206 → 23, fold-backs 44 → 3, any-angle 704 → 308 mm; ACCEPT); compaction (C7) | Tool ready; ps-layers free | Run on s42 (every lane merged) |
+| Whole board (last) | Geometry cleanup pass: done on s43 (DECISIONS 57); (B5; tool merged, DECISIONS 48: s35 → s37 right angles 104 → 50, acute 206 → 23, fold-backs 44 → 3, any-angle 704 → 308 mm; ACCEPT); compaction (C7) | Done; ps-layers free | — |
 
 ## 5. Owner actions
 
