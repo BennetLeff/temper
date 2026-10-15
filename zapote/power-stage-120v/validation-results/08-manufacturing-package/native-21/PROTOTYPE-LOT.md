@@ -105,4 +105,4 @@ Measurements the lot must deliver (OPEN-ITEMS §5 items 8–9, B8, B10, B11, S2,
   (force MON_GOOD_HA low, then MON_GOOD_HB low; BIAS_GOOD must drop within its hold time, B8).
 - **Then:** coil / pan L / R with real pans; the bank hot spot; C5 case temperature (S8); terminal pull, torque and
   temperature; module temperatures; bay air and board copper at R5 in an enclosure soak (S2); the jet-h measurement if the
-  R45 enclosure with the push-hood jets is built (no ceiling raise until it is measured, S2).
+  R45 enclosure with the push-hood jets is built (change set: `git show sensor-c1-impulse-mining:output/temper-airflow-r1/HANDOFF.md`, temper-8d airflow-r1; no ceiling raise until the jet h is measured, S2).
