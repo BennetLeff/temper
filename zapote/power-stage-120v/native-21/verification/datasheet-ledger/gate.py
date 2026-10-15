@@ -56,6 +56,57 @@ def check_refs(text, root, where, errors, cache):
                 errors.append(f"{where}: {rel}:{last} beyond end of file ({cache[p]} lines)")
 
 
+B3_KEY_TOKENS = 3      # a b3_row `item` key is the first three whitespace tokens of the margins.json row item
+B3_NUM_TOL = 0.05 + 1e-9  # margins.json rounds est_c / margin_k to 0.1 K, so a cited value must agree within 0.05
+
+
+def check_keyed(c, root, where, errors, cache):
+    """Resolve a keyed citation {"file", "b3_row": {"case", "item"}, optional "est_c"/"margin_k"/"limit_c"} against the
+    cases -> case -> rows structure of b3-ratings/margins.json. The row is found by case plus an item key (the first
+    three tokens of the row's `item`, e.g. "R10: 2512 terminal"), so re-sorting or re-numbering the file cannot break
+    it; the key must match exactly one row. Any stated number must equal the row's value within the file's rounding."""
+    f, key = c.get("file"), c.get("b3_row")
+    if not isinstance(f, str) or not isinstance(key, dict) or not key.get("case") or not key.get("item"):
+        errors.append(f"{where}: keyed citation needs file and b3_row {{case, item}}: {c!r}")
+        return
+    p = root / f
+    if not p.is_file():
+        errors.append(f"{where}: evidence path not found: {f}")
+        return
+    if ("json", p) not in cache:
+        try:
+            cache[("json", p)] = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            cache[("json", p)] = None
+    data = cache[("json", p)]
+    rows = data.get("cases", {}).get(key["case"]) if isinstance(data, dict) else None
+    tag = f"{f} [{key['case']}, {key['item']!r}]"
+    if not isinstance(rows, list):
+        errors.append(f"{where}: dangling keyed evidence, no case {key['case']!r} in {f}")
+        return
+    hits = [r for r in rows if isinstance(r, dict) and " ".join(str(r.get("item", "")).split()[:B3_KEY_TOKENS]) == key["item"]]
+    if len(hits) != 1:
+        errors.append(f"{where}: dangling keyed evidence, {len(hits)} rows match {tag}" if not hits
+                      else f"{where}: ambiguous keyed evidence, {len(hits)} rows match {tag}")
+        return
+    row = hits[0]
+    for fld in ("est_c", "margin_k", "limit_c"):
+        if fld in c:
+            if not isinstance(c[fld], (int, float)) or not isinstance(row.get(fld), (int, float)):
+                errors.append(f"{where}: {tag} {fld} {c[fld]!r} vs row {row.get(fld)!r} not numeric")
+            elif abs(c[fld] - row[fld]) > B3_NUM_TOL:
+                errors.append(f"{where}: stale {fld} {c[fld]} cited, {tag} now says {row[fld]}")
+
+
+def check_evidence(ev, root, where, errors, cache):
+    """Evidence is a string of path[:line] tokens, or a list of such strings and keyed citations (dicts)."""
+    for item in (ev if isinstance(ev, list) else [ev]):
+        if isinstance(item, dict):
+            check_keyed(item, root, where, errors, cache)
+        else:
+            check_refs(item, root, where, errors, cache)
+
+
 def compute_checks(entry, errors, where):
     """Recompute stress/limit for each check; compare with the stored margin."""
     ratings = {r.get("parameter"): r for r in entry.get("ratings", [])}
@@ -120,7 +171,7 @@ def validate_entry(mpn, e, bom_des, root, cache):
             if not (root / ds["repo_copy"].split(":")[0]).is_file():
                 pass  # already reported
     for s in e["stresses"]:
-        check_refs(s.get("evidence", ""), root, f"{w} stress {s.get('parameter')}", errors, cache)
+        check_evidence(s.get("evidence", ""), root, f"{w} stress {s.get('parameter')}", errors, cache)
     checks = compute_checks(e, errors, w)
     failed_v = [c for c in checks if not c["ok"] and c["severity"] == "violation"]
     failed_g = [c for c in checks if not c["ok"] and c["severity"] == "gap"]

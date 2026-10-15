@@ -7,6 +7,7 @@ real ledger's result; asserts a clean synthetic ledger passes (so the gate can r
 import copy
 import csv
 import json
+import random
 import subprocess
 import sys
 import tempfile
@@ -16,6 +17,7 @@ HERE = Path(__file__).resolve().parent
 LEDGER_DIR = HERE.parent
 GATE = LEDGER_DIR / "gate.py"
 LEDGER = LEDGER_DIR / "ledger.json"
+UNIT_ROOT = LEDGER_DIR.parents[2]
 BOM = LEDGER_DIR.parents[1] / "frozen" / "default.csv"
 FAILS = []
 
@@ -139,6 +141,69 @@ def main():
         d["entries"]["0603WAF1002T5E"]["status"] = "VERIFIED"  # invalid on purpose: no datasheet
         rc, out, rep = run(write(td, d), bom=bom)
         expect("VERIFIED without datasheet/ratings is rejected", rc == 1 and any("VERIFIED needs" in e for e in rep["errors"]))
+
+    # 8. keyed margins.json citations: dangling case/item and stale numbers fail; re-sorting the rows still passes
+    margins = UNIT_ROOT / "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json"
+
+    def first_keyed(d):
+        for e in d["entries"].values():
+            for st in e["stresses"]:
+                if isinstance(st.get("evidence"), list):
+                    for c in st["evidence"]:
+                        if isinstance(c, dict) and "est_c" in c:
+                            return c
+        raise SystemExit("no keyed citation with est_c in the ledger")
+
+    with tempfile.TemporaryDirectory() as td:
+        d = copy.deepcopy(base)
+        first_keyed(d)["b3_row"]["case"] = "c99_h10"
+        rc, out, rep = run(write(td, d))
+        expect("keyed citation to a missing case is rejected",
+               rc == 1 and any("no case" in e for e in rep["errors"]), str(rep["errors"][:2]))
+    with tempfile.TemporaryDirectory() as td:
+        d = copy.deepcopy(base)
+        first_keyed(d)["b3_row"]["item"] = "Z99: no such"
+        rc, out, rep = run(write(td, d))
+        expect("keyed citation to a missing item is rejected",
+               rc == 1 and any("dangling keyed" in e for e in rep["errors"]), str(rep["errors"][:2]))
+    with tempfile.TemporaryDirectory() as td:
+        d = copy.deepcopy(base)
+        first_keyed(d)["est_c"] += 0.5
+        rc, out, rep = run(write(td, d))
+        expect("stale cited number is rejected", rc == 1 and any("stale est_c" in e for e in rep["errors"]),
+               str(rep["errors"][:2]))
+    with tempfile.TemporaryDirectory() as td:
+        d = copy.deepcopy(base)
+        first_keyed(d)["est_c"] += 0.04   # inside the file's 0.1 K rounding
+        rc, out, rep = run(write(td, d))
+        expect("number within the file's rounding passes", rc == 0, str(rep["errors"][:2]))
+    with tempfile.TemporaryDirectory() as td:
+        # a shuffled copy of margins.json (cases and rows re-ordered, as a B3 re-run would): same citations still PASS
+        m = json.loads(margins.read_text())
+        rnd = random.Random(7)
+        for rows in m["cases"].values():
+            rnd.shuffle(rows)
+        m["cases"] = dict(reversed(list(m["cases"].items())))
+        mp = Path(td) / "margins.json"
+        mp.write_text(json.dumps(m, indent=1))
+        d = copy.deepcopy(base)
+        n = 0
+        for e in d["entries"].values():
+            for st in e["stresses"]:
+                for c in st["evidence"] if isinstance(st.get("evidence"), list) else []:
+                    if isinstance(c, dict):
+                        c["file"] = str(mp)   # absolute path: root / abs == abs
+                        n += 1
+        rc, out, rep = run(write(td, d))
+        expect(f"re-sorted margins.json ({n} keyed citations) still PASSES", n > 20 and rc == 0, str(rep["errors"][:2]))
+        # and a changed value in the shuffled copy is caught
+        for rows in m["cases"].values():
+            for r in rows:
+                if r["item"].startswith("C40:"):
+                    r["est_c"] += 3
+        mp.write_text(json.dumps(m, indent=1))
+        rc, out, rep = run(write(td, d))
+        expect("re-run with a moved C40 temperature is caught as stale", rc == 1 and any("stale est_c" in e for e in rep["errors"]))
 
     print("\n%d failure(s)" % len(FAILS))
     return 1 if FAILS else 0

@@ -2526,7 +2526,7 @@
    "finding": null,
    "function": "X2 across-the-line capacitors C1/C2, 1 uF 310 VAC",
    "gaps": [
-    "bench: body temperature next to L1 / BR1 is not evidenced (B3 has no C1/C2 row; its L1 body is 102.2 C at the c18 release case, bay 61 C, and 97.5 / 100.0 C at c22 / c28, bay 55 C, validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:194-197); limit 110 C.",
+    "bench: body temperature next to L1 / BR1 is not evidenced (B3 has no C1/C2 row; its L1 body is 102.2 C at the c18 release case, bay 61 C, and 97.5 / 100.0 C at c22 / c28, bay 55 C, validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json rows \"L1: B82726 climatic\" (keyed, cases c18_h10 / c22_h10 / c28_h10)); limit 110 C.",
     "desk: the 35-60 kHz differential-mode current through C1/C2 is not compared with the p.6 'Maximum Irms vs Th' derating (the s19b EMI model carries these currents)."
    ],
    "status": "PARTIAL",

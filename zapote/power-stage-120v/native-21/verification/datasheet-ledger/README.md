@@ -11,7 +11,8 @@ a malformed or self-inconsistent entry; any `VIOLATION`; any SAFETY/POWER-class 
 Self-consistency: the gate recomputes every `checks[].ratio = stress / limit`; a failing `violation`-severity check forces
 `VIOLATION`, a failing `gap`-severity check forces `PARTIAL` or worse; `VERIFIED` needs a datasheet url or repo copy, rated
 limits with a source page, stresses with evidence, at least one passing check and no gaps; `PARTIAL` must list its gaps;
-every `path[:line]` cited in stress evidence or layout guidance must exist in the unit. `--strict` fails on any non-VERIFIED.
+every `path[:line]` cited in stress evidence or layout guidance must exist in the unit.
+Generated `b3-ratings/margins.json` is cited by key, not line: a stress `evidence` list holds `{"file": ".../margins.json", "b3_row": {"case": "c18_h10", "item": "R10: 2512 terminal"}, "est_c": 128.8}`; `item` is the first three whitespace tokens of the row's `item` (designator + kind, wattages and limits excluded) and must match exactly one row in that case, so re-sorting or re-running B3 cannot shift it; a missing case/item is dangling evidence, and a stated `est_c` / `margin_k` / `limit_c` must equal the row within 0.05 (the file's rounding), so a stale number fails. `--strict` fails on any non-VERIFIED.
 SIGNAL-class `UNAUDITED` lines only warn. Prints counts by status and class; writes `ledger-report.json`.
 
     python3 -I native-21/verification/datasheet-ledger/gate.py [--strict]
@@ -48,7 +49,7 @@ Stage 43 (2026-10-15, candidate 43, track cleanup + source MPN fix): 93 BOM line
 0 VIOLATION; PASS. C12/C13/C19/C20 re-keyed GRM31A5C3A102JW01D -> **CC1206JKNPOCBN102** (the source now names the ordered
 Yageo part; the source-MPN owner gap is closed). GRM1885C1H472JA01D's temperature re-cited from the c22 FET-row value
 (133.5 C) to the release case, 122.1 C <= 125 C, with the c22 overrun (132.6 C) an `owner: airflow route (c22/c28)` gap.
-Every margins.json citation follows the s43 rows (line numbers and values); the c22 worst R_on is now R12 (136.1 C
+Every margins.json citation is keyed (case + item) and checked against the s43 rows; the c22 worst R_on is now R12 (136.1 C
 terminal, 0.976 of the derated power). validation-results/11-candidates/c43-cleanup/README.md section 5.
 History: seed 1 / 24 / 64 / 2. Stage 27 replaced J1 (VIOLATION -> PARTIAL); R1/R2 and the snubber caps were audited
 (UNAUDITED -> PARTIAL). Stage 28 replaced F2 (VIOLATION -> VERIFIED) and added its limiter R130 (PARTIAL). `ledger.json` is the record from here on; `seed_ledger.py` reproduces only the first seed.

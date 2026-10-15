@@ -436,7 +436,7 @@
     }
    ],
    "gaps": [
-    "bench: body temperature next to L1 / BR1 is not evidenced (B3 has no C1/C2 row; its L1 body is 102.2 C at the c18 release case, bay 61 C, and 97.5 / 100.0 C at c22 / c28, bay 55 C, validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:194-197); limit 110 C.",
+    "bench: body temperature next to L1 / BR1 is not evidenced (B3 has no C1/C2 row; its L1 body is 102.2 C at the c18 release case, bay 61 C, and 97.5 / 100.0 C at c22 / c28, bay 55 C, validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json rows \"L1: B82726 climatic\" (keyed, cases c18_h10 / c22_h10 / c28_h10)); limit 110 C.",
     "desk: the 35-60 kHz differential-mode current through C1/C2 is not compared with the p.6 'Maximum Irms vs Th' derating (the s19b EMI model carries these currents)."
    ],
    "finding": null,
@@ -708,21 +708,49 @@
      "worst_case_value": 102.2,
      "unit": "C",
      "condition": "B3 ratings body model, s42 (9e075b4b), release case c18_h10: 18.0 A release ceiling at its 18.9 A trip, still air h 10, bay 61 C; L1 heat at the 13.5 A firmware inlet bound (DECISIONS 56)",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:180-183; DECISIONS.md:2033-2037"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c18_h10",
+        "item": "L1: B82726 climatic"
+       },
+       "est_c": 102.2
+      },
+      "DECISIONS.md:2033-2037"
+     ]
     },
     {
      "parameter": "Body temperature c22",
      "worst_case_value": 97.6,
      "unit": "C",
      "condition": "context: c22_h10 (22 A at 23.1 A trip), still air, bay 55 C, 13.5 A inlet",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:558-561"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c22_h10",
+        "item": "L1: B82726 climatic"
+       },
+       "est_c": 97.6
+      }
+     ]
     },
     {
      "parameter": "Body temperature c28",
      "worst_case_value": 100.0,
      "unit": "C",
      "condition": "context: c28_h10 (28 A Kconfig ceiling, 29.4 A trip), still air, bay 55 C, 13.5 A inlet",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:908-911"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c28_h10",
+        "item": "L1: B82726 climatic"
+       },
+       "est_c": 100.0
+      }
+     ]
     }
    ],
    "derating_rule": "Continuous RMS current <= 80 % of Iop at the local ambient (TDK derating above TR = 60 C); rated voltage >= line high corner / 0.8.",
@@ -1227,21 +1255,50 @@
      "worst_case_value": 83.6,
      "unit": "C",
      "condition": "C5 (C6 80.1 C), B3 ratings body model s42, release case c18_h10: 18.9 A trip, still air, bay 61 C; C5 heat is an estimate (~10 A RMS x ~5 mOhm)",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:159-162; validation-results/04-board-current-thermal/round5-native21/b3/make_heat_sources.py:111"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c18_h10",
+        "item": "C5: MKP Top,max"
+       },
+       "est_c": 83.6
+      },
+      "validation-results/04-board-current-thermal/round5-native21/b3/make_heat_sources.py:111"
+     ]
     },
     {
      "parameter": "Case temperature c22",
      "worst_case_value": 85.1,
      "unit": "C",
      "condition": "context: c22_h10, still air, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:523-526"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c22_h10",
+        "item": "C5: MKP Top,max"
+       },
+       "est_c": 85.1
+      }
+     ]
     },
     {
      "parameter": "Case temperature c28",
      "worst_case_value": 99.2,
      "unit": "C",
      "condition": "context: c28_h10 (28 A Kconfig ceiling, 29.4 A trip), still air, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:859-862; validation-results/04-board-current-thermal/round5-native21/b3/make_heat_sources.py:139"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c28_h10",
+        "item": "C5: MKP Top,max"
+       },
+       "est_c": 99.2
+      },
+      "validation-results/04-board-current-thermal/round5-native21/b3/make_heat_sources.py:139"
+     ]
     },
     {
      "parameter": "ripple dT use at 22 A",
@@ -1557,63 +1614,145 @@
      "worst_case_value": 0.357,
      "unit": "W",
      "condition": "18.0 A release ceiling at its 18.9 A firmware trip (DECISIONS 56): 1 mOhm x 18.9^2; the leg returns pass through R5 to the bus caps, so the shunt RMS equals the tank RMS",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:257-260; DECISIONS.md:2033-2037; elec/src/power_stage_120v.ato:361-367"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c18_h10",
+        "item": "R5: terminal derating"
+       }
+      },
+      "DECISIONS.md:2033-2037",
+      "elec/src/power_stage_120v.ato:361-367"
+     ]
     },
     {
      "parameter": "P shunt c22",
      "worst_case_value": 0.534,
      "unit": "W",
      "condition": "context: 22 A at its 23.1 A trip",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:551-554"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c22_h10",
+        "item": "R5: terminal derating"
+       }
+      }
+     ]
     },
     {
      "parameter": "P shunt c28",
      "worst_case_value": 0.864,
      "unit": "W",
      "condition": "context: 28 A Kconfig ceiling at its 29.4 A trip",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:754-757; DECISIONS.md:604"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c28_h10",
+        "item": "R5: terminal derating"
+       }
+      },
+      "DECISIONS.md:604"
+     ]
     },
     {
      "parameter": "T terminal c18 (release)",
      "worst_case_value": 118.3,
      "unit": "C",
      "condition": "B3 ratings body model s43, release case c18_h10: still air, bay 61 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:257-260"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c18_h10",
+        "item": "R5: terminal derating"
+       },
+       "est_c": 118.3
+      }
+     ]
     },
     {
      "parameter": "T terminal c22",
      "worst_case_value": 130.9,
      "unit": "C",
      "condition": "context: c22_h10, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:551-554"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c22_h10",
+        "item": "R5: terminal derating"
+       },
+       "est_c": 130.9
+      }
+     ]
     },
     {
      "parameter": "T terminal c28",
      "worst_case_value": 162.5,
      "unit": "C",
      "condition": "context: c28_h10, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:754-757"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c28_h10",
+        "item": "R5: terminal derating"
+       },
+       "est_c": 162.5
+      }
+     ]
     },
     {
      "parameter": "T element c18 (release)",
      "worst_case_value": 122.8,
      "unit": "C",
      "condition": "release case c18_h10, bay 61 C; R5's element is under-corrected by about 4 K (validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py:21), so about 126.8 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:271-274; validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py:21"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c18_h10",
+        "item": "R5: element max"
+       },
+       "est_c": 122.8
+      },
+      "validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py:21"
+     ]
     },
     {
      "parameter": "T element c22",
      "worst_case_value": 138.0,
      "unit": "C",
      "condition": "context: c22_h10, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:572-575"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c22_h10",
+        "item": "R5: element max"
+       },
+       "est_c": 138.0
+      }
+     ]
     },
     {
      "parameter": "T element c28",
      "worst_case_value": 174.4,
      "unit": "C",
      "condition": "context: c28_h10, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:796-799"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c28_h10",
+        "item": "R5: element max"
+       },
+       "est_c": 174.4
+      }
+     ]
     },
     {
      "parameter": "OCP transient pulse power",
@@ -2506,14 +2645,32 @@
      "worst_case_value": 122.1,
      "unit": "C",
      "condition": "no B3 row for the caps: bounded by the FET-row copper at the release case (c18_h10, bay 61 C); each cap sits across its MOSFET in the FET row",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:103-106"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c18_h10",
+        "item": "laminate: FET-row copper"
+       },
+       "est_c": 122.1
+      }
+     ]
     },
     {
      "parameter": "Board temperature bound at the cap, c22",
      "worst_case_value": 132.6,
      "unit": "C",
      "condition": "context: c22_h10 FET-row copper, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:383-386"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c22_h10",
+        "item": "laminate: FET-row copper"
+       },
+       "est_c": 132.6
+      }
+     ]
     }
    ],
    "derating_rule": "DC voltage <= 50 % of the 1 kV rating for the continuous bus and the modelled die-VDS and no-clamp spikes (this entry's rule since seeding); every spike <= 100 % of the rating.",
@@ -2987,21 +3144,48 @@
      "worst_case_value": 90.0,
      "unit": "C",
      "condition": "B3 ratings model s42, release case c18_h10 (18.9 A trip, still air, bay 61 C), hottest bank part C21 (advisory row, board fraction 0.3 assumed)",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:145-148"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c18_h10",
+        "item": "C21: MKP Top,max"
+       },
+       "est_c": 90.0
+      }
+     ]
     },
     {
      "parameter": "Body temperature c22",
      "worst_case_value": 95.7,
      "unit": "C",
      "condition": "context: c22_h10, C21, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:460-463"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c22_h10",
+        "item": "C21: MKP Top,max"
+       },
+       "est_c": 95.7
+      }
+     ]
     },
     {
      "parameter": "Body temperature c28",
      "worst_case_value": 117.7,
      "unit": "C",
      "condition": "context: c28_h10 (28 A, 29.4 A trip), still air, bay 55 C: C21 117.7, C22 115.4, C23 113.9, C151 111.9, C152 111.0 C (advisory rows)",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:768-771"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c28_h10",
+        "item": "C21: MKP Top,max"
+       },
+       "est_c": 117.7
+      }
+     ]
     }
    ],
    "derating_rule": "Peak voltage <= 80 % of VR (and of VR derated at Top,max for faults); AC voltage <= 80 % of the 1 kHz rating; tank RMS current <= 85 % of the worst-share TDK curve at the release trip (DECISIONS 37, 56) and body <= Top,max at the B3 release case (c18_h10, bay 61 C); the 28 A rows (current curve, self-heating, body) are the airflow-route gap.",
@@ -3225,21 +3409,48 @@
      "worst_case_value": 83.9,
      "unit": "C",
      "condition": "B3 body model, s42, release case c18_h10 (18.9 A trip, still air, bay 61 C); R22 is the hottest of R22-R25 (R26-R29 are not modelled)",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:313-316"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c18_h10",
+        "item": "R22: 1206 thick"
+       },
+       "est_c": 83.9
+      }
+     ]
     },
     {
      "parameter": "T body R22 c22",
      "worst_case_value": 85.0,
      "unit": "C",
      "condition": "context: c22_h10, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:607-610"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c22_h10",
+        "item": "R22: 1206 thick"
+       },
+       "est_c": 85.0
+      }
+     ]
     },
     {
      "parameter": "T body R22 c28",
      "worst_case_value": 98.1,
      "unit": "C",
      "condition": "context: c28_h10 (28 A Kconfig ceiling), still air, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:915-918"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c28_h10",
+        "item": "R22: 1206 thick"
+       },
+       "est_c": 98.1
+      }
+     ]
     },
     {
      "parameter": "V per resistor, bank third fault",
@@ -4411,21 +4622,49 @@
      "worst_case_value": 108.8,
      "unit": "C",
      "condition": "B3 body model incl. self-heating, s42, release case c18_h10 (18.9 A trip, still air h 10, bay 61 C); C40 is the hottest (C41 106.3, C38 104.9, C39 99.4 C)",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:35-38; DECISIONS.md:2045-2046"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c18_h10",
+        "item": "C40: MKP Top,max"
+       },
+       "est_c": 108.8
+      },
+      "DECISIONS.md:2045-2046"
+     ]
     },
     {
      "parameter": "Top C40 c22",
      "worst_case_value": 116.0,
      "unit": "C",
      "condition": "context: c22_h10 (22 A at 1.05 x trip), still air, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:350-353"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c22_h10",
+        "item": "C40: MKP Top,max"
+       },
+       "est_c": 116.0
+      }
+     ]
     },
     {
      "parameter": "Top C40 c28",
      "worst_case_value": 137.7,
      "unit": "C",
      "condition": "context: c28_h10 (28 A Kconfig ceiling), still air, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:691-694"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c28_h10",
+        "item": "C40: MKP Top,max"
+       },
+       "est_c": 137.7
+      }
+     ]
     }
    ],
    "derating_rule": "DC voltage <= 80 % of VR, also of the >85 C derated VR at Top,max; body Top <= Top,max at each B3 case; RMS current share <= 80 % of the 85 C / 100 kHz rating.",
@@ -5031,21 +5270,48 @@
      "worst_case_value": 133.6,
      "unit": "C",
      "condition": "B3 body model, s42, release case c18_h10 (18.9 A trip, still air, bay 61 C); U42 is the hotter module (U41 129.5 C)",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:124-127"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c18_h10",
+        "item": "U42: Tj abs"
+       },
+       "est_c": 133.6
+      }
+     ]
     },
     {
      "parameter": "Tj U42 c22",
      "worst_case_value": 130.6,
      "unit": "C",
      "condition": "context: c22_h10, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:509-512"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c22_h10",
+        "item": "U42: Tj abs"
+       },
+       "est_c": 130.6
+      }
+     ]
     },
     {
      "parameter": "Tj U42 c28",
      "worst_case_value": 135.4,
      "unit": "C",
      "condition": "context: c28_h10 (28 A Kconfig ceiling), still air, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:880-883"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c28_h10",
+        "item": "U42: Tj abs"
+       },
+       "est_c": 135.4
+      }
+     ]
     }
    ],
    "derating_rule": "Barrier peak <= 50% of VIORM; CMTI >= the edge, and >= 1.5x where an upset gives a gate command (CMTI README:8; here it is a regulation transient); output power <= 90% of the derated power; Tj <= abs max at every B3 case.",
@@ -6651,21 +6917,69 @@
      "worst_case_value": 132.3,
      "unit": "C",
      "condition": "R10, B3 body model release case c18_h10 (18.0 A at its 18.9 A trip, still air h 10), bay 61 C, mesh allowance K 3; terminal 128.8 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:173-176; validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:42-45"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c18_h10",
+        "item": "R10: 2512 element"
+       },
+       "est_c": 132.3
+      },
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c18_h10",
+        "item": "R10: 2512 terminal"
+       }
+      }
+     ]
     },
     {
      "parameter": "Element estimate c22",
      "worst_case_value": 140.9,
      "unit": "C",
      "condition": "R12 (the c22 worst R_on on s43; R10 element 139.6 / terminal 136.0 C), c22_h10 (22 A at 23.1 A trip), bay 55 C; terminal 136.1 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:453-456; validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:369-372"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c22_h10",
+        "item": "R12: 2512 element"
+       },
+       "est_c": 140.9
+      },
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c22_h10",
+        "item": "R12: 2512 terminal"
+       }
+      }
+     ]
     },
     {
      "parameter": "Element estimate c28",
      "worst_case_value": 168.8,
      "unit": "C",
      "condition": "R12, c28_h10 (28 A ceiling), bay 55 C; terminal 164.3 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:761-764; validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:665-668"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c28_h10",
+        "item": "R12: 2512 element"
+       },
+       "est_c": 168.8
+      },
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c28_h10",
+        "item": "R12: 2512 terminal"
+       }
+      }
+     ]
     },
     {
      "parameter": "Gate-drive step across R_on",
@@ -6807,14 +7121,32 @@
      "worst_case_value": 122.1,
      "unit": "C",
      "condition": "no B3 row for the cap: bounded by the FET-row copper at the release case (c18_h10, 18.0 A at its 18.9 A trip, bay 61 C; DECISIONS 56 stress basis), the hottest copper of the FET row the caps sit 17 mm south of",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:103-106"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c18_h10",
+        "item": "laminate: FET-row copper"
+       },
+       "est_c": 122.1
+      }
+     ]
     },
     {
      "parameter": "Board temperature bound at the cap, c22",
      "worst_case_value": 132.6,
      "unit": "C",
      "condition": "context: c22_h10 FET-row copper, bay 55 C (the c39 entry cited 133.5 C, the pre-DECISIONS-56 s42 c22 row)",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:383-386"
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c22_h10",
+        "item": "laminate: FET-row copper"
+       },
+       "est_c": 132.6
+      }
+     ]
     }
    ],
    "derating_rule": "Voltage <= 50 % of rated (C0G, no DC-bias loss); temperature <= 125 C.",
