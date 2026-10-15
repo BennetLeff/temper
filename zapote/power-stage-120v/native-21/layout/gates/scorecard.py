@@ -55,6 +55,12 @@ PERF = {
     # candidate may not add a rating violation, a BOM line missing from the ledger, or an unaudited SAFETY/POWER line
     "ledger_violations": ("lower", 0),
     "ledger_unaudited_safety_power": ("lower", 0),
+    # added 2026-10-15 (DECISIONS 43): track-geometry hygiene (gates/track_geometry.py). Acute corners and fold-backs are
+    # defects (strict ratchet); right angles and any-angle length are tracked with a small allowance for new routes
+    "track_acute_corners": ("lower", 0),
+    "track_fold_backs": ("lower", 0),
+    "track_right_angle_corners": ("lower", 5),
+    "track_any_angle_mm": ("lower", 25.0),
 }
 
 
@@ -210,6 +216,16 @@ def performance(b, tag):
         m["ledger_violations"] = len(r["violations"])
         m["ledger_unaudited_safety_power"] = len(r["unaudited_safety_power"]) + len(r["missing_from_ledger"])
         src["ledger"] = f"native-21/verification/datasheet-ledger: {r['totals']}"
+    ex = b / "native21-all-copper.json.gz"
+    if ex.exists():
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("track_geometry", Path(__file__).resolve().parent / "track_geometry.py")
+        tg = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(tg)
+        geo = tg.measure(tg.load(ex))
+        m["track_acute_corners"], m["track_fold_backs"] = geo["acute_corners"], geo["fold_backs"]
+        m["track_right_angle_corners"], m["track_any_angle_mm"] = geo["right_angle_corners"], geo["any_angle_mm"]
+        src["track_geometry"] = "gates/track_geometry.py on BUILDDIR/native21-all-copper.json.gz"
     return m, src
 
 

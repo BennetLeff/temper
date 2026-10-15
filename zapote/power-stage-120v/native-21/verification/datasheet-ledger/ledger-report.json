@@ -539,8 +539,8 @@
    "finding": null,
    "function": "Resonant-tank coil terminals J2/J5, Wuerth REDCUBE THR M4",
    "gaps": [
-    "Datasheet not fetched: temperature derating of the 50 A rating at the operating ambient is unknown; no voltage rating (PCB/lug spacing governs).",
-    "Terminal contact temperature at 28 A not evidenced; bench IR list covers J2/J5 window only."
+    "No temperature derating curve in the datasheet: the 50 A rating is at 20 C only; terminal contact temperature at 28 A not evidenced (bench IR list covers the J2/J5 window only).",
+    "PCB thickness: the datasheet requires 1.6-2.0 mm (p.1); JLC publishes +/-10 % for boards >= 1.0 mm, so the 1.6 mm build can finish at 1.44 mm; no JLC thickness option lands inside 1.6-2.0 under +/-10 % (DECISIONS 42)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []

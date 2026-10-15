@@ -1342,3 +1342,20 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       question. To check: footprint against the RES_A 12.6 mm keep-out, terminal heat in B3 at the 29.4 A trip (one F.Cu
       pad plus vias against four THT pads into every layer), and the lug and screw stack with the enclosure session.
       It goes in the tank (WS3) lane.
+
+43. **Track-geometry hygiene measured and ratcheted (2026-10-15; scorecard metric, no board change).**
+    - **Measured** (`native-21/layout/gates/track_geometry.py`, 7 controls in `test_track_geometry.py`) on s32: 81 % of
+      track segments and 93 % of track length are octilinear, and 1,820 bends are 45°. But there are 104 right-angle
+      corners (F 70, In1 20, B 9, In2 5), 206 acute corners including 44 fold-backs (a track doubling back on itself is
+      redundant copper), and 704 mm of any-angle track. 19c: 110 / 198 / 35 / 699 mm. The numbers have not improved over
+      the stages, because nothing measured them.
+    - **Scorecard:** `track_acute_corners` and `track_fold_backs` are a strict ratchet (lower, tolerance 0).
+      `track_right_angle_corners` (+5) and `track_any_angle_mm` (+25 mm) get a small allowance so a lane's new routes are
+      not rejected for a bend or two. The s32 and 19c cards gain them (`restated_track_geometry`); a full s32 re-score
+      differs from its card only in these four.
+    - **Why it matters:** the electrical effect of a 90° corner at these edge rates is negligible. The reasons are
+      manufacturability and review: acute copper corners are the DFM etch-trap flag, fold-backs are dead copper, and
+      mitred octilinear routing is what a reviewer reads as finished work.
+    - **Fix (planned):** a deterministic post-route cleanup pass (remove fold-backs, mitre right angles, open acute
+      corners, snap any-angle runs where clearance allows). It is proved on s32 copper first, with the whole chain
+      re-run, and applied as a final global pass after the island lanes merge, since it touches every island.

@@ -34,7 +34,11 @@
   "ocp_pickup_stack_pan60_A": 4.17,
   "ledger_violations": 0,
   "ledger_unaudited_safety_power": 0,
-  "bank_ratio_tdk_28A_35k": 1.045
+  "bank_ratio_tdk_28A_35k": 1.045,
+  "track_acute_corners": 206,
+  "track_fold_backs": 44,
+  "track_right_angle_corners": 104,
+  "track_any_angle_mm": 704.4
  },
  "cost": {
   "bom_lines": 94,
@@ -69,5 +73,21 @@
   "added_metric": "bank_ratio_tdk_28A_35k",
   "value": 1.045,
   "reason": "DECISIONS 37: the bank metric at the 35 kHz window floor (worst legal frequency), J share, from c34-bank-margin/scripts/bank_margin.py. Added to this card without re-scoring; for s32 a full re-score with the updated scorecard.py differs from this card only in this metric."
+ },
+ "restated_track_geometry": {
+  "date": "2026-10-15",
+  "added_metrics": [
+   "track_acute_corners",
+   "track_fold_backs",
+   "track_right_angle_corners",
+   "track_any_angle_mm"
+  ],
+  "values": {
+   "right_angle_corners": 104,
+   "acute_corners": 206,
+   "fold_backs": 44,
+   "any_angle_mm": 704.4
+  },
+  "reason": "DECISIONS 43: gates/track_geometry.py on native-21/verification/native21s32-all-copper.json.gz, added without re-scoring; a full s32 re-score with the updated scorecard.py differs from this card only in these metrics"
  }
 }

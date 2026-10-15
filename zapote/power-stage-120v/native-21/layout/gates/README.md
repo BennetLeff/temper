@@ -67,3 +67,8 @@ SELV-spine lock (13-coupling contract WS4 ↔ WS5, `validation-results/13-coupli
 `chain.sh` runs it in the copper block (BUILDDIR/spine-lock.json) and fails the chain on any difference; set
 `SPINE_OWNER=selv` for the SELV-side lane only. A lane that has to change the spine re-issues `selv_spine_lock.json` (new baseline export and board hash) under its own
 DECISIONS item. It does not loosen the gate.
+
+Track-geometry hygiene (DECISIONS 43): `python3 -I gates/track_geometry.py TAG-all-copper.json.gz` counts right-angle and
+acute corners (with 0° fold-backs) at two-segment vertices per net and layer, and any-angle track length;
+`test_track_geometry.py` holds 7 controls. The scorecard reports them: acute corners and fold-backs as a strict ratchet,
+right angles (+5) and any-angle length (+25 mm) with a small allowance for new routes.
