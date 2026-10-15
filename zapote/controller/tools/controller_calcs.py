@@ -166,32 +166,101 @@ def pt100_inv(r: float) -> float:
     return (-a + math.sqrt(a * a - 4 * b * (1 - r / 100.0))) / (2 * b)
 
 
-def runaway() -> dict:
-    """Ratiometric comparator: trip when V(RTDIN+)/VBIAS > k = Rb/(Rt+Rb).
+R_LEAD_C1 = 1.80          # ohm per conductor, sensor-r3 checks.py R_LEAD (20 mm manganin + pigtail + harness)
 
-    V(RTDIN+) = VBIAS * (Rrtd + Rlead_fm) / (Rref + Rlead_fp + Rrtd + Rlead_fm)
-    (sense leads carry no current; FORCE2 grounded; 4-wire per the RTD unit).
-    Comparator offset is referred to VBIAS (1.95-2.06 V) at the trip voltage.
+
+def runaway() -> dict:
+    """Ratiometric RTD runaway comparator (DECISIONS C38, sensor-r3 CR-3).
+
+    The divider bottom sits on the connector-side S- node (J3.3) and the window branch on S+
+    (J3.2), so the comparator trips when V(S+) - V(S-) > k (V(BIAS) - V(S-)), i.e.
+        I R > k I (Rref + R_Fp + R)  ->  R > k (Rref + R_Fp) / (1 - k):
+    the FORCE- lead and the MAX31865's internal FORCE- switch drop out. With a comparator offset
+    Vos and I = VB / (A + R + B), A = Rref + R_Fp, B = R_Fn + R_sw:
+        R = (VB k A + Vos (A + B)) / (VB (1 - k) - Vos).
+    Corners: divider 0.1 % + 25 ppm/K x 60 K each, Rref 0.05 % + 5 ppm/K x 60 K (RG2012V-431-W-T1),
+    VB 1.95 / 2.06 V, Vos +/-(5 mV VIO + 0.6 mV half the input hysteresis + 0.15 mV for the uA
+    pull-up / divider currents in the sense leads), leads 0.9-1.1 x 1.80 ohm, FORCE- switch
+    0.5-20 ohm (not specified by the vendor: swept). The sensor-r3 circuit solve
+    (evidence/sensor-r3-checks/checks.py item 8) is the cross-check.
     """
     corners = []
-    for st, sb, sr, so, lead in product((-1, 1), (-1, 1), (-1, 1), (-1, 1), (0.0, 1.0)):
-        rt = 20e3 * (1 + st * (0.001 + 25e-6 * TEMP_SPAN_K))
-        rb = 10e3 * (1 + sb * (0.001 + 25e-6 * TEMP_SPAN_K))
-        rref = 430.0 * (1 + sr * (0.0005 + 10e-6 * TEMP_SPAN_K))
+    span = 0.001 + 25e-6 * TEMP_SPAN_K
+    vos_max = 0.005 + 0.0006 + 0.00015
+    for st, sb, sr, so, vb, lead, rsw in product((-1, 1), (-1, 1), (-1, 1), (-1, 1), (1.95, 2.06), (0.9, 1.1),
+                                                 (0.5, 20.0)):
+        rt = 20e3 * (1 + st * span)
+        rb = 10e3 * (1 + sb * span)
+        rref = 430.0 * (1 + sr * (0.0005 + 5e-6 * TEMP_SPAN_K))
         k = rb / (rt + rb)
-        vbias = 1.95 if so > 0 else 2.06
-        k_eff = k + so * 0.005 / vbias       # VIO 5 mV referred to the ratiometric node
-        # Solve (R + lead) / (rref + lead + R + lead) = k_eff for R
-        r = (k_eff * (rref + 2 * lead) - lead) / (1 - k_eff)
+        a = rref + lead * R_LEAD_C1
+        b = lead * R_LEAD_C1 + rsw
+        vos = so * vos_max
+        r = (vb * k * a + vos * (a + b)) / (vb * (1 - k) - vos)
         corners.append(pt100_inv(r))
-    nominal_r = (1 / 3) * 430.0 / (1 - 1 / 3)
+    nominal_r = (1 / 3) * (430.0 + R_LEAD_C1) / (1 - 1 / 3)
     band = (min(corners), max(corners))
-    return {"source": ["MAX31865", "TLV3201", "Pt100"],
-            "divider": "20.0k / 10.0k 0.1 % 25 ppm from MAX31865 BIAS", "k_nominal": 1 / 3,
+    return {"source": ["MAX31865", "TLV3201", "Pt100", "sensor-r3 CHANGE-REQUEST CR-3"],
+            "divider": "20.0k / 10.0k 0.1 % 25 ppm from MAX31865 BIAS, bottom on J3.3 (S-)", "k_nominal": 1 / 3,
             "trip_resistance_nominal_ohm": nominal_r, "trip_temp_nominal_C": pt100_inv(nominal_r),
-            "trip_temp_band_C": band, "lead_allocation_ohm": "0-1 per conductor (RTD contract)",
+            "trip_temp_band_C": band,
+            "lead_allocation_ohm": "0.9-1.1 x 1.80 per conductor (sensor-r3 C1 leads); FORCE- switch 0.5-20 ohm",
             "firmware_runaway_C": 300.0, "max_cooking_C": 250.0,
-            "checks": {"above_cooking_max": band[0] > 250.0, "below_350C": band[1] < 350.0}}
+            "checks": {"above_max_setpoint_plus_overshoot_plus_15K": band[0] > 250.0 + 5.0 + 15.0,
+                       "below_bond_intermittent_325C": band[1] < 325.0}}
+
+
+def _gt2_104(t: float, rs: float = 1.0, bs: float = 1.0) -> float:
+    """Semitec 104GT-2 R(T) from the GT2_104 table (log-linear), with R25 and B corners
+    (sensor-r3 checks.py ntc())."""
+    ks = sorted(GT2_104)
+    for a, b in zip(ks, ks[1:]):
+        if a <= t <= b:
+            la, lb = math.log(GT2_104[a]), math.log(GT2_104[b])
+            r = math.exp(la + (lb - la) * (t - a) / (b - a)) * 1e3
+            break
+    else:
+        raise ValueError(t)
+    return r * rs * math.exp(4267.0 * (bs - 1) * (1 / (t + 273.15) - 1 / 298.15))
+
+
+def _gt2_104_t(r: float, rs: float = 1.0, bs: float = 1.0) -> float:
+    lo, hi = 0.0, 290.0
+    for _ in range(60):
+        m = (lo + hi) / 2
+        lo, hi = (m, hi) if _gt2_104(m, rs, bs) > r else (lo, m)
+    return (lo + hi) / 2
+
+
+def rim_trip() -> dict:
+    """Rim NTC hardware trip (DECISIONS C38, sensor-r3 CR-5): TLV3201, INP = v3v3 x 10k/(86.6k+10k),
+    INN = rim_filt (104GT-2 under a 1.00 k pull-up, 10 k / 100 nF filter). Output high (fault)
+    when the node falls below INP: rim hotter than the trip point, or the NTC shorted. ORed with the
+    RTD runaway into RUNAWAY_FAULT. Both sides are v3v3-ratiometric, so the offset is referred to
+    the contract minimum 3.135 V. Corners: R25 +/-3 %, B +/-2 % (GT-2), pull-up and divider
+    0.1 % + 25 ppm/K x 60 K, Vos +/-(5 mV + 0.6 mV hysteresis half); self-heating at the trip
+    point reads hot (trips early) and widens the low side. The NTC's own leakage paths (ESD5Z5.0
+    50 nA x 1 k = 50 uV) are below the offset term and ignored."""
+    k_nom = 10e3 / (86.6e3 + 10e3)
+    r_th = 1000.0 * k_nom / (1 - k_nom)
+    t_nom = _gt2_104_t(r_th)
+    span = 0.001 + 25e-6 * TEMP_SPAN_K
+    temps = []
+    for rs, bs, s1, s2, s3, so in product((0.97, 1.03), (0.98, 1.02), (-1, 1), (-1, 1), (-1, 1), (-1, 1)):
+        rpu = 1000 * (1 + s1 * span)
+        rt = 86.6e3 * (1 + s2 * span)
+        rb = 10e3 * (1 + s3 * span)
+        k = rb / (rt + rb) + so * (0.005 + 0.0006) / CONTRACT[0]
+        temps.append(_gt2_104_t(rpu * k / (1 - k), rs, bs))
+    sh = (3.3 / (r_th + 1000)) ** 2 * r_th / 0.6e-3                 # K, 0.6 mW/K dissipation constant
+    band = (min(temps) - sh, max(temps))
+    return {"source": ["TLV3201", "Semitec GT-2 series datasheet (2023-08-01) R-T table",
+                       "sensor-r3 CHANGE-REQUEST CR-5 / checks.py item 8"],
+            "k_nominal": k_nom, "r_trip_nominal_ohm": r_th, "trip_nominal_C": t_nom,
+            "self_heating_at_trip_K": sh, "trip_band_C": band, "corners": len(temps),
+            "enable_condition": "fit only after bench T3 logs the rim maximum under a 250 C hold <= band low - 10 K",
+            "checks": {"band_above_250C": band[0] > 250.0, "band_below_300C": band[1] < 300.0,
+                       "below_ntc_table_end_290C": band[1] < 290.0}}
 
 
 def d11_receiver() -> dict:
@@ -653,6 +722,165 @@ def thermal_trips(values=None) -> dict:
                        "open_detect_margin_coil": om_coil["open_margin_V"] >= om_coil["comparator_error_V"]}}
 
 
+# ---- capacitive-mode detector timing (DECISIONS C39; native-21 OPEN-ITEMS S14)
+# Maximum propagation delays at VCC = 3.3 V +/- 0.3 V, -40..85 C, CL 30/50 pF unless noted.
+CM_TPD_NS = {
+    "u_cm_inv SN74LVC1G14 A->Y": (5.5, "SCES218AA 6.x, CL 30/50 pF"),
+    "u_cm_ff SN74LVC74A CLK->Q": (5.2, "SCAS287U 6.11"),
+    "u_cm_or SN74LVC1G32 A->Y": (4.5, "SCES219W, CL 30/50 pF"),
+    "interlock.fault_inv SN74LVC14A A->Y": (6.4, "SCAS285AC 7.9"),
+    "interlock.aggregate 74HC30 A->Y": (165.0, "Nexperia 74HC30 Rev. 6 tpd at VCC 2.0 V, -40..85 C (no 3.3 V row; "
+                                                "tpd falls with VCC, so the 2.0 V figure bounds 3.135 V)"),
+    "interlock.control_inv SN74LVC14A A->Y": (6.4, "SCAS285AC 7.9"),
+    "interlock.latch SN74LVC1G74 CLR->Q": (5.9, "SCES794G 7.7"),
+    "u_permit SN74LVC1G08 A->Y": (4.5, "SCES217AA 5.8, CL 30/50 pF"),
+    "J4 harness <= 1 m (allocation 5 ns/m) + 100 ohm x 50 pF": (10.0, "allocation"),
+    "native-21 U22/U23 SN74LVC1G00 A->Y (DIS)": (4.7, "SCES212AC, CL 30/50 pF"),
+}
+CM_DT_NS = (408.0, 569.0)       # native-21 DECISIONS (F6 entry): R9/R17 49.9 k, 2EDR8259X DT +/-15 %
+CM_GATE = {"r_on_ohm": 68.0, "r_on_tol": 0.01, "cgs_F": 4.7e-9, "cgs_tol": 0.05, "v_on": 15.0, "v_off": -2.0,
+           "vth_min_V": 1.9,
+           "source": "native-21 candidate 39 (DECISIONS 54; gate-network-2026-10-15 README): R_on 25121WF680JT4E "
+                     "68 ohm 1 %, Cgs GRM1885C1H472JA01D 4.7 nF C0G 5 %; F6 bipolar drive +15 / -2 V; 1.9 V = "
+                     "the hot off-gate screen (DECISIONS 2026-10-03), used as the lowest Vth"}
+CM_CT_TPD_NS = 55.0             # native-21 ct_zc TLV3201, SBOS561C tpd max -40..125 C, 20 mV overdrive
+CM_F_MAX_HZ = 60e3              # top of the 33-60 kHz tank class (sensor-r3 checks.py item 7)
+CM_SW_LATCH_EDGES = (370, 740)  # native-21 OPEN-ITEMS S14: S4 edges per leg before the software latch
+
+
+def _gate_cross_ns(l_h: float, r: float, c: float, v_on: float, v_off: float, vth: float) -> float:
+    """Series R-L-C gate loop stepped from v_off to v_on: time for the gate capacitor to reach vth
+    (RK4; FET Ciss and the driver's output resistance left out, which only makes the edge faster)."""
+    q = c * v_off
+    i = 0.0
+    t, h = 0.0, 0.05e-9
+    while q / c < vth:
+        def d(i_, q_):
+            return (v_on - r * i_ - q_ / c) / l_h, i_
+        k1 = d(i, q)
+        k2 = d(i + h / 2 * k1[0], q + h / 2 * k1[1])
+        k3 = d(i + h / 2 * k2[0], q + h / 2 * k2[1])
+        k4 = d(i + h * k3[0], q + h * k3[1])
+        i += h / 6 * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0])
+        q += h / 6 * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1])
+        t += h
+        if t > 5e-6:
+            raise RuntimeError("gate never reaches vth")
+    return t * 1e9
+
+
+def _burst_samples(fr: float, q: float, n_edges: int = 40, steps: int = 400) -> dict:
+    """Normalised series RLC (L = C = 1, w0 = 1, R = 1/Q) driven from rest by a 50 % square wave at
+    fr x f0, HS-on first. Sample the current at every turn-off command: HS turn-off expects i > 0,
+    LS turn-off i < 0. Returns the wrong-sign edges and the smallest correct-sign |i| relative to
+    the steady-state peak."""
+    w = fr
+    h = math.pi / w / steps
+    r = 1.0 / q
+    i = vc = 0.0
+    bad, mags = [], []
+    for e in range(n_edges):
+        v = 1.0 if e % 2 == 0 else -1.0
+        for _ in range(steps):
+            def d(i_, vc_):
+                return v - r * i_ - vc_, i_
+            k1 = d(i, vc)
+            k2 = d(i + h / 2 * k1[0], vc + h / 2 * k1[1])
+            k3 = d(i + h / 2 * k2[0], vc + h / 2 * k2[1])
+            k4 = d(i + h * k3[0], vc + h * k3[1])
+            i += h / 6 * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0])
+            vc += h / 6 * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1])
+        good = i > 0 if e % 2 == 0 else i < 0
+        (mags if good else bad).append(abs(i) if good else e)
+    # steady-state fundamental: |I1| = (4/pi) / |Z|, Z = R + j (w - 1/w)
+    i_ss = (4 / math.pi) / math.hypot(r, w - 1 / w)
+    return {"wrong_sign_edges": bad, "min_sample_over_ss_peak": (min(mags) / i_ss) if mags else None,
+            "min_sample_V_over_Z0": min(mags) if mags else None}
+
+
+def capmode() -> dict:
+    """Timing of the hardware capacitive-mode detector against native-21's dead time and gate edge.
+
+    A capacitive sample at an HS turn-off command (current already negative) makes the next LS
+    turn-on hard (S4); the detector must drop the drivers' DIS before that LS gate reaches Vth.
+    Deadline from the HS turn-off command: DT_min plus the time the LS gate takes from -2 V to Vth
+    on R_on / Cgs and the extracted gate-loop inductance (LS 46.85 nH; the LA flip-flop guards the
+    HS gate, 55.66 nH). The command-to-driver-input and driver propagation delays are left out
+    (they only add margin). The 2EDR8259X DIS-to-output delay is not in its datasheet: the result is
+    the slack left for it (open item for the power-stage bench).
+    """
+    import hashlib
+    n21 = UNIT / "inputs/native-21"
+    prov = json.loads((n21 / "legB21-h0-best.provenance.json").read_text())
+    raw = (n21 / prov["file"]).read_bytes()
+    if hashlib.sha256(raw).hexdigest() != prov["sha256"]:
+        raise SystemExit("legB21-h0-best.matrix.txt does not match its provenance")
+    mat = json.loads(raw.decode().split("RESULT", 1)[1])
+    names = mat["names"]
+    l_hs = mat["L0_nH"][names.index("P3_gate_high")][names.index("P3_gate_high")] * 1e-9
+    l_ls = mat["L0_nH"][names.index("P4_gate_low")][names.index("P4_gate_low")] * 1e-9
+    g = CM_GATE
+    r_min = g["r_on_ohm"] * (1 - g["r_on_tol"])
+    c_min = g["cgs_F"] * (1 - g["cgs_tol"])
+    cross = {leg: _gate_cross_ns(l, r_min, c_min, g["v_on"], g["v_off"], g["vth_min_V"])
+             for leg, l in (("LS (after a sampled HS turn-off)", l_ls), ("HS (after a sampled LS turn-off)", l_hs))}
+    chain = sum(v for v, _ in CM_TPD_NS.values())
+    deadline_start = CM_DT_NS[0]
+    deadline_vth = CM_DT_NS[0] + min(cross.values())
+    slack_start = deadline_start - chain
+    slack_vth = deadline_vth - chain
+    half_period = 0.5 / CM_F_MAX_HZ * 1e9
+    # blind band: the sample sees the current CM_CT_TPD_NS before the command edge; ZVS needs the
+    # sign to hold until the partner turns on, DT_max after the command
+    blind_ns = CM_CT_TPD_NS + CM_DT_NS[1]
+    blind_deg = blind_ns * 1e-9 * CM_F_MAX_HZ * 360.0
+    # burst start from rest above resonance: no wrong-sign sample (no false trip); a start below
+    # resonance is caught on the first edges (negative control)
+    grid = {}
+    for qf in (1.0, 2.0, 4.0, 8.0, 15.0):
+        for fr in (1.02, 1.05, 1.1, 1.2, 1.3, 1.5, 1.8):
+            grid[f"Q{qf:g}_f{fr:g}"] = _burst_samples(fr, qf)
+    below = {f"Q{qf:g}_f0.9": _burst_samples(0.9, qf) for qf in (2.0, 8.0, 15.0)}
+    worst_mag = min(v["min_sample_V_over_Z0"] for v in grid.values())
+    return {"source": ["SCES218AA", "SCAS287U", "SCES219W", "SCAS285AC", "Nexperia 74HC30", "SCES794G",
+                       "SCES217AA", "SCES212AC", "SBOS561C", "native-21 DECISIONS (DT band, candidate 39)",
+                       "legB21-h0-best.matrix.txt (f4ed8b17a)"],
+            "tpd_max_ns": {k: {"ns": v, "basis": b} for k, (v, b) in CM_TPD_NS.items()},
+            "chain_to_dis_pin_max_ns": chain,
+            "gate_loop_nH": {"HS": l_hs * 1e9, "LS": l_ls * 1e9}, "gate": g,
+            "gate_reaches_vth_after_ns": cross,
+            "dead_time_ns": CM_DT_NS,
+            "slack_for_dis_to_output_before_partner_output_rises_ns": slack_start,
+            "slack_for_dis_to_output_before_partner_gate_reaches_vth_ns": slack_vth,
+            "half_period_at_f_max_ns": half_period,
+            "edges_before_stop": {"hardware, DIS-to-output <= slack": 0,
+                                  "hardware, DIS-to-output < half period": 1,
+                                  "software latch (S14)": CM_SW_LATCH_EDGES},
+            "blind_band": {"ns": blind_ns, "deg_at_f_max": blind_deg,
+                           "meaning": "a current zero that falls between ct_zc's view of the command edge and "
+                                      "the partner's turn-on (inside the dead time) is not sampled as "
+                                      "capacitive: partial ZVS loss there stays a firmware matter (inductive "
+                                      "margin, S14 software latch)"},
+            "burst_start": {"grid_f_over_f0_1.02_to_1.8_Q_1_to_15": grid, "below_resonance_f0.9": below,
+                            "min_sample_V_over_Z0": worst_mag,
+                            "note": "smallest correct-sign current at any sampled edge, in units of the bridge "
+                                    "drive voltage over the tank's characteristic impedance sqrt(L/C); CT_ZC "
+                                    "must resolve at least this at the first edges (bench item, with the "
+                                    "native-21 'zero-cross behaviour with no tank current' item)"},
+            "firmware_requirements": [
+                "start every burst at or above the tank resonance (the 2026-10-03 inductive-side rule); a start "
+                "below it trips the detector on the first edges",
+                "RUN_EN low -> high re-arms the detector; raise RUN_EN only with PWM idle",
+                "read CM_HA_OK_RB / CM_LA_OK_RB on the expander after any interlock trip to name the cause"],
+            "checks": {"chain_reaches_dis_before_dt_min": slack_start > 0,
+                       "chain_reaches_dis_before_partner_vth": slack_vth > 0,
+                       "chain_well_inside_half_period": chain < 0.1 * half_period,
+                       "burst_start_above_resonance_never_samples_wrong_sign":
+                           all(not v["wrong_sign_edges"] for v in grid.values()),
+                       "burst_start_below_resonance_is_caught": all(v["wrong_sign_edges"] for v in below.values()),
+                       "blind_band_le_15deg_at_60kHz": blind_deg <= 15.0}}
+
+
 def harness_sensitivity() -> dict:
     """How far the DEFAULT harness length can grow before native-21's rail leaves 3.135 V.
 
@@ -689,6 +917,8 @@ def main() -> int:
         "blw_pg": blw_pg(),
         "rim_ntc": rim_ntc(),
         "thermal_trips": thermal_trips(),
+        "rim_trip": rim_trip(),
+        "capmode": capmode(),
         "harness_sensitivity": harness_sensitivity(),
     }
     failed = [f"{blk}.{name}" for blk, val in result.items() if isinstance(val, dict)

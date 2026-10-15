@@ -97,6 +97,436 @@
     "vih_V": 2.4254999999999995,
     "vil_V": 0.9404999999999999
   },
+  "capmode": {
+    "blind_band": {
+      "deg_at_f_max": 13.478400000000002,
+      "meaning": "a current zero that falls between ct_zc's view of the command edge and the partner's turn-on (inside the dead time) is not sampled as capacitive: partial ZVS loss there stays a firmware matter (inductive margin, S14 software latch)",
+      "ns": 624.0
+    },
+    "burst_start": {
+      "below_resonance_f0.9": {
+        "Q15_f0.9": {
+          "min_sample_V_over_Z0": null,
+          "min_sample_over_ss_peak": null,
+          "wrong_sign_edges": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39
+          ]
+        },
+        "Q2_f0.9": {
+          "min_sample_V_over_Z0": null,
+          "min_sample_over_ss_peak": null,
+          "wrong_sign_edges": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39
+          ]
+        },
+        "Q8_f0.9": {
+          "min_sample_V_over_Z0": null,
+          "min_sample_over_ss_peak": null,
+          "wrong_sign_edges": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39
+          ]
+        }
+      },
+      "grid_f_over_f0_1.02_to_1.8_Q_1_to_15": {
+        "Q15_f1.02": {
+          "min_sample_V_over_Z0": 0.05712759709477871,
+          "min_sample_over_ss_peak": 0.003479281679943909,
+          "wrong_sign_edges": []
+        },
+        "Q15_f1.05": {
+          "min_sample_V_over_Z0": 0.13645871130788348,
+          "min_sample_over_ss_peak": 0.012669232854280201,
+          "wrong_sign_edges": []
+        },
+        "Q15_f1.1": {
+          "min_sample_V_over_Z0": 0.2576761843881282,
+          "min_sample_over_ss_peak": 0.040923858086748366,
+          "wrong_sign_edges": []
+        },
+        "Q15_f1.2": {
+          "min_sample_V_over_Z0": 0.4596260114472183,
+          "min_sample_over_ss_peak": 0.13453281566599634,
+          "wrong_sign_edges": []
+        },
+        "Q15_f1.3": {
+          "min_sample_V_over_Z0": 0.6130680831710609,
+          "min_sample_over_ss_peak": 0.2575747999657055,
+          "wrong_sign_edges": []
+        },
+        "Q15_f1.5": {
+          "min_sample_V_over_Z0": 0.5887909607070647,
+          "min_sample_over_ss_peak": 0.38659397677258894,
+          "wrong_sign_edges": []
+        },
+        "Q15_f1.8": {
+          "min_sample_V_over_Z0": 0.4768073513853133,
+          "min_sample_over_ss_peak": 0.46669229968941006,
+          "wrong_sign_edges": []
+        },
+        "Q1_f1.02": {
+          "min_sample_V_over_Z0": 0.1130455009443166,
+          "min_sample_over_ss_peak": 0.08885534422266522,
+          "wrong_sign_edges": []
+        },
+        "Q1_f1.05": {
+          "min_sample_V_over_Z0": 0.13530920047310876,
+          "min_sample_over_ss_peak": 0.10677675337771045,
+          "wrong_sign_edges": []
+        },
+        "Q1_f1.1": {
+          "min_sample_V_over_Z0": 0.17155682375727188,
+          "min_sample_over_ss_peak": 0.13717383394787747,
+          "wrong_sign_edges": []
+        },
+        "Q1_f1.2": {
+          "min_sample_V_over_Z0": 0.23924558699524717,
+          "min_sample_over_ss_peak": 0.20013610040803848,
+          "wrong_sign_edges": []
+        },
+        "Q1_f1.3": {
+          "min_sample_V_over_Z0": 0.29897008599665736,
+          "min_sample_over_ss_peak": 0.2658358304784635,
+          "wrong_sign_edges": []
+        },
+        "Q1_f1.5": {
+          "min_sample_V_over_Z0": 0.3933022053384254,
+          "min_sample_over_ss_peak": 0.40209616413497296,
+          "wrong_sign_edges": []
+        },
+        "Q1_f1.8": {
+          "min_sample_V_over_Z0": 0.4816282733477173,
+          "min_sample_over_ss_peak": 0.6038878207331185,
+          "wrong_sign_edges": []
+        },
+        "Q2_f1.02": {
+          "min_sample_V_over_Z0": 0.07590364845679147,
+          "min_sample_over_ss_peak": 0.029900669033328896,
+          "wrong_sign_edges": []
+        },
+        "Q2_f1.05": {
+          "min_sample_V_over_Z0": 0.11838420795247521,
+          "min_sample_over_ss_peak": 0.0473671223468708,
+          "wrong_sign_edges": []
+        },
+        "Q2_f1.1": {
+          "min_sample_V_over_Z0": 0.18584576836386832,
+          "min_sample_over_ss_peak": 0.07812034493621306,
+          "wrong_sign_edges": []
+        },
+        "Q2_f1.2": {
+          "min_sample_V_over_Z0": 0.3060448282832551,
+          "min_sample_over_ss_peak": 0.1490361836088911,
+          "wrong_sign_edges": []
+        },
+        "Q2_f1.3": {
+          "min_sample_V_over_Z0": 0.4055958141144577,
+          "min_sample_over_ss_peak": 0.2322860882728979,
+          "wrong_sign_edges": []
+        },
+        "Q2_f1.5": {
+          "min_sample_V_over_Z0": 0.5490033227320654,
+          "min_sample_over_ss_peak": 0.41903766632103834,
+          "wrong_sign_edges": []
+        },
+        "Q2_f1.8": {
+          "min_sample_V_over_Z0": 0.6628718077146512,
+          "min_sample_over_ss_peak": 0.6982192082230966,
+          "wrong_sign_edges": []
+        },
+        "Q4_f1.02": {
+          "min_sample_V_over_Z0": 0.05874271781118072,
+          "min_sample_over_ss_peak": 0.011677964442040742,
+          "wrong_sign_edges": []
+        },
+        "Q4_f1.05": {
+          "min_sample_V_over_Z0": 0.11940901281675428,
+          "min_sample_over_ss_peak": 0.025169936761844935,
+          "wrong_sign_edges": []
+        },
+        "Q4_f1.1": {
+          "min_sample_V_over_Z0": 0.21381532052237395,
+          "min_sample_over_ss_peak": 0.05282365399738961,
+          "wrong_sign_edges": []
+        },
+        "Q4_f1.2": {
+          "min_sample_V_over_Z0": 0.3761449017982815,
+          "min_sample_over_ss_peak": 0.13110429769600193,
+          "wrong_sign_edges": []
+        },
+        "Q4_f1.3": {
+          "min_sample_V_over_Z0": 0.5045918597973237,
+          "min_sample_over_ss_peak": 0.23251213997099177,
+          "wrong_sign_edges": []
+        },
+        "Q4_f1.5": {
+          "min_sample_V_over_Z0": 0.678099698175828,
+          "min_sample_over_ss_peak": 0.4633566873982557,
+          "wrong_sign_edges": []
+        },
+        "Q4_f1.8": {
+          "min_sample_V_over_Z0": 0.799888037983426,
+          "min_sample_over_ss_peak": 0.7974179174863864,
+          "wrong_sign_edges": []
+        },
+        "Q8_f1.02": {
+          "min_sample_V_over_Z0": 0.05584717727628669,
+          "min_sample_over_ss_peak": 0.005751442825884485,
+          "wrong_sign_edges": []
+        },
+        "Q8_f1.05": {
+          "min_sample_V_over_Z0": 0.12866924377560437,
+          "min_sample_over_ss_peak": 0.016027739991126853,
+          "wrong_sign_edges": []
+        },
+        "Q8_f1.1": {
+          "min_sample_V_over_Z0": 0.24062448500924405,
+          "min_sample_over_ss_peak": 0.043124972348736905,
+          "wrong_sign_edges": []
+        },
+        "Q8_f1.2": {
+          "min_sample_V_over_Z0": 0.4291272318726778,
+          "min_sample_over_ss_peak": 0.13056359328709194,
+          "wrong_sign_edges": []
+        },
+        "Q8_f1.3": {
+          "min_sample_V_over_Z0": 0.5743198397616149,
+          "min_sample_over_ss_peak": 0.24596373659905318,
+          "wrong_sign_edges": []
+        },
+        "Q8_f1.5": {
+          "min_sample_V_over_Z0": 0.7630506163030724,
+          "min_sample_over_ss_peak": 0.505002631434543,
+          "wrong_sign_edges": []
+        },
+        "Q8_f1.8": {
+          "min_sample_V_over_Z0": 0.6146785673879809,
+          "min_sample_over_ss_peak": 0.6038003912132529,
+          "wrong_sign_edges": []
+        }
+      },
+      "min_sample_V_over_Z0": 0.05584717727628669,
+      "note": "smallest correct-sign current at any sampled edge, in units of the bridge drive voltage over the tank's characteristic impedance sqrt(L/C); CT_ZC must resolve at least this at the first edges (bench item, with the native-21 'zero-cross behaviour with no tank current' item)"
+    },
+    "chain_to_dis_pin_max_ns": 218.1,
+    "checks": {
+      "blind_band_le_15deg_at_60kHz": true,
+      "burst_start_above_resonance_never_samples_wrong_sign": true,
+      "burst_start_below_resonance_is_caught": true,
+      "chain_reaches_dis_before_dt_min": true,
+      "chain_reaches_dis_before_partner_vth": true,
+      "chain_well_inside_half_period": true
+    },
+    "dead_time_ns": [
+      408.0,
+      569.0
+    ],
+    "edges_before_stop": {
+      "hardware, DIS-to-output < half period": 1,
+      "hardware, DIS-to-output <= slack": 0,
+      "software latch (S14)": [
+        370,
+        740
+      ]
+    },
+    "firmware_requirements": [
+      "start every burst at or above the tank resonance (the 2026-10-03 inductive-side rule); a start below it trips the detector on the first edges",
+      "RUN_EN low -> high re-arms the detector; raise RUN_EN only with PWM idle",
+      "read CM_HA_OK_RB / CM_LA_OK_RB on the expander after any interlock trip to name the cause"
+    ],
+    "gate": {
+      "cgs_F": 4.7e-09,
+      "cgs_tol": 0.05,
+      "r_on_ohm": 68.0,
+      "r_on_tol": 0.01,
+      "source": "native-21 candidate 39 (DECISIONS 54; gate-network-2026-10-15 README): R_on 25121WF680JT4E 68 ohm 1 %, Cgs GRM1885C1H472JA01D 4.7 nF C0G 5 %; F6 bipolar drive +15 / -2 V; 1.9 V = the hot off-gate screen (DECISIONS 2026-10-03), used as the lowest Vth",
+      "v_off": -2.0,
+      "v_on": 15.0,
+      "vth_min_V": 1.9
+    },
+    "gate_loop_nH": {
+      "HS": 55.66340000000001,
+      "LS": 46.84720000000001
+    },
+    "gate_reaches_vth_after_ns": {
+      "HS (after a sampled LS turn-off)": 78.94999999999992,
+      "LS (after a sampled HS turn-off)": 78.84999999999991
+    },
+    "half_period_at_f_max_ns": 8333.333333333334,
+    "slack_for_dis_to_output_before_partner_gate_reaches_vth_ns": 268.7499999999999,
+    "slack_for_dis_to_output_before_partner_output_rises_ns": 189.9,
+    "source": [
+      "SCES218AA",
+      "SCAS287U",
+      "SCES219W",
+      "SCAS285AC",
+      "Nexperia 74HC30",
+      "SCES794G",
+      "SCES217AA",
+      "SCES212AC",
+      "SBOS561C",
+      "native-21 DECISIONS (DT band, candidate 39)",
+      "legB21-h0-best.matrix.txt (f4ed8b17a)"
+    ],
+    "tpd_max_ns": {
+      "J4 harness <= 1 m (allocation 5 ns/m) + 100 ohm x 50 pF": {
+        "basis": "allocation",
+        "ns": 10.0
+      },
+      "interlock.aggregate 74HC30 A->Y": {
+        "basis": "Nexperia 74HC30 Rev. 6 tpd at VCC 2.0 V, -40..85 C (no 3.3 V row; tpd falls with VCC, so the 2.0 V figure bounds 3.135 V)",
+        "ns": 165.0
+      },
+      "interlock.control_inv SN74LVC14A A->Y": {
+        "basis": "SCAS285AC 7.9",
+        "ns": 6.4
+      },
+      "interlock.fault_inv SN74LVC14A A->Y": {
+        "basis": "SCAS285AC 7.9",
+        "ns": 6.4
+      },
+      "interlock.latch SN74LVC1G74 CLR->Q": {
+        "basis": "SCES794G 7.7",
+        "ns": 5.9
+      },
+      "native-21 U22/U23 SN74LVC1G00 A->Y (DIS)": {
+        "basis": "SCES212AC, CL 30/50 pF",
+        "ns": 4.7
+      },
+      "u_cm_ff SN74LVC74A CLK->Q": {
+        "basis": "SCAS287U 6.11",
+        "ns": 5.2
+      },
+      "u_cm_inv SN74LVC1G14 A->Y": {
+        "basis": "SCES218AA 6.x, CL 30/50 pF",
+        "ns": 5.5
+      },
+      "u_cm_or SN74LVC1G32 A->Y": {
+        "basis": "SCES219W, CL 30/50 pF",
+        "ns": 4.5
+      },
+      "u_permit SN74LVC1G08 A->Y": {
+        "basis": "SCES217AA 5.8, CL 30/50 pF",
+        "ns": 4.5
+      }
+    }
+  },
   "ct_mon": {
     "atten": "ATTEN3 (0-2900 mV)",
     "checks": {
@@ -437,6 +867,28 @@
     },
     "source": "Semitec GT-2 series datasheet (2023-08-01) R-T table; dissipation 0.6 mW/C"
   },
+  "rim_trip": {
+    "checks": {
+      "band_above_250C": true,
+      "band_below_300C": true,
+      "below_ntc_table_end_290C": true
+    },
+    "corners": 64,
+    "enable_condition": "fit only after bench T3 logs the rim maximum under a 250 C hold <= band low - 10 K",
+    "k_nominal": 0.10351966873706005,
+    "r_trip_nominal_ohm": 115.47344110854505,
+    "self_heating_at_trip_K": 1.6843807466275733,
+    "source": [
+      "TLV3201",
+      "Semitec GT-2 series datasheet (2023-08-01) R-T table",
+      "sensor-r3 CHANGE-REQUEST CR-5 / checks.py item 8"
+    ],
+    "trip_band_C": [
+      262.11779088672785,
+      288.3025417416212
+    ],
+    "trip_nominal_C": 275.5804052735173
+  },
   "rms_channel": {
     "adc_V_at_22A_rms": 1.32,
     "adc_V_at_55A_peak_trip": 2.3334523779156067,
@@ -469,25 +921,26 @@
   },
   "runaway": {
     "checks": {
-      "above_cooking_max": true,
-      "below_350C": true
+      "above_max_setpoint_plus_overshoot_plus_15K": true,
+      "below_bond_intermittent_325C": true
     },
-    "divider": "20.0k / 10.0k 0.1 % 25 ppm from MAX31865 BIAS",
+    "divider": "20.0k / 10.0k 0.1 % 25 ppm from MAX31865 BIAS, bottom on J3.3 (S-)",
     "firmware_runaway_C": 300.0,
     "k_nominal": 0.3333333333333333,
-    "lead_allocation_ohm": "0-1 per conductor (RTD contract)",
+    "lead_allocation_ohm": "0.9-1.1 x 1.80 per conductor (sensor-r3 C1 leads); FORCE- switch 0.5-20 ohm",
     "max_cooking_C": 250.0,
     "source": [
       "MAX31865",
       "TLV3201",
-      "Pt100"
+      "Pt100",
+      "sensor-r3 CHANGE-REQUEST CR-3"
     ],
-    "trip_resistance_nominal_ohm": 214.99999999999994,
+    "trip_resistance_nominal_ohm": 215.89999999999998,
     "trip_temp_band_C": [
-      296.6425302943203,
-      319.0529645941341
+      298.8116273322159,
+      323.05925319106495
     ],
-    "trip_temp_nominal_C": 308.28925854023976
+    "trip_temp_nominal_C": 310.8239256497098
   },
   "schema": "temper.controller.calcs.v1",
   "sources": {

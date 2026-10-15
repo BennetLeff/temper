@@ -67,7 +67,8 @@ class Mutations(unittest.TestCase):
         for fn in (lambda: vc.check_j4(rep, nl, self.n21), lambda: vc.check_adc1(rep, nl, CALCS),
                    lambda: vc.check_trip(rep, nl, CALCS), lambda: vc.check_misc(rep, nl),
                    lambda: vc.check_ct_rms(rep, nl, CALCS), lambda: vc.check_ui_bus(rep, nl, CALCS), lambda: vc.check_blower(rep, nl, CALCS),
-                   lambda: vc.check_v3v3(rep, nl, self.n21, CALCS), lambda: vc.check_blwin(rep, nl, CALCS)):
+                   lambda: vc.check_v3v3(rep, nl, self.n21, CALCS), lambda: vc.check_blwin(rep, nl, CALCS),
+                   lambda: vc.check_sensor_io(rep, nl), lambda: vc.check_capmode(rep, nl, CALCS)):
             fn()
         return rep.failed
 
@@ -114,7 +115,7 @@ class Mutations(unittest.TestCase):
 
     def test_disconnected_heatsink_fault_fails(self):
         inv = self.ref("interlock.fault_inv")
-        t = move_node(self.base, inv, "5", "OVP_TIE")           # HS input tied healthy
+        t = move_node(self.base, inv, "5", "selv_gnd")          # HS input tied healthy
         failed = self.run_checks(t)
         self.assertIn("trip.every_specified_source_reaches_permit", failed)
 
@@ -124,8 +125,89 @@ class Mutations(unittest.TestCase):
         window = self.base_nl.net_of(comp, "3")                # the RTDIN+ window node
         t = move_node(t, comp, "4", window)
         failed = self.run_checks(t)
-        self.assertIn("trip.runaway_inp_observes_rtdin_plus_via_window_branch", failed)
-        self.assertIn("trip.runaway_inn_is_bias_divider", failed)
+        self.assertIn("trip.runaway_inp_observes_j3_sense_plus_via_window_branch", failed)
+        self.assertIn("trip.runaway_inn_is_bias_divider_referenced_to_j3_sense_minus", failed)
+
+    # ---- sensor-r3 CR-1..CR-6 (DECISIONS C37, C38, C40)
+    def test_runaway_divider_back_on_gnd_fails(self):           # CR-3 regression
+        t = move_node(self.base, self.ref("r_runaway_bot"), "2", "selv_gnd")
+        self.assertIn("trip.runaway_inn_is_bias_divider_referenced_to_j3_sense_minus", self.run_checks(t))
+
+    def test_window_branch_on_adc_side_fails(self):             # CR-2 regression
+        t = move_node(self.base, self.ref("rtd_pan.r_window_sense_p"), "1", "rtd_sense_p")
+        self.assertIn("trip.runaway_inp_observes_j3_sense_plus_via_window_branch", self.run_checks(t))
+
+    def test_rtdin_bypassing_the_filter_fails(self):             # CR-1 regression
+        t = move_node(self.base, self.ref("rtd_pan.adc"), "10", "rtd_sense_p_ext")
+        self.assertIn("trip.rtdin_reaches_j3_through_two_stage_filter", self.run_checks(t))
+
+    def test_rim_trip_polarity_swapped_fails(self):
+        u = self.ref("u_rim_trip")
+        t = move_node(self.base, u, "3", "rim_filt")
+        t = move_node(t, u, "4", "RIM_TRIP_TH")
+        failed = self.run_checks(t)
+        self.assertIn("trip.rim_trip_inp_is_v3v3_divider", failed)
+        self.assertIn("trip.rim_trip_inn_observes_rim_ntc_filter_node", failed)
+
+    def test_rim_trip_not_ored_into_runaway_fails(self):        # CR-5 regression
+        t = move_node(self.base, self.ref("u_runaway_or"), "2", "selv_gnd")
+        self.assertIn("trip.every_specified_source_reaches_permit", self.run_checks(t))
+
+    def test_j3_pin_without_tvs_fails(self):
+        t = drop_node(self.base, self.ref("rtd_pan.d_j_sn"), "1")
+        self.assertIn("sensor_io.j3_3_220nF_and_tvs_to_gnd", self.run_checks(t))
+
+    def test_j12_drain_floating_fails(self):                     # CR-4 regression
+        t = drop_node(self.base, self.ref("j_rim"), "3")
+        self.assertIn("sensor_io.j12_rim_sense_return_and_drain", self.run_checks(t))
+
+    def test_rim_tvs_vrwm_below_v3v3_fails(self):               # CR-6 regression
+        nl = self.load(self.base)
+        nl.mpn[nl.ref_of("d_rim")] = "ESD5Z3.3T1G"
+        rep = vc.Report()
+        vc.check_sensor_io(rep, nl)
+        self.assertIn("sensor_io.rim_sense_tvs_vrwm_ge_v3v3_max", rep.failed)
+
+    # ---- capacitive-mode detector (DECISIONS C39)
+    def test_cap_fault_tied_off_fails(self):
+        il = self.ref("interlock.fault_inv")
+        t = move_node(self.base, il, "3", "selv_gnd")
+        failed = self.run_checks(t)
+        self.assertIn("capmode.cap_fault_enters_the_interlock_ovp_input", failed)
+        self.assertIn("trip.every_specified_source_reaches_permit", failed)
+
+    def test_cm_clocks_swapped_fails(self):
+        ff = self.ref("u_cm_ff")
+        t = move_node(self.base, ff, "3", "CM_CLK_LA")
+        t = move_node(t, ff, "11", "CM_CLK_HA")
+        failed = self.run_checks(t)
+        self.assertIn("capmode.ff1_clock_is_the_inverted_ha_command", failed)
+        self.assertIn("capmode.inductive_operation_never_faults_1_to_89_deg", failed)
+
+    def test_cm_polarity_strap_removed_fails(self):
+        t = drop_node(self.base, self.ref("r_cm_pol"), "2")
+        failed = self.run_checks(t)
+        self.assertIn("capmode.polarity_strap_fitted_0ohm_to_gnd_with_pullup_alternative", failed)
+        self.assertIn("capmode.inductive_operation_never_faults_1_to_89_deg", failed)
+
+    def test_cm_run_en_on_the_wrong_async_pin_fails(self):
+        ff = self.ref("u_cm_ff")
+        t = move_node(self.base, ff, "4", "v3v3")               # 1PRE released
+        t = move_node(t, ff, "1", "RUN_EN")                      # RUN_EN onto 1CLR: holds 1Q-bar high
+        failed = self.run_checks(t)
+        self.assertIn("capmode.run_en_low_presets_ff1_and_clears_ff2", failed)
+        self.assertIn("capmode.run_en_low_holds_healthy_from_the_fault_power_up_state", failed)
+
+    def test_cm_d_from_mcu_gpio_fails(self):
+        ff = self.ref("u_cm_ff")
+        t = move_node(self.base, ff, "2", "CT_ZC_MCU" if "CT_ZC_MCU" in self.base else "ct_zc")
+        self.assertIn("capmode.both_d_inputs_are_ct_zc_through_the_polarity_xor", self.run_checks(t))
+
+    # ---- item 4 (DECISIONS C41)
+    def test_en_on_a_harness_connector_fails(self):
+        en = self.base_nl.net_of("U4", "3")
+        t = move_node(self.base, "J12", "3", en)
+        self.assertIn("misc.en_reaches_only_the_flush_debug_land", self.run_checks(t))
 
     def test_vbus_on_adc2_fails(self):
         r = self.ref("r_vbus_adc")

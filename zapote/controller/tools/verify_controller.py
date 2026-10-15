@@ -22,8 +22,13 @@ and native-21's frozen netlist snapshot. Checks, each fail-closed:
              full-speed fail-safe, expander switch-off with a run-at-reset default, sizing calcs
   ui         J7 (R33 UI bus): pin map, a GND beside every signal, series R and ESD
              on every line, its own SPI host apart from the RTD / MCP3202 bus
+  sensor_io  J3 / J12 connector protection and pin maps (sensor-r3 CR-1, CR-4, CR-6; C37, C40)
+  capmode    capacitive-mode detector (C39): structure from the netlist, a sequence simulation of
+             the captured gates (inductive never faults, capacitive faults on the first edge,
+             RUN_EN clears, stuck/reversed CT), and the timing calcs
   bom        every resolved MPN is in bom/controller-parts.json with a source
-  misc       PWM pull-downs <= 10 kOhm, strap pins safe at reset
+  misc       PWM pull-downs <= 10 kOhm, strap pins safe at reset, the TC2050 debug land, no
+             tactile switch, EN / IO0 on no connector but that land (C41)
 
 Usage:
   python3 tools/verify_controller.py [--build DIR] [--json OUT]
@@ -104,6 +109,15 @@ MODELS: dict[str, Model] = {
                            basis="SCES217AA: ICC 10 uA", logic="and:1,2>4"),
     "SN74LVC1G32DBVR": _ic([5], [3], ins=[1, 2], outs=[4], ma=0.010,
                            basis="SCES219W: ICC 10 uA", logic="or:1,2>4"),
+    # C39 capacitive-mode detector: polarity XOR and the per-leg sampling flip-flops. The flip-flop
+    # pair is a free variable in the PERMIT trip simulation (any state is possible) and is
+    # sequence-simulated separately in check_capmode.
+    "SN74LVC1G86DBVR": _ic([5], [3], ins=[1, 2], outs=[4], ma=0.015,
+                           basis="SCES222Q: ICC 15 uA (-40..125 C)", logic="xor:1,2>4"),
+    "SN74LVC74APWR": _ic([14], [7], ins=[1, 2, 3, 4, 10, 11, 12, 13], outs=[5, 6, 8, 9], ma=0.010,
+                         basis="SCAS287U: ICC 10 uA (VCC 3.6 V)", logic="free:cap_mode"),
+    "ESD5Z5.0T1G": Model({"1": "in", "2": "gnd"}, 0.00005,
+                         "onsemi ESD5Z: IR 0.05 uA max at VRWM 5.0 V (C40 rim NTC line)"),
     "SN74LVC1G38DBVR": _ic([5], [3], ins=[1, 2], ods=[4], ma=0.010,
                            basis="SCES538H: ICC 10 uA", logic="nand_od:1,2>4"),
     "SN74LVC14ADR": _ic([14], [7], ins=[1, 3, 5, 9, 11, 13], outs=[2, 4, 6, 8, 10, 12], ma=0.040,
@@ -315,6 +329,10 @@ def check_sources(rep: Report):
     proc = subprocess.run([sys.executable, str(UNIT / "tools/port_blocks.py"), "--check"],
                           capture_output=True, text=True)
     rep.check("sources", "ported_blocks_equal_source_minus_boundary", proc.returncode == 0, proc.stdout.strip())
+    proc = subprocess.run([sys.executable, str(UNIT / "tools/port_rtd_c1.py"), "--check"],
+                          capture_output=True, text=True)
+    rep.check("sources", "rtd_c1_block_equals_rtd_source_plus_listed_edits", proc.returncode == 0,
+              (proc.stdout + proc.stderr).strip())
     contract = json.loads((ZAPOTE / "rtd/circuit/rtd_contract.json").read_text())
     want = contract["authoritative_input"]["files"]
     for name in ("modules.ato", "components.ato", "footprints.ato"):
@@ -476,13 +494,52 @@ def check_source_wiring(rep: Report, nl: Netlist, calcs: dict | None) -> None:
     comp = nl.ref_of("u_runaway")
     adc = nl.ref_of("rtd_pan.adc")
     inp, inn = nl.net_of(comp, "3"), nl.net_of(comp, "4")
-    rtdin_p, bias = nl.net_of(adc, "10"), nl.net_of(adc, "4")
+    rtdin_p, rtdin_n, bias = nl.net_of(adc, "10"), nl.net_of(adc, "11"), nl.net_of(adc, "4")
+    j3 = nl.ref_of("rtd_pan.j_rtd1")
+    s_p, s_n = nl.net_of(j3, "2"), nl.net_of(j3, "3")
     win = nl.ref_of("rtd_pan.r_window_sense_p")
     top, bot = nl.ref_of("r_runaway_top"), nl.ref_of("r_runaway_bot")
-    rep.check("trip", "runaway_inp_observes_rtdin_plus_via_window_branch", ends(win) == {rtdin_p, inp},
-              {"inp": inp, "window_branch": sorted(ends(win))})
-    rep.check("trip", "runaway_inn_is_bias_divider", ends(top) == {bias, inn} and ends(bot) == {inn, GND},
-              {"inn": inn, "top": sorted(ends(top)), "bot": sorted(ends(bot))})
+    # C37/C38 (sensor-r3 CR-2/CR-3): the window branch and the runaway divider both see the
+    # connector-side sense nodes (J3.2 / J3.3), upstream of the ADC's RTDIN filter
+    rep.check("trip", "runaway_inp_observes_j3_sense_plus_via_window_branch", ends(win) == {s_p, inp},
+              {"inp": inp, "window_branch": sorted(ends(win)), "j3_2": s_p})
+    rep.check("trip", "runaway_inn_is_bias_divider_referenced_to_j3_sense_minus",
+              ends(top) == {bias, inn} and ends(bot) == {inn, s_n},
+              {"inn": inn, "top": sorted(ends(top)), "bot": sorted(ends(bot)), "j3_3": s_n})
+    # CR-1: RTDIN+/- reach J3.2/J3.3 only through two series resistors each (the two-stage filter)
+    def series_path(a, b):
+        hops = []
+        n = a
+        for _ in range(2):
+            rs = [r for r, p in nl.nets.get(n, []) if r.startswith("R") and r not in hops
+                  and pn.get((r, "2" if p == "1" else "1")) not in (V3, GND, None, OPEN)
+                  and nl.refs[r].startswith("rtd_pan.r_s")]
+            if len(rs) != 1:
+                return None
+            hops.append(rs[0])
+            n = next(o for o in ends(rs[0]) if o != n)
+        return hops if n == b else None
+    hp, hn = series_path(rtdin_p, s_p), series_path(rtdin_n, s_n)
+    rep.check("trip", "rtdin_reaches_j3_through_two_stage_filter", bool(hp) and bool(hn),
+              {"plus": hp, "minus": hn})
+    rep.check("trip", "j3_sense_pins_not_the_adc_pins", s_p != rtdin_p and s_n != rtdin_n, [s_p, s_n])
+    # C38 (CR-5): rim trip comparator: INP = fixed v3v3 divider, INN = the filtered rim NTC node
+    # (NTC to ground under a v3v3 pull-up: hot -> node falls below the threshold -> output high)
+    rim = nl.ref_of("u_rim_trip")
+    r_inp, r_inn = nl.net_of(rim, "3"), nl.net_of(rim, "4")
+    th_top, th_bot = nl.ref_of("r_rim_th_top"), nl.ref_of("r_rim_th_bot")
+    filt = nl.ref_of("r_rim_filt")
+    pu = nl.ref_of("r_rim_pu")
+    rep.check("trip", "rim_trip_inp_is_v3v3_divider", ends(th_top) == {V3, r_inp} and ends(th_bot) == {r_inp, GND},
+              {"inp": r_inp, "top": sorted(ends(th_top)), "bot": sorted(ends(th_bot))})
+    rep.check("trip", "rim_trip_inn_observes_rim_ntc_filter_node",
+              ends(filt) == {"RIM_SENSE", r_inn} and ends(pu) == {V3, "RIM_SENSE"}
+              and nl.net_of(nl.ref_of("j_rim"), "1") == "RIM_SENSE",
+              {"inn": r_inn, "filt": sorted(ends(filt)), "pullup": sorted(ends(pu))})
+    if calcs is not None:
+        rt_, rb_ = parse_value(nl.value[th_top])[0], parse_value(nl.value[th_bot])[0]
+        rep.check("trip", "rim_trip_ratio_matches_calcs",
+                  abs(rb_ / (rt_ + rb_) - calcs["rim_trip"]["k_nominal"]) < 1e-9, rb_ / (rt_ + rb_))
     rt, rb = parse_value(nl.value[top])[0], parse_value(nl.value[bot])[0]
     if calcs is not None:
         rep.check("trip", "runaway_ratio_matches_calcs", abs(rb / (rt + rb) - calcs["runaway"]["k_nominal"]) < 1e-9,
@@ -527,6 +584,14 @@ def check_trip(rep: Report, nl: Netlist, calcs: dict | None = None) -> None:
               len(pgate) == 1 and pgate[0][0] == "and" and sorted(pgate[0][1]) == sorted([latch_q, run_en]),
               [(g[0], g[3]) for g in pgate])
     cone, by_out = fan_in_cone(gates, permit)
+    # Simulate the latch and the combinational gates in PERMIT's fan-in cone plus the latch's own
+    # inputs (nothing else can change PERMIT or the latch); the single-latch check above ran on the
+    # whole netlist.
+    keep = set(cone)
+    for g in sim.dff:
+        keep |= fan_in_cone(gates, g[1][0])[0] | fan_in_cone(gates, g[1][1])[0] | \
+            fan_in_cone(gates, g[1][2])[0] | fan_in_cone(gates, g[1][3])[0]
+    sim = Sim([g for g in gates if g[0] == "dff" or g[2] in keep], free, pull, f(GND), f(V3))
     reset = f("IL_RESET_N")
     fw = sorted(n for n in cone if n in free and free[n].startswith("firmware"))
     rep.data("trip", "fan_in_cone_nets", sorted(cone))
@@ -887,6 +952,221 @@ def check_blwin(rep: Report, nl: Netlist, calcs: dict) -> None:
     rep.data("blwin", "blw_pg", {k: v for k, v in calcs["blw_pg"].items() if k != "checks"})
 
 
+# ------------------------------------------------------------ sensor connectors (C37, C40)
+TVS_VRWM = {"ESD5Z3.3T1G": 3.3, "ESD5Z5.0T1G": 5.0}     # onsemi ESD5Z series table
+
+
+def check_sensor_io(rep: Report, nl: Netlist) -> None:
+    """sensor-r3 CR-1 / CR-4 / CR-6 at the connectors: every J3 pin has its 220 nF and TVS to
+    selv_gnd; J12 carries RIM_SENSE, its return and the harness drain on selv_gnd; each TVS's
+    VRWM covers the highest steady voltage on its line (J3: MAX31865 VBIAS 2.06 V max; RIM_SENSE:
+    v3v3 3.465 V max through the 1 k pull-up)."""
+    pn = nl.pin_net()
+    S = "sensor_io"
+
+    def to_gnd(net, pred):
+        return [r for r, p in nl.nets.get(net, []) if pred(r) and pn.get((r, "2" if p == "1" else "1")) == GND]
+    j3 = nl.ref_of("rtd_pan.j_rtd1")
+    for pin in "1234":
+        net = nl.net_of(j3, pin)
+        caps = [c for c in to_gnd(net, lambda r: r.startswith("C")) if nl.mpn.get(c) == "CC0603KRX7R9BB224"]
+        tvs = [d for d in to_gnd(net, lambda r: nl.mpn.get(r) in TVS_VRWM)]
+        rep.check(S, f"j3_{pin}_220nF_and_tvs_to_gnd", len(caps) == 1 and len(tvs) == 1
+                  and TVS_VRWM[nl.mpn[tvs[0]]] >= 2.06, {"net": net, "caps": caps, "tvs": tvs})
+    j12 = nl.ref_of("j_rim")
+    pins = {p: nl.net_of(j12, p) for p in "123"}
+    rep.check(S, "j12_rim_sense_return_and_drain", pins == {"1": "RIM_SENSE", "2": GND, "3": GND}, pins)
+    tvs = [d for d in to_gnd("RIM_SENSE", lambda r: nl.mpn.get(r) in TVS_VRWM)]
+    rep.check(S, "rim_sense_tvs_vrwm_ge_v3v3_max", len(tvs) == 1 and TVS_VRWM[nl.mpn[tvs[0]]] >= VMAX,
+              {"tvs": tvs, "mpn": [nl.mpn[d] for d in tvs]})
+
+
+# ------------------------------------------------------------ capacitive-mode detector (C39)
+# SN74LVC74A pin functions, SCAS287U pin table (PW package)
+LVC74A_PINS = {"1CLR": "1", "1D": "2", "1CLK": "3", "1PRE": "4", "1Q": "5", "1QN": "6",
+               "2QN": "8", "2Q": "9", "2PRE": "10", "2CLK": "11", "2D": "12", "2CLR": "13"}
+
+
+def _cm_sequence(sim, ffn, nets, phase, n_periods, run_en=None, ct=None):
+    """Sequence-simulate the detector from the netlist: the inverters, XOR and OR are the captured
+    gates (trip_sim), the LVC74A flip-flops follow LVC74A_PINS (rising-edge D sample, active-low
+    asynchronous PRE/CLR). Leg A runs a 50 % square wave, HS commanded on for the first half of
+    each period; the tank current lags the HS-on command by ``phase`` degrees (a number or a
+    function of t in periods; inductive > 0, capacitive < 0): i(t) = sin(2 pi t - phase).
+    CT_ZC = 1 when i > 0 (firmware convention: CT_ZC high = current positive) unless ``ct`` maps
+    i to a level (reversed CT, stuck line). Before t = 0 the board is in its reset state: RUN_EN
+    low (pull-down), PWM low (pull-downs), flip-flops powered up in their fault state. Returns
+    [(t, CAP_FAULT)] at 16 points per period; ideal timing (delays are in controller_calcs)."""
+    import math
+    ph = phase if callable(phase) else (lambda t, p=phase: p)
+    en_of = run_en or (lambda t: 1)
+    ct_of = ct or (lambda i: int(i > 0))
+    q = {"1": 0, "2": 1}                         # power-up: 1QN = 1 and 2Q = 1, both faulted
+    steps, out, prev = 16, [], None
+    for k in range(-4, n_periods * steps):
+        t = k / steps
+        if t < 0:
+            hs, la, en, i = 0, 0, 0, 0.0
+        else:
+            hs = 1 if (t % 1.0) < 0.5 else 0
+            la, en = 1 - hs, en_of(t)
+            i = math.sin(2 * math.pi * t - math.radians(ph(t)))
+        assign = {nets["pwm_ha_mcu"]: hs, nets["pwm_la_mcu"]: la, nets["ct_zc"]: ct_of(i), nets["RUN_EN"]: en}
+
+        def settle(q=q, assign=assign):
+            return sim.comb({**assign, ffn["1Q"]: q["1"], ffn["1QN"]: 1 - q["1"],
+                             ffn["2Q"]: q["2"], ffn["2QN"]: 1 - q["2"]})
+        val = settle()
+        for leg in ("1", "2"):
+            if val.get(ffn[leg + "CLR"]) == 0:
+                q[leg] = 0
+            elif val.get(ffn[leg + "PRE"]) == 0:
+                q[leg] = 1
+            elif prev is not None and prev.get(ffn[leg + "CLK"]) == 0 and val.get(ffn[leg + "CLK"]) == 1:
+                q[leg] = val.get(ffn[leg + "D"])
+        val = settle()
+        prev = val
+        if t >= 0:
+            out.append((t, val.get(nets["CAP_FAULT"])))
+    return out
+
+
+def _first(seq):
+    return next((t for t, v in seq if v == 1), None)
+
+
+def check_capmode(rep: Report, nl: Netlist, calcs: dict | None = None) -> None:
+    """C39: hardware capacitive-mode detector (native-21 OPEN-ITEMS S14). Structure from the
+    netlist, then a sequence simulation of the captured gates."""
+    from trip_sim import Sim, build_logic, fan_in_cone
+    pn = nl.pin_net()
+    m = Merged(nl)
+    f = m.find
+    S = "capmode"
+    ffs = [r for r, mp in nl.mpn.items() if mp == "SN74LVC74APWR"]
+    rep.check(S, "one_lvc74a_pair", len(ffs) == 1, ffs)
+    if len(ffs) != 1:
+        return
+    ff = ffs[0]
+    fn = {k: nl.net_of(ff, p) for k, p in LVC74A_PINS.items()}
+    rep.data(S, "flip_flop_pins", fn)
+    gm = gpio_map(nl)
+
+    def other(r, p):
+        return pn.get((r, "2" if p == "1" else "1"), OPEN)
+
+    def series_src(net):       # MCU-side net of the J4 PWM series resistor
+        return {other(r, p) for r, p in nl.nets.get(net, []) if r.startswith("R") and other(r, p) in gm.values()}
+
+    def driver(net):
+        return [(r, p, nl.mpn[r]) for r, p in nl.nets.get(net, []) if pin_role(nl, r, p) in ("out", "od")]
+
+    def inv_input(net):
+        d = driver(net)
+        return nl.net_of(d[0][0], "2") if len(d) == 1 and d[0][2] == "SN74LVC1G14DBVR" and d[0][1] == "4" else None
+    ha_src, la_src = series_src("pwm_ha"), series_src("pwm_la")
+    rep.check(S, "ff1_clock_is_the_inverted_ha_command", len(ha_src) == 1 and inv_input(fn["1CLK"]) in ha_src,
+              {"clk": fn["1CLK"], "pwm_ha_gpio_net": sorted(ha_src)})
+    rep.check(S, "ff2_clock_is_the_inverted_la_command", len(la_src) == 1 and inv_input(fn["2CLK"]) in la_src,
+              {"clk": fn["2CLK"], "pwm_la_gpio_net": sorted(la_src)})
+    xd = driver(fn["1D"])
+    x_ok = fn["1D"] == fn["2D"] and len(xd) == 1 and xd[0][2] == "SN74LVC1G86DBVR" and xd[0][1] == "4"
+    x_in = {nl.net_of(xd[0][0], "1"), nl.net_of(xd[0][0], "2")} if x_ok else set()
+    strap = next(iter(x_in - {"ct_zc"})) if "ct_zc" in x_in and len(x_in) == 2 else None
+    rep.check(S, "both_d_inputs_are_ct_zc_through_the_polarity_xor", strap is not None,
+              {"d": fn["1D"], "xor_inputs": sorted(x_in)})
+    rep.check(S, "ct_zc_is_a_j4_pin", any(nl.net_of("J4", str(p)) == "ct_zc" for p in range(1, 17)))
+    ups = [r for r, p in nl.nets.get(strap or "", []) if r.startswith("R") and other(r, p) == V3]
+    downs = [r for r, p in nl.nets.get(strap or "", []) if r.startswith("R") and other(r, p) == GND]
+    rep.check(S, "polarity_strap_fitted_0ohm_to_gnd_with_pullup_alternative",
+              len(ups) == 1 and len(downs) == 1 and is_short(nl, downs[0]) and not is_short(nl, ups[0]),
+              {"pullup": ups, "fitted_0ohm_to_gnd": downs})
+    rep.check(S, "run_en_low_presets_ff1_and_clears_ff2",
+              fn["1PRE"] == "RUN_EN" and fn["2CLR"] == "RUN_EN" and fn["1CLR"] == V3 and fn["2PRE"] == V3,
+              {k: fn[k] for k in ("1PRE", "1CLR", "2PRE", "2CLR")})
+    od = driver("CAP_FAULT")
+    rep.check(S, "cap_fault_is_or_of_ha_qbar_and_la_q",
+              len(od) == 1 and od[0][2] == "SN74LVC1G32DBVR" and od[0][1] == "4"
+              and {nl.net_of(od[0][0], "1"), nl.net_of(od[0][0], "2")} == {fn["1QN"], fn["2Q"]}, od)
+    il = [(r, p) for r, p in nl.nets.get("CAP_FAULT", []) if nl.refs[r].startswith("interlock.fault_inv")]
+    rep.check(S, "cap_fault_enters_the_interlock_ovp_input", len(il) == 1, il)
+    for k, rb in (("1Q", "CM_HA_OK_RB"), ("2QN", "CM_LA_OK_RB")):
+        rs = [r for r, p in nl.nets.get(fn[k], []) if r.startswith("R") and other(r, p) == rb]
+        exp = [r for r, p in nl.nets.get(rb, []) if nl.mpn.get(r) == "TCA9555PWR"]
+        rep.check(S, f"readback_{rb.lower()}_via_series_r_to_expander", len(rs) == 1 and len(exp) == 1,
+                  {"r": rs, "expander": exp})
+    if strap is None or len(ha_src) != 1 or len(la_src) != 1:
+        return
+    # ---- sequence simulation of the captured gates
+    gates, free = build_logic(nl, m, MODELS, {MCU_MPN, "TCA9555PWR"}, [("J4", "10", "j4:bus_fault")])
+    pull: dict[str, int] = {}
+    for ref in nl.refs:
+        if ref.startswith("R") and not is_short(nl, ref):
+            a, b = pn.get((ref, "1"), OPEN), pn.get((ref, "2"), OPEN)
+            if OPEN in (a, b):
+                continue
+            for x, y in ((f(a), f(b)), (f(b), f(a))):
+                if y == f(V3):
+                    pull.setdefault(x, 1)
+                elif y == f(GND):
+                    pull.setdefault(x, 0)
+    sim = Sim(gates, free, pull, f(GND), f(V3))
+    nets = {"pwm_ha_mcu": f(next(iter(ha_src))), "pwm_la_mcu": f(next(iter(la_src))),
+            "ct_zc": f("ct_zc"), "RUN_EN": f("RUN_EN"), "CAP_FAULT": f("CAP_FAULT")}
+    ffn = {k: f(v) for k, v in fn.items()}
+    ind = {ph: max(v for _, v in _cm_sequence(sim, ffn, nets, ph, 20)) for ph in (1, 5, 30, 60, 89)}
+    rep.check(S, "inductive_operation_never_faults_1_to_89_deg", all(v == 0 for v in ind.values()), ind)
+    cap = {ph: _first(_cm_sequence(sim, ffn, nets, ph, 3)) for ph in (-1, -5, -45, -89)}
+    rep.check(S, "capacitive_operation_faults_on_the_first_turn_off_edge",
+              all(t is not None and t <= 1.0 for t in cap.values()), cap)
+    # The flip-flops re-sample every edge, so CAP_FAULT is a per-edge status, not a latch: the
+    # interlock latch (async CLR, check_trip) holds the trip. One capacitive period, then inductive:
+    # the pulse must last at least half a period (>= 8.3 us at 60 kHz, against the LVC1G74's 2.7 ns
+    # minimum CLR pulse width, SCES794G 7.6).
+    hold = _cm_sequence(sim, ffn, nets, lambda t: -30 if t < 1.0 else 30, 4)
+    t_on = _first(hold)
+    t_off = next((t for t, v in hold if t_on is not None and t > t_on and v == 0), None)
+    width = None if t_on is None else (t_off if t_off is not None else 4.0) - t_on
+    rep.check(S, "single_capacitive_period_gives_a_fault_pulse_ge_half_a_period", width is not None and width >= 0.5,
+              {"first_fault_period": t_on, "cleared_period": t_off, "width_periods": width})
+    clr = _cm_sequence(sim, ffn, nets, -30, 4, run_en=lambda t: 0 if t >= 2.0 else 1)
+    rep.check(S, "run_en_low_clears_the_fault",
+              _first(clr) is not None and all(v == 0 for t, v in clr if t >= 2.0), _first(clr))
+    rerun = _cm_sequence(sim, ffn, nets, lambda t: -30 if t < 1.0 else 30, 6,
+                         run_en=lambda t: 0 if 2.0 <= t < 2.5 else 1)
+    rep.check(S, "rerun_after_run_en_cycle_is_healthy_when_inductive",
+              all(v == 0 for t, v in rerun if t >= 2.0), None)
+    low = _cm_sequence(sim, ffn, nets, -30, 2, run_en=lambda t: 0)
+    rep.check(S, "run_en_low_holds_healthy_from_the_fault_power_up_state", all(v == 0 for _, v in low), None)
+    stuck = {lvl: _first(_cm_sequence(sim, ffn, nets, 30, 3, ct=lambda i, lvl=lvl: lvl)) for lvl in (0, 1)}
+    rep.check(S, "stuck_ct_zc_either_level_faults_within_one_period",
+              all(t is not None and t <= 1.0 for t in stuck.values()), stuck)
+    # a CT wired the other way faults with the fitted strap, and runs with the strap swapped (0 ohm
+    # removed: the pull-up holds the XOR's second input high)
+    rev = lambda i: int(i < 0)  # noqa: E731
+    rev_default = _first(_cm_sequence(sim, ffn, nets, 30, 3, ct=rev))
+    # (the fitted 0 ohm merges the strap net into ground, so substitute on the XOR's own input only)
+    gates_sw = [(k, ["__strap_hi__" if r == xd[0][0] and i == f(strap) else i for i in ins], o, r)
+                for k, ins, o, r in gates]
+    sim_sw = Sim(gates_sw, free, {**pull, "__strap_hi__": 1}, f(GND), f(V3))
+    rev_sw = max(v for _, v in _cm_sequence(sim_sw, ffn, nets, 30, 6, ct=rev))
+    rev_sw_cap = _first(_cm_sequence(sim_sw, ffn, nets, -30, 3, ct=rev))
+    rep.check(S, "reversed_ct_faults_with_fitted_strap_and_runs_with_strap_swapped",
+              rev_default is not None and rev_sw == 0 and rev_sw_cap is not None,
+              {"fitted_first_fault": rev_default, "swapped_inductive_max": rev_sw, "swapped_capacitive_first": rev_sw_cap})
+    rep.data(S, "sequence", {"inductive_max_fault": ind, "capacitive_first_fault_period": cap, "stuck_ct_zc": stuck})
+    # The flip-flops' fault outputs are free sources (u_cm_ff) in the PERMIT simulation; RUN_EN
+    # reaches them only on PRE/CLR, and a low RUN_EN already forces PERMIT low at the PERMIT gate.
+    cone, _ = fan_in_cone(gates, f("permit"))
+    rep.check(S, "detector_fault_outputs_are_in_the_permit_cone", ffn["1QN"] in cone and ffn["2Q"] in cone,
+              [fn["1QN"], fn["2Q"]])
+    if calcs is not None:
+        cm = calcs.get("capmode")
+        rep.check(S, "timing_calcs_present", cm is not None)
+        for k, ok in (cm or {}).get("checks", {}).items():
+            rep.check(S, f"timing_{k}", ok, None)
+
+
 def check_bom(rep: Report, nl: Netlist):
     table = json.loads((UNIT / "bom/controller-parts.json").read_text())["parts"]
     mpns = sorted(set(nl.mpn.values()))
@@ -927,8 +1207,21 @@ def check_misc(rep: Report, nl: Netlist):
                        for r, p in nl.nets.get(n, []) if r.startswith("R"))}
     rep.check("misc", "pwm_gpios_have_no_reset_pullup", len(pwm_gpio) == 4 and not pwm_gpio & reset_pullup,
               sorted(pwm_gpio))
-    rep.check("misc", "usb_19_20_on_debug_header",
-              {nl.mpn[r] for r, _ in nl.nets[gm[19]]} >= {"61300811121"})
+    # C41: the debug/programming port is a TC2050-IDC-NL flush land (no header, no switch).
+    dbg = [r for r, mp in nl.mpn.items() if mp == "TC2050-IDC-NL-LAND"]
+    rep.check("misc", "usb_19_20_on_tc2050_debug_land",
+              len(dbg) == 1 and {nl.mpn[r] for r, _ in nl.nets[gm[19]] + nl.nets[gm[20]]} >= {"TC2050-IDC-NL-LAND"}
+              and "Tag-Connect_TC2050-IDC-NL" in nl.footprint.get(dbg[0], ""), dbg)
+    # Item 4 (C41): nothing a harness, a mis-mated plug or a finger can short reaches EN or IO0:
+    # no tactile switch on the board, and EN / GPIO0 meet no connector except the flush land.
+    switches = sorted(r for r in nl.refs if r.startswith("SW") or "Button_Switch" in nl.footprint.get(r, "")
+                      or "Switch" in nl.footprint.get(r, ""))
+    rep.check("misc", "no_tactile_switches", not switches, switches)
+    en = nl.net_of(next(r for r, mp in nl.mpn.items() if mp == MCU_MPN), "3")
+    m = Merged(nl)
+    for label, net in (("en", en), ("gpio0", gm[0])):
+        conns = sorted({r for r, _ in m.nodes(net) if r.startswith("J")})
+        rep.check("misc", f"{label}_reaches_only_the_flush_debug_land", conns == dbg, {"net": net, "connectors": conns})
     rep.data("misc", "gpio_map", {f"GPIO{g}": n for g, n in sorted(gm.items())})
 
 
@@ -960,6 +1253,8 @@ def main() -> int:
     check_blower(rep, nl, calcs)
     check_blwin(rep, nl, calcs)
     check_thermal(rep, nl)
+    check_sensor_io(rep, nl)
+    check_capmode(rep, nl, calcs)
     check_bom(rep, nl)
     check_misc(rep, nl)
     out = {"schema": "temper.controller.verify.v1",

@@ -1,0 +1,9 @@
+{
+  "schema": "temper.controller.native21-input.v1",
+  "file": "legB21-h0-best.matrix.txt",
+  "source": "zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/legB21-h0-best.matrix.txt",
+  "commit": "f4ed8b17a526f699b368e9d3fbb3fe45808eb418",
+  "sha256": "bfabe5687af4293d8ff5c7165837902d38430c3e9b12b7826870e93cd632c99e",
+  "rederive": "git show f4ed8b17a:zapote/power-stage-120v/validation-results/01-switching-parasitics/round17/d2/legB21-h0-best.matrix.txt",
+  "used_by": "tools/controller_calcs.py capmode(): gate-loop self inductances P3_gate_high 55.6634 nH, P4_gate_low 46.8472 nH (DECISIONS C39)"
+}

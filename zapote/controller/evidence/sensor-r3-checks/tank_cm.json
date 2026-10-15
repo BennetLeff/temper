@@ -1,0 +1,89 @@
+{
+ "scope": "Coil common-mode (winding-mean) voltage and pan touch current: one-sided vs split resonant bank.\n\nSeries tank driven by a full bridge (legs 180 deg apart), bank C = 0.54 uF.\nThe coil winding potential runs linearly between its terminals, so its mean\npotential (what couples to the pan and to PE) is the average of the two\nterminal voltages:\n  one-sided bank (native-21): terminals SW_A and SW_B + V_C -> mean = Vbus/2 + V_C/2\n  split bank (2C each side):  terminals SW_A - V_C/2 and SW_B + V_C/2 -> mean = Vbus/2\nThe fundamental of (V_A + V_B) cancels for 180-deg legs, so the one-sided bank\nleaves V_C/2 at the switching frequency on the whole winding.\n\nTouch current through an earthed pan (user's hand) = w * C_wp * |V_mean,ac|,\nwith C_wp = 72.0 pF (70.1-81.2) winding-to-pan from enclosure study 16\n(output/temper-r33-studies/16-coil-pe-capacitance/REPORT.md). Unweighted:\nUL 101 / IEC 60990 frequency weighting would reduce the reading at 35-60 kHz;\nthat weighting is NOT applied here, so this is an upper-bound current, not a\ncompliance number. Run: python3 tank_cm.py -> tank_cm.json",
+ "rows": [
+  {
+   "ceiling": "22A_default",
+   "fs_kHz": 35.0,
+   "tank_ipk_A": 47.7,
+   "Vc_pk_V": 402.0,
+   "one_sided_Vmean_pk_V": 201.0,
+   "one_sided_touch_mA_rms_nominal": 2.25,
+   "one_sided_touch_mA_rms_low": 2.19,
+   "one_sided_touch_mA_rms_high": 2.54,
+   "split_Vmean_pk_V": 0.0,
+   "split_touch_mA_rms_nominal": 0.0,
+   "split_touch_mA_rms_low": 0.0,
+   "split_touch_mA_rms_high": 0.0
+  },
+  {
+   "ceiling": "22A_default",
+   "fs_kHz": 45.0,
+   "tank_ipk_A": 47.7,
+   "Vc_pk_V": 313.0,
+   "one_sided_Vmean_pk_V": 156.0,
+   "one_sided_touch_mA_rms_nominal": 2.25,
+   "one_sided_touch_mA_rms_low": 2.19,
+   "one_sided_touch_mA_rms_high": 2.54,
+   "split_Vmean_pk_V": 0.0,
+   "split_touch_mA_rms_nominal": 0.0,
+   "split_touch_mA_rms_low": 0.0,
+   "split_touch_mA_rms_high": 0.0
+  },
+  {
+   "ceiling": "22A_default",
+   "fs_kHz": 60.0,
+   "tank_ipk_A": 47.7,
+   "Vc_pk_V": 235.0,
+   "one_sided_Vmean_pk_V": 117.0,
+   "one_sided_touch_mA_rms_nominal": 2.25,
+   "one_sided_touch_mA_rms_low": 2.19,
+   "one_sided_touch_mA_rms_high": 2.54,
+   "split_Vmean_pk_V": 0.0,
+   "split_touch_mA_rms_nominal": 0.0,
+   "split_touch_mA_rms_low": 0.0,
+   "split_touch_mA_rms_high": 0.0
+  },
+  {
+   "ceiling": "28A_commissioned",
+   "fs_kHz": 35.0,
+   "tank_ipk_A": 60.8,
+   "Vc_pk_V": 512.0,
+   "one_sided_Vmean_pk_V": 256.0,
+   "one_sided_touch_mA_rms_nominal": 2.86,
+   "one_sided_touch_mA_rms_low": 2.79,
+   "one_sided_touch_mA_rms_high": 3.23,
+   "split_Vmean_pk_V": 0.0,
+   "split_touch_mA_rms_nominal": 0.0,
+   "split_touch_mA_rms_low": 0.0,
+   "split_touch_mA_rms_high": 0.0
+  },
+  {
+   "ceiling": "28A_commissioned",
+   "fs_kHz": 45.0,
+   "tank_ipk_A": 60.8,
+   "Vc_pk_V": 398.0,
+   "one_sided_Vmean_pk_V": 199.0,
+   "one_sided_touch_mA_rms_nominal": 2.86,
+   "one_sided_touch_mA_rms_low": 2.79,
+   "one_sided_touch_mA_rms_high": 3.23,
+   "split_Vmean_pk_V": 0.0,
+   "split_touch_mA_rms_nominal": 0.0,
+   "split_touch_mA_rms_low": 0.0,
+   "split_touch_mA_rms_high": 0.0
+  },
+  {
+   "ceiling": "28A_commissioned",
+   "fs_kHz": 60.0,
+   "tank_ipk_A": 60.8,
+   "Vc_pk_V": 298.0,
+   "one_sided_Vmean_pk_V": 149.0,
+   "one_sided_touch_mA_rms_nominal": 2.86,
+   "one_sided_touch_mA_rms_low": 2.79,
+   "one_sided_touch_mA_rms_high": 3.23,
+   "split_Vmean_pk_V": 0.0,
+   "split_touch_mA_rms_nominal": 0.0,
+   "split_touch_mA_rms_low": 0.0,
+   "split_touch_mA_rms_high": 0.0
+  }
+ ]
+}

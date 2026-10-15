@@ -22,6 +22,10 @@ HEALTHY_LEVEL = {
     "rtd_pan.high_window": (1, "RTD unit: window outputs both high only inside the RTD window"),
     "rtd_pan.rail_monitor": (1, "RTD unit: TPS389001 RESET high = RTD_AVDD above threshold"),
     "u_runaway": (0, "controller: runaway comparator high = pan over threshold, BIAS off or RTD open"),
+    "u_rim_trip": (0, "controller C38 (sensor-r3 CR-5): rim trip comparator high = rim NTC hotter than "
+                      "the trip point, or the rim NTC shorted"),
+    "u_cm_ff": (0, "controller C39: capacitive-mode flip-flop fault outputs (1Q-bar, 2Q) low = no "
+                   "capacitive-mode sample since RUN_EN rose"),
     "u_rail": (1, "controller: TPS3703 RESET high = v3v3 in window and 10 ms delay elapsed"),
     "interlock.watchdog": (1, "interlock INTERFACES: TPS3823 RESET_N high = VDD ok and WDI serviced"),
 }
@@ -32,6 +36,7 @@ GATE_EVAL = {
     "and": lambda x: int(all(x)),
     "or": lambda x: int(any(x)),
     "nand": lambda x: 1 - int(all(x)),
+    "xor": lambda x: x[0] ^ x[1],
 }
 
 
@@ -76,17 +81,40 @@ def build_logic(nl, merged, models, firmware_mpns, offboard):
 
 class Sim:
     def __init__(self, gates, free, pull, gnd, vcc):
-        self.gates, self.free, self.pull = gates, free, pull
+        self.free, self.pull = free, pull
         self.gnd, self.vcc = gnd, vcc
         self.dff = [g for g in gates if g[0] == "dff"]
-        self.comb_outs = {g[2] for g in gates if g[0] != "dff"}
+        comb = [g for g in gates if g[0] != "dff"]
+        self.comb_outs = {g[2] for g in comb}
+        # Topological order (drivers before loads): on an acyclic gate graph one pass reaches the
+        # fixed point exactly; a feedback loop falls back to iterating until nothing changes.
+        by_out = {g[2]: g for g in comb}
+        order, seen = [], set()
+        self.acyclic = True
+
+        def visit(g, stack=()):
+            if id(g) in stack:
+                self.acyclic = False
+                return
+            if id(g) in seen:
+                return
+            for i in g[1]:
+                if i in by_out:
+                    visit(by_out[i], stack + (id(g),))
+            seen.add(id(g))
+            order.append(g)
+        for g in comb:
+            visit(g)
+        self.gates = self.dff + order
 
     def comb(self, assign):
-        val = dict(assign)
+        if getattr(self, "_pull_key", None) is not id(self.pull):
+            used = {i for g in self.gates for i in g[1]}          # only gate inputs read a pull
+            self._pull_base = {n: lvl for n, lvl in self.pull.items() if n not in self.comb_outs and n in used}
+            self._pull_key = id(self.pull)
+        val = dict(self._pull_base)
+        val.update(assign)                    # an assigned level overrides a pull
         val[self.gnd], val[self.vcc] = 0, 1
-        for n, lvl in self.pull.items():
-            if n not in val and n not in self.comb_outs:
-                val[n] = lvl
         for _ in range(64):
             changed = False
             for kind, ins, out, _ref in self.gates:
@@ -97,7 +125,7 @@ class Sim:
                 if y is not None and val.get(out) != y:
                     val[out] = y
                     changed = True
-            if not changed:
+            if not changed or self.acyclic:
                 return val
         raise RuntimeError("combinational logic did not settle")
 
