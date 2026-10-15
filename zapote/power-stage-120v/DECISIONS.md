@@ -1639,3 +1639,56 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **Passed to the thermal refinement study:**
       - B3's 1.09 W per module is conservative (0.53–0.73 W at 33 kHz on the deck charge);
       - the K1 sink of item 15 (123.8 / 128.7 °C) was not reproduced.
+
+50. **Stage 38 (candidate 23): the DECISIONS 47 supply change set built on s35; L1 kept (2026-10-15; adopted). Board of record: s38 (b5bf428d).** Records:
+    `validation-results/11-candidates/c23-supply-topology/README.md`. Board native21s38 `b5bf428d`, chain CHAIN_DONE
+    (`SPINE_OWNER=selv`). Scorecard ACCEPT against s35:
+    - cheaper: parts $206.44 → $202.24 at 500, BOM lines 94 → 93, placements 349 → 348;
+    - better: EMI 10.5 → 12.4 dB, touch current 0.974 → 0.241 mA;
+    - nothing worse. The B3 ratings margins are unchanged (−56.4 / −38.9 K); the release gate stays open.
+
+    **Built:**
+    1. **PS1 deleted.** V15_SELV is gone, and J4.1 is not connected (single-pin SELV net `j4_nc1`). The controller
+       must merge J13 into its logic rail and drop the J4.1 input before it powers a stage-38 board
+       (`CONTROLLER-REQUEST.md` addendum 2).
+    2. **PS2 → MEAN WELL MPM-20-24** on the unchanged IRM-20 footprint. Case 219A is identical: MPM-20-SPEC
+       2024-10-30 p.4 = IRM-20-SPEC p.3.
+       - Ledger: 44 % of 21.6 W; 90 % of the p.3 derating holds to 70.3 °C local air; 53 % of 264 VAC.
+       - Approvals: IEC 60601-1 (2 × MOPP) and IEC 60335-1, no UL file, so it is a certifier item.
+       - Sourcing: JLC C6675337 holds 5,047; the card uses the DigiKey basis, $12.60 at 500.
+
+    **Not built:**
+    3. **L1 stays TDK B82726S2203A020; the SCF31X is not taken.** Its 45 × 42 mm body does not fit the 47.96 × 32.81 mm
+       slot without moving C1 / C5 / F1. That is compaction, which the lane brief ruled out (no moves outside the SELV / PS1 / L1 areas). Rating (68 %) and
+       height (33 mm) are fine. DigiKey holds only 68. The robust variant (11.51 dB) waits for a re-layout, and L1
+       still sets the 29-week build date.
+
+    **Off-board, counted in the verdicts:**
+    4. The D-22 module Y is removed and its choke becomes the SCF31X 5.68 mH (`MODULE-REQUEST.md`). PS3 is the
+       MPM-65-15ST. Both are counted in the leakage and EMI results: touch 0.2412 mA (budget 0.25, margin 8.8 µA);
+       s19b nominal 12.37 dB and minimum 8.19 dB.
+       - Leakage rises to 0.653 mA with the module Y kept, and to 0.324 mA with an IRM-60 in PS3.
+       - The scripts that write the scorecard inputs now model the s38 system: `leakage_budget.py`, and
+         `emi_s19b.py` `MODULE_S38` with sensitivities relative to the nominal parts. Their s35 rows reproduce the
+         committed 0.9741 mA / 10.48 dB.
+
+    **Layout:**
+    5. **The freed PS1 area stays clear.**
+       - L_FILT: re-laid to F2 at 40.5 mm (was 60.5 mm), which removes one acute corner.
+       - N_FILT: its J11 via becomes 0.85 / 0.3 at (256.8, 116.6). The old 0.6 ring had sat inside PS1.2, and on
+         its own it failed task 04's topology preflight.
+    6. **SELV spine lock re-issued by the selv lane.** The new baseline is `spine-baseline-native21s38-all-copper`.
+       The only differences are J4.1's net and the v15_selv antipads filled in selv_gnd / v3v3.
+
+    **Process:** the co-design study's manifest is now pinned to its base 0aecdc56f.
+
+    **Reverses if:**
+    - a controller cannot take the J13 merge (PS1 returns);
+    - the module Y must stay (the leakage limit fails);
+    - the certifier rejects the MPM approval basis.
+    - **Integration re-score** (`10-benchmark/scorecard-native21s38.json`): it differs from the lane's card only in
+      `ledger_violations` 0 → 1 (DECISIONS 49, merged after the lane branched). Still ACCEPT against s35 (restated to 1).
+      `jlc_assemblable_share_500` reads 0.851 → 0.849 only because the deleted PS1 was itself a JLC-stocked line
+      (79 / 93 against 80 / 94).
+    - **Interface:** a stage-38 power board needs the controller's J13 merge before it is powered from an un-updated
+      controller, where J4.1 is an open pin, so the failure is benign. Owner relay with addendum 2.
