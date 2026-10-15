@@ -10,16 +10,24 @@ idf_component_register(
         "../components/sensors/max31865.c"
         "../components/sensors/rtd_service.c"
         "../components/sensors/rtd_convert.c"
+        # TODO(hardware) fail-safe stand-in; delete this line and the file
+        # when the rim NTC driver (branch sensor-c1-rim-ntc) lands.
+        "../components/sensors/rim_ntc_stub.c"
+        "../components/safety/safety.c"
+        "../config.c"
+        "board_peripherals.c"
     INCLUDE_DIRS 
         "."
         ".."
         "../components/sensors/include"
+        "../components/safety"
     REQUIRES
         driver
-        hal
+        temper_hal
         control
         nvs_flash
         esp_timer
+        esp_driver_gpio
 )
 
 # sensor-r3 C1 pan sensor: the C1 loop (components/control, main/pan_control.c)

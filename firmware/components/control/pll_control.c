@@ -26,6 +26,7 @@
 /* ESP-IDF includes (available when building with ESP-IDF) */
 #ifdef ESP_PLATFORM
 #include "driver/mcpwm_prelude.h"
+#include "esp_attr.h"
 #include "esp_timer.h"
 #include "esp_log.h"
 static const char *TAG = "pll_control";
