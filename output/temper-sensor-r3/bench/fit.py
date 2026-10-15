@@ -18,6 +18,8 @@ dT. Uncertainty: Jacobian covariance scaled by the residual variance.
 
 Commands
   python fit.py --selftest              synthetic end-to-end test (writes selftest.json)
+  python fit.py --selftest --selftest-probe probe.lean.json   same, for the lean probe
+                                        (writes selftest-lean.json)
   python fit.py calibrate RUN.csv       paste-on-copper run -> tau_int into probe.json
   python fit.py run RUN.csv             fit one set-down log, print the result
   python fit.py survey RUNS_DIR         fit every *.csv, per-pan verdicts -> survey-results.json
@@ -237,11 +239,13 @@ def fit_calibration(t, y, t_ref, T_ref):
 
 # ---------------------------------------------------------------- synthetic truth for the self-test
 def synth_log(path: Path, probe_true: dict, h_true: float, rng, *, paste=False, rref=430.0,
-              T_pan0=150.0, cool=0.25, settle_s=None, tc_offset=1.5, n_layers=6):
+              T_pan0=150.0, cool=0.25, settle_s=None, tc_offset=1.5, n_layers=6, ref_extra_cool=0.0):
     """Higher-fidelity generator than the fit model: disc conducted through n_layers
     (Biot effects), bond + element nodes, contact that ramps on over a settling time,
     cooling pan, thermocouple with lag/offset/noise, MAX31865 codes with quantisation,
-    noise and 60 Hz sampling jitter. Writes a log in the logger.py format."""
+    noise and 60 Hz sampling jitter. Writes a log in the logger.py format.
+    ref_extra_cool (K/s): after set-down the reference location cools this much faster
+    than the contact point (plate-induced gradient; plate_check.py)."""
     d = probe_true
     A = d["A_s"]
     n = n_layers
@@ -287,7 +291,8 @@ def synth_log(path: Path, probe_true: dict, h_true: float, rng, *, paste=False, 
         rhs = C / dt * T + bvec
         rhs[0] += Gc * T_pan
         T = np.linalg.solve(np.diag(C / dt) + K, rhs)
-        tc_state += dt * (T_pan - tc_state) / 0.25        # bead lag 0.25 s
+        T_ref_loc = T_pan - ref_extra_cool * max(0.0, tt - t_contact)
+        tc_state += dt * (T_ref_loc - tc_state) / 0.25    # bead lag 0.25 s
         if tt >= t_next_r:
             Tel = T[n] + rng.normal(0, 0.02)
             r = 100.0 * (1 + A_CVD * Tel + B_CVD * Tel**2)
@@ -305,12 +310,12 @@ def synth_log(path: Path, probe_true: dict, h_true: float, rng, *, paste=False, 
     return settle
 
 
-def selftest():
+def selftest(probe_file: Path = HERE / "probe.example.json", out_file: Path = HERE / "selftest.json"):
     """End-to-end: synth logs -> calibrate -> fit -> tau63_C1 vs truth."""
     rng = np.random.default_rng(20261015)
     tmp = HERE / "_selftest_logs"
     tmp.mkdir(exist_ok=True)
-    probe = load_probe(HERE / "probe.example.json")
+    probe = load_probe(probe_file)
     # truth deliberately differs from the fit's nominal constants: element C +30 %,
     # bond thinner than nominal, disc conducted in layers, leak x1.5.
     t_d = probe["disc"]["t_mm"] * 1e-3
@@ -359,7 +364,7 @@ def selftest():
             "# pan_class: synthetic", f"# pan_class: class_{name}")
         f.write_text(txt)
     probe_path = tmp / "probe.json"
-    raw = json.loads((HERE / "probe.example.json").read_text())
+    raw = json.loads(probe_file.read_text())
     raw["tau_int_s"] = cal["tau_int_s"]
     probe_path.write_text(json.dumps(raw))
     cmd_survey(surv_dir, load_probe(probe_path))
@@ -383,7 +388,8 @@ def selftest():
            "survey_check": {"expected": {k: v for k, (_, v) in expect.items()}, "got": got,
                             "overall": sres["overall"], "ok": survey_ok},
            "rows": rows, "passed": passed}
-    (HERE / "selftest.json").write_text(json.dumps(out, indent=1) + "\n")
+    out["probe_file"] = probe_file.name
+    out_file.write_text(json.dumps(out, indent=1) + "\n")
     print(f"calibration tau_int fit {cal['tau_int_s']} s (true {tau_int_true:.4f} s)")
     for r in rows:
         print(f"h {r['h_true']:7.0f} rep {r['rep']} settle {r['settle_s']:.3f}  h_fit {r['h_fit']:8.0f}  "
@@ -446,11 +452,18 @@ def cmd_survey(d: Path, probe: dict):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--selftest-probe", default=None,
+                    help="probe JSON for the self-test (default probe.example.json); "
+                         "writes selftest-<name>.json instead of selftest.json")
     ap.add_argument("--probe", default=str(HERE / "probe.json"))
     ap.add_argument("cmd", nargs="?", choices=["calibrate", "run", "survey"])
     ap.add_argument("path", nargs="?")
     a = ap.parse_args()
     if a.selftest:
+        if a.selftest_probe:
+            pf = Path(a.selftest_probe)
+            pf = pf if pf.is_absolute() else HERE / pf
+            sys.exit(selftest(pf, HERE / f"selftest-{pf.stem.replace('probe.', '')}.json"))
         sys.exit(selftest())
     probe_path = Path(a.probe)
     probe = load_probe(probe_path)

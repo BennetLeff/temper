@@ -37,17 +37,24 @@ It does not need C1's heat capacity, because the fit measures h_c, not τ63.
 
 ## 2. Pan reference
 
-A fine type-K bead (36 AWG, e.g. Omega 5TC-TT-K-36-36) on the pan base,
-**15 mm from the contact point**, read by a MAX31856. Mount it one of two
-ways:
+A fine type-K bead (30–36 AWG) on the pan base, read by a MAX31856. Place it
+**inside the plate bore, 6.5 mm from the contact centre**: outside the Ø7.6
+contact, inside the Ø18 bore, so no plate sits under either point.
+(Revised 2026-10-15; this used to be 15 mm, over the plate. See DECISIONS L6
+and `plate_check.py`.)
+
+Mount it one of two ways:
 - **Preferred, on pans you own for the survey:** drill Ø1.0 × 1.0 mm deep
   into the base, insert the bead, and peen the rim over it.
-- **On borrowed pans:** tape the bead flat to the base with polyimide tape
-  under a stainless shim clip, outside the Ø20 contact zone.
+- **On borrowed pans:** tape the bead flat to the base with polyimide tape,
+  inside the bore annulus, clear of the disc. Route the leads out along the
+  base to the bore edge.
 
-The fit uses only the reference's **slope** over the 9 s window. The
-self-test assumes the pan cools at 0.25 K/s. Its offset is a free parameter, so the taped
-mount is acceptable (DECISIONS D8).
+The fit uses only the reference's **slope** over the 9 s window. Its offset
+is a free parameter, so the taped mount is acceptable (DECISIONS D8).
+
+**Also:** before the first set-down of a session, warm the plate by resting a
+hot pan on it for a few minutes. It cuts the plate-induced gradient further.
 
 ## 3. Set-up checks before any run
 
@@ -81,15 +88,25 @@ the parser without hardware.
 
 ## 5. Cost
 
-The `bom.py` estimate is **about $1,285** at list prices, not quoted:
+All prices are estimates from `bom.py` → `bom.json`, list prices, not quoted.
 
-| Group | Estimate |
-|---|---|
-| Logger | $93 |
-| Probe | $440, of which the disc lot is $250 |
-| Jig | $497, of which machining is $250 |
-| Calibration | $45 |
-| Measurement | $190 |
-| Safety | $20 |
+| Kit | Estimate | What it includes |
+|---|---|---|
+| **Lean (recommended)** | **About $313** must-buy, plus $65 optional | Everything in §6 |
+| Reference | About $1,285 | The C1-exact Si3N4 disc lot ($250 quote), shop machining ($250) and full metrology |
 
-This excludes the oven and the cookware.
+Both exclude the oven and the cookware.
+
+## 6. Lean kit (DECISIONS L1–L7)
+
+| Part | Lean choice | Why it doesn't change the answer |
+|---|---|---|
+| Logger | ESP32-S3 devkit + Adafruit MAX31865 + generic MAX31856 + generic type-K bead ($48) | It's a one-off instrument. A JLC board costs more and is slower (L1). |
+| Disc | 99.6 % polished alumina 0.254 mm, cored Ø8 from one 25.4 mm substrate with a diamond core bit (8.0–8.3 mm *inside* diameter), chamfered by hand on a diamond plate | This is option B, already the self-test case. The fit uses the weighed heat capacity and the measured contact diameter. The face finish is the same class (Ra ≤ 0.1 µm). |
+| Element | IST P0K1.202, 2 (1 + 1 spare) | Same as the reference kit. A cheaper, bigger M222-class chip failed the self-test tolerance at the bar (L3). |
+| Bond | High-temperature conductive epoxy (Omega OB-200 class). Verify ≥ 230 °C before buying. | The bond's conductance shows up only in τ_int, which the paste calibration measures. |
+| Post | PEEK, JLCCNC from `jig-post.step` | It touches the disc, so it needs a high-temperature polymer. |
+| Holder | 6061, JLCCNC from `jig-holder.step` | Under the plate; stays well below 100 °C. |
+| Spring plug | M10 × 1 fine-thread stainless set screw | Replaces a turned part. |
+| Plate | Replacement glass-ceramic panel for a portable induction cooker, ~280 × 280 × 4 mm, with an Ø18 diamond-cored bore | Same material as the product. Porcelain tile or calcium-silicate board also pass if checked flat. **Never metal** (L6). |
+| Metrology | Must buy: a 0.001 g scale. Own or borrow: kitchen scale (force), digital caliper in step mode (proud height), steel rule + feelers (pan flatness), oven mitts, a drill press or stand. Optional: dial indicator, roughness comparator. | Pan Ra class is metadata only; the fit measures h_c directly. |

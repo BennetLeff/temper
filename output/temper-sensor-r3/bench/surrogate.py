@@ -20,6 +20,7 @@ OPTIONS = {   # rho kg/m3, cp J/kgK, d mm, t mm
     "A: Si3N4 0.32 mm, laser-cut Ø8 (C1-exact)": (3250, 690, 8.0, 0.32),
     "B: 99.6 % alumina 0.254 mm, polished, laser-cut Ø8": (3870, 880, 8.0, 0.254),
     "C: 96 % alumina 0.25 mm, as-fired, laser-cut Ø8 (rougher face)": (3720, 880, 8.0, 0.25),
+    "B-lean: 99.6 % alumina 0.254 mm, polished, cored Ø8 from one substrate": (3870, 880, 8.0, 0.254),
 }
 A_CONTACT = pi * (7.6e-3 / 2) ** 2
 

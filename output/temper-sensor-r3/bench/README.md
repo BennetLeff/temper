@@ -14,7 +14,9 @@ from `../DECISIONS.md` §5.
 | `logger_fw/logger_fw.ino` | ESP32-S3 firmware for the MAX31865 + MAX31856 (Arduino core) |
 | `jig.py` | build123d geometry → `jig-post.step`, `jig-holder.step`, `jig.json` (stack-up checks) |
 | `surrogate.py` | Disc options vs C1 → `surrogate.json` |
-| `bom.py` | Estimated BOM → `bom.json` (about $1,285) |
+| `bom.py` | Estimated BOM → `bom.json`: lean kit about $313 (recommended), reference about $1,285 |
+| `plate_check.py` | Does the plate matter? → `plate-check.json` (reference bead moves inside the bore) |
+| `probe.lean.json` | Lean probe constants; `fit.py --selftest --selftest-probe probe.lean.json` → `selftest-lean.json` |
 | `probe.example.json` | Probe constants template. Copy it to `probe.json` and measure the values. |
 | `datasheet_template.csv` | Per-pan record |
 

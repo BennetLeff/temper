@@ -1,0 +1,418 @@
+{
+ "scope": "Does the plate under the pan matter for the dry h_c measurement? -> plate-check.json\n\nThe plate (the cooktop \"glass\" stand-in) does not enter the contact the survey measures:\nh_c is set by the disc face, the pan base, the spring force and the tilt-following mount.\nThe plate acts only through a gradient. The pan base resting on a cold plate cools there,\nwhile the pan over the \u00d818 bore (the contact point) does not. The reference thermocouple is\n15 mm from the contact, so it sits over the plate. fit.py uses the reference's slope and\nleaves its offset free, so a slope mismatch \u0394s between the reference and the contact point\nbiases the fitted h_c.\n\n1. The slope mismatch, from a radial finite-difference model of the pan base (lateral\n   conduction kt, heat capacity rho\u00b7c\u00b7t). The plate draws q(t) only where the pan rests on\n   it (r > 9 mm, outside the bore): q(t) = h \u0394T exp(b\u00b2) erfc(b), b = h sqrt(t) / e,\n   e = sqrt(k rho c), contact conductance h_pp in series with a semi-infinite plate\n   (Carslaw & Jaeger). Slopes are least-squares over 1-9 s after set-down at the contact\n   centre (r = 0), at the old reference position (r = 15 mm, over the plate) and at a\n   reference inside the bore (r = 6.5 mm, outside the \u00d87.6 contact, inside the \u00d818 bore).\n2. The \u03c463_C1 error each mismatch causes, from fit.py's own synthetic generator\n   (synth_log ref_extra_cool) and fit, at h = 888 and 1300 W/m\u00b2K (the bar region).\n\nMaterial values are handbook values. \u0394T is 125 K (150 \u00b0C pan on a room-temperature plate)\nor 40 K (plate preheated to about 110 \u00b0C). Run: python plate_check.py",
+ "plates": {
+  "glass-ceramic 4 mm (product material)": {
+   "effusivity_Ws05_m2K": 1807,
+   "dT125 | carbon steel 2 mm | h_pp 300": {
+    "slope_contact_K_s": -2.696,
+    "ds_ref15mm_K_s": 0.398,
+    "ds_ref6p5mm_K_s": 0.105
+   },
+   "dT125 | carbon steel 2 mm | h_pp 1500": {
+    "slope_contact_K_s": -6.333,
+    "ds_ref15mm_K_s": -0.093,
+    "ds_ref6p5mm_K_s": -0.077
+   },
+   "dT125 | tri-ply clad 2.6 mm | h_pp 300": {
+    "slope_contact_K_s": -3.067,
+    "ds_ref15mm_K_s": 0.007,
+    "ds_ref6p5mm_K_s": -0.005
+   },
+   "dT125 | tri-ply clad 2.6 mm | h_pp 1500": {
+    "slope_contact_K_s": -6.734,
+    "ds_ref15mm_K_s": -0.395,
+    "ds_ref6p5mm_K_s": -0.129
+   },
+   "dT125 | cast iron 5 mm | h_pp 300": {
+    "slope_contact_K_s": -1.236,
+    "ds_ref15mm_K_s": 0.149,
+    "ds_ref6p5mm_K_s": 0.038
+   },
+   "dT125 | cast iron 5 mm | h_pp 1500": {
+    "slope_contact_K_s": -2.887,
+    "ds_ref15mm_K_s": -0.081,
+    "ds_ref6p5mm_K_s": -0.046
+   },
+   "dT40 | carbon steel 2 mm | h_pp 300": {
+    "slope_contact_K_s": -0.863,
+    "ds_ref15mm_K_s": 0.127,
+    "ds_ref6p5mm_K_s": 0.033
+   },
+   "dT40 | carbon steel 2 mm | h_pp 1500": {
+    "slope_contact_K_s": -2.027,
+    "ds_ref15mm_K_s": -0.03,
+    "ds_ref6p5mm_K_s": -0.025
+   },
+   "dT40 | tri-ply clad 2.6 mm | h_pp 300": {
+    "slope_contact_K_s": -0.981,
+    "ds_ref15mm_K_s": 0.002,
+    "ds_ref6p5mm_K_s": -0.001
+   },
+   "dT40 | tri-ply clad 2.6 mm | h_pp 1500": {
+    "slope_contact_K_s": -2.155,
+    "ds_ref15mm_K_s": -0.127,
+    "ds_ref6p5mm_K_s": -0.041
+   },
+   "dT40 | cast iron 5 mm | h_pp 300": {
+    "slope_contact_K_s": -0.396,
+    "ds_ref15mm_K_s": 0.048,
+    "ds_ref6p5mm_K_s": 0.012
+   },
+   "dT40 | cast iron 5 mm | h_pp 1500": {
+    "slope_contact_K_s": -0.924,
+    "ds_ref15mm_K_s": -0.026,
+    "ds_ref6p5mm_K_s": -0.015
+   }
+  },
+  "porcelain tile": {
+   "effusivity_Ws05_m2K": 1749,
+   "dT125 | carbon steel 2 mm | h_pp 300": {
+    "slope_contact_K_s": -2.673,
+    "ds_ref15mm_K_s": 0.388,
+    "ds_ref6p5mm_K_s": 0.102
+   },
+   "dT125 | carbon steel 2 mm | h_pp 1500": {
+    "slope_contact_K_s": -6.193,
+    "ds_ref15mm_K_s": -0.113,
+    "ds_ref6p5mm_K_s": -0.082
+   },
+   "dT125 | tri-ply clad 2.6 mm | h_pp 300": {
+    "slope_contact_K_s": -3.038,
+    "ds_ref15mm_K_s": 0.004,
+    "ds_ref6p5mm_K_s": -0.005
+   },
+   "dT125 | tri-ply clad 2.6 mm | h_pp 1500": {
+    "slope_contact_K_s": -6.574,
+    "ds_ref15mm_K_s": -0.395,
+    "ds_ref6p5mm_K_s": -0.129
+   },
+   "dT125 | cast iron 5 mm | h_pp 300": {
+    "slope_contact_K_s": -1.225,
+    "ds_ref15mm_K_s": 0.145,
+    "ds_ref6p5mm_K_s": 0.037
+   },
+   "dT125 | cast iron 5 mm | h_pp 1500": {
+    "slope_contact_K_s": -2.823,
+    "ds_ref15mm_K_s": -0.089,
+    "ds_ref6p5mm_K_s": -0.048
+   },
+   "dT40 | carbon steel 2 mm | h_pp 300": {
+    "slope_contact_K_s": -0.855,
+    "ds_ref15mm_K_s": 0.124,
+    "ds_ref6p5mm_K_s": 0.033
+   },
+   "dT40 | carbon steel 2 mm | h_pp 1500": {
+    "slope_contact_K_s": -1.982,
+    "ds_ref15mm_K_s": -0.036,
+    "ds_ref6p5mm_K_s": -0.026
+   },
+   "dT40 | tri-ply clad 2.6 mm | h_pp 300": {
+    "slope_contact_K_s": -0.972,
+    "ds_ref15mm_K_s": 0.001,
+    "ds_ref6p5mm_K_s": -0.002
+   },
+   "dT40 | tri-ply clad 2.6 mm | h_pp 1500": {
+    "slope_contact_K_s": -2.104,
+    "ds_ref15mm_K_s": -0.126,
+    "ds_ref6p5mm_K_s": -0.041
+   },
+   "dT40 | cast iron 5 mm | h_pp 300": {
+    "slope_contact_K_s": -0.392,
+    "ds_ref15mm_K_s": 0.046,
+    "ds_ref6p5mm_K_s": 0.012
+   },
+   "dT40 | cast iron 5 mm | h_pp 1500": {
+    "slope_contact_K_s": -0.903,
+    "ds_ref15mm_K_s": -0.028,
+    "ds_ref6p5mm_K_s": -0.015
+   }
+  },
+  "calcium-silicate board": {
+   "effusivity_Ws05_m2K": 300,
+   "dT125 | carbon steel 2 mm | h_pp 300": {
+    "slope_contact_K_s": -1.109,
+    "ds_ref15mm_K_s": -0.039,
+    "ds_ref6p5mm_K_s": -0.021
+   },
+   "dT125 | carbon steel 2 mm | h_pp 1500": {
+    "slope_contact_K_s": -1.371,
+    "ds_ref15mm_K_s": -0.198,
+    "ds_ref6p5mm_K_s": -0.075
+   },
+   "dT125 | tri-ply clad 2.6 mm | h_pp 300": {
+    "slope_contact_K_s": -1.169,
+    "ds_ref15mm_K_s": -0.077,
+    "ds_ref6p5mm_K_s": -0.025
+   },
+   "dT125 | tri-ply clad 2.6 mm | h_pp 1500": {
+    "slope_contact_K_s": -1.363,
+    "ds_ref15mm_K_s": -0.143,
+    "ds_ref6p5mm_K_s": -0.044
+   },
+   "dT125 | cast iron 5 mm | h_pp 300": {
+    "slope_contact_K_s": -0.505,
+    "ds_ref15mm_K_s": -0.024,
+    "ds_ref6p5mm_K_s": -0.011
+   },
+   "dT125 | cast iron 5 mm | h_pp 1500": {
+    "slope_contact_K_s": -0.621,
+    "ds_ref15mm_K_s": -0.092,
+    "ds_ref6p5mm_K_s": -0.034
+   },
+   "dT40 | carbon steel 2 mm | h_pp 300": {
+    "slope_contact_K_s": -0.355,
+    "ds_ref15mm_K_s": -0.012,
+    "ds_ref6p5mm_K_s": -0.007
+   },
+   "dT40 | carbon steel 2 mm | h_pp 1500": {
+    "slope_contact_K_s": -0.439,
+    "ds_ref15mm_K_s": -0.063,
+    "ds_ref6p5mm_K_s": -0.024
+   },
+   "dT40 | tri-ply clad 2.6 mm | h_pp 300": {
+    "slope_contact_K_s": -0.374,
+    "ds_ref15mm_K_s": -0.025,
+    "ds_ref6p5mm_K_s": -0.008
+   },
+   "dT40 | tri-ply clad 2.6 mm | h_pp 1500": {
+    "slope_contact_K_s": -0.436,
+    "ds_ref15mm_K_s": -0.046,
+    "ds_ref6p5mm_K_s": -0.014
+   },
+   "dT40 | cast iron 5 mm | h_pp 300": {
+    "slope_contact_K_s": -0.162,
+    "ds_ref15mm_K_s": -0.008,
+    "ds_ref6p5mm_K_s": -0.004
+   },
+   "dT40 | cast iron 5 mm | h_pp 1500": {
+    "slope_contact_K_s": -0.199,
+    "ds_ref15mm_K_s": -0.029,
+    "ds_ref6p5mm_K_s": -0.011
+   }
+  },
+  "aluminium 6061 (don't)": {
+   "effusivity_Ws05_m2K": 20100,
+   "dT125 | carbon steel 2 mm | h_pp 300": {
+    "slope_contact_K_s": -3.515,
+    "ds_ref15mm_K_s": 0.797,
+    "ds_ref6p5mm_K_s": 0.221
+   },
+   "dT125 | carbon steel 2 mm | h_pp 1500": {
+    "slope_contact_K_s": -15.724,
+    "ds_ref15mm_K_s": 3.02,
+    "ds_ref6p5mm_K_s": 0.824
+   },
+   "dT125 | tri-ply clad 2.6 mm | h_pp 300": {
+    "slope_contact_K_s": -4.116,
+    "ds_ref15mm_K_s": 0.129,
+    "ds_ref6p5mm_K_s": 0.029
+   },
+   "dT125 | tri-ply clad 2.6 mm | h_pp 1500": {
+    "slope_contact_K_s": -18.185,
+    "ds_ref15mm_K_s": 0.339,
+    "ds_ref6p5mm_K_s": 0.06
+   },
+   "dT125 | cast iron 5 mm | h_pp 300": {
+    "slope_contact_K_s": -1.616,
+    "ds_ref15mm_K_s": 0.311,
+    "ds_ref6p5mm_K_s": 0.085
+   },
+   "dT125 | cast iron 5 mm | h_pp 1500": {
+    "slope_contact_K_s": -7.22,
+    "ds_ref15mm_K_s": 1.163,
+    "ds_ref6p5mm_K_s": 0.31
+   },
+   "dT40 | carbon steel 2 mm | h_pp 300": {
+    "slope_contact_K_s": -1.125,
+    "ds_ref15mm_K_s": 0.255,
+    "ds_ref6p5mm_K_s": 0.071
+   },
+   "dT40 | carbon steel 2 mm | h_pp 1500": {
+    "slope_contact_K_s": -5.032,
+    "ds_ref15mm_K_s": 0.966,
+    "ds_ref6p5mm_K_s": 0.264
+   },
+   "dT40 | tri-ply clad 2.6 mm | h_pp 300": {
+    "slope_contact_K_s": -1.317,
+    "ds_ref15mm_K_s": 0.041,
+    "ds_ref6p5mm_K_s": 0.009
+   },
+   "dT40 | tri-ply clad 2.6 mm | h_pp 1500": {
+    "slope_contact_K_s": -5.819,
+    "ds_ref15mm_K_s": 0.108,
+    "ds_ref6p5mm_K_s": 0.019
+   },
+   "dT40 | cast iron 5 mm | h_pp 300": {
+    "slope_contact_K_s": -0.517,
+    "ds_ref15mm_K_s": 0.1,
+    "ds_ref6p5mm_K_s": 0.027
+   },
+   "dT40 | cast iron 5 mm | h_pp 1500": {
+    "slope_contact_K_s": -2.31,
+    "ds_ref15mm_K_s": 0.372,
+    "ds_ref6p5mm_K_s": 0.099
+   }
+  }
+ },
+ "tau63_error_by_slope_mismatch": {
+  "0.000": {
+   "h888_err_s": 0.0367,
+   "h1300_err_s": 0.0286
+  },
+  "0.024": {
+   "h888_err_s": 0.0387,
+   "h1300_err_s": 0.0303
+  },
+  "0.041": {
+   "h888_err_s": 0.0401,
+   "h1300_err_s": 0.0313
+  },
+  "0.063": {
+   "h888_err_s": 0.0419,
+   "h1300_err_s": 0.0328
+  },
+  "0.075": {
+   "h888_err_s": 0.0429,
+   "h1300_err_s": 0.0335
+  },
+  "0.126": {
+   "h888_err_s": 0.0471,
+   "h1300_err_s": 0.0367
+  },
+  "0.127": {
+   "h888_err_s": 0.0471,
+   "h1300_err_s": 0.0368
+  },
+  "0.129": {
+   "h888_err_s": 0.0473,
+   "h1300_err_s": 0.0371
+  },
+  "0.198": {
+   "h888_err_s": 0.0529,
+   "h1300_err_s": 0.0415
+  },
+  "0.264": {
+   "h888_err_s": 0.0581,
+   "h1300_err_s": 0.0458
+  },
+  "0.395": {
+   "h888_err_s": 0.0691,
+   "h1300_err_s": 0.0547
+  },
+  "0.398": {
+   "h888_err_s": 0.0691,
+   "h1300_err_s": 0.0545
+  },
+  "0.824": {
+   "h888_err_s": 0.1044,
+   "h1300_err_s": 0.0829
+  },
+  "0.966": {
+   "h888_err_s": 0.1164,
+   "h1300_err_s": 0.0923
+  },
+  "3.020": {
+   "h888_err_s": 0.2889,
+   "h1300_err_s": 0.236
+  }
+ },
+ "verdict": {
+  "glass-ceramic 4 mm (product material) | dT 125 K": {
+   "ref_15mm": {
+    "worst_ds_K_s": 0.398,
+    "worst_tau63_err_s": 0.0691,
+    "ok": false
+   },
+   "ref_6p5mm_in_bore": {
+    "worst_ds_K_s": 0.129,
+    "worst_tau63_err_s": 0.0473,
+    "ok": true
+   }
+  },
+  "glass-ceramic 4 mm (product material) | dT 40 K": {
+   "ref_15mm": {
+    "worst_ds_K_s": 0.127,
+    "worst_tau63_err_s": 0.0471,
+    "ok": true
+   },
+   "ref_6p5mm_in_bore": {
+    "worst_ds_K_s": 0.041,
+    "worst_tau63_err_s": 0.0401,
+    "ok": true
+   }
+  },
+  "porcelain tile | dT 125 K": {
+   "ref_15mm": {
+    "worst_ds_K_s": 0.395,
+    "worst_tau63_err_s": 0.0691,
+    "ok": false
+   },
+   "ref_6p5mm_in_bore": {
+    "worst_ds_K_s": 0.129,
+    "worst_tau63_err_s": 0.0473,
+    "ok": true
+   }
+  },
+  "porcelain tile | dT 40 K": {
+   "ref_15mm": {
+    "worst_ds_K_s": 0.126,
+    "worst_tau63_err_s": 0.0471,
+    "ok": true
+   },
+   "ref_6p5mm_in_bore": {
+    "worst_ds_K_s": 0.041,
+    "worst_tau63_err_s": 0.0401,
+    "ok": true
+   }
+  },
+  "calcium-silicate board | dT 125 K": {
+   "ref_15mm": {
+    "worst_ds_K_s": 0.198,
+    "worst_tau63_err_s": 0.0529,
+    "ok": false
+   },
+   "ref_6p5mm_in_bore": {
+    "worst_ds_K_s": 0.075,
+    "worst_tau63_err_s": 0.0429,
+    "ok": true
+   }
+  },
+  "calcium-silicate board | dT 40 K": {
+   "ref_15mm": {
+    "worst_ds_K_s": 0.063,
+    "worst_tau63_err_s": 0.0419,
+    "ok": true
+   },
+   "ref_6p5mm_in_bore": {
+    "worst_ds_K_s": 0.024,
+    "worst_tau63_err_s": 0.0387,
+    "ok": true
+   }
+  },
+  "aluminium 6061 (don't) | dT 125 K": {
+   "ref_15mm": {
+    "worst_ds_K_s": 3.02,
+    "worst_tau63_err_s": 0.2889,
+    "ok": false
+   },
+   "ref_6p5mm_in_bore": {
+    "worst_ds_K_s": 0.824,
+    "worst_tau63_err_s": 0.1044,
+    "ok": false
+   }
+  },
+  "aluminium 6061 (don't) | dT 40 K": {
+   "ref_15mm": {
+    "worst_ds_K_s": 0.966,
+    "worst_tau63_err_s": 0.1164,
+    "ok": false
+   },
+   "ref_6p5mm_in_bore": {
+    "worst_ds_K_s": 0.264,
+    "worst_tau63_err_s": 0.0581,
+    "ok": false
+   }
+  }
+ },
+ "acceptance": "worst |tau63_C1 error| from the plate gradient <= 0.05 s (the self-test tolerance)"
+}

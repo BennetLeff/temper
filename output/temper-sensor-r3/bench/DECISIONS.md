@@ -4,7 +4,9 @@
 - `fit.py --selftest` → `selftest.json`
 - `jig.py` → `jig.json`
 - `surrogate.py` → `surrogate.json`
-- `bom.py` → `bom.json`
+- `bom.py` → `bom.json` (reference and lean kits)
+- `plate_check.py` → `plate-check.json`
+- `fit.py --selftest --selftest-probe probe.lean.json` → `selftest-lean.json`
 - `logger.py --selftest`
 
 ## D1. The bench gates C1's τ63, computed from the fitted h_c
@@ -138,6 +140,151 @@ check.
 
 ## D11. Cost
 
-About $1,285 at estimated list prices (`bom.py`), excluding the oven and the
-cookware. The biggest items are the disc lot ($250, a quote item) and
-machining ($250).
+The reference kit is about $1,285 at estimated list prices (`bom.py`),
+excluding the oven and the cookware. The biggest items are the disc lot ($250,
+a quote item) and machining ($250).
+
+**Superseded by the lean kit, about $313 (L1–L7).** The reference kit stays in
+`bom.json` as the C1-exact option.
+
+## Lean kit (2026-10-15, after the owner asked why $1,285 and why devkits)
+
+The owner asked for the cheapest kit that still answers the question: dry
+τ63_C1 per pan, PASS ≤ 1.2 s, STOP > 1.35 s. **Lean must-buy is about
+$313, plus $65 optional** (`bom.py`). Fidelity is kept where the answer
+depends on it: the face finish class, the spring force, the proud height, the
+tilt-following mount, and a weighed disc heat capacity.
+
+### L1. Logger: devkit + breakouts, not a JLC board
+
+A JLC PCBA board for this one-off instrument would cost about $70–90 for the
+2-board minimum. That covers:
+- 5 PCBs;
+- SMT setup and stencil;
+- extended-part fees for the ESP32-S3 module, MAX31865 and MAX31856;
+- parts and DHL.
+
+It also means about a day of schematic and layout, 1–2 weeks of lead time,
+and the risk of a respin. The devkit, the Adafruit MAX31865 (whose 430 Ω
+0.1 % Rref sets the reading), a generic MAX31856 and a bead cost about $48.
+They arrive in days and work with `logger_fw/logger_fw.ino` as written.
+
+**Where JLC helps:** a repeatable multi-probe fixture, the factory
+end-of-line sensor check Impulse runs on every unit (mining r2), or a
+production test jig. Those are worth a board. This survey isn't.
+
+### L2. Disc: core option B from one polished alumina substrate
+
+The reference disc lot ($250 quote, laser-cut, 20 pieces) is replaced by:
+- one 25.4 × 25.4 × 0.254 mm polished 99.6 % alumina substrate (about $20);
+- a diamond core bit (about $8).
+
+**The core bit's inside diameter sets the disc**, so buy a bit with an
+8.0–8.3 mm inside diameter, which is often sold as 10 mm. Core 3–4 discs and
+keep the best edge.
+
+**Why it is safe:**
+- This is option B (+20.2 % heat capacity vs C1). D2 already allows it with
+  the model correction, and it is the self-test's own probe.
+- The fit uses the weighed mass and the measured contact diameter.
+- `surrogate.json` row "B-lean" is identical to B.
+- The face finish class is unchanged (polished thin-film grade,
+  Ra ≤ 0.1 µm).
+
+### L3. Element: keep IST P0K1.202, buy 2 instead of 3
+
+A distributor M222-class chip (about 2.0 × 2.3 × 0.8 mm, about 12.9 mJ/K, about
+$7) was tried in `probe.lean.json`. **The self-test failed** at
+h 888: +0.056 s against a 0.055 s tolerance. The larger element lengthens
+τ_int from 0.159 to 0.247 s, and the 2-node fit's bias grows.
+
+The error was on the slow side and the verdicts were still correct. But the
+tolerance was not loosened to pass it: the saving is about $30. So the lean
+kit keeps the reference element, 1 + 1 spare.
+
+With that, `selftest-lean.json` **passes: max |error| 0.0485 s**, identical
+to the reference self-test.
+
+### L4. Jig: JLCCNC parts and a standard set screw
+
+The $250 shop machining estimate plus $70 of stock is replaced by:
+- the PEEK post, turned at JLCCNC (about $25, estimate);
+- the 6061 holder at JLCCNC (about $25, estimate);
+- an M10 × 1 fine-thread set screw (about $3) instead of the turned plug.
+
+The post touches the disc and sees the pan temperature, so it stays PEEK. A
+printed resin would creep at 150–230 °C. The holder sits under the plate and
+stays well below 100 °C, but aluminium is cheap at JLCCNC, so it isn't worth
+printing.
+
+Quotes are online and instant; the estimates need confirming.
+
+### L5. Metrology: buy only the milligram scale
+
+The disc's mass, about 49 mg, needs 0.001 g, which gives C_cap ±2 %, inside
+the D6 4 % term.
+
+Everything else is commonly owned:
+- **Force window 143–163 g:** a kitchen scale with 1 g resolution.
+- **Proud height ±0.02 mm:** a digital caliper in step mode. Buy the dial
+  indicator only if the readings scatter.
+- **Pan flatness:** a steel rule and feelers.
+- **Roughness comparator:** optional. Pan Ra class is metadata, and the fit
+  measures h_c directly.
+
+### L6. Plate: any flat non-metal plate. The reference bead moves into the bore.
+
+`plate_check.py` asks whether the plate matters. h_c doesn't involve the
+plate: it is the disc face, the pan base, the force and the mount. The plate
+acts only through a gradient. The pan base resting on a cold plate cools
+there, while the contact point over the Ø18 bore does not.
+
+**Method:**
+- A radial finite-difference pan base with plate flux outside the bore. That
+  is contact conductance h_pp in series with a semi-infinite plate.
+- Carbon steel 2 mm, clad 2.6 mm and cast iron 5 mm.
+- h_pp of 300 and 1500 W/m²K.
+- ΔT of 125 K (cold plate) and 40 K (preheated plate).
+- Each slope mismatch is pushed through `fit.py`'s own synthetic generator
+  and fit.
+
+**Results** (worst case, τ63_C1 error at h 888–1300; the zero-mismatch
+baseline is the fit's own +0.037 s):
+
+| Plate | Reference at 15 mm, cold plate | Reference at 6.5 mm, inside the bore |
+|---|---|---|
+| Glass-ceramic or porcelain | +0.069 s, **over the 0.05 s tolerance** | +0.047 s, cold plate |
+| Calcium-silicate board | +0.053 s | +0.043 s |
+| Aluminium | +0.29 s | +0.10 s |
+
+- **Preheated plate, reference at 15 mm:** glass-ceramic gives +0.047 s.
+- **Every error is positive,** meaning a slower reading: conservative, never
+  a false PASS.
+
+**Decision:**
+- **Move the reference to r = 6.5 mm,** inside the bore. RIG §2 is updated.
+- **Warm the plate before a session.**
+- **Use any flat non-metal plate.** The lean kit uses a replacement
+  induction-cooker glass panel (about $30) instead of a cut offcut ($80) plus
+  a bore service ($40). Porcelain tile or calcium-silicate board also pass if
+  checked flat. **Never metal.**
+
+This also applies to the reference kit. It is a fix to the survey method, not
+only a cost item.
+
+An earlier version of `plate_check.py` used a crude smoothing factor in place
+of the radial model. It overstated the effect by about 10×, and its numbers
+are not used.
+
+### L7. What the lean kit gives up
+
+- **The C1-exact Si3N4 disc,** replaced by the model correction, which is
+  self-tested.
+- **Shop-machined tolerances,** replaced by JLCCNC's standard tolerances. The
+  proud height is shimmed and measured anyway.
+- **Calibrated metrology** for force and height, replaced by consumer tools
+  inside the stated windows.
+
+None of these enters the gated number except through terms the fit already
+carries (D6). The Si3N4 lot is worth buying later, if C1 goes ahead, as the
+first production-intent disc sample.
