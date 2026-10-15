@@ -37,7 +37,7 @@ their ratchets.
 | B1 | **L1 B82726S2203A020 sets the build date:** no authorised stock, 29-week lead, so a 500-board build lands ~2027-05 if ordered now. 14 lines short for 500 boards, 3 for 5; JLC-assemblable share 0.851 / 0.968 | DECISIONS 45; `sourcing/study-2026-10-15/` | Owner (ordering); EMI re-run for L1 alternate B82726S2243A020 | Plan ready | Owner pre-orders (README §4). L1 alternate: c29 / D-22 EMI re-run with 0.75 mH / 8 µH |
 | B2 | Five "short" lines are read gaps (DigiKey bot check, Octopart 403), not proven shortages | DECISIONS 45 | Sourcing | Open | Re-take the snapshot when the sites read again |
 | B4 | Order remarks: KB-6164 with KB-6064 prepreg (S12 may change this), stack JLC041622-7628 named, Confirm production file. Thickness remark dropped (DECISIONS 44) | FAB-NOTE | Order (owner) | Ready | Answered at JLC's file review |
-| B5 | Track-geometry hygiene: 104 right angles, 206 acute corners (44 fold-backs), 704 mm any-angle (s35 = s32) | DECISIONS 43 | Cleanup pass, after the lanes merge | Metric in place (ratchet) | Build the cleanup tool, prove it on s35 with the chain |
+| B5 | Track-geometry hygiene: 104 right angles, 206 acute corners (44 fold-backs), 704 mm any-angle on s35 | DECISIONS 43, 48 | Cleanup pass (tool merged) | Proved on s35 as s37 (ACCEPT) | Apply last, on the merged copper, then the chain |
 | B6 | Stencil: J2 / J5 want 150 µm paste; fine-pitch parts' stencil not chosen; J2 / J5 CPL rows NEEDS-PREVIEW | DECISIONS 44 | Order (owner) | Open | Step stencil or aperture choice at order |
 | B7 | `PROTOTYPE-LOT.md` lists superseded parts (UCC21550, ISO7710, 74650074R) | `08-manufacturing-package/native-21/` | Integration | Stale | Regenerate from the snapshot when the BOM settles |
 
@@ -52,7 +52,7 @@ their ratchets.
 | C5 | PS1 deletion (candidate 23) | ~8.40 | Layout lane: SELV side | Waits for the S1 result and the controller's J13 |
 | C7 | Bare board: six layers $19.11 vs four $17.28 pinned; area compaction ~$1.5 per 10 % | DECISIONS 40 | After candidate 23 (compaction) | Open |
 
-## 4. Layout lanes (two building: ps-selv, ps-layers)
+## 4. Layout lanes (one building: ps-selv)
 
 | Lane (island) | Candidate | Status | Blocked on |
 |---|---|---|---|
@@ -60,7 +60,7 @@ their ratchets.
 | SELV side (WS5, spine owner) | 23: DECISIONS 47 change set (PS1 deleted, PS2 → MPM-20-24, L1 → SCF31X if it fits); stage tag s38 | Running (ps-selv, branch claude/native21-c23-supply) | The controller's J13 and PS3 → MPM-65 gate the merge, not the board work |
 | HS-B / LS (WS4) | 30a (HS-B → LS ISO6721FB), 30b (C161), return-path fixes (S10) | Needs an LS-pocket / U42 re-placement to open the y 47–60 band | The bias-supply study (C3): U42 may change |
 | Tank / bank | 34: resonant bank | Waits on stock | S9 |
-| Whole board (last) | Geometry cleanup pass (B5; tool proved on s35 as s37, applied last); compaction (C7) | Tool running (ps-layers, branch claude/native21-geometry-cleanup) | Applied after the other lanes merge |
+| Whole board (last) | Geometry cleanup pass (B5; tool merged, DECISIONS 48: s35 → s37 right angles 104 → 50, acute 206 → 23, fold-backs 44 → 3, any-angle 704 → 308 mm; ACCEPT); compaction (C7) | Tool ready; ps-layers free | Run on the merged copper after c23 / c36 / c30 land |
 
 ## 5. Owner actions
 
