@@ -1,0 +1,155 @@
+{
+ "kfref_vs_KFNoPower_max_abs_K": 0.0,
+ "d1": [
+  {
+   "case": "loss_triply_clad_24",
+   "replay_suspect_t": 252.6,
+   "replay_lost_t": 270.6,
+   "replay_probes_in_window": 1,
+   "closed_loop": {
+    "suspect_at": 252.60000000000002,
+    "detected_at": 270.6,
+    "probes": 1
+   },
+   "probe_log": [
+    270.6,
+    308.6
+   ]
+  },
+  {
+   "case": "nominal_triply_clad_24",
+   "replay_suspect_t": null,
+   "replay_lost_t": null,
+   "replay_probes_in_window": 0,
+   "closed_loop": {
+    "suspect_at": null,
+    "detected_at": null,
+    "probes": 0
+   },
+   "probe_log": []
+  },
+  {
+   "case": "food_triply_clad_24",
+   "replay_suspect_t": 252.0,
+   "replay_lost_t": null,
+   "replay_probes_in_window": 1,
+   "closed_loop": {
+    "suspect_at": 252.0,
+    "detected_at": null,
+    "probes": 1
+   },
+   "probe_log": [
+    270.0
+   ]
+  },
+  {
+   "case": "loss_disc_pot_water_1l5",
+   "replay_suspect_t": 252.2,
+   "replay_lost_t": 270.2,
+   "replay_probes_in_window": 1,
+   "closed_loop": {
+    "suspect_at": 252.20000000000002,
+    "detected_at": 270.3,
+    "probes": 1
+   },
+   "probe_log": [
+    270.2,
+    308.2
+   ]
+  },
+  {
+   "case": "nominal_disc_pot_water_1l5",
+   "replay_suspect_t": null,
+   "replay_lost_t": null,
+   "replay_probes_in_window": 0,
+   "closed_loop": {
+    "suspect_at": null,
+    "detected_at": null,
+    "probes": 0
+   },
+   "probe_log": []
+  },
+  {
+   "case": "loss_carbon_steel_28",
+   "replay_suspect_t": 252.3,
+   "replay_lost_t": 270.3,
+   "replay_probes_in_window": 1,
+   "closed_loop": {
+    "suspect_at": 252.3,
+    "detected_at": 270.3,
+    "probes": 1
+   },
+   "probe_log": [
+    270.3,
+    308.3
+   ]
+  },
+  {
+   "case": "nominal_carbon_steel_28",
+   "replay_suspect_t": null,
+   "replay_lost_t": null,
+   "replay_probes_in_window": 0,
+   "closed_loop": {
+    "suspect_at": null,
+    "detected_at": null,
+    "probes": 0
+   },
+   "probe_log": []
+  },
+  {
+   "case": "food_carbon_steel_28",
+   "replay_suspect_t": 251.9,
+   "replay_lost_t": null,
+   "replay_probes_in_window": 1,
+   "closed_loop": {
+    "suspect_at": 251.9,
+    "detected_at": null,
+    "probes": 1
+   },
+   "probe_log": [
+    269.9
+   ]
+  },
+  {
+   "case": "loss_cast_iron_26",
+   "replay_suspect_t": 251.7,
+   "replay_lost_t": 269.7,
+   "replay_probes_in_window": 1,
+   "closed_loop": {
+    "suspect_at": 251.70000000000002,
+    "detected_at": 269.8,
+    "probes": 1
+   },
+   "probe_log": [
+    269.7,
+    307.7
+   ]
+  },
+  {
+   "case": "nominal_cast_iron_26",
+   "replay_suspect_t": null,
+   "replay_lost_t": null,
+   "replay_probes_in_window": 0,
+   "closed_loop": {
+    "suspect_at": null,
+    "detected_at": null,
+    "probes": 0
+   },
+   "probe_log": []
+  },
+  {
+   "case": "food_cast_iron_26",
+   "replay_suspect_t": 251.6,
+   "replay_lost_t": null,
+   "replay_probes_in_window": 1,
+   "closed_loop": {
+    "suspect_at": 251.60000000000002,
+    "detected_at": null,
+    "probes": 1
+   },
+   "probe_log": [
+    269.6
+   ]
+  }
+ ]
+}

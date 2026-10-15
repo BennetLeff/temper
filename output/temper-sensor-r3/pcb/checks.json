@@ -1,0 +1,1985 @@
+{
+ "scope": "sensor-r3 PCB checks: the C1 pan-sensor channels on the zapote/controller board.\n\nHANDOFF section B, items 1-9. Every number in pcb/*.md comes from this script.\nRun:  python3 checks.py   -> checks.json  (exit 1 if any gate fails)\n\nCircuit under test\n- \"captured\": zapote/controller as captured on branch controller-layout\n  (300b8a934, read-only): RTDSensing (MAX31865, 430 R Yageo RT 0.1 % 25 ppm,\n  1 nF C0G across RTDIN, 1 M open-lead pull-ups at the pins, REF2025 window,\n  TLV3201 runaway at BIAS/3 on the 100 k window branch), rim NTC on J12\n  (104GT-2, 1.00 k pull-up, 10 k/100 nF, TLV9061, GPIO9 ADC1).\n- \"proposed\": the same plus CHANGE-REQUEST.md: 2-stage RC on the sense lines\n  (1.00 k / 100 nF C0G / 1.00 k / 100 nF C0G + 2 x 1 nF CM), pull-ups and\n  window taps moved to the connector side, 10 nF on the window node,\n  ESD5Z3.3 on the four RTD lines, Rref 430 R 0.05 % 5 ppm, rim trip.\n\nMethod: a small complex modified-nodal-analysis solver (numpy) for the AC\npickup cases and the DC fault/loading cases; datasheet worst-case corners.\nDatasheet values are in SRC with their source; \"assumption\" marks every value\nthat is an engineering allowance rather than a datasheet limit.",
+ "sources": {
+  "MAX31865": "Maxim MAX31865 19-6478 Rev 3 (datasheets/max31865.pdf): VBIAS 1.95-2.06 V, bias load reg 30 mV/mA, IOUT max 5.75 mA, 15 bit, offset -3..+3 LSB (max), full-scale +/-1 LSB (typ), INL +/-1 LSB (typ), input leakage 14 nA (typ, -40..100 C), conversion 16.7 ms typ / 17.6 ms max continuous 60 Hz notch, analog pins 0..VBIAS, protection opens >VDD+0.1 V or <GND-0.4 V (D2), RREF 350 R..10 k, cable <=50 R/lead, auto fault cycle valid only if input RC tau <=100 us, sinc3 filter",
+  "Pt100": "IEC 60751 Callendar-Van Dusen A 3.9083e-3, B -5.775e-7 (T>=0), C -4.183e-12 (T<0)",
+  "Rref_captured": "Yageo RT0805BRD07430RL 0.1 % 25 ppm/K (controller C35 R39 swap)",
+  "Rref_proposed": "Susumu RG2012V-431-W-T1 0.05 %, 5 ppm/K (RG2012V series, V = +/-5 ppm; RTD unit's original part, swapped out in C35 for stock only)",
+  "board_temp": "controller_calcs.py TEMP_SPAN_K 60 (25 -> 85 C board); 0 C lower bound (assumption)",
+  "TLV3201": "TI SBOS561C: VIO +/-5 mV max (as used in controller_calcs.runaway)",
+  "ESD5Z3.3": "onsemi ESD5Z3.3T1G: VRWM 3.3 V, IR 50 nA max at VRWM, 25 C (controller_parts.ato basis)",
+  "104GT-2": "Semitec GT-2 series datasheet 2023-08-01 R-T table (copied in controller_calcs.py): 100 k +/-3 %, B25/85 4267 K +/-2 %, -50..+300 C, 0.6 mW/K still air",
+  "ESP32-S3 ADC": "12 bit; calibrated error bounds used: ATTEN0 +/-5 mV, ATTEN2 +/-10 mV, ATTEN3 +/-50 mV (assumption to confirm against the ESP32-S3 datasheet ADC table at capture)",
+  "v3v3": "TPS62933 3.3 V rail 3.242-3.367 V, measured by MCP3202 CH1 against LM4040A25 0.1 % (controller DECISIONS C20)",
+  "tank_cm": "output/temper-coil-driver-r1/tank_cm.json: winding-mean CM voltage (one-sided bank) and winding-to-pan 70-81 pF (enclosure study 16)",
+  "coil": "native-21 tank 242 V rms / 640 V peak recurring, 33-60 kHz (R40 DECISIONS item 2, power stage)",
+  "B_eye": "R43 G7 spring screen B 5-20 mT in the coil eye; electronics field 0.19-0.57 mT (R37, R41)",
+  "cartridge": "../cartridge_budget.py / cartridge-budget.json (C_cap, G_bond 0.0612 W/K, area 45.4 mm2)",
+  "manganin": "Isabellenhuette MANGANIN: rho 0.43 uOhm m, k 22 W/mK, thermo-EMF vs Cu <1 uV/K (0-100 C); 2 uV/K used to 150 C (assumption)",
+  "constantan": "Type T (Cu-constantan) Seebeck ~41 uV/K at 25 C, ~52 uV/K at 150 C (NIST ITS-90 tables)"
+ },
+ "summary": {
+  "1a range -20..320 C and resolution <=0.05 K": true,
+  "1b front-end error after single-point cal, 40-250 C": true,
+  "2 sample rate >=16 Hz continuous, 60 Hz notch": true,
+  "3 self-heating offset <=0.1 K (incidental, continuous bias)": true,
+  "4 coil pickup: <1 LSB at the ADC pins, runaway shift <=1 K, open-lead <=100 ms": true,
+  "F fault coverage: every open/short/lead fault detected or reads high": true,
+  "5 rim NTC: <=0.3 K resolution 100-250 C, open/short detection": true,
+  "6 connector protection does not spoil items 1 and 4": true,
+  "7 insulation coil/tank to cartridge SELV (numbers for CAD G11)": true,
+  "8 hardware trips vs 250 C max setpoint": true,
+  "9 cable, leads and part ratings (UL basis)": true
+ },
+ "checks": {
+  "1a range -20..320 C and resolution <=0.05 K": {
+   "pass": true,
+   "detail": {
+    "rows": [
+     {
+      "T_C": -20.0,
+      "R_ohm": 92.16,
+      "ratio_to_Rref": 0.2143,
+      "LSB_K": 0.0334
+     },
+     {
+      "T_C": 0.0,
+      "R_ohm": 100.0,
+      "ratio_to_Rref": 0.2326,
+      "LSB_K": 0.0336
+     },
+     {
+      "T_C": 40.0,
+      "R_ohm": 115.541,
+      "ratio_to_Rref": 0.2687,
+      "LSB_K": 0.034
+     },
+     {
+      "T_C": 100.0,
+      "R_ohm": 138.505,
+      "ratio_to_Rref": 0.3221,
+      "LSB_K": 0.0346
+     },
+     {
+      "T_C": 200.0,
+      "R_ohm": 175.856,
+      "ratio_to_Rref": 0.409,
+      "LSB_K": 0.0357
+     },
+     {
+      "T_C": 250.0,
+      "R_ohm": 194.098,
+      "ratio_to_Rref": 0.4514,
+      "LSB_K": 0.0363
+     },
+     {
+      "T_C": 320.0,
+      "R_ohm": 219.152,
+      "ratio_to_Rref": 0.5097,
+      "LSB_K": 0.0371
+     }
+    ],
+    "worst_LSB_K": 0.0371,
+    "R320_over_Rref_min": 0.511,
+    "bias_current_max_mA": 3.921,
+    "FORCE+_node_at_320C_V": 0.665,
+    "lead_R_per_conductor_ohm": 1.802,
+    "lead_alloy_ohm": 1.711,
+    "limits": "LSB <=0.05 K; RTD/Rref <=0.95 (headroom); IOUT <=5.75 mA; cable <=50 R/lead"
+   }
+  },
+  "1b front-end error after single-point cal, 40-250 C": {
+   "pass": true,
+   "detail": {
+    "method": "gain-only calibration with a calibrated 50 ppm reference resistor at R(200 C) on J3, board 25 C; board 0-85 C (|dT| 60 K); MAX31865 offset bounded +/-3 LSB independently at cal and use (strict, no drift spec exists); FS and INL are datasheet typ only; firmware removes the nominal pull-up loading (Rref/Rb); VBIAS cancels (ratiometric, REF2025 only sets window thresholds)",
+    "requirement": "+/-0.3 K. Gate: the board-controlled terms (Rref, calibration, loading, leakage, thermo-EMF) stacked linearly <=0.30 K AND the RSS of all terms incl. the MAX31865 <=0.30 K. The strict linear stack incl. the MAX31865 is reported, not gated: its +/-3 LSB offset bound alone is 0.23 K at 250 C with no drift spec (DECISIONS D3)",
+    "captured": {
+     "worst_linear_K": 1.177,
+     "worst_rss_K": 0.84,
+     "worst_board_terms_K": 0.859,
+     "at_250C": {
+      "T_C": 250.0,
+      "linear_K": 1.177,
+      "rss_K": 0.84,
+      "board_terms_K": 0.859,
+      "nominal_loading_ohm_corrected_in_fw": 0.0733,
+      "Rref_tempco_K": 0.8044,
+      "cal_reference_50ppm_K": 0.0322,
+      "adc_offset_strict_K": 0.2288,
+      "adc_fullscale_typ_K": 0.0164,
+      "adc_inl_typ_K": 0.0725,
+      "board_loading_leakage_residual_K": 0.0188,
+      "thermo_emf_manganin_2K_K": 0.0035
+     },
+     "at_100C": {
+      "T_C": 100.0,
+      "linear_K": 0.852,
+      "rss_K": 0.583,
+      "board_terms_K": 0.586,
+      "nominal_loading_ohm_corrected_in_fw": 0.0502,
+      "Rref_tempco_K": 0.5478,
+      "cal_reference_50ppm_K": 0.0219,
+      "adc_offset_strict_K": 0.1855,
+      "adc_fullscale_typ_K": 0.0111,
+      "adc_inl_typ_K": 0.0692,
+      "board_loading_leakage_residual_K": 0.0136,
+      "thermo_emf_manganin_2K_K": 0.0031
+     }
+    },
+    "proposed": {
+     "worst_linear_K": 0.575,
+     "worst_rss_K": 0.298,
+     "worst_board_terms_K": 0.257,
+     "at_250C": {
+      "T_C": 250.0,
+      "linear_K": 0.575,
+      "rss_K": 0.298,
+      "board_terms_K": 0.257,
+      "nominal_loading_ohm_corrected_in_fw": 0.1195,
+      "Rref_tempco_K": 0.1609,
+      "cal_reference_50ppm_K": 0.0322,
+      "adc_offset_strict_K": 0.2288,
+      "adc_fullscale_typ_K": 0.0164,
+      "adc_inl_typ_K": 0.0725,
+      "board_loading_leakage_residual_K": 0.0608,
+      "thermo_emf_manganin_2K_K": 0.0035
+     },
+     "at_100C": {
+      "T_C": 100.0,
+      "linear_K": 0.447,
+      "rss_K": 0.232,
+      "board_terms_K": 0.181,
+      "nominal_loading_ohm_corrected_in_fw": 0.0758,
+      "Rref_tempco_K": 0.1096,
+      "cal_reference_50ppm_K": 0.0219,
+      "adc_offset_strict_K": 0.1855,
+      "adc_fullscale_typ_K": 0.0111,
+      "adc_inl_typ_K": 0.0692,
+      "board_loading_leakage_residual_K": 0.0469,
+      "thermo_emf_manganin_2K_K": 0.0031
+     }
+    },
+    "ageing_not_in_gate": "Rref load-life drift (Susumu RG datasheet value to be recorded at order); 0.01 % drift = 0.05 K at 250 C"
+   }
+  },
+  "2 sample rate >=16 Hz continuous, 60 Hz notch": {
+   "pass": true,
+   "detail": {
+    "config": "CONFIG 0xC0: D7 VBIAS on, D6 auto, D4 0 (4-wire), D3:2 00, D0 0 (60 Hz notch); write 0xC2 once to clear faults",
+    "rate_min_Hz": 56.82,
+    "filter_group_delay_ms": 0.4,
+    "DRDY": "captured board routes RTD_DRDY to TCA9555 P07 (DECISIONS C23), not a GPIO. Requirement: firmware reads the RTD registers every 20 ms (>= one conversion, 50 Hz), checking that the code changed within 3 reads (stale-data detection), or polls P07; rtd_service.c's GPIO ISR must be ported to that. >=16 Hz holds either way.",
+    "fault_cycle": "with input tau >100 us the automatic fault cycle is invalid (datasheet); use the manual cycle at power-up and only when the coil is off (it opens FORCE-, stops conversions and steps the bias current)."
+   }
+  },
+  "3 self-heating offset <=0.1 K (incidental, continuous bias)": {
+   "pass": true,
+   "detail": {
+    "rows": [
+     {
+      "T_C": -20.0,
+      "I_mA": 3.922,
+      "P_mW": 1.418,
+      "dT_K_film_to_disc": 0.0583,
+      "dT_K_film_away": 0.0686
+     },
+     {
+      "T_C": 40.0,
+      "I_mA": 3.755,
+      "P_mW": 1.629,
+      "dT_K_film_to_disc": 0.067,
+      "dT_K_film_away": 0.0788
+     },
+     {
+      "T_C": 100.0,
+      "I_mA": 3.604,
+      "P_mW": 1.799,
+      "dT_K_film_to_disc": 0.074,
+      "dT_K_film_away": 0.087
+     },
+     {
+      "T_C": 200.0,
+      "I_mA": 3.383,
+      "P_mW": 2.013,
+      "dT_K_film_to_disc": 0.0828,
+      "dT_K_film_away": 0.0974
+     },
+     {
+      "T_C": 250.0,
+      "I_mA": 3.285,
+      "P_mW": 2.094,
+      "dT_K_film_to_disc": 0.0862,
+      "dT_K_film_away": 0.1013
+     },
+     {
+      "T_C": 320.0,
+      "I_mA": 3.159,
+      "P_mW": 2.186,
+      "dT_K_film_to_disc": 0.09,
+      "dT_K_film_away": 0.1058
+     }
+    ],
+    "G_bond_W_per_K": 0.0612,
+    "G_c_min_W_per_K": 0.0403,
+    "worst_K_film_to_disc": 0.09,
+    "worst_K_film_away": 0.1058,
+    "fw_constant_K": 0.0612,
+    "residual_after_constant_K": 0.0249,
+    "no_pan_offset_K_info": 1.61,
+    "P1": "bias is the MAX31865's continuous measuring current (VBIAS on in auto mode); no modulation, no pulse, firmware must not use the offset as a contact signal (Impulse dep. 3 / spec)"
+   }
+  },
+  "4 coil pickup: <1 LSB at the ADC pins, runaway shift <=1 K, open-lead <=100 ms": {
+   "pass": true,
+   "detail": {
+    "cm_1V_test": "1 V pk CM at J3 through 600 R per line (150 R total, IEC 61000-4-6 CDN convention), tolerance corners; gated at 40 kHz as the handoff states, swept for information",
+    "LSB_V_min": 3.920151735898844e-05,
+    "criterion": "residual amplitude at RTDIN+/- below 1 LSB, no credit for the sinc3 filter (covers aliasing against the unknown modulator clock and rectification)",
+    "sources_at_40kHz": {
+     "v_pan_pk": 224.0,
+     "c_inj_pF": 1.180751,
+     "i_inj_pk": 0.000133,
+     "emf_sense_pk": 0.006597,
+     "emf_force_pk": 0.006597,
+     "emf_eye_untwisted_pk": 0.050265
+    },
+    "captured": {
+     "rows": [
+      {
+       "f_kHz": 20.0,
+       "pan_V_pk": 448.0,
+       "inj_uA_pk": 132.9,
+       "DM_pins_inj_uV": 19414.97,
+       "DM_pins_magnetic_uV": 2254.32,
+       "DM_pins_total_LSB": 552.767,
+       "CM_1V_test_DM_pins_LSB": 7707.7982,
+       "CM_1V_test_CM_at_pins_mV": 204.72,
+       "runaway_node_ripple_mV": 22.651,
+       "runaway_threshold_shift_K": 32.4
+      },
+      {
+       "f_kHz": 33.0,
+       "pan_V_pk": 271.5,
+       "inj_uA_pk": 132.9,
+       "DM_pins_inj_uV": 19408.11,
+       "DM_pins_magnetic_uV": 3718.32,
+       "DM_pins_total_LSB": 589.937,
+       "CM_1V_test_DM_pins_LSB": 7706.5061,
+       "CM_1V_test_CM_at_pins_mV": 204.69,
+       "runaway_node_ripple_mV": 24.058,
+       "runaway_threshold_shift_K": 34.41
+      },
+      {
+       "f_kHz": 40.0,
+       "pan_V_pk": 224.0,
+       "inj_uA_pk": 132.9,
+       "DM_pins_inj_uV": 19403.03,
+       "DM_pins_magnetic_uV": 4505.87,
+       "DM_pins_total_LSB": 609.897,
+       "CM_1V_test_DM_pins_LSB": 7735.7219,
+       "CM_1V_test_CM_at_pins_mV": 205.4,
+       "runaway_node_ripple_mV": 24.81,
+       "runaway_threshold_shift_K": 35.49
+      },
+      {
+       "f_kHz": 60.0,
+       "pan_V_pk": 149.3,
+       "inj_uA_pk": 132.9,
+       "DM_pins_inj_uV": 19383.18,
+       "DM_pins_magnetic_uV": 6751.89,
+       "DM_pins_total_LSB": 666.685,
+       "CM_1V_test_DM_pins_LSB": 7701.803,
+       "CM_1V_test_CM_at_pins_mV": 204.58,
+       "runaway_node_ripple_mV": 26.934,
+       "runaway_threshold_shift_K": 38.53
+      },
+      {
+       "f_kHz": 100.0,
+       "pan_V_pk": 89.6,
+       "inj_uA_pk": 132.9,
+       "DM_pins_inj_uV": 19320.06,
+       "DM_pins_magnetic_uV": 11216.53,
+       "DM_pins_total_LSB": 778.965,
+       "CM_1V_test_DM_pins_LSB": 7689.8562,
+       "CM_1V_test_CM_at_pins_mV": 204.31,
+       "runaway_node_ripple_mV": 31.054,
+       "runaway_threshold_shift_K": 44.42
+      }
+     ],
+     "worst_DM_total_LSB": 778.965,
+     "worst_CM1V_LSB": 7735.7219,
+     "CM1V_LSB_by_f": {
+      "20.0": 7707.7982,
+      "33.0": 7706.5061,
+      "40.0": 7735.7219,
+      "60.0": 7701.803,
+      "100.0": 7689.8562
+     },
+     "worst_runaway_shift_K": 44.42
+    },
+    "proposed": {
+     "rows": [
+      {
+       "f_kHz": 20.0,
+       "pan_V_pk": 448.0,
+       "inj_uA_pk": 132.9,
+       "DM_pins_inj_uV": 3.55,
+       "DM_pins_magnetic_uV": 0.56,
+       "DM_pins_total_LSB": 0.105,
+       "CM_1V_test_DM_pins_LSB": 2.4544,
+       "CM_1V_test_CM_at_pins_mV": 43.92,
+       "runaway_node_ripple_mV": 0.02,
+       "runaway_threshold_shift_K": 0.03
+      },
+      {
+       "f_kHz": 33.0,
+       "pan_V_pk": 271.5,
+       "inj_uA_pk": 132.9,
+       "DM_pins_inj_uV": 0.81,
+       "DM_pins_magnetic_uV": 0.25,
+       "DM_pins_total_LSB": 0.027,
+       "CM_1V_test_DM_pins_LSB": 0.7086,
+       "CM_1V_test_CM_at_pins_mV": 29.27,
+       "runaway_node_ripple_mV": 0.009,
+       "runaway_threshold_shift_K": 0.01
+      },
+      {
+       "f_kHz": 40.0,
+       "pan_V_pk": 224.0,
+       "inj_uA_pk": 132.9,
+       "DM_pins_inj_uV": 0.46,
+       "DM_pins_magnetic_uV": 0.18,
+       "DM_pins_total_LSB": 0.016,
+       "CM_1V_test_DM_pins_LSB": 0.5079,
+       "CM_1V_test_CM_at_pins_mV": 25.73,
+       "runaway_node_ripple_mV": 0.006,
+       "runaway_threshold_shift_K": 0.01
+      },
+      {
+       "f_kHz": 60.0,
+       "pan_V_pk": 149.3,
+       "inj_uA_pk": 132.9,
+       "DM_pins_inj_uV": 0.14,
+       "DM_pins_magnetic_uV": 0.09,
+       "DM_pins_total_LSB": 0.006,
+       "CM_1V_test_DM_pins_LSB": 0.2368,
+       "CM_1V_test_CM_at_pins_mV": 16.13,
+       "runaway_node_ripple_mV": 0.003,
+       "runaway_threshold_shift_K": 0.0
+      },
+      {
+       "f_kHz": 100.0,
+       "pan_V_pk": 89.6,
+       "inj_uA_pk": 132.9,
+       "DM_pins_inj_uV": 0.03,
+       "DM_pins_magnetic_uV": 0.03,
+       "DM_pins_total_LSB": 0.002,
+       "CM_1V_test_DM_pins_LSB": 0.1053,
+       "CM_1V_test_CM_at_pins_mV": 8.15,
+       "runaway_node_ripple_mV": 0.002,
+       "runaway_threshold_shift_K": 0.0
+      }
+     ],
+     "worst_DM_total_LSB": 0.105,
+     "worst_CM1V_LSB": 0.5079,
+     "CM1V_LSB_by_f": {
+      "20.0": 2.4544,
+      "33.0": 0.7086,
+      "40.0": 0.5079,
+      "60.0": 0.2368,
+      "100.0": 0.1053
+     },
+     "worst_runaway_shift_K": 0.03
+    },
+    "timing": {
+     "25C": {
+      "open_Sp_ms": 33.1,
+      "open_Sn_ms": 6.0
+     },
+     "250C": {
+      "open_Sp_ms": 3.3,
+      "open_Sn_ms": 13.1
+     },
+     "open_Sp_detect_ms": 33.1,
+     "open_Sn_detect_ms": 13.1,
+     "filter_tau_ms": 0.2,
+     "fault_cycle_manual_wait_ms": 5.0,
+     "window_node_tau_ms": 1.0
+    }
+   }
+  },
+  "F fault coverage: every open/short/lead fault detected or reads high": {
+   "pass": true,
+   "detail": {
+    "unsafe_undetected_proposed": [
+     "element leak 1000 R @25C",
+     "element leak 1000 R @250C",
+     "element leak 7000 R @250C"
+    ],
+    "unsafe_undetected_captured": [
+     "element leak 1000 R @25C",
+     "element leak 1000 R @250C",
+     "element leak 7000 R @250C"
+    ],
+    "hot_zone_insulation_min_ohm_for_0.1K": 1040850.0,
+    "note": "element-parallel leakage (insulation breakdown in the hot zone) reads low and is electrically invisible above ~50 R; it is covered thermally (D1, Pt100-vs-rim check) and by the rim hardware trip; the cartridge must hold >=1041 k (spec 10 M) between leads at 300 C",
+    "captured": {
+     "thresholds_ohm": [
+      10.0,
+      300.0
+     ],
+     "rows": {
+      "none @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 25.1,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Fp @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fp to GND @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fp to RIM_SENSE @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 294.4,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": true,
+       "max_D7_D6_D2": false,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fp contact +10 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 25.1,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Sp @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": true,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sp to GND @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sp to RIM_SENSE @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 296.6,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": true,
+       "max_D7_D6_D2": false,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sp contact +10 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 25.1,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Sn @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sn to GND @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 27.3,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "Sn to RIM_SENSE @25C": {
+       "rim_fault": true,
+       "low_by_K": 2.13,
+       "T_read_C": 22.9,
+       "reads": "low",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sn contact +10 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.04,
+       "T_read_C": 25.0,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Fn @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": true,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fn to GND @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 25.1,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "Fn to RIM_SENSE @25C": {
+       "rim_fault": true,
+       "low_by_K": 0.0,
+       "T_read_C": 25.1,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fn contact +10 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 25.1,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "element open @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": true,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "element short @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Fp-Sp @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 26.2,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "short Fp-Sn @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Fp-Fn @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Sp-Sn @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Sp-Fn @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Sn-Fn @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 26.2,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "element leak 50 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 125.0,
+       "T_read_C": -100.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": true,
+       "unsafe": false
+      },
+      "element leak 1000 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 27.77,
+       "T_read_C": -2.8,
+       "reads": "low",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": true
+      },
+      "element leak 7000 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 4.27,
+       "T_read_C": 20.7,
+       "reads": "low",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "element leak 1e+06 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 25.1,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "none @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 250.2,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Fp @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fp to GND @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fp to RIM_SENSE @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 866.1,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": true,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fp contact +10 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 250.2,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Sp @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": true,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sp to GND @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sp to RIM_SENSE @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 868.8,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": true,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sp contact +10 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 250.2,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Sn @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sn to GND @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 252.5,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "Sn to RIM_SENSE @250C": {
+       "rim_fault": true,
+       "low_by_K": 2.53,
+       "T_read_C": 247.5,
+       "reads": "low",
+       "hw_window": false,
+       "hw_runaway": true,
+       "max_D7_D6_D2": false,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sn contact +10 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 250.0,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Fn @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": true,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fn to GND @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 250.2,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "Fn to RIM_SENSE @250C": {
+       "rim_fault": true,
+       "low_by_K": 0.0,
+       "T_read_C": 250.2,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": true,
+       "max_D7_D6_D2": false,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fn contact +10 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 250.2,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": true,
+       "max_D7_D6_D2": false,
+       "detected": true,
+       "unsafe": false
+      },
+      "element open @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": true,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "element short @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Fp-Sp @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 251.4,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "short Fp-Sn @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Fp-Fn @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Sp-Sn @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Sp-Fn @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Sn-Fn @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 251.4,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "element leak 50 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 350.0,
+       "T_read_C": -100.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": true,
+       "unsafe": false
+      },
+      "element leak 1000 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 85.82,
+       "T_read_C": 164.2,
+       "reads": "low",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": true
+      },
+      "element leak 7000 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 14.24,
+       "T_read_C": 235.8,
+       "reads": "low",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": true
+      },
+      "element leak 1e+06 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 250.1,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      }
+     },
+     "unsafe_undetected": [
+      "element leak 1000 R @25C",
+      "element leak 1000 R @250C",
+      "element leak 7000 R @250C"
+     ]
+    },
+    "proposed": {
+     "thresholds_ohm": [
+      84.27,
+      233.21
+     ],
+     "rows": {
+      "none @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 25.1,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Fp @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fp to GND @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fp to RIM_SENSE @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 294.5,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "Fp contact +10 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 25.1,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Sp @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": true,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sp to GND @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sp to RIM_SENSE @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 296.7,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "Sp contact +10 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 25.2,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Sn @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sn to GND @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 27.3,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "Sn to RIM_SENSE @25C": {
+       "rim_fault": true,
+       "low_by_K": 2.09,
+       "T_read_C": 22.9,
+       "reads": "low",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sn contact +10 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.48,
+       "T_read_C": 24.5,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Fn @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fn to GND @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 25.1,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "Fn to RIM_SENSE @25C": {
+       "rim_fault": true,
+       "low_by_K": 0.0,
+       "T_read_C": 25.1,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fn contact +10 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 25.1,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "element open @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": true,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "element short @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Fp-Sp @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 26.3,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "short Fp-Sn @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Fp-Fn @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Sp-Sn @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Sp-Fn @25C": {
+       "rim_fault": false,
+       "low_by_K": 275.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Sn-Fn @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 26.3,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "element leak 50 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 125.0,
+       "T_read_C": -100.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "element leak 1000 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 27.74,
+       "T_read_C": -2.7,
+       "reads": "low",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": true
+      },
+      "element leak 7000 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 4.23,
+       "T_read_C": 20.8,
+       "reads": "low",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "element leak 1e+06 R @25C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 25.1,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "none @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 250.3,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Fp @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fp to GND @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fp to RIM_SENSE @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 866.5,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": true,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fp contact +10 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 250.3,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Sp @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": true,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sp to GND @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sp to RIM_SENSE @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 869.2,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": true,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sp contact +10 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 250.4,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Sn @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sn to GND @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 252.7,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "Sn to RIM_SENSE @250C": {
+       "rim_fault": true,
+       "low_by_K": 2.4,
+       "T_read_C": 247.6,
+       "reads": "low",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": true,
+       "unsafe": false
+      },
+      "Sn contact +10 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.44,
+       "T_read_C": 249.6,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "open Fn @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fn to GND @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 250.3,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "Fn to RIM_SENSE @250C": {
+       "rim_fault": true,
+       "low_by_K": 0.0,
+       "T_read_C": 250.3,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": true,
+       "unsafe": false
+      },
+      "Fn contact +10 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 250.3,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "element open @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 900.0,
+       "reads": "high",
+       "hw_window": true,
+       "hw_runaway": true,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "element short @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Fp-Sp @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 251.5,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "short Fp-Sn @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Fp-Fn @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Sp-Sn @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Sp-Fn @250C": {
+       "rim_fault": false,
+       "low_by_K": 500.0,
+       "T_read_C": -250.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "short Sn-Fn @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 251.6,
+       "reads": "high",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      },
+      "element leak 50 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 350.0,
+       "T_read_C": -100.0,
+       "reads": "low",
+       "hw_window": true,
+       "hw_runaway": false,
+       "max_D7_D6_D2": true,
+       "detected": true,
+       "unsafe": false
+      },
+      "element leak 1000 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 85.73,
+       "T_read_C": 164.3,
+       "reads": "low",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": true
+      },
+      "element leak 7000 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 14.12,
+       "T_read_C": 235.9,
+       "reads": "low",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": true
+      },
+      "element leak 1e+06 R @250C": {
+       "rim_fault": false,
+       "low_by_K": 0.0,
+       "T_read_C": 250.2,
+       "reads": "ok",
+       "hw_window": false,
+       "hw_runaway": false,
+       "max_D7_D6_D2": false,
+       "detected": false,
+       "unsafe": false
+      }
+     },
+     "unsafe_undetected": [
+      "element leak 1000 R @25C",
+      "element leak 1000 R @250C",
+      "element leak 7000 R @250C"
+     ]
+    }
+   }
+  },
+  "5 rim NTC: <=0.3 K resolution 100-250 C, open/short detection": {
+   "pass": true,
+   "detail": {
+    "choice": "keep the captured GPIO9 / ADC1_CH8 channel (C27 freed it, so ADC1 is not full); reject ADS1115 (the sensor's own B tolerance dominates accuracy; an I2C ADC would not move it)",
+    "rows": [
+     {
+      "T_C": 100.0,
+      "node_V": 2.797,
+      "mV_per_K": 13.29,
+      "atten": 3,
+      "resolution_K": 0.057,
+      "accuracy_linear_K": 6.9,
+      "NTC_R25_3pct": 0.78,
+      "NTC_B_2pct": 1.87,
+      "adc_cal_error": 3.76,
+      "v3v3_after_MCP3202_correction_0.2pct": 0.42,
+      "pullup_0.1pct_25ppm": 0.08,
+      "self_heating_known_correctable": 2.35
+     },
+     {
+      "T_C": 150.0,
+      "node_V": 1.902,
+      "mV_per_K": 19.81,
+      "atten": 3,
+      "resolution_K": 0.038,
+      "accuracy_linear_K": 7.4,
+      "NTC_R25_3pct": 1.15,
+      "NTC_B_2pct": 3.44,
+      "adc_cal_error": 2.52,
+      "v3v3_after_MCP3202_correction_0.2pct": 0.19,
+      "pullup_0.1pct_25ppm": 0.1,
+      "self_heating_known_correctable": 4.43
+     },
+     {
+      "T_C": 200.0,
+      "node_V": 1.007,
+      "mV_per_K": 13.94,
+      "atten": 2,
+      "resolution_K": 0.028,
+      "accuracy_linear_K": 7.7,
+      "NTC_R25_3pct": 1.42,
+      "NTC_B_2pct": 5.3,
+      "adc_cal_error": 0.72,
+      "v3v3_after_MCP3202_correction_0.2pct": 0.14,
+      "pullup_0.1pct_25ppm": 0.13,
+      "self_heating_known_correctable": 3.85
+     },
+     {
+      "T_C": 250.0,
+      "node_V": 0.489,
+      "mV_per_K": 6.84,
+      "atten": 0,
+      "resolution_K": 0.03,
+      "accuracy_linear_K": 10.2,
+      "NTC_R25_3pct": 1.73,
+      "NTC_B_2pct": 7.45,
+      "adc_cal_error": 0.73,
+      "v3v3_after_MCP3202_correction_0.2pct": 0.14,
+      "pullup_0.1pct_25ppm": 0.15,
+      "self_heating_known_correctable": 2.29
+     },
+     {
+      "T_C": 280.0,
+      "node_V": 0.321,
+      "mV_per_K": 4.27,
+      "atten": 0,
+      "resolution_K": 0.049,
+      "accuracy_linear_K": 12.3,
+      "NTC_R25_3pct": 1.93,
+      "NTC_B_2pct": 8.91,
+      "adc_cal_error": 1.17,
+      "v3v3_after_MCP3202_correction_0.2pct": 0.15,
+      "pullup_0.1pct_25ppm": 0.17,
+      "self_heating_known_correctable": 1.6
+     }
+    ],
+    "worst_resolution_K": 0.057,
+    "saturates_below_C": 93.0,
+    "open": "open bead reads full scale = 'below ~93 C': detect as fault when the Pt100 estimate has been >=150 C for 600 s and the rim still reads saturated",
+    "short": "node < 0.25 V (beyond the 290 C table end) -> rim fault; short to GND reads 0 V",
+    "sink_error_to_estimate_K_per_K": 0.0198,
+    "estimate_error_from_worst_rim_error_at_250C_K": 0.2,
+    "cross_check_threshold": "Pt100-below-rim threshold must exceed the rim error: use 25 K, not 15 K (rim worst linear 10.2 K at 250 C)"
+   }
+  },
+  "6 connector protection does not spoil items 1 and 4": {
+   "pass": true,
+   "detail": {
+    "parts": "ESD5Z3.3T1G on J3.1-4 and J12.1 (already used on J12, J9, J10); series R: 2 x 1.00 k on each sense line (filter); none on FORCE+/- (series R in the force loop moves the runaway trip, see item 8)",
+    "tvs_leakage_gain_error": 3.22e-05,
+    "tvs_leakage_K_at_250C": 0.0173,
+    "esd_charge_uC_8kV_contact_15kV_air": [
+     1.2,
+     2.25
+    ],
+    "esd_line_V_after_sharing_into_220nF_J3_cap": [
+     5.5,
+     10.2
+    ],
+    "max_pin_rating": "MAX31865 FORCE/RTDIN abs max +/-50 V, protected to +/-45 V; TVS clamps first",
+    "pickup_with_tvs": "item 4 includes 50 pF per line at J3; TVS on the low-impedance cable side does not change the RC corners"
+   }
+  },
+  "7 insulation coil/tank to cartridge SELV (numbers for CAD G11)": {
+   "pass": true,
+   "detail": {
+    "working_voltage": "242.0 V rms, 640.0 V peak recurring, 33-60 kHz (tank class)",
+    "pollution_degree": "PD3 in the coil eye (spill path past the wiper); CTI >=175 (group IIIa)",
+    "requirement": {
+     "clearance_mm": 3.0,
+     "creepage_mm": 8.0,
+     "solid": ">=2 mm solid (IEC 60335-1 29.3) or three thin layers each passing the reinforced test; cable insulation alone is not credited"
+    },
+    "applies_to": "winding, coil leads, ferrite bars (PC95 is semi-conductive: treat as tank potential), resonant bank, versus every cartridge/cable conductor and any floating metal (spring, wave spring) that can bridge to one",
+    "basis": "IEC 60664-1 values as recorded in R40 DECISIONS item 2 (from memory, both sessions); IEC 60664-4 applies above 30 kHz - x1.25 clearance allowance; certifier confirms"
+   }
+  },
+  "8 hardware trips vs 250 C max setpoint": {
+   "pass": true,
+   "detail": {
+    "rtd_runaway_band_C": [
+     299.2,
+     321.9
+    ],
+    "rtd_runaway_band_captured_C": [
+     237.5,
+     316.3
+    ],
+    "rtd_runaway_note": "C1 leads 0.9-1.1 x 1.80 R/conductor and the unspecified FORCE- switch 0-20 R (the captured C6 band assumed 0-1 R leads, no switch). Captured: divider bottom at GND, so every ohm in the FORCE- return moves the trip. Proposed: divider bottom at the connector-side S- (ratiometric to V(BIAS)-V(S-)), which removes the FORCE- path. Latched by the interlock; TLV3201 internal hysteresis only. Gate: above 250 C max setpoint + 5 K B2 overshoot + 15 K; below the bond's 325 C intermittent limit",
+    "rim_trip_nominal_C": 275.6,
+    "rim_trip_band_C": [
+     262.3,
+     288.1
+    ],
+    "rim_trip_note": "ORed into RUNAWAY_FAULT (interlock has no free input). Rim NTC is outside the cap, so the Pt100 stays the only under-cap sensor feeding hardware (US10278238B2 rule). Enable only after bench T3 logs the max rim temperature under a 250 C hold <= band low - 10 K (study 08: glass underside 12-46 K below the pan at 200 C)"
+   }
+  },
+  "9 cable, leads and part ratings (UL basis)": {
+   "pass": true,
+   "detail": {
+    "rows": [
+     {
+      "item": "Rref RG2012V-431-W-T1 power",
+      "rating": 0.125,
+      "applied": 0.00669,
+      "unit": "W",
+      "basis": "Susumu RG 0805 0.125 W",
+      "ok": true
+     },
+     {
+      "item": "1.00 k RT0603 sense series power",
+      "rating": 0.1,
+      "applied": 0.00424,
+      "unit": "W",
+      "basis": "Yageo RT 0603 0.1 W",
+      "ok": true
+     },
+     {
+      "item": "100 nF C0G 1206 50 V voltage",
+      "rating": 50.0,
+      "applied": 2.06,
+      "unit": "V",
+      "basis": "Murata GRM31C5C1H104JA01L 50 V",
+      "ok": true
+     },
+     {
+      "item": "ESD5Z3.3 VRWM vs line max",
+      "rating": 3.3,
+      "applied": 2.06,
+      "unit": "V",
+      "basis": "onsemi ESD5Z3.3T1G",
+      "ok": true
+     },
+     {
+      "item": "ESD5Z5.0 on RIM_SENSE (replaces ESD5Z3.3)",
+      "rating": 5.0,
+      "applied": 3.367,
+      "unit": "V",
+      "basis": "captured ESD5Z3.3 has VRWM 3.3 V < v3v3 max 3.367 V; CR swaps to ESD5Z5.0T1G",
+      "ok": true
+     },
+     {
+      "item": "MAX31865 IOUT",
+      "rating": 0.00575,
+      "applied": 0.00402,
+      "unit": "A",
+      "basis": "MAX31865 + C6 divider",
+      "ok": true
+     },
+     {
+      "item": "Harness cable temperature",
+      "rating": 200.0,
+      "applied": 105.0,
+      "unit": "C",
+      "basis": "Alpha Wire 55493 -80..+200 C, 300 V, UL AWM 20229; route <=105 C",
+      "ok": true
+     },
+     {
+      "item": "Pigtail wire temperature",
+      "rating": 260.0,
+      "applied": 200.0,
+      "unit": "C",
+      "basis": "M22759/12 PTFE Ni-Cu 260 C 600 V; local max <=200 C (CAD G8)",
+      "ok": true
+     },
+     {
+      "item": "Inline connector temperature",
+      "rating": 105.0,
+      "applied": 85.0,
+      "unit": "C",
+      "basis": "Molex Micro-Fit 3.0 -40..+105 C; place where <=85 C",
+      "ok": true
+     },
+     {
+      "item": "Hot-zone lead insulation",
+      "rating": 300.0,
+      "applied": 260.0,
+      "unit": "C",
+      "basis": "glass-fibre sleeve or PI bore; >=10 M between leads at 300 C",
+      "ok": true
+     }
+    ],
+    "thermo_emf_error_K_at_250C_2K_splice_dT": {
+     "constantan_52uV_per_K": 0.092,
+     "manganin_2uV_per_K": 0.0035
+    },
+    "lead_cold_leak_mW_per_K": {
+     "manganin_k22": 0.0221,
+     "constantan_k21": 0.0211
+    },
+    "decision": "low-k Pt leads in MANGANIN (same k as constantan, CAD G4 unchanged; thermo-EMF vs Cu about 25x lower), sense leads twisted S+/S-, force leads F+/F-"
+   }
+  }
+ },
+ "info": {
+  "firmware_constants": {
+   "MAX31865_CONFIG": "0xC0 (VBIAS, auto, 4-wire, 60 Hz); 0xC2 to clear faults",
+   "LOW_THRESHOLD_WORD": 12844,
+   "LOW_THRESHOLD_ohm": 84.27,
+   "HIGH_THRESHOLD_WORD": 35544,
+   "HIGH_THRESHOLD_ohm": 233.21,
+   "loading_correction": {
+    "R_true = R_meas - (a*R_meas + b)": true,
+    "a": 0.0007859376769439606,
+    "b_ohm": -0.03305355735065736,
+    "fit_residual_ohm": 2.1588601184507894e-09
+   },
+   "self_heating_constant_K": 0.061,
+   "manual_fault_cycle_wait_ms": 5.0,
+   "read_period_ms": 20,
+   "stale_reads": 3,
+   "rim_atten": "ATTEN0 if node <0.80 V, ATTEN2 if <1.55 V, else ATTEN3; divide by v3v3/3.300 from MCP3202 CH1",
+   "pt100_below_rim_threshold_K": 25.0
+  }
+ }
+}

@@ -32,6 +32,7 @@ transitions:
   - { from: STATE_PREHEAT, event: EVENT_PROBE_SHORT,      to: STATE_FAULT, fault: FAULT_PROBE_SHORT }
   - { from: STATE_PREHEAT, event: EVENT_PAN_REMOVED,      to: STATE_NO_PAN }
   - { from: STATE_PREHEAT, event: EVENT_STOP_BUTTON,      to: STATE_COOLDOWN }
+  - { from: STATE_PREHEAT, event: EVENT_CONTACT_LOST,     to: STATE_PREHEAT, notes: "self-loop: sensor-r3 D1 holds power at 0 and retries; UI 'pan must touch the sensor'" }
 
   # HEATING
   - { from: STATE_HEATING, event: EVENT_NEAR_TARGET,      to: STATE_HEATING, notes: "self-loop (PID control continues)" }
@@ -44,6 +45,7 @@ transitions:
   - { from: STATE_HEATING, event: EVENT_PAN_REMOVED,      to: STATE_NO_PAN }
   - { from: STATE_HEATING, event: EVENT_STOP_BUTTON,      to: STATE_COOLDOWN }
   - { from: STATE_HEATING, event: EVENT_TIMER_EXPIRED,    to: STATE_COOLDOWN }
+  - { from: STATE_HEATING, event: EVENT_CONTACT_LOST,     to: STATE_HEATING, notes: "self-loop: sensor-r3 D1 holds power at 0 and retries; UI 'pan must touch the sensor'" }
 
   # NO_PAN
   - { from: STATE_NO_PAN, event: EVENT_PAN_REPLACED_SAME,        to: STATE_PREHEAT }

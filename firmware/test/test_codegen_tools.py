@@ -137,7 +137,7 @@ class TestGenTransitionTable:
     #  32 declared transitions in the YAML
     STATE_COUNT = 9
     EVENT_COUNT = 23
-    TRANSITION_COUNT = 32
+    TRANSITION_COUNT = 34   # +2: EVENT_CONTACT_LOST self-loops (sensor-r3)
 
     def test_runs_without_error(self):
         """gen_transition_table.py exits 0 and produces output file."""

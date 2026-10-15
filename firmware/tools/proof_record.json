@@ -3,7 +3,7 @@
   "manifest_source": "firmware/transition_table.yaml",
   "invariants_source": "firmware/tools/invariants.yaml",
   "model_state_count": 9,
-  "model_edge_count": 50,
+  "model_edge_count": 52,
   "invariant_count": 5,
   "all_passed": true,
   "invariants": [

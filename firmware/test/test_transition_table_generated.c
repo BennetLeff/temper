@@ -52,6 +52,7 @@ static const transition_row_t transition_table[] = {
     { STATE_PREHEAT, "PROBE_SHORT", STATE_FAULT, FAULT_PROBE_SHORT, true },
     { STATE_PREHEAT, "PAN_REMOVED", STATE_NO_PAN, FAULT_NONE, false },
     { STATE_PREHEAT, "STOP_BUTTON", STATE_COOLDOWN, FAULT_NONE, false },
+    { STATE_PREHEAT, "CONTACT_LOST", STATE_PREHEAT, FAULT_NONE, false },
     { STATE_HEATING, "NEAR_TARGET", STATE_HEATING, FAULT_NONE, false },  /* self-loop (PID control continues) */
     { STATE_HEATING, "OVER_TEMP", STATE_FAULT, FAULT_OVER_TEMP, true },
     { STATE_HEATING, "OVER_CURRENT", STATE_FAULT, FAULT_OVER_CURRENT, true },
@@ -62,6 +63,7 @@ static const transition_row_t transition_table[] = {
     { STATE_HEATING, "PAN_REMOVED", STATE_NO_PAN, FAULT_NONE, false },
     { STATE_HEATING, "STOP_BUTTON", STATE_COOLDOWN, FAULT_NONE, false },
     { STATE_HEATING, "TIMER_EXPIRED", STATE_COOLDOWN, FAULT_NONE, false },
+    { STATE_HEATING, "CONTACT_LOST", STATE_HEATING, FAULT_NONE, false },
     { STATE_NO_PAN, "PAN_REPLACED_SAME", STATE_PREHEAT, FAULT_NONE, false },  /* same impedance -> resumes PREHEAT */
     { STATE_NO_PAN, "PAN_REPLACED_DIFFERENT", STATE_COOLDOWN, FAULT_NONE, false },  /* different impedance -> COOLDOWN */
     { STATE_NO_PAN, "NO_PAN_TIMEOUT", STATE_COOLDOWN, FAULT_NONE, false },
@@ -135,6 +137,12 @@ static void apply_event_stubs(const char *event) {
     }
     if (strcmp(event, "STOP_BUTTON") == 0) {
         mock_sm_press_button(BUTTON_STOP);
+        return;
+    }
+    if (strcmp(event, "CONTACT_LOST") == 0) {
+        mock_sm_set_pan_temperature(60.0f);
+        state_machine_reset_temp_baseline();
+        state_machine_report_pan_contact_lost();
         return;
     }
     if (strcmp(event, "THERMAL_RUNAWAY") == 0) {

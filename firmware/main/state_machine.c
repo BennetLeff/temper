@@ -138,6 +138,15 @@ void state_machine_report_rtd_device_fault(bool short_fault, bool open_fault,
     }
 }
 
+void state_machine_report_pan_contact_lost(void) {
+    /* EVENT_CONTACT_LOST is a self-loop in PREHEAT and HEATING
+     * (transition_table.yaml): no state change, a user message instead. */
+    if (sm_ctx.current_state == STATE_PREHEAT || sm_ctx.current_state == STATE_HEATING) {
+        display_show_message("PAN MUST TOUCH SENSOR");
+        buzzer_beep(BEEP_PAN_REMOVED_MS);
+    }
+}
+
 /* Self-test stubs */
 extern bool test_adc_calibration(void);
 extern bool test_pwm_generation(void);

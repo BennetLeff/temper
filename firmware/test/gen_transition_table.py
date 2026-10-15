@@ -40,6 +40,7 @@ TRANSITIONS = [
     ("STATE_PREHEAT", "PROBE_SHORT", "STATE_FAULT", "FAULT_PROBE_SHORT", False),
     ("STATE_PREHEAT", "PAN_REMOVED", "STATE_NO_PAN", None, False),
     ("STATE_PREHEAT", "STOP_BUTTON", "STATE_COOLDOWN", None, False),
+    ("STATE_PREHEAT", "CONTACT_LOST", "STATE_PREHEAT", None, False),
 
     # HEATING transitions
     ("STATE_HEATING", "NEAR_TARGET", "STATE_HEATING", None, False),
@@ -52,6 +53,7 @@ TRANSITIONS = [
     ("STATE_HEATING", "PAN_REMOVED", "STATE_NO_PAN", None, False),
     ("STATE_HEATING", "STOP_BUTTON", "STATE_COOLDOWN", None, False),
     ("STATE_HEATING", "TIMER_EXPIRED", "STATE_COOLDOWN", None, False),
+    ("STATE_HEATING", "CONTACT_LOST", "STATE_HEATING", None, False),
 
     # NO_PAN transitions
     ("STATE_NO_PAN", "PAN_REPLACED_SAME", "STATE_PREHEAT", None, False),
@@ -125,6 +127,14 @@ EVENT_STUBS = {
     "FAULT_RESET_PERSISTS": (
         "mock_sm_set_heatsink_temperature(105.0f);\n"
         "    mock_sm_press_button(BUTTON_RESET);"
+    ),
+    # sensor-r3 D1 contact loss: the reading has fallen well below target (so
+    # PREHEAT does not hand over to HEATING on this update) and the loop
+    # reports EVENT_CONTACT_LOST; the state must not change.
+    "CONTACT_LOST": (
+        "mock_sm_set_pan_temperature(60.0f);\n"
+        "    state_machine_reset_temp_baseline();\n"
+        "    state_machine_report_pan_contact_lost();"
     ),
     "RUNAWAY_ABSOLUTE_TEMP": "mock_sm_set_pan_temperature(310.0f);",
     "RUNAWAY_RISE_RATE": (

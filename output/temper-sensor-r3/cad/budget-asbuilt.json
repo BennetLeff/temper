@@ -1,0 +1,144 @@
+{
+ "scope": "sensor-r3 C1 cartridge budget, AS MODELLED (copy of ../cartridge_budget.py with the CAD dimensions).\n\nGEOM is read from cartridge_r3.DIM and the CAD solids (disc volume with its chamfer), not typed in. The budget's\nown formulas are kept line for line so the numbers are comparable; three as-built additions are labelled:\n  (a) C_cap by the budget method (1.1 x disc + bond) is the gated number; an effusivity estimate of the neck,\n      inner-tube and fibre that touch the disc (C = e A sqrt(tau_ref), tau_ref = 1 s, the worst-contact time\n      constant) is reported beside it as a sensitivity for the firmware's calibratable C_cap.\n  (b) G4 cold leak, split as the HANDOFF asks: the as-modelled transfer conductance from thermal_axisym.leak_split()\n      (2-D FV of the whole cartridge in the glass/eye; cold = eye air + winding sinks, hot = pan/glass/collar side,\n      tracked by the rim NTC) is gated, nominal and with fibre k doubled. The budget's series hand-calc with the\n      as-built lengths is printed beside it: it sends everything that enters the neck, inner tube, fibre and leads to\n      the shoulder as if the shoulder were cold, so it is the unsplit total into the post (an upper bound on the\n      cold part, not a split).\n  (c) G6 disc stress over the as-drawn chip pocket = the integral inner support tube's bore (\u00d83.4), Roark Table\n      11.2 case 16 as in the budget, plus the 1 kg / 100 mm ball-drop stroke argument.\nRun: python budget_asbuilt.py -> budget-asbuilt.json",
+ "geometry": {
+  "disc_d": 0.008,
+  "disc_t": 0.00032,
+  "contact_d": 0.0076,
+  "pocket_d": 0.0034,
+  "neck_od": 0.008,
+  "neck_wall": 0.00025,
+  "neck_len_cold": 0.006280000000000001,
+  "inner_ro": 0.0019,
+  "inner_ri": 0.0017,
+  "lead_d": 8e-05,
+  "lead_len": 0.011430000000000008,
+  "n_leads": 4,
+  "capillary_od": 0.001,
+  "capillary_bore_d": 0.00018,
+  "capillary_len": 0.010280000000000001,
+  "cavity_len": 0.006280000000000001,
+  "cavity_view_factor": 0.3,
+  "cavity_fill": true,
+  "k_fill": 0.04,
+  "bond_t": 0.0001
+ },
+ "materials": {
+  "si3n4": {
+   "k": 85.0,
+   "rho_cp": 2242500,
+   "flex_MPa": 700.0,
+   "nu": 0.27
+  },
+  "neck_pi": {
+   "k": 0.35,
+   "rho_cp": 1615900
+  },
+  "lead": {
+   "k": 22.0
+  },
+  "silica": {
+   "k": 1.38
+  },
+  "fibre": {
+   "k": 0.04,
+   "rho_cp": 200000
+  },
+  "air": {
+   "k": 0.035
+  },
+  "bond": {
+   "k": 1.7
+  }
+ },
+ "gates": {
+  "C_cap_max_mJ": 45.0,
+  "G_cold_max_mW": 0.8,
+  "tau63_max_s_at_h888": 1.2,
+  "disc_SF_min_at_20N": 2.0,
+  "contact_area_min_mm2": 40.0
+ },
+ "results": {
+  "C_cap_mJ_per_K": 39.18,
+  "C_disc_mJ_per_K": 34.96,
+  "C_cap_effusivity_estimate_mJ_per_K": {
+   "total": 45.39,
+   "PI_neck_and_inner_tube": 6.28,
+   "fibre_under_disc": 3.43,
+   "tau_ref_s": 1.0
+  },
+  "C_el_mJ_per_K": 8.175,
+  "G_bond_W_per_K": 0.0612,
+  "G_into_post_hand_upper_bound_mW_per_K": {
+   "neck": 0.339,
+   "inner_tube": 0.126,
+   "leads_manganin": 0.039,
+   "lead_capillary_silica": 0.092,
+   "cavity_fibre": 0.262,
+   "total": 0.858
+  },
+  "G_leak_FV_mW_per_K": {
+   "full_22A|h_c 888": {
+    "G_cold_mW_K": 0.319,
+    "G_total_mW_K": 4.909,
+    "G_hot_mW_K": 4.59
+   },
+   "full_22A|h_c 21946": {
+    "G_cold_mW_K": 0.319,
+    "G_total_mW_K": 4.909,
+    "G_hot_mW_K": 4.59
+   },
+   "fry_hold_12.7A|h_c 888": {
+    "G_cold_mW_K": 0.319,
+    "G_total_mW_K": 4.909,
+    "G_hot_mW_K": 4.59
+   },
+   "fry_hold_12.7A|h_c 21946": {
+    "G_cold_mW_K": 0.319,
+    "G_total_mW_K": 4.909,
+    "G_hot_mW_K": 4.59
+   },
+   "sensitivity fibre k 0.08, FFKM k 0.30": {
+    "G_cold_mW_K": 0.388,
+    "G_hot_mW_K": 4.903,
+    "G_total_mW_K": 5.291
+   }
+  },
+  "G_cold_gated_mW_per_K": 0.388,
+  "G_hot_to_collar_and_pan_side_mW_per_K": 4.903,
+  "contact_area_mm2": 45.4,
+  "tau63_s_by_h": {
+   "888": 1.097,
+   "1300": 0.794,
+   "21946": 0.173
+  },
+  "tau63_s_by_h_with_C_eff": {
+   "888": 1.25,
+   "1300": 0.898,
+   "21946": 0.179
+  },
+  "disc_stress_MPa_over_pocket": {
+   "1.8N": 26.9,
+   "20N": 298.7
+  },
+  "disc_SF_at_20N": 2.34,
+  "disc_stress_20N_if_unbacked_to_neck_MPa": 392.4,
+  "ball_drop": {
+   "ball_R_mm": 31.21,
+   "sag_at_bore_edge_mm": 1.326,
+   "stroke_needed_mm": 2.026,
+   "stroke_to_hard_stop_min_mm": 2.11
+  }
+ },
+ "gate_pass": {
+  "G3 C_cap (budget method)": true,
+  "G4 cold leak (FV split, worst incl. sensitivity)": true,
+  "tau63 at worst modelled contact": true,
+  "G6 disc strength over the pocket": true,
+  "G6 ball drop ends on the glass": true,
+  "contact area": true
+ },
+ "notes": [
+  "C_cap effusivity estimate exceeds 45 mJ/K only if the whole neck/fibre contact participates at tau_ref = 1 s; the firmware keeps C_cap calibratable (bench T3).",
+  "G_hot is to nodes the rim NTC tracks (collar/glass under the pan); it is reported for the firmware G_leak constant, not gated (HANDOFF G4)."
+ ]
+}

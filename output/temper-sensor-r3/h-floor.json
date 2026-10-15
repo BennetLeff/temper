@@ -1,0 +1,42 @@
+{
+ "scope": "Lowest true h_c at which C1 (fixed contact model at its nominal h) still meets B1-B3.\n\nTurns the in-the-box result into the bench acceptance threshold for the cookware\nsurvey (HANDOFF firmware/test section). Run: python h_floor.py -> h-floor.json",
+ "by_true_h": {
+  "400": {
+   "cases": 8,
+   "all_pass": 0,
+   "worst_err_K": 7.11,
+   "worst_os_K": 8.58
+  },
+  "500": {
+   "cases": 8,
+   "all_pass": 0,
+   "worst_err_K": 5.11,
+   "worst_os_K": 6.47
+  },
+  "600": {
+   "cases": 8,
+   "all_pass": 1,
+   "worst_err_K": 3.83,
+   "worst_os_K": 5.16
+  },
+  "700": {
+   "cases": 8,
+   "all_pass": 7,
+   "worst_err_K": 2.92,
+   "worst_os_K": 4.24
+  },
+  "850": {
+   "cases": 8,
+   "all_pass": 7,
+   "worst_err_K": 1.98,
+   "worst_os_K": 3.3
+  }
+ },
+ "tau63_s": {
+  "400": 2.23,
+  "500": 1.82,
+  "600": 1.55,
+  "700": 1.35,
+  "850": 1.14
+ }
+}

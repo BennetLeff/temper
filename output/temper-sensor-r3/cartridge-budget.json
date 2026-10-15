@@ -1,0 +1,77 @@
+{
+ "scope": "sensor-r3 C1 cartridge budget: the numbers the CAD agent must hold (HANDOFF section A gates).\n\nEdit GEOM from the CAD model and rerun; every gate prints PASS/FAIL and the JSON\nrecords the inputs. Formulas are hand-calc screens (stated per line), not FEA.\n\nRun: python cartridge_budget.py -> cartridge-budget.json",
+ "geometry": {
+  "disc_d": 0.008,
+  "disc_t": 0.00032,
+  "contact_d": 0.0076,
+  "pocket_d": 0.0032,
+  "neck_od": 0.008,
+  "neck_wall": 0.00025,
+  "neck_len_cold": 0.006,
+  "lead_d": 8e-05,
+  "lead_len": 0.02,
+  "n_leads": 4,
+  "cavity_len": 0.01,
+  "cavity_view_factor": 0.3,
+  "cavity_fill": true,
+  "k_fill": 0.04,
+  "bond_t": 0.0001
+ },
+ "materials": {
+  "si3n4": {
+   "k": 85.0,
+   "rho_cp": 2242500,
+   "flex_MPa": 700.0,
+   "nu": 0.27
+  },
+  "neck_pi": {
+   "k": 0.35
+  },
+  "lead": {
+   "k": 21.0
+  },
+  "air": {
+   "k": 0.035
+  },
+  "bond": {
+   "k": 1.7
+  }
+ },
+ "gates": {
+  "C_cap_max_mJ": 45.0,
+  "G_cold_max_mW": 0.8,
+  "tau63_max_s_at_h888": 1.2,
+  "disc_SF_min_at_20N": 2.0,
+  "contact_area_min_mm2": 40.0
+ },
+ "results": {
+  "C_cap_mJ_per_K": 40.4,
+  "C_el_mJ_per_K": 8.175,
+  "G_bond_W_per_K": 0.0612,
+  "G_cold_mW_per_K": {
+   "neck": 0.355,
+   "leads": 0.021,
+   "cavity_air": 0.177,
+   "cavity_radiation": 0.0,
+   "total": 0.553
+  },
+  "contact_area_mm2": 45.4,
+  "tau63_s_by_h": {
+   "888": 1.123,
+   "1300": 0.812,
+   "21946": 0.174
+  },
+  "disc_stress_MPa_over_pocket": {
+   "1.8N": 26.2,
+   "20N": 291.5
+  },
+  "disc_SF_at_20N": 2.4
+ },
+ "gate_pass": {
+  "G3 C_cap": true,
+  "G4 cold leak": true,
+  "tau63 at worst modelled contact": true,
+  "G6 disc strength": true,
+  "contact area": true
+ }
+}

@@ -1,0 +1,172 @@
+{
+ "scope": "Seed-to-seed robustness of detector D1 with the C code in the loop.\n\nscreen.py and cosim.py run each D1 case on one noise seed. This repeats the\nloss, food, nominal and probe-on-intact-contact cases over N_SEEDS seeds\n(identified gain, measured power) for three D1 rule sets:\n\n  screen_d1        screen.py's rules exactly (firmware additions off)\n  firmware         the firmware defaults: D-D1a (a probe from NORMAL needs\n                   >= 1 K of fitted free decay to conclude LOST), D-D1b (a\n                   retry restores only on departure from the free decay),\n                   D-D1c (the probe response must be >= 3 standard errors)\n  stretch_3_6_3    firmware rules with a 3/6/3 s first probe at 60 % and a\n                   1.5 s regressor lag (the B5 15 s stretch candidate)\n\nPass criteria (firmware rule set only; the others are evidence for the\ndecisions in DECISIONS.md D-D1a..c and D-B5) are the safety ones: every loss\ndetected, T_c <= SP + 15 K, no false restore, and no latch in any food,\nnominal or probe-on-intact-contact run. The B5 timing clauses (suspect <= 3 s,\nconfirm <= 21 s) are gated in cosim.py on screen.py's seeds and only REPORTED\nhere across seeds (worst_suspect_s / worst_confirm_s).\n\nRun: python b5_montecarlo.py [--lib path] [--seeds 20]   (about 2 min)",
+ "seeds": 20,
+ "variants": {
+  "screen_d1": {
+   "decay_min_change": 0.0,
+   "retry_decay_only": 0,
+   "probe_min_sigma": 0.0
+  },
+  "firmware": {},
+  "stretch_3_6_3": {
+   "probe_off": 3.0,
+   "probe_on": 6.0,
+   "probe_p": 0.6,
+   "probe_lag": 1.5
+  }
+ },
+ "summary": {
+  "screen_d1": {
+   "loss/carbon_steel_28": {
+    "runs": 20,
+    "detected": 20,
+    "worst_confirm_s": 20.2,
+    "worst_suspect_s": 2.2,
+    "worst_Tc_over_sp_K": 2.07,
+    "runs_with_false_restore": 0
+   },
+   "loss/cast_iron_26": {
+    "runs": 20,
+    "detected": 20,
+    "worst_confirm_s": 19.9,
+    "worst_suspect_s": 1.9,
+    "worst_Tc_over_sp_K": -0.72,
+    "runs_with_false_restore": 0
+   },
+   "loss/disc_pot_water_1l5": {
+    "runs": 20,
+    "detected": 15,
+    "worst_confirm_s": 1000000000.0,
+    "worst_suspect_s": 4.2,
+    "worst_Tc_over_sp_K": 15.22,
+    "runs_with_false_restore": 12
+   },
+   "loss/triply_clad_24": {
+    "runs": 20,
+    "detected": 20,
+    "worst_confirm_s": 20.5,
+    "worst_suspect_s": 2.5,
+    "worst_Tc_over_sp_K": 11.88,
+    "runs_with_false_restore": 0
+   },
+   "food": {
+    "runs": 60,
+    "probes": 60,
+    "false_latches": 0
+   },
+   "nominal": {
+    "runs": 80,
+    "probes": 0,
+    "false_latches": 0
+   },
+   "probe_intact": {
+    "runs": 160,
+    "probes": 325,
+    "false_latches": 0
+   }
+  },
+  "firmware": {
+   "loss/carbon_steel_28": {
+    "runs": 20,
+    "detected": 20,
+    "worst_confirm_s": 20.2,
+    "worst_suspect_s": 2.2,
+    "worst_Tc_over_sp_K": 2.07,
+    "runs_with_false_restore": 0
+   },
+   "loss/cast_iron_26": {
+    "runs": 20,
+    "detected": 20,
+    "worst_confirm_s": 19.9,
+    "worst_suspect_s": 1.9,
+    "worst_Tc_over_sp_K": -0.72,
+    "runs_with_false_restore": 0
+   },
+   "loss/disc_pot_water_1l5": {
+    "runs": 20,
+    "detected": 20,
+    "worst_confirm_s": 22.2,
+    "worst_suspect_s": 4.2,
+    "worst_Tc_over_sp_K": -5.54,
+    "runs_with_false_restore": 0
+   },
+   "loss/triply_clad_24": {
+    "runs": 20,
+    "detected": 20,
+    "worst_confirm_s": 20.5,
+    "worst_suspect_s": 2.5,
+    "worst_Tc_over_sp_K": 11.88,
+    "runs_with_false_restore": 0
+   },
+   "food": {
+    "runs": 60,
+    "probes": 60,
+    "false_latches": 0
+   },
+   "nominal": {
+    "runs": 80,
+    "probes": 0,
+    "false_latches": 0
+   },
+   "probe_intact": {
+    "runs": 160,
+    "probes": 325,
+    "false_latches": 0
+   }
+  },
+  "stretch_3_6_3": {
+   "loss/carbon_steel_28": {
+    "runs": 20,
+    "detected": 20,
+    "worst_confirm_s": 14.2,
+    "worst_suspect_s": 2.2,
+    "worst_Tc_over_sp_K": 2.89,
+    "runs_with_false_restore": 0
+   },
+   "loss/cast_iron_26": {
+    "runs": 20,
+    "detected": 20,
+    "worst_confirm_s": 13.9,
+    "worst_suspect_s": 1.9,
+    "worst_Tc_over_sp_K": -0.09,
+    "runs_with_false_restore": 0
+   },
+   "loss/disc_pot_water_1l5": {
+    "runs": 20,
+    "detected": 20,
+    "worst_confirm_s": 16.2,
+    "worst_suspect_s": 4.2,
+    "worst_Tc_over_sp_K": -5.54,
+    "runs_with_false_restore": 0
+   },
+   "loss/triply_clad_24": {
+    "runs": 20,
+    "detected": 20,
+    "worst_confirm_s": 14.5,
+    "worst_suspect_s": 2.5,
+    "worst_Tc_over_sp_K": 12.74,
+    "runs_with_false_restore": 0
+   },
+   "food": {
+    "runs": 60,
+    "probes": 60,
+    "false_latches": 0
+   },
+   "nominal": {
+    "runs": 80,
+    "probes": 0,
+    "false_latches": 0
+   },
+   "probe_intact": {
+    "runs": 160,
+    "probes": 322,
+    "false_latches": 40
+   }
+  }
+ },
+ "passes": {
+  "screen_d1": false,
+  "firmware": true,
+  "stretch_3_6_3": false
+ }
+}

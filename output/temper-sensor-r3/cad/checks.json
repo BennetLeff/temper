@@ -1,0 +1,1689 @@
+{
+ "scope": "sensor-r3 C1 cartridge: every HANDOFF section A gate (G1-G12) in one rerunnable script -> checks.json.\n\nGeometric gates run here on the build123d solids of cartridge_r3.py against the frozen R43 interfaces\n(interfaces.py: glass, carrier, coil former, Litz winding, ferrite bars, coil leads). The thermal, budget,\ntilt and field gates call their own scripts (thermal_axisym.py, budget_asbuilt.py, tilt_follow.py,\nfield_screen.py), which also write their own JSON. Overlap threshold for a collision: 1e-3 mm3 (line-to-line\ncontacts and bonded faces read ~0); documented compliant pairs carry their accepted maximum.\nRun: python checks.py   (about 40 min; exits 1 if a gate is FAIL)\n     python checks.py --only G1 G10 G11   (recompute those geometric gates into the existing checks.json)",
+ "summary": {
+  "G1 collisions": "PASS",
+  "G2 protrusion and stroke": "PASS",
+  "G3 heat capacity": "PASS",
+  "G4 cold leak": "PASS",
+  "G5 tilt follow, spring, friction": "PASS",
+  "G6 disc strength": "PASS",
+  "G7 field": "PASS",
+  "G8 temperatures and ratings": "OPEN",
+  "G9 spill": "PASS",
+  "G10 assembly": "PASS",
+  "G11 insulation geometry": "PASS",
+  "G12 P1 audit": "PASS"
+ },
+ "gates": {
+  "G1 collisions": {
+   "states": [
+    {
+     "travel_mm": 0.0,
+     "tilt_mrad": 0.0,
+     "axis": "x",
+     "overlaps": [],
+     "pass_": true
+    },
+    {
+     "travel_mm": 0.6,
+     "tilt_mrad": 0.0,
+     "axis": "x",
+     "overlaps": [],
+     "pass_": true
+    },
+    {
+     "travel_mm": 1.2,
+     "tilt_mrad": 0.0,
+     "axis": "x",
+     "overlaps": [],
+     "pass_": true
+    },
+    {
+     "travel_mm": 0.0,
+     "tilt_mrad": -5.0,
+     "axis": "x",
+     "overlaps": [
+      {
+       "moving": "post_polyimide",
+       "fixed": "stop_collar_PI",
+       "volume_mm3": 0.1698,
+       "accepted": true
+      },
+      {
+       "moving": "post_polyimide",
+       "fixed": "wiper_FFKM",
+       "volume_mm3": 0.0186,
+       "accepted": true
+      },
+      {
+       "moving": "seat_cup_PEEK",
+       "fixed": "spring_A286",
+       "volume_mm3": 0.0811,
+       "accepted": true
+      }
+     ],
+     "pass_": true
+    },
+    {
+     "travel_mm": 0.0,
+     "tilt_mrad": -5.0,
+     "axis": "y",
+     "overlaps": [
+      {
+       "moving": "post_polyimide",
+       "fixed": "stop_collar_PI",
+       "volume_mm3": 0.1698,
+       "accepted": true
+      },
+      {
+       "moving": "post_polyimide",
+       "fixed": "wiper_FFKM",
+       "volume_mm3": 0.0186,
+       "accepted": true
+      },
+      {
+       "moving": "seat_cup_PEEK",
+       "fixed": "spring_A286",
+       "volume_mm3": 0.0811,
+       "accepted": true
+      }
+     ],
+     "pass_": true
+    },
+    {
+     "travel_mm": 0.0,
+     "tilt_mrad": 5.0,
+     "axis": "x",
+     "overlaps": [
+      {
+       "moving": "post_polyimide",
+       "fixed": "stop_collar_PI",
+       "volume_mm3": 0.1698,
+       "accepted": true
+      },
+      {
+       "moving": "post_polyimide",
+       "fixed": "wiper_FFKM",
+       "volume_mm3": 0.0186,
+       "accepted": true
+      },
+      {
+       "moving": "seat_cup_PEEK",
+       "fixed": "spring_A286",
+       "volume_mm3": 0.0811,
+       "accepted": true
+      }
+     ],
+     "pass_": true
+    },
+    {
+     "travel_mm": 0.0,
+     "tilt_mrad": 5.0,
+     "axis": "y",
+     "overlaps": [
+      {
+       "moving": "post_polyimide",
+       "fixed": "stop_collar_PI",
+       "volume_mm3": 0.1698,
+       "accepted": true
+      },
+      {
+       "moving": "post_polyimide",
+       "fixed": "wiper_FFKM",
+       "volume_mm3": 0.0186,
+       "accepted": true
+      },
+      {
+       "moving": "seat_cup_PEEK",
+       "fixed": "spring_A286",
+       "volume_mm3": 0.0811,
+       "accepted": true
+      }
+     ],
+     "pass_": true
+    },
+    {
+     "travel_mm": 0.6,
+     "tilt_mrad": -5.0,
+     "axis": "x",
+     "overlaps": [
+      {
+       "moving": "post_polyimide",
+       "fixed": "wiper_FFKM",
+       "volume_mm3": 0.0186,
+       "accepted": true
+      },
+      {
+       "moving": "seat_cup_PEEK",
+       "fixed": "spring_A286",
+       "volume_mm3": 0.0811,
+       "accepted": true
+      }
+     ],
+     "pass_": true
+    },
+    {
+     "travel_mm": 0.6,
+     "tilt_mrad": -5.0,
+     "axis": "y",
+     "overlaps": [
+      {
+       "moving": "post_polyimide",
+       "fixed": "wiper_FFKM",
+       "volume_mm3": 0.0186,
+       "accepted": true
+      },
+      {
+       "moving": "seat_cup_PEEK",
+       "fixed": "spring_A286",
+       "volume_mm3": 0.0811,
+       "accepted": true
+      }
+     ],
+     "pass_": true
+    },
+    {
+     "travel_mm": 0.6,
+     "tilt_mrad": 5.0,
+     "axis": "x",
+     "overlaps": [
+      {
+       "moving": "post_polyimide",
+       "fixed": "wiper_FFKM",
+       "volume_mm3": 0.0186,
+       "accepted": true
+      },
+      {
+       "moving": "seat_cup_PEEK",
+       "fixed": "spring_A286",
+       "volume_mm3": 0.0811,
+       "accepted": true
+      }
+     ],
+     "pass_": true
+    },
+    {
+     "travel_mm": 0.6,
+     "tilt_mrad": 5.0,
+     "axis": "y",
+     "overlaps": [
+      {
+       "moving": "post_polyimide",
+       "fixed": "wiper_FFKM",
+       "volume_mm3": 0.0186,
+       "accepted": true
+      },
+      {
+       "moving": "seat_cup_PEEK",
+       "fixed": "spring_A286",
+       "volume_mm3": 0.0811,
+       "accepted": true
+      }
+     ],
+     "pass_": true
+    },
+    {
+     "travel_mm": 1.2,
+     "tilt_mrad": -5.0,
+     "axis": "x",
+     "overlaps": [
+      {
+       "moving": "post_polyimide",
+       "fixed": "wiper_FFKM",
+       "volume_mm3": 0.0186,
+       "accepted": true
+      },
+      {
+       "moving": "seat_cup_PEEK",
+       "fixed": "spring_A286",
+       "volume_mm3": 0.0812,
+       "accepted": true
+      }
+     ],
+     "pass_": true
+    },
+    {
+     "travel_mm": 1.2,
+     "tilt_mrad": -5.0,
+     "axis": "y",
+     "overlaps": [
+      {
+       "moving": "post_polyimide",
+       "fixed": "wiper_FFKM",
+       "volume_mm3": 0.0186,
+       "accepted": true
+      },
+      {
+       "moving": "seat_cup_PEEK",
+       "fixed": "spring_A286",
+       "volume_mm3": 0.0812,
+       "accepted": true
+      }
+     ],
+     "pass_": true
+    },
+    {
+     "travel_mm": 1.2,
+     "tilt_mrad": 5.0,
+     "axis": "x",
+     "overlaps": [
+      {
+       "moving": "post_polyimide",
+       "fixed": "wiper_FFKM",
+       "volume_mm3": 0.0186,
+       "accepted": true
+      },
+      {
+       "moving": "seat_cup_PEEK",
+       "fixed": "spring_A286",
+       "volume_mm3": 0.0812,
+       "accepted": true
+      }
+     ],
+     "pass_": true
+    },
+    {
+     "travel_mm": 1.2,
+     "tilt_mrad": 5.0,
+     "axis": "y",
+     "overlaps": [
+      {
+       "moving": "post_polyimide",
+       "fixed": "wiper_FFKM",
+       "volume_mm3": 0.0186,
+       "accepted": true
+      },
+      {
+       "moving": "seat_cup_PEEK",
+       "fixed": "spring_A286",
+       "volume_mm3": 0.0812,
+       "accepted": true
+      }
+     ],
+     "pass_": true
+    }
+   ],
+   "rest_pairwise": [],
+   "single_body": [
+    {
+     "part": "disc_Si3N4",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "chip_bond",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "Pt100_chip_IST_P0K1202",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "post_polyimide",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "fibre_plug_annulus",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "fibre_plug_core",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "lead_capillary_fused_silica",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "foot_potting",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "seat_cup_PEEK",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "body_PI",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "stop_collar_PI",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "wiper_FFKM",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "spring_washer_bayonet_PEEK",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "spring_A286",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "static_gasket_FFKM",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "rim_NTC_Semitec_104GT2",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "wave_spring_A286",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "splice_potting",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "cable_strain_relief_PEEK",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "lead_sleeve_PTFE_ALLOCATION",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "ntc_lead_ALLOCATION",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "pigtail_6x_M22759_12_ALLOCATION",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "pigtail_route_ALLOCATION",
+     "solids": 1,
+     "valid": true
+    },
+    {
+     "part": "inline_connector_MicroFit_2x3_ALLOCATION",
+     "solids": 1,
+     "valid": true
+    }
+   ],
+   "allocation_overlaps_at_rest": [
+    {
+     "allocation": "ntc_lead_ALLOCATION",
+     "part": "splice_potting",
+     "volume_mm3": 0.1491
+    }
+   ],
+   "compliant_pairs": {
+    "wiper_FFKM|post_polyimide": [
+     0.5,
+     "FFKM lip modelled line-to-line; tilt pushes the neck <= 0.013 mm into the 0.07-0.13 interference lip"
+    ],
+    "post_polyimide|stop_collar_PI": [
+     0.3,
+     "travel 0 only: the shoulder is seated on the up-stop face, so a 5 mrad tilt rocks it about the shoulder edge (0.026 mm at r5.2) instead of the pad pivot; with no pan on the disc there is no tilting load at travel 0, and from travel 0.03 the shoulder is clear"
+    ],
+    "seat_cup_PEEK|spring_A286": [
+     1.0,
+     "spring envelope is drawn vertical; its top coil follows the cup's 5 mrad tilt"
+    ]
+   },
+   "pivot": {
+    "z": 109.25,
+    "tilt_axes": [
+     "world X",
+     "world Y"
+    ],
+    "about": "guide-pad centre on the axis"
+   },
+   "status": "PASS"
+  },
+  "G2 protrusion and stroke": {
+   "glass_top": 110.0,
+   "glass_underside": 106.0,
+   "glass_bore_radius_from_shape": 9.0,
+   "disc_top_at_rest": 110.6,
+   "protrusion_cad": 0.6,
+   "chain": [
+    {
+     "item": "stop-collar face below the rim datum (fixture-bonded)",
+     "nominal": 2.0,
+     "tol": 0.02,
+     "sign": -1
+    },
+    {
+     "item": "post: shoulder face to neck top (one turning setup)",
+     "nominal": 6.27,
+     "tol": 0.015,
+     "sign": 1
+    },
+    {
+     "item": "disc-to-neck glue line (0.00-0.02)",
+     "nominal": 0.01,
+     "tol": 0.01,
+     "sign": 1
+    },
+    {
+     "item": "Si3N4 disc thickness (lapped)",
+     "nominal": 0.32,
+     "tol": 0.015,
+     "sign": 1
+    },
+    {
+     "item": "glass thickness at the bore (RFQ requirement, see DECISIONS)",
+     "nominal": 4.0,
+     "tol": 0.03,
+     "sign": -1
+    }
+   ],
+   "protrusion_nominal": 0.6,
+   "protrusion_worst": [
+    0.51,
+    0.69
+   ],
+   "cartridge_only_tol": 0.06,
+   "stroke_to_hard_stop_nominal": 2.2,
+   "stroke_chain": [
+    [
+     "stop-collar face (fixture)",
+     0.02
+    ],
+    [
+     "post shoulder face to nose sphere centre",
+     0.02
+    ],
+    [
+     "cup cone to pilot underside",
+     0.02
+    ],
+    [
+     "washer seat to stop-tube top",
+     0.02
+    ],
+    [
+     "body: rim datum to groove floor",
+     0.01
+    ]
+   ],
+   "stroke_tol": 0.09,
+   "stroke_min": 2.11,
+   "disc_at_hard_stop_below_glass_worst": 1.42,
+   "up_stop": "post shoulder face Z104.0 against the stop-collar face at rest; spring P1 1.30 N holds it",
+   "notes": "CAD shows the disc line-to-line on a 6.28 neck (= 6.27 neck + 0.01 mean glue line).",
+   "status": "PASS",
+   "condition": "glass thickness 4.00 +/-0.03 within \u00d840 of the bore must go on the glass RFQ (interface change)"
+  },
+  "G3 heat capacity": {
+   "C_cap_mJ_K": 39.18,
+   "effusivity_estimate": {
+    "total": 45.39,
+    "PI_neck_and_inner_tube": 6.28,
+    "fibre_under_disc": 3.43,
+    "tau_ref_s": 1.0
+   },
+   "limit": 45.0,
+   "status": "PASS"
+  },
+  "G4 cold leak": {
+   "G_cold_mW_K": 0.388,
+   "G_hot_mW_K": 4.903,
+   "hand_calc_into_post": {
+    "neck": 0.339,
+    "inner_tube": 0.126,
+    "leads_manganin": 0.039,
+    "lead_capillary_silica": 0.092,
+    "cavity_fibre": 0.262,
+    "total": 0.858
+   },
+   "limit": 0.8,
+   "status": "PASS"
+  },
+  "G5 tilt follow, spring, friction": {
+   "worst_residual_tilt_mrad": 0.676,
+   "M_total_Nmm": 0.83,
+   "capacity_Nmm": 3.898,
+   "pivot": {
+    "pivot_depth_under_face": 0.75,
+    "pivot_to_lip": 2.54,
+    "pivot_to_seat": 11.911,
+    "pivot_within_1mm": true
+   },
+   "spring": {
+    "rate_N_mm": 0.1818,
+    "active_coils": 6.04,
+    "free_length_mm": 22.75,
+    "F_min_N": 1.211,
+    "F_max_at_hard_stop_N": 1.789,
+    "F_nominal_at_flush_N": 1.409,
+    "shear_stress_MPa_at_Fmax": 317.4,
+    "allowable_MPa_35pct_UTS": 490.0,
+    "solid_height_mm": 3.52,
+    "length_at_hard_stop_mm": 13.4,
+    "L0_over_D": 2.84,
+    "pass_force": true,
+    "pass_stress": true,
+    "pass_solid": true,
+    "basis": "P1 at L1 (rest) and P2 at L1 - 2.2 (hard stop), each +/-0.08 N (100 % load-tested), L1 stack +/-0.05 mm; G 72 GPa and UTS 1400 MPa for aged A-286 0.5 mm wire (typical; supplier to confirm)"
+   },
+   "wiper": {
+    "E_MPa_gent": 7.05,
+    "t_mm": 0.3,
+    "interference_mm": [
+     0.075,
+     0.125
+    ],
+    "N_N": [
+     0.111,
+     0.185
+    ],
+    "friction_N": {
+     "mu_0.3": 0.056,
+     "mu_1.0_dry_sensitivity": 0.185
+    },
+    "pass_friction_le_0.3N": true,
+    "pass_contact_positive": true
+   },
+   "status": "PASS"
+  },
+  "G6 disc strength": {
+   "stress_MPa": {
+    "1.8N": 26.9,
+    "20N": 298.7
+   },
+   "SF_20N": 2.34,
+   "pocket_d_mm": 3.4,
+   "ball_drop": {
+    "ball_R_mm": 31.21,
+    "sag_at_bore_edge_mm": 1.326,
+    "stroke_needed_mm": 2.026,
+    "stroke_to_hard_stop_min_mm": 2.11
+   },
+   "status": "PASS"
+  },
+  "G7 field": {
+   "geometry": [
+    {
+     "part": "sensor_r3_Pt100_chip_IST_P0K1202",
+     "z_range": [
+      108.48,
+      109.58
+     ],
+     "r_min": 0.0,
+     "inside_d20_above_coil_plane": true,
+     "allowed_exception": true
+    },
+    {
+     "part": "sensor_r3_lead_capillary_fused_silica",
+     "z_range": [
+      97.7,
+      107.98
+     ],
+     "r_min": 0.0,
+     "inside_d20_above_coil_plane": true,
+     "allowed_exception": true
+    },
+    {
+     "part": "sensor_r3_spring_A286",
+     "z_range": [
+      81.0,
+      96.0
+     ],
+     "r_min": 3.75,
+     "inside_d20_above_coil_plane": false,
+     "allowed_exception": false
+    },
+    {
+     "part": "sensor_r3_rim_NTC_Semitec_104GT2",
+     "z_range": [
+      103.0,
+      106.0
+     ],
+     "r_min": 13.82,
+     "inside_d20_above_coil_plane": false,
+     "allowed_exception": false
+    },
+    {
+     "part": "sensor_r3_wave_spring_A286",
+     "z_range": [
+      93.0,
+      94.0
+     ],
+     "r_min": 19.3,
+     "inside_d20_above_coil_plane": false,
+     "allowed_exception": false
+    },
+    {
+     "part": "sensor_r3_ntc_lead_ALLOCATION",
+     "z_range": [
+      77.1,
+      89.0
+     ],
+     "r_min": 5.8,
+     "inside_d20_above_coil_plane": false,
+     "allowed_exception": false
+    },
+    {
+     "part": "sensor_r3_pigtail_6x_M22759_12_ALLOCATION",
+     "z_range": [
+      62.3,
+      76.0
+     ],
+     "r_min": 0.0,
+     "inside_d20_above_coil_plane": false,
+     "allowed_exception": false
+    }
+   ],
+   "at_FEM_field": {
+    "B_peak_mT": 8.23,
+    "f_kHz": 60,
+    "spring_W": 0.00287,
+    "spring_dT_K": 0.688,
+    "wave_spring_W": 0.0901
+   },
+   "sweep_extreme_dT_K": 11.3,
+   "capillary_pickup": {
+    "dBz_dz_T_per_m": 0.293,
+    "B_r_T": 6.592081167299485e-05,
+    "loop_area_mm2": 3.08,
+    "emf_mV_at_60kHz": 0.0766,
+    "emf_mV_scaled_to_20mT_100kHz": 0.3105,
+    "PCB_twisted_bound_mV": 6.6,
+    "note": "straight (untwisted) over the capillary length because each wire has its own bore; the pair loop lies in a plane through the coil axis, so only B_r threads it"
+   },
+   "flag": "At the 20 mT / 100 kHz sweep corner the spring would run 11.3 K above its 192 C FV temperature, far inside A-286's 538 C limit (Smalley materials table, R16 parts-research); at the study-06 FEM eye field it is 0.69 K. 316 was rejected: its 204 C relaxation limit leaves 12 K at the FV temperature.",
+   "status": "PASS"
+  },
+  "G8 temperatures and ratings": {
+   "T_pan_C": 260,
+   "rows": [
+    {
+     "part": "disc_Si3N4",
+     "material": "Si3N4 ceramic",
+     "T_max_C": 260.0,
+     "case": "full_22A | polished clad 0 mrad (hottest disc) | flat pan",
+     "continuous_rating_C": 1000,
+     "rating_source": "inorganic; sintered Si3N4 substrate (no polymer)",
+     "UL_RTI_C": null,
+     "RTI_source": "n/a (ceramic)",
+     "RTI_check": null,
+     "status": "PASS"
+    },
+    {
+     "part": "Pt100_chip_IST_P0K1202",
+     "material": "IST P0K1.202 Pt100",
+     "T_max_C": 259.9,
+     "case": "full_22A | polished clad 0 mrad (hottest disc) | flat pan",
+     "continuous_rating_C": 600,
+     "rating_source": "IST datasheet P0K1.202.6W.A.007 (-200..+600 C), quoted in R43 sensor_coil_r5",
+     "UL_RTI_C": null,
+     "RTI_source": "n/a",
+     "RTI_check": null,
+     "status": "PASS"
+    },
+    {
+     "part": "chip_bond",
+     "material": "EPO-TEK 930-4",
+     "T_max_C": 259.9,
+     "case": "full_22A | enamel iron 0 mrad | flat pan",
+     "continuous_rating_C": null,
+     "rating_source": "EPO-TEK 930-4 TDS (Sept 2024): '< 325 C (Intermittent)', Tg >= 90 C; NO continuous rating -> OPEN. Alternate Cotronics Duralco 128: 'Max. Temperature 500 F' (260 C), 10^15 ohm-cm, 30 BTU in/ft2 h F",
+     "UL_RTI_C": null,
+     "RTI_source": "n/a (consumable)",
+     "RTI_check": null,
+     "status": "OPEN"
+    },
+    {
+     "part": "post_top_1mm",
+     "material": "DuPont Vespel SP-1",
+     "T_max_C": 259.8,
+     "case": "full_22A | enamel iron 0 mrad | flat pan",
+     "continuous_rating_C": 288,
+     "rating_source": "288 C continuous (Par Group Vespel rod listing; DuPont SP-1 sheet gives no continuous figure) -> confirm with DuPont",
+     "UL_RTI_C": null,
+     "RTI_source": "UL file E530329 exists for SP-1 DF; RTI values unread -> OPEN",
+     "RTI_check": "OPEN",
+     "status": "PASS"
+    },
+    {
+     "part": "body_collar_in_bore",
+     "material": "DuPont Vespel SP-1",
+     "T_max_C": 256.4,
+     "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan",
+     "continuous_rating_C": 288,
+     "rating_source": "as post",
+     "UL_RTI_C": null,
+     "RTI_source": "as post -> OPEN",
+     "RTI_check": "OPEN",
+     "status": "PASS"
+    },
+    {
+     "part": "stop_collar_PI",
+     "material": "DuPont Vespel SP-1",
+     "T_max_C": 236.8,
+     "case": "fry_hold_12.7A | enamel iron 0 mrad | flat pan",
+     "continuous_rating_C": 288,
+     "rating_source": "as post",
+     "UL_RTI_C": null,
+     "RTI_source": "as post -> OPEN",
+     "RTI_check": "OPEN",
+     "status": "PASS"
+    },
+    {
+     "part": "guide_pads_equiv_ring",
+     "material": "DuPont Vespel SP-1 (body pads)",
+     "T_max_C": 257.9,
+     "case": "fry_hold_12.7A | polished clad 0 mrad (hottest disc) | flat pan",
+     "continuous_rating_C": 288,
+     "rating_source": "as post",
+     "UL_RTI_C": null,
+     "RTI_source": "as post -> OPEN",
+     "RTI_check": "OPEN",
+     "status": "PASS"
+    },
+    {
+     "part": "wiper_lip_tip",
+     "material": "Kalrez 6230 FFKM (FDA 21 CFR 177.2600)",
+     "T_max_C": 241.3,
+     "case": "fry_hold_12.7A | enamel iron 0 mrad | flat pan",
+     "continuous_rating_C": 260,
+     "rating_source": "DuPont Kalrez 6230 product page: maximum application temperature 260 C",
+     "UL_RTI_C": null,
+     "RTI_source": "elastomer, not insulation (SELV) -> not required",
+     "RTI_check": null,
+     "status": "PASS"
+    },
+    {
+     "part": "static_gasket_FFKM",
+     "material": "Kalrez 6230 FFKM",
+     "T_max_C": 251.1,
+     "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan",
+     "continuous_rating_C": 260,
+     "rating_source": "as wiper",
+     "UL_RTI_C": null,
+     "RTI_source": "not insulation -> not required",
+     "RTI_check": null,
+     "status": "PASS"
+    },
+    {
+     "part": "fibre_plug_annulus",
+     "material": "alumina-silica fibre",
+     "T_max_C": 259.8,
+     "case": "full_22A | enamel iron 0 mrad | flat pan",
+     "continuous_rating_C": 1260,
+     "rating_source": "Fiberfrax 970 class, 2300 F (retailer listing; Alkegen A-5264 brochure)",
+     "UL_RTI_C": null,
+     "RTI_source": "n/a (inorganic)",
+     "RTI_check": null,
+     "status": "PASS"
+    },
+    {
+     "part": "lead_capillary_fused_silica",
+     "material": "fused silica",
+     "T_max_C": 239.4,
+     "case": "fry_hold_12.7A | enamel iron 0 mrad | flat pan",
+     "continuous_rating_C": 1000,
+     "rating_source": "fused quartz, softening > 1600 C; 7e7 ohm-cm at 350 C (UQG Optics sheet, lowest found)",
+     "UL_RTI_C": null,
+     "RTI_source": "n/a",
+     "RTI_check": null,
+     "status": "PASS"
+    },
+    {
+     "part": "foot_potting",
+     "material": "Cotronics Duralco 128",
+     "T_max_C": 210.7,
+     "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan",
+     "continuous_rating_C": 260,
+     "rating_source": "Duralco sheet: Max. Temperature 500 F",
+     "UL_RTI_C": null,
+     "RTI_source": "consumable",
+     "RTI_check": null,
+     "status": "PASS"
+    },
+    {
+     "part": "seat_cup_PEEK",
+     "material": "Victrex PEEK 450G",
+     "T_max_C": 200.8,
+     "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan",
+     "continuous_rating_C": 240,
+     "rating_source": "Victrex 450G TDS: RTI mech w/o impact 240, w/ impact 180, elec 260",
+     "UL_RTI_C": 240,
+     "RTI_source": "Victrex 450G TDS (UL 746B)",
+     "RTI_check": "OK",
+     "status": "PASS"
+    },
+    {
+     "part": "spring_washer_bayonet_PEEK",
+     "material": "Victrex PEEK 450G",
+     "T_max_C": 180.3,
+     "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan",
+     "continuous_rating_C": 240,
+     "rating_source": "as cup",
+     "UL_RTI_C": 240,
+     "RTI_source": "as cup",
+     "RTI_check": "OK",
+     "status": "PASS"
+    },
+    {
+     "part": "cable_strain_relief_PEEK",
+     "material": "Victrex PEEK 450G",
+     "T_max_C": 148.2,
+     "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan",
+     "continuous_rating_C": 240,
+     "rating_source": "as cup",
+     "UL_RTI_C": 240,
+     "RTI_source": "as cup",
+     "RTI_check": "OK",
+     "status": "PASS"
+    },
+    {
+     "part": "splice_potting",
+     "material": "Cotronics Duralco 128",
+     "T_max_C": 148.4,
+     "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan",
+     "continuous_rating_C": 260,
+     "rating_source": "Duralco sheet",
+     "UL_RTI_C": null,
+     "RTI_source": "consumable",
+     "RTI_check": null,
+     "status": "PASS"
+    },
+    {
+     "part": "spring_A286",
+     "material": "A-286 spring wire",
+     "T_max_C": 192.1,
+     "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan",
+     "continuous_rating_C": 538,
+     "rating_source": "Smalley materials table (R43 design/r16/parts-research.md)",
+     "UL_RTI_C": null,
+     "RTI_source": "n/a (metal)",
+     "RTI_check": null,
+     "status": "PASS"
+    },
+    {
+     "part": "cable",
+     "material": "M22759/12 PTFE pigtail (PCB D8)",
+     "T_max_C": 148.2,
+     "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan",
+     "continuous_rating_C": 260,
+     "rating_source": "MIL-W-22759/12: 260 C (PCB DECISIONS)",
+     "UL_RTI_C": 180,
+     "RTI_source": "UL 746B Table 7.1 generic PTFE 180 (informational)",
+     "RTI_check": "OK",
+     "status": "PASS"
+    },
+    {
+     "part": "glass_underside_at_rim_NTC_r14.5",
+     "material": "Semitec 104GT-2",
+     "T_max_C": 255.0,
+     "case": "fry_hold_12.7A | as-cast iron 2 mrad (worst) | flat pan",
+     "continuous_rating_C": 300,
+     "rating_source": "Semitec GT-2 sheet via R40: -50..+300 C",
+     "UL_RTI_C": null,
+     "RTI_source": "n/a",
+     "RTI_check": null,
+     "status": "PASS"
+    }
+   ],
+   "open_items": [
+    "chip_bond",
+    "post_top_1mm: UL RTI",
+    "body_collar_in_bore: UL RTI",
+    "stop_collar_PI: UL RTI",
+    "guide_pads_equiv_ring: UL RTI"
+   ],
+   "wiper_material": {
+    "wiper_T_max_C": 243.5,
+    "rule": "PTFE if <= 250 C else FFKM (HANDOFF)",
+    "decision": "FFKM Kalrez 6230: modelled 243.5 C max leaves PTFE allowed by the letter, but an unenergised PTFE lip takes a permanent set at ~240-250 C and no metal energiser is allowed in the eye (G7); see DECISIONS D5"
+   },
+   "inline_connector": {
+    "location": [
+     135.0,
+     285.0,
+     62.0
+    ],
+    "air_C": 50,
+    "basis": "base compartment fed by fresh intake air: R43 evidence/airflow-r32/coil_thermal.py T_in 35-50 C (50 C-room cases); not in the 2-D model; bench EM2 thermocouple to confirm",
+    "rating_C": 105,
+    "required_air_C": 85,
+    "status": "PASS"
+   },
+   "status": "OPEN"
+  },
+  "G9 spill": {
+   "sump_region": "\u00d812.2 bore from the washer top Z81.0 to the wiper underside Z105.8, post at full 2.2 mm stroke",
+   "sump_free_volume_mm3": 2046.6,
+   "required_mm3": 2000.0,
+   "body_intrusion_mm3": 0.0,
+   "seal_boundaries": [
+    "top: FFKM wiper lip on the neck (the only intended inlet), wiper OD press-sealed in the \u00d812.2 counterbore",
+    "side: one-piece polyimide body bore (no through holes between Z81 and Z105.8; the NTC lead hole is outside at r14.5)",
+    "stop collar: bonded round its OD (liquid passes its 0.5 mm bore gap into the sump, by design)",
+    "post: closed by the bonded disc on top and the foot potting at the nose; fibre and leads stay dry",
+    "bottom: bayonet washer on the groove floor; the splice potting fills Z75-80 and both bayonet slots",
+    "leads through the sump: inside the PTFE sleeve, potted at both ends"
+   ],
+   "no_path": [
+    "coil: the sump wall is the body; the eye side of the body sees only the glass-sealed O-ring gland",
+    "leads: sealed sleeve + potting; carrier electronics: below the potted body bottom"
+   ],
+   "status": "PASS"
+  },
+  "G10 assembly": {
+   "bayonet_sweep": [
+    {
+     "lift_mm": 60,
+     "rotation_deg": 60,
+     "collisions": []
+    },
+    {
+     "lift_mm": 40,
+     "rotation_deg": 60,
+     "collisions": []
+    },
+    {
+     "lift_mm": 25,
+     "rotation_deg": 60,
+     "collisions": []
+    },
+    {
+     "lift_mm": 15,
+     "rotation_deg": 60,
+     "collisions": []
+    },
+    {
+     "lift_mm": 10,
+     "rotation_deg": 60,
+     "collisions": []
+    },
+    {
+     "lift_mm": 8,
+     "rotation_deg": 60,
+     "collisions": []
+    },
+    {
+     "lift_mm": 6,
+     "rotation_deg": 60,
+     "collisions": []
+    },
+    {
+     "lift_mm": 4,
+     "rotation_deg": 60,
+     "collisions": []
+    },
+    {
+     "lift_mm": 3,
+     "rotation_deg": 60,
+     "collisions": []
+    },
+    {
+     "lift_mm": 2,
+     "rotation_deg": 60,
+     "collisions": []
+    },
+    {
+     "lift_mm": 1,
+     "rotation_deg": 60,
+     "collisions": []
+    },
+    {
+     "lift_mm": 0.5,
+     "rotation_deg": 60,
+     "collisions": []
+    },
+    {
+     "lift_mm": 0,
+     "rotation_deg": 60,
+     "collisions": []
+    },
+    {
+     "lift_mm": 0,
+     "rotation_deg": 55,
+     "collisions": []
+    },
+    {
+     "lift_mm": 0,
+     "rotation_deg": 50,
+     "collisions": []
+    },
+    {
+     "lift_mm": 0,
+     "rotation_deg": 45,
+     "collisions": []
+    },
+    {
+     "lift_mm": 0,
+     "rotation_deg": 40,
+     "collisions": []
+    },
+    {
+     "lift_mm": 0,
+     "rotation_deg": 35,
+     "collisions": []
+    },
+    {
+     "lift_mm": 0,
+     "rotation_deg": 30,
+     "collisions": []
+    },
+    {
+     "lift_mm": 0,
+     "rotation_deg": 25,
+     "collisions": []
+    },
+    {
+     "lift_mm": 0,
+     "rotation_deg": 20,
+     "collisions": []
+    },
+    {
+     "lift_mm": 0,
+     "rotation_deg": 15,
+     "collisions": []
+    },
+    {
+     "lift_mm": 0,
+     "rotation_deg": 10,
+     "collisions": []
+    },
+    {
+     "lift_mm": 0,
+     "rotation_deg": 5,
+     "collisions": []
+    },
+    {
+     "lift_mm": 0,
+     "rotation_deg": 0,
+     "collisions": []
+    }
+   ],
+   "cover_off_detent": {
+    "bump_in_carrier_overlap_mm3": 0,
+    "lifted_body_carrier_overlap_mm3": 0.0,
+    "turn_released_0p5_lift": [
+     {
+      "rotation_deg": 45,
+      "body_with_bump_mm3": 0.7161,
+      "body_without_bump_mm3": 0.0
+     },
+     {
+      "rotation_deg": 30,
+      "body_with_bump_mm3": 0.844,
+      "body_without_bump_mm3": 0.0
+     },
+     {
+      "rotation_deg": 15,
+      "body_with_bump_mm3": 0.844,
+      "body_without_bump_mm3": 0.0
+     },
+     {
+      "rotation_deg": 5,
+      "body_with_bump_mm3": 0.7471,
+      "body_without_bump_mm3": 0.0
+     }
+    ],
+    "bump_volume_mm3": 1.571
+   },
+   "cover_on_glass_lowering": [
+    {
+     "glass_raised_mm": 30,
+     "cartridge_raised_mm": 0.5,
+     "collisions": []
+    },
+    {
+     "glass_raised_mm": 15,
+     "cartridge_raised_mm": 0.5,
+     "collisions": []
+    },
+    {
+     "glass_raised_mm": 8,
+     "cartridge_raised_mm": 0.5,
+     "collisions": []
+    },
+    {
+     "glass_raised_mm": 4,
+     "cartridge_raised_mm": 0.5,
+     "collisions": []
+    },
+    {
+     "glass_raised_mm": 2,
+     "cartridge_raised_mm": 0.5,
+     "collisions": []
+    },
+    {
+     "glass_raised_mm": 1,
+     "cartridge_raised_mm": 0.5,
+     "collisions": []
+    },
+    {
+     "glass_raised_mm": 0.5,
+     "cartridge_raised_mm": 0.5,
+     "collisions": []
+    }
+   ],
+   "final_state": "travel-0 assembly = G1 rest state (glass seated on the rim, body pushed down 0.5 onto the wave spring)",
+   "method": "R43 check_assembly_sequence 'bayonet' path: drop with the lugs in the notches (+60 deg), then turn to 0",
+   "status": "PASS"
+  },
+  "G11 insulation geometry": {
+   "requirement": {
+    "clearance": 3.0,
+    "creepage": 8.0,
+    "solid": 2.0
+   },
+   "source": "pcb/DECISIONS.md (reinforced, 242 V rms / 640 V pk, PD3, group III; ferrite as tank; floating spring metal counted as a conductor)",
+   "rows": [
+    {
+     "cartridge_part": "Pt100_chip_IST_P0K1202",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_winding",
+     "clearance_mm": 26.6,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 26.6,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "Pt100_chip_IST_P0K1202",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_leads (polyline tubes)",
+     "clearance_mm": 25.11,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 25.11,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "Pt100_chip_IST_P0K1202",
+     "kind": "SELV conductor envelope",
+     "tank_part": "ferrite_bars",
+     "clearance_mm": 30.27,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 30.27,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "lead_capillary_fused_silica",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_winding",
+     "clearance_mm": 25.7,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 25.7,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "lead_capillary_fused_silica",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_leads (polyline tubes)",
+     "clearance_mm": 24.86,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 24.86,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "lead_capillary_fused_silica",
+     "kind": "SELV conductor envelope",
+     "tank_part": "ferrite_bars",
+     "clearance_mm": 29.0,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 29.0,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "rim_NTC_Semitec_104GT2",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_winding",
+     "clearance_mm": 13.13,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 13.13,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "rim_NTC_Semitec_104GT2",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_leads (polyline tubes)",
+     "clearance_mm": 38.38,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 38.38,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "rim_NTC_Semitec_104GT2",
+     "kind": "SELV conductor envelope",
+     "tank_part": "ferrite_bars",
+     "clearance_mm": 15.52,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 15.52,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "ntc_lead_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_winding",
+     "clearance_mm": 16.99,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 16.99,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "ntc_lead_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_leads (polyline tubes)",
+     "clearance_mm": 37.14,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 37.14,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "ntc_lead_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "ferrite_bars",
+     "clearance_mm": 15.5,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 15.5,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "lead_sleeve_PTFE_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_winding",
+     "clearance_mm": 25.82,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 25.82,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "lead_sleeve_PTFE_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_leads (polyline tubes)",
+     "clearance_mm": 25.12,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 25.12,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "lead_sleeve_PTFE_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "ferrite_bars",
+     "clearance_mm": 29.05,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 29.05,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "splice_potting",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_winding",
+     "clearance_mm": 27.66,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 27.66,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "splice_potting",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_leads (polyline tubes)",
+     "clearance_mm": 27.59,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 27.59,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "splice_potting",
+     "kind": "SELV conductor envelope",
+     "tank_part": "ferrite_bars",
+     "clearance_mm": 26.03,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 26.03,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "pigtail_6x_M22759_12_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_winding",
+     "clearance_mm": 34.1,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 34.1,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "pigtail_6x_M22759_12_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_leads (polyline tubes)",
+     "clearance_mm": 34.08,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 34.08,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "pigtail_6x_M22759_12_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "ferrite_bars",
+     "clearance_mm": 32.59,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 32.59,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "pigtail_route_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_winding",
+     "clearance_mm": 35.3,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 35.3,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "pigtail_route_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_leads (polyline tubes)",
+     "clearance_mm": 44.09,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 44.09,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "pigtail_route_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "ferrite_bars",
+     "clearance_mm": 29.3,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 29.3,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "inline_connector_MicroFit_2x3_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_winding",
+     "clearance_mm": 36.74,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 36.74,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "inline_connector_MicroFit_2x3_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "coil_leads (polyline tubes)",
+     "clearance_mm": 142.94,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 142.94,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "inline_connector_MicroFit_2x3_ALLOCATION",
+     "kind": "SELV conductor envelope",
+     "tank_part": "ferrite_bars",
+     "clearance_mm": 35.41,
+     "clearance_ok": true,
+     "creepage_lower_bound_mm": 35.41,
+     "creepage_ok": true,
+     "creepage_basis": "straight distance (any surface path is longer)"
+    },
+    {
+     "cartridge_part": "spring_A286",
+     "kind": "floating metal",
+     "tank_part": "coil_winding",
+     "clearance_mm": 22.23,
+     "clearance_ok": true,
+     "direct_mm": 22.23,
+     "nearest_selv": "splice_potting",
+     "float_to_selv_mm": 1.0,
+     "series_path_mm": 23.23,
+     "creepage_lower_bound_mm": 22.23,
+     "creepage_ok": true,
+     "creepage_basis": "direct distance if >= 8 (part treated as a SELV conductor), else the series path tank -> floating part -> nearest SELV conductor with both legs >= X"
+    },
+    {
+     "cartridge_part": "spring_A286",
+     "kind": "floating metal",
+     "tank_part": "coil_leads (polyline tubes)",
+     "clearance_mm": 21.65,
+     "clearance_ok": true,
+     "direct_mm": 21.65,
+     "nearest_selv": "splice_potting",
+     "float_to_selv_mm": 1.0,
+     "series_path_mm": 22.65,
+     "creepage_lower_bound_mm": 21.65,
+     "creepage_ok": true,
+     "creepage_basis": "direct distance if >= 8 (part treated as a SELV conductor), else the series path tank -> floating part -> nearest SELV conductor with both legs >= X"
+    },
+    {
+     "cartridge_part": "spring_A286",
+     "kind": "floating metal",
+     "tank_part": "ferrite_bars",
+     "clearance_mm": 25.25,
+     "clearance_ok": true,
+     "direct_mm": 25.25,
+     "nearest_selv": "splice_potting",
+     "float_to_selv_mm": 1.0,
+     "series_path_mm": 26.25,
+     "creepage_lower_bound_mm": 25.25,
+     "creepage_ok": true,
+     "creepage_basis": "direct distance if >= 8 (part treated as a SELV conductor), else the series path tank -> floating part -> nearest SELV conductor with both legs >= X"
+    },
+    {
+     "cartridge_part": "wave_spring_A286",
+     "kind": "floating metal",
+     "tank_part": "coil_winding",
+     "clearance_mm": 7.43,
+     "clearance_ok": true,
+     "direct_mm": 7.43,
+     "nearest_selv": "ntc_lead_ALLOCATION",
+     "float_to_selv_mm": 5.95,
+     "series_path_mm": 13.37,
+     "creepage_lower_bound_mm": 13.37,
+     "creepage_ok": true,
+     "creepage_basis": "direct distance if >= 8 (part treated as a SELV conductor), else the series path tank -> floating part -> nearest SELV conductor with both legs >= X"
+    },
+    {
+     "cartridge_part": "wave_spring_A286",
+     "kind": "floating metal",
+     "tank_part": "coil_leads (polyline tubes)",
+     "clearance_mm": 7.42,
+     "clearance_ok": true,
+     "direct_mm": 7.42,
+     "nearest_selv": "ntc_lead_ALLOCATION",
+     "float_to_selv_mm": 5.95,
+     "series_path_mm": 13.37,
+     "creepage_lower_bound_mm": 13.37,
+     "creepage_ok": true,
+     "creepage_basis": "direct distance if >= 8 (part treated as a SELV conductor), else the series path tank -> floating part -> nearest SELV conductor with both legs >= X"
+    },
+    {
+     "cartridge_part": "wave_spring_A286",
+     "kind": "floating metal",
+     "tank_part": "ferrite_bars",
+     "clearance_mm": 8.1,
+     "clearance_ok": true,
+     "direct_mm": 8.1,
+     "nearest_selv": "ntc_lead_ALLOCATION",
+     "float_to_selv_mm": 5.95,
+     "series_path_mm": 14.05,
+     "creepage_lower_bound_mm": 14.05,
+     "creepage_ok": true,
+     "creepage_basis": "direct distance if >= 8 (part treated as a SELV conductor), else the series path tank -> floating part -> nearest SELV conductor with both legs >= X"
+    }
+   ],
+   "worst_clearance": {
+    "cartridge_part": "wave_spring_A286",
+    "kind": "floating metal",
+    "tank_part": "coil_leads (polyline tubes)",
+    "clearance_mm": 7.42,
+    "clearance_ok": true,
+    "direct_mm": 7.42,
+    "nearest_selv": "ntc_lead_ALLOCATION",
+    "float_to_selv_mm": 5.95,
+    "series_path_mm": 13.37,
+    "creepage_lower_bound_mm": 13.37,
+    "creepage_ok": true,
+    "creepage_basis": "direct distance if >= 8 (part treated as a SELV conductor), else the series path tank -> floating part -> nearest SELV conductor with both legs >= X"
+   },
+   "worst_creepage": {
+    "cartridge_part": "rim_NTC_Semitec_104GT2",
+    "kind": "SELV conductor envelope",
+    "tank_part": "coil_winding",
+    "clearance_mm": 13.13,
+    "clearance_ok": true,
+    "creepage_lower_bound_mm": 13.13,
+    "creepage_ok": true,
+    "creepage_basis": "straight distance (any surface path is longer)"
+   },
+   "method": "3-D minimum distance between solids. SELV parts: the straight distance bounds both clearance and creepage from below. Floating metal (main spring, wave spring): it touches no SELV conductor, so the tank-to-SELV path through it is the sum of its two legs (60664-1 floating-part rule, legs narrower than X = 1.5 mm at PD3 not counted); its direct distance to the tank must still meet the 3.0 clearance. No solid insulation is credited. Allocations (leads, pigtail, splice potting, connector) are conductor envelopes.",
+   "status": "PASS"
+  },
+  "G12 P1 audit": {
+   "rules": [
+    "flexible diaphragm or boot receiving the sensor",
+    "slot in the sensor with a flange in it",
+    "pins in side slots as stops",
+    "plunger inner column + outer cap with the spring nested between",
+    "compliant bumper under the sensor holder",
+    "sliding ramp clamp",
+    "heater or deliberate self-heating",
+    "second temperature sensor under the cap",
+    "plunger position sensor",
+    "actuator that moves the sensor",
+    "counterbore in the glass to seat the probe"
+   ],
+   "table": [
+    {
+     "part": "disc_Si3N4",
+     "finding": "Passive ceramic contact disc; no sheet-metal cap (Impulse dep. 16 not met: ceramic, not nonferrous sheet).",
+     "rules_hit": []
+    },
+    {
+     "part": "Pt100_chip_IST_P0K1202",
+     "finding": "The one under-cap sensor; biased only by the MAX31865's continuous measuring current (PCB D7), never pulsed or used as a heater.",
+     "rules_hit": []
+    },
+    {
+     "part": "chip_bond",
+     "finding": "Adhesive layer.",
+     "rules_hit": []
+    },
+    {
+     "part": "post_polyimide",
+     "finding": "Single-piece post. Its inner support tube is integral and the spring is NOT between it and the neck (the spring is below the foot) -> not the column/cap/spring nest. Rocking comes from the three rigid guide pads.",
+     "rules_hit": []
+    },
+    {
+     "part": "fibre_plug_annulus / fibre_plug_core",
+     "finding": "Passive insulation, not compliant support (the post is rigid; nothing rests on fibre).",
+     "rules_hit": []
+    },
+    {
+     "part": "lead_capillary_fused_silica",
+     "finding": "Lead insulator only.",
+     "rules_hit": []
+    },
+    {
+     "part": "foot_potting / splice_potting",
+     "finding": "Lead fixing.",
+     "rules_hit": []
+    },
+    {
+     "part": "seat_cup_PEEK",
+     "finding": "Rigid sphere-on-cone seat: a spring seat, not a compliant bumper; it does not grip the post.",
+     "rules_hit": []
+    },
+    {
+     "part": "body_PI",
+     "finding": "Rigid body; three fixed guide pads (no slots, no ramps). Glass-datum rim on the flat underside; the glass is a plain \u00d818 through bore (R43 study 08), no counterbore.",
+     "rules_hit": []
+    },
+    {
+     "part": "stop_collar_PI",
+     "finding": "Up-stop is a flat shoulder on the post against a bonded collar - a stop collar, not a pin or a slot/flange.",
+     "rules_hit": []
+    },
+    {
+     "part": "wiper_FFKM",
+     "finding": "Sliding wiper lip: the neck slides through it; the lip neither flexes to give the stroke nor carries the sensor (counsel item on US11378463B2 'flexible diaphragm' stays open).",
+     "rules_hit": []
+    },
+    {
+     "part": "spring_washer_bayonet_PEEK",
+     "finding": "Fixed seat and hard stop; bayonet lugs are on the washer into a groove (assembly), not pins running in slots as stroke stops.",
+     "rules_hit": []
+    },
+    {
+     "part": "spring_A286",
+     "finding": "Plain coil spring under the foot; no actuator.",
+     "rules_hit": []
+    },
+    {
+     "part": "static_gasket_FFKM",
+     "finding": "Static O-ring between rigid body and glass underside; does not receive the sensor.",
+     "rules_hit": []
+    },
+    {
+     "part": "rim_NTC_Semitec_104GT2",
+     "finding": "Outside the cap, in the body rib on the glass (US10278238B2: only the Pt100 is under the cap).",
+     "rules_hit": []
+    },
+    {
+     "part": "wave_spring_A286",
+     "finding": "Body float (R16), not on the sensor.",
+     "rules_hit": []
+    },
+    {
+     "part": "cable_strain_relief_PEEK / allocations",
+     "finding": "Passive.",
+     "rules_hit": []
+    }
+   ],
+   "not_present": [
+    "no plunger position sensor of any kind",
+    "no heater",
+    "no actuator",
+    "no glass counterbore"
+   ],
+   "status": "PASS"
+  }
+ },
+ "runtime_s": 1015.6
+}

@@ -59,7 +59,7 @@ class TestCurrentTree:
         assert crosscheck_report.codegen_drift == []
 
     def test_row_counts_are_positive(self, crosscheck_report):
-        assert crosscheck_report.production_row_count == 32
+        assert crosscheck_report.production_row_count == 34   # +2: EVENT_CONTACT_LOST self-loops (sensor-r3)
         assert crosscheck_report.test_row_count > 0
 
 

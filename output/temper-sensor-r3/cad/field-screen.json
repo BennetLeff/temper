@@ -1,0 +1,199 @@
+{
+ "scope": "G7 field screen: conductive parts of the C1 cartridge in the coil eye, eddy heating at B 5-20 mT.\n\nMethods are those of the R16/R32 screens (read-only):\n- output/temper-manufacturing-r43/evidence/sensor-r16/thermal_screen.py: thin-disc low-frequency loss\n  P = sigma w^2 B^2 pi t R^4 / 16 (used for the Pt film), skin-depth check.\n- output/temper-r32-studies/06-emi-strayfield/ring_and_pickup.py: open helix P = sigma w^2 B^2 pi a^4 / 8 x wire\n  length; open gap ring P = sigma w^2 B^2 t w^3 / 24 x 2 pi r; closed ring P = (w B pi r^2)^2 / (2 R).\nB is the peak axial field, swept 5 / 10 / 20 mT (R16 sweep); f = 40 kHz (native-21), 60 kHz and 100 kHz (PCB band).\nThe study-06 FEM field at the eye (loops.json) is quoted for reference.\nAlso the lead-pair pickup inside the fused-silica capillary (untwisted over its length): only the radial field\nB_r ~ (r/2) dBz/dz threads a loop in a plane through the axis; dBz/dz from the study-06 Z95/Z105 eye values.\nAnd the geometric part of the gate: no conductive part inside r < 10 above the coil plane except the sensing\nelement and its leads (and the spring, which sits below the plane).\nRun: python field_screen.py -> field-screen.json",
+ "coil_plane_z": 100.2,
+ "rows": [
+  {
+   "f_kHz": 40.0,
+   "B_mT": 5.0,
+   "spring_A286_open_helix_W": 0.0004709890115929789,
+   "spring_if_end_turn_closed_W": 0.017126873148835584,
+   "wave_spring_A286_gap_ring_W": 0.014792151922499079,
+   "Pt_film_disc_W": 2.9251204415377195e-06,
+   "skin_depth_A286_mm": 2.400550420144922
+  },
+  {
+   "f_kHz": 40.0,
+   "B_mT": 10.0,
+   "spring_A286_open_helix_W": 0.0018839560463719156,
+   "spring_if_end_turn_closed_W": 0.06850749259534233,
+   "wave_spring_A286_gap_ring_W": 0.059168607689996315,
+   "Pt_film_disc_W": 1.1700481766150878e-05,
+   "skin_depth_A286_mm": 2.400550420144922
+  },
+  {
+   "f_kHz": 40.0,
+   "B_mT": 20.0,
+   "spring_A286_open_helix_W": 0.0075358241854876626,
+   "spring_if_end_turn_closed_W": 0.27402997038136934,
+   "wave_spring_A286_gap_ring_W": 0.23667443075998526,
+   "Pt_film_disc_W": 4.680192706460351e-05,
+   "skin_depth_A286_mm": 2.400550420144922
+  },
+  {
+   "f_kHz": 60.0,
+   "B_mT": 5.0,
+   "spring_A286_open_helix_W": 0.0010597252760842025,
+   "spring_if_end_turn_closed_W": 0.038535464584880066,
+   "wave_spring_A286_gap_ring_W": 0.033282341825622924,
+   "Pt_film_disc_W": 6.581520993459869e-06,
+   "skin_depth_A286_mm": 1.9600412103929448
+  },
+  {
+   "f_kHz": 60.0,
+   "B_mT": 10.0,
+   "spring_A286_open_helix_W": 0.00423890110433681,
+   "spring_if_end_turn_closed_W": 0.15414185833952027,
+   "wave_spring_A286_gap_ring_W": 0.1331293673024917,
+   "Pt_film_disc_W": 2.6326083973839477e-05,
+   "skin_depth_A286_mm": 1.9600412103929448
+  },
+  {
+   "f_kHz": 60.0,
+   "B_mT": 20.0,
+   "spring_A286_open_helix_W": 0.01695560441734724,
+   "spring_if_end_turn_closed_W": 0.6165674333580811,
+   "wave_spring_A286_gap_ring_W": 0.5325174692099668,
+   "Pt_film_disc_W": 0.00010530433589535791,
+   "skin_depth_A286_mm": 1.9600412103929448
+  },
+  {
+   "f_kHz": 100.0,
+   "B_mT": 5.0,
+   "spring_A286_open_helix_W": 0.0029436813224561174,
+   "spring_if_end_turn_closed_W": 0.1070429571802224,
+   "wave_spring_A286_gap_ring_W": 0.09245094951561925,
+   "Pt_film_disc_W": 1.8282002759610742e-05,
+   "skin_depth_A286_mm": 1.518241393146421
+  },
+  {
+   "f_kHz": 100.0,
+   "B_mT": 10.0,
+   "spring_A286_open_helix_W": 0.01177472528982447,
+   "spring_if_end_turn_closed_W": 0.4281718287208896,
+   "wave_spring_A286_gap_ring_W": 0.369803798062477,
+   "Pt_film_disc_W": 7.312801103844297e-05,
+   "skin_depth_A286_mm": 1.518241393146421
+  },
+  {
+   "f_kHz": 100.0,
+   "B_mT": 20.0,
+   "spring_A286_open_helix_W": 0.04709890115929788,
+   "spring_if_end_turn_closed_W": 1.7126873148835584,
+   "wave_spring_A286_gap_ring_W": 1.479215192249908,
+   "Pt_film_disc_W": 0.0002925120441537719,
+   "skin_depth_A286_mm": 1.518241393146421
+  }
+ ],
+ "worst_spring_row": {
+  "f_kHz": 100.0,
+  "B_mT": 20.0,
+  "spring_A286_open_helix_W": 0.04709890115929788,
+  "spring_if_end_turn_closed_W": 1.7126873148835584,
+  "wave_spring_A286_gap_ring_W": 1.479215192249908,
+  "Pt_film_disc_W": 0.0002925120441537719,
+  "skin_depth_A286_mm": 1.518241393146421
+ },
+ "spring_G_W_per_K": 0.00417,
+ "spring_dT_K_at_sweep_extreme": 11.3,
+ "at_study06_FEM_field": {
+  "B_peak_mT": 8.23,
+  "f_kHz": 60,
+  "spring_W": 0.00287,
+  "spring_dT_K": 0.688,
+  "wave_spring_W": 0.0901
+ },
+ "study06_eye_field_uT_rms": {
+  "B_eye_Z80_uT": 2272.5,
+  "B_eye_Z95_uT": 5817.2,
+  "B_eye_Z105_uT": 7888.9
+ },
+ "capillary_pair_pickup": {
+  "dBz_dz_T_per_m": 0.293,
+  "B_r_T": 6.592081167299485e-05,
+  "loop_area_mm2": 3.08,
+  "emf_mV_at_60kHz": 0.0766,
+  "emf_mV_scaled_to_20mT_100kHz": 0.3105,
+  "PCB_twisted_bound_mV": 6.6,
+  "note": "straight (untwisted) over the capillary length because each wire has its own bore; the pair loop lies in a plane through the coil axis, so only B_r threads it"
+ },
+ "geometry": [
+  {
+   "part": "sensor_r3_Pt100_chip_IST_P0K1202",
+   "z_range": [
+    108.48,
+    109.58
+   ],
+   "r_min": 0.0,
+   "inside_d20_above_coil_plane": true,
+   "allowed_exception": true
+  },
+  {
+   "part": "sensor_r3_lead_capillary_fused_silica",
+   "z_range": [
+    97.7,
+    107.98
+   ],
+   "r_min": 0.0,
+   "inside_d20_above_coil_plane": true,
+   "allowed_exception": true
+  },
+  {
+   "part": "sensor_r3_spring_A286",
+   "z_range": [
+    81.0,
+    96.0
+   ],
+   "r_min": 3.75,
+   "inside_d20_above_coil_plane": false,
+   "allowed_exception": false
+  },
+  {
+   "part": "sensor_r3_rim_NTC_Semitec_104GT2",
+   "z_range": [
+    103.0,
+    106.0
+   ],
+   "r_min": 13.82,
+   "inside_d20_above_coil_plane": false,
+   "allowed_exception": false
+  },
+  {
+   "part": "sensor_r3_wave_spring_A286",
+   "z_range": [
+    93.0,
+    94.0
+   ],
+   "r_min": 19.3,
+   "inside_d20_above_coil_plane": false,
+   "allowed_exception": false
+  },
+  {
+   "part": "sensor_r3_ntc_lead_ALLOCATION",
+   "z_range": [
+    77.1,
+    89.0
+   ],
+   "r_min": 5.8,
+   "inside_d20_above_coil_plane": false,
+   "allowed_exception": false
+  },
+  {
+   "part": "sensor_r3_pigtail_6x_M22759_12_ALLOCATION",
+   "z_range": [
+    62.3,
+    76.0
+   ],
+   "r_min": 0.0,
+   "inside_d20_above_coil_plane": false,
+   "allowed_exception": false
+  }
+ ],
+ "pass_geometry": true,
+ "pass_heating": true,
+ "flag": "At the 20 mT / 100 kHz sweep corner the spring would run 11.3 K above its 192 C FV temperature, far inside A-286's 538 C limit (Smalley materials table, R16 parts-research); at the study-06 FEM eye field it is 0.69 K. 316 was rejected: its 204 C relaxation limit leaves 12 K at the FV temperature.",
+ "notes": [
+  "Pt film and manganin/Ni leads are the sensing element itself; listed as exceptions with their screen.",
+  "Spring sits Z81-96.6, below the coil plane (Z100.2); ends open (unground, unclosed) so no closed turn; the closed-turn row shows what a touching end turn would cost.",
+  "Wave spring (R16/R32) is outside r10 and below the plane; its gap is held by the PEEK key."
+ ]
+}

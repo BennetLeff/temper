@@ -109,7 +109,8 @@ static const fault_name_entry_t fault_name_table[] = {
     X(EVENT_COOLED_DOWN,            "COOLED_DOWN") \
     X(EVENT_COOLDOWN_OVERHEAT,      "COOLDOWN_OVERHEAT") \
     X(EVENT_FAULT_RESET_CLEARED,    "FAULT_RESET_CLEARED") \
-    X(EVENT_FAULT_RESET_PERSISTS,   "FAULT_RESET_PERSISTS")
+    X(EVENT_FAULT_RESET_PERSISTS,   "FAULT_RESET_PERSISTS") \
+    X(EVENT_CONTACT_LOST,           "CONTACT_LOST")
 
 #define EXPAND_EVENT_ENUM(sym, str)  sym,
 typedef enum {
@@ -270,6 +271,16 @@ void state_machine_set_intensity(uint8_t level);
  */
 void state_machine_report_rtd_device_fault(bool short_fault, bool open_fault,
                                            void *context);
+
+/**
+ * EVENT_CONTACT_LOST: the sensor-r3 contact check (D1,
+ * components/control/contact_check.c) confirmed that the pan is not on the
+ * sensor. Power is already held at zero by the pan-temperature loop's power
+ * authority (components/control/pan_temp_loop.c), which retries every 20 s;
+ * the state machine stays in PREHEAT/HEATING and tells the user. Ignored in
+ * every other state.
+ */
+void state_machine_report_pan_contact_lost(void);
 
 /**
  * @brief Get current intensity level
