@@ -1,0 +1,163 @@
+# B3 jet case and HF film-cap body-to-air path (2026-10-15)
+
+OPEN-ITEMS S2, board side (a) and (b). Board s42 (9e075b4b), I_line 13.5 A, task-04 fields checked by `a4_fields.py`.
+
+- **(a)** The temper-8d airflow-r1 jet case (`sensor-c1-impulse-mining:output/temper-airflow-r1/board_h_sweep.py`) is
+  now a supported B3 case. Before, it was a monkeypatch of `tb.assemble` / `tb.build_network_parts`.
+- **(b)** C38–C41 get a body-to-air path.
+
+Both are in the model since eabef510a. This folder holds the jet sweep run on that model.
+
+```
+python3 scripts/jet_sweep.py solve --workers 3     # ~110 min on a shared machine; 56 solves -> ../runs/jet-2026-10-15/ (gitignored)
+python3 scripts/jet_sweep.py summary               # -> jet-sweep.json (committed)
+```
+
+## (a) The airflow case
+
+- **Code:** `thermal_body.TopRegion`, `body_runs.run_case(region=)`, `run_basis.py --cases c<ceil>_h<h>_jet<h_top>[a<air C>]@<bay>`.
+- **Region:** `run_basis.JET_REGION`, x 0–90, y 7.0–23.5 mm, inclusive.
+  - It is defined once. It is airflow-r1's `REGIONS["channel"]`, the strip under its jet box.
+  - The test checks that `gates/jet_strip_height.py` REGION contains it. Today the two are equal.
+- **What the region changes:**
+  - Top-face (F.Cu) cells with centres in the region convect at h_top. The air is at `a<air C>`, or at the bay if that is
+    not given.
+  - Package networks whose heat-row centre is in the region take body-to-air at h_top, to the same air. On s42 these
+    are R5, R10/R12/R18/R20 and R53/R54/R57/R58.
+  - Every other cell, and the whole bottom face, stays at h 10.
+- **Run files** record `region`: xy, h_top, air °C, the credited bodies, the region area and the region convection.
+- **Gate:** `b3_ratings_gate` labels these cases role `airflow`.
+  - It refuses them as release cases.
+  - It keeps them out of the ratchet metrics.
+  - It checks that each run file's region matches the case name.
+  - It refuses one case at two bays, because the run files would collide.
+- **BASIS is unchanged:** c18 at bay 61, c22 / c28 at bay 55, still air.
+- **Controls:**
+  - With no region and `--film-lead-only`, the re-solved BASIS reproduces the old `margins.json` byte for byte.
+  - A region at h_top 10 equals still air: `c28_h10_jet10@55` against the new `margins.json` c28_h10 gives 44 rows,
+    0.0 K.
+  - `test_b3_airflow.py` checks that the solution is bit-identical with h_top = h, and that energy balance is 1e-11 with
+    a region.
+
+## (b) C38–C41 body-to-air (`thermal_body.film_hf`, `film_body_g_air`, `FILM_HF_STRONG`)
+
+**Physics.**
+- The body is TDK's plastic box with epoxy fill, 9.0 × 17.5 × 18.0 mm. Sources, all TDK B3265*A/G/J/T, June 2026
+  (sha256 c32e3754787fa19b…):
+  - p.14 ordering table, B32652A0104, maximum dimensions w × h × l;
+  - p.2 construction;
+  - p.3 drawing A1: leads d1 0.8 mm, e 15 mm.
+- Its surface loses heat to the bay air. TDK's own self-heating terms are the heat transfer coefficient and the
+  "capacitor surface area" (p.77).
+- Heat that comes up the leads enters at the sprayed end contacts (the l-ends). It must then run along the winding to
+  reach the sides.
+- **Model:** each half-body is a fin from its end face: length l/2, k 0.2 W/mK (ASSUMED, the low end for PP / epoxy / PBT),
+  exposed perimeter top + two sides. The end face itself is added at full h. The bottom faces the board and gets nothing.
+  - g_air at h 10 is 0.0090 W/K, 81 % of h·A (A = 1107 mm²).
+  - At h 100 it is 50 % of h·A.
+- h is the local h:
+  - 10 in still air;
+  - the region's h_top only for a body centred in the region.
+
+  C38–C41 are centred at y 28.2, outside it, so under the jet their bodies stay at h 10. The `capjet` sensitivity below
+  credits them at h_top.
+
+**Why lead-only was an upper bound.** With the body reached only through its leads, the body node has no other exit.
+It settles at the lead-weighted pad temperature plus P × 50 K/W. That is the hottest a body heated from its leads can be.
+
+Two caveats:
+- It bounded the lumped node, not the hotter end. It averaged the two pads, which differ by up to 2 K at c28.
+- It also bounded the board badly: it gave the board no credit for the heat the four caps carry away. In the new solve
+  that is 0.85 W at c18 and 1.46 W at c28, through the 50 K/W leads.
+
+**Why the new path is still conservative.** The tie between body and board decides both results, and the two row kinds
+need opposite ends of it:
+- **Board rows (laminate, gate R, R5) need a weak tie.** The solve keeps the assumed 50 K/W lead path: 3 mm of
+  copper-clad steel at k 60, a value carried over from film_radial. The board's own 3D model seats the body 0.62 mm above
+  the board, and copper leads would be stiffer still. Either way, a stronger tie only takes more heat off the board.
+- **The cap's own Top row needs a strong tie.** It is gated on `top_bound_c`: the body tied to its **hotter** pad through
+  copper leads (k 390) over the 0.62 mm seat, plus air conduction across the gap under the bottom face. That tie is
+  0.64 W/K, 71 × g_air. So the row sits within about 0.5 K of the hotter pad, and the pads come from the weak-tie solve,
+  which leaves them hotter.
+
+  Where the weak-tie body node is a bigger number than this bound, the row uses the node. The weak node alone would read
+  +23.6 K at c18 C40. The bound reads +14.2 K.
+- **h 10 is still-air natural convection.**
+  - Vertical 17.5 mm sides at ΔT 30–40 K: about 9–10 W/m²K.
+  - Top face: about 13–14 W/m²K.
+  - End faces in the 3.8 mm gaps between neighbouring caps: about 6 W/m²K (Elenbaas).
+  - Applied per face, this gives g_air about 16 % below the uniform h-10 value for C38 / C40, which have both ends in
+    gaps. That would take back roughly 0.5 K of the release-row gain.
+  - Radiation is not credited at all. ε ≈ 0.9 at ~85 °C is about 9 W/m²K on the outward faces, roughly as large as the
+    convection.
+- **TDK's own rating implies more conductance.** The p.14 rating (5.4 A, ESR typ 14.0 mΩ, self-heating ≤ 20 K) implies
+  ≥ 0.020 W/K from body to ambient. The model uses 0.009.
+- **No credit is taken for the bottom face, the leads' own surface, or air cooler than the bay.**
+- **Not covered:** the board-heated air layer near the bottom of the body is warmer than bay air. This is the main
+  non-conservatism. It is outweighed by the radiation that is not credited.
+
+## Results
+
+### Still-air BASIS (`../margins.json`, s42), lead-only → with (b)
+
+| Row | c18 bay 61 (release) | c22 bay 55 | c28 bay 55 |
+|---|---|---|---|
+| R10 2512 terminal derating | +0.7 → **+5.2** | −6.2 → −0.5 | −28.1 → −20.2 |
+| R12 2512 terminal derating | +5.7 → +11.6 | −5.1 → +2.4 | −33.4 → −23.2 |
+| R18 / R20 terminal derating | +1.8 / +1.1 → +7.3 / +6.8 | −3.4 / −5.1 → +3.4 / +1.8 | −19.4 / −24.1 → −11.4 / −15.3 |
+| Laminate 1 mm block | +4.1 → +10.0 | −6.8 → +0.8 | −30.6 → −20.6 |
+| Laminate FET row | +7.0 → +11.8 | −3.6 → +2.5 | −30.7 → −22.5 |
+| C40 | +1.1 → +14.2 | −6.0 → +9.6 | −27.8 → −8.1 |
+| C41 / C38 / C39 | +3.7 / +5.1 / +10.6 → +16.6 / +15.9 / +19.8 | −1.3 / −2.0 / +4.5 → +14.7 / +12.4 / +16.7 | −18.8 / −24.1 / −16.3 → +1.4 / −4.8 / +0.2 |
+| U26 | +5.9 → +6.2 | +9.4 → +9.7 | +4.7 → +5.2 |
+| R58 1206 terminal derating | +11.1 → +16.9 | +1.8 → +9.3 | −25.4 → −15.2 |
+| R5 terminal / element | +42.4 / +46.9 → +48.2 / +52.0 | +25.4 / +31.7 → +32.8 / +38.2 | −14.6 / −4.8 → −4.6 / +4.0 |
+
+- **Every gated row moves up; none gets worse.**
+- **Metrics:** release 0.7 → 5.2 K (R10), laminate ratchet −30.7 → −22.5 K, rated parts −33.4 → −23.2 K, advisory
+  −7.7 → −7.2 K (C21).
+- **Still-air ceiling at bay 55** (c36 `ceilings.py`, c22 / c28): all gated rows 20.0 → 21.8 A (R10). Laminate
+  20.0 → 22.3 A.
+- **Bay 61 from this sweep's c26 / c28 pair:** 20.1 A. The pair is 27.3 / 29.4 A trips, so 20 A is an extrapolation; it
+  is not a direct solve. The release ceiling stays 18.0 A (DECISIONS 55 / 56) until the owner decides otherwise.
+
+### Required h_top (smallest h with every gated row ≥ 0, W/m²K)
+
+| | This study (b, caps at h 10) | capjet (caps at h_top) | airflow-r1 (lead-only caps, 11.1 A) |
+|---|---|---|---|
+| 26 A, bay 55 | 29.0 | 26.2 | 52.9 |
+| 26 A, bay 61 | 41.2 | 33.0 | 82.1 |
+| 28 A, bay 55 | 42.5 | 34.2 | 73.2 |
+| 28 A, bay 61 | **59.1** | 57.4 | 97.2 |
+
+- **Method:** a chord between grid points (10 / 35 / 60 / 100). Margin is concave in h, so the chord over-estimates the
+  required h.
+- **The limiting rows move.** In airflow-r1, C40 then C38 set every point. Here the R12 2512 terminal derating and the
+  laminate set it.
+  - At 28 A, bay 61, the per-row zeros are: laminate block 52.3, laminate FET row 50.9, R12 49.5, C40 41.8.
+  - The 59.1 is the chord from R12 −7.7 K at h 35 to **U26 +0.3 K** at h 60.
+- **U26 is outside the region and airflow does not reach it:** +0.3 K at h 60 and +0.8 K at h 100 (28 A, bay 61). At
+  bay 61, U26 is the next limiter above about h 55 (OPEN-ITEMS S2 (d)).
+
+### Ceiling vs h_top (c36 I_trip² method on the c26 / c28 pair, A, all gated rows)
+
+| h_top | 10 | 35 | 60 | 100 |
+|---|---|---|---|---|
+| Bay 55 °C | 21.8 (R10) | 27.3 (R12) | 29.8 (laminate FET row) | 32.1 (laminate FET row) |
+| Bay 61 °C | 20.1 (R10) | 25.8 (R12) | 28.4 (U26) | 29.0 (U26) |
+| airflow-r1, bay 55 | 19.9 | 23.9 | 26.9 | 30.5 |
+| airflow-r1, bay 61 | 18.2 | 22.2 | 25.0 | 28.5 |
+
+- Above 28 A the table is extrapolated, and the 28 A Kconfig cap applies.
+- Below 26 A it is extrapolated along the same line. At h 10 it reproduces the c22 / c28 interpolation at bay 55
+  (21.8 A).
+- capjet adds 0.2–1.0 A (`jet-sweep.json` → `capjet`).
+
+## Open and not done
+
+- **The cap rows depend on the seat and lead metal.** The bound uses the board's own 3D model, and the TDK drawing A1
+  dimensions were not readable as text. A thermocouple on C40 in the S2 soak settles it.
+- **Jet h is still airflow-r1's correlation estimate.** No ceiling raise until the bench measures it (S2).
+- **The datasheet ledger cites `margins.json` by line and value** (34 citations: C40 108.9 / 116.0 / 137.8 °C, R10 /
+  R12, U42, L1, C5, C21, R22, R5). The rows moved and were re-sorted. The values live in `seed_ledger.py`; they need
+  that owner's refresh. Its gate still passes, because it checks only that the cited line numbers exist.
