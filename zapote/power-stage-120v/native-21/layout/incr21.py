@@ -648,7 +648,11 @@ if __name__ == "__main__":
     pads = {f"{p['ref']}.{p['pad']}": p for p in GEO.pads}
     # pairs from every DRC given (comma-separated): a pair fixed by the patches of one pass must be
     # routed again by every later pass, which all start from the same base
-    unconnected = [v for f in sys.argv[2].split(",") for v in json.loads(Path(f).read_text()).get("unconnected_items", [])]
+    # KiCad's DRC lists the same unconnected pairs in a different order from run to run (multi-threaded), and the pairs
+    # are joined in list order, so each file's pairs are sorted: the same inputs give the same copper (2026-10-15)
+    unconnected = [v for f in sys.argv[2].split(",") for v in sorted(
+        json.loads(Path(f).read_text()).get("unconnected_items", []),
+        key=lambda v: [(i["description"], i["pos"]["x"], i["pos"]["y"]) for i in v["items"]])]
     pairs, seen = [], set()
     for v in unconnected:
         a, b = v["items"]

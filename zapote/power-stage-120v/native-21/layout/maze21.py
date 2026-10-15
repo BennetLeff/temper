@@ -63,7 +63,26 @@ def _stable(key, make):
     return hit
 
 
-def _paint(mask, shape, i0, j0, nx, ny):
+def _shape_tile(shape, ti, tj, step=None):
+    """Lattice tile (ti, tj) of one shape: True / False when wholly inside / outside, else a bool array."""
+    import numpy as np
+    import shapely
+    step = STEP if step is None else step
+    ent = _TILES.get((id(shape), step))
+    if ent is None or ent[0] is not shape:
+        shapely.prepare(shape)
+        ent = _TILES[(id(shape), step)] = (shape, {})
+    t = ent[1].get((ti, tj))
+    if t is None:
+        xs, ys = np.meshgrid(np.arange(ti * TILE, ti * TILE + TILE) * step,
+                             np.arange(tj * TILE, tj * TILE + TILE) * step)
+        t = shapely.contains_xy(shape, xs, ys)
+        t = False if not t.any() else True if t.all() else t
+        ent[1][(ti, tj)] = t
+    return t
+
+
+def _paint(mask, shape, i0, j0, nx, ny, add=False):
     """mask[j - j0, i - i0] |= lattice point (i, j) lies inside shape (strictly: contains_xy), tile by tile."""
     import numpy as np
     import shapely
@@ -72,29 +91,25 @@ def _paint(mask, shape, i0, j0, nx, ny):
     b0, b1 = max(math.ceil(by0 / STEP - 1e-9), j0), min(math.floor(by1 / STEP + 1e-9), j0 + ny - 1)
     if a0 > a1 or b0 > b1:
         return
-    ent = _TILES.get((id(shape), STEP))
-    if ent is None or ent[0] is not shape:
-        shapely.prepare(shape)
-        ent = _TILES[(id(shape), STEP)] = (shape, {})
-    tiles = ent[1]
     for ti in range(a0 // TILE, a1 // TILE + 1):
         for tj in range(b0 // TILE, b1 // TILE + 1):
-            t = tiles.get((ti, tj))
-            if t is None:
-                xs, ys = np.meshgrid(np.arange(ti * TILE, ti * TILE + TILE) * STEP,
-                                     np.arange(tj * TILE, tj * TILE + TILE) * STEP)
-                t = shapely.contains_xy(shape, xs, ys)
-                t = False if not t.any() else True if t.all() else t
-                tiles[(ti, tj)] = t
+            t = _shape_tile(shape, ti, tj)
             if t is False:
                 continue
             c0, c1 = max(ti * TILE, a0), min(ti * TILE + TILE - 1, a1)
             r0, r1 = max(tj * TILE, b0), min(tj * TILE + TILE - 1, b1)
             win = mask[r0 - j0:r1 - j0 + 1, c0 - i0:c1 - i0 + 1]
             if t is True:
-                win[...] = True
+                if add:
+                    win += 1
+                else:
+                    win[...] = True
             else:
-                win |= t[r0 - tj * TILE:r1 - tj * TILE + 1, c0 - ti * TILE:c1 - ti * TILE + 1]
+                part = t[r0 - tj * TILE:r1 - tj * TILE + 1, c0 - ti * TILE:c1 - ti * TILE + 1]
+                if add:
+                    win += part
+                else:
+                    win |= part
 
 
 def _goal_distance(goal_cells, nx, ny):
@@ -110,29 +125,215 @@ def _goal_distance(goal_cells, nx, ny):
     return np.hypot(ii - gi, jj - gj)
 
 
-def _blocked(geo, net, layer, bx, width):
-    x0, y0, x1, y1 = bx
-    i0, j0, nx, ny, _, _ = _window(bx)
-    tree, items = geo._tree(layer)
+# Shared obstacle rasters (2026-10-15). rules21.clearance(net, other) depends on the routed net only through its
+# class (domain, tank node, HOT group), so the obstacle grid of every net of one class is the same count raster:
+# per lattice tile, how many grown obstacles cover each point (each obstacle grown by the class's clearance to its
+# net). A net's grid is that count minus its own copper's share, > 0. The plan-view barrier is one boolean raster per
+# barrier side. Tiles are computed when a search first needs them and dropped when copper is added near them.
+_CLS = {}        # geo key -> {"seen": {layer: (id(list), len, id(last))}, "own": {layer: {net: [i]}}, "rasters": {...}}
+
+
+def _cls(net):
     import rules21
-    shapes = []
+    return (rules21.domain(net), net in rules21.TANK, rules21.GROUP.get(net))
+
+
+def _clr(c, other):
+    """rules21.clearance(a, other) for a net a of class c, a != other (checked against rules21 by _check_cls)."""
+    import rules21
+    if other == "<npth>":
+        return 0.3
+    if not other:
+        return rules21.FLOOR
+    da, ta, ga = c
+    db = rules21.domain(other)
+    if {da, db} in ({"SELV", "HOT"}, {"PE", "HOT"}):
+        return rules21.BARRIER
+    if da == db == "HOT":
+        tb = other in rules21.TANK
+        if ta != tb or (ta and tb):
+            return rules21._m.wr.TANK_CREEPAGE_MM
+        if ga != rules21.GROUP[other]:
+            return rules21._m.wr.FUNCTIONAL_CREEPAGE_MM
+    return rules21.FLOOR
+
+
+def _check_cls(nets):
+    import rules21
+    nets = sorted(n for n in nets if n and n != "<npth>")
+    for a in nets:
+        c = _cls(a)
+        for b in nets:
+            if a != b and _clr(c, b) != rules21.clearance(a, b):
+                raise AssertionError(f"maze21 class clearance {a} / {b}: {_clr(c, b)} != {rules21.clearance(a, b)}")
+
+
+def _state(geo):
+    st = _CLS.get(id(geo))
+    if st is None or st["geo"] is not geo:
+        st = _CLS[id(geo)] = {"geo": geo, "seen": {}, "own": {}, "rasters": {}, "grow": {}}
+        _check_cls({n for its in geo.items.values() for _, n in its})
+    return st
+
+
+def _sync(st, layer):
+    """Bring the caches of one layer up to date with geo.items[layer]: an appended item is added into every computed
+    tile its grown shape reaches (the count a rebuild would give), anything else (a patch deleting or replacing items)
+    drops the layer's rasters."""
+    items = st["geo"].items[layer]
+    seen = st["seen"].get(layer)
+    fp = (id(items), len(items), id(items[-1]) if items else 0)
+    if seen == fp:
+        return
+    rasters = [k for k in st["rasters"] if k[1] == layer]
+    own = st["own"].setdefault(layer, {})
+    if seen is None or seen[0] != fp[0] or seen[1] > fp[1] or (seen[1] and id(items[seen[1] - 1]) != seen[2]):
+        for k in rasters:
+            del st["rasters"][k]
+        own.clear()
+        start = 0
+    else:
+        start = seen[1]
+        import numpy as np
+        for k in rasters:
+            tiles, step, grow_of = st["rasters"][k], k[-1], st["grow"][k]   # each raster on its own lattice
+            for g, other in items[start:]:
+                sh = grow_of(g, other)
+                if sh is None:
+                    continue
+                bx0, by0, bx1, by1 = sh.bounds
+                for ti in range(math.floor(bx0 / step) // TILE, math.floor(bx1 / step) // TILE + 1):
+                    for tj in range(math.floor(by0 / step) // TILE, math.floor(by1 / step) // TILE + 1):
+                        old = tiles.get((ti, tj))
+                        if old is None:
+                            continue                       # not computed yet: it will include the item
+                        t = _shape_tile(sh, ti, tj, step)
+                        if t is False:
+                            continue
+                        if k[0] == "bar":
+                            tiles[(ti, tj)] = np.ones((TILE, TILE), dtype=bool) if t is True else (
+                                t.copy() if isinstance(old, int) else old | t)
+                        else:
+                            base = np.zeros((TILE, TILE), dtype=np.int16) if isinstance(old, int) else old
+                            tiles[(ti, tj)] = base + t
+    for i in range(start, len(items)):
+        own.setdefault(items[i][1], []).append(i)
+    st["seen"][layer] = fp
+
+
+def _tile_shapes(geo, layer, ti, tj, grow_of):
+    """Grown obstacles (grow_of(geom, net) -> grown or None) whose bounds reach lattice tile (ti, tj)."""
     from shapely.geometry import box as _box
+    x0, y0 = ti * TILE * STEP, tj * TILE * STEP
+    x1, y1 = x0 + (TILE - 1) * STEP, y0 + (TILE - 1) * STEP
+    tree, items = geo._tree(layer)
+    out = []
     for i in tree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
         g, other = items[i]
-        if other == net:
+        sh = grow_of(g, other)
+        if sh is None:
             continue
-        need = 0.3 if other == "<npth>" else rules21.clearance(net, other)
-        shapes.append(_grow(g, need + width / 2 + 0.03))
-    shapes.append(_stable(("band", id(geo.outline), width), lambda: geo.outline.exterior.buffer(width / 2 - 0.005)))
-    ptree, pitems = geo._tree("PLAN")
-    for i in ptree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
-        g, other = pitems[i]
-        if other != net and other != "<npth>" and rules21.barrier(net, other):
-            shapes.append(_grow(g, rules21.BARRIER + width / 2 + 0.03))
+        b = sh.bounds
+        if b[2] >= x0 and b[0] <= x1 and b[3] >= y0 and b[1] <= y1:
+            out.append(sh)
+    return out
+
+
+def _raster_window(st, key, i0, j0, nx, ny, compute, dtype):
+    """Assemble a window of raster `key` from its tiles (computed on first use by compute(ti, tj))."""
     import numpy as np
-    mask = np.zeros((ny, nx), dtype=bool)
+    tiles = st["rasters"].setdefault(key, {})
+    out = np.zeros((ny, nx), dtype=dtype)
+    for ti in range(i0 // TILE, (i0 + nx - 1) // TILE + 1):
+        for tj in range(j0 // TILE, (j0 + ny - 1) // TILE + 1):
+            t = tiles.get((ti, tj))
+            if t is None:
+                t = tiles[(ti, tj)] = compute(ti, tj)
+            if isinstance(t, int):      # 0: nothing in this tile
+                continue
+            c0, c1 = max(ti * TILE, i0), min(ti * TILE + TILE - 1, i0 + nx - 1)
+            r0, r1 = max(tj * TILE, j0), min(tj * TILE + TILE - 1, j0 + ny - 1)
+            out[r0 - j0:r1 - j0 + 1, c0 - i0:c1 - i0 + 1] = t[r0 - tj * TILE:r1 - tj * TILE + 1, c0 - ti * TILE:c1 - ti * TILE + 1]
+    return out
+
+
+def _cover(shapes, ti, tj, count):
+    """Per lattice point of tile (ti, tj): how many shapes contain it (count) or whether any does, from the shapes'
+    own cached tiles (shared by every class whose growth gives the same shape); 0 when none."""
+    import numpy as np
+    acc = np.zeros((TILE, TILE), dtype=np.int16 if count else bool)
     for sh in shapes:
-        _paint(mask, sh, i0, j0, nx, ny)
+        t = _shape_tile(sh, ti, tj)
+        if t is False:
+            continue
+        if count:
+            acc += t
+        elif t is True:
+            return np.ones((TILE, TILE), dtype=bool)
+        else:
+            acc |= t
+    return acc if acc.any() else 0
+
+
+def _copper_grid(geo, net, layer, i0, j0, nx, ny, width, via):
+    """Cells within clearance of other nets' copper on `layer` for a trace (or via, via=True) of `width`:
+    the class count raster minus the net's own copper."""
+    import numpy as np
+    st = _state(geo)
+    _sync(st, layer)
+    c = _cls(net)
+    perm = geo.via_permeable
+
+    def grow_of(g, other):
+        if via and id(g) in perm:
+            return None
+        return _grow(g, _clr(c, other) + width / 2 + 0.03)
+    key = ("via" if via else "trk", layer, c, width, STEP)
+    st["grow"][key] = grow_of
+    count = _raster_window(st, key, i0, j0, nx, ny,
+                           lambda ti, tj: _cover(_tile_shapes(geo, layer, ti, tj, grow_of), ti, tj, True), np.int16)
+    own = st["own"][layer].get(net, ())
+    if own:
+        items = geo.items[layer]
+        mine = np.zeros((ny, nx), dtype=np.int16)
+        for i in own:
+            sh = grow_of(*items[i])
+            if sh is not None:
+                _paint(mine, sh, i0, j0, nx, ny, add=True)
+        count = count - mine
+    return count > 0
+
+
+def _barrier_grid(geo, net, i0, j0, nx, ny, width):
+    """Cells within the plan-view barrier of the other side's copper (SELV / PE against HOT), or None."""
+    import numpy as np
+    import rules21
+    side = rules21.domain(net)
+    if side not in ("SELV", "PE", "HOT"):
+        return None
+    side = "hot" if side == "HOT" else "low"
+    st = _state(geo)
+    _sync(st, "PLAN")
+
+    def grow_of(g, other):
+        if other in ("<npth>", net) or not rules21.barrier(net, other):
+            return None
+        return _grow(g, rules21.BARRIER + width / 2 + 0.03)
+    key = ("bar", "PLAN", side, width, STEP)
+    st["grow"][key] = grow_of
+    return _raster_window(st, key, i0, j0, nx, ny,
+                          lambda ti, tj: _cover(_tile_shapes(geo, "PLAN", ti, tj, grow_of), ti, tj, False), bool)
+
+
+def _blocked(geo, net, layer, bx, width):
+    import numpy as np
+    i0, j0, nx, ny, _, _ = _window(bx)
+    mask = _copper_grid(geo, net, layer, i0, j0, nx, ny, width, via=False)
+    _paint(mask, _stable(("band", id(geo.outline), width), lambda: geo.outline.exterior.buffer(width / 2 - 0.005)),
+           i0, j0, nx, ny)
+    bar = _barrier_grid(geo, net, i0, j0, nx, ny, width)
+    if bar is not None:
+        mask |= bar
     return bytearray(mask.astype(np.uint8).tobytes()), nx, ny
 
 
@@ -199,22 +400,13 @@ def _via_ok(geo, net, bx, size):
     import shapely
     from shapely.geometry import box as _box
     import rules21
-    x0, y0, x1, y1 = bx
     i0, j0, nx, ny, _, _ = _window(bx)
     grid = np.zeros((ny, nx), dtype=bool)
     for lay in CU:
-        tree, items = geo._tree(lay)
-        for i in tree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
-            g, other = items[i]
-            if other == net or id(g) in geo.via_permeable:
-                continue
-            need = 0.3 if other == "<npth>" else rules21.clearance(net, other)
-            _paint(grid, _grow(g, need + size / 2 + 0.03), i0, j0, nx, ny)
-    ptree, pitems = geo._tree("PLAN")
-    for i in ptree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
-        g, other = pitems[i]
-        if other != net and other != "<npth>" and rules21.barrier(net, other):
-            _paint(grid, _grow(g, rules21.BARRIER + size / 2 + 0.03), i0, j0, nx, ny)
+        grid |= _copper_grid(geo, net, lay, i0, j0, nx, ny, size, via=True)
+    bar = _barrier_grid(geo, net, i0, j0, nx, ny, size)
+    if bar is not None:
+        grid |= bar
     inside = np.zeros((ny, nx), dtype=bool)
     _paint(inside, _stable(("inner", id(geo.outline), size), lambda: geo.outline.buffer(-size / 2 - 0.03)), i0, j0, nx, ny)
     return (grid | ~inside).ravel()
