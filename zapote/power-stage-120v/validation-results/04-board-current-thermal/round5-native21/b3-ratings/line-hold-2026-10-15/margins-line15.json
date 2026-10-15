@@ -1,0 +1,654 @@
+{
+ "basis": {
+  "cases": [
+   "c22_h10",
+   "c28_h10"
+  ],
+  "bay_c": 55.0,
+  "k_mesh": 3.0,
+  "mot_c": 130.0
+ },
+ "cases": {
+  "c22_h10": [
+   {
+    "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 135.0,
+    "margin_k": -39.7
+   },
+   {
+    "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 129.2,
+    "margin_k": -33.9
+   },
+   {
+    "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 121.7,
+    "margin_k": -26.3
+   },
+   {
+    "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 118.1,
+    "margin_k": -22.7
+   },
+   {
+    "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 112.8,
+    "margin_k": -2.8
+   },
+   {
+    "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 110.0,
+    "margin_k": -0.0
+   },
+   {
+    "item": "laminate: FET-row copper",
+    "gated": true,
+    "limit_c": 130.0,
+    "est_c": 129.0,
+    "margin_k": 1.0
+   },
+   {
+    "item": "laminate: 1 mm-block copper peak",
+    "gated": true,
+    "limit_c": 130.0,
+    "est_c": 128.9,
+    "at": [
+     44.5,
+     14.5,
+     "F.Cu"
+    ],
+    "margin_k": 1.1
+   },
+   {
+    "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 107.7,
+    "margin_k": 2.3
+   },
+   {
+    "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 104.3,
+    "margin_k": 5.7
+   },
+   {
+    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 112.8,
+    "margin_k": 12.2
+   },
+   {
+    "item": "C21: MKP Top,max (TDK June 2026 p.35)",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 96.0,
+    "margin_k": 14.0
+   },
+   {
+    "item": "C22: MKP Top,max (TDK June 2026 p.35)",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 94.1,
+    "margin_k": 15.9
+   },
+   {
+    "item": "C23: MKP Top,max (TDK June 2026 p.35)",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 92.8,
+    "margin_k": 17.2
+   },
+   {
+    "item": "R12: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 136.8,
+    "margin_k": 18.2
+   },
+   {
+    "item": "C151: MKP Top,max (TDK June 2026 p.35)",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 91.2,
+    "margin_k": 18.8
+   },
+   {
+    "item": "L1: B82726 climatic upper (TDK p.4)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 106.1,
+    "margin_k": 18.9
+   },
+   {
+    "item": "R58: 1206 terminal derating at 0.036 W (20 % margin)",
+    "gated": true,
+    "limit_c": 139.8,
+    "est_c": 120.4,
+    "margin_k": 19.4
+   },
+   {
+    "item": "C152: MKP Top,max (TDK June 2026 p.35)",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 90.5,
+    "margin_k": 19.5
+   },
+   {
+    "item": "R10: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 133.6,
+    "margin_k": 21.4
+   },
+   {
+    "item": "C5: MKP Top,max",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 86.1,
+    "margin_k": 23.9
+   },
+   {
+    "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
+    "gated": true,
+    "limit_c": 150.0,
+    "est_c": 125.3,
+    "margin_k": 24.7
+   },
+   {
+    "item": "R54: 1206 terminal derating at 0.036 W (20 % margin)",
+    "gated": true,
+    "limit_c": 139.8,
+    "est_c": 114.7,
+    "margin_k": 25.1
+   },
+   {
+    "item": "R57: 1206 terminal derating at 0.036 W (20 % margin)",
+    "gated": true,
+    "limit_c": 139.8,
+    "est_c": 111.1,
+    "margin_k": 28.7
+   },
+   {
+    "item": "C6: MKP Top,max",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 81.2,
+    "margin_k": 28.8
+   },
+   {
+    "item": "R20: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 125.7,
+    "margin_k": 29.3
+   },
+   {
+    "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
+    "gated": true,
+    "limit_c": 150.0,
+    "est_c": 119.8,
+    "margin_k": 30.2
+   },
+   {
+    "item": "R5: terminal derating at 0.534 W (20 % margin)",
+    "gated": true,
+    "limit_c": 156.7,
+    "est_c": 125.8,
+    "margin_k": 30.9
+   },
+   {
+    "item": "R18: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 122.0,
+    "margin_k": 33.0
+   },
+   {
+    "item": "R53: 1206 terminal derating at 0.036 W (20 % margin)",
+    "gated": true,
+    "limit_c": 139.8,
+    "est_c": 106.6,
+    "margin_k": 33.2
+   },
+   {
+    "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 120.8,
+    "margin_k": 34.2
+   },
+   {
+    "item": "R5: element max (Bourns CSS2H p.1)",
+    "gated": true,
+    "limit_c": 170.0,
+    "est_c": 133.9,
+    "margin_k": 36.1
+   },
+   {
+    "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 115.5,
+    "margin_k": 39.5
+   },
+   {
+    "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 111.8,
+    "margin_k": 43.2
+   },
+   {
+    "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 107.3,
+    "margin_k": 47.7
+   },
+   {
+    "item": "R69: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 86.7,
+    "margin_k": 68.3
+   },
+   {
+    "item": "R68: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 85.7,
+    "margin_k": 69.3
+   },
+   {
+    "item": "R70: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 85.4,
+    "margin_k": 69.6
+   },
+   {
+    "item": "R22: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 85.0,
+    "margin_k": 70.0
+   },
+   {
+    "item": "R67: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 83.7,
+    "margin_k": 71.3
+   },
+   {
+    "item": "R23: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 83.6,
+    "margin_k": 71.4
+   },
+   {
+    "item": "R24: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 82.3,
+    "margin_k": 72.7
+   },
+   {
+    "item": "R25: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 81.3,
+    "margin_k": 73.7
+   },
+   {
+    "item": "R39: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 69.1,
+    "margin_k": 85.9
+   }
+  ],
+  "c28_h10": [
+   {
+    "item": "R12: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 159.6,
+    "margin_k": -64.2
+   },
+   {
+    "item": "R10: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 151.7,
+    "margin_k": -56.4
+   },
+   {
+    "item": "R20: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 143.2,
+    "margin_k": -47.8
+   },
+   {
+    "item": "R18: 1206 terminal derating at 0.140 W (20 % margin)",
+    "gated": true,
+    "limit_c": 95.4,
+    "est_c": 134.7,
+    "margin_k": -39.3
+   },
+   {
+    "item": "laminate: FET-row copper",
+    "gated": true,
+    "limit_c": 130.0,
+    "est_c": 155.2,
+    "margin_k": -25.2
+   },
+   {
+    "item": "laminate: 1 mm-block copper peak",
+    "gated": true,
+    "limit_c": 130.0,
+    "est_c": 155.1,
+    "at": [
+     38.5,
+     15.5,
+     "F.Cu"
+    ],
+    "margin_k": -25.1
+   },
+   {
+    "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 134.6,
+    "margin_k": -24.6
+   },
+   {
+    "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 132.3,
+    "margin_k": -22.3
+   },
+   {
+    "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 125.3,
+    "margin_k": -15.3
+   },
+   {
+    "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 125.2,
+    "margin_k": -15.2
+   },
+   {
+    "item": "R5: terminal derating at 0.864 W (20 % margin)",
+    "gated": true,
+    "limit_c": 148.4,
+    "est_c": 157.5,
+    "margin_k": -9.1
+   },
+   {
+    "item": "R12: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 163.1,
+    "margin_k": -8.1
+   },
+   {
+    "item": "C21: MKP Top,max (TDK June 2026 p.35)",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 117.9,
+    "margin_k": -7.9
+   },
+   {
+    "item": "R58: 1206 terminal derating at 0.036 W (20 % margin)",
+    "gated": true,
+    "limit_c": 139.8,
+    "est_c": 147.6,
+    "margin_k": -7.8
+   },
+   {
+    "item": "C22: MKP Top,max (TDK June 2026 p.35)",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 115.7,
+    "margin_k": -5.7
+   },
+   {
+    "item": "C23: MKP Top,max (TDK June 2026 p.35)",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 114.1,
+    "margin_k": -4.1
+   },
+   {
+    "item": "C151: MKP Top,max (TDK June 2026 p.35)",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 112.1,
+    "margin_k": -2.1
+   },
+   {
+    "item": "R10: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 156.3,
+    "margin_k": -1.3
+   },
+   {
+    "item": "C152: MKP Top,max (TDK June 2026 p.35)",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 111.1,
+    "margin_k": -1.1
+   },
+   {
+    "item": "R5: element max (Bourns CSS2H p.1)",
+    "gated": true,
+    "limit_c": 170.0,
+    "est_c": 170.4,
+    "margin_k": -0.4
+   },
+   {
+    "item": "R54: 1206 terminal derating at 0.036 W (20 % margin)",
+    "gated": true,
+    "limit_c": 139.8,
+    "est_c": 138.3,
+    "margin_k": 1.5
+   },
+   {
+    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 117.4,
+    "margin_k": 7.6
+   },
+   {
+    "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 146.9,
+    "margin_k": 8.1
+   },
+   {
+    "item": "R20: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 146.4,
+    "margin_k": 8.6
+   },
+   {
+    "item": "C5: MKP Top,max",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 100.2,
+    "margin_k": 9.8
+   },
+   {
+    "item": "R53: 1206 terminal derating at 0.036 W (20 % margin)",
+    "gated": true,
+    "limit_c": 139.8,
+    "est_c": 129.9,
+    "margin_k": 9.9
+   },
+   {
+    "item": "R57: 1206 terminal derating at 0.036 W (20 % margin)",
+    "gated": true,
+    "limit_c": 139.8,
+    "est_c": 129.6,
+    "margin_k": 10.2
+   },
+   {
+    "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 139.3,
+    "margin_k": 15.7
+   },
+   {
+    "item": "L1: B82726 climatic upper (TDK p.4)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 108.6,
+    "margin_k": 16.4
+   },
+   {
+    "item": "R18: 1206 element 155 C (FH RS-06L V11.0 p.2)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 138.2,
+    "margin_k": 16.8
+   },
+   {
+    "item": "C6: MKP Top,max",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 93.0,
+    "margin_k": 17.0
+   },
+   {
+    "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
+    "gated": true,
+    "limit_c": 150.0,
+    "est_c": 130.0,
+    "margin_k": 20.0
+   },
+   {
+    "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 130.4,
+    "margin_k": 24.6
+   },
+   {
+    "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 130.2,
+    "margin_k": 24.8
+   },
+   {
+    "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
+    "gated": true,
+    "limit_c": 150.0,
+    "est_c": 121.9,
+    "margin_k": 28.1
+   },
+   {
+    "item": "R22: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 98.1,
+    "margin_k": 56.9
+   },
+   {
+    "item": "R23: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 95.5,
+    "margin_k": 59.5
+   },
+   {
+    "item": "R24: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 93.3,
+    "margin_k": 61.7
+   },
+   {
+    "item": "R25: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 91.7,
+    "margin_k": 63.3
+   },
+   {
+    "item": "R69: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 91.0,
+    "margin_k": 64.0
+   },
+   {
+    "item": "R68: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 89.9,
+    "margin_k": 65.1
+   },
+   {
+    "item": "R70: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 89.8,
+    "margin_k": 65.2
+   },
+   {
+    "item": "R67: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 87.7,
+    "margin_k": 67.3
+   },
+   {
+    "item": "R39: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 77.5,
+    "margin_k": 77.5
+   }
+  ]
+ },
+ "board_sha256": {
+  "c22_h10": "d4b2445ce1ca47801271c2ac34843b10134cd6c509c158a6f570718b8b91cd57",
+  "c28_h10": "d4b2445ce1ca47801271c2ac34843b10134cd6c509c158a6f570718b8b91cd57"
+ },
+ "metrics": {
+  "b3_laminate_margin_K": -25.2,
+  "b3_rated_part_margin_K": -64.2,
+  "b3_advisory_margin_K": -7.9,
+  "worst_gated": "R12: 1206 terminal derating at 0.140 W (20 % margin)"
+ },
+ "pass": false
+}

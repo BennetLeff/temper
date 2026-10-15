@@ -42,6 +42,15 @@ R5, sw_a / sw_b and the legs. R5 is modelled at I_t RMS, which is above any bus 
 | L1 climatic 125 °C (advisory) | +39.5 K | +27.6 K | +37.1 → +25.1 K |
 | C5 / C6 (advisory) | +26.4 / +30.9 K | +25.0 / +29.7 K | −1.5 / −1.3 K |
 
+## 15 A line current (nameplate question, temper-8d mining round 3)
+
+`python3 scripts/line_hold.py --i-line 15` → `margins-line15.json`. At 15 A, as at 13.5 A, every gated row moves 0.1 K or
+less: C40 at c22 goes −2.7 → −2.8 K, C38 +0.1 → −0.0 K, the laminate rows +1.2 → +1.1 K. L1 (advisory, 125 °C) goes
++39.5 → +18.9 K at c22 and +37.1 → +16.4 K at c28; C5 / C6 lose about 2.5 K. Line-path part ratings at 15 A (from the datasheet ledger): F1
+KLDR025 25 A, re-rated to 16.5 A carrying at 55 °C bay (0.91); L1 20 A IR (0.75); BR1 25 A; J1 30 A. So a 15 A
+nameplate needs no board change on these rows. Not computed here: the conducted-EMI change from the higher line
+current, and L1 / F1 local air, which the ledger still lists as bench gaps.
+
 ## Conclusions
 
 - **The still-air ceiling does not move.** C40 sets it, and C40 does not respond to line current. The laminate rows move
