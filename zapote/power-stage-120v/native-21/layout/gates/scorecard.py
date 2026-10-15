@@ -124,7 +124,8 @@ def performance(b, tag):
         for net, s in rp["signals"].items():
             if not isinstance(s, dict) or "reference_changes" not in s:
                 continue
-            for c in s["reference_changes"]:
+            # stage 33: same-net stitches (six layers) are judged like reference changes (return_path19)
+            for c in s["reference_changes"] + s.get("stitches", []):
                 mm = c.get("mm")
                 if mm is None or mm > 3.0:
                     opened += 1

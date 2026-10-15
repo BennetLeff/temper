@@ -37,7 +37,12 @@ LANES = ("rect_p BR1.1", "rect_n BR1.4", "n_filt BR1.3", "l_filt BR1.2", "sw_a Q
          "sw_b leg B", "res_a J5", "coil_feed J2")
 
 
+FROZEN = False   # stage 33: INCR21_FROZEN, the base is an accepted routed copper.json; nothing of it is removed or moved
+
+
 def removed(item, kind):
+    if FROZEN:
+        return False
     for rm in patches21.REMOVE:
         if rm["net"] != item["net"] or rm.get("kind", kind) != kind:
             continue
@@ -598,7 +603,15 @@ def load(base_path, patches=True):
 
 
 if __name__ == "__main__":
-    load(sys.argv[1])
+    import os
+    FROZEN = bool(os.environ.get("INCR21_FROZEN"))
+    if FROZEN:
+        # stage 33 (six-layer phase A): the base is an accepted, fully routed copper.json (stage 32), so the stage 1-32
+        # patches are already in it; only the six-layer additions are applied, then the open pairs as usual
+        load(sys.argv[1], patches=False)
+        patches21.add_stage33(g)
+    else:
+        load(sys.argv[1])
     if len(sys.argv) > 4 and sys.argv[4] and Path(sys.argv[4]).is_file():
         FILLS.extend(json.loads(Path(sys.argv[4]).read_text())["zones"])
     # Remaining pairs from the latest DRC (fresh, not cumulative), pads or points on existing copper.
@@ -636,6 +649,8 @@ if __name__ == "__main__":
         layers = g["LAYERS_FOR"].get(rules21.GROUP.get(net), OUTER)
         if rules21.domain(net) == "SELV":
             layers = CU
+        # stage 33 (six layers): the image-plane layer (In4) is kept for the planes; open pairs may use In3
+        layers = tuple(lay for lay in layers if lay not in set(patches21.IMAGE_PLANES.values()))
         w = 0.4 if net in WIDE else 0.25
         items, cid = clusters(net)
         ca, cb = cluster_of(items, cid, a), cluster_of(items, cid, b)
@@ -649,6 +664,11 @@ if __name__ == "__main__":
             a, b = q, q
         # SELV: outer layers first, the In1 / In2 reference planes only as a fallback
         tries = [OUTER, layers] if rules21.domain(net) == "SELV" else [layers]
+        # stage 33 (six layers): the four layers the stage-1..32 copper was routed on first (so a pair routes as it did
+        # on four layers), In3 only as the last fallback
+        four = tuple(lay for lay in layers if lay in patches21.ROUTE4)
+        if four != layers:
+            tries = [t for t in tries if t != layers] + [four, layers]
         # a pad end joins the other end's cluster anywhere along it (not only the item KiCad named)
         ends = [(q, o if o != q else None) for q, o in ((a, b), (b, a)) if not q.startswith("@")][:1 if a == b else 2]
         try:
@@ -663,24 +683,34 @@ if __name__ == "__main__":
             continue
         if len(tries) > 1 and not any(q.startswith("@") and q.rsplit(",", 1)[1] in INNER
                                       for q in (a, b)):
-            n_log = len(g["LINK_LOG"])
-            if g["link"](net, tries[0], (0.6, 0.6, 289.4, 189.4), w, [a, b]):
+            done = False
+            for t in tries[:-1]:          # four layers: the outer layers (SELV); stage 33: then the four-layer set
+                n_log = len(g["LINK_LOG"])
+                if g["link"](net, t, (0.6, 0.6, 289.4, 189.4), w, [a, b]):
+                    done = True
+                    break
+                del g["LINK_LOG"][n_log:]
+            if done:
                 continue
-            del g["LINK_LOG"][n_log:]
         try:
             g["link"](net, layers, (0.6, 0.6, 289.4, 189.4), w, [a, b])
         except KeyError as e:
             g["LINK_LOG"].append((net, "?", 2, [a, b, str(e)]))
-    n_tail = drop_reported_tails(sys.argv[2].split(",")[-1])
+    n_tail = 0 if FROZEN else drop_reported_tails(sys.argv[2].split(",")[-1])
     print(f"KiCad-reported dangling tails dropped: {n_tail}")
-    n_moved, n_kept = dogbone()
-    print(f"via-in-pad: {n_moved} vias moved off their pads, {n_kept} left in pad (no legal spot)")
-    print(f"same-net vias merged: {merge_close_vias()}")
-    print("0.85 vias standardized to 0.6 (vias, ring stubs; mains nets kept): %d, %d" % std_vias())
-    state = {"tracks": g["TRACKS"], "vias": g["VIAS"], "zones": g["ZONES"]}
-    n_dead = prune_dangling(state, {t["net"] for t in g["TRACKS"]} | {v["net"] for v in g["VIAS"]})
-    g["TRACKS"][:], g["VIAS"][:] = state["tracks"], state["vias"]
-    print(f"dangling stubs pruned: {n_dead}")
+    if FROZEN:
+        # the frozen base already went through these steps when it was accepted; re-running them on it moves its
+        # in-pad vias (the six-layer stack opens spots the four-layer one did not) and is not a no-op
+        print("frozen base: via-in-pad, merge, standard-size and prune steps skipped")
+    else:
+        n_moved, n_kept = dogbone()
+        print(f"via-in-pad: {n_moved} vias moved off their pads, {n_kept} left in pad (no legal spot)")
+        print(f"same-net vias merged: {merge_close_vias()}")
+        print("0.85 vias standardized to 0.6 (vias, ring stubs; mains nets kept): %d, %d" % std_vias())
+        state = {"tracks": g["TRACKS"], "vias": g["VIAS"], "zones": g["ZONES"]}
+        n_dead = prune_dangling(state, {t["net"] for t in g["TRACKS"]} | {v["net"] for v in g["VIAS"]})
+        g["TRACKS"][:], g["VIAS"][:] = state["tracks"], state["vias"]
+        print(f"dangling stubs pruned: {n_dead}")
     out = Path(sys.argv[3]) if len(sys.argv) > 3 else HERE / "copper.json"
     out.write_text(json.dumps({"zones": g["ZONES"], "tracks": g["TRACKS"], "vias": g["VIAS"],
                                "escapes": g["ESCAPES"]}, indent=1) + "\n")

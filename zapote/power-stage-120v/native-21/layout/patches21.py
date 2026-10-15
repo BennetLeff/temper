@@ -6,7 +6,13 @@ REMOVE / add(g) / OPEN_IN1 / HANDLED as in patches21_v1.py. IN_PAD: references w
 intended (filled and capped, DECISIONS.md 2026-10-08) and must not be moved off by dogbone().
 """
 from patches21_v1 import CU, OPEN_IN1, drill  # noqa: F401  (OPEN_IN1 / CU re-exported for incr21)
-from layers21 import PLANE_ROLE  # noqa: E402  (stage 33: role planes from native-21/stackup.json)
+from layers21 import PLANE_ROLE, STACKUP  # noqa: E402  (stage 33: role planes from native-21/stackup.json)
+
+# Stage 33, six-layer phase A: the routing layer sets of the authored groups (route_group, the L4 / HS sets) stay the
+# four layers they were written for, so every patch lays the same copper on the six-layer stack as on four. Vias are
+# still checked through the whole stack (CU). In3 / In4 are added deliberately (add_stage33_*), and the open-pair passes
+# may use In3 (incr21; In4 carries the image planes).
+ROUTE4 = tuple(lay for lay in CU if lay in ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"))
 
 # Stage 33 (layer-stack refactor): whole-stack layer sets (CU) and role planes (PLANE_ROLE: the hv_ret / bus_p trunks,
 # the n_ls block) come from native-21/stackup.json; the layer of each hand-laid track or pour below is authored
@@ -304,6 +310,16 @@ def add(g):
     add_stage28_ocp_lock(g)   # after the Kelvin pair, as on the stage-27 board it was taken from
     add_stage30(g)            # after every fixed lane: the long heartbeat-group links route round them
     add_stage32_in2(g)        # last: re-layers three hops that add_stage30 / the bias_bad group laid on B.Cu
+    add_stage33(g)            # six-layer stacks only (stackup image_planes); a no-op on the four-layer board
+    resolve_zone_priorities(g["ZONES"])
+
+
+def add_stage33(g):
+    """Six-layer phase A additions (no-op without image_planes): image pours, then their stitching vias."""
+    if not IMAGE_PLANES:
+        return
+    add_stage33_images(g)
+    add_stage33_stitch(g)
     resolve_zone_priorities(g["ZONES"])
 
 
@@ -424,8 +440,8 @@ def add_stage8(g):
     run (the router reports it linked, but the join never closes). All three are re-linked here."""
     from patches21_v1 import route_group
     # (stage 30: C137 / U33 are deleted; bias_ha.monitor-v5 now feeds U43 / C157 through the pair passes)
-    route_group(g, [("bias_ha.monitor-spanuv", CU, (44.0, 78.0, 58.0, 116.0), 0.2, ["U30.9", "C78.1"]),
-                    ("bias_hb.monitor-ov", CU, (0.6, 70.0, 20.0, 114.0), 0.2, ["U31.4", "C84.1"])])
+    route_group(g, [("bias_ha.monitor-spanuv", ROUTE4, (44.0, 78.0, 58.0, 116.0), 0.2, ["U30.9", "C78.1"]),
+                    ("bias_hb.monitor-ov", ROUTE4, (0.6, 70.0, 20.0, 114.0), 0.2, ["U31.4", "C84.1"])])
 
 
 def add_stage16(g):
@@ -436,10 +452,10 @@ def add_stage16(g):
     # stage 28 (DECISIONS 30): F2 is the 1.5 kA UMT-H and the 0.15 ohm limiter R130 follows it (blw_l -> R130 -> blw_lr -> J11.1;
     # blw_lr shares blw_l's potential group); the box reaches the limiter at x 289
     box = (248.0, 108.0, 290.0, 140.0)
-    route_group(g, [("l_filt", CU, box, 1.0, ["PS1.1", "F2.1"]),
-                    ("blw_l", CU, box, 1.0, ["F2.2", "R130.1"]),
-                    ("blw_lr", CU, box, 1.0, ["R130.2", "J11.1"]),
-                    ("n_filt", CU, box, 1.0, ["PS1.2", "J11.2"])])
+    route_group(g, [("l_filt", ROUTE4, box, 1.0, ["PS1.1", "F2.1"]),
+                    ("blw_l", ROUTE4, box, 1.0, ["F2.2", "R130.1"]),
+                    ("blw_lr", ROUTE4, box, 1.0, ["R130.2", "J11.1"]),
+                    ("n_filt", ROUTE4, box, 1.0, ["PS1.2", "J11.2"])])
 
 
 
@@ -482,8 +498,8 @@ def add_stage19(g):
     # C44 (U10's bypass): its selv_gnd pad to the U10.2 return via at x 25.22 (the open-pair passes left it open)
     put(g, "selv_gnd", "F.Cu", 0.25, "C44.2", [23.843, 128.1], [25.243, 128.1], [25.643, 128.5], [25.643, 129.745])
     box49 = (97.0, 49.0, 108.0, 58.0)
-    route_group(g, [("hot5", CU, box49, 0.3, ["C49.1", "U15.5"]),
-                    ("ocp_kelvin_p", CU, box49, 0.25, ["C49.2", "U15.3"])])   # (bias_hb_bad: deleted in stage 30)
+    route_group(g, [("hot5", ROUTE4, box49, 0.3, ["C49.1", "U15.5"]),
+                    ("ocp_kelvin_p", ROUTE4, box49, 0.25, ["C49.2", "U15.3"])])   # (bias_hb_bad: deleted in stage 30)
 
 def add_stage19_pi(g):
     """Stage 19 PI1 / PI2 (DECISIONS 19; place.py STAGE19_PI): the converter-local capacitor links, laid by hand so
@@ -497,7 +513,7 @@ def add_stage19_pi(g):
     returns."""
     from patches21_v1 import put, route_group
     F1 = ("F.Cu",)
-    L4 = CU
+    L4 = ROUTE4
     # --- U41 (leg A high side)
     put(g, "p_ha", "F.Cu", 0.3, "U41.29", [57.475, 73.82], "C75.1")
     put(g, "p_ha", "F.Cu", 0.3, "U41.28", [56.825, 72.6], [57.475, 72.6])
@@ -686,7 +702,7 @@ def add_stage19_si(g):
         for pad in ("1", "2"):
             plane_via(g, f"{ref}.{pad}", reach=(0.85, 2.2))
     # PI2 follow-up (after the SI1 lanes are laid): the LS rail and leg_ret round the moved U26
-    L4 = CU
+    L4 = ROUTE4
     from patches21_v1 import route_group
     route_group(g, [("v15_ls", L4, (98.0, 50.0, 124.0, 114.0), 0.4,
                      ["C99.1", "U29.3", "C70.1", "U37.1", "C65.1", "R59.1", "C100.1", "C131.1", "R85.1", "R87.1", "C25.1", "U3.1"]),
@@ -789,21 +805,21 @@ def add_stage14(g):
     # module and the island to the driver bank (U1.16), P_HB to U31's supply, and SW_B to U20 (the
     # leg-B split shunt's cathode).
     from patches21_v1 import route_group
-    route_group(g, [("bias_ha-en", CU, (57.0, 57.0, 68.0, 67.0), 0.25, ["U41.4", "R62.2", "R127.1"]),
-                    ("bias_hb-en", CU, (11.0, 53.0, 22.0, 62.0), 0.25, ["U42.4", "R128.2", "R129.1"]),
-                    ("v24_raw", CU, (52.0, 56.0, 67.0, 60.4), 0.3, ["C74.1", "C105.1", "C103.1"]),
-                    ("p_ha", CU, (44.0, 34.0, 79.0, 92.0), 0.3, ["U41.28", "R92.1", "U30.3", "C104.1", "U1.16"]),
-                    ("p_hb", CU, (0.6, 60.0, 20.0, 84.0), 0.3, ["U42.29", "R94.1", "U31.3"]),
-                    ("n_ls", CU, (55.0, 56.0, 67.0, 66.0), 0.3, ["U41.1", "U41.5", "U41.8", "R127.2"]),
-                    ("n_ls", CU, (8.0, 44.0, 22.0, 58.0), 0.3, ["C107.2", "U42.1"]),
-                    ("n_ls", CU, (8.0, 40.0, 42.0, 54.0), 0.3, ["C107.2", "U2.9"]),
-                    ("v24_raw", CU, (8.0, 50.0, 20.0, 58.5), 0.3, ["U42.7", "C81.1", "C106.1", "C109.1", "C107.1", "R128.1"]),
-                    ("v24_raw", CU, (60.0, 56.0, 68.0, 63.0), 0.3, ["R62.1", "C103.1"]),
-                    ("v24_raw", CU, (52.0, 56.5, 60.0, 60.0), 0.3, ["C102.1", "C74.1"]),
-                    ("v24_raw", CU, (55.0, 56.5, 61.0, 62.2), 0.25, ["U41.7", "U41.6", "C74.1"]),
-                    ("n_ha", CU, (44.0, 64.0, 66.0, 86.0), 0.3, ["U41.19", "U30.12"]),
-                    ("bias_ha-fbm", CU, (55.0, 68.0, 64.0, 78.0), 0.2, ["U41.34", "U41.33", "R92.2", "R93.1", "C71.1"]),
-                    ("sw_b", CU, (0.6, 40.0, 30.0, 95.0), 0.3, ["U20.2", "C95.1"])])
+    route_group(g, [("bias_ha-en", ROUTE4, (57.0, 57.0, 68.0, 67.0), 0.25, ["U41.4", "R62.2", "R127.1"]),
+                    ("bias_hb-en", ROUTE4, (11.0, 53.0, 22.0, 62.0), 0.25, ["U42.4", "R128.2", "R129.1"]),
+                    ("v24_raw", ROUTE4, (52.0, 56.0, 67.0, 60.4), 0.3, ["C74.1", "C105.1", "C103.1"]),
+                    ("p_ha", ROUTE4, (44.0, 34.0, 79.0, 92.0), 0.3, ["U41.28", "R92.1", "U30.3", "C104.1", "U1.16"]),
+                    ("p_hb", ROUTE4, (0.6, 60.0, 20.0, 84.0), 0.3, ["U42.29", "R94.1", "U31.3"]),
+                    ("n_ls", ROUTE4, (55.0, 56.0, 67.0, 66.0), 0.3, ["U41.1", "U41.5", "U41.8", "R127.2"]),
+                    ("n_ls", ROUTE4, (8.0, 44.0, 22.0, 58.0), 0.3, ["C107.2", "U42.1"]),
+                    ("n_ls", ROUTE4, (8.0, 40.0, 42.0, 54.0), 0.3, ["C107.2", "U2.9"]),
+                    ("v24_raw", ROUTE4, (8.0, 50.0, 20.0, 58.5), 0.3, ["U42.7", "C81.1", "C106.1", "C109.1", "C107.1", "R128.1"]),
+                    ("v24_raw", ROUTE4, (60.0, 56.0, 68.0, 63.0), 0.3, ["R62.1", "C103.1"]),
+                    ("v24_raw", ROUTE4, (52.0, 56.5, 60.0, 60.0), 0.3, ["C102.1", "C74.1"]),
+                    ("v24_raw", ROUTE4, (55.0, 56.5, 61.0, 62.2), 0.25, ["U41.7", "U41.6", "C74.1"]),
+                    ("n_ha", ROUTE4, (44.0, 64.0, 66.0, 86.0), 0.3, ["U41.19", "U30.12"]),
+                    ("bias_ha-fbm", ROUTE4, (55.0, 68.0, 64.0, 78.0), 0.2, ["U41.34", "U41.33", "R92.2", "R93.1", "C71.1"]),
+                    ("sw_b", ROUTE4, (0.6, 40.0, 30.0, 95.0), 0.3, ["U20.2", "C95.1"])])
 
 
 # Stage 17 (DECISIONS 17): R5 is a Bourns CSS2H-2512R-1L00F on Bourns' Kelvin land (footprint
@@ -976,8 +992,8 @@ def add_stage30(g):
     put(g, "n_ls", "F.Cu", 0.2, "U29.12", [107.82, 78.955], [108.82, 77.955], [109.42, 77.955], [109.82, 78.355])
     drill(g, "v3v3", 37.7, 57.9)
     put(g, "v3v3", "F.Cu", 0.4, "U2.8", [37.445, 57.645], [37.7, 57.9])
-    HS = tuple(lay for lay in CU if lay != PLANE_ROLE["n_ha"])   # every layer but the high-side islands' plane
-    L4 = CU
+    HS = tuple(lay for lay in ROUTE4 if lay != PLANE_ROLE["n_ha"])   # every routing layer but the high-side islands' plane
+    L4 = ROUTE4
     route_group(g, [("hb_rx", ("F.Cu",), (92.5, 124.5, 99.0, 133.5), 0.25, ["U32.13", "U46.2"]),
                     ("bus_fault_iso", "F+B", (28.0, 118.0, 122.0, 140.0), 0.25, ["U9.13", "R134.1"]),
                     ("ct_s2", "F+B", (0.6, 126.0, 32.0, 146.0), 0.25, ["R40.2", "@18.183,139.695,B.Cu"])])
@@ -1118,3 +1134,127 @@ def add_stage32_in2(g):
         else:
             g["track"]("bias_good", k, 0.25, *a)
     print("stage 32: bias_good branch to U40.4 on In2")
+
+
+# Stage 33 (candidate 33 phase A, six layers; c33-six-layer/PHASE-A.md): image planes. The stack file's
+# "image_planes" {net: layer} repeats each listed net's role-plane pours (same outline, holes and priority) on that
+# layer: In4.Cu under B.Cu, so a B.Cu run sees the same reference net as an F.Cu run over In1 and an F <-> B via is a
+# same-net stitch instead of a v3v3 / selv_gnd (or island-to-nothing) reference change. The image is protected
+# against other nets' tracks (the router keeps In4 for the planes) but lets vias through, like the role plane. The
+# four-layer stack has no image_planes, so this is a no-op on the board of record.
+IMAGE_PLANES = {k: v for k, v in STACKUP.get("image_planes", {}).items() if not k.startswith("_")}
+# return_path19.SIGNALS: asserted / reported fast nets -> their acceptable return nets
+_KELVIN, _SELV, _LS = {"ocp_kelvin_p"}, {"v3v3", "selv_gnd"}, {"n_ls", "hv_ret", "leg_ret"}
+S33_EXPECT = {**{n: _KELVIN for n in ("bus_fault_hot", "ocp_ok_hot", "hot5_ok_hot", "ovp_ok_hot")},
+              **{n: _SELV for n in ("pwm_hb", "ct_zc", "pwm_ha", "pwm_la", "pwm_lb", "permit", "bus_fault_iso", "bus_fault",
+                                    "bias_good", "line_zc", "hb_rx", "bus_fault_flt", "hsb_good")},
+              "mon_good_ha": _LS}
+
+
+def add_stage33_images(g):
+    from shapely.geometry import Point, Polygon
+    if not IMAGE_PLANES:
+        return
+    from shapely.geometry import LineString
+    from shapely.ops import unary_union
+    geo = g["GEO"]
+    new = []
+    # An image must not become the reference of a signal that returns on another net: B.Cu / In3 runs of the
+    # return-path-asserted nets (return_path19 SIGNALS) whose expected return is not the image's net keep the
+    # four-layer reference there (the image is cut 1.0 mm round them). Stage-33 build 1: the n_ls image under
+    # bus_fault_hot's B.Cu run (expects ocp_kelvin_p) failed SI1.
+    def runs_over(lay, net):
+        from layers21 import ADJ
+        below = [l for l in CU if l != lay and lay in ADJ[l][:2]]   # layers for which the image is a near reference
+        cut = []
+        for t in g["TRACKS"]:
+            exp = S33_EXPECT.get(t["net"])
+            if exp is None or net in exp or t["layer"] not in below:
+                continue
+            pts = [g["_xy"](q) for q in t["points"]]
+            cut.append(LineString(pts).buffer(t["width"] / 2 + 1.0) if len(pts) > 1 else None)
+        return unary_union([c for c in cut if c is not None])
+    for z in g["ZONES"]:
+        lay = IMAGE_PLANES.get(z["net"])
+        if lay is None or z["layer"] != PLANE_ROLE[z["net"]]:
+            continue
+        poly = Polygon(z["outline"], z["holes"]).buffer(0).difference(runs_over(lay, z["net"]))
+        # a piece with no via or through-hole pad of its net inside would be an isolated island: dropped
+        anchors = [Point(*v["at"]) for v in g["VIAS"] if v["net"] == z["net"]] + \
+                  [Point(q["x"], q["y"]) for q in geo.pads if q["net"] == z["net"] and q["tht"]]
+        parts = [p for p in getattr(poly, "geoms", [poly]) if p.area > 4.0 and any(p.buffer(-0.4).contains(a) for a in anchors)]
+        for k, p in enumerate(parts):
+            p = p.simplify(0.02)
+            img = dict(z, layer=lay, name=f"{z.get('name', z['net'])} ({lay.split('.')[0]} image{'' if len(parts) == 1 else f' {k + 1}'})",
+                       outline=[list(c) for c in p.exterior.coords[:-1]],
+                       holes=[[list(c) for c in r.coords[:-1]] for r in p.interiors])
+            new.append(img)
+            geo.protect(z["net"], lay, p, via_ok=True)
+    g["ZONES"].extend(new)
+    # the role layer's declared pour winners hold on the image layer too (every piece of a cut image)
+    names = {}
+    for z in new:
+        base_name = z["name"].rsplit(" (", 1)[0]
+        names.setdefault((z["layer"], base_name), []).append(z["name"])
+    for lay0, w, l_ in list(ZONE_WINNERS):
+        if lay0 not in PLANE_ROLE.values():
+            continue
+        for net_lay in set(IMAGE_PLANES.values()):
+            for wn in names.get((net_lay, w), []):
+                for ln in names.get((net_lay, l_), []):
+                    ZONE_WINNERS.append((net_lay, wn, ln))
+    print(f"stage 33: {len(new)} image pours: " + ", ".join(sorted(f"{z['net']} {z['layer']}" for z in new)))
+
+
+# Stage 33: with In4 imaging In1, an F.Cu <-> B.Cu signal via no longer changes reference net (v3v3 -> selv_gnd, or an
+# island net -> nothing); it changes reference LAYER, In1 -> In4, of the same net. The return then crosses on the
+# nearest via of that net, so return_path19 (stage 33) counts the change closed only with one within 3.0 mm. These are
+# the changes the stage-32 copper left farther than that (c33-six-layer/layer_plan_screen.py, plan 6L-A; refreshed
+# from the six-layer build's return-path.json): each gets a plain stitching via of the reference net at the nearest
+# legal spot inside that net's role-plane outline, 0.8-2.8 mm from the signal via. A via in both pours needs no track.
+S33_STITCH = [("v3v3", (38.955, 127.075)),   # pwm_hb
+              ("v3v3", (35.2, 125.0)),       # pwm_hb (build 1: 3.45 mm)
+              ("v3v3", (28.955, 55.875), 2.0),   # pwm_hb (2.95 mm: under stage 32's worst asserted 2.72 mm)
+              ("v3v3", (26.907, 128.795)),   # ct_zc
+              ("v3v3", (75.9, 56.275)),      # pwm_ha
+              ("v3v3", (76.825, 56.075)),    # pwm_la
+              ("v3v3", (70.0, 127.8)),       # permit
+              ("v3v3", (36.5, 178.6)),       # permit
+              ("v3v3", (113.298, 125.875)),  # bus_fault_iso
+              ("v3v3", (74.0, 123.4)),       # bias_good
+              ("v3v3", (33.2, 70.4)),        # bias_good
+              ("ocp_kelvin_p", (114.448, 55.695))]   # ovp_ok_hot
+
+
+def add_stage33_stitch(g):
+    import math
+    from shapely.geometry import Point, Polygon
+    from shapely.ops import unary_union
+    if not IMAGE_PLANES:
+        return
+    geo = g["GEO"]
+    done = []
+    for net, (cx, cy), *keep in S33_STITCH:     # keep: an existing via this close already counts (default 2.8 mm)
+        if net not in IMAGE_PLANES:
+            continue
+        plane = unary_union([Polygon(z["outline"], z["holes"]).buffer(0) for z in g["ZONES"]
+                             if z["net"] == net and z["layer"] == PLANE_ROLE[net]]).buffer(-0.6)
+        have = [v for v in g["VIAS"] if v["net"] == net and math.dist(v["at"], (cx, cy)) <= (keep[0] if keep else 2.8)]
+        if have:
+            done.append(f"{net} ({cx}, {cy}) has one at {min(math.dist(v['at'], (cx, cy)) for v in have):.2f}")
+            continue
+        spot = None
+        for r in [0.8 + 0.2 * k for k in range(11)] + [2.95]:     # the gate's limit is 3.0 mm
+            for a in range(24):
+                x, y = round(cx + r * math.cos(a * math.pi / 12), 3), round(cy + r * math.sin(a * math.pi / 12), 3)
+                if plane.contains(Point(x, y)) and not geo.conflicts(net, CU, Point(x, y).buffer(0.3), limit=1, via=True):
+                    spot = (x, y)
+                    break
+            if spot:
+                break
+        if spot is None:
+            done.append(f"{net} ({cx}, {cy}) NO legal spot within 2.8 mm")
+            continue
+        drill(g, net, *spot)
+        done.append(f"{net} ({cx}, {cy}) -> {spot} {math.dist(spot, (cx, cy)):.2f} mm")
+    print("stage 33 stitch vias: " + "; ".join(done))

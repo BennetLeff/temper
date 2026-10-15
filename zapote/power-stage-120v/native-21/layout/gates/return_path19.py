@@ -16,7 +16,8 @@ and, for every fast signal below:
   (majority of the pour net on a ring 0.5 mm outside the via) and, where the reference changes, the distance
   from the via centre to the nearest populated two-pad capacitor joining the two reference nets (pad centre,
   straight line: the stage-18 review's metric), or, where the same net is the reference on two layers, to the
-  nearest via of that net (stitching).
+  nearest via of that net (stitching). Stage 33: a stitch farther than 3.0 mm counts as an open change (and fails
+  an asserted net) exactly like a reference change without a transfer cap.
 
 Targets (asserted, exit 1 on failure; DECISIONS item 19):
   SI1  bus_fault_hot: every sampled point is referenced to ocp_kelvin_p (its driver U8 and receiver U9 grounds),
@@ -280,6 +281,11 @@ def main():
         tr = transitions(d, ztree, net)
         cx = crossings(smp)
         changes = [t for t in tr if "transfer" in t]
+        # stage 33 (six layers): a same-net reference on two layers (F over In1 v3v3, B over the In4 v3v3 image) is a
+        # stitch; it is only a closed return if a via of that net is within TRANSFER_MM, as a reference change needs a
+        # transfer cap. A stitch farther than that counts as an open change, and is asserted like one for the
+        # ASSERT_TRANSFER nets, so a re-labelled reference cannot hide an open return (four layers: no stitches).
+        stitches = [t for t in tr if "stitch" in t]
         report[net] = {"expected_return": sorted(expect), "samples": len(smp),
                        "wrong_reference_samples": len(wrong), "wrong_first": wrong[:6],
                        "no_reference_runs_over_limit": [g for g in gaps if g["mm"] > MAX_GAP],
@@ -287,10 +293,14 @@ def main():
                        "layer_transitions": len(tr),
                        "reference_changes": [{"at": t["at"], **t["transfer"]} for t in changes]}
         sel = ASSERT_TRANSFER.get(net, lambda at: False)
-        worst = max((t["transfer"]["mm"] if t["transfer"]["mm"] is not None else 1e9 for t in changes if sel(t["at"])),
+        worst = max([t["transfer"]["mm"] if t["transfer"]["mm"] is not None else 1e9 for t in changes if sel(t["at"])] +
+                    [t["stitch"]["mm"] if t["stitch"]["mm"] is not None else 1e9 for t in stitches if sel(t["at"])],
                     default=0)
         report[net]["open_reference_changes"] = [{"at": t["at"], **t["transfer"]} for t in changes
-                                                 if not sel(t["at"]) and (t["transfer"]["mm"] is None or t["transfer"]["mm"] > TRANSFER_MM)]
+                                                 if not sel(t["at"]) and (t["transfer"]["mm"] is None or t["transfer"]["mm"] > TRANSFER_MM)] + \
+            [{"at": t["at"], "stitch": t["stitch"]["net"], "nets": [t["stitch"]["net"]], "cap": None, "mm": t["stitch"]["mm"]}
+             for t in stitches if not sel(t["at"]) and (t["stitch"]["mm"] is None or t["stitch"]["mm"] > TRANSFER_MM)]
+        report[net]["stitches"] = [{"at": t["at"], **t["stitch"]} for t in stitches]
         print(f"{net}: {len(smp)} samples, {len(wrong)} over another net, longest unreferenced run "
               f"{max((g['mm'] for g in gaps), default=0.0)} mm; {len(tr)} layer transitions; reference changes: "
               + (", ".join(f"({t['at'][0]}, {t['at'][1]}) {'/'.join(t['transfer']['nets'])} "
@@ -304,7 +314,7 @@ def main():
             fails.append(f"{net}: {len(wrong)} samples over another net / {len(bad) - len(wrong)} unreferenced runs > "
                          f"{MAX_GAP} mm (first {bad[0]['at']} {bad[0]['layer']} over {bad[0]['ref']})")
         if net in ASSERT_TRANSFER and worst > TRANSFER_MM:
-            fails.append(f"{net}: reference change {worst} mm from a v3v3-selv_gnd cap (limit {TRANSFER_MM})")
+            fails.append(f"{net}: reference change {worst} mm from a v3v3-selv_gnd cap or stitch via (limit {TRANSFER_MM})")
         if net in MAX_TRANSITIONS and len(tr) > MAX_TRANSITIONS[net]:
             fails.append(f"{net}: {len(tr)} layer transitions (limit {MAX_TRANSITIONS[net]})")
     if not a.control:
