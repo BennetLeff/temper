@@ -26,6 +26,20 @@ passes and `router_bench.py` check with `DRC_FAST` (`drc_rules_fast.py`: the bui
 creepage constraints; every clearance rule stays, and barrier21 bounds the creepage groups in plan view on every build).
 `chain.sh` unsets `DRC_FAST`: the gated board always gets the full rules.
 
+Pour-cut repair (`INCR21_SETTLE=N`, off by default; `router_bench.py --settle N`): incr21 judges pour connectivity
+on the previous build's fills, so a new track that cuts a pour could leave pairs it believes joined. `incr_iter.sh`
+then refills and asks KiCad's own connectivity (`fast_conn.py`, ~12 s; its counts matched kicad-cli DRC on 5 boards)
+and routes what is still open, frozen, up to N rounds before the DRC. Measured 2026-10-15 (`router_bench.py --nets 30
+--max-tracks 40`, seeds 23 / 29 / 31, sorted DRC pairs): open 85 -> 5, 78 -> 4, 92 -> 5 with `--settle 0` and the
+same with `--settle 3`, which added 56-65 s per build. Every pair left open was one incr21 had already tried and
+failed, none a pour cut, so it stays off until a board shows pour cuts.
+
+    $KP fast_conn.py BOARD.kicad_pcb OUT.json [--save]   # refill + KiCad connectivity -> DRC-shaped unconnected pairs
+
+Determinism: KiCad's DRC lists the same unconnected pairs in a different order from run to run, and incr21 joins
+pairs in list order, so incr21 sorts each DRC file's pairs (2026-10-15). Router comparisons made before that
+(different copper from identical inputs) are not like for like.
+
 `zone_priority_gate.py [copper.json]` (stage 17b, run first by `chain.sh`): fails when two different-net pours on one
 layer sit closer than their clearance at the same priority, since KiCad's fill order would then decide the contested
 copper. `patches21.ZONE_WINNERS` declares each such pair's winner; `resolve_zone_priorities` keeps every existing order.

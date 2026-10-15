@@ -8,7 +8,8 @@
 # (BOARD_ONLY21_NO_TEST_POINTS): they sit on copper of the last pass and chain.sh re-plans them. Stops at the first pass
 # with 0 unconnected and 0 errors, else after 5. The pass builds check without the creepage constraints (DRC_FAST,
 # gates/drc_rules_fast.py; DRC_FAST= runs the full rules); chain.sh's build runs them all. reference-labels.json is
-# restored at the end (the test-point labels move while the test points are off). Writes OUTROOT/passes.out; the
+# restored at the end (the test-point labels move while the test points are off). Each pass can repair pour cuts
+# before its DRC when INCR21_SETTLE=N is set (incr_iter.sh; off by default, gates/README.md). Writes OUTROOT/passes.out; the
 # last pass's copper is left in native-21/layout/copper.json (copy it aside before any git checkout).
 # Stage 33 replaced the stage 1-32 method (copper_base.json + every patch, which no longer builds: unknown net rect_p);
 # the candidates' passes33/38/40.sh copies of that method are this script with their own BASE.
@@ -20,7 +21,7 @@ mkdir -p "$OUT"; cd "$U"
 if [ -z "$BASE" ]; then BASE=$OUT/base.json; cp native-21/layout/copper.json "$BASE"; fi
 ALL=$OUT/empty-drc.json
 echo '{"violations": [], "unconnected_items": []}' > "$ALL"
-export INCR21_FROZEN=1 BOARD_ONLY21_NO_TEST_POINTS=1 DRC_FAST=${DRC_FAST-1}
+export INCR21_FROZEN=1 BOARD_ONLY21_NO_TEST_POINTS=1 DRC_FAST=${DRC_FAST-1} INCR21_SETTLE=${INCR21_SETTLE-0}
 cp native-21/reference-labels.json "$OUT/reference-labels.json"
 trap 'cp "$OUT/reference-labels.json" native-21/reference-labels.json' EXIT
 for k in 1 2 3 4 5; do

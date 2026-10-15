@@ -27,6 +27,27 @@ else python3 native-21/layout/incr21.py "$BASE" "$2" native-21/layout/copper.jso
 lap incr21
 $KPY prototype-closure/pcb/apply_copper21.py --out "$OUT" 2>/dev/null | grep -v -i wxapp
 lap apply_copper21
+# INCR21_SETTLE=N (off unless set; passes.sh and router_bench.py pass it through): up to N repair rounds before the DRC. incr21 judges pour connectivity
+# on the previous fills, so a new track that cuts a pour leaves pairs it believes joined; each round refills the
+# zones (gates/fast_conn.py, KiCad's own connectivity, ~12 s), and incr21 joins what is still open on the fresh
+# fills, frozen on the copper it just wrote. Stops at 0 open or when a round closes nothing.
+if [ "$2" != "-" ] && [ "${INCR21_SETTLE:-0}" -gt 0 ]; then
+  r=0; prev=
+  while [ "$r" -lt "$INCR21_SETTLE" ]; do
+    r=$((r + 1))
+    $KPY native-21/layout/gates/fast_conn.py "$OUT/section.kicad_pcb" "$OUT/settle$r.json" --save 2>/dev/null | grep '^fast_conn' \
+      || { echo "settle $r: fast_conn failed" >&2; break; }
+    n=$(python3 -c "import json,sys;print(len(json.load(open(sys.argv[1]))['unconnected_items']))" "$OUT/settle$r.json")
+    lap "settle${r}_conn"
+    if [ "$n" = 0 ] || [ "$n" = "$prev" ]; then break; fi
+    prev=$n
+    $KPY native-21/layout/plot_copper.py --dump "$OUT/section.kicad_pcb" "$OUT/settle$r-dump.json" >/dev/null 2>&1
+    INCR21_FROZEN=1 python3 native-21/layout/incr21.py native-21/layout/copper.json "$OUT/settle$r.json" \
+      native-21/layout/copper.json "$OUT/settle$r-dump.json" | sed "s/^/settle $r: /"
+    $KPY prototype-closure/pcb/apply_copper21.py --out "$OUT" 2>/dev/null | grep -v -i wxapp
+    lap "settle${r}_route"
+  done
+fi
 # board-only parts: bring-up test points, fiducials, mounting holes (board_only21.json)
 [ -f native-21/layout/board_only21.json ] && $KPY native-21/layout/board_only21.py "$OUT/section.kicad_pcb" 2>/dev/null | { grep -v -i wxapp || true; }
 lap board_only21

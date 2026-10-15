@@ -49,8 +49,8 @@ def pick_nets(copper, n, seed, lo, hi):
     return random.Random(seed).sample(cand, n), len(cand), per_net
 
 
-def build(base, drc_in, out, frozen, fast):
-    env = dict(os.environ, BOARD_ONLY21_NO_TEST_POINTS="1")
+def build(base, drc_in, out, frozen, fast, settle=0):
+    env = dict(os.environ, BOARD_ONLY21_NO_TEST_POINTS="1", INCR21_SETTLE=str(settle))
     env.pop("DRC_FAST", None)
     if fast:
         env["DRC_FAST"] = "1"
@@ -85,6 +85,7 @@ def main():
     ap.add_argument("--min-tracks", type=int, default=2)
     ap.add_argument("--max-tracks", type=int, default=12)
     ap.add_argument("--full-drc", action="store_true", help="check with every rule (default: DRC_FAST)")
+    ap.add_argument("--settle", type=int, default=0, help="pour-cut repair rounds (incr_iter INCR21_SETTLE; default 0: off)")
     a = ap.parse_args()
     out = Path(a.outdir).resolve()
     out.mkdir(parents=True, exist_ok=True)
@@ -104,7 +105,8 @@ def main():
         for d in ("r0", "r1"):
             shutil.rmtree(out / d, ignore_errors=True)
         build(out / "ripped.json", "-", out / "r0", frozen=False, fast=not a.full_drc)
-        log1 = build(out / "ripped.json", out / "r0" / "drc.json", out / "r1", frozen=True, fast=not a.full_drc)
+        log1 = build(out / "ripped.json", out / "r0" / "drc.json", out / "r1", frozen=True, fast=not a.full_drc,
+                     settle=a.settle)
         routed = json.loads(live.read_text())
     finally:
         shutil.copyfile(accepted, live)
@@ -112,26 +114,30 @@ def main():
     e0, open0 = errors(out / "r0" / "drc.json")
     e1, open1 = errors(out / "r1" / "drc.json")
     tried = re.search(r"(\d+) open pairs tried, (\d+) still open", log1)
+    settles = [int(n) for n in re.findall(r"^fast_conn: (\d+) unconnected", log1, re.M)]
     barrier = (out / "r1" / "barrier.txt").read_text().splitlines()[0]
+    st = laps(out / "r1")
     rep = {
-        "seed": a.seed, "drc": "full" if a.full_drc else "fast", "nets": nets, "candidates": ncand,
+        "seed": a.seed, "drc": "full" if a.full_drc else "fast", "settle": a.settle, "nets": nets, "candidates": ncand,
         "ripped": {"tracks": sum(per_net[n] for n in nets),
                    "vias": len(copper["vias"]) - len(ripped["vias"])},
         "readded": {"tracks": len(routed["tracks"]) - len(ripped["tracks"]),
                     "vias": len(routed["vias"]) - len(ripped["vias"])},
         "open_before": open0, "open_after": open1,
         "incr21": {"tried": int(tried.group(1)), "still_open": int(tried.group(2))} if tried else None,
+        "settle_open": settles,
         "errors_before": dict(e0), "errors_after": dict(e1), "errors_added": dict(e1 - e0),
         "barrier": barrier,
         "barrier_clean": bool(re.search(r": 0 violations;.*: 0 violations", barrier)),
-        "seconds": {"router": laps(out / "r1").get("incr21"), "build_r1": round(sum(laps(out / "r1").values()), 1),
-                    "kicad_drc_r1": laps(out / "r1").get("kicad_drc")},
+        "seconds": {"router": st.get("incr21"), "build_r1": round(sum(st.values()), 1),
+                    "kicad_drc_r1": st.get("kicad_drc"),
+                    "settle": round(sum(v for k, v in st.items() if k.startswith("settle")), 1)},
     }
     (out / "bench.json").write_text(json.dumps(rep, indent=1) + "\n")
     s = rep["seconds"]
     print(f"router_bench seed {a.seed}: {len(nets)} nets ({rep['ripped']['tracks']} tracks, {rep['ripped']['vias']} vias) "
           f"-> open {open0} -> {open1}; errors added {rep['errors_added'] or 0}; barrier {'clean' if rep['barrier_clean'] else 'VIOLATED'}; "
-          f"router {s['router']} s, build {s['build_r1']} s (DRC {s['kicad_drc_r1']} s)")
+          f"router {s['router']} s, settle {s['settle']} s {settles}, build {s['build_r1']} s (DRC {s['kicad_drc_r1']} s)")
 
 
 if __name__ == "__main__":
