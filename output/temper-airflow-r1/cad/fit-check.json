@@ -1,0 +1,190 @@
+{
+ "scope": "Fit check of the board-jet change set against the frozen R43 assembly (temper-airflow-r1, step 3).\n\n    ../.venv/bin/python fit_check.py      # build123d 0.11.1 (recipe: output/temper-sensor-r3/cad/DECISIONS.md) -> fit-check.json\n\nBuilds the three new parts as solids in the R43 world frame and measures, against every R43 catalog solid whose\nbounding box comes within 20 mm: the overlap volume (must be 0 except at the intended hood joint) and the minimum\ndistance. native-21's frame: x_w = x_model - 141, y_w = 236 - y_model, board top Z27.5 (check_native21_pose.py).\n  JETBOX  G11 jet manifold over the FET / film-cap channel: X-140..-53, Y213.5..225.5, Z33.5..42.5, 1.0 mm walls,\n          8 x \u00d83 jets in the floor at X-135.5 + 11k, Y222.0 (model x 5.5 + 11k, y 14.0: over the 2512 R_on row at y 12.4 and the copper peak at y 14.5-15.5), floor 6.0 mm above the board.\n  F3      G11 feed duct from a 12 x 14 hole in the push hood's -Y wall (Y244.5) down to the jet box:\n          leg A X-178..-164, Y213.5..244.5; leg B X-178..-140, Y213.5..225.5; both Z29.5..45.5.\n  VENT    a 30 x 25 mm cut in the exhaust plenum's X-32 wall (Y330..360, Z25..50): the bay's exit to the plenum.\nAlso reports the distance from the new hood hole's metal rim (earthed) to the nearest native-21 solid.",
+ "new_parts": {
+  "JETBOX": {
+   "bbox": [
+    -140.0,
+    213.5,
+    33.5,
+    -53.0,
+    225.5,
+    42.5
+   ],
+   "neighbours": [
+    {
+     "part": "electronics_sink_FR4_pressure_strip",
+     "min_distance_mm": 1.0,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_native21_components_ENVELOPE",
+     "min_distance_mm": 1.2,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_native21_board",
+     "min_distance_mm": 6.01,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_sink_clamp_comb",
+     "min_distance_mm": 8.12,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_sink_BR1_gap_pad",
+     "min_distance_mm": 8.3,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_sink_AlN_tile_A",
+     "min_distance_mm": 8.97,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_sink_AlN_tile_B",
+     "min_distance_mm": 8.97,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_sink_spreader_bar",
+     "min_distance_mm": 10.97,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_native21_sink_ENVELOPE",
+     "min_distance_mm": 18.8,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_push_hood",
+     "min_distance_mm": 21.47,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "enclosure_bottom_chassis_with_locator_tangs",
+     "min_distance_mm": 22.5,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "enclosure_coil_standoff_157_190",
+     "min_distance_mm": 25.0,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "enclosure_P4_U_wrapper",
+     "min_distance_mm": 43.73,
+     "overlap_mm3": 0.0
+    }
+   ]
+  },
+  "F3": {
+   "bbox": [
+    -178.0,
+    213.5,
+    29.5,
+    -140.0,
+    244.5,
+    45.5
+   ],
+   "neighbours": [
+    {
+     "part": "electronics_push_hood",
+     "min_distance_mm": 0.0,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_sink_FR4_pressure_strip",
+     "min_distance_mm": 1.0,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_native21_components_ENVELOPE",
+     "min_distance_mm": 1.2,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_native21_board",
+     "min_distance_mm": 2.01,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_sink_clamp_comb",
+     "min_distance_mm": 5.12,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "enclosure_P4_U_wrapper",
+     "min_distance_mm": 5.73,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_sink_AlN_tile_A",
+     "min_distance_mm": 8.97,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_sink_spreader_bar",
+     "min_distance_mm": 10.97,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_native21_sink_ENVELOPE",
+     "min_distance_mm": 15.0,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "electronics_push_hood_M3_screws",
+     "min_distance_mm": 15.0,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "enclosure_bottom_chassis_with_locator_tangs",
+     "min_distance_mm": 18.5,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "enclosure_coil_standoff_157_190",
+     "min_distance_mm": 19.5,
+     "overlap_mm3": 0.0
+    }
+   ]
+  },
+  "VENT_cutter": {
+   "bbox": [
+    -33.0,
+    330.0,
+    25.0,
+    -30.0,
+    360.0,
+    50.0
+   ],
+   "neighbours": [
+    {
+     "part": "electronics_exhaust_plenum",
+     "min_distance_mm": 0.0,
+     "overlap_mm3": 750.0
+    },
+    {
+     "part": "enclosure_bottom_chassis_with_locator_tangs",
+     "min_distance_mm": 14.0,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "enclosure_foot_-8_380",
+     "min_distance_mm": 23.39,
+     "overlap_mm3": 0.0
+    },
+    {
+     "part": "enclosure_P4_U_wrapper",
+     "min_distance_mm": 69.9,
+     "overlap_mm3": 0.0
+    }
+   ]
+  }
+ },
+ "hood_hole_rim": {
+  "to_native21_components_mm": 26.01,
+  "to_native21_board_mm": 23.61
+ }
+}

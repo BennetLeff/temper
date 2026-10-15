@@ -1,0 +1,58 @@
+  solved c26_jet_h89_bay54p7_p0p25.json  balance_rel 2.0e-12  503.3 s
+  solved c26_jet_h89_bay59p8_p0p25.json  balance_rel -2.4e-11  507.7 s
+  solved c28_jet_h89_bay54p7_p0p25.json  balance_rel -3.6e-11  507.8 s
+  solved c28_jet_h100_bay59p5_p0p25.json  balance_rel -3.1e-11  511.4 s
+  solved c26_jet_h89_bay54p7_p0p5.json  balance_rel 5.5e-11  82.7 s
+  solved c26_jet_h89_bay59p8_p0p5.json  balance_rel 2.8e-11  82.7 s
+  solved c28_jet_h89_bay54p7_p0p5.json  balance_rel -3.0e-12  83.1 s
+  solved c28_jet_h100_bay59p5_p0p5.json  balance_rel -3.0e-11  82.3 s
+{
+ "c26_bay55": [
+  0.458,
+  89.7,
+  54.7,
+  {
+   "item": "U26: TJ max (TI SBVS204G p.4)",
+   "gated": true,
+   "limit_c": 125.0,
+   "est_c": 116.6,
+   "margin_k": 8.4
+  }
+ ],
+ "c26_bay61": [
+  0.458,
+  89.7,
+  59.8,
+  {
+   "item": "U26: TJ max (TI SBVS204G p.4)",
+   "gated": true,
+   "limit_c": 125.0,
+   "est_c": 121.6,
+   "margin_k": 3.4
+  }
+ ],
+ "c28_bay55": [
+  0.458,
+  89.7,
+  54.7,
+  {
+   "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+   "gated": true,
+   "limit_c": 110.0,
+   "est_c": 103.6,
+   "margin_k": 6.4
+  }
+ ],
+ "c28_bay61": [
+  0.55,
+  100.0,
+  59.5,
+  {
+   "item": "U26: TJ max (TI SBVS204G p.4)",
+   "gated": true,
+   "limit_c": 125.0,
+   "est_c": 122.6,
+   "margin_k": 2.4
+  }
+ ]
+}

@@ -1,0 +1,1472 @@
+{
+ "scope": "Board-face heat-transfer coefficient that native-21 needs at 26 A and 28 A (temper-airflow-r1, step 1).\n\n    python3 board_h_sweep.py [--workers 5]       # about 60 min on 4 cores -> runs/*.json, board-h-sweep.json\n\nDrives the power-stage session's own B3 ratings model, unmodified, from a snapshot of codex/power-stage-integration at\nc8665ceb0 (DECISIONS 55, board of record s42 = candidate 39), extracted with `git archive` into .ps-snapshot/ (gitignored;\n`python3 board_h_sweep.py --snapshot` rebuilds it and copies the gitignored task-04 heat fields, which a4_fields.check()\nthen verifies against the snapshot's cache.json). The live worktree moved from s41 to s42 during the first attempt of\nthis run, so nothing is imported from the live tree:\n  * b3-convergence/body_runs.run_case + thermal_body (body-level networks, fill-fraction copper, FET drain-lead ties)\n    on run_study.GEOM (the s42 copper), the committed c28 heat file and the task-04 heat fields (a4_fields.check());\n  * b3-ratings/fet_case.t_case for the FET tab temperatures (sink at the 88.6 C fan setpoint);\n  * b3-ratings/b3_ratings_gate.run for the margins (estimate = Q(0.25) + 3|Q(0.25) - Q(0.5)| + (bay - 50)).\nIt reproduces their margins.json first (control: c22_h10 and c28_h10 at bay 55).\n\nThe one change, made by wrapping two functions in this process only (no file outside this folder is written):\n  * forced convection on the TOP face (F.Cu side, z = 0) over a REGION: those cells get h_top instead of the\n    still-air h 10; every other cell and the whole bottom face stay at 10;\n  * the package networks of parts whose centre lies in the region (R5, the 2512 R_on gate resistors R10/R12/R18/R20,\n    the 1206 pull-downs R53/R54/R57/R58) get their\n    body-to-air conductance at h_top. The HF film caps C38-C41 keep the model's no-body-to-air path (an upper bound),\n    so the airflow only reaches them through the board.\nREGION \"channel\" = model x 0-90, y 7.0-23.5 mm: the open copper between the TO-247 bodies (front face y 6.9) and the\nfilm-cap bodies (inner face y 23.7). That is the duct the change set builds; copper under part bodies gets no credit.\n\nThe air over the region is taken at bay-air temperature (55 or 61 C). The duct air is fresh push-hood air, which is\ncooler than the bay, so this is conservative on the air temperature (delivery.py gives the air rise).\nBay 61: the FET tabs are pinned at the absolute setpoint temperature. Solves are made for each bay with the tab ties\nrelative to that bay (as run_basis.py does for 55).\nCeiling construction = run_basis.op_c22 with 26 A: I_t = 1.05 x ceiling, the TANK_ROWS of the c28 heat file scaled by\n(I_t / 29.4)^2, I_line 11.1 A (run_basis's basis; OPEN-ITEMS S2 says 13.5 A moves gated rows <= 0.1 K).\nEvery gated row counts, including the 2512 gate-resistor terminal derating (candidate 39 is on the board now).",
+ "provenance": {
+  "ps_commit": "c8665ceb09c756582797fb3279d7a3db468ad0bc",
+  "branch": "codex/power-stage-integration",
+  "board": "s42 (DECISIONS 55)",
+  "sources_sha256": {
+   "zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-convergence/thermal_body.py": "d6b662552422a434b175465c42525cc0cbc81ac6a78e595c37fc6caeb6d393f7",
+   "zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-convergence/body_runs.py": "222d371b299a4c6e1767d948a7147285f014e770dbbaf5474d12c37663946ab9",
+   "zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-convergence/inputs/part-bodies.json": "c5486e7255e01df87119432e7ce31d82bd2653c7c9a2a61d727f316f21e45a9e",
+   "zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3/run_study.py": "0370fb39178d07b46514a9cefb6278da89fdcefa0b8921413900860c39ce593b",
+   "zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3/thermal.py": "62054ef198a88e10c9240e043b9f5f0a323d9003f7692b5be370d82874d58109",
+   "zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3/inputs/native21-board-heat-sources-c28.json": "f8a488281f70a570902e8ee7f1a616a4cb37854145c79a80137216868a871869",
+   "zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/fet_case.py": "22aab6d5ad690fbee75b260b66d1aa0dfdf86a38b88af1a5ff71d5880de3df03",
+   "zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py": "e85fb2ea559aa944f0612628b32640c6bad95bb4759baf392d697fbbd83288a3",
+   "zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/run_basis.py": "091737e0998accf7f7931be0fcc6a655d63b10a3527845c67e3223b881ee5356",
+   "zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json": "eba4ac8b22e0bacf8efde18ba79a440aba0664b842b8e6c945ce84657eeac2ac",
+   "zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/a4_fields.py": "04aae9cedb367641fe864fdf82638bac045a3244370d1ce5bb41aa72a6bfc85a",
+   "zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/outputs/cache.json": "82b5db99b0527c5fff57786dd57b8ce9caf679a29a72a6383bdd8dd65a2f60ef",
+   "zapote/power-stage-120v/native-21/verification/native21s42-all-copper.json.gz": "86d557fbf4a4804742e27980f43080c1992706d306223d4c0c2d36936f28dc4e",
+   "zapote/power-stage-120v/validation-results/05-resonant-tank-envelope/round6-full-power/scripts/board_side.py": "9b4f0c6007fe3a7b734751f84bdc521518341454f3f7e29a4e503c456271dd35",
+   "firmware/components/control/thermal_mgmt.h": "af50320cbfe4d657c91ff7362a84ae33ba665e6c13e46d0fb1d81ff1712d4a54"
+  },
+  "sources_match_commit": true
+ },
+ "control_vs_margins_json": {
+  "c22_h10": {
+   "rows_compared": 44,
+   "max_abs_diff_K": 0.0,
+   "missing": []
+  },
+  "c28_h10": {
+   "rows_compared": 44,
+   "max_abs_diff_K": 0.0,
+   "missing": []
+  }
+ },
+ "cases": {
+  "c26_channel_h10_bay55": {
+   "ceil_A": 26.0,
+   "bay_c": 55.0,
+   "h_top": 10.0,
+   "worst_gated": {
+    "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 155.2,
+    "margin_k": -23.2
+   },
+   "rows_under_25K": {
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": -23.2,
+    "laminate: FET-row copper": -21.3,
+    "laminate: 1 mm-block copper peak": -20.7,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": -20.2,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -19.9,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": -17.3,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -16.1,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": -15.6,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": -13.7,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -12.5,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -8.7,
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -6.1,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": -5.7,
+    "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -2.5,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": -1.5,
+    "R5: terminal derating at 0.745 W (20 % margin)": -0.2,
+    "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 2.0,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 5.6,
+    "U26: TJ max (TI SBVS204G p.4)": 6.4,
+    "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 6.6,
+    "R5: element max (Bourns CSS2H p.1)": 8.4,
+    "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 10.0,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 16.3,
+    "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 19.9,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 24.0,
+    "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 24.3
+   },
+   "balance_rel": 2.7533747872157475e-11
+  },
+  "c26_channel_h20_bay55": {
+   "ceil_A": 26.0,
+   "bay_c": 55.0,
+   "h_top": 20.0,
+   "worst_gated": {
+    "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 123.5,
+    "margin_k": -13.5
+   },
+   "rows_under_25K": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -13.5,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": -13.2,
+    "laminate: FET-row copper": -11.3,
+    "laminate: 1 mm-block copper peak": -10.4,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -10.4,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": -10.0,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": -6.5,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": -6.4,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -6.1,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -4.2,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": -2.9,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": 2.3,
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 4.5,
+    "U26: TJ max (TI SBVS204G p.4)": 6.8,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": 7.2,
+    "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 7.9,
+    "R5: terminal derating at 0.745 W (20 % margin)": 8.9,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 11.6,
+    "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 13.1,
+    "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 17.5,
+    "R5: element max (Bourns CSS2H p.1)": 17.7,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 17.9,
+    "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 19.4,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 24.5
+   },
+   "balance_rel": 4.399125162081397e-11
+  },
+  "c26_channel_h35_bay55": {
+   "ceil_A": 26.0,
+   "bay_c": 55.0,
+   "h_top": 35.0,
+   "worst_gated": {
+    "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 116.1,
+    "margin_k": -6.1
+   },
+   "rows_under_25K": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -6.1,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -3.7,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": -1.6,
+    "laminate: 1 mm-block copper peak": 0.1,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 1.0,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 1.0,
+    "laminate: FET-row copper": 1.9,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 2.0,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": 4.1,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 5.7,
+    "U26: TJ max (TI SBVS204G p.4)": 7.1,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": 9.1,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": 11.7,
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 16.8,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": 17.1,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 18.8,
+    "R5: terminal derating at 0.745 W (20 % margin)": 19.4,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 19.7,
+    "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 20.1
+   },
+   "balance_rel": 6.10159281734977e-11
+  },
+  "c26_channel_h60_bay55": {
+   "ceil_A": 26.0,
+   "bay_c": 55.0,
+   "h_top": 60.0,
+   "worst_gated": {
+    "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 107.6,
+    "margin_k": 2.4
+   },
+   "rows_under_25K": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 2.4,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 4.2,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 7.4,
+    "U26: TJ max (TI SBVS204G p.4)": 7.6,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 9.2,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 12.3,
+    "laminate: 1 mm-block copper peak": 12.5,
+    "laminate: FET-row copper": 13.2,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 16.2,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": 16.3,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 19.7,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 21.7,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": 22.6,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": 22.7
+   },
+   "balance_rel": 1.0060680479536785e-10
+  },
+  "c26_channel_h100_bay55": {
+   "ceil_A": 26.0,
+   "bay_c": 55.0,
+   "h_top": 100.0,
+   "worst_gated": {
+    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 116.9,
+    "margin_k": 8.1
+   },
+   "rows_under_25K": {
+    "U26: TJ max (TI SBVS204G p.4)": 8.1,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 10.9,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 12.2,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 14.0,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 17.1,
+    "laminate: 1 mm-block copper peak": 18.9,
+    "laminate: FET-row copper": 21.2,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 23.7
+   },
+   "balance_rel": 3.148323235743948e-13
+  },
+  "c26_channel_h150_bay55": {
+   "ceil_A": 26.0,
+   "bay_c": 55.0,
+   "h_top": 150.0,
+   "worst_gated": {
+    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 116.5,
+    "margin_k": 8.5
+   },
+   "rows_under_25K": {
+    "U26: TJ max (TI SBVS204G p.4)": 8.5,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 17.2,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 18.2,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 19.2,
+    "laminate: 1 mm-block copper peak": 19.3,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 22.8
+   },
+   "balance_rel": -3.418287998029047e-11
+  },
+  "c26_channel_h10_bay61": {
+   "ceil_A": 26.0,
+   "bay_c": 61.0,
+   "h_top": 10.0,
+   "worst_gated": {
+    "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 159.6,
+    "margin_k": -27.7
+   },
+   "rows_under_25K": {
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": -27.7,
+    "laminate: FET-row copper": -25.5,
+    "laminate: 1 mm-block copper peak": -25.0,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": -24.9,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -24.4,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": -21.3,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -20.8,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": -19.9,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": -17.6,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -16.8,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -13.7,
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -10.4,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": -10.1,
+    "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -6.8,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": -5.6,
+    "R5: terminal derating at 0.745 W (20 % margin)": -4.5,
+    "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -2.1,
+    "U26: TJ max (TI SBVS204G p.4)": 0.5,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 0.7,
+    "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 2.6,
+    "R5: element max (Bourns CSS2H p.1)": 4.1,
+    "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 5.7,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 10.7,
+    "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 15.5,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 18.1,
+    "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 20.2
+   },
+   "balance_rel": 3.493309851214463e-11
+  },
+  "c26_channel_h20_bay61": {
+   "ceil_A": 26.0,
+   "bay_c": 61.0,
+   "h_top": 20.0,
+   "worst_gated": {
+    "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 128.1,
+    "margin_k": -18.1
+   },
+   "rows_under_25K": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -18.1,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": -17.9,
+    "laminate: FET-row copper": -15.8,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -15.2,
+    "laminate: 1 mm-block copper peak": -14.9,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": -14.9,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": -10.9,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": -10.8,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -10.6,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -9.4,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": -7.2,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": -2.3,
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -0.0,
+    "U26: TJ max (TI SBVS204G p.4)": 0.8,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": 3.0,
+    "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 3.4,
+    "R5: terminal derating at 0.745 W (20 % margin)": 4.4,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 6.6,
+    "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 8.7,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 12.3,
+    "R5: element max (Bourns CSS2H p.1)": 13.2,
+    "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 13.3,
+    "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 14.9,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 18.6,
+    "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 23.4
+   },
+   "balance_rel": 4.1687913028392054e-11
+  },
+  "c26_channel_h35_bay61": {
+   "ceil_A": 26.0,
+   "bay_c": 61.0,
+   "h_top": 35.0,
+   "worst_gated": {
+    "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 120.9,
+    "margin_k": -10.9
+   },
+   "rows_under_25K": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -10.9,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -8.7,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": -6.5,
+    "laminate: 1 mm-block copper peak": -4.7,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -4.2,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -3.6,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": -3.2,
+    "laminate: FET-row copper": -2.9,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": -0.7,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 1.1,
+    "U26: TJ max (TI SBVS204G p.4)": 1.2,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": 4.6,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": 6.9,
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 12.0,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": 12.6,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 13.7,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 14.0,
+    "R5: terminal derating at 0.745 W (20 % margin)": 14.7,
+    "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 15.3,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 19.3,
+    "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 21.0,
+    "R5: element max (Bourns CSS2H p.1)": 23.8
+   },
+   "balance_rel": 6.55104364551183e-11
+  },
+  "c26_channel_h60_bay61": {
+   "ceil_A": 26.0,
+   "bay_c": 61.0,
+   "h_top": 60.0,
+   "worst_gated": {
+    "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 112.6,
+    "margin_k": -2.6
+   },
+   "rows_under_25K": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -2.6,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -1.0,
+    "U26: TJ max (TI SBVS204G p.4)": 1.6,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 2.0,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 4.3,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 7.1,
+    "laminate: 1 mm-block copper peak": 7.7,
+    "laminate: FET-row copper": 8.3,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 10.8,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": 11.3,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 14.7,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 16.0,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": 17.6,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": 17.7,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 20.0,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 22.2,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": 23.5
+   },
+   "balance_rel": 9.364679554360485e-11
+  },
+  "c26_channel_h100_bay61": {
+   "ceil_A": 26.0,
+   "bay_c": 61.0,
+   "h_top": 100.0,
+   "worst_gated": {
+    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 122.9,
+    "margin_k": 2.1
+   },
+   "rows_under_25K": {
+    "U26: TJ max (TI SBVS204G p.4)": 2.1,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 5.7,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 6.9,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 8.5,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 12.0,
+    "laminate: 1 mm-block copper peak": 12.9,
+    "laminate: FET-row copper": 16.1,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 17.9,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 20.7,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 21.1,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": 23.3
+   },
+   "balance_rel": -7.634921157475738e-12
+  },
+  "c26_channel_h150_bay61": {
+   "ceil_A": 26.0,
+   "bay_c": 61.0,
+   "h_top": 150.0,
+   "worst_gated": {
+    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 122.5,
+    "margin_k": 2.5
+   },
+   "rows_under_25K": {
+    "U26: TJ max (TI SBVS204G p.4)": 2.5,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 11.8,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 12.8,
+    "laminate: 1 mm-block copper peak": 13.4,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 13.6,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 17.6,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 19.3,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 21.2,
+    "laminate: FET-row copper": 22.4
+   },
+   "balance_rel": -3.751282507908136e-11
+  },
+  "c28_channel_h10_bay55": {
+   "ceil_A": 28.0,
+   "bay_c": 55.0,
+   "h_top": 10.0,
+   "worst_gated": {
+    "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 165.3,
+    "margin_k": -33.4
+   },
+   "rows_under_25K": {
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": -33.4,
+    "laminate: 1 mm-block copper peak": -30.6,
+    "laminate: FET-row copper": -30.6,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": -28.0,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -27.8,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": -25.4,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -24.1,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": -24.0,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": -19.4,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -18.8,
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -16.3,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -16.2,
+    "R5: terminal derating at 0.864 W (20 % margin)": -14.6,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": -14.1,
+    "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -10.4,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": -8.2,
+    "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -5.0,
+    "R5: element max (Bourns CSS2H p.1)": -4.8,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": -2.7,
+    "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 0.6,
+    "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 0.9,
+    "U26: TJ max (TI SBVS204G p.4)": 4.8,
+    "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 11.5,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 14.6,
+    "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 17.6,
+    "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 22.5,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 23.2
+   },
+   "balance_rel": 1.4642383082185916e-11
+  },
+  "c28_channel_h20_bay55": {
+   "ceil_A": 28.0,
+   "bay_c": 55.0,
+   "h_top": 20.0,
+   "worst_gated": {
+    "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 154.2,
+    "margin_k": -22.3
+   },
+   "rows_under_25K": {
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": -22.3,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -20.7,
+    "laminate: 1 mm-block copper peak": -20.5,
+    "laminate: FET-row copper": -18.1,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -17.7,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": -16.8,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": -15.2,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": -12.2,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -11.8,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -11.2,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": -7.7,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": -5.2,
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -4.6,
+    "R5: terminal derating at 0.864 W (20 % margin)": -4.5,
+    "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 1.1,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": 1.4,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 4.0,
+    "U26: TJ max (TI SBVS204G p.4)": 5.1,
+    "R5: element max (Bourns CSS2H p.1)": 5.5,
+    "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 7.1,
+    "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 11.0,
+    "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 12.8,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 16.4,
+    "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 20.4,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 23.9
+   },
+   "balance_rel": 3.4401438530907706e-11
+  },
+  "c28_channel_h35_bay55": {
+   "ceil_A": 28.0,
+   "bay_c": 55.0,
+   "h_top": 35.0,
+   "worst_gated": {
+    "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 122.5,
+    "margin_k": -12.5
+   },
+   "rows_under_25K": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -12.5,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -10.3,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": -9.3,
+    "laminate: 1 mm-block copper peak": -8.9,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -5.3,
+    "laminate: FET-row copper": -5.1,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -3.9,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": -3.6,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": -3.6,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 1.1,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": 5.2,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": 5.3,
+    "U26: TJ max (TI SBVS204G p.4)": 5.5,
+    "R5: terminal derating at 0.864 W (20 % margin)": 7.2,
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 9.0,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 12.1,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": 12.3,
+    "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 14.5,
+    "R5: element max (Bourns CSS2H p.1)": 17.5,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 18.3,
+    "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 20.8,
+    "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 22.9,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 24.6
+   },
+   "balance_rel": 7.42467319780815e-11
+  },
+  "c28_channel_h60_bay55": {
+   "ceil_A": 28.0,
+   "bay_c": 55.0,
+   "h_top": 60.0,
+   "worst_gated": {
+    "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 113.1,
+    "margin_k": -3.1
+   },
+   "rows_under_25K": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -3.1,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -1.5,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 1.8,
+    "laminate: 1 mm-block copper peak": 4.8,
+    "laminate: FET-row copper": 5.0,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 5.1,
+    "U26: TJ max (TI SBVS204G p.4)": 6.1,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 6.2,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": 10.0,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 12.0,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 16.3,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": 17.4,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": 19.9,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 20.6,
+    "R5: terminal derating at 0.864 W (20 % margin)": 20.8,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 21.8,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": 24.5
+   },
+   "balance_rel": 4.2912611999380376e-11
+  },
+  "c28_channel_h100_bay55": {
+   "ceil_A": 28.0,
+   "bay_c": 55.0,
+   "h_top": 100.0,
+   "worst_gated": {
+    "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 103.7,
+    "margin_k": 6.3
+   },
+   "rows_under_25K": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 6.3,
+    "U26: TJ max (TI SBVS204G p.4)": 6.6,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 7.4,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 9.2,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 13.8,
+    "laminate: FET-row copper": 14.0,
+    "laminate: 1 mm-block copper peak": 15.1,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 22.2,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 22.8,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": 23.6
+   },
+   "balance_rel": -3.670813977195626e-11
+  },
+  "c28_channel_h150_bay55": {
+   "ceil_A": 28.0,
+   "bay_c": 55.0,
+   "h_top": 150.0,
+   "worst_gated": {
+    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 118.0,
+    "margin_k": 7.0
+   },
+   "rows_under_25K": {
+    "U26: TJ max (TI SBVS204G p.4)": 7.0,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 13.3,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 14.1,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 15.0,
+    "laminate: 1 mm-block copper peak": 19.0,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 20.1,
+    "laminate: FET-row copper": 21.2,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 24.3
+   },
+   "balance_rel": -3.2702117204308113e-11
+  },
+  "c28_channel_h10_bay61": {
+   "ceil_A": 28.0,
+   "bay_c": 61.0,
+   "h_top": 10.0,
+   "worst_gated": {
+    "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 169.8,
+    "margin_k": -37.8
+   },
+   "rows_under_25K": {
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": -37.8,
+    "laminate: FET-row copper": -35.0,
+    "laminate: 1 mm-block copper peak": -34.9,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": -32.7,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -32.3,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": -29.7,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -28.8,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": -28.1,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": -23.3,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -23.1,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -21.2,
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -20.6,
+    "R5: terminal derating at 0.864 W (20 % margin)": -18.9,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": -18.6,
+    "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -14.7,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": -12.2,
+    "R5: element max (Bourns CSS2H p.1)": -9.0,
+    "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -9.0,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": -7.6,
+    "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": -3.7,
+    "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -3.1,
+    "U26: TJ max (TI SBVS204G p.4)": -1.2,
+    "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 7.0,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 9.0,
+    "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 13.5,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 17.3,
+    "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 17.5
+   },
+   "balance_rel": 1.3959455560226148e-11
+  },
+  "c28_channel_h20_bay61": {
+   "ceil_A": 28.0,
+   "bay_c": 61.0,
+   "h_top": 20.0,
+   "worst_gated": {
+    "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 158.9,
+    "margin_k": -26.9
+   },
+   "rows_under_25K": {
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": -26.9,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -25.3,
+    "laminate: 1 mm-block copper peak": -25.0,
+    "laminate: FET-row copper": -22.7,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -22.5,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": -21.7,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": -19.7,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": -16.5,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -16.3,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -16.3,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": -12.0,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": -9.8,
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -9.1,
+    "R5: terminal derating at 0.864 W (20 % margin)": -9.0,
+    "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": -3.5,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": -2.8,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": -1.0,
+    "U26: TJ max (TI SBVS204G p.4)": -0.8,
+    "R5: element max (Bourns CSS2H p.1)": 1.1,
+    "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 2.8,
+    "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 6.5,
+    "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 8.6,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 10.7,
+    "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 15.8,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 18.0,
+    "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 23.0,
+    "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 24.2
+   },
+   "balance_rel": 3.301516135490113e-11
+  },
+  "c28_channel_h35_bay61": {
+   "ceil_A": 28.0,
+   "bay_c": 61.0,
+   "h_top": 35.0,
+   "worst_gated": {
+    "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 127.3,
+    "margin_k": -17.3
+   },
+   "rows_under_25K": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -17.3,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -15.2,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": -14.2,
+    "laminate: 1 mm-block copper peak": -13.6,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -10.6,
+    "laminate: FET-row copper": -9.6,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": -8.8,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -8.6,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": -8.3,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": -3.5,
+    "U26: TJ max (TI SBVS204G p.4)": -0.4,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": 0.3,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": 0.8,
+    "R5: terminal derating at 0.864 W (20 % margin)": 2.4,
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 4.3,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 6.9,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": 7.8,
+    "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 9.7,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 12.6,
+    "R5: element max (Bourns CSS2H p.1)": 12.9,
+    "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 16.2,
+    "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": 18.2,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 18.6,
+    "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 21.6
+   },
+   "balance_rel": 8.557558842611632e-11
+  },
+  "c28_channel_h60_bay61": {
+   "ceil_A": 28.0,
+   "bay_c": 61.0,
+   "h_top": 60.0,
+   "worst_gated": {
+    "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 118.1,
+    "margin_k": -8.1
+   },
+   "rows_under_25K": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -8.1,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -6.7,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -3.6,
+    "laminate: 1 mm-block copper peak": -0.1,
+    "laminate: FET-row copper": 0.1,
+    "U26: TJ max (TI SBVS204G p.4)": 0.1,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 0.2,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 1.0,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": 5.0,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 6.6,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 11.3,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": 12.3,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 14.8,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": 15.0,
+    "R5: terminal derating at 0.864 W (20 % margin)": 15.8,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 16.4,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 19.4,
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": 19.7,
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": 20.1
+   },
+   "balance_rel": 3.1520061349171976e-11
+  },
+  "c28_channel_h100_bay61": {
+   "ceil_A": 28.0,
+   "bay_c": 61.0,
+   "h_top": 100.0,
+   "worst_gated": {
+    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 124.4,
+    "margin_k": 0.6
+   },
+   "rows_under_25K": {
+    "U26: TJ max (TI SBVS204G p.4)": 0.6,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 1.1,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 2.1,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 3.7,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 8.7,
+    "laminate: FET-row copper": 8.9,
+    "laminate: 1 mm-block copper peak": 10.0,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 16.7,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 17.0,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": 18.4,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 20.2,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 22.1,
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": 24.5
+   },
+   "balance_rel": -3.690222143283943e-11
+  },
+  "c28_channel_h150_bay61": {
+   "ceil_A": 28.0,
+   "bay_c": 61.0,
+   "h_top": 150.0,
+   "worst_gated": {
+    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 123.9,
+    "margin_k": 1.1
+   },
+   "rows_under_25K": {
+    "U26: TJ max (TI SBVS204G p.4)": 1.1,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 8.0,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 8.7,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 9.4,
+    "laminate: 1 mm-block copper peak": 13.1,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 14.8,
+    "laminate: FET-row copper": 16.0,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 18.5,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 20.8
+   },
+   "balance_rel": -3.220013262888181e-11
+  }
+ },
+ "required_h_top": {
+  "c26_bay55": {
+   "h_top_required": 52.9,
+   "worst_margin_by_h": [
+    [
+     10.0,
+     -23.2
+    ],
+    [
+     20.0,
+     -13.5
+    ],
+    [
+     35.0,
+     -6.1
+    ],
+    [
+     60.0,
+     2.4
+    ],
+    [
+     100.0,
+     8.1
+    ],
+    [
+     150.0,
+     8.5
+    ]
+   ],
+   "note": null
+  },
+  "c26_bay61": {
+   "h_top_required": 82.1,
+   "worst_margin_by_h": [
+    [
+     10.0,
+     -27.7
+    ],
+    [
+     20.0,
+     -18.1
+    ],
+    [
+     35.0,
+     -10.9
+    ],
+    [
+     60.0,
+     -2.6
+    ],
+    [
+     100.0,
+     2.1
+    ],
+    [
+     150.0,
+     2.5
+    ]
+   ],
+   "note": null
+  },
+  "c28_bay55": {
+   "h_top_required": 73.2,
+   "worst_margin_by_h": [
+    [
+     10.0,
+     -33.4
+    ],
+    [
+     20.0,
+     -22.3
+    ],
+    [
+     35.0,
+     -12.5
+    ],
+    [
+     60.0,
+     -3.1
+    ],
+    [
+     100.0,
+     6.3
+    ],
+    [
+     150.0,
+     7.0
+    ]
+   ],
+   "note": null
+  },
+  "c28_bay61": {
+   "h_top_required": 97.2,
+   "worst_margin_by_h": [
+    [
+     10.0,
+     -37.8
+    ],
+    [
+     20.0,
+     -26.9
+    ],
+    [
+     35.0,
+     -17.3
+    ],
+    [
+     60.0,
+     -8.1
+    ],
+    [
+     100.0,
+     0.6
+    ],
+    [
+     150.0,
+     1.1
+    ]
+   ],
+   "note": null
+  }
+ },
+ "per_row_h_zero": {
+  "c26_bay55": {
+   "R12: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 37.9,
+    "margin_h10": -23.2,
+    "margin_h_max": 37.6
+   },
+   "laminate: FET-row copper": {
+    "h_zero": 32.8,
+    "margin_h10": -21.3,
+    "margin_h_max": 27.6
+   },
+   "laminate: 1 mm-block copper peak": {
+    "h_zero": 34.9,
+    "margin_h10": -20.7,
+    "margin_h_max": 19.3
+   },
+   "R10: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 32.5,
+    "margin_h10": -20.2,
+    "margin_h_max": 41.6
+   },
+   "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 52.9,
+    "margin_h10": -19.9,
+    "margin_h_max": 17.2
+   },
+   "R20: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 28.0,
+    "margin_h10": -17.3,
+    "margin_h_max": 43.0
+   },
+   "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 46.7,
+    "margin_h10": -16.1,
+    "margin_h_max": 18.2
+   },
+   "R58: 1206 terminal derating at 0.063 W (20 % margin)": {
+    "h_zero": 29.1,
+    "margin_h10": -15.6,
+    "margin_h_max": 37.8
+   },
+   "R18: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 23.6,
+    "margin_h10": -13.7,
+    "margin_h_max": 44.8
+   },
+   "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 32.9,
+    "margin_h10": -12.5,
+    "margin_h_max": 22.8
+   },
+   "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 32.1,
+    "margin_h10": -8.7,
+    "margin_h_max": 19.2
+   },
+   "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+    "h_zero": 15.8,
+    "margin_h10": -6.1,
+    "margin_h_max": 57.4
+   },
+   "R54: 1206 terminal derating at 0.063 W (20 % margin)": {
+    "h_zero": 17.1,
+    "margin_h10": -5.7,
+    "margin_h_max": 42.2
+   },
+   "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+    "h_zero": 12.4,
+    "margin_h10": -2.5,
+    "margin_h_max": 60.5
+   },
+   "R57: 1206 terminal derating at 0.063 W (20 % margin)": {
+    "h_zero": 11.7,
+    "margin_h10": -1.5,
+    "margin_h_max": 46.7
+   },
+   "R5: terminal derating at 0.745 W (20 % margin)": {
+    "h_zero": 10.2,
+    "margin_h10": -0.2,
+    "margin_h_max": 53.6
+   }
+  },
+  "c26_bay61": {
+   "R12: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 46.9,
+    "margin_h10": -27.7,
+    "margin_h_max": 31.9
+   },
+   "laminate: FET-row copper": {
+    "h_zero": 41.5,
+    "margin_h10": -25.5,
+    "margin_h_max": 22.4
+   },
+   "laminate: 1 mm-block copper peak": {
+    "h_zero": 44.5,
+    "margin_h10": -25.0,
+    "margin_h_max": 13.4
+   },
+   "R10: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 40.7,
+    "margin_h10": -24.9,
+    "margin_h_max": 35.7
+   },
+   "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 72.5,
+    "margin_h10": -24.4,
+    "margin_h_max": 11.8
+   },
+   "R20: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 33.6,
+    "margin_h10": -21.3,
+    "margin_h_max": 37.6
+   },
+   "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 65.1,
+    "margin_h10": -20.8,
+    "margin_h_max": 12.8
+   },
+   "R58: 1206 terminal derating at 0.063 W (20 % margin)": {
+    "h_zero": 36.5,
+    "margin_h10": -19.9,
+    "margin_h_max": 32.4
+   },
+   "R18: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 29.2,
+    "margin_h10": -17.6,
+    "margin_h_max": 39.4
+   },
+   "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 46.4,
+    "margin_h10": -16.8,
+    "margin_h_max": 17.6
+   },
+   "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 51.9,
+    "margin_h10": -13.7,
+    "margin_h_max": 13.6
+   },
+   "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+    "h_zero": 20.0,
+    "margin_h10": -10.4,
+    "margin_h_max": 51.8
+   },
+   "R54: 1206 terminal derating at 0.063 W (20 % margin)": {
+    "h_zero": 23.8,
+    "margin_h10": -10.1,
+    "margin_h_max": 36.8
+   },
+   "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+    "h_zero": 16.7,
+    "margin_h10": -6.8,
+    "margin_h_max": 54.9
+   },
+   "R57: 1206 terminal derating at 0.063 W (20 % margin)": {
+    "h_zero": 16.5,
+    "margin_h10": -5.6,
+    "margin_h_max": 41.4
+   },
+   "R5: terminal derating at 0.745 W (20 % margin)": {
+    "h_zero": 15.1,
+    "margin_h10": -4.5,
+    "margin_h_max": 48.2
+   },
+   "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+    "h_zero": 11.9,
+    "margin_h10": -2.1,
+    "margin_h_max": 58.6
+   }
+  },
+  "c28_bay55": {
+   "R12: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 50.0,
+    "margin_h10": -33.4,
+    "margin_h_max": 34.4
+   },
+   "laminate: 1 mm-block copper peak": {
+    "h_zero": 51.2,
+    "margin_h10": -30.6,
+    "margin_h_max": 19.0
+   },
+   "laminate: FET-row copper": {
+    "h_zero": 47.6,
+    "margin_h10": -30.6,
+    "margin_h_max": 21.2
+   },
+   "R10: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 40.8,
+    "margin_h10": -28.0,
+    "margin_h_max": 39.5
+   },
+   "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 73.2,
+    "margin_h10": -27.8,
+    "margin_h_max": 13.3
+   },
+   "R58: 1206 terminal derating at 0.063 W (20 % margin)": {
+    "h_zero": 41.6,
+    "margin_h10": -25.4,
+    "margin_h_max": 33.9
+   },
+   "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 66.7,
+    "margin_h10": -24.1,
+    "margin_h_max": 14.1
+   },
+   "R20: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 33.8,
+    "margin_h10": -24.0,
+    "margin_h_max": 41.5
+   },
+   "R18: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 28.9,
+    "margin_h10": -19.4,
+    "margin_h_max": 43.7
+   },
+   "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 45.8,
+    "margin_h10": -18.8,
+    "margin_h_max": 20.1
+   },
+   "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+    "h_zero": 25.1,
+    "margin_h10": -16.3,
+    "margin_h_max": 53.9
+   },
+   "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 53.7,
+    "margin_h10": -16.2,
+    "margin_h_max": 15.0
+   },
+   "R5: terminal derating at 0.864 W (20 % margin)": {
+    "h_zero": 25.8,
+    "margin_h10": -14.6,
+    "margin_h_max": 45.2
+   },
+   "R54: 1206 terminal derating at 0.063 W (20 % margin)": {
+    "h_zero": 27.5,
+    "margin_h10": -14.1,
+    "margin_h_max": 39.2
+   },
+   "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+    "h_zero": 19.0,
+    "margin_h10": -10.4,
+    "margin_h_max": 58.5
+   },
+   "R57: 1206 terminal derating at 0.063 W (20 % margin)": {
+    "h_zero": 18.5,
+    "margin_h10": -8.2,
+    "margin_h_max": 44.7
+   },
+   "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+    "h_zero": 14.1,
+    "margin_h10": -5.0,
+    "margin_h_max": 62.5
+   },
+   "R5: element max (Bourns CSS2H p.1)": {
+    "h_zero": 14.7,
+    "margin_h10": -4.8,
+    "margin_h_max": 57.3
+   },
+   "R53: 1206 terminal derating at 0.063 W (20 % margin)": {
+    "h_zero": 14.0,
+    "margin_h10": -2.7,
+    "margin_h_max": 39.5
+   }
+  },
+  "c28_bay61": {
+   "R12: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 58.4,
+    "margin_h10": -37.8,
+    "margin_h_max": 28.7
+   },
+   "laminate: FET-row copper": {
+    "h_zero": 59.7,
+    "margin_h10": -35.0,
+    "margin_h_max": 16.0
+   },
+   "laminate: 1 mm-block copper peak": {
+    "h_zero": 60.4,
+    "margin_h10": -34.9,
+    "margin_h_max": 13.1
+   },
+   "R10: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 49.3,
+    "margin_h10": -32.7,
+    "margin_h_max": 33.9
+   },
+   "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 95.2,
+    "margin_h10": -32.3,
+    "margin_h_max": 8.0
+   },
+   "R58: 1206 terminal derating at 0.063 W (20 % margin)": {
+    "h_zero": 50.6,
+    "margin_h10": -29.7,
+    "margin_h_max": 28.4
+   },
+   "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 90.5,
+    "margin_h10": -28.8,
+    "margin_h_max": 8.7
+   },
+   "R20: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 40.9,
+    "margin_h10": -28.1,
+    "margin_h_max": 36.0
+   },
+   "R18: 2512 terminal derating at 0.217 W (20 % margin)": {
+    "h_zero": 34.1,
+    "margin_h10": -23.3,
+    "margin_h_max": 38.2
+   },
+   "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 59.4,
+    "margin_h10": -23.1,
+    "margin_h_max": 14.8
+   },
+   "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+    "h_zero": 79.7,
+    "margin_h10": -21.2,
+    "margin_h_max": 9.4
+   },
+   "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+    "h_zero": 30.2,
+    "margin_h10": -20.6,
+    "margin_h_max": 48.4
+   },
+   "R5: terminal derating at 0.864 W (20 % margin)": {
+    "h_zero": 31.8,
+    "margin_h10": -18.9,
+    "margin_h_max": 39.7
+   },
+   "R54: 1206 terminal derating at 0.063 W (20 % margin)": {
+    "h_zero": 34.6,
+    "margin_h10": -18.6,
+    "margin_h_max": 33.7
+   },
+   "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+    "h_zero": 24.0,
+    "margin_h10": -14.7,
+    "margin_h_max": 52.9
+   },
+   "R57: 1206 terminal derating at 0.063 W (20 % margin)": {
+    "h_zero": 24.0,
+    "margin_h10": -12.2,
+    "margin_h_max": 39.4
+   },
+   "R5: element max (Bourns CSS2H p.1)": {
+    "h_zero": 18.9,
+    "margin_h10": -9.0,
+    "margin_h_max": 51.9
+   },
+   "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+    "h_zero": 17.6,
+    "margin_h10": -9.0,
+    "margin_h_max": 57.0
+   },
+   "R53: 1206 terminal derating at 0.063 W (20 % margin)": {
+    "h_zero": 21.9,
+    "margin_h10": -7.6,
+    "margin_h_max": 33.9
+   },
+   "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)": {
+    "h_zero": 13.6,
+    "margin_h10": -3.7,
+    "margin_h_max": 55.7
+   },
+   "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+    "h_zero": 12.6,
+    "margin_h10": -3.1,
+    "margin_h_max": 59.8
+   },
+   "U26: TJ max (TI SBVS204G p.4)": {
+    "h_zero": 55.0,
+    "margin_h10": -1.2,
+    "margin_h_max": 1.1
+   }
+  }
+ },
+ "ceiling_by_h": {
+  "bay55_h10": {
+   "all_gated_ceiling_A": 19.9,
+   "limiting_row": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "next_rows": {
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 19.9,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 19.9,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 20.1,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": 20.4,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 20.7
+   }
+  },
+  "bay55_h20": {
+   "all_gated_ceiling_A": 21.8,
+   "limiting_row": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+   "next_rows": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 21.8,
+    "laminate: FET-row copper": 22.3,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 22.7,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 22.8,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 22.9
+   }
+  },
+  "bay55_h35": {
+   "all_gated_ceiling_A": 23.9,
+   "limiting_row": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+   "next_rows": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 23.9,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 24.8,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 25.6,
+    "laminate: 1 mm-block copper peak": 26.0,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 26.3
+   }
+  },
+  "bay55_h60": {
+   "all_gated_ceiling_A": 26.9,
+   "limiting_row": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+   "next_rows": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 26.9,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 27.5,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 28.6,
+    "laminate: 1 mm-block copper peak": 29.2,
+    "laminate: FET-row copper": 29.2
+   }
+  },
+  "bay55_h100": {
+   "all_gated_ceiling_A": 30.5,
+   "limiting_row": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+   "next_rows": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 30.5,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 30.8,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 31.5,
+    "laminate: FET-row copper": 31.5,
+    "laminate: 1 mm-block copper peak": 34.8
+   }
+  },
+  "bay55_h150": {
+   "all_gated_ceiling_A": 33.8,
+   "limiting_row": "laminate: FET-row copper",
+   "next_rows": {
+    "laminate: FET-row copper": 33.8,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 33.9,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 34.0,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 34.2,
+    "U26: TJ max (TI SBVS204G p.4)": 35.9
+   }
+  },
+  "bay61_h10": {
+   "all_gated_ceiling_A": 18.2,
+   "limiting_row": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "next_rows": {
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 18.2,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 18.4,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 18.5,
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": 18.5,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 19.5
+   }
+  },
+  "bay61_h20": {
+   "all_gated_ceiling_A": 20.1,
+   "limiting_row": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+   "next_rows": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 20.1,
+    "laminate: FET-row copper": 20.7,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 21.0,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 21.2,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 21.5
+   }
+  },
+  "bay61_h35": {
+   "all_gated_ceiling_A": 22.2,
+   "limiting_row": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+   "next_rows": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 22.2,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 23.1,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 24.2,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 24.5,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 24.6
+   }
+  },
+  "bay61_h60": {
+   "all_gated_ceiling_A": 25.0,
+   "limiting_row": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+   "next_rows": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 25.0,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 25.6,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 26.7,
+    "laminate: 1 mm-block copper peak": 28.0,
+    "laminate: FET-row copper": 28.0
+   }
+  },
+  "bay61_h100": {
+   "all_gated_ceiling_A": 28.5,
+   "limiting_row": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+   "next_rows": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 28.5,
+    "U26: TJ max (TI SBVS204G p.4)": 28.8,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 28.8,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 29.4,
+    "laminate: FET-row copper": 30.3
+   }
+  },
+  "bay61_h150": {
+   "all_gated_ceiling_A": 29.5,
+   "limiting_row": "U26: TJ max (TI SBVS204G p.4)",
+   "next_rows": {
+    "U26: TJ max (TI SBVS204G p.4)": 29.5,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 31.8,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 31.8,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 32.0,
+    "laminate: FET-row copper": 32.5
+   }
+  }
+ }
+}

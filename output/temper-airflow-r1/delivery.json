@@ -1,0 +1,1541 @@
+{
+ "scope": "Delivery path for the board-face air (temper-airflow-r1, step 2): a jet bleed from the existing push hood.\n\n    python3 delivery.py          # seconds; reads board-h-sweep.json -> delivery.json\n\nNetwork: the R43 two-branch blower model (evidence/airflow-r32/coil_thermal.py, imported read-only from the frozen\nR43 folder: Delta BFB1012VH-F00, digitised datasheet curve, min-corner fan = 0.9 x speed, common inlet / louver / door\nlegs carrying the total flow) gains a THIRD branch from the push hood to the exhaust plenum:\n    hood wall hole -> F3 feed duct (G11, 12 x 12 mm inside) -> jet manifold over native-21's FET / film-cap channel ->\n    N round jets (Cd 0.65) onto the board top -> bay -> bay vent in the exhaust plenum's X-22 wall -> plenum.\nSink and coil branches are coil_thermal's, unchanged (S8 sink; K1 = study 11's skived/bonded-fin contingency, its\nsink_dp_R copied below because importing sink150.py runs it).\nBoard-face h: Martin (1977) round-nozzle arrays, as coil_thermal.martin_h, with the jet cell = jet pitch along the\nchannel x the 16.5 mm channel width. The jets run at Re 300-900, below Martin's validated Re >= 2000 (as the R32 coil\njets do), so the DESIGN value is Martin x 0.6 (coil_thermal's own lower case) and Martin x 1.0 is reported as the\nestimate. No radiation and no natural convection are added on top (the duct shades the board), so h_top = max(10, h).\nBay air with through-flow: R33 study 14's lumped bay (UA 1.308 W/K; 20.2 W expected, 27.9 W at c28) plus the jet air\nleaving through the vent: T_bay = (Q + UA T_k + m cp T_jet) / (UA + m cp), T_jet = 50 C (D-18 hood air basis).\nBlower power: study 10's fan-law estimate P = P_12V x drive^3 (typical 17.04 W, Delta max 32.4 W). Noise: coil_thermal's\n58.0 + 50 log10(drive) dB(A) (datasheet free-air basis, an estimate; the bench measures it).",
+ "jet": {
+  "D_mm": 3.0,
+  "N": 8,
+  "pitch_x_mm": 11.0,
+  "row_y_model_mm": 14.0,
+  "x_model_mm": [
+   5.5,
+   16.5,
+   27.5,
+   38.5,
+   49.5,
+   60.5,
+   71.5,
+   82.5
+  ],
+  "H_mm": 6.0,
+  "channel_w_mm": 16.5,
+  "Cd": 0.65
+ },
+ "feed": {
+  "w_mm": 12.0,
+  "h_mm": 12.0,
+  "L_m": 0.11,
+  "K": 4.3
+ },
+ "manifold": {
+  "w_mm": 10.5,
+  "h_mm": 7.0
+ },
+ "vent": {
+  "w_mm": 30.0,
+  "h_mm": 25.0,
+  "K": 1.5
+ },
+ "inputs_sha256": {
+  "output/temper-manufacturing-r43/evidence/airflow-r32/coil_thermal.py": "f29f1f3415b1524432c604e94780d83137eef13a037f07d957ca670990ceb262",
+  "output/temper-manufacturing-r43/evidence/airflow-r32/system_curve_r32.py": "f60f0aa1198d680ca85ddcc240fe9a0a0293d9c3c6e3827c7379165201cd9654",
+  "output/temper-manufacturing-r43/evidence/airflow-r32/fan-curves.json": "03b8c0b36a8f0ff9d6b6b3b5456300a76dd376d335887c5967025d5198d66ba3",
+  "output/temper-airflow-r1/board-h-sweep.json": "5227d52de6a8be7897c2452af621bc10c38b772650064e5440884afe3390a6f0"
+ },
+ "h_top_required": {
+  "c26_bay55": 52.9,
+  "c26_bay61": 82.1,
+  "c28_bay55": 73.2,
+  "c28_bay61": 97.2
+ },
+ "operating_points": {
+  "S8": {
+   "with_board": [
+    {
+     "drive": 0.458,
+     "branch_dp_Pa": 20.1,
+     "total_cfm": 11.9,
+     "sink_cfm": 8.565,
+     "coil_cfm": 2.925,
+     "board_cfm": 0.41,
+     "R_SA": 0.361,
+     "board_h_design": 89.7,
+     "board_h_est": 149.5,
+     "jet": {
+      "h_est": 149.5,
+      "h_design": 89.7,
+      "v_jet": 3.42,
+      "Re": 571,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 41.0,
+     "blower_W_typ": 1.6,
+     "blower_W_max": 3.1
+    },
+    {
+     "drive": 0.5,
+     "branch_dp_Pa": 23.3,
+     "total_cfm": 13.046,
+     "sink_cfm": 9.432,
+     "coil_cfm": 3.171,
+     "board_cfm": 0.443,
+     "R_SA": 0.3452,
+     "board_h_design": 94.4,
+     "board_h_est": 157.4,
+     "jet": {
+      "h_est": 157.4,
+      "h_design": 94.4,
+      "v_jet": 3.7,
+      "Re": 616,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 42.9,
+     "blower_W_typ": 2.1,
+     "blower_W_max": 4.0
+    },
+    {
+     "drive": 0.55,
+     "branch_dp_Pa": 27.6,
+     "total_cfm": 14.401,
+     "sink_cfm": 10.472,
+     "coil_cfm": 3.446,
+     "board_cfm": 0.483,
+     "R_SA": 0.3296,
+     "board_h_design": 100.0,
+     "board_h_est": 166.6,
+     "jet": {
+      "h_est": 166.6,
+      "h_design": 100.0,
+      "v_jet": 4.03,
+      "Re": 671,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 45.0,
+     "blower_W_typ": 2.8,
+     "blower_W_max": 5.4
+    },
+    {
+     "drive": 0.6,
+     "branch_dp_Pa": 32.2,
+     "total_cfm": 15.759,
+     "sink_cfm": 11.511,
+     "coil_cfm": 3.726,
+     "board_cfm": 0.521,
+     "R_SA": 0.3167,
+     "board_h_design": 105.3,
+     "board_h_est": 175.4,
+     "jet": {
+      "h_est": 175.4,
+      "h_design": 105.3,
+      "v_jet": 4.35,
+      "Re": 725,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 46.9,
+     "blower_W_typ": 3.7,
+     "blower_W_max": 7.0
+    },
+    {
+     "drive": 0.65,
+     "branch_dp_Pa": 37.0,
+     "total_cfm": 17.122,
+     "sink_cfm": 12.559,
+     "coil_cfm": 4.003,
+     "board_cfm": 0.56,
+     "R_SA": 0.3056,
+     "board_h_design": 110.4,
+     "board_h_est": 184.0,
+     "jet": {
+      "h_est": 184.0,
+      "h_design": 110.4,
+      "v_jet": 4.67,
+      "Re": 779,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 48.6,
+     "blower_W_typ": 4.7,
+     "blower_W_max": 8.9
+    },
+    {
+     "drive": 0.7,
+     "branch_dp_Pa": 42.3,
+     "total_cfm": 18.481,
+     "sink_cfm": 13.599,
+     "coil_cfm": 4.283,
+     "board_cfm": 0.599,
+     "R_SA": 0.2962,
+     "board_h_design": 115.4,
+     "board_h_est": 192.4,
+     "jet": {
+      "h_est": 192.4,
+      "h_design": 115.4,
+      "v_jet": 5.0,
+      "Re": 833,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 50.3,
+     "blower_W_typ": 5.8,
+     "blower_W_max": 11.1
+    },
+    {
+     "drive": 0.75,
+     "branch_dp_Pa": 47.8,
+     "total_cfm": 19.841,
+     "sink_cfm": 14.642,
+     "coil_cfm": 4.561,
+     "board_cfm": 0.637,
+     "R_SA": 0.2879,
+     "board_h_design": 120.3,
+     "board_h_est": 200.5,
+     "jet": {
+      "h_est": 200.5,
+      "h_design": 120.3,
+      "v_jet": 5.32,
+      "Re": 886,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 51.8,
+     "blower_W_typ": 7.2,
+     "blower_W_max": 13.7
+    },
+    {
+     "drive": 0.8,
+     "branch_dp_Pa": 53.6,
+     "total_cfm": 21.206,
+     "sink_cfm": 15.695,
+     "coil_cfm": 4.836,
+     "board_cfm": 0.675,
+     "R_SA": 0.2805,
+     "board_h_design": 125.1,
+     "board_h_est": 208.4,
+     "jet": {
+      "h_est": 208.4,
+      "h_design": 125.1,
+      "v_jet": 5.63,
+      "Re": 939,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 53.2,
+     "blower_W_typ": 8.7,
+     "blower_W_max": 16.6
+    },
+    {
+     "drive": 0.85,
+     "branch_dp_Pa": 59.9,
+     "total_cfm": 22.566,
+     "sink_cfm": 16.74,
+     "coil_cfm": 5.113,
+     "board_cfm": 0.714,
+     "R_SA": 0.2739,
+     "board_h_design": 129.8,
+     "board_h_est": 216.3,
+     "jet": {
+      "h_est": 216.3,
+      "h_design": 129.8,
+      "v_jet": 5.96,
+      "Re": 993,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 54.5,
+     "blower_W_typ": 10.5,
+     "blower_W_max": 19.9
+    },
+    {
+     "drive": 0.9,
+     "branch_dp_Pa": 66.4,
+     "total_cfm": 23.929,
+     "sink_cfm": 17.787,
+     "coil_cfm": 5.39,
+     "board_cfm": 0.752,
+     "R_SA": 0.268,
+     "board_h_design": 134.4,
+     "board_h_est": 223.9,
+     "jet": {
+      "h_est": 223.9,
+      "h_design": 134.4,
+      "v_jet": 6.28,
+      "Re": 1046,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 55.7,
+     "blower_W_typ": 12.4,
+     "blower_W_max": 23.6
+    },
+    {
+     "drive": 0.95,
+     "branch_dp_Pa": 73.2,
+     "total_cfm": 25.294,
+     "sink_cfm": 18.84,
+     "coil_cfm": 5.664,
+     "board_cfm": 0.79,
+     "R_SA": 0.2625,
+     "board_h_design": 138.8,
+     "board_h_est": 231.4,
+     "jet": {
+      "h_est": 231.4,
+      "h_design": 138.8,
+      "v_jet": 6.59,
+      "Re": 1099,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 56.9,
+     "blower_W_typ": 14.6,
+     "blower_W_max": 27.8
+    },
+    {
+     "drive": 1.0,
+     "branch_dp_Pa": 80.4,
+     "total_cfm": 26.656,
+     "sink_cfm": 19.887,
+     "coil_cfm": 5.941,
+     "board_cfm": 0.828,
+     "R_SA": 0.2576,
+     "board_h_design": 143.3,
+     "board_h_est": 238.8,
+     "jet": {
+      "h_est": 238.8,
+      "h_design": 143.3,
+      "v_jet": 6.91,
+      "Re": 1152,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 58.0,
+     "blower_W_typ": 17.0,
+     "blower_W_max": 32.4
+    }
+   ],
+   "without_board": [
+    {
+     "drive": 0.458,
+     "branch_dp_Pa": 21.0,
+     "total_cfm": 11.8,
+     "sink_cfm": 8.803,
+     "coil_cfm": 2.997,
+     "board_cfm": 0.0,
+     "R_SA": 0.3563,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 41.0,
+     "blower_W_typ": 1.6,
+     "blower_W_max": 3.1
+    },
+    {
+     "drive": 0.5,
+     "branch_dp_Pa": 24.4,
+     "total_cfm": 12.94,
+     "sink_cfm": 9.692,
+     "coil_cfm": 3.248,
+     "board_cfm": 0.0,
+     "R_SA": 0.341,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 42.9,
+     "blower_W_typ": 2.1,
+     "blower_W_max": 4.0
+    },
+    {
+     "drive": 0.55,
+     "branch_dp_Pa": 28.9,
+     "total_cfm": 14.295,
+     "sink_cfm": 10.769,
+     "coil_cfm": 3.525,
+     "board_cfm": 0.0,
+     "R_SA": 0.3257,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 45.0,
+     "blower_W_typ": 2.8,
+     "blower_W_max": 5.4
+    },
+    {
+     "drive": 0.6,
+     "branch_dp_Pa": 33.6,
+     "total_cfm": 15.653,
+     "sink_cfm": 11.841,
+     "coil_cfm": 3.812,
+     "board_cfm": 0.0,
+     "R_SA": 0.313,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 46.9,
+     "blower_W_typ": 3.7,
+     "blower_W_max": 7.0
+    },
+    {
+     "drive": 0.65,
+     "branch_dp_Pa": 38.7,
+     "total_cfm": 17.007,
+     "sink_cfm": 12.911,
+     "coil_cfm": 4.096,
+     "board_cfm": 0.0,
+     "R_SA": 0.3023,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 48.6,
+     "blower_W_typ": 4.7,
+     "blower_W_max": 8.9
+    },
+    {
+     "drive": 0.7,
+     "branch_dp_Pa": 44.3,
+     "total_cfm": 18.357,
+     "sink_cfm": 13.973,
+     "coil_cfm": 4.384,
+     "board_cfm": 0.0,
+     "R_SA": 0.2931,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 50.3,
+     "blower_W_typ": 5.8,
+     "blower_W_max": 11.1
+    },
+    {
+     "drive": 0.75,
+     "branch_dp_Pa": 50.0,
+     "total_cfm": 19.714,
+     "sink_cfm": 15.048,
+     "coil_cfm": 4.666,
+     "board_cfm": 0.0,
+     "R_SA": 0.2849,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 51.8,
+     "blower_W_typ": 7.2,
+     "blower_W_max": 13.7
+    },
+    {
+     "drive": 0.8,
+     "branch_dp_Pa": 56.1,
+     "total_cfm": 21.07,
+     "sink_cfm": 16.12,
+     "coil_cfm": 4.949,
+     "board_cfm": 0.0,
+     "R_SA": 0.2777,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 53.2,
+     "blower_W_typ": 8.7,
+     "blower_W_max": 16.6
+    },
+    {
+     "drive": 0.85,
+     "branch_dp_Pa": 62.6,
+     "total_cfm": 22.425,
+     "sink_cfm": 17.193,
+     "coil_cfm": 5.232,
+     "board_cfm": 0.0,
+     "R_SA": 0.2713,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 54.5,
+     "blower_W_typ": 10.5,
+     "blower_W_max": 19.9
+    },
+    {
+     "drive": 0.9,
+     "branch_dp_Pa": 69.5,
+     "total_cfm": 23.781,
+     "sink_cfm": 18.265,
+     "coil_cfm": 5.515,
+     "board_cfm": 0.0,
+     "R_SA": 0.2654,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 55.7,
+     "blower_W_typ": 12.4,
+     "blower_W_max": 23.6
+    },
+    {
+     "drive": 0.95,
+     "branch_dp_Pa": 76.6,
+     "total_cfm": 25.139,
+     "sink_cfm": 19.343,
+     "coil_cfm": 5.796,
+     "board_cfm": 0.0,
+     "R_SA": 0.2601,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 56.9,
+     "blower_W_typ": 14.6,
+     "blower_W_max": 27.8
+    },
+    {
+     "drive": 1.0,
+     "branch_dp_Pa": 84.1,
+     "total_cfm": 26.495,
+     "sink_cfm": 20.417,
+     "coil_cfm": 6.078,
+     "board_cfm": 0.0,
+     "R_SA": 0.2552,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 58.0,
+     "blower_W_typ": 17.0,
+     "blower_W_max": 32.4
+    }
+   ]
+  },
+  "K1": {
+   "with_board": [
+    {
+     "drive": 0.458,
+     "branch_dp_Pa": 19.9,
+     "total_cfm": 11.914,
+     "sink_cfm": 8.59,
+     "coil_cfm": 2.915,
+     "board_cfm": 0.409,
+     "R_SA": 0.3183,
+     "board_h_design": 89.5,
+     "board_h_est": 149.2,
+     "jet": {
+      "h_est": 149.2,
+      "h_design": 89.5,
+      "v_jet": 3.41,
+      "Re": 569,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 41.0,
+     "blower_W_typ": 1.6,
+     "blower_W_max": 3.1
+    },
+    {
+     "drive": 0.5,
+     "branch_dp_Pa": 23.0,
+     "total_cfm": 13.076,
+     "sink_cfm": 9.49,
+     "coil_cfm": 3.146,
+     "board_cfm": 0.44,
+     "R_SA": 0.3013,
+     "board_h_design": 94.0,
+     "board_h_est": 156.6,
+     "jet": {
+      "h_est": 156.6,
+      "h_design": 94.0,
+      "v_jet": 3.67,
+      "Re": 612,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 42.9,
+     "blower_W_typ": 2.1,
+     "blower_W_max": 4.0
+    },
+    {
+     "drive": 0.55,
+     "branch_dp_Pa": 27.0,
+     "total_cfm": 14.447,
+     "sink_cfm": 10.562,
+     "coil_cfm": 3.408,
+     "board_cfm": 0.477,
+     "R_SA": 0.285,
+     "board_h_design": 99.2,
+     "board_h_est": 165.4,
+     "jet": {
+      "h_est": 165.4,
+      "h_design": 99.2,
+      "v_jet": 3.98,
+      "Re": 664,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 45.0,
+     "blower_W_typ": 2.8,
+     "blower_W_max": 5.4
+    },
+    {
+     "drive": 0.6,
+     "branch_dp_Pa": 31.3,
+     "total_cfm": 15.823,
+     "sink_cfm": 11.635,
+     "coil_cfm": 3.674,
+     "board_cfm": 0.514,
+     "R_SA": 0.2718,
+     "board_h_design": 104.3,
+     "board_h_est": 173.8,
+     "jet": {
+      "h_est": 173.8,
+      "h_design": 104.3,
+      "v_jet": 4.29,
+      "Re": 715,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 46.9,
+     "blower_W_typ": 3.7,
+     "blower_W_max": 7.0
+    },
+    {
+     "drive": 0.65,
+     "branch_dp_Pa": 35.8,
+     "total_cfm": 17.205,
+     "sink_cfm": 12.72,
+     "coil_cfm": 3.934,
+     "board_cfm": 0.55,
+     "R_SA": 0.2607,
+     "board_h_design": 109.1,
+     "board_h_est": 181.8,
+     "jet": {
+      "h_est": 181.8,
+      "h_design": 109.1,
+      "v_jet": 4.59,
+      "Re": 765,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 48.6,
+     "blower_W_typ": 4.7,
+     "blower_W_max": 8.9
+    },
+    {
+     "drive": 0.7,
+     "branch_dp_Pa": 40.7,
+     "total_cfm": 18.58,
+     "sink_cfm": 13.794,
+     "coil_cfm": 4.199,
+     "board_cfm": 0.587,
+     "R_SA": 0.2515,
+     "board_h_design": 113.9,
+     "board_h_est": 189.9,
+     "jet": {
+      "h_est": 189.9,
+      "h_design": 113.9,
+      "v_jet": 4.9,
+      "Re": 816,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 50.3,
+     "blower_W_typ": 5.8,
+     "blower_W_max": 11.1
+    },
+    {
+     "drive": 0.75,
+     "branch_dp_Pa": 45.8,
+     "total_cfm": 19.96,
+     "sink_cfm": 14.877,
+     "coil_cfm": 4.46,
+     "board_cfm": 0.623,
+     "R_SA": 0.2436,
+     "board_h_design": 118.5,
+     "board_h_est": 197.6,
+     "jet": {
+      "h_est": 197.6,
+      "h_design": 118.5,
+      "v_jet": 5.2,
+      "Re": 867,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 51.8,
+     "blower_W_typ": 7.2,
+     "blower_W_max": 13.7
+    },
+    {
+     "drive": 0.8,
+     "branch_dp_Pa": 51.2,
+     "total_cfm": 21.34,
+     "sink_cfm": 15.96,
+     "coil_cfm": 4.721,
+     "board_cfm": 0.659,
+     "R_SA": 0.2367,
+     "board_h_design": 123.1,
+     "board_h_est": 205.1,
+     "jet": {
+      "h_est": 205.1,
+      "h_design": 123.1,
+      "v_jet": 5.5,
+      "Re": 917,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 53.2,
+     "blower_W_typ": 8.7,
+     "blower_W_max": 16.6
+    },
+    {
+     "drive": 0.85,
+     "branch_dp_Pa": 56.9,
+     "total_cfm": 22.719,
+     "sink_cfm": 17.042,
+     "coil_cfm": 4.982,
+     "board_cfm": 0.695,
+     "R_SA": 0.2306,
+     "board_h_design": 127.5,
+     "board_h_est": 212.6,
+     "jet": {
+      "h_est": 212.6,
+      "h_design": 127.5,
+      "v_jet": 5.8,
+      "Re": 967,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 54.5,
+     "blower_W_typ": 10.5,
+     "blower_W_max": 19.9
+    },
+    {
+     "drive": 0.9,
+     "branch_dp_Pa": 62.8,
+     "total_cfm": 24.101,
+     "sink_cfm": 18.131,
+     "coil_cfm": 5.239,
+     "board_cfm": 0.731,
+     "R_SA": 0.2252,
+     "board_h_design": 131.9,
+     "board_h_est": 219.8,
+     "jet": {
+      "h_est": 219.8,
+      "h_design": 131.9,
+      "v_jet": 6.1,
+      "Re": 1017,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 55.7,
+     "blower_W_typ": 12.4,
+     "blower_W_max": 23.6
+    },
+    {
+     "drive": 0.95,
+     "branch_dp_Pa": 69.1,
+     "total_cfm": 25.48,
+     "sink_cfm": 19.213,
+     "coil_cfm": 5.5,
+     "board_cfm": 0.767,
+     "R_SA": 0.2204,
+     "board_h_design": 136.2,
+     "board_h_est": 227.0,
+     "jet": {
+      "h_est": 227.0,
+      "h_design": 136.2,
+      "v_jet": 6.4,
+      "Re": 1067,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 56.9,
+     "blower_W_typ": 14.6,
+     "blower_W_max": 27.8
+    },
+    {
+     "drive": 1.0,
+     "branch_dp_Pa": 75.6,
+     "total_cfm": 26.863,
+     "sink_cfm": 20.302,
+     "coil_cfm": 5.758,
+     "board_cfm": 0.803,
+     "R_SA": 0.216,
+     "board_h_design": 140.4,
+     "board_h_est": 233.9,
+     "jet": {
+      "h_est": 233.9,
+      "h_design": 140.4,
+      "v_jet": 6.7,
+      "Re": 1117,
+      "f": 0.0389
+     },
+     "noise_dBA_est": 58.0,
+     "blower_W_typ": 17.0,
+     "blower_W_max": 32.4
+    }
+   ],
+   "without_board": [
+    {
+     "drive": 0.458,
+     "branch_dp_Pa": 20.7,
+     "total_cfm": 11.827,
+     "sink_cfm": 8.851,
+     "coil_cfm": 2.977,
+     "board_cfm": 0.0,
+     "R_SA": 0.313,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 41.0,
+     "blower_W_typ": 1.6,
+     "blower_W_max": 3.1
+    },
+    {
+     "drive": 0.5,
+     "branch_dp_Pa": 24.0,
+     "total_cfm": 12.982,
+     "sink_cfm": 9.764,
+     "coil_cfm": 3.218,
+     "board_cfm": 0.0,
+     "R_SA": 0.2968,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 42.9,
+     "blower_W_typ": 2.1,
+     "blower_W_max": 4.0
+    },
+    {
+     "drive": 0.55,
+     "branch_dp_Pa": 28.2,
+     "total_cfm": 14.352,
+     "sink_cfm": 10.868,
+     "coil_cfm": 3.485,
+     "board_cfm": 0.0,
+     "R_SA": 0.2809,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 45.0,
+     "blower_W_typ": 2.8,
+     "blower_W_max": 5.4
+    },
+    {
+     "drive": 0.6,
+     "branch_dp_Pa": 32.6,
+     "total_cfm": 15.725,
+     "sink_cfm": 11.971,
+     "coil_cfm": 3.754,
+     "board_cfm": 0.0,
+     "R_SA": 0.2681,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 46.9,
+     "blower_W_typ": 3.7,
+     "blower_W_max": 7.0
+    },
+    {
+     "drive": 0.65,
+     "branch_dp_Pa": 37.4,
+     "total_cfm": 17.097,
+     "sink_cfm": 13.074,
+     "coil_cfm": 4.023,
+     "board_cfm": 0.0,
+     "R_SA": 0.2575,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 48.6,
+     "blower_W_typ": 4.7,
+     "blower_W_max": 8.9
+    },
+    {
+     "drive": 0.7,
+     "branch_dp_Pa": 42.4,
+     "total_cfm": 18.469,
+     "sink_cfm": 14.178,
+     "coil_cfm": 4.292,
+     "board_cfm": 0.0,
+     "R_SA": 0.2486,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 50.3,
+     "blower_W_typ": 5.8,
+     "blower_W_max": 11.1
+    },
+    {
+     "drive": 0.75,
+     "branch_dp_Pa": 47.8,
+     "total_cfm": 19.842,
+     "sink_cfm": 15.282,
+     "coil_cfm": 4.56,
+     "board_cfm": 0.0,
+     "R_SA": 0.2409,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 51.8,
+     "blower_W_typ": 7.2,
+     "blower_W_max": 13.7
+    },
+    {
+     "drive": 0.8,
+     "branch_dp_Pa": 53.4,
+     "total_cfm": 21.219,
+     "sink_cfm": 16.394,
+     "coil_cfm": 4.824,
+     "board_cfm": 0.0,
+     "R_SA": 0.2341,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 53.2,
+     "blower_W_typ": 8.7,
+     "blower_W_max": 16.6
+    },
+    {
+     "drive": 0.85,
+     "branch_dp_Pa": 59.4,
+     "total_cfm": 22.591,
+     "sink_cfm": 17.498,
+     "coil_cfm": 5.092,
+     "board_cfm": 0.0,
+     "R_SA": 0.2282,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 54.5,
+     "blower_W_typ": 10.5,
+     "blower_W_max": 19.9
+    },
+    {
+     "drive": 0.9,
+     "branch_dp_Pa": 65.6,
+     "total_cfm": 23.967,
+     "sink_cfm": 18.61,
+     "coil_cfm": 5.357,
+     "board_cfm": 0.0,
+     "R_SA": 0.223,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 55.7,
+     "blower_W_typ": 12.4,
+     "blower_W_max": 23.6
+    },
+    {
+     "drive": 0.95,
+     "branch_dp_Pa": 72.1,
+     "total_cfm": 25.343,
+     "sink_cfm": 19.722,
+     "coil_cfm": 5.621,
+     "board_cfm": 0.0,
+     "R_SA": 0.2183,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 56.9,
+     "blower_W_typ": 14.6,
+     "blower_W_max": 27.8
+    },
+    {
+     "drive": 1.0,
+     "branch_dp_Pa": 78.9,
+     "total_cfm": 26.718,
+     "sink_cfm": 20.833,
+     "coil_cfm": 5.886,
+     "board_cfm": 0.0,
+     "R_SA": 0.214,
+     "board_h_design": 10.0,
+     "board_h_est": 10.0,
+     "jet": {
+      "h_est": 0.0,
+      "h_design": 0.0,
+      "v_jet": 0.0,
+      "Re": 0,
+      "f": null
+     },
+     "noise_dBA_est": 58.0,
+     "blower_W_typ": 17.0,
+     "blower_W_max": 32.4
+    }
+   ]
+  }
+ },
+ "board_min_drive": {
+  "c26_bay55": {
+   "h_top_required": 52.9,
+   "min_drive_board_h_design": 0.458,
+   "at_min_board_h_design": {
+    "drive": 0.458,
+    "branch_dp_Pa": 20.1,
+    "total_cfm": 11.9,
+    "sink_cfm": 8.565,
+    "coil_cfm": 2.925,
+    "board_cfm": 0.41,
+    "R_SA": 0.361,
+    "board_h_design": 89.7,
+    "board_h_est": 149.5,
+    "jet": {
+     "h_est": 149.5,
+     "h_design": 89.7,
+     "v_jet": 3.42,
+     "Re": 571,
+     "f": 0.0389
+    },
+    "noise_dBA_est": 41.0,
+    "blower_W_typ": 1.6,
+    "blower_W_max": 3.1
+   },
+   "min_drive_board_h_est": 0.458,
+   "at_min_board_h_est": {
+    "drive": 0.458,
+    "branch_dp_Pa": 20.1,
+    "total_cfm": 11.9,
+    "sink_cfm": 8.565,
+    "coil_cfm": 2.925,
+    "board_cfm": 0.41,
+    "R_SA": 0.361,
+    "board_h_design": 89.7,
+    "board_h_est": 149.5,
+    "jet": {
+     "h_est": 149.5,
+     "h_design": 89.7,
+     "v_jet": 3.42,
+     "Re": 571,
+     "f": 0.0389
+    },
+    "noise_dBA_est": 41.0,
+    "blower_W_typ": 1.6,
+    "blower_W_max": 3.1
+   }
+  },
+  "c26_bay61": {
+   "h_top_required": 82.1,
+   "min_drive_board_h_design": 0.458,
+   "at_min_board_h_design": {
+    "drive": 0.458,
+    "branch_dp_Pa": 20.1,
+    "total_cfm": 11.9,
+    "sink_cfm": 8.565,
+    "coil_cfm": 2.925,
+    "board_cfm": 0.41,
+    "R_SA": 0.361,
+    "board_h_design": 89.7,
+    "board_h_est": 149.5,
+    "jet": {
+     "h_est": 149.5,
+     "h_design": 89.7,
+     "v_jet": 3.42,
+     "Re": 571,
+     "f": 0.0389
+    },
+    "noise_dBA_est": 41.0,
+    "blower_W_typ": 1.6,
+    "blower_W_max": 3.1
+   },
+   "min_drive_board_h_est": 0.458,
+   "at_min_board_h_est": {
+    "drive": 0.458,
+    "branch_dp_Pa": 20.1,
+    "total_cfm": 11.9,
+    "sink_cfm": 8.565,
+    "coil_cfm": 2.925,
+    "board_cfm": 0.41,
+    "R_SA": 0.361,
+    "board_h_design": 89.7,
+    "board_h_est": 149.5,
+    "jet": {
+     "h_est": 149.5,
+     "h_design": 89.7,
+     "v_jet": 3.42,
+     "Re": 571,
+     "f": 0.0389
+    },
+    "noise_dBA_est": 41.0,
+    "blower_W_typ": 1.6,
+    "blower_W_max": 3.1
+   }
+  },
+  "c28_bay55": {
+   "h_top_required": 73.2,
+   "min_drive_board_h_design": 0.458,
+   "at_min_board_h_design": {
+    "drive": 0.458,
+    "branch_dp_Pa": 20.1,
+    "total_cfm": 11.9,
+    "sink_cfm": 8.565,
+    "coil_cfm": 2.925,
+    "board_cfm": 0.41,
+    "R_SA": 0.361,
+    "board_h_design": 89.7,
+    "board_h_est": 149.5,
+    "jet": {
+     "h_est": 149.5,
+     "h_design": 89.7,
+     "v_jet": 3.42,
+     "Re": 571,
+     "f": 0.0389
+    },
+    "noise_dBA_est": 41.0,
+    "blower_W_typ": 1.6,
+    "blower_W_max": 3.1
+   },
+   "min_drive_board_h_est": 0.458,
+   "at_min_board_h_est": {
+    "drive": 0.458,
+    "branch_dp_Pa": 20.1,
+    "total_cfm": 11.9,
+    "sink_cfm": 8.565,
+    "coil_cfm": 2.925,
+    "board_cfm": 0.41,
+    "R_SA": 0.361,
+    "board_h_design": 89.7,
+    "board_h_est": 149.5,
+    "jet": {
+     "h_est": 149.5,
+     "h_design": 89.7,
+     "v_jet": 3.42,
+     "Re": 571,
+     "f": 0.0389
+    },
+    "noise_dBA_est": 41.0,
+    "blower_W_typ": 1.6,
+    "blower_W_max": 3.1
+   }
+  },
+  "c28_bay61": {
+   "h_top_required": 97.2,
+   "min_drive_board_h_design": 0.55,
+   "at_min_board_h_design": {
+    "drive": 0.55,
+    "branch_dp_Pa": 27.6,
+    "total_cfm": 14.401,
+    "sink_cfm": 10.472,
+    "coil_cfm": 3.446,
+    "board_cfm": 0.483,
+    "R_SA": 0.3296,
+    "board_h_design": 100.0,
+    "board_h_est": 166.6,
+    "jet": {
+     "h_est": 166.6,
+     "h_design": 100.0,
+     "v_jet": 4.03,
+     "Re": 671,
+     "f": 0.0389
+    },
+    "noise_dBA_est": 45.0,
+    "blower_W_typ": 2.8,
+    "blower_W_max": 5.4
+   },
+   "min_drive_board_h_est": 0.458,
+   "at_min_board_h_est": {
+    "drive": 0.458,
+    "branch_dp_Pa": 20.1,
+    "total_cfm": 11.9,
+    "sink_cfm": 8.565,
+    "coil_cfm": 2.925,
+    "board_cfm": 0.41,
+    "R_SA": 0.361,
+    "board_h_design": 89.7,
+    "board_h_est": 149.5,
+    "jet": {
+     "h_est": 149.5,
+     "h_design": 89.7,
+     "v_jet": 3.42,
+     "Re": 571,
+     "f": 0.0389
+    },
+    "noise_dBA_est": 41.0,
+    "blower_W_typ": 1.6,
+    "blower_W_max": 3.1
+   }
+  }
+ },
+ "parallel_flow_alternative": {
+  "c26_bay55": {
+   "h": 52.9,
+   "v_laminar_m_s": 15.9,
+   "v_turbulent_m_s": 8.5,
+   "cfm_at_turbulent_v": 4.5,
+   "channel_dp_Pa_at_turbulent_v": 60.0
+  },
+  "c26_bay61": {
+   "h": 82.1,
+   "v_laminar_m_s": 38.3,
+   "v_turbulent_m_s": 14.8,
+   "cfm_at_turbulent_v": 7.8,
+   "channel_dp_Pa_at_turbulent_v": 179.0
+  },
+  "c28_bay55": {
+   "h": 73.2,
+   "v_laminar_m_s": 30.5,
+   "v_turbulent_m_s": 12.8,
+   "cfm_at_turbulent_v": 6.7,
+   "channel_dp_Pa_at_turbulent_v": 134.0
+  },
+  "c28_bay61": {
+   "h": 97.2,
+   "v_laminar_m_s": 53.7,
+   "v_turbulent_m_s": 18.3,
+   "cfm_at_turbulent_v": 9.6,
+   "channel_dp_Pa_at_turbulent_v": 273.0
+  }
+ },
+ "ceiling_by_drive": {
+  "0.458": {
+   "h_design": 89.7,
+   "h_est": 149.5,
+   "bay55_A_design": 29.6,
+   "bay61_A_design": 27.6,
+   "bay61_A_est": 29.5
+  },
+  "0.5": {
+   "h_design": 94.4,
+   "h_est": 157.4,
+   "bay55_A_design": 30.0,
+   "bay61_A_design": 28.0,
+   "bay61_A_est": 29.5
+  },
+  "0.55": {
+   "h_design": 100.0,
+   "h_est": 166.6,
+   "bay55_A_design": 30.5,
+   "bay61_A_design": 28.5,
+   "bay61_A_est": 29.5
+  },
+  "0.6": {
+   "h_design": 105.3,
+   "h_est": 175.4,
+   "bay55_A_design": 30.8,
+   "bay61_A_design": 28.6,
+   "bay61_A_est": 29.5
+  },
+  "0.65": {
+   "h_design": 110.4,
+   "h_est": 184.0,
+   "bay55_A_design": 31.2,
+   "bay61_A_design": 28.7,
+   "bay61_A_est": 29.5
+  },
+  "0.7": {
+   "h_design": 115.4,
+   "h_est": 192.4,
+   "bay55_A_design": 31.5,
+   "bay61_A_design": 28.8,
+   "bay61_A_est": 29.5
+  },
+  "0.75": {
+   "h_design": 120.3,
+   "h_est": 200.5,
+   "bay55_A_design": 31.8,
+   "bay61_A_design": 28.9,
+   "bay61_A_est": 29.5
+  },
+  "0.8": {
+   "h_design": 125.1,
+   "h_est": 208.4,
+   "bay55_A_design": 32.2,
+   "bay61_A_design": 29.0,
+   "bay61_A_est": 29.5
+  },
+  "0.85": {
+   "h_design": 129.8,
+   "h_est": 216.3,
+   "bay55_A_design": 32.5,
+   "bay61_A_design": 29.1,
+   "bay61_A_est": 29.5
+  },
+  "0.9": {
+   "h_design": 134.4,
+   "h_est": 223.9,
+   "bay55_A_design": 32.8,
+   "bay61_A_design": 29.2,
+   "bay61_A_est": 29.5
+  },
+  "0.95": {
+   "h_design": 138.8,
+   "h_est": 231.4,
+   "bay55_A_design": 33.1,
+   "bay61_A_design": 29.3,
+   "bay61_A_est": 29.5
+  },
+  "1.0": {
+   "h_design": 143.3,
+   "h_est": 238.8,
+   "bay55_A_design": 33.4,
+   "bay61_A_design": 29.4,
+   "bay61_A_est": 29.5
+  }
+ },
+ "cost_to_sink_and_coil": {
+  "S8_basis_B_28A (fet_case)": {
+   "sink_W": 73.0,
+   "R_SA_needed": 0.513,
+   "min_drive_without_board": 0.458,
+   "min_drive_with_board": 0.458
+  },
+  "S8_basis_A_28A (study 11)": {
+   "sink_W": 150.0,
+   "R_SA_needed": 0.2414,
+   "min_drive_without_board": null,
+   "min_drive_with_board": null
+  },
+  "S8_full_speed": {
+   "sink_cfm": [
+    20.417,
+    19.887
+   ],
+   "R_SA": [
+    0.2552,
+    0.2576
+   ],
+   "coil_cfm": [
+    6.078,
+    5.941
+   ],
+   "board_cfm": 0.828
+  },
+  "K1_basis_B_28A (fet_case)": {
+   "sink_W": 73.0,
+   "R_SA_needed": 0.513,
+   "min_drive_without_board": 0.458,
+   "min_drive_with_board": 0.458
+  },
+  "K1_basis_A_28A (study 11)": {
+   "sink_W": 150.0,
+   "R_SA_needed": 0.2414,
+   "min_drive_without_board": 0.75,
+   "min_drive_with_board": 0.8
+  },
+  "K1_full_speed": {
+   "sink_cfm": [
+    20.833,
+    20.302
+   ],
+   "R_SA": [
+    0.214,
+    0.216
+   ],
+   "coil_cfm": [
+    5.886,
+    5.758
+   ],
+   "board_cfm": 0.803
+  },
+  "coil_28A_expected R_ac 0.136 @100C_without_board": {
+   "drive": 0.458,
+   "Tw_C": 129.7,
+   "Tw_hx0.6_C": 150.1,
+   "coil_cfm": 2.977
+  },
+  "coil_28A_expected R_ac 0.136 @100C_with_board": {
+   "drive": 0.458,
+   "Tw_C": 130.7,
+   "Tw_hx0.6_C": 151.1,
+   "coil_cfm": 2.915
+  },
+  "coil_28A_expected R_ac 0.136 @100C_full_speed_Tw_C": [
+   101.5,
+   102.3
+  ],
+  "coil_28A_acceptance 196 W @28A_without_board": {
+   "drive": 0.85,
+   "Tw_C": 149.6,
+   "Tw_hx0.6_C": 183.8,
+   "coil_cfm": 5.092
+  },
+  "coil_28A_acceptance 196 W @28A_with_board": {
+   "drive": 0.9,
+   "Tw_C": 147.6,
+   "Tw_hx0.6_C": 181.5,
+   "coil_cfm": 5.239
+  },
+  "coil_28A_acceptance 196 W @28A_full_speed_Tw_C": [
+   139.8,
+   141.2
+  ]
+ },
+ "bay_air_C_by_drive": {
+  "expected 40 C kitchen (20.2 W)": {
+   "0.458": 54.7,
+   "0.5": 54.6,
+   "0.55": 54.6,
+   "0.6": 54.5,
+   "0.65": 54.5,
+   "0.7": 54.4,
+   "0.75": 54.4,
+   "0.8": 54.3,
+   "0.85": 54.3,
+   "0.9": 54.2,
+   "0.95": 54.2,
+   "1.0": 54.1,
+   "still_air": 55.4
+  },
+  "28 A worst, B3 heat only (27.9 W)": {
+   "0.458": 59.8,
+   "0.5": 59.7,
+   "0.55": 59.5,
+   "0.6": 59.4,
+   "0.65": 59.3,
+   "0.7": 59.2,
+   "0.75": 59.1,
+   "0.8": 59.0,
+   "0.85": 58.9,
+   "0.9": 58.8,
+   "0.95": 58.7,
+   "1.0": 58.6,
+   "still_air": 61.3
+  },
+  "28 A + 22 W allowances (49.9 W)": {
+   "0.458": 74.2,
+   "0.5": 74.0,
+   "0.55": 73.7,
+   "0.6": 73.4,
+   "0.65": 73.1,
+   "0.7": 72.8,
+   "0.75": 72.6,
+   "0.8": 72.3,
+   "0.85": 72.1,
+   "0.9": 71.8,
+   "0.95": 71.6,
+   "1.0": 71.4,
+   "still_air": 78.1
+  }
+ },
+ "door_exhaust": {
+  "with_board": {
+   "0.458": {
+    "board_cfm": 0.409,
+    "bay_air_C": 59.8,
+    "heat_into_plenum_W": 2.1,
+    "door_exhaust_rise_K": 0.33
+   },
+   "0.8": {
+    "board_cfm": 0.659,
+    "bay_air_C": 59.0,
+    "heat_into_plenum_W": 3.1,
+    "door_exhaust_rise_K": 0.28
+   },
+   "1.0": {
+    "board_cfm": 0.803,
+    "bay_air_C": 58.6,
+    "heat_into_plenum_W": 3.6,
+    "door_exhaust_rise_K": 0.26
+   }
+  },
+  "r43_governing_door_exhaust_C": {
+   "typical_17A_boil_25Croom": 56.2,
+   "full_22A_boil_nomR_50C": 75.6,
+   "full_22A_boil_maxR_50C": 76.5,
+   "fry_hold_240C_12.7A_maxR_50C": 71.3,
+   "empty_pan_hold_260C_9A_maxR_50C": 72.4
+  }
+ }
+}

@@ -1,0 +1,307 @@
+{
+ "scope": "What sits under the jet box on the board of record (s42, codex/power-stage-integration c8665ceb0).\n\n    python3 channel_parts.py      -> channel-parts.json\n\nR43's native-21 envelope is the stage-13 STEP, older than s42, so fit_check.py's 1.2 mm / 6.0 mm gaps are checked here\nagainst s42's own placement (native-21/placement.json, model frame) and footprints (native-21/frozen/default.csv), read\nfrom git objects. The jet box floor is 6.0 mm above the board over model x 1-88, y 10.5-22.5; the gate is that every\npart centred in x -2..92, y 6..25 is an SMD package (body height <= 2.5 mm by package class) apart from the TO-247s and\nthe film caps that bound the channel.",
+ "commit": "c8665ceb09c756582797fb3279d7a3db468ad0bc",
+ "parts": [
+  {
+   "name": "leg_a.c_snub_h",
+   "ref": "C12",
+   "at_model": [
+    70.78,
+    9.7,
+    0.0
+   ],
+   "mpn": "GRM31A5C3A102JW01D",
+   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_a.c_snub_l",
+   "ref": "C13",
+   "at_model": [
+    52.78,
+    9.7,
+    0.0
+   ],
+   "mpn": "GRM31A5C3A102JW01D",
+   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_a.cgs_h",
+   "ref": "C55",
+   "at_model": [
+    63.6,
+    21.8,
+    0.0
+   ],
+   "mpn": "GRM1885C1H472JA01D",
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_a.cgs_l",
+   "ref": "C56",
+   "at_model": [
+    45.6,
+    21.8,
+    0.0
+   ],
+   "mpn": "GRM1885C1H472JA01D",
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_a.doff_h",
+   "ref": "D6",
+   "at_model": [
+    67.2,
+    17.9,
+    0.0
+   ],
+   "mpn": "PMEG6030EP,115",
+   "footprint": "Diode_SMD:D_SOD-128",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_a.doff_l",
+   "ref": "D7",
+   "at_model": [
+    49.2,
+    17.9,
+    0.0
+   ],
+   "mpn": "PMEG6030EP,115",
+   "footprint": "Diode_SMD:D_SOD-128",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_a.r_gh",
+   "ref": "R10",
+   "at_model": [
+    62.6,
+    12.4,
+    270.0
+   ],
+   "mpn": "25121WF680JT4E",
+   "footprint": "Resistor_SMD:R_2512_6332Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_a.r_gh_pd",
+   "ref": "R11",
+   "at_model": [
+    59.4,
+    11.6,
+    270.0
+   ],
+   "mpn": "0603WAF1002T5E",
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_a.r_gl",
+   "ref": "R12",
+   "at_model": [
+    44.6,
+    12.4,
+    270.0
+   ],
+   "mpn": "25121WF680JT4E",
+   "footprint": "Resistor_SMD:R_2512_6332Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_a.r_gl_pd",
+   "ref": "R13",
+   "at_model": [
+    41.4,
+    11.6,
+    90
+   ],
+   "mpn": "0603WAF1002T5E",
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_a.roff_h",
+   "ref": "R53",
+   "at_model": [
+    73.6,
+    17.9,
+    0.0
+   ],
+   "mpn": "1206W4F100KT5E",
+   "footprint": "Resistor_SMD:R_1206_3216Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_a.roff_l",
+   "ref": "R54",
+   "at_model": [
+    55.6,
+    17.9,
+    0.0
+   ],
+   "mpn": "1206W4F100KT5E",
+   "footprint": "Resistor_SMD:R_1206_3216Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_b.c_snub_h",
+   "ref": "C19",
+   "at_model": [
+    12.68,
+    9.7,
+    0.0
+   ],
+   "mpn": "GRM31A5C3A102JW01D",
+   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_b.c_snub_l",
+   "ref": "C20",
+   "at_model": [
+    30.68,
+    9.7,
+    0.0
+   ],
+   "mpn": "GRM31A5C3A102JW01D",
+   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_b.cgs_h",
+   "ref": "C62",
+   "at_model": [
+    5.5,
+    21.8,
+    0.0
+   ],
+   "mpn": "GRM1885C1H472JA01D",
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_b.cgs_l",
+   "ref": "C63",
+   "at_model": [
+    23.5,
+    21.8,
+    0.0
+   ],
+   "mpn": "GRM1885C1H472JA01D",
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_b.doff_h",
+   "ref": "D8",
+   "at_model": [
+    9.1,
+    17.9,
+    0.0
+   ],
+   "mpn": "PMEG6030EP,115",
+   "footprint": "Diode_SMD:D_SOD-128",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_b.doff_l",
+   "ref": "D9",
+   "at_model": [
+    27.1,
+    17.9,
+    0.0
+   ],
+   "mpn": "PMEG6030EP,115",
+   "footprint": "Diode_SMD:D_SOD-128",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_b.r_gh",
+   "ref": "R18",
+   "at_model": [
+    4.5,
+    12.4,
+    270.0
+   ],
+   "mpn": "25121WF680JT4E",
+   "footprint": "Resistor_SMD:R_2512_6332Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_b.r_gh_pd",
+   "ref": "R19",
+   "at_model": [
+    1.3,
+    11.6,
+    90
+   ],
+   "mpn": "0603WAF1002T5E",
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_b.r_gl",
+   "ref": "R20",
+   "at_model": [
+    22.5,
+    12.4,
+    270.0
+   ],
+   "mpn": "25121WF680JT4E",
+   "footprint": "Resistor_SMD:R_2512_6332Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_b.r_gl_pd",
+   "ref": "R21",
+   "at_model": [
+    19.3,
+    11.6,
+    90
+   ],
+   "mpn": "0603WAF1002T5E",
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_b.roff_h",
+   "ref": "R57",
+   "at_model": [
+    15.5,
+    17.9,
+    0.0
+   ],
+   "mpn": "1206W4F100KT5E",
+   "footprint": "Resistor_SMD:R_1206_3216Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "leg_b.roff_l",
+   "ref": "R58",
+   "at_model": [
+    33.5,
+    17.9,
+    0.0
+   ],
+   "mpn": "1206W4F100KT5E",
+   "footprint": "Resistor_SMD:R_1206_3216Metric",
+   "class": "SMD"
+  },
+  {
+   "name": "r_shunt",
+   "ref": "R5",
+   "at_model": [
+    38.5,
+    12.6,
+    270
+   ],
+   "mpn": "CSS2H-2512R-1L00F",
+   "footprint": "temper:R_Shunt_Bourns_CSS2H-2512_Kelvin",
+   "class": "SMD"
+  }
+ ],
+ "status": "PASS"
+}

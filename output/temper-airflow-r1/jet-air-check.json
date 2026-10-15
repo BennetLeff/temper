@@ -1,0 +1,120 @@
+{
+ "scope": "Board margins at the chosen jet operating points with the jet air at its own temperature (estimate, step 1b).\n\n    python3 jet_air_check.py [--workers 4]     # about 15 min -> runs/*_jet*.json, jet-air-check.json\n\nboard_h_sweep.py takes the jet air at bay-air temperature, which is conservative: the jets carry push-hood air\n(D-18 basis 50 C at a 40 C kitchen), and their through-flow also ventilates the bay. Here, for each chosen point\n(ceiling, h_top from delivery.json at the minimum drive, bay):\n  * the bay air is study 14's lumped bay with the jet through-flow (delivery.bay_air),\n  * the region's top-face convection is referenced to the jet air: h_top (T - T_jet) = h_top (rise - dT), with\n    dT = T_jet - T_bay < 0 entered as a heat sink on those cells (rhs), and the FET tab ties relative to that bay.\nSame model, same wrappers and the same gate as board_h_sweep.py (imported from it).",
+ "points": {
+  "c26_bay55": {
+   "label": "c26_jet_h89_bay54p7",
+   "ceil": 26.0,
+   "drive": 0.458,
+   "board_cfm": 0.41,
+   "h_top": 89.7,
+   "bay_still_air_c": 55.0,
+   "bay_with_jets_c": 54.7,
+   "jet_air_c": 50.0,
+   "worst_gated": {
+    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 116.6,
+    "margin_k": 8.4
+   },
+   "rows_under_25K": {
+    "U26: TJ max (TI SBVS204G p.4)": 8.4,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 11.2,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 12.5,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 14.4,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 17.5,
+    "laminate: 1 mm-block copper peak": 19.2,
+    "laminate: FET-row copper": 21.5,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 24.0
+   }
+  },
+  "c26_bay61": {
+   "label": "c26_jet_h89_bay59p8",
+   "ceil": 26.0,
+   "drive": 0.458,
+   "board_cfm": 0.41,
+   "h_top": 89.7,
+   "bay_still_air_c": 61.0,
+   "bay_with_jets_c": 59.8,
+   "jet_air_c": 50.0,
+   "worst_gated": {
+    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 121.6,
+    "margin_k": 3.4
+   },
+   "rows_under_25K": {
+    "U26: TJ max (TI SBVS204G p.4)": 3.4,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 8.8,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 9.9,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 11.4,
+    "laminate: 1 mm-block copper peak": 14.3,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 15.2,
+    "laminate: FET-row copper": 19.3,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 19.6,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 22.0,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 23.7
+   }
+  },
+  "c28_bay55": {
+   "label": "c28_jet_h89_bay54p7",
+   "ceil": 28.0,
+   "drive": 0.458,
+   "board_cfm": 0.41,
+   "h_top": 89.7,
+   "bay_still_air_c": 55.0,
+   "bay_with_jets_c": 54.7,
+   "jet_air_c": 50.0,
+   "worst_gated": {
+    "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 103.6,
+    "margin_k": 6.4
+   },
+   "rows_under_25K": {
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 6.4,
+    "U26: TJ max (TI SBVS204G p.4)": 6.9,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 7.5,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 9.4,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 14.0,
+    "laminate: FET-row copper": 14.1,
+    "laminate: 1 mm-block copper peak": 15.1,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 21.3,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 23.0,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": 23.4
+   }
+  },
+  "c28_bay61": {
+   "label": "c28_jet_h100_bay59p5",
+   "ceil": 28.0,
+   "drive": 0.55,
+   "board_cfm": 0.483,
+   "h_top": 100.0,
+   "bay_still_air_c": 61.0,
+   "bay_with_jets_c": 59.5,
+   "jet_air_c": 50.0,
+   "worst_gated": {
+    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 122.6,
+    "margin_k": 2.4
+   },
+   "rows_under_25K": {
+    "U26: TJ max (TI SBVS204G p.4)": 2.4,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 6.3,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 7.1,
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 8.3,
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 13.8,
+    "laminate: 1 mm-block copper peak": 14.1,
+    "laminate: FET-row copper": 14.1,
+    "U42: Tj abs max (RECOM Rev.1-2024 p.2)": 19.4,
+    "U41: Tj abs max (RECOM Rev.1-2024 p.2)": 22.0,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 22.7,
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": 24.7
+   }
+  }
+ }
+}
