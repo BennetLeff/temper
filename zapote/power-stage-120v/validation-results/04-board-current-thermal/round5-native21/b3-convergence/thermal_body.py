@@ -233,6 +233,18 @@ FILM_HF_STRONG = dict(lead_d_mm=0.8, lead_k_w_mk=390.0, seat_mm=0.62, n_leads=2,
                            "2.11, board top 1.493 mm); bottom-face gap conduction K_AIR 0.026 W/mK")
 
 
+# The air the cap bodies see is not bay air. They stand 17.5 mm tall on a board whose top runs ~90-120 C, inside the
+# board's own natural-convection layer: upper surface of a heated horizontal plate, Nu = 0.54 Ra^1/4 with L = A/P
+# (Incropera & DeWitt, Fundamentals of Heat and Mass Transfer, sec. 9.6) gives h ~ 6.5 W/m2K for the 290 x 190 mm board,
+# a conduction-equivalent layer k/h ~ 4.3 mm; an exponential profile over the 17.5 mm faces averages 0.24 x the board's
+# excess over the bay: ~ +9 K at the release case (C40's pad ~98 C, bay 61 C), toward +12 K with the plume from the
+# 110-120 C channel beside the caps. Default: +12 K + 3 K headroom = +15 K over the bay for a film_hf body NOT credited
+# by a TopRegion (sens key film_air_rise overrides it; run_basis --film-air-rise). A region-credited cap keeps the
+# region's air: the jet sweeps the board's layer away. Sensitivity: b3-ratings/jet-2026-10-15/cap-air.json (release
+# margin -0.11 K per K of cap-air rise).
+FILM_HF_AIR_RISE_K = 15.0
+
+
 def film_strong_coupling_g(d=FILM_HF_STRONG, body=FILM_HF_BODY) -> float:
     """Body-to-board conductance [W/K] at the strong end: copper leads over the seat height + the bottom-face air gap."""
     a = math.pi * (d["lead_d_mm"] * 1e-3 / 2) ** 2
@@ -579,7 +591,10 @@ def build_network_parts(board_obj, heat_json, mode, nz, nx, ny, xmin, ymin, pitc
             if use_air and not sens.get("film_lead_only", False):
                 hb = h_loc * sens.get("h_body_factor", 1.0)
                 np_.g_air = film_body_g_air(hb)
-                np_.meta.update(body_area_mm2=film_body_area_mm2(), body_air_model="film_fin", h_body=hb)
+                np_.t_air = sens.get("film_air_rise", FILM_HF_AIR_RISE_K)    # board-heated air (FILM_HF_AIR_RISE_K);
+                np_.meta.update(body_area_mm2=film_body_area_mm2(), body_air_model="film_fin", h_body=hb,  # a region
+                                film_air_rise_k=np_.t_air)                    # credit below replaces it
+
         elif body is not None and use_air:
             a_top = body[0] * body[1] * 1e-6
             hb = h_loc * sens.get("h_body_factor", 1.0)
@@ -587,8 +602,10 @@ def build_network_parts(board_obj, heat_json, mode, nz, nx, ny, xmin, ymin, pitc
             np_.g_air = 1.0 / r_tot
             np_.meta["body_area_mm2"] = body[0] * body[1]
         if in_region and np_.g_air > 0:
-            np_.t_air = region.t_air_rise
+            np_.t_air = region.t_air_rise          # jet air (for a film cap: the jet sweeps the board's warm layer away)
             np_.meta["region_credited"] = True
+            if "film_air_rise_k" in np_.meta:
+                np_.meta["film_air_rise_k"] = region.t_air_rise
         if sens.get("gap") and body is not None:
             cx, cy = fp["at"][0], fp["at"][1]
             rot = math.radians(fp["at"][2]) if len(fp["at"]) > 2 else 0.0

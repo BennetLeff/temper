@@ -35,111 +35,132 @@
     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
-    "est_c": 126.8,
-    "margin_k": 5.2
-   },
-   {
-    "item": "U26: TJ max (TI SBVS204G p.4)",
-    "gated": true,
-    "limit_c": 125.0,
-    "est_c": 118.8,
-    "margin_k": 6.2
+    "est_c": 128.3,
+    "margin_k": 3.6
    },
    {
     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
-    "est_c": 125.2,
-    "margin_k": 6.8
+    "est_c": 127.0,
+    "margin_k": 4.9
    },
    {
     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
-    "est_c": 124.7,
-    "margin_k": 7.3
+    "est_c": 126.5,
+    "margin_k": 5.5
+   },
+   {
+    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 118.9,
+    "margin_k": 6.1
    },
    {
     "item": "laminate: 1 mm-block copper peak",
     "gated": true,
     "limit_c": 130.0,
-    "est_c": 120.0,
+    "est_c": 121.9,
     "at": [
      45.5,
      15.5,
      "F.Cu"
     ],
-    "margin_k": 10.0
+    "margin_k": 8.1
    },
    {
     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
-    "est_c": 120.3,
-    "margin_k": 11.6
+    "est_c": 122.3,
+    "margin_k": 9.6
    },
    {
     "item": "laminate: FET-row copper",
     "gated": true,
     "limit_c": 130.0,
-    "est_c": 118.2,
-    "margin_k": 11.8
+    "est_c": 119.8,
+    "margin_k": 10.2
    },
    {
     "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
     "gated": true,
     "limit_c": 110.0,
-    "est_c": 95.8,
-    "margin_k": 14.2
+    "est_c": 99.6,
+    "margin_k": 10.4
    },
    {
     "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
     "gated": true,
     "limit_c": 110.0,
-    "est_c": 94.1,
-    "margin_k": 15.9
+    "est_c": 96.9,
+    "margin_k": 13.1
    },
    {
     "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
     "gated": true,
     "limit_c": 110.0,
-    "est_c": 93.4,
-    "margin_k": 16.6
+    "est_c": 96.7,
+    "margin_k": 13.3
    },
    {
     "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
     "gated": true,
     "limit_c": 128.2,
-    "est_c": 111.3,
-    "margin_k": 16.9
-   },
-   {
-    "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
-    "gated": true,
-    "limit_c": 150.0,
-    "est_c": 131.9,
-    "margin_k": 18.1
+    "est_c": 113.2,
+    "margin_k": 15.0
    },
    {
     "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
     "gated": true,
     "limit_c": 110.0,
-    "est_c": 90.2,
-    "margin_k": 19.8
+    "est_c": 92.9,
+    "margin_k": 17.1
+   },
+   {
+    "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
+    "gated": true,
+    "limit_c": 150.0,
+    "est_c": 132.5,
+    "margin_k": 17.5
+   },
+   {
+    "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
+    "gated": true,
+    "limit_c": 128.2,
+    "est_c": 108.2,
+    "margin_k": 20.0
    },
    {
     "item": "C21: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 89.7,
-    "margin_k": 20.3
+    "est_c": 89.8,
+    "margin_k": 20.2
+   },
+   {
+    "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+    "gated": true,
+    "limit_c": 128.2,
+    "est_c": 107.7,
+    "margin_k": 20.5
    },
    {
     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
     "gated": true,
     "limit_c": 150.0,
-    "est_c": 128.9,
-    "margin_k": 21.1
+    "est_c": 129.1,
+    "margin_k": 20.9
+   },
+   {
+    "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 133.8,
+    "margin_k": 21.2
    },
    {
     "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
@@ -152,29 +173,8 @@
     "item": "C22: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 88.2,
-    "margin_k": 21.8
-   },
-   {
-    "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
-    "gated": true,
-    "limit_c": 128.2,
-    "est_c": 106.3,
-    "margin_k": 21.9
-   },
-   {
-    "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
-    "gated": true,
-    "limit_c": 128.2,
-    "est_c": 106.0,
-    "margin_k": 22.2
-   },
-   {
-    "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
-    "gated": true,
-    "limit_c": 155.0,
-    "est_c": 132.4,
-    "margin_k": 22.6
+    "est_c": 88.3,
+    "margin_k": 21.7
    },
    {
     "item": "L1: B82726 climatic upper (TDK p.4)",
@@ -194,15 +194,29 @@
     "item": "C151: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 85.8,
+    "est_c": 85.9,
+    "margin_k": 24.1
+   },
+   {
+    "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 130.9,
+    "margin_k": 24.1
+   },
+   {
+    "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 130.8,
     "margin_k": 24.2
    },
    {
     "item": "C152: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 85.2,
-    "margin_k": 24.8
+    "est_c": 85.3,
+    "margin_k": 24.7
    },
    {
     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
@@ -212,74 +226,60 @@
     "margin_k": 24.9
    },
    {
-    "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
-    "gated": true,
-    "limit_c": 155.0,
-    "est_c": 129.3,
-    "margin_k": 25.7
-   },
-   {
-    "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
-    "gated": true,
-    "limit_c": 155.0,
-    "est_c": 129.2,
-    "margin_k": 25.8
-   },
-   {
     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 127.1,
-    "margin_k": 27.9
+    "est_c": 128.8,
+    "margin_k": 26.2
    },
    {
     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
     "gated": true,
     "limit_c": 128.2,
-    "est_c": 97.4,
-    "margin_k": 30.8
+    "est_c": 98.5,
+    "margin_k": 29.7
    },
    {
     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 112.7,
-    "margin_k": 42.3
+    "est_c": 114.7,
+    "margin_k": 40.3
    },
    {
     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 107.4,
-    "margin_k": 47.6
+    "est_c": 109.3,
+    "margin_k": 45.7
    },
    {
     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 107.1,
-    "margin_k": 47.9
+    "est_c": 108.8,
+    "margin_k": 46.2
    },
    {
     "item": "R5: terminal derating at 0.357 W (20 % margin)",
     "gated": true,
     "limit_c": 161.1,
-    "est_c": 112.9,
-    "margin_k": 48.2
+    "est_c": 114.8,
+    "margin_k": 46.3
    },
    {
     "item": "R5: element max (Bourns CSS2H p.1)",
     "gated": true,
     "limit_c": 170.0,
-    "est_c": 118.0,
-    "margin_k": 52.0
+    "est_c": 119.7,
+    "margin_k": 50.3
    },
    {
     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 98.7,
-    "margin_k": 56.3
+    "est_c": 99.9,
+    "margin_k": 55.1
    },
    {
     "item": "R69: 1206 thick film (unverified)",
@@ -313,29 +313,29 @@
     "item": "R22: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 83.3,
-    "margin_k": 71.7
+    "est_c": 83.5,
+    "margin_k": 71.5
    },
    {
     "item": "R23: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 82.6,
-    "margin_k": 72.4
+    "est_c": 82.8,
+    "margin_k": 72.2
    },
    {
     "item": "R24: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 81.7,
-    "margin_k": 73.3
+    "est_c": 81.9,
+    "margin_k": 73.1
    },
    {
     "item": "R25: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 81.0,
-    "margin_k": 74.0
+    "est_c": 81.1,
+    "margin_k": 73.9
    },
    {
     "item": "R39: 1206 thick film (unverified)",
@@ -350,97 +350,118 @@
     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
-    "est_c": 132.4,
-    "margin_k": -0.5
+    "est_c": 134.0,
+    "margin_k": -2.1
    },
    {
     "item": "laminate: 1 mm-block copper peak",
     "gated": true,
     "limit_c": 130.0,
-    "est_c": 129.2,
+    "est_c": 131.2,
     "at": [
      45.5,
      15.5,
      "F.Cu"
     ],
-    "margin_k": 0.8
+    "margin_k": -1.2
    },
    {
     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
-    "est_c": 130.2,
-    "margin_k": 1.8
+    "est_c": 132.0,
+    "margin_k": -0.1
    },
    {
     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
-    "est_c": 129.6,
-    "margin_k": 2.4
+    "est_c": 131.5,
+    "margin_k": 0.4
    },
    {
     "item": "laminate: FET-row copper",
     "gated": true,
     "limit_c": 130.0,
-    "est_c": 127.5,
-    "margin_k": 2.5
+    "est_c": 129.1,
+    "margin_k": 0.9
    },
    {
     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
-    "est_c": 128.5,
-    "margin_k": 3.4
-   },
-   {
-    "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
-    "gated": true,
-    "limit_c": 128.2,
-    "est_c": 118.9,
-    "margin_k": 9.3
+    "est_c": 130.3,
+    "margin_k": 1.6
    },
    {
     "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
     "gated": true,
     "limit_c": 110.0,
-    "est_c": 100.4,
-    "margin_k": 9.6
+    "est_c": 104.1,
+    "margin_k": 5.9
    },
    {
-    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
     "gated": true,
-    "limit_c": 125.0,
-    "est_c": 115.3,
-    "margin_k": 9.7
+    "limit_c": 128.2,
+    "est_c": 120.9,
+    "margin_k": 7.3
    },
    {
     "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
     "gated": true,
     "limit_c": 110.0,
-    "est_c": 97.6,
-    "margin_k": 12.4
+    "est_c": 101.1,
+    "margin_k": 8.9
    },
    {
-    "item": "C21: MKP Top,max (TDK June 2026 p.35)",
-    "gated": false,
-    "limit_c": 110.0,
-    "est_c": 95.4,
-    "margin_k": 14.6
+    "item": "U26: TJ max (TI SBVS204G p.4)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 115.4,
+    "margin_k": 9.6
    },
    {
     "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
     "gated": true,
     "limit_c": 110.0,
-    "est_c": 95.3,
-    "margin_k": 14.7
+    "est_c": 99.0,
+    "margin_k": 11.0
+   },
+   {
+    "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 96.6,
+    "margin_k": 13.4
    },
    {
     "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
     "gated": true,
     "limit_c": 128.2,
-    "est_c": 112.7,
-    "margin_k": 15.5
+    "est_c": 114.4,
+    "margin_k": 13.9
+   },
+   {
+    "item": "C21: MKP Top,max (TDK June 2026 p.35)",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 95.5,
+    "margin_k": 14.5
+   },
+   {
+    "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 140.0,
+    "margin_k": 15.0
+   },
+   {
+    "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
+    "gated": true,
+    "limit_c": 128.2,
+    "est_c": 112.6,
+    "margin_k": 15.6
    },
    {
     "item": "C22: MKP Top,max (TDK June 2026 p.35)",
@@ -450,25 +471,11 @@
     "margin_k": 16.3
    },
    {
-    "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 138.6,
-    "margin_k": 16.4
-   },
-   {
-    "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
-    "gated": true,
-    "limit_c": 110.0,
-    "est_c": 93.3,
+    "est_c": 138.3,
     "margin_k": 16.7
-   },
-   {
-    "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
-    "gated": true,
-    "limit_c": 128.2,
-    "est_c": 110.7,
-    "margin_k": 17.5
    },
    {
     "item": "C23: MKP Top,max (TDK June 2026 p.35)",
@@ -478,25 +485,25 @@
     "margin_k": 17.6
    },
    {
-    "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
-    "gated": true,
-    "limit_c": 155.0,
-    "est_c": 136.6,
-    "margin_k": 18.4
-   },
-   {
     "item": "C151: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 90.9,
-    "margin_k": 19.1
+    "est_c": 91.0,
+    "margin_k": 19.0
+   },
+   {
+    "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "gated": true,
+    "limit_c": 155.0,
+    "est_c": 135.8,
+    "margin_k": 19.2
    },
    {
     "item": "C152: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 90.2,
-    "margin_k": 19.8
+    "est_c": 90.3,
+    "margin_k": 19.7
    },
    {
     "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
@@ -506,46 +513,39 @@
     "margin_k": 20.0
    },
    {
-    "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+    "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 134.1,
-    "margin_k": 20.9
+    "est_c": 134.0,
+    "margin_k": 21.0
    },
    {
     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
     "gated": true,
     "limit_c": 150.0,
-    "est_c": 128.3,
-    "margin_k": 21.7
-   },
-   {
-    "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
-    "gated": true,
-    "limit_c": 155.0,
-    "est_c": 132.5,
-    "margin_k": 22.5
-   },
-   {
-    "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 80.3,
-    "margin_k": 24.7
+    "est_c": 128.9,
+    "margin_k": 21.1
    },
    {
     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
     "gated": true,
     "limit_c": 128.2,
-    "est_c": 103.3,
-    "margin_k": 24.9
+    "est_c": 104.6,
+    "margin_k": 23.6
+   },
+   {
+    "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+    "gated": false,
+    "limit_c": 105.0,
+    "est_c": 80.4,
+    "margin_k": 24.6
    },
    {
     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
     "gated": true,
     "limit_c": 150.0,
-    "est_c": 123.9,
-    "margin_k": 26.1
+    "est_c": 124.1,
+    "margin_k": 25.9
    },
    {
     "item": "L1: B82726 climatic upper (TDK p.4)",
@@ -558,43 +558,43 @@
     "item": "R5: terminal derating at 0.534 W (20 % margin)",
     "gated": true,
     "limit_c": 156.7,
-    "est_c": 123.9,
-    "margin_k": 32.8
+    "est_c": 125.8,
+    "margin_k": 30.9
    },
    {
     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 120.8,
-    "margin_k": 34.2
+    "est_c": 122.8,
+    "margin_k": 32.2
    },
    {
     "item": "R5: element max (Bourns CSS2H p.1)",
     "gated": true,
     "limit_c": 170.0,
-    "est_c": 131.8,
-    "margin_k": 38.2
+    "est_c": 133.5,
+    "margin_k": 36.5
    },
    {
     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 113.9,
-    "margin_k": 41.1
+    "est_c": 115.5,
+    "margin_k": 39.5
    },
    {
     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 111.7,
-    "margin_k": 43.3
+    "est_c": 113.6,
+    "margin_k": 41.4
    },
    {
     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 105.0,
-    "margin_k": 50.0
+    "est_c": 106.3,
+    "margin_k": 48.7
    },
    {
     "item": "R69: 1206 thick film (unverified)",
@@ -621,43 +621,43 @@
     "item": "R22: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 84.2,
-    "margin_k": 70.8
+    "est_c": 84.5,
+    "margin_k": 70.5
    },
    {
     "item": "R23: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 82.9,
-    "margin_k": 72.1
+    "est_c": 83.1,
+    "margin_k": 71.9
    },
    {
     "item": "R67: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 82.9,
-    "margin_k": 72.1
+    "est_c": 83.0,
+    "margin_k": 72.0
    },
    {
     "item": "R24: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 81.5,
-    "margin_k": 73.5
+    "est_c": 81.7,
+    "margin_k": 73.3
    },
    {
     "item": "R25: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 80.5,
-    "margin_k": 74.5
+    "est_c": 80.6,
+    "margin_k": 74.4
    },
    {
     "item": "R39: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 69.0,
-    "margin_k": 86.0
+    "est_c": 69.1,
+    "margin_k": 85.9
    }
   ],
   "c28_h10": [
@@ -665,125 +665,139 @@
     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
-    "est_c": 155.2,
-    "margin_k": -23.2
+    "est_c": 157.1,
+    "margin_k": -25.2
    },
    {
     "item": "laminate: FET-row copper",
     "gated": true,
     "limit_c": 130.0,
-    "est_c": 152.5,
-    "margin_k": -22.5
+    "est_c": 154.1,
+    "margin_k": -24.1
    },
    {
     "item": "laminate: 1 mm-block copper peak",
     "gated": true,
     "limit_c": 130.0,
-    "est_c": 150.6,
+    "est_c": 152.5,
     "at": [
      38.5,
      15.5,
      "F.Cu"
     ],
-    "margin_k": -20.6
+    "margin_k": -22.5
    },
    {
     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
-    "est_c": 152.1,
-    "margin_k": -20.2
-   },
-   {
-    "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
-    "gated": true,
-    "limit_c": 131.9,
-    "est_c": 147.2,
-    "margin_k": -15.3
+    "est_c": 153.7,
+    "margin_k": -21.7
    },
    {
     "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
     "gated": true,
     "limit_c": 128.2,
-    "est_c": 143.4,
-    "margin_k": -15.2
+    "est_c": 145.4,
+    "margin_k": -17.2
+   },
+   {
+    "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+    "gated": true,
+    "limit_c": 131.9,
+    "est_c": 148.9,
+    "margin_k": -17.0
    },
    {
     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
-    "est_c": 143.4,
-    "margin_k": -11.4
+    "est_c": 144.9,
+    "margin_k": -13.0
    },
    {
     "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
     "gated": true,
     "limit_c": 110.0,
-    "est_c": 118.1,
-    "margin_k": -8.1
+    "est_c": 121.8,
+    "margin_k": -11.8
    },
    {
     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 162.5,
-    "margin_k": -7.5
-   },
-   {
-    "item": "C21: MKP Top,max (TDK June 2026 p.35)",
-    "gated": false,
-    "limit_c": 110.0,
-    "est_c": 117.2,
-    "margin_k": -7.2
-   },
-   {
-    "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
-    "gated": true,
-    "limit_c": 128.2,
-    "est_c": 133.8,
-    "margin_k": -5.6
-   },
-   {
-    "item": "C22: MKP Top,max (TDK June 2026 p.35)",
-    "gated": false,
-    "limit_c": 110.0,
-    "est_c": 115.1,
-    "margin_k": -5.1
+    "est_c": 164.2,
+    "margin_k": -9.2
    },
    {
     "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
     "gated": true,
     "limit_c": 110.0,
-    "est_c": 114.8,
-    "margin_k": -4.8
+    "est_c": 118.4,
+    "margin_k": -8.4
+   },
+   {
+    "item": "C21: MKP Top,max (TDK June 2026 p.35)",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 117.3,
+    "margin_k": -7.3
+   },
+   {
+    "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+    "gated": true,
+    "limit_c": 128.2,
+    "est_c": 135.5,
+    "margin_k": -7.3
    },
    {
     "item": "R5: terminal derating at 0.864 W (20 % margin)",
     "gated": true,
     "limit_c": 148.4,
-    "est_c": 153.0,
-    "margin_k": -4.6
+    "est_c": 154.9,
+    "margin_k": -6.5
+   },
+   {
+    "item": "C22: MKP Top,max (TDK June 2026 p.35)",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 115.2,
+    "margin_k": -5.2
    },
    {
     "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 158.7,
-    "margin_k": -3.7
+    "est_c": 160.0,
+    "margin_k": -5.0
    },
    {
     "item": "C23: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 113.6,
-    "margin_k": -3.6
+    "est_c": 113.7,
+    "margin_k": -3.7
+   },
+   {
+    "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 113.0,
+    "margin_k": -3.0
+   },
+   {
+    "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+    "gated": true,
+    "limit_c": 110.0,
+    "est_c": 112.3,
+    "margin_k": -2.3
    },
    {
     "item": "C151: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 111.7,
-    "margin_k": -1.7
+    "est_c": 111.8,
+    "margin_k": -1.8
    },
    {
     "item": "C152: MKP Top,max (TDK June 2026 p.35)",
@@ -793,53 +807,39 @@
     "margin_k": -0.9
    },
    {
-    "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
-    "gated": true,
-    "limit_c": 110.0,
-    "est_c": 109.8,
-    "margin_k": 0.2
-   },
-   {
     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
     "gated": true,
     "limit_c": 128.2,
-    "est_c": 126.8,
-    "margin_k": 1.4
-   },
-   {
-    "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
-    "gated": true,
-    "limit_c": 110.0,
-    "est_c": 108.6,
-    "margin_k": 1.4
-   },
-   {
-    "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
-    "gated": true,
-    "limit_c": 128.2,
-    "est_c": 124.7,
-    "margin_k": 3.5
+    "est_c": 128.7,
+    "margin_k": -0.5
    },
    {
     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 151.3,
-    "margin_k": 3.7
+    "est_c": 153.0,
+    "margin_k": 2.0
+   },
+   {
+    "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
+    "gated": true,
+    "limit_c": 128.2,
+    "est_c": 126.0,
+    "margin_k": 2.2
    },
    {
     "item": "R5: element max (Bourns CSS2H p.1)",
     "gated": true,
     "limit_c": 170.0,
-    "est_c": 166.0,
-    "margin_k": 4.0
+    "est_c": 167.7,
+    "margin_k": 2.3
    },
    {
     "item": "U26: TJ max (TI SBVS204G p.4)",
     "gated": true,
     "limit_c": 125.0,
-    "est_c": 119.8,
-    "margin_k": 5.2
+    "est_c": 119.9,
+    "margin_k": 5.1
    },
    {
     "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
@@ -852,15 +852,15 @@
     "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 146.3,
-    "margin_k": 8.7
+    "est_c": 147.8,
+    "margin_k": 7.2
    },
    {
     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 144.3,
-    "margin_k": 10.7
+    "est_c": 146.3,
+    "margin_k": 8.7
    },
    {
     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
@@ -873,22 +873,22 @@
     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
     "gated": true,
     "limit_c": 150.0,
-    "est_c": 132.2,
-    "margin_k": 17.8
+    "est_c": 132.8,
+    "margin_k": 17.2
    },
    {
     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 135.1,
-    "margin_k": 19.9
+    "est_c": 136.7,
+    "margin_k": 18.3
    },
    {
     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
     "gated": true,
     "limit_c": 150.0,
-    "est_c": 125.7,
-    "margin_k": 24.3
+    "est_c": 125.9,
+    "margin_k": 24.1
    },
    {
     "item": "L1: B82726 climatic upper (TDK p.4)",
@@ -901,43 +901,43 @@
     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 127.8,
-    "margin_k": 27.2
+    "est_c": 129.7,
+    "margin_k": 25.3
    },
    {
     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 126.3,
-    "margin_k": 28.7
+    "est_c": 127.6,
+    "margin_k": 27.4
    },
    {
     "item": "R22: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 97.0,
-    "margin_k": 58.0
+    "est_c": 97.3,
+    "margin_k": 57.7
    },
    {
     "item": "R23: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 94.5,
-    "margin_k": 60.5
+    "est_c": 94.7,
+    "margin_k": 60.3
    },
    {
     "item": "R24: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 92.3,
-    "margin_k": 62.7
+    "est_c": 92.4,
+    "margin_k": 62.6
    },
    {
     "item": "R25: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 90.7,
-    "margin_k": 64.3
+    "est_c": 90.8,
+    "margin_k": 64.2
    },
    {
     "item": "R69: 1206 thick film (unverified)",
@@ -982,15 +982,15 @@
   "c28_h10": "9e075b4b90320e1e19c7b9740278715a4dabe6c80779fe8082a5bb844083ef86"
  },
  "metrics": {
-  "b3_laminate_margin_K": -22.5,
-  "b3_rated_part_margin_K": -23.2,
-  "b3_advisory_margin_K": -7.2,
+  "b3_laminate_margin_K": -24.1,
+  "b3_rated_part_margin_K": -25.2,
+  "b3_advisory_margin_K": -7.3,
   "worst_gated": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
   "ratchet_cases": [
    "c22_h10",
    "c28_h10"
   ],
-  "b3_release_margin_K": 5.2,
+  "b3_release_margin_K": 3.6,
   "release_worst_gated": "c18_h10: R10: 2512 terminal derating at 0.217 W (20 % margin)",
   "release_failing_rows": []
  },

@@ -42,7 +42,8 @@ Limits (sources re-read 2026-10-15; see the audit's ratings.py for page-level qu
                    (thermal-refine 2026-10-15: the limit is a datasheet maximum; the body node is reached through the
                    assumed 50 K/W lead path. To 2026-10-15 it had no body-to-air path, an upper bound for a cap heated
                    from its leads; since jet-2026-10-15 the body loses heat to air from its p.14 9.0 x 17.5 x 18.0 mm
-                   box at the local h, as a fin from its end contacts: thermal_body.film_body_g_air. The solve keeps the
+                   box at the local h, as a fin from its end contacts: thermal_body.film_body_g_air, to air at bay +
+                   FILM_HF_AIR_RISE_K (15 K, board-heated air; jet air when a region credits it). The solve keeps the
                    weak 50 K/W lead tie (conservative for the board rows); the row is the run's top_bound_c, the body
                    tied to its hotter pad through copper leads over the 0.62 mm seat (thermal_body.FILM_HF_STRONG,
                    conservative for the cap))

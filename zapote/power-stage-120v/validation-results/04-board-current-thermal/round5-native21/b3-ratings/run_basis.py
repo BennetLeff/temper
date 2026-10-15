@@ -27,8 +27,9 @@ fet_case.t_case(i_line=).
 FET drain-lead path (thermal-refine 2026-10-15): each TO-247's drain pad is tied to its tab at the fet_case.t_case()
 central case temperature through thermal_body.drain_lead_conductance() (IPW65R018CFD7 p.12 drawing, mid values). The tie
 temperature is relative to the bay air, so each case is solved at its own bay, not shifted, and the gate checks that.
-HF film caps C38-C41 (jet-2026-10-15): body-to-air path at the local h (thermal_body.film_body_g_air) with the weak 50 K/W
-lead tie in the solve; the gated Top row is the strong-tie bound (thermal_body.FILM_HF_STRONG). --film-lead-only
+HF film caps C38-C41 (jet-2026-10-15): body-to-air path at the local h (thermal_body.film_body_g_air), to air at bay +
+thermal_body.FILM_HF_AIR_RISE_K (15 K, board-heated air; --film-air-rise overrides), with the weak 50 K/W lead tie in the
+solve; the gated Top row is the strong-tie bound (thermal_body.FILM_HF_STRONG). --film-lead-only
 reproduces the model before it (no body-to-air path).
 Uses the committed body-level model in place (../b3-convergence/thermal_body.py + body_runs.py, fill-fraction copper and
 datasheet package networks) on run_study.GEOM (the chain's current copper).
@@ -131,11 +132,15 @@ def main():
     ap.add_argument("--out", default=str(HERE / "margins.json"))
     ap.add_argument("--film-lead-only", action="store_true",
                     help="C38-C41 without their body-to-air path (the model to 2026-10-15; a control)")
+    ap.add_argument("--film-air-rise", type=float,
+                    help="C38-C41 body air over the bay, K (default thermal_body.FILM_HF_AIR_RISE_K; a sensitivity)")
     ap.add_argument("--jet-credit-refs", default="",
                     help="comma list of part bodies credited at h_top in airflow cases although centred outside "
                          "JET_REGION (a sensitivity, e.g. C38,C39,C40,C41; recorded in the run files)")
     a = ap.parse_args()
     sens = {"film_lead_only": True} if a.film_lead_only else {}
+    if a.film_air_rise is not None:
+        sens["film_air_rise"] = a.film_air_rise
     credit = tuple(r for r in a.jet_credit_refs.split(",") if r)
     if a.cases and a.bay_c is not None:
         raise SystemExit("run_basis: give --cases (with @bay) or --bay-c, not both")

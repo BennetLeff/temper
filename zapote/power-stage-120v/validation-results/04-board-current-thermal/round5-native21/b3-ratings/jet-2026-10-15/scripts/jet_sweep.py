@@ -3,6 +3,12 @@
 
     python3 jet_sweep.py solve [--workers 3] [--bays 55,61]   # run_basis.py -> ../../runs/jet-2026-10-15/{main,capjet}/bay<B>
     python3 jet_sweep.py summary                    # -> ../jet-sweep.json (committed), prints the tables
+    python3 jet_sweep.py solve-air15 [--workers 3]  # 28 A at bay 55 / 61 with the film_hf default air (bay + 15 K)
+
+Basis note (2026-10-15, after cap-air.json): main and capjet were solved with C38-C41 at bay air, the model of
+eabef510a. thermal_body.FILM_HF_AIR_RISE_K then put the cap bodies' air at bay + 15 K. `air15` re-solves the 28 A
+points on that default; the c26 rows and the ceiling-vs-h table stay on the bay-air basis (superseded at 28 A by air15).
+capjet credits all four caps to the jet region, whose air is the bay, so it does not change.
 
 What is solved (each case at 0.25 and 0.5 mm, the gate's two meshes; every case at its own bay, I_line 13.5 A,
 FET tab ties from fet_case, C38-C41 with their body-to-air path):
@@ -74,6 +80,17 @@ def solve(workers, bays):
                 raise SystemExit(f"run_basis failed ({r.returncode}) on {tag} bay {bay:g}")
 
 
+def solve_air15(workers):
+    for bay in BAYS:
+        runs = rdir("air15", bay)
+        runs.mkdir(parents=True, exist_ok=True)
+        cases = [f"{case(28.0, h)}@{bay:g}" for h in H_TOPS]
+        r = subprocess.run([sys.executable, str(B3R / "run_basis.py"), "--workers", str(workers), "--cases",
+                            ",".join(cases), "--runs", str(runs), "--out", str(runs / "margins-jet.json")])
+        if r.returncode not in (0, 1):
+            raise SystemExit(f"run_basis failed ({r.returncode}) on air15 bay {bay:g}")
+
+
 def gated(tag, c, bay):
     return [r for r in gate.run(rdir(tag, bay), [f"{c}@{bay:g}"])["cases"][c] if r["gated"]]
 
@@ -116,11 +133,13 @@ def summary():
     ctl1 = all(ceiling_pair(a, b, c36.I22, c36.I28) == c36.ceiling(a, b) for a, b in probe)
     # (2) a region at h_top 10 is the still-air model: c28_h10_jet10 @ 55 against the committed margins.json c28_h10
     ref = json.loads((B3R / "margins.json").read_text())
-    mine = {r["item"]: r["margin_k"] for r in gate.run(rdir("main", 55), [f"{case(28, 10)}@55"])["cases"][case(28, 10)]}
+    # (the committed margins.json is on the film_hf default air since FILM_HF_AIR_RISE_K: compare it with air15's run)
+    ctl_dir = rdir("air15", 55) if (rdir("air15", 55) / f"{case(28, 10)}_p0p5.json").exists() else rdir("main", 55)
+    mine = {r["item"]: r["margin_k"] for r in gate.run(ctl_dir, [f"{case(28, 10)}@55"])["cases"][case(28, 10)]}
     th = {r["item"]: r["margin_k"] for r in ref["cases"]["c28_h10"]}
     d = [abs(mine[i] - th[i]) for i in th if i in mine]
     out["controls"] = {"ceiling_pair_reproduces_ceilings_py": ctl1,
-                       "jet10_vs_margins_json_c28_h10": {"rows": len(d), "missing": sorted(set(th) - set(mine)),
+                       "jet10_vs_margins_json_c28_h10": {"runs": ctl_dir.parent.name, "rows": len(d), "missing": sorted(set(th) - set(mine)),
                                                          "max_abs_diff_K": max(d) if d else None}}
     # ---- per case, required h_top, per-row h at zero
     for tag, hs in (("main", H_TOPS), ("capjet", H_TOPS)):
@@ -172,6 +191,28 @@ def summary():
             out["ceiling_by_h"] = tab
         else:
             out["capjet"]["ceiling_by_h"] = tab
+    # ---- 28 A on the film_hf default air (bay + 15 K), if solved
+    if all((rdir("air15", b) / f"{case(28.0, 100)}_p0p5.json").exists() for b in BAYS):
+        a15 = {"basis": "C38-C41 body air at bay + thermal_body.FILM_HF_AIR_RISE_K (15 K); caps outside the jet region",
+               "required_h_top": {}, "per_row_h_zero": {}, "cases": {}}
+        for bay in BAYS:
+            series, worst_pts = {}, []
+            for h in H_TOPS:
+                g = gated("air15", case(28.0, h), bay)
+                w = min(g, key=lambda r: r["margin_k"])
+                worst_pts.append((h, w["margin_k"]))
+                a15["cases"][f"{case(28.0, h)}@{bay:g}"] = {"worst_gated": w, "caps": {
+                    r["item"].split(":")[0]: r["margin_k"] for r in g if r["item"][:3] in CAPS}}
+                for r in g:
+                    series.setdefault(r["item"], []).append((h, r["margin_k"]))
+            key = f"c28_bay{int(bay)}"
+            need = h_zero(worst_pts)
+            a15["required_h_top"][key] = {"h_top_required": need, "worst_margin_by_h": worst_pts,
+                                          "bay_air_basis": out["required_h_top"][key]["h_top_required"]}
+            a15["per_row_h_zero"][key] = {item: {"h_zero": h_zero(pts), "margin_h10": pts[0][1]}
+                                          for item, pts in sorted(series.items(), key=lambda kv: kv[1][0][1])
+                                          if pts[0][1] < 0}
+        out["air15"] = a15
     out["airflow_r1"] = AIRFLOW_R1
     sources = [B3R / "run_basis.py", B3R / "b3_ratings_gate.py", B3R / "fet_case.py", B3R / "margins.json",
                B3R.parent / "b3-convergence/thermal_body.py", B3R.parent / "b3-convergence/body_runs.py",
@@ -183,6 +224,9 @@ def summary():
                                                     text=True).stdout.strip(),
                          "sources_sha256": {str(p.relative_to(UNIT)): sha(p) for p in sources}}
     (STUDY / "jet-sweep.json").write_text(json.dumps(out, indent=1) + "\n")
+    if "air15" in out:
+        print("air15 required h_top:", {k: (v["h_top_required"], v["bay_air_basis"])
+                                        for k, v in out["air15"]["required_h_top"].items()})
     print(json.dumps({"controls": out["controls"],
                       "required_h_top": {k: v["h_top_required"] for k, v in out["required_h_top"].items()},
                       "required_h_top_capjet": {k: v["h_top_required"] for k, v in out["capjet"]["required_h_top"].items()},
@@ -193,10 +237,12 @@ def summary():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("what", choices=("solve", "summary"))
+    ap.add_argument("what", choices=("solve", "solve-air15", "summary"))
     ap.add_argument("--workers", type=int, default=3)
     ap.add_argument("--bays", default=",".join(f"{b:g}" for b in BAYS))
     a = ap.parse_args()
+    if a.what == "solve-air15":
+        solve_air15(a.workers)
     if a.what == "solve":
         solve(a.workers, [float(b) for b in a.bays.split(",")])
     summary()

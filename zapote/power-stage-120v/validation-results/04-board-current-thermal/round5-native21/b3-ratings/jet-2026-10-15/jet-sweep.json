@@ -1,5 +1,5 @@
 {
- "scope": "B3 jet sweep on the supported airflow case (b3-ratings/jet-2026-10-15; OPEN-ITEMS S2 board side (a) and (b)).\n\n    python3 jet_sweep.py solve [--workers 3] [--bays 55,61]   # run_basis.py -> ../../runs/jet-2026-10-15/{main,capjet}/bay<B>\n    python3 jet_sweep.py summary                    # -> ../jet-sweep.json (committed), prints the tables\n\nWhat is solved (each case at 0.25 and 0.5 mm, the gate's two meshes; every case at its own bay, I_line 13.5 A,\nFET tab ties from fet_case, C38-C41 with their body-to-air path):\n  main    c26 and c28 x bay 55 and 61 C x h_top 10 / 35 / 60 / 100 W/m2K on run_basis.JET_REGION (the top-face cells\n          and the bodies centred in it, air at the bay; every other cell and the bottom face at h 10). C38-C41 are\n          centred at y 28.2, outside the region, so their bodies stay at h 10: the conservative reading.\n  capjet  the same cases at h_top 35 / 60 / 100 with C38-C41's bodies also at h_top (run_basis --jet-credit-refs):\n          the optimistic bound if the spent jet air washes the cap bodies (the jet box ends 1.2 mm from them).\nSummary: per case the gated rows (b3_ratings_gate.run); the required h_top per ceiling and bay (smallest h at which every\ngated row is >= 0, linear between grid points); the per-row h at zero; the ceiling-vs-h table by the c36 I_trip^2 method\n(c39-gate-network/scripts/ceilings.py, here between the c26 (27.3 A trip) and c28 (29.4 A trip) solves); controls.",
+ "scope": "B3 jet sweep on the supported airflow case (b3-ratings/jet-2026-10-15; OPEN-ITEMS S2 board side (a) and (b)).\n\n    python3 jet_sweep.py solve [--workers 3] [--bays 55,61]   # run_basis.py -> ../../runs/jet-2026-10-15/{main,capjet}/bay<B>\n    python3 jet_sweep.py summary                    # -> ../jet-sweep.json (committed), prints the tables\n    python3 jet_sweep.py solve-air15 [--workers 3]  # 28 A at bay 55 / 61 with the film_hf default air (bay + 15 K)\n\nBasis note (2026-10-15, after cap-air.json): main and capjet were solved with C38-C41 at bay air, the model of\neabef510a. thermal_body.FILM_HF_AIR_RISE_K then put the cap bodies' air at bay + 15 K. `air15` re-solves the 28 A\npoints on that default; the c26 rows and the ceiling-vs-h table stay on the bay-air basis (superseded at 28 A by air15).\ncapjet credits all four caps to the jet region, whose air is the bay, so it does not change.\n\nWhat is solved (each case at 0.25 and 0.5 mm, the gate's two meshes; every case at its own bay, I_line 13.5 A,\nFET tab ties from fet_case, C38-C41 with their body-to-air path):\n  main    c26 and c28 x bay 55 and 61 C x h_top 10 / 35 / 60 / 100 W/m2K on run_basis.JET_REGION (the top-face cells\n          and the bodies centred in it, air at the bay; every other cell and the bottom face at h 10). C38-C41 are\n          centred at y 28.2, outside the region, so their bodies stay at h 10: the conservative reading.\n  capjet  the same cases at h_top 35 / 60 / 100 with C38-C41's bodies also at h_top (run_basis --jet-credit-refs):\n          the optimistic bound if the spent jet air washes the cap bodies (the jet box ends 1.2 mm from them).\nSummary: per case the gated rows (b3_ratings_gate.run); the required h_top per ceiling and bay (smallest h at which every\ngated row is >= 0, linear between grid points); the per-row h at zero; the ceiling-vs-h table by the c36 I_trip^2 method\n(c39-gate-network/scripts/ceilings.py, here between the c26 (27.3 A trip) and c28 (29.4 A trip) solves); controls.",
  "region": {
   "xy_mm": [
    0.0,
@@ -1394,9 +1394,331 @@
  "controls": {
   "ceiling_pair_reproduces_ceilings_py": true,
   "jet10_vs_margins_json_c28_h10": {
+   "runs": "air15",
    "rows": 44,
    "missing": [],
    "max_abs_diff_K": 0.0
+  }
+ },
+ "air15": {
+  "basis": "C38-C41 body air at bay + thermal_body.FILM_HF_AIR_RISE_K (15 K); caps outside the jet region",
+  "required_h_top": {
+   "c28_bay55": {
+    "h_top_required": 45.1,
+    "worst_margin_by_h": [
+     [
+      10.0,
+      -25.2
+     ],
+     [
+      35.0,
+      -4.2
+     ],
+     [
+      60.0,
+      6.2
+     ],
+     [
+      100.0,
+      6.7
+     ]
+    ],
+    "bay_air_basis": 42.5
+   },
+   "c28_bay61": {
+    "h_top_required": 59.2,
+    "worst_margin_by_h": [
+     [
+      10.0,
+      -29.8
+     ],
+     [
+      35.0,
+      -9.3
+     ],
+     [
+      60.0,
+      0.3
+     ],
+     [
+      100.0,
+      0.7
+     ]
+    ],
+    "bay_air_basis": 59.1
+   }
+  },
+  "per_row_h_zero": {
+   "c28_bay55": {
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": {
+     "h_zero": 42.6,
+     "margin_h10": -25.2
+    },
+    "laminate: FET-row copper": {
+     "h_zero": 39.2,
+     "margin_h10": -24.1
+    },
+    "laminate: 1 mm-block copper peak": {
+     "h_zero": 43.6,
+     "margin_h10": -22.5
+    },
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": {
+     "h_zero": 34.8,
+     "margin_h10": -21.7
+    },
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": {
+     "h_zero": 33.0,
+     "margin_h10": -17.2
+    },
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": {
+     "h_zero": 29.3,
+     "margin_h10": -17.0
+    },
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": {
+     "h_zero": 24.9,
+     "margin_h10": -13.0
+    },
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+     "h_zero": 36.4,
+     "margin_h10": -11.8
+    },
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+     "h_zero": 20.3,
+     "margin_h10": -9.2
+    },
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+     "h_zero": 29.8,
+     "margin_h10": -8.4
+    },
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": {
+     "h_zero": 20.9,
+     "margin_h10": -7.3
+    },
+    "R5: terminal derating at 0.864 W (20 % margin)": {
+     "h_zero": 18.7,
+     "margin_h10": -6.5
+    },
+    "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+     "h_zero": 15.5,
+     "margin_h10": -5.0
+    },
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+     "h_zero": 18.5,
+     "margin_h10": -3.0
+    },
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+     "h_zero": 15.3,
+     "margin_h10": -2.3
+    },
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": {
+     "h_zero": 10.7,
+     "margin_h10": -0.5
+    }
+   },
+   "c28_bay61": {
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": {
+     "h_zero": 52.1,
+     "margin_h10": -29.8
+    },
+    "laminate: FET-row copper": {
+     "h_zero": 53.8,
+     "margin_h10": -28.6
+    },
+    "laminate: 1 mm-block copper peak": {
+     "h_zero": 54.4,
+     "margin_h10": -27.0
+    },
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": {
+     "h_zero": 43.9,
+     "margin_h10": -26.6
+    },
+    "R58: 1206 terminal derating at 0.063 W (20 % margin)": {
+     "h_zero": 42.2,
+     "margin_h10": -21.7
+    },
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": {
+     "h_zero": 34.7,
+     "margin_h10": -21.2
+    },
+    "R18: 2512 terminal derating at 0.217 W (20 % margin)": {
+     "h_zero": 30.2,
+     "margin_h10": -17.1
+    },
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+     "h_zero": 54.1,
+     "margin_h10": -16.7
+    },
+    "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+     "h_zero": 25.6,
+     "margin_h10": -13.7
+    },
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+     "h_zero": 46.0,
+     "margin_h10": -13.3
+    },
+    "R54: 1206 terminal derating at 0.063 W (20 % margin)": {
+     "h_zero": 28.1,
+     "margin_h10": -11.9
+    },
+    "R5: terminal derating at 0.864 W (20 % margin)": {
+     "h_zero": 25.0,
+     "margin_h10": -11.0
+    },
+    "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+     "h_zero": 20.7,
+     "margin_h10": -9.5
+    },
+    "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+     "h_zero": 33.6,
+     "margin_h10": -8.2
+    },
+    "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": {
+     "h_zero": 26.7,
+     "margin_h10": -7.0
+    },
+    "R57: 1206 terminal derating at 0.063 W (20 % margin)": {
+     "h_zero": 17.0,
+     "margin_h10": -4.7
+    },
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": {
+     "h_zero": 15.3,
+     "margin_h10": -2.7
+    },
+    "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)": {
+     "h_zero": 12.5,
+     "margin_h10": -2.2
+    },
+    "R5: element max (Bourns CSS2H p.1)": {
+     "h_zero": 12.7,
+     "margin_h10": -2.1
+    },
+    "U26: TJ max (TI SBVS204G p.4)": {
+     "h_zero": 45.0,
+     "margin_h10": -0.8
+    }
+   }
+  },
+  "cases": {
+   "c28_h10_jet10@55": {
+    "worst_gated": {
+     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 157.1,
+     "margin_k": -25.2
+    },
+    "caps": {
+     "C40": -11.8,
+     "C38": -8.4,
+     "C39": -3.0,
+     "C41": -2.3
+    }
+   },
+   "c28_h10_jet35@55": {
+    "worst_gated": {
+     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 136.2,
+     "margin_k": -4.2
+    },
+    "caps": {
+     "C40": -0.4,
+     "C38": 2.2,
+     "C39": 5.8,
+     "C41": 8.5
+    }
+   },
+   "c28_h10_jet60@55": {
+    "worst_gated": {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 118.8,
+     "margin_k": 6.2
+    },
+    "caps": {
+     "C40": 7.0,
+     "C38": 9.1,
+     "C39": 11.5,
+     "C41": 15.1
+    }
+   },
+   "c28_h10_jet100@55": {
+    "worst_gated": {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 118.3,
+     "margin_k": 6.7
+    },
+    "caps": {
+     "C40": 14.5,
+     "C38": 16.1,
+     "C39": 16.6,
+     "C41": 21.5
+    }
+   },
+   "c28_h10_jet10@61": {
+    "worst_gated": {
+     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 161.8,
+     "margin_k": -29.8
+    },
+    "caps": {
+     "C40": -16.7,
+     "C38": -13.3,
+     "C39": -8.2,
+     "C41": -7.0
+    }
+   },
+   "c28_h10_jet35@61": {
+    "worst_gated": {
+     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 141.2,
+     "margin_k": -9.3
+    },
+    "caps": {
+     "C40": -5.5,
+     "C38": -3.0,
+     "C39": 0.5,
+     "C41": 3.5
+    }
+   },
+   "c28_h10_jet60@61": {
+    "worst_gated": {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 124.7,
+     "margin_k": 0.3
+    },
+    "caps": {
+     "C40": 1.7,
+     "C38": 3.8,
+     "C39": 5.9,
+     "C41": 10.1
+    }
+   },
+   "c28_h10_jet100@61": {
+    "worst_gated": {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 124.3,
+     "margin_k": 0.7
+    },
+    "caps": {
+     "C40": 9.1,
+     "C38": 10.7,
+     "C39": 11.0,
+     "C41": 16.3
+    }
+   }
   }
  },
  "airflow_r1": {
@@ -1424,18 +1746,18 @@
  "provenance": {
   "board_sha256": "9e075b4b90320e1e19c7b9740278715a4dabe6c80779fe8082a5bb844083ef86",
   "i_line_a": 13.5,
-  "git_head": "eabef510aa6e625fd1d3ff0d1d47dae77de5705f",
+  "git_head": "a02582219df1cda7daf9146d28ea96e156a660cc",
   "sources_sha256": {
-   "validation-results/04-board-current-thermal/round5-native21/b3-ratings/run_basis.py": "325b417fc6911bc63da4de7ec1f820eb3178edd32f574542a1e11871c82df435",
-   "validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py": "8dbe55a890b5cd7c8f6397e86354664ca81c740fc0dbedab37c35511ba5fea83",
+   "validation-results/04-board-current-thermal/round5-native21/b3-ratings/run_basis.py": "c72fb33bc7b84217185440d389eacf5f469875ce659c4fdc7f1e7ccc7bcf9f56",
+   "validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py": "30682d21041b9b6c3cfd311557dd0a0982671cd092b27bcb3a2ee30c8294b646",
    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/fet_case.py": "b26ee4c6ab900f4c4027b2e7feef1a7b4228d2ff7f1074bd8bf36d1a5efd65c6",
-   "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json": "0ff4fc5b43e270cdcb793ce918e787e74326e40ddc827bc377de1c0465ac7446",
-   "validation-results/04-board-current-thermal/round5-native21/b3-convergence/thermal_body.py": "1cc7eb3b299667e48f9ec8b52ddc0fa01cbda178c4e9f241fbfe4356e9b8322f",
+   "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json": "f8be2215e1dc6328948a9f8f62fadaf430877ab369104c1026c1addc65699795",
+   "validation-results/04-board-current-thermal/round5-native21/b3-convergence/thermal_body.py": "9b6f09884c289aa4df98f546f9fe021b3e6850077419d555c8a62abdc2f8b82f",
    "validation-results/04-board-current-thermal/round5-native21/b3-convergence/body_runs.py": "3752e4a6f61ec00b9ad4dd4c0ff267cdad8fe48f245eb5c6cf451fd1e6eb2dfa",
    "validation-results/04-board-current-thermal/round5-native21/b3/run_study.py": "53ef62a0c279f9992391dacb238f5f439e93ecdf145ade9388de98bc04f82193",
    "validation-results/04-board-current-thermal/round5-native21/b3/inputs/native21-board-heat-sources-c28.json": "f8a488281f70a570902e8ee7f1a616a4cb37854145c79a80137216868a871869",
    "native-21/layout/gates/jet_strip_height.py": "0c7b8b3c5966279cf5b193a6986eba29dbe59bba106eacaf6f90e98f89fa40de",
-   "validation-results/04-board-current-thermal/round5-native21/b3-ratings/jet-2026-10-15/scripts/jet_sweep.py": "330f75e771b6288786ca4fea349c87412e1a00552be1714a8efae5c00785b3dd"
+   "validation-results/04-board-current-thermal/round5-native21/b3-ratings/jet-2026-10-15/scripts/jet_sweep.py": "3d4b3cd1de1de0bb8ec1272b4a07e3e6b51317cdb98928dec5544257aa8cd4eb"
   }
  }
 }

@@ -10,8 +10,59 @@ Both are in the model since eabef510a. This folder holds the jet sweep run on th
 
 ```
 python3 scripts/jet_sweep.py solve --workers 3     # ~110 min on a shared machine; 56 solves -> ../runs/jet-2026-10-15/ (gitignored)
+python3 scripts/jet_sweep.py solve-air15 --workers 3   # 28 A, bay 55 / 61, on the bay + 15 K cap-air default (16 solves)
 python3 scripts/jet_sweep.py summary               # -> jet-sweep.json (committed)
 ```
+
+## Current basis: cap air at bay + 15 K (supersedes the bay-air numbers further down)
+
+**Why.** The cap-air addendum (end of this file, `cap-air.json`) showed the release gain rests partly on the caps seeing
+bay air. They do not: they stand in the board's warm air layer, an estimated +8 to +12 K. So the film_hf default is now
+`thermal_body.FILM_HF_AIR_RISE_K` = 15 K over the bay: that estimate's upper end plus 3 K of headroom.
+- A cap credited by a TopRegion keeps the region's air, because the jet sweeps the board's warm layer away. No cap is
+  inside `JET_REGION`, so under the jet the caps also see bay + 15 K.
+- The sens key `film_air_rise` overrides the default, as does `run_basis --film-air-rise K`.
+- `top_bound_c` and the air / energy bookkeeping use the cap's `t_air`. The BASIS balance closes to ≤ 7e-11.
+
+**Controls.**
+- `--film-lead-only` still reproduces the pre-2026-10-15 `margins.json` byte for byte (re-run).
+- `margins.json` c18_h10 matches the cap-air +15 K sensitivity row for row, within 0.05 K. `test_b3_airflow.py` pins
+  both this and the 15 K default.
+- `air15` `c28_h10_jet10@55` matches `margins.json` c28_h10: 44 rows, 0.0 K.
+
+**BASIS (s42), margin in K: lead-only → bay air → bay + 15 K (current `margins.json`)**
+
+| Row | c18 bay 61 (release) | c22 bay 55 | c28 bay 55 |
+|---|---|---|---|
+| R10 2512 terminal derating | +0.7 → +5.2 → **+3.6** | −6.2 → −0.5 → −2.1 | −28.1 → −20.2 → −21.7 |
+| R20 / R18 derating | +1.1 / +1.8 → +6.8 / +7.3 → +4.9 / +5.5 | −5.1 / −3.4 → +1.8 / +3.4 → −0.1 / +1.6 | −24.1 / −19.4 → −15.3 / −11.4 → −17.0 / −13.0 |
+| R12 derating | +5.7 → +11.6 → +9.6 | −5.1 → +2.4 → +0.4 | −33.4 → −23.2 → −25.2 |
+| Laminate block / FET row | +4.1 / +7.0 → +10.0 / +11.8 → +8.1 / +10.2 | −6.8 / −3.6 → +0.8 / +2.5 → −1.2 / +0.9 | −30.6 / −30.7 → −20.6 / −22.5 → −22.5 / −24.1 |
+| C40 | +1.1 → +14.2 → +10.4 | −6.0 → +9.6 → +5.9 | −27.8 → −8.1 → −11.8 |
+| C41 / C38 / C39 | +3.7 / +5.1 / +10.6 → … → +13.3 / +13.1 / +17.1 | −1.3 / −2.0 / +4.5 → … → +11.0 / +8.9 / +13.4 | −18.8 / −24.1 / −16.3 → … → −2.3 / −8.4 / −3.0 |
+| U26 | +5.9 → +6.2 → +6.1 | +9.4 → +9.7 → +9.6 | +4.7 → +5.2 → +5.1 |
+| R58 1206 derating | +11.1 → +16.9 → +15.0 | +1.8 → +9.3 → +7.3 | −25.4 → −15.2 → −17.2 |
+| R5 terminal / element | +42.4 / +46.9 → … → +46.3 / +50.3 | +25.4 / +31.7 → … → +30.9 / +36.5 | −14.6 / −4.8 → … → −6.5 / +2.3 |
+
+- **No gated row is below its lead-only value.**
+- **Metrics:** release **+3.6 K** (R10, PASS); laminate ratchet −30.7 → −24.1 K; rated parts −33.4 → −25.2 K; advisory
+  −7.7 → −7.3 K. The s42 card was re-scored and only these three card metrics move.
+- **Still-air ceiling at bay 55** (`c39-gate-network/scripts/ceilings.py` on the new c22 / c28 pair): all gated rows
+  **21.3 A** (R10), laminate 21.6 A, gate R_off 23.9 A. Before this change it was 20.0 A.
+
+**Required h_top at 28 A (bay + 15 K cap air, `jet-sweep.json` → `air15`):**
+
+| | bay + 15 K (current) | bay air (superseded) | airflow-r1 |
+|---|---|---|---|
+| 28 A, bay 55 | **45.1** | 42.5 | 73.2 |
+| 28 A, bay 61 | **59.2** | 59.1 | 97.2 |
+
+- Per-row zeros at 28 A, bay 61: laminate block 54.4, C40 54.1, laminate FET row 53.8, R12 52.1.
+- The 59.2 is the chord to U26's +0.3 K at h 60. U26 is outside the jet and the jet does not move it.
+- At bay 55: laminate block 43.6, R12 42.6.
+- Not re-solved on this basis: the 26 A rows and the ceiling-vs-h table. A full re-sweep would take more than 45 min at
+  3 workers on the shared machine. Below they are marked as the bay-air basis.
+- `capjet` is unaffected: it credits all four caps to the jet region, whose air is the bay.
 
 ## (a) The airflow case
 
@@ -93,12 +144,12 @@ need opposite ends of it:
 - **TDK's own rating implies more conductance.** The p.14 rating (5.4 A, ESR typ 14.0 mΩ, self-heating ≤ 20 K) implies
   ≥ 0.020 W/K from body to ambient. The model uses 0.009.
 - **No credit is taken for the bottom face, the leads' own surface, or air cooler than the bay.**
-- **Not covered:** the board-heated air layer near the bottom of the body is warmer than bay air. This is the main
-  non-conservatism. It is outweighed by the radiation that is not credited.
+- **Board-heated air, now covered:** the air at the lower part of the body is warmer than the bay. Since
+  `FILM_HF_AIR_RISE_K` the caps convect to bay + 15 K (see "Current basis" above).
 
 ## Results
 
-### Still-air BASIS (`../margins.json`, s42), lead-only → with (b)
+### Still-air BASIS, lead-only → with (b) at bay air (superseded by the bay + 15 K table above)
 
 | Row | c18 bay 61 (release) | c22 bay 55 | c28 bay 55 |
 |---|---|---|---|
@@ -121,7 +172,7 @@ need opposite ends of it:
 - **Bay 61 from this sweep's c26 / c28 pair:** 20.1 A. The pair is 27.3 / 29.4 A trips, so 20 A is an extrapolation; it
   is not a direct solve. The release ceiling stays 18.0 A (DECISIONS 55 / 56) until the owner decides otherwise.
 
-### Required h_top (smallest h with every gated row ≥ 0, W/m²K)
+### Required h_top (smallest h with every gated row ≥ 0, W/m²K): bay-air basis, superseded at 28 A by `air15` (above)
 
 | | This study (b, caps at h 10) | capjet (caps at h_top) | airflow-r1 (lead-only caps, 11.1 A) |
 |---|---|---|---|
@@ -139,7 +190,7 @@ need opposite ends of it:
 - **U26 is outside the region and airflow does not reach it:** +0.3 K at h 60 and +0.8 K at h 100 (28 A, bay 61). At
   bay 61, U26 is the next limiter above about h 55 (OPEN-ITEMS S2 (d)).
 
-### Ceiling vs h_top (c36 I_trip² method on the c26 / c28 pair, A, all gated rows)
+### Ceiling vs h_top (c36 I_trip² method on the c26 / c28 pair, A, all gated rows): bay-air basis, superseded at 28 A by `air15`
 
 | h_top | 10 | 35 | 60 | 100 |
 |---|---|---|---|---|

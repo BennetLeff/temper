@@ -43,6 +43,15 @@ ok(tb.film_body_g_air(0) == 0.0, "no air path at h 0")
 # TDK's own rating: 5.4 A at 100 kHz, ESR typ 14.0 mOhm, self-heating <= 20 K (p.14) => >= 0.0204 W/K body-to-ambient
 ok(tb.film_body_g_air(10) < 5.4 ** 2 * 0.014 / 20.0, "h-10 path is below the conductance implied by TDK's 20 K rating")
 
+ok(tb.FILM_HF_AIR_RISE_K == 15.0, "film_hf body air defaults to bay + 15 K (board-heated air, jet-2026-10-15)")
+# the committed release case equals the cap-air +15 K sensitivity (zero-area region crediting C38-C41 at bay + 15 K)
+import json  # noqa: E402
+cap_air = HERE / "jet-2026-10-15/cap-air.json"
+if cap_air.exists():
+    sens = json.loads(cap_air.read_text())["cases"].get("c18_h10@61 cap air +15 K")
+    rel = {r["item"]: r["margin_k"] for r in json.loads((HERE / "margins.json").read_text())["cases"]["c18_h10"]}
+    ok(sens is not None and all(abs(rel[k] - v) <= 0.05 for k, v in sens["rows"].items()),
+       "margins.json c18_h10 reproduces cap-air.json's +15 K rows")
 g_s = tb.film_strong_coupling_g()
 ok(g_s > 50 * tb.film_body_g_air(10), f"strong tie {g_s:.3f} W/K >> body-to-air {tb.film_body_g_air(10):.4f} W/K")
 b = tb.film_top_bound_rise(60.0, 0.05, tb.film_body_g_air(10))
