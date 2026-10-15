@@ -1,0 +1,225 @@
+{
+ "source": "Semitec GT-2 series datasheet (Japanese, 'GT-2シリーズ.pdf', page 18 '抵抗−温度特性' table, column 104GT-2, unit kOhm), https://www.semitec.co.jp/uploads/GT-2シリーズ.pdf, retrieved 2026-10-15, sha256 c0a2841d9db01c672a840100baab1d034fb01295bcdb54b012cb8a52ac2d07b0. 104GT-2: R25 100 k +/-3 %, B25/85 4267 K +/-2 %, -50..+300 C, dissipation ~0.6 mW/C and time constant ~7 s in still air, 3.0 mW rated. The same table (a subset) is in pcb/checks.py GT2_104 and zapote/controller/tools/controller_calcs.py.",
+ "table_kohm": {
+  "-50": 8743.0,
+  "-40": 4218.0,
+  "-30": 2132.0,
+  "-20": 1127.0,
+  "-10": 620.1,
+  "0": 353.7,
+  "10": 208.6,
+  "20": 126.8,
+  "25": 100.0,
+  "30": 79.36,
+  "40": 50.96,
+  "50": 33.49,
+  "60": 22.51,
+  "70": 15.44,
+  "80": 10.8,
+  "85": 9.089,
+  "90": 7.686,
+  "100": 5.556,
+  "110": 4.082,
+  "120": 3.043,
+  "130": 2.298,
+  "140": 1.758,
+  "150": 1.36,
+  "160": 1.064,
+  "170": 0.8414,
+  "180": 0.6714,
+  "190": 0.5408,
+  "200": 0.4393,
+  "210": 0.3597,
+  "220": 0.2969,
+  "230": 0.2468,
+  "240": 0.2065,
+  "250": 0.174,
+  "260": 0.1475,
+  "270": 0.1258,
+  "280": 0.1079,
+  "290": 0.09305,
+  "300": 0.08065
+ },
+ "B25_85_from_table_K": 4267.9,
+ "pcb_checks_mismatches": {},
+ "interpolation_leave_one_out_20K_step": {
+  "rows": [
+   {
+    "T_C": 100,
+    "piecewise_beta_err_K": -0.0115,
+    "loglinear_err_K": 0.2565
+   },
+   {
+    "T_C": 110,
+    "piecewise_beta_err_K": -0.0194,
+    "loglinear_err_K": 0.2417
+   },
+   {
+    "T_C": 120,
+    "piecewise_beta_err_K": -0.0292,
+    "loglinear_err_K": 0.2252
+   },
+   {
+    "T_C": 130,
+    "piecewise_beta_err_K": -0.0122,
+    "loglinear_err_K": 0.2359
+   },
+   {
+    "T_C": 140,
+    "piecewise_beta_err_K": -0.0291,
+    "loglinear_err_K": 0.2129
+   },
+   {
+    "T_C": 150,
+    "piecewise_beta_err_K": -0.0124,
+    "loglinear_err_K": 0.2239
+   },
+   {
+    "T_C": 160,
+    "piecewise_beta_err_K": -0.0075,
+    "loglinear_err_K": 0.2234
+   },
+   {
+    "T_C": 170,
+    "piecewise_beta_err_K": -0.0297,
+    "loglinear_err_K": 0.1959
+   },
+   {
+    "T_C": 180,
+    "piecewise_beta_err_K": -0.0083,
+    "loglinear_err_K": 0.2124
+   },
+   {
+    "T_C": 190,
+    "piecewise_beta_err_K": -0.0167,
+    "loglinear_err_K": 0.1992
+   },
+   {
+    "T_C": 200,
+    "piecewise_beta_err_K": -0.0163,
+    "loglinear_err_K": 0.1951
+   },
+   {
+    "T_C": 210,
+    "piecewise_beta_err_K": -0.0018,
+    "loglinear_err_K": 0.2051
+   },
+   {
+    "T_C": 220,
+    "piecewise_beta_err_K": -0.0154,
+    "loglinear_err_K": 0.1874
+   },
+   {
+    "T_C": 230,
+    "piecewise_beta_err_K": -0.0187,
+    "loglinear_err_K": 0.1801
+   },
+   {
+    "T_C": 240,
+    "piecewise_beta_err_K": 0.0063,
+    "loglinear_err_K": 0.2012
+   },
+   {
+    "T_C": 250,
+    "piecewise_beta_err_K": -0.0123,
+    "loglinear_err_K": 0.1789
+   },
+   {
+    "T_C": 260,
+    "piecewise_beta_err_K": 0.0003,
+    "loglinear_err_K": 0.1878
+   },
+   {
+    "T_C": 270,
+    "piecewise_beta_err_K": -0.0035,
+    "loglinear_err_K": 0.1806
+   },
+   {
+    "T_C": 280,
+    "piecewise_beta_err_K": -0.001,
+    "loglinear_err_K": 0.1798
+   }
+  ],
+  "worst_piecewise_beta_K": 0.0297,
+  "worst_loglinear_K": 0.2565,
+  "note": "each interior point predicted from neighbours 20 K apart; the driver interpolates over 10 K, where the error is about a quarter of this (scales with step^2): an estimate"
+ },
+ "channel": {
+  "rows": [
+   {
+    "T_C": 25.0,
+    "R_ohm": 100000.0,
+    "node_mV": 3267.33,
+    "atten": null,
+    "saturated": true,
+    "mV_per_K": 1.516,
+    "K_per_mV": null,
+    "self_heating_still_air_K": 0.18
+   },
+   {
+    "T_C": 100.0,
+    "R_ohm": 5556.0,
+    "node_mV": 2796.64,
+    "atten": 3,
+    "saturated": false,
+    "mV_per_K": 13.488,
+    "K_per_mV": 0.0741,
+    "self_heating_still_air_K": 2.35
+   },
+   {
+    "T_C": 150.0,
+    "R_ohm": 1360.0,
+    "node_mV": 1901.69,
+    "atten": 3,
+    "saturated": false,
+    "mV_per_K": 20.22,
+    "K_per_mV": 0.0495,
+    "self_heating_still_air_K": 4.43
+   },
+   {
+    "T_C": 200.0,
+    "R_ohm": 439.3,
+    "node_mV": 1007.22,
+    "atten": 2,
+    "saturated": false,
+    "mV_per_K": 14.262,
+    "K_per_mV": 0.0701,
+    "self_heating_still_air_K": 3.85
+   },
+   {
+    "T_C": 250.0,
+    "R_ohm": 174.0,
+    "node_mV": 489.1,
+    "atten": 0,
+    "saturated": false,
+    "mV_per_K": 7.006,
+    "K_per_mV": 0.1427,
+    "self_heating_still_air_K": 2.29
+   }
+  ],
+  "worst_K_per_mV_100_250C": 0.1427,
+  "saturation_C_by_v3v3": {
+   "3.242": 87.05,
+   "3.300": 91.76,
+   "3.367": 96.51
+  },
+  "short_0p25V_C_by_v3v3": {
+   "3.242": 297.49,
+   "3.300": 298.85,
+   "3.367": 300.39
+  },
+  "self_heating_still_air_max_K_100_250C": 4.53,
+  "self_heating_note": "not subtracted by the driver: on the glass the dissipation is higher than the still-air 0.6 mW/K, so the true offset is smaller; the rim therefore reads high by at most this (DECISIONS D-RIM)",
+  "rail_error_without_MCP3202_worst_K": 4.37
+ },
+ "checks": {
+  "B25_85_from_table_matches_4267K": true,
+  "pcb_checks_GT2_104_agrees": true,
+  "piecewise_beta_beats_loglinear": true,
+  "resolution_1mV_le_0p3K_100_250C": true,
+  "25C_is_saturated": true,
+  "short_threshold_above_290C": true,
+  "saturation_below_150C_open_rule": true
+ },
+ "all_pass": true
+}

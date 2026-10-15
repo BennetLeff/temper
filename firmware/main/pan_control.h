@@ -8,7 +8,9 @@
  * (components/control/pan_supervisor.c) and connects them to the runtime:
  *
  *   input   rtd_service_latest_sample() (MAX31865 conversions, 50 Hz),
- *           read_rim_ntc_temperature() (rim NTC, peripherals), the commanded
+ *           the rim NTC (components/sensors/rim_ntc.c through
+ *           rim_ntc_board_hal(), one driver period per control period;
+ *           DECISIONS.md D-RIM), the commanded
  *           power of the last period as PG_POWER_ESTIMATED, the target
  *           temperature and intensity level from the state machine;
  *   period  the state machine updates every 10 ms; the loop runs every
@@ -16,7 +18,8 @@
  *   output  power_set_level() in percent of PAN_CONTROL_P_MAX_W, limited by
  *           the intensity level (the loop's own power limit, so its
  *           anti-windup and plant-gain gate see the limit);
- *   events  guard verdicts -> state_machine_report_rtd_device_fault();
+ *   events  guard verdicts and latched rim faults ->
+ *           state_machine_report_rtd_device_fault();
  *           D1 contact lost -> state_machine_report_pan_contact_lost();
  *           supervisor stage 2a/2b latches -> PAN_CONTROL_RUNAWAY (the
  *           caller latches FAULT_THERMAL_RUNAWAY).
@@ -32,6 +35,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
+#include "rim_ntc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -82,6 +87,17 @@ bool pan_control_sensor_ready(void);
  * FAULT_THERMAL_RUNAWAY to the rule that raised it.
  */
 int pan_control_supervisor_latch(void);
+
+/**
+ * Rim NTC temperature (degC) of the last control period: the filtered
+ * reading when the driver classifies it VALID, otherwise NAN (saturated
+ * cold, no data, or a fault). The loop's own rim input is in D-RIM.
+ */
+float read_rim_ntc_temperature(void);
+/** Last rim driver reading; returns true when it is VALID. */
+bool pan_control_rim_reading(rim_ntc_reading_t *out);
+/** Pt100-vs-rim cross-check suspects (D-XCHK) since pan_control_begin(). */
+uint32_t pan_control_xcheck_suspects(void);
 
 /** R1: feed one 10 ms reading; true when the sustained-rise latch trips. */
 bool pan_control_rate_sample(float reading_c, uint32_t now_ms);

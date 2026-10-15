@@ -79,8 +79,11 @@
 
 #ifdef TEMPER_PAN_CONTROL_C1
 #include "../main/pan_control.h"
-#include "../components/hal/include/hal.h"
-#include "../components/hal/include/temper_pins.h"
+#include "../components/temper_hal/include/hal.h"
+#include "../components/temper_hal/include/temper_pins.h"
+#ifdef TEMPER_PAN_CONTROL_C1
+#include "rim_ntc.h"
+#endif
 #include "../components/sensors/include/max31865.h"
 #include "../components/sensors/include/rtd_service.h"
 #define SIL_MODE "c1"
@@ -728,8 +731,29 @@ static struct {
     uint32_t conversions;
 } s_plant;
 
-/* pan_control.c reads the rim NTC (peripherals extern). */
-float read_rim_ntc_temperature(void) { return read_pan_temperature(); }
+/* Rim NTC board HAL for pan_control.c's rim driver: the 104GT-2 node voltage
+ * at the trace pan temperature under the 1.00 k pull-up and a 3300 mV rail,
+ * clipped as the ADC clips and rounded to whole mV, as test_c1_runtime.c does.
+ * The rim reads the pan, so the cross-check is never suspicious (D-SIL, D-RIM). */
+static bool sil_rim_read_node(void *ctx, rim_atten_t atten, float *mv)
+{
+    (void)ctx;
+    const float r = rim_ntc_c_to_r(read_pan_temperature());
+    const float v = 3300.0f * r / (r + 1000.0f);
+    const float clip = atten == RIM_ATTEN_0 ? 950.0f : (atten == RIM_ATTEN_2 ? 1700.0f : 3100.0f);
+    *mv = roundf(v < clip ? v : clip);
+    return true;
+}
+
+static bool sil_rim_read_rail(void *ctx, float *mv)
+{
+    (void)ctx;
+    *mv = 3300.0f;
+    return true;
+}
+
+static const rim_ntc_hal_t s_sil_rim_hal = {.read_node_mv = sil_rim_read_node, .read_v3v3_mv = sil_rim_read_rail, .ctx = NULL};
+const rim_ntc_hal_t *rim_ntc_board_hal(void) { return &s_sil_rim_hal; }
 
 static double pt100_ohm(double t_c) {
     const double a = 3.9083e-3, b = -5.775e-7, c = -4.183e-12;

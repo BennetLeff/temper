@@ -9,8 +9,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <math.h>
+
 #include "pan_supervisor.h"
 #include "pan_temp_loop.h"
+#include "rim_ntc.h"
 
 typedef struct {
     ptl_params_t p;
@@ -19,6 +22,9 @@ typedef struct {
     cc_t cc;
     psup_params_t sp;
     psup_t sup;
+    rim_ntc_t rim;        /* rim NTC driver (components/sensors/rim_ntc.c) */
+    float rim_node_mv;    /* node voltage the mock ADC returns this period */
+    int last_xcheck;      /* ptl_output_t.xcheck_suspect of the last sim_step */
 } sim_t;
 
 void *sim_new(void)
@@ -132,6 +138,7 @@ void sim_step(void *h, double y, double rim, double sp, double p_applied, int sr
     out[13] = s->loop.cc.last_d_exp;
     out[14] = s->loop.cc.last_decay_rms;
     out[15] = s->loop.cc.last_decay_change;
+    s->last_xcheck = o.xcheck_suspect ? 1 : 0;
 }
 
 /* Ask D1 for a probe now (co-sim "probe on intact contact" cases). */
@@ -194,4 +201,48 @@ void sim_pg_stats(void *h, double *out)
     out[4] = (double)g->last_window_a;
     out[5] = (double)g->later_open;
     out[6] = (double)g->p_base_w;
+}
+
+/* ---- rim NTC driver (components/sensors/rim_ntc.c), xcheck_cosim.py --------
+ * The mock ADC returns the node voltage Python computed from the rim truth,
+ * clipped as the ADC clips and rounded to whole mV (ESP-IDF calibration). */
+static bool shim_rim_read(void *ctx, rim_atten_t a, float *mv)
+{
+    const float v = ((sim_t *)ctx)->rim_node_mv;
+    const float clip = a == RIM_ATTEN_0 ? 950.0f : (a == RIM_ATTEN_2 ? 1700.0f : 3100.0f);
+    *mv = roundf(v < clip ? v : clip);
+    return true;
+}
+
+static bool shim_rim_rail(void *ctx, float *mv)
+{
+    (void)ctx;
+    *mv = 3300.0f;
+    return true;
+}
+
+int rim_start(void *h)
+{
+    rim_ntc_params_t p;
+    rim_ntc_default_params(&p);
+    return rim_ntc_init(&((sim_t *)h)->rim, &p) ? 0 : -1;
+}
+
+/* out: state, t_c, diag */
+void rim_step(void *h, double node_mv, double t_pt100, double *out)
+{
+    sim_t *s = (sim_t *)h;
+    const rim_ntc_hal_t hal = {.read_node_mv = shim_rim_read, .read_v3v3_mv = shim_rim_rail, .ctx = s};
+    s->rim_node_mv = (float)node_mv;
+    rim_ntc_reading_t rd;
+    rim_ntc_step(&s->rim, &hal, (float)t_pt100, &rd);
+    out[0] = rd.state;
+    out[1] = rd.t_c;
+    out[2] = rd.diag;
+}
+
+/* Cross-check suspect of the last sim_step (pan_sensor_guard D-XCHK). */
+int sim_xcheck(void *h)
+{
+    return ((sim_t *)h)->last_xcheck;
 }

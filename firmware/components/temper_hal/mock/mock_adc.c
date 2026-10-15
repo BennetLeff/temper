@@ -72,6 +72,16 @@ void mock_adc_queue_value(hal_adc_channel_t channel, uint16_t raw)
 
 uint32_t mock_adc_get_read_count(void) { return s_call_count_read; }
 
+hal_adc_atten_t mock_adc_get_atten(hal_adc_channel_t channel)
+{
+    return (channel >= 0 && channel < MOCK_ADC_MAX_CHANNELS) ? s_channels[channel].atten : HAL_ADC_ATTEN_0dB;
+}
+
+bool mock_adc_is_calibrated(hal_adc_channel_t channel)
+{
+    return channel >= 0 && channel < MOCK_ADC_MAX_CHANNELS && s_channels[channel].calibrated;
+}
+
 /* ============================================================================
  * HAL Implementation
  * ============================================================================ */

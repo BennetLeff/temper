@@ -96,9 +96,9 @@ typedef struct {
     uint16_t max31865_low_threshold_word; /**< 10Ω PT100 short threshold for 430Ω RREF; 15-bit ADC code shifted left one (register word) */
     uint16_t max31865_high_threshold_word; /**< 300Ω PT100 open threshold for 430Ω RREF; 15-bit ADC code shifted left one (register word) */
     float rtd_c1_short_fault_ohm; /**< sensor-r3 C1 Pt100 low fault boundary (-40 degC); pcb/CHANGE-REQUEST.md CR-7 (Ω) */
-    float rtd_c1_open_fault_ohm; /**< sensor-r3 C1 Pt100 high fault boundary (360 degC); pcb/CHANGE-REQUEST.md CR-7 (Ω) */
+    float rtd_c1_open_fault_ohm; /**< sensor-r3 C1 Pt100 high fault boundary R(360 degC), IEC 60751 (CR-7 prints it as 233.21); pcb/CHANGE-REQUEST.md CR-7, output/temper-sensor-r3/firmware/cr7_thresholds.py (Ω) */
     uint16_t max31865_c1_low_threshold_word; /**< C1 low fault-threshold word (84.27 ohm, -40 degC) for 430 ohm RREF; CR-7 (register word) */
-    uint16_t max31865_c1_high_threshold_word; /**< C1 high fault-threshold word (233.21 ohm, 360 degC) for 430 ohm RREF; CR-7 lists 35544, but floor(233.21/430*2^15)=17771 -> 35542 (derivation rule) (register word) */
+    uint16_t max31865_c1_high_threshold_word; /**< C1 high fault-threshold word (R(360 degC) = 233.2144 ohm) for 430 ohm RREF: floor(233.2144/430*2^15) = 17772 -> 35544, as CR-7 lists (cr7_thresholds.py; DECISIONS D-THRESH) (register word) */
     uint16_t pan_debounce_count; /**< Pan detection debounce samples */
     uint8_t pan_confidence_required; /**< Pan detection confirmations needed */
     uint16_t adc_min_valid_raw; /**< ADC minimum valid raw value */
@@ -117,9 +117,9 @@ typedef struct {
     .max31865_low_threshold_word = 1526, \
     .max31865_high_threshold_word = 45722, \
     .rtd_c1_short_fault_ohm = 84.27f, \
-    .rtd_c1_open_fault_ohm = 233.21f, \
+    .rtd_c1_open_fault_ohm = 233.2144f, \
     .max31865_c1_low_threshold_word = 12844, \
-    .max31865_c1_high_threshold_word = 35542, \
+    .max31865_c1_high_threshold_word = 35544, \
     .pan_debounce_count = 10, \
     .pan_confidence_required = 3, \
     .adc_min_valid_raw = 100, \
@@ -283,9 +283,9 @@ void config_print(void);
 #define MAX31865_LOW_THRESHOLD_WORD 1526
 #define MAX31865_HIGH_THRESHOLD_WORD 45722
 #define RTD_C1_SHORT_FAULT_OHM 84.27f
-#define RTD_C1_OPEN_FAULT_OHM 233.21f
+#define RTD_C1_OPEN_FAULT_OHM 233.2144f
 #define MAX31865_C1_LOW_THRESHOLD_WORD 12844
-#define MAX31865_C1_HIGH_THRESHOLD_WORD 35542
+#define MAX31865_C1_HIGH_THRESHOLD_WORD 35544
 #define PAN_DEBOUNCE_COUNT 10
 #define PAN_CONFIDENCE_REQUIRED 3
 #define MESSAGE_DISPLAY_TIME_MS 2000

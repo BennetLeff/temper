@@ -151,10 +151,10 @@ thresholds:
 
   - c_symbol: RTD_C1_OPEN_FAULT_OHM
     field: rtd_c1_open_fault_ohm
-    value: 233.21
+    value: 233.2144
     c_type: float
     units: "Ω"
-    doc: "sensor-r3 C1 Pt100 high fault boundary (360 degC); pcb/CHANGE-REQUEST.md CR-7"
+    doc: "sensor-r3 C1 Pt100 high fault boundary R(360 degC), IEC 60751 (CR-7 prints it as 233.21); pcb/CHANGE-REQUEST.md CR-7, output/temper-sensor-r3/firmware/cr7_thresholds.py"
 
   - c_symbol: MAX31865_C1_LOW_THRESHOLD_WORD
     field: max31865_c1_low_threshold_word
@@ -166,10 +166,10 @@ thresholds:
 
   - c_symbol: MAX31865_C1_HIGH_THRESHOLD_WORD
     field: max31865_c1_high_threshold_word
-    value: 35542
+    value: 35544
     c_type: uint16_t
     units: "register word"
-    doc: "C1 high fault-threshold word (233.21 ohm, 360 degC) for 430 ohm RREF; CR-7 lists 35544, but floor(233.21/430*2^15)=17771 -> 35542 (derivation rule)"
+    doc: "C1 high fault-threshold word (R(360 degC) = 233.2144 ohm) for 430 ohm RREF: floor(233.2144/430*2^15) = 17772 -> 35544, as CR-7 lists (cr7_thresholds.py; DECISIONS D-THRESH)"
     board_derivation: true  # re-derived from the board's r_ref by scripts/check_firmware_board_contract.py (registry: firmware/tools/board_derivations.yaml)
 
   - c_symbol: PAN_DEBOUNCE_COUNT

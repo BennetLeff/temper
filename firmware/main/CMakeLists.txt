@@ -10,9 +10,8 @@ idf_component_register(
         "../components/sensors/max31865.c"
         "../components/sensors/rtd_service.c"
         "../components/sensors/rtd_convert.c"
-        # TODO(hardware) fail-safe stand-in; delete this line and the file
-        # when the rim NTC driver (branch sensor-c1-rim-ntc) lands.
-        "../components/sensors/rim_ntc_stub.c"
+        "../components/sensors/rim_ntc.c"
+        "../components/sensors/rim_ntc_board.c"
         "../components/safety/safety.c"
         "../config.c"
         "board_peripherals.c"

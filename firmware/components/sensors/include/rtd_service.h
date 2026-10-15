@@ -41,7 +41,7 @@ bool rtd_service_is_ready(void);
  *
  * With TEMPER_PAN_CONTROL_C1 the service runs the CR-7 sequence instead of the
  * legacy back-to-back fault-detection cycles:
- *   bootstrap: C1 threshold words (84.27 / 233.21 ohm), one automatic
+ *   bootstrap: C1 threshold words (84.27 / 233.214 ohm), one automatic
  *              fault-detection cycle at power-up (coil off), completion by
  *              polling CONFIG D3:D2 (DRDY does not mark fault-cycle completion);
  *   then:      CONFIG 0xC0 (VBIAS, automatic conversion, 60 Hz notch); each

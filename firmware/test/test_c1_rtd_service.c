@@ -13,6 +13,7 @@
 #include "../components/temper_hal/include/hal.h"
 #include "../components/temper_hal/include/temper_pins.h"
 #include "../components/sensors/include/max31865.h"
+#include "../components/sensors/include/rim_ntc.h"
 #include "../components/sensors/include/rtd_service.h"
 #include "../config.h"
 #include "../main/state_machine.h"
@@ -23,8 +24,17 @@ extern uint8_t mock_spi_get_register(hal_spi_device_t device, uint8_t reg);
 extern void mock_gpio_trigger_interrupt(hal_pin_t pin);
 extern void mock_sm_reset(void);
 
-/* pan_control.c (linked through the C1 state machine) reads the rim NTC. */
-float read_rim_ntc_temperature(void) { return 40.0f; }
+/* pan_control.c (linked through the C1 state machine) reads the rim NTC
+ * through rim_ntc_board_hal(): a cold rim here (40 degC, ATTEN3 saturated). */
+static bool rim_cold_node(void *ctx, rim_atten_t atten, float *mv)
+{
+    (void)ctx;
+    (void)atten;
+    *mv = 3236.0f;
+    return true;
+}
+static const rim_ntc_hal_t s_rim_hal = {.read_node_mv = rim_cold_node, .read_v3v3_mv = NULL, .ctx = NULL};
+const rim_ntc_hal_t *rim_ntc_board_hal(void) { return &s_rim_hal; }
 
 #define DEV ((hal_spi_device_t)0)
 
@@ -73,8 +83,10 @@ static void test_c1_bootstrap_programs_the_c1_window(void)
                            mock_spi_get_register(DEV, MAX31865_REG_LOW_THRESHOLD_MSB));
     TEST_ASSERT_EQUAL_HEX8((uint8_t)MAX31865_C1_LOW_THRESHOLD_WORD,
                            mock_spi_get_register(DEV, MAX31865_REG_LOW_THRESHOLD_MSB + 1u));
-    /* 233.21 / 84.27 ohm (CR-7), 15-bit code << 1 */
-    TEST_ASSERT_FLOAT_WITHIN(0.02f, 233.21f, (float)(MAX31865_C1_HIGH_THRESHOLD_WORD >> 1) / 32768.0f * 430.0f);
+    /* R(360 degC) = 233.2144 / R(-40 degC) = 84.27 ohm (CR-7), 15-bit code << 1:
+     * within one code (0.0131 ohm) at or below the boundary */
+    TEST_ASSERT_FLOAT_WITHIN(0.0066f, 233.2144f - 0.0066f,
+                             (float)(MAX31865_C1_HIGH_THRESHOLD_WORD >> 1) / 32768.0f * 430.0f);
     TEST_ASSERT_FLOAT_WITHIN(0.02f, 84.27f, (float)(MAX31865_C1_LOW_THRESHOLD_WORD >> 1) / 32768.0f * 430.0f);
 }
 

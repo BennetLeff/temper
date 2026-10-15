@@ -65,6 +65,7 @@ typedef struct {
     psg_verdict_t fault;
     psg_diag_t diag;
     bool ui_pan_must_touch;  /**< show "pan must touch the sensor" */
+    bool xcheck_suspect;     /**< the Pt100-vs-rim cross-check fired this period (D-XCHK) */
 } ptl_output_t;
 
 typedef struct {

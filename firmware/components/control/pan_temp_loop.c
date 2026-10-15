@@ -102,6 +102,7 @@ void ptl_step(ptl_t *l, const ptl_input_t *in, ptl_output_t *out)
     if (g.suspect) {
         cc_request_probe(&l->cc);
     }
+    out->xcheck_suspect = g.suspect;
     if (p->detector_enabled) {
         cc_output_t co;
         cc_step(&l->cc, t_hat, in->t_pt100_c, in->power_applied_w, a, in->t_rim_c, &co);
