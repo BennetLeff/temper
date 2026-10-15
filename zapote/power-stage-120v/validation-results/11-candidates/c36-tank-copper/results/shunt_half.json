@@ -1,0 +1,114 @@
+{
+ "part": {
+  "mpn": "CSS2H-2512R-L500F",
+  "R_mohm": 0.5,
+  "tol": 0.01,
+  "tcr_ppm": 100,
+  "P_70C_term_W": 6.0,
+  "P_130C_term_W": 3.0,
+  "T_max_C": 170,
+  "source": "Bourns CSS2H-2512 REV. 06/17/20 p.1 (ledger copy, sha256 ae54630a...)"
+ },
+ "control_fitted_1mohm": {
+  "R34": 12600.0,
+  "R35": 11700.0,
+  "band_before_kelvin_A": [
+   69.89,
+   116.44
+  ],
+  "nominal_A": 92.593
+ },
+ "divider_options": [
+  {
+   "R34": 12100,
+   "R35": 11700.0,
+   "band_before_kelvin_A": [
+    41.37,
+    129.13
+   ],
+   "nominal_A": 84.034
+  },
+  {
+   "R34": 12600,
+   "R35": 12100.0,
+   "band_before_kelvin_A": [
+    58.01,
+    146.87
+   ],
+   "nominal_A": 101.215
+  },
+  {
+   "R34": 12400,
+   "R35": 12000.0,
+   "band_before_kelvin_A": [
+    39.36,
+    127.0
+   ],
+   "nominal_A": 81.967
+  },
+  {
+   "R34": 12300,
+   "R35": 11800.0,
+   "band_before_kelvin_A": [
+    60.46,
+    149.47
+   ],
+   "nominal_A": 103.734
+  }
+ ],
+ "picked": {
+  "R34": 12100,
+  "R35": 11700.0,
+  "band_before_kelvin_A": [
+   41.37,
+   129.13
+  ],
+  "nominal_A": 84.034
+ },
+ "kelvin": {
+  "e_th_mV_s38": 2.0469,
+  "A_per_mV_1mohm": -1.037,
+  "A_per_mV_0p5mohm": -2.0336,
+  "trip_shift_A": -4.163,
+  "trip_shift_bound_A": -4.244,
+  "band_after_A": [
+   37.21,
+   129.13
+  ],
+  "floor_A": 64.17,
+  "meets_floor": false,
+  "meets_floor_at_bound": false,
+  "band_after_1mohm_s38_A": [
+   67.77,
+   116.44
+  ]
+ },
+ "floor_meeting_divider": {
+  "R34": 12700,
+  "R35": 12100.0,
+  "band_before_kelvin_A": [
+   77.16,
+   167.25
+  ],
+  "nominal_A": 120.968,
+  "upper_edge_vs_fitted_A": 50.81
+ },
+ "pickup": {
+  "stack_any_phase_x1p5_A_1mohm": 4.173,
+  "stack_any_phase_x1p5_A_0p5mohm": 8.346,
+  "gate_A": 6.5,
+  "passes": false
+ },
+ "r5_power_W": {
+  "c22_23p1A": 0.267,
+  "c28_29p4A": 0.432,
+  "c22_1mohm": 0.534,
+  "c28_1mohm": 0.864
+ },
+ "sense_signal_at_trip_mV": {
+  "0p5mohm": 42.0,
+  "1mohm": 92.6,
+  "vos_equivalent_A_0p5mohm": 16.0,
+  "vos_equivalent_A_1mohm": 8.0
+ }
+}
