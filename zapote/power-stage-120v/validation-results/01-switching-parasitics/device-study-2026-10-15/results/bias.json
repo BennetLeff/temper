@@ -1,0 +1,3512 @@
+{
+ "control": {
+  "channel_current_max_abs_delta_A": 0.0,
+  "module_loss_45pct_W": {
+   "33": 0.983,
+   "40": 1.091,
+   "80": 1.706
+  },
+  "ALT-BIAS_3.2_W": {
+   "33": 0.98,
+   "40": 1.09,
+   "80": 1.71
+  },
+  "pass": true
+ },
+ "rows": [
+  {
+   "q_basis": "allocation_740nC (as-built sizing, covers S2/S4/S5 extremes)",
+   "q_nC": 740.0,
+   "f_kHz": 33.0,
+   "monitor": "mon14",
+   "I_ch_mA": 47.32,
+   "P_out_W": 0.804,
+   "pct_of_2W_knee": 40.2,
+   "RECOM_loss_W_eta45": 0.983,
+   "RECOM_loss_W_eta53": 0.713,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.099,
+    "llc_stage_W": 0.159,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.595,
+    "input_W": 1.399
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.099,
+    "llc_stage_W": 0.159,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.427,
+    "input_W": 1.231
+   }
+  },
+  {
+   "q_basis": "allocation_740nC (as-built sizing, covers S2/S4/S5 extremes)",
+   "q_nC": 740.0,
+   "f_kHz": 33.0,
+   "monitor": "mon10",
+   "I_ch_mA": 43.32,
+   "P_out_W": 0.736,
+   "pct_of_2W_knee": 36.8,
+   "RECOM_loss_W_eta45": 0.9,
+   "RECOM_loss_W_eta53": 0.653,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.091,
+    "llc_stage_W": 0.146,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.573,
+    "input_W": 1.309
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.091,
+    "llc_stage_W": 0.146,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.405,
+    "input_W": 1.141
+   }
+  },
+  {
+   "q_basis": "allocation_740nC (as-built sizing, covers S2/S4/S5 extremes)",
+   "q_nC": 740.0,
+   "f_kHz": 40.0,
+   "monitor": "mon14",
+   "I_ch_mA": 52.5,
+   "P_out_W": 0.893,
+   "pct_of_2W_knee": 44.6,
+   "RECOM_loss_W_eta45": 1.091,
+   "RECOM_loss_W_eta53": 0.791,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.11,
+    "llc_stage_W": 0.177,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.623,
+    "input_W": 1.516
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.11,
+    "llc_stage_W": 0.177,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.455,
+    "input_W": 1.348
+   }
+  },
+  {
+   "q_basis": "allocation_740nC (as-built sizing, covers S2/S4/S5 extremes)",
+   "q_nC": 740.0,
+   "f_kHz": 40.0,
+   "monitor": "mon10",
+   "I_ch_mA": 48.5,
+   "P_out_W": 0.825,
+   "pct_of_2W_knee": 41.2,
+   "RECOM_loss_W_eta45": 1.008,
+   "RECOM_loss_W_eta53": 0.731,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.102,
+    "llc_stage_W": 0.163,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.601,
+    "input_W": 1.426
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.102,
+    "llc_stage_W": 0.163,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.433,
+    "input_W": 1.258
+   }
+  },
+  {
+   "q_basis": "allocation_740nC (as-built sizing, covers S2/S4/S5 extremes)",
+   "q_nC": 740.0,
+   "f_kHz": 50.0,
+   "monitor": "mon14",
+   "I_ch_mA": 59.9,
+   "P_out_W": 1.018,
+   "pct_of_2W_knee": 50.9,
+   "RECOM_loss_W_eta45": 1.245,
+   "RECOM_loss_W_eta53": 0.903,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.126,
+    "llc_stage_W": 0.202,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.664,
+    "input_W": 1.682
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.126,
+    "llc_stage_W": 0.202,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.496,
+    "input_W": 1.514
+   }
+  },
+  {
+   "q_basis": "allocation_740nC (as-built sizing, covers S2/S4/S5 extremes)",
+   "q_nC": 740.0,
+   "f_kHz": 50.0,
+   "monitor": "mon10",
+   "I_ch_mA": 55.9,
+   "P_out_W": 0.95,
+   "pct_of_2W_knee": 47.5,
+   "RECOM_loss_W_eta45": 1.161,
+   "RECOM_loss_W_eta53": 0.843,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.117,
+    "llc_stage_W": 0.188,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.642,
+    "input_W": 1.592
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.117,
+    "llc_stage_W": 0.188,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.474,
+    "input_W": 1.424
+   }
+  },
+  {
+   "q_basis": "allocation_740nC (as-built sizing, covers S2/S4/S5 extremes)",
+   "q_nC": 740.0,
+   "f_kHz": 60.0,
+   "monitor": "mon14",
+   "I_ch_mA": 67.3,
+   "P_out_W": 1.144,
+   "pct_of_2W_knee": 57.2,
+   "RECOM_loss_W_eta45": 1.398,
+   "RECOM_loss_W_eta53": 1.015,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.141,
+    "llc_stage_W": 0.227,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.704,
+    "input_W": 1.848
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.141,
+    "llc_stage_W": 0.227,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.536,
+    "input_W": 1.68
+   }
+  },
+  {
+   "q_basis": "allocation_740nC (as-built sizing, covers S2/S4/S5 extremes)",
+   "q_nC": 740.0,
+   "f_kHz": 60.0,
+   "monitor": "mon10",
+   "I_ch_mA": 63.3,
+   "P_out_W": 1.076,
+   "pct_of_2W_knee": 53.8,
+   "RECOM_loss_W_eta45": 1.315,
+   "RECOM_loss_W_eta53": 0.954,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.133,
+    "llc_stage_W": 0.213,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.682,
+    "input_W": 1.758
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.133,
+    "llc_stage_W": 0.213,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.514,
+    "input_W": 1.59
+   }
+  },
+  {
+   "q_basis": "allocation_740nC (as-built sizing, covers S2/S4/S5 extremes)",
+   "q_nC": 740.0,
+   "f_kHz": 80.0,
+   "monitor": "mon14",
+   "I_ch_mA": 82.1,
+   "P_out_W": 1.396,
+   "pct_of_2W_knee": 69.8,
+   "RECOM_loss_W_eta45": 1.706,
+   "RECOM_loss_W_eta53": 1.238,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.172,
+    "llc_stage_W": 0.277,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.785,
+    "input_W": 2.181
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.172,
+    "llc_stage_W": 0.277,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.617,
+    "input_W": 2.013
+   }
+  },
+  {
+   "q_basis": "allocation_740nC (as-built sizing, covers S2/S4/S5 extremes)",
+   "q_nC": 740.0,
+   "f_kHz": 80.0,
+   "monitor": "mon10",
+   "I_ch_mA": 78.1,
+   "P_out_W": 1.328,
+   "pct_of_2W_knee": 66.4,
+   "RECOM_loss_W_eta45": 1.623,
+   "RECOM_loss_W_eta53": 1.177,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.164,
+    "llc_stage_W": 0.263,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.763,
+    "input_W": 2.091
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.164,
+    "llc_stage_W": 0.263,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.595,
+    "input_W": 1.923
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck ZVS S1 max",
+   "q_nC": 370.0,
+   "f_kHz": 33.0,
+   "monitor": "mon14",
+   "I_ch_mA": 35.11,
+   "P_out_W": 0.597,
+   "pct_of_2W_knee": 29.8,
+   "RECOM_loss_W_eta45": 0.73,
+   "RECOM_loss_W_eta53": 0.529,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.074,
+    "llc_stage_W": 0.118,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.528,
+    "input_W": 1.125
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.074,
+    "llc_stage_W": 0.118,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.36,
+    "input_W": 0.957
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck ZVS S1 max",
+   "q_nC": 370.0,
+   "f_kHz": 33.0,
+   "monitor": "mon10",
+   "I_ch_mA": 31.11,
+   "P_out_W": 0.529,
+   "pct_of_2W_knee": 26.4,
+   "RECOM_loss_W_eta45": 0.646,
+   "RECOM_loss_W_eta53": 0.469,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.065,
+    "llc_stage_W": 0.105,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.506,
+    "input_W": 1.035
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.065,
+    "llc_stage_W": 0.105,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.338,
+    "input_W": 0.867
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck ZVS S1 max",
+   "q_nC": 370.0,
+   "f_kHz": 40.0,
+   "monitor": "mon14",
+   "I_ch_mA": 37.7,
+   "P_out_W": 0.641,
+   "pct_of_2W_knee": 32.0,
+   "RECOM_loss_W_eta45": 0.783,
+   "RECOM_loss_W_eta53": 0.568,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.079,
+    "llc_stage_W": 0.127,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.542,
+    "input_W": 1.183
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.079,
+    "llc_stage_W": 0.127,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.374,
+    "input_W": 1.015
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck ZVS S1 max",
+   "q_nC": 370.0,
+   "f_kHz": 40.0,
+   "monitor": "mon10",
+   "I_ch_mA": 33.7,
+   "P_out_W": 0.573,
+   "pct_of_2W_knee": 28.6,
+   "RECOM_loss_W_eta45": 0.7,
+   "RECOM_loss_W_eta53": 0.508,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.071,
+    "llc_stage_W": 0.114,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.52,
+    "input_W": 1.093
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.071,
+    "llc_stage_W": 0.114,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.352,
+    "input_W": 0.925
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck ZVS S1 max",
+   "q_nC": 370.0,
+   "f_kHz": 50.0,
+   "monitor": "mon14",
+   "I_ch_mA": 41.4,
+   "P_out_W": 0.704,
+   "pct_of_2W_knee": 35.2,
+   "RECOM_loss_W_eta45": 0.86,
+   "RECOM_loss_W_eta53": 0.624,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.087,
+    "llc_stage_W": 0.14,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.562,
+    "input_W": 1.266
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.087,
+    "llc_stage_W": 0.14,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.394,
+    "input_W": 1.098
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck ZVS S1 max",
+   "q_nC": 370.0,
+   "f_kHz": 50.0,
+   "monitor": "mon10",
+   "I_ch_mA": 37.4,
+   "P_out_W": 0.636,
+   "pct_of_2W_knee": 31.8,
+   "RECOM_loss_W_eta45": 0.777,
+   "RECOM_loss_W_eta53": 0.564,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.079,
+    "llc_stage_W": 0.126,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.541,
+    "input_W": 1.176
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.079,
+    "llc_stage_W": 0.126,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.373,
+    "input_W": 1.008
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck ZVS S1 max",
+   "q_nC": 370.0,
+   "f_kHz": 60.0,
+   "monitor": "mon14",
+   "I_ch_mA": 45.1,
+   "P_out_W": 0.767,
+   "pct_of_2W_knee": 38.3,
+   "RECOM_loss_W_eta45": 0.937,
+   "RECOM_loss_W_eta53": 0.68,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.095,
+    "llc_stage_W": 0.152,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.583,
+    "input_W": 1.349
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.095,
+    "llc_stage_W": 0.152,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.415,
+    "input_W": 1.181
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck ZVS S1 max",
+   "q_nC": 370.0,
+   "f_kHz": 60.0,
+   "monitor": "mon10",
+   "I_ch_mA": 41.1,
+   "P_out_W": 0.699,
+   "pct_of_2W_knee": 34.9,
+   "RECOM_loss_W_eta45": 0.854,
+   "RECOM_loss_W_eta53": 0.62,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.086,
+    "llc_stage_W": 0.139,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.561,
+    "input_W": 1.26
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.086,
+    "llc_stage_W": 0.139,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.393,
+    "input_W": 1.092
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck ZVS S1 max",
+   "q_nC": 370.0,
+   "f_kHz": 80.0,
+   "monitor": "mon14",
+   "I_ch_mA": 52.5,
+   "P_out_W": 0.893,
+   "pct_of_2W_knee": 44.6,
+   "RECOM_loss_W_eta45": 1.091,
+   "RECOM_loss_W_eta53": 0.791,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.11,
+    "llc_stage_W": 0.177,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.623,
+    "input_W": 1.516
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.11,
+    "llc_stage_W": 0.177,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.455,
+    "input_W": 1.348
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck ZVS S1 max",
+   "q_nC": 370.0,
+   "f_kHz": 80.0,
+   "monitor": "mon10",
+   "I_ch_mA": 48.5,
+   "P_out_W": 0.825,
+   "pct_of_2W_knee": 41.2,
+   "RECOM_loss_W_eta45": 1.008,
+   "RECOM_loss_W_eta53": 0.731,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.102,
+    "llc_stage_W": 0.163,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.601,
+    "input_W": 1.426
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.102,
+    "llc_stage_W": 0.163,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.433,
+    "input_W": 1.258
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S2 max",
+   "q_nC": 382.6,
+   "f_kHz": 33.0,
+   "monitor": "mon14",
+   "I_ch_mA": 35.53,
+   "P_out_W": 0.604,
+   "pct_of_2W_knee": 30.2,
+   "RECOM_loss_W_eta45": 0.738,
+   "RECOM_loss_W_eta53": 0.536,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.075,
+    "llc_stage_W": 0.12,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.53,
+    "input_W": 1.134
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.075,
+    "llc_stage_W": 0.12,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.362,
+    "input_W": 0.966
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S2 max",
+   "q_nC": 382.6,
+   "f_kHz": 33.0,
+   "monitor": "mon10",
+   "I_ch_mA": 31.53,
+   "P_out_W": 0.536,
+   "pct_of_2W_knee": 26.8,
+   "RECOM_loss_W_eta45": 0.655,
+   "RECOM_loss_W_eta53": 0.475,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.066,
+    "llc_stage_W": 0.106,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.508,
+    "input_W": 1.044
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.066,
+    "llc_stage_W": 0.106,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.34,
+    "input_W": 0.876
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S2 max",
+   "q_nC": 382.6,
+   "f_kHz": 40.0,
+   "monitor": "mon14",
+   "I_ch_mA": 38.2,
+   "P_out_W": 0.649,
+   "pct_of_2W_knee": 32.5,
+   "RECOM_loss_W_eta45": 0.794,
+   "RECOM_loss_W_eta53": 0.576,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.08,
+    "llc_stage_W": 0.129,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.545,
+    "input_W": 1.194
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.08,
+    "llc_stage_W": 0.129,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.377,
+    "input_W": 1.026
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S2 max",
+   "q_nC": 382.6,
+   "f_kHz": 40.0,
+   "monitor": "mon10",
+   "I_ch_mA": 34.2,
+   "P_out_W": 0.581,
+   "pct_of_2W_knee": 29.1,
+   "RECOM_loss_W_eta45": 0.711,
+   "RECOM_loss_W_eta53": 0.516,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.072,
+    "llc_stage_W": 0.115,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.523,
+    "input_W": 1.105
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.072,
+    "llc_stage_W": 0.115,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.355,
+    "input_W": 0.937
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S2 max",
+   "q_nC": 382.6,
+   "f_kHz": 50.0,
+   "monitor": "mon14",
+   "I_ch_mA": 42.03,
+   "P_out_W": 0.715,
+   "pct_of_2W_knee": 35.7,
+   "RECOM_loss_W_eta45": 0.873,
+   "RECOM_loss_W_eta53": 0.634,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.142,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.566,
+    "input_W": 1.28
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.142,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.398,
+    "input_W": 1.112
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S2 max",
+   "q_nC": 382.6,
+   "f_kHz": 50.0,
+   "monitor": "mon10",
+   "I_ch_mA": 38.03,
+   "P_out_W": 0.647,
+   "pct_of_2W_knee": 32.3,
+   "RECOM_loss_W_eta45": 0.79,
+   "RECOM_loss_W_eta53": 0.573,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.08,
+    "llc_stage_W": 0.128,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.544,
+    "input_W": 1.191
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.08,
+    "llc_stage_W": 0.128,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.376,
+    "input_W": 1.023
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S2 max",
+   "q_nC": 382.6,
+   "f_kHz": 60.0,
+   "monitor": "mon14",
+   "I_ch_mA": 45.86,
+   "P_out_W": 0.78,
+   "pct_of_2W_knee": 39.0,
+   "RECOM_loss_W_eta45": 0.953,
+   "RECOM_loss_W_eta53": 0.691,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.096,
+    "llc_stage_W": 0.155,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.587,
+    "input_W": 1.366
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.096,
+    "llc_stage_W": 0.155,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.419,
+    "input_W": 1.198
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S2 max",
+   "q_nC": 382.6,
+   "f_kHz": 60.0,
+   "monitor": "mon10",
+   "I_ch_mA": 41.86,
+   "P_out_W": 0.712,
+   "pct_of_2W_knee": 35.6,
+   "RECOM_loss_W_eta45": 0.87,
+   "RECOM_loss_W_eta53": 0.631,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.141,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.565,
+    "input_W": 1.277
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.141,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.397,
+    "input_W": 1.109
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S2 max",
+   "q_nC": 382.6,
+   "f_kHz": 80.0,
+   "monitor": "mon14",
+   "I_ch_mA": 53.51,
+   "P_out_W": 0.91,
+   "pct_of_2W_knee": 45.5,
+   "RECOM_loss_W_eta45": 1.112,
+   "RECOM_loss_W_eta53": 0.807,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.112,
+    "llc_stage_W": 0.18,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.629,
+    "input_W": 1.538
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.112,
+    "llc_stage_W": 0.18,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.461,
+    "input_W": 1.37
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S2 max",
+   "q_nC": 382.6,
+   "f_kHz": 80.0,
+   "monitor": "mon10",
+   "I_ch_mA": 49.51,
+   "P_out_W": 0.842,
+   "pct_of_2W_knee": 42.1,
+   "RECOM_loss_W_eta45": 1.029,
+   "RECOM_loss_W_eta53": 0.746,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.104,
+    "llc_stage_W": 0.167,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.607,
+    "input_W": 1.448
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.104,
+    "llc_stage_W": 0.167,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.439,
+    "input_W": 1.28
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S4 max",
+   "q_nC": 381.4,
+   "f_kHz": 33.0,
+   "monitor": "mon14",
+   "I_ch_mA": 35.49,
+   "P_out_W": 0.603,
+   "pct_of_2W_knee": 30.2,
+   "RECOM_loss_W_eta45": 0.737,
+   "RECOM_loss_W_eta53": 0.535,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.075,
+    "llc_stage_W": 0.12,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.53,
+    "input_W": 1.133
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.075,
+    "llc_stage_W": 0.12,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.362,
+    "input_W": 0.965
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S4 max",
+   "q_nC": 381.4,
+   "f_kHz": 33.0,
+   "monitor": "mon10",
+   "I_ch_mA": 31.49,
+   "P_out_W": 0.535,
+   "pct_of_2W_knee": 26.8,
+   "RECOM_loss_W_eta45": 0.654,
+   "RECOM_loss_W_eta53": 0.475,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.066,
+    "llc_stage_W": 0.106,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.508,
+    "input_W": 1.044
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.066,
+    "llc_stage_W": 0.106,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.34,
+    "input_W": 0.876
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S4 max",
+   "q_nC": 381.4,
+   "f_kHz": 40.0,
+   "monitor": "mon14",
+   "I_ch_mA": 38.16,
+   "P_out_W": 0.649,
+   "pct_of_2W_knee": 32.4,
+   "RECOM_loss_W_eta45": 0.793,
+   "RECOM_loss_W_eta53": 0.575,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.08,
+    "llc_stage_W": 0.129,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.545,
+    "input_W": 1.193
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.08,
+    "llc_stage_W": 0.129,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.377,
+    "input_W": 1.025
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S4 max",
+   "q_nC": 381.4,
+   "f_kHz": 40.0,
+   "monitor": "mon10",
+   "I_ch_mA": 34.16,
+   "P_out_W": 0.581,
+   "pct_of_2W_knee": 29.0,
+   "RECOM_loss_W_eta45": 0.71,
+   "RECOM_loss_W_eta53": 0.515,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.072,
+    "llc_stage_W": 0.115,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.523,
+    "input_W": 1.104
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.072,
+    "llc_stage_W": 0.115,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.355,
+    "input_W": 0.936
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S4 max",
+   "q_nC": 381.4,
+   "f_kHz": 50.0,
+   "monitor": "mon14",
+   "I_ch_mA": 41.97,
+   "P_out_W": 0.713,
+   "pct_of_2W_knee": 35.7,
+   "RECOM_loss_W_eta45": 0.872,
+   "RECOM_loss_W_eta53": 0.633,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.141,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.566,
+    "input_W": 1.279
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.141,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.398,
+    "input_W": 1.111
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S4 max",
+   "q_nC": 381.4,
+   "f_kHz": 50.0,
+   "monitor": "mon10",
+   "I_ch_mA": 37.97,
+   "P_out_W": 0.645,
+   "pct_of_2W_knee": 32.3,
+   "RECOM_loss_W_eta45": 0.789,
+   "RECOM_loss_W_eta53": 0.572,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.08,
+    "llc_stage_W": 0.128,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.544,
+    "input_W": 1.189
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.08,
+    "llc_stage_W": 0.128,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.376,
+    "input_W": 1.021
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S4 max",
+   "q_nC": 381.4,
+   "f_kHz": 60.0,
+   "monitor": "mon14",
+   "I_ch_mA": 45.78,
+   "P_out_W": 0.778,
+   "pct_of_2W_knee": 38.9,
+   "RECOM_loss_W_eta45": 0.951,
+   "RECOM_loss_W_eta53": 0.69,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.096,
+    "llc_stage_W": 0.154,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.586,
+    "input_W": 1.365
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.096,
+    "llc_stage_W": 0.154,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.418,
+    "input_W": 1.197
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S4 max",
+   "q_nC": 381.4,
+   "f_kHz": 60.0,
+   "monitor": "mon10",
+   "I_ch_mA": 41.78,
+   "P_out_W": 0.71,
+   "pct_of_2W_knee": 35.5,
+   "RECOM_loss_W_eta45": 0.868,
+   "RECOM_loss_W_eta53": 0.63,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.141,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.565,
+    "input_W": 1.275
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.141,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.397,
+    "input_W": 1.107
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S4 max",
+   "q_nC": 381.4,
+   "f_kHz": 80.0,
+   "monitor": "mon14",
+   "I_ch_mA": 53.41,
+   "P_out_W": 0.908,
+   "pct_of_2W_knee": 45.4,
+   "RECOM_loss_W_eta45": 1.11,
+   "RECOM_loss_W_eta53": 0.805,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.112,
+    "llc_stage_W": 0.18,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.628,
+    "input_W": 1.536
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.112,
+    "llc_stage_W": 0.18,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.46,
+    "input_W": 1.368
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S4 max",
+   "q_nC": 381.4,
+   "f_kHz": 80.0,
+   "monitor": "mon10",
+   "I_ch_mA": 49.41,
+   "P_out_W": 0.84,
+   "pct_of_2W_knee": 42.0,
+   "RECOM_loss_W_eta45": 1.027,
+   "RECOM_loss_W_eta53": 0.745,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.104,
+    "llc_stage_W": 0.167,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.606,
+    "input_W": 1.446
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.104,
+    "llc_stage_W": 0.167,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.438,
+    "input_W": 1.278
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S5 max",
+   "q_nC": 374.7,
+   "f_kHz": 33.0,
+   "monitor": "mon14",
+   "I_ch_mA": 35.27,
+   "P_out_W": 0.6,
+   "pct_of_2W_knee": 30.0,
+   "RECOM_loss_W_eta45": 0.733,
+   "RECOM_loss_W_eta53": 0.532,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.074,
+    "llc_stage_W": 0.119,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.529,
+    "input_W": 1.128
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.074,
+    "llc_stage_W": 0.119,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.361,
+    "input_W": 0.96
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S5 max",
+   "q_nC": 374.7,
+   "f_kHz": 33.0,
+   "monitor": "mon10",
+   "I_ch_mA": 31.27,
+   "P_out_W": 0.532,
+   "pct_of_2W_knee": 26.6,
+   "RECOM_loss_W_eta45": 0.65,
+   "RECOM_loss_W_eta53": 0.471,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.066,
+    "llc_stage_W": 0.105,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.507,
+    "input_W": 1.039
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.066,
+    "llc_stage_W": 0.105,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.339,
+    "input_W": 0.871
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S5 max",
+   "q_nC": 374.7,
+   "f_kHz": 40.0,
+   "monitor": "mon14",
+   "I_ch_mA": 37.89,
+   "P_out_W": 0.644,
+   "pct_of_2W_knee": 32.2,
+   "RECOM_loss_W_eta45": 0.787,
+   "RECOM_loss_W_eta53": 0.571,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.08,
+    "llc_stage_W": 0.128,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.543,
+    "input_W": 1.187
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.08,
+    "llc_stage_W": 0.128,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.375,
+    "input_W": 1.019
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S5 max",
+   "q_nC": 374.7,
+   "f_kHz": 40.0,
+   "monitor": "mon10",
+   "I_ch_mA": 33.89,
+   "P_out_W": 0.576,
+   "pct_of_2W_knee": 28.8,
+   "RECOM_loss_W_eta45": 0.704,
+   "RECOM_loss_W_eta53": 0.511,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.071,
+    "llc_stage_W": 0.114,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.521,
+    "input_W": 1.097
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.071,
+    "llc_stage_W": 0.114,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.353,
+    "input_W": 0.929
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S5 max",
+   "q_nC": 374.7,
+   "f_kHz": 50.0,
+   "monitor": "mon14",
+   "I_ch_mA": 41.63,
+   "P_out_W": 0.708,
+   "pct_of_2W_knee": 35.4,
+   "RECOM_loss_W_eta45": 0.865,
+   "RECOM_loss_W_eta53": 0.628,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.087,
+    "llc_stage_W": 0.14,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.564,
+    "input_W": 1.272
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.087,
+    "llc_stage_W": 0.14,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.396,
+    "input_W": 1.104
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S5 max",
+   "q_nC": 374.7,
+   "f_kHz": 50.0,
+   "monitor": "mon10",
+   "I_ch_mA": 37.64,
+   "P_out_W": 0.64,
+   "pct_of_2W_knee": 32.0,
+   "RECOM_loss_W_eta45": 0.782,
+   "RECOM_loss_W_eta53": 0.567,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.079,
+    "llc_stage_W": 0.127,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.542,
+    "input_W": 1.182
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.079,
+    "llc_stage_W": 0.127,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.374,
+    "input_W": 1.014
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S5 max",
+   "q_nC": 374.7,
+   "f_kHz": 60.0,
+   "monitor": "mon14",
+   "I_ch_mA": 45.38,
+   "P_out_W": 0.771,
+   "pct_of_2W_knee": 38.6,
+   "RECOM_loss_W_eta45": 0.943,
+   "RECOM_loss_W_eta53": 0.684,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.095,
+    "llc_stage_W": 0.153,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.584,
+    "input_W": 1.356
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.095,
+    "llc_stage_W": 0.153,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.416,
+    "input_W": 1.188
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S5 max",
+   "q_nC": 374.7,
+   "f_kHz": 60.0,
+   "monitor": "mon10",
+   "I_ch_mA": 41.38,
+   "P_out_W": 0.703,
+   "pct_of_2W_knee": 35.2,
+   "RECOM_loss_W_eta45": 0.86,
+   "RECOM_loss_W_eta53": 0.624,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.087,
+    "llc_stage_W": 0.139,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.562,
+    "input_W": 1.266
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.087,
+    "llc_stage_W": 0.139,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.394,
+    "input_W": 1.098
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S5 max",
+   "q_nC": 374.7,
+   "f_kHz": 80.0,
+   "monitor": "mon14",
+   "I_ch_mA": 52.88,
+   "P_out_W": 0.899,
+   "pct_of_2W_knee": 44.9,
+   "RECOM_loss_W_eta45": 1.099,
+   "RECOM_loss_W_eta53": 0.797,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.111,
+    "llc_stage_W": 0.178,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.625,
+    "input_W": 1.524
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.111,
+    "llc_stage_W": 0.178,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.457,
+    "input_W": 1.356
+   }
+  },
+  {
+   "q_basis": "IPW65R018CFD7_L1 deck S5 max",
+   "q_nC": 374.7,
+   "f_kHz": 80.0,
+   "monitor": "mon10",
+   "I_ch_mA": 48.88,
+   "P_out_W": 0.831,
+   "pct_of_2W_knee": 41.5,
+   "RECOM_loss_W_eta45": 1.016,
+   "RECOM_loss_W_eta53": 0.737,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.103,
+    "llc_stage_W": 0.165,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.603,
+    "input_W": 1.434
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.103,
+    "llc_stage_W": 0.165,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.435,
+    "input_W": 1.266
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck ZVS S1 max",
+   "q_nC": 239.2,
+   "f_kHz": 33.0,
+   "monitor": "mon14",
+   "I_ch_mA": 30.79,
+   "P_out_W": 0.523,
+   "pct_of_2W_knee": 26.2,
+   "RECOM_loss_W_eta45": 0.64,
+   "RECOM_loss_W_eta53": 0.464,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.065,
+    "llc_stage_W": 0.104,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.504,
+    "input_W": 1.028
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.065,
+    "llc_stage_W": 0.104,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.336,
+    "input_W": 0.86
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck ZVS S1 max",
+   "q_nC": 239.2,
+   "f_kHz": 33.0,
+   "monitor": "mon10",
+   "I_ch_mA": 26.79,
+   "P_out_W": 0.455,
+   "pct_of_2W_knee": 22.8,
+   "RECOM_loss_W_eta45": 0.557,
+   "RECOM_loss_W_eta53": 0.404,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.056,
+    "llc_stage_W": 0.09,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.483,
+    "input_W": 0.938
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.056,
+    "llc_stage_W": 0.09,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.315,
+    "input_W": 0.77
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck ZVS S1 max",
+   "q_nC": 239.2,
+   "f_kHz": 40.0,
+   "monitor": "mon14",
+   "I_ch_mA": 32.47,
+   "P_out_W": 0.552,
+   "pct_of_2W_knee": 27.6,
+   "RECOM_loss_W_eta45": 0.675,
+   "RECOM_loss_W_eta53": 0.489,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.068,
+    "llc_stage_W": 0.109,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.514,
+    "input_W": 1.066
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.068,
+    "llc_stage_W": 0.109,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.346,
+    "input_W": 0.898
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck ZVS S1 max",
+   "q_nC": 239.2,
+   "f_kHz": 40.0,
+   "monitor": "mon10",
+   "I_ch_mA": 28.47,
+   "P_out_W": 0.484,
+   "pct_of_2W_knee": 24.2,
+   "RECOM_loss_W_eta45": 0.592,
+   "RECOM_loss_W_eta53": 0.429,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.06,
+    "llc_stage_W": 0.096,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.492,
+    "input_W": 0.976
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.06,
+    "llc_stage_W": 0.096,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.324,
+    "input_W": 0.808
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck ZVS S1 max",
+   "q_nC": 239.2,
+   "f_kHz": 50.0,
+   "monitor": "mon14",
+   "I_ch_mA": 34.86,
+   "P_out_W": 0.593,
+   "pct_of_2W_knee": 29.6,
+   "RECOM_loss_W_eta45": 0.724,
+   "RECOM_loss_W_eta53": 0.526,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.073,
+    "llc_stage_W": 0.117,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.527,
+    "input_W": 1.119
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.073,
+    "llc_stage_W": 0.117,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.359,
+    "input_W": 0.951
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck ZVS S1 max",
+   "q_nC": 239.2,
+   "f_kHz": 50.0,
+   "monitor": "mon10",
+   "I_ch_mA": 30.86,
+   "P_out_W": 0.525,
+   "pct_of_2W_knee": 26.2,
+   "RECOM_loss_W_eta45": 0.641,
+   "RECOM_loss_W_eta53": 0.465,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.065,
+    "llc_stage_W": 0.104,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.505,
+    "input_W": 1.029
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.065,
+    "llc_stage_W": 0.104,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.337,
+    "input_W": 0.861
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck ZVS S1 max",
+   "q_nC": 239.2,
+   "f_kHz": 60.0,
+   "monitor": "mon14",
+   "I_ch_mA": 37.25,
+   "P_out_W": 0.633,
+   "pct_of_2W_knee": 31.7,
+   "RECOM_loss_W_eta45": 0.774,
+   "RECOM_loss_W_eta53": 0.562,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.078,
+    "llc_stage_W": 0.126,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.54,
+    "input_W": 1.173
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.078,
+    "llc_stage_W": 0.126,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.372,
+    "input_W": 1.005
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck ZVS S1 max",
+   "q_nC": 239.2,
+   "f_kHz": 60.0,
+   "monitor": "mon10",
+   "I_ch_mA": 33.25,
+   "P_out_W": 0.565,
+   "pct_of_2W_knee": 28.3,
+   "RECOM_loss_W_eta45": 0.691,
+   "RECOM_loss_W_eta53": 0.501,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.07,
+    "llc_stage_W": 0.112,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.518,
+    "input_W": 1.083
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.07,
+    "llc_stage_W": 0.112,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.35,
+    "input_W": 0.915
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck ZVS S1 max",
+   "q_nC": 239.2,
+   "f_kHz": 80.0,
+   "monitor": "mon14",
+   "I_ch_mA": 42.04,
+   "P_out_W": 0.715,
+   "pct_of_2W_knee": 35.7,
+   "RECOM_loss_W_eta45": 0.873,
+   "RECOM_loss_W_eta53": 0.634,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.142,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.566,
+    "input_W": 1.281
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.142,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.398,
+    "input_W": 1.113
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck ZVS S1 max",
+   "q_nC": 239.2,
+   "f_kHz": 80.0,
+   "monitor": "mon10",
+   "I_ch_mA": 38.04,
+   "P_out_W": 0.647,
+   "pct_of_2W_knee": 32.3,
+   "RECOM_loss_W_eta45": 0.79,
+   "RECOM_loss_W_eta53": 0.573,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.08,
+    "llc_stage_W": 0.128,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.544,
+    "input_W": 1.191
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.08,
+    "llc_stage_W": 0.128,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.376,
+    "input_W": 1.023
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S2 max",
+   "q_nC": 244.3,
+   "f_kHz": 33.0,
+   "monitor": "mon14",
+   "I_ch_mA": 30.96,
+   "P_out_W": 0.526,
+   "pct_of_2W_knee": 26.3,
+   "RECOM_loss_W_eta45": 0.643,
+   "RECOM_loss_W_eta53": 0.467,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.065,
+    "llc_stage_W": 0.104,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.505,
+    "input_W": 1.032
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.065,
+    "llc_stage_W": 0.104,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.337,
+    "input_W": 0.864
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S2 max",
+   "q_nC": 244.3,
+   "f_kHz": 33.0,
+   "monitor": "mon10",
+   "I_ch_mA": 26.96,
+   "P_out_W": 0.458,
+   "pct_of_2W_knee": 22.9,
+   "RECOM_loss_W_eta45": 0.56,
+   "RECOM_loss_W_eta53": 0.406,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.057,
+    "llc_stage_W": 0.091,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.483,
+    "input_W": 0.942
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.057,
+    "llc_stage_W": 0.091,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.315,
+    "input_W": 0.774
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S2 max",
+   "q_nC": 244.3,
+   "f_kHz": 40.0,
+   "monitor": "mon14",
+   "I_ch_mA": 32.67,
+   "P_out_W": 0.555,
+   "pct_of_2W_knee": 27.8,
+   "RECOM_loss_W_eta45": 0.679,
+   "RECOM_loss_W_eta53": 0.493,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.069,
+    "llc_stage_W": 0.11,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.515,
+    "input_W": 1.07
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.069,
+    "llc_stage_W": 0.11,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.347,
+    "input_W": 0.902
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S2 max",
+   "q_nC": 244.3,
+   "f_kHz": 40.0,
+   "monitor": "mon10",
+   "I_ch_mA": 28.67,
+   "P_out_W": 0.487,
+   "pct_of_2W_knee": 24.4,
+   "RECOM_loss_W_eta45": 0.596,
+   "RECOM_loss_W_eta53": 0.432,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.06,
+    "llc_stage_W": 0.097,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.493,
+    "input_W": 0.98
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.06,
+    "llc_stage_W": 0.097,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.325,
+    "input_W": 0.812
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S2 max",
+   "q_nC": 244.3,
+   "f_kHz": 50.0,
+   "monitor": "mon14",
+   "I_ch_mA": 35.12,
+   "P_out_W": 0.597,
+   "pct_of_2W_knee": 29.8,
+   "RECOM_loss_W_eta45": 0.73,
+   "RECOM_loss_W_eta53": 0.529,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.074,
+    "llc_stage_W": 0.118,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.528,
+    "input_W": 1.125
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.074,
+    "llc_stage_W": 0.118,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.36,
+    "input_W": 0.957
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S2 max",
+   "q_nC": 244.3,
+   "f_kHz": 50.0,
+   "monitor": "mon10",
+   "I_ch_mA": 31.12,
+   "P_out_W": 0.529,
+   "pct_of_2W_knee": 26.4,
+   "RECOM_loss_W_eta45": 0.647,
+   "RECOM_loss_W_eta53": 0.469,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.065,
+    "llc_stage_W": 0.105,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.506,
+    "input_W": 1.035
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.065,
+    "llc_stage_W": 0.105,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.338,
+    "input_W": 0.867
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S2 max",
+   "q_nC": 244.3,
+   "f_kHz": 60.0,
+   "monitor": "mon14",
+   "I_ch_mA": 37.56,
+   "P_out_W": 0.638,
+   "pct_of_2W_knee": 31.9,
+   "RECOM_loss_W_eta45": 0.78,
+   "RECOM_loss_W_eta53": 0.566,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.079,
+    "llc_stage_W": 0.127,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.541,
+    "input_W": 1.18
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.079,
+    "llc_stage_W": 0.127,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.373,
+    "input_W": 1.012
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S2 max",
+   "q_nC": 244.3,
+   "f_kHz": 60.0,
+   "monitor": "mon10",
+   "I_ch_mA": 33.56,
+   "P_out_W": 0.57,
+   "pct_of_2W_knee": 28.5,
+   "RECOM_loss_W_eta45": 0.697,
+   "RECOM_loss_W_eta53": 0.506,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.07,
+    "llc_stage_W": 0.113,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.52,
+    "input_W": 1.09
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.07,
+    "llc_stage_W": 0.113,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.352,
+    "input_W": 0.922
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S2 max",
+   "q_nC": 244.3,
+   "f_kHz": 80.0,
+   "monitor": "mon14",
+   "I_ch_mA": 42.44,
+   "P_out_W": 0.722,
+   "pct_of_2W_knee": 36.1,
+   "RECOM_loss_W_eta45": 0.882,
+   "RECOM_loss_W_eta53": 0.64,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.089,
+    "llc_stage_W": 0.143,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.568,
+    "input_W": 1.29
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.089,
+    "llc_stage_W": 0.143,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.4,
+    "input_W": 1.122
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S2 max",
+   "q_nC": 244.3,
+   "f_kHz": 80.0,
+   "monitor": "mon10",
+   "I_ch_mA": 38.44,
+   "P_out_W": 0.654,
+   "pct_of_2W_knee": 32.7,
+   "RECOM_loss_W_eta45": 0.799,
+   "RECOM_loss_W_eta53": 0.58,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.081,
+    "llc_stage_W": 0.13,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.546,
+    "input_W": 1.2
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.081,
+    "llc_stage_W": 0.13,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.378,
+    "input_W": 1.032
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S4 max",
+   "q_nC": 237.1,
+   "f_kHz": 33.0,
+   "monitor": "mon14",
+   "I_ch_mA": 30.72,
+   "P_out_W": 0.522,
+   "pct_of_2W_knee": 26.1,
+   "RECOM_loss_W_eta45": 0.638,
+   "RECOM_loss_W_eta53": 0.463,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.065,
+    "llc_stage_W": 0.104,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.504,
+    "input_W": 1.026
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.065,
+    "llc_stage_W": 0.104,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.336,
+    "input_W": 0.858
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S4 max",
+   "q_nC": 237.1,
+   "f_kHz": 33.0,
+   "monitor": "mon10",
+   "I_ch_mA": 26.72,
+   "P_out_W": 0.454,
+   "pct_of_2W_knee": 22.7,
+   "RECOM_loss_W_eta45": 0.555,
+   "RECOM_loss_W_eta53": 0.403,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.056,
+    "llc_stage_W": 0.09,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.482,
+    "input_W": 0.937
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.056,
+    "llc_stage_W": 0.09,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.314,
+    "input_W": 0.769
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S4 max",
+   "q_nC": 237.1,
+   "f_kHz": 40.0,
+   "monitor": "mon14",
+   "I_ch_mA": 32.38,
+   "P_out_W": 0.551,
+   "pct_of_2W_knee": 27.5,
+   "RECOM_loss_W_eta45": 0.673,
+   "RECOM_loss_W_eta53": 0.488,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.068,
+    "llc_stage_W": 0.109,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.513,
+    "input_W": 1.064
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.068,
+    "llc_stage_W": 0.109,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.345,
+    "input_W": 0.896
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S4 max",
+   "q_nC": 237.1,
+   "f_kHz": 40.0,
+   "monitor": "mon10",
+   "I_ch_mA": 28.38,
+   "P_out_W": 0.483,
+   "pct_of_2W_knee": 24.1,
+   "RECOM_loss_W_eta45": 0.59,
+   "RECOM_loss_W_eta53": 0.428,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.06,
+    "llc_stage_W": 0.096,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.491,
+    "input_W": 0.974
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.06,
+    "llc_stage_W": 0.096,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.323,
+    "input_W": 0.806
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S4 max",
+   "q_nC": 237.1,
+   "f_kHz": 50.0,
+   "monitor": "mon14",
+   "I_ch_mA": 34.76,
+   "P_out_W": 0.591,
+   "pct_of_2W_knee": 29.5,
+   "RECOM_loss_W_eta45": 0.722,
+   "RECOM_loss_W_eta53": 0.524,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.073,
+    "llc_stage_W": 0.117,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.526,
+    "input_W": 1.117
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.073,
+    "llc_stage_W": 0.117,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.358,
+    "input_W": 0.949
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S4 max",
+   "q_nC": 237.1,
+   "f_kHz": 50.0,
+   "monitor": "mon10",
+   "I_ch_mA": 30.75,
+   "P_out_W": 0.523,
+   "pct_of_2W_knee": 26.1,
+   "RECOM_loss_W_eta45": 0.639,
+   "RECOM_loss_W_eta53": 0.464,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.065,
+    "llc_stage_W": 0.104,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.504,
+    "input_W": 1.027
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.065,
+    "llc_stage_W": 0.104,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.336,
+    "input_W": 0.859
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S4 max",
+   "q_nC": 237.1,
+   "f_kHz": 60.0,
+   "monitor": "mon14",
+   "I_ch_mA": 37.13,
+   "P_out_W": 0.631,
+   "pct_of_2W_knee": 31.6,
+   "RECOM_loss_W_eta45": 0.771,
+   "RECOM_loss_W_eta53": 0.56,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.078,
+    "llc_stage_W": 0.125,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.539,
+    "input_W": 1.17
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.078,
+    "llc_stage_W": 0.125,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.371,
+    "input_W": 1.002
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S4 max",
+   "q_nC": 237.1,
+   "f_kHz": 60.0,
+   "monitor": "mon10",
+   "I_ch_mA": 33.13,
+   "P_out_W": 0.563,
+   "pct_of_2W_knee": 28.2,
+   "RECOM_loss_W_eta45": 0.688,
+   "RECOM_loss_W_eta53": 0.499,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.07,
+    "llc_stage_W": 0.112,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.517,
+    "input_W": 1.08
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.07,
+    "llc_stage_W": 0.112,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.349,
+    "input_W": 0.912
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S4 max",
+   "q_nC": 237.1,
+   "f_kHz": 80.0,
+   "monitor": "mon14",
+   "I_ch_mA": 41.87,
+   "P_out_W": 0.712,
+   "pct_of_2W_knee": 35.6,
+   "RECOM_loss_W_eta45": 0.87,
+   "RECOM_loss_W_eta53": 0.631,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.141,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.565,
+    "input_W": 1.277
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.141,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.397,
+    "input_W": 1.109
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S4 max",
+   "q_nC": 237.1,
+   "f_kHz": 80.0,
+   "monitor": "mon10",
+   "I_ch_mA": 37.87,
+   "P_out_W": 0.644,
+   "pct_of_2W_knee": 32.2,
+   "RECOM_loss_W_eta45": 0.787,
+   "RECOM_loss_W_eta53": 0.571,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.08,
+    "llc_stage_W": 0.128,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.543,
+    "input_W": 1.187
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.08,
+    "llc_stage_W": 0.128,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.375,
+    "input_W": 1.019
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S5 max",
+   "q_nC": 234.7,
+   "f_kHz": 33.0,
+   "monitor": "mon14",
+   "I_ch_mA": 30.65,
+   "P_out_W": 0.521,
+   "pct_of_2W_knee": 26.0,
+   "RECOM_loss_W_eta45": 0.637,
+   "RECOM_loss_W_eta53": 0.462,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.064,
+    "llc_stage_W": 0.103,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.504,
+    "input_W": 1.025
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.064,
+    "llc_stage_W": 0.103,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.336,
+    "input_W": 0.857
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S5 max",
+   "q_nC": 234.7,
+   "f_kHz": 33.0,
+   "monitor": "mon10",
+   "I_ch_mA": 26.65,
+   "P_out_W": 0.453,
+   "pct_of_2W_knee": 22.6,
+   "RECOM_loss_W_eta45": 0.554,
+   "RECOM_loss_W_eta53": 0.402,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.056,
+    "llc_stage_W": 0.09,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.482,
+    "input_W": 0.935
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.056,
+    "llc_stage_W": 0.09,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.314,
+    "input_W": 0.767
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S5 max",
+   "q_nC": 234.7,
+   "f_kHz": 40.0,
+   "monitor": "mon14",
+   "I_ch_mA": 32.29,
+   "P_out_W": 0.549,
+   "pct_of_2W_knee": 27.4,
+   "RECOM_loss_W_eta45": 0.671,
+   "RECOM_loss_W_eta53": 0.487,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.068,
+    "llc_stage_W": 0.109,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.513,
+    "input_W": 1.062
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.068,
+    "llc_stage_W": 0.109,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.345,
+    "input_W": 0.894
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S5 max",
+   "q_nC": 234.7,
+   "f_kHz": 40.0,
+   "monitor": "mon10",
+   "I_ch_mA": 28.29,
+   "P_out_W": 0.481,
+   "pct_of_2W_knee": 24.0,
+   "RECOM_loss_W_eta45": 0.588,
+   "RECOM_loss_W_eta53": 0.426,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.059,
+    "llc_stage_W": 0.095,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.491,
+    "input_W": 0.972
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.059,
+    "llc_stage_W": 0.095,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.323,
+    "input_W": 0.804
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S5 max",
+   "q_nC": 234.7,
+   "f_kHz": 50.0,
+   "monitor": "mon14",
+   "I_ch_mA": 34.63,
+   "P_out_W": 0.589,
+   "pct_of_2W_knee": 29.4,
+   "RECOM_loss_W_eta45": 0.72,
+   "RECOM_loss_W_eta53": 0.522,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.073,
+    "llc_stage_W": 0.117,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.525,
+    "input_W": 1.114
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.073,
+    "llc_stage_W": 0.117,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.357,
+    "input_W": 0.946
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S5 max",
+   "q_nC": 234.7,
+   "f_kHz": 50.0,
+   "monitor": "mon10",
+   "I_ch_mA": 30.64,
+   "P_out_W": 0.521,
+   "pct_of_2W_knee": 26.0,
+   "RECOM_loss_W_eta45": 0.637,
+   "RECOM_loss_W_eta53": 0.462,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.064,
+    "llc_stage_W": 0.103,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.504,
+    "input_W": 1.024
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.064,
+    "llc_stage_W": 0.103,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.336,
+    "input_W": 0.856
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S5 max",
+   "q_nC": 234.7,
+   "f_kHz": 60.0,
+   "monitor": "mon14",
+   "I_ch_mA": 36.98,
+   "P_out_W": 0.629,
+   "pct_of_2W_knee": 31.4,
+   "RECOM_loss_W_eta45": 0.768,
+   "RECOM_loss_W_eta53": 0.558,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.078,
+    "llc_stage_W": 0.125,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.538,
+    "input_W": 1.167
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.078,
+    "llc_stage_W": 0.125,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.37,
+    "input_W": 0.999
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S5 max",
+   "q_nC": 234.7,
+   "f_kHz": 60.0,
+   "monitor": "mon10",
+   "I_ch_mA": 32.98,
+   "P_out_W": 0.561,
+   "pct_of_2W_knee": 28.0,
+   "RECOM_loss_W_eta45": 0.685,
+   "RECOM_loss_W_eta53": 0.497,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.069,
+    "llc_stage_W": 0.111,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.516,
+    "input_W": 1.077
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.069,
+    "llc_stage_W": 0.111,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.348,
+    "input_W": 0.909
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S5 max",
+   "q_nC": 234.7,
+   "f_kHz": 80.0,
+   "monitor": "mon14",
+   "I_ch_mA": 41.68,
+   "P_out_W": 0.708,
+   "pct_of_2W_knee": 35.4,
+   "RECOM_loss_W_eta45": 0.866,
+   "RECOM_loss_W_eta53": 0.628,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.14,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.564,
+    "input_W": 1.272
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.14,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.396,
+    "input_W": 1.104
+   }
+  },
+  {
+   "q_basis": "IPW65R029CFD7_L1 deck S5 max",
+   "q_nC": 234.7,
+   "f_kHz": 80.0,
+   "monitor": "mon10",
+   "I_ch_mA": 37.68,
+   "P_out_W": 0.64,
+   "pct_of_2W_knee": 32.0,
+   "RECOM_loss_W_eta45": 0.783,
+   "RECOM_loss_W_eta53": 0.568,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.079,
+    "llc_stage_W": 0.127,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.542,
+    "input_W": 1.183
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.079,
+    "llc_stage_W": 0.127,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.374,
+    "input_W": 1.015
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (029 deck x 173/145)",
+   "q_nC": 285.4,
+   "f_kHz": 33.0,
+   "monitor": "mon14",
+   "I_ch_mA": 32.32,
+   "P_out_W": 0.549,
+   "pct_of_2W_knee": 27.5,
+   "RECOM_loss_W_eta45": 0.671,
+   "RECOM_loss_W_eta53": 0.487,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.068,
+    "llc_stage_W": 0.109,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.513,
+    "input_W": 1.062
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.068,
+    "llc_stage_W": 0.109,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.345,
+    "input_W": 0.894
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (029 deck x 173/145)",
+   "q_nC": 285.4,
+   "f_kHz": 33.0,
+   "monitor": "mon10",
+   "I_ch_mA": 28.32,
+   "P_out_W": 0.481,
+   "pct_of_2W_knee": 24.1,
+   "RECOM_loss_W_eta45": 0.588,
+   "RECOM_loss_W_eta53": 0.427,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.059,
+    "llc_stage_W": 0.095,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.491,
+    "input_W": 0.972
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.059,
+    "llc_stage_W": 0.095,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.323,
+    "input_W": 0.804
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (029 deck x 173/145)",
+   "q_nC": 285.4,
+   "f_kHz": 40.0,
+   "monitor": "mon14",
+   "I_ch_mA": 34.32,
+   "P_out_W": 0.583,
+   "pct_of_2W_knee": 29.2,
+   "RECOM_loss_W_eta45": 0.713,
+   "RECOM_loss_W_eta53": 0.517,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.072,
+    "llc_stage_W": 0.116,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.524,
+    "input_W": 1.107
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.072,
+    "llc_stage_W": 0.116,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.356,
+    "input_W": 0.939
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (029 deck x 173/145)",
+   "q_nC": 285.4,
+   "f_kHz": 40.0,
+   "monitor": "mon10",
+   "I_ch_mA": 30.32,
+   "P_out_W": 0.515,
+   "pct_of_2W_knee": 25.8,
+   "RECOM_loss_W_eta45": 0.63,
+   "RECOM_loss_W_eta53": 0.457,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.064,
+    "llc_stage_W": 0.102,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.502,
+    "input_W": 1.017
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.064,
+    "llc_stage_W": 0.102,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.334,
+    "input_W": 0.849
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (029 deck x 173/145)",
+   "q_nC": 285.4,
+   "f_kHz": 50.0,
+   "monitor": "mon14",
+   "I_ch_mA": 37.17,
+   "P_out_W": 0.632,
+   "pct_of_2W_knee": 31.6,
+   "RECOM_loss_W_eta45": 0.772,
+   "RECOM_loss_W_eta53": 0.56,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.078,
+    "llc_stage_W": 0.125,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.539,
+    "input_W": 1.171
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.078,
+    "llc_stage_W": 0.125,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.371,
+    "input_W": 1.003
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (029 deck x 173/145)",
+   "q_nC": 285.4,
+   "f_kHz": 50.0,
+   "monitor": "mon10",
+   "I_ch_mA": 33.17,
+   "P_out_W": 0.564,
+   "pct_of_2W_knee": 28.2,
+   "RECOM_loss_W_eta45": 0.689,
+   "RECOM_loss_W_eta53": 0.5,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.07,
+    "llc_stage_W": 0.112,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.517,
+    "input_W": 1.081
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.07,
+    "llc_stage_W": 0.112,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.349,
+    "input_W": 0.913
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (029 deck x 173/145)",
+   "q_nC": 285.4,
+   "f_kHz": 60.0,
+   "monitor": "mon14",
+   "I_ch_mA": 40.02,
+   "P_out_W": 0.68,
+   "pct_of_2W_knee": 34.0,
+   "RECOM_loss_W_eta45": 0.832,
+   "RECOM_loss_W_eta53": 0.603,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.084,
+    "llc_stage_W": 0.135,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.555,
+    "input_W": 1.235
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.084,
+    "llc_stage_W": 0.135,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.387,
+    "input_W": 1.067
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (029 deck x 173/145)",
+   "q_nC": 285.4,
+   "f_kHz": 60.0,
+   "monitor": "mon10",
+   "I_ch_mA": 36.02,
+   "P_out_W": 0.612,
+   "pct_of_2W_knee": 30.6,
+   "RECOM_loss_W_eta45": 0.748,
+   "RECOM_loss_W_eta53": 0.543,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.076,
+    "llc_stage_W": 0.121,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.533,
+    "input_W": 1.145
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.076,
+    "llc_stage_W": 0.121,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.365,
+    "input_W": 0.977
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (029 deck x 173/145)",
+   "q_nC": 285.4,
+   "f_kHz": 80.0,
+   "monitor": "mon14",
+   "I_ch_mA": 45.73,
+   "P_out_W": 0.777,
+   "pct_of_2W_knee": 38.9,
+   "RECOM_loss_W_eta45": 0.95,
+   "RECOM_loss_W_eta53": 0.689,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.096,
+    "llc_stage_W": 0.154,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.586,
+    "input_W": 1.364
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.096,
+    "llc_stage_W": 0.154,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.418,
+    "input_W": 1.196
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (029 deck x 173/145)",
+   "q_nC": 285.4,
+   "f_kHz": 80.0,
+   "monitor": "mon10",
+   "I_ch_mA": 41.73,
+   "P_out_W": 0.709,
+   "pct_of_2W_knee": 35.5,
+   "RECOM_loss_W_eta45": 0.867,
+   "RECOM_loss_W_eta53": 0.629,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.141,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.564,
+    "input_W": 1.274
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.088,
+    "llc_stage_W": 0.141,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.396,
+    "input_W": 1.106
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (018 deck x 173/234)",
+   "q_nC": 273.5,
+   "f_kHz": 33.0,
+   "monitor": "mon14",
+   "I_ch_mA": 31.93,
+   "P_out_W": 0.543,
+   "pct_of_2W_knee": 27.1,
+   "RECOM_loss_W_eta45": 0.663,
+   "RECOM_loss_W_eta53": 0.481,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.067,
+    "llc_stage_W": 0.108,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.511,
+    "input_W": 1.053
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.067,
+    "llc_stage_W": 0.108,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.343,
+    "input_W": 0.885
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (018 deck x 173/234)",
+   "q_nC": 273.5,
+   "f_kHz": 33.0,
+   "monitor": "mon10",
+   "I_ch_mA": 27.93,
+   "P_out_W": 0.475,
+   "pct_of_2W_knee": 23.7,
+   "RECOM_loss_W_eta45": 0.58,
+   "RECOM_loss_W_eta53": 0.421,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.059,
+    "llc_stage_W": 0.094,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.489,
+    "input_W": 0.964
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.059,
+    "llc_stage_W": 0.094,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.321,
+    "input_W": 0.796
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (018 deck x 173/234)",
+   "q_nC": 273.5,
+   "f_kHz": 40.0,
+   "monitor": "mon14",
+   "I_ch_mA": 33.84,
+   "P_out_W": 0.575,
+   "pct_of_2W_knee": 28.8,
+   "RECOM_loss_W_eta45": 0.703,
+   "RECOM_loss_W_eta53": 0.51,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.071,
+    "llc_stage_W": 0.114,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.521,
+    "input_W": 1.096
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.071,
+    "llc_stage_W": 0.114,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.353,
+    "input_W": 0.928
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (018 deck x 173/234)",
+   "q_nC": 273.5,
+   "f_kHz": 40.0,
+   "monitor": "mon10",
+   "I_ch_mA": 29.84,
+   "P_out_W": 0.507,
+   "pct_of_2W_knee": 25.4,
+   "RECOM_loss_W_eta45": 0.62,
+   "RECOM_loss_W_eta53": 0.45,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.063,
+    "llc_stage_W": 0.101,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.499,
+    "input_W": 1.007
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.063,
+    "llc_stage_W": 0.101,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.331,
+    "input_W": 0.839
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (018 deck x 173/234)",
+   "q_nC": 273.5,
+   "f_kHz": 50.0,
+   "monitor": "mon14",
+   "I_ch_mA": 36.58,
+   "P_out_W": 0.622,
+   "pct_of_2W_knee": 31.1,
+   "RECOM_loss_W_eta45": 0.76,
+   "RECOM_loss_W_eta53": 0.551,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.077,
+    "llc_stage_W": 0.123,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.536,
+    "input_W": 1.158
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.077,
+    "llc_stage_W": 0.123,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.368,
+    "input_W": 0.99
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (018 deck x 173/234)",
+   "q_nC": 273.5,
+   "f_kHz": 50.0,
+   "monitor": "mon10",
+   "I_ch_mA": 32.58,
+   "P_out_W": 0.554,
+   "pct_of_2W_knee": 27.7,
+   "RECOM_loss_W_eta45": 0.677,
+   "RECOM_loss_W_eta53": 0.491,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.068,
+    "llc_stage_W": 0.11,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.514,
+    "input_W": 1.068
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.068,
+    "llc_stage_W": 0.11,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.346,
+    "input_W": 0.9
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (018 deck x 173/234)",
+   "q_nC": 273.5,
+   "f_kHz": 60.0,
+   "monitor": "mon14",
+   "I_ch_mA": 39.31,
+   "P_out_W": 0.668,
+   "pct_of_2W_knee": 33.4,
+   "RECOM_loss_W_eta45": 0.817,
+   "RECOM_loss_W_eta53": 0.593,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.083,
+    "llc_stage_W": 0.133,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.551,
+    "input_W": 1.219
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.083,
+    "llc_stage_W": 0.133,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.383,
+    "input_W": 1.051
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (018 deck x 173/234)",
+   "q_nC": 273.5,
+   "f_kHz": 60.0,
+   "monitor": "mon10",
+   "I_ch_mA": 35.31,
+   "P_out_W": 0.6,
+   "pct_of_2W_knee": 30.0,
+   "RECOM_loss_W_eta45": 0.734,
+   "RECOM_loss_W_eta53": 0.532,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.074,
+    "llc_stage_W": 0.119,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.529,
+    "input_W": 1.129
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.074,
+    "llc_stage_W": 0.119,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.361,
+    "input_W": 0.961
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (018 deck x 173/234)",
+   "q_nC": 273.5,
+   "f_kHz": 80.0,
+   "monitor": "mon14",
+   "I_ch_mA": 44.78,
+   "P_out_W": 0.761,
+   "pct_of_2W_knee": 38.1,
+   "RECOM_loss_W_eta45": 0.931,
+   "RECOM_loss_W_eta53": 0.675,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.094,
+    "llc_stage_W": 0.151,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.581,
+    "input_W": 1.342
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.094,
+    "llc_stage_W": 0.151,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.413,
+    "input_W": 1.174
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 est (018 deck x 173/234)",
+   "q_nC": 273.5,
+   "f_kHz": 80.0,
+   "monitor": "mon10",
+   "I_ch_mA": 40.78,
+   "P_out_W": 0.693,
+   "pct_of_2W_knee": 34.7,
+   "RECOM_loss_W_eta45": 0.847,
+   "RECOM_loss_W_eta53": 0.615,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.086,
+    "llc_stage_W": 0.137,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.559,
+    "input_W": 1.252
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.086,
+    "llc_stage_W": 0.137,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.391,
+    "input_W": 1.084
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 allocation (740 x 173/234)",
+   "q_nC": 547.1,
+   "f_kHz": 33.0,
+   "monitor": "mon14",
+   "I_ch_mA": 40.95,
+   "P_out_W": 0.696,
+   "pct_of_2W_knee": 34.8,
+   "RECOM_loss_W_eta45": 0.851,
+   "RECOM_loss_W_eta53": 0.617,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.086,
+    "llc_stage_W": 0.138,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.56,
+    "input_W": 1.256
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.086,
+    "llc_stage_W": 0.138,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.392,
+    "input_W": 1.088
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 allocation (740 x 173/234)",
+   "q_nC": 547.1,
+   "f_kHz": 33.0,
+   "monitor": "mon10",
+   "I_ch_mA": 36.95,
+   "P_out_W": 0.628,
+   "pct_of_2W_knee": 31.4,
+   "RECOM_loss_W_eta45": 0.768,
+   "RECOM_loss_W_eta53": 0.557,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.078,
+    "llc_stage_W": 0.125,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.538,
+    "input_W": 1.166
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.078,
+    "llc_stage_W": 0.125,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.37,
+    "input_W": 0.998
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 allocation (740 x 173/234)",
+   "q_nC": 547.1,
+   "f_kHz": 40.0,
+   "monitor": "mon14",
+   "I_ch_mA": 44.78,
+   "P_out_W": 0.761,
+   "pct_of_2W_knee": 38.1,
+   "RECOM_loss_W_eta45": 0.931,
+   "RECOM_loss_W_eta53": 0.675,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.094,
+    "llc_stage_W": 0.151,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.581,
+    "input_W": 1.342
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.094,
+    "llc_stage_W": 0.151,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.413,
+    "input_W": 1.174
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 allocation (740 x 173/234)",
+   "q_nC": 547.1,
+   "f_kHz": 40.0,
+   "monitor": "mon10",
+   "I_ch_mA": 40.78,
+   "P_out_W": 0.693,
+   "pct_of_2W_knee": 34.7,
+   "RECOM_loss_W_eta45": 0.847,
+   "RECOM_loss_W_eta53": 0.615,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.086,
+    "llc_stage_W": 0.137,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.559,
+    "input_W": 1.252
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.086,
+    "llc_stage_W": 0.137,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.391,
+    "input_W": 1.084
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 allocation (740 x 173/234)",
+   "q_nC": 547.1,
+   "f_kHz": 50.0,
+   "monitor": "mon14",
+   "I_ch_mA": 50.25,
+   "P_out_W": 0.854,
+   "pct_of_2W_knee": 42.7,
+   "RECOM_loss_W_eta45": 1.044,
+   "RECOM_loss_W_eta53": 0.758,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.106,
+    "llc_stage_W": 0.169,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.611,
+    "input_W": 1.465
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.106,
+    "llc_stage_W": 0.169,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.443,
+    "input_W": 1.297
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 allocation (740 x 173/234)",
+   "q_nC": 547.1,
+   "f_kHz": 50.0,
+   "monitor": "mon10",
+   "I_ch_mA": 46.25,
+   "P_out_W": 0.786,
+   "pct_of_2W_knee": 39.3,
+   "RECOM_loss_W_eta45": 0.961,
+   "RECOM_loss_W_eta53": 0.697,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.097,
+    "llc_stage_W": 0.156,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.589,
+    "input_W": 1.375
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.097,
+    "llc_stage_W": 0.156,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.421,
+    "input_W": 1.207
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 allocation (740 x 173/234)",
+   "q_nC": 547.1,
+   "f_kHz": 60.0,
+   "monitor": "mon14",
+   "I_ch_mA": 55.73,
+   "P_out_W": 0.947,
+   "pct_of_2W_knee": 47.4,
+   "RECOM_loss_W_eta45": 1.158,
+   "RECOM_loss_W_eta53": 0.84,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.117,
+    "llc_stage_W": 0.188,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.641,
+    "input_W": 1.588
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.117,
+    "llc_stage_W": 0.188,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.473,
+    "input_W": 1.42
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 allocation (740 x 173/234)",
+   "q_nC": 547.1,
+   "f_kHz": 60.0,
+   "monitor": "mon10",
+   "I_ch_mA": 51.73,
+   "P_out_W": 0.879,
+   "pct_of_2W_knee": 44.0,
+   "RECOM_loss_W_eta45": 1.075,
+   "RECOM_loss_W_eta53": 0.78,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.109,
+    "llc_stage_W": 0.174,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.619,
+    "input_W": 1.498
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.109,
+    "llc_stage_W": 0.174,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.451,
+    "input_W": 1.33
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 allocation (740 x 173/234)",
+   "q_nC": 547.1,
+   "f_kHz": 80.0,
+   "monitor": "mon14",
+   "I_ch_mA": 66.67,
+   "P_out_W": 1.133,
+   "pct_of_2W_knee": 56.7,
+   "RECOM_loss_W_eta45": 1.385,
+   "RECOM_loss_W_eta53": 1.005,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.14,
+    "llc_stage_W": 0.225,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.701,
+    "input_W": 1.834
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.14,
+    "llc_stage_W": 0.225,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.533,
+    "input_W": 1.666
+   }
+  },
+  {
+   "q_basis": "IPW65R018CM8 allocation (740 x 173/234)",
+   "q_nC": 547.1,
+   "f_kHz": 80.0,
+   "monitor": "mon10",
+   "I_ch_mA": 62.67,
+   "P_out_W": 1.065,
+   "pct_of_2W_knee": 53.3,
+   "RECOM_loss_W_eta45": 1.302,
+   "RECOM_loss_W_eta53": 0.945,
+   "discrete_per_ch": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.132,
+    "llc_stage_W": 0.211,
+    "ic_W_typ": 0.336,
+    "ic_W_max": 0.48,
+    "total_W_typ": 0.679,
+    "input_W": 1.744
+   },
+   "discrete_per_ch_shared_ic": {
+    "v_raw_V": 19.1,
+    "ldo_W": 0.132,
+    "llc_stage_W": 0.211,
+    "ic_W_typ": 0.168,
+    "ic_W_max": 0.24,
+    "total_W_typ": 0.511,
+    "input_W": 1.576
+   }
+  }
+ ],
+ "q_bases_nC": {
+  "allocation_740nC (as-built sizing, covers S2/S4/S5 extremes)": 740.0,
+  "IPW65R018CFD7_L1 deck ZVS S1 max": 370.0,
+  "IPW65R018CFD7_L1 deck S2 max": 382.6,
+  "IPW65R018CFD7_L1 deck S4 max": 381.4,
+  "IPW65R018CFD7_L1 deck S5 max": 374.7,
+  "IPW65R029CFD7_L1 deck ZVS S1 max": 239.2,
+  "IPW65R029CFD7_L1 deck S2 max": 244.3,
+  "IPW65R029CFD7_L1 deck S4 max": 237.1,
+  "IPW65R029CFD7_L1 deck S5 max": 234.7,
+  "IPW65R018CM8 est (029 deck x 173/145)": 285.4,
+  "IPW65R018CM8 est (018 deck x 173/234)": 273.5,
+  "IPW65R018CM8 allocation (740 x 173/234)": 547.1
+ }
+}

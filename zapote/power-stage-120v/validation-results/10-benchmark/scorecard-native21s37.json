@@ -36,7 +36,7 @@
   "bank_ratio_tdk_28A_40k": 1.022,
   "bank_ratio_tdk_28A_35k": 1.045,
   "ocp_pickup_stack_pan60_A": 4.17,
-  "ledger_violations": 0,
+  "ledger_violations": 1,
   "ledger_unaudited_safety_power": 0,
   "track_acute_corners": 23,
   "track_fold_backs": 3,
@@ -83,5 +83,11 @@
   "ledger": "native-21/verification/datasheet-ledger: {'PARTIAL': 32, 'UNAUDITED': 59, 'VERIFIED': 3, 'VIOLATION': 0}",
   "track_geometry": "gates/track_geometry.py on BUILDDIR/native21-all-copper.json.gz",
   "buildability": "validation-results/08-manufacturing-package/native-21/sourcing/SNAPSHOT-2026-10-15.csv"
+ },
+ "restated_ledger_diode_dvdt": {
+  "date": "2026-10-15",
+  "from": 0,
+  "to": 1,
+  "reason": "DECISIONS 49: IPW65R018CFD7 reverse-diode dv/dt (70 V/ns) exceeded in S4 (85.8 V/ns); the same FETs and gate network are on this board, so the finding applies unchanged. Restated without re-scoring."
  }
 }

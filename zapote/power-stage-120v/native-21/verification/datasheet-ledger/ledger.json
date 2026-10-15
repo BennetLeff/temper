@@ -1711,7 +1711,7 @@
    ],
    "class": "POWER",
    "function": "Full-bridge switches Q2/Q3/Q5/Q6, 650 V CoolMOS CFD7, TO-247",
-   "status": "PARTIAL",
+   "status": "VIOLATION",
    "datasheet": {
     "url": "https://www.infineon.com/dgdl/Infineon-IPW65R018CFD7-DataSheet-v02_00-EN.pdf",
     "revision": "Infineon Rev.2.0, 2021-04-19",
@@ -1769,6 +1769,13 @@
      "unit": "A",
      "basis": "single-pulse avalanche",
      "source": "Table 2, p.3"
+    },
+    {
+     "parameter": "dv/dt reverse diode",
+     "datasheet_limit": 70,
+     "unit": "V/ns",
+     "basis": "VDS=0..400 V, ISD <= 58 A, Tj 25 C; footnote 3: identical low- and high-side switch with identical RG; with diF/dt <= 1300 A/us",
+     "source": "Table 2, p.3 (Rev. 2.0, 2021-04-19)"
     }
    ],
    "stresses": [
@@ -1799,6 +1806,13 @@
      "unit": "V/ns",
      "condition": "modelled S4/S5 hard turn-on edge",
      "evidence": "validation-results/06-controller-interface/cmti/README.md:8"
+    },
+    {
+     "parameter": "dv/dt diode commutation (S4)",
+     "worst_case_value": 85.8,
+     "unit": "V/ns",
+     "condition": "S4 hard turn-on, IL -20 A: the partner's body diode is hard-commutated; as-built deck, 2EDR8259X + 8.2 ohm, ESL 10 nH (1.06 nH: 81.9)",
+     "evidence": "validation-results/01-switching-parasitics/device-study-2026-10-15/README.md:84"
     }
    ],
    "derating_rule": "VDS <= 80% of 650 V (the 520 V screen); ID <= 80% of the Tc=100 C rating; Tj <= 125 C design (150 C absolute); dv/dt <= 80% of ruggedness.",
@@ -1838,6 +1852,15 @@
      "severity": "violation",
      "rule": "<= 80% of 120 V/ns",
      "ratio": 0.7917
+    },
+    {
+     "id": "dv/dt diode",
+     "rating": "dv/dt reverse diode",
+     "stress": "dv/dt diode commutation (S4)",
+     "max_ratio": 0.8,
+     "severity": "violation",
+     "rule": "<= 80% of 70 V/ns (56 V/ns)",
+     "ratio": 1.2257
     }
    ],
    "layout_guidance": [
@@ -1859,7 +1882,7 @@
     "Tj at 28 A / 50 kHz exceeds the 125 C design value on the K1 contingency sink (128.7 C); S8 baseline Tj not recorded.",
     "F7 loop re-extraction open (FINDINGS #1)."
    ],
-   "finding": null,
+   "finding": "Reverse-diode dv/dt (70 V/ns, Table 2 p.3) is exceeded outright in the modelled S4 hard-commutation case: 85.8 V/ns (1.23x; the 80 % rule is 56 V/ns). Found by the 2026-10-15 device study (DECISIONS 49). S4 was already an open risk for die VDS and off-gate (D-24); the ledger had compared its 95 V/ns edge only with the 120 V/ns MOSFET rating. Fix: slower turn-on of the commutating switch (gate network), candidate 39; bench: D-8 double-pulse S4 measurement.",
    "notes": null
   },
   "GRM31A5C3A102JW01D": {
@@ -2205,7 +2228,7 @@
      "enforced_by": "libraries/temper.pretty/Wuerth_REDCUBE-SMT_WP-SMBU_7466004R.kicad_mod"
     },
     {
-     "item": "terminal current into the inner and B.Cu layers through 20 land vias (0.85 / 0.3 mm) per terminal round the Ø8.5 land (design guide p.7 / p.11: 0.3-0.4 mm drills)",
+     "item": "terminal current into the inner and B.Cu layers through 20 land vias (0.85 / 0.3 mm) per terminal round the \u00d88.5 land (design guide p.7 / p.11: 0.3-0.4 mm drills)",
      "enforced_by": "native-21/layout/patches21.py"
     },
     {
@@ -3950,10 +3973,10 @@
     },
     {
      "parameter": "Pout at 80 kHz",
-     "worst_case_value": 1.71,
+     "worst_case_value": 1.396,
      "unit": "W",
-     "condition": "allocation at 80 kHz F6 (typ 1.7 W dissipation each)",
-     "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-BIAS.md:164"
+     "condition": "module OUTPUT at the 80 kHz / 740 nC allocation (the 1.71 W previously here was the module's dissipation, not its output; DECISIONS 49); 0.715 W at 50 kHz on the as-built deck charge",
+     "evidence": "validation-results/01-switching-parasitics/device-study-2026-10-15/results/bias.md:7"
     },
     {
      "parameter": "Tj converged",
@@ -3989,8 +4012,8 @@
      "stress": "Pout at 80 kHz",
      "max_ratio": 0.9,
      "severity": "violation",
-     "rule": "85.5 % of the 2 W knee; holds to 85.6 C local air on the conservative line",
-     "ratio": 0.855
+     "rule": "69.8 % of the 2 W output knee (82 C, RECOM EVM)",
+     "ratio": 0.698
     }
    ],
    "layout_guidance": [

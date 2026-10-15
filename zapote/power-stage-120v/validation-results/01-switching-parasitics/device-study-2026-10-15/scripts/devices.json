@@ -1,0 +1,44 @@
+{
+ "IPW65R018CFD7": {
+  "role": "as-built",
+  "rds_max25": 0.018,
+  "r150_over_r25": 2.2,
+  "rjc": 0.28,
+  "model": "IPW65R018CFD7_L1",
+  "cite": "Infineon IPW65R018CFD7 Rev.2.0 2021-04-19 (repo copy validation-results/03-loss-thermal-budget/round3/sources/ipw65r018cfd7.pdf): p.4 RthJC 0.28; p.5 RDS(on) 15/18 mOhm typ/max 25 C, 33 typ 150 C"
+ },
+ "IPW65R018CM8": {
+  "role": "candidate",
+  "rds_max25": 0.018,
+  "r150_over_r25": 2.2,
+  "rjc": 0.24,
+  "model": "IPW65R029CFD7_L1",
+  "model_note": "PROXY: no CM8 vendor model obtained; CFD7 029 model has matching Co(tr) 2584 vs 2702 pF, Co(er) 247 vs 245 pF, Eoss 19.8 vs 19.6 uJ",
+  "cite": "Infineon IPW65R018CM8 Datasheet Rev.2.1 2025-03-07 (https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw65r018cm8-datasheet-en.pdf): p.4 RthJC 0.24; p.5 RDS(on) 15/18 typ/max 25 C, 33 typ 150 C"
+ },
+ "IPW65R029CFD7": {
+  "role": "candidate",
+  "rds_max25": 0.029,
+  "r150_over_r25": 2.2083,
+  "rjc": 0.41,
+  "model": "IPW65R029CFD7_L1",
+  "cite": "Infineon IPW65R029CFD7 Final Data Sheet Rev.2.1 2020-07-31 (https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw65r029cfd7-datasheet-en.pdf): p.4 RthJC 0.41; p.5 RDS(on) 24/29 typ/max 25 C, 53 typ 150 C"
+ },
+ "IPW65R041CFD7": {
+  "role": "candidate",
+  "rds_max25": 0.041,
+  "r150_over_r25": 2.2353,
+  "rjc": 0.55,
+  "model": "IPW65R041CFD7_L1",
+  "cite": "Infineon IPW65R041CFD7 Final Data Sheet Rev.2.1 2020-08-12 (https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw65r041cfd7-datasheet-en.pdf): p.4 RthJC 0.55; p.5 RDS(on) 34/41 typ/max 25 C, 76 typ 150 C"
+ },
+ "IPZA65R025CM8": {
+  "role": "re-spin option (TO-247-4)",
+  "rds_max25": 0.025,
+  "r150_over_r25": 2.1905,
+  "rjc": 0.29,
+  "model": "IPW65R041CFD7_L1",
+  "model_note": "PROXY for switching/dead-time heat: CFD7 041 model, Co(tr) 1825 vs 1932 pF; no Kelvin-source benefit modelled (conservative)",
+  "cite": "Infineon IPZA65R025CM8 Datasheet Rev.2.1 2025-03-06: RthJC 0.29 (p.4); RDS(on) 21/25 typ/max 25 C, 46 typ 150 C (p.5)"
+ }
+}

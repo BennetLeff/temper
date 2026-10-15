@@ -2,10 +2,10 @@
  "bom_lines": 94,
  "counts_by_class": {
   "POWER": {
-   "PARTIAL": 9,
+   "PARTIAL": 8,
    "UNAUDITED": 0,
    "VERIFIED": 0,
-   "VIOLATION": 0
+   "VIOLATION": 1
   },
   "SAFETY": {
    "PARTIAL": 21,
@@ -1608,6 +1608,15 @@
      "ratio": 0.7917,
      "severity": "violation",
      "stress": "dv/dt hard edge"
+    },
+    {
+     "id": "dv/dt diode",
+     "max_ratio": 0.8,
+     "ok": false,
+     "rating": "dv/dt reverse diode",
+     "ratio": 1.2257,
+     "severity": "violation",
+     "stress": "dv/dt diode commutation (S4)"
     }
    ],
    "class": "POWER",
@@ -1617,14 +1626,14 @@
     "Q5",
     "Q6"
    ],
-   "finding": null,
+   "finding": "Reverse-diode dv/dt (70 V/ns, Table 2 p.3) is exceeded outright in the modelled S4 hard-commutation case: 85.8 V/ns (1.23x; the 80 % rule is 56 V/ns). Found by the 2026-10-15 device study (DECISIONS 49). S4 was already an open risk for die VDS and off-gate (D-24); the ledger had compared its 95 V/ns edge only with the 120 V/ns MOSFET rating. Fix: slower turn-on of the commutating switch (gate network), candidate 39; bench: D-8 double-pulse S4 measurement.",
    "function": "Full-bridge switches Q2/Q3/Q5/Q6, 650 V CoolMOS CFD7, TO-247",
    "gaps": [
     "Switching loss, S4/S5 dv/dt and VDS are not measured (bench).",
     "Tj at 28 A / 50 kHz exceeds the 125 C design value on the K1 contingency sink (128.7 C); S8 baseline Tj not recorded.",
     "F7 loop re-extraction open (FINDINGS #1)."
    ],
-   "status": "PARTIAL",
+   "status": "VIOLATION",
    "unchecked_layout": [
     "clamp-stack force and tab coplanarity"
    ]
@@ -1859,7 +1868,7 @@
      "max_ratio": 0.9,
      "ok": true,
      "rating": "Pout avg 82C",
-     "ratio": 0.855,
+     "ratio": 0.698,
      "severity": "violation",
      "stress": "Pout at 80 kHz"
     }
@@ -2578,7 +2587,9 @@
   }
  },
  "errors": [],
- "failures": [],
+ "failures": [
+  "VIOLATION: IPW65R018CFD7 (Q2,Q3,Q5,Q6): Reverse-diode dv/dt (70 V/ns, Table 2 p.3) is exceeded outright in the modelled S4 hard-commutation case: 85.8 V/ns (1.23x; the 80 % rule is 56 V/ns). Found by the 2026-10-15 device study (DECISIONS 49). S4 was already an open risk for die VDS and off-gate (D-24); the ledger had compared its 95 V/ns edge only with the 120 V/ns MOSFET rating. Fix: slower turn-on of the commutating switch (gate network), candidate 39; bench: D-8 double-pulse S4 measurement."
+ ],
  "missing_from_ledger": [],
  "partial": [
   "1206W4F1003T5E",
@@ -2601,7 +2612,6 @@
   "DE1E3RA222MA4BP01F",
   "GBJ2510-F",
   "GRM31A5C3A102JW01D",
-  "IPW65R018CFD7",
   "IRM-20-15",
   "IRM-20-24",
   "ISO6721FBDR",
@@ -2614,13 +2624,13 @@
   "TMOV20RP175E",
   "VOL628A-2X001T"
  ],
- "result": "PASS",
+ "result": "FAIL",
  "strict": false,
  "totals": {
-  "PARTIAL": 32,
+  "PARTIAL": 31,
   "UNAUDITED": 59,
   "VERIFIED": 3,
-  "VIOLATION": 0
+  "VIOLATION": 1
  },
  "unaudited_other": [
   "0430451612",
@@ -2685,7 +2695,9 @@
  ],
  "unaudited_safety_power": [],
  "unchecked_layout_items": 10,
- "violations": [],
+ "violations": [
+  "IPW65R018CFD7"
+ ],
  "warnings": [
   "59 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
  ]

@@ -1,0 +1,68 @@
+query,orderable_mpn,manufacturer,package,key_rating_summary,stock,break_qty,break_unit_usd,qty1_usd,lead_time,url,fetched_utc,note
+IPW65R018CFD7XKSA1,IPW65R018CFD7XKSA1,Infineon,TO-247-3,650V 18mOhm,459,510,10.17612,19.72,8 wk,https://www.digikey.com/en/products/result?keywords=IPW65R018CFD7XKSA1,2026-10-15,control reproduces exactly
+IPW65R029CFD7,IPW65R029CFD7XKSA1,Infineon,TO-247-3,650V 29mOhm,110,510,6.82825,14.48,21 wk,https://www.digikey.com/en/products/result?keywords=IPW65R029CFD7,2026-10-15,
+IPW65R041CFD7,IPW65R041CFD7XKSA1,Infineon,TO-247-3,650V 41mOhm,112,510,4.78498,10.93,50 wk,https://www.digikey.com/en/products/result?keywords=IPW65R041CFD7,2026-10-15,
+IPW65R060CFD7,IPW65R060CFD7XKSA1,Infineon,TO-247-3,650V 60mOhm,0,240,4.42825,,n/a,https://www.digikey.com/en/products/result?keywords=IPW65R060CFD7,2026-10-15,"not stocked, NFND, only 240+ break"
+IPW65R080CFD7,,,,,,,,,,https://www.digikey.com/en/products/result?keywords=IPW65R080CFD7,2026-10-15,no results on Digi-Key
+IPZA65R029CFD7,IPZA65R029CFD7XKSA1,Infineon,TO-247-4,650V 29mOhm,170,510,7.18863,15.06,52 wk,https://www.digikey.com/en/products/result?keywords=IPZA65R029CFD7,2026-10-15,
+IPZA65R018CFD7,IPZA65R018CFD7XKSA1,Infineon,TO-247-4,650V 18mOhm,110,30,13.32033,20.68,52 wk,https://www.digikey.com/en/products/result?keywords=IPZA65R018CFD7,2026-10-15,only 1 and 30 breaks listed
+IPW65R022CFD7A,IPW65R022CFD7AXKSA1,Infineon,TO-247-3,650V 22mOhm AEC-Q101,480,510,10.00057,19.71,21 wk,https://www.digikey.com/en/products/result?keywords=IPW65R022CFD7A,2026-10-15,
+IPW65R035CFD7A,IPW65R035CFD7AXKSA1,Infineon,TO-247-3,650V 35mOhm AEC-Q101,unclear (page showed 896 for substitute IPWS65R035CFD7AXKSA1 with 0 available),510,6.51022,13.95,29 wk,https://www.digikey.com/en/products/result?keywords=IPW65R035CFD7A,2026-10-15,stock ambiguous
+IPW65R019C7,IPW65R019C7FKSA1,Infineon,TO-247-3,650V 19mOhm,479,510,12.42,23.05,19 wk,https://www.digikey.com/en/products/result?keywords=IPW65R019C7,2026-10-15,
+IPW65R045C7,IPW65R045C7FKSA1,Infineon,TO-247-3,650V 45mOhm,1608,510,5.67275,12.56,27 wk,https://www.digikey.com/en/products/detail/infineon-technologies/IPW65R045C7FKSA1/4453807,2026-10-15,
+IPW65R016CM8 / IPW65R024CM8,,,,,,,,,,https://www.digikey.com/en/products/result?keywords=IPW65R016CM8 / IPW65R024CM8,2026-10-15,"do not exist; real CM8 650V TO-247: IPW65R018CM8, IPW65R060CM8, IPZA65R018/025/040CM8"
+CoolMOS CM8 TO-247,IPW65R018CM8XKSA1,Infineon,TO-247-3,650V 18mOhm,482,510,8.48325,17.12,24 wk,https://www.digikey.com/en/products/detail/infineon-technologies/IPW65R018CM8XKSA1/26424568,2026-10-15,
+CoolMOS CM8 TO-247,IPZA65R040CM8XKSA1,Infineon,TO-247-4,650V 40mOhm,221,510,4.70206,10.77,52 wk,https://www.digikey.com/en/products/detail/infineon-technologies/IPZA65R040CM8XKSA1/26424593,2026-10-15,
+CoolMOS CM8 TO-247,IPZA65R025CM8XKSA1,Infineon,TO-247-4,650V 25mOhm,183,510,6.533,13.99,52 wk,https://www.digikey.com/en/products/detail/infineon-technologies/IPZA65R025CM8XKSA1/26424588,2026-10-15,
+CoolMOS CM8 TO-247,IPW65R060CM8XKSA1,Infineon,TO-247-3,650V 60mOhm,45,,,8.02,,https://www.digikey.com/en/products/detail/infineon-technologies/IPW65R060CM8XKSA1/26424579,2026-10-15,"search-row only, not opened"
+CoolMOS CM8 TO-247,IPW60R037CM8XKSA1,Infineon,TO-247-3,600V 37mOhm,166,510,4.29716,9.96,n/a,https://www.digikey.com/en/products/detail/infineon-technologies/IPW60R037CM8XKSA1/23018579,2026-10-15,600V class
+650V N-ch TO-247-3 search,IPW60R037P7XKSA1,Infineon,TO-247-3,DK lists 650V (Infineon P7 is 600V class) 37mOhm,5721,510,4.68298,10.73,16 wk,https://www.digikey.com/en/products/detail/infineon-technologies/IPW60R037P7XKSA1/6823344,2026-10-15,check true VDS rating on datasheet; stock covers 2000
+650V N-ch TO-247-3 search,IPW60R045P7XKSA1,Infineon,TO-247-3,DK lists 650V (P7 is 600V class) 45mOhm,3310,510,4.00876,9.38,8 wk,https://www.digikey.com/en/products/detail/infineon-technologies/IPW60R045P7XKSA1/11500276,2026-10-15,check true VDS rating on datasheet; stock covers 2000
+650V N-ch TO-247-3 search,IPW60R070CFD7XKSA1,Infineon,TO-247-3,650V(DK) 70mOhm,1630,510,3.30316,7.94,25 wk,https://www.digikey.com/en/products/detail/infineon-technologies/IPW60R070CFD7XKSA1/7792416,2026-10-15,RDS>45
+650V N-ch TO-247-3 search,IPW65R080CFDAFKSA1,Infineon,TO-247-3,650V 80mOhm,610,510,4.18396,9.81,25 wk,https://www.digikey.com/en/products/detail/infineon-technologies/IPW65R080CFDAFKSA1/5960369,2026-10-15,RDS>45
+IMW65R020M2H,IMW65R020M2HXKSA1,Infineon,TO-247-3,SiC 650V 18mOhm@20V,50,510,8.34625,16.91,52 wk,https://www.digikey.com/en/products/result?keywords=IMW65R020M2H,2026-10-15,
+IMW65R015M2H / IMW65R026M2H,,,,,,,,,,https://www.digikey.com/en/products/result?keywords=IMW65R015M2H / IMW65R026M2H,2026-10-15,"not searched individually; IMW65R010M2H (9.1mOhm) and 007M2H, 050M2H, 060M2H, 075M2H seen in search"
+650V search,IMW65R010M2HXKSA1,Infineon,TO-247-3,SiC 650V 9.1mOhm@20V,1024,510,14.31325,25.77,52 wk,https://www.digikey.com/en/products/detail/infineon-technologies/IMW65R010M2HXKSA1/25664255,2026-10-15,limit 180 per 30 days
+650V search,IMW65R050M2HXKSA1,Infineon,TO-247-3,SiC 650V 46mOhm@20V,1224,,,9.84,,https://www.digikey.com/en/products/detail/infineon-technologies/IMW65R050M2HXKSA1/22157623,2026-10-15,search-row only; RDS 46>45
+IMW65R027M1H,IMW65R027M1HXKSA1,Infineon,TO-247-3,SiC 650V 34mOhm@18V NFND,529,510,7.494,15.55,not listed,https://www.digikey.com/en/products/result?keywords=IMW65R027M1H,2026-10-15,Not For New Designs
+IMW65R039M1H,IMW65R039M1HXKSA1,Infineon,TO-247-3,SiC 650V 50mOhm NFND,0,510,5.17529,11.69,n/a,https://www.digikey.com/en/products/result?keywords=IMW65R039M1H,2026-10-15,"NFND, 0 stock"
+IMW65R048M1H,IMW65R048M1HXKSA1,Infineon,TO-247-3,SiC 650V 64mOhm NFND,not shown,510,4.69655,10.76,n/a,https://www.digikey.com/en/products/result?keywords=IMW65R048M1H,2026-10-15,NFND
+NTHL040N65S3HF,NTHL040N65S3HF,onsemi,TO-247-3,650V 40mOhm,48,450,10.32676,18.08,32 wk,https://www.digikey.com/en/products/result?keywords=NTHL040N65S3HF,2026-10-15,only up to 450 break listed
+N65S3HF search,NTHL033N65S3HF,onsemi,TO-247-3,650V 33mOhm,221,120,7.035,13.43,17 wk,https://www.digikey.com/en/products/detail/onsemi/NTHL033N65S3HF/10064776,2026-10-15,largest listed break is 120
+N65S3HF search,NTHL027N65S3HF,onsemi,TO-247-3,650V 27.4mOhm,404,60,13.83733,22.75,31 wk,https://www.digikey.com/en/products/detail/onsemi/NTHL027N65S3HF/10273405,2026-10-15,largest listed break is 60 (page also lists 30:$14.494)
+N65S3HF search,NVHL040N65S3HF,onsemi,TO-247-3,650V 40mOhm AEC-Q101,426,120,7.2945,13.81,44 wk,https://www.digikey.com/en/products/detail/onsemi/NVHL040N65S3HF/15860316,2026-10-15,largest listed break is 120
+NTHL065N65S3HF,NTHL065N65S3HF,onsemi,TO-247-3,650V 65mOhm,509,120,6.95725,13.31,68 wk,https://www.digikey.com/en/products/result?keywords=NTHL065N65S3HF,2026-10-15,RDS>45
+NTHL025N065SC1,NTHL025N065SC1,onsemi,TO-247-3,SiC 650V 28.5mOhm@18V,unclear,450,11.68049,21.96,22 wk,https://www.digikey.com/en/products/result?keywords=NTHL025N065SC1,2026-10-15,stock ambiguous
+NTHL045N065SC1,NTHL045N065SC1,onsemi,TO-247-3,SiC 650V 50mOhm@18V,276,450,6.89824,14.59,37 wk,https://www.digikey.com/en/products/result?keywords=NTHL045N065SC1,2026-10-15,RDS>45
+NTH4L045N065SC1,NTH4L045N065SC1,onsemi,TO-247-4,SiC 650V 50mOhm@18V,182 (unclear label),510,7.08363,14.89,78 wk,https://www.digikey.com/en/products/result?keywords=NTH4L045N065SC1,2026-10-15,RDS>45
+NTHL023N065M3S,NTHL023N065M3S,onsemi,TO-247-3,SiC 650V 23mOhm@18V,0,510,5.46537,12.2,53 wk,https://www.digikey.com/en/products/result?keywords=NTHL023N065M3S,2026-10-15,"0 stock, 30 expected 07-Aug-2028"
+NTHL060N065SC1,,,,,,,,,,https://www.digikey.com/en/products/result?keywords=NTHL060N065SC1,2026-10-15,not searched
+UJ3C065030K3S,UJ3C065030K3S,onsemi,TO-247-3,SiC cascode 650V 35mOhm@12V,3240 (ambiguous),510,15.18451,27.33,23 wk,https://www.digikey.com/en/products/detail/onsemi/UJ3C065030K3S/11587014,2026-10-15,
+STW70N65DM6,STW70N65DM6,STMicroelectronics,TO-247-3,650V 40mOhm,0,600,8.91907,,36 wk,https://www.digikey.com/en/products/detail/stmicroelectronics/STW70N65DM6/11591047,2026-10-15,not stocked; only 600 tube break
+STWA75N65DM6,STWA75N65DM6,STMicroelectronics,TO-247-3 LL,650V 36mOhm,0,600,9.13205,,36 wk,https://www.digikey.com/en/products/result?keywords=STWA75N65DM6,2026-10-15,not stocked; only 600 break
+STW DM6 search,STW68N65DM6-4AG,STMicroelectronics,TO-247-4,650V 39mOhm AEC-Q101,529,510,7.02912,15.0,36 wk,https://www.digikey.com/en/products/detail/stmicroelectronics/STW68N65DM6-4AG/13559150,2026-10-15,
+STW DM6 search,STWA68N65DM6AG,STMicroelectronics,TO-247-3 LL,650V 39mOhm,0,600,7.23323,,,https://www.digikey.com/en/products/result?keywords=STW DM6 search,2026-10-15,"search-row only, 0 stock"
+STW65N023M9,STW65N023M9-4,STMicroelectronics,TO-247-4,650V 23mOhm,27,510,9.5,18.69,36 wk,https://www.digikey.com/en/products/result?keywords=STW65N023M9,2026-10-15,only TO-247-4 version exists on DK
+DM9 search,,,,,,,,,,https://www.digikey.com/en/products/result?keywords=DM9 search,2026-10-15,no DM9 650V TO-247 found on Digi-Key
+SCTW35N65G2V,SCTW35N65G2V,STMicroelectronics,HiP247,SiC 650V 45A,not available,,,,n/a,https://www.digikey.com/en/products/result?keywords=SCTW35N65G2V,2026-10-15,no price/stock
+SCTW90N65G2V,SCTW90N65G2V,STMicroelectronics,HiP247 (TO-247-3),SiC 650V 25mOhm@18V,29,1,30.12,30.12,n/a,https://www.digikey.com/en/products/result?keywords=SCTW90N65G2V,2026-10-15,obsolete
+TK040N65Z,"TK040N65Z,S1F",Toshiba,TO-247-3,650V 40mOhm,217,510,5.63625,12.49,24 wk,https://www.digikey.com/en/products/result?keywords=TK040N65Z,2026-10-15,
+TK090N65Z,"TK090N65Z,S1F",Toshiba,TO-247-3,650V 90mOhm,0,510,2.85096,6.99,24 wk,https://www.digikey.com/en/products/result?keywords=TK090N65Z,2026-10-15,RDS>45; est 30 on 01-Apr-2027
+TK065Z65Z,"TK065Z65Z,S1F",Toshiba,TO-247-4,650V 65mOhm (DTMOS VI HSD),25,500,5.20048,11.73,24 wk,https://www.digikey.com/en/products/result?keywords=TK065Z65Z,2026-10-15,RDS>45
+TK31N60W5,,,,,,,,,,https://www.digikey.com/en/products/result?keywords=TK31N60W5,2026-10-15,not searched (600V)
+R6576ENZ4,R6576ENZ4C13,Rohm,TO-247-3,650V 46mOhm,537,30,12.77,20.01,20 wk,https://www.digikey.com/en/products/result?keywords=R6576ENZ4,2026-10-15,largest listed break 30; RDS 46>45
+R6576KNZ4,R6576KNZ4C13,Rohm,TO-247-3,650V 46mOhm,264,60,10.7,17.43,20 wk,https://www.digikey.com/en/products/result?keywords=R6576KNZ4,2026-10-15,largest listed break 60; RDS>45
+SCT3030AL,SCT3030ALGC11,Rohm,TO-247N,SiC 650V 39mOhm@18V,1127,1,34.47,34.47,not listed,https://www.digikey.com/en/products/result?keywords=SCT3030AL,2026-10-15,only qty-1 shown
+SCT3030AL,SCT3030ALHRC11,Rohm,TO-247N,SiC 650V 39mOhm AEC-Q101,395,1,53.26,53.26,not listed,https://www.digikey.com/en/products/result?keywords=SCT3030AL,2026-10-15,only qty-1 shown
+SCT3017AL,SCT3017ALGC11,Rohm,TO-247N,SiC 650V 22.1mOhm@18V,421,1,95.12,95.12,not listed,https://www.digikey.com/en/products/result?keywords=SCT3017AL,2026-10-15,only qty-1 shown
+SCT3017AL,SCT3017ALHRC11,Rohm,TO-247N,SiC 650V 22.1mOhm AEC-Q101,671,1,126.37,126.37,not listed,https://www.digikey.com/en/products/result?keywords=SCT3017AL,2026-10-15,only qty-1 shown
+SCT3060AL,,,,,,,,,,https://www.digikey.com/en/products/result?keywords=SCT3060AL,2026-10-15,not searched
+SiHG040N65EF / SiHG045N65E,,Vishay,,,,,,,,https://www.digikey.com/en/products/result?keywords=SiHG040N65EF / SiHG045N65E,2026-10-15,do not exist on Digi-Key
+SIHG N65 search,SIHG041N65SF-GE3,Vishay,TO-247AC (TO-247-3),650V 43mOhm fast-body-diode SF,464,1500,3.0,7.74,45 wk,https://www.digikey.com/en/products/detail/vishay-siliconix/SIHG041N65SF-GE3/27788169,2026-10-15,TR packaging at 500 $3.21256 and 1500 $3.00; stock 464 < 2000
+SIHG N65 search,SIHG050N65SF-GE3,Vishay,TO-247AC,650V 52mOhm SF,465,1500,2.625,7.0,45 wk,https://www.digikey.com/en/products/detail/vishay-siliconix/SIHG050N65SF-GE3/27788469,2026-10-15,RDS>45
+SIHG N65 search,SIHG026N65E-GE3,Vishay,TO-247AC,650V 26mOhm,500,500,7.44624,15.48,34 wk,https://www.digikey.com/en/products/detail/vishay-siliconix/SIHG026N65E-GE3/27788148,2026-10-15,no break above 500
+SIHG N65 search,SIHG064N65E-GE3,Vishay,TO-247AC,650V 47mOhm,479,,,15.66,,https://www.digikey.com/en/products/result?keywords=SIHG N65 search,2026-10-15,search-row only; RDS>45
+C3M0025065D,C3M0025065D,Wolfspeed,TO-247-3,SiC 650V (25m title),not shown,1,14.18,14.18,,https://www.digikey.com/en/products/result?keywords=C3M0025065D,2026-10-15,detail page not opened
+C3M0045065D,C3M0045065D,Wolfspeed,TO-247-3,SiC 650V 60mOhm max@15V,530,510,4.66765,10.7,20 wk,https://www.digikey.com/en/products/detail/wolfspeed-inc/C3M0045065D/13670513,2026-10-15,RDS max 60>45 (45 is typ)
+C3M0060065D,C3M0060065D,Wolfspeed,TO-247-3,SiC 650V 79mOhm max@15V,728,1,9.64,9.64,,https://www.digikey.com/en/products/detail/wolfspeed-inc/C3M0060065D/12525330,2026-10-15,search-row only
+C3M0015065D,C3M0015065D,Wolfspeed,TO-247-3,SiC 650V 21mOhm max@15V,425 (search row),510,9.21251,18.25,20 wk,https://www.digikey.com/en/products/detail/wolfspeed-inc/C3M0015065D/12525331,2026-10-15,stock <500

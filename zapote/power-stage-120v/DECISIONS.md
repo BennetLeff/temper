@@ -1581,3 +1581,61 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       `claude/native21-geometry-cleanup`). s35 stays the board of record until the other lanes land; then the pass runs
       on the merged copper.
 
+
+49. **Bridge MOSFETs and HS bias supply: device study; a reverse-diode dv/dt violation found (2026-10-15; ledger and
+    records, no board change).** Study: `validation-results/01-switching-parasitics/device-study-2026-10-15/README.md`.
+    The vendor SPICE models and datasheets stay outside the repo (`dl/`, URLs and sha256 in the README).
+    - **Controls reproduce:**
+      - 128 / 128 committed c33 s32 ZVS rows (≤ 0.7 mV die VDS, 0 ns);
+      - the 672-run as-built S1 sweep, exactly;
+      - the R33 and round-6 FET thermal rows (0.0 °C);
+      - the bias-sizing currents;
+      - the CFD7 DigiKey price.
+    - **New violation (S14):**
+      - IPW65R018CFD7 Rev 2.0 (2021-04-19) Table 2 p.3 rates the **reverse-diode dv/dt at 70 V/ns** (VDS 0–400 V,
+        ISD ≤ 58 A, Tj 25 °C, identical HS / LS with identical RG), and diF/dt at 1,300 A/µs (both read on the page by
+        the integration session).
+      - The modelled S4 hard-commutation case (IL −20 A: the incoming switch hard-commutates its partner's body diode)
+        runs **85.8 V/ns** (ESL 10 nH; 81.9 at 1.06 nH) on the as-built deck, over the rating outright and 1.5× the
+        80 % rule (56 V/ns).
+      - The ledger had compared S4's edge only with the 120 V/ns MOSFET dv/dt. It now carries the diode rating and
+        check, and IPW65R018CFD7 is VIOLATION. ledger_violations goes 0 → 1, restated on the s32 / s35 / s37 cards (same
+        FETs and gate network), so it is a ratchet that a fix must lower. The ledger test names the known violations.
+      - S4 was already an open risk for die VDS and off-gate (D-24); its bench measurement (D-8 double pulse) now also
+        measures the commutation dv/dt.
+      - **Fix: candidate 39, the gate network.** The commutating dv/dt is set by the incoming switch's turn-on, and in
+        ZVS operation turn-on is lossless, so a slower turn-on (split R_on / R_off with a diode per gate; the 2EDR8259X
+        has one output per channel) should cost little. Raising R_ext on CM8 to 15 Ω gives 62–67 V/ns in the proxy,
+        still over 56.
+    - **CM8 (IPW65R018CM8):**
+      - $6.77 per board cheaper and a package drop-in (U06 inside the CFD7 tolerances); ZVS improves (worst t_trans
+        145 vs 190 ns).
+      - Its internal gate resistance is 1 Ω against 2.7 Ω, so a straight swap fails S4 (528 V die, 108 V/ns). With
+        R_ext 12 Ω it matches the as-built case (440 V, 85 V/ns), but that rests on a proxy (the 029 CFD7 model, since
+        no CM8 vendor model was obtainable).
+      - DigiKey holds 482 against 2,000 needed for 500 boards, at a 24-week lead (CFD7 8 weeks); it has the same
+        70 V/ns diode rating.
+      - **Not adopted now.** Candidate 39 evaluates CFD7 and CM8 together with the turn-on fix, and takes CM8 if a vendor
+        model and the stock clear.
+      - Rejected:
+        - 029CFD7 (2 K from 125 °C at trip on the deck basis);
+        - 041CFD7;
+        - IPZA65R025CM8 (4-pin re-spin, 52 weeks);
+        - SiHG026N65E (10 V/ns diode);
+        - SiHG041N65SF.
+      - RDS(on),max at 25 °C ≤ 31.7 mΩ keeps Tj ≤ 125 °C at trip on S8.
+    - **HS bias: keep the RECOM R24C2T25 (U41 / U42).**
+      - The real output is 0.715 W at 50 kHz (36 % of the 2 W knee); module heat is 0.63–0.87 W.
+      - A discrete UCC25800-Q1 / Würth 750319833 supply saves only $2.8–3.9 and is rejected:
+        - UCC25800 has zero stock;
+        - its transformer has 231 in stock, and its winding capacitance is typical only, against the ≤ 4 pF max
+          ALT-BIAS needs;
+        - its basic insulation runs at 65 % against the 50 % rule;
+        - it needs a re-layout.
+      - The 2EP1xxR is out (4.5–20 V supply, 24 V source); bootstrap stays rejected (DECISIONS:91).
+      - Buy RECOM on T&R at the 750 break ($7.18): −$0.38 per board (pre-order plan).
+    - **Ledger correction:** the RECOM "Pout" check compared the module's 1.71 W dissipation with the 2 W output knee. The
+      output at the 80 kHz / 740 nC allocation is 1.396 W (69.8 %).
+    - **Passed to the thermal refinement study:**
+      - B3's 1.09 W per module is conservative (0.53–0.73 W at 33 kHz on the deck charge);
+      - the K1 sink of item 15 (123.8 / 128.7 °C) was not reproduced.

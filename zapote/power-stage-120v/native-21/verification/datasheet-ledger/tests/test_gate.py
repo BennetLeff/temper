@@ -44,18 +44,20 @@ def main():
     base = json.loads(LEDGER.read_text())
     ent = base["entries"]
 
-    # 1. the real ledger: passes since stage 28 (no VIOLATION, no unaudited SAFETY/POWER line)
+    # 1. the real ledger: one known VIOLATION since 2026-10-15 (DECISIONS 49: IPW65R018CFD7 reverse-diode dv/dt in S4),
+    # no unaudited SAFETY/POWER line. Update KNOWN_VIOLATIONS when a fix lands or a new finding is recorded.
+    KNOWN_VIOLATIONS = ["IPW65R018CFD7"]
     rc, out, rep = run(LEDGER)
-    expect("real ledger exits 0", rc == 0, out[-300:])
+    expect("real ledger exits 1 on exactly the known violations", rc == 1 and rep and rep["violations"] == KNOWN_VIOLATIONS,
+           str(rep and rep["violations"]))
     expect("real ledger: no malformed entries", rep and not rep["errors"], str(rep and rep["errors"][:3]))
     # stage 27: J1 is the MKDS 5/2-9,5 (UL group B 30 A); its ratings source keeps it PARTIAL
     expect("real ledger: J1 1714971 is PARTIAL, not VIOLATION", rep and "1714971" in rep["partial"] and "1714971" not in rep["violations"])
     # stage 28: F2 is the 1.5 kA UMT-H, bounded by the R130 limiter; the limiter stays PARTIAL until the bench short
-    expect("real ledger: no VIOLATION; F2 3403.0279.23 not PARTIAL, R130 AC05 PARTIAL",
-           rep and rep["violations"] == [] and "3403.0279.23" not in rep["partial"] and "AC05000001507JAC00" in rep["partial"])
+    expect("real ledger: F2 3403.0279.23 not PARTIAL or VIOLATION, R130 AC05 PARTIAL",
+           rep and "3403.0279.23" not in rep["violations"] + rep["partial"] and "AC05000001507JAC00" in rep["partial"])
     expect("real ledger: no BOM MPN missing", rep and rep["missing_from_ledger"] == [])
-    expect("real ledger: 2EDR8259X and IPW65R018CFD7 are PARTIAL",
-           rep and {"2EDR8259XXUMA1", "IPW65R018CFD7"} <= set(rep["partial"]))
+    expect("real ledger: 2EDR8259X is PARTIAL", rep and "2EDR8259XXUMA1" in rep["partial"])
     expect("real ledger: report names every violation in failures",
            rep and all(any(v in f for f in rep["failures"]) for v in rep["violations"]))
 

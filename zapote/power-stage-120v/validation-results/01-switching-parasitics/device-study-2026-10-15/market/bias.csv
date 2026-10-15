@@ -1,0 +1,30 @@
+query,orderable_mpn,manufacturer,package,key_rating_summary,stock,break_qty,break_unit_usd,qty1_usd,lead_time,url,fetched_utc,note
+SN6507DGQR,SN6507DGQR,TI,VSSOP-8,push-pull transformer driver,0,500,2.6056,4.36,12 wk,https://www.digikey.com/en/products/detail/texas-instruments/SN6507DGQR/17878358,2026-10-15,CT; TR 2500 $2.38715; 2500 expected 18-Nov-2026
+SN6507DGQRQ1,SN6507DGQRQ1,TI,VSSOP-8,AEC-Q100 driver,0,250,2.86568,4.75,26 wk,https://www.digikey.com/en/products/result?keywords=SN6507DGQRQ1,2026-10-15,CT; TR 2500 $2.62027; 2485 exp 09-Dec-2026. Searched name SN6507QDGQRQ1 not found
+SN6505BDBVR,SN6505BDBVR,TI,SOT-23-6,transformer driver,0,500,1.41678,2.53,20 wk,https://www.digikey.com/en/products/result?keywords=SN6505BDBVR,2026-10-15,CT; TR 3000 $1.308; 3000 exp 04-Nov-2026
+SN6505ADBVR,SN6505ADBVR,TI,SOT-23-6,transformer driver,0,500,1.55908,2.76,12 wk,https://www.digikey.com/en/products/result?keywords=SN6505ADBVR,2026-10-15,CT; TR 3000 $1.43632; 2313 exp 08-Dec-2026; Nexperia NXF6505ADA-Q100Z 938 stock $1.76
+UCC25800ADGNR,,TI,,,,,,,,https://www.digikey.com/en/products/result?keywords=UCC25800ADGNR,2026-10-15,no such orderable on DK
+UCC25800AQDGNRQ1,UCC25800AQDGNRQ1,TI,HVSSOP-8,open-loop LLC xfmr driver AEC-Q100,0,500,2.18178,3.72,26 wk,https://www.digikey.com/en/products/detail/texas-instruments/UCC25800AQDGNRQ1/15786427,2026-10-15,CT; TR 2500 $2.00642; 1595 exp 15-Dec-2026
+LT3999IMSE#PBF,LT3999IMSE#PBF,Analog Devices,MSOP-10E,1A push-pull driver,320,1000,6.69394,11.02,10 wk,https://www.digikey.com/en/products/result?keywords=LT3999IMSE#PBF,2026-10-15,
+2EP130RXUMA1,,Infineon,,,,,,,,https://www.digikey.com/en/products/result?keywords=2EP130RXUMA1,2026-10-15,not found; real MPN is 2EP130RXTMA1
+2EP130RXTMA1,2EP130RXTMA1,Infineon,PG-TSSOP-8,transformer driver,15364,1000,0.91341,1.71,24 wk,https://www.digikey.com/en/products/result?keywords=2EP130RXTMA1,2026-10-15,CT; TR 5000 $0.8383
+2EP110R,2EP110RXTMA1,Infineon,PG-TSSOP-8,transformer driver,4980,1000,0.84318,1.6,24 wk,https://www.digikey.com/en/products/result?keywords=2EP110R,2026-10-15,CT; TR 5000 $0.77517
+2EP100R,2EP100RXTMA1,Infineon,,transformer driver,not fetched,,,1.57,,https://www.digikey.com/en/products/detail/infineon-technologies/2EP100RXTMA1/20841792,2026-10-15,qty1 price only from related-items list
+750320775,750320775,Wurth,SMD 11.46x13.40mm,24V push-pull for NXF65xx; 4000Vrms; 300uH; Cww n/a on DK,0,250,1.58048,2.51,16 wk,https://www.digikey.com/en/products/result?keywords=750320775,2026-10-15,TR; 250 exp 17-Mar-2027; datasheet not fetched
+750315240,750315240,Wurth,SMD,5000Vrms; 440uH@100kHz; Cww n/a,90,825,2.86036,4.09,52 wk,https://www.digikey.com/en/products/result?keywords=750315240,2026-10-15,TR 825; Cww not read
+750319697,750319697,Wurth,SMD WE-PPTI,24V:24V 1:1.07; 2500Vac; Cww 25 pF typ (datasheet),776,750,2.74391,3.69,52 wk,https://www.digikey.com/en/products/result?keywords=750319697,2026-10-15,Cww FAILS 4 pF
+750319696,750319696,Wurth,SMD,for SN6507 1.4:1; 2500Vac; Cww 20 pF typ (datasheet),not fetched,,,3.46,,https://www.digikey.com/en/products/result?keywords=750319696,2026-10-15,Cww FAILS 4 pF; qty1 from related list
+750319692,750319692,Wurth,SMD WE-PPTI,12V:15V; 2500Vac; Cww not read,734,750,1.95405,3.69,15 wk,https://www.digikey.com/en/products/result?keywords=750319692,2026-10-15,TR 750
+750318131,750318131,Wurth,SMD WE-AGDT,7uH; 4000Vrms; Cww 7.5 pF typ (datasheet),1008,500,5.965,8.62,17 wk,https://www.digikey.com/en/products/result?keywords=750318131,2026-10-15,Cww FAILS 4 pF; TR 500
+750319177,750319177,Wurth,SMD WE-AGDT (UCC25800),16.5uH; 1:1.67; 4000Vac; Cww 0.68 pF typ (datasheet),unclear (488 label ambiguous),250,6.71652,9.25,17 wk,https://www.digikey.com/en/products/result?keywords=750319177,2026-10-15,Cww passes; TR 250 is largest break; stock unclear
+750316743,750316743,Wurth,SMD flyback (ADP1031),Cww n/a,754,400,5.2635,5.55,17 wk,https://www.digikey.com/en/products/result?keywords=750316743,2026-10-15,TR 400
+750344370,,Wurth,,,,,,,,https://www.digikey.com/en/products/result?keywords=750344370,2026-10-15,no result (DK suggested 750341379)
+WE-AGDT search,750319836,Wurth,SMD WE-AGDT (UCC25800),6V pri; 23uH; 1:1.57; 4000Vac; Cww 2 pF typ (datasheet); AEC-Q200,200,500,1.856,2.94,17 wk,https://www.digikey.com/en/products/detail/w%C3%BCrth-elektronik/750319836/26221347,2026-10-15,Cww passes 4 pF; TR 500; stock 200 only. Siblings 750319833/832/834/831/835 (4000V) not checked for Cww
+WE-AGDT search,750319374,Wurth,SMD WE-AGDT (2EP130R),"13.5V pri; 1.71:1:1; 5500Vrms; Cww 4 pF typ N1->N2,3 (3/3.5 per winding)",0,250,4.48048,7.1,14 wk,https://www.digikey.com/en/products/detail/w%C3%BCrth-elektronik/750319374/30347659,2026-10-15,250 exp 15-Feb-2027; borderline on 4 pF (typ)
+WE-AGDT search,750320012,Wurth,SMD WE-AGDT (UCC25800),12V pri; 64uH; 5500Vrms; Cww not read,0,250,4.48048,7.1,14 wk,https://www.digikey.com/en/products/detail/w%C3%BCrth-elektronik/750320012/30347670,2026-10-15,250 exp 04-Nov-2026
+Coilcraft ZB1266 / gate drive,,Coilcraft,,,,,,,,https://www.digikey.com/en/products/result?keywords=Coilcraft ZB1266 / gate drive,2026-10-15,no results on Digi-Key
+UCC14241QDWNRQ1,UCC14241QDWNRQ1,TI,SSOP-36 module,isolated 24V in gate bias,0,750,7.61979,8.91,26 wk,https://www.digikey.com/en/products/result?keywords=UCC14241QDWNRQ1,2026-10-15,"TR; 13 exp 15-Feb-2027, 737 exp 01-Apr-2027"
+UCC14240QDWNRQ1,UCC14240QDWNRQ1,TI,SSOP-36 module,isolated 24V in gate bias,1449,750,8.13048,9.51,26 wk,https://www.digikey.com/en/products/result?keywords=UCC14240QDWNRQ1,2026-10-15,TR
+MGJ2D242005SC,MGJ2D242005SC,Murata,module,24V in 2W gate-drive,48,500,8.2,9.49,14 wk,https://www.digikey.com/en/products/result?keywords=MGJ2D242005SC,2026-10-15,tube
+R24P22005D,R24P22005D,RECOM,module,20V to -5V 2W,not shown,,,10.11,,https://www.digikey.com/en/products/result?keywords=R24P22005D,2026-10-15,qty1 only
+R24C2T25/R-R,R24C2T25/R-R,RECOM,module,reference,1175 in stock + 750 factory,750,7.18188,8.4,6 wk,https://www.digikey.com/en/products/result?keywords=R24C2T25/R-R,2026-10-15,TR; 250 CT break $7.37148 (not a 1000 break; no 1000 break exists); stock 1175 not 1185

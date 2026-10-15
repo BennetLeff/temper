@@ -33,7 +33,7 @@
   "cmti_gate_ratio_min": 1.579,
   "bank_ratio_tdk_28A_40k": 1.022,
   "ocp_pickup_stack_pan60_A": 4.17,
-  "ledger_violations": 0,
+  "ledger_violations": 1,
   "ledger_unaudited_safety_power": 0,
   "bank_ratio_tdk_28A_35k": 1.045,
   "track_acute_corners": 206,
@@ -131,5 +131,11 @@
   },
   "pass": false,
   "reason": "DECISIONS 46: thermal-ratings audit margins on the s32 board (board_sha256 matches), added without re-scoring; b3_ratings is a release gate (not in the compare rule), the two margins are ratchets"
+ },
+ "restated_ledger_diode_dvdt": {
+  "date": "2026-10-15",
+  "from": 0,
+  "to": 1,
+  "reason": "DECISIONS 49: IPW65R018CFD7 reverse-diode dv/dt (70 V/ns) exceeded in S4 (85.8 V/ns); the same FETs and gate network are on this board, so the finding applies unchanged. Restated without re-scoring."
  }
 }
