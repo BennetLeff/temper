@@ -146,6 +146,9 @@ P_KV=$!
   S19=validation-results/08-manufacturing-package/native-21/stage19-pi-si
   $KP $S19/pi_distances19.py "$BP" --json "$B/pi-distances.json" 2>/dev/null | grep -v -i "wxapp\|Debug" | tail -1
   python3 $G/return_path19.py "$B/copper-dump.json" --json "$B/return-path.json" | tail -1
+  # SELV-spine lock (13-coupling WS4 <-> WS5; gates/README.md): SPINE_OWNER=selv only for the SELV-side lane
+  python3 -I $G/spine_lock.py native-21/verification/$TAG-all-copper.json.gz ${SPINE_OWNER:+--owner "$SPINE_OWNER"} > "$B/spine-lock.json" \
+    && echo "SPINE_LOCK PASS (owner ${SPINE_OWNER:-none})" || { echo "SPINE_LOCK FAIL: $(cut -c1-300 "$B/spine-lock.json")"; exit 1; }
 ) > "$B/blk-copper.log" 2>&1 &
 P_CU=$!
 FAIL=""
