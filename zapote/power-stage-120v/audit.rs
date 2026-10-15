@@ -278,8 +278,8 @@ const BARRIER_PARTS: &[(&str, &str, &[&str])] = &[
 const IDENTITY: &[(&str, &str)] = &[
     ("j_mains", "1714971"),   // stage 27: UL group B 30 A (DECISIONS 29)
     ("j_pe", "1704004"),
-    ("j_coil", "74650074"),
-    ("j_coil_return", "74650074"),
+    ("j_coil", "7466004R"),          // stage 35: REDCUBE SMT WP-SMBU (candidate 35; was the THR 74650074)
+    ("j_coil_return", "7466004R"),
     ("c_bus1", "B32676G1905K000"),
     ("c_bus2", "B32676G1905K000"),
     ("c_hf_a1", "B32652A0104K000"),
@@ -1715,6 +1715,10 @@ mod tests {
         let mut m = built();
         m.set_part("j_coil_return", "1711725");
         fails(&m, "j_coil_return is 1711725");
+        // stage 35: the THR 74650074 needs a 1.6-2.0 mm board (DECISIONS 42); the SMT 7466004R replaces it
+        let mut m = built();
+        m.set_part("j_coil", "74650074");
+        fails(&m, "j_coil is 74650074");
     }
 
     #[test]

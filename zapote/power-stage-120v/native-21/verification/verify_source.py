@@ -22,6 +22,9 @@ def main() -> None:
     assert parts['u_bias_flt']['mpn'] == 'SN74LVC1G17DBVR'   # stage 30: non-inverting Schmitt on the heartbeat hold node
     # stage 27 (DECISIONS 29): J1 carries UL/CSA group B 30 A (the MKDS 3 1711725 was 15 A cULus / 10 A CSA)
     assert parts['j_mains']['mpn'] == '1714971' and parts['j_mains']['footprint'] == 'temper:Phoenix_MKDS-5-2-9.52_1714971'
+    # stage 35 (candidate 35): the coil terminals are REDCUBE SMT WP-SMBU 7466004R (the THR 74650074 needs a 1.6-2.0 mm board)
+    assert all(parts[p]['mpn'] == '7466004R' and parts[p]['footprint'] == 'temper:Wuerth_REDCUBE-SMT_WP-SMBU_7466004R'
+               for p in ('j_coil', 'j_coil_return'))
     for leg in ('leg_a', 'leg_b'):   # stage 26 (DECISIONS 28): low-ESR SVPC variant, same can
         assert parts[f'{leg}.bias_h.cbulk']['mpn'] == parts[f'{leg}.bias_l.cbulk']['mpn'] == '6SVPC220MV'
     assert parts['r_th_top']['mpn'] == 'RT0603BRD0712K6L'   # stage 15, 28 A hardware

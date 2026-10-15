@@ -2106,22 +2106,22 @@
    "finding": null,
    "notes": null
   },
-  "74650074": {
-   "mpn": "74650074",
+  "7466004R": {
+   "mpn": "7466004R",
    "designators": [
     "J2",
     "J5"
    ],
    "class": "POWER",
-   "function": "Resonant-tank coil terminals J2/J5, Wuerth REDCUBE THR M4",
+   "function": "Resonant-tank coil terminals J2 (coil_feed) / J5 (res_a), Wuerth REDCUBE SMT WP-SMBU M4 internal through-hole thread (stage 35, candidate 35; replaces the THR 74650074)",
    "status": "PARTIAL",
    "datasheet": {
-    "url": "https://www.we-online.com/components/products/datasheet/74650074.pdf",
-    "revision": "Wuerth WP-THRBU REDCUBE 74650074, revision 002.002, 2022-08-01",
+    "url": "https://www.we-online.com/components/products/datasheet/7466004R.pdf",
+    "revision": "Wuerth WP-SMBU REDCUBE SMT 7466004R, revision 001.003, 2023-07-03 (6 pp.); with the REDCUBE SMD Terminals Design Guide (https://www.we-online.com/components/media/o153698v410%20BCF_REDCUBESMDDesignGuide_EN.pdf, 16 pp., sha256 prefix 1d9eb5ae2bdfbb18)",
     "fetched": "2026-10-14",
     "repo_copy": null,
-    "note": "p.1 properties: IR 50 A max @ 20 C ('Operating current depends on PCB, cable lug and cross section of the cable'); tightening torque 1.2 N*m; PCB Thickness min 1.6 mm / max 2 mm; operating temperature -55 to +150 C. p.3: 'Wave soldering is not applicable. Reflow soldering is recommended.'",
-    "sha256_prefix16": "fc0cdb43ce6cb534"
+    "note": "p.1: rated current IR 50 A max @ 20 C ('Operating current depends on PCB, cable lug and cross section of the cable'); tightening torque 1.2 N*m; solder paste thickness 150 um; operating temperature -55 to +150 C; brass, tin; MSL 1; tape and reel 500. Drawing p.1: body D7.0 x 5.0 mm above the board, spigot D5.0 x 1.0 into a D5.2 non-plated hole, M4 thread through; land D8.5 pad round the D5.2 NPTH; stencil D8.3 / D5.5 in four segments, 1.0 webs. No PCB-thickness limit stated. Design guide: p.7 vias in the copper round the pad act as rivets (Fig. 3), drill hole must not be plated (Fig. 6); p.9 through-thread tearing force max 410 N, mean > 300 N (force 5 mm from the board); p.10 M4 through thread max tightening 1.2 N*m, min breaking torque 2.9 N*m; p.11 one derating curve for 'THR 7x7mm & SMD D7mm' (6 mm2 cable, 4-layer 105 um PCB), 0.3-0.4 mm vias with >= 25 um plating into the lower layers.",
+    "sha256_prefix16": "e629b5c54c31bd0d"
    },
    "ratings": [
     {
@@ -2129,7 +2129,28 @@
      "datasheet_limit": 50,
      "unit": "A",
      "basis": "50 A max at 20 C (datasheet p.1); operating current depends on PCB, lug and cable",
-     "source": "74650074 datasheet rev 002.002 p.1 (Rated Current IR @ 20 C)"
+     "source": "7466004R datasheet rev 001.003 p.1 (Rated Current IR @ 20 C)"
+    },
+    {
+     "parameter": "I derated @ 50C ambient",
+     "datasheet_limit": 44.8,
+     "unit": "A",
+     "basis": "design-guide derating curve 'THR 7x7mm & SMD D7mm' at the B3 50 C ambient, digitized +/-0.5 A (6 mm2 cable, 4-layer 105 um Cu test board)",
+     "source": "REDCUBE SMD Terminals Design Guide p.11; validation-results/11-candidates/c35-smt-terminals/results/derating_curve.json"
+    },
+    {
+     "parameter": "tightening torque max",
+     "datasheet_limit": 1.2,
+     "unit": "N*m",
+     "basis": "max tightening torque; min breaking torque 2.9 N*m for the M4 through thread (design guide p.10)",
+     "source": "7466004R datasheet rev 001.003 p.1; design guide p.10 table"
+    },
+    {
+     "parameter": "Operating temperature max",
+     "datasheet_limit": 150,
+     "unit": "C",
+     "basis": "operating temperature -55 to +150 C (part body; contact and lug heat not separated)",
+     "source": "7466004R datasheet rev 001.003 p.1"
     }
    ],
    "stresses": [
@@ -2137,11 +2158,18 @@
      "parameter": "I tank trip",
      "worst_case_value": 29.4,
      "unit": "A",
-     "condition": "28 A ceiling, 29.4 A trip",
-     "evidence": "DECISIONS.md:824"
+     "condition": "28 A ceiling, 1.05 x firmware RMS trip (B3 op c28)",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3/run_study.py:33"
+    },
+    {
+     "parameter": "Terminal copper temperature",
+     "worst_case_value": 103.45,
+     "unit": "C",
+     "condition": "B3 c28_h10 (29.4 A trip, h 10 W/m2K, 1.0 mm pitch): hottest copper cell within 7 mm of J5 (B.Cu); J2 102.9 C; the THR on s32 100.45 / 100.82 C",
+     "evidence": "validation-results/11-candidates/c35-smt-terminals/results/terminal_heat_s35.json"
     }
    ],
-   "derating_rule": "Current <= 50% of the 20 C rating at the worst terminal temperature (no derating curve read).",
+   "derating_rule": "Current <= 60 % of the 20 C rating, and <= 80 % of the design-guide curve at the 50 C design ambient.",
    "checks": [
     {
      "id": "I",
@@ -2149,22 +2177,50 @@
      "stress": "I tank trip",
      "max_ratio": 0.6,
      "severity": "violation",
-     "rule": "59 % of a 20 C figure; derated at hot ambient it is higher",
+     "rule": "59 % of a 20 C figure (same rule as the THR 74650074 it replaces)",
      "ratio": 0.588
+    },
+    {
+     "id": "I50",
+     "rating": "I derated @ 50C ambient",
+     "stress": "I tank trip",
+     "max_ratio": 0.8,
+     "severity": "gap",
+     "rule": "66 % of the curve at 50 C air; the curve falls to 29.4 A at 107 C ambient (derating_curve.json)",
+     "ratio": 0.656
+    },
+    {
+     "id": "T",
+     "rating": "Operating temperature max",
+     "stress": "Terminal copper temperature",
+     "max_ratio": 0.8,
+     "severity": "gap",
+     "rule": "terminal copper <= 120 C (80 % of the 150 C part limit) at the 28 A trip in still air; copper only, the lug / screw contact heat is a bench item",
+     "ratio": 0.69
     }
    ],
    "layout_guidance": [
     {
-     "item": "four same-number pads are one terminal; copper to the terminal",
-     "enforced_by": "DECISIONS.md:841"
+     "item": "D5.2 non-plated screw hole; copper ring OD 8.5 / ID 5.7 (0.25 mm NPTH pull-back), paste four segments OD 8.3 / ID 5.9",
+     "enforced_by": "libraries/temper.pretty/Wuerth_REDCUBE-SMT_WP-SMBU_7466004R.kicad_mod"
+    },
+    {
+     "item": "terminal current into the inner and B.Cu layers through 20 land vias (0.85 / 0.3 mm) per terminal round the Ø8.5 land (design guide p.7 / p.11: 0.3-0.4 mm drills)",
+     "enforced_by": "native-21/layout/patches21.py"
+    },
+    {
+     "item": "solder paste 150 um (datasheet p.1) against the board's general stencil",
+     "enforced_by": "UNCHECKED: stencil thickness / step stencil is an assembly-order item (c35-smt-terminals/README.md)"
     }
    ],
    "gaps": [
-    "No temperature derating curve in the datasheet: the 50 A rating is at 20 C only; terminal contact temperature at 28 A not evidenced (bench IR list covers the J2/J5 window only).",
-    "PCB thickness: the datasheet requires 1.6-2.0 mm (p.1); JLC publishes +/-10 % for boards >= 1.0 mm, so the 1.6 mm build can finish at 1.44 mm; no JLC thickness option lands inside 1.6-2.0 under +/-10 % (DECISIONS 42)."
+    "No derating curve in the datasheet; the design-guide curve (one curve for THR 7x7 and SMD D7) is for a 6 mm2 cable on a 4-layer 105 um Cu test board, not this board's 2 oz outer copper and Litz lead; terminal contact temperature at 28 A is a bench item.",
+    "Mechanical: through-thread tearing force 300-410 N (design guide p.9) is lower than the blind-thread part's; lug-pull and torque retention on a soldered sample are bench items; screw length and lug stack with the enclosure session (c35-smt-terminals/ENCLOSURE-REQUEST.md).",
+    "Paste: 150 um per the datasheet; the board's stencil thickness for the fine-pitch parts is not yet chosen (step stencil or a larger aperture).",
+    "Terminal temperature: B3 models the terminal through its copper only (no heat-source row for either terminal); the board's copper next to J5 / J2 runs 0.5-3.7 K above the THR at every B3 operating point (extreme_h10 127.3 C at J5), and the contact / lug heat at 28 A is a bench item (c35-smt-terminals/README.md)."
    ],
    "finding": null,
-   "notes": null
+   "notes": "Stage 35 (candidate 35, DECISIONS 43 draft). Replaces 74650074 (THR, PCB 1.6-2.0 mm, DECISIONS 42)."
   },
   "B32654A1104J000": {
    "mpn": "B32654A1104J000",

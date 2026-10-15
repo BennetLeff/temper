@@ -519,7 +519,7 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
-  "74650074": {
+  "7466004R": {
    "checks": [
     {
      "id": "I",
@@ -529,6 +529,24 @@
      "ratio": 0.588,
      "severity": "violation",
      "stress": "I tank trip"
+    },
+    {
+     "id": "I50",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "I derated @ 50C ambient",
+     "ratio": 0.6562,
+     "severity": "gap",
+     "stress": "I tank trip"
+    },
+    {
+     "id": "T",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Operating temperature max",
+     "ratio": 0.6897,
+     "severity": "gap",
+     "stress": "Terminal copper temperature"
     }
    ],
    "class": "POWER",
@@ -537,13 +555,17 @@
     "J5"
    ],
    "finding": null,
-   "function": "Resonant-tank coil terminals J2/J5, Wuerth REDCUBE THR M4",
+   "function": "Resonant-tank coil terminals J2 (coil_feed) / J5 (res_a), Wuerth REDCUBE SMT WP-SMBU M4 internal through-hole thread (stage 35, candidate 35; replaces the THR 74650074)",
    "gaps": [
-    "No temperature derating curve in the datasheet: the 50 A rating is at 20 C only; terminal contact temperature at 28 A not evidenced (bench IR list covers the J2/J5 window only).",
-    "PCB thickness: the datasheet requires 1.6-2.0 mm (p.1); JLC publishes +/-10 % for boards >= 1.0 mm, so the 1.6 mm build can finish at 1.44 mm; no JLC thickness option lands inside 1.6-2.0 under +/-10 % (DECISIONS 42)."
+    "No derating curve in the datasheet; the design-guide curve (one curve for THR 7x7 and SMD D7) is for a 6 mm2 cable on a 4-layer 105 um Cu test board, not this board's 2 oz outer copper and Litz lead; terminal contact temperature at 28 A is a bench item.",
+    "Mechanical: through-thread tearing force 300-410 N (design guide p.9) is lower than the blind-thread part's; lug-pull and torque retention on a soldered sample are bench items; screw length and lug stack with the enclosure session (c35-smt-terminals/ENCLOSURE-REQUEST.md).",
+    "Paste: 150 um per the datasheet; the board's stencil thickness for the fine-pitch parts is not yet chosen (step stencil or a larger aperture).",
+    "Terminal temperature: B3 models the terminal through its copper only (no heat-source row for either terminal); the board's copper next to J5 / J2 runs 0.5-3.7 K above the THR at every B3 operating point (extreme_h10 127.3 C at J5), and the contact / lug heat at 28 A is a bench item (c35-smt-terminals/README.md)."
    ],
    "status": "PARTIAL",
-   "unchecked_layout": []
+   "unchecked_layout": [
+    "solder paste 150 um (datasheet p.1) against the board's general stencil"
+   ]
   },
   "AC05000001507JAC00": {
    "checks": [
@@ -2555,15 +2577,19 @@
    ]
   }
  },
- "errors": [],
- "failures": [],
+ "errors": [
+  "[7466004R] stress Terminal copper temperature: evidence path not found: validation-results/11-candidates/c35-smt-terminals/results/terminal_heat_s35.json"
+ ],
+ "failures": [
+  "[7466004R] stress Terminal copper temperature: evidence path not found: validation-results/11-candidates/c35-smt-terminals/results/terminal_heat_s35.json"
+ ],
  "missing_from_ledger": [],
  "partial": [
   "1206W4F1003T5E",
   "1714971",
   "2EDR8259XXUMA1",
   "30KPA150CA",
-  "74650074",
+  "7466004R",
   "AC05000001507JAC00",
   "AMC1311BDWVR",
   "B2P3-VH(LF)(SN)",
@@ -2592,7 +2618,7 @@
   "TMOV20RP175E",
   "VOL628A-2X001T"
  ],
- "result": "PASS",
+ "result": "FAIL",
  "strict": false,
  "totals": {
   "PARTIAL": 32,
@@ -2662,7 +2688,7 @@
   "TPS7A4700RGWR"
  ],
  "unaudited_safety_power": [],
- "unchecked_layout_items": 9,
+ "unchecked_layout_items": 10,
  "violations": [],
  "warnings": [
   "59 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"

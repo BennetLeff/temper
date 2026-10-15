@@ -6,6 +6,8 @@ REMOVE / add(g) / OPEN_IN1 / HANDLED as in patches21_v1.py. IN_PAD: references w
 intended (filled and capped, DECISIONS.md 2026-10-08) and must not be moved off by dogbone().
 """
 from patches21_v1 import CU, OPEN_IN1, drill  # noqa: F401  (OPEN_IN1 / CU re-exported for incr21)
+import math  # noqa: E402
+import rules21  # noqa: E402  (stage 35 clearance checks)
 from layers21 import PLANE_ROLE, STACKUP  # noqa: E402  (stage 33: role planes from native-21/stackup.json)
 
 # Stage 33, six-layer phase A: the routing layer sets of the authored groups (route_group, the L4 / HS sets) stay the
@@ -69,7 +71,7 @@ HANDLED = ("ocp_node", "ocp_thresh")   # stage 28: laid whole by add_stage28_ocp
 # a small F.Cu island and R5.1 (LEG_RET) through three at x 40.9. Up to 18 A in one via in the
 # coherent return case, where native-17 had three 0.8 mm vias per side. Six filled 0.3 mm vias in
 # each current pad take the layer transfer at the pad (a shunt's current pads carry their own vias).
-IN_PAD = ("R5", "U26")   # stage 14: U27 / U28 / U35 removed
+IN_PAD = ("R5", "U26", "J2", "J5")   # stage 14: U27 / U28 / U35 removed; stage 35: the J2 / J5 land vias
 # SW_B's B.Cu outline reaches under R5, but its fill never does (0 mm² in this box on the stage-5
 # board): the outline alone kept HV_RET vias out of R5.4. Clip it there.
 SWB_CLIP = (34.0, 12.0, 42.0, 18.0)
@@ -311,7 +313,86 @@ def add(g):
     add_stage30(g)            # after every fixed lane: the long heartbeat-group links route round them
     add_stage32_in2(g)        # last: re-layers three hops that add_stage30 / the bias_bad group laid on B.Cu
     add_stage33(g)            # six-layer stacks only (stackup image_planes); a no-op on the four-layer board
+    add_stage35(g)            # J2 / J5 SMT terminals: their F.Cu pads reach B.Cu only through these vias
     resolve_zone_priorities(g["ZONES"])
+
+
+# Stage 35 (candidate 35, 11-candidates/c35-smt-terminals): J2 (coil_feed) / J5 (res_a) are Wuerth REDCUBE SMT WP-SMBU
+# 7466004R, one F.Cu ring pad (OD 8.5) round a D5.2 NPTH, at the THR studs' poses. The THR's four plated D1.85 pins
+# carried the terminal current into B.Cu (J5's only path to the bank: res_a has no F.Cu pour past its stud land); the
+# SMT pad needs vias for it. Wuerth's REDCUBE SMD design guide (p.7 Fig. 3, vias in the copper round the pad; p.11,
+# 0.3-0.4 mm vias, >= 25 um plating) supports it. 20 vias per terminal sit in the 9.2 mm stud land (route21, F and B):
+# two per half-edge 4.1 mm off the centre lines plus one per corner, copper within +/-4.525 mm (the THR pads'
+# +/-4.535 mm square envelope; the corner vias reach 0.47 mm further diagonally than the THR's round pads, checked by
+# the chain's DRC and c35-smt-terminals/scripts/terminal_spacing.py). Barrels: 20 x pi x 0.3 = 18.8 mm of wall against
+# the THR's 4 x pi x 1.85 = 23.2 mm. The vias are 0.85 / 0.3 (the 0.3 mm drill of every via, so no new drill), their
+# rings 0.3 mm apart: on In1 / In2 the rings stand alone, and task 04's topology check needs each one resolved on its
+# 0.125 mm grid. The first stage-35 chain failed it with 0.6 / 0.3 vias (a 0.15 mm ring does not resolve, as on the
+# mains nets at stage 32; incr21.STD_VIA_KEEP), the second with touching 0.85 rings 0.85 mm apart (the physical union
+# joins them, the grid does not). The inner edge of the first via on each side reaches 0.2 mm into the pad ring (filled
+# and capped, as every 0.3 mm via on this board).
+S35_TERMINALS = {"J5": ("res_a", (132.0, 70.5)), "J2": ("coil_feed", (132.0, 85.5))}
+S35_EDGE, S35_ALONG, S35_VIA = 4.1, (1.8, 2.95), 0.85
+
+
+def s35_spots(cx, cy):
+    out = []
+    for sx in (1, -1):
+        for sy in (1, -1):
+            out += [(cx + sx * S35_EDGE, cy + sy * a) for a in S35_ALONG]
+            out += [(cx + sx * a, cy + sy * S35_EDGE) for a in S35_ALONG]
+            out.append((cx + sx * S35_EDGE, cy + sy * S35_EDGE))
+    return [(round(x, 3), round(y, 3)) for x, y in out]
+
+
+S35_LAND = 4.6        # route21's stud lands: 9.2 mm squares on F.Cu and B.Cu round each terminal centre
+
+
+def s35_conflicts(g, net, x, y, size=0.6):
+    """Other-net tracks, vias and pads (THT / NPTH on every layer, SMD on F.Cu) closer than their rule to a land via.
+    Pours are left out: GEO holds their authored outlines, not the fill, and a fill always yields to the via. A via
+    inside the stud land (checked by the caller) cannot pull another net's fill closer than the land edge already does,
+    on F / B or in plan view (barrier, RES_A 12.6 mm); on In1 / In2 there are no pours of these nets near J2 / J5."""
+    from shapely.geometry import LineString, Point, box
+    v = Point(x, y).buffer(size / 2)
+    out = []
+    for t in g["TRACKS"]:
+        if t["net"] != net and t["layer"] in CU:
+            geo = LineString([g["_xy"](q) for q in t["points"]]).buffer(t["width"] / 2)
+            if geo.distance(v) < rules21.clearance_on(net, t["net"], t["layer"]) + 0.03:
+                out.append((t["layer"], t["net"], "track"))
+    for o in g["VIAS"]:
+        if o["net"] != net:
+            if Point(*o["at"]).buffer(o["size"] / 2).distance(v) < max(rules21.clearance_on(net, o["net"], lay) for lay in CU) + 0.03:
+                out.append(("*", o["net"], "via"))
+        elif math.dist(o["at"], (x, y)) - o.get("drill", 0.3) < 0.5:
+            out.append(("*", net, "same-net via within 0.5 mm wall to wall"))
+    for p in g["GEO"].pads:
+        if p["net"] == net or not (p["net"] or p["npth"]):
+            continue
+        lays = CU if p["tht"] else ("F.Cu",)
+        need = 0.3 if p["npth"] else max(rules21.clearance_on(net, p["net"], lay) for lay in lays)
+        if box(*p["box"]).distance(v) < need + 0.03:
+            out.append(("pad", p["net"] or "<npth>", f"{p['ref']}.{p['pad']}"))
+    return out
+
+
+def add_stage35(g):
+    """Stage 35: the J2 / J5 land vias (S35_TERMINALS); a no-op unless the terminals are the SMT part."""
+    pads = [p for p in g["GEO"].pads if p["ref"] in S35_TERMINALS and p["pad"] == "1"]
+    if not pads or any(p["tht"] for p in pads):
+        return
+    n = 0
+    for ref, (net, (cx, cy)) in S35_TERMINALS.items():
+        for x, y in s35_spots(cx, cy):
+            if max(abs(x - cx), abs(y - cy)) + S35_VIA / 2 > S35_LAND:
+                raise SystemExit(f"stage 35 via {net} ({x}, {y}) leaves the {ref} stud land")
+            bad = s35_conflicts(g, net, x, y, size=S35_VIA)
+            if bad:
+                raise SystemExit(f"stage 35 via {net} ({x}, {y}): {bad[:3]}")
+            g["via"](net, x, y, size=S35_VIA)
+            n += 1
+    print(f"stage 35: {n} terminal land vias (J2 / J5)")
 
 
 def add_stage33(g):

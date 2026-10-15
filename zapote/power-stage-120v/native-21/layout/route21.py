@@ -471,7 +471,8 @@ track("ocp_kelvin_n", "In1.Cu", 0.3, [41.3, 15.2], [41.3, 43.4], [106.6, 43.4], 
 via("ocp_kelvin_n", *KN)
 track("ocp_kelvin_n", "F.Cu", 0.3, list(KN), "R33.2")
 
-# Bring-up / coil stud lands: each REDCUBE's four same-number pads joined on F and B.
+# Bring-up / coil stud lands: each REDCUBE's four same-number pads joined on F and B. Stage 35: J2 / J5 are the SMT
+# REDCUBE 7466004R (one F.Cu ring pad); the lands stay, and patches21.add_stage35 joins F to B with 20 vias in each.
 for ref, (cx, cy) in {"J9": (130.0, 6.5), "J10": (143.0, 6.5), "J7": (130.0, 19.5), "J8": (143.0, 19.5),
                       "J5": (132.0, 70.5), "J2": (132.0, 85.5)}.items():
     n = [p["net"] for p in GEO.pads if p["ref"] == ref and p["net"]][0]

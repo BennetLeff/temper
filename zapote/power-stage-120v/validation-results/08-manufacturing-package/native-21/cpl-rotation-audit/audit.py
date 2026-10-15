@@ -282,7 +282,13 @@ def pad_bbox_centre(kfp):
     """Same centre the CPL generator used (pad bounding boxes, KiCad centroid, review M9)."""
     th = kfp["rot"]
     xs, ys = [], []
-    for p in kfp["pads"]:
+    pads = kfp["pads"]
+    # bom_cpl_jlc.py centroid (stage 17): an all-SMD part with paste-free pads is centred on its pasted pads (R5's CSS2H
+    # Kelvin fingers). Stage 35: extract_kicad.py stores a custom pad's true copper box, so the rule is needed here too.
+    pasted = [p for p in pads if {"F.Paste", "B.Paste"} & set(p.get("layers", []))]
+    if pasted and len(pasted) < len(pads) and all(p["type"] == "smd" for p in pads):
+        pads = pasted
+    for p in pads:
         x, y = rot_screen((p["x"], p["y"]), th)
         a = (p.get("ang", 0.0) + th) % 180
         w, h = (p["w"], p["h"]) if abs(a) < 1e-6 else (p["h"], p["w"]) if abs(a - 90) < 1e-6 else (max(p["w"], p["h"]),) * 2

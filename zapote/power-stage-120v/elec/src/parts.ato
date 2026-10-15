@@ -22,13 +22,16 @@ component MainsTerminal2:
     signal p2 ~ pin 2
 
 component PowerTerminalM4:
-    """Wuerth REDCUBE THR M4, 50 A max at 20 C, 1.2 N m torque.
-    Four same-number solder pads are one metal terminal. No manufacturer
+    """Wuerth REDCUBE SMT WP-SMBU M4, internal through-hole thread (7466004R,
+    tape and reel): 50 A max at 20 C, 1.2 N m torque (datasheet rev 001.003 p.1).
+    One D8.5 SMD solder pad round a D5.2 non-plated hole; no PCB-thickness limit.
+    Stage 35 (candidate 35): replaces the REDCUBE THR 74650074, whose 1.6-2.0 mm
+    board-thickness window JLC cannot guarantee (DECISIONS 42). No manufacturer
     voltage rating: PCB, lug and wire spacing determine insulation."""
     designator_prefix = "J"
-    mpn = "74650074"
+    mpn = "7466004R"
     manufacturer = "Wuerth Elektronik"
-    footprint = "TerminalBlock_Wuerth:Wuerth_REDCUBE-THR_WP-THRBU_74650074_THR"
+    footprint = "temper:Wuerth_REDCUBE-SMT_WP-SMBU_7466004R"
     signal p1 ~ pin 1
 
 component PeBranchTerminal:

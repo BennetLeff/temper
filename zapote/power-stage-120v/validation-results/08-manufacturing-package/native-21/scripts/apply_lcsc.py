@@ -70,7 +70,10 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 "SN74LVC1G132DBVR": "C403723",
                 # stage 31 (DECISIONS 34): Chipanalog isolators and the Samsung 1210 (JLC part API 2026-10-14,
                 # 11-candidates/c31-bom/scripts/jlc-raw)
-                "CA-IS3720HW": "C428883", "CA-IS3720LW": "C2890049", "CL32B106KBJNNNE": "C138687"})
+                "CA-IS3720HW": "C428883", "CA-IS3720LW": "C2890049", "CL32B106KBJNNNE": "C138687",
+                # stage 35 (candidate 35): J2 / J5 Wuerth REDCUBE SMT WP-SMBU 7466004R (JLC part API 2026-10-14, 0 in
+                # stock, 11-candidates/c35-smt-terminals/scripts/jlc-raw)
+                "7466004R": "C6708126"})
 ACCEPT_ALT = {"GRM31A5C3A102JW01D"}
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))

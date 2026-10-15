@@ -79,6 +79,28 @@ def load_net(data: dict, name: str, pitch: float, plating: float):
     return net, list(barrels.values()), pads
 
 
+STUD_RING_POINTS = 24
+
+
+def sink_contacts(pad) -> list:
+    """Equipotential sink nodes for one physical pad.
+
+    A drilled pad (a soldered lead) or a plain SMD pad sinks at its centre, as before. A pad with a hole and no drill is
+    a stud ring land (c35: REDCUBE SMT 7466004R, a brass body reflowed over the whole ring round an NPTH); its exported
+    centre is the custom-pad anchor on one side of the ring, so a single node there would push the whole terminal
+    current through one point. Sink it instead at STUD_RING_POINTS equipotential nodes on the ring's mid radius round
+    the hole centroid (brass body >> 70 um foil). 11-candidates/c35-smt-terminals/scripts/terminal_sink.py shows this
+    within 1 % of sinking every copper node under the Ø7 body face, and leaves drilled-lead (THR) boards unchanged.
+    """
+    if max(pad.get('drill_mm') or [0]) > 0 or not pad.get('holes'):
+        return [('F.Cu', *pad['centre'])]
+    shell, hole = Polygon(pad['shell']), Polygon(pad['holes'][0])
+    cx, cy = hole.centroid.x, hole.centroid.y
+    rm = (math.sqrt(hole.area/math.pi) + math.sqrt(shell.area/math.pi))/2
+    return [('F.Cu', cx + rm*math.cos(2*math.pi*k/STUD_RING_POINTS), cy + rm*math.sin(2*math.pi*k/STUD_RING_POINTS))
+            for k in range(STUD_RING_POINTS)]
+
+
 def audit_contacts(net, barrels) -> dict:
     """Check actual kit radial edges against drilled physical copper."""
     grids, nodes, matrix, _ = net._build()
@@ -270,7 +292,8 @@ def main() -> int:
                 physical=pads[ref]
                 if not physical:
                     raise ValueError(f'missing sink pad {ref}')
-                sinks.extend(('F.Cu',*p['centre']) for p in physical)
+                for p in physical:
+                    sinks.extend(sink_contacts(p))
             solved=net.solve(sources,sinks)
             # The kit's total sums signed injections; for explicit draws the
             # physically useful loss-equivalent R uses positive drive current.
@@ -287,7 +310,7 @@ def main() -> int:
                           unused_island_cells=solved['unused_island_cells'],via_currents=solved['via_currents'])
             result.update(sheet_and_heat(net,solved,HERE/'outputs'/f'{name}-heat.npz'))
             result['assumptions']=['20 C copper; DC resistive spreading only',
-                'equal current at physical source leads; equipotential sink leads',
+                'equal current at physical source leads; equipotential sink leads (a stud ring land: 24 points on its ring)',
                 'all through-hole leads solder-filled; vertical conduction uses plating alone',
                 'specified current is an experiment, not a verified operating waveform']
         else:

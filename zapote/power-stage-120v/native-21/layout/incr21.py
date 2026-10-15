@@ -388,7 +388,8 @@ def merge_close_vias(gap=0.5):
 
 # mains nets keep 0.85 rings: task 04 solves them on its 0.125 mm grid, which does not resolve a 0.15 mm ring
 # (round5-native21/summarize.py topology check; the first stage-32 chain failed it on these three nets)
-STD_VIA_KEEP = ("ac_n_in", "l_filt", "n_filt")
+STD_VIA_KEEP = ("ac_n_in", "l_filt", "n_filt",
+                "res_a", "coil_feed")   # stage 35: the J2 / J5 land vias (patches21.add_stage35), for the same reason
 
 
 def std_vias(old=0.85, new=0.6):
@@ -610,6 +611,7 @@ if __name__ == "__main__":
         # patches are already in it; only the six-layer additions are applied, then the open pairs as usual
         load(sys.argv[1], patches=False)
         patches21.add_stage33(g)
+        patches21.add_stage35(g)     # stage 35: J2 / J5 SMT terminal land vias (a no-op with the THR terminals)
     else:
         load(sys.argv[1])
     if len(sys.argv) > 4 and sys.argv[4] and Path(sys.argv[4]).is_file():
