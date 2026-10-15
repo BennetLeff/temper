@@ -845,6 +845,38 @@ module PowerStage120V:
     c_ref_xfer_5.value = 100nF
     c_ref_xfer_5.p1 ~ V3V3
     c_ref_xfer_5.p2 ~ SELV_GND
+    # Stage 44 (candidate 44, SELV-spine lane; OPEN-ITEMS S10): one transfer cap beside each SELV return-path open
+    # change of the slow SELV lines (PERMIT, BUS_FAULT, BUS_FAULT_ISO, BIAS_GOOD), whose F.Cu runs ride the In1 v3v3
+    # pour and B.Cu runs the In2 selv_gnd pour: PERMIT at its leg-B drop, its leg-A drop and J4; BUS_FAULT at U13;
+    # BUS_FAULT_ISO at its B.Cu -> F.Cu change; BIAS_GOOD at its leg-A and leg-B drops.
+    c_ref_xfer_6 = new C100n0603
+    c_ref_xfer_6.value = 100nF
+    c_ref_xfer_6.p1 ~ V3V3
+    c_ref_xfer_6.p2 ~ SELV_GND
+    c_ref_xfer_7 = new C100n0603
+    c_ref_xfer_7.value = 100nF
+    c_ref_xfer_7.p1 ~ V3V3
+    c_ref_xfer_7.p2 ~ SELV_GND
+    c_ref_xfer_8 = new C100n0603
+    c_ref_xfer_8.value = 100nF
+    c_ref_xfer_8.p1 ~ V3V3
+    c_ref_xfer_8.p2 ~ SELV_GND
+    c_ref_xfer_9 = new C100n0603
+    c_ref_xfer_9.value = 100nF
+    c_ref_xfer_9.p1 ~ V3V3
+    c_ref_xfer_9.p2 ~ SELV_GND
+    c_ref_xfer_10 = new C100n0603
+    c_ref_xfer_10.value = 100nF
+    c_ref_xfer_10.p1 ~ V3V3
+    c_ref_xfer_10.p2 ~ SELV_GND
+    c_ref_xfer_11 = new C100n0603
+    c_ref_xfer_11.value = 100nF
+    c_ref_xfer_11.p1 ~ V3V3
+    c_ref_xfer_11.p2 ~ SELV_GND
+    c_ref_xfer_12 = new C100n0603
+    c_ref_xfer_12.value = 100nF
+    c_ref_xfer_12.p1 ~ V3V3
+    c_ref_xfer_12.p2 ~ SELV_GND
     r_ct_mon = new R1k0603
     r_ct_mon.value = 1kohm
     r_ct_mon.p1 ~ CT_SENSE_MON
@@ -1003,6 +1035,13 @@ module PowerStage120V:
     c_ref_xfer_3.designator = "C155"
     c_ref_xfer_4.designator = "C156"
     c_ref_xfer_5.designator = "C168"
+    c_ref_xfer_6.designator = "C169"
+    c_ref_xfer_7.designator = "C170"
+    c_ref_xfer_8.designator = "C171"
+    c_ref_xfer_9.designator = "C172"
+    c_ref_xfer_10.designator = "C173"
+    c_ref_xfer_11.designator = "C174"
+    c_ref_xfer_12.designator = "C175"
     c_hot5_uv.designator = "C48"
     c_hot5_schmitt.designator = "C49"
     u_ref.designator = "U5"

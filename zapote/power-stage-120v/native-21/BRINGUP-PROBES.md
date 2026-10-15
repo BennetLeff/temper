@@ -24,16 +24,16 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 | TP10 | n_hb | B | 4.3, 115.8 | TP31 | sw_b | HS-B -2 V rail vs switch node |
 | TP11 | p_hb | B | 11.7, 116.7 | TP32 | sw_b | HS-B +15 V rail |
 | TP12 | v3v3 | B | 11.2, 128.3 | TP33 | selv_gnd | SELV 3.3 V |
-| TP13 | pwm_ha | B | 57.8, 155.4 | TP34 | selv_gnd | PWM A high |
+| TP13 | pwm_ha | B | 71.4, 128.0 | TP34 | selv_gnd | PWM A high |
 | TP14 | pwm_la | B | 79.8, 60.8 | TP35 | selv_gnd | PWM A low |
 | TP15 | pwm_hb | F | 34.4, 124.2 | TP36 | selv_gnd | PWM B high |
 | TP16 | pwm_lb | F | 36.2, 125.7 | TP36 | selv_gnd | PWM B low |
 | TP17 | permit | F | 33.1, 113.3 | TP37 | selv_gnd | PERMIT |
 | TP18 | leg_b-driver_dis | B | 34.0, 65.0 | TP38 | selv_gnd | leg B DIS |
 | TP19 | bias_good | B | 33.2, 70.4 | TP38 | selv_gnd | BIAS_GOOD (rail monitors, stage 22) |
-| TP20 | bus_fault | B | 34.8, 132.3 | TP39 | selv_gnd | OCP fault, SELV side |
-| TP21 | ct_zc | B | 30.1, 133.2 | TP39 | selv_gnd | tank CT zero cross |
-| TP22 | ct_mon | B | 23.8, 134.6 | TP39 | selv_gnd | tank CT monitor |
+| TP20 | bus_fault | B | 35.8, 173.0 | TP39 | selv_gnd | OCP fault, SELV side |
+| TP21 | ct_zc | B | 30.1, 133.2 | TP40 | selv_gnd | tank CT zero cross |
+| TP22 | ct_mon | B | 23.8, 134.6 | TP40 | selv_gnd | tank CT monitor |
 
 ## Probed elsewhere (no legal test-pad spot)
 

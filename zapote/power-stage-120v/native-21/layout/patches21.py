@@ -604,6 +604,89 @@ def edit_base42(base):
     return n
 
 
+# Stage 44 (candidate 44, SELV-spine lane; OPEN-ITEMS S10; 11-candidates/c44-selv-spine): the SELV return-path open
+# changes. The slow SELV lines' F.Cu runs ride the In1 v3v3 pour and their B.Cu runs the In2 selv_gnd pour, so every
+# F.Cu <-> B.Cu via of PERMIT / BUS_FAULT / BUS_FAULT_ISO / BIAS_GOOD needs a v3v3-selv_gnd capacitor within 3.0 mm
+# (return_path19). Seven 100 nF 0603 transfer caps (c_ref_xfer_6..12, C169-C175) sit beside those vias, each pad on its
+# own plane via 0.85 mm off the pad (the C153-C156 rule: <= 1.6 mm), or on an existing plane via (C171 pad 2). Poses
+# from scripts/cap_spots.py on the s43 board (no other-net copper within rules21 clearance + 0.02 mm on any layer,
+# >= 8.1 mm plan view from HOT copper, above the 8.047 mm D5 floor). Two vias move:
+#  - BUS_FAULT: U13.4's drop via (34.843, 131.565) moves 0.97 mm down its own B.Cu trunk to (35.0, 132.523), 2.60 mm
+#    from C170 (0.2 mm from R134.1), past the U13 / R134 / C167 row that leaves no legal cap pose within 3 mm of the
+#    old spot;
+#  - BIAS_GOOD: the U40 feed's In2 hop ended on an In2 -> B.Cu via at (69.2, 127.0) on the SELV pour edge (no pour
+#    under its ring on either side: an open change with no reference). The In2 leg now runs on along the B.Cu trunk's
+#    own path (the stair-step on the 8 mm line) to the leg-A drop via (74.0, 123.4), which C171 serves; the (69.2, 127.0)
+#    via goes and the B.Cu trunk is unchanged.
+# Each entry: ref -> (path, cx, cy, angle, v3v3 plane via, selv_gnd plane via); pad 1 = v3v3 (C_0603: at angle 0 west,
+# 90 south, as xfer_spots.py), pad 2 = selv_gnd; place.py takes the poses from here.
+S44_CAPS = {
+    "C169": ("c_ref_xfer_6", 32.1, 119.4, 90.0, (31.25, 120.175), (31.25, 118.625)),     # PERMIT leg-B drop (33.2, 120.2)
+    "C170": ("c_ref_xfer_7", 35.1, 135.9, 90.0, (34.25, 136.675), (34.25, 135.125)),     # BUS_FAULT drop (35.0, 132.523)
+    "C171": ("c_ref_xfer_8", 76.0, 122.512, 0.0, (74.375, 122.512), (77.401, 122.512)),  # BIAS_GOOD leg-A drop (74.0, 123.4)
+    "C172": ("c_ref_xfer_9", 67.8, 128.2, 0.0, (66.425, 128.8), (69.175, 128.8)),        # PERMIT leg-A drop (70.0, 127.8)
+    "C173": ("c_ref_xfer_10", 78.73, 125.78, 0.0, (77.355, 125.18), (80.105, 125.18)),   # BUS_FAULT_ISO (76.825, 125.875)
+    "C174": ("c_ref_xfer_11", 36.5, 175.4, 90.0, (37.35, 176.175), (37.35, 174.625)),    # PERMIT at J4 (36.5, 178.6)
+    "C175": ("c_ref_xfer_12", 33.0, 73.1, 90.0, (32.15, 73.875), (32.15, 72.325)),       # BIAS_GOOD leg-B drop (33.2, 70.4)
+}
+S44_EXISTING_VIAS = {(77.401, 122.512)}          # plane vias already in the base (C171 pad 2 lands on it)
+S44_BUS_FAULT_VIA = ((34.843, 131.565), (35.0, 132.523))
+S44_BIAS_GOOD_VIA = (69.2, 127.0)
+
+
+def s44_pads(ref):
+    """(v3v3 pad centre, selv_gnd pad centre) of a stage-44 cap."""
+    _, cx, cy, ang, _, _ = S44_CAPS[ref]
+    dx, dy = {0: (-0.775, 0.0), 90: (0.0, 0.775), 180: (0.775, 0.0), 270: (0.0, -0.775)}[int(ang)]
+    return (round(cx + dx, 3), round(cy + dy, 3)), (round(cx - dx, 3), round(cy - dy, 3))
+
+
+def edit_base44(base):
+    """Stage 44 edit of a frozen base copper dict (in place); a no-op on a base that already carries it."""
+    r3 = lambda q: (round(q[0], 3), round(q[1], 3))
+    pts = lambda t: [q if isinstance(q, str) else r3(q) for q in t["points"]]
+    tr, vias = base["tracks"], base["vias"]
+    if any(t["net"] == "v3v3" and t["points"][0] == "C169.1" for t in tr):
+        return 0
+
+    def one(seq, what):
+        if len(seq) != 1:
+            raise SystemExit(f"stage 44: {what} not found once ({len(seq)})")
+        return seq[0]
+    # BUS_FAULT: the drop via moves down its own B.Cu trunk; the F.Cu escape follows (45 / 90 deg), the B.Cu stub and
+    # the trunk's tail under U13.4 go
+    old, new = S44_BUS_FAULT_VIA
+    one([v for v in vias if v["net"] == "bus_fault" and r3(v["at"]) == old], "bus_fault via")["at"] = list(new)
+    t = one([t for t in tr if t["net"] == "bus_fault" and t["layer"] == "F.Cu" and pts(t)[-1] == old], "bus_fault F.Cu escape")
+    t["points"] = t["points"][:-1] + [[34.843, 131.565], [34.843, 132.366], list(new)]
+    tr.remove(one([t for t in tr if t["net"] == "bus_fault" and t["layer"] == "B.Cu" and pts(t)[-1] == old], "bus_fault B.Cu stub"))
+    corner = (35.172, 132.695)          # the trunk's last bend; the via sits on its next (45 deg) leg
+    t = one([t for t in tr if t["net"] == "bus_fault" and t["layer"] == "B.Cu" and corner in pts(t)], "bus_fault B.Cu trunk")
+    t["points"] = t["points"][:pts(t).index(corner) + 1] + [list(new)]
+    # BIAS_GOOD: the In2 leg runs on to the leg-A drop along the B.Cu trunk's path; the edge via goes
+    bv = S44_BIAS_GOOD_VIA
+    vias.remove(one([v for v in vias if v["net"] == "bias_good" and r3(v["at"]) == bv], "bias_good edge via"))
+    trunk = one([t for t in tr if t["net"] == "bias_good" and t["layer"] == "B.Cu" and pts(t)[0] == (74.0, 123.4)], "bias_good B.Cu trunk")
+    stair = pts(trunk)[:pts(trunk).index(bv) + 1]
+    t = one([t for t in tr if t["net"] == "bias_good" and t["layer"] == "In2.Cu" and pts(t)[0] == bv], "bias_good In2 leg")
+    t["points"] = [list(q) for q in stair] + t["points"][1:]
+    # the transfer caps: each pad to its plane via (0.3 mm, as C168)
+    n = 0
+    for ref, (_, _, _, _, v1, v2) in S44_CAPS.items():
+        for k, (net, at, pad) in enumerate(zip(("v3v3", "selv_gnd"), (v1, v2), s44_pads(ref)), 1):
+            if at not in S44_EXISTING_VIAS:
+                if any(math.dist(v["at"], at) < 0.6 for v in vias):
+                    raise SystemExit(f"stage 44: a via already sits at {at}")
+                vias.append({"net": net, "at": list(at), "size": 0.6, "drill": 0.3})
+            else:
+                one([v for v in vias if v["net"] == net and r3(v["at"]) == at], f"{net} via at {at}")
+            tr.append({"net": net, "layer": "F.Cu", "width": 0.3, "points": [f"{ref}.{k}", list(at)]})
+            n += 1
+    print(f"stage 44: {len(S44_CAPS)} SELV transfer caps C169-C175 with {n} plane-via stubs; bus_fault drop via -> "
+          f"{new}; bias_good In2 leg on to (74.0, 123.4), edge via {bv} removed")
+    return n
+
+
 def add_stage33(g):
     """Six-layer phase A additions (no-op without image_planes): image pours, then their stitching vias."""
     if not IMAGE_PLANES:

@@ -59,9 +59,11 @@ and B3's caches share one model key, so a change to any model input misses both:
 SELV-spine lock (13-coupling contract WS4 ↔ WS5, `validation-results/13-coupling/README.md` §8 and §10 item 1):
 
     python3 -I gates/spine_lock.py native-21/verification/TAG-all-copper.json.gz [--owner selv]
-        # the spine region x 30-110 / y 130-180 must match the locked baseline (selv_spine_lock.json, s32 export):
+        # the spine region x 30-110 / y 130-180 must match the locked baseline (selv_spine_lock.json; s32 export,
+        # re-issued by the selv lane on s38 and s44):
         # default = every track / via / pad / pour in the region (any lane that does not own the spine);
-        # --owner selv = only the contract nets, the selv_gnd / v3v3 planes and J4 + the transfer caps
+        # --owner selv = only the contract nets, the selv_gnd / v3v3 planes and J4 + the transfer caps (C47, C144,
+        # C153-C156, and from s44 C169-C175)
     python3 -I gates/test_spine_lock.py        # 11 controls: mutations per mode, and s31 must fail
 
 `chain.sh` runs it in the copper block (BUILDDIR/spine-lock.json) and fails the chain on any difference; set

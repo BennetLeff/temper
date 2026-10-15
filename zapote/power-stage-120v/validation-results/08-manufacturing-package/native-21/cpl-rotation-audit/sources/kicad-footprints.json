@@ -2788,6 +2788,45 @@
   "x": 31.85,
   "y": 110.75
  },
+ "C169": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "v3v3",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 90.0,
+  "x": 32.1,
+  "y": 119.4
+ },
  "C17": {
   "layer": "F.Cu",
   "lib": "Capacitor_SMD:C_0805_2012Metric",
@@ -2826,6 +2865,240 @@
   "rot": 0.0,
   "x": 29.83,
   "y": 43.95
+ },
+ "C170": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "v3v3",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 90.0,
+  "x": 35.1,
+  "y": 135.9
+ },
+ "C171": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "v3v3",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 76.0,
+  "y": 122.512
+ },
+ "C172": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "v3v3",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 67.8,
+  "y": 128.199999
+ },
+ "C173": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "v3v3",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 78.73,
+  "y": 125.78
+ },
+ "C174": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "v3v3",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 90.0,
+  "x": 36.5,
+  "y": 175.4
+ },
+ "C175": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "v3v3",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 90.0,
+  "x": 33.0,
+  "y": 73.1
  },
  "C18": {
   "layer": "F.Cu",
@@ -13126,8 +13399,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 57.793,
-  "y": 155.382
+  "x": 71.411,
+  "y": 127.964
  },
  "TP14": {
   "layer": "B.Cu",
@@ -13310,8 +13583,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 34.818,
-  "y": 132.341
+  "x": 35.772,
+  "y": 172.995
  },
  "TP21": {
   "layer": "B.Cu",
@@ -13449,7 +13722,7 @@
   ],
   "rot": 0.0,
   "x": 116.4,
-  "y": 80.05
+  "y": 81.05
  },
  "TP27": {
   "layer": "B.Cu",
@@ -13655,8 +13928,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 59.675,
-  "y": 157.38
+  "x": 69.175,
+  "y": 128.8
  },
  "TP35": {
   "layer": "B.Cu",
@@ -13770,8 +14043,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 27.675,
-  "y": 132.865
+  "x": 37.35,
+  "y": 174.625
  },
  "TP4": {
   "layer": "B.Cu",
@@ -13795,6 +14068,29 @@
   "rot": 0.0,
   "x": 118.6,
   "y": 80.55
+ },
+ "TP40": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "selv_gnd",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 27.675,
+  "y": 132.865
  },
  "TP5": {
   "layer": "B.Cu",

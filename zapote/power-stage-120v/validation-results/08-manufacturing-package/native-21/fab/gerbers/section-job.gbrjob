@@ -5,7 +5,7 @@
       "Application": "Pcbnew",
       "Version": "10.0.4"
     },
-    "CreationDate": "2026-10-15T13:19:38-06:00"
+    "CreationDate": "2026-10-15T16:04:04-06:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
@@ -117,7 +117,7 @@
     },
     {
       "Type": "Dielectric",
-      "Material": "Nan Ya NP-155F (7628+2116+2116)",
+      "Material": "Kingboard KB-6064 prepreg (7628+2116+2116)",
       "Name": "F.Cu/In1.Cu",
       "Notes": "Type: dielectric layer 1 (from F.Cu to In1.Cu)"
     },
@@ -127,7 +127,7 @@
     },
     {
       "Type": "Dielectric",
-      "Material": "Nan Ya NP-155F core",
+      "Material": "Kingboard KB-6164 core",
       "Name": "In1.Cu/In2.Cu",
       "Notes": "Type: dielectric layer 2 (from In1.Cu to In2.Cu)"
     },
@@ -137,7 +137,7 @@
     },
     {
       "Type": "Dielectric",
-      "Material": "Nan Ya NP-155F (7628+2116+2116)",
+      "Material": "Kingboard KB-6064 prepreg (7628+2116+2116)",
       "Name": "In2.Cu/B.Cu",
       "Notes": "Type: dielectric layer 3 (from In2.Cu to B.Cu)"
     },

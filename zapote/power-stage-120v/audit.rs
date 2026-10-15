@@ -299,6 +299,16 @@ const IDENTITY: &[(&str, &str)] = &[
     ("c_ref_xfer_2", "CC0603KRX7R9BB104"),
     ("c_ref_xfer_3", "CC0603KRX7R9BB104"),
     ("c_ref_xfer_4", "CC0603KRX7R9BB104"),
+    // Stage 40: pwm_hb's fifth; stage 44 (candidate 44, OPEN-ITEMS S10): one beside each SELV return-path open change of
+    // PERMIT (3), BUS_FAULT, BUS_FAULT_ISO and BIAS_GOOD (2).
+    ("c_ref_xfer_5", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_6", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_7", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_8", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_9", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_10", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_11", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_12", "CC0603KRX7R9BB104"),
     ("j_blw_ac", "B2P3-VH(LF)(SN)"),
     ("rv1", "TMOV20RP175E"),
     ("br1", "GBJ2510-F"),
@@ -907,8 +917,9 @@ fn audit(m: &Model) -> Vec<String> {
         e.push(format!("tco_l must join only the TCO header and PS2, found {:?}", tco));
     }
     // Blower-supply tap (stage 16): fused after F1 and the filter, a branch of its own to J11.
-    // Reference-transfer caps (stage 19b): each joins the two SELV reference planes, v3v3 (In1) and selv_gnd (In2).
-    for i in 1..=4 {
+    // Reference-transfer caps (stage 19b; 5 stage 40; 6-12 stage 44): each joins the two SELV reference planes, v3v3
+    // (In1) and selv_gnd (In2).
+    for i in 1..=12 {
         let p = format!("c_ref_xfer_{i}");
         expect(&mut e, m, &p, "1", "v3v3");
         expect(&mut e, m, &p, "2", "selv_gnd");
@@ -1761,6 +1772,20 @@ mod tests {
         let mut m = built();
         m.set_part("leg_b.c_snub_l", "GRM31A5C3A102JW01D");
         fails(&m, "leg_b.c_snub_l is GRM31A5C3A102JW01D");
+    }
+
+    #[test]
+    fn stage44_selv_transfer_caps_hold() {
+        // candidate 44: a stage-44 transfer cap off the SELV planes, or a different part, must fail
+        let mut m = built();
+        m.rewire("c_ref_xfer_8", "1", "bias_good");
+        fails(&m, "c_ref_xfer_8.1");
+        let mut m = built();
+        m.rewire("c_ref_xfer_12", "2", "permit");
+        fails(&m, "c_ref_xfer_12.2");
+        let mut m = built();
+        m.set_part("c_ref_xfer_6", "CL10A106KP8NNNC");
+        fails(&m, "c_ref_xfer_6 is CL10A106KP8NNNC");
     }
 
     #[test]

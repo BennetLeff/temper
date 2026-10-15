@@ -55,7 +55,7 @@
    "ref_net": "n_ls",
    "ref_at": [
     116.4,
-    80.05
+    81.05
    ],
    "purpose": "24 V HOT supply",
    "ref": "TP4"
@@ -183,14 +183,14 @@
   {
    "net": "pwm_ha",
    "at": [
-    57.793,
-    155.382
+    71.411,
+    127.964
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    59.675,
-    157.38
+    69.175,
+    128.8
    ],
    "purpose": "PWM A high",
    "ref": "TP13"
@@ -288,14 +288,14 @@
   {
    "net": "bus_fault",
    "at": [
-    34.818,
-    132.341
+    35.772,
+    172.995
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    27.675,
-    132.865
+    37.35,
+    174.625
    ],
    "purpose": "OCP fault, SELV side",
    "ref": "TP20"
@@ -364,7 +364,7 @@
    "net": "n_ls",
    "at": [
     116.4,
-    80.05
+    81.05
    ],
    "side": "B",
    "ref": "TP26",
@@ -443,8 +443,8 @@
   {
    "net": "selv_gnd",
    "at": [
-    59.675,
-    157.38
+    69.175,
+    128.8
    ],
    "side": "B",
    "ref": "TP34",
@@ -493,11 +493,21 @@
   {
    "net": "selv_gnd",
    "at": [
+    37.35,
+    174.625
+   ],
+   "side": "B",
+   "ref": "TP39",
+   "purpose": "selv_gnd reference"
+  },
+  {
+   "net": "selv_gnd",
+   "at": [
     27.675,
     132.865
    ],
    "side": "B",
-   "ref": "TP39",
+   "ref": "TP40",
    "purpose": "selv_gnd reference"
   }
  ],

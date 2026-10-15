@@ -27,7 +27,7 @@ Targets (asserted, exit 1 on failure; DECISIONS item 19):
        has a v3v3-selv_gnd capacitor within 3.0 mm of the via, at most 1 transition (stage 18: 1 at 37.15 mm).
        pwm_hb: every v3v3 <-> selv_gnd change within 3.0 mm (stage 19b; stage 19 asserted only the driver side,
        y < 126 mm), at most 7 transitions (stage 18: 7); the stage-19b transfer caps C153-C156 each reach both
-       planes through a via within 1.6 mm of each pad.
+       planes through a via within 1.6 mm of each pad (stage 44: also C169-C175).
 The other fast signals are reported, not asserted.
 
 --control: asserts the stage-18 review's findings reproduce instead: the bus_fault_hot In1 ocp_kelvin_p / n_ls
@@ -83,7 +83,8 @@ ASSERT_TRANSFER = {n: (lambda at: True) for n in ("ct_zc", "pwm_hb", "pwm_ha", "
 TRANSFER_MM = 3.0
 MAX_TRANSITIONS = {"pwm_hb": 7, "ct_zc": 1}
 # stage 19b's dedicated transfer caps must reach both planes through their own vias
-XFER_CAPS, XFER_VIA_MM = ("C153", "C154", "C155", "C156"), 1.6
+# stage 44 (candidate 44): the seven SELV-line transfer caps C169-C175 are held to the same rule
+XFER_CAPS, XFER_VIA_MM = ("C153", "C154", "C155", "C156", "C169", "C170", "C171", "C172", "C173", "C174", "C175"), 1.6
 STEP, SKIP, COPLANAR_GAP, BROADSIDE_GAP, MAX_GAP = 0.25, 0.6, 0.3, 0.5, 1.5
 CONTROL_DIST = {"pwm_hb": [54.39, 37.45, 21.24], "ct_zc": [37.50]}
 CONTROL_CROSS = (119.0, 75.2)

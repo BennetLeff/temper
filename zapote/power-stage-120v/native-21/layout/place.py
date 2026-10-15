@@ -535,6 +535,12 @@ for leg, q, side in (("leg_b", "leg_b.q_high", "h"), ("leg_b", "leg_b.q_low", "l
     assert (round(x, 3), y, ang) == (round(GATE[q] - 2.7, 3), 12.1, 90), (leg, side, POSE[f"{leg}.r_g{side}_pd"])
     POSE[f"{leg}.r_g{side}_pd"] = (round(x - 0.5, 3), 11.6, 270.0 if (leg, side) == ("leg_a", "h") else ang)
 
+# Stage 44 (candidate 44, SELV-spine lane): the seven SELV return-path transfer caps C169-C175 (c_ref_xfer_6..12);
+# their poses and plane vias are patches21.S44_CAPS (one source for the part and its copper).
+from patches21 import S44_CAPS  # noqa: E402
+for _ref, (path, cx, cy, ang, _v1, _v2) in S44_CAPS.items():
+    POSE[path] = (cx, cy, ang)
+
 missing = sorted(set(PARTS) - set(POSE))
 if missing:
     raise SystemExit(f"{len(missing)} unplaced: {missing}")
