@@ -48,4 +48,5 @@ summary. The `$` column is the per-board effect at 500 where a record computes o
 ## C. Supplier inquiries already drafted (separate recipients)
 - JLC laminate / CTI: `08-manufacturing-package/native-21/sourcing/inquiries/CTI-JLC.md`. It names the 4-layer stack
   JLC041622-7628; if the six-layer study is adopted, re-ask for the 6-layer stack.
+- Resonant bank (candidate 34): TDK B32643B8104J000 stock, lead time and taped MOQ for 2,500 pcs (5 per board x 500); JLC C3781430 and Avnet show 0, MOQ 2,080 untaped. Evidence: `11-candidates/c34-bank-margin/README.md`.
 - Blocked-part samples: `08-manufacturing-package/native-21/sourcing/inquiries/SAMPLES-BLOCKED-PARTS.md`.
