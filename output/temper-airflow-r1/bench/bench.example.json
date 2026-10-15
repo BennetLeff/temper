@@ -1,0 +1,64 @@
+{
+ "_doc": "Copy to bench.json and edit. Every *_u value is a STANDARD (1 sigma) uncertainty. fit.py zero writes tc_offsets_K; fit.py gap writes G_gap_W_K / G_gap_u_rel; the INA226 gains and r_lead_ohm come from the DMM checks (PROCEDURE.md B).",
+ "tc_channels": {
+  "T_p1": 0,
+  "T_p2": 1,
+  "T_p3": 2,
+  "T_g1": 3,
+  "T_g2": 4,
+  "T_air": 5,
+  "T_exit": 6
+ },
+ "plate_tcs": [
+  "T_p1",
+  "T_p2",
+  "T_p3"
+ ],
+ "guard_tcs": [
+  "T_g1",
+  "T_g2"
+ ],
+ "jet_air_tc": "T_air",
+ "exit_air_tc": "T_exit",
+ "tc_offsets_K": {},
+ "tc_offset_u_K": 0.03,
+ "tc_gain_u_rel": 0.002,
+ "rref_ohm": 430.0,
+ "ina226": {
+  "r_shunt_ohm": 0.1,
+  "i_gain": 1.0,
+  "v_gain": 1.0
+ },
+ "power_u_rel": 0.003,
+ "r_lead_ohm": 0.03,
+ "dp_zero_Pa": 0.0,
+ "dp_u_rel": 0.015,
+ "dp_u_abs_Pa": 0.05,
+ "plate": {
+  "area_m2": 0.001485,
+  "area_u_rel": 0.004,
+  "C_J_K": 16.0,
+  "C_u_rel": 0.05,
+  "tc_depth_m": 0.001,
+  "k_W_mK": 167.0
+ },
+ "eps_plate": 0.08,
+ "eps_u": 0.04,
+ "G_gap_W_K": 0.1345,
+ "G_gap_u_rel": 0.3,
+ "guard": {
+  "heater_ohm": 20.0,
+  "supply_V": 12.0,
+  "kp_W_per_K": 1.5,
+  "ki_W_per_Ks": 0.02
+ },
+ "jet": {
+  "D_m": 0.003,
+  "N": 8,
+  "Cd": 0.65,
+  "Cd_u": 0.05
+ },
+ "flow_u_rel": 0.02,
+ "H_u_mm": 0.1,
+ "product_strip_u_K": 10.0
+}

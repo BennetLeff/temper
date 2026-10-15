@@ -1,0 +1,27 @@
+{
+ "parse_max_abs_error": {
+  "tc0": 0.002,
+  "tc3": 0.001562,
+  "tc5": 0.002875,
+  "i_A": 0.0,
+  "v_bus_V": 0.0005,
+  "dp_Pa": 0.000833,
+  "pt100_C": 0.002138
+ },
+ "parse_tolerance": {
+  "tc0": 0.004,
+  "tc3": 0.004,
+  "tc5": 0.004,
+  "i_A": 1e-05,
+  "v_bus_V": 0.000625,
+  "dp_Pa": 0.005,
+  "pt100_C": 0.02
+ },
+ "rows": 6,
+ "faults_seen": [
+  "tc1 SR=0x01"
+ ],
+ "pi_settle_s_to_0.05K": 329,
+ "pi_final_error_K": 0.0,
+ "pass": true
+}

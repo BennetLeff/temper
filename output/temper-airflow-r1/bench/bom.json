@@ -1,0 +1,343 @@
+{
+ "scope": "Jet bench BOM (temper-airflow-r1/bench): lean kit to measure the R45 jet box's board-face h.\n\n    python3 bom.py        -> bom.json and a markdown table on stdout\n\nAll prices are ESTIMATES (USD, single quantity, before shipping and tax), not quotes. JLCCNC parts: quote online\nfrom cad/plate.step and cad/guard_tray.step. Kinds:\n  buy              must buy for this kit\n  shared_sensor    already on the sensor-r3 lean order (output/temper-sensor-r3/bench/bom.py); the jet bench reuses\n                   the same logger, so order once and run both benches on one day\n  shared_enclosure the R45 enclosure bench (HANDOFF A1/A3) needs the same part; buy once\n  own_or_borrow    assumed on hand (counted 0)\n  optional         improves the result; RIG.md says by how much",
+ "rows": [
+  {
+   "group": "plate",
+   "item": "Test plate",
+   "part": "6061-T6, 90 x 16.5 x 3.0 mm, top fine-milled, 3 x D1.0 x 2.0 blind holes (cad/plate.step, JLCCNC)",
+   "qty": 1,
+   "est_unit_usd": 20,
+   "est_usd": 20,
+   "note": "the strip, area-averaged h",
+   "kind": "buy"
+  },
+  {
+   "group": "plate",
+   "item": "Guard tray",
+   "part": "6061-T6 per cad/guard_tray.step (JLCCNC)",
+   "qty": 1,
+   "est_unit_usd": 35,
+   "est_usd": 35,
+   "note": "nulls back and edge losses",
+   "kind": "buy"
+  },
+  {
+   "group": "plate",
+   "item": "Heaters",
+   "part": "TO-220 thick-film power resistor 10 ohm 1 % 20-35 W, isolated tab (Bourns PWR220T-20-10R0F class)",
+   "qty": 6,
+   "est_unit_usd": 3,
+   "est_usd": 18,
+   "note": "2 plate + 2 guard + 2 spare",
+   "kind": "buy"
+  },
+  {
+   "group": "plate",
+   "item": "Over-temperature cut-outs",
+   "part": "KSD9700 bimetal thermostat, 70 C, normally closed, 5-pack",
+   "qty": 1,
+   "est_unit_usd": 6,
+   "est_usd": 6,
+   "note": "one in each heater circuit (XPS limit 75 C)",
+   "kind": "buy"
+  },
+  {
+   "group": "plate",
+   "item": "Thermal adhesive",
+   "part": "electrically insulating thermally conductive epoxy (MG Chemicals 8329TCM / Arctic Alumina class)",
+   "qty": 1,
+   "est_unit_usd": 15,
+   "est_usd": 15,
+   "note": "heaters, thermocouples, lead anchors",
+   "kind": "buy"
+  },
+  {
+   "group": "plate",
+   "item": "Gap seal",
+   "part": "high-temperature RTV silicone, small tube",
+   "qty": 1,
+   "est_unit_usd": 8,
+   "est_usd": 8,
+   "note": "1 mm plate-guard seam",
+   "kind": "buy"
+  },
+  {
+   "group": "plate",
+   "item": "Supports and fixings",
+   "part": "nylon M3 x 6 set screws (4) + M3/M2 screw assortment",
+   "qty": 1,
+   "est_unit_usd": 8,
+   "est_usd": 8,
+   "note": "plate height set flush",
+   "kind": "buy"
+  },
+  {
+   "group": "plate",
+   "item": "Insulation",
+   "part": "XPS foam board, 50 mm (or 2 x 25 mm), ~250 x 150 mm offcut",
+   "qty": 1,
+   "est_unit_usd": 15,
+   "est_usd": 15,
+   "note": "under the deck and tray",
+   "kind": "buy"
+  },
+  {
+   "group": "sense",
+   "item": "Thermocouples",
+   "part": "type-K, 36 AWG, special limits, PFA insulated exposed junction, 1 m, 5-pack, one lot (Omega 5TC-TT-K-36-36 class)",
+   "qty": 1,
+   "est_unit_usd": 45,
+   "est_usd": 45,
+   "note": "plate x3, guard x2 from one lot",
+   "kind": "buy"
+  },
+  {
+   "group": "sense",
+   "item": "Thermocouple converters",
+   "part": "MAX31856 breakout (generic or Adafruit 3263)",
+   "qty": 5,
+   "est_unit_usd": 8,
+   "est_usd": 40,
+   "note": "+ the sensor kit's one = 6 channels",
+   "kind": "buy"
+  },
+  {
+   "group": "sense",
+   "item": "Heater power monitor",
+   "part": "INA226 breakout, 0.1 ohm shunt (I2C)",
+   "qty": 1,
+   "est_unit_usd": 6,
+   "est_usd": 6,
+   "note": "V and I of the plate heater",
+   "kind": "buy"
+  },
+  {
+   "group": "sense",
+   "item": "Manifold pressure",
+   "part": "Sensirion SDP810-125Pa differential pressure sensor (I2C)",
+   "qty": 1,
+   "est_unit_usd": 40,
+   "est_usd": 40,
+   "note": "the set variable; 3 % of reading",
+   "kind": "buy"
+  },
+  {
+   "group": "sense",
+   "item": "Tubing",
+   "part": "silicone tube 3 mm ID x 1 m + 1/8 in (3.2 mm) OD brass tube 50 mm",
+   "qty": 1,
+   "est_unit_usd": 10,
+   "est_usd": 10,
+   "note": "tap to sensor",
+   "kind": "buy"
+  },
+  {
+   "group": "sense",
+   "item": "Hood air reference",
+   "part": "Pt100 class A 4-wire probe, 3 mm sheath",
+   "qty": 1,
+   "est_unit_usd": 12,
+   "est_usd": 12,
+   "note": "on the shared MAX31865; the zero reference",
+   "kind": "buy"
+  },
+  {
+   "group": "drive",
+   "item": "Guard switch",
+   "part": "logic-level MOSFET module (AOD4184 / D4184 class, 3.3 V gate)",
+   "qty": 1,
+   "est_unit_usd": 3,
+   "est_usd": 3,
+   "note": "GPIO 7 PWM",
+   "kind": "buy"
+  },
+  {
+   "group": "drive",
+   "item": "Blower trim",
+   "part": "adjustable buck converter module with V/A display",
+   "qty": 1,
+   "est_unit_usd": 8,
+   "est_usd": 8,
+   "note": "sets the blower volts",
+   "kind": "buy"
+  },
+  {
+   "group": "drive",
+   "item": "12 V supply",
+   "part": "12 V 2 A adapter",
+   "qty": 1,
+   "est_unit_usd": 10,
+   "est_usd": 10,
+   "note": "blower + guard heater",
+   "kind": "buy"
+  },
+  {
+   "group": "tools",
+   "item": "Jet drill",
+   "part": "D3.0 mm HSS jobber drill (new) + pin vise",
+   "qty": 1,
+   "est_unit_usd": 8,
+   "est_usd": 8,
+   "note": "printed jets opened to D3.0 by hand",
+   "kind": "buy"
+  },
+  {
+   "group": "tools",
+   "item": "Height gauges",
+   "part": "D5.9 / 6.0 / 6.1 mm HSS drills (shanks as go/no-go pins)",
+   "qty": 1,
+   "est_unit_usd": 8,
+   "est_usd": 8,
+   "note": "jet floor 6.0 +-0.1 mm",
+   "kind": "buy"
+  },
+  {
+   "group": "logger",
+   "item": "ESP32-S3 devkit",
+   "part": "as sensor-r3 lean",
+   "qty": 1,
+   "est_unit_usd": 15,
+   "est_usd": 15,
+   "note": "",
+   "kind": "shared_sensor"
+  },
+  {
+   "group": "logger",
+   "item": "Pt100 converter",
+   "part": "Adafruit 3328 MAX31865",
+   "qty": 1,
+   "est_unit_usd": 15,
+   "est_usd": 15,
+   "note": "",
+   "kind": "shared_sensor"
+  },
+  {
+   "group": "logger",
+   "item": "Thermocouple converter",
+   "part": "MAX31856 module",
+   "qty": 1,
+   "est_unit_usd": 8,
+   "est_usd": 8,
+   "note": "channel 0 here",
+   "kind": "shared_sensor"
+  },
+  {
+   "group": "logger",
+   "item": "Type-K beads",
+   "part": "2-pack",
+   "qty": 1,
+   "est_unit_usd": 10,
+   "est_usd": 10,
+   "note": "jet-air and exit-air channels",
+   "kind": "shared_sensor"
+  },
+  {
+   "group": "air",
+   "item": "Blower",
+   "part": "Delta BFB1012VH-F00 (the product blower)",
+   "qty": 1,
+   "est_unit_usd": 25,
+   "est_usd": 25,
+   "note": "same part for the enclosure A1/A3 bench",
+   "kind": "shared_enclosure"
+  },
+  {
+   "group": "own",
+   "item": "Plate heater supply",
+   "part": "bench DC supply 0-30 V 1 A (or a second buck module from a 19-24 V brick)",
+   "qty": 1,
+   "est_unit_usd": 0,
+   "est_usd": 0,
+   "note": "",
+   "kind": "own_or_borrow"
+  },
+  {
+   "group": "own",
+   "item": "DMM",
+   "part": "4.5 digit or better",
+   "qty": 1,
+   "est_unit_usd": 0,
+   "est_usd": 0,
+   "note": "INA226 gain check",
+   "kind": "own_or_borrow"
+  },
+  {
+   "group": "own",
+   "item": "Caliper, straightedge, feeler gauges",
+   "part": "",
+   "qty": 1,
+   "est_unit_usd": 0,
+   "est_usd": 0,
+   "note": "",
+   "kind": "own_or_borrow"
+  },
+  {
+   "group": "own",
+   "item": "3D printer + PETG/ASA",
+   "part": "or a print service",
+   "qty": 1,
+   "est_unit_usd": 0,
+   "est_usd": 0,
+   "note": "cad/*.stl",
+   "kind": "own_or_borrow"
+  },
+  {
+   "group": "own",
+   "item": "Scale 0.01 g",
+   "part": "the sensor kit's milligram scale",
+   "qty": 1,
+   "est_unit_usd": 0,
+   "est_usd": 0,
+   "note": "plate heat capacity",
+   "kind": "own_or_borrow"
+  },
+  {
+   "group": "own",
+   "item": "Laptop, USB cable, soldering iron",
+   "part": "",
+   "qty": 1,
+   "est_unit_usd": 0,
+   "est_usd": 0,
+   "note": "",
+   "kind": "own_or_borrow"
+  },
+  {
+   "group": "opt",
+   "item": "Flow meter",
+   "part": "thermal mass flow meter for air, 0-30 SLPM, +-2-3 % of reading, low pressure drop, display (Siargo MF5700-series class)",
+   "qty": 1,
+   "est_unit_usd": 60,
+   "est_usd": 60,
+   "note": "measured Cd: U95 3.4 % -> 2.0 % (selftest.json)",
+   "kind": "optional"
+  },
+  {
+   "group": "opt",
+   "item": "Exit-air channel",
+   "part": "MAX31856 breakout",
+   "qty": 1,
+   "est_unit_usd": 8,
+   "est_usd": 8,
+   "note": "energy-balance check only",
+   "kind": "optional"
+  }
+ ],
+ "must_buy_est_usd": 315,
+ "shared_sensor_est_usd": 48,
+ "shared_enclosure_est_usd": 25,
+ "optional_est_usd": 68,
+ "must_buy_by_group_usd": {
+  "drive": 21,
+  "plate": 125,
+  "sense": 153,
+  "tools": 16
+ },
+ "assumes_owned": [
+  "Plate heater supply",
+  "DMM",
+  "Caliper, straightedge, feeler gauges",
+  "3D printer + PETG/ASA",
+  "Scale 0.01 g",
+  "Laptop, USB cable, soldering iron"
+ ]
+}
