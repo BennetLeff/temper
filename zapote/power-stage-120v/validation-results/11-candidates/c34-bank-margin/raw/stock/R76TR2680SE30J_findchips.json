@@ -1,0 +1,74 @@
+{
+ "source": "findchips.com aggregator (rows from Avnet Americas / Newark)",
+ "url": "https://www.findchips.com/search/R76TR2680SE30J",
+ "fetched_utc": "2026-10-15T00:30:40Z",
+ "mpn": "R76TR2680SE30J",
+ "stock": {
+  "Newark": 0,
+  "Avnet Americas": 0
+ },
+ "price_breaks": [
+  {
+   "distributor": "Newark",
+   "disti_pn": "92AC5977",
+   "matched_mpn": "R76TR2680SE30J",
+   "stock": 0,
+   "min_qty": 816,
+   "currency": "CAD",
+   "price_breaks": [
+    [
+     816,
+     1.86
+    ],
+    [
+     1632,
+     1.52
+    ],
+    [
+     2448,
+     1.4
+    ],
+    [
+     4080,
+     1.29
+    ],
+    [
+     8160,
+     1.14
+    ]
+   ],
+   "price_at_500": "n/a (MOQ 816)"
+  },
+  {
+   "distributor": "Avnet Americas",
+   "matched_mpn": "R76TR2680SE30J",
+   "stock": 0,
+   "min_qty": 2448,
+   "lead_time": "31 weeks",
+   "currency": "USD",
+   "price_breaks": [
+    [
+     2448,
+     0.9312
+    ],
+    [
+     4896,
+     0.9265
+    ],
+    [
+     9792,
+     0.9218
+    ],
+    [
+     19584,
+     0.9171
+    ],
+    [
+     39168,
+     0.9124
+    ]
+   ],
+   "price_at_500": "n/a (MOQ 2448)"
+  }
+ ]
+}

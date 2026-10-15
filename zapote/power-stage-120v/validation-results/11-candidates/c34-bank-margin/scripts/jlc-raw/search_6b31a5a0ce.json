@@ -1,0 +1,317 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 2,
+   "list": [
+    {
+     "componentId": 4350714,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "47nF \u00b15% 700V 2kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r76ur24704030j_C3783048.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7831
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.7831
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 335,
+       "productPrice": 0.7831
+      },
+      {
+       "startNumber": 336,
+       "endNumber": 671,
+       "productPrice": 0.3035
+      },
+      {
+       "startNumber": 672,
+       "endNumber": 1007,
+       "productPrice": 0.2921
+      },
+      {
+       "startNumber": 1008,
+       "endNumber": -1,
+       "productPrice": 0.2872
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1008,
+       "endNumber": -1,
+       "productPrice": 0.2766
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.7543
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7543
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 335,
+       "productPrice": 0.7543
+      },
+      {
+       "startNumber": 672,
+       "endNumber": 1007,
+       "productPrice": 0.2813
+      },
+      {
+       "startNumber": 336,
+       "endNumber": 671,
+       "productPrice": 0.2923
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76UR24704030J/C3783048",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 336,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 12,
+     "minPurchaseNum": 12,
+     "initialPrice": 0.7831,
+     "componentCode": "C3783048",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76UR24704030J",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161138_KEMET-R76UR24704030J_C3783048.pdf",
+     "dataManualFileAccessId": "8590339698385321984",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76UR24704030J",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-55\u2103~+110\u2103 47nF 700V\u30012kV \u00b15% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "700V\u30012kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "47nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76UR2470</span>4030J",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21247450,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Film Capacitors",
+     "erpComponentName": "R76UR2470SE30K",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/film-capacitors_kemet-r76ur2470se30k_C19919855.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.416
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.416
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 2.416
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 559,
+       "productPrice": 0.9642
+      },
+      {
+       "startNumber": 560,
+       "endNumber": 1119,
+       "productPrice": 0.9315
+      },
+      {
+       "startNumber": 1120,
+       "endNumber": -1,
+       "productPrice": 0.9169
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 560,
+       "endNumber": 1119,
+       "productPrice": 0.8974
+      },
+      {
+       "startNumber": 1120,
+       "endNumber": -1,
+       "productPrice": 0.8832
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.3274
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 2.3274
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.3274
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 559,
+       "productPrice": 0.9288
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "abdb7141dee34ebf83c317f56a600047",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76UR2470SE30K/C19919855",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 560,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.416,
+     "componentCode": "C19919855",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76UR2470SE30K",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2401151903_KEMET-R76UR2470SE30K_C19919855.pdf",
+     "dataManualFileAccessId": "8603696581854453760",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76UR2470SE30K",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "- Film Capacitors ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Film Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76UR2470</span>SE30K",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "R76UR2470"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-15T00:36:17Z"
+}

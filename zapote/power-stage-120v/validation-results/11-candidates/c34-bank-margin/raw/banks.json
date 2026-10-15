@@ -1,0 +1,224 @@
+{
+ "_about": "Candidate banks scored by scripts/bank_margin.py. spec = [[part id from raw/parts_*.json, count], ...].",
+ "banks": [
+  {
+   "label": "10 x B32654A1473J (0.47 uF)",
+   "spec": [
+    [
+     "tdk_a1473j",
+     10
+    ]
+   ]
+  },
+  {
+   "label": "7 x B32654A1683J (0.476 uF)",
+   "spec": [
+    [
+     "tdk_a1683j",
+     7
+    ]
+   ],
+   "note": "68 nF curve is an ESTIMATE (interpolated)"
+  },
+  {
+   "label": "6 x B32654A1104J (0.60 uF)",
+   "spec": [
+    [
+     "tdk_a1104j",
+     6
+    ]
+   ]
+  },
+  {
+   "label": "3 x B32654A1154J (0.45 uF)",
+   "spec": [
+    [
+     "tdk_a1154j",
+     3
+    ]
+   ]
+  },
+  {
+   "label": "1 x A1104J + 3 x A1154J (0.55 uF)",
+   "spec": [
+    [
+     "tdk_a1104j",
+     1
+    ],
+    [
+     "tdk_a1154j",
+     3
+    ]
+   ]
+  },
+  {
+   "label": "2 x B32654A1224J (0.44 uF)",
+   "spec": [
+    [
+     "tdk_a1224j",
+     2
+    ]
+   ]
+  },
+  {
+   "label": "2 x A1224J + 1 x A1104J (0.54 uF)",
+   "spec": [
+    [
+     "tdk_a1224j",
+     2
+    ],
+    [
+     "tdk_a1104j",
+     1
+    ]
+   ]
+  },
+  {
+   "label": "5 x B32654A2104J (2000 V, 0.50 uF)",
+   "spec": [
+    [
+     "tdk_a2104j",
+     5
+    ]
+   ]
+  },
+  {
+   "label": "7 x B32654A2683J (2000 V, 0.476 uF)",
+   "spec": [
+    [
+     "tdk_a2683j",
+     7
+    ]
+   ]
+  },
+  {
+   "label": "10 x B32654A2473J (2000 V, 0.47 uF)",
+   "spec": [
+    [
+     "tdk_a2473j",
+     10
+    ]
+   ]
+  },
+  {
+   "label": "5 x B32643B8104J (2000 V, 22.5 mm, 0.50 uF)",
+   "spec": [
+    [
+     "tdk_b8104j",
+     5
+    ]
+   ]
+  },
+  {
+   "label": "6 x B32643B8823J (2000 V, 22.5 mm, 0.492 uF)",
+   "spec": [
+    [
+     "tdk_b8823j",
+     6
+    ]
+   ]
+  },
+  {
+   "label": "7 x B32643B8683J (2000 V, 22.5 mm, 0.476 uF)",
+   "spec": [
+    [
+     "tdk_b8683j",
+     7
+    ]
+   ]
+  },
+  {
+   "label": "4 x B32643B8124J (2000 V, 22.5 mm, 0.48 uF)",
+   "spec": [
+    [
+     "tdk_b8124j",
+     4
+    ]
+   ]
+  },
+  {
+   "label": "4 x B32643B8104J + 1 x B32643B8823J (0.482 uF)",
+   "spec": [
+    [
+     "tdk_b8104j",
+     4
+    ],
+    [
+     "tdk_b8823j",
+     1
+    ]
+   ]
+  },
+  {
+   "label": "4 x B32643B8124J + 1 x B32643B8683J (0.548 uF)",
+   "spec": [
+    [
+     "tdk_b8124j",
+     4
+    ],
+    [
+     "tdk_b8683j",
+     1
+    ]
+   ]
+  },
+  {
+   "label": "5 x R76UR3100SE30J (KEMET 2000 V, 0.50 uF)",
+   "spec": [
+    [
+     "kem_ur3100j",
+     5
+    ]
+   ]
+  },
+  {
+   "label": "10 x R76UR2470SE30J (KEMET 2000 V, 0.47 uF)",
+   "spec": [
+    [
+     "kem_ur2470j",
+     10
+    ]
+   ]
+  },
+  {
+   "label": "6 x R76UR2820SE40J (KEMET 2000 V, 0.492 uF)",
+   "spec": [
+    [
+     "kem_ur2820j",
+     6
+    ]
+   ],
+   "note": "82 nF unplotted: ESR-model ESTIMATE"
+  },
+  {
+   "label": "7 x R76TR2680SE30J (KEMET 1600 V, 0.476 uF)",
+   "spec": [
+    [
+     "kem_tr2680j",
+     7
+    ]
+   ],
+   "note": "68 nF unplotted: ESR-model ESTIMATE"
+  },
+  {
+   "label": "8 x R76TR2680SE30J (KEMET 1600 V, 0.544 uF)",
+   "spec": [
+    [
+     "kem_tr2680j",
+     8
+    ]
+   ],
+   "note": "68 nF unplotted: ESR-model ESTIMATE"
+  },
+  {
+   "label": "6 x R76TR2820SE30J (KEMET 1600 V, 0.492 uF)",
+   "spec": [
+    [
+     "kem_tr2820j",
+     6
+    ]
+   ],
+   "note": "82 nF unplotted: ESR-model ESTIMATE"
+  }
+ ]
+}

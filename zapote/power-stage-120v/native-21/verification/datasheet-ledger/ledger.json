@@ -2198,7 +2198,7 @@
      "parameter": "I tank allowed @35kHz",
      "datasheet_limit": 26.8,
      "unit": "A",
-     "basis": "worst-share part (+/-10 %), 85 C, TDK current curve; repo digitisation after K->J change",
+     "basis": "worst-share part (+/-5 % J share; the K basis was +/-10 %), 85 C, TDK current curve; repo digitisation after K->J change",
      "source": "DECISIONS.md:853"
     },
     {

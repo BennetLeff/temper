@@ -1,0 +1,5743 @@
+{
+ "inputs": {
+  "copper.json": "d6f55dfedcd8b83f9260c41a7d3ed5091c9d02b8ee14db4f178d720b2a55bc63",
+  "pads.json": "008cd7bb6d8e18f08cc325ec2d2585af8dd8d9d15e57ea783065fd3a92d2d112",
+  "parts.json": "44fcd079fb067e266f8d30029c82e7a8aba162f947ff737d6a72a34f6f0f4079",
+  "placement.json": "c5ca5bc5a71f99d68e11ac8479e98612a6098311f35de8f642257716cf5b6a6e",
+  "r43_catalog": "aca70907b7c8f45467a8abb1de5fad460410ad626cdc3493231c13981e9ddf6e"
+ },
+ "bank": {
+  "pin_pitch_mm": 27.5,
+  "rows_y": [
+   53.2,
+   67.7,
+   82.5,
+   97.0,
+   111.5
+  ],
+  "row_pitch_mm": [
+   14.5,
+   14.8,
+   14.5,
+   14.5
+  ],
+  "courtyards": {
+   "C21": [
+    160.5,
+    46.0,
+    193.0,
+    60.4
+   ],
+   "C22": [
+    160.5,
+    60.5,
+    193.0,
+    74.9
+   ],
+   "C23": [
+    160.5,
+    75.3,
+    193.0,
+    89.7
+   ],
+   "C151": [
+    160.5,
+    89.8,
+    193.0,
+    104.2
+   ],
+   "C152": [
+    160.5,
+    104.3,
+    193.0,
+    118.7
+   ]
+  },
+  "column_bbox": [
+   160.5,
+   46.0,
+   193.0,
+   118.7
+  ],
+  "column_length_mm": 72.7,
+  "column_width_mm": 32.5
+ },
+ "neighbours": [
+  {
+   "ref": "R22",
+   "courtyard": [
+    155.675,
+    39.825,
+    160.325,
+    42.175
+   ],
+   "side": "left",
+   "gap_mm": 3.83
+  },
+  {
+   "ref": "R23",
+   "courtyard": [
+    165.675,
+    39.825,
+    170.325,
+    42.175
+   ],
+   "side": "above",
+   "gap_mm": 3.83
+  },
+  {
+   "ref": "R24",
+   "courtyard": [
+    175.675,
+    39.825,
+    180.325,
+    42.175
+   ],
+   "side": "above",
+   "gap_mm": 3.83
+  },
+  {
+   "ref": "R25",
+   "courtyard": [
+    185.675,
+    39.825,
+    190.325,
+    42.175
+   ],
+   "side": "above",
+   "gap_mm": 3.83
+  },
+  {
+   "ref": "C5",
+   "courtyard": [
+    202.705,
+    58.805,
+    245.295,
+    92.395
+   ],
+   "side": "right",
+   "gap_mm": 9.71
+  },
+  {
+   "ref": "J6",
+   "courtyard": [
+    146.205,
+    131.665,
+    173.795,
+    137.335
+   ],
+   "side": "below",
+   "gap_mm": 12.96
+  },
+  {
+   "ref": "PS1",
+   "courtyard": [
+    206.505,
+    112.105,
+    259.495,
+    139.895
+   ],
+   "side": "right",
+   "gap_mm": 13.5
+  },
+  {
+   "ref": "T1",
+   "courtyard": [
+    123.205,
+    93.655,
+    146.795,
+    126.345
+   ],
+   "side": "left",
+   "gap_mm": 13.71
+  },
+  {
+   "ref": "PS2",
+   "courtyard": [
+    160.005,
+    0.105,
+    212.995,
+    27.895
+   ],
+   "side": "above",
+   "gap_mm": 18.11
+  },
+  {
+   "ref": "R42",
+   "courtyard": [
+    136.72,
+    129.0,
+    141.37,
+    131.35
+   ],
+   "side": "left",
+   "gap_mm": 19.13
+  },
+  {
+   "ref": "C3",
+   "courtyard": [
+    213.705,
+    100.005,
+    226.295,
+    105.595
+   ],
+   "side": "right",
+   "gap_mm": 20.71
+  },
+  {
+   "ref": "C4",
+   "courtyard": [
+    213.705,
+    106.305,
+    226.295,
+    111.895
+   ],
+   "side": "right",
+   "gap_mm": 20.71
+  },
+  {
+   "ref": "L1",
+   "courtyard": [
+    213.955,
+    28.455,
+    260.045,
+    58.545
+   ],
+   "side": "right",
+   "gap_mm": 20.96
+  },
+  {
+   "ref": "U36",
+   "courtyard": [
+    214.305,
+    92.655,
+    225.695,
+    97.345
+   ],
+   "side": "right",
+   "gap_mm": 21.31
+  },
+  {
+   "ref": "J2",
+   "courtyard": [
+    126.915,
+    80.415,
+    137.085,
+    90.585
+   ],
+   "side": "left",
+   "gap_mm": 23.41
+  },
+  {
+   "ref": "J5",
+   "courtyard": [
+    126.915,
+    65.415,
+    137.085,
+    75.585
+   ],
+   "side": "left",
+   "gap_mm": 23.41
+  },
+  {
+   "ref": "R39",
+   "courtyard": [
+    131.47,
+    129.0,
+    136.12,
+    131.35
+   ],
+   "side": "left",
+   "gap_mm": 24.38
+  }
+ ],
+ "control_today_pads_hard_margin_min_mm": 0.1,
+ "column_scan_summary": {
+  "res_a_x163.0": {
+   "last_clear_pin_y_below": 113.5,
+   "blocked_by_below": "line_zc_raw B.Cu track/via",
+   "last_clear_pin_y_above": 48.0,
+   "blocked_by_above": "crbleed_1 F.Cu pad R22"
+  },
+  "sw_b_x190.5": {
+   "last_clear_pin_y_below": 111.5,
+   "blocked_by_below": "line_zc_raw B.Cu track/via",
+   "last_clear_pin_y_above": 48.0,
+   "blocked_by_above": "crbleed_3 F.Cu pad R25"
+  },
+  "res_a_x168.0": {
+   "last_clear_pin_y_below": 113.5,
+   "blocked_by_below": "line_zc_raw B.Cu track/via",
+   "last_clear_pin_y_above": 48.5,
+   "blocked_by_above": "crbleed_1 F.Cu pad R23"
+  },
+  "sw_b_x185.5": {
+   "last_clear_pin_y_below": 111.5,
+   "blocked_by_below": "line_zc_raw B.Cu track/via",
+   "last_clear_pin_y_above": 48.5,
+   "blocked_by_above": "crbleed_3 F.Cu pad R25"
+  }
+ },
+ "column_scan": {
+  "res_a_x163.0": [
+   {
+    "y": 30.0,
+    "hard_margin_mm": -2.1,
+    "hard_by": "n_filt F.Cu pad PS2",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 0.6,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 30.5,
+    "hard_margin_mm": -1.6,
+    "hard_by": "n_filt F.Cu pad PS2",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 0.1,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 31.0,
+    "hard_margin_mm": -1.1,
+    "hard_by": "n_filt F.Cu pad PS2",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -0.4,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 31.5,
+    "hard_margin_mm": -0.6,
+    "hard_by": "n_filt F.Cu pad PS2",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -0.9,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 32.0,
+    "hard_margin_mm": -0.1,
+    "hard_by": "n_filt F.Cu pad PS2",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -1.4,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 32.5,
+    "hard_margin_mm": 0.4,
+    "hard_by": "n_filt F.Cu pad PS2",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -1.9,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 33.0,
+    "hard_margin_mm": 0.9,
+    "hard_by": "n_filt F.Cu pad PS2",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -2.4,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 33.5,
+    "hard_margin_mm": 0.71,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -2.9,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 34.0,
+    "hard_margin_mm": 0.24,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -3.4,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 34.5,
+    "hard_margin_mm": -0.23,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -3.9,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 35.0,
+    "hard_margin_mm": -0.69,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -4.4,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 35.5,
+    "hard_margin_mm": -1.14,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -4.9,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 36.0,
+    "hard_margin_mm": -1.58,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 36.5,
+    "hard_margin_mm": -1.99,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 37.0,
+    "hard_margin_mm": -2.4,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 37.5,
+    "hard_margin_mm": -2.9,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 38.0,
+    "hard_margin_mm": -3.4,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 38.5,
+    "hard_margin_mm": -3.9,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 39.0,
+    "hard_margin_mm": -4.4,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 39.5,
+    "hard_margin_mm": -4.9,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 40.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 40.5,
+    "hard_margin_mm": -4.7,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 41.0,
+    "hard_margin_mm": -5.2,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 41.5,
+    "hard_margin_mm": -4.7,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 42.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 42.5,
+    "hard_margin_mm": -4.9,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 43.0,
+    "hard_margin_mm": -4.4,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 43.5,
+    "hard_margin_mm": -3.9,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 44.0,
+    "hard_margin_mm": -3.4,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 44.5,
+    "hard_margin_mm": -2.9,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 45.0,
+    "hard_margin_mm": -2.4,
+    "hard_by": "crbleed_1 F.Cu track/via",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 45.5,
+    "hard_margin_mm": -1.99,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 46.0,
+    "hard_margin_mm": -1.58,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 46.5,
+    "hard_margin_mm": -1.14,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 47.0,
+    "hard_margin_mm": -0.69,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 47.5,
+    "hard_margin_mm": -0.23,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 48.0,
+    "hard_margin_mm": 0.24,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 48.5,
+    "hard_margin_mm": 0.71,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 50.0,
+    "hard_margin_mm": 2.15,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 52.0,
+    "hard_margin_mm": 4.1,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -4.7,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -4.2,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 54.0,
+    "hard_margin_mm": 6.07,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -2.7,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -2.2,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 56.0,
+    "hard_margin_mm": 8.05,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": -0.7,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -0.2,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 58.0,
+    "hard_margin_mm": 10.03,
+    "hard_by": "crbleed_1 F.Cu pad R22",
+    "zone_margin_mm": 1.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 1.8,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 60.0,
+    "hard_margin_mm": 8.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 3.8,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 62.0,
+    "hard_margin_mm": 6.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 5.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 64.0,
+    "hard_margin_mm": 4.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 7.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 66.0,
+    "hard_margin_mm": 2.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 9.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 68.0,
+    "hard_margin_mm": 0.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 11.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 68.5,
+    "hard_margin_mm": 0.1,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 11.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 69.0,
+    "hard_margin_mm": -0.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 12.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 69.5,
+    "hard_margin_mm": -0.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 12.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 70.0,
+    "hard_margin_mm": -1.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 13.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 70.5,
+    "hard_margin_mm": -1.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 13.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 71.0,
+    "hard_margin_mm": -2.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 14.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 71.5,
+    "hard_margin_mm": -2.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 14.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 72.0,
+    "hard_margin_mm": -3.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 15.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 72.5,
+    "hard_margin_mm": -3.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 15.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 73.0,
+    "hard_margin_mm": -4.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 16.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 73.5,
+    "hard_margin_mm": -4.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 16.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 74.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 17.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 74.5,
+    "hard_margin_mm": -4.9,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 17.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 75.0,
+    "hard_margin_mm": -5.2,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 18.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 75.5,
+    "hard_margin_mm": -4.7,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 18.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 76.0,
+    "hard_margin_mm": -5.2,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 19.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 76.5,
+    "hard_margin_mm": -4.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 19.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 77.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 20.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 77.5,
+    "hard_margin_mm": -4.9,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 20.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 78.0,
+    "hard_margin_mm": -4.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 21.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 78.5,
+    "hard_margin_mm": -3.9,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 21.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 79.0,
+    "hard_margin_mm": -3.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 22.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 79.5,
+    "hard_margin_mm": -2.9,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 22.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 80.0,
+    "hard_margin_mm": -2.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 23.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 80.5,
+    "hard_margin_mm": -1.9,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 23.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 81.0,
+    "hard_margin_mm": -1.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 24.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 81.5,
+    "hard_margin_mm": -0.9,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 24.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 82.0,
+    "hard_margin_mm": -0.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 25.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 82.5,
+    "hard_margin_mm": 0.1,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 25.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 83.0,
+    "hard_margin_mm": 0.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 26.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 84.0,
+    "hard_margin_mm": 1.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 27.06,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 86.0,
+    "hard_margin_mm": 3.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 25.44,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 88.0,
+    "hard_margin_mm": 5.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 23.86,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 90.0,
+    "hard_margin_mm": 7.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 22.33,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 92.0,
+    "hard_margin_mm": 9.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 20.86,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 94.0,
+    "hard_margin_mm": 11.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 19.06,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 96.0,
+    "hard_margin_mm": 13.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 17.06,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 98.0,
+    "hard_margin_mm": 13.82,
+    "hard_by": "sw_a F.Cu pad T1",
+    "zone_margin_mm": 15.07,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 100.0,
+    "hard_margin_mm": 13.57,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 13.08,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 102.0,
+    "hard_margin_mm": 11.57,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 11.09,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 4.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 104.0,
+    "hard_margin_mm": 9.57,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 9.1,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 4.49,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 106.0,
+    "hard_margin_mm": 7.57,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 7.11,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 4.96,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 108.0,
+    "hard_margin_mm": 5.57,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 5.12,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 5.79,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 110.0,
+    "hard_margin_mm": 3.57,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 3.15,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 6.9,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 112.0,
+    "hard_margin_mm": 1.57,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 1.18,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 8.22,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 113.0,
+    "hard_margin_mm": 0.57,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 0.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 8.94,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 113.5,
+    "hard_margin_mm": 0.07,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -0.29,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 9.32,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 114.0,
+    "hard_margin_mm": -0.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -0.77,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 9.7,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 114.5,
+    "hard_margin_mm": -0.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -1.26,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 10.09,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 115.0,
+    "hard_margin_mm": -1.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -1.74,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 10.48,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 115.5,
+    "hard_margin_mm": -1.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -2.21,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 10.88,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 116.0,
+    "hard_margin_mm": -2.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -2.69,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 11.29,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 116.5,
+    "hard_margin_mm": -2.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -3.15,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 11.7,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 117.0,
+    "hard_margin_mm": -3.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -3.61,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 12.11,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 117.5,
+    "hard_margin_mm": -3.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -4.06,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 12.53,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 118.0,
+    "hard_margin_mm": -4.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -4.5,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 12.96,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 118.5,
+    "hard_margin_mm": -4.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -4.92,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.38,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 119.0,
+    "hard_margin_mm": -5.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -5.31,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.82,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 119.5,
+    "hard_margin_mm": -5.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -5.66,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.25,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 120.0,
+    "hard_margin_mm": -6.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -5.94,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.69,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 120.5,
+    "hard_margin_mm": -6.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.13,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 15.13,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 121.0,
+    "hard_margin_mm": -7.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 15.57,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 121.5,
+    "hard_margin_mm": -7.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 16.02,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 122.0,
+    "hard_margin_mm": -8.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 16.47,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 122.5,
+    "hard_margin_mm": -8.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 16.92,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 123.0,
+    "hard_margin_mm": -9.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 17.37,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 123.5,
+    "hard_margin_mm": -9.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 17.83,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 124.0,
+    "hard_margin_mm": -10.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.28,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 124.5,
+    "hard_margin_mm": -10.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.74,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 125.0,
+    "hard_margin_mm": -11.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.2,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 125.5,
+    "hard_margin_mm": -11.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.66,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 126.0,
+    "hard_margin_mm": -12.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 20.12,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 126.5,
+    "hard_margin_mm": -12.52,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 20.59,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 127.0,
+    "hard_margin_mm": -12.4,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 21.05,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 127.5,
+    "hard_margin_mm": -12.72,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 21.52,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 128.0,
+    "hard_margin_mm": -12.22,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 21.99,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 128.5,
+    "hard_margin_mm": -12.7,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -6.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 22.46,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 129.0,
+    "hard_margin_mm": -12.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -7.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 22.93,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 129.5,
+    "hard_margin_mm": -12.5,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -7.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 23.35,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 130.0,
+    "hard_margin_mm": -12.6,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 23.62,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 130.5,
+    "hard_margin_mm": -12.1,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 23.9,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 131.0,
+    "hard_margin_mm": -11.6,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 24.19,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 131.5,
+    "hard_margin_mm": -12.0,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 24.48,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 132.0,
+    "hard_margin_mm": -12.26,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 24.78,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 132.5,
+    "hard_margin_mm": -12.26,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 25.08,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 133.0,
+    "hard_margin_mm": -12.6,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 25.39,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 133.5,
+    "hard_margin_mm": -12.7,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 25.71,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 134.0,
+    "hard_margin_mm": -12.4,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 26.02,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 134.5,
+    "hard_margin_mm": -12.9,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 26.35,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 135.0,
+    "hard_margin_mm": -12.4,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 26.67,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 135.5,
+    "hard_margin_mm": -12.7,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 27.01,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 136.0,
+    "hard_margin_mm": -12.6,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 27.34,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 136.5,
+    "hard_margin_mm": -12.26,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 27.68,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 137.0,
+    "hard_margin_mm": -12.26,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 28.03,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 137.5,
+    "hard_margin_mm": -12.0,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 28.38,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 138.0,
+    "hard_margin_mm": -11.54,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 28.73,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 138.5,
+    "hard_margin_mm": -11.06,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 29.09,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 139.0,
+    "hard_margin_mm": -10.57,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 29.44,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 139.5,
+    "hard_margin_mm": -10.08,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 29.81,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 140.0,
+    "hard_margin_mm": -9.58,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 30.17,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   }
+  ],
+  "sw_b_x190.5": [
+   {
+    "y": 30.0,
+    "hard_margin_mm": 4.19,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 26.23,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 32.0,
+    "hard_margin_mm": 2.27,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 24.94,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 33.5,
+    "hard_margin_mm": 0.85,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 24.02,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 34.0,
+    "hard_margin_mm": 0.39,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 23.73,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 34.5,
+    "hard_margin_mm": -0.06,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 23.44,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 35.0,
+    "hard_margin_mm": -0.5,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 23.15,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 35.5,
+    "hard_margin_mm": -0.93,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 22.87,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 36.0,
+    "hard_margin_mm": -1.34,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 22.6,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 36.5,
+    "hard_margin_mm": -1.73,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 22.34,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 37.0,
+    "hard_margin_mm": -2.08,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 22.08,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 37.5,
+    "hard_margin_mm": -2.38,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 21.83,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 38.0,
+    "hard_margin_mm": -2.61,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 21.58,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 38.5,
+    "hard_margin_mm": -2.76,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 21.35,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 39.0,
+    "hard_margin_mm": -2.8,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 21.12,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 39.5,
+    "hard_margin_mm": -2.8,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 20.9,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 40.0,
+    "hard_margin_mm": -2.8,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 20.68,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 40.5,
+    "hard_margin_mm": -2.8,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 20.48,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 41.0,
+    "hard_margin_mm": -2.8,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 20.28,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 41.5,
+    "hard_margin_mm": -2.8,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 20.09,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 42.0,
+    "hard_margin_mm": -2.8,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 19.91,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 42.5,
+    "hard_margin_mm": -2.8,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 19.73,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 43.0,
+    "hard_margin_mm": -2.8,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 19.57,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 43.5,
+    "hard_margin_mm": -2.76,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 19.42,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 44.0,
+    "hard_margin_mm": -2.61,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 19.27,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 44.5,
+    "hard_margin_mm": -2.38,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 19.14,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 45.0,
+    "hard_margin_mm": -2.08,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 19.01,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 45.5,
+    "hard_margin_mm": -1.73,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.9,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 46.0,
+    "hard_margin_mm": -1.34,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.79,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 46.5,
+    "hard_margin_mm": -0.93,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.69,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 47.0,
+    "hard_margin_mm": -0.5,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.61,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 47.5,
+    "hard_margin_mm": -0.06,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.53,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 48.0,
+    "hard_margin_mm": 0.39,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.47,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 48.5,
+    "hard_margin_mm": 0.85,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.41,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 50.0,
+    "hard_margin_mm": 2.27,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.31,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 52.0,
+    "hard_margin_mm": 4.19,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -2.9,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 54.0,
+    "hard_margin_mm": 6.14,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -0.9,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 56.0,
+    "hard_margin_mm": 8.11,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": 1.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 58.0,
+    "hard_margin_mm": 9.88,
+    "hard_by": "bus_p F.Cu pad C5",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 60.0,
+    "hard_margin_mm": 9.28,
+    "hard_by": "bus_p F.Cu pad C5",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 62.0,
+    "hard_margin_mm": 8.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 64.0,
+    "hard_margin_mm": 6.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 66.0,
+    "hard_margin_mm": 4.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 68.0,
+    "hard_margin_mm": 2.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 69.5,
+    "hard_margin_mm": 0.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 70.0,
+    "hard_margin_mm": 0.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 70.5,
+    "hard_margin_mm": -0.1,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 71.0,
+    "hard_margin_mm": -0.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 71.5,
+    "hard_margin_mm": -1.1,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 72.0,
+    "hard_margin_mm": -1.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 72.5,
+    "hard_margin_mm": -2.1,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 73.0,
+    "hard_margin_mm": -2.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 73.5,
+    "hard_margin_mm": -3.1,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 74.0,
+    "hard_margin_mm": -3.2,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 74.5,
+    "hard_margin_mm": -3.1,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 75.0,
+    "hard_margin_mm": -3.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 75.5,
+    "hard_margin_mm": -2.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 76.0,
+    "hard_margin_mm": -3.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 76.5,
+    "hard_margin_mm": -3.1,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 77.0,
+    "hard_margin_mm": -3.2,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 77.5,
+    "hard_margin_mm": -3.1,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 78.0,
+    "hard_margin_mm": -2.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 78.5,
+    "hard_margin_mm": -2.1,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 79.0,
+    "hard_margin_mm": -1.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 79.5,
+    "hard_margin_mm": -1.1,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 80.0,
+    "hard_margin_mm": -0.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 80.5,
+    "hard_margin_mm": -0.1,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 81.0,
+    "hard_margin_mm": 0.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 81.5,
+    "hard_margin_mm": 0.9,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 82.0,
+    "hard_margin_mm": 1.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 84.0,
+    "hard_margin_mm": 3.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 86.0,
+    "hard_margin_mm": 5.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 88.0,
+    "hard_margin_mm": 7.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 3.47,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 90.0,
+    "hard_margin_mm": 9.06,
+    "hard_by": "bus_p F.Cu pad C5",
+    "zone_margin_mm": 4.37,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 92.0,
+    "hard_margin_mm": 9.49,
+    "hard_by": "bus_p F.Cu pad C5",
+    "zone_margin_mm": 5.64,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 94.0,
+    "hard_margin_mm": 10.2,
+    "hard_by": "bus_p F.Cu pad C5",
+    "zone_margin_mm": 7.14,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 96.0,
+    "hard_margin_mm": 9.85,
+    "hard_by": "line_zc_raw F.Cu track/via",
+    "zone_margin_mm": 8.79,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 98.0,
+    "hard_margin_mm": 9.38,
+    "hard_by": "line_zc_raw F.Cu track/via",
+    "zone_margin_mm": 9.1,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 100.0,
+    "hard_margin_mm": 9.12,
+    "hard_by": "line_zc_raw F.Cu track/via",
+    "zone_margin_mm": 9.1,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 102.0,
+    "hard_margin_mm": 9.05,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 9.1,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 104.0,
+    "hard_margin_mm": 7.94,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 9.1,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 106.0,
+    "hard_margin_mm": 5.94,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 9.1,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 108.0,
+    "hard_margin_mm": 3.94,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 9.07,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 110.0,
+    "hard_margin_mm": 1.94,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 7.89,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 111.0,
+    "hard_margin_mm": 0.94,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 7.37,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 111.5,
+    "hard_margin_mm": 0.44,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 7.12,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 112.0,
+    "hard_margin_mm": -0.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 6.89,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 112.5,
+    "hard_margin_mm": -0.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 6.67,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 113.0,
+    "hard_margin_mm": -1.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 6.47,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 113.5,
+    "hard_margin_mm": -1.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 6.28,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 114.0,
+    "hard_margin_mm": -2.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 6.11,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 114.5,
+    "hard_margin_mm": -2.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 5.95,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 115.0,
+    "hard_margin_mm": -3.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 5.81,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.32,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 115.5,
+    "hard_margin_mm": -3.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 5.68,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.34,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 116.0,
+    "hard_margin_mm": -4.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 5.57,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.38,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 116.5,
+    "hard_margin_mm": -4.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 5.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.42,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 117.0,
+    "hard_margin_mm": -5.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 4.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.48,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 117.5,
+    "hard_margin_mm": -5.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 4.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.55,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 118.0,
+    "hard_margin_mm": -6.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 3.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.62,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 118.5,
+    "hard_margin_mm": -6.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 3.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.71,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 119.0,
+    "hard_margin_mm": -7.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 2.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.81,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 119.5,
+    "hard_margin_mm": -7.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 2.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.92,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 120.0,
+    "hard_margin_mm": -8.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 1.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.04,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 120.5,
+    "hard_margin_mm": -7.69,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 1.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.16,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 121.0,
+    "hard_margin_mm": -7.86,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 0.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 121.5,
+    "hard_margin_mm": -7.89,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 0.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.45,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 122.0,
+    "hard_margin_mm": -7.8,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -0.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.6,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 122.5,
+    "hard_margin_mm": -8.1,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -0.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.77,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 123.0,
+    "hard_margin_mm": -7.6,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -1.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.94,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 123.5,
+    "hard_margin_mm": -8.1,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -1.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 20.12,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 124.0,
+    "hard_margin_mm": -7.8,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -2.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 20.32,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 124.5,
+    "hard_margin_mm": -7.9,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -2.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 20.52,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 125.0,
+    "hard_margin_mm": -8.0,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -3.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 20.72,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 125.5,
+    "hard_margin_mm": -7.5,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -3.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 20.94,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 126.0,
+    "hard_margin_mm": -7.0,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -4.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 21.16,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 126.5,
+    "hard_margin_mm": -6.5,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -4.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 21.39,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 127.0,
+    "hard_margin_mm": -6.0,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -5.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 21.63,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 127.5,
+    "hard_margin_mm": -5.5,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -5.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 21.88,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 128.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 22.13,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 128.5,
+    "hard_margin_mm": -4.5,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -6.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 22.39,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 129.0,
+    "hard_margin_mm": -4.0,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -7.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 22.66,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 129.5,
+    "hard_margin_mm": -4.3,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -7.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 22.93,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 130.0,
+    "hard_margin_mm": -4.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 23.21,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 130.5,
+    "hard_margin_mm": -5.3,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 23.49,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 131.0,
+    "hard_margin_mm": -5.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 23.78,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 131.5,
+    "hard_margin_mm": -6.3,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 24.08,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 132.0,
+    "hard_margin_mm": -6.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 24.38,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 132.5,
+    "hard_margin_mm": -7.3,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 24.69,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 133.0,
+    "hard_margin_mm": -7.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 25.0,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 133.5,
+    "hard_margin_mm": -7.9,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 25.32,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 134.0,
+    "hard_margin_mm": -7.6,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 25.64,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 134.5,
+    "hard_margin_mm": -8.1,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 25.97,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 135.0,
+    "hard_margin_mm": -7.6,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 26.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 135.5,
+    "hard_margin_mm": -7.9,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 26.64,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 136.0,
+    "hard_margin_mm": -7.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 26.98,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 136.5,
+    "hard_margin_mm": -7.3,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 27.32,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 137.0,
+    "hard_margin_mm": -6.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 27.67,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 137.5,
+    "hard_margin_mm": -6.3,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 28.02,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 138.0,
+    "hard_margin_mm": -5.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 28.38,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 138.5,
+    "hard_margin_mm": -5.3,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 28.74,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 139.0,
+    "hard_margin_mm": -4.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 29.1,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 139.5,
+    "hard_margin_mm": -4.3,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 29.47,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 140.0,
+    "hard_margin_mm": -3.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 29.84,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   }
+  ],
+  "res_a_x168.0": [
+   {
+    "y": 30.0,
+    "hard_margin_mm": -1.69,
+    "hard_by": "n_filt F.Cu pad PS2",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 0.6,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 30.5,
+    "hard_margin_mm": -1.24,
+    "hard_by": "n_filt F.Cu pad PS2",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 0.1,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 31.0,
+    "hard_margin_mm": -0.78,
+    "hard_by": "n_filt F.Cu pad PS2",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -0.4,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 31.5,
+    "hard_margin_mm": -0.32,
+    "hard_by": "n_filt F.Cu pad PS2",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -0.9,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 32.0,
+    "hard_margin_mm": 0.15,
+    "hard_by": "n_filt F.Cu pad PS2",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -1.4,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 32.5,
+    "hard_margin_mm": 0.63,
+    "hard_by": "n_filt F.Cu pad PS2",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -1.9,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 33.0,
+    "hard_margin_mm": 0.92,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -2.4,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 33.5,
+    "hard_margin_mm": 0.42,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -2.9,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 34.0,
+    "hard_margin_mm": -0.08,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -3.4,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 34.5,
+    "hard_margin_mm": -0.58,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -3.9,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 35.0,
+    "hard_margin_mm": -1.08,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -4.4,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 35.5,
+    "hard_margin_mm": -1.58,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -4.9,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 36.0,
+    "hard_margin_mm": -2.08,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 36.5,
+    "hard_margin_mm": -2.58,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 37.0,
+    "hard_margin_mm": -3.08,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 37.5,
+    "hard_margin_mm": -3.58,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 38.0,
+    "hard_margin_mm": -4.08,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 38.5,
+    "hard_margin_mm": -4.58,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 39.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 39.5,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 40.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 40.5,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 41.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 41.5,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 42.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 42.5,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 43.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 43.5,
+    "hard_margin_mm": -4.58,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 44.0,
+    "hard_margin_mm": -4.08,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 44.5,
+    "hard_margin_mm": -3.58,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 45.0,
+    "hard_margin_mm": -3.08,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 45.5,
+    "hard_margin_mm": -2.58,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 46.0,
+    "hard_margin_mm": -2.08,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 46.5,
+    "hard_margin_mm": -1.58,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 47.0,
+    "hard_margin_mm": -1.08,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 47.5,
+    "hard_margin_mm": -0.58,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 48.0,
+    "hard_margin_mm": -0.08,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 48.5,
+    "hard_margin_mm": 0.42,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 49.0,
+    "hard_margin_mm": 0.92,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 50.0,
+    "hard_margin_mm": 1.92,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -5.0,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -5.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 52.0,
+    "hard_margin_mm": 3.92,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -4.7,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -4.2,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 54.0,
+    "hard_margin_mm": 5.92,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -2.7,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -2.2,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 56.0,
+    "hard_margin_mm": 7.92,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": -0.7,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": -0.2,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 58.0,
+    "hard_margin_mm": 9.92,
+    "hard_by": "crbleed_1 F.Cu pad R23",
+    "zone_margin_mm": 1.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 1.8,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 60.0,
+    "hard_margin_mm": 8.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 3.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 3.8,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 62.0,
+    "hard_margin_mm": 6.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 5.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 5.8,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 64.0,
+    "hard_margin_mm": 4.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 7.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 7.8,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 66.0,
+    "hard_margin_mm": 2.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 9.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 68.0,
+    "hard_margin_mm": 0.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 11.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 68.5,
+    "hard_margin_mm": 0.1,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 11.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 69.0,
+    "hard_margin_mm": -0.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 12.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 69.5,
+    "hard_margin_mm": -0.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 12.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 70.0,
+    "hard_margin_mm": -1.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 13.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 70.5,
+    "hard_margin_mm": -1.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 13.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 71.0,
+    "hard_margin_mm": -2.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 14.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 71.5,
+    "hard_margin_mm": -2.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 14.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 72.0,
+    "hard_margin_mm": -3.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 15.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 72.5,
+    "hard_margin_mm": -3.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 15.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 73.0,
+    "hard_margin_mm": -4.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 16.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 73.5,
+    "hard_margin_mm": -4.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 16.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 74.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 17.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 74.5,
+    "hard_margin_mm": -4.9,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 17.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 75.0,
+    "hard_margin_mm": -5.2,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 18.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 75.5,
+    "hard_margin_mm": -4.7,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 18.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 76.0,
+    "hard_margin_mm": -5.2,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 19.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 76.5,
+    "hard_margin_mm": -4.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 19.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 77.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 20.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 77.5,
+    "hard_margin_mm": -4.9,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 20.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 78.0,
+    "hard_margin_mm": -4.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 21.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 78.5,
+    "hard_margin_mm": -3.9,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 21.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 79.0,
+    "hard_margin_mm": -3.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 22.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 79.5,
+    "hard_margin_mm": -2.9,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 22.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 80.0,
+    "hard_margin_mm": -2.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 23.3,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 80.5,
+    "hard_margin_mm": -1.9,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 23.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 81.0,
+    "hard_margin_mm": -1.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 23.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 81.5,
+    "hard_margin_mm": -0.9,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 23.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 82.0,
+    "hard_margin_mm": -0.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 23.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 82.5,
+    "hard_margin_mm": 0.1,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 23.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 83.0,
+    "hard_margin_mm": 0.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 23.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 84.0,
+    "hard_margin_mm": 1.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 23.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 86.0,
+    "hard_margin_mm": 3.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 23.8,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 88.0,
+    "hard_margin_mm": 5.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 23.88,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 90.0,
+    "hard_margin_mm": 7.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 23.74,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 92.0,
+    "hard_margin_mm": 9.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 21.79,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 94.0,
+    "hard_margin_mm": 11.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 19.84,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 96.0,
+    "hard_margin_mm": 13.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 17.91,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 98.0,
+    "hard_margin_mm": 13.85,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 15.98,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 100.0,
+    "hard_margin_mm": 12.21,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 14.07,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 102.0,
+    "hard_margin_mm": 10.63,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 12.18,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 9.4,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 104.0,
+    "hard_margin_mm": 9.12,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 10.31,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 9.46,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 106.0,
+    "hard_margin_mm": 7.57,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 8.47,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 9.77,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 108.0,
+    "hard_margin_mm": 5.57,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 6.67,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 10.34,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 110.0,
+    "hard_margin_mm": 3.57,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 4.93,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 11.14,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 112.0,
+    "hard_margin_mm": 1.57,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 3.28,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 12.14,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 113.0,
+    "hard_margin_mm": 0.57,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 2.5,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 12.7,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 113.5,
+    "hard_margin_mm": 0.07,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 2.12,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.0,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 114.0,
+    "hard_margin_mm": -0.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 1.76,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 114.5,
+    "hard_margin_mm": -0.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 1.41,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.62,
+    "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+   },
+   {
+    "y": 115.0,
+    "hard_margin_mm": -1.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 1.07,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.82,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 115.5,
+    "hard_margin_mm": -1.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 0.75,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.85,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 116.0,
+    "hard_margin_mm": -2.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 0.44,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.9,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 116.5,
+    "hard_margin_mm": -2.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 0.15,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.95,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 117.0,
+    "hard_margin_mm": -3.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -0.11,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.02,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 117.5,
+    "hard_margin_mm": -3.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -0.35,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.1,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 118.0,
+    "hard_margin_mm": -4.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -0.57,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.2,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 118.5,
+    "hard_margin_mm": -4.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -0.76,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.31,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 119.0,
+    "hard_margin_mm": -5.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -0.91,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.43,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 119.5,
+    "hard_margin_mm": -5.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -1.04,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.56,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 120.0,
+    "hard_margin_mm": -6.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -1.13,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.7,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 120.5,
+    "hard_margin_mm": -6.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -1.18,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.86,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 121.0,
+    "hard_margin_mm": -7.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -1.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 15.03,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 121.5,
+    "hard_margin_mm": -7.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -1.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 15.2,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 122.0,
+    "hard_margin_mm": -8.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -1.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 15.39,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 122.5,
+    "hard_margin_mm": -8.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -1.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 15.59,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 123.0,
+    "hard_margin_mm": -9.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -1.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 15.8,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 123.5,
+    "hard_margin_mm": -9.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -1.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 16.02,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 124.0,
+    "hard_margin_mm": -10.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -2.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 16.25,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 124.5,
+    "hard_margin_mm": -10.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -2.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 16.48,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 125.0,
+    "hard_margin_mm": -11.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -3.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 16.73,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 125.5,
+    "hard_margin_mm": -11.93,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -3.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 16.99,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 126.0,
+    "hard_margin_mm": -12.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -4.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 17.25,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 126.5,
+    "hard_margin_mm": -12.52,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -4.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 17.52,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 127.0,
+    "hard_margin_mm": -12.4,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -5.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 17.8,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 127.5,
+    "hard_margin_mm": -12.72,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -5.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.09,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 128.0,
+    "hard_margin_mm": -12.22,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.38,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 128.5,
+    "hard_margin_mm": -12.7,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -6.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.68,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 129.0,
+    "hard_margin_mm": -12.43,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": -7.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.99,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 129.5,
+    "hard_margin_mm": -12.5,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -7.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.3,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 130.0,
+    "hard_margin_mm": -12.6,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.62,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 130.5,
+    "hard_margin_mm": -12.1,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.95,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 131.0,
+    "hard_margin_mm": -11.6,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 20.28,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 131.5,
+    "hard_margin_mm": -12.1,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 20.62,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 132.0,
+    "hard_margin_mm": -12.6,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 20.96,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 132.5,
+    "hard_margin_mm": -12.6,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 21.31,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 133.0,
+    "hard_margin_mm": -12.6,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 21.66,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 133.5,
+    "hard_margin_mm": -12.6,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 22.01,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 134.0,
+    "hard_margin_mm": -12.6,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 22.38,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 134.5,
+    "hard_margin_mm": -12.7,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 22.74,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 135.0,
+    "hard_margin_mm": -12.6,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 23.11,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 135.5,
+    "hard_margin_mm": -12.6,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 23.49,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 136.0,
+    "hard_margin_mm": -12.6,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 23.86,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 136.5,
+    "hard_margin_mm": -12.6,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 24.24,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 137.0,
+    "hard_margin_mm": -12.6,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 24.63,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 137.5,
+    "hard_margin_mm": -12.1,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 25.02,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 138.0,
+    "hard_margin_mm": -11.6,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 25.41,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 138.5,
+    "hard_margin_mm": -11.1,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 25.8,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 139.0,
+    "hard_margin_mm": -10.6,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 26.2,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 139.5,
+    "hard_margin_mm": -10.1,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 26.6,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   },
+   {
+    "y": 140.0,
+    "hard_margin_mm": -9.6,
+    "hard_by": "pe F.Cu pad J6",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 27.0,
+    "tank_pour_by": "sw_b B.Cu zone 'sw_b leg B-C21..C23'"
+   }
+  ],
+  "sw_b_x185.5": [
+   {
+    "y": 30.0,
+    "hard_margin_mm": 3.93,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 22.7,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 32.0,
+    "hard_margin_mm": 1.92,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 21.24,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 33.0,
+    "hard_margin_mm": 0.92,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 20.53,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 33.5,
+    "hard_margin_mm": 0.42,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 20.18,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 34.0,
+    "hard_margin_mm": -0.08,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 19.84,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 34.5,
+    "hard_margin_mm": -0.58,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 19.51,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 35.0,
+    "hard_margin_mm": -1.08,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 19.18,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 35.5,
+    "hard_margin_mm": -1.58,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.85,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 36.0,
+    "hard_margin_mm": -2.08,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.54,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 36.5,
+    "hard_margin_mm": -2.58,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 18.22,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 37.0,
+    "hard_margin_mm": -3.08,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 17.92,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 37.5,
+    "hard_margin_mm": -3.58,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 17.62,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 38.0,
+    "hard_margin_mm": -4.08,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 17.33,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 38.5,
+    "hard_margin_mm": -4.58,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 17.05,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 39.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 16.77,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 39.5,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 16.51,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 40.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 16.25,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 40.5,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 16.0,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 41.0,
+    "hard_margin_mm": -5.2,
+    "hard_by": "crbleed_3 F.Cu track/via",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 15.76,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 41.5,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 15.53,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 42.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 15.31,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 42.5,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 15.09,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 43.0,
+    "hard_margin_mm": -5.0,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 14.89,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 43.5,
+    "hard_margin_mm": -4.58,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 14.7,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 44.0,
+    "hard_margin_mm": -4.08,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 14.52,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 44.5,
+    "hard_margin_mm": -3.58,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 14.35,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 45.0,
+    "hard_margin_mm": -3.08,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 14.2,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 45.5,
+    "hard_margin_mm": -2.58,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 14.05,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 46.0,
+    "hard_margin_mm": -2.08,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.92,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 46.5,
+    "hard_margin_mm": -1.58,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.8,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 47.0,
+    "hard_margin_mm": -1.08,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.69,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 47.5,
+    "hard_margin_mm": -0.58,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.6,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 48.0,
+    "hard_margin_mm": -0.08,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.51,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 48.5,
+    "hard_margin_mm": 0.42,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.44,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 49.0,
+    "hard_margin_mm": 0.92,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.39,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 50.0,
+    "hard_margin_mm": 1.92,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -3.2,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.32,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 52.0,
+    "hard_margin_mm": 3.92,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -2.9,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 54.0,
+    "hard_margin_mm": 5.92,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": -0.9,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 56.0,
+    "hard_margin_mm": 7.92,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": 1.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 58.0,
+    "hard_margin_mm": 9.92,
+    "hard_by": "crbleed_3 F.Cu pad R25",
+    "zone_margin_mm": 3.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 60.0,
+    "hard_margin_mm": 10.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 5.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 62.0,
+    "hard_margin_mm": 8.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 7.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 64.0,
+    "hard_margin_mm": 6.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 66.0,
+    "hard_margin_mm": 4.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 68.0,
+    "hard_margin_mm": 2.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 69.5,
+    "hard_margin_mm": 0.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 70.0,
+    "hard_margin_mm": 0.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 70.5,
+    "hard_margin_mm": -0.1,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 71.0,
+    "hard_margin_mm": -0.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 71.5,
+    "hard_margin_mm": -1.1,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 72.0,
+    "hard_margin_mm": -1.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 72.5,
+    "hard_margin_mm": -2.1,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 73.0,
+    "hard_margin_mm": -2.6,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 73.5,
+    "hard_margin_mm": -3.1,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 74.0,
+    "hard_margin_mm": -3.2,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 74.5,
+    "hard_margin_mm": -3.1,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 75.0,
+    "hard_margin_mm": -3.4,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 75.5,
+    "hard_margin_mm": -2.9,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 76.0,
+    "hard_margin_mm": -3.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 76.5,
+    "hard_margin_mm": -3.1,
+    "hard_by": "n_ls In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 77.0,
+    "hard_margin_mm": -3.2,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 77.5,
+    "hard_margin_mm": -3.1,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 78.0,
+    "hard_margin_mm": -2.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 78.5,
+    "hard_margin_mm": -2.1,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 79.0,
+    "hard_margin_mm": -1.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 79.5,
+    "hard_margin_mm": -1.1,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 80.0,
+    "hard_margin_mm": -0.6,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 80.5,
+    "hard_margin_mm": -0.1,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 81.0,
+    "hard_margin_mm": 0.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 81.5,
+    "hard_margin_mm": 0.9,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 82.0,
+    "hard_margin_mm": 1.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 84.0,
+    "hard_margin_mm": 3.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 86.0,
+    "hard_margin_mm": 5.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.1,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 88.0,
+    "hard_margin_mm": 7.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.31,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 90.0,
+    "hard_margin_mm": 9.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 8.86,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 92.0,
+    "hard_margin_mm": 11.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 9.69,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 94.0,
+    "hard_margin_mm": 13.4,
+    "hard_by": "v24_raw In1.Cu track/via",
+    "zone_margin_mm": 10.76,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 96.0,
+    "hard_margin_mm": 14.68,
+    "hard_by": "line_zc_raw F.Cu track/via",
+    "zone_margin_mm": 12.02,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 98.0,
+    "hard_margin_mm": 13.94,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 13.43,
+    "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 100.0,
+    "hard_margin_mm": 11.94,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 14.1,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 102.0,
+    "hard_margin_mm": 9.94,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 14.1,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 104.0,
+    "hard_margin_mm": 7.94,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 14.1,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 106.0,
+    "hard_margin_mm": 5.94,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 14.1,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 108.0,
+    "hard_margin_mm": 3.94,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 13.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 110.0,
+    "hard_margin_mm": 1.94,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 11.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 111.0,
+    "hard_margin_mm": 0.94,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 10.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 111.5,
+    "hard_margin_mm": 0.44,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 10.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 112.0,
+    "hard_margin_mm": -0.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 9.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 112.5,
+    "hard_margin_mm": -0.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 9.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 113.0,
+    "hard_margin_mm": -1.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 8.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 113.5,
+    "hard_margin_mm": -1.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 8.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 114.0,
+    "hard_margin_mm": -2.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 7.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 114.5,
+    "hard_margin_mm": -2.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 7.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 115.0,
+    "hard_margin_mm": -3.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 6.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.32,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 115.5,
+    "hard_margin_mm": -3.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 6.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.35,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 116.0,
+    "hard_margin_mm": -4.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 5.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.4,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 116.5,
+    "hard_margin_mm": -4.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 5.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.46,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 117.0,
+    "hard_margin_mm": -5.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 4.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.53,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 117.5,
+    "hard_margin_mm": -5.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 4.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.61,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 118.0,
+    "hard_margin_mm": -6.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 3.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.71,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 118.5,
+    "hard_margin_mm": -6.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 3.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.82,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 119.0,
+    "hard_margin_mm": -7.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 2.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 13.94,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 119.5,
+    "hard_margin_mm": -7.56,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 2.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.08,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 120.0,
+    "hard_margin_mm": -8.06,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 1.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.23,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 120.5,
+    "hard_margin_mm": -7.69,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 1.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.39,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 121.0,
+    "hard_margin_mm": -7.86,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 0.8,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.56,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 121.5,
+    "hard_margin_mm": -7.89,
+    "hard_by": "line_zc_raw B.Cu track/via",
+    "zone_margin_mm": 0.3,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.74,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 122.0,
+    "hard_margin_mm": -7.8,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -0.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 14.93,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 122.5,
+    "hard_margin_mm": -8.1,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -0.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 15.14,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 123.0,
+    "hard_margin_mm": -7.85,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -1.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 15.35,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 123.5,
+    "hard_margin_mm": -8.2,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -1.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 15.57,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 124.0,
+    "hard_margin_mm": -7.85,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -2.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 15.81,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 124.5,
+    "hard_margin_mm": -8.06,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -2.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 16.05,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 125.0,
+    "hard_margin_mm": -8.0,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -3.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 16.3,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 125.5,
+    "hard_margin_mm": -7.92,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -3.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 16.56,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 126.0,
+    "hard_margin_mm": -8.13,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -4.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 16.83,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 126.5,
+    "hard_margin_mm": -7.78,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -4.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 17.11,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 127.0,
+    "hard_margin_mm": -8.13,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -5.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 17.39,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 127.5,
+    "hard_margin_mm": -7.92,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -5.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 17.68,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 128.0,
+    "hard_margin_mm": -7.56,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -6.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 17.98,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 128.5,
+    "hard_margin_mm": -7.21,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -6.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.29,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 129.0,
+    "hard_margin_mm": -6.86,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -7.2,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.6,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 129.5,
+    "hard_margin_mm": -6.5,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -7.7,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 18.92,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 130.0,
+    "hard_margin_mm": -6.15,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.24,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 130.5,
+    "hard_margin_mm": -5.8,
+    "hard_by": "v15_selv B.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.57,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 131.0,
+    "hard_margin_mm": -5.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 19.91,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 131.5,
+    "hard_margin_mm": -6.3,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 20.25,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 132.0,
+    "hard_margin_mm": -6.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 20.6,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 132.5,
+    "hard_margin_mm": -7.3,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 20.95,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 133.0,
+    "hard_margin_mm": -7.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 21.31,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 133.5,
+    "hard_margin_mm": -7.9,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 21.67,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 134.0,
+    "hard_margin_mm": -7.6,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 22.04,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 134.5,
+    "hard_margin_mm": -8.1,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 22.41,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 135.0,
+    "hard_margin_mm": -7.6,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 22.78,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 135.5,
+    "hard_margin_mm": -7.9,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 23.16,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 136.0,
+    "hard_margin_mm": -7.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 23.54,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 136.5,
+    "hard_margin_mm": -7.3,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 23.92,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 137.0,
+    "hard_margin_mm": -6.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 24.31,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 137.5,
+    "hard_margin_mm": -6.3,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 24.71,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 138.0,
+    "hard_margin_mm": -5.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 25.1,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 138.5,
+    "hard_margin_mm": -5.3,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 25.5,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 139.0,
+    "hard_margin_mm": -4.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 25.9,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 139.5,
+    "hard_margin_mm": -4.3,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 26.31,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   },
+   {
+    "y": 140.0,
+    "hard_margin_mm": -3.8,
+    "hard_by": "pe F.Cu track/via",
+    "zone_margin_mm": -8.0,
+    "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+    "tank_pour_outline_margin_mm": 26.71,
+    "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+   }
+  ]
+ },
+ "pitch_scan": {
+  "res_a_row53.2": {
+   "last_clear_x": 140.5,
+   "blocked_at_x": null
+  },
+  "res_a_row67.7": {
+   "last_clear_x": 155.5,
+   "blocked_at_x": 155.0,
+   "hard_margin_mm": -0.41,
+   "hard_by": "n_ls In1.Cu track/via",
+   "zone_margin_mm": 11.0,
+   "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+   "tank_pour_outline_margin_mm": -3.6,
+   "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+  },
+  "res_a_row82.5": {
+   "last_clear_x": 143.0,
+   "blocked_at_x": 142.5,
+   "hard_margin_mm": -0.23,
+   "hard_by": "coil_feed F.Cu pad J2",
+   "zone_margin_mm": 13.3,
+   "zone_by": "n_ls In1.Cu zone 'n_ls LS block'",
+   "tank_pour_outline_margin_mm": -5.0,
+   "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+  },
+  "res_a_row97.0": {
+   "last_clear_x": 149.5,
+   "blocked_at_x": 149.0,
+   "hard_margin_mm": -0.18,
+   "hard_by": "sw_a F.Cu pad T1",
+   "zone_margin_mm": 8.9,
+   "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+   "tank_pour_outline_margin_mm": -5.0,
+   "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+  },
+  "res_a_row111.5": {
+   "last_clear_x": 154.0,
+   "blocked_at_x": 153.5,
+   "hard_margin_mm": -0.1,
+   "hard_by": "ct_s2 F.Cu pad T1",
+   "zone_margin_mm": 1.5,
+   "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+   "tank_pour_outline_margin_mm": 3.8,
+   "tank_pour_by": "sw_a F.Cu zone 'sw_a Q2.3-T1.1'"
+  },
+  "sw_b_row53.2": {
+   "last_clear_x": 200.0,
+   "blocked_at_x": 200.5,
+   "hard_margin_mm": -0.02,
+   "hard_by": "hv_ret F.Cu track/via",
+   "zone_margin_mm": -3.2,
+   "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+   "tank_pour_outline_margin_mm": 28.3,
+   "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+  },
+  "sw_b_row67.7": {
+   "last_clear_x": 199.0,
+   "blocked_at_x": 199.5,
+   "hard_margin_mm": -0.05,
+   "hard_by": "bus_p F.Cu pad C5",
+   "zone_margin_mm": -3.2,
+   "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+   "tank_pour_outline_margin_mm": 27.3,
+   "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+  },
+  "sw_b_row82.5": {
+   "last_clear_x": 199.5,
+   "blocked_at_x": 200.0,
+   "hard_margin_mm": -0.47,
+   "hard_by": "bus_p F.Cu pad C5",
+   "zone_margin_mm": -3.2,
+   "zone_by": "bus_p In2.Cu zone 'bus_p trunk'",
+   "tank_pour_outline_margin_mm": 27.8,
+   "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+  },
+  "sw_b_row97.0": {
+   "last_clear_x": 200.5,
+   "blocked_at_x": 201.0,
+   "hard_margin_mm": -0.21,
+   "hard_by": "line_zc_raw F.Cu track/via",
+   "zone_margin_mm": -1.4,
+   "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+   "tank_pour_outline_margin_mm": 28.8,
+   "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+  },
+  "sw_b_row111.5": {
+   "last_clear_x": 199.5,
+   "blocked_at_x": 200.0,
+   "hard_margin_mm": -0.45,
+   "hard_by": "line_zc_raw B.Cu track/via",
+   "zone_margin_mm": -0.41,
+   "zone_by": "v3v3 In1.Cu zone 'v3v3 SELV island'",
+   "tank_pour_outline_margin_mm": 27.8,
+   "tank_pour_by": "res_a B.Cu zone 'res_a J5-C21..C23'"
+  }
+ },
+ "height": {
+  "board_world_bbox": [
+   -141.0,
+   46.0,
+   26.0,
+   149.0,
+   236.0,
+   27.493
+  ],
+  "bank_world_xy": [
+   19.5,
+   117.3,
+   52.0,
+   190.0
+  ],
+  "board_top_z": 27.493,
+  "first_solid_over_bank": "electronics_coil_plenum_floors",
+  "first_solid_z": 80.99999999999929,
+  "headroom_to_first_solid_mm": 53.51,
+  "headroom_with_1mm_gap_mm": 52.51,
+  "components_allocation_envelope_top_z": 75.613,
+  "headroom_to_allocation_envelope_mm": 48.12,
+  "solids_over_bank": [
+   {
+    "name": "electronics_coil_plenum_floors",
+    "z_bottom": 80.99999999999929,
+    "bbox": [
+     -116.0,
+     140.99999999999707,
+     80.99999999999929,
+     116.0,
+     381.0,
+     82.5000000000003
+    ]
+   },
+   {
+    "name": "electronics_SELV_tray_spacers",
+    "z_bottom": 83.25,
+    "bbox": [
+     -78.0,
+     142.0,
+     83.25,
+     55.0,
+     236.0,
+     93.0
+    ]
+   },
+   {
+    "name": "electronics_SELV_tray",
+    "z_bottom": 85.25,
+    "bbox": [
+     -82.0,
+     104.0,
+     85.25,
+     56.0,
+     237.0,
+     86.85000000000001
+    ]
+   },
+   {
+    "name": "sensor_coil_coil_ear_M3_screws",
+    "z_bottom": 89.0,
+    "bbox": [
+     -92.55256121069,
+     168.4474387893,
+     89.0,
+     92.552561210692,
+     353.55256121069,
+     98.0
+    ]
+   },
+   {
+    "name": "sensor_coil_routed_insulating_carrier",
+    "z_bottom": 89.5,
+    "bbox": [
+     -166.0,
+     104.0,
+     89.5,
+     166.0,
+     405.0,
+     93.0000001000003
+    ]
+   },
+   {
+    "name": "sensor_coil_former",
+    "z_bottom": 93.0,
+    "bbox": [
+     -123.5,
+     137.5,
+     93.0,
+     123.5,
+     384.5,
+     101.6
+    ]
+   }
+  ],
+  "harness_aabbs_over_bank_not_counted": [
+   "harness_NTC_coil_to_thermal_sense",
+   "harness_PE_native21_J6_to_star",
+   "harness_fan_to_controller",
+   "harness_mains_J11_to_PS3_AC",
+   "harness_pan_RTD_to_controller"
+  ],
+  "today_body_height_mm": 24.5
+ },
+ "controls": {
+  "failed": [],
+  "passed": true
+ }
+}
