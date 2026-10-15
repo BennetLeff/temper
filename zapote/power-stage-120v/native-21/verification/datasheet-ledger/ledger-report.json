@@ -1585,6 +1585,15 @@
      "ratio": 1.2257,
      "severity": "violation",
      "stress": "dv/dt diode commutation (S4)"
+    },
+    {
+     "id": "diF/dt diode",
+     "max_ratio": 0.8,
+     "ok": false,
+     "rating": "diF/dt diode commutation",
+     "ratio": 1.6162,
+     "severity": "violation",
+     "stress": "diF/dt diode commutation (S4)"
     }
    ],
    "class": "POWER",
@@ -1594,7 +1603,7 @@
     "Q5",
     "Q6"
    ],
-   "finding": "Reverse-diode dv/dt (70 V/ns, Table 2 p.3) is exceeded outright in the modelled S4 hard-commutation case: 85.8 V/ns (1.23x; the 80 % rule is 56 V/ns). Found by the 2026-10-15 device study (DECISIONS 49). S4 was already an open risk for die VDS and off-gate (D-24); the ledger had compared its 95 V/ns edge only with the 120 V/ns MOSFET rating. Fix: slower turn-on of the commutating switch (gate network), candidate 39; bench: D-8 double-pulse S4 measurement.",
+   "finding": "Reverse-diode dv/dt (70 V/ns, Table 2 p.3) is exceeded outright in the modelled S4 hard-commutation case: 85.8 V/ns (1.23x; the 80 % rule is 56 V/ns). Found by the 2026-10-15 device study (DECISIONS 49). S4 was already an open risk for die VDS and off-gate (D-24); the ledger had compared its 95 V/ns edge only with the 120 V/ns MOSFET rating. Fix: slower turn-on of the commutating switch (gate network), candidate 39; bench: D-8 double-pulse S4 measurement. Also diF/dt: 2101 A/us against the 1300 A/us maximum diode commutation speed (1.62x), and at typical recovery charge the as-built S4 runs 109-112 V/ns with die VDS 620 V (gate-network study, DECISIONS 54). Fix: candidate 39, R_on 68 ohm 2512 + Cgs 4.7 nF (49.7 V/ns, 244 A/us at typical charge); no tested network passes at maximum recovery charge, so the D-8 bench decides.",
    "function": "Full-bridge switches Q2/Q3/Q5/Q6, 650 V CoolMOS CFD7, TO-247",
    "gaps": [
     "Switching loss, S4/S5 dv/dt and VDS are not measured (bench).",
@@ -2531,7 +2540,7 @@
  },
  "errors": [],
  "failures": [
-  "VIOLATION: IPW65R018CFD7 (Q2,Q3,Q5,Q6): Reverse-diode dv/dt (70 V/ns, Table 2 p.3) is exceeded outright in the modelled S4 hard-commutation case: 85.8 V/ns (1.23x; the 80 % rule is 56 V/ns). Found by the 2026-10-15 device study (DECISIONS 49). S4 was already an open risk for die VDS and off-gate (D-24); the ledger had compared its 95 V/ns edge only with the 120 V/ns MOSFET rating. Fix: slower turn-on of the commutating switch (gate network), candidate 39; bench: D-8 double-pulse S4 measurement."
+  "VIOLATION: IPW65R018CFD7 (Q2,Q3,Q5,Q6): Reverse-diode dv/dt (70 V/ns, Table 2 p.3) is exceeded outright in the modelled S4 hard-commutation case: 85.8 V/ns (1.23x; the 80 % rule is 56 V/ns). Found by the 2026-10-15 device study (DECISIONS 49). S4 was already an open risk for die VDS and off-gate (D-24); the ledger had compared its 95 V/ns edge only with the 120 V/ns MOSFET rating. Fix: slower turn-on of the commutating switch (gate network), candidate 39; bench: D-8 double-pulse S4 measurement. Also diF/dt: 2101 A/us against the 1300 A/us maximum diode commutation speed (1.62x), and at typical recovery charge the as-built S4 runs 109-112 V/ns with die VDS 620 V (gate-network study, DECISIONS 54). Fix: candidate 39, R_on 68 ohm 2512 + Cgs 4.7 nF (49.7 V/ns, 244 A/us at typical charge); no tested network passes at maximum recovery charge, so the D-8 bench decides."
  ],
  "missing_from_ledger": [],
  "partial": [

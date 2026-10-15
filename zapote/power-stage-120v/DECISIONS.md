@@ -1895,3 +1895,51 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **The 0.5 mΩ shunt is not adopted:** at the same trip divider the OCP band's low corner falls under its floor, and
       at the floor-holding divider pickup is 8.35 A against the 6.5 A gate. It would need an OCP front-end rework.
       `c36-tank-copper/CONTROLLER-REQUEST.md` is conditional (no controller constant reads R5 today).
+
+54. **Gate network for the S4 diode limits: R_on 68 Ω 2512 + Cgs 4.7 nF on the CFD7, built as candidate 39; CM8 + 39 Ω
+    becomes a value-only swap (2026-10-15; study and decision).** Study:
+    `validation-results/01-switching-parasitics/gate-network-2026-10-15/README.md`.
+    - **Controls:**
+      - 317 of 320 device-study rows reproduce within 1 mV (worst 0.2 V); energy rows match exactly;
+      - split-vs-symmetric, open-branch, the CM8 proxy and the recovery-charge fixture against D-24 also pass.
+    - **As built (8.2 Ω turn-on, PMEG + 1 Ω turn-off):** both diode limits are broken in S4.
+      - dv/dt 85.8 V/ns against 70.
+      - **diF/dt 2,101 A/µs against the 1,300 A/µs maximum diode commutation speed** (Table 2 p.3; now a second ledger
+        check on IPW65R018CFD7).
+      - **Mechanism:** the S4 edge is the body diode's recovery snap, so it scales with Qrr.
+      - **The vendor model understates Qrr:** 1.74 µC against 2.30 µC typical and 4.60 µC maximum. At typical charge the
+        as-built S4 runs 109–112 V/ns with die VDS 620 V, against the 520 V screen.
+    - **S4 is a design case.** It is not steady state: firmware is meant to prevent capacitive operation, but it has never
+      run. It arrives in bursts:
+      - a non-magnetic pan at the 35 kHz floor;
+      - a restart within ~250 ms;
+      - a zero-cross calibration error;
+      - a load transient.
+      Each burst lasts until the 5° software latch acts: up to ~10.6 ms, 370–740 edges per leg. No hardware phase
+      detector exists, so the per-edge rating applies. A hardware capacitive-mode detector goes to the controller
+      session as a request.
+    - **Decision:** R10 / R12 / R18 / R20 → **68 Ω 2512** (Uniroyal 25121WF680JT4E, JLC C50371, 3,131 in stock), and the
+      gate Cgs → **4.7 nF C0G 0603** (Murata GRM1885C1H472JA01D, C85980). The PMEG6030EP + 1 Ω turn-off path is kept.
+      - Full grid at typical charge: S4 49.7 / 49.2 V/ns, diF/dt 244 A/µs, 640 / 640 rows pass the c25 screens.
+      - Turn-off is unchanged: E_off 8.7–9.0 µJ, S1 t_trans 190 ns, ZVS 80 / 80, worst off-gate +0.50 V.
+      - Cost: turn-on is slower (4.8 V at 1 µs; upper bound +5.2 µJ conduction per edge), +61 nC per edge (+16 % RECOM
+        load), +$0.11 per board, one new BOM line.
+      - **2512 is required:** R_on dissipates 0.17–0.22 W at 60 kHz. On the 1 W at 70 °C → 0 at 155 °C line a 2512 allows
+        a ~136 °C terminal, which also clears DECISIONS 51's gate-resistor derating failure.
+      - Rejected:
+        - 39 Ω on CFD7 (passes only on the understated vendor charge, 80 V/ns at typical);
+        - a symmetric resistor without the diode branch (off-gate 2–6 V, E_off ×25);
+        - an external Cgd (3–8 V/ns);
+        - 100 Ω (too slow).
+    - **CM8 route** (preferred if CM8 is adopted): 39 Ω 2512 with Cgs 1 nF passes 640 / 640 on both proxies.
+      - Proxy B is Infineon's IPW60R016CM8 600 V twin model: 40.6 V/ns, 554–648 A/µs. Infineon publishes no 650 V CM8
+        model.
+      - The device study's "CM8 528 V fail" was an artefact of its proxy.
+      - The same footprint takes it, so adopting CM8 later is a value change on R_on, Cgs and the FETs.
+    - **Not closed by any tested network:** maximum Qrr (4.60 µC), where 47 Ω reads 106 V/ns. The D-8 double-pulse bench
+      decides:
+      - S4 at 198 / 280 V, −20 A, leg A with HS turning on, measuring dv/dt and diF/dt;
+      - R_on 39 / 68 / 100 Ω × Cgs 1 / 4.7 nF;
+      - a repeated-pulse run of several hundred S4 edges.
+      Until then the ledger keeps both checks on the as-built stresses.
+    - **Sourcing flag:** JLC holds 3 of the fitted PMEG6030EP,115. The JSMSEMI clone (C53114006) is not qualified.

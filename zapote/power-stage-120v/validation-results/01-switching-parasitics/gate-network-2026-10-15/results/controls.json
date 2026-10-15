@@ -1,0 +1,120 @@
+{
+ "asbuilt_vs_committed_edge_edge2": {
+  "rows": 320,
+  "complete": 320,
+  "max_abs_delta": {
+   "vds_pk": 0.202,
+   "off_V": 0.000946,
+   "slew2080_Vns": 0.000448,
+   "t_trans_ns": 0.01,
+   "incoming_V": 0.0087
+  },
+  "rows_within_1mV_vds": 317,
+  "S4_max_slew_esl10": 85.78,
+  "S4_max_slew_esl1.06": 81.87,
+  "committed_S4_max_slew_esl10": 85.78,
+  "committed_S4_max_slew_esl1.06": 81.87
+ },
+ "asbuilt_energy_vs_committed": {
+  "rows": 8,
+  "max_abs_delta_e_extra_J": 3.3881317890172014e-21
+ },
+ "split_short_2R_vs_sym_R": {
+  "R=12": {
+   "rows_compared": 56,
+   "max_abs_delta": {
+    "vds_pk": 0.0174,
+    "off_V": 0.000136,
+    "slew2080_Vns": 0.0196,
+    "difdt_75_25_Apus": 0.0,
+    "q_gate_inc_nC": 0.001
+   }
+  },
+  "R=22": {
+   "rows_compared": 56,
+   "max_abs_delta": {
+    "vds_pk": 0.0219,
+    "off_V": 0.00278,
+    "slew2080_Vns": 0.00904,
+    "difdt_75_25_Apus": 0.0,
+    "q_gate_inc_nC": 0.0
+   }
+  }
+ },
+ "asbuilt_deck_roff1p345_vs_bom_1ohm": {
+  "rows_compared": 56,
+  "max_abs_delta": {
+   "vds_pk": 0.747,
+   "off_V": 0.0157,
+   "slew2080_Vns": 0.421,
+   "difdt_75_25_Apus": 4.07,
+   "q_gate_inc_nC": 1.25
+  }
+ },
+ "open_1Gohm_vs_deleted_branch": {
+  "R=12": {
+   "rows_compared": 56,
+   "max_abs_delta": {
+    "vds_pk": 0.0092,
+    "off_V": 0.0001,
+    "slew2080_Vns": 0.0126,
+    "difdt_75_25_Apus": 0.0,
+    "q_gate_inc_nC": 0.001
+   }
+  },
+  "R=22": {
+   "rows_compared": 56,
+   "max_abs_delta": {
+    "vds_pk": 0.105,
+    "off_V": 0.00389,
+    "slew2080_Vns": 0.00443,
+    "difdt_75_25_Apus": 0.0,
+    "q_gate_inc_nC": 0.0
+   }
+  }
+ },
+ "tt50_copy_vs_vendor": {
+  "rows_compared": 56,
+  "max_abs_delta": {
+   "vds_pk": 0.0564,
+   "off_V": 0.00235,
+   "slew2080_Vns": 0.138,
+   "difdt_75_25_Apus": 0.269,
+   "q_gate_inc_nC": 0.025
+  }
+ },
+ "cm8rgc_vs_committed_device_study": {
+  "R_ext=8.2": {
+   "rows_matched": 32,
+   "max_abs_delta": {
+    "vds_pk": 3.44,
+    "off_V": 0.0147,
+    "slew2080_Vns": 0.238
+   }
+  },
+  "R_ext=10": {
+   "rows_matched": 32,
+   "max_abs_delta": {
+    "vds_pk": 2.54,
+    "off_V": 0.00443,
+    "slew2080_Vns": 0.118
+   }
+  },
+  "R_ext=12": {
+   "rows_matched": 48,
+   "max_abs_delta": {
+    "vds_pk": 0.0142,
+    "off_V": 0.000868,
+    "slew2080_Vns": 0.0064
+   }
+  },
+  "R_ext=15": {
+   "rows_matched": 48,
+   "max_abs_delta": {
+    "vds_pk": 0.0328,
+    "off_V": 0.00101,
+    "slew2080_Vns": 0.0725
+   }
+  }
+ }
+}

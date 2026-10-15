@@ -1778,6 +1778,13 @@
      "unit": "V/ns",
      "basis": "VDS=0..400 V, ISD <= 58 A, Tj 25 C; footnote 3: identical low- and high-side switch with identical RG; with diF/dt <= 1300 A/us",
      "source": "Table 2, p.3 (Rev. 2.0, 2021-04-19)"
+    },
+    {
+     "parameter": "diF/dt diode commutation",
+     "datasheet_limit": 1300,
+     "unit": "A/us",
+     "basis": "maximum diode commutation speed, VDS=0..400 V, ISD <= 58 A, Tj 25 C (see table 8)",
+     "source": "Table 2, p.3 (Rev. 2.0, 2021-04-19)"
     }
    ],
    "stresses": [
@@ -1815,6 +1822,13 @@
      "unit": "V/ns",
      "condition": "S4 hard turn-on, IL -20 A: the partner's body diode is hard-commutated; as-built deck, 2EDR8259X + 8.2 ohm, ESL 10 nH (1.06 nH: 81.9)",
      "evidence": "validation-results/01-switching-parasitics/device-study-2026-10-15/README.md:84"
+    },
+    {
+     "parameter": "diF/dt diode commutation (S4)",
+     "worst_case_value": 2101,
+     "unit": "A/us",
+     "condition": "S4 hard turn-on, IL -20 A, as-built 8.2 ohm turn-on, vendor-model recovery charge (1.74 uC, under the 2.30 uC typical); 75->25 % chord (50->0 %: 2538)",
+     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:3"
     }
    ],
    "derating_rule": "VDS <= 80% of 650 V (the 520 V screen); ID <= 80% of the Tc=100 C rating; Tj <= 125 C design (150 C absolute); dv/dt <= 80% of ruggedness.",
@@ -1863,6 +1877,15 @@
      "severity": "violation",
      "rule": "<= 80% of 70 V/ns (56 V/ns)",
      "ratio": 1.2257
+    },
+    {
+     "id": "diF/dt diode",
+     "rating": "diF/dt diode commutation",
+     "stress": "diF/dt diode commutation (S4)",
+     "max_ratio": 0.8,
+     "severity": "violation",
+     "rule": "<= 80% of 1300 A/us (1040)",
+     "ratio": 1.6162
     }
    ],
    "layout_guidance": [
@@ -1884,7 +1907,7 @@
     "Tj at 28 A / 50 kHz exceeds the 125 C design value on the K1 contingency sink (128.7 C); S8 baseline Tj not recorded.",
     "F7 loop re-extraction open (FINDINGS #1)."
    ],
-   "finding": "Reverse-diode dv/dt (70 V/ns, Table 2 p.3) is exceeded outright in the modelled S4 hard-commutation case: 85.8 V/ns (1.23x; the 80 % rule is 56 V/ns). Found by the 2026-10-15 device study (DECISIONS 49). S4 was already an open risk for die VDS and off-gate (D-24); the ledger had compared its 95 V/ns edge only with the 120 V/ns MOSFET rating. Fix: slower turn-on of the commutating switch (gate network), candidate 39; bench: D-8 double-pulse S4 measurement.",
+   "finding": "Reverse-diode dv/dt (70 V/ns, Table 2 p.3) is exceeded outright in the modelled S4 hard-commutation case: 85.8 V/ns (1.23x; the 80 % rule is 56 V/ns). Found by the 2026-10-15 device study (DECISIONS 49). S4 was already an open risk for die VDS and off-gate (D-24); the ledger had compared its 95 V/ns edge only with the 120 V/ns MOSFET rating. Fix: slower turn-on of the commutating switch (gate network), candidate 39; bench: D-8 double-pulse S4 measurement. Also diF/dt: 2101 A/us against the 1300 A/us maximum diode commutation speed (1.62x), and at typical recovery charge the as-built S4 runs 109-112 V/ns with die VDS 620 V (gate-network study, DECISIONS 54). Fix: candidate 39, R_on 68 ohm 2512 + Cgs 4.7 nF (49.7 V/ns, 244 A/us at typical charge); no tested network passes at maximum recovery charge, so the D-8 bench decides.",
    "notes": null
   },
   "GRM31A5C3A102JW01D": {

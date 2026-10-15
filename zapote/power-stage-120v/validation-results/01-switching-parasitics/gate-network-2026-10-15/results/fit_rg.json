@@ -1,0 +1,314 @@
+{
+ "R10": {
+  "centre": [
+   62.6,
+   12.6
+  ],
+  "vertical": true,
+  "nets": [
+   "leg_a-out_h",
+   "leg_a-gate_h"
+  ],
+  "1206_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.075,
+   "binding": "track leg_a-gate_h (61.25, 12.0)->(61.25, 20.3) w0.4"
+  },
+  "1206_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.075,
+   "binding": "track leg_a-gate_h (61.25, 12.0)->(61.25, 20.3) w0.4"
+  },
+  "1206_reroute_own_tracks_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.3,
+   "binding": "via sw_a (60.925, 11.275)"
+  },
+  "1206_reroute_own_tracks_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.3,
+   "binding": "via sw_a (60.925, 11.275)"
+  },
+  "2010_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": -0.375,
+   "binding": "track leg_a-gate_h (61.25, 12.0)->(61.25, 20.3) w0.4"
+  },
+  "2010_nearest_fit": {
+   "dx": 0.5,
+   "dy": 0.0,
+   "worst_margin_mm": 0.125,
+   "binding": "track leg_a-gate_h (61.25, 12.0)->(61.25, 20.3) w0.4"
+  },
+  "2010_reroute_own_tracks_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.013,
+   "binding": "via sw_a (60.925, 11.275)"
+  },
+  "2010_reroute_own_tracks_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.013,
+   "binding": "via sw_a (60.925, 11.275)"
+  },
+  "2512_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": -0.4,
+   "binding": "track leg_a-gate_h (61.25, 12.0)->(61.25, 20.3) w0.4"
+  },
+  "2512_nearest_fit": null,
+  "2512_reroute_own_tracks_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.199,
+   "binding": "track bus_p (69.305, 9.7)->(68.05, 8.6) w0.8"
+  },
+  "2512_reroute_own_tracks_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.199,
+   "binding": "track bus_p (69.305, 9.7)->(68.05, 8.6) w0.8"
+  }
+ },
+ "R12": {
+  "centre": [
+   44.6,
+   12.6
+  ],
+  "vertical": true,
+  "nets": [
+   "leg_a-out_l",
+   "leg_a-gate_l"
+  ],
+  "1206_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.075,
+   "binding": "track leg_a-gate_l (43.25, 12.0)->(43.25, 20.3) w0.4"
+  },
+  "1206_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.075,
+   "binding": "track leg_a-gate_l (43.25, 12.0)->(43.25, 20.3) w0.4"
+  },
+  "1206_reroute_own_tracks_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 1.15,
+   "binding": "pad R13.2 leg_ret"
+  },
+  "1206_reroute_own_tracks_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 1.15,
+   "binding": "pad R13.2 leg_ret"
+  },
+  "2010_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": -0.375,
+   "binding": "track leg_a-gate_l (43.25, 12.0)->(43.25, 20.3) w0.4"
+  },
+  "2010_nearest_fit": {
+   "dx": 0.5,
+   "dy": 0.0,
+   "worst_margin_mm": 0.125,
+   "binding": "track leg_a-gate_l (43.25, 12.0)->(43.25, 20.3) w0.4"
+  },
+  "2010_reroute_own_tracks_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.663,
+   "binding": "track sw_a (51.305, 9.7)->(50.05, 8.6) w0.8"
+  },
+  "2010_reroute_own_tracks_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.663,
+   "binding": "track sw_a (51.305, 9.7)->(50.05, 8.6) w0.8"
+  },
+  "2512_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": -0.4,
+   "binding": "track leg_a-gate_l (43.25, 12.0)->(43.25, 20.3) w0.4"
+  },
+  "2512_nearest_fit": null,
+  "2512_reroute_own_tracks_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.199,
+   "binding": "track sw_a (51.305, 9.7)->(50.05, 8.6) w0.8"
+  },
+  "2512_reroute_own_tracks_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.199,
+   "binding": "track sw_a (51.305, 9.7)->(50.05, 8.6) w0.8"
+  }
+ },
+ "R18": {
+  "centre": [
+   4.5,
+   12.6
+  ],
+  "vertical": true,
+  "nets": [
+   "leg_b-out_h",
+   "leg_b-gate_h"
+  ],
+  "1206_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.075,
+   "binding": "track leg_b-gate_h (3.15, 12.0)->(3.15, 20.3) w0.4"
+  },
+  "1206_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.075,
+   "binding": "track leg_b-gate_h (3.15, 12.0)->(3.15, 20.3) w0.4"
+  },
+  "1206_reroute_own_tracks_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 1.15,
+   "binding": "pad R19.2 sw_b"
+  },
+  "1206_reroute_own_tracks_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 1.15,
+   "binding": "pad R19.2 sw_b"
+  },
+  "2010_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": -0.375,
+   "binding": "track leg_b-gate_h (3.15, 12.0)->(3.15, 20.3) w0.4"
+  },
+  "2010_nearest_fit": {
+   "dx": 0.5,
+   "dy": 0.0,
+   "worst_margin_mm": 0.125,
+   "binding": "track leg_b-gate_h (3.15, 12.0)->(3.15, 20.3) w0.4"
+  },
+  "2010_reroute_own_tracks_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.663,
+   "binding": "track bus_p (11.205, 9.7)->(9.95, 8.6) w0.8"
+  },
+  "2010_reroute_own_tracks_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.663,
+   "binding": "track bus_p (11.205, 9.7)->(9.95, 8.6) w0.8"
+  },
+  "2512_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": -0.4,
+   "binding": "track leg_b-gate_h (3.15, 12.0)->(3.15, 20.3) w0.4"
+  },
+  "2512_nearest_fit": null,
+  "2512_reroute_own_tracks_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.199,
+   "binding": "track bus_p (11.205, 9.7)->(9.95, 8.6) w0.8"
+  },
+  "2512_reroute_own_tracks_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.199,
+   "binding": "track bus_p (11.205, 9.7)->(9.95, 8.6) w0.8"
+  }
+ },
+ "R20": {
+  "centre": [
+   22.5,
+   12.6
+  ],
+  "vertical": true,
+  "nets": [
+   "leg_b-out_l",
+   "leg_b-gate_l"
+  ],
+  "1206_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.075,
+   "binding": "track leg_b-gate_l (21.15, 12.0)->(21.15, 20.3) w0.4"
+  },
+  "1206_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.075,
+   "binding": "track leg_b-gate_l (21.15, 12.0)->(21.15, 20.3) w0.4"
+  },
+  "1206_reroute_own_tracks_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 1.15,
+   "binding": "pad R21.2 leg_ret"
+  },
+  "1206_reroute_own_tracks_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 1.15,
+   "binding": "pad R21.2 leg_ret"
+  },
+  "2010_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": -0.375,
+   "binding": "track leg_b-gate_l (21.15, 12.0)->(21.15, 20.3) w0.4"
+  },
+  "2010_nearest_fit": {
+   "dx": 0.5,
+   "dy": 0.0,
+   "worst_margin_mm": 0.125,
+   "binding": "track leg_b-gate_l (21.15, 12.0)->(21.15, 20.3) w0.4"
+  },
+  "2010_reroute_own_tracks_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.663,
+   "binding": "track sw_b (29.205, 9.7)->(27.95, 8.6) w0.8"
+  },
+  "2010_reroute_own_tracks_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.663,
+   "binding": "track sw_b (29.205, 9.7)->(27.95, 8.6) w0.8"
+  },
+  "2512_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": -0.4,
+   "binding": "track leg_b-gate_l (21.15, 12.0)->(21.15, 20.3) w0.4"
+  },
+  "2512_nearest_fit": null,
+  "2512_reroute_own_tracks_in_place": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.199,
+   "binding": "track sw_b (29.205, 9.7)->(27.95, 8.6) w0.8"
+  },
+  "2512_reroute_own_tracks_nearest_fit": {
+   "dx": 0.0,
+   "dy": 0.0,
+   "worst_margin_mm": 0.199,
+   "binding": "track sw_b (29.205, 9.7)->(27.95, 8.6) w0.8"
+  }
+ }
+}

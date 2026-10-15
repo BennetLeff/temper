@@ -1,0 +1,130 @@
+{
+ "items": [
+  {
+   "cfg": "asbuilt",
+   "s4": 85.8,
+   "difdt": 2101.0,
+   "ttrans": 190.4,
+   "off": -0.182,
+   "eoff": 9.2,
+   "model": "IPW65R018CFD7_L1"
+  },
+  {
+   "cfg": "c8_asbuilt",
+   "s4": 82.28,
+   "difdt": 2165.0,
+   "ttrans": 121.9,
+   "off": 0.129,
+   "eoff": 3.86,
+   "model": "IPW60R016CM8_L1"
+  },
+  {
+   "cfg": "c8_split27_1",
+   "s4": 44.89,
+   "difdt": 744.0,
+   "ttrans": 120.1,
+   "off": -1.073,
+   "eoff": 3.71,
+   "model": "IPW60R016CM8_L1"
+  },
+  {
+   "cfg": "c8_split39_1",
+   "s4": 40.58,
+   "difdt": 554.0,
+   "ttrans": 120.2,
+   "off": -0.844,
+   "eoff": 3.72,
+   "model": "IPW60R016CM8_L1"
+  },
+  {
+   "cfg": "cm8_asbuilt",
+   "s4": 96.39,
+   "difdt": 2392.0,
+   "ttrans": 106.9,
+   "off": 0.135,
+   "eoff": 5.59,
+   "model": "CM8W_L1"
+  },
+  {
+   "cfg": "cm8_split27_1",
+   "s4": 61.85,
+   "difdt": 898.0,
+   "ttrans": 107.5,
+   "off": -1.004,
+   "eoff": 5.64,
+   "model": "CM8W_L1"
+  },
+  {
+   "cfg": "cm8_split39_1",
+   "s4": 55.58,
+   "difdt": 648.0,
+   "ttrans": 107.6,
+   "off": -0.829,
+   "eoff": 5.65,
+   "model": "CM8W_L1"
+  },
+  {
+   "cfg": "split33_1_cgs2p2",
+   "s4": 55.83,
+   "difdt": 503.0,
+   "ttrans": 186.7,
+   "off": -0.57,
+   "eoff": 8.73,
+   "model": "IPW65R018CFD7_L1"
+  },
+  {
+   "cfg": "split39_1",
+   "s4": 55.89,
+   "difdt": 556.0,
+   "ttrans": 185.5,
+   "off": -0.855,
+   "eoff": 8.7,
+   "model": "IPW65R018CFD7_L1"
+  },
+  {
+   "cfg": "split47_1",
+   "s4": 53.25,
+   "difdt": 478.0,
+   "ttrans": 185.7,
+   "off": -0.822,
+   "eoff": 8.72,
+   "model": "IPW65R018CFD7_L1"
+  }
+ ],
+ "pareto": {
+  "CM8W_L1": {
+   "objectives": "min S4 slew (both ESL), min S4 diF/dt, min S1 worst t_trans, min off-gate, min S1 37 A E_off",
+   "set": [
+    "cm8_asbuilt",
+    "cm8_split27_1",
+    "cm8_split39_1"
+   ],
+   "feasible (S4 <= 56 V/ns and diF/dt <= 1040 A/us, all screens pass)": [
+    "cm8_split39_1"
+   ]
+  },
+  "IPW60R016CM8_L1": {
+   "objectives": "min S4 slew (both ESL), min S4 diF/dt, min S1 worst t_trans, min off-gate, min S1 37 A E_off",
+   "set": [
+    "c8_split27_1",
+    "c8_split39_1"
+   ],
+   "feasible (S4 <= 56 V/ns and diF/dt <= 1040 A/us, all screens pass)": [
+    "c8_split27_1",
+    "c8_split39_1"
+   ]
+  },
+  "IPW65R018CFD7_L1": {
+   "objectives": "min S4 slew (both ESL), min S4 diF/dt, min S1 worst t_trans, min off-gate, min S1 37 A E_off",
+   "set": [
+    "split39_1",
+    "split47_1"
+   ],
+   "feasible (S4 <= 56 V/ns and diF/dt <= 1040 A/us, all screens pass)": [
+    "split33_1_cgs2p2",
+    "split39_1",
+    "split47_1"
+   ]
+  }
+ }
+}
