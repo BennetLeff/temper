@@ -1,5 +1,5 @@
 {
- "bom_lines": 94,
+ "bom_lines": 93,
  "counts_by_class": {
   "POWER": {
    "PARTIAL": 8,
@@ -8,7 +8,7 @@
    "VIOLATION": 1
   },
   "SAFETY": {
-   "PARTIAL": 21,
+   "PARTIAL": 20,
    "UNAUDITED": 0,
    "VERIFIED": 2,
    "VIOLATION": 0
@@ -20,7 +20,7 @@
    "VIOLATION": 0
   }
  },
- "entries": 94,
+ "entries": 93,
  "entries_detail": {
   "0430451612": {
    "checks": [],
@@ -704,7 +704,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "I rated",
-     "ratio": 0.06,
+     "ratio": 0.075,
      "severity": "violation",
      "stress": "I J3 (PS2 input)"
     },
@@ -1407,7 +1407,7 @@
    "finding": null,
    "function": "Y1 line-to-PE capacitors C3/C4, 2.2 nF",
    "gaps": [
-    "Product leakage FAIL (F5): 0.974 mA touch current vs UL 1026 0.5 mA (clause unconfirmed, DECISIONS.md:844). If confirmed this is a VIOLATION of the approval basis; fix is total Y <= 5.0 nF per line. C3/C4 contribute at most 2 x 2.64 nF (+20 %) x 2 pi 60 Hz x 132 V = 0.26 mA of it.",
+    "Product leakage (F5) PASSES at stage 38: 0.2412 mA vs the 0.25 mA budget (50 % of UL 1026 0.5 mA, clause unconfirmed, DECISIONS.md:844), margin 8.8 uA; it depends on the D-22 module Y removal and PS3 = MPM-65-15ST (off-board owners) and FAILs with +0.15 nF Y per line. C3/C4 contribute 2.64 nF (+20 %) x 2 pi 60 Hz x 132 V = 0.131 mA per polarity.",
     "Datasheet is a 2023 reference specification from a distributor; Murata says to consult the approval sheet before ordering."
    ],
    "status": "PARTIAL",
@@ -1638,77 +1638,6 @@
     "clamp-stack force and tab coplanarity"
    ]
   },
-  "IRM-20-15": {
-   "checks": [
-    {
-     "id": "Pout",
-     "max_ratio": 0.9,
-     "ok": true,
-     "rating": "Pout allowed @ 78C bay air",
-     "ratio": 0.8944,
-     "severity": "violation",
-     "stress": "Pout controller"
-    },
-    {
-     "id": "Vin",
-     "max_ratio": 0.8,
-     "ok": true,
-     "rating": "Vin max",
-     "ratio": 0.458,
-     "severity": "violation",
-     "stress": "Vin high corner"
-    }
-   ],
-   "class": "SAFETY",
-   "designators": [
-    "PS1"
-   ],
-   "finding": null,
-   "function": "Controller supply PS1, Mean Well IRM-20-15, Class II, mains-fed",
-   "gaps": [
-    "Bay air of 78 C is modelled; only 11 % margin to the derating curve. Bench soak at 40 C / 28 A required (DECISIONS.md:675).",
-    "Model case 86 C vs the 85 C ambient rating: must be judged against measured local air (DECISIONS.md:834).",
-    "Input current 0.6 A typ at 115 Vac per the datasheet is counted in I_aux = 1.3 A (DECISIONS.md:171).",
-    "Approval basis is UL 62368-1 / IEC 61558 (OVC II under 62368-1), not an appliance standard: the certifier must accept it as a component in a UL 1026 product (owner-items/CERTIFIER-PACKET.md A3 #14)."
-   ],
-   "status": "PARTIAL",
-   "unchecked_layout": []
-  },
-  "IRM-20-24": {
-   "checks": [
-    {
-     "id": "P",
-     "max_ratio": 0.5,
-     "ok": true,
-     "rating": "P rated",
-     "ratio": 0.444,
-     "severity": "violation",
-     "stress": "P bias allocation"
-    },
-    {
-     "id": "Vin",
-     "max_ratio": 0.8,
-     "ok": true,
-     "rating": "Vin max",
-     "ratio": 0.458,
-     "severity": "violation",
-     "stress": "Vin high corner"
-    }
-   ],
-   "class": "SAFETY",
-   "designators": [
-    "PS2"
-   ],
-   "finding": null,
-   "function": "Bias/gate supply PS2 (TCO-switched), Mean Well IRM-20-24, Class II",
-   "gaps": [
-    "Derating at the real local air not read: model case 98 C vs the 85 C ambient rating (DECISIONS.md:834); judge against measured air.",
-    "Leakage current of the IRM modules (0.43 mA total for three at datasheet maximum) is inside the F5 leakage FAIL (DECISIONS.md:844).",
-    "Approval basis is UL 62368-1 / IEC 61558 (OVC II under 62368-1), not an appliance standard: the certifier must accept it as a component in a UL 1026 product (owner-items/CERTIFIER-PACKET.md A3 #14)."
-   ],
-   "status": "PARTIAL",
-   "unchecked_layout": []
-  },
   "ISO6721FBDR": {
    "checks": [
     {
@@ -1824,6 +1753,51 @@
     "Not audited (outside SAFETY/POWER)."
    ],
    "status": "UNAUDITED",
+   "unchecked_layout": []
+  },
+  "MPM-20-24": {
+   "checks": [
+    {
+     "id": "P",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "P rated",
+     "ratio": 0.444,
+     "severity": "violation",
+     "stress": "P bias allocation"
+    },
+    {
+     "id": "P at 70 C",
+     "max_ratio": 0.9,
+     "ok": true,
+     "rating": "P derated at 70 C ambient",
+     "ratio": 0.888,
+     "severity": "gap",
+     "stress": "P bias allocation"
+    },
+    {
+     "id": "Vin",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Vin max",
+     "ratio": 0.5292,
+     "severity": "violation",
+     "stress": "Vin high corner"
+    }
+   ],
+   "class": "SAFETY",
+   "designators": [
+    "PS2"
+   ],
+   "finding": null,
+   "function": "Bias/gate supply PS2 (TCO-switched), MEAN WELL MPM-20-24 medical encapsulated, Class II (stage 38, was IRM-20-24)",
+   "gaps": [
+    "Local air at PS2 is not measured: the 9.59 W allocation meets the 90 % rule only up to 70.3 C local air (curve read from the p.3 graph). Earlier model case 98 C vs the 85 C ambient rating (DECISIONS.md:834); judge against measured air.",
+    "Approval basis is IEC/EN 60601-1 (2 x MOPP) and IEC/EN 60335-1 (Dekra), not UL 62368-1 or UL 1026: the datasheet lists no UL file. The certifier must accept it as a component in a UL 1026 product (owner-items/CERTIFIER-PACKET.md A3 #14).",
+    "Input current 0.75 A typ at 115 VAC (MPM-20-SPEC p.2) is above IRM-20's 0.6 A; I_aux = 1.3 A (DECISIONS.md:171) counted two IRM-20 modules and stays a bound now that PS1 is gone (one MPM-20 at 0.75 A scaled to 108 V).",
+    "Pin length 3.5 +1/-0.5 mm (IRM-20: 3.5 +/-1 mm); the 1.6 mm board takes it, solder fillet unchecked."
+   ],
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "PMEG6030EP,115": {
@@ -2612,10 +2586,9 @@
   "DE1E3RA222MA4BP01F",
   "GBJ2510-F",
   "GRM31A5C3A102JW01D",
-  "IRM-20-15",
-  "IRM-20-24",
   "ISO6721FBDR",
   "KLDR025.TXP",
+  "MPM-20-24",
   "R24C2T25/R-R",
   "R463N410050N1K",
   "RC1206FR-07220KL",
@@ -2627,7 +2600,7 @@
  "result": "FAIL",
  "strict": false,
  "totals": {
-  "PARTIAL": 31,
+  "PARTIAL": 30,
   "UNAUDITED": 59,
   "VERIFIED": 3,
   "VIOLATION": 1

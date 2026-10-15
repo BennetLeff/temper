@@ -100,7 +100,7 @@ SPECS = {
         label="TDK MKP 4-pin film capacitor", r_pad=25.0, r_top=0.0, body_mm=None, standoff_mm=3.0,
         pad_filter=None, tj_limit=105.0, body_air=False,
         cite="ASSUMED class value, as film_radial with four leads (25 K/W); TDK datasheet not retrievable (403)"),
-    "meanwell": dict(  # PS1, PS2  Mean Well IRM-20
+    "meanwell": dict(  # PS2 Mean Well MPM-20-24 (stage 38; IRM-20 before), Case 219A
         label="Mean Well IRM-20", r_pad=15.0, r_top=0.0, body_mm=None, standoff_mm=1.0,
         pad_filter=None, tj_limit=85.0, body_air=False,
         cite="ASSUMED pin conduction class value (potted converter, four 1.0 mm pins, 3 mm) ; limit = IRM-20 spec p.? "
@@ -130,7 +130,7 @@ def spec_for(ref: str, mpn: str, fp: str) -> str:
         return "film_radial"
     if mpn.startswith("B32676") or mpn.startswith("B32656"):
         return "film_4pin"
-    if mpn.startswith("IRM-20"):
+    if mpn.startswith(("IRM-20", "MPM-20")):   # stage 38: MPM-20-24, same Case No. 219A body and pins (MPM-20-SPEC p.4)
         return "meanwell"
     if mpn.startswith("B82726"):
         return "choke"

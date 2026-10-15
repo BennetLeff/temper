@@ -455,6 +455,10 @@ mod tests {
             {
                 continue;
             }
+            // stage 38 (candidate 23, DECISIONS 47): PS1 (ps_selv) is deleted; PS1 stays vacant
+            if part.path == "ps_selv" {
+                continue;
+            }
             assert_eq!(
                 current.reff(&part.path),
                 Some(reference.as_str()),
@@ -497,14 +501,14 @@ mod tests {
         assert!(crate::audit(&changed).iter().any(|e| e.contains("bias_ha.rfbt")));
     }
     #[test]
-    fn bias_source_cannot_move_to_ps1() {
+    fn bias_source_cannot_move_to_selv() {   // stage 38: PS1 / v15_selv are gone; the SELV rail is v3v3
         for (part, pin) in [
             ("bias_ha.iso", "7"),
             ("bias_ls.ldo", "15"),
             ("bias_hb.iso", "6"),
         ] {
             let mut changed = crate::tests::built();
-            changed.rewire(part, pin, "v15_selv");
+            changed.rewire(part, pin, "v3v3");
             assert!(
                 crate::audit(&changed).iter().any(|e| e.contains(part)),
                 "{part}"

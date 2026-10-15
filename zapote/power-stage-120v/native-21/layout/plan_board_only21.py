@@ -50,7 +50,7 @@ SIGNALS = [  # (net, reference net, purpose)
     ("leg_b-out_h", "n_hb", "leg B high-side driver output vs VSSA"),
     ("n_hb", "sw_b", "HS-B -2 V rail vs switch node"),
     ("p_hb", "sw_b", "HS-B +15 V rail"),
-    ("v15_selv", "selv_gnd", "SELV 15 V"), ("v3v3", "selv_gnd", "SELV 3.3 V"),
+    ("v3v3", "selv_gnd", "SELV 3.3 V"),   # stage 38: the SELV 15 V probe is gone with PS1 / v15_selv
     ("pwm_ha", "selv_gnd", "PWM A high"), ("pwm_la", "selv_gnd", "PWM A low"),
     ("pwm_hb", "selv_gnd", "PWM B high"), ("pwm_lb", "selv_gnd", "PWM B low"),
     ("permit", "selv_gnd", "PERMIT"), ("leg_a-driver_dis", "selv_gnd", "leg A DIS"), ("leg_b-driver_dis", "selv_gnd", "leg B DIS"),

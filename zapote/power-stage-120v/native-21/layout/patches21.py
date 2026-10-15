@@ -385,6 +385,9 @@ def add_stage35(g):
     n = 0
     for ref, (net, (cx, cy)) in S35_TERMINALS.items():
         for x, y in s35_spots(cx, cy):
+            # stage 38: a frozen base from stage 35 on already holds these vias; adding them again is not a no-op
+            if any(o["net"] == net and math.dist(o["at"], (x, y)) < 1e-3 and o["size"] == S35_VIA for o in g["VIAS"]):
+                continue
             if max(abs(x - cx), abs(y - cy)) + S35_VIA / 2 > S35_LAND:
                 raise SystemExit(f"stage 35 via {net} ({x}, {y}) leaves the {ref} stud land")
             bad = s35_conflicts(g, net, x, y, size=S35_VIA)
@@ -398,6 +401,66 @@ def add_stage35(g):
 # Stage 37 (candidate 37, 11-candidates/c37-geometry-cleanup) is not a patch: it is a post-route transform of a finished,
 # DRC-clean copper.json, track_cleanup21.py (fold-backs, acute corners, right angles, any-angle runs; DECISIONS 43). It
 # needs the built board's export as its obstacle model and runs last, after every lane's patches and passes.
+
+
+# Stage 38 (candidate 23, DECISIONS 47 item 1): PS1 (IRM-20-15) and its net v15_selv are deleted. The frozen base (the
+# stage-35 copper) is edited before it is loaded (incr21.load), because its tracks name PS1's pads:
+#  - every v15_selv track and via goes (PS1.4 -> J4.1, about 250 mm on B.Cu / F.Cu, three vias in the SELV spine);
+#  - the selv_gnd B.Cu stub from PS1.3 up to the via at (210.8, 98.2) goes (that via keeps U36's return on the In2 pour);
+#  - L_FILT: the 1.0 mm F.Cu run that dropped from the C3 via (230.5, 107) to PS1.1 and climbed back to F2.1 becomes one
+#    run at the R67 junction (242.96, 121.7), east at y 121.7 and up at 45 deg to F2.1 on the stage-35 approach line
+#    (262.2, 117.6), which keeps 3.6 mm to the N_FILT via (HOT functional 3.2 mm): 40.5 mm instead of 60.5 mm, and
+#    the 42 deg corner it made at PS1.1 (a track_geometry acute corner) is gone;
+#  - N_FILT: the B.Cu run to PS1.2 ends instead at the via that takes N_FILT to J11.2 on In1. That via (0.6 / 0.3 at
+#    (257.0, 116.8)) sat inside PS1.2's pad; standing alone, its 0.15 mm F.Cu ring fragments on task 04's 0.125 mm grid
+#    (the kit topology preflight fails), so it becomes a 0.85 / 0.3 via moved 0.28 mm down the same 45 deg line to
+#    (256.8, 116.6), which keeps 3.375 mm to F2.1 and 3.6 mm to the new L_FILT run (HOT functional 3.2 mm).
+# Nothing else in the base changes; the J11 / F2 / R130 / D3 / D17 poses are kept (no compaction, DECISIONS 47 item 6).
+S38_V15 = "v15_selv"
+S38_SELV_GND_STUB = ((210.8, 115.6), (210.8, 98.2))
+S38_L_FILT = [[230.5, 107.0], [242.96, 121.7], [258.1, 121.7], [262.2, 117.6], [262.475, 117.6]]
+S38_N_FILT_END = [[237.5, 113.0], [253.2, 113.0], [256.8, 116.6]]
+S38_N_FILT_VIA = ((257.0, 116.8), (256.8, 116.6), 0.85)        # from, to, size
+
+
+def edit_base(base):
+    """Stage 38 edit of a frozen base copper dict (in place); a no-op on a base without PS1's copper."""
+    pt = lambda q: tuple(round(v, 3) for v in q) if not isinstance(q, str) else q
+    tr, vi = base["tracks"], base["vias"]
+    n0 = (len(tr), len(vi))
+    names = lambda t: {q for q in t["points"] if isinstance(q, str)}
+    if not any(t["net"] == S38_V15 or any(q.startswith("PS1.") for q in names(t)) for t in tr) and \
+            not any(v["net"] == S38_V15 for v in vi):
+        return 0
+    keep = []
+    for t in tr:
+        ps = [pt(q) for q in t["points"]]
+        if t["net"] == S38_V15:
+            continue
+        if t["net"] == "selv_gnd" and t["layer"] == "B.Cu" and sorted(ps) == sorted(S38_SELV_GND_STUB):
+            continue
+        if t["net"] == "l_filt" and t["layer"] == "F.Cu" and t["width"] == 1.0 and \
+                (ps == [(230.5, 107.0), (250.0, 130.0), "PS1.1"] or ps[:1] == [(255.8, 136.4)]):
+            continue
+        if t["net"] == "n_filt" and t["layer"] == "B.Cu" and ps[:1] == [(255.8, 115.6)]:
+            continue
+        if t["net"] == "n_filt" and t["layer"] == "B.Cu" and ps[-1:] == ["PS1.2"]:
+            assert ps[-3:-1] == [(237.5, 113.0), (250.0, 113.0)], ps
+            t = {**t, "points": t["points"][:-3] + [list(q) for q in S38_N_FILT_END]}
+        if t["net"] == "n_filt" and t["layer"] == "In1.Cu" and ps[:1] == [S38_N_FILT_VIA[0]]:
+            t = {**t, "points": [list(S38_N_FILT_VIA[1])] + t["points"][1:]}
+        if any(isinstance(q, str) and q.startswith("PS1.") for q in t["points"]):
+            raise SystemExit(f"stage 38: base track still names a PS1 pad: {t}")
+        keep.append(t)
+    keep.append({"net": "l_filt", "layer": "F.Cu", "width": 1.0, "points": [list(q) for q in S38_L_FILT]})
+    base["tracks"] = keep
+    base["vias"] = [v for v in vi if v["net"] != S38_V15]
+    for v in base["vias"]:
+        if v["net"] == "n_filt" and pt(v["at"]) == S38_N_FILT_VIA[0]:
+            v["at"], v["size"] = list(S38_N_FILT_VIA[1]), S38_N_FILT_VIA[2]
+    n = (n0[0] - len(base["tracks"]), n0[1] - len(base["vias"]))
+    print(f"stage 38: PS1 copper removed from the frozen base (net {n[0]} tracks, {n[1]} vias); L_FILT / N_FILT re-laid to F2 / J11")
+    return n
 
 
 def add_stage33(g):

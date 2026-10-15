@@ -1,6 +1,7 @@
 # 07 Conducted EMI, stage 19b: predicted margin vs limits (EMC1 follow-up)
 
 - **Design:** native-21 stage 19b (`zapote/power-stage-120v`, board SHA-256 `b19a4553…0756662`, from integration `5d53896c3`). Model-based desk study. **No measurement, no compliance claim.**
+- **Stage 38 (2026-10-15, candidate 23, DECISIONS 47): PASS, nominal 12.37 dB, every sensitivity >= 8.19 dB** with the stage-38 inlet module (Y removed, SCF31X 5.68 mH CM choke) as the nominal; see the update at the end. The 2026-10-13 text below is the s35 record.
 - **Verdict: PASS, conditional (updated 2026-10-13; DECISIONS item 20).** With the measured coil-to-PE capacitance from enclosure study 16 (31.0 pF, pan floating) the worst margin is 10.5 dB nominal and ≥ 6.5 dB in every sensitivity. The pass **requires the inlet filter module at ≥ 100 µH DM** (`MODULE_NOM`: 18 µH + 2 × 41 µH), whose 41 µH inductors have no MPN yet: the D-22 module as specified (18 µH) gives −5.1 dB and board-only −39.3 dB (`results.json`). A one-sided 100 pF coil-to-PE split gives −0.8 dB, so the bench must measure the split, not just the total. No result is a regulatory margin.
 - *Original 2026-10-12 verdict:* INCONCLUSIVE. Nominal cleared 6 dB (worst 7.8 dB, 9-150 kHz QP, at 60 kHz, common mode), but sensitivities fell to 1.8 dB, all driven by the then-unmeasured tank-coil-to-PE capacitance.
 
@@ -179,3 +180,28 @@ How `emi_s19b.py` uses this:
 The earthed pan is not a compliance test configuration; in use, it is a user touching the pan. Its 1.7–2.6 dB margin at 60 kHz:
 - keeps the coil-side shield and the 3.2 mH CM choke in reserve;
 - adds an earthed-pan robustness run to BENCH-PRECOMPLIANCE.
+
+## Update 2026-10-15: stage 38 (candidate 23, DECISIONS 47)
+
+The nominal inlet module is now the stage-38 one (`MODULE_S38` in `emi_s19b.py`): the D-22 module's four Y caps are
+removed and its CM choke is the KEMET SCF31X-220-2R1A011JH, 5.68 mH, 4.39 mOhm (DM leakage 1 % = 56.8 uH, unpublished;
+winding C and loss stay the TDK fit's, the co-design study's convention). Board L1 stays the TDK B82726S2203A020 and
+C3 / C4 stay 2.2 nF. The part-value sensitivities (Y -20 %, chokes -30 %, winding C x2, module DM L x31/41, X -20 %)
+are now relative to the nominal parts; for the s35 nominal they equal the absolute values used before. The REC* and
+STACKED rows keep absolute pre-stage-38 values and stay outside the verdict. The aux-supply bound covers 2 modules
+(PS2 MPM-20-24 on the board, PS3 MPM-65-15ST); PS1 is deleted.
+
+| | s38 | s35 |
+|---|---|---|
+| Nominal | **12.37 dB** | 10.48 dB |
+| + board copper (51 pF), the sensitivity minimum | 8.19 dB | 7.69 dB |
+| X caps -20 % | 9.86 dB | 6.50 dB (the s35 minimum) |
+| 22 A sensitivity minimum | 9.51 dB | 8.39 dB |
+| INFO: pan earthed, 91 pF | 3.32 dB | 2.62 dB |
+| Aux supplies at the limit bound, CM (incoherent sum) | 27.3 dB (2 modules) | 37.8 dB (3 modules) |
+
+**Verdict: PASS (>= 6 dB nominal and in every sensitivity); controls OK.** The same model solved by the co-design study
+gives the same numbers (`../leakage/co-design-2026-10-15`, candidate "B2.2 module Y removed, board 2.2 nF, module choke
+NC5.68": nominal 12.3745 / min 8.1863 dB; re-solved in `validation-results/11-candidates/c23-supply-topology/results/s38_leakage_emi.json`).
+The aux-supply CM bound falls by 10.5 dB per module because the module Y no longer shunts the supplies' CM current; it
+keeps 27 dB. The stage-35 numbers are in `git show 0aecdc56f:./results.json`.

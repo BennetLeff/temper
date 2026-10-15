@@ -245,8 +245,11 @@ component Bias4u7:
     signal p2 ~ pin 2
 
 component HotSupply24:
+    """Stage 38 (DECISIONS 47 item 2): MEAN WELL MPM-20-24 (was IRM-20-24). Same Case No. 219A (52.4 x 27.2 x 24 mm;
+    pins 3.4 / 45, 3.2 / 20.8 / 8 mm; MPM-20-SPEC 2024-10-30 p.4 = IRM-20-SPEC 2025-11-21 p.3), so the IRM-20 footprint
+    holds (pin 1.04 vs 1.0 mm in the 1.5 mm drill). Touch current < 80 uA / 264 VAC (p.2), 2 x MOPP."""
     designator_prefix = "PS"
-    mpn = "IRM-20-24"
+    mpn = "MPM-20-24"
     manufacturer = "Mean Well"
     footprint = "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT"
     signal ACL ~ pin 1

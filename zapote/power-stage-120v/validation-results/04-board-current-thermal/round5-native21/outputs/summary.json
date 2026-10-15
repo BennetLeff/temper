@@ -1,6 +1,6 @@
 {
-  "board_sha256": "fba59ef3d8169ee71a81a08d29c72f4e76acf8f420c91fd2515227adaabc8be4",
-  "input_sha256": "c16181a2d6c5891275b22bebefe926270ea80e1f41bd27480526ae8fedb4bff7",
+  "board_sha256": "b5bf428d2ff59574027fae92f248996804fdabb4363d479d3ea7c30762b09983",
+  "input_sha256": "d0f48f7bdd88d295e71709d83cda7a52a3643165d80da9e60c41ea78ad11441c",
   "evidence_class": "simulation/model-based, conditional current paths",
   "status": "A4 electrical model completed; operating waveform and thermal qualification pending",
   "rows": [
@@ -11,13 +11,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "15 A west replenishment",
-      "r_mohm": 1.58383381683256,
-      "loss_w": 0.356362608787326,
+      "r_mohm": 1.5838338168325627,
+      "loss_w": 0.3563626087873266,
       "drive_amps": 15.0,
       "layer_max_a_per_mm": {
         "In2.Cu": {
-          "amps_per_mm": 9.546566106295257,
-          "edge_amps": -1.1933207632869072,
+          "amps_per_mm": 9.546566106295307,
+          "edge_amps": -1.1933207632869134,
           "location_mm": [
             69.0375,
             6.225
@@ -25,8 +25,8 @@
           "orientation": "y"
         },
         "F.Cu": {
-          "amps_per_mm": 3.1225022567582524e-12,
-          "edge_amps": -3.9031278209478155e-13,
+          "amps_per_mm": 3.2381504884900396e-12,
+          "edge_amps": 4.0476881106125496e-13,
           "location_mm": [
             248.828699,
             93.031353
@@ -34,71 +34,13 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 2.2171418140579763e-12,
-          "edge_amps": 2.7714272675724704e-13,
+          "amps_per_mm": 2.1163626406917047e-12,
+          "edge_amps": 2.645453300864631e-13,
           "location_mm": [
             206.453699,
             65.281353
           ],
           "orientation": "x"
-        },
-        "B.Cu": {
-          "amps_per_mm": 9.25185853854297e-13,
-          "edge_amps": -1.1564823173178712e-13,
-          "location_mm": [
-            82.516199,
-            4.218853
-          ],
-          "orientation": "y"
-        }
-      },
-      "max_empty_via_a": 5.08437131795125e-13,
-      "flagged_empty_vias_over_3a": 0,
-      "undefined_island_barrels": 0,
-      "nodal_heat_file": "bus_dc_q2-p0125-pl18-heat.npz",
-      "nodal_heat_sha256": "f47a3bf999b0ef1e4796f62c2812d6a7ff86844c4b03c6a6d14a31b1d9dd9369",
-      "energy_balance_error_w": -2.080458028075327e-11,
-      "thermal_transfer_balance_error_w": -2.0804635791904502e-11,
-      "radial_contacts_checked": 2138,
-      "bad_radial_contacts": 0
-    },
-    {
-      "name": "bus_dc_q2-p0125-pl12",
-      "net": "bus_p",
-      "pitch_mm": 0.125,
-      "plating_um": 12.0,
-      "status": "conditional DC experiment",
-      "description": "15 A west replenishment",
-      "r_mohm": 1.7924050372546876,
-      "loss_w": 0.4032911333823047,
-      "drive_amps": 15.0,
-      "layer_max_a_per_mm": {
-        "In2.Cu": {
-          "amps_per_mm": 9.546566106222947,
-          "edge_amps": -1.1933207632778684,
-          "location_mm": [
-            69.0375,
-            6.225
-          ],
-          "orientation": "y"
-        },
-        "F.Cu": {
-          "amps_per_mm": 2.775557561562891e-12,
-          "edge_amps": 3.4694469519536137e-13,
-          "location_mm": [
-            248.828699,
-            93.031353
-          ],
-          "orientation": "x"
-        },
-        "In1.Cu": {
-          "amps_per_mm": 2.015583467325433e-12,
-          "edge_amps": -2.519479334156791e-13,
-          "location_mm": [
-            206.516199,
-            65.343853
-          ],
-          "orientation": "y"
         },
         "B.Cu": {
           "amps_per_mm": 1.040834085586084e-12,
@@ -110,13 +52,71 @@
           "orientation": "y"
         }
       },
-      "max_empty_via_a": 5.997322599041382e-13,
+      "max_empty_via_a": 5.011621966819992e-13,
+      "flagged_empty_vias_over_3a": 0,
+      "undefined_island_barrels": 0,
+      "nodal_heat_file": "bus_dc_q2-p0125-pl18-heat.npz",
+      "nodal_heat_sha256": "59af734732b0d71edd64a89c3e94596a3629d98f35512eaf55ebace1fd841f58",
+      "energy_balance_error_w": -2.0804025169240958e-11,
+      "thermal_transfer_balance_error_w": -2.0804025169240958e-11,
+      "radial_contacts_checked": 2138,
+      "bad_radial_contacts": 0
+    },
+    {
+      "name": "bus_dc_q2-p0125-pl12",
+      "net": "bus_p",
+      "pitch_mm": 0.125,
+      "plating_um": 12.0,
+      "status": "conditional DC experiment",
+      "description": "15 A west replenishment",
+      "r_mohm": 1.7924050372542824,
+      "loss_w": 0.4032911333822135,
+      "drive_amps": 15.0,
+      "layer_max_a_per_mm": {
+        "In2.Cu": {
+          "amps_per_mm": 9.546566106219798,
+          "edge_amps": -1.1933207632774747,
+          "location_mm": [
+            69.0375,
+            6.225
+          ],
+          "orientation": "y"
+        },
+        "F.Cu": {
+          "amps_per_mm": 1.5034270125132325e-12,
+          "edge_amps": 1.8792837656415407e-13,
+          "location_mm": [
+            10.266199,
+            8.468853
+          ],
+          "orientation": "y"
+        },
+        "In1.Cu": {
+          "amps_per_mm": 5.038958668313582e-12,
+          "edge_amps": -6.298698335391977e-13,
+          "location_mm": [
+            206.453699,
+            65.281353
+          ],
+          "orientation": "x"
+        },
+        "B.Cu": {
+          "amps_per_mm": 1.040834085586084e-12,
+          "edge_amps": -1.301042606982605e-13,
+          "location_mm": [
+            82.516199,
+            4.218853
+          ],
+          "orientation": "y"
+        }
+      },
+      "max_empty_via_a": 5.961800451366902e-13,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "bus_dc_q2-p0125-pl12-heat.npz",
-      "nodal_heat_sha256": "c1c43b66a75456a13e593d91ed331dbc549763727be75fb500b3076387a64a8c",
-      "energy_balance_error_w": -2.488731443150982e-11,
-      "thermal_transfer_balance_error_w": -2.488731443150982e-11,
+      "nodal_heat_sha256": "c41c88e4500c3bf6eac7bb335eb4ab60c455d312eb6a43a8e13d942fbc8406c0",
+      "energy_balance_error_w": -2.4978685786436472e-11,
+      "thermal_transfer_balance_error_w": -2.497863027528524e-11,
       "radial_contacts_checked": 2138,
       "bad_radial_contacts": 0
     },
@@ -127,13 +127,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "15 A west replenishment, opposite leg",
-      "r_mohm": 4.041536303305947,
-      "loss_w": 0.9093456682438381,
+      "r_mohm": 4.041536303303585,
+      "loss_w": 0.9093456682433065,
       "drive_amps": 15.0,
       "layer_max_a_per_mm": {
         "In2.Cu": {
-          "amps_per_mm": 10.927978195310605,
-          "edge_amps": -1.3659972744138256,
+          "amps_per_mm": 10.92797819530335,
+          "edge_amps": -1.3659972744129187,
           "location_mm": [
             21.2875,
             25.35
@@ -141,17 +141,17 @@
           "orientation": "y"
         },
         "F.Cu": {
-          "amps_per_mm": 5.319818659662207e-12,
-          "edge_amps": 6.649773324577759e-13,
+          "amps_per_mm": 3.2381504884900396e-12,
+          "edge_amps": -4.0476881106125496e-13,
           "location_mm": [
-            248.891199,
-            93.093853
+            82.516199,
+            4.218853
           ],
           "orientation": "y"
         },
         "In1.Cu": {
-          "amps_per_mm": 8.062333869301732e-12,
-          "edge_amps": 1.0077917336627165e-12,
+          "amps_per_mm": 1.6930901125533637e-11,
+          "edge_amps": -2.1163626406917047e-12,
           "location_mm": [
             206.453699,
             65.281353
@@ -159,22 +159,22 @@
           "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 2.544261098099317e-12,
-          "edge_amps": -3.180326372624146e-13,
+          "amps_per_mm": 9.945747928933692e-12,
+          "edge_amps": -1.2432184911167115e-12,
           "location_mm": [
-            82.516199,
-            4.218853
+            248.828699,
+            93.031353
           ],
-          "orientation": "y"
+          "orientation": "x"
         }
       },
-      "max_empty_via_a": 1.5924024636508687e-12,
+      "max_empty_via_a": 1.566536027693088e-12,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "bus_dc_q5-p0125-pl18-heat.npz",
-      "nodal_heat_sha256": "46b169cf92b1ae1c5a4a86027e93142f401fc7d8774e96cdc97e34c5ffe08758",
-      "energy_balance_error_w": -1.9509427406916302e-10,
-      "thermal_transfer_balance_error_w": -1.950940520245581e-10,
+      "nodal_heat_sha256": "0180d33547b31670b9974cf5edbc28bd5b62701e3a88841b1a8dfcdda2c86663",
+      "energy_balance_error_w": -1.9562573783105108e-10,
+      "thermal_transfer_balance_error_w": -1.9562584885335355e-10,
       "radial_contacts_checked": 2138,
       "bad_radial_contacts": 0
     },
@@ -185,13 +185,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "19 A local HF share, equally split capacitors",
-      "r_mohm": 1.283210062971069,
-      "loss_w": 0.46323883273255595,
+      "r_mohm": 1.2832100629710645,
+      "loss_w": 0.4632388327325543,
       "drive_amps": 19.0,
       "layer_max_a_per_mm": {
         "In2.Cu": {
-          "amps_per_mm": 12.037943363867226,
-          "edge_amps": -1.5047429204834033,
+          "amps_per_mm": 12.037943363867278,
+          "edge_amps": -1.5047429204834097,
           "location_mm": [
             69.0375,
             6.225
@@ -199,8 +199,8 @@
           "orientation": "y"
         },
         "F.Cu": {
-          "amps_per_mm": 9.367506770274757e-12,
-          "edge_amps": 1.1709383462843446e-12,
+          "amps_per_mm": 1.0292692624129053e-11,
+          "edge_amps": -1.2865865780161317e-12,
           "location_mm": [
             248.828699,
             93.031353
@@ -208,17 +208,17 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 1.9148042939591613e-12,
-          "edge_amps": -2.3935053674489516e-13,
+          "amps_per_mm": 7.054542135639015e-13,
+          "edge_amps": -8.818177669548769e-14,
           "location_mm": [
-            206.516199,
-            65.343853
+            206.328699,
+            65.406353
           ],
-          "orientation": "y"
+          "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 5.7824115865893564e-12,
-          "edge_amps": -7.228014483236696e-13,
+          "amps_per_mm": 4.394632805807911e-12,
+          "edge_amps": 5.493291007259888e-13,
           "location_mm": [
             248.828699,
             93.031353
@@ -226,13 +226,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 6.022029621420798e-13,
+      "max_empty_via_a": 6.094778972552056e-13,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "bus_hf_q2-p0125-pl18-heat.npz",
-      "nodal_heat_sha256": "5b75fc73a1e6c816b38896ff2af8218414f38ce7f0473ac1d4ba4dd610ae7a14",
-      "energy_balance_error_w": -3.137284876331137e-11,
-      "thermal_transfer_balance_error_w": -3.1372793252160136e-11,
+      "nodal_heat_sha256": "dec57ca6c2842086c4d4b2428d194ac295348bb0ac6469144b618866e229544d",
+      "energy_balance_error_w": -3.1374569608999536e-11,
+      "thermal_transfer_balance_error_w": -3.1374514097848305e-11,
       "radial_contacts_checked": 2138,
       "bad_radial_contacts": 0
     },
@@ -243,13 +243,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "19 A local HF share, equally split capacitors",
-      "r_mohm": 1.4953535610643387,
-      "loss_w": 0.5398226355442263,
+      "r_mohm": 1.495353561063955,
+      "loss_w": 0.5398226355440878,
       "drive_amps": 19.0,
       "layer_max_a_per_mm": {
         "In2.Cu": {
-          "amps_per_mm": 12.256810074559638,
-          "edge_amps": -1.5321012593199548,
+          "amps_per_mm": 12.256810074556313,
+          "edge_amps": -1.532101259319539,
           "location_mm": [
             10.9125,
             6.1
@@ -257,8 +257,8 @@
           "orientation": "y"
         },
         "F.Cu": {
-          "amps_per_mm": 8.557969148152248e-12,
-          "edge_amps": 1.069746143519031e-12,
+          "amps_per_mm": 8.211024452956886e-12,
+          "edge_amps": 1.0263780566196108e-12,
           "location_mm": [
             248.828699,
             93.031353
@@ -266,8 +266,8 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 7.35687965573783e-12,
-          "edge_amps": 9.196099569672287e-13,
+          "amps_per_mm": 1.713245947226618e-12,
+          "edge_amps": -2.1415574340332725e-13,
           "location_mm": [
             206.453699,
             65.281353
@@ -275,22 +275,22 @@
           "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 1.2721305490496584e-12,
-          "edge_amps": -1.590163186312073e-13,
+          "amps_per_mm": 4.510281037539698e-12,
+          "edge_amps": -5.637851296924622e-13,
           "location_mm": [
-            82.516199,
-            4.218853
+            248.828699,
+            93.031353
           ],
-          "orientation": "y"
+          "orientation": "x"
         }
       },
-      "max_empty_via_a": 8.115594281753665e-13,
+      "max_empty_via_a": 8.075177975569633e-13,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "bus_hf_q5-p0125-pl18-heat.npz",
-      "nodal_heat_sha256": "7cc831273e7c2d68f916eb3525ac93c3eb92ef17eb9bc84f98383ea85950c92b",
-      "energy_balance_error_w": -5.450673246087945e-11,
-      "thermal_transfer_balance_error_w": -5.450684348318191e-11,
+      "nodal_heat_sha256": "cbc13b9b6acc9ba1e14a2cf81e90e9a8d794aed430429fd1348835fa9250579e",
+      "energy_balance_error_w": -5.4645177272050205e-11,
+      "thermal_transfer_balance_error_w": -5.4645177272050205e-11,
       "radial_contacts_checked": 2138,
       "bad_radial_contacts": 0
     },
@@ -301,13 +301,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "15+19 A coherent DC/HF experiment",
-      "r_mohm": 1.2089908922787322,
-      "loss_w": 1.3975934714742144,
+      "r_mohm": 1.2089908922787418,
+      "loss_w": 1.3975934714742255,
       "drive_amps": 34.0,
       "layer_max_a_per_mm": {
         "In2.Cu": {
-          "amps_per_mm": 21.584509470162484,
-          "edge_amps": -2.6980636837703105,
+          "amps_per_mm": 21.584509470162637,
+          "edge_amps": -2.6980636837703296,
           "location_mm": [
             69.0375,
             6.225
@@ -315,8 +315,8 @@
           "orientation": "y"
         },
         "F.Cu": {
-          "amps_per_mm": 1.2258712563569436e-11,
-          "edge_amps": 1.5323390704461795e-12,
+          "amps_per_mm": 6.707597440443653e-12,
+          "edge_amps": -8.384496800554566e-13,
           "location_mm": [
             248.828699,
             93.031353
@@ -324,31 +324,31 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 1.410908427127803e-12,
-          "edge_amps": 1.7636355339097537e-13,
+          "amps_per_mm": 8.465450562766819e-12,
+          "edge_amps": -1.0581813203458523e-12,
           "location_mm": [
-            82.203699,
-            2.656353
+            206.453699,
+            65.281353
           ],
           "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 1.850371707708594e-12,
-          "edge_amps": -2.3129646346357425e-13,
+          "amps_per_mm": 2.081668171172168e-12,
+          "edge_amps": 2.60208521396521e-13,
           "location_mm": [
-            82.516199,
-            4.218853
+            248.828699,
+            93.031353
           ],
-          "orientation": "y"
+          "orientation": "x"
         }
       },
-      "max_empty_via_a": 1.1074067894424822e-12,
+      "max_empty_via_a": 1.1057901371951209e-12,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "bus_mixed_q2-p0125-pl18-heat.npz",
-      "nodal_heat_sha256": "1a94e13377ed8e2149b85c94bc28fef64997bea6183eafddb06cb500c64c591e",
-      "energy_balance_error_w": -1.0314682441503464e-10,
-      "thermal_transfer_balance_error_w": -1.0314682441503464e-10,
+      "nodal_heat_sha256": "6d20e445ea6e75c99640213b7cabea61fb810a177f90a7bf23990e482a589304",
+      "energy_balance_error_w": -1.0313572218478839e-10,
+      "thermal_transfer_balance_error_w": -1.0313594422939332e-10,
       "radial_contacts_checked": 2138,
       "bad_radial_contacts": 0
     },
@@ -359,13 +359,13 @@
       "plating_um": 12.0,
       "status": "conditional DC experiment",
       "description": "15+19 A coherent DC/HF experiment",
-      "r_mohm": 1.357292679797326,
-      "loss_w": 1.5690303378457089,
+      "r_mohm": 1.3572926797969396,
+      "loss_w": 1.5690303378452621,
       "drive_amps": 34.0,
       "layer_max_a_per_mm": {
         "In2.Cu": {
-          "amps_per_mm": 21.584509469998668,
-          "edge_amps": -2.6980636837498335,
+          "amps_per_mm": 21.584509469992014,
+          "edge_amps": -2.6980636837490017,
           "location_mm": [
             69.0375,
             6.225
@@ -373,17 +373,17 @@
           "orientation": "y"
         },
         "F.Cu": {
-          "amps_per_mm": 1.0177044392397267e-11,
-          "edge_amps": 1.2721305490496584e-12,
+          "amps_per_mm": 3.700743415417188e-12,
+          "edge_amps": 4.625929269271485e-13,
           "location_mm": [
-            248.828699,
-            93.031353
+            10.266199,
+            8.468853
           ],
-          "orientation": "x"
+          "orientation": "y"
         },
         "In1.Cu": {
-          "amps_per_mm": 6.6514254421739286e-12,
-          "edge_amps": -8.314281802717411e-13,
+          "amps_per_mm": 1.0279475683359708e-11,
+          "edge_amps": -1.2849344604199635e-12,
           "location_mm": [
             206.453699,
             65.281353
@@ -391,22 +391,22 @@
           "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 1.850371707708594e-12,
-          "edge_amps": 2.3129646346357425e-13,
+          "amps_per_mm": 2.081668171172168e-12,
+          "edge_amps": -2.60208521396521e-13,
           "location_mm": [
-            82.453699,
-            4.156353
+            82.516199,
+            4.218853
           ],
-          "orientation": "x"
+          "orientation": "y"
         }
       },
-      "max_empty_via_a": 1.3261601798472553e-12,
+      "max_empty_via_a": 1.324976108258106e-12,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "bus_mixed_q2-p0125-pl12-heat.npz",
-      "nodal_heat_sha256": "858296fdcc01b112c3a15b187588ba2a6912594d66f5c5ae6bdf73ce74f6e5b2",
-      "energy_balance_error_w": -1.237521196628677e-10,
-      "thermal_transfer_balance_error_w": -1.237521196628677e-10,
+      "nodal_heat_sha256": "340aa3d12e6d77105619303a9f4349cd926470bcc63b2e2aacf3c8e80f1a4733",
+      "energy_balance_error_w": -1.2419887340797686e-10,
+      "thermal_transfer_balance_error_w": -1.24198429318767e-10,
       "radial_contacts_checked": 2138,
       "bad_radial_contacts": 0
     },
@@ -417,71 +417,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "15+19 A coherent DC/HF experiment, opposite leg",
-      "r_mohm": 1.964903958144198,
-      "loss_w": 2.2714289756146933,
+      "r_mohm": 1.964903958143149,
+      "loss_w": 2.2714289756134804,
       "drive_amps": 34.0,
       "layer_max_a_per_mm": {
         "In2.Cu": {
-          "amps_per_mm": 21.93693927271211,
-          "edge_amps": -2.7421174090890137,
-          "location_mm": [
-            10.9125,
-            6.1
-          ],
-          "orientation": "y"
-        },
-        "F.Cu": {
-          "amps_per_mm": 1.9891495857867384e-11,
-          "edge_amps": -2.486436982233423e-12,
-          "location_mm": [
-            248.891199,
-            93.093853
-          ],
-          "orientation": "y"
-        },
-        "In1.Cu": {
-          "amps_per_mm": 6.0467504019762986e-12,
-          "edge_amps": -7.558438002470373e-13,
-          "location_mm": [
-            206.453699,
-            65.281353
-          ],
-          "orientation": "x"
-        },
-        "B.Cu": {
-          "amps_per_mm": 3.1918911957973244e-11,
-          "edge_amps": -3.9898639947466555e-12,
-          "location_mm": [
-            248.828699,
-            93.031353
-          ],
-          "orientation": "x"
-        }
-      },
-      "max_empty_via_a": 2.3797121081158157e-12,
-      "flagged_empty_vias_over_3a": 0,
-      "undefined_island_barrels": 0,
-      "nodal_heat_file": "bus_mixed_q5-p0125-pl18-heat.npz",
-      "nodal_heat_sha256": "386ccc5190d2565cc2fbfedf65b17613cccf06c847238d124fd91531d9986c6f",
-      "energy_balance_error_w": -4.5403192316939567e-10,
-      "thermal_transfer_balance_error_w": -4.5403192316939567e-10,
-      "radial_contacts_checked": 2138,
-      "bad_radial_contacts": 0
-    },
-    {
-      "name": "bus_mixed_q5-p0125-pl12",
-      "net": "bus_p",
-      "pitch_mm": 0.125,
-      "plating_um": 12.0,
-      "status": "conditional DC experiment",
-      "description": "15+19 A coherent DC/HF experiment, opposite leg",
-      "r_mohm": 2.113205745644121,
-      "loss_w": 2.442865841964604,
-      "drive_amps": 34.0,
-      "layer_max_a_per_mm": {
-        "In2.Cu": {
-          "amps_per_mm": 21.936939272542396,
-          "edge_amps": -2.7421174090677995,
+          "amps_per_mm": 21.936939272702332,
+          "edge_amps": -2.7421174090877916,
           "location_mm": [
             10.9125,
             6.1
@@ -498,8 +440,8 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 2.4993234994835368e-11,
-          "edge_amps": -3.124154374354421e-12,
+          "amps_per_mm": 6.852983788906472e-12,
+          "edge_amps": -8.56622973613309e-13,
           "location_mm": [
             206.453699,
             65.281353
@@ -507,8 +449,66 @@
           "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 4.163336342344336e-12,
-          "edge_amps": -5.20417042793042e-13,
+          "amps_per_mm": 9.251858538542969e-12,
+          "edge_amps": -1.1564823173178711e-12,
+          "location_mm": [
+            248.828699,
+            93.031353
+          ],
+          "orientation": "x"
+        }
+      },
+      "max_empty_via_a": 2.3958786305894287e-12,
+      "flagged_empty_vias_over_3a": 0,
+      "undefined_island_barrels": 0,
+      "nodal_heat_file": "bus_mixed_q5-p0125-pl18-heat.npz",
+      "nodal_heat_sha256": "8fd87598b786a96647d6ec175921b93c8279ef8ac05dca092cf5736f548803fb",
+      "energy_balance_error_w": -4.552456189799159e-10,
+      "thermal_transfer_balance_error_w": -4.552456189799159e-10,
+      "radial_contacts_checked": 2138,
+      "bad_radial_contacts": 0
+    },
+    {
+      "name": "bus_mixed_q5-p0125-pl12",
+      "net": "bus_p",
+      "pitch_mm": 0.125,
+      "plating_um": 12.0,
+      "status": "conditional DC experiment",
+      "description": "15+19 A coherent DC/HF experiment, opposite leg",
+      "r_mohm": 2.1132057456435387,
+      "loss_w": 2.442865841963931,
+      "drive_amps": 34.0,
+      "layer_max_a_per_mm": {
+        "In2.Cu": {
+          "amps_per_mm": 21.93693927253736,
+          "edge_amps": -2.74211740906717,
+          "location_mm": [
+            10.9125,
+            6.1
+          ],
+          "orientation": "y"
+        },
+        "F.Cu": {
+          "amps_per_mm": 3.423187659260899e-11,
+          "edge_amps": 4.278984574076124e-12,
+          "location_mm": [
+            248.828699,
+            93.031353
+          ],
+          "orientation": "x"
+        },
+        "In1.Cu": {
+          "amps_per_mm": 2.7411935155625888e-11,
+          "edge_amps": -3.426491894453236e-12,
+          "location_mm": [
+            206.453699,
+            65.281353
+          ],
+          "orientation": "x"
+        },
+        "B.Cu": {
+          "amps_per_mm": 4.6259292692714845e-12,
+          "edge_amps": -5.782411586589356e-13,
           "location_mm": [
             82.516199,
             4.218853
@@ -516,13 +516,13 @@
           "orientation": "y"
         }
       },
-      "max_empty_via_a": 2.7233646550434705e-12,
+      "max_empty_via_a": 2.720996511865172e-12,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "bus_mixed_q5-p0125-pl12-heat.npz",
-      "nodal_heat_sha256": "6aa6a8fdd1d0f439566e394727030f10fddc8ca3327e0322cab1f9b8670c54b2",
-      "energy_balance_error_w": -4.962217303727812e-10,
-      "thermal_transfer_balance_error_w": -4.962217303727812e-10,
+      "nodal_heat_sha256": "07ac092a57108f0758d054178bffbd0ea40d625e53eaed7543ea2a0e6a87e79a",
+      "energy_balance_error_w": -4.968940814364942e-10,
+      "thermal_transfer_balance_error_w": -4.968940814364942e-10,
       "radial_contacts_checked": 2138,
       "bad_radial_contacts": 0
     },
@@ -533,8 +533,8 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "15 A shunt-to-west return",
-      "r_mohm": 2.3081712153382425,
-      "loss_w": 0.5193385234511045,
+      "r_mohm": 2.30817121533793,
+      "loss_w": 0.5193385234510342,
       "drive_amps": 15.0,
       "layer_max_a_per_mm": {
         "F.Cu": {
@@ -556,8 +556,8 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 7.657260150350479,
-          "edge_amps": 0.4785787593969049,
+          "amps_per_mm": 7.657260150349471,
+          "edge_amps": 0.4785787593968419,
           "location_mm": [
             41.1,
             32.31875
@@ -565,8 +565,8 @@
           "orientation": "x"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.5053078350091397,
-          "edge_amps": -0.03158173968807123,
+          "amps_per_mm": 0.505307835008938,
+          "edge_amps": -0.03158173968805863,
           "location_mm": [
             35.828699,
             14.260532
@@ -574,13 +574,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 4.4615920361758405,
+      "max_empty_via_a": 4.4615920361757935,
       "flagged_empty_vias_over_3a": 2,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "hv_dc-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "f83fef5d5bd6cbd65cc59a4edfd61303bf9c125ff2edc44ac157067513a46489",
-      "energy_balance_error_w": -4.069167225395631e-11,
-      "thermal_transfer_balance_error_w": -4.069167225395631e-11,
+      "nodal_heat_sha256": "ba4acc293210566ee3b6c272ab99a1e3728d319919657d378f1539ab0353b63f",
+      "energy_balance_error_w": -4.0761949371415085e-11,
+      "thermal_transfer_balance_error_w": -4.076206039371755e-11,
       "radial_contacts_checked": 5858,
       "bad_radial_contacts": 0
     },
@@ -591,8 +591,8 @@
       "plating_um": 12.0,
       "status": "conditional DC experiment",
       "description": "15 A shunt-to-west return",
-      "r_mohm": 2.386572166005551,
-      "loss_w": 0.536978737351249,
+      "r_mohm": 2.386572166005464,
+      "loss_w": 0.5369787373512295,
       "drive_amps": 15.0,
       "layer_max_a_per_mm": {
         "F.Cu": {
@@ -623,8 +623,8 @@
           "orientation": "x"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.41628025601862795,
-          "edge_amps": -0.026017516001164247,
+          "amps_per_mm": 0.416280256019031,
+          "edge_amps": -0.02601751600118944,
           "location_mm": [
             35.828699,
             14.260532
@@ -632,13 +632,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 4.046070429109443,
+      "max_empty_via_a": 4.046070429109288,
       "flagged_empty_vias_over_3a": 2,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "hv_dc-p00625-pl12-heat.npz",
-      "nodal_heat_sha256": "35cccc1ab3ce367dc0d8f64be0d213ca183a7a85633053f1bb68722b5e2b52fa",
-      "energy_balance_error_w": -4.5204395782150186e-11,
-      "thermal_transfer_balance_error_w": -4.520450680445265e-11,
+      "nodal_heat_sha256": "b758f044f93009383da0436d389bb827b11d7db9f6de906b309441b41233e278",
+      "energy_balance_error_w": -4.522404672968605e-11,
+      "thermal_transfer_balance_error_w": -4.522393570738359e-11,
       "radial_contacts_checked": 5858,
       "bad_radial_contacts": 0
     },
@@ -649,8 +649,8 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "19 A return to A local capacitor pair, equipotential sinks",
-      "r_mohm": 1.2416466116173814,
-      "loss_w": 0.4482344267938747,
+      "r_mohm": 1.2416466116173988,
+      "loss_w": 0.448234426793881,
       "drive_amps": 19.0,
       "layer_max_a_per_mm": {
         "F.Cu": {
@@ -663,8 +663,8 @@
           "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 0.13516259587259546,
-          "edge_amps": -0.008447662242037217,
+          "amps_per_mm": 0.13516259587282678,
+          "edge_amps": -0.008447662242051674,
           "location_mm": [
             35.828699,
             14.260532
@@ -672,8 +672,8 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 10.077598392405688,
-          "edge_amps": 0.6298498995253555,
+          "amps_per_mm": 10.077598392406141,
+          "edge_amps": 0.6298498995253838,
           "location_mm": [
             41.5375,
             32.31875
@@ -690,13 +690,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 5.6514705220023735,
+      "max_empty_via_a": 5.6514705220023025,
       "flagged_empty_vias_over_3a": 2,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "hv_hf_a-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "1eb593070a475ec97dad181189270362d51dc9be34c82dc57d74f5553fe8462d",
-      "energy_balance_error_w": -7.551292924290465e-12,
-      "thermal_transfer_balance_error_w": -7.551348435441696e-12,
+      "nodal_heat_sha256": "4edd52983512838a824ce8a2670cb5d406b59d97de4777ac7d8ce83bfd8c14e3",
+      "energy_balance_error_w": -7.545186697655026e-12,
+      "thermal_transfer_balance_error_w": -7.545131186503795e-12,
       "radial_contacts_checked": 5858,
       "bad_radial_contacts": 0
     },
@@ -707,13 +707,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "19 A return to B local capacitor pair, equipotential sinks",
-      "r_mohm": 0.6689470021675524,
-      "loss_w": 0.24148986778248643,
+      "r_mohm": 0.6689470021675339,
+      "loss_w": 0.24148986778247972,
       "drive_amps": 19.0,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 82.26088679405817,
-          "edge_amps": -5.141305424628635,
+          "amps_per_mm": 82.26088679405794,
+          "edge_amps": -5.141305424628621,
           "location_mm": [
             38.453699,
             15.198032
@@ -721,8 +721,8 @@
           "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 0.14172602650763577,
-          "edge_amps": -0.008857876656727236,
+          "amps_per_mm": 0.1417260265076936,
+          "edge_amps": -0.00885787665673085,
           "location_mm": [
             35.828699,
             14.260532
@@ -739,8 +739,8 @@
           "orientation": "y"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.6708188254168168,
-          "edge_amps": -0.04192617658855105,
+          "amps_per_mm": 0.670818825416716,
+          "edge_amps": -0.04192617658854475,
           "location_mm": [
             35.828699,
             14.260532
@@ -748,13 +748,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 5.615676787115,
+      "max_empty_via_a": 5.615676787114995,
       "flagged_empty_vias_over_3a": 2,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "hv_hf_b-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "f04602336ee8194f6fc27e5e915d731273134b1fa35dfbf39d0cbdcf3161ac0c",
-      "energy_balance_error_w": -1.8144930002961246e-12,
-      "thermal_transfer_balance_error_w": -1.8145207558717402e-12,
+      "nodal_heat_sha256": "a256d085c3e70d2b1ec1063ff15939335ce8b57887ba98d90ff128de03381612",
+      "energy_balance_error_w": -1.8212931163219537e-12,
+      "thermal_transfer_balance_error_w": -1.8212931163219537e-12,
       "radial_contacts_checked": 5858,
       "bad_radial_contacts": 0
     },
@@ -765,13 +765,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "15 A west and 19 A local A return, coherent",
-      "r_mohm": 1.4809091438253326,
-      "loss_w": 1.7119309702620844,
+      "r_mohm": 1.480909143825204,
+      "loss_w": 1.7119309702619359,
       "drive_amps": 34.0,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 147.21016036948566,
-          "edge_amps": -9.200635023092854,
+          "amps_per_mm": 147.21016036948657,
+          "edge_amps": -9.20063502309291,
           "location_mm": [
             38.453699,
             15.198032
@@ -788,8 +788,8 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 17.58416789515288,
-          "edge_amps": 1.099010493447055,
+          "amps_per_mm": 17.584167895151268,
+          "edge_amps": 1.0990104934469542,
           "location_mm": [
             41.1,
             32.31875
@@ -806,13 +806,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 10.11302727003123,
+      "max_empty_via_a": 10.113027270031324,
       "flagged_empty_vias_over_3a": 6,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "hv_mixed_a-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "7ba50d33629a6a37e48828d1df804df6055d54e8f2dc3328032dd2d7b3013113",
-      "energy_balance_error_w": -7.634604060058336e-11,
-      "thermal_transfer_balance_error_w": -7.634604060058336e-11,
+      "nodal_heat_sha256": "2a9d8457e7ad955de9de8135c19275578c17f9a603e09542627f710fa33800f5",
+      "energy_balance_error_w": -7.649436639667329e-11,
+      "thermal_transfer_balance_error_w": -7.649458844127821e-11,
       "radial_contacts_checked": 5858,
       "bad_radial_contacts": 0
     },
@@ -823,8 +823,8 @@
       "plating_um": 12.0,
       "status": "conditional DC experiment",
       "description": "15 A west and 19 A local A return, coherent",
-      "r_mohm": 1.5308779946969087,
-      "loss_w": 1.7696949618696265,
+      "r_mohm": 1.5308779946969027,
+      "loss_w": 1.7696949618696194,
       "drive_amps": 34.0,
       "layer_max_a_per_mm": {
         "F.Cu": {
@@ -837,8 +837,8 @@
           "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 0.14471957422851342,
-          "edge_amps": -0.009044973389282089,
+          "amps_per_mm": 0.14471957422943862,
+          "edge_amps": -0.009044973389339914,
           "location_mm": [
             35.828699,
             14.260532
@@ -846,8 +846,8 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 17.58352309391874,
-          "edge_amps": 1.0989701933699212,
+          "amps_per_mm": 17.583523093918334,
+          "edge_amps": 1.0989701933698959,
           "location_mm": [
             41.1,
             32.31875
@@ -855,8 +855,8 @@
           "orientation": "x"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.943516330722353,
-          "edge_amps": -0.05896977067014706,
+          "amps_per_mm": 0.9435163307227561,
+          "edge_amps": -0.058969770670172256,
           "location_mm": [
             35.828699,
             14.260532
@@ -864,13 +864,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 9.171161261617797,
+      "max_empty_via_a": 9.171161261617518,
       "flagged_empty_vias_over_3a": 6,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "hv_mixed_a-p00625-pl12-heat.npz",
-      "nodal_heat_sha256": "df1b38fc4881b1f66a89a8c4f6927657b40f014f5a78a77bc29586d9692bf665",
-      "energy_balance_error_w": -8.189093847477125e-11,
-      "thermal_transfer_balance_error_w": -8.189071643016632e-11,
+      "nodal_heat_sha256": "73ca5cdf91e0984d6a69ae4c0b9b1c5b06b1eaf5617303df608a0c7d8c17fce9",
+      "energy_balance_error_w": -8.189715572370915e-11,
+      "thermal_transfer_balance_error_w": -8.189737776831407e-11,
       "radial_contacts_checked": 5858,
       "bad_radial_contacts": 0
     },
@@ -881,13 +881,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "15 A west and 19 A local B return, coherent",
-      "r_mohm": 0.930606553524614,
-      "loss_w": 1.0757811758744538,
+      "r_mohm": 0.9306065535245329,
+      "loss_w": 1.07578117587436,
       "drive_amps": 34.0,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 147.2045565448739,
-          "edge_amps": -9.200284784054618,
+          "amps_per_mm": 147.20455654487438,
+          "edge_amps": -9.200284784054649,
           "location_mm": [
             38.453699,
             15.198032
@@ -904,8 +904,8 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 10.20952301135374,
-          "edge_amps": 0.6380951882096088,
+          "amps_per_mm": 10.209523011353339,
+          "edge_amps": 0.6380951882095837,
           "location_mm": [
             37.00625,
             15.9125
@@ -922,13 +922,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 10.057970428464332,
+      "max_empty_via_a": 10.05797042846438,
       "flagged_empty_vias_over_3a": 6,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "hv_mixed_b-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "02f41b69ca09fda3741408a6ff04a6e29765610437d6eac005da51ed938957ae",
-      "energy_balance_error_w": -4.093037020425072e-11,
-      "thermal_transfer_balance_error_w": -4.093037020425072e-11,
+      "nodal_heat_sha256": "1a08425c5d29ee9c511932ad76cb7db919c79c162f84eb63fecd5cf2b7ea35e7",
+      "energy_balance_error_w": -4.1023184849109384e-11,
+      "thermal_transfer_balance_error_w": -4.102340689371431e-11,
       "radial_contacts_checked": 5858,
       "bad_radial_contacts": 0
     },
@@ -939,13 +939,13 @@
       "plating_um": 12.0,
       "status": "conditional DC experiment",
       "description": "15 A west and 19 A local B return, coherent",
-      "r_mohm": 0.9805133962395924,
-      "loss_w": 1.133473486052969,
+      "r_mohm": 0.9805133962395819,
+      "loss_w": 1.1334734860529567,
       "drive_amps": 34.0,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 147.12438255860548,
-          "edge_amps": -9.195273909912842,
+          "amps_per_mm": 147.12438255860502,
+          "edge_amps": -9.195273909912814,
           "location_mm": [
             38.453699,
             15.198032
@@ -953,8 +953,8 @@
           "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 0.1506221000049934,
-          "edge_amps": -0.009413881250312088,
+          "amps_per_mm": 0.150622100005456,
+          "edge_amps": -0.009413881250341,
           "location_mm": [
             35.828699,
             14.260532
@@ -962,8 +962,8 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 10.685678832448763,
-          "edge_amps": -0.6678549270280477,
+          "amps_per_mm": 10.68567883244957,
+          "edge_amps": -0.6678549270280981,
           "location_mm": [
             35.6625,
             13.69375
@@ -980,13 +980,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 9.12683251346364,
+      "max_empty_via_a": 9.126832513463485,
       "flagged_empty_vias_over_3a": 6,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "hv_mixed_b-p00625-pl12-heat.npz",
-      "nodal_heat_sha256": "a20ad81ae971589010ab33c86345aef5268cfa96b516fb8c9624fc14f640ecd5",
-      "energy_balance_error_w": -4.5490278210991164e-11,
-      "thermal_transfer_balance_error_w": -4.5490278210991164e-11,
+      "nodal_heat_sha256": "0549cf9798d5434dfe59dcb735b97d75f5ff59bacaa073cdbbc4b9690a9b3749",
+      "energy_balance_error_w": -4.550293475347189e-11,
+      "thermal_transfer_balance_error_w": -4.550293475347189e-11,
       "radial_contacts_checked": 5858,
       "bad_radial_contacts": 0
     },
@@ -1002,8 +1002,8 @@
       "drive_amps": 18.7,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 12.455458403463687,
-          "edge_amps": -0.7784661502164805,
+          "amps_per_mm": 12.455458403463716,
+          "edge_amps": -0.7784661502164822,
           "location_mm": [
             38.7625,
             9.94375
@@ -1011,8 +1011,8 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 10.174927199115578,
-          "edge_amps": 0.6359329499447236,
+          "amps_per_mm": 10.174927199115375,
+          "edge_amps": 0.635932949944711,
           "location_mm": [
             54.46875,
             6.1625
@@ -1020,8 +1020,8 @@
           "orientation": "y"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.2594130765107754,
-          "edge_amps": -0.01621331728192346,
+          "amps_per_mm": 0.2594130765107502,
+          "edge_amps": -0.016213317281921887,
           "location_mm": [
             39.3125,
             11.500103
@@ -1038,13 +1038,13 @@
           "orientation": "y"
         }
       },
-      "max_empty_via_a": 3.105418327983626,
+      "max_empty_via_a": 3.1054183279836334,
       "flagged_empty_vias_over_3a": 1,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "leg_a_18p7-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "96067d058cf2173dfe57e610912c2cecc186cfc6b1c9fc3bb3a593700ac7abc2",
-      "energy_balance_error_w": -2.85538259703344e-12,
-      "thermal_transfer_balance_error_w": -2.8554936193359026e-12,
+      "nodal_heat_sha256": "9ebf035af2143b83d62459b8476dd7e5afa7843f23452ba224e44f48ab24e352",
+      "energy_balance_error_w": -2.8554936193359026e-12,
+      "thermal_transfer_balance_error_w": -2.85538259703344e-12,
       "radial_contacts_checked": 2630,
       "bad_radial_contacts": 0
     },
@@ -1060,8 +1060,8 @@
       "drive_amps": 18.7,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 12.682583736474724,
-          "edge_amps": -0.7926614835296703,
+          "amps_per_mm": 12.682583736474726,
+          "edge_amps": -0.7926614835296704,
           "location_mm": [
             38.7625,
             9.94375
@@ -1087,8 +1087,8 @@
           "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 0.020441460915592242,
-          "edge_amps": -0.0012775913072245152,
+          "amps_per_mm": 0.020441460915621153,
+          "edge_amps": -0.001277591307226322,
           "location_mm": [
             40.71875,
             7.093853
@@ -1096,13 +1096,13 @@
           "orientation": "y"
         }
       },
-      "max_empty_via_a": 2.593516086959437,
+      "max_empty_via_a": 2.59351608695944,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "leg_a_18p7-p00625-pl12-heat.npz",
-      "nodal_heat_sha256": "9994d5c93931635e90a498c40bd7c6a8b0a3e420221adf2f5f44f545e1a49461",
-      "energy_balance_error_w": -3.085975919248085e-12,
-      "thermal_transfer_balance_error_w": -3.08575387464316e-12,
+      "nodal_heat_sha256": "e494d1a884a7759efd2172f69e3ea5944dc394e5aaa65810c7d768dd76765f1b",
+      "energy_balance_error_w": -3.0858648969456226e-12,
+      "thermal_transfer_balance_error_w": -3.0858648969456226e-12,
       "radial_contacts_checked": 2630,
       "bad_radial_contacts": 0
     },
@@ -1113,13 +1113,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "18.7 A low-side B path",
-      "r_mohm": 0.2221981069045369,
-      "loss_w": 0.07770045600344751,
+      "r_mohm": 0.22219810690453717,
+      "loss_w": 0.0777004560034476,
       "drive_amps": 18.7,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 12.575095149082712,
-          "edge_amps": 0.7859434468176695,
+          "amps_per_mm": 12.575095149082737,
+          "edge_amps": 0.785943446817671,
           "location_mm": [
             38.325,
             9.94375
@@ -1136,8 +1136,8 @@
           "orientation": "y"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.12691396679819616,
-          "edge_amps": 0.00793212292488726,
+          "amps_per_mm": 0.12691396679820877,
+          "edge_amps": 0.007932122924888048,
           "location_mm": [
             38.40625,
             8.718853
@@ -1145,8 +1145,8 @@
           "orientation": "y"
         },
         "B.Cu": {
-          "amps_per_mm": 0.01329602960814235,
-          "edge_amps": 0.0008310018505088969,
+          "amps_per_mm": 0.013296029608156807,
+          "edge_amps": 0.0008310018505098004,
           "location_mm": [
             38.40625,
             8.718853
@@ -1154,13 +1154,13 @@
           "orientation": "y"
         }
       },
-      "max_empty_via_a": 2.601057790124336,
+      "max_empty_via_a": 2.6010577901243432,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "leg_b_18p7-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "2cb2d6397df01251ee86a9965e93d6ef91f01cdf22a0189f084565a9480d5ac1",
-      "energy_balance_error_w": -9.463263506148678e-14,
-      "thermal_transfer_balance_error_w": -9.463263506148678e-14,
+      "nodal_heat_sha256": "84ca1a1b1a1764cb66652ee8247f56fc45691d589ec64eb9bb3e65dea517361c",
+      "energy_balance_error_w": -9.45493683346399e-14,
+      "thermal_transfer_balance_error_w": -9.453549054683208e-14,
       "radial_contacts_checked": 2630,
       "bad_radial_contacts": 0
     },
@@ -1171,13 +1171,13 @@
       "plating_um": 12.0,
       "status": "conditional DC experiment",
       "description": "18.7 A low-side B path",
-      "r_mohm": 0.23479622798238595,
-      "loss_w": 0.08210589296316054,
+      "r_mohm": 0.234796227982386,
+      "loss_w": 0.08210589296316056,
       "drive_amps": 18.7,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 13.079461830314093,
-          "edge_amps": 0.8174663643946308,
+          "amps_per_mm": 13.079461830314106,
+          "edge_amps": 0.8174663643946316,
           "location_mm": [
             38.325,
             9.94375
@@ -1185,8 +1185,8 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 2.1693186758176317,
-          "edge_amps": 0.13558241723860198,
+          "amps_per_mm": 2.169318675817607,
+          "edge_amps": 0.13558241723860043,
           "location_mm": [
             33.59375,
             5.0375
@@ -1194,8 +1194,8 @@
           "orientation": "y"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.0847933380939241,
-          "edge_amps": 0.005299583630870256,
+          "amps_per_mm": 0.0847933380939115,
+          "edge_amps": 0.005299583630869469,
           "location_mm": [
             38.40625,
             8.718853
@@ -1203,8 +1203,8 @@
           "orientation": "y"
         },
         "B.Cu": {
-          "amps_per_mm": 0.006337504029404795,
-          "edge_amps": 0.0003960940018377997,
+          "amps_per_mm": 0.0063375040293758836,
+          "edge_amps": 0.0003960940018359927,
           "location_mm": [
             38.125,
             8.875103
@@ -1212,13 +1212,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 2.010314905195345,
+      "max_empty_via_a": 2.010314905195347,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "leg_b_18p7-p00625-pl12-heat.npz",
-      "nodal_heat_sha256": "9761403c861cc9289787646f082e042b4c2a9ee731298cc9f2771addae464ea6",
+      "nodal_heat_sha256": "d2ad205bf70af9bfd41986e678bdce4708d2a213cb2cd6be7d30669a004455fa",
       "energy_balance_error_w": -1.0275114092905824e-13,
-      "thermal_transfer_balance_error_w": -1.0275114092905824e-13,
+      "thermal_transfer_balance_error_w": -1.0273726314125042e-13,
       "radial_contacts_checked": 2630,
       "bad_radial_contacts": 0
     },
@@ -1229,13 +1229,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "15 A leg A DC component experiment",
-      "r_mohm": 1.716530467599314,
-      "loss_w": 0.3862193552098457,
+      "r_mohm": 1.7165304675993145,
+      "loss_w": 0.38621935520984574,
       "drive_amps": 15.0,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 9.99100941454306,
-          "edge_amps": -0.6244380884089412,
+          "amps_per_mm": 9.991009414543077,
+          "edge_amps": -0.6244380884089423,
           "location_mm": [
             38.7625,
             9.94375
@@ -1243,8 +1243,8 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 8.161706309451079,
-          "edge_amps": 0.5101066443406924,
+          "amps_per_mm": 8.161706309450878,
+          "edge_amps": 0.5101066443406799,
           "location_mm": [
             54.46875,
             6.1625
@@ -1252,8 +1252,8 @@
           "orientation": "y"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.20808535548990933,
-          "edge_amps": -0.013005334718119333,
+          "amps_per_mm": 0.20808535548992194,
+          "edge_amps": -0.013005334718120121,
           "location_mm": [
             39.3125,
             11.500103
@@ -1261,8 +1261,8 @@
           "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 0.027245348449931914,
-          "edge_amps": -0.0017028342781207446,
+          "amps_per_mm": 0.027245348449960828,
+          "edge_amps": -0.0017028342781225518,
           "location_mm": [
             40.71875,
             7.093853
@@ -1270,13 +1270,13 @@
           "orientation": "y"
         }
       },
-      "max_empty_via_a": 2.4909772684360605,
+      "max_empty_via_a": 2.4909772684360676,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "leg_a_15-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "aac2d97029ff6d95e69912a7cd223524a3b7b8a254eaa4d0975aab5d82aafe81",
-      "energy_balance_error_w": -1.8374746169058653e-12,
-      "thermal_transfer_balance_error_w": -1.8373080834521716e-12,
+      "nodal_heat_sha256": "5ba3437847fa1560d43e746a023bbbdb454133a1ab2ee030a4f2560bca0d8191",
+      "energy_balance_error_w": -1.8371415499984778e-12,
+      "thermal_transfer_balance_error_w": -1.8372525723009403e-12,
       "radial_contacts_checked": 2630,
       "bad_radial_contacts": 0
     },
@@ -1292,8 +1292,8 @@
       "drive_amps": 19.0,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 12.655278591754536,
-          "edge_amps": -0.7909549119846585,
+          "amps_per_mm": 12.655278591754568,
+          "edge_amps": -0.7909549119846605,
           "location_mm": [
             38.7625,
             9.94375
@@ -1310,8 +1310,8 @@
           "orientation": "y"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.26357478362056275,
-          "edge_amps": -0.01647342397628517,
+          "amps_per_mm": 0.26357478362058795,
+          "edge_amps": -0.016473423976286747,
           "location_mm": [
             39.3125,
             11.500103
@@ -1319,8 +1319,8 @@
           "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 0.0345107747032336,
-          "edge_amps": -0.0021569234189521,
+          "amps_per_mm": 0.03451077470326251,
+          "edge_amps": -0.002156923418953907,
           "location_mm": [
             40.71875,
             7.093853
@@ -1328,13 +1328,13 @@
           "orientation": "y"
         }
       },
-      "max_empty_via_a": 3.155237873352346,
+      "max_empty_via_a": 3.155237873352351,
       "flagged_empty_vias_over_3a": 1,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "leg_a_19-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "62af7f3dc09ad9744fae5fc48033d5fd3f24837014d2467d5fa81ad851d2aa33",
-      "energy_balance_error_w": -2.947531108077328e-12,
-      "thermal_transfer_balance_error_w": -2.947531108077328e-12,
+      "nodal_heat_sha256": "679b579da063a1aac39c2e9959cea3aa085e20baf5103e733790546fd3eeec11",
+      "energy_balance_error_w": -2.9474200857748656e-12,
+      "thermal_transfer_balance_error_w": -2.9474200857748656e-12,
       "radial_contacts_checked": 2630,
       "bad_radial_contacts": 0
     },
@@ -1345,13 +1345,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "34 A coherent leg A experiment",
-      "r_mohm": 1.7165304675993147,
-      "loss_w": 1.9843092205448079,
+      "r_mohm": 1.716530467599315,
+      "loss_w": 1.984309220544808,
       "drive_amps": 34.0,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 22.646288006297592,
-          "edge_amps": -1.4153930003935995,
+          "amps_per_mm": 22.646288006297652,
+          "edge_amps": -1.4153930003936033,
           "location_mm": [
             38.7625,
             9.94375
@@ -1359,8 +1359,8 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 18.499867634755486,
-          "edge_amps": 1.1562417271722178,
+          "amps_per_mm": 18.499867634755887,
+          "edge_amps": 1.156241727172243,
           "location_mm": [
             54.46875,
             6.1625
@@ -1368,8 +1368,8 @@
           "orientation": "y"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.47166013911056026,
-          "edge_amps": -0.029478758694410016,
+          "amps_per_mm": 0.47166013911050986,
+          "edge_amps": -0.029478758694406866,
           "location_mm": [
             39.3125,
             11.500103
@@ -1386,13 +1386,13 @@
           "orientation": "y"
         }
       },
-      "max_empty_via_a": 5.6462151417884066,
+      "max_empty_via_a": 5.6462151417884145,
       "flagged_empty_vias_over_3a": 4,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "leg_a_34-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "b73715c49f1b0743eac0f74be60bef3260e87a5294957a4a6075b43affc43430",
-      "energy_balance_error_w": -9.438672066153231e-12,
-      "thermal_transfer_balance_error_w": -9.438894110758156e-12,
+      "nodal_heat_sha256": "810ee527a0a15af3c8c364e2a2c09334c161e1483b2967a78790c1818eaa127a",
+      "energy_balance_error_w": -9.43822797694338e-12,
+      "thermal_transfer_balance_error_w": -9.438672066153231e-12,
       "radial_contacts_checked": 2630,
       "bad_radial_contacts": 0
     },
@@ -1403,13 +1403,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "34 A coherent leg B experiment",
-      "r_mohm": 0.22219810690453692,
-      "loss_w": 0.2568610115816447,
+      "r_mohm": 0.22219810690453717,
+      "loss_w": 0.256861011581645,
       "drive_amps": 34.0,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 22.863809361968567,
-          "edge_amps": 1.4289880851230354,
+          "amps_per_mm": 22.86380936196861,
+          "edge_amps": 1.428988085123038,
           "location_mm": [
             38.325,
             9.94375
@@ -1417,8 +1417,8 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 4.373268822303341,
-          "edge_amps": 0.27332930139395883,
+          "amps_per_mm": 4.373268822303291,
+          "edge_amps": 0.27332930139395567,
           "location_mm": [
             33.59375,
             5.0375
@@ -1426,8 +1426,8 @@
           "orientation": "y"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.23075266690581123,
-          "edge_amps": 0.014422041681613202,
+          "amps_per_mm": 0.23075266690583643,
+          "edge_amps": 0.014422041681614777,
           "location_mm": [
             38.40625,
             8.718853
@@ -1444,13 +1444,13 @@
           "orientation": "y"
         }
       },
-      "max_empty_via_a": 4.729195982044251,
+      "max_empty_via_a": 4.729195982044258,
       "flagged_empty_vias_over_3a": 1,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "leg_b_34-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "081079cc6141d457ca6c0e38c352df4c3613376f0e8b693e7deed569dfe13c8c",
-      "energy_balance_error_w": -3.1280533718813786e-13,
-      "thermal_transfer_balance_error_w": -3.1280533718813786e-13,
+      "nodal_heat_sha256": "6dac831d09c4c9fc4de42d17b6320529e6c42751fa97f0b9f2580f4f7b76202f",
+      "energy_balance_error_w": -3.1252778143198157e-13,
+      "thermal_transfer_balance_error_w": -3.1241675912951905e-13,
       "radial_contacts_checked": 2630,
       "bad_radial_contacts": 0
     },
@@ -1461,13 +1461,71 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "18.7 A tank path, A high-side state",
-      "r_mohm": 3.751216111361813,
-      "loss_w": 1.3117627619821124,
+      "r_mohm": 3.7512161113630773,
+      "loss_w": 1.3117627619825545,
       "drive_amps": 18.7,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 75.67091478513262,
-          "edge_amps": 4.729432174070789,
+          "amps_per_mm": 75.6709147851763,
+          "edge_amps": 4.729432174073518,
+          "location_mm": [
+            140.59325,
+            98.4125
+          ],
+          "orientation": "y"
+        },
+        "B.Cu": {
+          "amps_per_mm": 2.3129646346357424e-10,
+          "edge_amps": 1.445602896647339e-11,
+          "location_mm": [
+            73.28125,
+            12.475
+          ],
+          "orientation": "y"
+        },
+        "In1.Cu": {
+          "amps_per_mm": 8.868567256231905e-12,
+          "edge_amps": -5.542854535144941e-13,
+          "location_mm": [
+            50.155750000000005,
+            3.406353
+          ],
+          "orientation": "y"
+        },
+        "In2.Cu": {
+          "amps_per_mm": 6.691737111520437e-11,
+          "edge_amps": 4.182335694700273e-12,
+          "location_mm": [
+            51.405750000000005,
+            96.593853
+          ],
+          "orientation": "y"
+        }
+      },
+      "max_empty_via_a": 7.440182142242305e-11,
+      "flagged_empty_vias_over_3a": 0,
+      "undefined_island_barrels": 0,
+      "nodal_heat_file": "sw_a-p00625-pl18-heat.npz",
+      "nodal_heat_sha256": "a256f2a7859bb290f628cdce6b97e3fb1684869561770af4531ab91d3bc36167",
+      "energy_balance_error_w": -2.1924906334902516e-11,
+      "thermal_transfer_balance_error_w": -2.1924906334902516e-11,
+      "radial_contacts_checked": 1567,
+      "bad_radial_contacts": 0
+    },
+    {
+      "name": "sw_a-p00625-pl12",
+      "net": "sw_a",
+      "pitch_mm": 0.0625,
+      "plating_um": 12.0,
+      "status": "conditional DC experiment",
+      "description": "18.7 A tank path, A high-side state",
+      "r_mohm": 3.75121611136337,
+      "loss_w": 1.3117627619826568,
+      "drive_amps": 18.7,
+      "layer_max_a_per_mm": {
+        "F.Cu": {
+          "amps_per_mm": 75.67091478518186,
+          "edge_amps": 4.7294321740738665,
           "location_mm": [
             140.59325,
             98.4125
@@ -1484,66 +1542,8 @@
           "orientation": "y"
         },
         "In1.Cu": {
-          "amps_per_mm": 8.062333869301732e-12,
-          "edge_amps": -5.038958668313582e-13,
-          "location_mm": [
-            49.968250000000005,
-            3.406353
-          ],
-          "orientation": "y"
-        },
-        "In2.Cu": {
-          "amps_per_mm": 6.691737111520437e-11,
-          "edge_amps": 4.182335694700273e-12,
-          "location_mm": [
-            51.405750000000005,
-            96.593853
-          ],
-          "orientation": "y"
-        }
-      },
-      "max_empty_via_a": 7.42280361461079e-11,
-      "flagged_empty_vias_over_3a": 0,
-      "undefined_island_barrels": 0,
-      "nodal_heat_file": "sw_a-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "062ce6f4426e3ba6cc628f7304d0abf801282dcf816596eb5c15d500849d31b8",
-      "energy_balance_error_w": -2.236677509870333e-11,
-      "thermal_transfer_balance_error_w": -2.236677509870333e-11,
-      "radial_contacts_checked": 1567,
-      "bad_radial_contacts": 0
-    },
-    {
-      "name": "sw_a-p00625-pl12",
-      "net": "sw_a",
-      "pitch_mm": 0.0625,
-      "plating_um": 12.0,
-      "status": "conditional DC experiment",
-      "description": "18.7 A tank path, A high-side state",
-      "r_mohm": 3.7512161113617974,
-      "loss_w": 1.3117627619821068,
-      "drive_amps": 18.7,
-      "layer_max_a_per_mm": {
-        "F.Cu": {
-          "amps_per_mm": 75.67091478513252,
-          "edge_amps": 4.729432174070783,
-          "location_mm": [
-            140.59325,
-            98.4125
-          ],
-          "orientation": "y"
-        },
-        "B.Cu": {
-          "amps_per_mm": 2.2667053419430275e-10,
-          "edge_amps": 1.4166908387143922e-11,
-          "location_mm": [
-            72.90625,
-            15.1
-          ],
-          "orientation": "y"
-        },
-        "In1.Cu": {
-          "amps_per_mm": 9.674800643162077e-12,
-          "edge_amps": -6.046750401976298e-13,
+          "amps_per_mm": 8.868567256231905e-12,
+          "edge_amps": -5.542854535144941e-13,
           "location_mm": [
             50.093250000000005,
             3.406353
@@ -1551,8 +1551,8 @@
           "orientation": "y"
         },
         "In2.Cu": {
-          "amps_per_mm": 4.0311669346508655e-11,
-          "edge_amps": 2.519479334156791e-12,
+          "amps_per_mm": 3.9505435959578485e-11,
+          "edge_amps": 2.4690897474736553e-12,
           "location_mm": [
             51.405750000000005,
             96.593853
@@ -1560,13 +1560,13 @@
           "orientation": "y"
         }
       },
-      "max_empty_via_a": 6.840381570515709e-11,
+      "max_empty_via_a": 6.949079342399617e-11,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "sw_a-p00625-pl12-heat.npz",
-      "nodal_heat_sha256": "46213b4a2fbf9e4d9df65f0b52a36d19071b0570663d64df77b47b5c32d31bf6",
-      "energy_balance_error_w": -2.237254825843138e-11,
-      "thermal_transfer_balance_error_w": -2.237254825843138e-11,
+      "nodal_heat_sha256": "4300d252f6c17eb34fa14524dd574bb9d917b685dcfbf5bf396ff3fcbe21e521",
+      "energy_balance_error_w": -2.1822543772032077e-11,
+      "thermal_transfer_balance_error_w": -2.1822543772032077e-11,
       "radial_contacts_checked": 1567,
       "bad_radial_contacts": 0
     },
@@ -1577,13 +1577,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "18.7 A tank path, A low-side state",
-      "r_mohm": 6.366085097302874,
-      "loss_w": 2.226156297675842,
+      "r_mohm": 6.366084479398287,
+      "loss_w": 2.226156081600787,
       "drive_amps": 18.7,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 75.67091478445474,
-          "edge_amps": 4.729432174028421,
+          "amps_per_mm": 75.67091478449446,
+          "edge_amps": 4.7294321740309035,
           "location_mm": [
             140.59325,
             98.4125
@@ -1591,8 +1591,8 @@
           "orientation": "y"
         },
         "B.Cu": {
-          "amps_per_mm": 12.596664680188569,
-          "edge_amps": 0.7872915425117856,
+          "amps_per_mm": 12.59666429173726,
+          "edge_amps": 0.7872915182335788,
           "location_mm": [
             51.09375,
             6.225
@@ -1600,8 +1600,8 @@
           "orientation": "y"
         },
         "In1.Cu": {
-          "amps_per_mm": 0.07022451295245268,
-          "edge_amps": 0.004389032059528292,
+          "amps_per_mm": 0.0702245146818233,
+          "edge_amps": 0.004389032167613956,
           "location_mm": [
             60.937000000000005,
             11.062603
@@ -1609,8 +1609,8 @@
           "orientation": "x"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.44884137981047545,
-          "edge_amps": 0.028052586238154716,
+          "amps_per_mm": 0.44884138529850615,
+          "edge_amps": 0.028052586581156634,
           "location_mm": [
             60.937000000000005,
             11.062603
@@ -1618,13 +1618,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 0.128018020837448,
+      "max_empty_via_a": 0.1280180269864164,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "sw_a_low-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "e1e83ac814ef94573409b2164f07a89986ec3e541416c81428c02fb4deaf05fb",
-      "energy_balance_error_w": -5.1595616668009825e-11,
-      "thermal_transfer_balance_error_w": -5.1595616668009825e-11,
+      "nodal_heat_sha256": "74f17833b67ec10b11884f5c99e8d0a59b4bbe621b7d56b155efe56c99d5e892",
+      "energy_balance_error_w": -5.1306514592397434e-11,
+      "thermal_transfer_balance_error_w": -5.1306514592397434e-11,
       "radial_contacts_checked": 1567,
       "bad_radial_contacts": 0
     },
@@ -1635,13 +1635,13 @@
       "plating_um": 12.0,
       "status": "conditional DC experiment",
       "description": "18.7 A tank path, A low-side state",
-      "r_mohm": 6.683195684599271,
-      "loss_w": 2.337046698947519,
+      "r_mohm": 6.683195066701285,
+      "loss_w": 2.337046482874772,
       "drive_amps": 18.7,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 75.67091478432596,
-          "edge_amps": 4.729432174020372,
+          "amps_per_mm": 75.67091478438086,
+          "edge_amps": 4.7294321740238034,
           "location_mm": [
             140.59325,
             98.4125
@@ -1649,8 +1649,8 @@
           "orientation": "y"
         },
         "B.Cu": {
-          "amps_per_mm": 12.59666404980116,
-          "edge_amps": 0.7872915031125725,
+          "amps_per_mm": 12.596663661348925,
+          "edge_amps": 0.7872914788343078,
           "location_mm": [
             51.09375,
             6.225
@@ -1658,8 +1658,8 @@
           "orientation": "y"
         },
         "In1.Cu": {
-          "amps_per_mm": 0.04215267517623667,
-          "edge_amps": 0.002634542198514792,
+          "amps_per_mm": 0.04215267622756501,
+          "edge_amps": 0.002634542264222813,
           "location_mm": [
             60.937000000000005,
             11.062603
@@ -1667,8 +1667,8 @@
           "orientation": "x"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.3548484998126623,
-          "edge_amps": 0.022178031238291394,
+          "amps_per_mm": 0.35484850408489305,
+          "edge_amps": 0.022178031505305815,
           "location_mm": [
             60.937000000000005,
             11.062603
@@ -1676,13 +1676,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 0.09672191789216082,
+      "max_empty_via_a": 0.09672192252706933,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "sw_a_low-p00625-pl12-heat.npz",
-      "nodal_heat_sha256": "4fc50d2b81e20d8e14cc28e853e1c5a936137161df4470429f0dd9e1fcd8b2aa",
-      "energy_balance_error_w": -5.78057601785531e-11,
-      "thermal_transfer_balance_error_w": -5.78057601785531e-11,
+      "nodal_heat_sha256": "0b959efb23fcff9a812172e549435397d03a85edaad95b331f70735a0c597046",
+      "energy_balance_error_w": -5.700950822529194e-11,
+      "thermal_transfer_balance_error_w": -5.700950822529194e-11,
       "radial_contacts_checked": 1567,
       "bad_radial_contacts": 0
     },
@@ -1693,13 +1693,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "18.7 A tank path, B high-side state; capacitor sink equipotential",
-      "r_mohm": 6.535800021110825,
-      "loss_w": 2.2855039093822445,
+      "r_mohm": 6.535820832829223,
+      "loss_w": 2.285511187032051,
       "drive_amps": 18.7,
       "layer_max_a_per_mm": {
         "B.Cu": {
-          "amps_per_mm": 12.633414334498047,
-          "edge_amps": 0.789588395906128,
+          "amps_per_mm": 12.63341432395278,
+          "edge_amps": 0.7895883952470487,
           "location_mm": [
             30.975,
             19.44375
@@ -1716,8 +1716,8 @@
           "orientation": "y"
         },
         "In1.Cu": {
-          "amps_per_mm": 0.00945859503076314,
-          "edge_amps": 0.0005911621894226963,
+          "amps_per_mm": 0.00945859503071275,
+          "edge_amps": 0.0005911621894195469,
           "location_mm": [
             193.125,
             43.875103
@@ -1725,8 +1725,8 @@
           "orientation": "x"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.10860218567304238,
-          "edge_amps": 0.0067876366045651485,
+          "amps_per_mm": 0.10860218567324394,
+          "edge_amps": 0.006787636604577746,
           "location_mm": [
             193.125,
             43.875103
@@ -1734,13 +1734,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 6.190376363409194e-11,
+      "max_empty_via_a": 6.183497362888386e-11,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "sw_b_high-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "1b22b0d019b05940520cdb1c67352830757bf217208dfc1cdfc5d9a13ca59faa",
-      "energy_balance_error_w": -4.4644732355436645e-11,
-      "thermal_transfer_balance_error_w": -4.4644288266226795e-11,
+      "nodal_heat_sha256": "93ed35908d0af87b065a9ff15b26963690dc9678aa78e0c445826dbe05b25200",
+      "energy_balance_error_w": -3.998135156280114e-11,
+      "thermal_transfer_balance_error_w": -3.998046338438144e-11,
       "radial_contacts_checked": 2972,
       "bad_radial_contacts": 0
     },
@@ -1751,13 +1751,13 @@
       "plating_um": 12.0,
       "status": "conditional DC experiment",
       "description": "18.7 A tank path, B high-side state; capacitor sink equipotential",
-      "r_mohm": 6.762909324405435,
-      "loss_w": 2.3649217616513365,
+      "r_mohm": 6.762930136116031,
+      "loss_w": 2.364929039298415,
       "drive_amps": 18.7,
       "layer_max_a_per_mm": {
         "B.Cu": {
-          "amps_per_mm": 12.633414422165885,
-          "edge_amps": 0.7895884013853678,
+          "amps_per_mm": 12.633414411602113,
+          "edge_amps": 0.789588400725132,
           "location_mm": [
             30.975,
             19.44375
@@ -1783,8 +1783,8 @@
           "orientation": "x"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.08449253343879594,
-          "edge_amps": 0.005280783339924746,
+          "amps_per_mm": 0.08449253343889672,
+          "edge_amps": 0.005280783339931045,
           "location_mm": [
             193.125,
             43.875103
@@ -1792,13 +1792,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 5.6783337129245514e-11,
+      "max_empty_via_a": 5.677623269971061e-11,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "sw_b_high-p00625-pl12-heat.npz",
-      "nodal_heat_sha256": "92c39fb6802f7cd9809fc86421a5dd8ca87b894f9e2656836fa9efb7c40335df",
-      "energy_balance_error_w": -4.2870595962085645e-11,
-      "thermal_transfer_balance_error_w": -4.2870151872875795e-11,
+      "nodal_heat_sha256": "83cf0c1b692966ca715e37933d181b71ac318303d494b97e46a51d74854af881",
+      "energy_balance_error_w": -4.093436700713937e-11,
+      "thermal_transfer_balance_error_w": -4.093392291792952e-11,
       "radial_contacts_checked": 2972,
       "bad_radial_contacts": 0
     },
@@ -1809,13 +1809,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "18.7 A tank path, B low-side state; equal capacitor sources",
-      "r_mohm": 6.463942011064303,
-      "loss_w": 2.2603758818490767,
+      "r_mohm": 6.463962822746756,
+      "loss_w": 2.2603831594863135,
       "drive_amps": 18.700000000000003,
       "layer_max_a_per_mm": {
         "B.Cu": {
-          "amps_per_mm": 14.978426383462544,
-          "edge_amps": -0.936151648966409,
+          "amps_per_mm": 14.978426383387143,
+          "edge_amps": -0.9361516489616964,
           "location_mm": [
             28.94375,
             5.9125
@@ -1823,8 +1823,8 @@
           "orientation": "y"
         },
         "F.Cu": {
-          "amps_per_mm": 0.0013756616346061177,
-          "edge_amps": -8.597885216288236e-05,
+          "amps_per_mm": 0.001375661632755746,
+          "edge_amps": -8.597885204723413e-05,
           "location_mm": [
             192.81875,
             44.093853
@@ -1841,8 +1841,8 @@
           "orientation": "x"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.11200392676143815,
-          "edge_amps": -0.0070002454225898845,
+          "amps_per_mm": 0.11200392675982569,
+          "edge_amps": -0.007000245422489106,
           "location_mm": [
             193.125,
             43.875103
@@ -1850,13 +1850,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 1.258495042648869e-11,
+      "max_empty_via_a": 1.2632017272157376e-11,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "sw_b_low-p00625-pl18-heat.npz",
-      "nodal_heat_sha256": "1fd1b1c077284122e2c1f881908f2ec3179b518f02c70811a3c8210e0faf9eb4",
-      "energy_balance_error_w": 3.8015857128925745e-10,
-      "thermal_transfer_balance_error_w": 3.8015857128925745e-10,
+      "nodal_heat_sha256": "2ecaa49feec629976a1bf7cfcaecf77b03047becd1b623ae88240c4fa23b53f9",
+      "energy_balance_error_w": 3.70338426591843e-10,
+      "thermal_transfer_balance_error_w": 3.70338426591843e-10,
       "radial_contacts_checked": 2972,
       "bad_radial_contacts": 0
     },
@@ -1867,13 +1867,13 @@
       "plating_um": 12.0,
       "status": "conditional DC experiment",
       "description": "18.7 A tank path, B low-side state; equal capacitor sources",
-      "r_mohm": 6.661989329830198,
-      "loss_w": 2.3296310487483227,
+      "r_mohm": 6.6620101415593265,
+      "loss_w": 2.3296383264018816,
       "drive_amps": 18.700000000000003,
       "layer_max_a_per_mm": {
         "B.Cu": {
-          "amps_per_mm": 14.978426383550438,
-          "edge_amps": -0.9361516489719024,
+          "amps_per_mm": 14.978426383598894,
+          "edge_amps": -0.9361516489749309,
           "location_mm": [
             28.94375,
             5.9125
@@ -1890,8 +1890,8 @@
           "orientation": "y"
         },
         "In1.Cu": {
-          "amps_per_mm": 0.005481146822461897,
-          "edge_amps": -0.0003425716764038686,
+          "amps_per_mm": 0.005481146821655664,
+          "edge_amps": -0.000342571676353479,
           "location_mm": [
             193.125,
             43.875103
@@ -1899,8 +1899,8 @@
           "orientation": "x"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.08667711597929291,
-          "edge_amps": -0.005417319748705807,
+          "amps_per_mm": 0.08667711598009915,
+          "edge_amps": -0.005417319748756197,
           "location_mm": [
             193.125,
             43.875103
@@ -1908,13 +1908,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 1.1854924750563143e-11,
+      "max_empty_via_a": 1.1852556607384845e-11,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "sw_b_low-p00625-pl12-heat.npz",
-      "nodal_heat_sha256": "80b7c48dc29f01db143d9e6254526cd500f83d6d45513c6f8394b9f4595a531b",
-      "energy_balance_error_w": 3.923110725168044e-10,
-      "thermal_transfer_balance_error_w": 3.923110725168044e-10,
+      "nodal_heat_sha256": "54dc1064e9f8323764a17b56aa4481ee1b2cb5e2c7252337a753f30576e8a30a",
+      "energy_balance_error_w": 3.9881165037058963e-10,
+      "thermal_transfer_balance_error_w": 3.9881253854900933e-10,
       "radial_contacts_checked": 2972,
       "bad_radial_contacts": 0
     },
@@ -1925,13 +1925,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "18.7 A bank-to-J5 path; equal capacitor sources",
-      "r_mohm": 0.6995547193451748,
-      "loss_w": 0.24462728980781426,
+      "r_mohm": 0.6995547193451617,
+      "loss_w": 0.24462728980780965,
       "drive_amps": 18.700000000000003,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 3.5443678483295615,
-          "edge_amps": -0.4430459810411952,
+          "amps_per_mm": 3.5443678483294576,
+          "edge_amps": -0.4430459810411822,
           "location_mm": [
             135.15,
             68.6875
@@ -1939,8 +1939,8 @@
           "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 4.317999974559095,
-          "edge_amps": -0.5397499968198869,
+          "amps_per_mm": 4.317999974558922,
+          "edge_amps": -0.5397499968198652,
           "location_mm": [
             150.0,
             76.9375
@@ -1957,8 +1957,8 @@
           "orientation": "x"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.15964416502925718,
-          "edge_amps": -0.019955520628657148,
+          "amps_per_mm": 0.159644165029232,
+          "edge_amps": -0.019955520628654,
           "location_mm": [
             136.10000000000002,
             73.1875
@@ -1966,13 +1966,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 1.6335298059095764,
+      "max_empty_via_a": 1.6335298059095258,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "res_a-p0125-pl18-heat.npz",
-      "nodal_heat_sha256": "0bb01a4eb8de4ede64962819dc8f47537a66e2585eb17266e0d43fd6163e7cef",
-      "energy_balance_error_w": 6.679379271901098e-13,
-      "thermal_transfer_balance_error_w": 6.677991493120317e-13,
+      "nodal_heat_sha256": "56cf8e98fa15a7578b99d8dadc81363cec759c0958196502573116740538a964",
+      "energy_balance_error_w": 6.633860127891467e-13,
+      "thermal_transfer_balance_error_w": 6.632472349110685e-13,
       "radial_contacts_checked": 1602,
       "bad_radial_contacts": 0
     },
@@ -1983,13 +1983,13 @@
       "plating_um": 12.0,
       "status": "conditional DC experiment",
       "description": "18.7 A bank-to-J5 path; equal capacitor sources",
-      "r_mohm": 0.7854365433487251,
-      "loss_w": 0.2746593048436158,
+      "r_mohm": 0.7854365433487264,
+      "loss_w": 0.2746593048436162,
       "drive_amps": 18.700000000000003,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 3.300504071561995,
-          "edge_amps": -0.4125630089452494,
+          "amps_per_mm": 3.300504071561857,
+          "edge_amps": -0.4125630089452321,
           "location_mm": [
             135.15,
             68.6875
@@ -1997,8 +1997,8 @@
           "orientation": "x"
         },
         "B.Cu": {
-          "amps_per_mm": 4.317315074043569,
-          "edge_amps": -0.5396643842554462,
+          "amps_per_mm": 4.3173150740433375,
+          "edge_amps": -0.5396643842554172,
           "location_mm": [
             150.0,
             76.9375
@@ -2006,8 +2006,8 @@
           "orientation": "x"
         },
         "In1.Cu": {
-          "amps_per_mm": 0.07170059600442948,
-          "edge_amps": -0.008962574500553685,
+          "amps_per_mm": 0.07170059600442319,
+          "edge_amps": -0.008962574500552899,
           "location_mm": [
             135.10000000000002,
             74.4375
@@ -2015,8 +2015,8 @@
           "orientation": "x"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.12884185653292263,
-          "edge_amps": -0.01610523206661533,
+          "amps_per_mm": 0.1288418565329352,
+          "edge_amps": -0.0161052320666169,
           "location_mm": [
             136.10000000000002,
             73.1875
@@ -2024,13 +2024,13 @@
           "orientation": "x"
         }
       },
-      "max_empty_via_a": 1.4679260929917781,
+      "max_empty_via_a": 1.4679260929917128,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "res_a-p0125-pl12-heat.npz",
-      "nodal_heat_sha256": "047a7ab553cdbf1e26482282f63275e135325f2dfe7df6e162bc4da02c477756",
-      "energy_balance_error_w": 7.72715225139109e-13,
-      "thermal_transfer_balance_error_w": 7.72715225139109e-13,
+      "nodal_heat_sha256": "981866502dfdb918ef3a3b879d43f88dd1782e2be5e50121a6bc8813dbd9f574",
+      "energy_balance_error_w": 7.733258478026528e-13,
+      "thermal_transfer_balance_error_w": 7.73159314348959e-13,
       "radial_contacts_checked": 1602,
       "bad_radial_contacts": 0
     },
@@ -2041,13 +2041,13 @@
       "plating_um": 18.0,
       "status": "conditional DC experiment",
       "description": "18.7 A T1-to-J2 path",
-      "r_mohm": 0.42569429811393666,
-      "loss_w": 0.1488610391074625,
+      "r_mohm": 0.4257926392909609,
+      "loss_w": 0.14889542803365613,
       "drive_amps": 18.7,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 38.45890102749183,
-          "edge_amps": -4.807362628436478,
+          "amps_per_mm": 38.458838182083845,
+          "edge_amps": -4.807354772760481,
           "location_mm": [
             129.4375,
             98.375
@@ -2055,8 +2055,8 @@
           "orientation": "y"
         },
         "B.Cu": {
-          "amps_per_mm": 0.2526621335821263,
-          "edge_amps": -0.03158276669776579,
+          "amps_per_mm": 0.25246992697788767,
+          "edge_amps": -0.03155874087223596,
           "location_mm": [
             129.0625,
             86.0
@@ -2064,8 +2064,8 @@
           "orientation": "y"
         },
         "In1.Cu": {
-          "amps_per_mm": 0.19538335743840313,
-          "edge_amps": -0.02442291967980039,
+          "amps_per_mm": 0.1955466490392232,
+          "edge_amps": -0.0244433311299029,
           "location_mm": [
             130.03750000000002,
             89.47500000000001
@@ -2073,8 +2073,8 @@
           "orientation": "y"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.02338113332284311,
-          "edge_amps": -0.0029226416653553885,
+          "amps_per_mm": 0.023385216952825073,
+          "edge_amps": -0.002923152119103134,
           "location_mm": [
             133.53750000000002,
             89.60000000000001
@@ -2082,13 +2082,13 @@
           "orientation": "y"
         }
       },
-      "max_empty_via_a": 0.32007262532683495,
+      "max_empty_via_a": 0.3185023583065007,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "coil_feed-p0125-pl18-heat.npz",
-      "nodal_heat_sha256": "6ed70725b633c93ffb42db64747b9f9125f5f82d26c2fc69cc9fb2a11290e28b",
-      "energy_balance_error_w": 1.7208456881689926e-15,
-      "thermal_transfer_balance_error_w": 1.7486012637846216e-15,
+      "nodal_heat_sha256": "60d78c308a6ebddfb338240a4bdddc56db99e251df8eeb0c4455ae7e413f39bc",
+      "energy_balance_error_w": -3.9968028886505635e-15,
+      "thermal_transfer_balance_error_w": -3.969047313034935e-15,
       "radial_contacts_checked": 896,
       "bad_radial_contacts": 0
     },
@@ -2099,13 +2099,13 @@
       "plating_um": 12.0,
       "status": "conditional DC experiment",
       "description": "18.7 A T1-to-J2 path",
-      "r_mohm": 0.4264917618571887,
-      "loss_w": 0.14913990420384032,
+      "r_mohm": 0.4265888587857505,
+      "loss_w": 0.14917385802878907,
       "drive_amps": 18.7,
       "layer_max_a_per_mm": {
         "F.Cu": {
-          "amps_per_mm": 38.45870491745708,
-          "edge_amps": -4.807338114682135,
+          "amps_per_mm": 38.458643474065184,
+          "edge_amps": -4.807330434258148,
           "location_mm": [
             129.4375,
             98.375
@@ -2113,8 +2113,8 @@
           "orientation": "y"
         },
         "B.Cu": {
-          "amps_per_mm": 0.20124569704904036,
-          "edge_amps": -0.025155712131130045,
+          "amps_per_mm": 0.20109983289509273,
+          "edge_amps": -0.02513747911188659,
           "location_mm": [
             129.0625,
             86.0
@@ -2122,8 +2122,8 @@
           "orientation": "y"
         },
         "In1.Cu": {
-          "amps_per_mm": 0.15556635455771445,
-          "edge_amps": -0.019445794319714306,
+          "amps_per_mm": 0.15569483673911394,
+          "edge_amps": -0.019461854592389242,
           "location_mm": [
             130.03750000000002,
             89.47500000000001
@@ -2131,8 +2131,8 @@
           "orientation": "y"
         },
         "In2.Cu": {
-          "amps_per_mm": 0.014031676120879575,
-          "edge_amps": -0.001753959515109947,
+          "amps_per_mm": 0.01401456306176823,
+          "edge_amps": -0.0017518203827210288,
           "location_mm": [
             127.66250000000001,
             87.35000000000001
@@ -2140,13 +2140,13 @@
           "orientation": "y"
         }
       },
-      "max_empty_via_a": 0.23689361175961732,
+      "max_empty_via_a": 0.23580682326244826,
       "flagged_empty_vias_over_3a": 0,
       "undefined_island_barrels": 0,
       "nodal_heat_file": "coil_feed-p0125-pl12-heat.npz",
-      "nodal_heat_sha256": "a5e3024fde3f27813b2ee1b048a713d3ec6a26153f23bbb1a031eee58014d5a9",
-      "energy_balance_error_w": 1.7763568394002505e-15,
-      "thermal_transfer_balance_error_w": 1.7763568394002505e-15,
+      "nodal_heat_sha256": "bbd0c5cfaa34db72d8113c3c37173969b7ca7b5ce76809facb2c48963ad9ecdd",
+      "energy_balance_error_w": -4.107825191113079e-15,
+      "thermal_transfer_balance_error_w": -4.107825191113079e-15,
       "radial_contacts_checked": 896,
       "bad_radial_contacts": 0
     },
@@ -2203,7 +2203,7 @@
       "undefined_island_barrels": 0,
       "nodal_heat_file": "ac_n_main-p0125-pl18-heat.npz",
       "nodal_heat_sha256": "b49f4cba837be5d851d1b0540c8f050c3eff0f908040ca231f2165d1905a390a",
-      "energy_balance_error_w": -8.286704655802168e-13,
+      "energy_balance_error_w": -8.284484209752918e-13,
       "thermal_transfer_balance_error_w": -8.284484209752918e-13,
       "radial_contacts_checked": 755,
       "bad_radial_contacts": 0
@@ -2270,24 +2270,24 @@
   "bus_p_convergence": [
     {
       "pitch_mm": 0.25,
-      "r_mohm": 1.6113776814972653,
-      "loss_w": 0.3625599783368847,
+      "r_mohm": 1.611377681497387,
+      "loss_w": 0.36255997833691206,
       "bad_radial_contacts": 0
     },
     {
       "pitch_mm": 0.125,
-      "r_mohm": 1.58383381683256,
-      "loss_w": 0.356362608787326,
+      "r_mohm": 1.5838338168325627,
+      "loss_w": 0.3563626087873266,
       "bad_radial_contacts": 0
     },
     {
       "pitch_mm": 0.0625,
-      "r_mohm": 1.566952986067437,
-      "loss_w": 0.3525644218651733,
+      "r_mohm": 1.5669529860664908,
+      "loss_w": 0.3525644218649604,
       "bad_radial_contacts": 0
     }
   ],
-  "bus_p_full_span_relative_to_fine": 0.028351007225379834,
+  "bus_p_full_span_relative_to_fine": 0.02835100722607841,
   "bus_p_convergence_3pct_pass": true,
   "topology_zero_false_joins": true,
   "all_numeric_checks_pass": true,

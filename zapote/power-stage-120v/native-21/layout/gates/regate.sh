@@ -63,7 +63,8 @@ PY
     cp "$BD/power_copper.json.gz" inputs/power_copper.json.gz
     $MP ../round3/scripts/kit_topology_native13.py inputs/power_copper.json.gz outputs/kit_topology_p0125.json 0.125 >/dev/null &
     $MP ../round3/scripts/kit_topology_native13.py inputs/power_copper.json.gz outputs/kit_topology_p00625.json 0.0625 >/dev/null &
-    WORKERS=6 $MP run_cases.py > outputs/run_cases.log 2>&1
+    # TASK04_WORKERS caps the case runner's processes (default 6, as before); a shared machine sets it lower
+    WORKERS=${TASK04_WORKERS:-6} $MP run_cases.py > outputs/run_cases.log 2>&1
     $MP run_board.py --net bus_p --source BR1.1:15 --sink Q2.2 --pitch 0.25 --plating 18 --name bus-dc-q2-p025-pl18 >/dev/null
     $MP run_board.py --net bus_p --source BR1.1:15 --sink Q2.2 --pitch 0.0625 --plating 18 --name bus-dc-q2-p00625-pl18 >/dev/null
     wait

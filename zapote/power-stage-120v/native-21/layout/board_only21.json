@@ -166,21 +166,6 @@
    "ref": "TP11"
   },
   {
-   "net": "v15_selv",
-   "at": [
-    133.918,
-    131.782
-   ],
-   "side": "B",
-   "ref_net": "selv_gnd",
-   "ref_at": [
-    130.692,
-    128.584
-   ],
-   "purpose": "SELV 15 V",
-   "ref": "TP12"
-  },
-  {
    "net": "v3v3",
    "at": [
     11.248,
@@ -193,7 +178,7 @@
     127.836
    ],
    "purpose": "SELV 3.3 V",
-   "ref": "TP13"
+   "ref": "TP12"
   },
   {
    "net": "pwm_ha",
@@ -208,7 +193,7 @@
     157.38
    ],
    "purpose": "PWM A high",
-   "ref": "TP14"
+   "ref": "TP13"
   },
   {
    "net": "pwm_la",
@@ -223,7 +208,7 @@
     63.02
    ],
    "purpose": "PWM A low",
-   "ref": "TP15"
+   "ref": "TP14"
   },
   {
    "net": "pwm_hb",
@@ -238,7 +223,7 @@
     124.399
    ],
    "purpose": "PWM B high",
-   "ref": "TP16"
+   "ref": "TP15"
   },
   {
    "net": "pwm_lb",
@@ -253,7 +238,7 @@
     124.399
    ],
    "purpose": "PWM B low",
-   "ref": "TP17"
+   "ref": "TP16"
   },
   {
    "net": "permit",
@@ -268,7 +253,7 @@
     120.945
    ],
    "purpose": "PERMIT",
-   "ref": "TP18"
+   "ref": "TP17"
   },
   {
    "net": "leg_b-driver_dis",
@@ -283,7 +268,7 @@
     69.665
    ],
    "purpose": "leg B DIS",
-   "ref": "TP19"
+   "ref": "TP18"
   },
   {
    "net": "bias_good",
@@ -298,7 +283,7 @@
     69.665
    ],
    "purpose": "BIAS_GOOD (rail monitors, stage 22)",
-   "ref": "TP20"
+   "ref": "TP19"
   },
   {
    "net": "bus_fault",
@@ -313,7 +298,7 @@
     132.865
    ],
    "purpose": "OCP fault, SELV side",
-   "ref": "TP21"
+   "ref": "TP20"
   },
   {
    "net": "ct_zc",
@@ -328,7 +313,7 @@
     132.865
    ],
    "purpose": "tank CT zero cross",
-   "ref": "TP22"
+   "ref": "TP21"
   },
   {
    "net": "ct_mon",
@@ -343,7 +328,7 @@
     132.865
    ],
    "purpose": "tank CT monitor",
-   "ref": "TP23"
+   "ref": "TP22"
   },
   {
    "net": "n_ls",
@@ -352,7 +337,7 @@
     41.735
    ],
    "side": "B",
-   "ref": "TP24",
+   "ref": "TP23",
    "purpose": "n_ls reference"
   },
   {
@@ -362,7 +347,7 @@
     88.095
    ],
    "side": "B",
-   "ref": "TP25",
+   "ref": "TP24",
    "purpose": "leg_ret reference"
   },
   {
@@ -372,7 +357,7 @@
     96.295
    ],
    "side": "F",
-   "ref": "TP26",
+   "ref": "TP25",
    "purpose": "leg_ret reference"
   },
   {
@@ -382,7 +367,7 @@
     81.05
    ],
    "side": "B",
-   "ref": "TP27",
+   "ref": "TP26",
    "purpose": "n_ls reference"
   },
   {
@@ -392,7 +377,7 @@
     73.695
    ],
    "side": "B",
-   "ref": "TP28",
+   "ref": "TP27",
    "purpose": "ocp_kelvin_p reference"
   },
   {
@@ -402,7 +387,7 @@
     60.395
    ],
    "side": "F",
-   "ref": "TP29",
+   "ref": "TP28",
    "purpose": "ocp_kelvin_p reference"
   },
   {
@@ -412,7 +397,7 @@
     74.095
    ],
    "side": "B",
-   "ref": "TP30",
+   "ref": "TP29",
    "purpose": "ocp_kelvin_p reference"
   },
   {
@@ -422,7 +407,7 @@
     49.9
    ],
    "side": "F",
-   "ref": "TP31",
+   "ref": "TP30",
    "purpose": "sw_a reference"
   },
   {
@@ -432,7 +417,7 @@
     112.085
    ],
    "side": "B",
-   "ref": "TP32",
+   "ref": "TP31",
    "purpose": "sw_b reference"
   },
   {
@@ -442,18 +427,8 @@
     118.011
    ],
    "side": "B",
-   "ref": "TP33",
+   "ref": "TP32",
    "purpose": "sw_b reference"
-  },
-  {
-   "net": "selv_gnd",
-   "at": [
-    130.692,
-    128.584
-   ],
-   "side": "B",
-   "ref": "TP34",
-   "purpose": "selv_gnd reference"
   },
   {
    "net": "selv_gnd",
@@ -462,7 +437,7 @@
     127.836
    ],
    "side": "B",
-   "ref": "TP35",
+   "ref": "TP33",
    "purpose": "selv_gnd reference"
   },
   {
@@ -472,7 +447,7 @@
     157.38
    ],
    "side": "B",
-   "ref": "TP36",
+   "ref": "TP34",
    "purpose": "selv_gnd reference"
   },
   {
@@ -482,7 +457,7 @@
     63.02
    ],
    "side": "B",
-   "ref": "TP37",
+   "ref": "TP35",
    "purpose": "selv_gnd reference"
   },
   {
@@ -492,7 +467,7 @@
     124.399
    ],
    "side": "F",
-   "ref": "TP38",
+   "ref": "TP36",
    "purpose": "selv_gnd reference"
   },
   {
@@ -502,7 +477,7 @@
     120.945
    ],
    "side": "F",
-   "ref": "TP39",
+   "ref": "TP37",
    "purpose": "selv_gnd reference"
   },
   {
@@ -512,7 +487,7 @@
     69.665
    ],
    "side": "B",
-   "ref": "TP40",
+   "ref": "TP38",
    "purpose": "selv_gnd reference"
   },
   {
@@ -522,7 +497,7 @@
     132.865
    ],
    "side": "B",
-   "ref": "TP41",
+   "ref": "TP39",
    "purpose": "selv_gnd reference"
   }
  ],
@@ -567,8 +542,8 @@
    ],
    "size": 1.5,
    "at": [
-    187,
-    122
+    240,
+    125
    ]
   },
   {
@@ -586,7 +561,7 @@
   {
    "kind": "text",
    "lines": [
-    "H2-H7: NYLON SCREWS, WASHERS",
+    "H2-H10: NYLON SCREWS, WASHERS",
     "AND STANDOFFS ONLY"
    ],
    "size": 1.0,
@@ -651,6 +626,22 @@
    "at": [
     194,
     130
+   ],
+   "r": 3.6
+  },
+  {
+   "kind": "ring",
+   "at": [
+    142,
+    4
+   ],
+   "r": 3.6
+  },
+  {
+   "kind": "ring",
+   "at": [
+    152,
+    122
    ],
    "r": 3.6
   },
@@ -743,15 +734,16 @@
   },
   {
    "at": [
-    6,
-    180
+    223.0,
+    135.0
    ],
-   "kind": "nylon",
+   "kind": "metal",
+   "hot_mm": 18.8,
    "ref": "H2"
   },
   {
    "at": [
-    86,
+    6,
     180
    ],
    "kind": "nylon",
@@ -759,11 +751,19 @@
   },
   {
    "at": [
+    86,
+    180
+   ],
+   "kind": "nylon",
+   "ref": "H4"
+  },
+  {
+   "at": [
     24,
     74
    ],
    "kind": "nylon",
-   "ref": "H4"
+   "ref": "H5"
   },
   {
    "at": [
@@ -771,7 +771,7 @@
     100
    ],
    "kind": "nylon",
-   "ref": "H5"
+   "ref": "H6"
   },
   {
    "at": [
@@ -779,7 +779,7 @@
     54
    ],
    "kind": "nylon",
-   "ref": "H6"
+   "ref": "H7"
   },
   {
    "at": [
@@ -787,7 +787,23 @@
     130
    ],
    "kind": "nylon",
-   "ref": "H7"
+   "ref": "H8"
+  },
+  {
+   "at": [
+    142,
+    4
+   ],
+   "kind": "nylon",
+   "ref": "H9"
+  },
+  {
+   "at": [
+    152,
+    122
+   ],
+   "kind": "nylon",
+   "ref": "H10"
   }
  ]
 }

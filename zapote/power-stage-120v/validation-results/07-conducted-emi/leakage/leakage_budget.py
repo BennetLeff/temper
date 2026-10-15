@@ -32,28 +32,45 @@ def i_ma(c_f, v=V_LINE):
 #   coil; at 60 Hz it is charged to a line via the bus (conservative: to both).
 SUPPLY_LEAK_MA_277 = 0.25
 SUPPLY_FREQ_FACTOR = 60.0 / 50.0
+# Stage 38 (candidate 23, DECISIONS 47): datasheet maximum touch / leakage current per mains-connected supply:
+# (mA, test V, source).  MPM rows: "LEAKAGE CURRENT (max.) Touch current <80uA/264VAC" (MPM-20) and "<100uA/264VAC"
+# (MPM-65), Note 7 / Note 6 "Touch current was measured from primary input to DC output" (the path this model charges).
+SUPPLY_MAX = {
+    "IRM-20-15": (0.25, 277.0, "MEAN WELL IRM-20-SPEC 2025-11-21 p.2 (< 0.25mA/277Vac)"),
+    "IRM-20-24": (0.25, 277.0, "MEAN WELL IRM-20-SPEC 2025-11-21 p.2 (< 0.25mA/277Vac)"),
+    "IRM-60-15ST": (0.25, 277.0, "MEAN WELL IRM-60-SPEC 2025-11-21 p.2 (< 0.25mA/277Vac)"),
+    "MPM-20-24": (0.080, 264.0, "MEAN WELL MPM-20-SPEC 2024-10-30 p.2 (Touch current <80uA/264VAC, Note 7)"),
+    "MPM-65-15ST": (0.100, 264.0, "MEAN WELL MPM-65-SPEC 2024-10-30 p.2 (Touch current <100uA/264VAC, Note 6)"),
+}
+# The system as built.  s38 (stage 38): PS1 deleted (the controller logic runs from PS3 over J13), PS2 = MPM-20-24 on
+# the board, PS3 = MPM-65-15ST in the chassis (controller request, addendum item 6), and the D-22 inlet module's four Y
+# caps removed (its CM choke -> KEMET SCF31X 5.68 mH, an EMI change only).  s35: the committed design before stage 38,
+# kept as the regression anchor (0.9741 mA).
+SYSTEMS = {
+    "s38": dict(module_y_nF=0.0, supplies=(("PS2", "MPM-20-24"), ("PS3", "MPM-65-15ST")),
+                note="stage 38: PS1 deleted, PS2 MPM-20-24, PS3 MPM-65-15ST, D-22 module Y removed (DECISIONS 47)"),
+    "s35": dict(module_y_nF=6.9, supplies=(("PS1", "IRM-20-15"), ("PS2", "IRM-20-24"), ("PS3", "IRM-60-15ST")),
+                note="stage 35 / before stage 38: three IRM supplies, D-22 module Y 4.7 + 2.2 nF per conductor"),
+}
 
-def supply_ma(n=1):
-    return n * SUPPLY_LEAK_MA_277 * (V_LINE / 277.0) * SUPPLY_FREQ_FACTOR
+def supply_ma(mpn="IRM-20-15"):
+    mx, vt, _ = SUPPLY_MAX[mpn]
+    return mx * (V_LINE / vt) * SUPPLY_FREQ_FACTOR
 
-def build(extra_y_per_line_f=0.0, supply_mode="datasheet_max"):
-    """Return per-line contributions (mA) at V_LINE, tolerance applied."""
+def build(extra_y_per_line_f=0.0, system="s38"):
+    """Return per-line contributions (mA) at V_LINE, tolerance applied, for SYSTEMS[system]."""
+    sysd = SYSTEMS[system]
     items = []
     def cap(name, c_nom, src):
         items.append(dict(name=name, c_nom_nF=c_nom * 1e9, mA=i_ma(c_nom * (1 + TOL)), src=src))
-    cap("C3/C4 board Y (2.2 nF, +20 %)", 2.2e-9, "power_stage_120v.ato:346-351; parts.ato:117")
-    cap("D-22 module Y (4.7+2.2 nF, +20 %)", 6.9e-9, "out-D22/PARTS.md Main/HF Y")
+    cap("C3/C4 board Y (2.2 nF, +20 %)", 2.2e-9, "power_stage_120v.ato (cy1 / cy2 CapY1_2n2); parts.ato CapY1_2n2")
+    if sysd["module_y_nF"]:
+        cap("D-22 module Y (4.7+2.2 nF, +20 %)", sysd["module_y_nF"] * 1e-9, "out-D22/PARTS.md Main/HF Y")
     if extra_y_per_line_f:
         cap("CONTROL extra Y per line", extra_y_per_line_f, "hypothetical")
     cap("coil-to-PE 31 pF (+20 %)", 31e-12, "DECISIONS.md item 20")
-    for ps, mpn in (("PS1", "IRM-20-15"), ("PS2", "IRM-20-24"), ("PS3", "IRM-60-15ST")):
-        if supply_mode == "datasheet_max":
-            ma = supply_ma()
-        else:  # measured typical, informational only: Simpex IRM-20-15 test report 0.015 mA @ 240 V
-            ma = 0.015 * (V_LINE / 240.0) * SUPPLY_FREQ_FACTOR
-        items.append(dict(name=f"{ps} {mpn} leakage", c_nom_nF=None, mA=ma,
-                          src="IRM-20/60-SPEC 2025-11-21 p.2" if supply_mode == "datasheet_max"
-                              else "Simpex IRM-20-15 report (typical, 1 unit)"))
+    for ps, mpn in sysd["supplies"]:
+        items.append(dict(name=f"{ps} {mpn} leakage", c_nom_nF=None, mA=supply_ma(mpn), src=SUPPLY_MAX[mpn][2]))
     return items
 
 def scenarios(items):
@@ -81,27 +98,27 @@ def evaluate(label, items):
                 pct_of_limit=100 * gov / LIMIT_MA,
                 vs_iec_0p75_pct=100 * gov / LIMIT_IEC_MA, verdict=verdict)
 
+S35_DESIGN_MA = 0.9741421213647918     # the committed DESIGN row before stage 38 (result.json at 0aecdc56f)
+
 def main():
     design = evaluate("DESIGN (datasheet-max supplies)", build())
-    typical = evaluate("INFORMATIONAL (typical-measured supplies)", build(supply_mode="typical"))
     control = evaluate("CONTROL (+10 nF Y per line; must FAIL)", build(extra_y_per_line_f=10e-9))
-    ysplit = evaluate("INFORMATIONAL (no module Y, board Y only, typical supplies)",
-                      [i for i in build(supply_mode="typical") if "module" not in i["name"]])
-    # Discriminating control: the passing variant (board Y only) plus 10 nF/line must flip to FAIL.
-    ctl2_items = [i for i in build(extra_y_per_line_f=10e-9, supply_mode="typical") if "module" not in i["name"]]
-    control2 = evaluate("CONTROL 2 (board-only variant + 10 nF Y per line; must FAIL)", ctl2_items)
+    # Discriminating control: the design passes by 8.8 uA, so +0.2 nF per line (12 uA) must flip it to FAIL.
+    control2 = evaluate("CONTROL 2 (design + 0.2 nF Y per line; must FAIL)", build(extra_y_per_line_f=0.2e-9))
+    # Regression anchor: the stage-35 system must reproduce the committed pre-stage-38 DESIGN row and FAIL.
+    s35 = evaluate("REFERENCE s35 (three IRM supplies, D-22 module Y; must reproduce 0.9741 mA and FAIL)", build(system="s35"))
     # Max total C per line allowed at the 50 % budget, 132 V, 60 Hz (including +20 % on Y):
     c_budget_nF = PASS_FRACTION * LIMIT_MA * 1e-3 / (W * V_LINE) * 1e9
     out = dict(V=V_LINE, f=F_LINE, limit_mA=LIMIT_MA, pass_fraction=PASS_FRACTION,
                budget_mA=PASS_FRACTION * LIMIT_MA, max_total_C_per_line_nF_at_budget=c_budget_nF,
-               results=[design, typical, ysplit, control, control2])
+               system=SYSTEMS["s38"]["note"], results=[design, control, control2, s35])
     here = os.path.dirname(os.path.abspath(__file__))
     with open(os.path.join(here, "result.json"), "w") as f:
         json.dump(out, f, indent=2, sort_keys=True)
     print(f"Limit {LIMIT_MA} mA (UL 1026 grounded portable; IEC 60335-1 ref {LIMIT_IEC_MA} mA); "
           f"budget = {PASS_FRACTION:.0%} = {PASS_FRACTION*LIMIT_MA:.3f} mA; {V_LINE} V {F_LINE} Hz")
     print(f"Max total C-to-PE per line at budget: {c_budget_nF:.2f} nF (incl. tolerance)")
-    for r in (design, typical, ysplit, control, control2):
+    for r in (design, control, control2, s35):
         print(f"\n== {r['label']}")
         for i in r["items"]:
             print(f"   {i['name']:<36s} {i['mA']:7.4f} mA   [{i['src']}]")
@@ -112,8 +129,10 @@ def main():
               f"open-N {s['open_N_PE_intact_PE_conductor_mA']:.3f} mA")
         print(f"   budget {r['budget_mA']:.3f} mA, margin {r['margin_mA']:+.3f} mA "
               f"({r['margin_pct_of_budget']:+.0f} % of budget) -> {r['verdict']}")
-    ok_control = control["verdict"] == "FAIL" and control2["verdict"] == "FAIL" and ysplit["verdict"] == "PASS"
-    print(f"\nCONTROL check (both controls FAIL, board-only reference PASSes): {'OK' if ok_control else 'BROKEN'}")
+    ok_control = control["verdict"] == "FAIL" and control2["verdict"] == "FAIL" and s35["verdict"] == "FAIL" \
+        and abs(s35["governing_touch_mA"] - S35_DESIGN_MA) < 1e-12
+    print(f"\nCONTROL check (both controls FAIL, the s35 reference reproduces {S35_DESIGN_MA:.4f} mA and FAILs): "
+          f"{'OK' if ok_control else 'BROKEN'}")
     print(f"F5 DESIGN VERDICT: {design['verdict']}")
     return 0 if (design["verdict"] == "PASS" and ok_control) else 1
 

@@ -17,12 +17,12 @@
    "min_mm": 8.507,
    "pass": true,
    "between": [
-    "pad n_filt C4",
-    "pad pe C4"
+    "pad l_filt C3",
+    "pad pe C3"
    ],
    "at_mm": [
     225.0,
-    109.1
+    102.8
    ]
   }
  },
@@ -43,18 +43,6 @@
    "board_pass": true,
    "package": {
     "src": "NOT IN TABLE: add the datasheet distances"
-   }
-  },
-  {
-   "ref": "PS1",
-   "mpn": "IRM-20-15",
-   "land_gap_mm": 42.009,
-   "board_pass": true,
-   "package": {
-    "clr": null,
-    "cpg": null,
-    "src": "Mean Well IRM-20 (input/output pin span only)",
-    "rating": "module approval; PCB pin span checked here"
    }
   },
   {
@@ -160,7 +148,27 @@
    "pass": true
   },
   {
+   "ref": "H10",
+   "at": [
+    152.0,
+    122.0
+   ],
+   "hot_mm": 6.4,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
    "ref": "H2",
+   "at": [
+    223.0,
+    135.0
+   ],
+   "hot_mm": 20.68,
+   "role": "metal-capable fixing / connector hardware",
+   "pass": true
+  },
+  {
+   "ref": "H3",
    "at": [
     6.0,
     180.0
@@ -170,7 +178,7 @@
    "pass": true
   },
   {
-   "ref": "H3",
+   "ref": "H4",
    "at": [
     86.0,
     180.0
@@ -180,7 +188,7 @@
    "pass": true
   },
   {
-   "ref": "H4",
+   "ref": "H5",
    "at": [
     24.0,
     74.0
@@ -190,7 +198,7 @@
    "pass": true
   },
   {
-   "ref": "H5",
+   "ref": "H6",
    "at": [
     88.0,
     100.0
@@ -200,7 +208,7 @@
    "pass": true
   },
   {
-   "ref": "H6",
+   "ref": "H7",
    "at": [
     128.0,
     54.0
@@ -210,12 +218,22 @@
    "pass": true
   },
   {
-   "ref": "H7",
+   "ref": "H8",
    "at": [
     194.0,
     130.0
    ],
    "hot_mm": 15.4,
+   "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
+   "pass": true
+  },
+  {
+   "ref": "H9",
+   "at": [
+    142.0,
+    4.0
+   ],
+   "hot_mm": 0.9,
    "role": "nylon fixing (insulating hardware only, F.Fab NYLON)",
    "pass": true
   },
@@ -262,12 +280,15 @@
  ],
  "board_fixings": {
   "H1": "metal",
-  "H2": "nylon",
+  "H2": "metal",
   "H3": "nylon",
   "H4": "nylon",
   "H5": "nylon",
   "H6": "nylon",
-  "H7": "nylon"
+  "H7": "nylon",
+  "H8": "nylon",
+  "H9": "nylon",
+  "H10": "nylon"
  },
  "open_for_lab": [
   "laminate CTI >= 175 V (group IIIa) on the order: JLC question open (FAB-JLCPCB.md)",

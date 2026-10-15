@@ -6864,7 +6864,53 @@
   "x": 285.0,
   "y": 135.0
  },
+ "H10": {
+  "layer": "F.Cu",
+  "lib": "MountingHole_3.2mm_M3",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 3.2,
+    "layers": [
+     "*.Cu",
+     "*.Mask"
+    ],
+    "net": "",
+    "num": "",
+    "type": "np_thru_hole",
+    "w": 3.2,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 152.0,
+  "y": 122.0
+ },
  "H2": {
+  "layer": "F.Cu",
+  "lib": "MountingHole_3.2mm_M3",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 3.2,
+    "layers": [
+     "*.Cu",
+     "*.Mask"
+    ],
+    "net": "",
+    "num": "",
+    "type": "np_thru_hole",
+    "w": 3.2,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 223.0,
+  "y": 135.0
+ },
+ "H3": {
   "layer": "F.Cu",
   "lib": "MountingHole_3.2mm_M3",
   "pads": [
@@ -6887,7 +6933,7 @@
   "x": 6.0,
   "y": 180.0
  },
- "H3": {
+ "H4": {
   "layer": "F.Cu",
   "lib": "MountingHole_3.2mm_M3",
   "pads": [
@@ -6910,7 +6956,7 @@
   "x": 86.0,
   "y": 180.0
  },
- "H4": {
+ "H5": {
   "layer": "F.Cu",
   "lib": "MountingHole_3.2mm_M3",
   "pads": [
@@ -6933,7 +6979,7 @@
   "x": 24.0,
   "y": 74.0
  },
- "H5": {
+ "H6": {
   "layer": "F.Cu",
   "lib": "MountingHole_3.2mm_M3",
   "pads": [
@@ -6956,7 +7002,7 @@
   "x": 88.0,
   "y": 100.0
  },
- "H6": {
+ "H7": {
   "layer": "F.Cu",
   "lib": "MountingHole_3.2mm_M3",
   "pads": [
@@ -6979,7 +7025,7 @@
   "x": 128.0,
   "y": 54.0
  },
- "H7": {
+ "H8": {
   "layer": "F.Cu",
   "lib": "MountingHole_3.2mm_M3",
   "pads": [
@@ -7001,6 +7047,29 @@
   "rot": 0.0,
   "x": 194.0,
   "y": 130.0
+ },
+ "H9": {
+  "layer": "F.Cu",
+  "lib": "MountingHole_3.2mm_M3",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 3.2,
+    "layers": [
+     "*.Cu",
+     "*.Mask"
+    ],
+    "net": "",
+    "num": "",
+    "type": "np_thru_hole",
+    "w": 3.2,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 142.0,
+  "y": 4.0
  },
  "J1": {
   "layer": "F.Cu",
@@ -7241,7 +7310,7 @@
      "*.Cu",
      "*.Mask"
     ],
-    "net": "v15_selv",
+    "net": "j4_nc1",
     "num": "1",
     "type": "thru_hole",
     "w": 1.6,
@@ -7653,71 +7722,6 @@
   "rot": 0.0,
   "x": 232.0,
   "y": 31.0
- },
- "PS1": {
-  "layer": "F.Cu",
-  "lib": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 3.0,
-    "layers": [
-     "*.Cu",
-     "*.Mask"
-    ],
-    "net": "l_filt",
-    "num": "1",
-    "type": "thru_hole",
-    "w": 3.0,
-    "x": 0.0,
-    "y": 0.0
-   },
-   {
-    "ang": 0.0,
-    "h": 3.0,
-    "layers": [
-     "*.Cu",
-     "*.Mask"
-    ],
-    "net": "n_filt",
-    "num": "2",
-    "type": "thru_hole",
-    "w": 3.0,
-    "x": 0.0,
-    "y": 20.8
-   },
-   {
-    "ang": 0.0,
-    "h": 3.0,
-    "layers": [
-     "*.Cu",
-     "*.Mask"
-    ],
-    "net": "selv_gnd",
-    "num": "3",
-    "type": "thru_hole",
-    "w": 3.0,
-    "x": 45.0,
-    "y": 20.8
-   },
-   {
-    "ang": 0.0,
-    "h": 3.0,
-    "layers": [
-     "*.Cu",
-     "*.Mask"
-    ],
-    "net": "v15_selv",
-    "num": "4",
-    "type": "thru_hole",
-    "w": 3.0,
-    "x": 45.0,
-    "y": 12.8
-   }
-  ],
-  "rot": 180.0,
-  "x": 255.8,
-  "y": 136.4
  },
  "PS2": {
   "layer": "F.Cu",
@@ -12958,29 +12962,6 @@
      "B.Cu",
      "B.Mask"
     ],
-    "net": "v15_selv",
-    "num": "1",
-    "type": "smd",
-    "w": 1.0,
-    "x": 0.0,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 133.918,
-  "y": 131.782
- },
- "TP13": {
-  "layer": "B.Cu",
-  "lib": "TestPoint_Pad_D1.0mm",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 1.0,
-    "layers": [
-     "B.Cu",
-     "B.Mask"
-    ],
     "net": "v3v3",
     "num": "1",
     "type": "smd",
@@ -12993,7 +12974,7 @@
   "x": 11.248,
   "y": 128.287
  },
- "TP14": {
+ "TP13": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13016,7 +12997,7 @@
   "x": 57.793,
   "y": 155.382
  },
- "TP15": {
+ "TP14": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13039,7 +13020,7 @@
   "x": 79.768,
   "y": 60.768
  },
- "TP16": {
+ "TP15": {
   "layer": "F.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13062,7 +13043,7 @@
   "x": 34.354,
   "y": 124.154
  },
- "TP17": {
+ "TP16": {
   "layer": "F.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13085,7 +13066,7 @@
   "x": 36.225,
   "y": 125.7
  },
- "TP18": {
+ "TP17": {
   "layer": "F.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13108,7 +13089,7 @@
   "x": 33.15,
   "y": 113.265
  },
- "TP19": {
+ "TP18": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13130,6 +13111,29 @@
   "rot": 0.0,
   "x": 34.0,
   "y": 64.989999
+ },
+ "TP19": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "bias_good",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 33.2,
+  "y": 70.4
  },
  "TP2": {
   "layer": "B.Cu",
@@ -13165,29 +13169,6 @@
      "B.Cu",
      "B.Mask"
     ],
-    "net": "bias_good",
-    "num": "1",
-    "type": "smd",
-    "w": 1.0,
-    "x": 0.0,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 33.2,
-  "y": 70.4
- },
- "TP21": {
-  "layer": "B.Cu",
-  "lib": "TestPoint_Pad_D1.0mm",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 1.0,
-    "layers": [
-     "B.Cu",
-     "B.Mask"
-    ],
     "net": "bus_fault",
     "num": "1",
     "type": "smd",
@@ -13200,7 +13181,7 @@
   "x": 34.818,
   "y": 132.341
  },
- "TP22": {
+ "TP21": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13223,7 +13204,7 @@
   "x": 30.089,
   "y": 133.181999
  },
- "TP23": {
+ "TP22": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13246,7 +13227,7 @@
   "x": 23.8,
   "y": 134.565
  },
- "TP24": {
+ "TP23": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13269,7 +13250,7 @@
   "x": 86.708,
   "y": 41.735
  },
- "TP25": {
+ "TP24": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13292,7 +13273,7 @@
   "x": 115.515,
   "y": 88.095
  },
- "TP26": {
+ "TP25": {
   "layer": "F.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13315,7 +13296,7 @@
   "x": 112.9,
   "y": 96.295
  },
- "TP27": {
+ "TP26": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13338,7 +13319,7 @@
   "x": 116.4,
   "y": 81.05
  },
- "TP28": {
+ "TP27": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13361,7 +13342,7 @@
   "x": 117.225,
   "y": 73.695
  },
- "TP29": {
+ "TP28": {
   "layer": "F.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13383,6 +13364,29 @@
   "rot": 0.0,
   "x": 119.274,
   "y": 60.395
+ },
+ "TP29": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "ocp_kelvin_p",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 103.75,
+  "y": 74.095
  },
  "TP3": {
   "layer": "F.Cu",
@@ -13408,29 +13412,6 @@
   "y": 98.595
  },
  "TP30": {
-  "layer": "B.Cu",
-  "lib": "TestPoint_Pad_D1.0mm",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 1.0,
-    "layers": [
-     "B.Cu",
-     "B.Mask"
-    ],
-    "net": "ocp_kelvin_p",
-    "num": "1",
-    "type": "smd",
-    "w": 1.0,
-    "x": 0.0,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 103.75,
-  "y": 74.095
- },
- "TP31": {
   "layer": "F.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13453,7 +13434,7 @@
   "x": 62.487,
   "y": 49.9
  },
- "TP32": {
+ "TP31": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13476,7 +13457,7 @@
   "x": 2.0,
   "y": 112.085
  },
- "TP33": {
+ "TP32": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13499,30 +13480,7 @@
   "x": 14.476,
   "y": 118.011
  },
- "TP34": {
-  "layer": "B.Cu",
-  "lib": "TestPoint_Pad_D1.0mm",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 1.0,
-    "layers": [
-     "B.Cu",
-     "B.Mask"
-    ],
-    "net": "selv_gnd",
-    "num": "1",
-    "type": "smd",
-    "w": 1.0,
-    "x": 0.0,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 130.692,
-  "y": 128.584
- },
- "TP35": {
+ "TP33": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13545,7 +13503,7 @@
   "x": 8.898,
   "y": 127.836
  },
- "TP36": {
+ "TP34": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13568,7 +13526,7 @@
   "x": 59.675,
   "y": 157.38
  },
- "TP37": {
+ "TP35": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13591,7 +13549,7 @@
   "x": 80.328,
   "y": 63.02
  },
- "TP38": {
+ "TP36": {
   "layer": "F.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13614,7 +13572,7 @@
   "x": 30.829,
   "y": 124.399
  },
- "TP39": {
+ "TP37": {
   "layer": "F.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -13636,6 +13594,52 @@
   "rot": 0.0,
   "x": 30.475,
   "y": 120.945
+ },
+ "TP38": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "selv_gnd",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 30.35,
+  "y": 69.665
+ },
+ "TP39": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "selv_gnd",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 27.675,
+  "y": 132.865
  },
  "TP4": {
   "layer": "B.Cu",
@@ -13659,52 +13663,6 @@
   "rot": 0.0,
   "x": 118.2,
   "y": 79.6
- },
- "TP40": {
-  "layer": "B.Cu",
-  "lib": "TestPoint_Pad_D1.0mm",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 1.0,
-    "layers": [
-     "B.Cu",
-     "B.Mask"
-    ],
-    "net": "selv_gnd",
-    "num": "1",
-    "type": "smd",
-    "w": 1.0,
-    "x": 0.0,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 30.35,
-  "y": 69.665
- },
- "TP41": {
-  "layer": "B.Cu",
-  "lib": "TestPoint_Pad_D1.0mm",
-  "pads": [
-   {
-    "ang": 0.0,
-    "h": 1.0,
-    "layers": [
-     "B.Cu",
-     "B.Mask"
-    ],
-    "net": "selv_gnd",
-    "num": "1",
-    "type": "smd",
-    "w": 1.0,
-    "x": 0.0,
-    "y": 0.0
-   }
-  ],
-  "rot": 0.0,
-  "x": 27.675,
-  "y": 132.865
  },
  "TP5": {
   "layer": "B.Cu",

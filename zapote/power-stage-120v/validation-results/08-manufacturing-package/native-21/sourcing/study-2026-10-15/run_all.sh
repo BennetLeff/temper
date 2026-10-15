@@ -16,6 +16,17 @@ python3 -I scripts/build_snapshot.py snapshot/s35/bom-jlcpcb.s35.csv snapshot/s3
     snapshot/digikey-2026-10-15.json "$VR/08-manufacturing-package/native-21/sourcing/STOCK-2026-10-13*.csv" \
     snapshot/s35/SNAPSHOT-s35.csv snapshot/s35/SNAPSHOT-s35.json
 rm -f snapshot/s35/jlc-bom-plus-extra.json snapshot/s35/SNAPSHOT-s35.json
+# s38 BOM (stage 38, candidate 23: PS1 deleted, PS2 MPM-20-24 = JLC C6675337, read 2026-10-15 into scripts/jlc-raw by
+# `jlc_fetch.py detail C6675337`; DigiKey's public page gave the price ladder and lead, no stock, so the
+# STOCK-2026-10-13-addendum-s38 row carries them). The committed ../SNAPSHOT-2026-10-15.csv is snapshot/s38/SNAPSHOT-s38.csv
+# plus every s35 / s32 row whose MPN the s38 BOM no longer has (IRM-20-15, IRM-20-24, 74650074), so the s32, s35 and
+# s38 cards join against one dated snapshot.
+python3 -I -c "import json,sys;sys.path.insert(0,'scripts');import jlc_snapshot as S;d=json.load(open('snapshot/jlc-2026-10-15.json'));m={b['mpn'] for b in d['bom']};d['bom']+=[r for r in d['extra'] if r['mpn'] not in m];r=S.rec_from_detail('C6675337');lad=r['jlc_ladder'];r.update(mpn='MPM-20-24',designators='PS2',qty=1,mount='THT',bom_assembly='JLC (Extended)',jlc_unit_5=S.unit_at(lad,5),jlc_unit_500=S.unit_at(lad,500));d['bom']=[b for b in d['bom'] if b['mpn']!='MPM-20-24']+[r];json.dump(d,open('snapshot/s38/jlc-bom-plus-extra.json','w'))"
+python3 -I scripts/build_snapshot.py snapshot/s38/bom-jlcpcb.s38.csv snapshot/s38/jlc-bom-plus-extra.json snapshot/octopart-2026-10-15.json \
+    snapshot/digikey-2026-10-15.json "$VR/08-manufacturing-package/native-21/sourcing/STOCK-2026-10-13*.csv" \
+    snapshot/s38/SNAPSHOT-s38.csv snapshot/s38/SNAPSHOT-s38.json
+rm -f snapshot/s38/jlc-bom-plus-extra.json snapshot/s38/SNAPSHOT-s38.json
+python3 -I -c "import csv;f='snapshot/s38/SNAPSHOT-s38.csv';a=list(csv.DictReader(open(f)));m={r['mpn'] for r in a};o=list(csv.DictReader(open('snapshot/s35/SNAPSHOT-s35.csv')))+[r for r in csv.DictReader(open('snapshot/SNAPSHOT-2026-10-15.csv')) if r['mpn']=='74650074'];x=[r for r in o if r['mpn'] not in m];w=csv.DictWriter(open('../SNAPSHOT-2026-10-15.csv','w',newline=''),fieldnames=list(a[0]));w.writeheader();w.writerows(a+x)"
 python3 -I scripts/buildability.py --control
 python3 -I scripts/buildability.py snapshot/SNAPSHOT-2026-10-15.csv --json results/buildability-s32.json
 # needs TDK's B32674-678 PDF (June 2026; tdk-electronics.tdk.com) at downloads/tdk-b3267x/MKP_B32674_678.pdf, not committed:

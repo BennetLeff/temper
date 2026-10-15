@@ -75,8 +75,8 @@
     "item": "C21: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 95.6,
-    "margin_k": 14.4
+    "est_c": 95.5,
+    "margin_k": 14.5
    },
    {
     "item": "R5: terminal derating at 0.534 W (20 % margin)",
@@ -89,22 +89,22 @@
     "item": "C22: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 93.8,
-    "margin_k": 16.2
+    "est_c": 93.6,
+    "margin_k": 16.4
    },
    {
     "item": "C23: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 92.6,
-    "margin_k": 17.4
+    "est_c": 92.3,
+    "margin_k": 17.7
    },
    {
     "item": "C151: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 91.2,
-    "margin_k": 18.8
+    "est_c": 90.9,
+    "margin_k": 19.1
    },
    {
     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
@@ -117,8 +117,8 @@
     "item": "C152: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 90.6,
-    "margin_k": 19.4
+    "est_c": 90.2,
+    "margin_k": 19.8
    },
    {
     "item": "R5: element max (Bourns CSS2H p.1)",
@@ -135,13 +135,6 @@
     "margin_k": 25.4
    },
    {
-    "item": "C5: MKP Top,max",
-    "gated": false,
-    "limit_c": 110.0,
-    "est_c": 84.4,
-    "margin_k": 25.6
-   },
-   {
     "item": "R12: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
@@ -149,11 +142,18 @@
     "margin_k": 26.0
    },
    {
+    "item": "C5: MKP Top,max",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 83.8,
+    "margin_k": 26.2
+   },
+   {
     "item": "C6: MKP Top,max",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 80.1,
-    "margin_k": 29.9
+    "est_c": 79.2,
+    "margin_k": 30.8
    },
    {
     "item": "R20: 1206 thick film (unverified)",
@@ -166,8 +166,8 @@
     "item": "R10: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 122.6,
-    "margin_k": 32.4
+    "est_c": 122.5,
+    "margin_k": 32.5
    },
    {
     "item": "R54: 1206 thick film (unverified)",
@@ -194,8 +194,8 @@
     "item": "L1: B82726 climatic upper (TDK p.4)",
     "gated": false,
     "limit_c": 125.0,
-    "est_c": 85.8,
-    "margin_k": 39.2
+    "est_c": 85.6,
+    "margin_k": 39.4
    },
    {
     "item": "R53: 1206 thick film (unverified)",
@@ -205,67 +205,67 @@
     "margin_k": 42.9
    },
    {
+    "item": "R22: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 85.2,
+    "margin_k": 69.8
+   },
+   {
     "item": "R69: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 86.4,
-    "margin_k": 68.6
+    "est_c": 84.9,
+    "margin_k": 70.1
    },
    {
     "item": "R68: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 85.7,
-    "margin_k": 69.3
-   },
-   {
-    "item": "R22: 1206 thick film (unverified)",
-    "gated": false,
-    "limit_c": 155.0,
-    "est_c": 85.3,
-    "margin_k": 69.7
-   },
-   {
-    "item": "R70: 1206 thick film (unverified)",
-    "gated": false,
-    "limit_c": 155.0,
-    "est_c": 85.1,
-    "margin_k": 69.9
-   },
-   {
-    "item": "R67: 1206 thick film (unverified)",
-    "gated": false,
-    "limit_c": 155.0,
-    "est_c": 84.0,
-    "margin_k": 71.0
+    "est_c": 84.1,
+    "margin_k": 70.9
    },
    {
     "item": "R23: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 83.7,
-    "margin_k": 71.3
+    "est_c": 83.6,
+    "margin_k": 71.4
    },
    {
-    "item": "R24: 1206 thick film (unverified)",
+    "item": "R70: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 83.6,
+    "margin_k": 71.4
+   },
+   {
+    "item": "R67: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
     "est_c": 82.0,
     "margin_k": 73.0
    },
    {
+    "item": "R24: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 81.9,
+    "margin_k": 73.1
+   },
+   {
     "item": "R25: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 80.6,
-    "margin_k": 74.4
+    "est_c": 80.4,
+    "margin_k": 74.6
    },
    {
     "item": "R39: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 70.7,
-    "margin_k": 84.3
+    "est_c": 69.1,
+    "margin_k": 85.9
    }
   ],
   "c28_h10": [
@@ -348,43 +348,43 @@
     "item": "C21: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 117.9,
-    "margin_k": -7.9
+    "est_c": 117.8,
+    "margin_k": -7.8
    },
    {
     "item": "C22: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 115.6,
-    "margin_k": -5.6
+    "est_c": 115.4,
+    "margin_k": -5.4
    },
    {
     "item": "C23: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 114.1,
-    "margin_k": -4.1
+    "est_c": 113.8,
+    "margin_k": -3.8
    },
    {
     "item": "C151: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 112.2,
-    "margin_k": -2.2
-   },
-   {
-    "item": "C152: MKP Top,max (TDK June 2026 p.35)",
-    "gated": false,
-    "limit_c": 110.0,
-    "est_c": 111.4,
-    "margin_k": -1.4
+    "est_c": 111.9,
+    "margin_k": -1.9
    },
    {
     "item": "R10: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 156.2,
-    "margin_k": -1.2
+    "est_c": 156.1,
+    "margin_k": -1.1
+   },
+   {
+    "item": "C152: MKP Top,max (TDK June 2026 p.35)",
+    "gated": false,
+    "limit_c": 110.0,
+    "est_c": 111.0,
+    "margin_k": -1.0
    },
    {
     "item": "R54: 1206 thick film (unverified)",
@@ -432,8 +432,8 @@
     "item": "C5: MKP Top,max",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 98.6,
-    "margin_k": 11.4
+    "est_c": 98.0,
+    "margin_k": 12.0
    },
    {
     "item": "R53: 1206 thick film (unverified)",
@@ -453,84 +453,84 @@
     "item": "C6: MKP Top,max",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 91.9,
-    "margin_k": 18.1
+    "est_c": 91.0,
+    "margin_k": 19.0
    },
    {
     "item": "L1: B82726 climatic upper (TDK p.4)",
     "gated": false,
     "limit_c": 125.0,
-    "est_c": 88.3,
-    "margin_k": 36.7
+    "est_c": 88.2,
+    "margin_k": 36.8
    },
    {
     "item": "R22: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 99.3,
-    "margin_k": 55.7
+    "est_c": 99.2,
+    "margin_k": 55.8
    },
    {
     "item": "R23: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 96.3,
-    "margin_k": 58.7
+    "est_c": 96.2,
+    "margin_k": 58.8
    },
    {
     "item": "R24: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 93.5,
-    "margin_k": 61.5
+    "est_c": 93.4,
+    "margin_k": 61.6
    },
    {
     "item": "R25: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 91.5,
-    "margin_k": 63.5
+    "est_c": 91.3,
+    "margin_k": 63.7
    },
    {
     "item": "R69: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 90.7,
-    "margin_k": 64.3
+    "est_c": 89.3,
+    "margin_k": 65.7
    },
    {
     "item": "R68: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 89.8,
-    "margin_k": 65.2
+    "est_c": 88.2,
+    "margin_k": 66.8
    },
    {
     "item": "R70: 1206 thick film (unverified)",
-    "gated": false,
-    "limit_c": 155.0,
-    "est_c": 89.4,
-    "margin_k": 65.6
-   },
-   {
-    "item": "R67: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
     "est_c": 88.0,
     "margin_k": 67.0
    },
    {
+    "item": "R67: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 86.1,
+    "margin_k": 68.9
+   },
+   {
     "item": "R39: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 79.2,
-    "margin_k": 75.8
+    "est_c": 77.6,
+    "margin_k": 77.4
    }
   ]
  },
  "board_sha256": {
-  "c22_h10": "fba59ef3d8169ee71a81a08d29c72f4e76acf8f420c91fd2515227adaabc8be4",
-  "c28_h10": "fba59ef3d8169ee71a81a08d29c72f4e76acf8f420c91fd2515227adaabc8be4"
+  "c22_h10": "b5bf428d2ff59574027fae92f248996804fdabb4363d479d3ea7c30762b09983",
+  "c28_h10": "b5bf428d2ff59574027fae92f248996804fdabb4363d479d3ea7c30762b09983"
  },
  "metrics": {
   "b3_laminate_margin_K": -56.4,

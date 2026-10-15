@@ -1,11 +1,10 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "07fc13ef3454e928ef3ba813899ca3986d4c8db2e3a1f97c7f066f5c59739b20",
+    "build/default.csv": "8d062622bbb1433598dfdbad3125a1ec72b7c9c1e02acda0bee1c14f591b556b",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "5c8046eca8f3b2e653c49a21b3c56942102c0e16d8d62386b9f6259125030c7a",
-    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5",
-    "build/resolved-components.json": "fd1f7434fe1a89ca5b5537a263f5a62eb9e907526402a9f7f6bd89de04226389"
+    "build/default.net": "a96520eabb70aefeab2544e232f095a6d4ddaf37cb0df40cfed969572cd24e58",
+    "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
     {
@@ -1371,16 +1370,6 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::ps_selv",
-      "attributes": {
-        "designator": "PS1",
-        "designator_prefix": "PS",
-        "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
-        "manufacturer": "MEAN WELL",
-        "mpn": "IRM-20-15"
-      }
-    },
-    {
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_tco",
       "attributes": {
         "designator": "J3",
@@ -1427,7 +1416,7 @@
         "designator_prefix": "PS",
         "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
         "manufacturer": "Mean Well",
-        "mpn": "IRM-20-24"
+        "mpn": "MPM-20-24"
       }
     },
     {
@@ -3762,9 +3751,8 @@
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
     "elec/src/f6_bias.ato": "01e6f049ba6da407ba1f6e7cc6fb73c110c1a194539766213176cec44b788d7f",
-    "elec/src/f6_parts.ato": "cfd481e7fc59f0f42b77f0ae5e6688ef43756108fdad4052f0cefd994b369842",
-    "elec/src/parts.ato": "e09899cb2d2085163d9aac834f9843d6953d850fff44a0f45009b2aa969311fa",
-    "elec/src/power_stage_120v.ato": "53757de6b0599d5f4f3484b368d127bd7f55296ab8d719ef2324de6b2f309e30",
-    "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
+    "elec/src/f6_parts.ato": "fd04ced5a61043be957e53c397ba4f75ac90c74074024f2fd48ce70a743052ac",
+    "elec/src/parts.ato": "8088379b42c92430dcedf04aa9667a91127c4b804c0202074fcd42d997b47300",
+    "elec/src/power_stage_120v.ato": "be7aa9e3e133e7b0c6637bd9b7911a061c1655a36906b916e0a68c9d489bd5fd"
   }
 }

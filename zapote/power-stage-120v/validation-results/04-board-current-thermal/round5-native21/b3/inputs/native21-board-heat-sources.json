@@ -362,26 +362,12 @@
    "board_fraction": 0.5,
    "sink_fraction": 0.5,
    "basis": "estimate",
-   "note": "IRM-20-24 at the stage-14 HOT allocation (ALT-BIAS budget.py: 7.45 W at 40 kHz, 11.10 W at 80 kHz); \u03b7 0.84 nominal / 0.80 worst",
+   "note": "MPM-20-24 at the stage-14 HOT allocation (ALT-BIAS budget.py: 7.45 W at 40 kHz, 11.10 W at 80 kHz); \u03b7 0.84 nominal / 0.80 worst (datasheet typ 87 %)",
    "x_mm": 186.2,
    "y_mm": 14.0,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "IRM-20-24 at the stage-14 HOT allocation (ALT-BIAS budget.py"
-  },
-  {
-   "ref": "PS1",
-   "watts_nominal": 1.5238095238095237,
-   "watts_worst": 3.0,
-   "board_fraction": 0.5,
-   "sink_fraction": 0.5,
-   "basis": "estimate",
-   "note": "IRM-20-15 SELV supply: 8 W nominal / 12 W worst load (controller allocation not final)",
-   "x_mm": 233.3,
-   "y_mm": 126.0,
-   "has_unquantified_loss": true,
-   "use_as_complete_b3_heat_source": true,
-   "part": "IRM-20-15 SELV supply"
+   "part": "MPM-20-24 at the stage-14 HOT allocation (ALT-BIAS budget.py"
   },
   {
    "ref": "C5",
@@ -581,7 +567,7 @@
   }
  ],
  "totals_W": {
-  "nominal": 9.9,
-  "worst": 20.129
+  "nominal": 9.138,
+  "worst": 18.629
  }
 }

@@ -96,13 +96,13 @@ for ref in ("U41", "U42"):
     add(ref, 1.09, 1.71, "bias", "R24C2T25/R module loss (ALT-BIAS 3.2; 40 / 80 kHz allocation)")
 add("U26", 0.87248, 0.945, "bias", "TPS7A4700 low-side span LDO: (24 - 17 V) × load")
 
-# AC-DC modules: loss = Pout (1/η - 1), η 0.84 (IRM-20 typical ~86 %); half to the board (pins,
-# body on the board, the rest convects from the case) - estimate
+# AC-DC module: loss = Pout (1/η - 1), η 0.84 nominal / 0.80 worst; half to the board (pins, body on the board, the
+# rest convects from the case) - estimate. Stage 38 (candidate 23, DECISIONS 47): PS2 is the MEAN WELL MPM-20-24, typ.
+# efficiency 87 % (MPM-20-SPEC 2024-10-30 p.2; the IRM-20-24 it replaces: 85 %, IRM-20-SPEC 2025-11-21 p.2), so the
+# 0.84 / 0.80 rows stay as a conservative bound. PS1 (IRM-20-15, 8 / 12 W allocation) is deleted: its heat leaves the board.
 add("PS2", 7.45 * (1 / 0.84 - 1), 11.10 * (1 / 0.80 - 1), "estimate",
-    "IRM-20-24 at the stage-14 HOT allocation (ALT-BIAS budget.py: 7.45 W at 40 kHz, 11.10 W at 80 kHz); "
-    "η 0.84 nominal / 0.80 worst", board=0.5)
-add("PS1", 8.0 * (1 / 0.84 - 1), 12.0 * (1 / 0.80 - 1), "estimate",
-    "IRM-20-15 SELV supply: 8 W nominal / 12 W worst load (controller allocation not final)", board=0.5)
+    "MPM-20-24 at the stage-14 HOT allocation (ALT-BIAS budget.py: 7.45 W at 40 kHz, 11.10 W at 80 kHz); "
+    "η 0.84 nominal / 0.80 worst (datasheet typ 87 %)", board=0.5)
 
 # bus capacitors: C5/C6 (9 µF since stage 14) take the switching-frequency ripple; the HF 0.1 µF film caps
 # see edge harmonics only (Xc 48 Ω vs 1.8 Ω at 33 kHz)

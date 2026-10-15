@@ -4,7 +4,7 @@ This is an analysis only. Nothing in the repo was edited, staged or committed. N
 - Every number comes from `python3 -I run_all.py`, which writes `results/summary.json`, `results/joint.csv` and `results/run_all.log`.
 - `run_all.py` reruns the controls first and exits 1 if any control fails.
 - A full solve takes 30–40 min with 4 processes (2,434 s on a loaded machine). `--reuse` reloads the cached EMI candidates, but still re-solves the control candidate.
-- Repo inputs are byte-identical copies in `repo_copies/`, with SHA-256 values checked against the worktree in `MANIFEST.json`:
+- Repo inputs are byte-identical copies in `repo_copies/`, with SHA-256 values checked in `MANIFEST.json` against the repo files at the study base 0aecdc56f (stage 38 later changed the working copies for the s38 system; amended 2026-10-15):
   - `leakage_budget.py` and its `result.json`;
   - `emi_s19b.py` and its `results.json`.
 - Datasheets are in `downloads/` and are not for the repo. `run_all.py` re-reads their rows with `pdftotext`.

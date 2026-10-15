@@ -438,7 +438,7 @@
      "parameter": "X-cap discharge time 198 V to 34 V",
      "worst_case_value": 0.854,
      "unit": "s",
-     "condition": "C1+C2 = 2 uF at +20 %, R +1 %, 2 x 100 k only (IRM-20 inputs and ZC string ignored, they only help)",
+     "condition": "C1+C2 = 2 uF at +20 %, R +1 %, 2 x 100 k only (PS2 input and ZC string ignored, they only help)",
      "evidence": "DECISIONS.md:345; native-21/verification/datasheet-ledger/scripts/audit_bleed_snubber.py:23"
     }
    ],
@@ -668,7 +668,7 @@
     "Core stock zero, 29 weeks (DECISIONS.md:846)."
    ],
    "finding": null,
-   "notes": "Rated 250 V AC, test 1500 V AC line/line, Lstray 18 uH typ (= the ALT-D3 surge model, ALT-D3.md:101), R 4.5 mOhm per winding, inductance drop < 10 % at IR DC bias. The old 'rated 48 VAC' worry came from sibling parts and does not apply."
+   "notes": "Rated 250 V AC, test 1500 V AC line/line, Lstray 18 uH typ (= the ALT-D3 surge model, ALT-D3.md:101), R 4.5 mOhm per winding, inductance drop < 10 % at IR DC bias. The old 'rated 48 VAC' worry came from sibling parts and does not apply. Stage 38 (candidate 23) evaluated YAGEO/KEMET SCF31X-220-2R1A011JH (22 A, 500 VAC, 5.68 mH, 45 x 42 x 33 mm, no UL/CSA listed) and kept the TDK part: the SCF31X body does not fit the L1 slot (about 46.1 x 32.8 mm between C1, C5, C2 and PS2) without moving C1/C5/F1 (c23-supply-topology/README.md)."
   },
   "DE1E3RA222MA4BP01F": {
    "mpn": "DE1E3RA222MA4BP01F",
@@ -727,10 +727,10 @@
     },
     {
      "parameter": "Touch current PE open, 132 V",
-     "worst_case_value": 0.974,
+     "worst_case_value": 0.2412,
      "unit": "mA",
-     "condition": "all Y capacitance incl. inlet module and three IRM modules",
-     "evidence": "validation-results/07-conducted-emi/leakage/README.md:7"
+     "condition": "stage 38: board Y C3/C4 + coil + PS2 MPM-20-24 + PS3 MPM-65-15ST at datasheet max, D-22 module Y removed; PASS at 48 % of 0.5 mA (s35: 0.974 mA)",
+     "evidence": "validation-results/07-conducted-emi/leakage/README.md:12"
     }
    ],
    "derating_rule": "Line-to-PE voltage <= 80 % of the Y1 rating (Murata: supply incl. fluctuation <= rating +10 %); Y capacitance sized so touch current with PE open <= the applicable limit (UL 1026 0.5 mA for portable appliances, clause unconfirmed).",
@@ -752,7 +752,7 @@
     }
    ],
    "gaps": [
-    "Product leakage FAIL (F5): 0.974 mA touch current vs UL 1026 0.5 mA (clause unconfirmed, DECISIONS.md:844). If confirmed this is a VIOLATION of the approval basis; fix is total Y <= 5.0 nF per line. C3/C4 contribute at most 2 x 2.64 nF (+20 %) x 2 pi 60 Hz x 132 V = 0.26 mA of it.",
+    "Product leakage (F5) PASSES at stage 38: 0.2412 mA vs the 0.25 mA budget (50 % of UL 1026 0.5 mA, clause unconfirmed, DECISIONS.md:844), margin 8.8 uA; it depends on the D-22 module Y removal and PS3 = MPM-65-15ST (off-board owners) and FAILs with +0.15 nF Y per line. C3/C4 contribute 2.64 nF (+20 %) x 2 pi 60 Hz x 132 V = 0.131 mA per polarity.",
     "Datasheet is a 2023 reference specification from a distributor; Murata says to consult the approval sheet before ordering."
    ],
    "finding": null,
@@ -2457,122 +2457,6 @@
    "finding": null,
    "notes": null
   },
-  "IRM-20-15": {
-   "mpn": "IRM-20-15",
-   "designators": [
-    "PS1"
-   ],
-   "class": "SAFETY",
-   "function": "Controller supply PS1, Mean Well IRM-20-15, Class II, mains-fed",
-   "status": "PARTIAL",
-   "datasheet": {
-    "url": "https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF",
-    "revision": "Mean Well IRM-20 SPEC (repo reads the 2025-11-21 issue)",
-    "fetched": "repo copy",
-    "repo_copy": "validation-results/03-loss-thermal-budget/round3/sources/irm20.pdf",
-    "note": null,
-    "sha256_prefix16": null
-   },
-   "ratings": [
-    {
-     "parameter": "Pout allowed @ 78C bay air",
-     "datasheet_limit": 5.4,
-     "unit": "W",
-     "basis": "output derating curve at 78 C ambient (repo reading)",
-     "source": "DECISIONS.md:675"
-    },
-    {
-     "parameter": "Vin max",
-     "datasheet_limit": 305,
-     "unit": "Vac",
-     "basis": "85-305 Vac universal input",
-     "source": "p.1/p.2"
-    },
-    {
-     "parameter": "T working max",
-     "datasheet_limit": 85,
-     "unit": "C",
-     "basis": "-30..+85 C with derating curve",
-     "source": "p.2"
-    },
-    {
-     "parameter": "Withstand I/P-O/P",
-     "datasheet_limit": 4200,
-     "unit": "Vac",
-     "basis": "type-test withstand, Isolation Class II (no FG pin); approvals UL 62368-1, IEC 62368-1, IEC 61558-1/-2-16 (OVC II under 62368-1, OVC III under 61558)",
-     "source": "IRM-20-SPEC 2025-11-21 p.2, SAFETY & EMC table"
-    },
-    {
-     "parameter": "Leakage current",
-     "datasheet_limit": 0.25,
-     "unit": "mA",
-     "basis": "datasheet maximum at 277 Vac (F5 model scales it to 0.143 mA at 132 V / 60 Hz)",
-     "source": "IRM-20-SPEC 2025-11-21 p.2, SAFETY & EMC table"
-    }
-   ],
-   "stresses": [
-    {
-     "parameter": "Pout controller",
-     "worst_case_value": 4.83,
-     "unit": "W",
-     "condition": "controller verify ps1.p_total_W",
-     "evidence": "DECISIONS.md:675"
-    },
-    {
-     "parameter": "Vin high corner",
-     "worst_case_value": 139.7,
-     "unit": "Vac",
-     "condition": "127 V +10 %",
-     "evidence": "DECISIONS.md:306"
-    },
-    {
-     "parameter": "T case model",
-     "worst_case_value": 86,
-     "unit": "C",
-     "condition": "model case temperature vs 85 C AMBIENT rating (judge against measured local air)",
-     "evidence": "DECISIONS.md:834"
-    }
-   ],
-   "derating_rule": "Output <= 90% of the derated power at the worst local air; input voltage <= 80% of the max.",
-   "checks": [
-    {
-     "id": "Pout",
-     "rating": "Pout allowed @ 78C bay air",
-     "stress": "Pout controller",
-     "max_ratio": 0.9,
-     "severity": "violation",
-     "rule": "89 %",
-     "ratio": 0.8944
-    },
-    {
-     "id": "Vin",
-     "rating": "Vin max",
-     "stress": "Vin high corner",
-     "max_ratio": 0.8,
-     "severity": "violation",
-     "rule": "46 %",
-     "ratio": 0.458
-    }
-   ],
-   "layout_guidance": [
-    {
-     "item": "isolation: Class II 4.2 kVac I/O, mains only side",
-     "enforced_by": "native-21/layout/barrier_gate21.py"
-    },
-    {
-     "item": "blower start/stall cannot brown out PS1 (separate PS3)",
-     "enforced_by": "DECISIONS.md:617"
-    }
-   ],
-   "gaps": [
-    "Bay air of 78 C is modelled; only 11 % margin to the derating curve. Bench soak at 40 C / 28 A required (DECISIONS.md:675).",
-    "Model case 86 C vs the 85 C ambient rating: must be judged against measured local air (DECISIONS.md:834).",
-    "Input current 0.6 A typ at 115 Vac per the datasheet is counted in I_aux = 1.3 A (DECISIONS.md:171).",
-    "Approval basis is UL 62368-1 / IEC 61558 (OVC II under 62368-1), not an appliance standard: the certifier must accept it as a component in a UL 1026 product (owner-items/CERTIFIER-PACKET.md A3 #14)."
-   ],
-   "finding": null,
-   "notes": null
-  },
   "B2P3-VH(LF)(SN)": {
    "mpn": "B2P3-VH(LF)(SN)",
    "designators": [
@@ -2616,9 +2500,9 @@
     },
     {
      "parameter": "I J3 (PS2 input)",
-     "worst_case_value": 0.6,
+     "worst_case_value": 0.75,
      "unit": "A",
-     "condition": "IRM-20 AC current typ at 115 Vac",
+     "condition": "MPM-20-24 AC current typ at 115 Vac (MPM-20-SPEC 2024-10-30 p.2)",
      "evidence": "DECISIONS.md:171"
     },
     {
@@ -2646,8 +2530,8 @@
      "stress": "I J3 (PS2 input)",
      "max_ratio": 0.8,
      "severity": "violation",
-     "rule": "6 %",
-     "ratio": 0.06
+     "rule": "8 %",
+     "ratio": 0.075
     },
     {
      "id": "V",
@@ -2672,50 +2556,64 @@
    "finding": null,
    "notes": null
   },
-  "IRM-20-24": {
-   "mpn": "IRM-20-24",
+  "MPM-20-24": {
+   "mpn": "MPM-20-24",
    "designators": [
     "PS2"
    ],
    "class": "SAFETY",
-   "function": "Bias/gate supply PS2 (TCO-switched), Mean Well IRM-20-24, Class II",
+   "function": "Bias/gate supply PS2 (TCO-switched), MEAN WELL MPM-20-24 medical encapsulated, Class II (stage 38, was IRM-20-24)",
    "status": "PARTIAL",
    "datasheet": {
-    "url": "https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF",
-    "revision": "Mean Well IRM-20 SPEC (repo reads the 2025-11-21 issue)",
-    "fetched": "repo copy",
-    "repo_copy": "validation-results/03-loss-thermal-budget/round3/sources/irm20.pdf",
-    "note": null,
-    "sha256_prefix16": null
+    "url": "https://www.meanwell.com/Upload/PDF/MPM-20/MPM-20-SPEC.PDF",
+    "revision": "MEAN WELL MPM-20-SPEC 2024-10-30 (4 pp.)",
+    "fetched": "2026-10-15",
+    "repo_copy": null,
+    "note": "Direct MEAN WELL download; local copy kept outside the repo. Case No. 219A drawing p.4 is identical to IRM-20-SPEC 2025-11-21 p.3 (footprint kept).",
+    "sha256_prefix16": "24d3a6bb642d74ea"
    },
    "ratings": [
     {
      "parameter": "P rated",
      "datasheet_limit": 21.6,
      "unit": "W",
-     "basis": "24 V 0.9 A rated, 25 C",
-     "source": "p.2 spec table"
+     "basis": "24 V 0.9 A rated (peak 23.8 W for 10 s, 33 % duty); 230 VAC, 25 C",
+     "source": "p.2 spec table OUTPUT, RATED POWER"
+    },
+    {
+     "parameter": "P derated at 70 C ambient",
+     "datasheet_limit": 10.8,
+     "unit": "W",
+     "basis": "12-24 V curve: 100 % to 55 C, 70 % at 60 C, 50 % at 70 C, 30 % at 80 C, 85 C max (horizontal mounting), read from the graph",
+     "source": "p.3 Derating Curve"
     },
     {
      "parameter": "Vin max",
-     "datasheet_limit": 305,
+     "datasheet_limit": 264,
      "unit": "Vac",
-     "basis": "85-305 Vac",
-     "source": "p.1/p.2"
+     "basis": "80-264 VAC (113-370 VDC); 100 % load from 100 VAC up (p.3 output derating vs input voltage)",
+     "source": "p.2 INPUT VOLTAGE RANGE; p.3"
+    },
+    {
+     "parameter": "T working max",
+     "datasheet_limit": 85,
+     "unit": "C",
+     "basis": "-35..+85 C, refer to derating curve",
+     "source": "p.2 ENVIRONMENT WORKING TEMP."
     },
     {
      "parameter": "Withstand I/P-O/P",
-     "datasheet_limit": 4200,
+     "datasheet_limit": 4000,
      "unit": "Vac",
-     "basis": "type-test withstand, Isolation Class II (no FG pin); approvals UL 62368-1, IEC 62368-1, IEC 61558-1/-2-16 (OVC II under 62368-1, OVC III under 61558)",
-     "source": "IRM-20-SPEC 2025-11-21 p.2, SAFETY & EMC table"
+     "basis": "I/P-O/P 4 KVAC; isolation Primary-Secondary 2 x MOPP; approvals verbatim: 'IEC 60601-1:2005+A1, TUV BS EN/EN 60601-1:2006+A1+A12+A2, ANSI/AAMI ES60601-1:2005/A2:2021, CAN/CSA C22.2 No. 60601-1:2014+A2, IEC 60335-1:2010/AMD2:2016, Dekra BS EN/EN 60335-1:2012+A11+A13+A1+A14+A2+A15, EAC TP TC 004 approved'",
+     "source": "p.2 SAFETY & EMC table"
     },
     {
-     "parameter": "Leakage current",
-     "datasheet_limit": 0.25,
+     "parameter": "Touch current",
+     "datasheet_limit": 0.08,
      "unit": "mA",
-     "basis": "datasheet maximum at 277 Vac (F5 model scales it to 0.143 mA at 132 V / 60 Hz)",
-     "source": "IRM-20-SPEC 2025-11-21 p.2, SAFETY & EMC table"
+     "basis": "Touch current < 80 uA at 264 VAC, measured from primary input to DC output (Note 7); leakage_budget.py scales it to 0.048 mA at 132 V x1.2",
+     "source": "p.2 INPUT LEAKAGE CURRENT (max.), Note 7"
     }
    ],
    "stresses": [
@@ -2734,7 +2632,7 @@
      "evidence": "DECISIONS.md:306"
     }
    ],
-   "derating_rule": "Output <= 50% of nameplate until the temperature derating at the measured local air is read; input <= 80% of max.",
+   "derating_rule": "Output <= 50 % of nameplate, and <= 90 % of the curve-derated power at the local air; input <= 80 % of max.",
    "checks": [
     {
      "id": "P",
@@ -2746,28 +2644,42 @@
      "ratio": 0.444
     },
     {
+     "id": "P at 70 C",
+     "rating": "P derated at 70 C ambient",
+     "stress": "P bias allocation",
+     "max_ratio": 0.9,
+     "severity": "gap",
+     "rule": "9.59 W within 90 % of the derated curve up to 70.3 C local air (100 % to 72.8 C)",
+     "ratio": 0.888
+    },
+    {
      "id": "Vin",
      "rating": "Vin max",
      "stress": "Vin high corner",
      "max_ratio": 0.8,
      "severity": "violation",
-     "rule": "46 %",
-     "ratio": 0.458
+     "rule": "53 %",
+     "ratio": 0.5292
     }
    ],
    "layout_guidance": [
     {
      "item": "TCO loop clearance at J3 (line voltage across pins)",
      "enforced_by": "native-21/verification/d5_audit.py"
+    },
+    {
+     "item": "Same Case 219A pin map as IRM-20 (pin dia 1.04 mm vs 1.0 mm in the 1.5 mm drill footprint); pads 1 AC/L, 2 AC/N, 3 -V, 4 +V",
+     "enforced_by": "audit.rs:891"
     }
    ],
    "gaps": [
-    "Derating at the real local air not read: model case 98 C vs the 85 C ambient rating (DECISIONS.md:834); judge against measured air.",
-    "Leakage current of the IRM modules (0.43 mA total for three at datasheet maximum) is inside the F5 leakage FAIL (DECISIONS.md:844).",
-    "Approval basis is UL 62368-1 / IEC 61558 (OVC II under 62368-1), not an appliance standard: the certifier must accept it as a component in a UL 1026 product (owner-items/CERTIFIER-PACKET.md A3 #14)."
+    "Local air at PS2 is not measured: the 9.59 W allocation meets the 90 % rule only up to 70.3 C local air (curve read from the p.3 graph). Earlier model case 98 C vs the 85 C ambient rating (DECISIONS.md:834); judge against measured air.",
+    "Approval basis is IEC/EN 60601-1 (2 x MOPP) and IEC/EN 60335-1 (Dekra), not UL 62368-1 or UL 1026: the datasheet lists no UL file. The certifier must accept it as a component in a UL 1026 product (owner-items/CERTIFIER-PACKET.md A3 #14).",
+    "Input current 0.75 A typ at 115 VAC (MPM-20-SPEC p.2) is above IRM-20's 0.6 A; I_aux = 1.3 A (DECISIONS.md:171) counted two IRM-20 modules and stays a bound now that PS1 is gone (one MPM-20 at 0.75 A scaled to 108 V).",
+    "Pin length 3.5 +1/-0.5 mm (IRM-20: 3.5 +/-1 mm); the 1.6 mm board takes it, solder fillet unchecked."
    ],
    "finding": null,
-   "notes": null
+   "notes": "Stage 38 (candidate 23, DECISIONS 47 item 2). JLC C6675337 (MPM-20-24) stock 5047, $9.7843 on 2026-10-15. Efficiency 87 % typ (IRM-20-24: 85 %); B3 heat inputs keep the IRM efficiencies (conservative)."
   },
   "TPS70950DBVR": {
    "mpn": "TPS70950DBVR",

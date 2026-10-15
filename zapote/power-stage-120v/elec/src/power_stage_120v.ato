@@ -14,7 +14,9 @@
 #                 control circuits to the separate R5 sense terminal. This is
 #                 a loaded Kelvin reference, not a zero-current sense lead.
 #   SELV:         everything on the 16-pin controller header, isolated by
-#                 UCC21550, AMC1311, CA-IS3720 (was ISO7710), CST3015 and the IRM-20-15.
+#                 UCC21550, AMC1311, CA-IS3720 (was ISO7710) and CST3015. Stage 38 (candidate 23): no
+#                 mains supply feeds the SELV side on this board any more; the controller's logic runs
+#                 from PS3 over its J13 (controller DECISIONS), and J4 pin 1 is not connected.
 #
 # Coil-dependent values (resonant capacitance, CT burden on the
 # current-sense board) are provisional for the 70 uH / 32 kHz nominal coil
@@ -26,7 +28,7 @@ from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BD
 from "parts.ato" import R3R9Gate, R8R2Gate, R49k9Dt, R10k0603, R100k0603, R100R0603
 from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, ResB32654
 from "parts.ato" import C100n0805, C1u0805
-from "parts.ato" import CST3015_200E, Irm20_15, TcoLoopHeader, BranchFuseT3A15, BranchLimiter0R15, MainsTapHeader
+from "parts.ato" import CST3015_200E, TcoLoopHeader, BranchFuseT3A15, BranchLimiter0R15, MainsTapHeader
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C100pC0G0603
 from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R12k6Thin, R11k7Thin, R140kThin, R5k6Bias
 from "parts.ato" import IsoReinfH, SelvHeader16, Nand3Lvc1g10, FunctionalEarthLink, SchmittBuf17
@@ -266,8 +268,8 @@ module PowerStage120V:
     signal HOT5_OK_HOT
     signal BUS_FAULT_HOT
     # SELV
-    signal V15_SELV
     signal SELV_GND
+    signal J4_NC1   # stage 38: J4 pin 1 (was V15_SELV from PS1), not connected; a named single-pin SELV net
     signal V3V3
     signal PWM_HA
     signal PWM_LA
@@ -439,12 +441,9 @@ module PowerStage120V:
     r_crb4.p2 ~ SW_B
 
     # ---------------- supplies
-    # SELV 15 V for the controller, fan and sensor boards.
-    ps_selv = new Irm20_15
-    ps_selv.ACL ~ L_FILT
-    ps_selv.ACN ~ N_FILT
-    ps_selv.VP ~ V15_SELV
-    ps_selv.VN ~ SELV_GND
+    # Stage 38 (candidate 23, DECISIONS 47 item 1): PS1 (IRM-20-15, SELV 15 V for the controller) is deleted. The
+    # controller logic runs from the chassis PS3 (MEAN WELL MPM-65-15ST) over the controller's J13, merged into its
+    # logic rail there (c23-supply-topology/CONTROLLER-REQUEST.md); this board no longer has a mains-to-SELV supply.
     # Gate-driver supply through the off-board thermal-cutoff loop: an open
     # TCO removes all gate drive, the HOT 5 V rail and the OCP "OK" signal.
     j_tco = new TcoLoopHeader
@@ -452,7 +451,8 @@ module PowerStage120V:
     j_tco.p2 ~ TCO_L
     # Blower-supply mains tap (stage 16): F2 (3.15 A T) feeds J11, a fused branch to the chassis-mounted
     # PS3 (Mean Well IRM-60-15ST) whose 15 V runs the controller's blower buck, so blower start or stall
-    # cannot load PS1 or brown out the controller logic (DECISIONS 15-16).
+    # cannot brown out the controller logic (DECISIONS 15-16; since stage 38 PS3 also feeds that logic, merged on the
+    # controller behind its own J13 isolation, so the blower transient stays off the logic rail).
     f_blw = new BranchFuseT3A15
     f_blw.p1 ~ L_FILT
     f_blw.p2 ~ BLW_L
@@ -647,7 +647,8 @@ module PowerStage120V:
 
     # ---------------- SELV controller header (Micro-Fit 2x8)
     j_selv = new SelvHeader16
-    j_selv.p1 ~ V15_SELV
+    # pin 1 (was V15_SELV from PS1) is not connected since stage 38; the J4 re-pin (g06-g08-g10 P5) is separate
+    j_selv.p1 ~ J4_NC1
     j_selv.p2 ~ SELV_GND
     j_selv.p3 ~ V3V3
     j_selv.p4 ~ SELV_GND
@@ -1053,7 +1054,6 @@ module PowerStage120V:
     c_res3.designator = "C23"
     c_res4.designator = "C151"
     c_res5.designator = "C152"
-    ps_selv.designator = "PS1"
     j_tco.designator = "J3"
     f_blw.designator = "F2"
     j_blw_ac.designator = "J11"

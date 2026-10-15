@@ -242,7 +242,8 @@ impl Model {
 // ----------------------------------------------------------------- checks
 
 const SELV_NETS: &[&str] = &[
-    "v15_selv", "selv_gnd", "v3v3", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb", "permit",
+    // stage 38 (candidate 23): v15_selv is gone with PS1; J4 pin 1 is the single-pin SELV net j4_nc1
+    "j4_nc1", "selv_gnd", "v3v3", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb", "permit",
     "bus_fault", "vbus_p", "vbus_n", "ct_s1", "ct_s2",
     "ct_sense_mon", "ct_ref_hi", "ct_ref_lo", "ct_oc_pos", "ct_oc_neg", "ct_zc", "ct_mon",
     "bus_fault_iso", "bus_fault_flt", "bias_good",
@@ -266,7 +267,6 @@ const BARRIER_PARTS: &[(&str, &str, &[&str])] = &[
     // stage 31 (DECISIONS 34): Chipanalog CA-IS3720HW/LW in place of ISO7710DWR/FDWR, same pins and land pattern
     ("u_iso", "CA-IS3720HW", &["9", "13", "14", "16"]),
     ("t_ct", "CST3015-200ED", &["3", "4"]),
-    ("ps_selv", "IRM-20-15", &["3", "4"]),
     // stage 30: the monitor group crosses once, as the heartbeat (U32); the HS links (ISO6721FB) are HOT-HOT
     ("hb.iso", "CA-IS3720HW", &["9", "13", "14", "16"]),
     // stage 30: HS-B verdict, HS-B -> SELV, default LOW (L suffix)
@@ -347,8 +347,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("r_div3", "RC1206FR-07470KL"),
     ("r_div4", "RC1206FR-07470KL"),
     ("r_div_bot", "RT0603BRD0715K8L"),
-    ("ps_gate", "IRM-20-24"),
-    ("ps_selv", "IRM-20-15"),
+    ("ps_gate", "MPM-20-24"),   // stage 38 (DECISIONS 47 item 2): touch current < 80 uA / 264 VAC, same Case 219A
     ("t_ct", "CST3015-200ED"),
     // Tank-CT detector (tools/ct_detector): burden, trip references, clamps.
     ("r_ct_burden", "RC1206FR-073RL"),
@@ -918,8 +917,16 @@ fn audit(m: &Model) -> Vec<String> {
     if blwr != ["r_blw", "j_blw_ac"].iter().map(|s| s.to_string()).collect() {
         e.push(format!("blw_lr must join only the limiter R_blw and J11, found {:?}", blwr));
     }
-    expect(&mut e, m, "ps_selv", "1", "l_filt"); // IRM-20 pin 1 = AC/L
-    expect(&mut e, m, "ps_selv", "2", "n_filt");
+    // Stage 38 (candidate 23, DECISIONS 47 item 1): no mains-to-SELV supply on this board. PS1 is deleted and the
+    // controller logic runs from PS3 over the controller's J13; only PS2 (TCO_L / N_FILT -> HOT V24_RAW) is mains-fed.
+    if m.reff("ps_selv").is_some() {
+        e.push("ps_selv (PS1) is back: stage 38 deleted it (the controller logic runs from PS3 over J13)".into());
+    }
+    for (path, mpn) in &m.resolved {
+        if mpn.starts_with("IRM-") {
+            e.push(format!("{path} is {mpn}: the IRM supplies' 0.25 mA leakage cannot meet the touch-current budget (DECISIONS 47)"));
+        }
+    }
     expect(&mut e, m, "u_ldo", "3", "v15_ls");
     expect(&mut e, m, "u_ldo", "1", "v15_ls");
     expect(&mut e, m, "u_ldo", "5", "hot5");
@@ -1093,11 +1100,17 @@ fn audit(m: &Model) -> Vec<String> {
 
     // 10. Controller header map.
     let header = [
-        "v15_selv", "selv_gnd", "v3v3", "selv_gnd", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb",
+        "j4_nc1", "selv_gnd", "v3v3", "selv_gnd", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb",
         "permit", "bus_fault", "vbus_p", "vbus_n", "ct_zc", "ct_mon", "selv_gnd", "line_zc",
     ];
     for (i, net) in header.iter().enumerate() {
         expect(&mut e, m, "j_selv", &(i + 1).to_string(), net);
+    }
+    // stage 38: pin 1 carried PS1's 15 V; it is now not connected (a single-pin net), so nothing on this board can
+    // drive the controller's former 15 V input
+    let nc1: BTreeSet<(String, String)> = [("j_selv".to_string(), "1".to_string())].into_iter().collect();
+    if members(m, "j4_nc1") != nc1 {
+        e.push(format!("j4_nc1 (J4 pin 1) must stay not connected, found {:?}", members(m, "j4_nc1")));
     }
 
     // 11. Tank CT: the secondary is terminated on this board, at the CT, and
@@ -1719,6 +1732,22 @@ mod tests {
         let mut m = built();
         m.set_part("j_coil", "74650074");
         fails(&m, "j_coil is 74650074");
+    }
+
+    #[test]
+    fn stage38_supply_topology_holds() {
+        // PS2 back to the IRM-20-24 (0.25 mA leakage) must fail, by identity and by the IRM rule
+        let mut m = built();
+        m.set_part("ps_gate", "IRM-20-24");
+        fails(&m, "ps_gate is IRM-20-24");
+        fails(&m, "IRM supplies");
+        // anything on J4 pin 1 (the former PS1 15 V) must fail
+        let mut m = built();
+        m.rewire("c_iso2", "1", "j4_nc1");
+        fails(&m, "j4_nc1 (J4 pin 1)");
+        let mut m = built();
+        m.rewire("j_selv", "1", "v3v3");
+        fails(&m, "j_selv.1");
     }
 
     #[test]

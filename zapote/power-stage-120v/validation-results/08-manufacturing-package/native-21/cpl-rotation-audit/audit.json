@@ -1,11 +1,11 @@
 {
  "meta": {
-  "lines_in_cpl": 349,
-  "lines_placed_by_jlc": 338,
+  "lines_in_cpl": 348,
+  "lines_placed_by_jlc": 337,
   "lines_excluded_not_placed": 11,
   "counts": {
    "OK": 275,
-   "NEEDS-PREVIEW": 55,
+   "NEEDS-PREVIEW": 54,
    "CORRECTED": 8
   },
   "controls": {
@@ -3286,42 +3286,23 @@
    "reason": "no DB rule and pad layouts do not match well enough (best rms 10.37 mm at 180 deg, next 17.36 mm)"
   },
   {
-   "designator": "PS1",
-   "footprint": "Converter_ACDC_MeanWell_IRM-20-xx_THT",
-   "lcsc": "C6211072",
-   "mount": "THT",
-   "kicad_rot": 180,
-   "proposed_jlc_rot": 180,
-   "class": "NEEDS-PREVIEW",
-   "db_rule": "",
-   "db_offset": "",
-   "easyeda_package": "PWRM-TH_L52.4-W27.2_MPM-20-5",
-   "easyeda_offset": "",
-   "easyeda_rot": "",
-   "db_rot": "",
-   "fit_method": "pad number",
-   "fit_rms_mm": 11.143,
-   "pin1_evidence": "KiCad pad 1 at (+22.50,+13.60) mm = down-right of centre at board rotation 180",
-   "reason": "no DB rule and pad layouts do not match well enough (best rms 11.14 mm at 0 deg, next 34.02 mm)"
-  },
-  {
    "designator": "PS2",
    "footprint": "Converter_ACDC_MeanWell_IRM-20-xx_THT",
-   "lcsc": "C194964",
+   "lcsc": "C6675337",
    "mount": "THT",
    "kicad_rot": 0,
    "proposed_jlc_rot": 0,
    "class": "NEEDS-PREVIEW",
    "db_rule": "",
    "db_offset": "",
-   "easyeda_package": "PWRM-TH_IRM-20-24",
+   "easyeda_package": "",
    "easyeda_offset": "",
    "easyeda_rot": "",
    "db_rot": "",
-   "fit_method": "pad number",
-   "fit_rms_mm": 22.564,
+   "fit_method": "",
+   "fit_rms_mm": "",
    "pin1_evidence": "KiCad pad 1 at (-22.50,-13.60) mm = up-left of centre at board rotation 0",
-   "reason": "no DB rule and pad layouts do not match well enough (best rms 22.56 mm at 270 deg, next 33.71 mm)"
+   "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
   },
   {
    "designator": "Q2",

@@ -52,17 +52,24 @@ def sha(p):
 
 
 # ===================================================================================== 0. provenance
+STUDY_BASE = "0aecdc56f"   # the commit the study was made against (DECISIONS 47); stage 38 edits these files after it
+
+
 def manifest():
-    pairs = {"leakage_budget.py": REPO_VR / "07-conducted-emi/leakage/leakage_budget.py",
-             "leakage_result_committed.json": REPO_VR / "07-conducted-emi/leakage/result.json",
-             "emi_s19b.py": REPO_VR / "07-conducted-emi/s19b/emi_s19b.py",
-             "s19b_results_committed.json": REPO_VR / "07-conducted-emi/s19b/results.json"}
+    """The repo copies are the files as of STUDY_BASE. Stage 38 (candidate 23) changed leakage_budget.py / emi_s19b.py
+    and their results for the s38 system, so the copies are checked against `git show STUDY_BASE:<path>`, not against
+    the working tree (the study's numbers are for the s35 inputs, and its controls reproduce those)."""
+    pairs = {"leakage_budget.py": "07-conducted-emi/leakage/leakage_budget.py",
+             "leakage_result_committed.json": "07-conducted-emi/leakage/result.json",
+             "emi_s19b.py": "07-conducted-emi/s19b/emi_s19b.py",
+             "s19b_results_committed.json": "07-conducted-emi/s19b/results.json"}
     out = {}
-    print("\n== 0. repo copies (byte-identical to the read-only repo files)")
-    for k, src in pairs.items():
+    print(f"\n== 0. repo copies (byte-identical to the repo files at {STUDY_BASE})")
+    for k, rel in pairs.items():
         mine = sha(HERE / "repo_copies" / k)
-        theirs = sha(src) if src.exists() else None
-        out[k] = {"sha256": mine, "repo_path": str(src), "repo_sha256": theirs}
+        g = subprocess.run(["git", "show", f"{STUDY_BASE}:./{rel}"], cwd=REPO_VR, capture_output=True)
+        theirs = hashlib.sha256(g.stdout).hexdigest() if g.returncode == 0 else None
+        out[k] = {"sha256": mine, "repo_path": f"{STUDY_BASE}:validation-results/{rel}", "repo_sha256": theirs}
         check(f"copy {k}", theirs is None or mine == theirs, mine[:16] + ("" if theirs else " (repo not reachable)"))
     (HERE / "MANIFEST.json").write_text(json.dumps(out, indent=1) + "\n")
     return out

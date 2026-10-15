@@ -489,17 +489,6 @@ component Irm05_15:
     signal VN ~ pin 3
     signal VP ~ pin 4
 
-component Irm20_15:
-    """MEAN WELL IRM-20-15, 15 V 1.4 A, 4.2 kVac I/O. Pin 1 = AC/L, 2 = AC/N."""
-    designator_prefix = "PS"
-    mpn = "IRM-20-15"
-    manufacturer = "MEAN WELL"
-    footprint = "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT"
-    signal ACL ~ pin 1
-    signal ACN ~ pin 2
-    signal VN ~ pin 3
-    signal VP ~ pin 4
-
 component TcoLoopHeader:
     """JST B2P3-VH(LF)(SN): VH header with post 2 omitted (7.92 mm pitch, 250 V AC/DC 10 A, JST
     eVH.pdf p.1 / p.6 item 3; "headers with posts omitted are available", p.3), series loop through

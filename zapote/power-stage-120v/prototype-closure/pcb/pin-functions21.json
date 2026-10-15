@@ -2,9 +2,9 @@
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
   "passive-two-terminal": 210,
-  "native19-reviewed": 105,
-  "passive-untyped": 20,
-  "eco-pin-table": 14
+  "native19-reviewed": 104,
+  "passive-untyped": 21,
+  "eco-pin-table": 13
  },
  "components": {
   "J1": {
@@ -4986,52 +4986,6 @@
     }
    }
   },
-  "PS1": {
-   "mpn": "IRM-20-15",
-   "source_instance": "ps_selv",
-   "basis": "native19-reviewed",
-   "pins": {
-    "1": {
-     "function": "ACL",
-     "type": "passive"
-    },
-    "2": {
-     "function": "ACN",
-     "type": "passive"
-    },
-    "3": {
-     "function": "VN",
-     "type": "power_out"
-    },
-    "4": {
-     "function": "VP",
-     "type": "power_out"
-    }
-   }
-  },
-  "PS2": {
-   "mpn": "IRM-20-24",
-   "source_instance": "ps_gate",
-   "basis": "eco-pin-table",
-   "pins": {
-    "1": {
-     "function": "ACL",
-     "type": "passive"
-    },
-    "2": {
-     "function": "ACN",
-     "type": "passive"
-    },
-    "3": {
-     "function": "VN",
-     "type": "passive"
-    },
-    "4": {
-     "function": "VP",
-     "type": "power_out"
-    }
-   }
-  },
   "J3": {
    "mpn": "B2P3-VH(LF)(SN)",
    "source_instance": "j_tco",
@@ -5088,6 +5042,29 @@
     },
     "2": {
      "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "PS2": {
+   "mpn": "MPM-20-24",
+   "source_instance": "ps_gate",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    },
+    "4": {
+     "function": "p4",
      "type": "passive"
     }
    }

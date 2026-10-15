@@ -9,7 +9,9 @@ Layout of this file
   2. a small complex MNA solver (replaces ngspice; validated against D-22's saved ngspice transfers)
   3. network builders: the native-15 / D-22 receiver (control) and the stage-19b receiver
   4. sources: analytic full-bridge (trapezoid sw-node + rectified-tank bus current), checked against D-22 FFTs
-  5. controls (asserted), the stage-19b run, sensitivities, bounds for PS1-PS3, verdict
+  5. controls (asserted), the stage-19b run, sensitivities, bounds for PS2 / PS3, verdict
+Stage 38 (candidate 23, DECISIONS 47): the nominal inlet module is the stage-38 one (Y removed, SCF31X 5.68 mH CM
+choke; MODULE_S38) and the part-value sensitivities are relative to it.
 """
 from __future__ import annotations
 
@@ -636,12 +638,18 @@ def cm_capacitances():
 # ----------------------------------------------------------------------------------------------
 
 MODULE_NOM = dict(LNEW=41e-6, LDMADD=18e-6)  # DM total = 18 + 2*41 = 100 uH (DECISIONS "EMI below 150 kHz" item 4)
+# Stage 38 (candidate 23, DECISIONS 47 items 4 / 5): the D-22 inlet module's four Y caps are removed and its CM choke is
+# the KEMET SCF31X-220-2R1A011JH (5.68 mH, 4.39 mOhm; spec sheet generated 2026-10-15). Its DM leakage is unpublished:
+# 1 % (56.8 uH) as the co-design study (leakage/co-design-2026-10-15/candidates.py CHOKES["NC5.68"]); the winding C /
+# loss stay the TDK fit's (the study's convention). Board L1 stays the TDK B82726S2203A020 and C3 / C4 stay 2.2 nF.
+# The module's 2 x 41 uH DM inductors are unchanged. 1e-15 F = a removed capacitor (the s19b / g01 convention).
+MODULE_S38 = dict(CYADD=1e-15, CYHF=1e-15, LCMADD=5.68e-3, LDMADD=56.8e-6, RCMADD=4.39e-3)
 
 
 def nominal_params(cm):
     c = cm["tab_C_nominal_F"]
     d_enc = 15e-3  # nominal enclosure/chassis distance to the large pours (ASSUMED; no enclosure-metal data)
-    return {**MODULE_NOM, "COIL_AT_TANK": True, "ESLY": 15e-9, "RLISN_SERIES": 5.0,
+    return {**MODULE_NOM, **MODULE_S38, "COIL_AT_TANK": True, "ESLY": 15e-9, "RLISN_SERIES": 5.0,
             "CTABA": c, "CTABB": c, "CTABH": c,
             "CPOURA": cm["fringe_sw_a_F"] + EPS0 * cm["pour_area_m2"]["sw_a"] / d_enc,
             "CPOURB": cm["fringe_sw_b_F"] + EPS0 * cm["pour_area_m2"]["sw_b"] / d_enc}
@@ -649,6 +657,10 @@ def nominal_params(cm):
 
 def scenarios(cm, nom):
     lo, hi = cm["tab_C_range_F"]
+    # Stage 38: the part-value sensitivities are relative to the nominal parts (Y -20 %, chokes -30 %, winding C x2, DM
+    # L x31/41, X -20 %), as the co-design study applies them (emi_core.sens_set); for the pre-stage-38 nominal they are
+    # exactly the absolute values used before (1.76 / 3.76 / 1.76 nF, 1.12 mH, 22.156 pF, 31 uH, 0.8 / 1.76 / 3.76 uF).
+    P = {**BASE, **nom}
     ca = nom["CTABA"]
     enc = lambda d: (cm["fringe_sw_a_F"] + EPS0 * cm["pour_area_m2"]["sw_a"] / d,
                      cm["fringe_sw_b_F"] + EPS0 * cm["pour_area_m2"]["sw_b"] / d)
@@ -674,15 +686,16 @@ def scenarios(cm, nom):
     s["coil_PE_100pF_one_sided_100_0"] = ({"CCOILA": 100e-12, "CCOILB": 0.0}, {})
     s["thin_pad_and_coil_100pF_asym_70_30"] = ({"CTABA": 50.4e-12, "CTABB": 33.6e-12, "CTABH": 42e-12,
                                                 "CCOILA": 70e-12, "CCOILB": 30e-12}, {})
-    s["Y_caps_minus20pct"] = ({"CY": 1.76e-9, "CYADD": 3.76e-9, "CYHF": 1.76e-9}, {})
+    s["Y_caps_minus20pct"] = ({"CY": P["CY"] * 0.8, "CYADD": P["CYADD"] * 0.8, "CYHF": P["CYHF"] * 0.8}, {})
     s["Y_caps_ESL_x3"] = ({"ESLY": 45e-9, "ESLYADD": 45e-9, "ESLYHF": 30e-9}, {})
-    s["Y_caps_board_only_module_Y_removed"] = ({"CYADD": 1e-15, "CYHF": 1e-15}, {})
-    s["L1_minus30pct_and_module_choke_minus30pct"] = ({"LCM": 1.12e-3, "LCMADD": 1.12e-3}, {})
-    s["L1_winding_C_x2"] = ({"CCH": 22.156e-12, "CCMADD": 22.156e-12}, {})
-    s["module_DM_80uH"] = ({"LNEW": 31e-6}, {})
+    s["Y_caps_board_only_module_Y_removed"] = ({"CYADD": 1e-15, "CYHF": 1e-15}, {})   # = the nominal since stage 38
+    s["L1_minus30pct_and_module_choke_minus30pct"] = ({"LCM": P["LCM"] * 0.7, "LCMADD": P["LCMADD"] * 0.7}, {})
+    s["L1_winding_C_x2"] = ({"CCH": P["CCH"] * 2, "CCMADD": P["CCMADD"] * 2}, {})
+    s["module_DM_80uH"] = ({"LNEW": P["LNEW"] * 31 / 41}, {})
     s["module_DM_18uH_only (D-22 as specified)"] = ({"LNEW": 0}, {})
     s["module_DM_L_parasitic_C_100pF"] = ({"CPNEW": 100e-12}, {})
-    s["X_caps_minus20pct"] = ({"CX": 0.8e-6, "CXIN": 1.76e-6, "CXNEW": 3.76e-6, "CDAMP": 3.76e-6}, {})
+    s["X_caps_minus20pct"] = ({"CX": P["CX"] * 0.8, "CXIN": P["CXIN"] * 0.8, "CXNEW": P["CXNEW"] * 0.8,
+                               "CDAMP": P["CDAMP"] * 0.8}, {})
     s["PE_bond_200nH"] = ({"LPE": 200e-9}, {})
     s["board_only_no_module"] = ({"_module": False}, {})
     s["edge_B_x1.2"] = ({}, {"edge_b": 1.2})
@@ -691,6 +704,8 @@ def scenarios(cm, nom):
     s["edge_x4_faster_and_B_x1.2_thin_pad_coil_asym"] = ({"CTABA": 50.4e-12, "CTABB": 33.6e-12, "CTABH": 42e-12,
                                                           "CCOILA": 70e-12, "CCOILB": 30e-12}, {"edge": 0.25, "edge_b": 1.2})
     bad = {"CCOILA": 70e-12, "CCOILB": 30e-12}
+    # REC* and STACKED below are pre-stage-38 alternative-design / stacked points with absolute part values (REC2 is a
+    # 3.2 mH module choke, below the stage-38 5.68 mH; STACKED re-adds module Y); excluded from the verdict, information only
     s["REC1_bus_Y_2.2nF_bus_p_and_bus_n"] = ({"CBUSPE_X": 2.2e-9, "CBUSN_X": 2.2e-9}, {})
     s["REC2_module_CM_choke_x2 (3.2 mH)"] = ({"LCMADD": 3.2e-3, "LDMADD": 36e-6, "LNEW": 32e-6}, {})
     s["REC3_coil_shield_75pct_to_bus_n"] = ({"COIL_SHIELD_FRAC": 0.75}, {})
@@ -887,9 +902,10 @@ def main():
         zdb = 20 * np.log10(np.maximum(np.abs(ta[key]["l_pe"]), np.abs(ta[key]["n_pe"])))
         margin = 34.0 - zdb  # = L - (Z + L - 34)
         i = np.flatnonzero(reg)[np.argmin(margin[reg])]
-        # three modules (PS1, PS2, PS3) incoherent -> +10log10(3) dB worst case
-        aux[nm] = {"margin_per_module_dB": float(margin[i]), "margin_3_modules_incoherent_dB": float(margin[i] - 10 * np.log10(3)),
-                   "at_hz": float(f_aux[i])}
+        # stage 38: two mains modules on the filtered side (PS2 on the board, PS3 via J11; PS1 deleted), incoherent ->
+        # +10log10(2) dB worst case
+        aux[nm] = {"margin_per_module_dB": float(margin[i]), "n_modules": 2,
+                   "margin_modules_incoherent_dB": float(margin[i] - 10 * np.log10(2)), "at_hz": float(f_aux[i])}
     out["aux_supplies_at_limit_bound"] = aux
 
     # ---------------- verdict ----------------

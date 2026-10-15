@@ -490,28 +490,6 @@
    ],
    "layer": "F.Cu"
   },
-  "PS1": {
-   "fp": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
-   "mpn": "IRM-20-15",
-   "at": [
-    255.8,
-    136.4,
-    180.0
-   ],
-   "fab": [
-    -3.4,
-    -3.2,
-    49.0,
-    24.0
-   ],
-   "crt": [
-    -3.65,
-    -3.45,
-    49.25,
-    24.25
-   ],
-   "layer": "F.Cu"
-  },
   "U38": {
    "fp": "Package_TO_SOT_SMD:SOT-23-5",
    "mpn": "TPS70950DBVR",
@@ -856,7 +834,7 @@
   },
   "PS2": {
    "fp": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
-   "mpn": "IRM-20-24",
+   "mpn": "MPM-20-24",
    "at": [
     163.7,
     3.6
@@ -961,5 +939,8 @@
    ],
    "layer": "F.Cu"
   }
- }
+ },
+ "edits": [
+  "stage 38 (candidate 23, 2026-10-15): PS1 removed (deleted part, no heat row); PS2 mpn IRM-20-24 -> MPM-20-24 (same Case 219A footprint, pose and body). The rest is the stage-19b extraction unchanged; a full re-extraction on the s38 board also picks up later MPN changes of other lanes (U1/U2, R10/R12/R18/R20, R39, bank grade) and is left to the B3 owner."
+ ]
 }

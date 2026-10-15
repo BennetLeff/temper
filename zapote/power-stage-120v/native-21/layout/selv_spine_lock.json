@@ -1,12 +1,21 @@
 {
  "purpose": "SELV-spine contract between WS4 (drive / bias / monitor / protect islands) and WS5 (SELV side), validation-results/13-coupling/README.md section 8 and section 10 item 1. Checked by gates/spine_lock.py.",
- "baseline": "native-21/verification/native21s32-all-copper.json.gz",
- "baseline_board_sha256": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e",
+ "baseline": "native-21/verification/spine-baseline-native21s38-all-copper.json.gz",
+ "baseline_board_sha256": "6f080b0dcd2d078e1725f574dd7f6a7cf86dc555b46aa09184c0fe144bb76d89",
  "region": [30.0, 130.0, 110.0, 180.0],
  "contract_nets": ["pwm_ha", "pwm_la", "pwm_hb", "pwm_lb", "permit", "vbus_p", "vbus_n", "bus_fault_iso", "bias_good", "sw_a"],
  "plane_nets": ["selv_gnd", "v3v3"],
  "frozen_refs": ["J4", "C47", "C144", "C153", "C154", "C155", "C156"],
  "zone_inset_mm": 1.0,
  "zone_tolerance_mm2": 0.5,
- "owner_lanes": ["selv"]
+ "owner_lanes": ["selv"],
+ "reissued": [
+  {
+   "date": "2026-10-15",
+   "by": "selv lane, stage 38 (candidate 23, DECISIONS 47 item 1)",
+   "previous_baseline": "native-21/verification/native21s32-all-copper.json.gz",
+   "previous_board_sha256": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e",
+   "why": "PS1 / V15_SELV deleted: J4.1 moves from v15_selv to the single-pin net j4_nc1 (4 pad keys), and the three v15_selv vias in the region are gone, so selv_gnd In2.Cu and v3v3 In1.Cu fill their antipads (2.374 mm2 each). Nothing else in the region changed (chain run 1, spine-lock.json). The baseline is the stage-38 chain-run-1 board 6f080b0d; the final stage-38 board differs from it only outside the region (the N_FILT via at (256.8, 116.6))."
+  }
+ ]
 }

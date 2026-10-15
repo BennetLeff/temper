@@ -1,5 +1,5 @@
 {
-  "components": 349,
+  "components": 348,
   "source_hashes_match": true,
   "two_frozen_exports_identical": true,
   "native20_protection_parts_retained": true,
@@ -8,9 +8,8 @@
   "monitor_crossing_single_ISO7710_heartbeat": true,
   "source_sha256": {
     "elec/src/f6_bias.ato": "01e6f049ba6da407ba1f6e7cc6fb73c110c1a194539766213176cec44b788d7f",
-    "elec/src/f6_parts.ato": "cfd481e7fc59f0f42b77f0ae5e6688ef43756108fdad4052f0cefd994b369842",
-    "elec/src/parts.ato": "e09899cb2d2085163d9aac834f9843d6953d850fff44a0f45009b2aa969311fa",
-    "elec/src/power_stage_120v.ato": "53757de6b0599d5f4f3484b368d127bd7f55296ab8d719ef2324de6b2f309e30",
-    "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
+    "elec/src/f6_parts.ato": "fd04ced5a61043be957e53c397ba4f75ac90c74074024f2fd48ce70a743052ac",
+    "elec/src/parts.ato": "8088379b42c92430dcedf04aa9667a91127c4b804c0202074fcd42d997b47300",
+    "elec/src/power_stage_120v.ato": "be7aa9e3e133e7b0c6637bd9b7911a061c1655a36906b916e0a68c9d489bd5fd"
   }
 }

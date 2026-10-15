@@ -27,6 +27,7 @@ or starts with `UNCHECKED`), `gaps`, and `finding` (required for VIOLATION). Whe
 the entry in the same commit or the gate fails.
 
 ## Current findings (after stage 28, 2026-10-14: 92 BOM lines, 2 VERIFIED / 28 PARTIAL / 62 UNAUDITED / 0 VIOLATION; the gate PASSES)
+Stage 38 (2026-10-15): 93 BOM lines, 3 VERIFIED / 31 PARTIAL / 59 UNAUDITED / 0 VIOLATION; PASS. PS1 IRM-20-15 removed, IRM-20-24 -> MPM-20-24.
 History: seed 1 / 24 / 64 / 2. Stage 27 replaced J1 (VIOLATION -> PARTIAL); R1/R2 and the snubber caps were audited
 (UNAUDITED -> PARTIAL). Stage 28 replaced F2 (VIOLATION -> VERIFIED) and added its limiter R130 (PARTIAL). `ledger.json` is the record from here on; `seed_ledger.py` reproduces only the first seed.
 **VIOLATION**: none.
@@ -51,11 +52,11 @@ and CSA group B 30 A, 300 V): 45-55 % across 13.5-16.5 A, 83 % at F1's 25 A.
 - C21-C23/C151/C152 B32654A1104J: 28 A is 4.5 % over the digitised TDK curve (26 A commissioned is inside); third-fault 1,683 V > 1,600 VDC.
 - C38-C41 B32652A0104: RMS share unknown (needs measurement).
 - RV1 TMOV20RP175E: Littelfuse 2017 sheet (distributor copy; littelfuse.com 403). MCOV 79.8 % (80 % rule), 750 A = 7.5 % of 10 kA single and 57 % of the digitised 100-pulse 1.31 kA; Vc 455 V @ 100 A confirms the ALT-D3 model. Gaps: local ambient (85 C rating), newer revision, UL 1449 file unread.
-- C1/C2 X2: temperature and surge pulse not compared. C3/C4 Y1: exact-MPN Murata spec found (Y1 300 V / X1 440 V, UL E37921, VDE 40043033): 47 % at 139.7 V; only gap is product leakage 0.974 mA vs 0.5 mA (F5).
+- C1/C2 X2: temperature and surge pulse not compared. C3/C4 Y1: exact-MPN Murata spec found (Y1 300 V / X1 440 V, UL E37921, VDE 40043033): 47 % at 139.7 V. Product leakage (F5) passes at stage 38, 0.2412 mA vs the 0.25 mA budget (s35: 0.974 mA), contingent on the D-22 module Y removal and PS3 = MPM-65-15ST.
 - L1 B82726S2203A020: TDK sheet 5/26 read: 250 V AC (56 %), IR 20 A at TR 60 C, Lstray 18 uH. 15 A meets 80 % only up to 67.7 C local air (IR itself to 85.3 C); L1 air is unmeasured, exhaust side of the 50 C duct. No UL/CSA recognition listed.
 - R5 CSS2H: pulse rating vs 71 A trip not compared; shunt current approximated by tank current; zero stock.
 - T1 CST3015-200ED: no maker working-voltage/CTI/HF rating at 198 Vpk.
-- PS1 IRM-20-15: 11 % margin at a modelled 78 C bay air. PS2 IRM-20-24: derating at real local air unread (model case 98 C vs 85 C ambient rating).
+- PS2 MPM-20-24 (stage 38, was IRM-20-24; PS1 IRM-20-15 deleted): MPM-20-SPEC 2024-10-30 read. 9.59 W is 44 % of 21.6 W and stays within 90 % of the p.3 derating curve up to 70.3 C local air (unmeasured); Vin 53 % of 264 VAC; touch current < 80 uA / 264 VAC; approvals IEC 60601-1 (2 x MOPP) / IEC 60335-1, no UL file listed (certifier item).
 - U41/U42 R24C2T25/R: claim resolved. The current /R sheet (Rev. 1-2024) gives 5 kVAC reinforced, 1.4 kVp, 1000 Vrms, 1.4 kVDC, matching f6_parts.ato; the 'preliminary 850 Vrms' copy was the non-/R series. Barrier 37 %. 1.71 W holds to 85.6 C local air (90 % rule); air, start-up and EMI are bench items.
 - J3/J11 JST VH: NA UL/CSA file rating not read; J11 sits behind the failing F2.
 - J2/J5 Wuerth 74650074: only the 50 A at 20 C docstring; no derating.

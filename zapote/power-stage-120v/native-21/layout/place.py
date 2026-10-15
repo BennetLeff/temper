@@ -228,7 +228,8 @@ put("c_bus2", 267.0, 84.0)
 # moves up-right to (286.5, 103.5) to clear D17's hv_ret pad.
 put("tvs_bus", 260.35, 106.0)
 put("tvs_bus_b", 276.89, 106.0)
-put("ps_selv", 233.0, 126.0, 180)               # SELV pins left (x 210.8), mains pins right
+# Stage 38 (candidate 23, DECISIONS 47 item 1): PS1 (ps_selv, was here at (233.0, 126.0, 180)) is deleted; its area
+# stays clear (c23-supply-topology/README.md section 3: the freed area).
 put("line_zc.opto", 220.0, 95.0, 180)
 # String L_FILT-r1-r2-LED-r3-r4-N_FILT folded so each LED node lands beside its opto pin: the
 # LED2 half (r3, r4) on the upper row by U36.2, the LED1 half (r2, r1) on the lower row by U36.1;

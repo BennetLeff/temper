@@ -1,11 +1,11 @@
 {
-  "components": 349,
-  "pins": 1002,
+  "components": 348,
+  "pins": 998,
   "pin_type_counts": {
-    "passive": 877,
+    "passive": 876,
     "power_in": 40,
     "input": 51,
-    "power_out": 8,
+    "power_out": 5,
     "output": 12,
     "open_collector": 14
   },
@@ -13,10 +13,10 @@
   "annotation_authority": "../prototype-closure/pcb/pin-functions21.json",
   "annotation_basis_counts": {
     "passive-two-terminal": 210,
-    "native19-reviewed": 105,
-    "passive-untyped": 20,
-    "eco-pin-table": 14
+    "native19-reviewed": 104,
+    "passive-untyped": 21,
+    "eco-pin-table": 13
   },
-  "netlist_sha256": "773d70125c62872d03a92ff8c185d957f7e91517e9ef319f7fcd9e8616738cbf",
+  "netlist_sha256": "408c6a790dd4f46d59468288613ede2a4b1766496e3adda59b8ebc90e5d84325",
   "physical": "NOT_RUN"
 }
