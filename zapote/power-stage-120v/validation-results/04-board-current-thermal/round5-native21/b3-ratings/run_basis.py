@@ -67,6 +67,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--workers", type=int, default=4)
     a = ap.parse_args()
+    # the task-04 heat fields are gitignored: after a merge they can belong to another board (DECISIONS 51)
+    sys.path.insert(0, str(HERE.parent))
+    import a4_fields
+    if not a4_fields.check():
+        raise SystemExit(2)
     RUNS.mkdir(exist_ok=True)
     tb.Board(br.rs.GEOM, RUNS / "cache").fine()
     jobs = [(f"{c}_p{str(p).replace('.', 'p')}", op, h, p) for c, (op, h) in CASES.items() for p in (0.25, 0.5)]
