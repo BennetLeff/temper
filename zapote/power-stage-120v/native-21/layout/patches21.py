@@ -395,6 +395,11 @@ def add_stage35(g):
     print(f"stage 35: {n} terminal land vias (J2 / J5)")
 
 
+# Stage 37 (candidate 37, 11-candidates/c37-geometry-cleanup) is not a patch: it is a post-route transform of a finished,
+# DRC-clean copper.json, track_cleanup21.py (fold-backs, acute corners, right angles, any-angle runs; DECISIONS 43). It
+# needs the built board's export as its obstacle model and runs last, after every lane's patches and passes.
+
+
 def add_stage33(g):
     """Six-layer phase A additions (no-op without image_planes): image pours, then their stitching vias."""
     if not IMAGE_PLANES:

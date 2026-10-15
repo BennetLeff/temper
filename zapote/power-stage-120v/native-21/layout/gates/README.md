@@ -72,3 +72,10 @@ Track-geometry hygiene (DECISIONS 43): `python3 -I gates/track_geometry.py TAG-a
 acute corners (with 0° fold-backs) at two-segment vertices per net and layer, and any-angle track length;
 `test_track_geometry.py` holds 7 controls. The scorecard reports them: acute corners and fold-backs as a strict ratchet,
 right angles (+5) and any-angle length (+25 mm) with a small allowance for new routes.
+
+Track-geometry cleanup (stage 37, candidate 37): `python3 native-21/layout/track_cleanup21.py COPPER.json
+TAG-all-copper.json.gz --out native-21/layout/copper.json --report R.json` removes fold-backs, opens acute corners, mitres
+right angles and snaps any-angle segments on routed copper, keeping every edit only where the clearance, barrier, RES_A,
+spine, fill and connectivity checks hold (the tool's docstring lists them). The export must be the build of COPPER.json.
+It touches every island, so it runs last, after the other lanes merge, then the chain. A second run on its own output
+(rebuilt and re-exported) changes nothing. Controls: `native-21/layout/test_track_cleanup21.py`.
