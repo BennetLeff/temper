@@ -1,6 +1,6 @@
 NN. **Track-geometry cleanup pass (stage 37, candidate 37; DECISIONS 43's planned fix); proved on s35, to run last
     after the island lanes merge (2026-10-15; board `1900b038f54a9b0b1effac574c0cb4aa733dc6a2a186ef6371fe360840ff7ae5`,
-    copper.json `321c66db…`, schematic and frozen netlist unchanged from s35, Gerber ZIP `f6756eba…`; tag `native21s37`;
+    copper.json `f24e4bf8…`, schematic and frozen netlist unchanged from s35, Gerber ZIP `f6756eba…`; tag `native21s37`;
     `11-candidates/c37-geometry-cleanup/`; layout only).**
     - **What:** `native-21/layout/track_cleanup21.py` is a post-route transform of a finished copper.json. Its obstacle
       model is the export of the board built from that copper (pad shapes, fills, outline), and it refuses any other

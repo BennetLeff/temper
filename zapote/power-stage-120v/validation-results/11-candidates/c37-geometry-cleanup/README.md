@@ -111,8 +111,8 @@ Pads, vias, zones, widths and parts never move. KiCad DRC in the chain stays the
 
 ## 2. The run on s35
 
-The pass is reproducible from committed files. It is deterministic: the same inputs give byte-identical output,
-`321c66db…` on the first tool version and then this one. The run:
+The pass is reproducible from committed files and deterministic: re-running it on the same inputs gives a
+byte-identical copper.json, `f24e4bf8…`. The run:
 
 ```sh
 git show 8bf12675c:zapote/power-stage-120v/native-21/layout/copper.json > s35-copper.json          # 085c80be…
