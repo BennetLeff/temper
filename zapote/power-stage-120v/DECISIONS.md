@@ -1303,3 +1303,26 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **Lanes:** the island lanes and the SELV-spine lock stay on the four-layer s32 board (`selv_spine_lock.json` as
       committed). 30a / 30b stay blocked on four layers (stage 31 analysis), so the next layout lane is the SELV side
       (candidate 23) once the controller merges J13.
+
+41. **Laminate CTI settled from public records: name KB-6164 on the order; the JLC inquiry is not needed (2026-10-14).**
+    - **Evidence** (`validation-results/08-manufacturing-package/native-21/sourcing/inquiries/CTI-RESEARCH-2026-10-14.md`):
+      - UL file E123995, published by Kingboard as a UL Product iQ reprint (QMTS2, last updated 2026-02-20): KB-616(X),
+        with X = 0 or 4, CTI PLC 3 at 1.40 mm;
+      - Kingboard's official TDS (2025-03-13): CTI ≥ 175 V per IEC 60112;
+      - Kingboard's product table: 175 V.
+
+      PLC 3 is group IIIa, which meets D5-BASIS with no margin. No JLC-selectable laminate has public PLC ≤ 2 evidence.
+      Nan Ya publishes no CTI. Shengyi's TDS gives PLC 3, but no UL data was found.
+    - **Decision:** order with Material Type "KB6164 - TG135" (+$0.28 per board at 500) and the stack named
+      (JLC041622-7628), with the order remark "KB-6164 core with KB-6064 prepreg throughout; state the laminate on the
+      shipment documents". FAB-NOTE.md and FAB-JLCPCB.md are updated. The CTI written-confirmation gate is replaced by
+      the named material. `CTI-JLC.md` / `CTI-JLC-6L.md` are not sent.
+    - **Residual (order remark, not a gate):** whether JLC also uses Kingboard prepreg in the named stack. JLC offers no
+      per-order material certificate. The certifier still has to accept PLC 3 as evidence of IEC 60664-1 group IIIa
+      (CERTIFIER-PACKET A3).
+    - **Open, found by the same research: board thickness.** JLC publishes ±10 % for boards ≥ 1.0 mm, so 1.6 mm nominal can
+      finish at 1.44 mm. FAB-NOTE requires 1.6–1.76 mm for the REDCUBE THR studs (review m7), and no published JLC option
+      guarantees that at 1.6 mm. FAB-NOTE's own fallback is a 1.8 mm build: ±10 % gives 1.62–1.98 mm, inside the studs'
+      1.6–2.0 mm. A 1.8 mm stack changes every dielectric depth, so it is a design candidate (re-run the chain, F8 and
+      B3 on the stack file), not an order note. It is queued with the stud datasheet re-read first, to check whether
+      1.6 mm is a hard minimum.

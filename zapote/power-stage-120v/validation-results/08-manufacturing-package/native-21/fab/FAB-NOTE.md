@@ -16,7 +16,7 @@ Gerbers: `native-21-gerbers.zip`, SHA-256
 
 **Before mains-connected or unattended operation, and before product release:**
 - insulation and thermal qualification (PD3, IEC 60664-4, hipot, partial discharge);
-- the laminate CTI written confirmation (`../sourcing/inquiries/CTI-JLC.md`; send it with the order);
+- the laminate CTI: settled from Kingboard / UL records by naming KB-6164 on the order (`../sourcing/inquiries/CTI-RESEARCH-2026-10-14.md`, DECISIONS 41); the certifier accepts PLC 3 as group IIIa (CERTIFIER-PACKET A3);
 - F1 (Littelfuse KLDR025.TXP, UL Class CC, 600 Vac / 200 kA): the open-clip (01250003H) acceptance and the clip's voltage rating and agency file (`../owner-items/f1cc/`). The nameplate is 120–127 V~ 60 Hz, and there is no inlet fuse (DECISIONS.md 2026-10-09);
 - the certification lab's answer on the tank-voltage RMS convention (M6 reversal condition);
 - RES_A (297 V rms at 28 A) is held at 12.6 mm reinforced creepage to SELV/PE on the outer layers (item 18); the lab confirms that same-layer inner paths count as solid insulation (C152's inner rings are 9.694 mm from the SELV inner islands).
@@ -30,7 +30,7 @@ Ordering is a purchase and needs the owner.
 | Size | 290 × 190 mm L-shaped outline, 4 layers |
 | Stackup | JLCPCB **JLC041622-7628**, 1.6 mm nominal. **Finished thickness 1.6–1.76 mm** (+10 / −0 %): the REDCUBE THR studs need 1.6–2.0 mm (review m7), and JLC's ±10 % allows 1.44 mm. Ask JLC to confirm; if it can't hold the minimum, re-stack at 1.8 mm |
 | Copper | **2 oz outer and 2 oz inner** |
-| Laminate | **CTI ≥ 175 V (material group IIIa), a hard order condition.** Don't place the order until JLC confirms it in writing |
+| Laminate | **CTI ≥ 175 V (material group IIIa), a hard order condition, met by naming the laminate:** Material Type **"KB6164 - TG135"** (Kingboard KB-6164: UL E123995 CTI PLC 3 at 1.40 mm, Kingboard TDS ≥ 175 V per IEC 60112; `../sourcing/inquiries/CTI-RESEARCH-2026-10-14.md`; +$0.28 per board at 500). Never order the unnamed "FR4 TG135". Order remark: "Material KB-6164 core with KB-6064 prepreg throughout; please state the laminate on the shipment documents" |
 | Surface finish | **ENIG**: 0.65 mm SSOP-36 bias modules (U41/U42), 0.65 mm VQFN with exposed pad (U26), capped via-in-pad |
 | Solder mask / silk | Green / white |
 | Impedance control | None |
