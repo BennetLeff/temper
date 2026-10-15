@@ -825,11 +825,13 @@ def candidates_any(board, ti, j, loose=(False, False)):
     return outs
 
 
-def run(board, log=None, max_rounds=8):
-    """The four steps to a fixpoint. Returns (applied edits by step and layer, skipped corners by reason and layer)."""
+def run(board, log=None, max_rounds=20):
+    """The four steps, round after round, until a whole round applies nothing; every skipped corner is tried again in
+    each round (a neighbour's edit can make it legal), so the result is a fixpoint and a second run changes nothing.
+    Returns (applied edits by step and layer, the last round's skipped items with their reasons)."""
     applied = Counter()
-    skipped = {}
     for rnd_ in range(max_rounds):
+        skipped = {}
         changed = False
         for step in STEPS:
             while True:
@@ -839,6 +841,8 @@ def run(board, log=None, max_rounds=8):
                     break
         if not changed:
             break
+    else:
+        raise SystemExit(f"no fixpoint after {max_rounds} rounds")
     board.tracks[:] = [t for t in board.tracks if t["points"] is not None]
     return applied, skipped
 
