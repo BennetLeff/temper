@@ -1,0 +1,280 @@
+{
+  "V": 132.0,
+  "budget_mA": 0.25,
+  "f": 60.0,
+  "limit_mA": 0.5,
+  "max_total_C_per_line_nF_at_budget": 5.023830274365384,
+  "pass_fraction": 0.5,
+  "results": [
+    {
+      "budget_mA": 0.25,
+      "governing_touch_mA": 0.9741421213647918,
+      "items": [
+        {
+          "c_nom_nF": 2.1999999999999997,
+          "mA": 0.1313738649507565,
+          "name": "C3/C4 board Y (2.2 nF, +20 %)",
+          "src": "power_stage_120v.ato:346-351; parts.ato:117"
+        },
+        {
+          "c_nom_nF": 6.8999999999999995,
+          "mA": 0.4120362128001,
+          "name": "D-22 module Y (4.7+2.2 nF, +20 %)",
+          "src": "out-D22/PARTS.md Main/HF Y"
+        },
+        {
+          "c_nom_nF": 0.031000000000000003,
+          "mA": 0.0018511771879424787,
+          "name": "coil-to-PE 31 pF (+20 %)",
+          "src": "DECISIONS.md item 20"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.14296028880866427,
+          "name": "PS1 IRM-20-15 leakage",
+          "src": "IRM-20/60-SPEC 2025-11-21 p.2"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.14296028880866427,
+          "name": "PS2 IRM-20-24 leakage",
+          "src": "IRM-20/60-SPEC 2025-11-21 p.2"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.14296028880866427,
+          "name": "PS3 IRM-60-15ST leakage",
+          "src": "IRM-20/60-SPEC 2025-11-21 p.2"
+        }
+      ],
+      "label": "DESIGN (datasheet-max supplies)",
+      "limit_mA": 0.5,
+      "margin_mA": -0.7241421213647918,
+      "margin_pct_of_budget": -289.6568485459167,
+      "pct_of_limit": 194.82842427295836,
+      "scenarios": {
+        "normal_PE_intact_PE_conductor_mA": 1.9482842427295837,
+        "open_N_PE_intact_PE_conductor_mA": 1.9482842427295837,
+        "open_PE_touch_per_polarity_mA": 0.9741421213647918
+      },
+      "verdict": "FAIL",
+      "vs_iec_0p75_pct": 129.88561618197224
+    },
+    {
+      "budget_mA": 0.25,
+      "governing_touch_mA": 0.574961254938799,
+      "items": [
+        {
+          "c_nom_nF": 2.1999999999999997,
+          "mA": 0.1313738649507565,
+          "name": "C3/C4 board Y (2.2 nF, +20 %)",
+          "src": "power_stage_120v.ato:346-351; parts.ato:117"
+        },
+        {
+          "c_nom_nF": 6.8999999999999995,
+          "mA": 0.4120362128001,
+          "name": "D-22 module Y (4.7+2.2 nF, +20 %)",
+          "src": "out-D22/PARTS.md Main/HF Y"
+        },
+        {
+          "c_nom_nF": 0.031000000000000003,
+          "mA": 0.0018511771879424787,
+          "name": "coil-to-PE 31 pF (+20 %)",
+          "src": "DECISIONS.md item 20"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.0099,
+          "name": "PS1 IRM-20-15 leakage",
+          "src": "Simpex IRM-20-15 report (typical, 1 unit)"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.0099,
+          "name": "PS2 IRM-20-24 leakage",
+          "src": "Simpex IRM-20-15 report (typical, 1 unit)"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.0099,
+          "name": "PS3 IRM-60-15ST leakage",
+          "src": "Simpex IRM-20-15 report (typical, 1 unit)"
+        }
+      ],
+      "label": "INFORMATIONAL (typical-measured supplies)",
+      "limit_mA": 0.5,
+      "margin_mA": -0.324961254938799,
+      "margin_pct_of_budget": -129.9845019755196,
+      "pct_of_limit": 114.9922509877598,
+      "scenarios": {
+        "normal_PE_intact_PE_conductor_mA": 1.149922509877598,
+        "open_N_PE_intact_PE_conductor_mA": 1.149922509877598,
+        "open_PE_touch_per_polarity_mA": 0.574961254938799
+      },
+      "verdict": "FAIL",
+      "vs_iec_0p75_pct": 76.66150065850654
+    },
+    {
+      "budget_mA": 0.25,
+      "governing_touch_mA": 0.162925042138699,
+      "items": [
+        {
+          "c_nom_nF": 2.1999999999999997,
+          "mA": 0.1313738649507565,
+          "name": "C3/C4 board Y (2.2 nF, +20 %)",
+          "src": "power_stage_120v.ato:346-351; parts.ato:117"
+        },
+        {
+          "c_nom_nF": 0.031000000000000003,
+          "mA": 0.0018511771879424787,
+          "name": "coil-to-PE 31 pF (+20 %)",
+          "src": "DECISIONS.md item 20"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.0099,
+          "name": "PS1 IRM-20-15 leakage",
+          "src": "Simpex IRM-20-15 report (typical, 1 unit)"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.0099,
+          "name": "PS2 IRM-20-24 leakage",
+          "src": "Simpex IRM-20-15 report (typical, 1 unit)"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.0099,
+          "name": "PS3 IRM-60-15ST leakage",
+          "src": "Simpex IRM-20-15 report (typical, 1 unit)"
+        }
+      ],
+      "label": "INFORMATIONAL (no module Y, board Y only, typical supplies)",
+      "limit_mA": 0.5,
+      "margin_mA": 0.08707495786130101,
+      "margin_pct_of_budget": 34.829983144520405,
+      "pct_of_limit": 32.5850084277398,
+      "scenarios": {
+        "normal_PE_intact_PE_conductor_mA": 0.325850084277398,
+        "open_N_PE_intact_PE_conductor_mA": 0.325850084277398,
+        "open_PE_touch_per_polarity_mA": 0.162925042138699
+      },
+      "verdict": "PASS",
+      "vs_iec_0p75_pct": 21.723338951826534
+    },
+    {
+      "budget_mA": 0.25,
+      "governing_touch_mA": 1.5712960529591395,
+      "items": [
+        {
+          "c_nom_nF": 2.1999999999999997,
+          "mA": 0.1313738649507565,
+          "name": "C3/C4 board Y (2.2 nF, +20 %)",
+          "src": "power_stage_120v.ato:346-351; parts.ato:117"
+        },
+        {
+          "c_nom_nF": 6.8999999999999995,
+          "mA": 0.4120362128001,
+          "name": "D-22 module Y (4.7+2.2 nF, +20 %)",
+          "src": "out-D22/PARTS.md Main/HF Y"
+        },
+        {
+          "c_nom_nF": 10.0,
+          "mA": 0.5971539315943478,
+          "name": "CONTROL extra Y per line",
+          "src": "hypothetical"
+        },
+        {
+          "c_nom_nF": 0.031000000000000003,
+          "mA": 0.0018511771879424787,
+          "name": "coil-to-PE 31 pF (+20 %)",
+          "src": "DECISIONS.md item 20"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.14296028880866427,
+          "name": "PS1 IRM-20-15 leakage",
+          "src": "IRM-20/60-SPEC 2025-11-21 p.2"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.14296028880866427,
+          "name": "PS2 IRM-20-24 leakage",
+          "src": "IRM-20/60-SPEC 2025-11-21 p.2"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.14296028880866427,
+          "name": "PS3 IRM-60-15ST leakage",
+          "src": "IRM-20/60-SPEC 2025-11-21 p.2"
+        }
+      ],
+      "label": "CONTROL (+10 nF Y per line; must FAIL)",
+      "limit_mA": 0.5,
+      "margin_mA": -1.3212960529591395,
+      "margin_pct_of_budget": -528.5184211836558,
+      "pct_of_limit": 314.2592105918279,
+      "scenarios": {
+        "normal_PE_intact_PE_conductor_mA": 3.142592105918279,
+        "open_N_PE_intact_PE_conductor_mA": 3.142592105918279,
+        "open_PE_touch_per_polarity_mA": 1.5712960529591395
+      },
+      "verdict": "FAIL",
+      "vs_iec_0p75_pct": 209.50614039455195
+    },
+    {
+      "budget_mA": 0.25,
+      "governing_touch_mA": 0.7600789737330468,
+      "items": [
+        {
+          "c_nom_nF": 2.1999999999999997,
+          "mA": 0.1313738649507565,
+          "name": "C3/C4 board Y (2.2 nF, +20 %)",
+          "src": "power_stage_120v.ato:346-351; parts.ato:117"
+        },
+        {
+          "c_nom_nF": 10.0,
+          "mA": 0.5971539315943478,
+          "name": "CONTROL extra Y per line",
+          "src": "hypothetical"
+        },
+        {
+          "c_nom_nF": 0.031000000000000003,
+          "mA": 0.0018511771879424787,
+          "name": "coil-to-PE 31 pF (+20 %)",
+          "src": "DECISIONS.md item 20"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.0099,
+          "name": "PS1 IRM-20-15 leakage",
+          "src": "Simpex IRM-20-15 report (typical, 1 unit)"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.0099,
+          "name": "PS2 IRM-20-24 leakage",
+          "src": "Simpex IRM-20-15 report (typical, 1 unit)"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.0099,
+          "name": "PS3 IRM-60-15ST leakage",
+          "src": "Simpex IRM-20-15 report (typical, 1 unit)"
+        }
+      ],
+      "label": "CONTROL 2 (board-only variant + 10 nF Y per line; must FAIL)",
+      "limit_mA": 0.5,
+      "margin_mA": -0.5100789737330468,
+      "margin_pct_of_budget": -204.03158949321872,
+      "pct_of_limit": 152.01579474660934,
+      "scenarios": {
+        "normal_PE_intact_PE_conductor_mA": 1.5201579474660936,
+        "open_N_PE_intact_PE_conductor_mA": 1.5201579474660936,
+        "open_PE_touch_per_polarity_mA": 0.7600789737330468
+      },
+      "verdict": "FAIL",
+      "vs_iec_0p75_pct": 101.34386316440623
+    }
+  ]
+}

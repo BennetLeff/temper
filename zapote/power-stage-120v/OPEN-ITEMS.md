@@ -19,7 +19,7 @@ their ratchets.
 | # | Item | Evidence | Lane / owner | Status | Next |
 |---|---|---|---|---|---|
 | S2 | **Board copper over the laminate MOT in still air.** R5.4 copper ~12 K over 130 °C at 22 A with 55 °C bay air (~56 K at 28 A). HF film C38 / C40 over 110 °C at 22 A. At 28 A also R5's element (197 / 170 °C), the gate resistors and C21. Release gate FAIL: laminate −56.4 K, parts −38.9 K | DECISIONS 46; `b3-ratings/` | Analysis: model refinement (FET-lead path, c28 heat file, film-cap / 1206 limits, fix targets) | Running | Then: candidate 36 (tank copper at R5.4 / FET row), 0.5 mΩ shunt option, enclosure airflow reply. Until it passes: still-air ceiling ≤ 18 A (owner → controller) |
-| S1 | Touch leakage FAILS: 0.974 mA design case vs 0.5 mA UL 1026 portable limit and the 0.25 mA (50 %) rule. Candidate 23 + D-22 rev B gives 0.419 mA, still failing | `07-conducted-emi/leakage/result.json` | Analysis: leakage × EMI co-design (now also checking temper-8d's split-R coil EMI model) | Running | Change set that passes both; then candidate 23 folds it in |
+| S1 | Touch leakage: 0.974 mA design case FAILS the 0.5 mA UL 1026 portable limit and the 0.25 mA (50 %) rule. **Change set fixed (DECISIONS 47):** 0.2412 mA (8.8 µA margin), EMI min 8.19 dB | `07-conducted-emi/leakage/co-design-2026-10-15/` | Layout lane: candidate 23; controller (PS3 → MPM-65-15ST); D-22 module records | Decided | c23 lane builds it; bench: measured supply leakage, SCF31X DM leakage, HF touch with the lab's meter network |
 | S12 | Laminate UL scope: KB-616(X) multilayer recognition lists max inner copper 35 µm; the stack has 2 oz (61 µm) inner layers. KB-6164F / KB-6165F list 102 µm | DECISIONS 46 side finding | Analysis: model refinement (task 5, public sources) | Running | Pick the order material in scope; certifier packet A3 |
 | S3 | F6's 252/252 result rests on round-17 loop matrices from board 76ec8cca, not s35 | `c33-six-layer/adoption/README.md` | FEM (remote box) | Blocked: box offline | Owner restarts the box; run `adoption/fem/chain_c33.sh` for s35 |
 | S8 | C5 / C6 ripple at 28 A: on the vendor basis the fitted part carries 28 A only at cap ambient ≤ 80 °C; no stocked part fixes 28 A at 85 °C. 28 % of the HF ripple power is above TDK's 95 kHz chart edge | DECISIONS 45 | Parts | Verdict recorded | B32676G1106K once "Z 1" = catalogue part is confirmed (owner or distributor); bench C5 case temperature |
@@ -28,7 +28,7 @@ their ratchets.
 | S7 | Datasheet ledger: 3 VERIFIED / 32 PARTIAL / 59 UNAUDITED of 94 lines | `datasheet-ledger/` | Parts verification lane | Deferred until the BOM settles (device and bias studies) | Then PARTIAL SAFETY / POWER lines to VERIFIED, in parallel |
 | S10 | Return-path open changes 18; six layers took them to 8 | DECISIONS 39–40 | Layout (LS / HS-B) | Open | Targeted four-layer fixes with the LS-pocket lane |
 | S11 | Certifier questions (CERTIFIER-PACKET A1–A4: F1, insulation, PEC / FMEA, supply approvals, RES_A, coil-lane voltage); add S12 to A3 | `owner-items/CERTIFIER-PACKET.md` | Owner | Draft, not sent | Owner sends the packet |
-| S13 | temper-8d requests: AMC1301 measured input current on R5 (HOT5 domain; J4 +2 pins; +7–9 % power at the 15 A plug); pan-detect re-validation on the full bridge (Al / Cu / small / warped pans); ±1 kHz dither at 120 Hz (check ZVS at fs − 1 kHz) | `git show sensor-c1-impulse-mining:output/temper-coil-driver-r1/RECOMMENDATIONS.md` | AMC1301 rides with candidate 23 (SELV side); firmware items to the controller | Logged | The power argument is capped by S2 until it passes |
+| S13 | temper-8d requests: AMC1301 measured input current on R5 (HOT5 domain; J4 +2 pins; +7–9 % power at the 15 A plug); pan-detect re-validation on the full bridge (Al / Cu / small / warped pans); ±1 kHz dither at 120 Hz (check ZVS at fs − 1 kHz). Split-R coil EMI model: right physics, no verdict change (DECISIONS 47) | `git show sensor-c1-impulse-mining:output/temper-coil-driver-r1/RECOMMENDATIONS.md` | AMC1301: a later candidate (kept out of 23 to hold its scope; its power argument is capped by S2); firmware items to the controller | Logged | After S2 |
 
 ## 2. Buildability (JLC fab and assembly)
 
@@ -57,7 +57,7 @@ their ratchets.
 | Lane (island) | Candidate | Status | Blocked on |
 |---|---|---|---|
 | Tank / FET row (WS3 / WS4 boundary) | 36: tank-copper heat at R5.4 / FET row (wider, more parallel layers, or 3 oz outer); option: 0.5 mΩ shunt | Next | The model-refinement targets (S2) |
-| SELV side (WS5, spine owner) | 23: delete PS1, logic from PS3 over J13; F2 / filter; AMC1301 (S13) | Ready to start | S1's change set (supplies and Y caps). The controller's J13 gates the merge, not the board work |
+| SELV side (WS5, spine owner) | 23: DECISIONS 47 change set (PS1 deleted, PS2 → MPM-20-24, L1 → SCF31X if it fits) | Ready to start | The controller's J13 and PS3 → MPM-65 gate the merge, not the board work |
 | HS-B / LS (WS4) | 30a (HS-B → LS ISO6721FB), 30b (C161), return-path fixes (S10) | Needs an LS-pocket / U42 re-placement to open the y 47–60 band | The bias-supply study (C3): U42 may change |
 | Tank / bank | 34: resonant bank | Waits on stock | S9 |
 | Whole board (last) | Geometry cleanup pass (B5); compaction (C7) | After the lanes merge | — |

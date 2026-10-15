@@ -30,3 +30,16 @@ driver UVLO still holds; please restate the line with the new part.
 ## Needed from elsewhere (not the controller)
 - Enclosure (temper-f7): PS3 bay air <= 58 C after the extra 4.8 W load (PROPOSALS.md P1: 74 % load, max ambient 60.3 C).
 - Certifier: the leakage limit class and whether PS2's leakage counts (`../../08-manufacturing-package/native-21/owner-items/CERTIFIER-PACKET.md`).
+
+## Addendum, 2026-10-15 (power-stage DECISIONS 46, 47)
+
+6. **PS3 IRM-60-15ST → MEAN WELL MPM-65-15ST.** Same case as IRM-60 (drop-in per MPM-65-SPEC 2024-10-30). Touch current
+   is < 100 µA at 264 VAC (p.2), against IRM-60's higher maximum. With PS1 deleted and PS2 → MPM-20-24, the system's
+   design touch current is 0.2412 mA against the 0.25 mA portable 50 % rule; with an IRM PS3 it cannot pass at any Y
+   value. Study: `validation-results/07-conducted-emi/leakage/co-design-2026-10-15/WRITEUP.md`.
+   - Thermal is equivalent: 60.7 °C ambient limit on MPM-65 against 60.3 °C on IRM-60.
+   - Open: stock (JLC 0), and the certifier's view of its approvals (IEC / ES / CSA 60601-1).
+7. **Still-air continuous ceiling ≤ 18 A until the power board's B3 ratings gate passes** (DECISIONS 46). In still air
+   with 55 °C bay air, the board copper at R5 exceeds the laminate's UL MOT of 130 °C at the 22 A default ceiling.
+   Fixes are in progress (enclosure airflow, board copper candidate 36, shunt). Please treat 22 / 28 A as gated on them,
+   and tell us which ceiling the firmware commissions in the meantime.

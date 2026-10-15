@@ -1487,3 +1487,45 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **Process note:** the task-04 `-heat.npz` outputs are gitignored. After candidate 35's cherry-pick, this worktree
       held s32 npz files beside s35 JSONs. `thermal.remap_a4`'s energy check refused them, and the s35 files were copied
       from the lane's worktree after a byte-identical JSON match and a per-case energy check.
+
+47. **Touch leakage × conducted EMI: the S1 change set (2026-10-15; study and decision, no board change yet).** Study:
+    `validation-results/07-conducted-emi/leakage/co-design-2026-10-15/` (`WRITEUP.md`; `run_all.py --reuse` re-runs
+    all 23 controls, which pass from the committed copy; a clean full regeneration matched within 0.0 dB).
+    - **Why candidate 23 alone cannot pass:** the IRM supplies at their datasheet maxima are 0.429 mA as built and
+      0.286 mA without PS1, already over the 0.25 mA portable 50 % rule before any Y capacitance. The leakage limit
+      needs lower-leakage supplies, not only fewer of them.
+    - **Change set adopted (DESIGN touch 0.2412 mA, passing portable 50 % by 8.8 µA; s19b compliance minimum
+      8.19 dB, 9.86 dB on temper-8d's corrected coil model):**
+      1. delete PS1 (candidate 23; logic from PS3 over J13);
+      2. PS2 IRM-20-24 → MEAN WELL **MPM-20-24**: same Case 219A, touch current < 80 µA at 264 VAC (MPM-20-SPEC
+         2024-10-30 p.2); JLC C6675337, 5,047 in stock;
+      3. PS3 (controller side, J13) IRM-60-15ST → **MPM-65-15ST**: same case, < 100 µA (MPM-65-SPEC p.2); JLC 0;
+         a controller-session request;
+      4. D-22 inlet module: remove its four Y caps (board C3 / C4 stay 2.2 nF / line);
+      5. D-22 module choke TDK 1.6 mH → KEMET **SCF31X-220-2R1A011JH** (5.68 mH, 22 A, 500 VAC, 4.39 mΩ); with the Y at
+         C3 / C4 the module CM choke must be ≥ 3.6 mH.
+      About +$2.95 per system (MPM and choke prices estimated), 5 fewer parts.
+    - **Robust variant, preferred if L1's footprint and stock allow:** L1 B82726S2203A020 → the same SCF31X
+      (+$1.79, L1 re-layout). EMI minimum 11.51 dB, and the HF touch current (35–60 kHz, `hf_touch.py`) stays
+      ≤ 0.244 mA at every corner. The recommended set reads 0.299 mA at the chokes −30 % corner through an unverified
+      UL-style meter network. It also removes L1, the line that sets the build date (DECISIONS 45), if SCF31X is in
+      authorised stock. SCF31X and MPM-65-15ST stock could not be read today (JLC lists neither in stock; Octopart
+      returns 403 to scripted reads, not bypassed). The candidate-23 lane checks both before choosing.
+    - **Rejected:**
+      - a lower Y with the module Y removed alone: −9.5 dB, a CM resonance on 180 kHz at chokes −30 %;
+      - X-cap changes: 0 dB, the binding lines are CM;
+      - c29's SCF39XV-200-Z2R1A012JH: a 6-pin asymmetric-winding part, fit for an L / N filter unconfirmed, 37–68 weeks.
+    - **Risks carried:**
+      - the 8.8 µA margin flips if the supplies' maxima are 8 % higher or the basis changes. Measured supply leakage
+        (one IRM-20-15 unit ~14× under its maximum) would open the space;
+      - SCF31X DM leakage is unpublished (1 % assumed; at 0.3 % the minimum is 6.87 dB): measure a sample;
+      - the 41 µH DM inductors still have no MPN.
+    - **Certifier (packet A4):**
+      - limit class;
+      - datasheet-max summation and the 50 % budget;
+      - the MPM approvals (IEC / ES / CSA 60601-1, where IRM-60 carries UL 62368-1);
+      - which meter network applies at 35–60 kHz.
+    - **temper-8d's split-R coil EMI model:** the physics is right (s19b hangs the coil-end capacitance on a node
+      ~140 V from the real terminal). It changes no verdict: the scorecard nominal stays 10.48 dB, and the committed
+      design's compliance minimum stays 6.50 dB (bound by X −20 % at 70 kHz). Adopting it in s19b is a model update for
+      the next EMI round.
