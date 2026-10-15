@@ -17,7 +17,8 @@ Native construction records: [progress](BUILD-PROGRESS.md),
 [toolchain](TOOLCHAIN.md), [local footprints](FOOTPRINTS.md),
 [earlier native results](NATIVE-02.md), [current routing](ROUTING.md),
 [placement review](PLACEMENT-REVIEW.md), [oracle assessment](ORACLE-REVIEW.md),
-[placement decisions](DECISIONS.md), and
+[placement decisions](DECISIONS.md),
+[return-current rules](RETURN-PATHS.md), and
 [insulation preflight](RULES-PREFLIGHT.md). The revised 240 × 160 mm outline
 and four layers are approved; the revised placement needs renewed D4 review.
 D5 conditionally permits an 8.0 mm placement floor on

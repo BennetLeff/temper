@@ -107,6 +107,9 @@ def b3_ratings(b):
 # until stage 48 (c48-ldo-en-ref-watch) fixed them; pin_absmax_expected.json is empty since, so from s48 on `pin_absmax` is an
 # ordinary gate: a candidate with any pin over its absolute maximum is rejected.
 RELEASE_GATES = {"b3_ratings"}
+# OCP low-corner floor since stage 15 (28 A ceiling): 59.17 A envelope peak + 3.0 A coil-pickup stack (DECISIONS
+# item 9) + 2 A margin; kelvin_budget.py FLOOR carries the same figure per tag.
+KELVIN_FLOOR_MIN_A = 64.17
 
 
 def gates(b, tag, audit):
@@ -158,6 +161,12 @@ def gates(b, tag, audit):
         g["jet_strip_height"] = js["pass"]
     if audit:
         g["audit_rs"] = audit == "PASS"
+    # OCP Kelvin floor (RETURN-PATHS.md S2): the band's low corner after the Kelvin shift must clear the floor at the
+    # bound. kelvin_budget.py falls back to the pre-stage-15 44 A floor for a tag missing from its FLOOR table, so the
+    # floor itself is held to the stage-15 basis too. Budgets from before stage 15 carry no verdict and are skipped.
+    kb = jload(VR / f"02-protection-timing/kelvin/budget-{tag}.json")
+    if kb and "meets_floor_at_bound" in kb:
+        g["kelvin_floor"] = bool(kb["meets_floor_at_bound"]) and kb.get("floor_A", 0) >= KELVIN_FLOOR_MIN_A
     # B3 ratings gate: laminate (KB-6164 UL MOT 130 C) and datasheet-limited parts at the release case (c17.5_h10: the
     # 18.0 A release ceiling of DECISIONS 55 at its 1.05 x trip, still air h 10, bay 61 C, I_line 13.5 A); every gated
     # row must pass there. The file is written by b3-ratings/b3_ratings_gate.py --out (via run_basis.py). margins.json
