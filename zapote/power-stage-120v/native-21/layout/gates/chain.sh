@@ -139,7 +139,9 @@ import json;d=json.load(open('outputs/summary.json'))
 print('B3',[(r,round(d['runs'][r]['peak']['temperature_c'],1)) for r in ('nominal_h10_p1p0','nominal_h25_p1p0','extreme_h10_p1p0','c28_h10_p1p0','c28_h25_p1p0')])"
   # B3 ratings (DECISIONS 46): body-model margins to the laminate MOT and part limits, ~6 min. Its FAIL is a release
   # verdict the scorecard reads, not a chain failure; a margins.json not solved on this board is.
-  ( cd ../b3-ratings && python3 run_basis.py --workers 4 > "$B/b3-ratings.log" 2>&1 ); tail -1 "$B/b3-ratings.log"
+  # run_basis.py exits with the gate's status (1 on a FAIL verdict); under set -e that ended the block on every board
+  # that fails the release gate (all of them today), so its status is not used: the board check below catches a crash
+  ( cd ../b3-ratings && python3 run_basis.py --workers 4 > "$B/b3-ratings.log" 2>&1 ) || true; tail -1 "$B/b3-ratings.log"
   python3 -c "import json,sys;m=json.load(open('../b3-ratings/margins.json'));sys.exit(set(m['board_sha256'].values())!={'$H'})" \
     || { echo "B3_RATINGS: margins.json not solved on board $H"; tail -5 "$B/b3-ratings.log"; exit 1; }
 ) > "$B/blk-thermal.log" 2>&1 &
