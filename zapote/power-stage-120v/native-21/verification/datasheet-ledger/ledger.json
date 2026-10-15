@@ -708,14 +708,14 @@
      "worst_case_value": 102.2,
      "unit": "C",
      "condition": "B3 ratings body model, s42 (9e075b4b), release case c18_h10: 18.0 A release ceiling at its 18.9 A trip, still air h 10, bay 61 C; L1 heat at the 13.5 A firmware inlet bound (DECISIONS 56)",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:194-197; DECISIONS.md:2033-2037"
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:180-183; DECISIONS.md:2033-2037"
     },
     {
      "parameter": "Body temperature c22",
-     "worst_case_value": 97.5,
+     "worst_case_value": 97.6,
      "unit": "C",
      "condition": "context: c22_h10 (22 A at 23.1 A trip), still air, bay 55 C, 13.5 A inlet",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:565-568"
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:558-561"
     },
     {
      "parameter": "Body temperature c28",
@@ -796,8 +796,8 @@
      "stress": "Body temperature c22",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "context: 97.5 <= 125 C",
-     "ratio": 0.78
+     "rule": "context: 97.6 <= 125 C",
+     "ratio": 0.7808
     },
     {
      "id": "body c28",
@@ -1227,7 +1227,7 @@
      "worst_case_value": 83.6,
      "unit": "C",
      "condition": "C5 (C6 80.1 C), B3 ratings body model s42, release case c18_h10: 18.9 A trip, still air, bay 61 C; C5 heat is an estimate (~10 A RMS x ~5 mOhm)",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:180-183; validation-results/04-board-current-thermal/round5-native21/b3/make_heat_sources.py:111"
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:159-162; validation-results/04-board-current-thermal/round5-native21/b3/make_heat_sources.py:111"
     },
     {
      "parameter": "Case temperature c22",
@@ -1516,24 +1516,24 @@
      "source": "p.1 electrical table (REV. 01/26)"
     },
     {
-     "parameter": "P allowed at c18 terminal 118.6 C (release)",
-     "datasheet_limit": 2.57,
+     "parameter": "P allowed at c18 terminal 118.3 C (release)",
+     "datasheet_limit": 2.585,
      "unit": "W",
-     "basis": "5 W x (170 - 118.6) / 100 on the terminal derating curve",
+     "basis": "5 W x (170 - 118.3) / 100 on the terminal derating curve",
      "source": "p.3 Terminal Temperature Derating Curve"
     },
     {
-     "parameter": "P allowed at c22 terminal 131.3 C",
-     "datasheet_limit": 1.935,
+     "parameter": "P allowed at c22 terminal 130.9 C",
+     "datasheet_limit": 1.955,
      "unit": "W",
-     "basis": "5 W x (170 - 131.3) / 100",
+     "basis": "5 W x (170 - 130.9) / 100",
      "source": "p.3 Terminal Temperature Derating Curve"
     },
     {
-     "parameter": "P allowed at c28 terminal 163.0 C",
-     "datasheet_limit": 0.35,
+     "parameter": "P allowed at c28 terminal 162.5 C",
+     "datasheet_limit": 0.375,
      "unit": "W",
-     "basis": "5 W x (170 - 163.0) / 100",
+     "basis": "5 W x (170 - 162.5) / 100",
      "source": "p.3 Terminal Temperature Derating Curve"
     },
     {
@@ -1575,45 +1575,45 @@
     },
     {
      "parameter": "T terminal c18 (release)",
-     "worst_case_value": 118.6,
+     "worst_case_value": 118.3,
      "unit": "C",
-     "condition": "B3 ratings body model s42, release case c18_h10: still air, bay 61 C",
+     "condition": "B3 ratings body model s43, release case c18_h10: still air, bay 61 C",
      "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:257-260"
     },
     {
      "parameter": "T terminal c22",
-     "worst_case_value": 131.3,
+     "worst_case_value": 130.9,
      "unit": "C",
      "condition": "context: c22_h10, bay 55 C",
      "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:551-554"
     },
     {
      "parameter": "T terminal c28",
-     "worst_case_value": 163.0,
+     "worst_case_value": 162.5,
      "unit": "C",
      "condition": "context: c28_h10, bay 55 C",
      "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:754-757"
     },
     {
      "parameter": "T element c18 (release)",
-     "worst_case_value": 123.1,
+     "worst_case_value": 122.8,
      "unit": "C",
-     "condition": "release case c18_h10, bay 61 C; R5's element is under-corrected by about 4 K (validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py:21), so about 127.1 C",
+     "condition": "release case c18_h10, bay 61 C; R5's element is under-corrected by about 4 K (validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py:21), so about 126.8 C",
      "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:271-274; validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py:21"
     },
     {
      "parameter": "T element c22",
-     "worst_case_value": 138.3,
+     "worst_case_value": 138.0,
      "unit": "C",
      "condition": "context: c22_h10, bay 55 C",
      "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:572-575"
     },
     {
      "parameter": "T element c28",
-     "worst_case_value": 174.8,
+     "worst_case_value": 174.4,
      "unit": "C",
      "condition": "context: c28_h10, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:803-806"
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:796-799"
     },
     {
      "parameter": "OCP transient pulse power",
@@ -1627,12 +1627,12 @@
    "checks": [
     {
      "id": "P at c18 terminal (release)",
-     "rating": "P allowed at c18 terminal 118.6 C (release)",
+     "rating": "P allowed at c18 terminal 118.3 C (release)",
      "stress": "P shunt c18 (release)",
      "max_ratio": 0.8,
      "severity": "violation",
-     "rule": "0.357 W against 2.57 W allowed at the 118.6 C release-case terminal (80 % rule)",
-     "ratio": 0.1389
+     "rule": "0.357 W against 2.585 W allowed at the 118.3 C release-case terminal (80 % rule)",
+     "ratio": 0.1381
     },
     {
      "id": "element c18 (release)",
@@ -1640,17 +1640,17 @@
      "stress": "T element c18 (release)",
      "max_ratio": 0.85,
      "severity": "violation",
-     "rule": "123.1 C <= 85 % of 170 C (about 127.1 C with the 4 K under-correction, still inside)",
-     "ratio": 0.7241
+     "rule": "122.8 C <= 85 % of 170 C (about 126.8 C with the 4 K under-correction, still inside)",
+     "ratio": 0.7224
     },
     {
      "id": "P at c22 terminal",
-     "rating": "P allowed at c22 terminal 131.3 C",
+     "rating": "P allowed at c22 terminal 130.9 C",
      "stress": "P shunt c22",
      "max_ratio": 0.8,
      "severity": "gap",
      "rule": "context, bay 55 C",
-     "ratio": 0.276
+     "ratio": 0.2731
     },
     {
      "id": "element c22",
@@ -1659,16 +1659,16 @@
      "max_ratio": 0.85,
      "severity": "gap",
      "rule": "context, bay 55 C",
-     "ratio": 0.8135
+     "ratio": 0.8118
     },
     {
      "id": "P at c28 terminal",
-     "rating": "P allowed at c28 terminal 163.0 C",
+     "rating": "P allowed at c28 terminal 162.5 C",
      "stress": "P shunt c28",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "airflow route (c22/c28): 0.864 W against 0.35 W allowed at 163.0 C, over the curve itself",
-     "ratio": 2.4686
+     "rule": "airflow route (c22/c28): 0.864 W against 0.375 W allowed at 162.5 C, over the curve itself",
+     "ratio": 2.304
     },
     {
      "id": "element c28",
@@ -1676,8 +1676,8 @@
      "stress": "T element c28",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "airflow route (c22/c28): 174.8 C > 170 C",
-     "ratio": 1.0282
+     "rule": "airflow route (c22/c28): 174.4 C > 170 C",
+     "ratio": 1.0259
     },
     {
      "id": "OCP pulse",
@@ -1705,7 +1705,7 @@
     "owner: zero stock (DECISIONS.md:846, F13)."
    ],
    "finding": null,
-   "notes": "Batch A 2026-10-15: shunt-current gap closed (leg returns pass through R5, power_stage_120v.ato:361-367) and the pulse gap closed (14 W for <= 10 us against >= 2 kW). The old '30 % of 3 W at 130 C' check is replaced by the curve at the modelled terminal temperatures. Merged 2026-10-15 onto s42 (DECISIONS 55/56): VIOLATION -> PARTIAL. Batch A's finding was stated at the 28 A ceiling: At the 28 A Kconfig ceiling that the hardware is sized for (DECISIONS.md:518; firmware trip 29.4 A), still air, bay 55 C, the s41 B3 ratings model puts R5's element at 170.3 C against its 170 C maximum and its terminal at 157.4 C, where Bourns' REV. 01/26 derating curve allows 0.63 W against the 0.864 W dissipated (1.37x). The B3 release gate already fails this row (DECISIONS 53, -9.1 K), but the ledger still carried the superseded h25 model (140 C) and the 3 W @ 130 C rating Bourns has withdrawn. At the 22 A default ceiling R5 passes (24 % of the curve, element 133.8 C). Clears if the owner retires the 28 A still-air ceiling, with board-face airflow, or with the 0.5 mOhm shunt after an OCP front-end rework (DECISIONS 53). At the release case (c18_h10, bay 61 C, 18.9 A trip) R5 dissipates 0.357 W against 2.57 W allowed at its 118.6 C terminal (0.14, rule 0.8) and the element is 123.1 C (0.72, rule 0.85); the 28 A rows are the airflow-route gap."
+   "notes": "Batch A 2026-10-15: shunt-current gap closed (leg returns pass through R5, power_stage_120v.ato:361-367) and the pulse gap closed (14 W for <= 10 us against >= 2 kW). The old '30 % of 3 W at 130 C' check is replaced by the curve at the modelled terminal temperatures. Merged 2026-10-15 onto s42 (DECISIONS 55/56): VIOLATION -> PARTIAL. Batch A's finding was stated at the 28 A ceiling: At the 28 A Kconfig ceiling that the hardware is sized for (DECISIONS.md:518; firmware trip 29.4 A), still air, bay 55 C, the s41 B3 ratings model puts R5's element at 170.3 C against its 170 C maximum and its terminal at 157.4 C, where Bourns' REV. 01/26 derating curve allows 0.63 W against the 0.864 W dissipated (1.37x). The B3 release gate already fails this row (DECISIONS 53, -9.1 K), but the ledger still carried the superseded h25 model (140 C) and the 3 W @ 130 C rating Bourns has withdrawn. At the 22 A default ceiling R5 passes (24 % of the curve, element 133.8 C). Clears if the owner retires the 28 A still-air ceiling, with board-face airflow, or with the 0.5 mOhm shunt after an OCP front-end rework (DECISIONS 53). At the release case (c18_h10, bay 61 C, 18.9 A trip) R5 dissipates 0.357 W against 2.57 W allowed at its 118.6 C terminal (0.14, rule 0.8) and the element is 123.1 C (0.72, rule 0.85); the 28 A rows are the airflow-route gap. Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. Terminals 118.6 / 131.3 / 163.0 -> 118.3 / 130.9 / 162.5 C, elements 123.1 / 138.3 / 174.8 -> 122.8 / 138.0 / 174.4 C (c18 / c22 / c28)."
   },
   "CC0603KRX7R9BB104": {
    "mpn": "CC0603KRX7R9BB104",
@@ -2409,8 +2409,8 @@
    "finding": "Stage 42 (candidate 39, DECISIONS 54) resolves the VIOLATION at typical recovery charge. History: the 2026-10-15 device study (DECISIONS 49) found the reverse-diode dv/dt (70 V/ns, Table 2 p.3) exceeded in the modelled S4 hard-commutation case, 85.8 V/ns as built (1.23x; 80 % rule 56 V/ns), and the gate-network study (DECISIONS 54) the diF/dt (2101 A/us against 1300, 1.62x), 109-112 V/ns at typical charge. The 68 ohm 2512 turn-on + Cgs 4.7 nF network gives 49.7 V/ns and 244 A/us at typical charge (640/640 full grid). Open: the maximum-Qrr basis (gap check), bench D-8.",
    "notes": null
   },
-  "GRM31A5C3A102JW01D": {
-   "mpn": "GRM31A5C3A102JW01D",
+  "CC1206JKNPOCBN102": {
+   "mpn": "CC1206JKNPOCBN102",
    "designators": [
     "C12",
     "C13",
@@ -2422,11 +2422,11 @@
    "status": "PARTIAL",
    "datasheet": {
     "url": "https://datasheet.lcsc.com/datasheet/pdf/9a86cbae8c34c796174906a7ab23dad0.pdf?productCode=C113872",
-    "revision": "YAGEO Surface-Mount Ceramic Multilayer Capacitors, High-Voltage NP0/X7R 500 V to 3 kV, product specification V.16, May 10, 2023 (21 pp.): the sheet for CC1206JKNPOCBN102 (LCSC / JLC C113872), which is the part the order maps this BOM line to (owner-items/order/bom-stock-2026-10.csv:37).",
+    "revision": "YAGEO Surface-Mount Ceramic Multilayer Capacitors, High-Voltage NP0/X7R 500 V to 3 kV, product specification V.16, May 10, 2023 (21 pp.): the sheet for CC1206JKNPOCBN102 (LCSC / JLC C113872), the source MPN since stage 43 (elec/src/parts.ato Snubber1n1kV) and the ordered part.",
     "fetched": "2026-10-15",
     "repo_copy": null,
     "sha256_prefix16": "cdbb0064d796c016",
-    "note": "The BOM MPN GRM31A5C3A102JW01D was not found as a Murata part: the 2010/2012 Murata catalogue's GRM31A5C3A list ends at 101 (100 pF), no distributor lists a 102 (web search 2026-10-15), and murata.com/pim is a JavaScript shell. Yageo decode (p.2): CC 1206 / J +/-5 % / K blister 7 in / NPO / C = 1 kV (floating design) / B standard / N process / 102 = 1 nF; LCSC lists C113872 as 1 nF 1 kV NP0. p.3: 1206 L4 (gap between terminations) min 1.40 mm. p.5 Table 3: 1206 NP0 1 kV carries 220 pF-1.0 nF at T 1.25 mm. p.10: DF <= 0.1 % (C >= 30 pF), -55..+125 C. No ripple, pulse-current or dV/dt rating is published."
+    "note": "The former source MPN GRM31A5C3A102JW01D (to stage 42) was not found as a Murata part: the 2010/2012 Murata catalogue's GRM31A5C3A list ends at 101 (100 pF), no distributor lists a 102 (web search 2026-10-15), and murata.com/pim is a JavaScript shell. Yageo decode (p.2): CC 1206 / J +/-5 % / K blister 7 in / NPO / C = 1 kV (floating design) / B standard / N process / 102 = 1 nF; LCSC lists C113872 as 1 nF 1 kV NP0. p.3: 1206 L4 (gap between terminations) min 1.40 mm. p.5 Table 3: 1206 NP0 1 kV carries 220 pF-1.0 nF at T 1.25 mm. p.10: DF <= 0.1 % (C >= 30 pF), -55..+125 C. No ripple, pulse-current or dV/dt rating is published."
    },
    "ratings": [
     {
@@ -2440,7 +2440,7 @@
      "parameter": "Terminal gap L4 min",
      "datasheet_limit": 1.4,
      "unit": "mm",
-     "basis": "1206: L4 min 1.40 mm (Murata GRM31A5C3A series g min 1.5 mm)",
+     "basis": "1206: L4 min 1.40 mm",
      "source": "p.3 Table 1"
     },
     {
@@ -2503,17 +2503,17 @@
     },
     {
      "parameter": "Board temperature bound at the cap, c18 (release)",
-     "worst_case_value": 123.0,
+     "worst_case_value": 122.1,
      "unit": "C",
      "condition": "no B3 row for the caps: bounded by the FET-row copper at the release case (c18_h10, bay 61 C); each cap sits across its MOSFET in the FET row",
      "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:103-106"
     },
     {
      "parameter": "Board temperature bound at the cap, c22",
-     "worst_case_value": 133.6,
+     "worst_case_value": 132.6,
      "unit": "C",
      "condition": "context: c22_h10 FET-row copper, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:390-393"
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:383-386"
     }
    ],
    "derating_rule": "DC voltage <= 50 % of the 1 kV rating for the continuous bus and the modelled die-VDS and no-clamp spikes (this entry's rule since seeding); every spike <= 100 % of the rating.",
@@ -2560,8 +2560,8 @@
      "stress": "Board temperature bound at the cap, c18 (release)",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "FET-row copper 123.0 C <= 125 C at the release case (an upper bound for the cap)",
-     "ratio": 0.984
+     "rule": "FET-row copper 122.1 C <= 125 C at the release case (an upper bound for the cap)",
+     "ratio": 0.9768
     },
     {
      "id": "temperature bound c22",
@@ -2569,13 +2569,13 @@
      "stress": "Board temperature bound at the cap, c22",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "airflow route (c22/c28): the c22 FET-row bound 133.6 C is over 125 C (the cap's own temperature is not modelled)",
-     "ratio": 1.0688
+     "rule": "airflow route (c22/c28): the c22 FET-row bound 132.6 C is over 125 C (the cap's own temperature is not modelled)",
+     "ratio": 1.0608
     }
    ],
    "layout_guidance": [
     {
-     "item": "Pad escape 1.8 mm (C12/C13/C19/C20 'bounded pad escapes: intrinsic component gap') vs the 3.2 mm HOT functional rule: the part's own terminal gap (1.5 mm min, Murata p.162) is the limit, so 1.8 mm is no worse than the part; the board rule is waived for copper on the two pads only",
+     "item": "Pad escape 1.8 mm (C12/C13/C19/C20 'bounded pad escapes: intrinsic component gap') vs the 3.2 mm HOT functional rule: the part's own terminal gap (L4 1.40 mm min, Yageo p.3) is the limit, so 1.8 mm is no worse than the part; the board rule is waived for copper on the two pads only",
      "enforced_by": "native-21/routed/section.kicad_dru rule 'C12 bounded pad escapes' (min 1.8 mm); pad_escapes.json:5; native-21/layout/route21.py:391"
     },
     {
@@ -2584,13 +2584,12 @@
     }
    ],
    "gaps": [
-    "owner: source MPN to be corrected to CC1206JKNPOCBN102 in the next source rebuild. GRM31A5C3A102JW01D is not a findable Murata part (the 2010/2012 catalogue's GRM31A5C3A list ends at 100 pF; no distributor lists a 102); the JLC order fits YAGEO CC1206JKNPOCBN102 (C113872, 1 kV NP0) as a declared substitute (08-manufacturing-package/native-21/owner-items/order/bom-stock-2026-10.csv row C12,C13,C19,C20), which is the ratings basis here. The ledger key stays the source MPN (elec/src/parts.ato:243-245) until the rebuild.",
     "bench: maximum-Qrr S4 basis (DECISIONS 54, D-8 bench): s42's 347 V die VDS is at typical recovery charge; the 4.60 uC maximum was not run on the adopted network.",
     "bench: no ripple, pulse-current or dV/dt rating is published (Yageo or Murata); the 95 A modelled edge (49.7 A at s42's S4) and the 1.81 A RMS bound are uncompared; the cap's own temperature is not modelled (bounded by the FET-row copper, 123.0 C at the release case).",
     "certifier: the 1.8 mm pad escape is below the 3.2 mm HOT rule by design; the part's own gap is 1.40 mm min (Yageo p.3), and surface creepage at up to 490 V (F6 matrix) over 1.8 mm is unqualified (pad_escapes.json:3)."
    ],
    "finding": null,
-   "notes": "Four caps: one across each MOSFET (power_stage_120v.ato:213-218). Batch A 2026-10-15: ratings now from the as-ordered Yageo part. Inputs reproduced by scripts/audit_bleed_snubber.py. Merged 2026-10-15 onto s42 (DECISIONS 55/56): S4 die VDS re-cited to s42 (347 V at typical Qrr; was 620 V as built s29-s41), so the 50 % rule passes; temperature bounded by the FET-row copper at the release case (123.0 C)."
+   "notes": "Four caps: one across each MOSFET (power_stage_120v.ato:213-218). Batch A 2026-10-15: ratings now from the as-ordered Yageo part. Inputs reproduced by scripts/audit_bleed_snubber.py. Merged 2026-10-15 onto s42 (DECISIONS 55/56): S4 die VDS re-cited to s42 (347 V at typical Qrr; was 620 V as built s29-s41), so the 50 % rule passes; temperature bounded by the FET-row copper at the release case (123.0 C). Stage 43: re-keyed from GRM31A5C3A102JW01D (not a Murata part) to the source MPN CC1206JKNPOCBN102 (elec/src/parts.ato, frozen/default.csv); the source-MPN owner gap is closed. FET-row bound re-cited to s43: 123.0 -> 122.1 C (release), 133.6 -> 132.6 C (c22)."
   },
   "CST3015-200ED": {
    "mpn": "CST3015-200ED",
@@ -2988,21 +2987,21 @@
      "worst_case_value": 90.0,
      "unit": "C",
      "condition": "B3 ratings model s42, release case c18_h10 (18.9 A trip, still air, bay 61 C), hottest bank part C21 (advisory row, board fraction 0.3 assumed)",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:152-155"
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:145-148"
     },
     {
      "parameter": "Body temperature c22",
      "worst_case_value": 95.7,
      "unit": "C",
      "condition": "context: c22_h10, C21, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:467-470"
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:460-463"
     },
     {
      "parameter": "Body temperature c28",
      "worst_case_value": 117.7,
      "unit": "C",
      "condition": "context: c28_h10 (28 A, 29.4 A trip), still air, bay 55 C: C21 117.7, C22 115.4, C23 113.9, C151 111.9, C152 111.0 C (advisory rows)",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:782-785"
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:768-771"
     }
    ],
    "derating_rule": "Peak voltage <= 80 % of VR (and of VR derated at Top,max for faults); AC voltage <= 80 % of the 1 kHz rating; tank RMS current <= 85 % of the worst-share TDK curve at the release trip (DECISIONS 37, 56) and body <= Top,max at the B3 release case (c18_h10, bay 61 C); the 28 A rows (current curve, self-heating, body) are the airflow-route gap.",
@@ -4409,24 +4408,24 @@
     },
     {
      "parameter": "Top C40 c18 (release)",
-     "worst_case_value": 108.9,
+     "worst_case_value": 108.8,
      "unit": "C",
      "condition": "B3 body model incl. self-heating, s42, release case c18_h10 (18.9 A trip, still air h 10, bay 61 C); C40 is the hottest (C41 106.3, C38 104.9, C39 99.4 C)",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:49-52; DECISIONS.md:2045-2046"
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:35-38; DECISIONS.md:2045-2046"
     },
     {
      "parameter": "Top C40 c22",
      "worst_case_value": 116.0,
      "unit": "C",
      "condition": "context: c22_h10 (22 A at 1.05 x trip), still air, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:369-372"
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:350-353"
     },
     {
      "parameter": "Top C40 c28",
-     "worst_case_value": 137.8,
+     "worst_case_value": 137.7,
      "unit": "C",
      "condition": "context: c28_h10 (28 A Kconfig ceiling), still air, bay 55 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:698-701"
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:691-694"
     }
    ],
    "derating_rule": "DC voltage <= 80 % of VR, also of the >85 C derated VR at Top,max; body Top <= Top,max at each B3 case; RMS current share <= 80 % of the 85 C / 100 kHz rating.",
@@ -4464,7 +4463,7 @@
      "stress": "Top C40 c18 (release)",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "108.9 <= 110 C at the release case (B3 gated row, +1.1 K)",
+     "rule": "108.8 <= 110 C at the release case (B3 gated row, +1.2 K)",
      "ratio": 0.99
     },
     {
@@ -4482,7 +4481,7 @@
      "stress": "Top C40 c28",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "airflow route (c22/c28): 137.8 C, 27.8 K over",
+     "rule": "airflow route (c22/c28): 137.7 C, 27.7 K over",
      "ratio": 1.2527
     }
    ],
@@ -4497,7 +4496,7 @@
     "bench: per-part RMS current share is unknown: B3 carries 0.05-0.2 W per part as an estimate (make_heat_sources.py:113, ~3.8 A at the 14 mOhm ESR if real); measure, and apply the p.64 FT derating above 85 C ambient."
    ],
    "finding": null,
-   "notes": "2026-10-15 batch B: IRMS 5.4 A now read on the TDK sheet (was the parts.ato docstring). Approval basis: DC-link decoupling after BR1, not an X capacitor across the mains; no UL/CSA recognition relied on (UL 94 V-0 case and resin only). Merged 2026-10-15 onto s42 (DECISIONS 55/56): Top re-cited to the release case (C40 108.9 C, 0.99 of 110 C); the spike bound is the F6 490 V (s42 grid 347 / 435 V)."
+   "notes": "2026-10-15 batch B: IRMS 5.4 A now read on the TDK sheet (was the parts.ato docstring). Approval basis: DC-link decoupling after BR1, not an X capacitor across the mains; no UL/CSA recognition relied on (UL 94 V-0 case and resin only). Merged 2026-10-15 onto s42 (DECISIONS 55/56): Top re-cited to the release case (C40 108.9 C, 0.99 of 110 C); the spike bound is the F6 490 V (s42 grid 347 / 435 V). Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. C40 108.9 -> 108.8 C (release), 137.8 -> 137.7 C (c28)."
   },
   "RC1206FR-073RL": {
    "mpn": "RC1206FR-073RL",
@@ -5029,10 +5028,10 @@
     },
     {
      "parameter": "Tj U42 c18 (release)",
-     "worst_case_value": 133.7,
+     "worst_case_value": 133.6,
      "unit": "C",
      "condition": "B3 body model, s42, release case c18_h10 (18.9 A trip, still air, bay 61 C); U42 is the hotter module (U41 129.5 C)",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:131-134"
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:124-127"
     },
     {
      "parameter": "Tj U42 c22",
@@ -5102,7 +5101,7 @@
      "stress": "Tj U42 c18 (release)",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "133.7 <= 150 C at the release case",
+     "rule": "133.6 <= 150 C at the release case",
      "ratio": 0.8913
     },
     {
@@ -5140,7 +5139,7 @@
     "bench: start-up (6-13 ms vs 16 ms timeout) and 11-16 MHz switching emissions (DECISIONS.md:442-448)."
    ],
    "finding": "Isolation claim resolved: elec/src/f6_parts.ato:354 ('reinforced 5 kVAC / 1.4 kVDC working') matches the current R24C2T25/R Rev. 1-2024 sheet (p.1; p.8: 1.4 kVp repetitive, 1000 Vrms TDDB, 1.4 kVDC). The 'preliminary 850 Vrms / 1.2 kVp functional' copy was the different non-/R R24C2T25 series. Barrier check now 520/1400 = 37 % (was 43 % against the wrong part).",
-   "notes": "2026-10-15 batch B: 'Tj converged 105 C' (DECISIONS.md:824, old model) replaced by B3's s41 body rows. The UL file E542996 (p.1 logo) could not be read (UL Product iQ 403); not relied on: the barrier is HOT-to-HOT functional. The 1.5x CMTI rule moved from violation to gap severity because the CMTI README scopes it to gate-command crossings; the absolute CMTI check stays violation severity and passes. Merged 2026-10-15 onto s42 (DECISIONS 55/56): CMTI re-cited to s42 (49.7 V/ns, 3.0x); Tj to the release case (133.7 C, 0.89 of 150 C)."
+   "notes": "2026-10-15 batch B: 'Tj converged 105 C' (DECISIONS.md:824, old model) replaced by B3's s41 body rows. The UL file E542996 (p.1 logo) could not be read (UL Product iQ 403); not relied on: the barrier is HOT-to-HOT functional. The 1.5x CMTI rule moved from violation to gap severity because the CMTI README scopes it to gate-command crossings; the absolute CMTI check stays violation severity and passes. Merged 2026-10-15 onto s42 (DECISIONS 55/56): CMTI re-cited to s42 (49.7 V/ns, 3.0x); Tj to the release case (133.7 C, 0.89 of 150 C). Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. U42 Tj 133.7 -> 133.6 C (release)."
   },
   "0603WAF2702T5E": {
    "mpn": "0603WAF2702T5E",
@@ -6605,16 +6604,16 @@
     },
     {
      "parameter": "Power derated at the c18 terminal estimate (release)",
-     "datasheet_limit": 0.28,
+     "datasheet_limit": 0.3082,
      "unit": "W",
-     "basis": "1 W x (155 - T) / 85 at T = 131.2 C (R10 terminal, B3 release case c18_h10, bay 61 C); the curve is an ambient curve, applied at the terminal (conservative)",
+     "basis": "1 W x (155 - T) / 85 at T = 128.8 C (R10 terminal, B3 release case c18_h10, bay 61 C); the curve is an ambient curve, applied at the terminal (conservative)",
      "source": "p.5/9 section 9 figure 1 (100 % at 70 C to 0 % at 155 C)"
     },
     {
      "parameter": "Power derated at the c22 terminal estimate",
-     "datasheet_limit": 0.1976,
+     "datasheet_limit": 0.2224,
      "unit": "W",
-     "basis": "1 W x (155 - T) / 85 at T = 138.2 C (R10 terminal, B3 c22_h10, bay 55 C)",
+     "basis": "1 W x (155 - T) / 85 at T = 136.1 C (R12 terminal, B3 c22_h10, bay 55 C)",
      "source": "p.5/9 section 9 figure 1"
     },
     {
@@ -6649,24 +6648,24 @@
     },
     {
      "parameter": "Element estimate c18 (release)",
-     "worst_case_value": 136.2,
+     "worst_case_value": 132.3,
      "unit": "C",
-     "condition": "R10, B3 body model release case c18_h10 (18.0 A at its 18.9 A trip, still air h 10), bay 61 C, mesh allowance K 3; terminal 131.2 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:145-148; validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:35-38"
+     "condition": "R10, B3 body model release case c18_h10 (18.0 A at its 18.9 A trip, still air h 10), bay 61 C, mesh allowance K 3; terminal 128.8 C",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:173-176; validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:42-45"
     },
     {
      "parameter": "Element estimate c22",
-     "worst_case_value": 143.5,
+     "worst_case_value": 140.9,
      "unit": "C",
-     "condition": "R10, c22_h10 (22 A at 23.1 A trip), bay 55 C; terminal 138.2 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:453-456; validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:362-365"
+     "condition": "R12 (the c22 worst R_on on s43; R10 element 139.6 / terminal 136.0 C), c22_h10 (22 A at 23.1 A trip), bay 55 C; terminal 136.1 C",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:453-456; validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:369-372"
     },
     {
      "parameter": "Element estimate c28",
-     "worst_case_value": 171.4,
+     "worst_case_value": 168.8,
      "unit": "C",
-     "condition": "R12, c28_h10 (28 A ceiling), bay 55 C; terminal 165.4 C",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:740-743; validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:665-668"
+     "condition": "R12, c28_h10 (28 A ceiling), bay 55 C; terminal 164.3 C",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:761-764; validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:665-668"
     },
     {
      "parameter": "Gate-drive step across R_on",
@@ -6684,8 +6683,8 @@
      "stress": "R_on dissipation, 60 kHz window top",
      "max_ratio": 0.8,
      "severity": "violation",
-     "rule": "<= 80 % of the derated power at the release-case terminal (the B3 gate's 20 % margin; B3 row R10 +0.7 K)",
-     "ratio": 0.775
+     "rule": "<= 80 % of the derated power at the release-case terminal (the B3 gate's 20 % margin; B3 row R10 +3.1 K)",
+     "ratio": 0.7041
     },
     {
      "id": "element c18 (release)",
@@ -6694,7 +6693,7 @@
      "max_ratio": 1.0,
      "severity": "violation",
      "rule": "element <= 155 C at the release case",
-     "ratio": 0.8787
+     "ratio": 0.8535
     },
     {
      "id": "power c22",
@@ -6702,8 +6701,8 @@
      "stress": "R_on dissipation, 60 kHz window top",
      "max_ratio": 0.8,
      "severity": "gap",
-     "rule": "airflow route (c22/c28): 0.217 W against 0.1976 W at the 138.2 C c22 terminal (B3 row R10 -6.2 K)",
-     "ratio": 1.0982
+     "rule": "airflow route (c22/c28): 0.217 W against 0.2224 W at the 136.1 C c22 terminal (R12; B3 row -4.2 K)",
+     "ratio": 0.9757
     },
     {
      "id": "element c22",
@@ -6711,8 +6710,8 @@
      "stress": "Element estimate c22",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "context: 143.5 <= 155 C",
-     "ratio": 0.9258
+     "rule": "context: 140.9 <= 155 C",
+     "ratio": 0.909
     },
     {
      "id": "element c28",
@@ -6720,8 +6719,8 @@
      "stress": "Element estimate c28",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "airflow route (c22/c28): 171.4 C > 155 C",
-     "ratio": 1.1058
+     "rule": "airflow route (c22/c28): 168.8 C > 155 C",
+     "ratio": 1.089
     },
     {
      "id": "voltage",
@@ -6758,7 +6757,7 @@
     "owner: airflow route (c22/c28): at c22 (22 A, bay 55 C) the R10 terminal is 138.2 C, where the curve allows 0.1976 W and 0.217 W is 110 % against the 80 % rule; at c28 the terminal (165.4 C, R12) is past the curve's 155 C zero-power point and the element is 171.4 C. The firmware ships 18 A (DECISIONS 56); raising it needs a passing B3 basis (board-face airflow or a measured bay under 61 C) plus the bench R_on reading."
    ],
    "finding": null,
-   "notes": "JLC C50371, extended, 3,131 in stock 2026-10-15; 1000+ $0.0294. Second source per the study: none checked for 68 ohm (Yageo RC2512FK-0739RL is the 39 ohm CM8-route part). Merged 2026-10-15 onto s42 (DECISIONS 55/56): VIOLATION -> PARTIAL. The stage-42 finding was stated at the 22 A c22 point: Derating at the 22 A default ceiling: B3 c22_h10 (bay 55 C) puts R10's terminal at 138.1 C, where the 1 W / 70-155 C curve allows 0.199 W; the 0.217 W window-top dissipation is 109 % of it against the 80 % rule (the B3 gate's own c22 row, R10 -6.2 K). The gated still-air ceiling with this network is 20.0 A at bay 55 C (11-candidates/c39-gate-network README section 4). Clears when the commissioned still-air ceiling is <= 20 A at bay 55 C or the gate row gets airflow; the dissipation is the charge-split upper bound (the gate-network study simulates ~0.17 W). At the release case (c18_h10, bay 61 C) the R10 terminal is 131.2 C, where the curve allows 0.28 W: 0.217 W is 0.775 of it (rule 0.8; B3 row +0.7 K), and the element is 136.2 C."
+   "notes": "JLC C50371, extended, 3,131 in stock 2026-10-15; 1000+ $0.0294. Second source per the study: none checked for 68 ohm (Yageo RC2512FK-0739RL is the 39 ohm CM8-route part). Merged 2026-10-15 onto s42 (DECISIONS 55/56): VIOLATION -> PARTIAL. The stage-42 finding was stated at the 22 A c22 point: Derating at the 22 A default ceiling: B3 c22_h10 (bay 55 C) puts R10's terminal at 138.1 C, where the 1 W / 70-155 C curve allows 0.199 W; the 0.217 W window-top dissipation is 109 % of it against the 80 % rule (the B3 gate's own c22 row, R10 -6.2 K). The gated still-air ceiling with this network is 20.0 A at bay 55 C (11-candidates/c39-gate-network README section 4). Clears when the commissioned still-air ceiling is <= 20 A at bay 55 C or the gate row gets airflow; the dissipation is the charge-split upper bound (the gate-network study simulates ~0.17 W). At the release case (c18_h10, bay 61 C) the R10 terminal is 131.2 C, where the curve allows 0.28 W: 0.217 W is 0.775 of it (rule 0.8; B3 row +0.7 K), and the element is 136.2 C. Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. Release (c18) R10 terminal 131.2 -> 128.8 C (allowed 0.28 -> 0.3082 W, 0.775 -> 0.704), element 136.2 -> 132.3 C; c22 worst R_on is now R12 (terminal 136.1 C, 0.976 of the derated power; element 140.9 C); c28 R12 terminal 165.4 -> 164.3 C, element 171.4 -> 168.8 C."
   },
   "GRM1885C1H472JA01D": {
    "mpn": "GRM1885C1H472JA01D",
@@ -6804,11 +6803,18 @@
      "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15"
     },
     {
-     "parameter": "Board temperature bound at the cap (c22)",
-     "worst_case_value": 133.5,
+     "parameter": "Board temperature bound at the cap, c18 (release)",
+     "worst_case_value": 122.1,
      "unit": "C",
-     "condition": "no B3 row for the cap: bounded by the c22_h10 FET-row copper estimate (133.5 C, bay 55 C), which is the hottest copper of the FET row the caps sit 17 mm south of",
-     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json"
+     "condition": "no B3 row for the cap: bounded by the FET-row copper at the release case (c18_h10, 18.0 A at its 18.9 A trip, bay 61 C; DECISIONS 56 stress basis), the hottest copper of the FET row the caps sit 17 mm south of",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:103-106"
+    },
+    {
+     "parameter": "Board temperature bound at the cap, c22",
+     "worst_case_value": 132.6,
+     "unit": "C",
+     "condition": "context: c22_h10 FET-row copper, bay 55 C (the c39 entry cited 133.5 C, the pre-DECISIONS-56 s42 c22 row)",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json:383-386"
     }
    ],
    "derating_rule": "Voltage <= 50 % of rated (C0G, no DC-bias loss); temperature <= 125 C.",
@@ -6823,13 +6829,22 @@
      "ratio": 0.34
     },
     {
-     "id": "temperature (bound)",
+     "id": "temperature bound c18 (release)",
      "rating": "Operating temperature max",
-     "stress": "Board temperature bound at the cap (c22)",
+     "stress": "Board temperature bound at the cap, c18 (release)",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "FET-row copper 122.1 C <= 125 C at the release case (an upper bound for the cap; the cap's own temperature is not modelled)",
+     "ratio": 0.9768
+    },
+    {
+     "id": "temperature bound c22",
+     "rating": "Operating temperature max",
+     "stress": "Board temperature bound at the cap, c22",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "upper bound <= 125 C; the cap's own temperature is not modelled",
-     "ratio": 1.068
+     "rule": "airflow route (c22/c28): the c22 FET-row bound 132.6 C is over 125 C (the cap's own temperature is not modelled)",
+     "ratio": 1.0608
     }
    ],
    "layout_guidance": [
@@ -6839,11 +6854,12 @@
     }
    ],
    "gaps": [
-    "The caps' local temperature is not modelled in B3 (no heat row); only the FET-row copper maximum bounds it.",
+    "owner: airflow route (c22/c28): at c22 (22 A, bay 55 C, still air) the FET-row copper bound is 132.6 C against the 125 C C0G limit; the cap's own temperature is not modelled. The firmware ships 18 A (DECISIONS 56), where the bound is 122.1 C; raising the ceiling needs a passing B3 basis (board-face airflow, b3-ratings/ENCLOSURE-REQUEST.md, or a measured bay under 61 C).",
+    "bench: the caps' local temperature is not modelled in B3 (no heat row); only the FET-row copper maximum bounds it (122.1 C at the release case).",
     "Pulse current (gate charge, ~0.1-1 A for < 1 us) is not compared with a rating; C0G MLCC dissipation is negligible."
    ],
    "finding": null,
-   "notes": "JLC C85980, extended, 76,738 in stock 2026-10-15; 1500+ $0.015."
+   "notes": "JLC C85980, extended, 76,738 in stock 2026-10-15; 1500+ $0.015. Stage 43: temperature re-cited from the c22 FET-row value (133.5 C) to the DECISIONS 56 release case (c18_h10, bay 61 C) on s43's margins.json, 122.1 C <= 125 C; the c22 overrun (132.6 C) is an airflow-route owner gap."
   }
  }
 }

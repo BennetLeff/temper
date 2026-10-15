@@ -319,6 +319,12 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_b.r_gl", "25121WF680JT4E"),
     ("leg_a.r_dt", "RT0603BRD0749K9L"),
     ("leg_b.r_dt", "RT0603BRD0749K9L"),
+    // stage 43: the 1 kV drain-source snubbers are the ordered YAGEO part (JLC C113872); the former source MPN
+    // GRM31A5C3A102JW01D is not a Murata part
+    ("leg_a.c_snub_h", "CC1206JKNPOCBN102"),
+    ("leg_a.c_snub_l", "CC1206JKNPOCBN102"),
+    ("leg_b.c_snub_h", "CC1206JKNPOCBN102"),
+    ("leg_b.c_snub_l", "CC1206JKNPOCBN102"),
     ("leg_a.q_high", "IPW65R018CFD7"),
     ("leg_a.q_low", "IPW65R018CFD7"),
     ("leg_b.q_high", "IPW65R018CFD7"),
@@ -1747,6 +1753,14 @@ mod tests {
         let mut m = built();
         m.set_part("leg_a.cgs_h", "C0603C102J5GACTU");
         fails(&m, "leg_a.cgs_h is C0603C102J5GACTU");
+    }
+
+    #[test]
+    fn stage43_snubber_mpn_holds() {
+        // the non-existent GRM31A5C3A102JW01D back on any drain-source snubber must fail
+        let mut m = built();
+        m.set_part("leg_b.c_snub_l", "GRM31A5C3A102JW01D");
+        fails(&m, "leg_b.c_snub_l is GRM31A5C3A102JW01D");
     }
 
     #[test]

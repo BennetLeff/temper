@@ -40,6 +40,9 @@ def main() -> None:
         assert parts[f'{leg}.r_gh']['mpn'] == parts[f'{leg}.r_gl']['mpn'] == '25121WF680JT4E'
         assert parts[f'{leg}.r_gh']['footprint'] == parts[f'{leg}.r_gl']['footprint'] == 'Resistor_SMD:R_2512_6332Metric'
         assert parts[f'{leg}.cgs_h']['mpn'] == parts[f'{leg}.cgs_l']['mpn'] == 'GRM1885C1H472JA01D'
+        # stage 43: the 1 kV snubbers are the ordered YAGEO part (C113872); GRM31A5C3A102JW01D is not a Murata part
+        assert parts[f'{leg}.c_snub_h']['mpn'] == parts[f'{leg}.c_snub_l']['mpn'] == 'CC1206JKNPOCBN102'
+        assert parts[f'{leg}.c_snub_h']['footprint'] == parts[f'{leg}.c_snub_l']['footprint'] == 'Capacitor_SMD:C_1206_3216Metric'
     assert parts['r_shunt']['mpn'] == 'CSS2H-2512R-1L00F' and parts['r_shunt']['footprint'] == 'temper:R_Shunt_Bourns_CSS2H-2512_Kelvin'   # stage 17 (DECISIONS 17)
     assert parts['r_ct_hi_top']['mpn'] == parts['r_ct_lo_bot']['mpn'] == 'RT0603BRD072K21L'
     assert all(parts[f'c_ref_xfer_{i}']['mpn'] == parts['c_fault_or']['mpn'] == 'CC0603KRX7R9BB104' for i in range(1, 6))   # stage 19b; 5: stage 40

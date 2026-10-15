@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stress arithmetic behind the ledger entries 1206W4F1003T5E (R1/R2) and GRM31A5C3A102JW01D (C12/C13/C19/C20).
+"""Stress arithmetic behind the ledger entries 1206W4F1003T5E (R1/R2) and CC1206JKNPOCBN102 (C12/C13/C19/C20; GRM31A5C3A102JW01D until stage 43).
 
 Stdlib only; run `python3 -I audit_bleed_snubber.py`. Every input is cited in ledger.json; this file only does the
 arithmetic so the ledger numbers are reproducible.

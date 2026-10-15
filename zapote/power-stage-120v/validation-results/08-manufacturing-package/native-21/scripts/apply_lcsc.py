@@ -6,7 +6,8 @@
 Rules: EXACT matches are used as found. Design changes made after the survey (DECISIONS.md
 2026-10-08: R83/R101/R116 -> RT0603BRD077K68L, R51/R52/R55/R56 -> RL1206FR-070R68L) map to the
 C-numbers checked on lcsc.com. The snubber caps' alternate (Yageo CC1206JKNPOCBN102: 1206, 1 nF,
-5 %, 1 kV, C0G, same as Murata GRM31A5C3A102JW01D) is accepted as a JLC substitution. R34's
+5 %, 1 kV, C0G) was accepted as a JLC substitution for the source MPN GRM31A5C3A102JW01D until stage 43,
+when the source took the Yageo part itself (GRM31A5C3A102JW01D is not a Murata part). R34's
 alternate has no stock, so R34 is consigned. NOT_FOUND lines are consigned or hand-assembled.
 
 Stage 8 (review 2026-10-08): rows match the survey by MPN, not by designator group, because new
@@ -79,8 +80,11 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 "MPM-20-24": "C6675337",
                 # stage 42 (candidate 39, DECISIONS 54): 68 ohm 2512 turn-on resistors and the 4.7 nF C0G Cgs (JLC part
                 # API 2026-10-15, sourcing/study-2026-10-15/scripts/jlc-raw)
-                "25121WF680JT4E": "C50371", "GRM1885C1H472JA01D": "C85980"})
-ACCEPT_ALT = {"GRM31A5C3A102JW01D"}
+                "25121WF680JT4E": "C50371", "GRM1885C1H472JA01D": "C85980",
+                # stage 43: C12 / C13 / C19 / C20 source MPN is the ordered part, YAGEO CC1206JKNPOCBN102 (JLC part API
+                # 2026-10-15, sourcing/study-2026-10-15/scripts/jlc-raw/detail_C113872.json); no substitute line any more
+                "CC1206JKNPOCBN102": "C113872"})
+ACCEPT_ALT = set()   # stage 43: the only accepted alternate (GRM31A5C3A102JW01D -> CC1206JKNPOCBN102) is now the source MPN
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))
 counts = {"exact": 0, "changed": 0, "substitute": 0, "consign": 0}

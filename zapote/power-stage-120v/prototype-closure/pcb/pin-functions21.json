@@ -1,8 +1,8 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "passive-two-terminal": 216,
-  "native19-reviewed": 100,
+  "passive-two-terminal": 220,
+  "native19-reviewed": 96,
   "passive-untyped": 22,
   "eco-pin-table": 13
  },
@@ -4807,9 +4807,9 @@
    }
   },
   "C12": {
-   "mpn": "GRM31A5C3A102JW01D",
+   "mpn": "CC1206JKNPOCBN102",
    "source_instance": "leg_a.c_snub_h",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -4822,9 +4822,9 @@
    }
   },
   "C13": {
-   "mpn": "GRM31A5C3A102JW01D",
+   "mpn": "CC1206JKNPOCBN102",
    "source_instance": "leg_a.c_snub_l",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -4837,9 +4837,9 @@
    }
   },
   "C19": {
-   "mpn": "GRM31A5C3A102JW01D",
+   "mpn": "CC1206JKNPOCBN102",
    "source_instance": "leg_b.c_snub_h",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -4852,9 +4852,9 @@
    }
   },
   "C20": {
-   "mpn": "GRM31A5C3A102JW01D",
+   "mpn": "CC1206JKNPOCBN102",
    "source_instance": "leg_b.c_snub_l",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",

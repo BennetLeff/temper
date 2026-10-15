@@ -41,6 +41,21 @@ python3 -I scripts/build_snapshot.py snapshot/s42/bom-jlcpcb.s42.csv snapshot/s4
     snapshot/s42/SNAPSHOT-s42.csv snapshot/s42/SNAPSHOT-s42.json
 rm -f snapshot/s42/jlc-bom-plus-extra.json snapshot/s42/SNAPSHOT-s42.json
 python3 -I -c "import csv;a=list(csv.DictReader(open('snapshot/s42/SNAPSHOT-s42.csv')));m={r['mpn'] for r in a};o=list(csv.DictReader(open('../SNAPSHOT-2026-10-15.csv')));x=[r for r in o if r['mpn'] not in m];w=csv.DictWriter(open('../SNAPSHOT-2026-10-15.csv','w',newline=''),fieldnames=list(a[0]));w.writeheader();w.writerows(a+x)"
+# s43 BOM (stage 43: C12/C13/C19/C20 source MPN GRM31A5C3A102JW01D -> CC1206JKNPOCBN102, the YAGEO part JLC C113872 the
+# order already placed as the declared substitute). A re-key, not a new part: the s43 JLC record is the cached C113872 record
+# of the GRM31A5C3A102JW01D line, renamed, and the STOCK-2026-10-13-addendum-s43 row is the 2026-10-13 row renamed. The
+# committed ../SNAPSHOT-2026-10-15.csv is snapshot/s43/SNAPSHOT-s43.csv plus every earlier row whose MPN the s43 BOM no
+# longer has (GRM31A5C3A102JW01D and the s42 / s38 / s35 / s32 ones).
+python3 -I -c "import json,sys;sys.path.insert(0,'scripts');import jlc_snapshot as S;d=json.load(open('snapshot/jlc-2026-10-15.json'));m={b['mpn'] for b in d['bom']};d['bom']+=[r for r in d['extra'] if r['mpn'] not in m]
+for code,mpn,des,q,ma in (('C6675337','MPM-20-24','PS2',1,'THT'),('C50371','25121WF680JT4E','R10,R12,R18,R20',4,'SMD'),('C85980','GRM1885C1H472JA01D','C55,C56,C62,C63',4,'SMD')):
+    r=S.rec_from_detail(code);lad=r['jlc_ladder'];r.update(mpn=mpn,designators=des,qty=q,mount=ma,bom_assembly='JLC (Extended)',jlc_unit_5=S.unit_at(lad,5*q),jlc_unit_500=S.unit_at(lad,500*q));d['bom']=[b for b in d['bom'] if b['mpn']!=mpn]+[r]
+r=dict(next(b for b in d['bom'] if b['mpn']=='GRM31A5C3A102JW01D'));r.update(mpn='CC1206JKNPOCBN102',bom_assembly='JLC (Extended)');d['bom']=[b for b in d['bom'] if b['mpn']!='CC1206JKNPOCBN102']+[r]
+json.dump(d,open('snapshot/s43/jlc-bom-plus-extra.json','w'))"
+python3 -I scripts/build_snapshot.py snapshot/s43/bom-jlcpcb.s43.csv snapshot/s43/jlc-bom-plus-extra.json snapshot/octopart-2026-10-15.json \
+    snapshot/digikey-2026-10-15.json "$VR/08-manufacturing-package/native-21/sourcing/STOCK-2026-10-13*.csv" \
+    snapshot/s43/SNAPSHOT-s43.csv snapshot/s43/SNAPSHOT-s43.json
+rm -f snapshot/s43/jlc-bom-plus-extra.json snapshot/s43/SNAPSHOT-s43.json
+python3 -I -c "import csv;a=list(csv.DictReader(open('snapshot/s43/SNAPSHOT-s43.csv')));m={r['mpn'] for r in a};o=list(csv.DictReader(open('../SNAPSHOT-2026-10-15.csv')));x=[r for r in o if r['mpn'] not in m];w=csv.DictWriter(open('../SNAPSHOT-2026-10-15.csv','w',newline=''),fieldnames=list(a[0]));w.writeheader();w.writerows(a+x)"
 python3 -I scripts/buildability.py --control
 python3 -I scripts/buildability.py snapshot/SNAPSHOT-2026-10-15.csv --json results/buildability-s32.json
 # needs TDK's B32674-678 PDF (June 2026; tdk-electronics.tdk.com) at downloads/tdk-b3267x/MKP_B32674_678.pdf, not committed:

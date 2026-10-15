@@ -44,6 +44,12 @@ at s42's 49.7 V/ns S4 edge, maximum Qrr a D-8 gap): 3 VERIFIED / 32 PARTIAL / 58
 25121WF680JT4E clears at c18 (0.217 W = 0.775 of the 131.2 C-terminal curve, rule 0.8), and so do batch A's R5 and bank
 (28 A rows) and batch B's ISO6721FB / 2EDR8259X CMTI (2.0x / 3.0x at 49.7 V/ns). The B3 gate's C5/C6 advisory limit is
 now TDK's 105 C (B3267* p.13).
+Stage 43 (2026-10-15, candidate 43, track cleanup + source MPN fix): 93 BOM lines, 3 VERIFIED / 32 PARTIAL / 58 UNAUDITED /
+0 VIOLATION; PASS. C12/C13/C19/C20 re-keyed GRM31A5C3A102JW01D -> **CC1206JKNPOCBN102** (the source now names the ordered
+Yageo part; the source-MPN owner gap is closed). GRM1885C1H472JA01D's temperature re-cited from the c22 FET-row value
+(133.5 C) to the release case, 122.1 C <= 125 C, with the c22 overrun (132.6 C) an `owner: airflow route (c22/c28)` gap.
+Every margins.json citation follows the s43 rows (line numbers and values); the c22 worst R_on is now R12 (136.1 C
+terminal, 0.976 of the derated power). validation-results/11-candidates/c43-cleanup/README.md section 5.
 History: seed 1 / 24 / 64 / 2. Stage 27 replaced J1 (VIOLATION -> PARTIAL); R1/R2 and the snubber caps were audited
 (UNAUDITED -> PARTIAL). Stage 28 replaced F2 (VIOLATION -> VERIFIED) and added its limiter R130 (PARTIAL). `ledger.json` is the record from here on; `seed_ledger.py` reproduces only the first seed.
 **VIOLATION**: none.
@@ -59,7 +65,7 @@ and CSA group B 30 A, 300 V): 45-55 % across 13.5-16.5 A, 83 % at F1's 25 A.
 - R130 AC05000001507JAC00: pulse 0.54 of capacity on the current-limiting clearing estimate, 0.94 on 3x melting; F2's clearing I2t is unpublished, so a bench short at J11 settles it.
 - J1 1714971: ratings from Phoenix catalog extracts (2017; a 2010 copy agrees on 30 A, prints 600 V UL/cUL); UL Product iQ, database.ul.com and Phoenix all 403 on 2026-10-13, so E60425 / CSA 13631 still unconfirmed.
 - R1/R2 1206W4F1003T5E: 44 % of continuous working voltage, 58 % of the 5 s overload in a surge (RV1 455 V clamp); no maker pulse rating.
-- C12/C13/C19/C20 GRM31A5C3A102JW01D: 490 V die VDS at 49 % of 1 kV (50 % rule, modelled); exact-MPN sheet and ripple/pulse rating not obtained.
+- C12/C13/C19/C20 CC1206JKNPOCBN102 (source MPN GRM31A5C3A102JW01D until stage 43; not a Murata part): 490 V die VDS at 49 % of 1 kV (50 % rule, modelled); Yageo sheet read, no ripple/pulse rating published.
 - F1 KLDR025: overload through J1 not interrupted (25 A fuse vs 15 A terminal); clip datasheet not read.
 - BR1 GBJ2510-F: I2t 510 < F1 clearing 1,710 (sacrificial, accepted); Tj not computed.
 - Q2/Q3/Q5/Q6: switching loss/dv/dt unmeasured; Tj 128.7 C vs 125 C design on K1 contingency sink; F7 open.

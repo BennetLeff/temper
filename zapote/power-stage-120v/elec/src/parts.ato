@@ -240,10 +240,13 @@ component MosfetCfd7:
     signal S ~ pin 3
 
 component Snubber1n1kV:
-    """Murata GRM31A5C3A102JW01D 1 nF 1 kV C0G 1206, drain-source."""
+    """YAGEO CC1206JKNPOCBN102 1 nF 5 % 1 kV C0G (NP0) 1206 (LCSC C113872), drain-source. Stage 43: replaces the
+    source MPN GRM31A5C3A102JW01D, which is not a Murata part (no GRM31A5C3A 102 exists); the JLC order already
+    placed C113872 as a declared substitute. YAGEO HV NP0/X7R 500 V-3 kV spec V.16 2023-05-10 p.2 (C = 1 kV),
+    p.3 (1206 L4 min 1.40 mm), p.5 Table 3 (1206 NP0 1 kV to 1.0 nF), p.10 (-55 to +125 C)."""
     designator_prefix = "C"
-    mpn = "GRM31A5C3A102JW01D"
-    manufacturer = "Murata"
+    mpn = "CC1206JKNPOCBN102"
+    manufacturer = "YAGEO"
     footprint = "Capacitor_SMD:C_1206_3216Metric"
     signal p1 ~ pin 1
     signal p2 ~ pin 2

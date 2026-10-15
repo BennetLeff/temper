@@ -14,11 +14,11 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 | --- | --- | --- | --- | --- | --- | --- |
 | TP1 | leg_a-out_l | B | 82.0, 37.0 | TP23 | n_ls | leg A low-side driver output vs VSSB |
 | TP2 | n_ls | B | 113.6, 89.3 | TP24 | leg_ret | LS -2 V rail vs low-side sources (F6 rail at the edge) |
-| TP3 | v15_ls | F | 113.0, 98.6 | TP25 | leg_ret | LS +15 V rail |
-| TP4 | v24_raw | B | 118.2, 79.6 | TP26 | n_ls | 24 V HOT supply |
+| TP3 | v15_ls | F | 114.0, 98.6 | TP25 | leg_ret | LS +15 V rail |
+| TP4 | v24_raw | B | 118.6, 80.5 | TP26 | n_ls | 24 V HOT supply |
 | TP5 | ocp_node | B | 116.2, 71.6 | TP27 | ocp_kelvin_p | OCP comparator input (D4 condition 2) |
 | TP6 | hot5 | F | 116.0, 64.7 | TP28 | ocp_kelvin_p | HOT5 protection rail |
-| TP7 | bus_fault_hot | B | 101.6, 74.9 | TP29 | ocp_kelvin_p | OCP fault, HOT side |
+| TP7 | bus_fault_hot | B | 101.1, 74.9 | TP29 | ocp_kelvin_p | OCP fault, HOT side |
 | TP8 | n_ha | F | 64.8, 50.0 | TP30 | sw_a | HS-A -2 V rail vs switch node (F6 rail at the edge) |
 | TP9 | p_ha | F | 71.6, 47.0 | TP30 | sw_a | HS-A +15 V rail |
 | TP10 | n_hb | B | 4.3, 115.8 | TP31 | sw_b | HS-B -2 V rail vs switch node |

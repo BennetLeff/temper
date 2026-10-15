@@ -17,12 +17,12 @@
    "min_mm": 8.507,
    "pass": true,
    "between": [
-    "pad n_filt C4",
-    "pad pe C4"
+    "pad l_filt C3",
+    "pad pe C3"
    ],
    "at_mm": [
     225.0,
-    109.1
+    102.8
    ]
   }
  },
@@ -33,7 +33,10 @@
    "land_gap_mm": 8.507,
    "board_pass": true,
    "package": {
-    "src": "NOT IN TABLE: add the datasheet distances"
+    "clr": null,
+    "cpg": null,
+    "src": "Murata DE1 Y1 safety capacitor: component approval basis, no package distance table",
+    "rating": "Y1 component approval (certificates in the datasheet ledger)"
    }
   },
   {
@@ -42,7 +45,10 @@
    "land_gap_mm": 8.507,
    "board_pass": true,
    "package": {
-    "src": "NOT IN TABLE: add the datasheet distances"
+    "clr": null,
+    "cpg": null,
+    "src": "Murata DE1 Y1 safety capacitor: component approval basis, no package distance table",
+    "rating": "Y1 component approval (certificates in the datasheet ledger)"
    }
   },
   {
@@ -51,7 +57,10 @@
    "land_gap_mm": 18.5,
    "board_pass": true,
    "package": {
-    "src": "NOT IN TABLE: add the datasheet distances"
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "Coilcraft CST3015 datasheet (series package: \u22658 mm spacing, 5 kVrms test)",
+    "rating": "no CTI/PD certificate"
    }
   },
   {
@@ -96,7 +105,10 @@
    "land_gap_mm": 8.2,
    "board_pass": true,
    "package": {
-    "src": "NOT IN TABLE: add the datasheet distances"
+    "clr": 8.0,
+    "cpg": 8.0,
+    "src": "Vishay doc 82401 rev 1.9 p.4 (CTR bin -2; package as -3X001T)",
+    "rating": "option 1 (VDE)"
    }
   },
   {

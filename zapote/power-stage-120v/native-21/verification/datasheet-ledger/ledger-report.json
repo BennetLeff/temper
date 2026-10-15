@@ -382,7 +382,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "Power derated at the c18 terminal estimate (release)",
-     "ratio": 0.775,
+     "ratio": 0.7041,
      "severity": "violation",
      "stress": "R_on dissipation, 60 kHz window top"
     },
@@ -391,7 +391,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Operating temperature max",
-     "ratio": 0.8787,
+     "ratio": 0.8535,
      "severity": "violation",
      "stress": "Element estimate c18 (release)"
     },
@@ -400,7 +400,7 @@
      "max_ratio": 0.8,
      "ok": false,
      "rating": "Power derated at the c22 terminal estimate",
-     "ratio": 1.0982,
+     "ratio": 0.9757,
      "severity": "gap",
      "stress": "R_on dissipation, 60 kHz window top"
     },
@@ -409,7 +409,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Operating temperature max",
-     "ratio": 0.9258,
+     "ratio": 0.909,
      "severity": "gap",
      "stress": "Element estimate c22"
     },
@@ -418,7 +418,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Operating temperature max",
-     "ratio": 1.1058,
+     "ratio": 1.089,
      "severity": "gap",
      "stress": "Element estimate c28"
     },
@@ -929,7 +929,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Top,max",
-     "ratio": 0.99,
+     "ratio": 0.9891,
      "severity": "violation",
      "stress": "Top C40 c18 (release)"
     },
@@ -947,7 +947,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Top,max",
-     "ratio": 1.2527,
+     "ratio": 1.2518,
      "severity": "gap",
      "stress": "Top C40 c28"
     }
@@ -1268,7 +1268,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Climatic upper temperature",
-     "ratio": 0.78,
+     "ratio": 0.7808,
      "severity": "gap",
      "stress": "Body temperature c22"
     },
@@ -1523,6 +1523,82 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
+  "CC1206JKNPOCBN102": {
+   "checks": [
+    {
+     "id": "die VDS",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Rated voltage DC",
+     "ratio": 0.49,
+     "severity": "violation",
+     "stress": "Die VDS worst (switch-node spike)"
+    },
+    {
+     "id": "S4 die VDS (s42)",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Rated voltage DC",
+     "ratio": 0.3472,
+     "severity": "violation",
+     "stress": "Die VDS S4 typical Qrr (s42)"
+    },
+    {
+     "id": "bus no-clamp worst",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Rated voltage DC",
+     "ratio": 0.451,
+     "severity": "violation",
+     "stress": "Bus, worst stacked no-clamp case"
+    },
+    {
+     "id": "bus static OVP",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Rated voltage DC",
+     "ratio": 0.286,
+     "severity": "violation",
+     "stress": "Bus static OVP (continuous)"
+    },
+    {
+     "id": "temperature bound c18 (release)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Operating temperature max",
+     "ratio": 0.9768,
+     "severity": "violation",
+     "stress": "Board temperature bound at the cap, c18 (release)"
+    },
+    {
+     "id": "temperature bound c22",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Operating temperature max",
+     "ratio": 1.0608,
+     "severity": "gap",
+     "stress": "Board temperature bound at the cap, c22"
+    }
+   ],
+   "class": "POWER",
+   "designators": [
+    "C12",
+    "C13",
+    "C19",
+    "C20"
+   ],
+   "finding": null,
+   "function": "Drain-source snubber capacitors C12/C13/C19/C20, 1 nF 1 kV C0G 1206",
+   "gaps": [
+    "bench: maximum-Qrr S4 basis (DECISIONS 54, D-8 bench): s42's 347 V die VDS is at typical recovery charge; the 4.60 uC maximum was not run on the adopted network.",
+    "bench: no ripple, pulse-current or dV/dt rating is published (Yageo or Murata); the 95 A modelled edge (49.7 A at s42's S4) and the 1.81 A RMS bound are uncompared; the cap's own temperature is not modelled (bounded by the FET-row copper, 123.0 C at the release case).",
+    "certifier: the 1.8 mm pad escape is below the 3.2 mm HOT rule by design; the part's own gap is 1.40 mm min (Yageo p.3), and surface creepage at up to 490 V (F6 matrix) over 1.8 mm is unqualified (pad_escapes.json:3)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "Physical functional-insulation qualification of the bounded escapes (up to 490 V across 1.8 mm on the surface)"
+   ]
+  },
   "CL05B104KB54PNC": {
    "checks": [],
    "class": "SIGNAL",
@@ -1667,8 +1743,8 @@
      "id": "P at c18 terminal (release)",
      "max_ratio": 0.8,
      "ok": true,
-     "rating": "P allowed at c18 terminal 118.6 C (release)",
-     "ratio": 0.1389,
+     "rating": "P allowed at c18 terminal 118.3 C (release)",
+     "ratio": 0.1381,
      "severity": "violation",
      "stress": "P shunt c18 (release)"
     },
@@ -1677,7 +1753,7 @@
      "max_ratio": 0.85,
      "ok": true,
      "rating": "T operating max",
-     "ratio": 0.7241,
+     "ratio": 0.7224,
      "severity": "violation",
      "stress": "T element c18 (release)"
     },
@@ -1685,8 +1761,8 @@
      "id": "P at c22 terminal",
      "max_ratio": 0.8,
      "ok": true,
-     "rating": "P allowed at c22 terminal 131.3 C",
-     "ratio": 0.276,
+     "rating": "P allowed at c22 terminal 130.9 C",
+     "ratio": 0.2731,
      "severity": "gap",
      "stress": "P shunt c22"
     },
@@ -1695,7 +1771,7 @@
      "max_ratio": 0.85,
      "ok": true,
      "rating": "T operating max",
-     "ratio": 0.8135,
+     "ratio": 0.8118,
      "severity": "gap",
      "stress": "T element c22"
     },
@@ -1703,8 +1779,8 @@
      "id": "P at c28 terminal",
      "max_ratio": 1.0,
      "ok": false,
-     "rating": "P allowed at c28 terminal 163.0 C",
-     "ratio": 2.4686,
+     "rating": "P allowed at c28 terminal 162.5 C",
+     "ratio": 2.304,
      "severity": "gap",
      "stress": "P shunt c28"
     },
@@ -1713,7 +1789,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "T operating max",
-     "ratio": 1.0282,
+     "ratio": 1.0259,
      "severity": "gap",
      "stress": "T element c28"
     },
@@ -1904,13 +1980,22 @@
      "stress": "Gate-source voltage"
     },
     {
-     "id": "temperature (bound)",
+     "id": "temperature bound c18 (release)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Operating temperature max",
+     "ratio": 0.9768,
+     "severity": "violation",
+     "stress": "Board temperature bound at the cap, c18 (release)"
+    },
+    {
+     "id": "temperature bound c22",
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Operating temperature max",
-     "ratio": 1.068,
+     "ratio": 1.0608,
      "severity": "gap",
-     "stress": "Board temperature bound at the cap (c22)"
+     "stress": "Board temperature bound at the cap, c22"
     }
    ],
    "class": "SIGNAL",
@@ -1923,7 +2008,8 @@
    "finding": null,
    "function": "Gate-source capacitors C55/C56/C62/C63 of the CFD7s, 4.7 nF 5 % 50 V C0G 0603 (stage 42, candidate 39, DECISIONS 54)",
    "gaps": [
-    "The caps' local temperature is not modelled in B3 (no heat row); only the FET-row copper maximum bounds it.",
+    "owner: airflow route (c22/c28): at c22 (22 A, bay 55 C, still air) the FET-row copper bound is 132.6 C against the 125 C C0G limit; the cap's own temperature is not modelled. The firmware ships 18 A (DECISIONS 56), where the bound is 122.1 C; raising the ceiling needs a passing B3 basis (board-face airflow, b3-ratings/ENCLOSURE-REQUEST.md, or a measured bay under 61 C).",
+    "bench: the caps' local temperature is not modelled in B3 (no heat row); only the FET-row copper maximum bounds it (122.1 C at the release case).",
     "Pulse current (gate charge, ~0.1-1 A for < 1 us) is not compared with a rating; C0G MLCC dissipation is negligible."
    ],
    "status": "PARTIAL",
@@ -1967,83 +2053,6 @@
    ],
    "status": "UNAUDITED",
    "unchecked_layout": []
-  },
-  "GRM31A5C3A102JW01D": {
-   "checks": [
-    {
-     "id": "die VDS",
-     "max_ratio": 0.5,
-     "ok": true,
-     "rating": "Rated voltage DC",
-     "ratio": 0.49,
-     "severity": "violation",
-     "stress": "Die VDS worst (switch-node spike)"
-    },
-    {
-     "id": "S4 die VDS (s42)",
-     "max_ratio": 0.5,
-     "ok": true,
-     "rating": "Rated voltage DC",
-     "ratio": 0.3472,
-     "severity": "violation",
-     "stress": "Die VDS S4 typical Qrr (s42)"
-    },
-    {
-     "id": "bus no-clamp worst",
-     "max_ratio": 0.5,
-     "ok": true,
-     "rating": "Rated voltage DC",
-     "ratio": 0.451,
-     "severity": "violation",
-     "stress": "Bus, worst stacked no-clamp case"
-    },
-    {
-     "id": "bus static OVP",
-     "max_ratio": 0.5,
-     "ok": true,
-     "rating": "Rated voltage DC",
-     "ratio": 0.286,
-     "severity": "violation",
-     "stress": "Bus static OVP (continuous)"
-    },
-    {
-     "id": "temperature bound c18 (release)",
-     "max_ratio": 1.0,
-     "ok": true,
-     "rating": "Operating temperature max",
-     "ratio": 0.984,
-     "severity": "violation",
-     "stress": "Board temperature bound at the cap, c18 (release)"
-    },
-    {
-     "id": "temperature bound c22",
-     "max_ratio": 1.0,
-     "ok": false,
-     "rating": "Operating temperature max",
-     "ratio": 1.0688,
-     "severity": "gap",
-     "stress": "Board temperature bound at the cap, c22"
-    }
-   ],
-   "class": "POWER",
-   "designators": [
-    "C12",
-    "C13",
-    "C19",
-    "C20"
-   ],
-   "finding": null,
-   "function": "Drain-source snubber capacitors C12/C13/C19/C20, 1 nF 1 kV C0G 1206",
-   "gaps": [
-    "owner: source MPN to be corrected to CC1206JKNPOCBN102 in the next source rebuild. GRM31A5C3A102JW01D is not a findable Murata part (the 2010/2012 catalogue's GRM31A5C3A list ends at 100 pF; no distributor lists a 102); the JLC order fits YAGEO CC1206JKNPOCBN102 (C113872, 1 kV NP0) as a declared substitute (08-manufacturing-package/native-21/owner-items/order/bom-stock-2026-10.csv row C12,C13,C19,C20), which is the ratings basis here. The ledger key stays the source MPN (elec/src/parts.ato:243-245) until the rebuild.",
-    "bench: maximum-Qrr S4 basis (DECISIONS 54, D-8 bench): s42's 347 V die VDS is at typical recovery charge; the 4.60 uC maximum was not run on the adopted network.",
-    "bench: no ripple, pulse-current or dV/dt rating is published (Yageo or Murata); the 95 A modelled edge (49.7 A at s42's S4) and the 1.81 A RMS bound are uncompared; the cap's own temperature is not modelled (bounded by the FET-row copper, 123.0 C at the release case).",
-    "certifier: the 1.8 mm pad escape is below the 3.2 mm HOT rule by design; the part's own gap is 1.40 mm min (Yageo p.3), and surface creepage at up to 490 V (F6 matrix) over 1.8 mm is unqualified (pad_escapes.json:3)."
-   ],
-   "status": "PARTIAL",
-   "unchecked_layout": [
-    "Physical functional-insulation qualification of the bounded escapes (up to 490 V across 1.8 mm on the surface)"
-   ]
   },
   "GRM31C5C1H104JA01L": {
    "checks": [],
@@ -2441,7 +2450,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Tj abs max",
-     "ratio": 0.8913,
+     "ratio": 0.8907,
      "severity": "violation",
      "stress": "Tj U42 c18 (release)"
     },
@@ -3320,13 +3329,13 @@
   "B32676G1905K000",
   "B82726S2203A020",
   "CA-IS3720HW",
+  "CC1206JKNPOCBN102",
   "CL32B106KBJNNNE",
   "CSS2H-2512R-1L00F",
   "CST3015-200ED",
   "DE1E3RA222MA4BP01F",
   "GBJ2510-F",
   "GRM1885C1H472JA01D",
-  "GRM31A5C3A102JW01D",
   "IPW65R018CFD7",
   "ISO6721FBDR",
   "KLDR025.TXP",
