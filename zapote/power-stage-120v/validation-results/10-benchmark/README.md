@@ -94,6 +94,7 @@ Controls run 2026-10-13: 19c vs 19b gives ACCEPT (better `return_path_open_chang
 
 | Stage | Change | Verdict | Card |
 |---|---|---|---|
+| 42 | Candidate 39 (DECISIONS 55): gate network R_on 68 Ω 2512 + Cgs 4.7 nF (DECISIONS 54), R11 turned 180° | **REJECT overridden** against 41: laminate −25.2 → −30.6 K (the network's own heat), rated-part −64.1 → −33.4 K; all-gated-row still-air ceiling 0 → 20.0 A (bay 55) / 18.3 A (bay 61); CFD7 S4 violation cleared. Board of record; the benchmark from here on. | [`scorecard-native21s42.json`](scorecard-native21s42.json) |
 | 41 | Candidate 36 (DECISIONS 53): hv_ret spreader at R5.4, leg_ret pours, leg-A neck widened, two R5.4 vias moved | **ACCEPT** against 40: B3 laminate −38.3 → −25.2 K (22 A passes: +1.2 K). Board of record. | [`scorecard-native21s41.json`](scorecard-native21s41.json) |
 | 40 | Candidate 30 (DECISIONS 52): U44 → ISO6721FB HS-B → LS link, vote beside U43, C161 on the n_ls plane, C168 | **ACCEPT** against 38: −1 line, −1 Extended, return-path opens 18 → 15 (EOL veto test required). Superseded by 41. | [`scorecard-native21s40.json`](scorecard-native21s40.json) |
 | 38 | Candidate 23 (DECISIONS 50): PS1 deleted, PS2 → MEAN WELL MPM-20-24; off-board D-22 module Y removed + SCF31X, PS3 → MPM-65-15ST in the leakage / EMI verdicts; L1 kept | **ACCEPT** against 35: parts $206.44 → $202.24, −1 line, −1 placement; touch 0.974 → 0.241 mA, EMI 10.48 → 12.37 dB. Superseded by 40. | [`scorecard-native21s38.json`](scorecard-native21s38.json) |
