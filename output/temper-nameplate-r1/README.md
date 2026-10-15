@@ -97,3 +97,17 @@ The Control Freak's measured time is 10:55.
   measured.
 - **The thermal pan mapping is an inference** (`PAN_THERMAL`).
 - **The boil loss is backed out of one video test.**
+
+## Update 2026-10-15: release ceiling set at 18 A (power-stage DECISIONS 55)
+
+- **Board of record:** s42 (candidate 39, c8665ceb0).
+- **Still-air release ceiling:** 18.0 A tank RMS. The gated ceiling is
+  20.0 A at a 55 °C bay and 18.3 A at 61 °C, rated on the worst bay. The
+  limits are the 68 Ω 2512 turn-on resistors' derating, the laminate block
+  and C40.
+- **Firmware:** the default goes 22 → 18 A (TANK_CEILING_DEFAULT_A).
+- **Today's product is therefore the 18 A column:** about 650 W pooled at
+  120 V, 0.42× the Control Freak. Board-face airflow is the only route above
+  that (`output/temper-airflow-r1`).
+- **Possible controller option:** a bay-air sensor could allow 20 A when the
+  bay reads ≤ 55 °C.
