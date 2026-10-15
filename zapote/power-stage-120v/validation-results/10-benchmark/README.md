@@ -94,6 +94,7 @@ Controls run 2026-10-13: 19c vs 19b gives ACCEPT (better `return_path_open_chang
 
 | Stage | Change | Verdict | Card |
 |---|---|---|---|
+| 35 | J2 / J5 coil terminals → Würth REDCUBE SMT 7466004R (Ø8.5 ring round a Ø5.2 NPTH, 20 land vias each); task 04 sinks a stud ring land at 24 points (DECISIONS 44) | **ACCEPT** against 32: parts $208.08 → $206.44, hand / consign 21 → 20; nothing worse. Against 19c now **REJECT**, only on item 43's strict geometry ratchets (acute 206 vs 198, fold-backs 44 vs 35), which s32 fails identically. Board of record. | [`scorecard-native21s35.json`](scorecard-native21s35.json) |
 | 32 | Via cleanup: 120 of 124 legacy 0.85/0.3 vias → 0.6/0.3 (same drill; 4 mains-net vias keep 0.85 for task 04's grid); HSB_GOOD / BUS_FAULT_ISO / BIAS_GOOD-branch hops B.Cu → In2 (layout only, BOM unchanged) | **ACCEPT** against 19c and 31. Better: return-path open changes 23 → 18, B3 c28_h25 135.2 → 135.0 °C. Cost identical. Vias at 0.85/0.3: 124 → 4; via-in-pad 139 → 139, so POFV is still needed (DECISIONS 35). | [`scorecard-native21s32.json`](scorecard-native21s32.json) |
 | 31 | U9 / U32 / U44 → Chipanalog CA-IS3720HW / LW; 24 × 1210 → Samsung CL32B106KBJNNNE (BOM only, copper unchanged) | **ACCEPT** against 19c and 30 (both restated for the UMK325 price basis, DECISIONS 34). Cheaper: parts $212.94 → $208.08, zero-stock 9 → 8. Every gate and performance metric identical; CMTI min 85 → 100 kV/µs and more C at bias are recorded outside the card. | [`scorecard-native21s31.json`](scorecard-native21s31.json) |
 | 30 | Candidate 24: one bias-monitor heartbeat (U45 → U32 → U46 → pump → U40); HS-B verdict on its own default-LOW ISO7710F (U44); U9 BUS_FAULT 1 k / 100 pF | **ACCEPT** against 19c and 29 (both restated for the KLDR price fix, DECISIONS 32/33). Better: return-path open changes 37 → 23. Cheaper: −1 placement, parts $211.78 → $210.57. Costs: +2 lines, +3 Extended, +3 single-source, B3 +0.1 °C. | [`scorecard-native21s30.json`](scorecard-native21s30.json) |
@@ -113,3 +114,9 @@ Controls run 2026-10-13: 19c vs 19b gives ACCEPT (better `return_path_open_chang
 The 19c and s29 cards were restated on 2026-10-14 for the KLDR025 price correction (DECISIONS 32): `parts_usd_at_500` 231.94 → 221.04 and 222.68 → 211.78, with the as-scored value and method in each card's `restated` block. Rows above stage 30 quote the prices as scored at the time.
 
 A second restatement on 2026-10-14 (DECISIONS 34) corrects UMK325AB7106KM-T from a class-default estimate to the JLC ladder: 19c 221.04 → 223.41 and s30 210.57 → 212.94 at 500 (`restated_2` / `restated` blocks).
+
+## Metrics added 2026-10-15 (cards restated, not re-scored, unless noted)
+
+- **Track geometry** (DECISIONS 43): `track_acute_corners`, `track_fold_backs` (strict ratchets); `track_right_angle_corners` (+5) and `track_any_angle_mm` (+25 mm). The 19c, s32 cards are restated; s35 is re-scored.
+- **Buildability** (DECISIONS 45): `lines_short_for_5/500`, `jlc_assemblable_share_5/500`, `consign_lines_5/500`, `build_lead_wk_5/500`, `short_lead_unknown_5/500` from the dated `sourcing/SNAPSHOT-*.csv`. Restated on s32, re-scored on s35; 19c has none, so the compare skips these axes against it.
+- **B3 ratings** (DECISIONS 46): release gate `b3_ratings` (on the card, outside the compare rule) and ratchets `b3_laminate_margin_K`, `b3_rated_part_margin_K`. The legacy `b3_*_peak_C` (mesh artefacts) stay on the cards but leave the compare. s32 / s35: FAIL, −56.4 / −38.9 K.
