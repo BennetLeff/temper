@@ -2029,3 +2029,38 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       1 A.
     - **Ledger after the cherry-pick:** 3 / 31 / 58 / 1 (25121WF680JT4E). The two verification batches (S7, 27 lines)
       are applied on top in a later commit, and their isolator CMTI rows are re-evaluated at s42's 49.7 V/ns edge.
+
+56. **B3 release basis set to the release ceiling: c18 at bay 61 °C, and I_line 13.5 A everywhere; firmware ships 18 A
+    (2026-10-15; gate, records and firmware, no board change). s42 passes the release gate by +0.7 K.**
+    - **Why:** after item 55 the `b3_ratings` gate still judged c22 / c28, which cannot pass in still air on this board, so
+      it gated nothing. The release case `c18_h10` now decides it:
+      - 18.0 A × 1.05 = 18.9 A trip, h 10, bay 61 °C (the enclosure's worst bay with B3 heat);
+      - solved at that bay, not shifted.
+    - **Ratchets:** `b3_laminate_margin_K` / `b3_rated_part_margin_K` stay on c22 / c28 at bay 55 °C, so cards from s32
+      on stay comparable. New compared ratchet: `b3_release_margin_K` (higher is better, 1 K tolerance; cards without
+      it are skipped).
+    - **Line current:** 13.5 A in every case (`b3/run_study.py` `I_LINE_A`). That is the firmware inlet bound
+      I_ps·1.10 + I_aux ≤ 13.5 A; the 11.1 A hold was not a bound (`b3-ratings/line-hold-2026-10-15/`). Three inputs
+      move: the ac_l / ac_n copper, L1's row, and BR1's sink share.
+    - **s42 (9e075b4b), release case:** PASS with no failing row.
+      - R10 2512 derating +0.7 K, C40 +1.1 K, R20 +1.1 K.
+      - Laminate block +4.1 K, FET row +7.0 K.
+      - Ratchet rows move ≤ 0.1 K (laminate −30.6 → −30.7 K). L1 (advisory) −12 K, +25 K left.
+      - Card: `b3_ratings` false → **true**. Against s41 it is still REJECT on the laminate ratchet only; that is
+        overridden by item 55.
+    - **Gated still-air ceiling at bay 61 °C / 13.5 A:** 18.3 A (R10), unchanged, so the 18.0 A release ceiling
+      stands. The I_trip² interpolation agrees with the direct c18 solve within 0.2 K on R10 / R20 / C40 / FET row, and
+      is 2.7 K conservative on the laminate block.
+    - **Firmware** (1c98e4492, 7fc8da3bb; host tests 31 / 31):
+      - `TANK_CEILING_DEFAULT_A` 22 → 18 A; it is also the no-pan clamp. Kconfig `TEMPER_POWER_TANK_CEILING_DA`
+        default 180.
+      - `COIL_SENSOR_FAULT_TANK_MAX_A` 22 → 18 A, and a test keeps it ≤ the default.
+      - `config_ok` no longer accepts an RMS trip above the derived 1.05× (it allowed 1.1×, 19.8 A at 18 A, above the
+        trip this rating is computed at).
+      - `pan_min_rms_a` must sit below the no-pan clamp.
+      - COMMISSIONING's raise ladder is now 18 → 20 → … → 28 A. Its new gate 0 is a passing B3 basis at the new
+        ceiling (board-face airflow or a measured bay under 61 °C), plus the bench R_on reading.
+      - The derived trips at 18 A: RMS 18.9, crest guard 27, peak 42.06 A.
+    - **Margin is thin:** +0.7 K rests on the R_on 0.217 W charge-split bound (~0.17 W simulated). The bench IR
+      reading of the gate row (S2) confirms it, or frees about 3 K.
+    - **Cache note:** `run_study.py` is in `model_key.py`, so the next chain recomputes task 04 and B3 once.
