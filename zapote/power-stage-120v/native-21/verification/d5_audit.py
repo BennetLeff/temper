@@ -37,8 +37,15 @@ PKG = {
     # stage 29 (DECISIONS 31): 8.0 mm is the package value itself (= the 8.0 mm floor, not > 8); material group II (CTI > 400)
     "2EDR8259XXUMA1": {"clr": 8.0, "cpg": 8.0, "src": "Infineon 2EDR8259H/X datasheet Rev 1.7 Table 24 (PG-DSO-14, CPG/CLR 8 mm, CTI > 400, MG II)", "rating": "reinforced (IEC 60747-17 cert 40055138)"},
     "AMC1311BDWVR": {"clr": 8.5, "cpg": 8.5, "src": "TI AMC1311 datasheet, DWV insulation table", "rating": "reinforced"},
+    # stage 20 fitted CTR bin -2 (f6_parts.ato:346); the -2 / -3 bins share the LSOP-4 option-1 package and its distances
+    "VOL628A-2X001T": {"clr": 8.0, "cpg": 8.0, "src": "Vishay doc 82401 rev 1.9 p.4 (CTR bin -2; package as -3X001T)", "rating": "option 1 (VDE)"},
     "VOL628A-3X001T": {"clr": 8.0, "cpg": 8.0, "src": "Vishay doc 82401 rev 1.9 p.4", "rating": "option 1 (VDE)"},
+    # T1 is the -200ED ratio of the same CST3015 package
+    "CST3015-200ED": {"clr": 8.0, "cpg": 8.0, "src": "Coilcraft CST3015 datasheet (series package: ≥8 mm spacing, 5 kVrms test)", "rating": "no CTI/PD certificate"},
     "CST3015-100ED": {"clr": 8.0, "cpg": 8.0, "src": "Coilcraft CST3015 datasheet (≥8 mm spacing, 5 kVrms test)", "rating": "no CTI/PD certificate"},
+    # C3 / C4 Y-capacitors: the safety basis is the component approval (IEC 60384-14 Y1 / UL 60384-14), not a tabulated
+    # package distance; the board land gap is still measured against the floor
+    "DE1E3RA222MA4BP01F": {"clr": None, "cpg": None, "src": "Murata DE1 Y1 safety capacitor: component approval basis, no package distance table", "rating": "Y1 component approval (certificates in the datasheet ledger)"},
     "IRM-20-15": {"clr": None, "cpg": None, "src": "Mean Well IRM-20 (input/output pin span only)", "rating": "module approval; PCB pin span checked here"},
 }
 
