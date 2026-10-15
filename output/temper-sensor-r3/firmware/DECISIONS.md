@@ -400,6 +400,166 @@ Unit tests in `test_pan_temp_loop_only` cover:
 - requiring a clean phase that starts from a hold;
 - limiting a decrease per phase.
 
+## D-SIL. The SIL suite runs in both configurations, from one manifest
+
+`firmware/test/test_sil_fault_injection.c` builds twice:
+- `test_sil_fault_injection` (ctest `sil_fault_tests`): the legacy loop, as
+  before;
+- `test_sil_fault_injection_c1` (ctest `sil_fault_tests_c1`): built with
+  `TEMPER_PAN_CONTROL_C1` like the ESP-IDF target, with the C1 loop,
+  `pan_supervisor`, `pan_control.c` and the real MAX31865 service
+  (`rtd_service.c`, `max31865.c`) linked.
+
+Both read `firmware/test/traces/manifest.json`. A scenario's `modes` says which
+targets run it (default both). CI's firmware job builds both targets and runs
+`ctest -R sil_fault_tests`, then `scripts/check_sil_coverage.py`.
+
+**The C1 target models the converter and the power stage.** It steps the
+firmware's own cadence: each 100 ms trace row is 10 control ticks of 10 ms in
+`main.c` order (`rtd_service_control_tick`, then `state_machine_update`), and
+it observes the state after every tick. Behind the SPI and GPIO mocks:
+- **MAX31865.** The power-up fault cycle completes on the first tick. Then,
+  while CONFIG has VBIAS and auto-convert set, the model converts at 50 Hz:
+  code = R / 430 Ω · 2^15, compared with the threshold words the firmware
+  programmed. A crossing latches register 07h and sets the fault bit. Each
+  conversion pulls DRDY.
+- **R.** The Pt100 at the trace's pan temperature plus 0.061 K self-heating.
+- **Bus current.** An obeying stage, P_cmd / 120 V. The supervisor allows
+  down to 100 V.
+
+The hand-written traces hold `dc_current` 5.0 A and `rtd_resistance` 100.0 Ω
+as fixed placeholders, whatever the pan does: 100 Ω is a 0 °C Pt100, while
+the pan reads 92 °C. C1 cross-checks both, so replaying them verbatim would
+inject faults: 5 A against a near-zero command is stage-2a evidence. The rule
+is therefore:
+- a column equal to its row-0 value is the placeholder, and C1 replaces it
+  with the consistent value;
+- any other value is an injected fault, and C1 replays it verbatim.
+
+A new `rtd_drdy` column (C1 only) injects a silent converter. The C1 runner
+never calls the legacy test hooks `state_machine_reset_temp_baseline()` and
+`state_machine_reset_stuck_tracking()`. Instead it primes the trace's start
+temperature from power-up, so R1 sees every reading.
+
+**Legacy-only assertions and their C1 replacements.**
+
+| Legacy assertion | Why it is legacy-only | C1 replacement |
+|---|---|---|
+| Thermal Runaway (HEATING): reading at target + 15 K latches `FAULT_THERMAL_RUNAWAY` | The target + 10 K latch is compiled out (D-RUN). The trace also holds 115.0 noise-free for 6.5 s, which C1 rightly reports as a frozen code (`FAULT_ADC_STUCK` at row 134). | 1. Stage 1: target + 15 K for 31 s with an obeying stage. The state stays HEATING, the power is 0 and nothing latches. 2. Stage 2a: the stage is stuck on at 15 A and the pan rises 1.5 K/s. 3. Stage 2b: the same with the current sense at 0 A. |
+| Relay Welded and Cooldown Overheat (COOLDOWN) | Both traces reach COOLDOWN one 100 ms update before the heatsink step, with the heatsink at 35 °C. At 10 ms, COOLDOWN ends on its first update (< 50 °C → IDLE), so the fault is never injected from COOLDOWN. This is a property of the trace, not of the loop. | Hot-heatsink variants (55 °C) that reach COOLDOWN at either cadence. They run in both modes. |
+| DEMONSTRATED GAP: fan off during PAN_DET | The fan is off for 3 legacy updates (300 ms). At 10 ms the PAN_DET dwell is 30 ms, so the PREHEAT interlock (correctly) latches the fan fault. | A 1 s PAN_DET dwell (no pan) with the fan off. Same finding; runs in both modes. |
+| Trace invariant: 15 K/s per 100 ms, legacy RTD window | The C1 rules differ. | R1 over 1 s block means, the C1 window, no injected placeholder or DRDY fault, no 50-row hold (frozen). Logged, as before. |
+| RTD Probe Open: final state FAULT / `FAULT_PROBE_OPEN` | C1 reads the temperature from the same conversion. A saturated code converts to 988.7 °C, so the absolute check latches RUNAWAY_FAULT in the same 10 ms tick (runaway-checks.json sensor_open: C_abs 0.0 s). | `c1_escalates_to_runaway`: `FAULT_PROBE_OPEN` must be logged first (07h), then RUNAWAY_FAULT / `FAULT_RUNAWAY_BOUNDARY`, with exactly two EEPROM entries. |
+
+**C1 latency bounds above the legacy ones.** Each needs a stated reason in
+the manifest (`c1_later_than_legacy_reason`); the gate enforces it.
+- **Double fault:** 350 rows = 35.0 s. This is the D-RUN allowance. The SIL
+  latches at 207 rows (20.7 s), against 120 rows for legacy.
+- **Sensor-path rise at 20 K/s:** 70 rows. That is R1's 5 blocks plus up to 2
+  blocks of alignment. The SIL latches at 62 rows (6.2 s) with the reading at
+  216.0 / 204.0 °C, against 1 row for legacy.
+
+Where C1 is faster:
+- the stuck-on stage latches at 4 rows (0.4 s) by stage 2a, against 120
+  (HEATING) and 200 (PREHEAT) rows for legacy;
+- the frozen code is timed from the freeze onset at exactly 50 rows = 250
+  conversions, in IDLE, PREHEAT and HEATING.
+
+**Checks now applied in both modes**, all of which legacy passes:
+- no fault before the perturbation;
+- the machine is in `origin_state` when the perturbation starts;
+- `eeprom_logged` is the first fault logged since reset (it was the last);
+- the first latched fault keeps its code and is logged once (D-LATCH);
+- a reset with the fault condition still present is refused.
+
+The old runner had 24 hard-coded test slots and silently skipped any manifest
+entry past the 24th. It now runs every entry by name.
+
+**Coverage** (`firmware/test/test_sil_coverage.py --gate`):
+
+| Mode | Scenarios | Designed (fault class, origin) pairs covered |
+|---|---|---|
+| legacy | 31 | 20/20 |
+| C1 | 36 | 23/23 |
+
+C1's pairs are a superset of legacy's. It adds IDLE for `FAULT_PROBE_OPEN`,
+`FAULT_PROBE_SHORT` and `FAULT_ADC_STUCK`: the converter service reports from
+every state, while legacy's RTD checks run only in PREHEAT/HEATING.
+
+A second matrix, C1 mechanism × origin, covers 16/16 cells:
+- R1 and the absolute 300 °C check;
+- R2 stages 1, 2a and 2b;
+- register 07h, DRDY stale and frozen code.
+
+The C1 runner checks each attribution where the firmware exposes it:
+- the supervisor latch, through the new read-only
+  `pan_control_supervisor_latch()`;
+- the reading at the trip;
+- register 07h;
+- whether the service has stopped.
+
+The gate also enforces:
+- every legacy-only scenario names its C1 replacement, which runs in C1;
+- every C1-only scenario says why;
+- every generated trace matches `gen_sil_traces.py`.
+
+`manifest.json` supports `"xfail": {"c1": "reason"}` for a known defect: it is
+reported as XFAIL, and an unexpected pass fails the run. No scenario uses it.
+
+## D-LATCH. A sensor report no longer overwrites an already-latched fault
+
+**Found by the C1 SIL.** The C1 converter service runs in every state,
+including FAULT and RUNAWAY_FAULT. `state_machine_report_rtd_device_fault()`
+and `state_machine_report_rtd_frozen()` called
+`enter_hardware_latched_fault()` unconditionally. Against the unfixed
+firmware, 19 of the 36 C1 scenarios failed:
+- **07h re-entry.** A MAX31865 holds register 07h until it is cleared, so a
+  latched threshold fault re-entered FAULT and logged to EEPROM on every
+  conversion. Probe short (HEATING, PREHEAT, IDLE) and 80 Ω each gave 251
+  EEPROM entries, not 1: one per conversion, 50 a second, until the
+  frozen-code check stopped the service 5 s later.
+- **Fault code overwritten.** A later report replaced the latched fault code.
+  Over-temperature, over-current, fan and IGBT faults (8 scenarios) ended as
+  `FAULT_ADC_STUCK` with a second EEPROM entry. RUNAWAY_FAULT kept its state
+  but its code became `FAULT_ADC_STUCK` (absolute-temperature scenarios) or
+  `FAULT_PROBE_OPEN` (probe open, 3 scenarios). The code is what the user sees
+  and what `fault_cleared()` tests.
+
+To reproduce these numbers, revert the D-LATCH and D-RESET hunks in
+`main/state_machine.c` and run `sil_fault_tests_c1`.
+
+**Fix** (`main/state_machine.c`). While FAULT or RUNAWAY_FAULT is latched,
+the two sinks only re-assert the hardware cut. The first fault keeps its code
+and is logged once. Escalation from FAULT to RUNAWAY_FAULT by
+`check_runaway_boundary()` is unchanged.
+
+**Why the fix loses no protection.** A terminal sensor report that the latch
+absorbs (stale, frozen) stops the converter service, and D-RESET then refuses
+the reset. A non-terminal one (07h) is reported again by the service as soon
+as the machine leaves FAULT.
+
+This applies to both builds; the legacy sinks only fire from the legacy
+MAX31865 path.
+
+## D-RESET. `fault_cleared()` uses the C1 window and refuses while the converter is stopped
+
+**Found by the C1 SIL after D-LATCH.** Three C1 scenarios still accepted a
+reset with the fault present, going FAULT → INIT → IDLE:
+- **80 Ω.** `fault_cleared()` tested the legacy 10–300 Ω window. 80 Ω is
+  inside it but below the C1 84.27 Ω short threshold, so the reset was
+  accepted.
+- **No DRDY (IDLE and HEATING).** The service had stopped, but the last
+  conversion's resistance was in the window.
+
+**Fix.**
+- The probe-fault clear condition uses `SM_RTD_*`, the window the interlock
+  uses. That is the C1 window in C1 builds; the legacy build is unchanged.
+- In C1 builds, `fault_cleared()` returns false for every fault while
+  `pan_control_sensor_ready()` (which is `rtd_service_is_ready()`) is false.
+  A stopped service needs a power cycle to bootstrap it again.
+- `test_c1_runtime.c` gains an `rtd_service_is_ready()` stub, because that
+  target does not link the service.
+
 ## Open items for the firmware owner
 
 1. **The ESP-IDF target links** (resolved 2026-10-15, branch
@@ -461,7 +621,23 @@ Unit tests in `test_pan_temp_loop_only` cover:
      check needs lengthening;
    - the bus-current sense scaling for stage 2a;
    - whether the end hold is steady on clad pans (D-ID2 rejections).
-6. **The SIL suite is not run in C1 mode.** It encodes the legacy loop.
+6. **Closed (D-SIL): the SIL suite now runs in C1 mode as well.** It used to
+   encode only the legacy loop. `sil_fault_tests_c1` runs 36 scenarios
+   against the C1 configuration; legacy runs 31. Each of the four
+   legacy-only scenarios names its C1 replacement. Coverage is gated in both modes:
+   20/20 pairs legacy, 23/23 pairs C1, and 16/16 C1 mechanism cells. The C1
+   run found two defects, both fixed (D-LATCH, D-RESET). Still open:
+   - **An open Pt100 escalates to RUNAWAY_FAULT.** The absolute 300 °C check
+     reads the saturated code as 988.7 °C (`sil_fault_tests_c1` output), even
+     though register 07h has already flagged the conversion. That is fail-safe, but it is not
+     software-clearable. The safety owner should decide whether
+     `check_runaway_boundary()` should skip a flagged conversion and leave it
+     to the recoverable `FAULT_PROBE_OPEN`.
+   - **If `ptl_init()` rejects its parameters,** `pan_control_step()` returns
+     `PAN_CONTROL_SENSOR_FAULT` with no report. The PREHEAT/HEATING handlers
+     then return before `check_safety_interlocks()` on every update. That
+     cannot happen with the default parameters, and the SIL does not reach
+     it; it is found by reading the code.
 7. **CR-7 high threshold word:** CR-7 lists 35544 and the firmware has 35542
    (D-THRESH). The PCB agent should confirm.
 8. **Hot-pan starts run on the prior.** a is never identified (no updates,

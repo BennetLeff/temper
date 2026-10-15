@@ -39,6 +39,10 @@ bool rtd_service_latest_sample(rtd_sample_t *out)
 
 float read_rim_ntc_temperature(void) { return s_rim; }
 
+/* The converter service is not linked here; it is running whenever a
+ * conversion has been set (test_c1_rtd_service.c covers it stopping). */
+bool rtd_service_is_ready(void) { return s_have; }
+
 static void set_reading(float t_c)
 {
     /* Callendar-Van Dusen T >= 0 for the resistance; the code is not used. */

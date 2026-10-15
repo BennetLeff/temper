@@ -5,7 +5,7 @@ HANDOFF section C. The C1 algorithms are host-tested C in
 Python truth plant here. Decisions and open items are in `DECISIONS.md`.
 
 **Rerun everything:** `./run.sh`. It takes about 5 min and exits non-zero on any
-failure.
+failure. It includes both SIL configurations and their coverage gate.
 
 The firmware build uses the C1 runtime when `TEMPER_PAN_CONTROL_C1` is
 defined; `main/CMakeLists.txt` defines it for the ESP-IDF target (DECISIONS
@@ -42,6 +42,45 @@ The C1 MAX31865 path is in `firmware/components/sensors/`:
 | `test_c1_units_only` | 17 tests. Supervisor R1/R2 and code-to-temperature conversion. |
 | `test_c1_runtime_only` | 11 tests. The C1 state machine and `pan_control`: hot pan, h_c drop, lowered target, power stage disobeying, rising with power off, absolute 300 °C, intensity, C1 RTD window. |
 | `test_c1_rtd_service_only` | 6 tests. The C1 MAX31865 sequence through the SPI mock: thresholds, fault cycle, conversion, fault flag, stale, frozen. |
+| `test_sil_fault_injection` / `test_sil_fault_injection_c1` | The SIL fault-injection suite, built twice from one runner and `traces/manifest.json` (D-SIL). Legacy runs 31 scenarios. C1 runs 36: it uses the real MAX31865 service through a register-level converter model at the firmware's 10 ms cadence, and the bus current follows the command. |
+
+## SIL fault injection in both configurations (D-SIL)
+
+`python3 firmware/test/test_sil_coverage.py --gate` prints and gates
+coverage. CI runs it as `scripts/check_sil_coverage.py`.
+
+| Mode | Scenarios | (fault class, origin) pairs | C1 mechanism × origin |
+|---|---|---|---|
+| legacy | 31 | 20/20 | n/a |
+| C1 | 36 | 23/23, a superset of legacy's (adds IDLE) | 16/16 |
+
+The C1 mechanisms are:
+- R1 and the absolute 300 °C check;
+- R2 stages 1, 2a and 2b;
+- register 07h, DRDY stale and frozen code.
+
+Four legacy scenarios are legacy-only, and each names its C1 replacement:
+- **Thermal Runaway (target + 10 K latch).** Replaced by stage 1 (no latch,
+  power 0 for 31 s at target + 15 K), stage 2a (stuck-on stage) and stage 2b
+  (stuck-on stage with the current sense at 0 A).
+- **The two COOLDOWN traces and the PAN_DET gap.** These depend on the legacy
+  SIL's 100 ms update. Their replacements run in both modes.
+
+C1 results (`sil_fault_tests_c1` output):
+- **Stuck-on stage:** latches in 4 rows (0.4 s), against 120 (HEATING) and
+  200 (PREHEAT) rows for legacy.
+- **Double fault:** 207 rows (20.7 s). The bound is 350 (D-RUN).
+- **20 K/s sensor rise:** R1 latches in 62 rows (6.2 s), before the reading
+  passes 216 °C.
+- **Frozen code:** 50 rows from the freeze onset in IDLE, PREHEAT and
+  HEATING.
+
+The C1 run found two defects, both fixed in `main/state_machine.c`:
+- **D-LATCH.** A latched register-07h fault re-entered FAULT and logged to
+  EEPROM on every conversion (251 entries rather than 1). A later sensor
+  report overwrote the latched fault code.
+- **D-RESET.** `fault_cleared()` used the legacy RTD window, and accepted a
+  reset while the converter service had stopped.
 
 ## Harness (this folder)
 

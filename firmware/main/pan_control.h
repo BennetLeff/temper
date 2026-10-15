@@ -71,6 +71,17 @@ bool pan_control_have_reading(void);
 float pan_control_reading_c(void);
 /** Latest Pt100 resistance (ohm), NAN before the first conversion. */
 float pan_control_resistance_ohm(void);
+/** False once the MAX31865 service has stopped (no DRDY, frozen code, SPI or
+ *  fault-cycle failure): only a power cycle restarts it (DECISIONS D-RESET). */
+bool pan_control_sensor_ready(void);
+
+/**
+ * Supervisor R2 latch since the last pan_control_begin(): 0 none, 1 stage 2a
+ * (the power stage is not obeying), 2 stage 2b (still rising with no command).
+ * Read-only diagnostics; the SIL suite uses it to attribute a
+ * FAULT_THERMAL_RUNAWAY to the rule that raised it.
+ */
+int pan_control_supervisor_latch(void);
 
 /** R1: feed one 10 ms reading; true when the sustained-rise latch trips. */
 bool pan_control_rate_sample(float reading_c, uint32_t now_ms);

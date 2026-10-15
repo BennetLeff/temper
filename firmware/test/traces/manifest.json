@@ -121,7 +121,10 @@
           "eeprom_logged": "FAULT_PROBE_OPEN"
         }
       ]
-    }
+    },
+    "c1_mechanism": "rtd-07h",
+    "c1_escalates_to_runaway": true,
+    "c1_note": "C1 reads the pan temperature from the same MAX31865 conversion: an open element saturates the code, register 07h flags it (FAULT_PROBE_OPEN, first), and the saturated code converts above 300 degC, so check_runaway_boundary then latches RUNAWAY_FAULT in the same 10 ms tick (runaway-checks.json sensor_open: C_abs 0.0 s)."
   },
   {
     "name": "SIL: RTD Probe Short Fault (HEATING)",
@@ -152,7 +155,8 @@
           "eeprom_logged": "FAULT_PROBE_SHORT"
         }
       ]
-    }
+    },
+    "c1_mechanism": "rtd-07h"
   },
   {
     "name": "SIL: Thermal Runaway Fault (HEATING, rate-of-rise)",
@@ -183,7 +187,16 @@
           "eeprom_logged": "FAULT_THERMAL_RUNAWAY"
         }
       ]
-    }
+    },
+    "modes": [
+      "legacy"
+    ],
+    "legacy_only_reason": "Asserts the legacy target + 10 K latch (state_heating_update), which C1 builds compile out: supervisor R2 replaces it (DECISIONS D-RUN). In C1 a reading over target + 10 K with an obeying stage forces the command to 0 without latching (stage 1), and FAULT_THERMAL_RUNAWAY latches when the power stage is not obeying (stage 2a) or the pan keeps rising with no command (stage 2b). The trace also holds 115.0 noise-free for 6.5 s, which the C1 converter path rightly reports as a frozen code (FAULT_ADC_STUCK).",
+    "c1_replaced_by": [
+      "SIL: Power Stage Stuck On (HEATING)",
+      "SIL: Stuck-On Stage with Current Sense Lost (HEATING)",
+      "SIL: C1 Over-Target Reading with an Obeying Stage (HEATING)"
+    ]
   },
   {
     "name": "SIL: IGBT Short Fault (HEATING)",
@@ -245,7 +258,14 @@
           "eeprom_logged": "FAULT_COOLDOWN_OVERHEAT"
         }
       ]
-    }
+    },
+    "modes": [
+      "legacy"
+    ],
+    "legacy_only_reason": "The trace reaches COOLDOWN one 100 ms legacy-SIL update before the heatsink step, with the heatsink at 35 degC (below SAFE_IDLE_TEMP 50). At the firmware's 10 ms control cadence, which the C1 target runs, COOLDOWN ends on its first update (heatsink < 50 -> IDLE) before the step arrives, so the fault is never injected from COOLDOWN. A property of the trace, not of either loop: the replacement runs in both modes.",
+    "c1_replaced_by": [
+      "SIL: Relay Welded Fault (COOLDOWN, hot heatsink)"
+    ]
   },
   {
     "name": "SIL: ADC Stuck Fault (HEATING)",
@@ -276,7 +296,8 @@
           "eeprom_logged": "FAULT_ADC_STUCK"
         }
       ]
-    }
+    },
+    "c1_mechanism": "rtd-frozen"
   },
   {
     "name": "SIL: Cooldown Overheat Fault (COOLDOWN)",
@@ -307,7 +328,14 @@
           "eeprom_logged": "FAULT_COOLDOWN_OVERHEAT"
         }
       ]
-    }
+    },
+    "modes": [
+      "legacy"
+    ],
+    "legacy_only_reason": "The trace reaches COOLDOWN one 100 ms legacy-SIL update before the heatsink step, with the heatsink at 35 degC (below SAFE_IDLE_TEMP 50). At the firmware's 10 ms control cadence, which the C1 target runs, COOLDOWN ends on its first update (heatsink < 50 -> IDLE) before the step arrives, so the fault is never injected from COOLDOWN. A property of the trace, not of either loop: the replacement runs in both modes.",
+    "c1_replaced_by": [
+      "SIL: Cooldown Overheat Fault (COOLDOWN, hot heatsink)"
+    ]
   },
   {
     "name": "SIL: Self-Test Failure (INIT)",
@@ -488,7 +516,10 @@
           "eeprom_logged": "FAULT_PROBE_OPEN"
         }
       ]
-    }
+    },
+    "c1_mechanism": "rtd-07h",
+    "c1_escalates_to_runaway": true,
+    "c1_note": "C1 reads the pan temperature from the same MAX31865 conversion: an open element saturates the code, register 07h flags it (FAULT_PROBE_OPEN, first), and the saturated code converts above 300 degC, so check_runaway_boundary then latches RUNAWAY_FAULT in the same 10 ms tick (runaway-checks.json sensor_open: C_abs 0.0 s)."
   },
   {
     "name": "SIL: RTD Probe Short Fault (PREHEAT)",
@@ -519,7 +550,8 @@
           "eeprom_logged": "FAULT_PROBE_SHORT"
         }
       ]
-    }
+    },
+    "c1_mechanism": "rtd-07h"
   },
   {
     "name": "SIL: ADC Stuck Fault (PREHEAT)",
@@ -550,7 +582,8 @@
           "eeprom_logged": "FAULT_ADC_STUCK"
         }
       ]
-    }
+    },
+    "c1_mechanism": "rtd-frozen"
   },
   {
     "name": "SIL: Runaway Boundary Fault (HEATING, absolute temperature)",
@@ -581,7 +614,8 @@
           "eeprom_logged": "FAULT_RUNAWAY_BOUNDARY"
         }
       ]
-    }
+    },
+    "c1_mechanism": "absolute-300"
   },
   {
     "name": "SIL: Runaway Boundary Fault (PREHEAT, absolute temperature)",
@@ -612,7 +646,8 @@
           "eeprom_logged": "FAULT_RUNAWAY_BOUNDARY"
         }
       ]
-    }
+    },
+    "c1_mechanism": "absolute-300"
   },
   {
     "name": "SIL: Preheat Timeout -> Thermal Runaway (PREHEAT, timing)",
@@ -675,6 +710,603 @@
       "final_state": "PREHEAT",
       "fault_code": "FAULT_NONE",
       "max_latency_ticks": 2
+    },
+    "modes": [
+      "legacy"
+    ],
+    "legacy_only_reason": "The fan is off for 3 rows (300 ms at the legacy SIL's 100 ms update). PAN_DET ends after 3 updates, 30 ms at the firmware's 10 ms cadence, so on the C1 target the fan is still off when PREHEAT starts and the PREHEAT interlock (correctly) latches FAULT_FAN_FAILURE before row 3. The replacement holds the PAN_DET dwell for 1 s and runs in both modes.",
+    "c1_replaced_by": [
+      "SIL: DEMONSTRATED GAP -- Fan Failure during a 1 s PAN_DET dwell is not interlocked"
+    ]
+  },
+  {
+    "name": "SIL: Power Stage Stuck On (HEATING)",
+    "description": "Power stage stuck on at full output (15 A) from tick 85; the pan rises 1.5 K/s from 92 degC. Legacy latches target + 10 K; C1 supervisor stage 2a latches on bus current the command cannot explain.",
+    "trace_file": "trace_stage_stuck_on_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "dc_current",
+          "over_ticks": 1
+        },
+        {
+          "name": "pan_temperature",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_THERMAL_RUNAWAY",
+      "max_latency_ticks": 122,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_THERMAL_RUNAWAY"
+        }
+      ]
+    },
+    "c1_mechanism": "R2-2a",
+    "latency_bound_note": "max_latency_ticks = the legacy target + 10 K latch on this trace, (110 - 92) degC / 0.15 K per row = 120 rows, + 2 rows. One bound for both modes: C1 may not be later than legacy here (DECISIONS D-RUN)."
+  },
+  {
+    "name": "SIL: Power Stage Stuck On (PREHEAT)",
+    "description": "Power stage stuck on at full output (15 A) during PREHEAT from tick 85; the pan rises 1.5 K/s from 80 degC. Legacy hands over to HEATING at 90 degC and latches target + 10 K; C1 supervisor stage 2a latches in PREHEAT.",
+    "trace_file": "trace_stage_stuck_on_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "dc_current",
+          "over_ticks": 1
+        },
+        {
+          "name": "pan_temperature",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_THERMAL_RUNAWAY",
+      "max_latency_ticks": 202,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_THERMAL_RUNAWAY"
+        }
+      ]
+    },
+    "c1_mechanism": "R2-2a",
+    "latency_bound_note": "max_latency_ticks = the legacy target + 10 K latch on this trace, (110 - 80) degC / 0.15 K per row = 200 rows, + 2 rows. One bound for both modes (DECISIONS D-RUN)."
+  },
+  {
+    "name": "SIL: Stuck-On Stage with Current Sense Lost (HEATING)",
+    "description": "Double fault: power stage stuck on and the bus-current sense reading 0 A from tick 85; the pan rises 1.5 K/s from 92 degC. Legacy latches target + 10 K; C1 has no current evidence and latches stage 2b (over target, command 0 for 20 s, still rising).",
+    "trace_file": "trace_stage_stuck_on_current_sense_lost_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "dc_current",
+          "over_ticks": 1
+        },
+        {
+          "name": "pan_temperature",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_THERMAL_RUNAWAY",
+      "max_latency_ticks": 122,
+      "max_latency_ticks_c1": 350,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_THERMAL_RUNAWAY"
+        }
+      ]
+    },
+    "c1_mechanism": "R2-2b",
+    "c1_later_than_legacy_reason": "DECISIONS D-RUN trade-off, allowed in runaway-checks.json allowed_later_than_legacy['fault_stuck_on/current_broken']: stage 2b waits rise_hold_s (20 s) so a hot pan placed above target does not trip it; its bound is the worst hazardous double-fault detection there, 35.0 s (350 rows).",
+    "latency_bound_note": "max_latency_ticks = the legacy target + 10 K latch, 120 rows + 2; max_latency_ticks_c1 = 35.0 s, see c1_later_than_legacy_reason."
+  },
+  {
+    "name": "SIL: Sustained Sensor Rise 20 K/s (HEATING)",
+    "description": "The reading rises 20 K/s from 92 degC from tick 85 (a sensor-path fault: 1.8 kW cannot heat any modelled pan faster than 3.84 K/s). Legacy trips its 15 K/s per-read check; C1 trips R1 (1 s block means rising > 15 K/s for 5 blocks) before the reading reaches 300 degC.",
+    "trace_file": "trace_sustained_rise_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "pan_temperature",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "RUNAWAY_FAULT",
+      "fault_code": "FAULT_RUNAWAY_BOUNDARY",
+      "max_latency_ticks": 2,
+      "max_latency_ticks_c1": 70,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_RUNAWAY_BOUNDARY"
+        }
+      ]
+    },
+    "c1_mechanism": "R1",
+    "c1_later_than_legacy_reason": "DECISIONS D-RUN: R1 replaces the 15 K/s per-read latch, which false-trips 58 of 75 benign runs (runaway-checks.json legacy_false_trips). R1 needs 5 consecutive 1 s blocks rising > 15 K/s, plus up to 2 blocks of alignment to the onset: 7 s (70 rows). The absolute 300 degC check is unchanged and still evaluates every 10 ms."
+  },
+  {
+    "name": "SIL: Sustained Sensor Rise 20 K/s (PREHEAT)",
+    "description": "The reading rises 20 K/s from 80 degC from tick 85 during PREHEAT. Legacy trips its 15 K/s per-read check; C1 trips R1 before the reading reaches 300 degC.",
+    "trace_file": "trace_sustained_rise_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "pan_temperature",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "RUNAWAY_FAULT",
+      "fault_code": "FAULT_RUNAWAY_BOUNDARY",
+      "max_latency_ticks": 2,
+      "max_latency_ticks_c1": 70,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_RUNAWAY_BOUNDARY"
+        }
+      ]
+    },
+    "c1_mechanism": "R1",
+    "c1_later_than_legacy_reason": "As for the HEATING case: R1 bound, DECISIONS D-RUN."
+  },
+  {
+    "name": "SIL: C1 Over-Target Reading with an Obeying Stage (HEATING)",
+    "description": "The reading steps to 115 degC (target + 15 K) at tick 85 and holds for 31 s with an obeying power stage (an h_c drop or a hot pan). C1 supervisor stage 1 holds the command at 0 and nothing latches; legacy latched FAULT_THERMAL_RUNAWAY here.",
+    "trace_file": "trace_c1_over_target_obeying_stage_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "pan_temperature",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "HEATING",
+      "fault_code": "FAULT_NONE",
+      "max_latency_ticks": 1,
+      "hold_state": true,
+      "hard_assertions": [
+        {
+          "power_level_zero": true
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "R2-stage1",
+    "c1_only_reason": "The C1 replacement for the legacy over-target latch (DECISIONS D-RUN: a lowered target, a hot pan or an h_c drop to target + 13 K tripped it falsely). The 31 s hold outlasts the 20 s stage-2b hold."
+  },
+  {
+    "name": "SIL: Cooldown Overheat Fault (COOLDOWN, hot heatsink)",
+    "description": "Pan removed at tick 40 with the heatsink at 55 degC; HEATING -> NO_PAN -> COOLDOWN; the heatsink steps to 65 degC at tick 90 (more than 5 K above the COOLDOWN start).",
+    "trace_file": "trace_cooldown_overheat_hot_heatsink.csv",
+    "origin_state": "COOLDOWN",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 90,
+      "sensors": [
+        {
+          "name": "heatsink_temperature",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_COOLDOWN_OVERHEAT",
+      "max_latency_ticks": 3,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_COOLDOWN_OVERHEAT"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Relay Welded Fault (COOLDOWN, hot heatsink)",
+    "description": "Pan removed at tick 40 with the heatsink at 55 degC; HEATING -> NO_PAN -> COOLDOWN; a welded relay keeps the stage powered and the heatsink rises 2 K per 100 ms from tick 90.",
+    "trace_file": "trace_relay_welded_hot_heatsink.csv",
+    "origin_state": "COOLDOWN",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 90,
+      "sensors": [
+        {
+          "name": "heatsink_temperature",
+          "over_ticks": 3
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_COOLDOWN_OVERHEAT",
+      "max_latency_ticks": 3,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_COOLDOWN_OVERHEAT"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: C1 ADC Frozen Code (HEATING)",
+    "description": "The legacy ADC-stuck trace's reading holds 92.0 from tick 56 (last distinct value at tick 55). C1 reports a frozen converter after 250 identical conversions.",
+    "trace_file": "trace_fault_adc_stuck.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 56,
+      "sensors": [
+        {
+          "name": "pan_temperature",
+          "over_ticks": 0
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_ADC_STUCK",
+      "max_latency_ticks": 50,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_ADC_STUCK"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "rtd-frozen",
+    "c1_only_reason": "Times the C1 frozen-code check from the freeze onset; RTD_C1_FROZEN_CONVERSIONS (250) identical codes at 50 Hz is 5.0 s = 50 rows from the first held conversion (DECISIONS D-STALE)."
+  },
+  {
+    "name": "SIL: C1 ADC Frozen Code (PREHEAT)",
+    "description": "The legacy ADC-stuck PREHEAT trace's reading holds 80.0 from tick 56. C1 reports a frozen converter after 250 identical conversions.",
+    "trace_file": "trace_fault_adc_stuck_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 56,
+      "sensors": [
+        {
+          "name": "pan_temperature",
+          "over_ticks": 0
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_ADC_STUCK",
+      "max_latency_ticks": 50,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_ADC_STUCK"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "rtd-frozen",
+    "c1_only_reason": "Times the C1 frozen-code check from the freeze onset; RTD_C1_FROZEN_CONVERSIONS (250) identical codes at 50 Hz is 5.0 s = 50 rows from the first held conversion (DECISIONS D-STALE)."
+  },
+  {
+    "name": "SIL: C1 ADC Frozen Code (IDLE)",
+    "description": "In IDLE the reading holds 25.0 from tick 16 (last distinct value at tick 15).",
+    "trace_file": "trace_c1_frozen_idle.csv",
+    "origin_state": "IDLE",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 16,
+      "sensors": [
+        {
+          "name": "pan_temperature",
+          "over_ticks": 0
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_ADC_STUCK",
+      "max_latency_ticks": 50,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_ADC_STUCK"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "rtd-frozen",
+    "c1_only_reason": "C1 services the MAX31865 in every state (rtd_service_control_tick, 07h, stale and frozen checks), so its sensor faults are reachable from IDLE. The legacy SIL target does not link the converter service; its RTD checks run only in PREHEAT/HEATING (check_safety_interlocks). RTD_C1_FROZEN_CONVERSIONS (250) identical codes at 50 Hz is 5.0 s = 50 rows from the first held conversion (DECISIONS D-STALE)."
+  },
+  {
+    "name": "SIL: C1 RTD Probe Open (IDLE)",
+    "description": "In IDLE the Pt100 opens (15 kohm) at tick 20: the code saturates above the high threshold word.",
+    "trace_file": "trace_c1_probe_open_idle.csv",
+    "origin_state": "IDLE",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 20,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_OPEN",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_OPEN"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "rtd-07h",
+    "c1_escalates_to_runaway": true,
+    "c1_only_reason": "C1 services the MAX31865 in every state (rtd_service_control_tick, 07h, stale and frozen checks), so its sensor faults are reachable from IDLE. The legacy SIL target does not link the converter service; its RTD checks run only in PREHEAT/HEATING (check_safety_interlocks)."
+  },
+  {
+    "name": "SIL: C1 RTD Probe Short (IDLE)",
+    "description": "In IDLE the Pt100 shorts (5 ohm) at tick 20: the code falls below the low threshold word.",
+    "trace_file": "trace_c1_probe_short_idle.csv",
+    "origin_state": "IDLE",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 20,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_SHORT",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_SHORT"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "rtd-07h",
+    "c1_only_reason": "C1 services the MAX31865 in every state (rtd_service_control_tick, 07h, stale and frozen checks), so its sensor faults are reachable from IDLE. The legacy SIL target does not link the converter service; its RTD checks run only in PREHEAT/HEATING (check_safety_interlocks)."
+  },
+  {
+    "name": "SIL: C1 RTD No DRDY (IDLE)",
+    "description": "In IDLE the MAX31865 stops delivering conversions (no DRDY) at tick 20.",
+    "trace_file": "trace_c1_no_drdy_idle.csv",
+    "origin_state": "IDLE",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 20,
+      "sensors": [
+        {
+          "name": "rtd_drdy",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_OPEN",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_OPEN"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "rtd-stale",
+    "c1_only_reason": "C1 services the MAX31865 in every state (rtd_service_control_tick, 07h, stale and frozen checks), so its sensor faults are reachable from IDLE. The legacy SIL target does not link the converter service; its RTD checks run only in PREHEAT/HEATING (check_safety_interlocks). Stale = no DRDY for RTD_C1_STALE_CONTROL_TICKS (60 ms)."
+  },
+  {
+    "name": "SIL: C1 RTD No DRDY (HEATING)",
+    "description": "During HEATING the MAX31865 stops delivering conversions (no DRDY) at tick 85.",
+    "trace_file": "trace_c1_no_drdy_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "rtd_drdy",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_OPEN",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_OPEN"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "rtd-stale",
+    "c1_only_reason": "The C1 converter service's DRDY-stale check (60 ms). The legacy SIL target does not model the converter."
+  },
+  {
+    "name": "SIL: C1 RTD 80 ohm Below the C1 Window (HEATING)",
+    "description": "During HEATING the Pt100 reads 80 ohm from tick 85: inside the legacy 10..300 ohm window, below the C1 84.27 ohm short threshold (DECISIONS D-THRESH).",
+    "trace_file": "trace_c1_rtd_low_80ohm_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_SHORT",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_SHORT"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "rtd-07h",
+    "c1_only_reason": "Exercises the C1 Pt100 window end to end, the reset path included; the legacy window does not fault at 80 ohm."
+  },
+  {
+    "name": "SIL: DEMONSTRATED GAP -- Fan Failure during a 1 s PAN_DET dwell is not interlocked",
+    "description": "No pan and the fan off for the first 10 rows of PAN_DET (power_set_level(5) active), then the pan is placed and the fan restarts: the machine sits in PAN_DET for 1 s with the fan off and no fault, then reaches PREHEAT normally. Same gap as the legacy scenario, at a dwell that outlasts a 100 ms row at either cadence. NOT part of the required coverage matrix and intentionally has no hard_assertions.",
+    "trace_file": "trace_gap_pan_det_fan_failure_dwell.csv",
+    "origin_state": "PAN_DET",
+    "finding": "SAFETY GAP (demonstrated, not fixed): fan failure injected throughout PAN_DET produces no fault; the machine proceeds to PREHEAT with power_set_level(5) applied and no interlock check. See state_handlers.c state_pan_det_update() vs state_preheat_update()/state_heating_update().",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 0,
+      "sensors": [
+        {
+          "name": "fan_running",
+          "over_ticks": 10
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "PREHEAT",
+      "fault_code": "FAULT_NONE",
+      "max_latency_ticks": 3
     }
   }
 ]
