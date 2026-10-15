@@ -71,19 +71,45 @@ their ratchets.
 
 ## 5. Owner actions
 
-- Restart the remote FEM box (S3).
-- Send the certifier packet (S11, with S12).
-- Relay to the controller session: `c23-supply-topology/CONTROLLER-REQUEST.md` (J13, with addenda 1–2: a stage-38 board needs the J13 merge and J4.1 dropped before it is powered); the still-air ceiling ≤ 18 A until
-  S2 passes (DECISIONS 46); temper-8d's controller CR-1..CR-7
-  (`git show sensor-c1-impulse-mining:output/temper-sensor-r3/pcb/CHANGE-REQUEST.md`; not this board, so not reviewed
-  here).
-- Relay `c23-supply-topology/MODULE-REQUEST.md` (D-22 module: Y caps removed, SCF31X choke) and `c23-supply-topology/ENCLOSURE-REQUEST.md`.
-- Relay `b3-ratings/ENCLOSURE-REQUEST.md` (board-face airflow) and `c35-smt-terminals/ENCLOSURE-REQUEST.md` (lug
-  seat +2.5 mm) to the enclosure session.
-- Pre-order the long-lead parts (`sourcing/study-2026-10-15/README.md` §4), L1 first.
-- Confirm DigiKey's "B32676G1106K Z 1" is the catalogue B32676G1106K (S8).
-- Bench: coil L / R with real pans; bank hot spot; terminal pull, torque and temperature; module temperatures; bay air
-  and board copper at R5 in an enclosure soak (S2).
+Ranked by what they unlock.
+
+1. **Push board-face airflow with the enclosure session** (`b3-ratings/ENCLOSURE-REQUEST.md`). It is the only route
+   above about 20 A of tank current. At the 18 A release ceiling, pooled pan power is about 650 W at 120 V (0.42× the
+   Control Freak, S2). Also relay `c35-smt-terminals/ENCLOSURE-REQUEST.md` (lug seat +2.5 mm) and
+   `c23-supply-topology/ENCLOSURE-REQUEST.md`.
+2. **Choose the TCO rating and its mounting** (S15). It is the UL 858 25.3.1 backstop for a stage stuck on.
+3. **Relay to the controller session:**
+   - `c23-supply-topology/CONTROLLER-REQUEST.md` (J13, addenda 1–2). A stage-38+ board needs the J13 merge and J4.1
+     dropped before it is powered.
+   - The firmware on this branch now ships the 18 A tank ceiling (DECISIONS 56) and the RMS-increment aux allowance
+     (B11). The controller image must carry both.
+   - `c39-gate-network/CONTROLLER-REQUEST.md`: a hardware capacitive-mode (phase) detector (S14).
+   - Optional: a bay-air sensor would let the firmware run 20 A when the bay reads ≤ 55 °C (DECISIONS 55).
+   - temper-8d's controller CR-1..CR-7 (`git show sensor-c1-impulse-mining:output/temper-sensor-r3/pcb/CHANGE-REQUEST.md`;
+     not this board, not reviewed here).
+4. **Relay** `c23-supply-topology/MODULE-REQUEST.md` (D-22 module: Y caps removed, SCF31X choke).
+5. **Send the certifier packet:**
+   - S11, with S12 (laminate UL scope for 61 µm inner copper);
+   - the MPM approvals;
+   - the EOL veto test (B8);
+   - S15 (TCO as the 25.3.1 backstop).
+6. **Ask JLC about the laminate UL scope for 2 oz inner copper** (S12).
+7. **Pre-order the long-lead parts** (`sourcing/study-2026-10-15/README.md` §4): L1 first, then PMEG6030EP (B9).
+   Confirm that DigiKey's "B32676G1106K Z 1" is the catalogue B32676G1106K (S8).
+8. **Bench, first:**
+   - the gate-row IR reading (the R_on 0.217 W bound behind the +0.7 K release margin);
+   - D-8 double pulse for max Qrr (S14);
+   - BENCH-RMS for the aux allowance (B11);
+   - B10's UL 858 cases and the bad-pan set.
+9. **Bench, then:**
+   - coil L / R with real pans;
+   - the bank hot spot;
+   - terminal pull, torque and temperature;
+   - module temperatures;
+   - bay air and board copper at R5 in an enclosure soak (S2).
+10. **Restart the remote FEM box** (S3).
+11. **Delete about 11 MB of scratch** under `runs-native21/s40/` (`src0`, `src1`, `src2`, `view`, `t-*.json`). The
+    safety check blocked me from removing it.
 
 ## Closed
 
