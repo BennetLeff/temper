@@ -136,10 +136,13 @@ def bc_from_global(rise_g, pitch_g, origin_g, brd, pitch, i0, i1, j0, j1):
 
 
 def run_case(brd, op, h, pitch, copper="fraction", source="network", sens=None, window=None, bc=None,
-             use_a4=True, use_parts=True, label="", return_rise=False, leads=None):
+             use_a4=True, use_parts=True, label="", return_rise=False, leads=None, region=None):
     """leads: None (no FET-lead path, the stage-19b model) or {"pad": "2", "g": W/K or {ref: W/K},
     "t_rise": K or {ref: K}} - each FET's drain pad tied to its tab at t_rise over the model ambient (thermal_body
-    LeadLink; t_rise = T_case - bay air, since the gate shifts the whole field by bay - 50)."""
+    LeadLink; t_rise = T_case - bay air, since the gate shifts the whole field by bay - 50).
+    region: None (still air everywhere, the model to 2026-10-15) or thermal_body.TopRegion - top-face cells centred in it
+    convect at region.h_top to air at region.t_air_rise, and the package networks centred in it take body-to-air there
+    (b3-ratings jet-2026-10-15). The run records it under "region"."""
     t0 = time.time()
     sens = sens or {}
     case_str, heat_json, mode = op_inputs(op)
@@ -189,7 +192,7 @@ def run_case(brd, op, h, pitch, copper="fraction", source="network", sens=None, 
                 m = WIN_MARGIN   # mm margin from the window edge
                 return (x[0] + m <= px <= x[-1] - m) and (y[0] + m <= py <= y[-1] - m)
             parts, omitted = tb.build_network_parts(brd, heat_json, mode, nz, nx, ny, brd.xmin, brd.ymin, pitch, i0, j0,
-                                                    h, PART_BODIES, sens, inside)
+                                                    h, PART_BODIES, sens, inside, region=region)
     lead_links = []
     if leads is not None:
         spec = {}
@@ -201,8 +204,13 @@ def run_case(brd, op, h, pitch, copper="fraction", source="network", sens=None, 
             t = leads["t_rise"][ref] if isinstance(leads["t_rise"], dict) else leads["t_rise"]
             spec[ref] = (leads.get("pad", "2"), float(g), float(t))
         lead_links = tb.build_lead_links(brd, spec, nx, ny, brd.xmin, brd.ymin, pitch, i0, j0)
+    top_region = None
+    if region is not None:
+        assert source == "network", "a TopRegion needs the network source model"
+        rmask = region.mask(x, y)
+        top_region = (rmask, region.h_top, region.t_air_rise)
     rise, riseJ, rec = tb.solve_system(board, k, tb.THK_MM * 1e-3, heat, h, pitch_m, links, parts,
-                                       dirichlet=bc, label=label, leads=lead_links)
+                                       dirichlet=bc, label=label, leads=lead_links, top_region=top_region)
     # ------------------------------------------------------------------ metrics
     hp = json.loads(Path(heat_json).read_text())["parts"]
     by_net = {p.ref: (s, p) for s, p in enumerate(parts)}
@@ -224,9 +232,14 @@ def run_case(brd, op, h, pitch, copper="fraction", source="network", sens=None, 
             s, np_ = by_net[ref]
             row.update(spec=np_.spec_key, tj_c=tb.TAMB_C + float(riseJ[s]),
                        r_pad_kw=np_.meta["r_pad"], r_top_kw=np_.r_top, tj_limit_c=np_.meta["tj_limit"],
-                       body_air_w=float(np_.g_air * riseJ[s]),
-                       tcase_c=tb.TAMB_C + float(riseJ[s]) - float(np_.g_air * riseJ[s]) * np_.r_top,
+                       body_air_w=float(np_.g_air * (riseJ[s] - np_.t_air)),
+                       tcase_c=tb.TAMB_C + float(riseJ[s]) - float(np_.g_air * (riseJ[s] - np_.t_air)) * np_.r_top,
                        network_pad_area_mm2=np_.meta["pad_area_mm2"], sink_fraction=np_.meta["sink_fraction"])
+            if np_.spec_key == "film_hf" and np_.g_air > 0:
+                # the gated Top row at the strong-tie end (thermal_body.FILM_HF_STRONG): never below the node itself
+                bound = tb.film_top_bound_rise(st["max_pad_mean_k"], np_.watts, np_.g_air, np_.t_air)
+                row.update(top_bound_c=tb.TAMB_C + max(float(riseJ[s]), bound), g_air_w_k=np_.g_air,
+                           g_strong_w_k=tb.film_strong_coupling_g())
             heated = [e[0] for e in ent if True]
             gst = None
             if np_.spec_key == "recom":
@@ -289,6 +302,15 @@ def run_case(brd, op, h, pitch, copper="fraction", source="network", sens=None, 
            "omitted_parts": omitted, "board_cells": int(board.sum()), "runtime_s": round(time.time() - t0, 1)}
     if leads is not None:
         out["leads"] = lead_rows
+    if region is not None:
+        live = interior if window else board
+        out["region"] = {**region.as_dict(), "h_rest": h, "face": "top (F.Cu, z = 0)",
+                         "rule": "top cells and package networks centred in the region, inclusive",
+                         "region_cells_top": int((rmask & live).sum()),
+                         "region_area_mm2": float((rmask & live).sum() * pitch ** 2),
+                         "region_top_convection_w": rec.get("region_top_convection_w"),
+                         "region_mean_top_rise_k": float(rise[0][rmask & live].mean()) if (rmask & live).any() else None,
+                         "body_air_credited": sorted(p.ref for p in parts if p.meta.get("region_credited"))}
     if return_rise:
         return out, rise
     return out

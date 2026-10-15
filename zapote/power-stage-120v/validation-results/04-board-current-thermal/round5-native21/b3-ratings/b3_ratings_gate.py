@@ -6,8 +6,10 @@ b3-ratings/ (thermal-ratings audit, 2026-10-15).
     python3 b3_ratings_gate.py --runs DIR [--out margins.json] [--cases c18_h10@61,c22_h10@55,c28_h10@55]
                                [--release c18_h10] [--bay-c 55]
 
---cases takes CASE or CASE@BAY. A case's bay is, first to apply: its @BAY, --bay-c, the bay_c its run files were solved
-at (run_basis.py writes it), BASIS, 55 C. A run file solved at another bay than the one asked for stops the gate (the FET
+--cases takes CASE or CASE@BAY. CASE = c<ceiling>_h<h>[_jet<h_top>[a<air C>]]: the _jet suffix is an airflow case
+(run_basis.JET_REGION at h_top on the top face, air at <air C>, default the bay; b3-ratings/jet-2026-10-15). Airflow
+cases are labelled role "airflow": they never decide the release verdict and stay out of the ratchet metrics.
+A case's bay is, first to apply: its @BAY, --bay-c, the bay_c its run files were solved at (run_basis.py writes it), BASIS, 55 C. A run file solved at another bay than the one asked for stops the gate (the FET
 tab tie is absolute, so a bay is solved, not shifted). Default --cases: BASIS (with --bay-c alone: c22_h10,c28_h10,
 the pre-2026-10-15 form). --release: the cases whose gated rows decide the verdict (default: the BASIS release cases
 present); with none, every case decides it (the pre-2026-10-15 rule, still what gate_control.py uses).
@@ -38,7 +40,12 @@ Limits (sources re-read 2026-10-15; see the audit's ratings.py for page-level qu
   CSS2H-2512R      element 170 C (REV 06/17/20 p.1); terminal <= 170 - 100 * P / (0.8 * 5 W) (p.3 curve, G6 20 % rule)
   HF film C38-C41 TDK B32652A0104K000 Top,max 110 C = TA + self-heating (B3265* June 2026 p.2, p.35, p.78) - gated
                    (thermal-refine 2026-10-15: the limit is a datasheet maximum; the body node is reached through the
-                   assumed 50 K/W lead path with no body-to-air path, an upper bound for a cap heated from its leads)
+                   assumed 50 K/W lead path. To 2026-10-15 it had no body-to-air path, an upper bound for a cap heated
+                   from its leads; since jet-2026-10-15 the body loses heat to air from its p.14 9.0 x 17.5 x 18.0 mm
+                   box at the local h, as a fin from its end contacts: thermal_body.film_body_g_air. The solve keeps the
+                   weak 50 K/W lead tie (conservative for the board rows); the row is the run's top_bound_c, the body
+                   tied to its hotter pad through copper leads over the 0.62 mm seat (thermal_body.FILM_HF_STRONG,
+                   conservative for the cap))
   gate resistors   package-aware (candidate 39): the body model's package spec of each part picks the rating.
                    1206: R10/R12/R18/R20 FH RS-06L8R20FT (V11.0 2026-04-28 p.2) to stage 41 and R53/R54/R57/R58 UniRoyal
                    1206W4F100KT5E (V.3 p.4/9, p.5/9): 1/4 W at 70 C derating to 0 W at 155 C, range -55..155 C.
@@ -57,6 +64,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 MOT_C = 130.0
@@ -79,11 +87,28 @@ BASIS = {"c18_h10": {"ceiling_a": 18.0, "h": 10, "bay_c": 61.0, "role": "release
          "c28_h10": {"ceiling_a": 28.0, "h": 10, "bay_c": 55.0, "role": "ratchet"}}
 
 
+CASE_RE = re.compile(r"^c(\d+(?:\.\d+)?)_h(\d+)(?:_jet(\d+(?:\.\d+)?)(?:a(\d+(?:\.\d+)?))?)?$")
+
+
+def _case_match(case: str):
+    m = CASE_RE.match(case)
+    if not m:
+        raise SystemExit(f"b3_ratings_gate: case {case!r} is not c<ceiling>_h<h>[_jet<h_top>[a<air C>]]")
+    return m
+
+
 def case_ceiling_h(case: str):
-    """'c18_h10' -> (18.0, 10)."""
-    c, h = case.split("_")
-    assert c[0] == "c" and h[0] == "h", case
-    return float(c[1:]), int(h[1:])
+    """'c18_h10' -> (18.0, 10); 'c28_h10_jet100' -> (28.0, 10)."""
+    m = _case_match(case)
+    return float(m.group(1)), int(m.group(2))
+
+
+def case_jet(case: str):
+    """None for a still-air case; {'h_top': W/m2K, 'air_c': C or None (= the bay)} for an airflow case."""
+    m = _case_match(case)
+    if m.group(3) is None:
+        return None
+    return {"h_top": float(m.group(3)), "air_c": None if m.group(4) is None else float(m.group(4))}
 
 
 def parse_cases(spec, bay):
@@ -94,7 +119,10 @@ def parse_cases(spec, bay):
     out = {}
     for it in items:
         c, _, b = it.strip().partition("@")
-        out[c] = float(b) if b else bay
+        v = float(b) if b else bay
+        if c in out and out[c] != v:       # one run file name per case: a second bay would overwrite the first
+            raise SystemExit(f"b3_ratings_gate: case {c} given at two bays ({out[c]}, {v}); solve each bay in its own --runs")
+        out[c] = v
     return out
 
 
@@ -126,7 +154,8 @@ def evaluate(r25: dict, r05: dict, bay: float):
                              est_c=est(p["pad_max_cell_c"], q["pad_max_cell_c"], bay)))
         elif p["ref"] in GATED_REFS:
             basis, lim, rated_w = GATED_REFS[p["ref"]]
-            rows.append(dict(item=f"{p['ref']}: {basis}", gated=True, limit_c=lim, est_c=est(p["tj_c"], q["tj_c"], bay)))
+            key = "top_bound_c" if "top_bound_c" in p else "tj_c"     # the strong-tie bound once a body-air path exists
+            rows.append(dict(item=f"{p['ref']}: {basis}", gated=True, limit_c=lim, est_c=est(p[key], q[key], bay)))
         elif spec in GATED:
             basis, lim = GATED[spec]
             rows.append(dict(item=f"{p['ref']}: {basis}", gated=True, limit_c=lim, est_c=est(p["tj_c"], q["tj_c"], bay)))
@@ -152,6 +181,10 @@ def run(runs: Path, cases, bay: float | None = None, release=None):
     release = list(release)
     if set(release) - set(cases):
         raise SystemExit(f"b3_ratings_gate: release case(s) {sorted(set(release) - set(cases))} not among {list(cases)}")
+    airflow = [c for c in cases if case_jet(c) is not None]
+    if set(release) & set(airflow):
+        raise SystemExit(f"b3_ratings_gate: airflow case(s) {sorted(set(release) & set(airflow))} cannot be release cases "
+                         "(the release basis is still air until a measured board-face h exists)")
     out = {"basis": {"cases": {}, "release": release, "k_mesh": K_MESH, "mot_c": MOT_C}, "cases": {}}
     for c, want in cases.items():
         f25, f05 = runs / f"{c}_p0p25.json", runs / f"{c}_p0p5.json"
@@ -170,11 +203,26 @@ def run(runs: Path, cases, bay: float | None = None, release=None):
         lines = {r25.get("i_line_a"), r05.get("i_line_a")}
         if len(lines) != 1:
             raise SystemExit(f"b3_ratings_gate: {c} meshes use different line currents {lines}")
+        jet = case_jet(c)
+        regs = [r.get("region") for r in (r25, r05)]
+        if jet is None and any(regs):
+            raise SystemExit(f"b3_ratings_gate: {c} is a still-air case but its run files carry an airflow region")
+        if jet is not None:
+            want_rise = 0.0 if jet["air_c"] is None else jet["air_c"] - b
+            for r in regs:
+                if not r or r["h_top"] != jet["h_top"] or abs(r["t_air_rise_k"] - want_rise) > 1e-9:
+                    raise SystemExit(f"b3_ratings_gate: {c} run files do not carry its region (h_top {jet['h_top']}, "
+                                     f"air rise {want_rise} K over the bay): {r}")
         out["basis"]["cases"][c] = {"bay_c": b, "i_line_a": lines.pop(), "i_t_a": None if r25.get("i_t_a") is None else round(r25["i_t_a"], 3), "h": r25.get("h"),
-                                    "role": "release" if c in release else "ratchet"}
+                                    "role": "release" if c in release else "airflow" if jet else "ratchet"}
+        if jet is not None:
+            out["basis"]["cases"][c]["airflow"] = {"region_xy_mm": regs[0]["xy_mm"], "h_top": jet["h_top"],
+                                                   "air_c": b + regs[0]["t_air_rise_k"], "face": regs[0].get("face"),
+                                                   "body_air_credited": regs[0].get("body_air_credited")}
         rows = evaluate(r25, r05, b)
         out["cases"][c] = sorted(rows, key=lambda r: r["margin_k"])
-    ratchet = [c for c in cases if c not in release] or list(cases)
+    ratchet = ([c for c in cases if c not in release and c not in airflow] or [c for c in cases if c not in release]
+               or list(cases))
     rr = [r for c in ratchet for r in out["cases"][c]]
     lam = [r["margin_k"] for r in rr if r["item"].startswith("laminate")]
     part = [r["margin_k"] for r in rr if r["gated"] and not r["item"].startswith("laminate")]
