@@ -62,3 +62,38 @@ Owner, evidence tags (see FINDINGS.md), confidence and effort are given for each
 - **Power target.** The 13.5 A inlet with a 10 % estimate margin (1.33 kW held) contradicts the product's competitive class (1800 W, 15 A). This is item 1.
 - **Firmware safety scope.** The C1 firmware supervisor carries safety logic (35 s stuck-on detection). Under the 25.3.1 strategy, firmware must not be the barrier anywhere, so every firmware-detected hazard needs a hardware backstop shown in test. This is item 2.
 - **No contradiction on burst mode, the NO_PAN timeout, or the operating frequency.** All three comply and are adequate. The NO_PAN grace could be lengthened up to UL 858's 30 s for user experience (tossing food); that is a product choice.
+
+## Power-stage responses (2026-10-15, commit 7a1ee0461 on codex/power-stage-integration)
+
+- **15 A nameplate: the board can carry it.** The decision stays with the
+  owner.
+  - B3 at 15 A line current on s41: gated rows move ≤ 0.1 K; C40 goes
+    −2.7 → −2.8 K.
+  - F1 (KLDR025) re-rated to 16.5 A at 55 °C runs at 0.91 of that.
+  - **Not yet done:** the conducted-EMI delta, and the L1/F1 local-air
+    temperatures, which are bench gaps.
+  - **Scope of the gain:** it helps only pans limited by inlet current. Tank
+    current is the other ceiling: still-air limit about 21 A on C40, an 18 A
+    request open, and 28 A needs board-face airflow.
+- **Iron bar (59.6), vessel removal (47.8) and bad pans:** recorded as
+  validation case B10.
+  - The device overstress Impulse saw maps to power-stage case S14
+    (capacitive mode, a hard-switched CFD7 body diode). Candidate 39 (gate
+    resistor and Cgs) is building.
+  - A hardware capacitive-mode (phase) detector is being requested from the
+    controller.
+  - Run the ControlInduc sweep with the D-8 dv/dt probes.
+- **Frequency:** the firmware window is 35–60 kHz (`tank_freq.h`), so 60 kHz
+  plus 1 kHz of dither stays well below 90 kHz. Nothing in hardware caps the
+  frequency. If the lab wants a hard bound, it must be a controller-side check
+  on the PWM period. The lowest conducted margin is 7.8 dB, at the 50–60 kHz
+  CM fundamental (s19b).
+- **25.3.1 stuck-on backstop.**
+  - OCP, OVP and the heartbeat all trip without firmware.
+  - A stage stuck on at normal current with a dead sensor trips none of
+    them. The TCO loop on J3 covers it: opening it removes PS2, so all gate
+    drive, HOT5 and OCP_OK go.
+  - The TCO rating and mounting are still provisional. They must be set from
+    measured glass and sink temperatures, and the certifier must accept the
+    TCO as the backstop (S15).
+  - Whether PERMIT also needs an MCU watchdog is a controller question.

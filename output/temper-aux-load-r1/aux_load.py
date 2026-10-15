@@ -114,6 +114,35 @@ def firmware_allowance_a(duty: float | None) -> float:
     return min(worst, base + (1 + margin) * model(12.40 - 6.57 * duty) + idle)
 
 
+# ---------------------------------------------------------------- firmware allowance proposed
+# blower_aux.patch (temper-aux-load-r1): the same blower_aux.c structure, re-based on this model.
+#   level(off)  = base + idle
+#   level(duty) = min(worst, base + (1 + margin) * ps3(duty) + idle),  worst = base + ps3(duty 0)
+#   ps3(duty)   = P_buck_in,max(duty) / (eta_ps3 * pf_eff * 108 V)
+# base   = the worst-corner increment with the blower off (PS2 + PS3 logic), rounded UP to 10 mA;
+# eta_ps3 = MPM-65 typ - 5 points (the worst corner's efficiency);
+# pf_eff = real-power current over the increment above base, the LOWEST over the duty grid and
+#          the three lines, rounded DOWN to 0.01: the unmargined model alone covers every point.
+FW_NEW = dict(idle=0.05, margin=0.15, v_line_low=108.0,
+              eta_ps3=0.925 - ETA_WORST_PENALTY)        # SUPPLIES["PS3 MPM-65-15ST"]
+DUTY_GRID = tuple(round(0.05 * k, 2) for k in range(21))   # 0 = full speed .. 1.0 (firmware caps 0.85)
+
+
+def firmware_new_ps3_a(duty: float, pf: float) -> float:
+    """blower_aux_ps3_model_a(vout_max_v(duty)), unmargined."""
+    return blower_in_w(duty, "max") / (FW_NEW["eta_ps3"] * pf * FW_NEW["v_line_low"])
+
+
+def firmware_new_a(duty: float | None, base: float, pf: float) -> float:
+    """blower_aux_level_a()."""
+    worst = base + firmware_new_ps3_a(0.0, pf)
+    if duty is None:
+        return min(worst, base + FW_NEW["idle"])
+    if duty <= 0:
+        return worst
+    return min(worst, base + (1 + FW_NEW["margin"]) * firmware_new_ps3_a(duty, pf) + FW_NEW["idle"])
+
+
 # ---------------------------------------------------------------- rectifier model
 N_STEP = 4000      # per line cycle
 N_CYC = 14         # settle; the last cycle is analysed
@@ -225,7 +254,7 @@ def main() -> None:
                      for vd, r in variants]
     r_sweep = variants
 
-    blower_states = {"off": None, "drive_0.5": 0.5, "full": 0.0}
+    blower_states = {"off": None, "duty_0.5": 0.5, "full": 0.0}
     corners = {
         "typical": dict(line=120.0, bias_f=40e3, logic=LOGIC_TYP_W, blower="typ", h3=0.0),
         "worst": dict(line=108.0, bias_f=80e3, logic=LOGIC_MAX_W, blower="max", h3=0.2),
@@ -294,6 +323,47 @@ def main() -> None:
                 worst = row_out
         sweep[f"{v:.0f}"] = worst
 
+    # Worst-corner increment over the duty grid at each line (C-test vectors), and the constants
+    # derived from them for the proposed firmware allowance.
+    ps2_out = PS2_BIAS_W[80e3] + PS2_HOT5_W["worst"]
+    grid = {}
+    for v in LINES_V:
+        ps2 = [module_current(cal["PS2 MPM-20-24"][k], ps2_out / eta(SUPPLIES["PS2 MPM-20-24"], ps2_out, "worst"), v)
+               for k in range(len(r_sweep))]
+        row = {}
+        for d in (None,) + DUTY_GRID:
+            p3 = LOGIC_MAX_W + blower_in_w(d, "max")
+            row["off" if d is None else f"{d:.2f}"] = max(
+                solve_hold(ps2[k] + module_current(cal["PS3 MPM-65-15ST"][k],
+                                                   p3 / eta(SUPPLIES["PS3 MPM-65-15ST"], p3, "worst"), v), 0.2)[1]
+                for k in range(len(r_sweep)))
+        grid[f"{v:.0f}"] = row
+    env = {key: max(grid[ln][key] for ln in grid) for key in grid["108"]}
+    base_new = math.ceil(env["off"] * 100 - 1e-9) / 100
+    pf_cands = {d: blower_in_w(d, "max") / (FW_NEW["eta_ps3"] * FW_NEW["v_line_low"] * (env[f"{d:.2f}"] - base_new))
+                for d in DUTY_GRID}
+    pf_new = math.floor(min(pf_cands.values()) * 100 + 1e-9) / 100
+    fw_new = {s: firmware_new_a(d, base_new, pf_new) for s, d in blower_states.items()}
+    unmargined_slack = min(base_new + firmware_new_ps3_a(d, pf_new) - env[f"{d:.2f}"] for d in DUTY_GRID)
+    firmware_model = {
+        "form": "level(off) = base + idle; level(duty) = min(worst, base + (1 + margin) * ps3(duty) + idle); "
+                "worst = base + ps3(0); ps3(duty) = 32.4 W * (V(duty) / 12 V)^3 / 0.90 / (eta_ps3 * pf_eff * 108 V), "
+                "V(duty) = 12.40 - 6.57 * duty",
+        "base_A": base_new, "pf_eff": pf_new, "eta_ps3": round(FW_NEW["eta_ps3"], 4),
+        "idle_A": FW_NEW["idle"], "margin": FW_NEW["margin"], "v_line_low_V": FW_NEW["v_line_low"],
+        "pf_eff_by_duty_before_rounding": {f"{d:.2f}": round(x, 4) for d, x in pf_cands.items()},
+        "unmargined_model_min_slack_A": round(unmargined_slack, 4),
+        "worst_increment_by_line_and_duty_A": {ln: {k: round(x, 4) for k, x in row.items()} for ln, row in grid.items()},
+        "c_test_vectors_max_over_lines_A": {k: round(x, 4) for k, x in env.items()},
+        "allowance_A": {
+            st: {"today": round(firmware_allowance_a(d), 3), "proposed": round(fw_new[st], 3),
+                 "worst_increment_108V": round(results[f"worst/{st}"]["rms_increment_at_hold_A"], 3),
+                 "hold_today_A": round((INLET_TARGET_A - firmware_allowance_a(d)) / (1 + E_EST), 3),
+                 "hold_proposed_A": round((INLET_TARGET_A - fw_new[st]) / (1 + E_EST), 3),
+                 "trip_proposed_A": round((15.0 - fw_new[st]) / (1 + E_EST), 3)}
+            for st, d in blower_states.items()},
+    }
+
     out = {
         "scope": __doc__.strip(),
         "datasheets": {n: s["src"] for n, s in SUPPLIES.items()},
@@ -311,7 +381,10 @@ def main() -> None:
         "firmware_allowance_today_A": {s: round(firmware_allowance_a(d), 3) for s, d in blower_states.items()},
         "results": results,
         "worst_full_blower_line_sweep": sweep,
+        "firmware_model_proposed": firmware_model,
         "notes": [
+            "duty_0.5 is GPIO46 duty 0.5 (12.40 - 6.57 x 0.5 = 9.12 V upper envelope), not fan-law drive 0.5 "
+            "(drive 0.5 -> duty ~0.43 through blower_pwm_duty_from_drive)",
             "firmware base 1.3 A still assumes PS1 + PS2 IRM-20 at full load; PS1 was deleted at s38 and the "
             "logic moved onto PS3, which the firmware PS3 model does not count (it models the blower only)",
             "aux increment = RMS(i_ps + i_aux) - RMS(i_ps) at the hold point; worst calibration variant kept",
@@ -338,6 +411,10 @@ def main() -> None:
               f"{r['recoverable_allowance_A']:6.3f} {r['hold_A']:6.3f} {r['firmware_hold_A']:6.3f} "
               f"{r['power_gain_W_at_120V_pf1']:7.0f}")
     print("worst/full line sweep:", sweep)
+    print(f"proposed firmware: base {base_new} A, pf_eff {pf_new}, unmargined slack {unmargined_slack:.4f} A")
+    for st, v in firmware_model["allowance_A"].items():
+        print(f"  {st:9s} today {v['today']:.3f} -> proposed {v['proposed']:.3f} A (real {v['worst_increment_108V']:.3f}); "
+              f"hold {v['hold_today_A']:.3f} -> {v['hold_proposed_A']:.3f} A")
 
 
 if __name__ == "__main__":

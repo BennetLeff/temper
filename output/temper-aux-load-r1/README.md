@@ -4,12 +4,13 @@
 (`python3 aux_load.py`, about 2 s). Sources were read only: the power-stage
 DECISIONS 16, 47 and 50, `ALT-BIAS.md`, `blower_aux.c`, the controller's
 `verify.json` (controller-layout 300b8a934), and the MEAN WELL MPM-20 and MPM-65
-datasheets (2024-10-30). Nothing in hardware, firmware or worktrees was edited.
+datasheets (2024-10-30). Nothing in hardware, firmware or worktrees was edited;
+the firmware change is proposed as a patch (below), built and tested in a scratch copy.
 
 ## Answer
 
 The firmware reserves **1.35 A** of the 13.5 A inlet target for auxiliaries
-with the blower off, **1.93 A** at blower drive 0.5 and **2.57 A** at full
+with the blower off, **1.93 A** at blower duty 0.5 and **2.57 A** at full
 speed. Measured as the increase in total inlet RMS, the auxiliaries actually
 add **0.10–0.33 A typically and 0.25–0.88 A at the worst corner.** That frees
 **1.1–1.7 A of inlet current at the worst corner**: the power-stage hold rises
@@ -19,10 +20,10 @@ inlet limit binds.
 | Case | Aux output W (PS2 / PS3) | Aux RMS | Linear sum of module RMS | **RMS increment** | Firmware allowance | Hold now → possible | ΔP at 120 V |
 |---|---|---|---|---|---|---|---|
 | typical, blower off | 7.7 / 2.0 | 0.38 A | 0.44 A | **0.10 A** | 1.35 A | 11.05 → 12.18 A | +136 W |
-| typical, drive 0.5 | 7.7 / 10.3 | 0.60 A | 0.67 A | **0.19 A** | 1.93 A | 10.52 → 12.10 A | +190 W |
+| typical, duty 0.5 | 7.7 / 10.3 | 0.60 A | 0.67 A | **0.19 A** | 1.93 A | 10.52 → 12.10 A | +190 W |
 | typical, full | 7.7 / 22.9 | 0.95 A | 0.98 A | **0.33 A** | 2.57 A | 9.94 → 11.98 A | +245 W |
 | worst, blower off | 11.6 / 4.8 | 0.59 A | 0.71 A | **0.25 A** | 1.35 A | 11.05 → 12.04 A | +120 W |
-| worst, drive 0.5 | 11.6 / 20.6 | 1.04 A | 1.15 A | **0.50 A** | 1.93 A | 10.52 → 11.82 A | +156 W |
+| worst, duty 0.5 | 11.6 / 20.6 | 1.04 A | 1.15 A | **0.50 A** | 1.93 A | 10.52 → 11.82 A | +156 W |
 | worst, full | 11.6 / 44.6 | 1.68 A | 1.71 A | **0.88 A** | 2.57 A | 9.94 → 11.47 A | +184 W |
 
 The corners are:
@@ -82,3 +83,71 @@ The worst/full case across line voltage gives increments of 0.88 / 0.80 /
   e_est bench qualification. An AMC1301 on R5 (coil-driver-r1 item 2)
   measures I_ps only, not the auxiliaries, so on its own it does not remove
   the aux allowance.
+
+"Duty 0.5" means GPIO46 duty 0.5 (9.12 V envelope). Earlier drafts of this table
+said "drive 0.5", but fan-law drive 0.5 is duty ≈ 0.43.
+
+## Firmware patch: `blower_aux.patch`
+
+The patch was built against `codex/power-stage-integration` at 3998e1044. Its
+header records the base commit, how to apply it, and the test command. It keeps
+the `blower_aux.c` structure and logic and changes only the constants and
+comments. The constants come from `aux-load.json` → `firmware_model_proposed`.
+
+- **`base_a` = 0.26 A** (was 1.3 A). This is PS2 plus the PS3 logic: the
+  worst-corner increment with the blower off, 0.2538 A, rounded up. PS1 is
+  gone.
+- **`ps3_eta` = 0.875** (was 0.89). This is the MPM-65 92.5 % typical minus 5
+  points.
+- **`ps3_pf` = 0.67** (was 0.326). This is the effective power factor of the
+  increment: real-power current over increment above the base.
+  - It falls with load, from 0.769 at duty 1 to 0.676 at full.
+  - The patch uses its lowest value over duty 0..1 and 108 / 120 / 132 V,
+    rounded down.
+  - So the **unmargined** model alone covers every grid point. The minimum
+    slack is +5.2 mA.
+- **Unchanged:**
+  - `idle_a` 0.05 and `margin` 15 %;
+  - the C28 envelope and fan law;
+  - the worst case on every unknown;
+  - schedule, slew, lead and release;
+  - the `config_ok` bounds, including worst < 5 A;
+  - the `input_limits` clamp. `aux_min_a` and `aux_max_a` still derive from
+    `blower_aux_native21()`.
+
+The allowance, worst corner at 108 V, before and after the patch:
+
+| Blower | Today | Proposed | Modelled increment | Hold today → proposed |
+|---|---|---|---|---|
+| off | 1.350 A | 0.310 A | 0.254 A | 11.05 → 11.99 A |
+| duty 0.5 | 1.930 A | 0.597 A | 0.500 A | 10.52 → 11.73 A |
+| fan-law drive 0.5 (duty ≈ 0.43) | 2.029 A | 0.646 A | — | 10.43 → 11.69 A |
+| fan-law cap, drive 0.8 | 2.449 A | 0.854 A | — | 10.04 → 11.50 A |
+| full / unknown | 2.569 A | 0.887 A | 0.882 A | 9.94 → 11.47 A |
+
+Host tests, in a scratch copy of 3998e1044 that includes zapote's round5
+prototype firmware for `test_prototype_pwm`:
+- before the patch, 31/31 passed;
+- after the patch, 31/31 passed.
+
+`test_blower_aux` gains `test_aux_load_vectors`, which pins the 22
+`c_test_vectors_max_over_lines_A`: blower off, plus duty 0..1 in steps of
+0.05, each the maximum over the three line voltages. Both the unmargined model
+and the scheduled level must cover each vector. The test also pins the slack
+at 5–6 mA, so a later constant change that loosens or breaks the fit fails.
+
+Other edits in the patch:
+- `test_input_limits.c`, `test_n21_binding.c`: the in-range test values move
+  into the new [0.26, 0.887] window.
+- `COMMISSIONING.md` step 8c and its table.
+- COMMISSIONING step 7.5 now says to subtract the scheduled allowance, never
+  the auxiliaries' stand-alone RMS. Subtracting the stand-alone RMS would
+  understate e.
+- The stale IRM / PS1 comments in `blower_aux.{c,h}`, `input_limits.{c,h}`,
+  `thermal_mgmt.h`, `README.md` and `CMakeLists.txt`.
+
+The patch does not touch the zapote power-stage DECISIONS hold table.
+
+**Before shipping, run `BENCH-RMS.md`:** a true-RMS inlet check over blower
+off, mid and full at 108 / 120 / 132 V, at the hold, with pass criteria taken
+from this json.

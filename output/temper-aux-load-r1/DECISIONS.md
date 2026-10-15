@@ -40,6 +40,44 @@
    output power, which is checked elsewhere (the controller verify,
    ALT-BIAS).
 7. **The gain is not claimed beyond what the model shows.** Adoption is the
-   power-stage owner's decision, gated on the B3 R5 / C40 cases at the higher
-   hold and on a bench true-RMS check. This folder makes no firmware or board
-   change.
+   power-stage owner's decision. The board side is cleared: power-stage
+   3998e1044 `line-hold-2026-10-15` shows that R5, C40, the leg copper and the
+   bank follow tank current, not inlet current, and the gated rows move
+   ≤ 0.1 K at the 13.5 A bound. The firmware change is gated on
+   `BENCH-RMS.md`. This folder edits no firmware or board file in place; the
+   change ships as `blower_aux.patch`.
+8. **Patch base.** The patch was built against branch
+   `codex/power-stage-integration` at commit
+   **3998e104417484b0178b1c6c93cd935ba49e34ae**, which was
+   `git rev-parse codex/power-stage-integration` when the tree was archived.
+   - The extracted tree was diffed against that commit and found identical.
+   - `git apply --check` passed against that tree.
+   - Re-check after candidate 39 merges.
+9. **Firmware form: same structure, new constants.** The allowance stays
+   base + (1 + margin) × PS3 blower model + idle, capped at the worst case.
+   - The IRM figures (a linear sum of datasheet AC currents) are replaced by
+     each module's inlet-RMS increment at the worst corner.
+   - `ps3_pf` is redefined as the effective power factor of that increment.
+     Its lowest value over duty and line is the one used, so one constant
+     covers every duty without the margin.
+   - This was chosen over a lookup table for two reasons: it keeps the
+     fan-law structure that COMMISSIONING 8c.4 refits, and it changes no
+     code path.
+10. **Base rounds up and the PF rounds down, both at 0.01.**
+    - `idle_a` and `margin` stay at 0.05 A and 15 %, even though the new base
+      already includes PS3's no-load loss. That margin now covers model error
+      rather than a known light-load effect. The bench can reduce it.
+    - The worst case keeps no margin. Full speed is only 5 mA over the
+      modelled 0.8815 A, and is backed by the worst-corner stacking listed in
+      decision 6.
+11. **The constants are set at 108 V and are the maximum over 108 / 120 /
+    132 V.** The increment falls with line voltage: 0.88 / 0.80 / 0.73 A at
+    full. So the 108 V basis also covers the higher lines.
+12. **The e_est qualification must subtract the scheduled allowance, not the
+    auxiliaries' measured stand-alone RMS.** The stand-alone RMS is larger than
+    the increment, so subtracting it would understate e. The patch fixes the
+    COMMISSIONING step 7.5 wording. BENCH-RMS measures the increment directly
+    with a second channel on the bridge feed.
+13. **`drive_0.5` is renamed `duty_0.5` in the json.** It was always GPIO46
+    duty 0.5. All other keys and values from r1 are unchanged; this was
+    verified by comparing the regenerated json with the r1 json.
