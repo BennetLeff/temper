@@ -78,9 +78,11 @@ def main():
     # 4. set an audited SAFETY entry to UNAUDITED
     with tempfile.TemporaryDirectory() as td:
         d = copy.deepcopy(base)
-        d["entries"]["ISO7710DWR"]["status"] = "UNAUDITED"
+        # picked from the ledger, not named: a fixed MPN goes stale when the BOM drops the part (ISO7710DWR, stage 31)
+        mpn = next(k for k, e in d["entries"].items() if e.get("class") == "SAFETY" and e.get("status") != "UNAUDITED")
+        d["entries"][mpn]["status"] = "UNAUDITED"
         rc, out, rep = run(write(td, d))
-        expect("SAFETY UNAUDITED -> reported", rc == 1 and "ISO7710DWR" in rep["unaudited_safety_power"])
+        expect(f"SAFETY UNAUDITED ({mpn}) -> reported", rc == 1 and mpn in rep["unaudited_safety_power"])
 
     # 5. a lie: VERIFIED with a failing check, and with a tampered ratio
     with tempfile.TemporaryDirectory() as td:

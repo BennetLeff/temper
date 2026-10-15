@@ -1359,3 +1359,40 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **Fix (planned):** a deterministic post-route cleanup pass (remove fold-backs, mitre right angles, open acute
       corners, snap any-angle runs where clearance allows). It is proved on s32 copper first, with the whole chain
       re-run, and applied as a final global pass after the island lanes merge, since it touches every island.
+
+44. **Coil terminals J2 / J5 → Würth REDCUBE SMT 7466004R (stage 35, candidate 35; adopted, 2026-10-15). Board of
+    record: s35 (board fba59ef3).**
+    - **What:** both coil terminals change from the THR 74650074 to the WP-SMBU SMT 7466004R (M4 internal through-hole
+      thread, 50 A at 20 °C, 1.2 N·m, −55…+150 °C, tape and reel; rev 001.003, 2023-07-03).
+      - Footprint: Ø8.5 / Ø5.7 copper ring round a Ø5.2 NPTH, four paste segments; 20 land vias per terminal, 0.85 / 0.3
+        (`patches21.add_stage35`), on stage 32's routed copper. Nothing else moves.
+      - Closes DECISIONS 42: the SMT datasheet has no PCB-thickness limit, so the 1.6–2.0 mm conflict with JLC's ±10 %
+        is gone, and FAB-NOTE's thickness remark is dropped.
+    - **Why:**
+      - JLC can assemble it: tape and reel on the standard SMT line, via Global Sourcing (DigiKey 8,856; Mouser 2,920).
+        The THR part cannot be wave soldered (Würth) and JLC publishes no pin-in-paste service, so it would have been
+        hand-soldered, unverified.
+      - Cheaper: parts $206.44 against $208.08 per board at 500 ($311.47 / $313.28 at 5); one fewer hand / consign
+        line and one fewer THT line.
+    - **Evidence:**
+      - Chain `native21s35` (board fba59ef3): DRC 0, RES_A outer F 20.393 / B 13.375 mm (unchanged), DFM 750 vias, FIT
+        clean, SPINE_LOCK clean, Kelvin 67.77–116.44 A. Necks 0.993 and OCP pickup 4.17 A, as s32.
+      - Integration scorecard re-score (`10-benchmark/scorecard-native21s35.json`): **ACCEPT against s32** (cheaper
+        parts_usd_at_500 and hand_or_consign_lines; nothing worse). Track geometry is identical to s32 (104 / 206 / 44 /
+        704.4 mm). Against 19c the compare is now REJECT, only on item 43's strict geometry ratchets
+        (acute 206 vs 198, fold-backs 44 vs 35), which s32 fails identically; the planned cleanup pass (item 43) is the
+        fix. `c35-smt-terminals/results/compare.txt` keeps both the branch and the re-score lines.
+      - `validation-results/11-candidates/c35-smt-terminals/README.md`.
+    - **Model change:** task 04 (`run_board.sink_contacts`) sinks a stud ring land (a pad with a hole and no drill) at
+      24 equipotential points on its ring instead of the custom-pad anchor, which forced all the terminal current
+      through one edge point and read the SMT terminal 13–42 K hot. Within 1 % of sinking every node under the Ø7 body;
+      drilled leads (every other part) are unchanged (`scripts/terminal_sink.py`).
+    - **Cost:**
+      - Terminal copper 0.5–3.7 K warmer than the THR at every B3 point (c28_h25 J5 74.6 / J2 75.2 °C against
+        72.3 / 73.9); the board peak is unchanged. Ledger: 103.45 / 150 °C at c28_h10.
+      - The lug seat rises 2.5 mm (5.0 mm body): R26 coil-lead screen and screw length go to the enclosure session
+        (`c35-smt-terminals/ENCLOSURE-REQUEST.md`).
+      - Pull rating 300–410 N (design guide p.9): bench pull and torque test. 150 µm paste at J2 / J5 needs a stencil
+        choice (step stencil or aperture). J2 / J5 CPL rows are NEEDS-PREVIEW.
+    - **Reverses if:** the bench shows the soldered terminal failing the lug pull or torque, or running hotter at 28 A
+      than the THR by more than the model's few kelvin; or JLC's file review refuses the part, the paste or the height.

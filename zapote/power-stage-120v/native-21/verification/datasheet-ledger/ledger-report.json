@@ -2577,12 +2577,8 @@
    ]
   }
  },
- "errors": [
-  "[7466004R] stress Terminal copper temperature: evidence path not found: validation-results/11-candidates/c35-smt-terminals/results/terminal_heat_s35.json"
- ],
- "failures": [
-  "[7466004R] stress Terminal copper temperature: evidence path not found: validation-results/11-candidates/c35-smt-terminals/results/terminal_heat_s35.json"
- ],
+ "errors": [],
+ "failures": [],
  "missing_from_ledger": [],
  "partial": [
   "1206W4F1003T5E",
@@ -2618,7 +2614,7 @@
   "TMOV20RP175E",
   "VOL628A-2X001T"
  ],
- "result": "FAIL",
+ "result": "PASS",
  "strict": false,
  "totals": {
   "PARTIAL": 32,

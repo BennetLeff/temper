@@ -28,7 +28,7 @@ Ordering is a purchase and needs the owner.
 | Item | Requirement |
 | --- | --- |
 | Size | 290 × 190 mm L-shaped outline, 4 layers |
-| Stackup | JLCPCB **JLC041622-7628**, 1.6 mm nominal. **Finished thickness 1.6–1.76 mm** (+10 / −0 %): the REDCUBE THR studs need 1.6–2.0 mm (review m7), and JLC's ±10 % allows 1.44 mm. Order remark: "finished thickness 1.60–1.76 mm required (terminal specification)", answered at JLC's file review ("Confirm production file" is on). JLC has no 1.8 mm 4-layer option; the design fix is candidate 35 (SMT terminals, DECISIONS 42) |
+| Stackup | JLCPCB **JLC041622-7628**, 1.6 mm nominal (JLC ±10 %). No part limits the board thickness since the SMT coil terminals (DECISIONS 44, which drops the 1.60–1.76 mm remark of DECISIONS 42) |
 | Copper | **2 oz outer and 2 oz inner** |
 | Laminate | **CTI ≥ 175 V (material group IIIa), a hard order condition, met by naming the laminate:** Material Type **"KB6164 - TG135"** (Kingboard KB-6164: UL E123995 CTI PLC 3 at 1.40 mm, Kingboard TDS ≥ 175 V per IEC 60112; `../sourcing/inquiries/CTI-RESEARCH-2026-10-14.md`; +$0.28 per board at 500). Never order the unnamed "FR4 TG135". Order remark: "Material KB-6164 core with KB-6064 prepreg throughout; please state the laminate on the shipment documents" |
 | Surface finish | **ENIG**: 0.65 mm SSOP-36 bias modules (U41/U42), 0.65 mm VQFN with exposed pad (U26), capped via-in-pad |
