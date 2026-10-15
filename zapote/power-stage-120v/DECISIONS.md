@@ -2138,3 +2138,22 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       `audit.rs` PASS (358 / 183); the card re-scored there is identical to the lane's; ACCEPT vs s43; ledger, track,
       spine-lock, cleanup, jet-strip and scoped tests pass on the s44 board. FAB-NOTE moved to s44 (750 POFV vias,
       60 in pad, 75 at a pad edge; 859 plated holes). **The benchmark is now s44.**
+
+59. **S16 follow-up: candidate B (TPS3701 per window) against the chosen 1c-4420, by side-by-side FMEA (2026-10-15;
+    1c-4420 kept, B not adopted).** Study: `validation-results/11-candidates/s16-fmea-b-2026-10-15/` (s43 / 1c-4420 / B,
+    rows C1–C9 of `c24-monitor-fmea` plus new rows; reruns byte-identical; S16 bands and c24 scores reproduced).
+    - **Reference drift is bounded in both designs.** The companion UV / OV announces before any threshold passes its hard
+      limit, TL431 and TPS3701 alike (worst dormant span OV: s43 19.51, 1c-4420 19.96, B 19.94 V; H = 21 V). The S16
+      study's C4 objection holds only against the qualified basis, and equally for both.
+    - **B as drawn is a regression:** an open span-divider bottom, or an INB-VDD pin short, puts 17 V on a 7 V input
+      (SBVS240C p.4). TI documents no overstress behaviour, so span OV can be lost silently and no proof test covers it.
+    - **B amended** (span bottoms split 2 × 10 k / 2 × 6.2 k, tops 193 k / 138 k; both TPS3701 VDD from the local 5 V)
+      removes that path and beats 1c-4420 in all nine exposure cases: 16.7 vs 19.3 FIT·rails (−13 %), front end −42 %.
+      Still worse: OV detection +27 µs typical (no maximum published for either part), C5 rate 2.8 vs 2.0 FIT / rail.
+    - **Cost:** about +$1.49 / board over 1c-4420 plus a three-island layout change, for about 2.6 FIT·rails. Build it only
+      if those islands are re-laid anyway, and then in the amended form (decouplers C176–C178; U47–U49).
+    - **Found on the way:** no proof test covers dormant masking in any monitor variant (B8 screens only the HS veto
+      corridor): OPEN-ITEMS B13. The c24 C7 sliver is narrower than recorded (LM339B minimum supply 2 V, not 3 V).
+    - **Open:** TI TPS3701 FMD / pin FMA and INx clamp rating; bench tpd(LH) spread at 10 mV overdrive.
+    - **Reverses if:** TI publishes TPS3701 overstress data that makes the as-drawn B safe, or the monitor islands are
+      re-laid (then build amended B).

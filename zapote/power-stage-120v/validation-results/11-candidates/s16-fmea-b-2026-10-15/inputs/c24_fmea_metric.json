@@ -1,0 +1,978 @@
+{
+ "base_params": {
+  "k_u": 0.5,
+  "k_o": 0.0,
+  "R": 0.5,
+  "C": 0.5,
+  "D": 1.0,
+  "Q": 1.0,
+  "LDO": 10.0,
+  "ldo_ov": 0.2
+ },
+ "scores": {
+  "A": {
+   "RWL_chain": 34.44,
+   "FIT_masking_all_three": 3.65,
+   "RWL_dis_identical": 2.4
+  },
+  "P1": {
+   "RWL_chain": 34.29,
+   "FIT_masking_all_three": 3.65,
+   "RWL_dis_identical": 2.4
+  },
+  "P2": {
+   "RWL_chain": 36.89,
+   "FIT_masking_all_three": 10.03,
+   "RWL_dis_identical": 2.4
+  },
+  "P2H": {
+   "RWL_chain": 13.0,
+   "FIT_masking_all_three": 1.8,
+   "RWL_dis_identical": 2.4
+  }
+ },
+ "sensitivity_RWL_chain": {
+  "base": {
+   "A": 34.44,
+   "P1": 34.29,
+   "P2": 36.89,
+   "P2H": 13.0
+  },
+  "undetermined always masks (k_u=1)": {
+   "A": 57.24,
+   "P1": 57.09,
+   "P2": 63.39,
+   "P2H": 20.9
+  },
+  "undetermined never masks (k_u=0)": {
+   "A": 11.64,
+   "P1": 11.49,
+   "P2": 10.39,
+   "P2H": 5.1
+  },
+  "out-of-spec masks half (k_o=0.5)": {
+   "A": 53.34,
+   "P1": 56.79,
+   "P2": 58.79,
+   "P2H": 23.2
+  },
+  "passives x5": {
+   "A": 47.64,
+   "P1": 39.69,
+   "P2": 42.29,
+   "P2H": 19.8
+  },
+  "LDO OV x3 (30 FIT x 20 %)": {
+   "A": 40.44,
+   "P1": 40.29,
+   "P2": 46.89,
+   "P2H": 17.0
+  },
+  "worst (k_u=1, k_o=0.5, passives x5)": {
+   "A": 91.74,
+   "P1": 87.39,
+   "P2": 93.09,
+   "P2H": 40.3
+  }
+ },
+ "heartbeat": {
+  "pump_peak_V": 2.135,
+  "osc_period_us": [
+   0.46,
+   1.93
+  ],
+  "hold_equilibrium_V": 2.134,
+  "hold_ripple_V": 0.041,
+  "start_margin_over_G17_VTplus_max_V": 0.173,
+  "run_margin_over_G17_VTminus_max_V": 0.893,
+  "detect_latency_us_max": 89.4,
+  "today_rc_latency_us": "~5.95-10 (10 k / 1 nF into G14; PROPOSALS.md P3)",
+  "diode_and_low_V": 0.75,
+  "g132_VTminus_min_V": 1.41,
+  "diode_and_margin_V": 0.66,
+  "notes": "vf 0.35 V assumed; LS 5 V taken as 4.75 V; all margins to be confirmed in SPICE with the real ISO7710 output impedance and on the bench (B4 timing endpoint: comparator -> driver output, ECO.md)."
+ },
+ "placements": {
+  "P2": {
+   "placements": -12,
+   "lines": -1,
+   "usd_dk": -1.9,
+   "usd_jlc": -4.1,
+   "basis": "PROPOSALS.md:116 (notice stage 12 out; U25/C88 out, NAND3 + cap in; U33/U34 -> ISO6721FB)"
+  },
+  "M1": {
+   "removed": [
+    "NAND3 SN74LVC1G10 (P2's)",
+    "its 100 nF",
+    "R_bias_flt 10k",
+    "C_bias_flt 1 nF"
+   ],
+   "added": [
+    "BAT54A dual diode (HS veto into the LS 'good' node)",
+    "SN74LVC1G132",
+    "its 100 nF",
+    "R_osc 4.99k",
+    "C_osc 330 pF C0G",
+    "C_pump 100 nF x2 (series)",
+    "BAT54S dual diode (pump)",
+    "C_hold 1 nF C0G",
+    "R_bleed 100k"
+   ],
+   "swapped": [
+    "U40 SN74LVC1G14 -> SN74LVC1G17 (in place, same SOT-23-5 footprint; G17 line exists: U15, U24)"
+   ],
+   "lines_added": [
+    "BAT54A",
+    "BAT54S",
+    "SN74LVC1G132"
+   ],
+   "lines_removed": [
+    "SN74LVC1G14 (U40 was its only user)"
+   ],
+   "usd_est": 0.15,
+   "usd_note": "estimate: G132 ~$0.10, BAT54A/S ~$0.02 each, passives ~$0.005; NAND3 (~$0.1) out. Prices NOT looked up for this FMEA; JLC class (Basic/Extended) to check.",
+   "placements": 6,
+   "lines": 2
+  },
+  "P2_plus_M1": {
+   "placements": -6,
+   "lines": 1,
+   "usd_dk": -1.75,
+   "usd_jlc": -3.95
+  }
+ },
+ "rows": {
+  "A": [
+   {
+    "ref": "U32 ISO7710 (LS)",
+    "mode": "OUT stuck low (= good)",
+    "fit": 0.78,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U32 ISO7710 (LS)",
+    "mode": "OUT undetermined",
+    "fit": 10.4,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U32 ISO7710 (LS)",
+    "mode": "OUT out of V/t spec",
+    "fit": 7.8,
+    "k": 0.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "Q7-9 MMBT3904 (LS)",
+    "mode": "C-E short: ISO IN held low",
+    "fit": 0.4,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "D14-16 1N4148W (LS)",
+    "mode": "short: NPN base at LM339B VOL <= 0.4 V",
+    "fit": 0.5,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U37-39 TPS70950 (LS)",
+    "mode": "output to input (15-17 V on ISO side 1): damage, state unknown",
+    "fit": 2.0,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U33 ISO7710 (HA)",
+    "mode": "OUT stuck low (= good)",
+    "fit": 0.78,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U33 ISO7710 (HA)",
+    "mode": "OUT undetermined",
+    "fit": 10.4,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U33 ISO7710 (HA)",
+    "mode": "OUT out of V/t spec",
+    "fit": 7.8,
+    "k": 0.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "Q7-9 MMBT3904 (HA)",
+    "mode": "C-E short: ISO IN held low",
+    "fit": 0.4,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "D14-16 1N4148W (HA)",
+    "mode": "short: NPN base at LM339B VOL <= 0.4 V",
+    "fit": 0.5,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U37-39 TPS70950 (HA)",
+    "mode": "output to input (15-17 V on ISO side 1): damage, state unknown",
+    "fit": 2.0,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U34 ISO7710 (HB)",
+    "mode": "OUT stuck low (= good)",
+    "fit": 0.78,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U34 ISO7710 (HB)",
+    "mode": "OUT undetermined",
+    "fit": 10.4,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U34 ISO7710 (HB)",
+    "mode": "OUT out of V/t spec",
+    "fit": 7.8,
+    "k": 0.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "Q7-9 MMBT3904 (HB)",
+    "mode": "C-E short: ISO IN held low",
+    "fit": 0.4,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "D14-16 1N4148W (HB)",
+    "mode": "short: NPN base at LM339B VOL <= 0.4 V",
+    "fit": 0.5,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U37-39 TPS70950 (HB)",
+    "mode": "output to input (15-17 V on ISO side 1): damage, state unknown",
+    "fit": 2.0,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U25 SN74LVC1G332 OR3",
+    "mode": "Y stuck low (= no fault)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U25 SN74LVC1G332 OR3",
+    "mode": "Y open (RC node floats)",
+    "fit": 1.2,
+    "k": 0.5,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U25 SN74LVC1G332 OR3",
+    "mode": "out of spec",
+    "fit": 2.4,
+    "k": 0.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U25 SN74LVC1G332 OR3",
+    "mode": "adjacent-pin short A-GND or B-GND (2 of 4 pairs)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "R_bias_flt 10k",
+    "mode": "open: U40 input floats on 1 nF",
+    "fit": 0.4,
+    "k": 0.5,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "C_bias_flt 1nF",
+    "mode": "short: BIAS_BAD_FLT held low",
+    "fit": 0.25,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G14 (inverting)",
+    "mode": "Y stuck high (BIAS_GOOD = 1)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G14 (inverting)",
+    "mode": "Y open (U22/U23 inputs float)",
+    "fit": 1.2,
+    "k": 0.5,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G14 (inverting)",
+    "mode": "out of spec",
+    "fit": 2.4,
+    "k": 0.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G14 (inverting)",
+    "mode": "adjacent-pin short (Y-VCC, A-GND)",
+    "fit": 0.8,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U22 (leg A) SN74LVC1G00",
+    "mode": "Y stuck low (DIS low = enabled)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 2,
+    "group": "dis"
+   },
+   {
+    "ref": "U23 (leg B) SN74LVC1G00",
+    "mode": "Y stuck low (DIS low = enabled)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 2,
+    "group": "dis"
+   }
+  ],
+  "P1": [
+   {
+    "ref": "U32 ISO7710 (LS)",
+    "mode": "OUT stuck low (= good)",
+    "fit": 0.78,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U32 ISO7710 (LS)",
+    "mode": "OUT undetermined",
+    "fit": 10.4,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U32 ISO7710 (LS)",
+    "mode": "OUT out of V/t spec",
+    "fit": 7.8,
+    "k": 0.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "G10 inverter (LS)",
+    "mode": "output stuck low (= good)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "G10 inverter (LS)",
+    "mode": "out of spec",
+    "fit": 2.4,
+    "k": 0.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U37-39 TPS70950 (LS)",
+    "mode": "output to input (15-17 V on ISO side 1): damage, state unknown",
+    "fit": 2.0,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U33 ISO7710 (HA)",
+    "mode": "OUT stuck low (= good)",
+    "fit": 0.78,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U33 ISO7710 (HA)",
+    "mode": "OUT undetermined",
+    "fit": 10.4,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U33 ISO7710 (HA)",
+    "mode": "OUT out of V/t spec",
+    "fit": 7.8,
+    "k": 0.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "G10 inverter (HA)",
+    "mode": "output stuck low (= good)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "G10 inverter (HA)",
+    "mode": "out of spec",
+    "fit": 2.4,
+    "k": 0.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U37-39 TPS70950 (HA)",
+    "mode": "output to input (15-17 V on ISO side 1): damage, state unknown",
+    "fit": 2.0,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U34 ISO7710 (HB)",
+    "mode": "OUT stuck low (= good)",
+    "fit": 0.78,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U34 ISO7710 (HB)",
+    "mode": "OUT undetermined",
+    "fit": 10.4,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U34 ISO7710 (HB)",
+    "mode": "OUT out of V/t spec",
+    "fit": 7.8,
+    "k": 0.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "G10 inverter (HB)",
+    "mode": "output stuck low (= good)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "G10 inverter (HB)",
+    "mode": "out of spec",
+    "fit": 2.4,
+    "k": 0.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U37-39 TPS70950 (HB)",
+    "mode": "output to input (15-17 V on ISO side 1): damage, state unknown",
+    "fit": 2.0,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U25 SN74LVC1G332 OR3",
+    "mode": "Y stuck low (= no fault)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U25 SN74LVC1G332 OR3",
+    "mode": "Y open (RC node floats)",
+    "fit": 1.2,
+    "k": 0.5,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U25 SN74LVC1G332 OR3",
+    "mode": "out of spec",
+    "fit": 2.4,
+    "k": 0.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U25 SN74LVC1G332 OR3",
+    "mode": "adjacent-pin short A-GND or B-GND (2 of 4 pairs)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "R_bias_flt 10k",
+    "mode": "open: U40 input floats on 1 nF",
+    "fit": 0.4,
+    "k": 0.5,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "C_bias_flt 1nF",
+    "mode": "short: BIAS_BAD_FLT held low",
+    "fit": 0.25,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G14 (inverting)",
+    "mode": "Y stuck high (BIAS_GOOD = 1)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G14 (inverting)",
+    "mode": "Y open (U22/U23 inputs float)",
+    "fit": 1.2,
+    "k": 0.5,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G14 (inverting)",
+    "mode": "out of spec",
+    "fit": 2.4,
+    "k": 0.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G14 (inverting)",
+    "mode": "adjacent-pin short (Y-VCC, A-GND)",
+    "fit": 0.8,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U22 (leg A) SN74LVC1G00",
+    "mode": "Y stuck low (DIS low = enabled)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 2,
+    "group": "dis"
+   },
+   {
+    "ref": "U23 (leg B) SN74LVC1G00",
+    "mode": "Y stuck low (DIS low = enabled)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 2,
+    "group": "dis"
+   }
+  ],
+  "P2": [
+   {
+    "ref": "ISO6721FB (HA)",
+    "mode": "OUTB stuck high (= good)",
+    "fit": 0.5,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "ISO6721FB (HA)",
+    "mode": "OUTB undetermined",
+    "fit": 3.5,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "ISO6721FB (HA)",
+    "mode": "out of V/t spec",
+    "fit": 3.0,
+    "k": 0.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U38/U39 TPS70950 (HA)",
+    "mode": "output to input: ISO6721 side 1 damaged, state unknown",
+    "fit": 2.0,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "ISO6721FB (HB)",
+    "mode": "OUTB stuck high (= good)",
+    "fit": 0.5,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "ISO6721FB (HB)",
+    "mode": "OUTB undetermined",
+    "fit": 3.5,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "ISO6721FB (HB)",
+    "mode": "out of V/t spec",
+    "fit": 3.0,
+    "k": 0.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U38/U39 TPS70950 (HB)",
+    "mode": "output to input: ISO6721 side 1 damaged, state unknown",
+    "fit": 2.0,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U37 TPS70950 (LS 5 V)",
+    "mode": "output to input: NAND3 / ISO6721 side 2 / U32 side 1 damaged, state unknown",
+    "fit": 2.0,
+    "k": 0.5,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "NAND3 SN74LVC1G10",
+    "mode": "Y stuck low (= all good)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "NAND3 SN74LVC1G10",
+    "mode": "Y open: U32 IN open -> ISO7710 default HIGH (bad)",
+    "fit": 1.2,
+    "k": 0.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "NAND3 SN74LVC1G10",
+    "mode": "out of spec",
+    "fit": 2.4,
+    "k": 0.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "NAND3 SN74LVC1G10",
+    "mode": "adjacent-pin short C-VCC (1 of 4 pairs)",
+    "fit": 0.3,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U32 ISO7710 (combined)",
+    "mode": "OUT stuck low (= good)",
+    "fit": 0.78,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U32 ISO7710 (combined)",
+    "mode": "OUT undetermined",
+    "fit": 10.4,
+    "k": 0.5,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U32 ISO7710 (combined)",
+    "mode": "OUT out of V/t spec",
+    "fit": 7.8,
+    "k": 0.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "R_bias_flt 10k",
+    "mode": "open: U40 input floats on 1 nF",
+    "fit": 0.4,
+    "k": 0.5,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "C_bias_flt 1nF",
+    "mode": "short: BIAS_BAD_FLT held low",
+    "fit": 0.25,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G14 (inverting)",
+    "mode": "Y stuck high (BIAS_GOOD = 1)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G14 (inverting)",
+    "mode": "Y open (U22/U23 inputs float)",
+    "fit": 1.2,
+    "k": 0.5,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G14 (inverting)",
+    "mode": "out of spec",
+    "fit": 2.4,
+    "k": 0.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G14 (inverting)",
+    "mode": "adjacent-pin short (Y-VCC, A-GND)",
+    "fit": 0.8,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U22 (leg A) SN74LVC1G00",
+    "mode": "Y stuck low (DIS low = enabled)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 2,
+    "group": "dis"
+   },
+   {
+    "ref": "U23 (leg B) SN74LVC1G00",
+    "mode": "Y stuck low (DIS low = enabled)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 2,
+    "group": "dis"
+   }
+  ],
+  "P2H": [
+   {
+    "ref": "ISO6721FB (HA)",
+    "mode": "OUTB stuck high (= good)",
+    "fit": 0.5,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "ISO6721FB (HA)",
+    "mode": "OUTB undetermined",
+    "fit": 3.5,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "ISO6721FB (HA)",
+    "mode": "out of V/t spec",
+    "fit": 3.0,
+    "k": 0.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U38/U39 TPS70950 (HA)",
+    "mode": "output to input: ISO6721 side 1 damaged, state unknown",
+    "fit": 2.0,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "ISO6721FB (HB)",
+    "mode": "OUTB stuck high (= good)",
+    "fit": 0.5,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "ISO6721FB (HB)",
+    "mode": "OUTB undetermined",
+    "fit": 3.5,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "ISO6721FB (HB)",
+    "mode": "out of V/t spec",
+    "fit": 3.0,
+    "k": 0.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U38/U39 TPS70950 (HB)",
+    "mode": "output to input: ISO6721 side 1 damaged, state unknown",
+    "fit": 2.0,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "D_and BAT54A (per HS rail)",
+    "mode": "open: that HS rail's veto lost",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "D_and BAT54A (per HS rail)",
+    "mode": "short: ISO6721 OUTB fights LM339B on the LS node",
+    "fit": 1.0,
+    "k": 0.5,
+    "n_rails": 1,
+    "group": "chain"
+   },
+   {
+    "ref": "U_osc SN74LVC1G132",
+    "mode": "out of spec (input threshold corrupted)",
+    "fit": 2.4,
+    "k": 0.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "C_pump 2 x 100 nF series",
+    "mode": "one short: DC block degraded to one cap (dormant, needs a 2nd fault)",
+    "fit": 0.0,
+    "k": 0.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "R_bleed 100k",
+    "mode": "open: hold keeps its charge when the wave stops",
+    "fit": 0.4,
+    "k": 0.5,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G17 (non-inverting)",
+    "mode": "Y stuck high (BIAS_GOOD = 1)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G17 (non-inverting)",
+    "mode": "Y open (U22/U23 inputs float)",
+    "fit": 1.2,
+    "k": 0.5,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G17 (non-inverting)",
+    "mode": "out of spec",
+    "fit": 2.4,
+    "k": 0.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U40 SN74LVC1G17 (non-inverting)",
+    "mode": "adjacent-pin short (Y-VCC)",
+    "fit": 0.4,
+    "k": 1.0,
+    "n_rails": 3,
+    "group": "chain"
+   },
+   {
+    "ref": "U22 (leg A) SN74LVC1G00",
+    "mode": "Y stuck low (DIS low = enabled)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 2,
+    "group": "dis"
+   },
+   {
+    "ref": "U23 (leg B) SN74LVC1G00",
+    "mode": "Y stuck low (DIS low = enabled)",
+    "fit": 0.6,
+    "k": 1.0,
+    "n_rails": 2,
+    "group": "dis"
+   }
+  ]
+ }
+}

@@ -1,0 +1,173 @@
+{
+ "chain_us": {
+  "hand": 89.4,
+  "pump_cap_shorted": 122.9,
+  "spice_M1b": 90.3
+ },
+ "tpd_typ_us": {
+  "LM339B": {
+   "OV": 1.0,
+   "UV": 1.0
+  },
+  "TPS3701_10mV": {
+   "OV": 28.1,
+   "UV": 9.9
+  },
+  "TPS3701_200mV_fig": {
+   "OV": 2.5,
+   "UV": 9.6
+  }
+ },
+ "variants": {
+  "V0": {
+   "neg OV": {
+    "rail_excursion_mV_during_tpd": {
+     "0.1 V/ms": 0.1,
+     "1 V/ms": 1.0,
+     "10 V/ms": 10.0
+    },
+    "tap_tau_us": 4.34,
+    "total_guard3_small_overdrive_us": 130.2,
+    "total_typ_small_overdrive_us": 95.6,
+    "tpd_typ_large_step_us": 1.0,
+    "tpd_typ_small_overdrive_us": 1.0
+   },
+   "neg UV": {
+    "rail_excursion_mV_during_tpd": {
+     "0.1 V/ms": 0.1,
+     "1 V/ms": 1.0,
+     "10 V/ms": 10.0
+    },
+    "tap_tau_us": 3.07,
+    "total_guard3_small_overdrive_us": 129.0,
+    "total_typ_small_overdrive_us": 94.4,
+    "tpd_typ_large_step_us": 1.0,
+    "tpd_typ_small_overdrive_us": 1.0
+   },
+   "span OV": {
+    "rail_excursion_mV_during_tpd": {
+     "0.1 V/ms": 0.1,
+     "1 V/ms": 1.0,
+     "10 V/ms": 10.0
+    },
+    "tap_tau_us": 9.3,
+    "total_guard3_small_overdrive_us": 135.2,
+    "total_typ_small_overdrive_us": 100.6,
+    "tpd_typ_large_step_us": 1.0,
+    "tpd_typ_small_overdrive_us": 1.0
+   },
+   "span UV": {
+    "rail_excursion_mV_during_tpd": {
+     "0.1 V/ms": 0.1,
+     "1 V/ms": 1.0,
+     "10 V/ms": 10.0
+    },
+    "tap_tau_us": 9.23,
+    "total_guard3_small_overdrive_us": 135.1,
+    "total_typ_small_overdrive_us": 100.5,
+    "tpd_typ_large_step_us": 1.0,
+    "tpd_typ_small_overdrive_us": 1.0
+   }
+  },
+  "V1": {
+   "neg OV": {
+    "rail_excursion_mV_during_tpd": {
+     "0.1 V/ms": 0.1,
+     "1 V/ms": 1.0,
+     "10 V/ms": 10.0
+    },
+    "tap_tau_us": 2.27,
+    "total_guard3_small_overdrive_us": 128.2,
+    "total_typ_small_overdrive_us": 93.6,
+    "tpd_typ_large_step_us": 1.0,
+    "tpd_typ_small_overdrive_us": 1.0
+   },
+   "neg UV": {
+    "rail_excursion_mV_during_tpd": {
+     "0.1 V/ms": 0.1,
+     "1 V/ms": 1.0,
+     "10 V/ms": 10.0
+    },
+    "tap_tau_us": 0.7,
+    "total_guard3_small_overdrive_us": 126.6,
+    "total_typ_small_overdrive_us": 92.0,
+    "tpd_typ_large_step_us": 1.0,
+    "tpd_typ_small_overdrive_us": 1.0
+   },
+   "span OV": {
+    "rail_excursion_mV_during_tpd": {
+     "0.1 V/ms": 0.1,
+     "1 V/ms": 1.0,
+     "10 V/ms": 10.0
+    },
+    "tap_tau_us": 9.95,
+    "total_guard3_small_overdrive_us": 135.8,
+    "total_typ_small_overdrive_us": 101.2,
+    "tpd_typ_large_step_us": 1.0,
+    "tpd_typ_small_overdrive_us": 1.0
+   },
+   "span UV": {
+    "rail_excursion_mV_during_tpd": {
+     "0.1 V/ms": 0.1,
+     "1 V/ms": 1.0,
+     "10 V/ms": 10.0
+    },
+    "tap_tau_us": 9.81,
+    "total_guard3_small_overdrive_us": 135.7,
+    "total_typ_small_overdrive_us": 101.1,
+    "tpd_typ_large_step_us": 1.0,
+    "tpd_typ_small_overdrive_us": 1.0
+   }
+  },
+  "V2": {
+   "neg OV": {
+    "rail_excursion_mV_during_tpd": {
+     "0.1 V/ms": 2.81,
+     "1 V/ms": 28.1,
+     "10 V/ms": 281.0
+    },
+    "tap_tau_us": 5.09,
+    "total_guard3_small_overdrive_us": 212.3,
+    "total_typ_small_overdrive_us": 123.5,
+    "tpd_typ_large_step_us": 2.5,
+    "tpd_typ_small_overdrive_us": 28.1
+   },
+   "neg UV": {
+    "rail_excursion_mV_during_tpd": {
+     "0.1 V/ms": 0.99,
+     "1 V/ms": 9.9,
+     "10 V/ms": 99.0
+    },
+    "tap_tau_us": 3.45,
+    "total_guard3_small_overdrive_us": 156.1,
+    "total_typ_small_overdrive_us": 103.7,
+    "tpd_typ_large_step_us": 9.6,
+    "tpd_typ_small_overdrive_us": 9.9
+   },
+   "span OV": {
+    "rail_excursion_mV_during_tpd": {
+     "0.1 V/ms": 2.81,
+     "1 V/ms": 28.1,
+     "10 V/ms": 281.0
+    },
+    "tap_tau_us": 1.95,
+    "total_guard3_small_overdrive_us": 209.2,
+    "total_typ_small_overdrive_us": 120.4,
+    "tpd_typ_large_step_us": 2.5,
+    "tpd_typ_small_overdrive_us": 28.1
+   },
+   "span UV": {
+    "rail_excursion_mV_during_tpd": {
+     "0.1 V/ms": 0.99,
+     "1 V/ms": 9.9,
+     "10 V/ms": 99.0
+    },
+    "tap_tau_us": 6.04,
+    "total_guard3_small_overdrive_us": 158.6,
+    "total_typ_small_overdrive_us": 106.2,
+    "tpd_typ_large_step_us": 9.6,
+    "tpd_typ_small_overdrive_us": 9.9
+   }
+  }
+ }
+}

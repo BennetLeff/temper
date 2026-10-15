@@ -1,0 +1,7562 @@
+{
+ "cases": {
+  "TI estimator FITs (8 / 8 / 0.1)": {
+   "V0": {
+    "FIT_whole_rail_masks": 0.086,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 16.329,
+    "frontend_RWL": 4.082,
+    "per_threshold_FIT": {
+     "neg OV": 4.436,
+     "neg UV": 3.686,
+     "span OV": 4.479,
+     "span UV": 3.729
+    },
+    "total_RWL": 17.082
+   },
+   "V1": {
+    "FIT_whole_rail_masks": 0.086,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 15.129,
+    "frontend_RWL": 3.782,
+    "per_threshold_FIT": {
+     "neg OV": 4.436,
+     "neg UV": 2.486,
+     "span OV": 4.479,
+     "span UV": 3.729
+    },
+    "total_RWL": 16.782
+   },
+   "V2": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 8.28,
+    "frontend_RWL": 2.07,
+    "per_threshold_FIT": {
+     "neg OV": 1.995,
+     "neg UV": 1.245,
+     "span OV": 3.195,
+     "span UV": 1.845
+    },
+    "total_RWL": 15.07
+   },
+   "V2+F2": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 7.68,
+    "frontend_RWL": 1.92,
+    "per_threshold_FIT": {
+     "neg OV": 1.995,
+     "neg UV": 1.245,
+     "span OV": 1.995,
+     "span UV": 2.445
+    },
+    "total_RWL": 14.92
+   },
+   "V2+F2+v5": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 7.68,
+    "frontend_RWL": 1.92,
+    "per_threshold_FIT": {
+     "neg OV": 1.995,
+     "neg UV": 1.245,
+     "span OV": 1.995,
+     "span UV": 2.445
+    },
+    "total_RWL": 14.92
+   },
+   "V2+F2ov": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 7.08,
+    "frontend_RWL": 1.77,
+    "per_threshold_FIT": {
+     "neg OV": 1.995,
+     "neg UV": 1.245,
+     "span OV": 2.595,
+     "span UV": 1.245
+    },
+    "total_RWL": 14.77
+   }
+  },
+  "TPS3703 FMD for the TPS3701": {
+   "V0": {
+    "FIT_whole_rail_masks": 0.171,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 26.357,
+    "frontend_RWL": 6.589,
+    "per_threshold_FIT": {
+     "neg OV": 6.921,
+     "neg UV": 6.171,
+     "span OV": 7.007,
+     "span UV": 6.257
+    },
+    "total_RWL": 19.589
+   },
+   "V1": {
+    "FIT_whole_rail_masks": 0.171,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 25.157,
+    "frontend_RWL": 6.289,
+    "per_threshold_FIT": {
+     "neg OV": 6.921,
+     "neg UV": 4.971,
+     "span OV": 7.007,
+     "span UV": 6.257
+    },
+    "total_RWL": 19.289
+   },
+   "V2": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 11.7,
+    "frontend_RWL": 2.925,
+    "per_threshold_FIT": {
+     "neg OV": 2.85,
+     "neg UV": 2.1,
+     "span OV": 4.05,
+     "span UV": 2.7
+    },
+    "total_RWL": 15.925
+   },
+   "V2+F2": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 11.1,
+    "frontend_RWL": 2.775,
+    "per_threshold_FIT": {
+     "neg OV": 2.85,
+     "neg UV": 2.1,
+     "span OV": 2.85,
+     "span UV": 3.3
+    },
+    "total_RWL": 15.775
+   },
+   "V2+F2+v5": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 11.1,
+    "frontend_RWL": 2.775,
+    "per_threshold_FIT": {
+     "neg OV": 2.85,
+     "neg UV": 2.1,
+     "span OV": 2.85,
+     "span UV": 3.3
+    },
+    "total_RWL": 15.775
+   },
+   "V2+F2ov": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 10.5,
+    "frontend_RWL": 2.625,
+    "per_threshold_FIT": {
+     "neg OV": 2.85,
+     "neg UV": 2.1,
+     "span OV": 3.45,
+     "span UV": 2.1
+    },
+    "total_RWL": 15.625
+   }
+  },
+  "allocation B (die FMD on die FIT; package FIT on pins)": {
+   "V0": {
+    "FIT_whole_rail_masks": 4.271,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 39.307,
+    "frontend_RWL": 9.827,
+    "per_threshold_FIT": {
+     "neg OV": 9.821,
+     "neg UV": 9.071,
+     "span OV": 10.582,
+     "span UV": 9.832
+    },
+    "rows": [
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R81 (neg UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R82 (neg UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R83 (neg OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R84 (neg OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R85 (span UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86 (span UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R87 (span OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88 (span OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R91 rpull open",
+      "row": "rpull",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R59 rref open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R79 halfref top open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R80 halfref bottom open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C66 (neg UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C67 (neg OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C68 (span UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C69 (span OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "cmonitor 100 nF (p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3333,
+      "k": {},
+      "kind": "pin_open",
+      "mode": "U17 TL431 pin 1 open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3333,
+      "k": {
+       "neg OV": 0.5,
+       "neg UV": 0.5,
+       "span OV": 0.5,
+       "span UV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U17 TL431 pin 2 open",
+      "row": "C4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.3333,
+      "k": {},
+      "kind": "pin_open",
+      "mode": "U17 TL431 pin 3 open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3333,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U17 TL431 pins 1-2 shorted",
+      "row": "C4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.3333,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U17 TL431 pins 2-3 shorted",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3333,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U17 TL431 pins 1-3 shorted",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 1.0,
+      "k": {},
+      "kind": "die",
+      "mode": "U17 TL431 die open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 1.4,
+      "k": {},
+      "kind": "die",
+      "mode": "U17 TL431 die short",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 1 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 2 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0,
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 3 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg OV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 4 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg OV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 5 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg UV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 6 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg UV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 7 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "span UV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 8 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "span UV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 9 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "span OV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 10 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "span OV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 11 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg OV": 0.5,
+       "neg UV": 0.5,
+       "span OV": 0.5,
+       "span UV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 12 open",
+      "row": "N1",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 13 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 14 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 1-2 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.5071,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0,
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 2-3 shorted",
+      "row": "N2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 3-4 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 4-5 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 5-6 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 6-7 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 7-8 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.5071,
+      "k": {
+       "span UV": 0.5
+      },
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 8-9 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 9-10 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5071,
+      "k": {
+       "span OV": 0.5
+      },
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 10-11 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 11-12 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 12-13 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 13-14 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 14-1 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.2,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch1 (neg UV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.125,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch1 (neg UV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.2,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch2 (neg OV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.125,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch2 (neg OV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.2,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch3 (span UV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.125,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch3 (span UV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.2,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch4 (span OV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.125,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch4 (span OV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.15,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B neg UV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.15,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B neg OV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.15,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B span UV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.15,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B span OV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 1.6,
+      "k": {},
+      "kind": "drift",
+      "mode": "U17 TL431 out of specification (Vref drift: moves all four thresholds)",
+      "row": "C4",
+      "status": "bounded: companions announce before H (bands.py)"
+     },
+     {
+      "fit": 0.1,
+      "k": {},
+      "kind": "drift",
+      "mode": "R59 rref drift (shared reference)",
+      "row": "C4",
+      "status": "bounded as TL431 drift"
+     },
+     {
+      "fit": 0.1,
+      "k": {},
+      "kind": "drift",
+      "mode": "R79 halfref top drift (shared reference)",
+      "row": "C4",
+      "status": "bounded as TL431 drift"
+     },
+     {
+      "fit": 0.1,
+      "k": {},
+      "kind": "drift",
+      "mode": "R80 halfref bottom drift (shared reference)",
+      "row": "C4",
+      "status": "bounded as TL431 drift"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     }
+    ],
+    "total_RWL": 22.827
+   },
+   "V1": {
+    "FIT_whole_rail_masks": 4.271,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 38.107,
+    "frontend_RWL": 9.527,
+    "per_threshold_FIT": {
+     "neg OV": 9.821,
+     "neg UV": 7.871,
+     "span OV": 10.582,
+     "span UV": 9.832
+    },
+    "rows": [
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R81 (neg UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R82 (neg UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R83 (neg OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R84 (neg OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R85 (span UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86 (span UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R87 (span OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88 (span OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R91 rpull open",
+      "row": "rpull",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R59 rref open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R79 halfref top open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R80 halfref bottom open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C66 (neg UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C67 (neg OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C68 (span UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C69 (span OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "cmonitor 100 nF (p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3333,
+      "k": {},
+      "kind": "pin_open",
+      "mode": "U17 TL431 pin 1 open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3333,
+      "k": {
+       "neg OV": 0.5,
+       "neg UV": 0.5,
+       "span OV": 0.5,
+       "span UV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U17 TL431 pin 2 open",
+      "row": "C4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.3333,
+      "k": {},
+      "kind": "pin_open",
+      "mode": "U17 TL431 pin 3 open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3333,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U17 TL431 pins 1-2 shorted",
+      "row": "C4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.3333,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U17 TL431 pins 2-3 shorted",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3333,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U17 TL431 pins 1-3 shorted",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 1.0,
+      "k": {},
+      "kind": "die",
+      "mode": "U17 TL431 die open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 1.4,
+      "k": {},
+      "kind": "die",
+      "mode": "U17 TL431 die short",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 1 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 2 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0,
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 3 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg OV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 4 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg OV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 5 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg UV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 6 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg UV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 7 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "span UV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 8 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "span UV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 9 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "span OV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 10 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "span OV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 11 open",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "neg OV": 0.5,
+       "neg UV": 0.5,
+       "span OV": 0.5,
+       "span UV": 0.5
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 12 open",
+      "row": "N1",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 13 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.5,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 LM339B pin 14 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 1-2 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.5071,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0,
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 2-3 shorted",
+      "row": "N2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 3-4 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 4-5 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 5-6 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 6-7 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 7-8 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5071,
+      "k": {
+       "span UV": 0.5
+      },
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 8-9 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 9-10 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5071,
+      "k": {
+       "span OV": 0.5
+      },
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 10-11 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 11-12 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 12-13 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 13-14 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.5071,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 14-1 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.2,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch1 (neg UV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.125,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch1 (neg UV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.2,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch2 (neg OV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.125,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch2 (neg OV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.2,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch3 (span UV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.125,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch3 (span UV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.2,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch4 (span OV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.125,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch4 (span OV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.15,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B neg UV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.15,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B neg OV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.15,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B span UV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.15,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B span OV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 1.6,
+      "k": {},
+      "kind": "drift",
+      "mode": "U17 TL431 out of specification (Vref drift: moves all four thresholds)",
+      "row": "C4",
+      "status": "bounded: companions announce before H (bands.py)"
+     },
+     {
+      "fit": 0.1,
+      "k": {},
+      "kind": "drift",
+      "mode": "R59 rref drift (shared reference)",
+      "row": "C4",
+      "status": "bounded as TL431 drift"
+     },
+     {
+      "fit": 0.1,
+      "k": {},
+      "kind": "drift",
+      "mode": "R79 halfref top drift (shared reference)",
+      "row": "C4",
+      "status": "bounded as TL431 drift"
+     },
+     {
+      "fit": 0.1,
+      "k": {},
+      "kind": "drift",
+      "mode": "R80 halfref bottom drift (shared reference)",
+      "row": "C4",
+      "status": "bounded as TL431 drift"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     }
+    ],
+    "total_RWL": 22.527
+   },
+   "V2": {
+    "FIT_whole_rail_masks": 1.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 23.7,
+    "frontend_RWL": 5.925,
+    "per_threshold_FIT": {
+     "neg OV": 6.1,
+     "neg UV": 4.85,
+     "span OV": 7.3,
+     "span UV": 5.45
+    },
+    "rows": [
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R81 (neg UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R82 (neg UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R83 (neg OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R84 (neg OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R85 (span UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 0.5,
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86 (span UV bottom) open",
+      "row": "C5",
+      "status": "overstress: dormant if the pin survives, else unknown"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R87 (span OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 0.5,
+       "span UV": 0.5
+      },
+      "kind": "res_open",
+      "mode": "R88 (span OV bottom) open",
+      "row": "C5",
+      "status": "overstress: announced if the pin survives, else unknown"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R91 rpull open",
+      "row": "rpull",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C66 (neg UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C67 (neg OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C68 (span UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C69 (span OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "cmonitor 100 nF (p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C176 100 nF (U47 VDD, new; p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 1 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 2 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 3 open",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 4 open",
+      "row": "N4",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 5 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 6 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 1-2 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 2-3 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 3-4 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 0.5,
+       "neg UV": 0.5
+      },
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 4-5 shorted",
+      "row": "N3",
+      "status": "overstress: announced if the pin survives, else unknown"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0,
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 5-6 shorted",
+      "row": "N2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 6-1 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 1 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 2 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 3 open",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 4 open",
+      "row": "N4",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 5 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 6 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 1-2 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 2-3 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 3-4 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 0.5,
+       "span UV": 0.5
+      },
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 4-5 shorted",
+      "row": "N3",
+      "status": "overstress: announced if the pin survives, else unknown"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0,
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 5-6 shorted",
+      "row": "N2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 6-1 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     }
+    ],
+    "total_RWL": 18.925
+   },
+   "V2+F2": {
+    "FIT_whole_rail_masks": 1.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 23.1,
+    "frontend_RWL": 5.775,
+    "per_threshold_FIT": {
+     "neg OV": 6.1,
+     "neg UV": 4.85,
+     "span OV": 6.1,
+     "span UV": 6.05
+    },
+    "rows": [
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R81 (neg UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R82 (neg UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R83 (neg OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R84 (neg OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R85 (span UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86a (span UV bottom, half) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86b (span UV bottom, half) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R87 (span OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88a (span OV bottom, half) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88b (span OV bottom, half) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R91 rpull open",
+      "row": "rpull",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C66 (neg UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C67 (neg OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C68 (span UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C69 (span OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "cmonitor 100 nF (p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C176 100 nF (U47 VDD, new; p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 1 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 2 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 3 open",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 4 open",
+      "row": "N4",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 5 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 6 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 1-2 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 2-3 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 3-4 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 0.5,
+       "neg UV": 0.5
+      },
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 4-5 shorted",
+      "row": "N3",
+      "status": "overstress: announced if the pin survives, else unknown"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0,
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 5-6 shorted",
+      "row": "N2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 6-1 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 1 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 2 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 3 open",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 4 open",
+      "row": "N4",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 5 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 6 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 1-2 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 2-3 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 3-4 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 0.5,
+       "span UV": 0.5
+      },
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 4-5 shorted",
+      "row": "N3",
+      "status": "overstress: announced if the pin survives, else unknown"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0,
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 5-6 shorted",
+      "row": "N2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 6-1 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     }
+    ],
+    "total_RWL": 18.775
+   },
+   "V2+F2+v5": {
+    "FIT_whole_rail_masks": 1.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 22.1,
+    "frontend_RWL": 5.525,
+    "per_threshold_FIT": {
+     "neg OV": 5.85,
+     "neg UV": 4.6,
+     "span OV": 5.85,
+     "span UV": 5.8
+    },
+    "rows": [
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R81 (neg UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R82 (neg UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R83 (neg OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R84 (neg OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R85 (span UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86a (span UV bottom, half) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86b (span UV bottom, half) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R87 (span OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88a (span OV bottom, half) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88b (span OV bottom, half) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R91 rpull open",
+      "row": "rpull",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C66 (neg UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C67 (neg OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C68 (span UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C69 (span OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "cmonitor 100 nF (p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C176 100 nF (U47 VDD, new; v5-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 1 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 2 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 3 open",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 4 open",
+      "row": "N4",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 5 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 6 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 1-2 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 2-3 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 3-4 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 4-5 shorted",
+      "row": "N3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0,
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 5-6 shorted",
+      "row": "N2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 6-1 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 1 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 2 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 3 open",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 4 open",
+      "row": "N4",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 5 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 6 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 1-2 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 2-3 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 3-4 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 4-5 shorted",
+      "row": "N3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0,
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 5-6 shorted",
+      "row": "N2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 6-1 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     }
+    ],
+    "total_RWL": 18.525
+   },
+   "V2+F2ov": {
+    "FIT_whole_rail_masks": 1.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 22.5,
+    "frontend_RWL": 5.625,
+    "per_threshold_FIT": {
+     "neg OV": 6.1,
+     "neg UV": 4.85,
+     "span OV": 6.7,
+     "span UV": 4.85
+    },
+    "rows": [
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R81 (neg UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R82 (neg UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R83 (neg OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R84 (neg OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R85 (span UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 0.5,
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86 (span UV bottom) open",
+      "row": "C5",
+      "status": "overstress: dormant if the pin survives, else unknown"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R87 (span OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88a (span OV bottom, half) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88b (span OV bottom, half) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R91 rpull open",
+      "row": "rpull",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C66 (neg UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C67 (neg OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C68 (span UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C69 (span OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "cmonitor 100 nF (p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C176 100 nF (U47 VDD, new; p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 1 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 2 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 3 open",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 4 open",
+      "row": "N4",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 5 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U29 TPS3701 (neg window) pin 6 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 1-2 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 2-3 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 3-4 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 0.5,
+       "neg UV": 0.5
+      },
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 4-5 shorted",
+      "row": "N3",
+      "status": "overstress: announced if the pin survives, else unknown"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0,
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 5-6 shorted",
+      "row": "N2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 TPS3701 (neg window) pins 6-1 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 1 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 2 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 3 open",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 4 open",
+      "row": "N4",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 5 open",
+      "row": "N1",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "pin_open",
+      "mode": "U47 TPS3701 (span window) pin 6 open",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 1-2 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 2-3 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 3-4 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "span OV": 0.5,
+       "span UV": 0.5
+      },
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 4-5 shorted",
+      "row": "N3",
+      "status": "overstress: announced if the pin survives, else unknown"
+     },
+     {
+      "fit": 0.1667,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0,
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 5-6 shorted",
+      "row": "N2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.1667,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U47 TPS3701 (span window) pins 6-1 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.3,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.3,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     }
+    ],
+    "total_RWL": 18.625
+   }
+  },
+  "base": {
+   "V0": {
+    "FIT_whole_rail_masks": 0.171,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 26.357,
+    "frontend_RWL": 6.589,
+    "per_threshold_FIT": {
+     "neg OV": 6.921,
+     "neg UV": 6.171,
+     "span OV": 7.007,
+     "span UV": 6.257
+    },
+    "rows": [
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R81 (neg UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R82 (neg UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R83 (neg OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R84 (neg OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R85 (span UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86 (span UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R87 (span OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88 (span OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R91 rpull open",
+      "row": "rpull",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R59 rref open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R79 halfref top open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R80 halfref bottom open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C66 (neg UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C67 (neg OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C68 (span UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C69 (span OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "cmonitor 100 nF (p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 1.5,
+      "k": {},
+      "kind": "die",
+      "mode": "U17 TL431 die open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 2.1,
+      "k": {},
+      "kind": "die",
+      "mode": "U17 TL431 die short",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 1-2 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.0571,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0,
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 2-3 shorted",
+      "row": "N2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 3-4 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 4-5 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 5-6 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 6-7 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 7-8 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.0571,
+      "k": {
+       "span UV": 0.5
+      },
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 8-9 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 9-10 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.0571,
+      "k": {
+       "span OV": 0.5
+      },
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 10-11 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 11-12 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 12-13 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 13-14 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 14-1 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 1.6,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch1 (neg UV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 1.0,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch1 (neg UV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 1.6,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch2 (neg OV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 1.0,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch2 (neg OV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 1.6,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch3 (span UV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 1.0,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch3 (span UV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 1.6,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch4 (span OV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 1.0,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch4 (span OV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 1.2,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B neg UV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 1.2,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B neg OV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 1.2,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B span UV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 1.2,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B span OV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 2.4,
+      "k": {},
+      "kind": "drift",
+      "mode": "U17 TL431 out of specification (Vref drift: moves all four thresholds)",
+      "row": "C4",
+      "status": "bounded: companions announce before H (bands.py)"
+     },
+     {
+      "fit": 0.1,
+      "k": {},
+      "kind": "drift",
+      "mode": "R59 rref drift (shared reference)",
+      "row": "C4",
+      "status": "bounded as TL431 drift"
+     },
+     {
+      "fit": 0.1,
+      "k": {},
+      "kind": "drift",
+      "mode": "R79 halfref top drift (shared reference)",
+      "row": "C4",
+      "status": "bounded as TL431 drift"
+     },
+     {
+      "fit": 0.1,
+      "k": {},
+      "kind": "drift",
+      "mode": "R80 halfref bottom drift (shared reference)",
+      "row": "C4",
+      "status": "bounded as TL431 drift"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     }
+    ],
+    "total_RWL": 19.589
+   },
+   "V1": {
+    "FIT_whole_rail_masks": 0.171,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 25.157,
+    "frontend_RWL": 6.289,
+    "per_threshold_FIT": {
+     "neg OV": 6.921,
+     "neg UV": 4.971,
+     "span OV": 7.007,
+     "span UV": 6.257
+    },
+    "rows": [
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R81 (neg UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R82 (neg UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R83 (neg OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R84 (neg OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R85 (span UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86 (span UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R87 (span OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88 (span OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R91 rpull open",
+      "row": "rpull",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R59 rref open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R79 halfref top open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R80 halfref bottom open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C66 (neg UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C67 (neg OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C68 (span UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C69 (span OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "cmonitor 100 nF (p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 1.5,
+      "k": {},
+      "kind": "die",
+      "mode": "U17 TL431 die open",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 2.1,
+      "k": {},
+      "kind": "die",
+      "mode": "U17 TL431 die short",
+      "row": "C4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 1-2 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.0571,
+      "k": {
+       "neg OV": 1.0,
+       "neg UV": 1.0,
+       "span OV": 1.0,
+       "span UV": 1.0
+      },
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 2-3 shorted",
+      "row": "N2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 3-4 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 4-5 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 5-6 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 6-7 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 7-8 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.0571,
+      "k": {
+       "span UV": 0.5
+      },
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 8-9 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 9-10 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.0571,
+      "k": {
+       "span OV": 0.5
+      },
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 10-11 shorted",
+      "row": "N4",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 11-12 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 12-13 shorted",
+      "row": "N4",
+      "status": "announced"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 13-14 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 0.0571,
+      "k": {},
+      "kind": "pin_short",
+      "mode": "U29 LM339B pins 14-1 shorted",
+      "row": "N4",
+      "status": "no effect"
+     },
+     {
+      "fit": 1.6,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch1 (neg UV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 1.0,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch1 (neg UV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 1.6,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch2 (neg OV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 1.0,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch2 (neg OV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 1.6,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch3 (span UV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 1.0,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch3 (span UV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 1.6,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 LM339B ch4 (span OV) die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 1.0,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 LM339B ch4 (span OV) die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 1.2,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B neg UV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 1.2,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B neg OV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 1.2,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B span UV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 1.2,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 LM339B span OV channel out of specification",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 2.4,
+      "k": {},
+      "kind": "drift",
+      "mode": "U17 TL431 out of specification (Vref drift: moves all four thresholds)",
+      "row": "C4",
+      "status": "bounded: companions announce before H (bands.py)"
+     },
+     {
+      "fit": 0.1,
+      "k": {},
+      "kind": "drift",
+      "mode": "R59 rref drift (shared reference)",
+      "row": "C4",
+      "status": "bounded as TL431 drift"
+     },
+     {
+      "fit": 0.1,
+      "k": {},
+      "kind": "drift",
+      "mode": "R79 halfref top drift (shared reference)",
+      "row": "C4",
+      "status": "bounded as TL431 drift"
+     },
+     {
+      "fit": 0.1,
+      "k": {},
+      "kind": "drift",
+      "mode": "R80 halfref bottom drift (shared reference)",
+      "row": "C4",
+      "status": "bounded as TL431 drift"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     }
+    ],
+    "total_RWL": 19.289
+   },
+   "V2": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 15.3,
+    "frontend_RWL": 3.825,
+    "per_threshold_FIT": {
+     "neg OV": 3.75,
+     "neg UV": 3.0,
+     "span OV": 4.95,
+     "span UV": 3.6
+    },
+    "rows": [
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R81 (neg UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R82 (neg UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R83 (neg OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R84 (neg OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R85 (span UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 0.5,
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86 (span UV bottom) open",
+      "row": "C5",
+      "status": "overstress: dormant if the pin survives, else unknown"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R87 (span OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 0.5,
+       "span UV": 0.5
+      },
+      "kind": "res_open",
+      "mode": "R88 (span OV bottom) open",
+      "row": "C5",
+      "status": "overstress: announced if the pin survives, else unknown"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R91 rpull open",
+      "row": "rpull",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C66 (neg UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C67 (neg OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C68 (span UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C69 (span OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "cmonitor 100 nF (p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C176 100 nF (U47 VDD, new; p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     }
+    ],
+    "total_RWL": 16.825
+   },
+   "V2+F2": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 14.7,
+    "frontend_RWL": 3.675,
+    "per_threshold_FIT": {
+     "neg OV": 3.75,
+     "neg UV": 3.0,
+     "span OV": 3.75,
+     "span UV": 4.2
+    },
+    "rows": [
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R81 (neg UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R82 (neg UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R83 (neg OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R84 (neg OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R85 (span UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86a (span UV bottom, half) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86b (span UV bottom, half) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R87 (span OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88a (span OV bottom, half) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88b (span OV bottom, half) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R91 rpull open",
+      "row": "rpull",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C66 (neg UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C67 (neg OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C68 (span UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C69 (span OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "cmonitor 100 nF (p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C176 100 nF (U47 VDD, new; p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     }
+    ],
+    "total_RWL": 16.675
+   },
+   "V2+F2+v5": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 14.7,
+    "frontend_RWL": 3.675,
+    "per_threshold_FIT": {
+     "neg OV": 3.75,
+     "neg UV": 3.0,
+     "span OV": 3.75,
+     "span UV": 4.2
+    },
+    "rows": [
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R81 (neg UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R82 (neg UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R83 (neg OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R84 (neg OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R85 (span UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86a (span UV bottom, half) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86b (span UV bottom, half) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R87 (span OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88a (span OV bottom, half) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88b (span OV bottom, half) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R91 rpull open",
+      "row": "rpull",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C66 (neg UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C67 (neg OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C68 (span UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C69 (span OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "cmonitor 100 nF (p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C176 100 nF (U47 VDD, new; v5-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     }
+    ],
+    "total_RWL": 16.675
+   },
+   "V2+F2ov": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 13.0,
+    "frontend_FIT_thresholds": 14.1,
+    "frontend_RWL": 3.525,
+    "per_threshold_FIT": {
+     "neg OV": 3.75,
+     "neg UV": 3.0,
+     "span OV": 4.35,
+     "span UV": 3.0
+    },
+    "rows": [
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R81 (neg UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R82 (neg UV bottom) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R83 (neg OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R84 (neg OV bottom) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R85 (span UV top) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 0.5,
+       "span UV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R86 (span UV bottom) open",
+      "row": "C5",
+      "status": "overstress: dormant if the pin survives, else unknown"
+     },
+     {
+      "fit": 0.4,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "res_open",
+      "mode": "R87 (span OV top) open",
+      "row": "C5",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88a (span OV bottom, half) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R88b (span OV bottom, half) open",
+      "row": "C5",
+      "status": "announced"
+     },
+     {
+      "fit": 0.4,
+      "k": {},
+      "kind": "res_open",
+      "mode": "R91 rpull open",
+      "row": "rpull",
+      "status": "undetermined"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C66 (neg UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C67 (neg OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C68 (span UV 1 nF) short",
+      "row": "C6",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "cap_short",
+      "mode": "C69 (span OV 1 nF) short",
+      "row": "C6",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "cmonitor 100 nF (p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.25,
+      "k": {},
+      "kind": "cap_short",
+      "mode": "C176 100 nF (U47 VDD, new; p-n) short",
+      "row": "N7",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "neg UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "neg OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U29 TPS3701 (neg window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "span UV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTA die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.6,
+      "k": {
+       "span OV": 1.0
+      },
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die hiz",
+      "row": "C2",
+      "status": "dormant"
+     },
+     {
+      "fit": 0.6,
+      "k": {},
+      "kind": "die",
+      "mode": "U47 TPS3701 (span window) OUTB die low",
+      "row": "C3",
+      "status": "announced"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U29 TPS3701 neg OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span UV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.8,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "oos",
+      "mode": "U47 TPS3701 span OV out of specification (comparator or internal reference)",
+      "row": "C2b",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "neg OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "neg OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span UV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span UV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV top resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     },
+     {
+      "fit": 0.1,
+      "k": {
+       "span OV": 0.0
+      },
+      "kind": "drift",
+      "mode": "span OV bottom resistor drift",
+      "row": "C5",
+      "status": "dormant (k_o)"
+     }
+    ],
+    "total_RWL": 16.525
+   }
+  },
+  "k_o = 0.5": {
+   "V0": {
+    "FIT_whole_rail_masks": 0.171,
+    "chain_RWL": 23.2,
+    "frontend_FIT_thresholds": 34.757,
+    "frontend_RWL": 8.689,
+    "per_threshold_FIT": {
+     "neg OV": 9.021,
+     "neg UV": 8.271,
+     "span OV": 9.107,
+     "span UV": 8.357
+    },
+    "total_RWL": 31.889
+   },
+   "V1": {
+    "FIT_whole_rail_masks": 0.171,
+    "chain_RWL": 23.2,
+    "frontend_FIT_thresholds": 33.557,
+    "frontend_RWL": 8.389,
+    "per_threshold_FIT": {
+     "neg OV": 9.021,
+     "neg UV": 7.071,
+     "span OV": 9.107,
+     "span UV": 8.357
+    },
+    "total_RWL": 31.589
+   },
+   "V2": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 23.2,
+    "frontend_FIT_thresholds": 21.3,
+    "frontend_RWL": 5.325,
+    "per_threshold_FIT": {
+     "neg OV": 5.25,
+     "neg UV": 4.5,
+     "span OV": 6.45,
+     "span UV": 5.1
+    },
+    "total_RWL": 28.525
+   },
+   "V2+F2": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 23.2,
+    "frontend_FIT_thresholds": 20.7,
+    "frontend_RWL": 5.175,
+    "per_threshold_FIT": {
+     "neg OV": 5.25,
+     "neg UV": 4.5,
+     "span OV": 5.25,
+     "span UV": 5.7
+    },
+    "total_RWL": 28.375
+   },
+   "V2+F2+v5": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 23.2,
+    "frontend_FIT_thresholds": 20.7,
+    "frontend_RWL": 5.175,
+    "per_threshold_FIT": {
+     "neg OV": 5.25,
+     "neg UV": 4.5,
+     "span OV": 5.25,
+     "span UV": 5.7
+    },
+    "total_RWL": 28.375
+   },
+   "V2+F2ov": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 23.2,
+    "frontend_FIT_thresholds": 20.1,
+    "frontend_RWL": 5.025,
+    "per_threshold_FIT": {
+     "neg OV": 5.25,
+     "neg UV": 4.5,
+     "span OV": 5.85,
+     "span UV": 4.5
+    },
+    "total_RWL": 28.225
+   }
+  },
+  "k_u = 0": {
+   "V0": {
+    "FIT_whole_rail_masks": 0.171,
+    "chain_RWL": 5.1,
+    "frontend_FIT_thresholds": 26.186,
+    "frontend_RWL": 6.546,
+    "per_threshold_FIT": {
+     "neg OV": 6.921,
+     "neg UV": 6.171,
+     "span OV": 6.921,
+     "span UV": 6.171
+    },
+    "total_RWL": 11.646
+   },
+   "V1": {
+    "FIT_whole_rail_masks": 0.171,
+    "chain_RWL": 5.1,
+    "frontend_FIT_thresholds": 24.986,
+    "frontend_RWL": 6.246,
+    "per_threshold_FIT": {
+     "neg OV": 6.921,
+     "neg UV": 4.971,
+     "span OV": 6.921,
+     "span UV": 6.171
+    },
+    "total_RWL": 11.346
+   },
+   "V2": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 5.1,
+    "frontend_FIT_thresholds": 13.5,
+    "frontend_RWL": 3.375,
+    "per_threshold_FIT": {
+     "neg OV": 3.75,
+     "neg UV": 3.0,
+     "span OV": 3.75,
+     "span UV": 3.0
+    },
+    "total_RWL": 8.475
+   },
+   "V2+F2": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 5.1,
+    "frontend_FIT_thresholds": 14.7,
+    "frontend_RWL": 3.675,
+    "per_threshold_FIT": {
+     "neg OV": 3.75,
+     "neg UV": 3.0,
+     "span OV": 3.75,
+     "span UV": 4.2
+    },
+    "total_RWL": 8.775
+   },
+   "V2+F2+v5": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 5.1,
+    "frontend_FIT_thresholds": 14.7,
+    "frontend_RWL": 3.675,
+    "per_threshold_FIT": {
+     "neg OV": 3.75,
+     "neg UV": 3.0,
+     "span OV": 3.75,
+     "span UV": 4.2
+    },
+    "total_RWL": 8.775
+   },
+   "V2+F2ov": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 5.1,
+    "frontend_FIT_thresholds": 13.5,
+    "frontend_RWL": 3.375,
+    "per_threshold_FIT": {
+     "neg OV": 3.75,
+     "neg UV": 3.0,
+     "span OV": 3.75,
+     "span UV": 3.0
+    },
+    "total_RWL": 8.475
+   }
+  },
+  "k_u = 1": {
+   "V0": {
+    "FIT_whole_rail_masks": 0.171,
+    "chain_RWL": 20.9,
+    "frontend_FIT_thresholds": 26.529,
+    "frontend_RWL": 6.632,
+    "per_threshold_FIT": {
+     "neg OV": 6.921,
+     "neg UV": 6.171,
+     "span OV": 7.093,
+     "span UV": 6.343
+    },
+    "total_RWL": 27.532
+   },
+   "V1": {
+    "FIT_whole_rail_masks": 0.171,
+    "chain_RWL": 20.9,
+    "frontend_FIT_thresholds": 25.329,
+    "frontend_RWL": 6.332,
+    "per_threshold_FIT": {
+     "neg OV": 6.921,
+     "neg UV": 4.971,
+     "span OV": 7.093,
+     "span UV": 6.343
+    },
+    "total_RWL": 27.232
+   },
+   "V2": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 20.9,
+    "frontend_FIT_thresholds": 17.1,
+    "frontend_RWL": 4.275,
+    "per_threshold_FIT": {
+     "neg OV": 3.75,
+     "neg UV": 3.0,
+     "span OV": 6.15,
+     "span UV": 4.2
+    },
+    "total_RWL": 25.175
+   },
+   "V2+F2": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 20.9,
+    "frontend_FIT_thresholds": 14.7,
+    "frontend_RWL": 3.675,
+    "per_threshold_FIT": {
+     "neg OV": 3.75,
+     "neg UV": 3.0,
+     "span OV": 3.75,
+     "span UV": 4.2
+    },
+    "total_RWL": 24.575
+   },
+   "V2+F2+v5": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 20.9,
+    "frontend_FIT_thresholds": 14.7,
+    "frontend_RWL": 3.675,
+    "per_threshold_FIT": {
+     "neg OV": 3.75,
+     "neg UV": 3.0,
+     "span OV": 3.75,
+     "span UV": 4.2
+    },
+    "total_RWL": 24.575
+   },
+   "V2+F2ov": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 20.9,
+    "frontend_FIT_thresholds": 14.7,
+    "frontend_RWL": 3.675,
+    "per_threshold_FIT": {
+     "neg OV": 3.75,
+     "neg UV": 3.0,
+     "span OV": 4.95,
+     "span UV": 3.0
+    },
+    "total_RWL": 24.575
+   }
+  },
+  "passives x5": {
+   "V0": {
+    "FIT_whole_rail_masks": 0.171,
+    "chain_RWL": 19.8,
+    "frontend_FIT_thresholds": 51.557,
+    "frontend_RWL": 12.889,
+    "per_threshold_FIT": {
+     "neg OV": 14.721,
+     "neg UV": 10.971,
+     "span OV": 14.807,
+     "span UV": 11.057
+    },
+    "total_RWL": 32.689
+   },
+   "V1": {
+    "FIT_whole_rail_masks": 0.171,
+    "chain_RWL": 19.8,
+    "frontend_FIT_thresholds": 45.557,
+    "frontend_RWL": 11.389,
+    "per_threshold_FIT": {
+     "neg OV": 14.721,
+     "neg UV": 4.971,
+     "span OV": 14.807,
+     "span UV": 11.057
+    },
+    "total_RWL": 31.189
+   },
+   "V2": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 19.8,
+    "frontend_FIT_thresholds": 47.7,
+    "frontend_RWL": 11.925,
+    "per_threshold_FIT": {
+     "neg OV": 11.55,
+     "neg UV": 7.8,
+     "span OV": 17.55,
+     "span UV": 10.8
+    },
+    "total_RWL": 31.725
+   },
+   "V2+F2": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 19.8,
+    "frontend_FIT_thresholds": 44.7,
+    "frontend_RWL": 11.175,
+    "per_threshold_FIT": {
+     "neg OV": 11.55,
+     "neg UV": 7.8,
+     "span OV": 11.55,
+     "span UV": 13.8
+    },
+    "total_RWL": 30.975
+   },
+   "V2+F2+v5": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 19.8,
+    "frontend_FIT_thresholds": 44.7,
+    "frontend_RWL": 11.175,
+    "per_threshold_FIT": {
+     "neg OV": 11.55,
+     "neg UV": 7.8,
+     "span OV": 11.55,
+     "span UV": 13.8
+    },
+    "total_RWL": 30.975
+   },
+   "V2+F2ov": {
+    "FIT_whole_rail_masks": 0.0,
+    "chain_RWL": 19.8,
+    "frontend_FIT_thresholds": 41.7,
+    "frontend_RWL": 10.425,
+    "per_threshold_FIT": {
+     "neg OV": 11.55,
+     "neg UV": 7.8,
+     "span OV": 14.55,
+     "span UV": 7.8
+    },
+    "total_RWL": 30.225
+   }
+  },
+  "worst (k_u 1, k_o 0.5, passives x5, allocation B)": {
+   "V0": {
+    "FIT_whole_rail_masks": 5.521,
+    "chain_RWL": 40.3,
+    "frontend_FIT_thresholds": 83.929,
+    "frontend_RWL": 20.982,
+    "per_threshold_FIT": {
+     "neg OV": 22.096,
+     "neg UV": 18.346,
+     "span OV": 23.618,
+     "span UV": 19.868
+    },
+    "total_RWL": 61.282
+   },
+   "V1": {
+    "FIT_whole_rail_masks": 5.521,
+    "chain_RWL": 40.3,
+    "frontend_FIT_thresholds": 77.929,
+    "frontend_RWL": 19.482,
+    "per_threshold_FIT": {
+     "neg OV": 22.096,
+     "neg UV": 12.346,
+     "span OV": 23.618,
+     "span UV": 19.868
+    },
+    "total_RWL": 59.782
+   },
+   "V2": {
+    "FIT_whole_rail_masks": 1.0,
+    "chain_RWL": 40.3,
+    "frontend_FIT_thresholds": 74.5,
+    "frontend_RWL": 18.625,
+    "per_threshold_FIT": {
+     "neg OV": 16.25,
+     "neg UV": 12.0,
+     "span OV": 28.25,
+     "span UV": 18.0
+    },
+    "total_RWL": 58.925
+   },
+   "V2+F2": {
+    "FIT_whole_rail_masks": 1.0,
+    "chain_RWL": 40.3,
+    "frontend_FIT_thresholds": 62.5,
+    "frontend_RWL": 15.625,
+    "per_threshold_FIT": {
+     "neg OV": 16.25,
+     "neg UV": 12.0,
+     "span OV": 16.25,
+     "span UV": 18.0
+    },
+    "total_RWL": 55.925
+   },
+   "V2+F2+v5": {
+    "FIT_whole_rail_masks": 1.0,
+    "chain_RWL": 40.3,
+    "frontend_FIT_thresholds": 60.5,
+    "frontend_RWL": 15.125,
+    "per_threshold_FIT": {
+     "neg OV": 15.75,
+     "neg UV": 11.5,
+     "span OV": 15.75,
+     "span UV": 17.5
+    },
+    "total_RWL": 55.425
+   },
+   "V2+F2ov": {
+    "FIT_whole_rail_masks": 1.0,
+    "chain_RWL": 40.3,
+    "frontend_FIT_thresholds": 62.5,
+    "frontend_RWL": 15.625,
+    "per_threshold_FIT": {
+     "neg OV": 16.25,
+     "neg UV": 12.0,
+     "span OV": 22.25,
+     "span UV": 12.0
+    },
+    "total_RWL": 55.925
+   }
+  }
+ },
+ "fmea_rows": {
+  "V0": {
+   "C2": {
+    "D": 9,
+    "FIT_per_rail_all": 6.4,
+    "FIT_per_rail_dormant": 6.4,
+    "O": 5,
+    "RPN": 225,
+    "S": 5,
+    "masked_FIT_thresholds": 6.4,
+    "max_thresholds_masked": 1,
+    "status": "dormant",
+    "what": "comparator / supervisor output cannot pull 'good' low (die Hi-Z or saturated high, output pin open)"
+   },
+   "C2b": {
+    "D": 9,
+    "FIT_per_rail_all": 4.8,
+    "FIT_per_rail_dormant": 4.8,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 1,
+    "status": "dormant",
+    "what": "comparator out of specification (one threshold moves; V2 includes the internal reference)"
+   },
+   "C3": {
+    "D": 1,
+    "FIT_per_rail_all": 4.0,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 4,
+    "RPN": 12,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "output stuck low / false trip"
+   },
+   "C4": {
+    "D": 1,
+    "FIT_per_rail_all": 7.5,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 5,
+    "RPN": 15,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "reference: TL431 open / short / drift, rref and R79 / R80 (V0, V1); V2 has no separate part"
+   },
+   "C5": {
+    "D": 9,
+    "FIT_per_rail_all": 4.0,
+    "FIT_per_rail_dormant": 2.4,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 1.6,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "divider resistor open or drift (8 per rail)"
+   },
+   "C6": {
+    "D": 9,
+    "FIT_per_rail_all": 1.0,
+    "FIT_per_rail_dormant": 0.5,
+    "O": 3,
+    "RPN": 135,
+    "S": 5,
+    "masked_FIT_thresholds": 0.5,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "1 nF tap capacitor short"
+   },
+   "N1": {
+    "D": 9,
+    "FIT_per_rail_all": 1.0,
+    "FIT_per_rail_dormant": 1.0,
+    "O": 3,
+    "RPN": 189,
+    "S": 7,
+    "masked_FIT_thresholds": 3.0,
+    "max_thresholds_masked": 4,
+    "status": "dormant",
+    "what": "supply pin open (LM339B VCC / GND; TPS3701 VDD / GND)"
+   },
+   "N2": {
+    "D": 9,
+    "FIT_per_rail_all": 0.507,
+    "FIT_per_rail_dormant": 0.507,
+    "O": 3,
+    "RPN": 189,
+    "S": 7,
+    "masked_FIT_thresholds": 2.028,
+    "max_thresholds_masked": 4,
+    "status": "dormant",
+    "what": "output pin shorted to the adjacent supply pin: good tied to P (to v5 in V2+F2+v5)"
+   },
+   "N4": {
+    "D": 9,
+    "FIT_per_rail_all": 10.592,
+    "FIT_per_rail_dormant": 5.014,
+    "O": 5,
+    "RPN": 225,
+    "S": 5,
+    "masked_FIT_thresholds": 2.507,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "other pin opens / adjacent shorts (inputs)"
+   },
+   "N7": {
+    "D": 1,
+    "FIT_per_rail_all": 0.25,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 2,
+    "RPN": 6,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "100 nF decoupler short (cmonitor p-n in all; C176 in V2: p-n, or v5-n in V2+F2+v5)"
+   }
+  },
+  "V1": {
+   "C2": {
+    "D": 9,
+    "FIT_per_rail_all": 6.4,
+    "FIT_per_rail_dormant": 6.4,
+    "O": 5,
+    "RPN": 225,
+    "S": 5,
+    "masked_FIT_thresholds": 6.4,
+    "max_thresholds_masked": 1,
+    "status": "dormant",
+    "what": "comparator / supervisor output cannot pull 'good' low (die Hi-Z or saturated high, output pin open)"
+   },
+   "C2b": {
+    "D": 9,
+    "FIT_per_rail_all": 4.8,
+    "FIT_per_rail_dormant": 4.8,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 1,
+    "status": "dormant",
+    "what": "comparator out of specification (one threshold moves; V2 includes the internal reference)"
+   },
+   "C3": {
+    "D": 1,
+    "FIT_per_rail_all": 4.0,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 4,
+    "RPN": 12,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "output stuck low / false trip"
+   },
+   "C4": {
+    "D": 1,
+    "FIT_per_rail_all": 7.5,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 5,
+    "RPN": 15,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "reference: TL431 open / short / drift, rref and R79 / R80 (V0, V1); V2 has no separate part"
+   },
+   "C5": {
+    "D": 9,
+    "FIT_per_rail_all": 4.0,
+    "FIT_per_rail_dormant": 2.0,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 1.2,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "divider resistor open or drift (8 per rail)"
+   },
+   "C6": {
+    "D": 9,
+    "FIT_per_rail_all": 1.0,
+    "FIT_per_rail_dormant": 0.5,
+    "O": 3,
+    "RPN": 135,
+    "S": 5,
+    "masked_FIT_thresholds": 0.5,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "1 nF tap capacitor short"
+   },
+   "N1": {
+    "D": 9,
+    "FIT_per_rail_all": 1.0,
+    "FIT_per_rail_dormant": 1.0,
+    "O": 3,
+    "RPN": 189,
+    "S": 7,
+    "masked_FIT_thresholds": 3.0,
+    "max_thresholds_masked": 4,
+    "status": "dormant",
+    "what": "supply pin open (LM339B VCC / GND; TPS3701 VDD / GND)"
+   },
+   "N2": {
+    "D": 9,
+    "FIT_per_rail_all": 0.507,
+    "FIT_per_rail_dormant": 0.507,
+    "O": 3,
+    "RPN": 189,
+    "S": 7,
+    "masked_FIT_thresholds": 2.028,
+    "max_thresholds_masked": 4,
+    "status": "dormant",
+    "what": "output pin shorted to the adjacent supply pin: good tied to P (to v5 in V2+F2+v5)"
+   },
+   "N4": {
+    "D": 9,
+    "FIT_per_rail_all": 10.592,
+    "FIT_per_rail_dormant": 5.014,
+    "O": 5,
+    "RPN": 225,
+    "S": 5,
+    "masked_FIT_thresholds": 2.507,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "other pin opens / adjacent shorts (inputs)"
+   },
+   "N7": {
+    "D": 1,
+    "FIT_per_rail_all": 0.25,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 2,
+    "RPN": 6,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "100 nF decoupler short (cmonitor p-n in all; C176 in V2: p-n, or v5-n in V2+F2+v5)"
+   }
+  },
+  "V2": {
+   "C2": {
+    "D": 9,
+    "FIT_per_rail_all": 2.4,
+    "FIT_per_rail_dormant": 2.4,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 2.4,
+    "max_thresholds_masked": 1,
+    "status": "dormant",
+    "what": "comparator / supervisor output cannot pull 'good' low (die Hi-Z or saturated high, output pin open)"
+   },
+   "C2b": {
+    "D": 9,
+    "FIT_per_rail_all": 3.2,
+    "FIT_per_rail_dormant": 3.2,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 1,
+    "status": "dormant",
+    "what": "comparator out of specification (one threshold moves; V2 includes the internal reference)"
+   },
+   "C3": {
+    "D": 1,
+    "FIT_per_rail_all": 2.4,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 4,
+    "RPN": 12,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "output stuck low / false trip"
+   },
+   "C5": {
+    "D": 9,
+    "FIT_per_rail_all": 4.0,
+    "FIT_per_rail_dormant": 2.8,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 2.2,
+    "max_thresholds_masked": 2,
+    "status": "mixed",
+    "what": "divider resistor open or drift (8 per rail)"
+   },
+   "C6": {
+    "D": 9,
+    "FIT_per_rail_all": 1.0,
+    "FIT_per_rail_dormant": 0.5,
+    "O": 3,
+    "RPN": 135,
+    "S": 5,
+    "masked_FIT_thresholds": 0.5,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "1 nF tap capacitor short"
+   },
+   "N1": {
+    "D": 9,
+    "FIT_per_rail_all": 0.667,
+    "FIT_per_rail_dormant": 0.667,
+    "O": 3,
+    "RPN": 135,
+    "S": 5,
+    "masked_FIT_thresholds": 1.334,
+    "max_thresholds_masked": 2,
+    "status": "dormant",
+    "what": "supply pin open (LM339B VCC / GND; TPS3701 VDD / GND)"
+   },
+   "N2": {
+    "D": 9,
+    "FIT_per_rail_all": 0.333,
+    "FIT_per_rail_dormant": 0.333,
+    "O": 2,
+    "RPN": 126,
+    "S": 7,
+    "masked_FIT_thresholds": 1.334,
+    "max_thresholds_masked": 4,
+    "status": "dormant",
+    "what": "output pin shorted to the adjacent supply pin: good tied to P (to v5 in V2+F2+v5)"
+   },
+   "N3": {
+    "D": 9,
+    "FIT_per_rail_all": 0.333,
+    "FIT_per_rail_dormant": 0.333,
+    "O": 2,
+    "RPN": 90,
+    "S": 5,
+    "masked_FIT_thresholds": 0.333,
+    "max_thresholds_masked": 2,
+    "status": "dormant",
+    "what": "TPS3701 INB shorted to the adjacent VDD pin (17 V on a 7 V input when VDD = P; 5 V when VDD = v5)"
+   },
+   "N4": {
+    "D": 9,
+    "FIT_per_rail_all": 2.0,
+    "FIT_per_rail_dormant": 0.333,
+    "O": 2,
+    "RPN": 90,
+    "S": 5,
+    "masked_FIT_thresholds": 0.333,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "other pin opens / adjacent shorts (inputs)"
+   },
+   "N7": {
+    "D": 1,
+    "FIT_per_rail_all": 0.5,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 3,
+    "RPN": 9,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "100 nF decoupler short (cmonitor p-n in all; C176 in V2: p-n, or v5-n in V2+F2+v5)"
+   }
+  },
+  "V2+F2": {
+   "C2": {
+    "D": 9,
+    "FIT_per_rail_all": 2.4,
+    "FIT_per_rail_dormant": 2.4,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 2.4,
+    "max_thresholds_masked": 1,
+    "status": "dormant",
+    "what": "comparator / supervisor output cannot pull 'good' low (die Hi-Z or saturated high, output pin open)"
+   },
+   "C2b": {
+    "D": 9,
+    "FIT_per_rail_all": 3.2,
+    "FIT_per_rail_dormant": 3.2,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 1,
+    "status": "dormant",
+    "what": "comparator out of specification (one threshold moves; V2 includes the internal reference)"
+   },
+   "C3": {
+    "D": 1,
+    "FIT_per_rail_all": 2.4,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 4,
+    "RPN": 12,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "output stuck low / false trip"
+   },
+   "C5": {
+    "D": 9,
+    "FIT_per_rail_all": 4.8,
+    "FIT_per_rail_dormant": 2.8,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 2.0,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "divider resistor open or drift (8 per rail)"
+   },
+   "C6": {
+    "D": 9,
+    "FIT_per_rail_all": 1.0,
+    "FIT_per_rail_dormant": 0.5,
+    "O": 3,
+    "RPN": 135,
+    "S": 5,
+    "masked_FIT_thresholds": 0.5,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "1 nF tap capacitor short"
+   },
+   "N1": {
+    "D": 9,
+    "FIT_per_rail_all": 0.667,
+    "FIT_per_rail_dormant": 0.667,
+    "O": 3,
+    "RPN": 135,
+    "S": 5,
+    "masked_FIT_thresholds": 1.334,
+    "max_thresholds_masked": 2,
+    "status": "dormant",
+    "what": "supply pin open (LM339B VCC / GND; TPS3701 VDD / GND)"
+   },
+   "N2": {
+    "D": 9,
+    "FIT_per_rail_all": 0.333,
+    "FIT_per_rail_dormant": 0.333,
+    "O": 2,
+    "RPN": 126,
+    "S": 7,
+    "masked_FIT_thresholds": 1.334,
+    "max_thresholds_masked": 4,
+    "status": "dormant",
+    "what": "output pin shorted to the adjacent supply pin: good tied to P (to v5 in V2+F2+v5)"
+   },
+   "N3": {
+    "D": 9,
+    "FIT_per_rail_all": 0.333,
+    "FIT_per_rail_dormant": 0.333,
+    "O": 2,
+    "RPN": 90,
+    "S": 5,
+    "masked_FIT_thresholds": 0.333,
+    "max_thresholds_masked": 2,
+    "status": "dormant",
+    "what": "TPS3701 INB shorted to the adjacent VDD pin (17 V on a 7 V input when VDD = P; 5 V when VDD = v5)"
+   },
+   "N4": {
+    "D": 9,
+    "FIT_per_rail_all": 2.0,
+    "FIT_per_rail_dormant": 0.333,
+    "O": 2,
+    "RPN": 90,
+    "S": 5,
+    "masked_FIT_thresholds": 0.333,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "other pin opens / adjacent shorts (inputs)"
+   },
+   "N7": {
+    "D": 1,
+    "FIT_per_rail_all": 0.5,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 3,
+    "RPN": 9,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "100 nF decoupler short (cmonitor p-n in all; C176 in V2: p-n, or v5-n in V2+F2+v5)"
+   }
+  },
+  "V2+F2+v5": {
+   "C2": {
+    "D": 9,
+    "FIT_per_rail_all": 2.4,
+    "FIT_per_rail_dormant": 2.4,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 2.4,
+    "max_thresholds_masked": 1,
+    "status": "dormant",
+    "what": "comparator / supervisor output cannot pull 'good' low (die Hi-Z or saturated high, output pin open)"
+   },
+   "C2b": {
+    "D": 9,
+    "FIT_per_rail_all": 3.2,
+    "FIT_per_rail_dormant": 3.2,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 1,
+    "status": "dormant",
+    "what": "comparator out of specification (one threshold moves; V2 includes the internal reference)"
+   },
+   "C3": {
+    "D": 1,
+    "FIT_per_rail_all": 2.4,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 4,
+    "RPN": 12,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "output stuck low / false trip"
+   },
+   "C5": {
+    "D": 9,
+    "FIT_per_rail_all": 4.8,
+    "FIT_per_rail_dormant": 2.8,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 2.0,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "divider resistor open or drift (8 per rail)"
+   },
+   "C6": {
+    "D": 9,
+    "FIT_per_rail_all": 1.0,
+    "FIT_per_rail_dormant": 0.5,
+    "O": 3,
+    "RPN": 135,
+    "S": 5,
+    "masked_FIT_thresholds": 0.5,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "1 nF tap capacitor short"
+   },
+   "N1": {
+    "D": 9,
+    "FIT_per_rail_all": 0.667,
+    "FIT_per_rail_dormant": 0.667,
+    "O": 3,
+    "RPN": 135,
+    "S": 5,
+    "masked_FIT_thresholds": 1.334,
+    "max_thresholds_masked": 2,
+    "status": "dormant",
+    "what": "supply pin open (LM339B VCC / GND; TPS3701 VDD / GND)"
+   },
+   "N2": {
+    "D": 9,
+    "FIT_per_rail_all": 0.333,
+    "FIT_per_rail_dormant": 0.333,
+    "O": 2,
+    "RPN": 126,
+    "S": 7,
+    "masked_FIT_thresholds": 1.334,
+    "max_thresholds_masked": 4,
+    "status": "dormant",
+    "what": "output pin shorted to the adjacent supply pin: good tied to P (to v5 in V2+F2+v5)"
+   },
+   "N3": {
+    "D": 1,
+    "FIT_per_rail_all": 0.333,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 2,
+    "RPN": 6,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "TPS3701 INB shorted to the adjacent VDD pin (17 V on a 7 V input when VDD = P; 5 V when VDD = v5)"
+   },
+   "N4": {
+    "D": 9,
+    "FIT_per_rail_all": 2.0,
+    "FIT_per_rail_dormant": 0.333,
+    "O": 2,
+    "RPN": 90,
+    "S": 5,
+    "masked_FIT_thresholds": 0.333,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "other pin opens / adjacent shorts (inputs)"
+   },
+   "N7": {
+    "D": 1,
+    "FIT_per_rail_all": 0.5,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 3,
+    "RPN": 9,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "100 nF decoupler short (cmonitor p-n in all; C176 in V2: p-n, or v5-n in V2+F2+v5)"
+   }
+  },
+  "V2+F2ov": {
+   "C2": {
+    "D": 9,
+    "FIT_per_rail_all": 2.4,
+    "FIT_per_rail_dormant": 2.4,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 2.4,
+    "max_thresholds_masked": 1,
+    "status": "dormant",
+    "what": "comparator / supervisor output cannot pull 'good' low (die Hi-Z or saturated high, output pin open)"
+   },
+   "C2b": {
+    "D": 9,
+    "FIT_per_rail_all": 3.2,
+    "FIT_per_rail_dormant": 3.2,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 1,
+    "status": "dormant",
+    "what": "comparator out of specification (one threshold moves; V2 includes the internal reference)"
+   },
+   "C3": {
+    "D": 1,
+    "FIT_per_rail_all": 2.4,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 4,
+    "RPN": 12,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "output stuck low / false trip"
+   },
+   "C5": {
+    "D": 9,
+    "FIT_per_rail_all": 4.4,
+    "FIT_per_rail_dormant": 2.4,
+    "O": 4,
+    "RPN": 180,
+    "S": 5,
+    "masked_FIT_thresholds": 1.8,
+    "max_thresholds_masked": 2,
+    "status": "mixed",
+    "what": "divider resistor open or drift (8 per rail)"
+   },
+   "C6": {
+    "D": 9,
+    "FIT_per_rail_all": 1.0,
+    "FIT_per_rail_dormant": 0.5,
+    "O": 3,
+    "RPN": 135,
+    "S": 5,
+    "masked_FIT_thresholds": 0.5,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "1 nF tap capacitor short"
+   },
+   "N1": {
+    "D": 9,
+    "FIT_per_rail_all": 0.667,
+    "FIT_per_rail_dormant": 0.667,
+    "O": 3,
+    "RPN": 135,
+    "S": 5,
+    "masked_FIT_thresholds": 1.334,
+    "max_thresholds_masked": 2,
+    "status": "dormant",
+    "what": "supply pin open (LM339B VCC / GND; TPS3701 VDD / GND)"
+   },
+   "N2": {
+    "D": 9,
+    "FIT_per_rail_all": 0.333,
+    "FIT_per_rail_dormant": 0.333,
+    "O": 2,
+    "RPN": 126,
+    "S": 7,
+    "masked_FIT_thresholds": 1.334,
+    "max_thresholds_masked": 4,
+    "status": "dormant",
+    "what": "output pin shorted to the adjacent supply pin: good tied to P (to v5 in V2+F2+v5)"
+   },
+   "N3": {
+    "D": 9,
+    "FIT_per_rail_all": 0.333,
+    "FIT_per_rail_dormant": 0.333,
+    "O": 2,
+    "RPN": 90,
+    "S": 5,
+    "masked_FIT_thresholds": 0.333,
+    "max_thresholds_masked": 2,
+    "status": "dormant",
+    "what": "TPS3701 INB shorted to the adjacent VDD pin (17 V on a 7 V input when VDD = P; 5 V when VDD = v5)"
+   },
+   "N4": {
+    "D": 9,
+    "FIT_per_rail_all": 2.0,
+    "FIT_per_rail_dormant": 0.333,
+    "O": 2,
+    "RPN": 90,
+    "S": 5,
+    "masked_FIT_thresholds": 0.333,
+    "max_thresholds_masked": 1,
+    "status": "mixed",
+    "what": "other pin opens / adjacent shorts (inputs)"
+   },
+   "N7": {
+    "D": 1,
+    "FIT_per_rail_all": 0.5,
+    "FIT_per_rail_dormant": 0.0,
+    "O": 3,
+    "RPN": 9,
+    "S": 3,
+    "masked_FIT_thresholds": 0.0,
+    "max_thresholds_masked": 0,
+    "status": "announced",
+    "what": "100 nF decoupler short (cmonitor p-n in all; C176 in V2: p-n, or v5-n in V2+F2+v5)"
+   }
+  }
+ },
+ "proof_tests": {
+  "V0": {
+   "B8_veto_test": 0.0,
+   "LS_rail_raise_test_share_of_LS_rail": 0.269,
+   "dormant_FIT_thresholds_per_rail": 13.102,
+   "per_tap_forcing_test": 0.878
+  },
+  "V1": {
+   "B8_veto_test": 0.0,
+   "LS_rail_raise_test_share_of_LS_rail": 0.278,
+   "dormant_FIT_thresholds_per_rail": 12.702,
+   "per_tap_forcing_test": 0.906
+  },
+  "V2": {
+   "B8_veto_test": 0.0,
+   "LS_rail_raise_test_share_of_LS_rail": 0.308,
+   "dormant_FIT_thresholds_per_rail": 7.901,
+   "per_tap_forcing_test": 0.722
+  },
+  "V2+F2": {
+   "B8_veto_test": 0.0,
+   "LS_rail_raise_test_share_of_LS_rail": 0.264,
+   "dormant_FIT_thresholds_per_rail": 7.701,
+   "per_tap_forcing_test": 0.74
+  },
+  "V2+F2+v5": {
+   "B8_veto_test": 0.0,
+   "LS_rail_raise_test_share_of_LS_rail": 0.265,
+   "dormant_FIT_thresholds_per_rail": 7.367,
+   "per_tap_forcing_test": 0.729
+  },
+  "V2+F2ov": {
+   "B8_veto_test": 0.0,
+   "LS_rail_raise_test_share_of_LS_rail": 0.298,
+   "dormant_FIT_thresholds_per_rail": 7.501,
+   "per_tap_forcing_test": 0.76
+  }
+ }
+}
