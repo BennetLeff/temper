@@ -46,8 +46,9 @@ Limits (sources re-read 2026-10-15; see the audit's ratings.py for page-level qu
                    2019-02-12: p.4/9 table 6 1 W at 70 C; p.5/9 table 7 -55..155 C, section 9 figure 1 linear to 0 W
                    at 155 C). Gated on the element (155 C) and on the derating line at the terminal with the R5 20 %
                    power margin; a gate resistor in any other package stops the gate
-  advisory (limit known, package path assumed): bank MKP 110 C (board share only), B82726 125 C (p.4), other 1206
-                   (MPNs not re-read)
+  advisory (limit known, package path assumed): bank MKP 110 C (board share only), DC-link C5/C6 TDK B32676G1905K000
+                   Top,max 105 C case (B3267* June 2026 p.13; 110 C until 2026-10-15), B82726 125 C (p.4), other
+                   1206 (MPNs not re-read)
 
 Exit 0 if every gated margin of the release case(s) (or, with none, of every case) is >= 0, else 1. Advisory rows never
 fail the gate.
@@ -64,7 +65,7 @@ K_MESH = 3.0
 R5_RATED_W = 5.0
 GATED = {"recom": ("Tj abs max (RECOM Rev.1-2024 p.2)", 150.0), "rgw": ("TJ max (TI SBVS204G p.4)", 125.0),
          "css2h": ("element max (Bourns CSS2H p.1)", 170.0)}
-ADVISORY = {"film_radial": ("MKP Top,max (TDK June 2026 p.35)", 110.0), "film_4pin": ("MKP Top,max", 110.0),
+ADVISORY = {"film_radial": ("MKP Top,max (TDK June 2026 p.35)", 110.0), "film_4pin": ("MKP Top,max 105 C case (TDK B3267* June 2026 p.13)", 105.0),
             "choke": ("B82726 climatic upper (TDK p.4)", 125.0), "chip1206": ("1206 thick film (unverified)", 155.0)}
 GATED_REFS = {r: ("MKP Top,max 110 C (TDK B3265* June 2026 p.35)", 110.0, None) for r in ("C38", "C39", "C40", "C41")}
 # gate resistors: (ref group, body-model package spec) -> (basis, element limit C, rated W at 70 C); 0 W at 155 C

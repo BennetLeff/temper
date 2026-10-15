@@ -38,6 +38,12 @@ S4 diode limits are met at typical Qrr (49.7 V/ns, 244 A/us); the maximum-Qrr ba
 VIOLATION is now **25121WF680JT4E**: at the 22 A c22 ceiling (bay 55 C) its B3 terminal is 138.1 C, where 0.217 W is 109 %
 of the derated power against the 80 % rule; the gated still-air ceiling with this network is 20.0 A
 (validation-results/11-candidates/c39-gate-network).
+Batches A/B merged on s42 (2026-10-15, 27 lines, DECISIONS 56 stress basis: thermal ratings at the release case c18_h10 /
+bay 61 C from b3-ratings/margins.json, with c22/c28 overruns as `owner: airflow route (c22/c28)` gaps; electrical ratings
+at s42's 49.7 V/ns S4 edge, maximum Qrr a D-8 gap): 3 VERIFIED / 32 PARTIAL / 58 UNAUDITED / **0 VIOLATION**; PASS.
+25121WF680JT4E clears at c18 (0.217 W = 0.775 of the 131.2 C-terminal curve, rule 0.8), and so do batch A's R5 and bank
+(28 A rows) and batch B's ISO6721FB / 2EDR8259X CMTI (2.0x / 3.0x at 49.7 V/ns). The B3 gate's C5/C6 advisory limit is
+now TDK's 105 C (B3267* p.13).
 History: seed 1 / 24 / 64 / 2. Stage 27 replaced J1 (VIOLATION -> PARTIAL); R1/R2 and the snubber caps were audited
 (UNAUDITED -> PARTIAL). Stage 28 replaced F2 (VIOLATION -> VERIFIED) and added its limiter R130 (PARTIAL). `ledger.json` is the record from here on; `seed_ledger.py` reproduces only the first seed.
 **VIOLATION**: none.

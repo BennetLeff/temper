@@ -44,13 +44,19 @@ def main():
     base = json.loads(LEDGER.read_text())
     ent = base["entries"]
 
-    # 1. the real ledger: one known VIOLATION, no unaudited SAFETY/POWER line. Update KNOWN_VIOLATIONS when a fix lands
-    # or a new finding is recorded. 2026-10-15 DECISIONS 49: IPW65R018CFD7 reverse-diode dv/dt in S4; stage 42
-    # (candidate 39) meets it at typical Qrr (PARTIAL) and its 68 ohm 2512 R_on, 25121WF680JT4E, fails the 80 % derating
-    # rule at the 22 A c22 ceiling (B3 terminal 138.1 C).
-    KNOWN_VIOLATIONS = ["25121WF680JT4E"]
+    # 1. the real ledger: the known VIOLATIONs (now none), no unaudited SAFETY/POWER line. Update KNOWN_VIOLATIONS when a
+    # fix lands or a new finding is recorded. History: DECISIONS 49 IPW65R018CFD7 S4 diode dv/dt (PARTIAL at stage 42,
+    # typical Qrr); 25121WF680JT4E failed the 80 % derating rule at the 22 A c22 point. 2026-10-15 batches A/B merge
+    # (DECISIONS 56 stress basis): thermal ratings are judged at the release case c18_h10 (bay 61 C), electrical ones at
+    # s42's 49.7 V/ns S4 edge, so 25121WF680JT4E, CSS2H, the bank, ISO6721FB and 2EDR8259X all end PARTIAL.
+    KNOWN_VIOLATIONS = []
     rc, out, rep = run(LEDGER)
-    expect("real ledger exits 1 on exactly the known violations", rc == 1 and rep and rep["violations"] == KNOWN_VIOLATIONS,
+    expect("real ledger exits 1 on exactly the known violations (0 when there are none)",
+           rc == (1 if KNOWN_VIOLATIONS else 0) and rep and rep["violations"] == KNOWN_VIOLATIONS,
+           str(rep and (rc, rep["violations"], rep["failures"][:3])))
+    expect("real ledger: the release-case re-evaluations are PARTIAL, not VIOLATION",
+           rep and all(m in rep["partial"] for m in ("25121WF680JT4E", "CSS2H-2512R-1L00F", "B32654A1104J000",
+                                                     "ISO6721FBDR", "2EDR8259XXUMA1")),
            str(rep and rep["violations"]))
     expect("real ledger: no malformed entries", rep and not rep["errors"], str(rep and rep["errors"][:3]))
     # stage 27: J1 is the MKDS 5/2-9,5 (UL group B 30 A); its ratings source keeps it PARTIAL

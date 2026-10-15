@@ -37,7 +37,7 @@
   "bank_ratio_tdk_28A_40k": 1.022,
   "bank_ratio_tdk_28A_35k": 1.045,
   "ocp_pickup_stack_pan60_A": 4.17,
-  "ledger_violations": 1,
+  "ledger_violations": 0,
   "ledger_unaudited_safety_power": 0,
   "track_acute_corners": 199,
   "track_fold_backs": 43,
@@ -81,7 +81,7 @@
   "bank": "11-candidates/g04-g09-tank-detect/results/bank_options.json baseline J",
   "bank_35k": "11-candidates/c34-bank-margin/results/bank_margin.json basis_comparison J_at_35k",
   "ocp_pickup": "02-protection-timing/coil-pickup/s21b/result-s42.json",
-  "ledger": "native-21/verification/datasheet-ledger: {'PARTIAL': 31, 'UNAUDITED': 58, 'VERIFIED': 3, 'VIOLATION': 1}",
+  "ledger": "native-21/verification/datasheet-ledger: {'PARTIAL': 32, 'UNAUDITED': 58, 'VERIFIED': 3, 'VIOLATION': 0}",
   "track_geometry": "gates/track_geometry.py on BUILDDIR/native21-all-copper.json.gz",
   "buildability": "validation-results/08-manufacturing-package/native-21/sourcing/SNAPSHOT-2026-10-15.csv"
  }

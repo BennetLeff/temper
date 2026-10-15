@@ -177,6 +177,13 @@
     "margin_k": 21.1
    },
    {
+    "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+    "gated": false,
+    "limit_c": 105.0,
+    "est_c": 83.6,
+    "margin_k": 21.4
+   },
+   {
     "item": "C22: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
@@ -219,11 +226,11 @@
     "margin_k": 24.7
    },
    {
-    "item": "C5: MKP Top,max",
+    "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
     "gated": false,
-    "limit_c": 110.0,
-    "est_c": 83.6,
-    "margin_k": 26.4
+    "limit_c": 105.0,
+    "est_c": 80.1,
+    "margin_k": 24.9
    },
    {
     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
@@ -231,13 +238,6 @@
     "limit_c": 128.2,
     "est_c": 100.5,
     "margin_k": 27.7
-   },
-   {
-    "item": "C6: MKP Top,max",
-    "gated": false,
-    "limit_c": 110.0,
-    "est_c": 80.1,
-    "margin_k": 29.9
    },
    {
     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
@@ -520,6 +520,13 @@
     "margin_k": 19.7
    },
    {
+    "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+    "gated": false,
+    "limit_c": 105.0,
+    "est_c": 85.1,
+    "margin_k": 19.9
+   },
+   {
     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
     "gated": true,
     "limit_c": 128.2,
@@ -527,11 +534,11 @@
     "margin_k": 20.3
    },
    {
-    "item": "C5: MKP Top,max",
+    "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
     "gated": false,
-    "limit_c": 110.0,
-    "est_c": 85.1,
-    "margin_k": 24.9
+    "limit_c": 105.0,
+    "est_c": 80.4,
+    "margin_k": 24.6
    },
    {
     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
@@ -560,13 +567,6 @@
     "limit_c": 125.0,
     "est_c": 97.5,
     "margin_k": 27.5
-   },
-   {
-    "item": "C6: MKP Top,max",
-    "gated": false,
-    "limit_c": 110.0,
-    "est_c": 80.4,
-    "margin_k": 29.6
    },
    {
     "item": "R5: element max (Bourns CSS2H p.1)",
@@ -856,11 +856,11 @@
     "margin_k": 4.7
    },
    {
-    "item": "C5: MKP Top,max",
+    "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
     "gated": false,
-    "limit_c": 110.0,
+    "limit_c": 105.0,
     "est_c": 99.2,
-    "margin_k": 10.8
+    "margin_k": 5.8
    },
    {
     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
@@ -868,6 +868,13 @@
     "limit_c": 155.0,
     "est_c": 143.6,
     "margin_k": 11.4
+   },
+   {
+    "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+    "gated": false,
+    "limit_c": 105.0,
+    "est_c": 92.1,
+    "margin_k": 12.9
    },
    {
     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
@@ -882,13 +889,6 @@
     "limit_c": 155.0,
     "est_c": 137.4,
     "margin_k": 17.6
-   },
-   {
-    "item": "C6: MKP Top,max",
-    "gated": false,
-    "limit_c": 110.0,
-    "est_c": 92.1,
-    "margin_k": 17.9
    },
    {
     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
