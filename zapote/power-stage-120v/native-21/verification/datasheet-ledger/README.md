@@ -28,6 +28,9 @@ the entry in the same commit or the gate fails.
 
 ## Current findings (after stage 28, 2026-10-14: 92 BOM lines, 2 VERIFIED / 28 PARTIAL / 62 UNAUDITED / 0 VIOLATION; the gate PASSES)
 Stage 38 (2026-10-15): 93 BOM lines, 3 VERIFIED / 31 PARTIAL / 59 UNAUDITED / 0 VIOLATION; PASS. PS1 IRM-20-15 removed, IRM-20-24 -> MPM-20-24.
+Stage 40 (2026-10-15, candidate 30a): 92 BOM lines. CA-IS3720LW removed (U44 is now the second ISO6721FBDR); D20 joins
+BAT54S-7-F (its reverse stress is D18's), R135 joins 0603WAF1002T5E and C168 joins CC0603KRX7R9BB104. The one VIOLATION is
+IPW65R018CFD7 (DECISIONS 49), unchanged.
 History: seed 1 / 24 / 64 / 2. Stage 27 replaced J1 (VIOLATION -> PARTIAL); R1/R2 and the snubber caps were audited
 (UNAUDITED -> PARTIAL). Stage 28 replaced F2 (VIOLATION -> VERIFIED) and added its limiter R130 (PARTIAL). `ledger.json` is the record from here on; `seed_ledger.py` reproduces only the first seed.
 **VIOLATION**: none.

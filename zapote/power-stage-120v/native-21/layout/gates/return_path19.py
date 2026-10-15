@@ -68,6 +68,9 @@ SIGNALS = {
     # runs the LS corridor to the vote
     "hb_rx": SELV_REF, "bus_fault_flt": SELV_REF, "hsb_good": SELV_REF,
     "mon_good_ha": LS_REF,
+    # stage 40 (candidate 30a): HS-B's verdict crosses to the LS domain too (U44, ISO6721FB), and the vote (D18 / D20)
+    # sits beside U43, so the GOOD node is the line that runs the LS corridor to the protection block
+    "mon_good_hb": LS_REF, "monitor_ls-good": LS_REF,
 }
 ASSERT_PLANE = {"bus_fault_hot", "pwm_hb", "ct_zc", "pwm_ha", "pwm_la", "pwm_lb"}
 # transfer-cap distance asserted at every change of ct_zc and of every PWM input (stage 19b: C153-C156 beside

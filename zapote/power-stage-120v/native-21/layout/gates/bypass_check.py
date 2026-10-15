@@ -7,6 +7,8 @@ For each IC below, finds the nearest two-pad capacitor that joins the IC's suppl
 and reports the STRAIGHT-LINE pad-centre distances (IC supply pad -> cap supply pad, IC return pad -> cap
 return pad). A straight line is a lower bound on the copper loop, not a loop-inductance figure. It also
 lists the nearest via on each of those nets, which is how the cap and the IC reach the In1 / In2 planes.
+Stage 40 (candidate 30b): for a plane-backed row's (net, mm) pairs only a via that lands in a filled pour of that net
+on an inner or back layer counts (a via that only meets tracks is not a plane connection: C161's stage-30 via was one).
 Exit status 1 when a limit below is exceeded (PASS/FAIL is per IC); limits are the stage-19 acceptance values
 (DECISIONS.md stage 19), not manufacturer numbers: the datasheets say "as close as possible".
 
@@ -33,21 +35,22 @@ CHECKS = [
     ("U13", "5", "2", 3.0, 4.0, SELV, "SN74LVC1G332 (fault OR): mid-column supply pin"),
     ("U24", "5", "3", 2.0, 4.0, SELV, "SN74LVC1G17 s.8.3: 0.1 uF 'as close to the power pin as possible'"),
     ("U40", "5", "3", 2.0, 4.0, SELV, "SN74LVC1G17 s.8.3 (heartbeat hold-node Schmitt, stage 30)"),
-    # stage 30 (DECISIONS 33): the heartbeat NAND and oscillator, both sides of the HS-A link and of HS-B's ISO7710F.
+    # stage 30 (DECISIONS 33): the heartbeat NAND and oscillator, both sides of the HS-A link and (stage 40, candidate
+    # 30a) of HS-B's ISO6721FB link, U44, which replaced the HS-B -> SELV verdict isolator.
     # Limits are the stage-30 placement (validation-results/08-manufacturing-package/native-21/stage30-heartbeat/
     # spot_scan.py: nearest legal 0603 to each supply pin; U44 / C159 / C160 keep U34 / C141 / C142's stage-29 poses),
     # not manufacturer numbers; the datasheets say "as close as possible".
-    ("U46", "5", "3", 2.0, 4.0, SELV, "SN74LVC1G132 (heartbeat NAND gated by HS-B's verdict)"),
-    # U45: C161's n_ls pad has no pour under it on any layer; monitor_ls-ref (F) and vsense_in (In1) wall it from the In1
-    # n_ls fill under U45, so its return runs 11.6 mm of F track to the plane via at (104.5, 89.8) (6.0 mm straight
-    # line). spot_scan.py finds no legal C161 pose in [100.8, 92.5, 108, 103] on the stage-30 board: a known layout
-    # weakness (DECISIONS 33), limited to its measured value so it cannot get worse unnoticed.
-    ("U45", "5", "3", 3.0, None, (("n_ls", 6.0),), "SN74LVC1G132 (heartbeat oscillator); boxed in by the LS monitor block, "
-     "its return reaches the In1 n_ls plane by via"),
+    ("U46", "5", "3", 2.0, 4.0, SELV, "SN74LVC1G132 (heartbeat NAND; A held at v3v3 by R135 since stage 40)"),
+    # U45: until stage 40 C161's n_ls pad had no pour under it on any layer (monitor_ls-ref on F, vsense_in on In1,
+    # ocp_kelvin_p on In2 and bus_fault_hot on B wall its pocket), and the limit was its measured 6.0 mm (DECISIONS 33).
+    # Stage 40 (candidate 30b): the In1 n_ls LS-block plane reaches into the pocket and C161's own n_ls via at
+    # (99.5, 95.035) lands in it, 0.4 mm from the pad: the standard 3.0 mm plane-backed limit applies.
+    ("U45", "5", "3", 3.0, None, (("n_ls", 3.0),), "SN74LVC1G132 (heartbeat oscillator); its return reaches the In1 "
+     "n_ls plane by C161's via"),
     ("U43", "1", "4", 3.0, 3.0, (), "ISO6721FB VCC1 / GND1 (HS-A monitor 5 V)"),
     ("U43", "8", "5", 3.5, 3.0, (), "ISO6721FB VCC2 / GND2 (ls_v5)"),
-    ("U44", "3", "1", 3.0, 3.5, (), "ISO7710F VCC1 / GND1 (HS-B monitor 5 V)"),
-    ("U44", "14", "16", 3.0, 3.5, (), "ISO7710F VCC2 / GND2 (v3v3 / selv_gnd)"),
+    ("U44", "1", "4", 3.0, 3.0, (), "ISO6721FB VCC1 / GND1 (HS-B monitor 5 V)"),
+    ("U44", "8", "5", 3.0, 3.0, (), "ISO6721FB VCC2 / GND2 (ls_v5)"),
     ("U15", "5", "3", 4.5, 6.0, (("ocp_kelvin_p", 6.5),), "SN74LVC1G17 s.8.3 (hot5 / ocp_kelvin_p, HOT domain; dense block, 4.4 mm is the closest legal spot)"),
     ("U29", "3", "12", 2.5, None, (("n_ls", 6.5),), "LM339B s.8.4.1: bypass between supply and ground (v15_ls / n_ls)"),
     ("U30", "3", "12", 2.5, None, (("n_ha", 6.0),), "LM339B (p_ha / n_ha)"),
@@ -72,6 +75,15 @@ def main():
     board = pcbnew.LoadBoard(sys.argv[1])
     fps = {f.GetReference(): f for f in board.GetFootprints()}
     vias = [(t.GetNetname(), pos(t)) for t in board.GetTracks() if t.Type() == pcbnew.PCB_VIA_T]
+    pours = {}
+    for z in board.Zones():
+        for lay in z.GetLayerSet().Seq():
+            if lay != pcbnew.F_Cu and pcbnew.IsCopperLayer(lay):
+                pours.setdefault(z.GetNetname(), []).append((z, lay))
+
+    def on_plane(net, xy):
+        at = pcbnew.VECTOR2I(pcbnew.FromMM(xy[0]), pcbnew.FromMM(xy[1]))
+        return any(z.HitTestFilledArea(lay, at, pcbnew.FromMM(0.31)) for z, lay in pours.get(net, ()))
     caps = []
     for ref, f in fps.items():
         pads = list(f.Pads())
@@ -96,8 +108,10 @@ def main():
         if best is not None:
             _, cref, d, cn = best
             via = {}
+            backed = {n for n, _ in planes}
             for n in (sn, rn):
-                v = min(((dist(cn[n], vv), tuple(round(c, 3) for c in vv)) for nn, vv in vias if nn == n), default=None)
+                v = min(((dist(cn[n], vv), tuple(round(c, 3) for c in vv)) for nn, vv in vias
+                         if nn == n and (n not in backed or on_plane(n, vv))), default=None)
                 via[n] = None if v is None else {"mm": round(v[0], 2), "at": v[1]}
             row["nearest_cap"] = {"ref": cref, "supply_pad_to_pad_mm": round(d[0], 2),
                                   "return_pad_to_pad_mm": round(d[1], 2),

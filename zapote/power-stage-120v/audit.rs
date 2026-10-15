@@ -256,7 +256,7 @@ const SELV_NETS: &[&str] = &[
 
 /// Stage 31 (DECISIONS 34): the CA-IS3720 is a 2-channel isolator on the ISO7710DW pinout. Its spare channel is
 /// pin 5 (A-side input) and pin 12 (B-side driven output); both must stay on single-pin nets.
-const SPARE_CHANNEL_PARTS: &[&str] = &["u_iso", "hb.iso", "bias_hb.verdict"];
+const SPARE_CHANNEL_PARTS: &[&str] = &["u_iso", "hb.iso"];   // stage 40: bias_hb.verdict is gone (HS-B link, ISO6721FB)
 
 /// Parts allowed to have pins in both domains, and which pins are SELV.
 const BARRIER_PARTS: &[(&str, &str, &[&str])] = &[
@@ -269,8 +269,8 @@ const BARRIER_PARTS: &[(&str, &str, &[&str])] = &[
     ("t_ct", "CST3015-200ED", &["3", "4"]),
     // stage 30: the monitor group crosses once, as the heartbeat (U32); the HS links (ISO6721FB) are HOT-HOT
     ("hb.iso", "CA-IS3720HW", &["9", "13", "14", "16"]),
-    // stage 30: HS-B verdict, HS-B -> SELV, default LOW (L suffix)
-    ("bias_hb.verdict", "CA-IS3720LW", &["9", "13", "14", "16"]),
+    // stage 40 (candidate 30a): HS-B's verdict crosses to LS on an ISO6721FB like HS-A's, so the stage-30 HS-B -> SELV
+    // CA-IS3720LW (bias_hb.verdict) is gone and the group crosses HOT -> SELV once (hb.iso)
     ("line_zc.opto", "VOL628A-2X001T", &["3", "4"]),
 ];
 
@@ -458,8 +458,10 @@ const IDENTITY: &[(&str, &str)] = &[
     ("u_bias_flt", "SN74LVC1G17DBVR"),
     // stage 30 (DECISIONS 33): HS links and the heartbeat
     ("bias_ha.link", "ISO6721FBDR"),
-    ("bias_hb.verdict", "CA-IS3720LW"),
+    ("bias_hb.link", "ISO6721FBDR"),   // stage 40 (candidate 30a): HS-B -> LS, default LOW
     ("hb.vote", "BAT54S-7-F"),
+    ("hb.vote_b", "BAT54S-7-F"),
+    ("hb.rgate", "0603WAF1002T5E"),
     ("hb.osc", "SN74LVC1G132DBVR"),
     ("hb.rosc", "0603WAF4991T5E"),
     ("hb.cosc", "CL10C331JB8NNNC"),
@@ -1396,7 +1398,7 @@ mod tests {
 
     #[test]
     fn isolator_spare_output_tied_to_rail_fails() {
-        for path in ["u_iso", "hb.iso", "bias_hb.verdict"] {
+        for path in ["u_iso", "hb.iso"] {   // stage 40: bias_hb.verdict is gone
             let mut m = built();
             m.rewire(path, "12", "v3v3");
             fails(&m, "spare channel");

@@ -1,5 +1,5 @@
 from "f6_parts.ato" import Bias10u, BiasComparator, BiasReference, BiasOpto, BiasNpn, BiasSilicon, GateDischarge, Bias4k42, Bias7k68, Bias120k, Bias133k, Bias2k2, Bias2k7, Gate1R, Bias6k2, Bias4k99, Bias18k, Bias30k, BiasDamping, Bias680, Line16k5, Line33k, Bias1u, Bias100n, Bias220u, Bias4u7, HotSupply24, NegativeShunt, SpanRegulator, HotLdo, DisOr, LineOpto, IsoBiasModule, BiasFb63k4, BiasFb11k, C330pC0G0603, Bias27k
-from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, IsoReinfH, IsoReinfL, C10u1210, R100k0603
+from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, IsoReinfH, C10u1210, R100k0603
 from "parts.ato" import Iso6721Fb, SchottkyPairSeries, SchmittNand132, SchmittBuf17, R220R0603, R49k9Dt
 
 module BiasReservoir:
@@ -350,9 +350,9 @@ module HighBias:
     monitor.n ~ n
 
 module HighBiasLink from HighBias:
-    """HS-A. Stage 30: functional HS -> LS crossing (ISO6721FB, default LOW = not good) into the heartbeat's LS
-    vote. Side 2 is the LS monitor's 5 V (U37) on N_LS; the unused reverse channel's input is tied to GND2 and its
-    output left open (FMEA condition 1)."""
+    """HS-A (stage 30) and HS-B (stage 40, candidate 30a): functional HS -> LS crossing (ISO6721FB, default LOW = not
+    good) into the heartbeat's LS vote. Side 2 is the LS monitor's 5 V (U37) on N_LS; the unused reverse channel's input
+    is tied to GND2 and its output left open (FMEA condition 1)."""
     signal ls_v5
     signal good_ls
     signal outa_nc
@@ -373,32 +373,6 @@ module HighBiasLink from HighBias:
     clink2.value = 100nF
     clink2.p1 ~ ls_v5
     clink2.p2 ~ nls
-
-module HighBiasSelv from HighBias:
-    """HS-B. Stage 30 (DECISIONS 33): the verdict crosses HS-B -> SELV on a reinforced default-LOW isolator (CA-IS3720LW since stage 31; LOW = not
-    good, SLLSER9E) at the stage-29 U34 pose, and gates the heartbeat's SELV NAND (Heartbeat.buf). On the s29 floor plan
-    no legal ISO6721FB pose straddles HS-B and the LS domain (stage30-heartbeat/spot_scan.py): U42's n_ls pocket, the
-    SELV 8 mm keep-out and the protected bus_p / n_hb copper close every row between them."""
-    signal v3v3
-    signal selv_gnd
-    signal good_selv
-    verdict = new IsoReinfL
-    verdict.VCC1 ~ monitor.v5
-    verdict.GND1 ~ n
-    verdict.GND1B ~ n
-    verdict.IN ~ monitor.good
-    verdict.VCC2 ~ v3v3
-    verdict.GND2 ~ selv_gnd
-    verdict.GND2B ~ selv_gnd
-    verdict.OUT ~ good_selv
-    cver1 = new C100n0603
-    cver1.value = 100nF
-    cver1.p1 ~ monitor.v5
-    cver1.p2 ~ n
-    cver2 = new C100n0603
-    cver2.value = 100nF
-    cver2.p1 ~ v3v3
-    cver2.p2 ~ selv_gnd
 
 module LineZeroCross:
     signal line
@@ -448,13 +422,15 @@ module LineZeroCross:
 
 
 module Heartbeat:
-    """Stage 30 (DECISIONS 33; FMEA 11-candidates/c24-monitor-fmea section 6a, design J of m1_pump_spice.py).
-    The LS and HS-A verdicts meet on the LS 'good' node (LS wired-AND, plus one BAT54S half from HS-A's link output).
-    While both are good, a Schmitt-NAND RC oscillator (0.42-2.09 us) runs and U32 (CA-IS3720HW) carries the square wave to
-    SELV. There a Schmitt NAND, gated by HS-B's verdict (HighBiasSelv, CA-IS3720LW), drives a diode charge pump into
+    """Stage 30 (DECISIONS 33; FMEA 11-candidates/c24-monitor-fmea section 6a, design J of m1_pump_spice.py); stage 40
+    (candidate 30a): HS-B's verdict joins the LS vote as M1b drew it, so the group crosses HOT -> SELV once (U32).
+    The LS, HS-A and HS-B verdicts meet on the LS 'good' node (LS wired-AND, plus one BAT54S half per HS link output,
+    anode on the node: D18 for HS-A, D20 for HS-B). While all are good, a Schmitt-NAND RC oscillator (0.42-2.09 us)
+    runs and U32 (CA-IS3720HW) carries the square wave to SELV. There the Schmitt NAND U46 (A held high by rgate; it
+    acts as the M1b buffer, and the pump is AC-coupled so its inversion is irrelevant) drives a diode charge pump into
     C_hold || R_bleed; the hold node feeds U40 (G17) -> BIAS_GOOD. Any static state anywhere (a rail bad, oscillator,
     isolator, NAND, pump or LS 5 V dead or stuck) stops the wave and the hold node bleeds below VT- in <= 90 us (123 us
-    with one pump cap shorted): announced, not dormant. A verdict isolator stuck HIGH is dormant, as in M1b."""
+    with one pump cap shorted): announced, not dormant. A link isolator stuck HIGH is dormant, as in M1b."""
     signal ls_v5
     signal nls
     signal good
@@ -471,11 +447,19 @@ module Heartbeat:
     signal hb_m
     signal hb_x
     signal vote_nc
+    signal hb
+    signal vote_b_nc
     # HS-A's link output pulls the LS 'good' node low through one half of a BAT54S (the other half's cathode is open).
     vote = new SchottkyPairSeries
     vote.A1 ~ good
     vote.MID ~ ha
     vote.K2 ~ vote_nc
+    # Stage 40: HS-B's link output does the same through the K1/A2 -> K2 half of a second BAT54S (anode MID on the node;
+    # the other half's anode A1 is open). A BAT54A would hold both halves but adds a BOM line.
+    vote_b = new SchottkyPairSeries
+    vote_b.A1 ~ vote_b_nc
+    vote_b.MID ~ good
+    vote_b.K2 ~ hb
     osc = new SchmittNand132
     osc.VCC ~ ls_v5
     osc.GND ~ nls
@@ -511,14 +495,20 @@ module Heartbeat:
     civcc2.value = 100nF
     civcc2.p1 ~ v3v3
     civcc2.p2 ~ selv_gnd
-    # SELV Schmitt NAND: the heartbeat on B (pin 2, the G17's input pad), HS-B's default-LOW verdict on A. HS-B bad or
-    # unpowered (default LOW) holds Y high, the pump stops and the hold node bleeds: the same announced trip.
+    # SELV Schmitt NAND: the heartbeat on B (pin 2, the G17's input pad). Stage 40: A (gate, net HSB_GOOD) no longer
+    # carries HS-B's verdict; rgate holds it at v3v3, so the NAND is the M1b buffer (inverting; the pump is AC-coupled).
+    # rgate sits where the stage-30 verdict isolator drove the line, outside the locked SELV spine. Open, A floats: it
+    # can only stop or upset the pump (announced or nuisance), never hold the wave up.
     buf = new SchmittNand132
     buf.VCC ~ v3v3
     buf.GND ~ selv_gnd
     buf.B ~ hb_rx
     buf.A ~ gate
     buf.Y ~ hb_bufo
+    rgate = new R10k0603
+    rgate.value = 10kohm
+    rgate.p1 ~ v3v3
+    rgate.p2 ~ gate
     cbuf = new C100n0603
     cbuf.value = 100nF
     cbuf.p1 ~ v3v3

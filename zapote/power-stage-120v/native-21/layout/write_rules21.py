@@ -58,7 +58,9 @@ groups["LOW"] |= {"ocp_kelvin_p", "n_ls", "v24_raw", "bias_sw1", "bias_sw2", "bi
                   # stage 30 (DECISIONS 33): LS monitor 5 V (feeds the HS-A link and the heartbeat), the HS-A verdict
                   # after its ISO6721FB link, the vote diode's open half, and the heartbeat's LS side
                   "ls_v5", "mon_good_ha", "vote_nc", "hb_tx", "hb_rc", "hb.iso-nc2", "hb.iso-nc5", "hb.iso-nc6",
-                  "hb.iso-nc8"}
+                  "hb.iso-nc8",
+                  # stage 40 (candidate 30a): HS-B's verdict after its ISO6721FB link, and the second vote diode's open anode
+                  "mon_good_hb", "vote_b_nc"}
 for n in nets:
     if n in SELV or n in wr.SELV_NC or re.search(r"\.(iso|verdict)-nc(10|11|12|15)$", n):
         continue
@@ -69,7 +71,7 @@ for n in nets:
         if n in (f"p_h{leg}", f"n_h{leg}", f"leg_{leg}-off_h", f"leg_{leg}.bias_h-damp") or \
                 (n.startswith(f"bias_h{leg}") and not n.endswith(("_bad", ".iso-p3", "-en"))):
             groups[f"SW_{leg.upper()}"].add(n)
-groups["SW_A"] |= {"outa_nc"} & nets   # stage 30: U43's open reverse-channel output (HS-A side 1)
+groups["SW_A"] |= {"outa_nc"} & nets   # stage 30: U43's open reverse-channel output (HS-A side 1; named bias_ha-outa_nc since stage 40)
 for n in sorted(nets):   # sorted: group order (hence the DRU text) must not follow the hash seed
     if n.startswith("line_zc-") and n not in SELV or n in ("r1mid", "r2mid"):
         groups[f"ZC_{n}"] = {n}

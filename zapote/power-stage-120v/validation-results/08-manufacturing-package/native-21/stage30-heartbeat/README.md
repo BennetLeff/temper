@@ -49,3 +49,8 @@ than the ISO7710FDWR, `sourcing/STOCK-2026-10-13-addendum-s30.csv`).
 - Stage 32 (DECISIONS 35): HSB_GOOD's B.Cu hop from (44.5, 129.0) to (49.2, 133.7) moved to In2, continuing the leg, so
   its F ↔ B reference change is gone. `inner_leg_overlap.py` still measures the stage-30 leg (asserted 0.00 mm on the
   s32 board); the hop has no B.Cu track of another net within 1 mm.
+- Stage 40 (candidate 30a, `validation-results/11-candidates/c30-ls-pocket/README.md`): with U42's pocket re-laid, a
+  legal straddling pose exists and HS-B crosses to LS as M1b drew it. U44 is an ISO6721FB at (3.25, 47.25, 270), C159 /
+  C160 above and below it; the vote diodes D18 / D20 moved beside U43 (53.75-57.35, 49.5-51.5). HSB_GOOD keeps its
+  stage-30 / 32 copper to U46.1 and is now held at v3v3 by R135 on the old pocket's vias; C168 takes the old SELV
+  decoupler's place as pwm_hb's fifth reference-transfer cap. `spot_scan.py` knows D20 and R135.

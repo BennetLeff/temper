@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "8d062622bbb1433598dfdbad3125a1ec72b7c9c1e02acda0bee1c14f591b556b",
+    "build/default.csv": "4f76f47950de4595a2209f5695564e9fb43f5aa60cb632da11c065edb5ce2ffd",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "a96520eabb70aefeab2544e232f095a6d4ddaf37cb0df40cfed969572cd24e58",
+    "build/default.net": "b78a5061365874a7c5055a967dfa829df1ee9a56487d2bc5ca89aff16e4c2d74",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -2179,6 +2179,17 @@
       }
     },
     {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_5",
+      "attributes": {
+        "designator": "C168",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF"
+      }
+    },
+    {
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_mon",
       "attributes": {
         "designator": "R47",
@@ -3437,17 +3448,17 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.verdict",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.link",
       "attributes": {
         "designator": "U44",
         "designator_prefix": "U",
-        "footprint": "lib:SOIC16W_DW0016B_HV",
-        "manufacturer": "Chipanalog",
-        "mpn": "CA-IS3720LW"
+        "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+        "manufacturer": "Texas Instruments",
+        "mpn": "ISO6721FBDR"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.cver1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.clink1",
       "attributes": {
         "designator": "C159",
         "designator_prefix": "C",
@@ -3458,7 +3469,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.cver2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.clink2",
       "attributes": {
         "designator": "C160",
         "designator_prefix": "C",
@@ -3472,6 +3483,16 @@
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.vote",
       "attributes": {
         "designator": "D18",
+        "designator_prefix": "D",
+        "footprint": "Package_TO_SOT_SMD:SOT-23",
+        "manufacturer": "Diodes Incorporated",
+        "mpn": "BAT54S-7-F"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.vote_b",
+      "attributes": {
+        "designator": "D20",
         "designator_prefix": "D",
         "footprint": "Package_TO_SOT_SMD:SOT-23",
         "manufacturer": "Diodes Incorporated",
@@ -3561,6 +3582,17 @@
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
         "manufacturer": "Texas Instruments",
         "mpn": "SN74LVC1G132DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.rgate",
+      "attributes": {
+        "designator": "R135",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1002T5E",
+        "value": "10kohm"
       }
     },
     {
@@ -3750,9 +3782,9 @@
   "entry": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V",
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
-    "elec/src/f6_bias.ato": "01e6f049ba6da407ba1f6e7cc6fb73c110c1a194539766213176cec44b788d7f",
+    "elec/src/f6_bias.ato": "82b0be9402b4d45bb4270b6a8cb4b750a1927cb0b91064d9d9ff27fbe4473896",
     "elec/src/f6_parts.ato": "fd04ced5a61043be957e53c397ba4f75ac90c74074024f2fd48ce70a743052ac",
     "elec/src/parts.ato": "8088379b42c92430dcedf04aa9667a91127c4b804c0202074fcd42d997b47300",
-    "elec/src/power_stage_120v.ato": "be7aa9e3e133e7b0c6637bd9b7911a061c1655a36906b916e0a68c9d489bd5fd"
+    "elec/src/power_stage_120v.ato": "bdf9476ca52e40176d14ca0cdc42ba9c75694a5d8e856a561af20a4b0c6ccfb8"
   }
 }

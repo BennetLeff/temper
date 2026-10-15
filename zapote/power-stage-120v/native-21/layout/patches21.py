@@ -1407,3 +1407,185 @@ def add_stage33_stitch(g):
         drill(g, net, *spot)
         done.append(f"{net} ({cx}, {cy}) -> {spot} {math.dist(spot, (cx, cy)):.2f} mm")
     print("stage 33 stitch vias: " + "; ".join(done))
+
+
+
+# Stage 40 (candidate 30a): HS-B's verdict crosses to LS on an ISO6721FB link (U44) as HS-A's does on U43, instead of
+# to SELV on the ISO7710F. U44 sits in the north-west corner of U42's n_ls pocket (place.py STAGE40), HS-B row north,
+# LS row south. The HS-B side reaches the island down the B.Cu lane sw_b already takes past the pocket (east of it,
+# 0.7 / 1.375 mm off its centre line), the LS side joins the In1 LS corridor (y 38.5-47) south of the v24_raw lane.
+# The pocket's two joints to that corridor are re-laid on In1 so the HS-B lane has room: the n_ls trunk drops
+# straight into the pocket's In1 pour (its F diagonal and the via at (9.8, 44.6) go), and v24_raw turns south at
+# x 11.2 instead of 8.0. The via at (15.4, 50.1) (C107 / C109 / R129's n_ls to the In1 pour) goes too: that cluster
+# keeps its F joint to the pocket through C109 / C81 / C106.
+S40_OPEN_IN1 = [(9.0, 46.0, 13.5, 48.6),      # incr21: the LS lanes cross the HV_RET plane's y 47-48 band here
+                (50.4, 46.0, 52.2, 47.4),     # and MON_GOOD_HB steps out of ls_v5's way to its via beside the vote,
+                (56.4, 46.0, 58.0, 47.8)]     # and GOOD's In1 lane steps down to its via
+S40_SW_B_INNER = [[5.155, 41.5], [5.155, 40.6], [5.655, 40.1], [8.5, 40.1], [8.9, 40.5], [8.9, 47.922], [14.288, 53.31],
+                  [14.288, 57.09], [10.078, 61.3]]       # 0.7 mm off sw_b's centre line (east / south side)
+S40_GOOD_IN1 = [[57.1, 46.9], [57.4, 46.6], [63.4, 46.6], [63.8, 46.2], [81.2, 46.2], [81.8, 46.8], [88.0, 46.8], [90.0, 48.8],
+                [90.2, 48.8], [99.0, 57.6], [99.0, 75.8], [98.6, 76.2], [98.6, 85.2], [101.0, 87.6],
+                [101.0, 88.2], [101.7, 88.9]]   # MON_GOOD_HA's s38 lane, its In1 -> F change moved onto the LS-block plane
+S40_STITCH = [(56.0, 47.1), (51.0, 47.5),    # n_ls stitches in the vote area (beside GOOD's and MON_GOOD_HB's vias)
+              (102.8, 89.1)]                 # and beside GOOD's change in the LS block
+S40_SW_B_OUTER = [[3.25, 43.25], [3.25, 39.825], [3.65, 39.425], [9.175, 39.425], [9.575, 39.825], [9.575, 47.642], [14.963, 53.03],
+                  [14.963, 57.37], [9.733, 62.6]]        # 1.375 mm off it
+
+
+def merge_zone(g, net, layer, rect, name, priority=1, clip=True, selv_mm=None):
+    """g["zone"], but a pour that overlaps a same-net pour on the layer (same priority) is merged into it (KiCad flags
+    overlapping same-priority zones; one outline also keeps the fill whole), and the outline keeps its clearance from
+    other nets' pours on the layer (zone_priority_gate: no contested copper). Stage 40."""
+    import rules21
+    from shapely.geometry import Polygon
+    from shapely.ops import unary_union
+    Z = g["ZONES"]
+    n0 = len(Z)
+    g["zone"](net, layer, rect, name=name, priority=priority)
+    new, Z[n0:] = Z[n0:], []
+    keep = [Polygon(o["outline"], o["holes"]).buffer(rules21.clearance(net, o["net"]) + 0.05)
+            for o in Z if o["layer"] == layer and o["net"] != net] if clip else []
+    if selv_mm:      # a HOT pour near SELV pours: keep selv_mm (plan view) from every SELV / PE pour outline
+        keep += [Polygon(o["outline"], o["holes"]).buffer(selv_mm) for o in Z if rules21.domain(o["net"]) in ("SELV", "PE")]
+    keep = unary_union(keep) if keep else None
+    for z in new:
+        shape, names = Polygon(z["outline"], z["holes"]), [z["name"]]
+        if keep is not None:
+            shape = shape.difference(keep)
+            if shape.is_empty:
+                continue
+            shape = max(getattr(shape, "geoms", [shape]), key=lambda q: q.area)
+        for k in range(len(Z) - 1, -1, -1):
+            o = Z[k]
+            if (o["net"], o["layer"], o.get("priority", 1)) == (net, layer, z["priority"]):
+                po = Polygon(o["outline"], o["holes"])
+                if po.intersects(shape):
+                    shape, names = unary_union([po, shape]), [o.get("name", "")] + names
+                    del Z[k]
+        for poly in getattr(shape, "geoms", [shape]):
+            poly = poly.simplify(0.001)
+            Z.append({**z, "name": " + ".join(dict.fromkeys(names)),
+                      "outline": [[round(x, 3), round(y, 3)] for x, y in list(poly.exterior.coords)[:-1]],
+                      "holes": [[[round(x, 3), round(y, 3)] for x, y in list(i.coords)[:-1]] for i in poly.interiors]})
+
+
+def add_stage40(g):
+    """Stage 40 (candidate 30): the HS-B link U44 (ISO6721FB) in U42's pocket, the pocket copper it needs, and C161's
+    n_ls plane (30b). Runs on the frozen s38 base after incr21's prune step (INCR21_PRUNE)."""
+    from patches21_v1 import put, route_group
+    r = lambda q: q if isinstance(q, str) else [round(v, 3) for v in q]
+    has = lambda t, q: any(not isinstance(p, str) and r(p) == q for p in t["points"])
+    # ---- the pocket's corridor joints, re-laid on In1
+    n = rip(g, "n_ls", lambda it: ("at" in it and r(it["at"]) in ([9.8, 44.6], [15.4, 50.1])) or
+            ("points" in it and it["layer"] == "F.Cu" and has(it, [9.8, 44.6])) or
+            ("points" in it and it["layer"] == "F.Cu" and r(it["points"][0]) == [15.325, 50.025] and len(it["points"]) == 2) or
+            ("points" in it and it["layer"] == "In1.Cu" and (has(it, [15.4, 50.1]) or has(it, [15.325, 50.025]) or
+                                                              has(it, [9.725, 55.425]) or has(it, [9.8, 55.3]))))
+    n += rip(g, "v24_raw", lambda it: "points" in it and it["layer"] == "In1.Cu" and has(it, [8.0, 45.5]))
+    put(g, "n_ls", "F.Cu", 0.3, [17.8, 50.175], [17.6, 50.2], [15.6, 50.2], [14.9, 50.9], [14.9, 51.5])   # C107 / R129 to C109.2
+    put(g, "n_ls", "In1.Cu", 0.3, [9.8, 44.6], [9.8, 48.4])
+    put(g, "v24_raw", "In1.Cu", 0.4, [54.6, 45.5], [11.6, 45.5], [11.2, 45.9], [11.2, 48.6], [7.0, 52.8], [7.0, 53.1])
+    # ---- C160 (U44 VCC2) below the LS row: two of the pocket's 18 stitch vias and C106's F stub to one of them go
+    n += rip(g, "n_ls", lambda it: ("at" in it and r(it["at"]) in ([3.4, 52.0], [5.0, 52.0])) or
+             ("points" in it and it["layer"] == "F.Cu" and has(it, [5.2, 51.725])))
+    print(f"stage 40: {n} base items ripped round U42's pocket")
+    merge_zone(g, "n_ls", "F.Cu", (0.8, 48.2, 11.1, 51.0), "n_ls U44 LS side (stage 40)")
+    put(g, "n_ls", "F.Cu", 0.3, "U44.5", [1.345, 51.07], "C160.2")
+    put(g, "n_ls", "F.Cu", 0.3, "U44.7", [3.885, 51.1])
+    drill(g, "n_ls", 3.885, 51.1)
+    put(g, "ls_v5", "F.Cu", 0.25, "U44.8", [5.155, 52.2], [6.0, 52.2])
+    put(g, "ls_v5", "F.Cu", 0.25, "C160.1", [5.155, 52.2])
+    drill(g, "ls_v5", 6.0, 52.2)
+    put(g, "mon_good_hb", "F.Cu", 0.25, "U44.6", [2.615, 51.15])
+    drill(g, "mon_good_hb", 2.615, 51.15)
+    # LS lanes: south of the v24_raw via, east under the pocket, north at x 12.3 / 12.8, east at y 46.1 / 46.6 (between
+    # v24_raw and the HV_RET plane, which the In1 corridor opens to y 47)
+    put(g, "ls_v5", "In1.Cu", 0.25, [6.0, 52.2], [6.0, 53.5], [6.4, 53.9], [11.9, 53.9], [12.3, 53.5], [12.3, 46.5],
+        [12.7, 46.1], [20.0, 46.1])
+    put(g, "mon_good_hb", "In1.Cu", 0.25, [2.615, 51.15], [2.615, 54.0], [3.015, 54.4], [12.4, 54.4], [12.8, 54.0],
+        [12.8, 47.0], [13.2, 46.6], [20.0, 46.6])
+    # ---- HS-B side: C159 between pins 1 / 4, GOOD by a via between C159 and the row, n_hb into a B pour that joins
+    # the n_hb bank at x 12
+    put(g, "bias_hb.monitor-v5", "F.Cu", 0.25, "U44.1", [5.155, 42.2], "C159.1")
+    put(g, "bias_hb.monitor-v5", "F.Cu", 0.25, [5.155, 42.2], [5.155, 41.5])
+    drill(g, "bias_hb.monitor-v5", 5.155, 41.5)
+    put(g, "bias_hb.monitor-good", "F.Cu", 0.25, "U44.3", [2.615, 43.6], [3.25, 43.25])
+    drill(g, "bias_hb.monitor-good", 3.25, 43.25)
+    put(g, "n_hb", "F.Cu", 0.3, "U44.4", [1.345, 42.2], "C159.2")
+    put(g, "n_hb", "F.Cu", 0.3, [1.345, 42.2], [1.345, 41.4])
+    drill(g, "n_hb", 1.345, 41.4)
+    # the two lanes beside sw_b's B run past the pocket, then In2 into the island (south of U42's LS row by 3.5 mm)
+    put(g, "bias_hb.monitor-v5", "B.Cu", 0.25, *S40_SW_B_INNER)
+    drill(g, "bias_hb.monitor-v5", *S40_SW_B_INNER[-1])
+    put(g, "bias_hb.monitor-good", "B.Cu", 0.25, *S40_SW_B_OUTER)
+    drill(g, "bias_hb.monitor-good", *S40_SW_B_OUTER[-1])
+    merge_zone(g, "n_hb", "B.Cu", (0.8, 37.0, 12.4, 44.5), "n_hb U44 HS-B side (stage 40)")
+    # ---- R135 (U46.1's pull-up) on the old SELV pocket's vias. The old U44's SELV stubs: incr21 keeps SELV copper
+    # (C47.2 still reaches its selv_gnd via through U44.9's old land) and drops what meets R135's pads; the two runs
+    # left ending in the open go here.
+    n = rip(g, "v3v3", lambda it: "points" in it and it["layer"] == "F.Cu" and has(it, [32.9, 109.275]))
+    n += rip(g, "selv_gnd", lambda it: "points" in it and it["layer"] == "B.Cu" and has(it, [32.475, 108.045]))
+    print(f"stage 40: {n} old U44 SELV stubs ripped")
+    put(g, "v3v3", "F.Cu", 0.25, "R135.1", [32.5, 109.675])
+    put(g, "hsb_good", "F.Cu", 0.25, "R135.2", [30.875, 109.765])
+    # C168 (pwm_hb's fifth transfer cap, 2.6 mm from its via at (34.4, 110.6)): v3v3 to R135's plane via, selv_gnd to
+    # the plane via C47 already uses at the old U44.9 land
+    put(g, "v3v3", "F.Cu", 0.3, "C168.1", [32.5, 109.675])
+    put(g, "selv_gnd", "F.Cu", 0.3, "C168.2", [31.85, 112.1], [30.475, 113.475], [30.475, 114.045])
+    # ---- the long runs
+    HS = ("F.Cu", "In2.Cu", "B.Cu")
+    route_group(g, [("bias_hb.monitor-v5", HS, (0.6, 58.0, 24.0, 118.0), 0.25,
+                     ["@10.078,61.3,In2.Cu", "@1.6,95.035,In2.Cu", "U39.5"]),   # (C140.1 - R124.1: s38 copper)
+                    ("bias_hb.monitor-good", HS, (0.6, 58.0, 24.0, 118.0), 0.25,
+                     ["@9.733,62.6,In2.Cu", "U31.13", "R124.2"])])
+    # ---- the vote beside U43 (place.py STAGE40). The LS corridor east of x 55 holds one lane south of v24_raw, so the
+    # GOOD node takes MON_GOOD_HA's old lane to the LS block and both verdict lines end at the diodes (D18 / D20).
+    # MON_GOOD_HA keeps its s38 U43.6 stub (incr21's prune took the rest: D18 moved) and its s38 path, re-laid: via
+    # (48.0, 63.4), B.Cu to (55.6, 49.8), F.Cu to D18.3
+    vias = {(v["net"], tuple(r(v["at"]))) for v in g["VIAS"]}
+    for xy in ((48.0, 63.4), (55.6, 49.8)):
+        if ("mon_good_ha", xy) not in vias:
+            drill(g, "mon_good_ha", *xy)
+    put(g, "mon_good_ha", "B.Cu", 0.25, [48.0, 63.4], [48.0, 63.2], [49.0, 62.2], [49.0, 56.4], [55.6, 49.8])
+    put(g, "mon_good_ha", "F.Cu", 0.25, [55.6, 49.8], [56.9, 49.8], "D18.3")
+    # MON_GOOD_HB: the pocket lane east, stepping out of ls_v5's way at (51.6, 46.9), F to D20.2
+    put(g, "mon_good_hb", "In1.Cu", 0.25, [20.0, 46.6], [51.3, 46.6], [51.6, 46.9])
+    drill(g, "mon_good_hb", 51.6, 46.9)
+    put(g, "mon_good_hb", "F.Cu", 0.25, [51.6, 46.9], [52.8, 48.1], "D20.2")
+    # ls_v5: the pocket lane to (52.6, 46.3), F past v24_raw's branch to the via on its B.Cu run at x 55.075
+    put(g, "ls_v5", "In1.Cu", 0.25, [20.0, 46.1], [52.4, 46.1], [52.6, 46.3])
+    drill(g, "ls_v5", 52.6, 46.3)
+    put(g, "ls_v5", "F.Cu", 0.25, [52.6, 46.3], [53.4, 46.3], [54.6, 47.5], [55.075, 47.5])
+    drill(g, "ls_v5", 55.075, 47.5)
+    # GOOD: D20.3 - D18.1, then MON_GOOD_HA's old corridor lane to the LS block and the node's via at (106.438, 87.6)
+    put(g, "monitor_ls-good", "F.Cu", 0.25, "D20.3", [54.35, 53.05], [57.8, 53.05], [58.3, 52.55], "D18.1")
+    put(g, "monitor_ls-good", "F.Cu", 0.25, "D18.1", [58.3, 47.5], [57.7, 46.9], [57.1, 46.9])
+    drill(g, "monitor_ls-good", 57.1, 46.9)     # (south-west of MON_GOOD_HA's s38 via: on the vote's F / In1 n_ls pours)
+    put(g, "monitor_ls-good", "In1.Cu", 0.25, *S40_GOOD_IN1)
+    drill(g, "monitor_ls-good", 101.7, 88.9)
+    put(g, "monitor_ls-good", "F.Cu", 0.25, [101.7, 88.9], [102.4, 88.2], [105.838, 88.2], [106.438, 87.6])
+    if not any(v["net"] == "monitor_ls-good" and [round(c, 3) for c in v["at"]] == [106.438, 87.6] for v in g["VIAS"]):
+        drill(g, "monitor_ls-good", 106.438, 87.6)     # the node's via to its B.Cu run (incr21 took it with D18's old stub)
+    # ---- return paths (return_path19 LS_REF). Beside the vote: an F n_ls pour over an In1 n_ls patch, stitched by n_ls
+    # vias (S40_STITCH)
+    merge_zone(g, "n_ls", "F.Cu", (50.0, 45.6, 58.4, 54.6), "n_ls vote (stage 40)")   # x 58.4: TP30 (sw_a) keeps its F spot
+    # In1 under the vote: no plane of any net fills there (the hv_ret trunk's outline reaches in, unfilled); an n_ls
+    # patch (priority over that outline) references the vote's F and B runs on In1
+    merge_zone(g, "n_ls", "In1.Cu", (50.0, 47.25, 59.4, 54.6), "n_ls vote inner (stage 40)", priority=2, clip=False)
+    merge_zone(g, "n_ls", "In1.Cu", (53.0, 46.0, 59.4, 47.25), "n_ls vote inner (stage 40)", priority=2, clip=False)
+    # MON_GOOD_HA's F -> B change at (48.0, 63.4) beside U43: U41's F / B heat-spread pours reach west under it
+    merge_zone(g, "n_ls", "F.Cu", (46.35, 60.6, 50.0, 64.5), "n_ls U43 LS row (stage 40)")   # x 46.35: 8 mm from the SELV planes
+    merge_zone(g, "n_ls", "B.Cu", (46.35, 60.6, 50.0, 64.6), "n_ls U43 LS row (stage 40)")
+    # the GOOD node's In1 -> F change (MON_GOOD_HA's at (101.0, 87.6) in s38, In1 plane on 6 of 16 ring points) moves to
+    # (101.7, 88.9) on the In1 LS-block plane; an F n_ls patch, stitched, references its In1 side
+    merge_zone(g, "n_ls", "F.Cu", (100.0, 87.0, 104.0, 91.0), "n_ls GOOD change (stage 40)")
+    # 30b: C161 sits in a pocket that monitor_ls-ref (F), vsense_in (In1), ocp_kelvin_p (In2) and bus_fault_hot (B) wall off
+    # at x ~100.3-100.8. The In1 n_ls LS-block plane reaches into it under bus_fault_hot's x 100.35 run, where In2's
+    # ocp_kelvin_p run lies directly under that line (SI1 counts it coupled), and round C161's n_ls via (99.5, 95.035).
+    # North of y 90.75 it stays off: bus_fault_hot's x 99.05 run and its jog have no Kelvin track under them.
+    # (8.2 mm plan view from the SELV pours: the first build put its south-west corner 8.042 mm from selv_gnd's In2 fill)
+    merge_zone(g, "n_ls", "In1.Cu", (97.9, 90.75, 100.8, 97.4), "n_ls LS block west (stage 40)", priority=2, selv_mm=8.2)
+    for xy in S40_STITCH:
+        drill(g, "n_ls", *xy)
+    # (the GOOD node's B -> F change into U45.1 at (104.4, 99.65) stays open: it sits in an In1 island hb_rc / hb_tx's
+    # In1 runs close off, monitor_ls-uv's In2 run passes 0.7 mm from it, and no legal spot for the via is on a plane)

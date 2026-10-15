@@ -46,12 +46,15 @@ PARTS = {
     "D18": (SOT23, (3.95, 3.49), ["mon_good_ha", "mon_good_hb", "monitor_ls-good"]),
     "D19": (SOT23, (3.95, 3.49), ["selv_gnd", "hb_hold", "hb_x"]),
     "U40": (SOT23_5, (4.19, 3.49), ["u_bias_flt-nc", "hb_hold", "selv_gnd", "bias_good", "v3v3"]),
+    # stage 40 (candidate 30a): the second vote diode (A1 open, K2 on HS-B's verdict, MID on the LS GOOD node)
+    "D20": (SOT23, (3.95, 3.49), ["vote_b_nc", "mon_good_hb", "monitor_ls-good"]),
 }
 for ref, a, b in (("C157", "bias_ha.monitor-v5", "n_ha"), ("C158", "ls_v5", "n_ls"), ("C159", "bias_hb.monitor-v5", "n_hb"),
                   ("C160", "ls_v5", "n_ls"), ("C161", "ls_v5", "n_ls"), ("C162", "hb_rc", "n_ls"), ("C163", "v3v3", "selv_gnd"),
                   ("C164", "hb_s", "hb_m"), ("C165", "hb_m", "hb_x"), ("C166", "hb_hold", "selv_gnd"),
                   ("C167", "bus_fault_flt", "selv_gnd"), ("C144", "v3v3", "selv_gnd"), ("R131", "hb_tx", "hb_rc"), ("R132", "hb_bufo", "hb_s"),
-                  ("R133", "hb_hold", "selv_gnd"), ("R134", "bus_fault_iso", "bus_fault_flt")):
+                  ("R133", "hb_hold", "selv_gnd"), ("R134", "bus_fault_iso", "bus_fault_flt"),
+                  ("R135", "v3v3", "hsb_good")):     # stage 40: U46.1's pull-up
     PARTS[ref] = (C0603, (3.05, 1.55), [a, b])
 
 

@@ -1,9 +1,9 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "passive-two-terminal": 210,
+  "passive-two-terminal": 212,
   "native19-reviewed": 104,
-  "passive-untyped": 21,
+  "passive-untyped": 22,
   "eco-pin-table": 13
  },
  "components": {
@@ -1403,6 +1403,21 @@
     }
    }
   },
+  "C168": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_ref_xfer_5",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
   "C48": {
    "mpn": "CC0603KRX7R9BB104",
    "source_instance": "c_hot5_uv",
@@ -1885,7 +1900,7 @@
   },
   "C159": {
    "mpn": "CC0603KRX7R9BB104",
-   "source_instance": "bias_hb.cver1",
+   "source_instance": "bias_hb.clink1",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -1900,7 +1915,7 @@
   },
   "C160": {
    "mpn": "CC0603KRX7R9BB104",
-   "source_instance": "bias_hb.cver2",
+   "source_instance": "bias_hb.clink2",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -3311,6 +3326,21 @@
   "R131": {
    "mpn": "0603WAF4991T5E",
    "source_instance": "hb.rosc",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "R135": {
+   "mpn": "0603WAF1002T5E",
+   "source_instance": "hb.rgate",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -5260,6 +5290,25 @@
     }
    }
   },
+  "D20": {
+   "mpn": "BAT54S-7-F",
+   "source_instance": "hb.vote_b",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    }
+   }
+  },
   "D19": {
    "mpn": "BAT54S-7-F",
    "source_instance": "hb.pump",
@@ -5375,77 +5424,6 @@
   "U9": {
    "mpn": "CA-IS3720HW",
    "source_instance": "u_iso",
-   "basis": "passive-untyped",
-   "pins": {
-    "1": {
-     "function": "p1",
-     "type": "passive"
-    },
-    "2": {
-     "function": "p2",
-     "type": "passive"
-    },
-    "3": {
-     "function": "p3",
-     "type": "passive"
-    },
-    "4": {
-     "function": "p4",
-     "type": "passive"
-    },
-    "5": {
-     "function": "p5",
-     "type": "passive"
-    },
-    "6": {
-     "function": "p6",
-     "type": "passive"
-    },
-    "7": {
-     "function": "p7",
-     "type": "passive"
-    },
-    "8": {
-     "function": "p8",
-     "type": "passive"
-    },
-    "9": {
-     "function": "p9",
-     "type": "passive"
-    },
-    "10": {
-     "function": "p10",
-     "type": "passive"
-    },
-    "11": {
-     "function": "p11",
-     "type": "passive"
-    },
-    "12": {
-     "function": "p12",
-     "type": "passive"
-    },
-    "13": {
-     "function": "p13",
-     "type": "passive"
-    },
-    "14": {
-     "function": "p14",
-     "type": "passive"
-    },
-    "15": {
-     "function": "p15",
-     "type": "passive"
-    },
-    "16": {
-     "function": "p16",
-     "type": "passive"
-    }
-   }
-  },
-  "U44": {
-   "mpn": "CA-IS3720LW",
-   "source_instance": "bias_hb.verdict",
    "basis": "passive-untyped",
    "pins": {
     "1": {
@@ -6376,6 +6354,45 @@
   "U43": {
    "mpn": "ISO6721FBDR",
    "source_instance": "bias_ha.link",
+   "basis": "passive-untyped",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    },
+    "3": {
+     "function": "p3",
+     "type": "passive"
+    },
+    "4": {
+     "function": "p4",
+     "type": "passive"
+    },
+    "5": {
+     "function": "p5",
+     "type": "passive"
+    },
+    "6": {
+     "function": "p6",
+     "type": "passive"
+    },
+    "7": {
+     "function": "p7",
+     "type": "passive"
+    },
+    "8": {
+     "function": "p8",
+     "type": "passive"
+    }
+   }
+  },
+  "U44": {
+   "mpn": "ISO6721FBDR",
+   "source_instance": "bias_hb.link",
    "basis": "passive-untyped",
    "pins": {
     "1": {

@@ -1021,7 +1021,7 @@
 },
 {
 "ref": "C159",
-"path": "bias_hb.cver1",
+"path": "bias_hb.clink1",
 "fp": "Capacitor_SMD:C_0603_1608Metric",
 "w": 3.05,
 "h": 1.55,
@@ -1031,7 +1031,7 @@
 },
 {
 "ref": "C160",
-"path": "bias_hb.cver2",
+"path": "bias_hb.clink2",
 "fp": "Capacitor_SMD:C_0603_1608Metric",
 "w": 3.05,
 "h": 1.55,
@@ -2771,10 +2771,10 @@
 },
 {
 "ref": "U44",
-"path": "bias_hb.verdict",
-"fp": "lib:SOIC16W_DW0016B_HV",
-"w": 11.99,
-"h": 10.89,
+"path": "bias_hb.link",
+"fp": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+"w": 7.49,
+"h": 5.49,
 "ox": 0.0,
 "oy": 0.0,
 "group": "bias_hb"
@@ -3290,6 +3290,16 @@
 "group": "other:c_ref_xfer_4"
 },
 {
+"ref": "C168",
+"path": "c_ref_xfer_5",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:c_ref_xfer_5"
+},
+{
 "ref": "R130",
 "path": "r_blw",
 "fp": "temper:R_Axial_Vishay_AC05_D7.5mm_P5.08mm_Vertical",
@@ -3478,5 +3488,25 @@
 "ox": 0.0,
 "oy": 0.0,
 "group": "other:r_bf"
+},
+{
+"ref": "D20",
+"path": "hb.vote_b",
+"fp": "Package_TO_SOT_SMD:SOT-23",
+"w": 3.95,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:hb"
+},
+{
+"ref": "R135",
+"path": "hb.rgate",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:hb"
 }
 ]

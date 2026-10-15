@@ -1280,7 +1280,8 @@
     "C159",
     "C160",
     "C161",
-    "C163"
+    "C163",
+    "C168"
    ],
    "class": "SIGNAL",
    "function": "100 nF X7R 0603 decoupling/filter",
@@ -1597,7 +1598,8 @@
     "R76",
     "R91",
     "R109",
-    "R124"
+    "R124",
+    "R135"
    ],
    "class": "SIGNAL",
    "function": "10 k 0603",
@@ -4646,10 +4648,11 @@
   "ISO6721FBDR": {
    "mpn": "ISO6721FBDR",
    "designators": [
-    "U43"
+    "U43",
+    "U44"
    ],
    "class": "SAFETY",
-   "function": "U43: HS-A rail verdict into the LS domain (functional HS-LS crossing in the bias-monitor PEC); default output LOW = not good. HS-B crosses to SELV on U44 (ISO7710FDWR) instead: no legal ISO6721FB pose straddles HS-B and LS on the s29 floor plan",
+   "function": "U43 / U44: HS-A / HS-B rail verdicts into the LS domain (functional HS-LS crossings in the bias-monitor PEC); default output LOW = not good. Stage 40 (candidate 30a): U44 replaces the HS-B -> SELV verdict isolator (CA-IS3720LW) in U42's n_ls pocket, as M1b drew it; both verdicts meet on the LS vote (D18 / D20)",
    "status": "PARTIAL",
    "datasheet": {
     "url": "https://www.ti.com/lit/ds/symlink/iso6721.pdf",
@@ -4687,14 +4690,14 @@
      "parameter": "Barrier peak",
      "worst_case_value": 286,
      "unit": "V",
-     "condition": "bus static OVP corner: the HS island swings 0..VBUS against N_LS",
+     "condition": "bus static OVP corner: each HS island (SW_A for U43, SW_B for U44) swings 0..VBUS against N_LS",
      "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:60"
     },
     {
      "parameter": "CMTI edge",
      "worst_case_value": 95,
      "unit": "V/ns",
-     "condition": "modelled hard S4/S5 edge on SW_A",
+     "condition": "modelled hard S4/S5 edge on SW_A; SW_B's leg switches the same edges (U44)",
      "evidence": "validation-results/06-controller-interface/cmti/README.md:19"
     },
     {
@@ -4746,7 +4749,7 @@
     }
    ],
    "gaps": [
-    "CMTI min 100 V/ns is 1.05x the 95 V/ns modelled edge (rule 1.5x). An upset on OUTB lasts ~5.5 ns: LOW pauses the LS oscillator for under one period, HIGH while a rail is bad can add at most one or two edges; neither sustains the heartbeat (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json). Bench: S4/S5 dv/dt <= 100 V/ns.",
+    "CMTI min 100 V/ns is 1.05x the 95 V/ns modelled edge (rule 1.5x). An upset on OUTB (U43 or U44) lasts ~5.5 ns: LOW pauses the LS oscillator for under one period, HIGH while a rail is bad can add at most one or two edges; neither sustains the heartbeat (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json). Bench: S4/S5 dv/dt <= 100 V/ns.",
     "Basic insulation used as functional HS-LS; the certifier is asked whether its barrier short may be excluded (FMEA section 7 Q4)."
    ],
    "finding": null
@@ -4755,10 +4758,11 @@
    "mpn": "BAT54S-7-F",
    "designators": [
     "D18",
-    "D19"
+    "D19",
+    "D20"
    ],
    "class": "SIGNAL",
-   "function": "D19: heartbeat charge-pump clamp and series diode (SELV). D18: one half (pin 1 A -> pin 3) ANDs HS-A's link output into the LS good node; the other half's cathode (pin 2) is open",
+   "function": "D19: heartbeat charge-pump clamp and series diode (SELV). D18: one half (pin 1 A -> pin 3) ANDs HS-A's link output into the LS good node; the other half's cathode (pin 2) is open. D20 (stage 40): the other half (pin 3 MID anode on the good node -> pin 2 K2) ANDs HS-B's link output (U44) the same way; pin 1 (A1) is open",
    "status": "VERIFIED",
    "datasheet": {
     "url": "https://www.diodes.com/assets/Datasheets/ds11005.pdf",
@@ -4802,7 +4806,7 @@
      "parameter": "Reverse (D18)",
      "worst_case_value": 5.25,
      "unit": "V",
-     "condition": "LS 5 V good node vs a low U43 OUTB",
+     "condition": "LS 5 V good node vs a low U43 / U44 OUTB (D18 / D20)",
      "evidence": "elec/src/f6_bias.ato"
     }
    ],
@@ -4832,7 +4836,7 @@
      "stress": "Reverse (D18)",
      "max_ratio": 0.5,
      "severity": "violation",
-     "rule": "18 %",
+     "rule": "18 % (D18 and D20)",
      "ratio": 0.175
     }
    ],
@@ -5045,139 +5049,6 @@
    ],
    "finding": null,
    "notes": "Stage 31 (DECISIONS 34) replaces TI ISO7710DWR on the same pads; evaluation and the rejected Novosense NSi822x (open-input default unspecified, NSi8220W1 91 pcs at JLC) in validation-results/11-candidates/c31-bom/README.md."
-  },
-  "CA-IS3720LW": {
-   "mpn": "CA-IS3720LW",
-   "designators": [
-    "U44"
-   ],
-   "class": "SAFETY",
-   "function": "U44: HS-B rail verdict, HS-B -> SELV (reinforced), default output LOW = not good on side-A power loss or an open input; gates the heartbeat NAND U46 (stage 30, DECISIONS 33; part stage 31, DECISIONS 34)",
-   "status": "PARTIAL",
-   "datasheet": {
-    "url": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404091718_Chipanalog-CA-IS3720LW_C2890049.pdf",
-    "revision": "Chipanalog CA-IS3720/3721/3722 datasheet Version 1.05, 2023-09-01 (Chinese)",
-    "fetched": "2026-10-14",
-    "repo_copy": null,
-    "note": "One document covers HW and LW. s.6 Table 6-2 SOIC16-WB pins (1/7 GNDA, 3 VDDA, 4 VI1, 5 VI2 = spare A-side input, 9/16 GNDB, 12 VO2 = spare B-side output, 13 VO1, 14 VDDB; NC pins may float). s.7.6 insulation, s.7.7 certificates, s.7.8 electrical tables (CMTI min 100 / typ 150 kV/us at VI = VDDI or 0 V, VCM = 1200 V, at 5 V / 3.3 V / 2.5 V), s.9.3 Table 9-1 truth table, s.11.3 SOIC16-WB outline.",
-    "sha256_prefix16": "d189c76c1fe68084"
-   },
-   "ratings": [
-    {
-     "parameter": "VIORM",
-     "datasheet_limit": 1414,
-     "unit": "V",
-     "basis": "VDE 0884-17 reinforced (cert 40057278), SOIC16-WB",
-     "source": "s.7.6 / s.7.7"
-    },
-    {
-     "parameter": "VISO",
-     "datasheet_limit": 5000,
-     "unit": "Vrms",
-     "basis": "UL 1577 E511334, 60 s certification test",
-     "source": "s.7.6 / s.7.7"
-    },
-    {
-     "parameter": "VIOSM",
-     "datasheet_limit": 7070,
-     "unit": "V",
-     "basis": "tested at 1.6 x VIOSM (certification)",
-     "source": "s.7.6"
-    },
-    {
-     "parameter": "CMTI min",
-     "datasheet_limit": 100,
-     "unit": "V/ns",
-     "basis": "100 kV/us min, 150 typ, VCM 1200 V, both input states",
-     "source": "s.7.8 electrical tables (5 V, 3.3 V, 2.5 V)"
-    },
-    {
-     "parameter": "CLR/CPG",
-     "datasheet_limit": 8,
-     "unit": "mm",
-     "basis": "SOIC16-WB external clearance / creepage; CTI > 600, material group I",
-     "source": "s.7.6"
-    },
-    {
-     "parameter": "VDD",
-     "datasheet_limit": 5.5,
-     "unit": "V",
-     "basis": "2.5-5.5 V each side (used at 5 V side A, 3.3 V side B)",
-     "source": "s.1 features, s.7.3"
-    },
-    {
-     "parameter": "Default output",
-     "datasheet_limit": 0,
-     "unit": "V",
-     "basis": "LOW on VDDA loss or an open input (L suffix)",
-     "source": "s.9.3 Table 9-1"
-    }
-   ],
-   "stresses": [
-    {
-     "parameter": "Barrier peak",
-     "worst_case_value": 286,
-     "unit": "V",
-     "condition": "bus static OVP corner",
-     "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:60"
-    },
-    {
-     "parameter": "CMTI edge",
-     "worst_case_value": 95,
-     "unit": "V/ns",
-     "condition": "modelled hard edge (U32 on N_LS; applied to U9 on OCP_KELVIN_P as a conservative bound)",
-     "evidence": "validation-results/06-controller-interface/cmti/README.md:19-20"
-    },
-    {
-     "parameter": "CMTI event duration",
-     "worst_case_value": 5.47,
-     "unit": "ns",
-     "condition": "520 V swing at 95 V/ns",
-     "evidence": "native-21/verification/datasheet-ledger/scripts/datasheet_gap_calcs.py:81"
-    }
-   ],
-   "derating_rule": "Barrier peak <= 50% VIORM; CMTI >= 1.5x modelled edge unless a time filter rejects the upset (filter >= 10x the event).",
-   "checks": [
-    {
-     "id": "barrier",
-     "rating": "VIORM",
-     "stress": "Barrier peak",
-     "max_ratio": 0.5,
-     "severity": "violation",
-     "rule": "20 %",
-     "ratio": 0.2023
-    },
-    {
-     "id": "CMTI",
-     "rating": "CMTI min",
-     "stress": "CMTI edge",
-     "max_ratio": 0.6666666666666666,
-     "severity": "gap",
-     "rule": "min 100 >= 95 V/ns modelled but < 1.5x: ratio 0.95 (ISO7710 was 1.12)",
-     "ratio": 0.95
-    }
-   ],
-   "layout_guidance": [
-    {
-     "item": "reinforced creepage/clearance >= 8 mm on TI's DW0016B HV land pattern (8.1 mm pad gap; the CA-IS3720 foot 4.20-5.25 mm from centre sits inside the 4.05-5.70 mm pads, s.11.3)",
-     "enforced_by": "native-21/layout/barrier_gate21.py"
-    },
-    {
-     "item": "spare channel (pin 5 input, pin 12 output) left unconnected",
-     "enforced_by": "audit.rs"
-    },
-    {
-     "item": "default LOW (L option): HS-B unpowered or its monitor dead closes the NAND, the pump stops, BIAS_GOOD falls",
-     "enforced_by": "audit_f6.rs"
-    }
-   ],
-   "gaps": [
-    "CMTI min 100 V/ns < 1.5 x 95 V/ns. An upset lasts ~5.5 ns: LOW while good removes at most one pump edge (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json); HIGH while HS-B is bad passes at most one edge.",
-    "Single source (Chipanalog). JLC 2,542 at 2026-10-14 (C2890049). Table 9-1 note 2: a strongly driven input can back-power a floating VDDA and leave the output undetermined; U44's input is pulled up from the HS-B monitor's own 5 V, which dies with the rail it reports, so the case does not arise from HS-B power loss (same note in TI SLLSER9E).",
-    "Bench: unpower HS-B and open U44.4 in turn; BIAS_GOOD must fall (DECISIONS 33 bench item 2)."
-   ],
-   "finding": null,
-   "notes": "Stage 31 (DECISIONS 34) replaces TI ISO7710FDWR on the same pads; evaluation and the rejected Novosense NSi822x (open-input default unspecified, NSi8220W1 91 pcs at JLC) in validation-results/11-candidates/c31-bom/README.md."
   },
   "CL32B106KBJNNNE": {
    "mpn": "CL32B106KBJNNNE",

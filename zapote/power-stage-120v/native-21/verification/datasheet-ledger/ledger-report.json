@@ -1,5 +1,5 @@
 {
- "bom_lines": 93,
+ "bom_lines": 92,
  "counts_by_class": {
   "POWER": {
    "PARTIAL": 8,
@@ -8,7 +8,7 @@
    "VIOLATION": 1
   },
   "SAFETY": {
-   "PARTIAL": 20,
+   "PARTIAL": 19,
    "UNAUDITED": 0,
    "VERIFIED": 2,
    "VIOLATION": 0
@@ -20,7 +20,7 @@
    "VIOLATION": 0
   }
  },
- "entries": 93,
+ "entries": 92,
  "entries_detail": {
   "0430451612": {
    "checks": [],
@@ -88,6 +88,7 @@
     "R11",
     "R124",
     "R13",
+    "R135",
     "R19",
     "R21",
     "R73",
@@ -992,10 +993,11 @@
    "class": "SIGNAL",
    "designators": [
     "D18",
-    "D19"
+    "D19",
+    "D20"
    ],
    "finding": null,
-   "function": "D19: heartbeat charge-pump clamp and series diode (SELV). D18: one half (pin 1 A -> pin 3) ANDs HS-A's link output into the LS good node; the other half's cathode (pin 2) is open",
+   "function": "D19: heartbeat charge-pump clamp and series diode (SELV). D18: one half (pin 1 A -> pin 3) ANDs HS-A's link output into the LS good node; the other half's cathode (pin 2) is open. D20 (stage 40): the other half (pin 3 MID anode on the good node -> pin 2 K2) ANDs HS-B's link output (U44) the same way; pin 1 (A1) is open",
    "gaps": [],
    "status": "VERIFIED",
    "unchecked_layout": []
@@ -1071,41 +1073,6 @@
    "status": "PARTIAL",
    "unchecked_layout": []
   },
-  "CA-IS3720LW": {
-   "checks": [
-    {
-     "id": "barrier",
-     "max_ratio": 0.5,
-     "ok": true,
-     "rating": "VIORM",
-     "ratio": 0.2023,
-     "severity": "violation",
-     "stress": "Barrier peak"
-    },
-    {
-     "id": "CMTI",
-     "max_ratio": 0.6666666666666666,
-     "ok": false,
-     "rating": "CMTI min",
-     "ratio": 0.95,
-     "severity": "gap",
-     "stress": "CMTI edge"
-    }
-   ],
-   "class": "SAFETY",
-   "designators": [
-    "U44"
-   ],
-   "finding": null,
-   "function": "U44: HS-B rail verdict, HS-B -> SELV (reinforced), default output LOW = not good on side-A power loss or an open input; gates the heartbeat NAND U46 (stage 30, DECISIONS 33; part stage 31, DECISIONS 34)",
-   "gaps": [
-    "CMTI min 100 V/ns < 1.5 x 95 V/ns. An upset lasts ~5.5 ns: LOW while good removes at most one pump edge (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json); HIGH while HS-B is bad passes at most one edge.",
-    "Single source (Chipanalog). JLC 2,542 at 2026-10-14 (C2890049). Table 9-1 note 2: a strongly driven input can back-power a floating VDDA and leave the output undetermined; U44's input is pulled up from the HS-B monitor's own 5 V, which dies with the rail it reports, so the case does not arise from HS-B power loss (same note in TI SLLSER9E).",
-    "Bench: unpower HS-B and open U44.4 in turn; BIAS_GOOD must fall (DECISIONS 33 bench item 2)."
-   ],
-   "status": "PARTIAL",
-   "unchecked_layout": []
-  },
   "CC0603KRX7R9BB104": {
    "checks": [],
    "class": "SIGNAL",
@@ -1127,6 +1094,7 @@
     "C160",
     "C161",
     "C163",
+    "C168",
     "C25",
     "C28",
     "C29",
@@ -1670,12 +1638,13 @@
    ],
    "class": "SAFETY",
    "designators": [
-    "U43"
+    "U43",
+    "U44"
    ],
    "finding": null,
-   "function": "U43: HS-A rail verdict into the LS domain (functional HS-LS crossing in the bias-monitor PEC); default output LOW = not good. HS-B crosses to SELV on U44 (ISO7710FDWR) instead: no legal ISO6721FB pose straddles HS-B and LS on the s29 floor plan",
+   "function": "U43 / U44: HS-A / HS-B rail verdicts into the LS domain (functional HS-LS crossings in the bias-monitor PEC); default output LOW = not good. Stage 40 (candidate 30a): U44 replaces the HS-B -> SELV verdict isolator (CA-IS3720LW) in U42's n_ls pocket, as M1b drew it; both verdicts meet on the LS vote (D18 / D20)",
    "gaps": [
-    "CMTI min 100 V/ns is 1.05x the 95 V/ns modelled edge (rule 1.5x). An upset on OUTB lasts ~5.5 ns: LOW pauses the LS oscillator for under one period, HIGH while a rail is bad can add at most one or two edges; neither sustains the heartbeat (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json). Bench: S4/S5 dv/dt <= 100 V/ns.",
+    "CMTI min 100 V/ns is 1.05x the 95 V/ns modelled edge (rule 1.5x). An upset on OUTB (U43 or U44) lasts ~5.5 ns: LOW pauses the LS oscillator for under one period, HIGH while a rail is bad can add at most one or two edges; neither sustains the heartbeat (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json). Bench: S4/S5 dv/dt <= 100 V/ns.",
     "Basic insulation used as functional HS-LS; the certifier is asked whether its barrier short may be excluded (FMEA section 7 Q4)."
    ],
    "status": "PARTIAL",
@@ -2579,7 +2548,6 @@
   "B32676G1905K000",
   "B82726S2203A020",
   "CA-IS3720HW",
-  "CA-IS3720LW",
   "CL32B106KBJNNNE",
   "CSS2H-2512R-1L00F",
   "CST3015-200ED",
@@ -2600,7 +2568,7 @@
  "result": "FAIL",
  "strict": false,
  "totals": {
-  "PARTIAL": 30,
+  "PARTIAL": 29,
   "UNAUDITED": 59,
   "VERIFIED": 3,
   "VIOLATION": 1

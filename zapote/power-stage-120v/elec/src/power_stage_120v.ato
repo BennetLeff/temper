@@ -37,7 +37,7 @@ from "parts.ato" import BusTvs30kpa150
 from "parts.ato" import Burden3R0, C100nC0G1206, R1kThin, R2k21Thin, R1k1206, ClampBas116h, Or3Lvc1g332
 
 from "f6_parts.ato" import HotSupply24, HotLdo, GateDischarge, Gate1R, DisNand, BiasGoodSchmitt, Bias4k99, Bias10u, Bias27k
-from "f6_bias.ato" import BiasReservoir, RegulatedSplit, RailMonitor, HighBiasLink, HighBiasSelv, LineZeroCross, Heartbeat
+from "f6_bias.ato" import BiasReservoir, RegulatedSplit, RailMonitor, HighBiasLink, LineZeroCross, Heartbeat
 
 module BridgeLeg:
     """One half-bridge leg: UCC21550 (A = high side, B = low side), fail-safe
@@ -249,6 +249,7 @@ module PowerStage120V:
     signal N_HB
     signal BIAS_GOOD
     signal MON_GOOD_HA
+    signal MON_GOOD_HB
     signal HSB_GOOD
     signal LINE_ZC
     signal HOT5
@@ -836,6 +837,12 @@ module PowerStage120V:
     c_ref_xfer_4.value = 100nF
     c_ref_xfer_4.p1 ~ V3V3
     c_ref_xfer_4.p2 ~ SELV_GND
+    # Stage 40 (candidate 30a): pwm_hb's B.Cu -> F.Cu change at the old HS-B verdict pocket was served by that
+    # isolator's SELV-side decoupler (2.0 mm); with the isolator gone a fifth transfer cap takes its place.
+    c_ref_xfer_5 = new C100n0603
+    c_ref_xfer_5.value = 100nF
+    c_ref_xfer_5.p1 ~ V3V3
+    c_ref_xfer_5.p2 ~ SELV_GND
     r_ct_mon = new R1k0603
     r_ct_mon.value = 1kohm
     r_ct_mon.p1 ~ CT_SENSE_MON
@@ -897,23 +904,24 @@ module PowerStage120V:
     bias_ha.src ~ SW_A
     bias_ha.ls_v5 ~ monitor_ls.v5
     bias_ha.good_ls ~ MON_GOOD_HA
-    bias_hb = new HighBiasSelv
+    # Stage 40 (candidate 30a): HS-B crosses to LS on its own ISO6721FB link, as HS-A does (M1b as drawn).
+    bias_hb = new HighBiasLink
     bias_hb.p ~ P_HB
     bias_hb.n ~ N_HB
     bias_hb.raw24 ~ V24_RAW
     bias_hb.nls ~ N_LS
     bias_hb.src ~ SW_B
-    bias_hb.v3v3 ~ V3V3
-    bias_hb.selv_gnd ~ SELV_GND
-    bias_hb.good_selv ~ HSB_GOOD
+    bias_hb.ls_v5 ~ monitor_ls.v5
+    bias_hb.good_ls ~ MON_GOOD_HB
     # Stage 30 (DECISIONS 33, candidate 24): the LS and HS-A verdicts meet in the LS domain and cross to SELV as a
-    # heartbeat (f6_bias.ato Heartbeat); HS-B's crosses on its own ISO7710F and gates the heartbeat in SELV. U25 (OR3), its 100 nF and the 10 us RC (R126 / C143) are gone; U40 becomes a
+    # heartbeat (f6_bias.ato Heartbeat); since stage 40 HS-B's joins the LS vote too (its ISO6721FB link, D20). U25 (OR3), its 100 nF and the 10 us RC (R126 / C143) are gone; U40 becomes a
     # non-inverting G17 on the pump's hold node, still the only driver of BIAS_GOOD.
     hb = new Heartbeat
     hb.ls_v5 ~ monitor_ls.v5
     hb.nls ~ N_LS
     hb.good ~ monitor_ls.good
     hb.ha ~ MON_GOOD_HA
+    hb.hb ~ MON_GOOD_HB
     hb.gate ~ HSB_GOOD
     hb.v3v3 ~ V3V3
     hb.selv_gnd ~ SELV_GND
@@ -992,6 +1000,7 @@ module PowerStage120V:
     c_ref_xfer_2.designator = "C154"
     c_ref_xfer_3.designator = "C155"
     c_ref_xfer_4.designator = "C156"
+    c_ref_xfer_5.designator = "C168"
     c_hot5_uv.designator = "C48"
     c_hot5_schmitt.designator = "C49"
     u_ref.designator = "U5"
@@ -1266,7 +1275,7 @@ module PowerStage120V:
     u_bias_flt.designator = "U40"
     # stage 30 (DECISIONS 33): candidate 24 and the U9 BUS_FAULT RC; fresh designators for every new part
     bias_ha.link.designator = "U43"
-    bias_hb.verdict.designator = "U44"
+    bias_hb.link.designator = "U44"
     hb.osc.designator = "U45"
     hb.buf.designator = "U46"
     hb.vote.designator = "D18"
@@ -1277,8 +1286,10 @@ module PowerStage120V:
     r_bf.designator = "R134"
     bias_ha.clink1.designator = "C157"
     bias_ha.clink2.designator = "C158"
-    bias_hb.cver1.designator = "C159"
-    bias_hb.cver2.designator = "C160"
+    bias_hb.clink1.designator = "C159"
+    bias_hb.clink2.designator = "C160"
+    hb.vote_b.designator = "D20"
+    hb.rgate.designator = "R135"
     hb.cosc_vcc.designator = "C161"
     hb.cosc.designator = "C162"
     hb.cbuf.designator = "C163"

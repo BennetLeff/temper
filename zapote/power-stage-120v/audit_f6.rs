@@ -184,13 +184,15 @@ fn connections() -> Vec<(String, String, String)> {
             add(&format!("{base}.{part}"), pin, &local(key));
         }
     }
-    // Stage 30: HS-A's verdict crosses to the LS domain through an ISO6721FB (default LOW = not good).
+    // Stage 30: HS-A's verdict crosses to the LS domain through an ISO6721FB (default LOW = not good); stage 40
+    // (candidate 30a): HS-B's too (M1b as drawn).
     // D: 1 VCC1, 2 OUTA, 3 INB, 4 GND1, 5 GND2, 6 OUTB, 7 INA, 8 VCC2. Reverse input tied to GND2, OUTA open.
-    for (base, n, good) in [("bias_ha", "n_ha", "mon_good_ha")] {
+    for (base, n, good) in [("bias_ha", "n_ha", "mon_good_ha"), ("bias_hb", "n_hb", "mon_good_hb")] {
         let v5 = format!("{base}.monitor-v5");
+        let outa = format!("{base}-outa_nc");
         for (pin, net) in [
             ("1", v5.as_str()),
-            ("2", "outa_nc"),
+            ("2", outa.as_str()),
             ("3", &format!("{base}.monitor-good")),
             ("4", n),
             ("5", "n_ls"),
@@ -205,28 +207,16 @@ fn connections() -> Vec<(String, String, String)> {
             add(&format!("{base}.{part}"), "2", b);
         }
     }
-    // Stage 30: HS-B's verdict crosses straight to SELV on a default-LOW reinforced isolator (ISO7710F; CA-IS3720LW since stage 31) and gates the heartbeat NAND.
-    for (pin, net) in [
-        ("1", "n_hb"),
-        ("7", "n_hb"),
-        ("3", "bias_hb.monitor-v5"),
-        ("4", "bias_hb.monitor-good"),
-        ("9", "selv_gnd"),
-        ("16", "selv_gnd"),
-        ("14", "v3v3"),
-        ("13", "hsb_good"),
-    ] {
-        add("bias_hb.verdict", pin, net);
-    }
-    for (part, a, b) in [("cver1", "bias_hb.monitor-v5", "n_hb"), ("cver2", "v3v3", "selv_gnd")] {
-        add(&format!("bias_hb.{part}"), "1", a);
-        add(&format!("bias_hb.{part}"), "2", b);
-    }
     // Stage 30 heartbeat (f6_bias.ato Heartbeat; FMEA 6a design J). LS: diode-AND vote, gated G132 oscillator,
-    // U32 the heartbeat's reinforced crossing; SELV: G132 NAND gated by HS-B's verdict, 220 ohm, 2 x 1 nF series, BAT54S pump, hold.
+    // U32 the heartbeat's reinforced crossing; SELV: G132 NAND (A held high by rgate since stage 40), 220 ohm, 2 x 1 nF
+    // series, BAT54S pump, hold. Stage 40: HS-B's link output joins the vote through D20's K1/A2 -> K2 half.
     for (part, pin, net) in [
         ("vote", "1", "monitor_ls-good"),
         ("vote", "3", "mon_good_ha"),
+        ("vote_b", "3", "monitor_ls-good"),
+        ("vote_b", "2", "mon_good_hb"),
+        ("rgate", "1", "v3v3"),
+        ("rgate", "2", "hsb_good"),
         ("osc", "1", "monitor_ls-good"),
         ("osc", "2", "hb_rc"),
         ("osc", "3", "n_ls"),
@@ -517,23 +507,22 @@ mod tests {
     }
     #[test]
     fn rail_monitor_crossings_must_be_reinforced_high_cmti_isolators() {
-        // Stage 30: the group's SELV crossings are hb.iso (U32, CA-IS3720HW since stage 31) and bias_hb.verdict (U44,
-        // CA-IS3720LW);
-        // a phototransistor opto fails.
+        // Stage 40 (candidate 30a): the group's one SELV crossing is hb.iso (U32, CA-IS3720HW since stage 31); a
+        // phototransistor opto fails.
         let mut changed = crate::tests::built();
         changed.set_part("hb.iso", "VO617A-3X017T");
         assert!(crate::audit(&changed).iter().any(|e| e.contains("hb.iso")));
-        // The HS verdict crossings must default LOW: the default-HIGH ISO6721B (HS-A) or CA-IS3720HW (HS-B) would read an
+        // The HS verdict crossings must default LOW: the default-HIGH ISO6721B (either HS link) would read an
         // unpowered HS monitor as 'good' (the masking failure the F options exist to prevent).
-        for (path, wrong) in [("bias_ha.link", "ISO6721BDR"), ("bias_hb.verdict", "CA-IS3720HW")] {
+        for (path, wrong) in [("bias_ha.link", "ISO6721BDR"), ("bias_hb.link", "ISO6721BDR")] {
             let mut changed = crate::tests::built();
             changed.set_part(path, wrong);
             assert!(crate::audit(&changed).iter().any(|e| e.contains(path)), "{path}");
         }
-        // HS-B's verdict must gate the SELV NAND: the gate input tied to V3V3 (the verdict bypassed) fails.
+        // Stage 40: HS-B's verdict must reach the LS vote: its link output left off D20 (the vote bypassed) fails.
         let mut changed = crate::tests::built();
-        changed.rewire("hb.buf", "1", "v3v3");
-        assert!(crate::audit(&changed).iter().any(|e| e.contains("hb.buf.1")));
+        changed.rewire("hb.vote_b", "2", "vote_b_nc");
+        assert!(crate::audit(&changed).iter().any(|e| e.contains("hb.vote_b.2")));
         // The SELV wave taken from the HOT side instead of the isolator output fails.
         let mut changed = crate::tests::built();
         changed.rewire("hb.iso", "13", "hb_tx");

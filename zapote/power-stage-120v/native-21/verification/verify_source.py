@@ -7,7 +7,7 @@ import json
 def main() -> None:
     root = Path(__file__).resolve().parents[2]
     resolved = json.loads((root / 'frozen/resolved-components.json').read_text())
-    assert len(resolved['components']) == 348   # stage 38: - ps_selv (PS1, candidate 23); stage 30: -22 / +21 (candidate 24 heartbeat, HS-A link ISO6721FB, HS-B verdict ISO7710F, U9 RC); stage 28: + r_blw (F2 fault-current limiter); stage 22: - Q1 / Q4 PERMIT FETs and R8 / R16 330 ohm (DIS NAND); stage 21: - link_pos / link_neg studs J7-J10 (BR1 feeds the bus); stage 19b: + c_ref_xfer_1..4 (pwm_hb reference-transfer caps C153-C156); stage 16: + f_blw / j_blw_ac (blower-supply tap); stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
+    assert len(resolved["components"]) == 351   # stage 40: + hb.vote_b (D20), + hb.rgate (R135), + c_ref_xfer_5 (C168, pwm_hb transfer cap in place of the old verdict isolator's SELV decoupler) (candidate 30a; U44 / C159 / C160 become the HS-B link and its caps); stage 38: - ps_selv (PS1, candidate 23); stage 30: -22 / +21 (candidate 24 heartbeat, HS-A link ISO6721FB, HS-B verdict ISO7710F, U9 RC); stage 28: + r_blw (F2 fault-current limiter); stage 22: - Q1 / Q4 PERMIT FETs and R8 / R16 330 ohm (DIS NAND); stage 21: - link_pos / link_neg studs J7-J10 (BR1 feeds the bus); stage 19b: + c_ref_xfer_1..4 (pwm_hb reference-transfer caps C153-C156); stage 16: + f_blw / j_blw_ac (blower-supply tap); stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
     for filename, expected in resolved['source_sha256'].items():
         assert hashlib.sha256((root / filename).read_bytes()).hexdigest() == expected, filename
     for filename in ('default.csv', 'default.net', 'resolved-components.json',
@@ -39,7 +39,7 @@ def main() -> None:
         assert parts[f'{leg}.r_gh']['mpn'] == parts[f'{leg}.r_gl']['mpn'] == 'RS-06L8R20FT'
     assert parts['r_shunt']['mpn'] == 'CSS2H-2512R-1L00F' and parts['r_shunt']['footprint'] == 'temper:R_Shunt_Bourns_CSS2H-2512_Kelvin'   # stage 17 (DECISIONS 17)
     assert parts['r_ct_hi_top']['mpn'] == parts['r_ct_lo_bot']['mpn'] == 'RT0603BRD072K21L'
-    assert all(parts[f'c_ref_xfer_{i}']['mpn'] == parts['c_fault_or']['mpn'] == 'CC0603KRX7R9BB104' for i in range(1, 5))   # stage 19b
+    assert all(parts[f'c_ref_xfer_{i}']['mpn'] == parts['c_fault_or']['mpn'] == 'CC0603KRX7R9BB104' for i in range(1, 6))   # stage 19b; 5: stage 40
     for leg in ('leg_a', 'leg_b'):
         assert parts[f'{leg}.c_hs']['mpn'] == 'CC0805KRX7R9BB104' and parts[f'{leg}.c_hs_bulk']['mpn'] == 'GRM21BZ71E106KE15L'
         assert parts[f'{leg}.c_ls']['mpn'] == 'CC0805KRX7R9BB104'
@@ -51,10 +51,12 @@ def main() -> None:
     assert parts['tvs_bus']['mpn'] == parts['tvs_bus_b']['mpn'] == '30KPA150CA'
     assert not any('.d_boot' in path or '.c_boot' in path for path in parts)
     # stage 30 (DECISIONS 33): the heartbeat (U32) carries the LS and HS-A verdicts (HS-A via a default-LOW ISO6721FB
-    # link); HS-B's verdict crosses on its own default-LOW ISO7710F and gates the SELV NAND; no opto in the monitor group
+    # link); stage 40 (candidate 30a): HS-B's too, on its own default-LOW ISO6721FB link and vote diode (D20), so U32 is the
+    # group's only HOT -> SELV crossing; the SELV NAND's gate input is held high (rgate); no opto in the monitor group
     assert parts['hb.iso']['mpn'] == 'CA-IS3720HW' and parts['u_iso']['mpn'] == 'CA-IS3720HW'   # stage 31 (DECISIONS 34)
-    assert parts['bias_ha.link']['mpn'] == 'ISO6721FBDR' and 'bias_hb.link' not in parts
-    assert parts['bias_hb.verdict']['mpn'] == 'CA-IS3720LW' and parts['hb.buf']['mpn'] == 'SN74LVC1G132DBVR'
+    assert parts['bias_ha.link']['mpn'] == parts['bias_hb.link']['mpn'] == 'ISO6721FBDR' and 'bias_hb.verdict' not in parts
+    assert parts['hb.vote']['mpn'] == parts['hb.vote_b']['mpn'] == 'BAT54S-7-F' and parts['hb.rgate']['mpn'] == '0603WAF1002T5E'
+    assert parts['hb.buf']['mpn'] == 'SN74LVC1G132DBVR'
     assert parts['hb.cp1']['mpn'] == parts['hb.cp2']['mpn'] == 'C0603C102J5GACTU' and parts['hb.rbleed']['mpn'] == 'RT0603BRD0749K9L'
     assert not any(path.endswith(('.rnotice', '.dnotice', '.qnotice', '.rbase')) for path in parts)
     assert 'bias_or' not in parts and 'r_bias_flt' not in parts and 'c_bias_flt' not in parts

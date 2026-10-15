@@ -9,8 +9,8 @@
     "via leg_a-permit_gate"
    ],
    "at_mm": [
-    67.68,
-    40.84
+    67.59,
+    40.89
    ]
   },
   "HOT-PE": {
@@ -109,18 +109,6 @@
     "cpg": 8.5,
     "src": "TI AMC1311 datasheet, DWV insulation table",
     "rating": "reinforced"
-   }
-  },
-  {
-   "ref": "U44",
-   "mpn": "CA-IS3720LW",
-   "land_gap_mm": 8.1,
-   "board_pass": true,
-   "package": {
-    "clr": 8.0,
-    "cpg": 8.0,
-    "src": "Chipanalog CA-IS372x datasheet v1.05 s.7.6 (SOIC16-WB CLR / CPG 8 mm)",
-    "rating": "reinforced (VDE 0884-17 cert 40057278; UL 1577 E511334)"
    }
   },
   {

@@ -472,8 +472,13 @@ def attach(net, ref_pad, layers, width, target=None):
     return False
 
 
-def load(base_path, patches=True):
-    """route21 state with the base copper registered (and the patches applied)."""
+def load(base_path, patches=True, prune=False):
+    """route21 state with the base copper registered (and the patches applied).
+
+    prune (stage 40, INCR21_PRUNE with INCR21_FROZEN): on a frozen base, still drop the base copper that names deleted
+    pads or serves / meets a part moved since the base (<base>_pads.json beside it), as an unfrozen load does; the
+    stage 1-32 patches are not re-applied."""
+    prune = prune or patches
     base = json.loads(Path(base_path).read_text())
     # stage 38: base copper of a deleted part (PS1) is edited out before anything is registered, frozen base or not
     if hasattr(patches21, "edit_base"):
@@ -491,15 +496,17 @@ def load(base_path, patches=True):
     # otherwise land on the new part's mains pad.
     def stale(q, net):
         return isinstance(q, str) and (q not in GEO.pad_at or all(p["net"] != net for p in GEO.pad_at[q]))
-    if patches:
+    if prune:
         gone = [t for t in base["tracks"] if any(stale(q, t["net"]) for q in t["points"])]
         if gone:
             print(f"{len(gone)} base tracks named pads of deleted parts or now on another net:",
                   sorted({q for t in gone for q in t["points"] if stale(q, t["net"])}))
         base["tracks"] = [t for t in base["tracks"] if t not in gone]
+    else:
+        gone = []
     if patches and hasattr(patches21, "edit_zones"):
         base["zones"] = patches21.edit_zones(base["zones"])
-    if patches:
+    if prune:
         base["zones"] = reclip_for_moved(base_path, base["zones"])
     for z in base["zones"]:
         g["ZONES"].append(z)
@@ -542,7 +549,14 @@ def load(base_path, patches=True):
     old_pads = [(_box(*q["box"]).buffer(0.05), ren.get(q["net"], q["net"])) for q in json.loads(prev_path.read_text())
                 if q["ref"] in moved and q["net"]] if pad_geo else []
 
+    def spine_side(net):
+        # frozen base: SELV / PE copper is the spine's; what a moved part leaves there is edited by hand (stage 40:
+        # patches21.add_stage40 rips the old U44's SELV stubs; copper that meets a new pad still goes, below)
+        return not patches and rules21.domain(net) in ("SELV", "PE")
+
     def served_old(t):
+        if spine_side(t["net"]):
+            return False
         names = [q for q in t["points"] if isinstance(q, str)]
         if names and len(names) == len(t["points"]):
             return False             # pad to pad only: follows the parts
@@ -550,21 +564,24 @@ def load(base_path, patches=True):
             return True              # a pad-named end on a moved part with fixed bends: stale
         return any(b.contains(_Pt(*q)) for q in t["points"] if not isinstance(q, str)
                    for b, n in old_pads if n == t["net"])
-    stale = [t for t in base["tracks"] if patches and served_old(t)]
+    stale = [t for t in base["tracks"] if prune and served_old(t)]
     stale_ends = {(t["net"], round(q[0], 3), round(q[1], 3)) for t in stale for q in t["points"]
                   if not isinstance(q, str)}
     kept_pts = {(t["net"], round(q[0], 3), round(q[1], 3)) for t in base["tracks"] if t not in stale
                 for q in t["points"] if not isinstance(q, str)}
     n_pad = len(stale)
     base["tracks"] = [t for t in base["tracks"] if t not in stale]
-    n_pad += prune_dangling(base, {t["net"] for t in stale})
+    # (a frozen, pruned base: the copper left hanging by the dropped pad-named tracks goes too; stage 40)
+    pruned = {t["net"] for t in stale} | ({t["net"] for t in gone} if not patches else set())
+    pruned = {n for n in pruned if not spine_side(n)}
+    n_pad += prune_dangling(base, pruned)
     base["vias"] = [v for v in base["vias"]
                     if not ((v["net"], round(v["at"][0], 3), round(v["at"][1], 3)) in stale_ends
                             and (v["net"], round(v["at"][0], 3), round(v["at"][1], 3)) not in kept_pts)
-                    and not any(b.contains(_Pt(*v["at"])) for b, n in old_pads if n == v["net"])]
+                    and (spine_side(v["net"]) or not any(b.contains(_Pt(*v["at"])) for b, n in old_pads if n == v["net"]))]
     for t in base["tracks"]:
         follows = all(isinstance(q, str) for q in t["points"])      # pad-to-pad tracks move with the parts
-        if patches and not follows and \
+        if prune and not follows and \
                 meets_pad(t["net"], _LS([g["_xy"](q) for q in t["points"]]).buffer(t["width"] / 2), t["layer"]):
             n_pad += 1
             continue
@@ -574,7 +591,7 @@ def load(base_path, patches=True):
         g["TRACKS"].append(t)
         GEO.add_track(t["net"], t["layer"], t["width"], [g["_xy"](p) for p in t["points"]])
     for v in base["vias"]:
-        if patches and meets_pad(v["net"], _Pt(*v["at"]).buffer(v["size"] / 2), None):
+        if prune and meets_pad(v["net"], _Pt(*v["at"]).buffer(v["size"] / 2), None):
             n_pad += 1
             continue
         if removed(v, "via"):
@@ -597,6 +614,8 @@ def load(base_path, patches=True):
             GEO.protect(z["net"], z["layer"], Polygon(z["outline"], z["holes"]), via_ok=True)
     if patches and hasattr(patches21, "OPEN_IN1"):
         g["OPEN_IN1"][:] = patches21.OPEN_IN1
+    if prune and not patches and hasattr(patches21, "S40_OPEN_IN1"):
+        g["OPEN_IN1"].extend(patches21.S40_OPEN_IN1)    # stage 40: the LS lanes into U42's pocket
     g["protect_pours"]()
     if patches:
         patches21.add(g)
@@ -612,9 +631,12 @@ if __name__ == "__main__":
     if FROZEN:
         # stage 33 (six-layer phase A): the base is an accepted, fully routed copper.json (stage 32), so the stage 1-32
         # patches are already in it; only the six-layer additions are applied, then the open pairs as usual
-        load(sys.argv[1], patches=False)
+        # stage 40: INCR21_PRUNE also drops the base copper of parts moved or replaced since the base (U44 / C159 / C160)
+        load(sys.argv[1], patches=False, prune=bool(os.environ.get("INCR21_PRUNE")))
         patches21.add_stage33(g)
         patches21.add_stage35(g)     # stage 35: J2 / J5 SMT terminal land vias (a no-op with the THR terminals)
+        if os.environ.get("INCR21_PRUNE"):
+            patches21.add_stage40(g)   # stage 40 (candidate 30): the HS-B link U44, the LS pocket and C161's plane
     else:
         load(sys.argv[1])
     if len(sys.argv) > 4 and sys.argv[4] and Path(sys.argv[4]).is_file():

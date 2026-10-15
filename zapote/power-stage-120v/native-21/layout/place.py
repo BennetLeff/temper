@@ -462,8 +462,8 @@ for path, (x, y, ang) in STAGE27_ORIGINS.items():
 S29 = json.loads((HERE / "placement-stage29.json").read_text())
 S29_RENAME = {"monitor_ls.iso": "hb.iso", "monitor_ls.civcc1": "hb.civcc1", "monitor_ls.civcc2": "hb.civcc2",
               # HS-B's verdict isolator (ISO7710F) and its caps take U34 / C141 / C142's stage-29 poses
-              "bias_hb.monitor.iso": "bias_hb.verdict", "bias_hb.monitor.civcc1": "bias_hb.cver1",
-              "bias_hb.monitor.civcc2": "bias_hb.cver2"}
+              "bias_hb.monitor.iso": "bias_hb.link", "bias_hb.monitor.civcc1": "bias_hb.clink1",
+              "bias_hb.monitor.civcc2": "bias_hb.clink2"}   # stage 40: re-posed in STAGE40
 for old, (x, y, ang) in S29.items():
     path = S29_RENAME.get(old, old)
     if path in PARTS:
@@ -496,6 +496,26 @@ STAGE30 = {"bias_ha.link": (47.0, 66.25, 90.0),
            # U9 BUS_FAULT RC (1 k / 100 pF) under U13: R134 takes bus_fault_iso from the right, C167 sits at the filtered node
            "r_bf": (35.0, 133.5, 180.0), "c_bf": (31.4, 133.5, 180.0)}
 for path, pose in STAGE30.items():
+    POSE[path] = pose
+
+# Stage 40 (candidate 30a): HS-B's verdict crosses to LS on an ISO6721FB link (U44), as HS-A's does on U43, instead
+# of to SELV on the ISO7710F; the SOIC-16W and its SELV pocket at (18-33, 105-115) are gone. U44 straddles the
+# HS-B / LS boundary just north of U42's n_ls pocket (spot_scan.py on the s38 board), HS-B pins (1-4) north, LS
+# pins (5-8) south on the pocket. D20 (the second vote diode) sits by D18 at the LS GOOD node; R135 pulls U46.1
+# (hsb_good) up in the old SELV pocket.
+STAGE40 = {"bias_hb.link": (3.25, 47.25, 270.0),
+           # C159 (HS-B VCC1) between pins 1 / 4 above the HS-B row, pad 1 (5 V) east; C160 (VCC2) below the LS row
+           "bias_hb.clink1": (3.25, 42.2, 180.0), "bias_hb.clink2": (3.25, 52.2, 180.0),
+           # the vote moves beside the HS-A link (spot_scan.py legal block east of v24_raw's In1 branch at x 52.6): D20 takes
+           # MON_GOOD_HB from the pocket, D18 MON_GOOD_HA from U43, and the GOOD node runs the LS corridor once, in
+           # MON_GOOD_HA's old lane, instead of a verdict line per link (the corridor has room for one more lane nowhere)
+           "hb.vote_b": (53.75, 51.5, 270.0), "hb.vote": (57.35, 49.5, 270.0),
+           # R135 on the old SELV pocket: pad 1 (v3v3) over the v3v3 via (32.5, 109.675), pad 2 over hsb_good's (30.875, 109.765)
+           "hb.rgate": (31.7, 108.3, 180.0),
+           # C168 (pwm_hb's fifth v3v3 / selv_gnd transfer cap) beside pwm_hb's B.Cu -> F.Cu via at (34.4, 110.6), in place
+           # of the old verdict isolator's SELV decoupler; pad 1 (v3v3) north on R135's v3v3 via, clear of TP17 (PERMIT)
+           "c_ref_xfer_5": (31.85, 110.75, 270.0)}
+for path, pose in STAGE40.items():
     POSE[path] = pose
 
 missing = sorted(set(PARTS) - set(POSE))

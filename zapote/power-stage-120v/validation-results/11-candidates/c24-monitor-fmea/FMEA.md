@@ -508,6 +508,36 @@ input (H or L by suffix), as SLLSER9E Table 7-2 did for the ISO7710 / ISO7710F. 
 output) stays unconnected, which audit.rs checks. CMTI min rises from 85 to 100 kV/µs, so the "upset moves at most one
 pump edge" rows keep their argument with a larger margin.
 
+## 6c. Stage 40 (candidate 30a, 2026-10-15): HS-B joins the LS vote as M1b drew it; section 6b is retired
+
+Candidate 30 re-placed U42's pocket. A legal ISO6721FB pose that straddles HS-B and the LS domain now exists: U44 at
+(3.25, 47.25), HS pins 1-4 north on the HS-B bank, LS pins 5-8 south on U42's n_ls pocket
+(`validation-results/11-candidates/c30-ls-pocket/README.md`). The circuit is section 6a's M1b again:
+
+```
+ HS-A: U43 ISO6721FB -> MON_GOOD_HA -> D18 (BAT54S, A1 -> MID half) -> LS good node
+ HS-B: U44 ISO6721FB -> MON_GOOD_HB -> D20 (BAT54S, MID -> K2 half; A1 open) -> LS good node
+ LS:   good node -> U45 oscillator -> U32 (the group's one reinforced HOT -> SELV crossing)
+ SELV: U32 OUT -> U46 B; U46 A held at v3v3 by R135 (10 k) -> 220 ohm -> pump -> hold -> U40 -> BIAS_GOOD
+```
+
+- Section 3d's rows hold as written, with "one diode per HS rail" now literally true: H1 / H2 cover D18 (HS-A) and D20
+  (HS-B). U44's rows are the ISO6721FB rows: default LOW on side-1 loss or an open input; OUTB stuck HIGH is dormant for
+  HS-B only; a CMTI upset moves at most one oscillator edge. The reverse channel is wired as on U43 (INA to GND2, OUTA
+  open; condition 1, checked by audit.rs).
+- Section 6b's rows for the HS-B -> SELV isolator (ISO7710F, then CA-IS3720LW) and for U46's A input are retired. U46 is
+  the M1b buffer: the pump is AC-coupled, so its inversion is irrelevant.
+- New rows for R135 (U46 A pull-up): **open**: A floats; a CMOS input may read either level or chatter, which stops or
+  upsets the pump (announced or nuisance) but cannot hold the wave up while the LS side has stopped it; **short**
+  (A to v3v3): the normal state. Neither masks a rail.
+- The vote moved: D18 and D20 sit beside U43 (place.py STAGE40), not in the LS block. Under 19.11.2's component faults
+  (terminal opens and shorts) every row is unchanged. One layout consequence is not a 19.11.2 fault but is recorded: the
+  LS corridor now carries the GOOD node (one trace for both HS verdicts) where it carried MON_GOOD_HA (one HS verdict);
+  an open in that trace would lose both HS vetoes instead of one. The trace is 0.25 mm inner-layer copper with no
+  connector or joint along it.
+- Crossings: the monitor group has **one** reinforced HOT -> SELV crossing (U32), as the candidate-24 recommendation
+  intended (stage 30-38: two). One ISO6721FB line serves U43 and U44; the CA-IS3720LW line is gone.
+
 ## 7. Questions for the certifier
 
 1. **Protective electronic circuit (PEC) status.** Is the F6 rail-window monitor plus the DIS path a protective
@@ -530,7 +560,7 @@ pump edge" rows keep their argument with a larger margin.
 6. **Response time.** Is a PEC response time of ≤ ~90 µs (M1) acceptable against today's ~10 µs, given that rail faults
    are ms-scale? Is there a normative limit?
 7. **Crossing count.** Is reducing the monitor group's reinforced HOT→SELV crossings from three to one acceptable without
-   any per-signal requirement? This is a positive change for D5. (As built, two: see section 6b.)
+   any per-signal requirement? This is a positive change for D5. (Stage 30-38: two, section 6b; stage 40: one, section 6c.)
 
 ## Evidence and limits
 
