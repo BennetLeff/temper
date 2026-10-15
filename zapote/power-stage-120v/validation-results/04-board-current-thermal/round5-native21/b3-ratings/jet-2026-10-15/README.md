@@ -161,3 +161,50 @@ need opposite ends of it:
 - **The datasheet ledger cites `margins.json` by line and value** (34 citations: C40 108.9 / 116.0 / 137.8 °C, R10 /
   R12, U42, L1, C5, C21, R22, R5). The rows moved and were re-sorted. The values live in `seed_ledger.py`; they need
   that owner's refresh. Its gate still passes, because it checks only that the cited line numbers exist.
+
+## Addendum: cap air warmer than the bay (`cap-air.json`)
+
+**Question.** How much of the release gain rests on C38–C41 seeing bay air?
+
+**Setup.** A `TopRegion` of zero board area: xy −1000..−999, h_top 10, `credit_refs` C38–C41, air at bay + ΔT.
+- Only the four cap bodies see the warmer air; no board cell moves (asserted: `region_cells_top` 0).
+- Solved as `run_basis.one`, at 0.25 / 0.5 mm.
+- The driver is embedded in the json (`script`). Runs are in `../runs/cap-air/`, not committed.
+
+**Results** (margins in K; "lead-only" is the floor from `--film-lead-only`):
+
+| Case | Verdict | R10 / R20 / R12 derating | C40 / C38 top_bound | Laminate block / FET row | Heat out via caps |
+|---|---|---|---|---|---|
+| c18 @ 61, lead-only (floor) | PASS +0.7 | +0.7 / +1.1 / +5.7 | +1.1 / +5.1 (node) | +4.1 / +7.0 | 0 |
+| c18 @ 61, cap air +0 K (`margins.json`) | PASS +5.2 | +5.2 / +6.8 / +11.6 | +14.2 / +15.9 | +10.0 / +11.8 | 0.85 W |
+| c18 @ 61, +5 K | PASS +4.7 | +4.7 / +6.1 / +10.9 | +12.9 / +15.0 | +9.4 / +11.2 | 0.75 W |
+| c18 @ 61, +10 K | PASS +4.1 | +4.1 / +5.5 / +10.3 | +11.7 / +14.0 | +8.7 / +10.7 | 0.65 W |
+| c18 @ 61, +15 K | PASS +3.6 | +3.6 / +4.9 / +9.6 | +10.4 / +13.1 | +8.1 / +10.2 | 0.55 W |
+| c22 @ 55, lead-only (floor) | FAIL −6.8 | −6.2 / −5.1 / −5.1 | −6.0 / −2.0 (node) | −6.8 / −3.6 | 0 |
+| c22 @ 55, +0 K | FAIL −0.5 | −0.5 / +1.8 / +2.4 | +9.6 / +12.4 | +0.8 / +2.5 | 1.07 W |
+| c22 @ 55, +10 K | FAIL −1.5 | −1.5 / +0.5 / +1.1 | +7.1 / +10.1 | −0.5 / +1.5 | 0.88 W |
+
+**What the sweep shows.**
+- The release margin is linear in the cap-air rise: about −0.11 K per K.
+- The heat the caps carry falls about 0.02 W per K, reaching 0 near +42 K.
+- At about +42 K the cap air is at the pad temperature. There the margin is back at the lead-only +0.7 K, and the caps
+  carry no heat.
+
+**Estimate of the real rise: about +8 to +12 K.**
+- **Board-side air layer.** The board is a large, heated, upward-facing plate.
+  - Incropera & DeWitt, *Fundamentals of Heat and Mass Transfer* §9.6: upper surface of a heated horizontal plate,
+    Nu = 0.54 Ra_L^1/4 with L = A/P.
+  - For the 290 × 190 mm board (L ≈ 57 mm) at ΔT ≈ 40 K: Ra ≈ 3.5e5, so h ≈ 6.5 W/m²K.
+  - That gives a conduction-equivalent thermal-layer thickness δ = k/h ≈ 4.3 mm.
+- **Averaging over the cap.** Take an exponential profile, T − T_bay = ΔT_b·exp(−z/δ), over the 17.5 mm side and end
+  faces. Their mean air excess is 0.24 ΔT_b. The top face is at 17.5 mm and sees about bay air.
+- **At the release case.** The board under the caps is at about 98 °C. That is C40's hotter pad, 87.1 °C in the
+  model's 50 °C frame plus the 11 K bay shift. With the bay at 61 °C, ΔT_b ≈ 37 K, so the cap air is about +9 K.
+- **Upper end.** Air rising from the 110–120 °C channel next to the caps' inner faces pushes the estimate toward +12 K.
+- **For a 110 °C board top at bay 61:** 0.24 × 49 ≈ +12 K.
+- **Not credited, and it works the other way:** the same rising air speeds up the flow past the faces, which raises h.
+
+**Answers.**
+- At +10 K the release margin is +4.1 K and the gate PASSes.
+- The margin falls back to the old +0.7 K only when the cap air is about +42 K over the bay, that is, at pad temperature.
+- c22 @ 55 stays a FAIL: −0.5 → −1.5 K at +10 K (R10).
