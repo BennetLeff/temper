@@ -16,6 +16,27 @@ given. The Gerber job file gives 1.678 mm.
 Channel: the PCB/Stencil Inquiry form ([jlcpcb.com/help/contact](https://jlcpcb.com/help/contact)), for a written record.
 Live chat is the fallback, with the reply requested by email.
 
+## Without waiting on JLC: name the laminate in the order (checked 2026-10-14)
+
+The four-layer quote form offers named laminates under "Material Type". At 500 boards (4 L, 290 × 190 mm, ENIG,
+2 / 2 oz, epoxy filled and capped; the base is $8,395.03 for "FR4 TG135", where JLC states no material):
+
+| Material Type | Surcharge at 500 | Per board | CTI evidence (`CTI-JLC.md`) |
+|---|---|---|---|
+| KB6164 - TG135 (Kingboard) | $140.02 | **$0.28** | Kingboard TDS KB-6164: "CTI · IEC60112 · >175 V" (manufacturer TDS, mirror copy), UL E123995 |
+| Nan Ya NP-140F | $231.17 | $0.46 | Technolam table (third party, 2009, NP-140 grade): PLC 3 / 175–249 V |
+| Nan Ya NP-155F | $371.19 | $0.74 | Technolam table: PLC 3; Nan Ya's own TDS is silent on CTI |
+
+Naming KB6164 removes the inquiry's questions 1–3: the laminate is fixed by the order, and its maker's TDS gives
+CTI > 175 V per IEC 60112, which is group IIIa (the D5-BASIS requirement, no margin). What it does not give:
+- an official Kingboard copy of the TDS (only a mirror) and the UL card for E123995, which the certifier will want.
+  Both are a download, not a JLC question: the Kingboard site and UL Product iQ (free registration);
+- the CoC wording (question 4) and the thickness hold (question 5). These are order remarks, not design inputs;
+- question 6 (the unpinned six-layer stack), which matters only if six layers is reopened.
+
+So the inquiry is not on the design's critical path. It gates only the order, and naming KB6164 on the order makes
+the inquiry optional.
+
 ## Message
 
 **Subject:** Pre-order: laminate CTI confirmation for 6-layer JLC061622-1080A (and 4-layer JLC041622-7628), 2/2 oz
