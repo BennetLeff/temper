@@ -826,7 +826,7 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       | UCC21550 | 79 °C | 70 K |
       | TPS70950 | 79 °C | 46 K |
       | Gate resistors | 107 °C | 43 K to a 155 °C class value (unverified) |
-      | FET-row copper | 126 °C | 21 K to laminate Tg 150 |
+      | FET-row copper | 126 °C | 21 K to laminate Tg 150 (corrected in item 46: the use limit is the UL MOT 130 °C, and KB-6164 Tg is 140) |
 
     - **Depends on bench IR (no validated package limit or path):**
       - film caps: HF C38–41 at 5 K margin to 105 °C, bank C21 at 15 K, C5/C6 at 27 K;
@@ -1433,3 +1433,57 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       (JLC 172 + backorder), bank × 2,600 (part choice), C5 / C6 × 1,040, 2EDR8259X × 1,040, R463N410050N1K, 30KPA150CA
       × 1,040, J2 / J5 7466004R × 1,040, JLC reservations for TPS7A4700 and IRM-20-15, a Coilcraft quote for T1. By
       ~2027-02: the FETs, 1704004, KLDR025 split buy, 3403.0279.23.
+
+46. **Board temperatures against ratings: a release gate and two ratchets; the board does not meet the laminate's MOT
+    in still air at 22 A (2026-10-15; gate and records, no board change).** Audit:
+    `validation-results/04-board-current-thermal/round5-native21/b3-ratings/audit-2026-10-15/README.md`.
+    - **The legacy B3 peaks are mesh artefacts.** The committed thermal.py single-cell peaks (nominal_h10 162.1, c28_h25
+      135.0 °C) move 40–50 K between 1, 0.5 and 0.25 mm grids and land on different parts. They stay on the card but
+      leave the compare. The ratings are assessed on the committed body-level model (b3-convergence), at 0.25 and 0.5 mm
+      with a 3× mesh allowance.
+    - **Limits** (each quote re-checked on its page by `audit-2026-10-15/scripts/ratings.py`):
+      - laminate KB-6164: UL E123995 (2026-02-20) multilayer MOT **130 °C**, RTI elec 130;
+      - RECOM R24C2T25: Tj 150 °C;
+      - TPS7A47: TJ 125 °C;
+      - CSS2H shunt: element 170 °C, with terminal derating;
+      - advisory: TDK MKP Top,max 110 °C (the repo had used 105), B82726 125 °C, 1206 155 °C (unverified).
+      Tg is not a use limit: item 21's "21 K to laminate Tg 150" is corrected (the KB-6164 Tg is 140; the limit is
+      MOT 130). The run_study.py c28 comment's "≤ 105 °C gate" was never enforced and is reworded.
+    - **Basis:**
+      - Still air, h 10. Enclosure R33 study 14 models the bay as "a well-mixed wrapper with no through-flow", and D-18
+        ducts the blower through the sink only, so nothing supplies the h 25 "fan airflow over the board".
+      - Bay air 55 °C (study 14 expected value at a 40 °C kitchen).
+      - Cases: the 22 A default ceiling and the 28 A Kconfig ceiling, each at its 1.05× trip.
+    - **Verdict (s32 = s35):** gate FAIL; laminate margin −56.4 K, rated parts −38.9 K.
+      - At **22 A** the board copper at R5.4 is ~137 °C at 50 °C air, 12 K over the MOT at 55 °C. HF film C40 is at
+        ~116 °C against 110.
+      - At **28 A**, also R5's element (~197 °C against 170), the gate resistors and bank cap C21.
+      - The stall derate (14.7 A) passes everything (+22 K).
+      - Still-air ceiling meeting every gated limit: **20 A at 50 °C bay, 18 A at 55–61 °C**.
+      - The U42 162 °C / PS2 / PS1 / L1 "hot list" was artefact: each part is inside its own limit on the body model.
+    - **Known model biases**, worked by an analysis study before the layout fix is sized:
+      - the FET drain-lead path to the sink is not modelled (stage 15b bounds it at about −26 K on the FET row, less at
+        R5.4);
+      - the c28 heat file is stale: U41/U42 at 40 kHz loss against the 60 kHz window; gate networks still UCC21550 /
+        3.9 Ω against the fitted 2EDR8259X / 8.2 Ω.
+      The body model now maps the 2EDR8259X to the DWK package class (ASSUMED, `thermal_body.spec_for`).
+    - **Scorecard:**
+      - `b3_ratings` is a **release gate**: shown on the card but outside the candidate-vs-benchmark rule while the
+        benchmark itself fails it (`RELEASE_GATES`), as with leakage (S1).
+      - `b3_laminate_margin_K` and `b3_rated_part_margin_K` are ratchets (higher is better, 1 K tolerance).
+      - `margins.json` counts only for the board it was solved on (board_sha256 check). Each lane runs
+        `b3-ratings/run_basis.py` (~6 min) after its chain.
+      - s35 re-scored; s32 restated (`restated_b3_ratings`). Against s32, s35 is still ACCEPT.
+    - **Release condition:** the board is not released for a still-air continuous ceiling above 18 A until the gate
+      passes. Fixes, by leverage:
+      1. board-face airflow (`b3-ratings/ENCLOSURE-REQUEST.md`; h 15 gives −18 K at 22 A);
+      2. less tank-copper heat at R5.4 / the FET row (layout candidate 36: ×0.7 gives −16 K at 22 A, ×0.5 gives −26 K);
+      3. a 0.5 mΩ shunt (R5's element −13 K at 22 A; changes the OCP / Kelvin budget);
+      4. the commissioned still-air ceiling (firmware; the controller session's call, requested through the owner).
+      A higher-Tg laminate gives 0 K (KB-6165 / KB-6167F have the same 130 °C MOT).
+    - **Side finding (certifier packet A3):** KB-616(X)'s UL multilayer recognition lists max inner copper 35 µm, while
+      the stack has 2 oz (61 µm) inner layers. KB-6164F / KB-6165F list 102 µm. Whether JLC's own recognition covers
+      this stack is being checked (public sources only).
+    - **Process note:** the task-04 `-heat.npz` outputs are gitignored. After candidate 35's cherry-pick, this worktree
+      held s32 npz files beside s35 JSONs. `thermal.remap_a4`'s energy check refused them, and the s35 files were copied
+      from the lane's worktree after a byte-identical JSON match and a per-case energy check.

@@ -118,7 +118,7 @@ def spec_for(ref: str, mpn: str, fp: str) -> str:
         return "recom"
     if mpn.startswith("TPS7A47"):
         return "rgw"
-    if mpn.startswith("UCC21550"):
+    if mpn.startswith("UCC21550") or mpn.startswith("2EDR8259X"):   # 2EDR8259X ASSUMED DWK-class (thermal-ratings audit 2026-10-15)
         return "dwk14"
     if mpn.startswith("TPS709"):
         return "dbv5"

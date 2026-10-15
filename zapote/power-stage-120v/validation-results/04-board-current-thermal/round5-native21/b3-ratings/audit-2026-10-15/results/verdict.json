@@ -1,0 +1,4266 @@
+{
+ "basis": "Margins of the B3 hot spots to their datasheet / UL ratings, per case, on the s32 board.\n\n    python3 verdict.py   -> ../results/verdict.json, ../results/VERDICT-TABLES.md\n\nEstimate per quantity = s32 body model at 0.25 mm (global) + the stage-19b fine-window increment for the same part,\ncase and quantity (b3-convergence/results.json: est - value at 0.25 mm; 0.0625-0.125 mm windows), uncertainty =\n|that increment| + the 19b Richardson uncertainty + |Q(0.25) - Q(0.5)| on s32. Cases not in the 19b study (c22_h10,\nnominal_h10) take the c28_h10 increments. Fix sensitivities: est_base + (Q_fix - Q_base) at 0.5 mm.\nAmbient: the model's 50 C plus the enclosure session's bay-air estimates (R33 study 14: 55 C expected at a 40 C\nkitchen, 61 C worst with B3 heat only, 78 C with all allowances stacked); the model is linear, so T shifts 1:1.\n",
+ "cases": {
+  "c28_h10": {
+   "op": "c28",
+   "h": 10,
+   "note": "28 A Kconfig ceiling (29.4 A trip), still-air board bay: REALISTIC if 28 A is commissioned",
+   "rows": [
+    {
+     "ref": "board",
+     "rating": "laminate KB-6164 MOT / RTI elec 130 C",
+     "quantity": "1 mm-block copper peak",
+     "est_c": 180.6,
+     "unc_k": 6.0,
+     "limit_c": 130.0,
+     "verified": true,
+     "at": [
+      39.5,
+      15.5
+     ],
+     "margin_k_at": {
+      "model_50": -50.6,
+      "bay_expected_55": -55.6,
+      "bay_worst_B3only_61": -61.6,
+      "bay_stacked_78": -78.6
+     },
+     "verdict_at": {
+      "model_50": "VIOLATION",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "FET-row copper",
+     "rating": "laminate MOT 130 C",
+     "quantity": "FET-row copper max cell (0.25 mm)",
+     "est_c": 170.9,
+     "unc_k": 1.1,
+     "limit_c": 130.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": -40.9,
+      "bay_expected_55": -45.9,
+      "bay_worst_B3only_61": -51.9,
+      "bay_stacked_78": -68.9
+     },
+     "verdict_at": {
+      "model_50": "VIOLATION",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C151",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 105.8,
+     "unc_k": 0.5,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 4.2,
+      "bay_expected_55": -0.8,
+      "bay_worst_B3only_61": -6.8,
+      "bay_stacked_78": -23.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C152",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 104.9,
+     "unc_k": 0.5,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 5.1,
+      "bay_expected_55": 0.1,
+      "bay_worst_B3only_61": -5.9,
+      "bay_stacked_78": -22.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "THIN",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C21",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 111.9,
+     "unc_k": 0.4,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": -1.9,
+      "bay_expected_55": -6.9,
+      "bay_worst_B3only_61": -12.9,
+      "bay_stacked_78": -29.9
+     },
+     "verdict_at": {
+      "model_50": "VIOLATION",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C22",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 109.7,
+     "unc_k": 0.4,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 0.3,
+      "bay_expected_55": -4.7,
+      "bay_worst_B3only_61": -10.7,
+      "bay_stacked_78": -27.7
+     },
+     "verdict_at": {
+      "model_50": "THIN",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C23",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 107.6,
+     "unc_k": 0.5,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 2.4,
+      "bay_expected_55": -2.6,
+      "bay_worst_B3only_61": -8.6,
+      "bay_stacked_78": -25.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C38",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 139.8,
+     "unc_k": 0.8,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": -29.8,
+      "bay_expected_55": -34.8,
+      "bay_worst_B3only_61": -40.8,
+      "bay_stacked_78": -57.8
+     },
+     "verdict_at": {
+      "model_50": "VIOLATION",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C39",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 130.9,
+     "unc_k": 2.4,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": -20.9,
+      "bay_expected_55": -25.9,
+      "bay_worst_B3only_61": -31.9,
+      "bay_stacked_78": -48.9
+     },
+     "verdict_at": {
+      "model_50": "VIOLATION",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C40",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 146.2,
+     "unc_k": 1.9,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": -36.2,
+      "bay_expected_55": -41.2,
+      "bay_worst_B3only_61": -47.2,
+      "bay_stacked_78": -64.2
+     },
+     "verdict_at": {
+      "model_50": "VIOLATION",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C41",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 135.3,
+     "unc_k": 0.8,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": -25.3,
+      "bay_expected_55": -30.3,
+      "bay_worst_B3only_61": -36.3,
+      "bay_stacked_78": -53.3
+     },
+     "verdict_at": {
+      "model_50": "VIOLATION",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C5",
+     "rating": "MKP Top,max 110",
+     "quantity": "junction / element / body node",
+     "est_c": 92.4,
+     "unc_k": 0.5,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 17.6,
+      "bay_expected_55": 12.6,
+      "bay_worst_B3only_61": 6.6,
+      "bay_stacked_78": -10.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C6",
+     "rating": "MKP Top,max 110",
+     "quantity": "junction / element / body node",
+     "est_c": 86.0,
+     "unc_k": 0.3,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 24.0,
+      "bay_expected_55": 19.0,
+      "bay_worst_B3only_61": 13.0,
+      "bay_stacked_78": -4.0
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "L1",
+     "rating": "climatic upper 125",
+     "quantity": "junction / element / body node",
+     "est_c": 84.1,
+     "unc_k": 0.6,
+     "limit_c": 125.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 40.9,
+      "bay_expected_55": 35.9,
+      "bay_worst_B3only_61": 29.9,
+      "bay_stacked_78": 12.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R10",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 148.6,
+     "unc_k": 1.5,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 6.4,
+      "bay_expected_55": 1.4,
+      "bay_worst_B3only_61": -4.6,
+      "bay_stacked_78": -21.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "THIN",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "R12",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 161.0,
+     "unc_k": 1.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": -6.0,
+      "bay_expected_55": -11.0,
+      "bay_worst_B3only_61": -17.0,
+      "bay_stacked_78": -34.0
+     },
+     "verdict_at": {
+      "model_50": "VIOLATION",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "R18",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 139.0,
+     "unc_k": 0.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 16.0,
+      "bay_expected_55": 11.0,
+      "bay_worst_B3only_61": 5.0,
+      "bay_stacked_78": -12.0
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "R20",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 151.8,
+     "unc_k": 2.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 3.2,
+      "bay_expected_55": -1.8,
+      "bay_worst_B3only_61": -7.8,
+      "bay_stacked_78": -24.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "EXCEEDS",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "R22",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 93.7,
+     "unc_k": 0.2,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 61.3,
+      "bay_expected_55": 56.3,
+      "bay_worst_B3only_61": 50.3,
+      "bay_stacked_78": 33.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R23",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 90.7,
+     "unc_k": 0.2,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 64.3,
+      "bay_expected_55": 59.3,
+      "bay_worst_B3only_61": 53.3,
+      "bay_stacked_78": 36.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R24",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 88.0,
+     "unc_k": 0.2,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 67.0,
+      "bay_expected_55": 62.0,
+      "bay_worst_B3only_61": 56.0,
+      "bay_stacked_78": 39.0
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R25",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 86.1,
+     "unc_k": 0.2,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 68.9,
+      "bay_expected_55": 63.9,
+      "bay_worst_B3only_61": 57.9,
+      "bay_stacked_78": 40.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R39",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 75.3,
+     "unc_k": 5.0,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 79.7,
+      "bay_expected_55": 74.7,
+      "bay_worst_B3only_61": 68.7,
+      "bay_stacked_78": 51.7
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R5",
+     "rating": "element 170 operating max",
+     "quantity": "junction / element / body node",
+     "est_c": 196.6,
+     "unc_k": 6.8,
+     "limit_c": 170.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": -26.6,
+      "bay_expected_55": -31.6,
+      "bay_worst_B3only_61": -37.6,
+      "bay_stacked_78": -54.6
+     },
+     "verdict_at": {
+      "model_50": "VIOLATION",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "R5",
+     "rating": "terminal derating at 0.864 W with the 20 % power margin (G6 rule)",
+     "quantity": "terminal (pad max cell)",
+     "est_c": 184.4,
+     "unc_k": 7.4,
+     "limit_c": 148.4,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": -36.0,
+      "bay_expected_55": -41.0,
+      "bay_worst_B3only_61": -47.0,
+      "bay_stacked_78": -64.0
+     },
+     "verdict_at": {
+      "model_50": "VIOLATION",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "R53",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 143.9,
+     "unc_k": 4.9,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 11.1,
+      "bay_expected_55": 6.1,
+      "bay_worst_B3only_61": 0.1,
+      "bay_stacked_78": -16.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "THIN",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "R54",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 148.2,
+     "unc_k": 1.9,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 6.8,
+      "bay_expected_55": 1.8,
+      "bay_worst_B3only_61": -4.2,
+      "bay_stacked_78": -21.2
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "THIN",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "R57",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 142.8,
+     "unc_k": 0.7,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 12.2,
+      "bay_expected_55": 7.2,
+      "bay_worst_B3only_61": 1.2,
+      "bay_stacked_78": -15.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "R58",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 155.6,
+     "unc_k": 4.4,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": -0.6,
+      "bay_expected_55": -5.6,
+      "bay_worst_B3only_61": -11.6,
+      "bay_stacked_78": -28.6
+     },
+     "verdict_at": {
+      "model_50": "EXCEEDS",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "R67",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 82.6,
+     "unc_k": 1.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 72.4,
+      "bay_expected_55": 67.4,
+      "bay_worst_B3only_61": 61.4,
+      "bay_stacked_78": 44.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R68",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 84.1,
+     "unc_k": 2.0,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 70.9,
+      "bay_expected_55": 65.9,
+      "bay_worst_B3only_61": 59.9,
+      "bay_stacked_78": 42.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R69",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 86.0,
+     "unc_k": 2.5,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 69.0,
+      "bay_expected_55": 64.0,
+      "bay_worst_B3only_61": 58.0,
+      "bay_stacked_78": 41.0
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R70",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 84.1,
+     "unc_k": 1.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 70.9,
+      "bay_expected_55": 65.9,
+      "bay_worst_B3only_61": 59.9,
+      "bay_stacked_78": 42.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "U26",
+     "rating": "TJ 125",
+     "quantity": "junction / element / body node",
+     "est_c": 116.4,
+     "unc_k": 9.5,
+     "limit_c": 125.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 8.6,
+      "bay_expected_55": 3.6,
+      "bay_worst_B3only_61": -2.4,
+      "bay_stacked_78": -19.4
+     },
+     "verdict_at": {
+      "model_50": "THIN",
+      "bay_expected_55": "THIN",
+      "bay_worst_B3only_61": "EXCEEDS",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "U41",
+     "rating": "Tj abs max 150 (OTP 160+/-10)",
+     "quantity": "junction / element / body node",
+     "est_c": 130.8,
+     "unc_k": 3.2,
+     "limit_c": 150.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 19.2,
+      "bay_expected_55": 14.2,
+      "bay_worst_B3only_61": 8.2,
+      "bay_stacked_78": -8.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "U42",
+     "rating": "Tj abs max 150 (OTP 160+/-10)",
+     "quantity": "junction / element / body node",
+     "est_c": 139.3,
+     "unc_k": 2.4,
+     "limit_c": 150.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 10.7,
+      "bay_expected_55": 5.7,
+      "bay_worst_B3only_61": -0.3,
+      "bay_stacked_78": -17.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "EXCEEDS",
+      "bay_stacked_78": "VIOLATION"
+     }
+    }
+   ],
+   "irm20": [
+    {
+     "ref": "PS1",
+     "load_w": 4.83,
+     "rated_w": 21.0,
+     "load_source": "controller verify ps1.p_total_W (DECISIONS 675)",
+     "local_air_allowed_c": 78.1,
+     "margin_k_at": {
+      "model_50": 28.1,
+      "bay_expected_55": 23.1,
+      "bay_worst_B3only_61": 17.1,
+      "bay_stacked_78": 0.1
+     },
+     "board_pad_max_c": 82.9,
+     "note": "local air at the module also includes the plume of the board under it (pad mean 79 C at 50 C bay): bench-measure it"
+    },
+    {
+     "ref": "PS2",
+     "load_w": 9.59,
+     "rated_w": 21.6,
+     "load_source": "80 kHz bias allocation (ALT-BIAS:52, ledger)",
+     "local_air_allowed_c": 70.2,
+     "margin_k_at": {
+      "model_50": 20.2,
+      "bay_expected_55": 15.2,
+      "bay_worst_B3only_61": 9.2,
+      "bay_stacked_78": -7.8
+     },
+     "board_pad_max_c": 109.3,
+     "note": "local air at the module also includes the plume of the board under it (pad mean 106 C at 50 C bay): bench-measure it"
+    }
+   ],
+   "board_sha256": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e"
+  },
+  "c22_h10": {
+   "op": "c22",
+   "h": 10,
+   "note": "22 A default ceiling (23.1 A trip), still-air board bay: REALISTIC default",
+   "rows": [
+    {
+     "ref": "board",
+     "rating": "laminate KB-6164 MOT / RTI elec 130 C",
+     "quantity": "1 mm-block copper peak",
+     "est_c": 137.1,
+     "unc_k": 6.0,
+     "limit_c": 130.0,
+     "verified": true,
+     "at": [
+      39.5,
+      15.5
+     ],
+     "margin_k_at": {
+      "model_50": -7.1,
+      "bay_expected_55": -12.1,
+      "bay_worst_B3only_61": -18.1,
+      "bay_stacked_78": -35.1
+     },
+     "verdict_at": {
+      "model_50": "VIOLATION",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "FET-row copper",
+     "rating": "laminate MOT 130 C",
+     "quantity": "FET-row copper max cell (0.25 mm)",
+     "est_c": 127.9,
+     "unc_k": 0.6,
+     "limit_c": 130.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 2.1,
+      "bay_expected_55": -2.9,
+      "bay_worst_B3only_61": -8.9,
+      "bay_stacked_78": -25.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C151",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 85.5,
+     "unc_k": 0.3,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 24.5,
+      "bay_expected_55": 19.5,
+      "bay_worst_B3only_61": 13.5,
+      "bay_stacked_78": -3.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C152",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 84.8,
+     "unc_k": 0.3,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 25.2,
+      "bay_expected_55": 20.2,
+      "bay_worst_B3only_61": 14.2,
+      "bay_stacked_78": -2.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C21",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 90.2,
+     "unc_k": 0.2,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 19.8,
+      "bay_expected_55": 14.8,
+      "bay_worst_B3only_61": 8.8,
+      "bay_stacked_78": -8.2
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C22",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 88.5,
+     "unc_k": 0.3,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 21.5,
+      "bay_expected_55": 16.5,
+      "bay_worst_B3only_61": 10.5,
+      "bay_stacked_78": -6.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C23",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 86.8,
+     "unc_k": 0.3,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 23.2,
+      "bay_expected_55": 18.2,
+      "bay_worst_B3only_61": 12.2,
+      "bay_stacked_78": -4.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C38",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 110.6,
+     "unc_k": 0.5,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": -0.6,
+      "bay_expected_55": -5.6,
+      "bay_worst_B3only_61": -11.6,
+      "bay_stacked_78": -28.6
+     },
+     "verdict_at": {
+      "model_50": "VIOLATION",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C39",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 105.2,
+     "unc_k": 2.4,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 4.8,
+      "bay_expected_55": -0.2,
+      "bay_worst_B3only_61": -6.2,
+      "bay_stacked_78": -23.2
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "EXCEEDS",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C40",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 116.3,
+     "unc_k": 1.9,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": -6.3,
+      "bay_expected_55": -11.3,
+      "bay_worst_B3only_61": -17.3,
+      "bay_stacked_78": -34.3
+     },
+     "verdict_at": {
+      "model_50": "VIOLATION",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C41",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 109.5,
+     "unc_k": 0.5,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 0.5,
+      "bay_expected_55": -4.5,
+      "bay_worst_B3only_61": -10.5,
+      "bay_stacked_78": -27.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C5",
+     "rating": "MKP Top,max 110",
+     "quantity": "junction / element / body node",
+     "est_c": 78.6,
+     "unc_k": 0.5,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 31.4,
+      "bay_expected_55": 26.4,
+      "bay_worst_B3only_61": 20.4,
+      "bay_stacked_78": 3.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "C6",
+     "rating": "MKP Top,max 110",
+     "quantity": "junction / element / body node",
+     "est_c": 74.5,
+     "unc_k": 0.3,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 35.5,
+      "bay_expected_55": 30.5,
+      "bay_worst_B3only_61": 24.5,
+      "bay_stacked_78": 7.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "L1",
+     "rating": "climatic upper 125",
+     "quantity": "junction / element / body node",
+     "est_c": 81.5,
+     "unc_k": 0.6,
+     "limit_c": 125.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 43.5,
+      "bay_expected_55": 38.5,
+      "bay_worst_B3only_61": 32.5,
+      "bay_stacked_78": 15.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R10",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 115.2,
+     "unc_k": 1.5,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 39.8,
+      "bay_expected_55": 34.8,
+      "bay_worst_B3only_61": 28.8,
+      "bay_stacked_78": 11.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R12",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 124.3,
+     "unc_k": 1.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 30.7,
+      "bay_expected_55": 25.7,
+      "bay_worst_B3only_61": 19.7,
+      "bay_stacked_78": 2.7
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R18",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 111.1,
+     "unc_k": 0.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 43.9,
+      "bay_expected_55": 38.9,
+      "bay_worst_B3only_61": 32.9,
+      "bay_stacked_78": 15.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R20",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 119.8,
+     "unc_k": 2.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 35.2,
+      "bay_expected_55": 30.2,
+      "bay_worst_B3only_61": 24.2,
+      "bay_stacked_78": 7.2
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R22",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 79.9,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 75.1,
+      "bay_expected_55": 70.1,
+      "bay_worst_B3only_61": 64.1,
+      "bay_stacked_78": 47.1
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R23",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 78.3,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 76.7,
+      "bay_expected_55": 71.7,
+      "bay_worst_B3only_61": 65.7,
+      "bay_stacked_78": 48.7
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R24",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 76.6,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 78.4,
+      "bay_expected_55": 73.4,
+      "bay_worst_B3only_61": 67.4,
+      "bay_stacked_78": 50.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R25",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 75.4,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 79.6,
+      "bay_expected_55": 74.6,
+      "bay_worst_B3only_61": 68.6,
+      "bay_stacked_78": 51.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R39",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 68.9,
+     "unc_k": 5.0,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 86.1,
+      "bay_expected_55": 81.1,
+      "bay_worst_B3only_61": 75.1,
+      "bay_stacked_78": 58.1
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R5",
+     "rating": "element 170 operating max",
+     "quantity": "junction / element / body node",
+     "est_c": 148.3,
+     "unc_k": 6.8,
+     "limit_c": 170.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 21.7,
+      "bay_expected_55": 16.7,
+      "bay_worst_B3only_61": 10.7,
+      "bay_stacked_78": -6.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "EXCEEDS"
+     }
+    },
+    {
+     "ref": "R5",
+     "rating": "terminal derating at 0.534 W with the 20 % power margin (G6 rule)",
+     "quantity": "terminal (pad max cell)",
+     "est_c": 140.8,
+     "unc_k": 7.4,
+     "limit_c": 156.7,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 15.9,
+      "bay_expected_55": 10.9,
+      "bay_worst_B3only_61": 4.9,
+      "bay_stacked_78": -12.1
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "THIN",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "R53",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 114.7,
+     "unc_k": 4.9,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 40.3,
+      "bay_expected_55": 35.3,
+      "bay_worst_B3only_61": 29.3,
+      "bay_stacked_78": 12.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R54",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 115.1,
+     "unc_k": 1.9,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 39.9,
+      "bay_expected_55": 34.9,
+      "bay_worst_B3only_61": 28.9,
+      "bay_stacked_78": 11.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R57",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 113.5,
+     "unc_k": 0.5,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 41.5,
+      "bay_expected_55": 36.5,
+      "bay_worst_B3only_61": 30.5,
+      "bay_stacked_78": 13.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R58",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 119.2,
+     "unc_k": 4.4,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 35.8,
+      "bay_expected_55": 30.8,
+      "bay_worst_B3only_61": 24.8,
+      "bay_stacked_78": 7.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R67",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 78.6,
+     "unc_k": 1.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 76.4,
+      "bay_expected_55": 71.4,
+      "bay_worst_B3only_61": 65.4,
+      "bay_stacked_78": 48.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R68",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 79.9,
+     "unc_k": 2.0,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 75.1,
+      "bay_expected_55": 70.1,
+      "bay_worst_B3only_61": 64.1,
+      "bay_stacked_78": 47.1
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R69",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 81.6,
+     "unc_k": 2.5,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 73.4,
+      "bay_expected_55": 68.4,
+      "bay_worst_B3only_61": 62.4,
+      "bay_stacked_78": 45.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R70",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 79.7,
+     "unc_k": 1.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 75.3,
+      "bay_expected_55": 70.3,
+      "bay_worst_B3only_61": 64.3,
+      "bay_stacked_78": 47.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "U26",
+     "rating": "TJ 125",
+     "quantity": "junction / element / body node",
+     "est_c": 111.0,
+     "unc_k": 9.5,
+     "limit_c": 125.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 14.0,
+      "bay_expected_55": 9.0,
+      "bay_worst_B3only_61": 3.0,
+      "bay_stacked_78": -14.0
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "THIN",
+      "bay_worst_B3only_61": "THIN",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "U41",
+     "rating": "Tj abs max 150 (OTP 160+/-10)",
+     "quantity": "junction / element / body node",
+     "est_c": 126.8,
+     "unc_k": 3.2,
+     "limit_c": 150.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 23.2,
+      "bay_expected_55": 18.2,
+      "bay_worst_B3only_61": 12.2,
+      "bay_stacked_78": -4.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "U42",
+     "rating": "Tj abs max 150 (OTP 160+/-10)",
+     "quantity": "junction / element / body node",
+     "est_c": 130.6,
+     "unc_k": 2.4,
+     "limit_c": 150.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 19.4,
+      "bay_expected_55": 14.4,
+      "bay_worst_B3only_61": 8.4,
+      "bay_stacked_78": -8.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    }
+   ],
+   "irm20": [
+    {
+     "ref": "PS1",
+     "load_w": 4.83,
+     "rated_w": 21.0,
+     "load_source": "controller verify ps1.p_total_W (DECISIONS 675)",
+     "local_air_allowed_c": 78.1,
+     "margin_k_at": {
+      "model_50": 28.1,
+      "bay_expected_55": 23.1,
+      "bay_worst_B3only_61": 17.1,
+      "bay_stacked_78": 0.1
+     },
+     "board_pad_max_c": 81.8,
+     "note": "local air at the module also includes the plume of the board under it (pad mean 78 C at 50 C bay): bench-measure it"
+    },
+    {
+     "ref": "PS2",
+     "load_w": 9.59,
+     "rated_w": 21.6,
+     "load_source": "80 kHz bias allocation (ALT-BIAS:52, ledger)",
+     "local_air_allowed_c": 70.2,
+     "margin_k_at": {
+      "model_50": 20.2,
+      "bay_expected_55": 15.2,
+      "bay_worst_B3only_61": 9.2,
+      "bay_stacked_78": -7.8
+     },
+     "board_pad_max_c": 102.3,
+     "note": "local air at the module also includes the plume of the board under it (pad mean 98 C at 50 C bay): bench-measure it"
+    }
+   ],
+   "board_sha256": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e"
+  },
+  "c28_h25": {
+   "op": "c28",
+   "h": 25,
+   "note": "28 A with 25 W/m2K forced air over both board faces: NO record provides that airflow",
+   "rows": [
+    {
+     "ref": "board",
+     "rating": "laminate KB-6164 MOT / RTI elec 130 C",
+     "quantity": "1 mm-block copper peak",
+     "est_c": 127.2,
+     "unc_k": 5.3,
+     "limit_c": 130.0,
+     "verified": true,
+     "at": [
+      39.5,
+      15.5
+     ],
+     "margin_k_at": {
+      "model_50": 2.8,
+      "bay_expected_55": -2.2,
+      "bay_worst_B3only_61": -8.2,
+      "bay_stacked_78": -25.2
+     },
+     "verdict_at": {
+      "model_50": "THIN",
+      "bay_expected_55": "EXCEEDS",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "FET-row copper",
+     "rating": "laminate MOT 130 C",
+     "quantity": "FET-row copper max cell (0.25 mm)",
+     "est_c": 117.8,
+     "unc_k": 0.7,
+     "limit_c": 130.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 12.2,
+      "bay_expected_55": 7.2,
+      "bay_worst_B3only_61": 1.2,
+      "bay_stacked_78": -15.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C151",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 85.0,
+     "unc_k": 0.5,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 25.0,
+      "bay_expected_55": 20.0,
+      "bay_worst_B3only_61": 14.0,
+      "bay_stacked_78": -3.0
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C152",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 85.1,
+     "unc_k": 0.5,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 24.9,
+      "bay_expected_55": 19.9,
+      "bay_worst_B3only_61": 13.9,
+      "bay_stacked_78": -3.1
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C21",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 89.1,
+     "unc_k": 0.3,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 20.9,
+      "bay_expected_55": 15.9,
+      "bay_worst_B3only_61": 9.9,
+      "bay_stacked_78": -7.1
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C22",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 87.6,
+     "unc_k": 0.4,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 22.4,
+      "bay_expected_55": 17.4,
+      "bay_worst_B3only_61": 11.4,
+      "bay_stacked_78": -5.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C23",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 86.1,
+     "unc_k": 0.5,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 23.9,
+      "bay_expected_55": 18.9,
+      "bay_worst_B3only_61": 12.9,
+      "bay_stacked_78": -4.1
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C38",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 93.1,
+     "unc_k": 0.4,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 16.9,
+      "bay_expected_55": 11.9,
+      "bay_worst_B3only_61": 5.9,
+      "bay_stacked_78": -11.1
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C39",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 89.1,
+     "unc_k": 1.3,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 20.9,
+      "bay_expected_55": 15.9,
+      "bay_worst_B3only_61": 9.9,
+      "bay_stacked_78": -7.1
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C40",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 96.8,
+     "unc_k": 1.3,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 13.2,
+      "bay_expected_55": 8.2,
+      "bay_worst_B3only_61": 2.2,
+      "bay_stacked_78": -14.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C41",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 87.6,
+     "unc_k": 0.4,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 22.4,
+      "bay_expected_55": 17.4,
+      "bay_worst_B3only_61": 11.4,
+      "bay_stacked_78": -5.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C5",
+     "rating": "MKP Top,max 110",
+     "quantity": "junction / element / body node",
+     "est_c": 77.8,
+     "unc_k": 0.4,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 32.2,
+      "bay_expected_55": 27.2,
+      "bay_worst_B3only_61": 21.2,
+      "bay_stacked_78": 4.2
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "C6",
+     "rating": "MKP Top,max 110",
+     "quantity": "junction / element / body node",
+     "est_c": 74.5,
+     "unc_k": 0.3,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 35.5,
+      "bay_expected_55": 30.5,
+      "bay_worst_B3only_61": 24.5,
+      "bay_stacked_78": 7.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "L1",
+     "rating": "climatic upper 125",
+     "quantity": "junction / element / body node",
+     "est_c": 68.5,
+     "unc_k": 0.6,
+     "limit_c": 125.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 56.5,
+      "bay_expected_55": 51.5,
+      "bay_worst_B3only_61": 45.5,
+      "bay_stacked_78": 28.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R10",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 99.4,
+     "unc_k": 1.7,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 55.6,
+      "bay_expected_55": 50.6,
+      "bay_worst_B3only_61": 44.6,
+      "bay_stacked_78": 27.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R12",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 107.1,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 47.9,
+      "bay_expected_55": 42.9,
+      "bay_worst_B3only_61": 36.9,
+      "bay_stacked_78": 19.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R18",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 88.8,
+     "unc_k": 0.5,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 66.2,
+      "bay_expected_55": 61.2,
+      "bay_worst_B3only_61": 55.2,
+      "bay_stacked_78": 38.2
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R20",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 98.5,
+     "unc_k": 1.4,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 56.5,
+      "bay_expected_55": 51.5,
+      "bay_worst_B3only_61": 45.5,
+      "bay_stacked_78": 28.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R22",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 68.1,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 86.9,
+      "bay_expected_55": 81.9,
+      "bay_worst_B3only_61": 75.9,
+      "bay_stacked_78": 58.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R23",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 66.6,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 88.4,
+      "bay_expected_55": 83.4,
+      "bay_worst_B3only_61": 77.4,
+      "bay_stacked_78": 60.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R24",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 65.4,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 89.6,
+      "bay_expected_55": 84.6,
+      "bay_worst_B3only_61": 78.6,
+      "bay_stacked_78": 61.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R25",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 64.7,
+     "unc_k": 0.2,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 90.3,
+      "bay_expected_55": 85.3,
+      "bay_worst_B3only_61": 79.3,
+      "bay_stacked_78": 62.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R39",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 68.5,
+     "unc_k": 1.9,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 86.5,
+      "bay_expected_55": 81.5,
+      "bay_worst_B3only_61": 75.5,
+      "bay_stacked_78": 58.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R5",
+     "rating": "element 170 operating max",
+     "quantity": "junction / element / body node",
+     "est_c": 137.5,
+     "unc_k": 2.0,
+     "limit_c": 170.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 32.5,
+      "bay_expected_55": 27.5,
+      "bay_worst_B3only_61": 21.5,
+      "bay_stacked_78": 4.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R5",
+     "rating": "terminal derating at 0.864 W with the 20 % power margin (G6 rule)",
+     "quantity": "terminal (pad max cell)",
+     "est_c": 126.6,
+     "unc_k": 2.2,
+     "limit_c": 148.4,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 21.8,
+      "bay_expected_55": 16.8,
+      "bay_worst_B3only_61": 10.8,
+      "bay_stacked_78": -6.2
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "R53",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 96.0,
+     "unc_k": 2.0,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 59.0,
+      "bay_expected_55": 54.0,
+      "bay_worst_B3only_61": 48.0,
+      "bay_stacked_78": 31.0
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R54",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 99.2,
+     "unc_k": 1.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 55.8,
+      "bay_expected_55": 50.8,
+      "bay_worst_B3only_61": 44.8,
+      "bay_stacked_78": 27.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R57",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 92.6,
+     "unc_k": 0.3,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 62.4,
+      "bay_expected_55": 57.4,
+      "bay_worst_B3only_61": 51.4,
+      "bay_stacked_78": 34.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R58",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 105.0,
+     "unc_k": 4.2,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 50.0,
+      "bay_expected_55": 45.0,
+      "bay_worst_B3only_61": 39.0,
+      "bay_stacked_78": 22.0
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R67",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 70.6,
+     "unc_k": 1.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 84.4,
+      "bay_expected_55": 79.4,
+      "bay_worst_B3only_61": 73.4,
+      "bay_stacked_78": 56.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R68",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 71.7,
+     "unc_k": 2.0,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 83.3,
+      "bay_expected_55": 78.3,
+      "bay_worst_B3only_61": 72.3,
+      "bay_stacked_78": 55.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R69",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 71.9,
+     "unc_k": 2.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 83.1,
+      "bay_expected_55": 78.1,
+      "bay_worst_B3only_61": 72.1,
+      "bay_stacked_78": 55.1
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R70",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 71.7,
+     "unc_k": 1.7,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 83.3,
+      "bay_expected_55": 78.3,
+      "bay_worst_B3only_61": 72.3,
+      "bay_stacked_78": 55.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "U26",
+     "rating": "TJ 125",
+     "quantity": "junction / element / body node",
+     "est_c": 88.7,
+     "unc_k": 3.4,
+     "limit_c": 125.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 36.3,
+      "bay_expected_55": 31.3,
+      "bay_worst_B3only_61": 25.3,
+      "bay_stacked_78": 8.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "U41",
+     "rating": "Tj abs max 150 (OTP 160+/-10)",
+     "quantity": "junction / element / body node",
+     "est_c": 103.7,
+     "unc_k": 1.2,
+     "limit_c": 150.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 46.3,
+      "bay_expected_55": 41.3,
+      "bay_worst_B3only_61": 35.3,
+      "bay_stacked_78": 18.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "U42",
+     "rating": "Tj abs max 150 (OTP 160+/-10)",
+     "quantity": "junction / element / body node",
+     "est_c": 104.9,
+     "unc_k": 1.0,
+     "limit_c": 150.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 45.1,
+      "bay_expected_55": 40.1,
+      "bay_worst_B3only_61": 34.1,
+      "bay_stacked_78": 17.1
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    }
+   ],
+   "irm20": [
+    {
+     "ref": "PS1",
+     "load_w": 4.83,
+     "rated_w": 21.0,
+     "load_source": "controller verify ps1.p_total_W (DECISIONS 675)",
+     "local_air_allowed_c": 78.1,
+     "margin_k_at": {
+      "model_50": 28.1,
+      "bay_expected_55": 23.1,
+      "bay_worst_B3only_61": 17.1,
+      "bay_stacked_78": 0.1
+     },
+     "board_pad_max_c": 72.2,
+     "note": "local air at the module also includes the plume of the board under it (pad mean 69 C at 50 C bay): bench-measure it"
+    },
+    {
+     "ref": "PS2",
+     "load_w": 9.59,
+     "rated_w": 21.6,
+     "load_source": "80 kHz bias allocation (ALT-BIAS:52, ledger)",
+     "local_air_allowed_c": 70.2,
+     "margin_k_at": {
+      "model_50": 20.2,
+      "bay_expected_55": 15.2,
+      "bay_worst_B3only_61": 9.2,
+      "bay_stacked_78": -7.8
+     },
+     "board_pad_max_c": 87.2,
+     "note": "local air at the module also includes the plume of the board under it (pad mean 84 C at 50 C bay): bench-measure it"
+    }
+   ],
+   "board_sha256": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e"
+  },
+  "der14_h10": {
+   "op": "der14",
+   "h": 10,
+   "note": "blower-stall derate hold (14.7 A), still air: realistic transient-to-steady case",
+   "rows": [
+    {
+     "ref": "board",
+     "rating": "laminate KB-6164 MOT / RTI elec 130 C",
+     "quantity": "1 mm-block copper peak",
+     "est_c": 102.9,
+     "unc_k": 3.4,
+     "limit_c": 130.0,
+     "verified": true,
+     "at": [
+      15.5,
+      56.5
+     ],
+     "margin_k_at": {
+      "model_50": 27.1,
+      "bay_expected_55": 22.1,
+      "bay_worst_B3only_61": 16.1,
+      "bay_stacked_78": -0.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "EXCEEDS"
+     }
+    },
+    {
+     "ref": "FET-row copper",
+     "rating": "laminate MOT 130 C",
+     "quantity": "FET-row copper max cell (0.25 mm)",
+     "est_c": 87.3,
+     "unc_k": 0.2,
+     "limit_c": 130.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 42.7,
+      "bay_expected_55": 37.7,
+      "bay_worst_B3only_61": 31.7,
+      "bay_stacked_78": 14.7
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "C151",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 65.8,
+     "unc_k": 0.1,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 44.2,
+      "bay_expected_55": 39.2,
+      "bay_worst_B3only_61": 33.2,
+      "bay_stacked_78": 16.2
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "C152",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 65.4,
+     "unc_k": 0.1,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 44.6,
+      "bay_expected_55": 39.6,
+      "bay_worst_B3only_61": 33.6,
+      "bay_stacked_78": 16.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "C21",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 68.9,
+     "unc_k": 0.1,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 41.1,
+      "bay_expected_55": 36.1,
+      "bay_worst_B3only_61": 30.1,
+      "bay_stacked_78": 13.1
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "C22",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 67.6,
+     "unc_k": 0.1,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 42.4,
+      "bay_expected_55": 37.4,
+      "bay_worst_B3only_61": 31.4,
+      "bay_stacked_78": 14.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "C23",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 66.6,
+     "unc_k": 0.1,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 43.4,
+      "bay_expected_55": 38.4,
+      "bay_worst_B3only_61": 32.4,
+      "bay_stacked_78": 15.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "C38",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 82.6,
+     "unc_k": 0.4,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 27.4,
+      "bay_expected_55": 22.4,
+      "bay_worst_B3only_61": 16.4,
+      "bay_stacked_78": -0.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C39",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 78.8,
+     "unc_k": 0.6,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 31.2,
+      "bay_expected_55": 26.2,
+      "bay_worst_B3only_61": 20.2,
+      "bay_stacked_78": 3.2
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "C40",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 85.5,
+     "unc_k": 0.6,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 24.5,
+      "bay_expected_55": 19.5,
+      "bay_worst_B3only_61": 13.5,
+      "bay_stacked_78": -3.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C41",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 84.7,
+     "unc_k": 0.2,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 25.3,
+      "bay_expected_55": 20.3,
+      "bay_worst_B3only_61": 14.3,
+      "bay_stacked_78": -2.7
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C5",
+     "rating": "MKP Top,max 110",
+     "quantity": "junction / element / body node",
+     "est_c": 65.5,
+     "unc_k": 0.2,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 44.5,
+      "bay_expected_55": 39.5,
+      "bay_worst_B3only_61": 33.5,
+      "bay_stacked_78": 16.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "C6",
+     "rating": "MKP Top,max 110",
+     "quantity": "junction / element / body node",
+     "est_c": 63.6,
+     "unc_k": 0.1,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 46.4,
+      "bay_expected_55": 41.4,
+      "bay_worst_B3only_61": 35.4,
+      "bay_stacked_78": 18.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "L1",
+     "rating": "climatic upper 125",
+     "quantity": "junction / element / body node",
+     "est_c": 79.8,
+     "unc_k": 0.9,
+     "limit_c": 125.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 45.2,
+      "bay_expected_55": 40.2,
+      "bay_worst_B3only_61": 34.2,
+      "bay_stacked_78": 17.2
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R10",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 84.0,
+     "unc_k": 0.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 71.0,
+      "bay_expected_55": 66.0,
+      "bay_worst_B3only_61": 60.0,
+      "bay_stacked_78": 43.0
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R12",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 87.5,
+     "unc_k": 0.5,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 67.5,
+      "bay_expected_55": 62.5,
+      "bay_worst_B3only_61": 56.5,
+      "bay_stacked_78": 39.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R18",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 84.4,
+     "unc_k": 0.8,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 70.6,
+      "bay_expected_55": 65.6,
+      "bay_worst_B3only_61": 59.6,
+      "bay_stacked_78": 42.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R20",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 87.0,
+     "unc_k": 1.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 68.0,
+      "bay_expected_55": 63.0,
+      "bay_worst_B3only_61": 57.0,
+      "bay_stacked_78": 40.0
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R22",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 66.7,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 88.3,
+      "bay_expected_55": 83.3,
+      "bay_worst_B3only_61": 77.3,
+      "bay_stacked_78": 60.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R23",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 66.3,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 88.7,
+      "bay_expected_55": 83.7,
+      "bay_worst_B3only_61": 77.7,
+      "bay_stacked_78": 60.7
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R24",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 65.7,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 89.3,
+      "bay_expected_55": 84.3,
+      "bay_worst_B3only_61": 78.3,
+      "bay_stacked_78": 61.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R25",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 65.1,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 89.9,
+      "bay_expected_55": 84.9,
+      "bay_worst_B3only_61": 78.9,
+      "bay_stacked_78": 61.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R39",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 57.3,
+     "unc_k": 0.5,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 97.7,
+      "bay_expected_55": 92.7,
+      "bay_worst_B3only_61": 86.7,
+      "bay_stacked_78": 69.7
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R5",
+     "rating": "element 170 operating max",
+     "quantity": "junction / element / body node",
+     "est_c": 93.3,
+     "unc_k": 0.6,
+     "limit_c": 170.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 76.7,
+      "bay_expected_55": 71.7,
+      "bay_worst_B3only_61": 65.7,
+      "bay_stacked_78": 48.7
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R5",
+     "rating": "terminal derating at 0.216 W with the 20 % power margin (G6 rule)",
+     "quantity": "terminal (pad max cell)",
+     "est_c": 90.6,
+     "unc_k": 0.7,
+     "limit_c": 164.6,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 74.0,
+      "bay_expected_55": 69.0,
+      "bay_worst_B3only_61": 63.0,
+      "bay_stacked_78": 46.0
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R53",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 84.5,
+     "unc_k": 3.3,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 70.5,
+      "bay_expected_55": 65.5,
+      "bay_worst_B3only_61": 59.5,
+      "bay_stacked_78": 42.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R54",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 84.4,
+     "unc_k": 0.4,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 70.6,
+      "bay_expected_55": 65.6,
+      "bay_worst_B3only_61": 59.6,
+      "bay_stacked_78": 42.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R57",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 86.0,
+     "unc_k": 0.5,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 69.0,
+      "bay_expected_55": 64.0,
+      "bay_worst_B3only_61": 58.0,
+      "bay_stacked_78": 41.0
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R58",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 88.2,
+     "unc_k": 0.4,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 66.8,
+      "bay_expected_55": 61.8,
+      "bay_worst_B3only_61": 55.8,
+      "bay_stacked_78": 38.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R67",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 74.7,
+     "unc_k": 2.0,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 80.3,
+      "bay_expected_55": 75.3,
+      "bay_worst_B3only_61": 69.3,
+      "bay_stacked_78": 52.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R68",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 76.6,
+     "unc_k": 2.4,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 78.4,
+      "bay_expected_55": 73.4,
+      "bay_worst_B3only_61": 67.4,
+      "bay_stacked_78": 50.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R69",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 76.6,
+     "unc_k": 2.4,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 78.4,
+      "bay_expected_55": 73.4,
+      "bay_worst_B3only_61": 67.4,
+      "bay_stacked_78": 50.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R70",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 75.3,
+     "unc_k": 1.9,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 79.7,
+      "bay_expected_55": 74.7,
+      "bay_worst_B3only_61": 68.7,
+      "bay_stacked_78": 51.7
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "U26",
+     "rating": "TJ 125",
+     "quantity": "junction / element / body node",
+     "est_c": 102.1,
+     "unc_k": 4.4,
+     "limit_c": 125.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 22.9,
+      "bay_expected_55": 17.9,
+      "bay_worst_B3only_61": 11.9,
+      "bay_stacked_78": -5.1
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "U41",
+     "rating": "Tj abs max 150 (OTP 160+/-10)",
+     "quantity": "junction / element / body node",
+     "est_c": 121.5,
+     "unc_k": 1.6,
+     "limit_c": 150.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 28.5,
+      "bay_expected_55": 23.5,
+      "bay_worst_B3only_61": 17.5,
+      "bay_stacked_78": 0.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "THIN"
+     }
+    },
+    {
+     "ref": "U42",
+     "rating": "Tj abs max 150 (OTP 160+/-10)",
+     "quantity": "junction / element / body node",
+     "est_c": 122.8,
+     "unc_k": 2.0,
+     "limit_c": 150.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 27.2,
+      "bay_expected_55": 22.2,
+      "bay_worst_B3only_61": 16.2,
+      "bay_stacked_78": -0.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "EXCEEDS"
+     }
+    }
+   ],
+   "irm20": [
+    {
+     "ref": "PS1",
+     "load_w": 4.83,
+     "rated_w": 21.0,
+     "load_source": "controller verify ps1.p_total_W (DECISIONS 675)",
+     "local_air_allowed_c": 78.1,
+     "margin_k_at": {
+      "model_50": 28.1,
+      "bay_expected_55": 23.1,
+      "bay_worst_B3only_61": 17.1,
+      "bay_stacked_78": 0.1
+     },
+     "board_pad_max_c": 80.9,
+     "note": "local air at the module also includes the plume of the board under it (pad mean 77 C at 50 C bay): bench-measure it"
+    },
+    {
+     "ref": "PS2",
+     "load_w": 9.59,
+     "rated_w": 21.6,
+     "load_source": "80 kHz bias allocation (ALT-BIAS:52, ledger)",
+     "local_air_allowed_c": 70.2,
+     "margin_k_at": {
+      "model_50": 20.2,
+      "bay_expected_55": 15.2,
+      "bay_worst_B3only_61": 9.2,
+      "bay_stacked_78": -7.8
+     },
+     "board_pad_max_c": 95.6,
+     "note": "local air at the module also includes the plume of the board under it (pad mean 91 C at 50 C bay): bench-measure it"
+    }
+   ],
+   "board_sha256": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e"
+  },
+  "nominal_h10": {
+   "op": "nominal",
+   "h": 10,
+   "note": "round-3 1710 W at 120 V (line 14.25 A > the 11.1 A inlet hold): NOT reachable; the scorecard's case",
+   "rows": [
+    {
+     "ref": "board",
+     "rating": "laminate KB-6164 MOT / RTI elec 130 C",
+     "quantity": "1 mm-block copper peak",
+     "est_c": 127.6,
+     "unc_k": 6.0,
+     "limit_c": 130.0,
+     "verified": true,
+     "at": [
+      39.5,
+      15.5
+     ],
+     "margin_k_at": {
+      "model_50": 2.4,
+      "bay_expected_55": -2.6,
+      "bay_worst_B3only_61": -8.6,
+      "bay_stacked_78": -25.6
+     },
+     "verdict_at": {
+      "model_50": "THIN",
+      "bay_expected_55": "EXCEEDS",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "FET-row copper",
+     "rating": "laminate MOT 130 C",
+     "quantity": "FET-row copper max cell (0.25 mm)",
+     "est_c": 118.5,
+     "unc_k": 0.5,
+     "limit_c": 130.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 11.5,
+      "bay_expected_55": 6.5,
+      "bay_worst_B3only_61": 0.5,
+      "bay_stacked_78": -16.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "THIN",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C151",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 81.5,
+     "unc_k": 0.2,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 28.5,
+      "bay_expected_55": 23.5,
+      "bay_worst_B3only_61": 17.5,
+      "bay_stacked_78": 0.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "C152",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 80.8,
+     "unc_k": 0.2,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 29.2,
+      "bay_expected_55": 24.2,
+      "bay_worst_B3only_61": 18.2,
+      "bay_stacked_78": 1.2
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "C21",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 86.2,
+     "unc_k": 0.2,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 23.8,
+      "bay_expected_55": 18.8,
+      "bay_worst_B3only_61": 12.8,
+      "bay_stacked_78": -4.2
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C22",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 84.5,
+     "unc_k": 0.3,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 25.5,
+      "bay_expected_55": 20.5,
+      "bay_worst_B3only_61": 14.5,
+      "bay_stacked_78": -2.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C23",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 82.8,
+     "unc_k": 0.3,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 27.2,
+      "bay_expected_55": 22.2,
+      "bay_worst_B3only_61": 16.2,
+      "bay_stacked_78": -0.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C38",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 104.3,
+     "unc_k": 0.4,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 5.7,
+      "bay_expected_55": 0.7,
+      "bay_worst_B3only_61": -5.3,
+      "bay_stacked_78": -22.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C39",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 99.6,
+     "unc_k": 2.4,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 10.4,
+      "bay_expected_55": 5.4,
+      "bay_worst_B3only_61": -0.6,
+      "bay_stacked_78": -17.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "EXCEEDS",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C40",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 109.7,
+     "unc_k": 1.9,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 0.3,
+      "bay_expected_55": -4.7,
+      "bay_worst_B3only_61": -10.7,
+      "bay_stacked_78": -27.7
+     },
+     "verdict_at": {
+      "model_50": "THIN",
+      "bay_expected_55": "VIOLATION",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C41",
+     "rating": "MKP Top,max 110 (TA + self-heating)",
+     "quantity": "junction / element / body node",
+     "est_c": 103.8,
+     "unc_k": 0.4,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 6.2,
+      "bay_expected_55": 1.2,
+      "bay_worst_B3only_61": -4.8,
+      "bay_stacked_78": -21.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "VIOLATION",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "C5",
+     "rating": "MKP Top,max 110",
+     "quantity": "junction / element / body node",
+     "est_c": 77.6,
+     "unc_k": 0.5,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 32.4,
+      "bay_expected_55": 27.4,
+      "bay_worst_B3only_61": 21.4,
+      "bay_stacked_78": 4.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "C6",
+     "rating": "MKP Top,max 110",
+     "quantity": "junction / element / body node",
+     "est_c": 73.7,
+     "unc_k": 0.3,
+     "limit_c": 110.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 36.3,
+      "bay_expected_55": 31.3,
+      "bay_worst_B3only_61": 25.3,
+      "bay_stacked_78": 8.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "L1",
+     "rating": "climatic upper 125",
+     "quantity": "junction / element / body node",
+     "est_c": 97.0,
+     "unc_k": 0.6,
+     "limit_c": 125.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 28.0,
+      "bay_expected_55": 23.0,
+      "bay_worst_B3only_61": 17.0,
+      "bay_stacked_78": -0.0
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "THIN"
+     }
+    },
+    {
+     "ref": "R10",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 107.9,
+     "unc_k": 1.5,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 47.1,
+      "bay_expected_55": 42.1,
+      "bay_worst_B3only_61": 36.1,
+      "bay_stacked_78": 19.1
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R12",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 116.3,
+     "unc_k": 1.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 38.7,
+      "bay_expected_55": 33.7,
+      "bay_worst_B3only_61": 27.7,
+      "bay_stacked_78": 10.7
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R18",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 105.0,
+     "unc_k": 0.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 50.0,
+      "bay_expected_55": 45.0,
+      "bay_worst_B3only_61": 39.0,
+      "bay_stacked_78": 22.0
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R20",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 112.8,
+     "unc_k": 2.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 42.2,
+      "bay_expected_55": 37.2,
+      "bay_worst_B3only_61": 31.2,
+      "bay_stacked_78": 14.2
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R22",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 77.6,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 77.4,
+      "bay_expected_55": 72.4,
+      "bay_worst_B3only_61": 66.4,
+      "bay_stacked_78": 49.4
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R23",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 76.4,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 78.6,
+      "bay_expected_55": 73.6,
+      "bay_worst_B3only_61": 67.6,
+      "bay_stacked_78": 50.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R24",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 75.2,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 79.8,
+      "bay_expected_55": 74.8,
+      "bay_worst_B3only_61": 68.8,
+      "bay_stacked_78": 51.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R25",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 74.4,
+     "unc_k": 0.1,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 80.6,
+      "bay_expected_55": 75.6,
+      "bay_worst_B3only_61": 69.6,
+      "bay_stacked_78": 52.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R39",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 67.5,
+     "unc_k": 5.0,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 87.5,
+      "bay_expected_55": 82.5,
+      "bay_worst_B3only_61": 76.5,
+      "bay_stacked_78": 59.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R5",
+     "rating": "element 170 operating max",
+     "quantity": "junction / element / body node",
+     "est_c": 137.7,
+     "unc_k": 6.8,
+     "limit_c": 170.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 32.3,
+      "bay_expected_55": 27.3,
+      "bay_worst_B3only_61": 21.3,
+      "bay_stacked_78": 4.3
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "THIN"
+     }
+    },
+    {
+     "ref": "R5",
+     "rating": "terminal derating at 0.461 W with the 20 % power margin (G6 rule)",
+     "quantity": "terminal (pad max cell)",
+     "est_c": 131.2,
+     "unc_k": 7.4,
+     "limit_c": 158.5,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 27.3,
+      "bay_expected_55": 22.3,
+      "bay_worst_B3only_61": 16.3,
+      "bay_stacked_78": -0.7
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "EXCEEDS"
+     }
+    },
+    {
+     "ref": "R53",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 108.5,
+     "unc_k": 4.9,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 46.5,
+      "bay_expected_55": 41.5,
+      "bay_worst_B3only_61": 35.5,
+      "bay_stacked_78": 18.5
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R54",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 107.8,
+     "unc_k": 1.9,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 47.2,
+      "bay_expected_55": 42.2,
+      "bay_worst_B3only_61": 36.2,
+      "bay_stacked_78": 19.2
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R57",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 107.1,
+     "unc_k": 0.5,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 47.9,
+      "bay_expected_55": 42.9,
+      "bay_worst_B3only_61": 36.9,
+      "bay_stacked_78": 19.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R58",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 111.2,
+     "unc_k": 4.4,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 43.8,
+      "bay_expected_55": 38.8,
+      "bay_worst_B3only_61": 32.8,
+      "bay_stacked_78": 15.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R67",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 79.1,
+     "unc_k": 1.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 75.9,
+      "bay_expected_55": 70.9,
+      "bay_worst_B3only_61": 64.9,
+      "bay_stacked_78": 47.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R68",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 80.4,
+     "unc_k": 2.0,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 74.6,
+      "bay_expected_55": 69.6,
+      "bay_worst_B3only_61": 63.6,
+      "bay_stacked_78": 46.6
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R69",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 82.1,
+     "unc_k": 2.5,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 72.9,
+      "bay_expected_55": 67.9,
+      "bay_worst_B3only_61": 61.9,
+      "bay_stacked_78": 44.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "R70",
+     "rating": "1206 155 (unverified)",
+     "quantity": "junction / element / body node",
+     "est_c": 80.2,
+     "unc_k": 1.6,
+     "limit_c": 155.0,
+     "verified": false,
+     "margin_k_at": {
+      "model_50": 74.8,
+      "bay_expected_55": 69.8,
+      "bay_worst_B3only_61": 63.8,
+      "bay_stacked_78": 46.8
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "OK"
+     }
+    },
+    {
+     "ref": "U26",
+     "rating": "TJ 125",
+     "quantity": "junction / element / body node",
+     "est_c": 109.9,
+     "unc_k": 9.5,
+     "limit_c": 125.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 15.1,
+      "bay_expected_55": 10.1,
+      "bay_worst_B3only_61": 4.1,
+      "bay_stacked_78": -12.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "THIN",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "U41",
+     "rating": "Tj abs max 150 (OTP 160+/-10)",
+     "quantity": "junction / element / body node",
+     "est_c": 125.9,
+     "unc_k": 3.2,
+     "limit_c": 150.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 24.1,
+      "bay_expected_55": 19.1,
+      "bay_worst_B3only_61": 13.1,
+      "bay_stacked_78": -3.9
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    },
+    {
+     "ref": "U42",
+     "rating": "Tj abs max 150 (OTP 160+/-10)",
+     "quantity": "junction / element / body node",
+     "est_c": 128.7,
+     "unc_k": 2.4,
+     "limit_c": 150.0,
+     "verified": true,
+     "margin_k_at": {
+      "model_50": 21.3,
+      "bay_expected_55": 16.3,
+      "bay_worst_B3only_61": 10.3,
+      "bay_stacked_78": -6.7
+     },
+     "verdict_at": {
+      "model_50": "OK",
+      "bay_expected_55": "OK",
+      "bay_worst_B3only_61": "OK",
+      "bay_stacked_78": "VIOLATION"
+     }
+    }
+   ],
+   "irm20": [
+    {
+     "ref": "PS1",
+     "load_w": 4.83,
+     "rated_w": 21.0,
+     "load_source": "controller verify ps1.p_total_W (DECISIONS 675)",
+     "local_air_allowed_c": 78.1,
+     "margin_k_at": {
+      "model_50": 28.1,
+      "bay_expected_55": 23.1,
+      "bay_worst_B3only_61": 17.1,
+      "bay_stacked_78": 0.1
+     },
+     "board_pad_max_c": 81.9,
+     "note": "local air at the module also includes the plume of the board under it (pad mean 78 C at 50 C bay): bench-measure it"
+    },
+    {
+     "ref": "PS2",
+     "load_w": 9.59,
+     "rated_w": 21.6,
+     "load_source": "80 kHz bias allocation (ALT-BIAS:52, ledger)",
+     "local_air_allowed_c": 70.2,
+     "margin_k_at": {
+      "model_50": 20.2,
+      "bay_expected_55": 15.2,
+      "bay_worst_B3only_61": 9.2,
+      "bay_stacked_78": -7.8
+     },
+     "board_pad_max_c": 101.7,
+     "note": "local air at the module also includes the plume of the board under it (pad mean 97 C at 50 C bay): bench-measure it"
+    }
+   ],
+   "board_sha256": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e"
+  }
+ },
+ "sensitivities": {
+  "c28:h15": {
+   "board.peak_1mm_block": -27.1,
+   "board.fet_row_max": -27.0,
+   "R5.tj_c": -27.3,
+   "R5.pad_max_cell_c": -27.1,
+   "U41.tj_c": -13.1,
+   "U42.tj_c": -17.6,
+   "U26.tj_c": -12.0,
+   "C40.tj_c": -25.3,
+   "R58.tj_c": -26.9,
+   "PS2.pad_mean_c": -12.0
+  },
+  "c28:h20": {
+   "board.peak_1mm_block": -42.3,
+   "board.fet_row_max": -42.5,
+   "R5.tj_c": -42.7,
+   "R5.pad_max_cell_c": -42.4,
+   "U41.tj_c": -20.2,
+   "U42.tj_c": -26.9,
+   "U26.tj_c": -18.0,
+   "C40.tj_c": -39.2,
+   "R58.tj_c": -41.9,
+   "PS2.pad_mean_c": -18.3
+  },
+  "c28:a4x0p7": {
+   "board.peak_1mm_block": -25.1,
+   "board.fet_row_max": -27.7,
+   "R5.tj_c": -24.8,
+   "R5.pad_max_cell_c": -25.1,
+   "U41.tj_c": -3.0,
+   "U42.tj_c": -6.1,
+   "U26.tj_c": -4.0,
+   "C40.tj_c": -20.4,
+   "R58.tj_c": -23.4,
+   "PS2.pad_mean_c": -5.2
+  },
+  "c28:a4x0p5": {
+   "board.peak_1mm_block": -41.9,
+   "board.fet_row_max": -44.2,
+   "R5.tj_c": -41.3,
+   "R5.pad_max_cell_c": -41.8,
+   "U41.tj_c": -5.0,
+   "U42.tj_c": -10.1,
+   "U26.tj_c": -6.7,
+   "C40.tj_c": -33.9,
+   "R58.tj_c": -39.0,
+   "PS2.pad_mean_c": -8.6
+  },
+  "c28:R5x0p5": {
+   "board.peak_1mm_block": -7.0,
+   "board.fet_row_max": -4.2,
+   "R5.tj_c": -20.7,
+   "R5.pad_max_cell_c": -13.9,
+   "U41.tj_c": -0.4,
+   "U42.tj_c": -1.2,
+   "U26.tj_c": -0.1,
+   "C40.tj_c": -4.5,
+   "R58.tj_c": -8.4,
+   "PS2.pad_mean_c": -0.1
+  },
+  "c28:modx0p5": {
+   "board.peak_1mm_block": -2.2,
+   "board.fet_row_max": -1.5,
+   "R5.tj_c": -2.1,
+   "R5.pad_max_cell_c": -2.2,
+   "U41.tj_c": -31.1,
+   "U42.tj_c": -29.5,
+   "U26.tj_c": -0.1,
+   "C40.tj_c": -2.8,
+   "R58.tj_c": -2.3,
+   "PS2.pad_mean_c": -0.1
+  },
+  "c28:ps0p5": {
+   "board.peak_1mm_block": -0.1,
+   "board.fet_row_max": -0.2,
+   "R5.tj_c": -0.1,
+   "R5.pad_max_cell_c": -0.1,
+   "U41.tj_c": -0.0,
+   "U42.tj_c": -0.0,
+   "U26.tj_c": -0.2,
+   "C40.tj_c": -0.1,
+   "R58.tj_c": -0.1,
+   "PS2.pad_mean_c": -16.0
+  },
+  "c22:h15": {
+   "board.peak_1mm_block": -18.2,
+   "board.fet_row_max": -18.0,
+   "R5.tj_c": -18.3,
+   "R5.pad_max_cell_c": -18.2,
+   "U41.tj_c": -11.1,
+   "U42.tj_c": -13.8,
+   "U26.tj_c": -9.4,
+   "C40.tj_c": -17.2,
+   "R58.tj_c": -18.1,
+   "PS2.pad_mean_c": -9.0
+  },
+  "c22:h20": {
+   "board.peak_1mm_block": -28.4,
+   "board.fet_row_max": -28.2,
+   "R5.tj_c": -28.6,
+   "R5.pad_max_cell_c": -28.4,
+   "U41.tj_c": -17.3,
+   "U42.tj_c": -21.3,
+   "U26.tj_c": -14.3,
+   "C40.tj_c": -26.6,
+   "R58.tj_c": -28.2,
+   "PS2.pad_mean_c": -13.8
+  },
+  "c22:a4x0p7": {
+   "board.peak_1mm_block": -15.5,
+   "board.fet_row_max": -16.4,
+   "R5.tj_c": -15.3,
+   "R5.pad_max_cell_c": -15.5,
+   "U41.tj_c": -1.9,
+   "U42.tj_c": -3.8,
+   "U26.tj_c": -2.5,
+   "C40.tj_c": -12.6,
+   "R58.tj_c": -14.5,
+   "PS2.pad_mean_c": -3.2
+  },
+  "c22:a4x0p5": {
+   "board.peak_1mm_block": -25.8,
+   "board.fet_row_max": -26.6,
+   "R5.tj_c": -25.5,
+   "R5.pad_max_cell_c": -25.8,
+   "U41.tj_c": -3.1,
+   "U42.tj_c": -6.3,
+   "U26.tj_c": -4.2,
+   "C40.tj_c": -21.0,
+   "R58.tj_c": -24.1,
+   "PS2.pad_mean_c": -5.4
+  },
+  "c22:R5x0p5": {
+   "board.peak_1mm_block": -5.1,
+   "board.fet_row_max": -2.6,
+   "R5.tj_c": -12.8,
+   "R5.pad_max_cell_c": -8.5,
+   "U41.tj_c": -0.3,
+   "U42.tj_c": -0.8,
+   "U26.tj_c": -0.1,
+   "C40.tj_c": -2.8,
+   "R58.tj_c": -5.2,
+   "PS2.pad_mean_c": -0.1
+  },
+  "c22:modx0p5": {
+   "board.peak_1mm_block": -2.2,
+   "board.fet_row_max": -1.5,
+   "R5.tj_c": -2.1,
+   "R5.pad_max_cell_c": -2.2,
+   "U41.tj_c": -31.1,
+   "U42.tj_c": -29.5,
+   "U26.tj_c": -0.1,
+   "C40.tj_c": -2.8,
+   "R58.tj_c": -2.3,
+   "PS2.pad_mean_c": -0.1
+  },
+  "c22:ps0p5": {
+   "board.peak_1mm_block": -0.1,
+   "board.fet_row_max": -0.2,
+   "R5.tj_c": -0.1,
+   "R5.pad_max_cell_c": -0.1,
+   "U41.tj_c": -0.0,
+   "U42.tj_c": -0.0,
+   "U26.tj_c": -0.2,
+   "C40.tj_c": -0.1,
+   "R58.tj_c": -0.1,
+   "PS2.pad_mean_c": -16.0
+  }
+ },
+ "h_estimate": {
+  "dT_50K": {
+   "Ra": 235288,
+   "h_conv_up": 7.5,
+   "h_conv_down": 3.9,
+   "h_rad_upper_bound": 9.0
+  },
+  "dT_80K": {
+   "Ra": 313495,
+   "h_conv_up": 8.4,
+   "h_conv_down": 4.3,
+   "h_rad_upper_bound": 10.3
+  },
+  "note": "convection alone is 4-9 W/m2K; radiation adds up to ~9-10 only where a face sees cool walls (most of the top face sees component bodies, the coil carrier and a 61-78 C bay). Still air therefore sits near h 10-15; h 25 needs forced flow over the board, which no enclosure record provides."
+ },
+ "ceiling_sweep_h10": {
+  "note": "estimate incl. uncertainty, at 50 C; add (bay - 50) for other bay air",
+  "rows": {
+   "14": {
+    "board_block_est_c": 104.9,
+    "board_block_at": [
+     15.5,
+     55.5
+    ],
+    "fet_row_est_c": 87.7,
+    "R5_element_est_c": 102.7,
+    "R5_terminal_est_c": 99.8,
+    "R5_terminal_limit_c": 164.6,
+    "U42_tj_est_c": 122.2,
+    "C40_body_est_c": 88.0
+   },
+   "16": {
+    "board_block_est_c": 107.1,
+    "board_block_at": [
+     15.5,
+     55.5
+    ],
+    "fet_row_est_c": 95.9,
+    "R5_element_est_c": 112.2,
+    "R5_terminal_est_c": 108.3,
+    "R5_terminal_limit_c": 162.9,
+    "U42_tj_est_c": 124.0,
+    "C40_body_est_c": 93.9
+   },
+   "18": {
+    "board_block_est_c": 114.4,
+    "board_block_at": [
+     39.5,
+     15.5
+    ],
+    "fet_row_est_c": 105.2,
+    "R5_element_est_c": 122.9,
+    "R5_terminal_est_c": 118.0,
+    "R5_terminal_limit_c": 161.1,
+    "U42_tj_est_c": 125.9,
+    "C40_body_est_c": 100.6
+   },
+   "20": {
+    "board_block_est_c": 125.2,
+    "board_block_at": [
+     39.5,
+     15.5
+    ],
+    "fet_row_est_c": 116.0,
+    "R5_element_est_c": 135.0,
+    "R5_terminal_est_c": 128.8,
+    "R5_terminal_limit_c": 159.0,
+    "U42_tj_est_c": 128.2,
+    "C40_body_est_c": 108.0
+   },
+   "22": {
+    "board_block_est_c": 137.1,
+    "board_block_at": [
+     39.5,
+     15.5
+    ],
+    "fet_row_est_c": 127.9,
+    "R5_element_est_c": 148.3,
+    "R5_terminal_est_c": 140.8,
+    "R5_terminal_limit_c": 156.7,
+    "U42_tj_est_c": 130.6,
+    "C40_body_est_c": 116.3
+   }
+  },
+  "max_ceiling_meeting_laminate_and_rated_parts_A": {
+   "model_50": 20,
+   "bay_expected_55": 18,
+   "bay_worst_B3only_61": 18,
+   "bay_stacked_78": null
+  }
+ }
+}

@@ -15,7 +15,8 @@
   "res_a_creepage18": true,
   "d5": true,
   "enclosure_fit": true,
-  "audit_rs": true
+  "audit_rs": true,
+  "b3_ratings": false
  },
  "performance": {
   "d5_hot_selv_mm": 8.047,
@@ -26,6 +27,8 @@
   "kelvin_band_low_A": 67.77,
   "b3_c28_h25_peak_C": 135.0,
   "b3_nominal_h10_peak_C": 162.1,
+  "b3_laminate_margin_K": -56.4,
+  "b3_rated_part_margin_K": -38.9,
   "emi_min_margin_dB": 10.5,
   "leakage_touch_mA": 0.974,
   "fuse_copper_fusing_ratio": 0.993,
@@ -69,6 +72,7 @@
  "sources": {
   "d5": "native-21/verification/d5-audit.json",
   "kelvin": "02-protection-timing/kelvin/budget-native21s35.json",
+  "b3_ratings": "04-board-current-thermal/round5-native21/b3-ratings/margins.json {'cases': ['c22_h10', 'c28_h10'], 'bay_c': 55.0, 'k_mesh': 3.0, 'mot_c': 130.0} worst laminate: 1 mm-block copper peak",
   "emi": "07-conducted-emi/s19b/results.json scenarios.nominal (min margin_dB)",
   "leakage": "07-conducted-emi/leakage/result.json DESIGN row",
   "fuse_copper": "02-protection-timing/shoot-through-f1/s35_necks.json (min_ratio_all)",

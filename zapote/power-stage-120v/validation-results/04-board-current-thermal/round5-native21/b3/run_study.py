@@ -29,7 +29,8 @@ OPS = {"nominal": {"I_t": 21.47, "I_line": 1710 / 120, "parts": "nominal",
        "extreme": {"I_t": 29.4, "I_line": 1710 / 108, "parts": "worst",
                    "basis": "29.4 A firmware RMS trip at the 28 A ceiling, 108 V line, worst-case parts (stage 15)"},
        # stage 15 (DECISIONS 2026-10-10): the 28 A ceiling at its 1.05 x firmware RMS trip, inlet at the 11.1 A hold.
-       # Gate: copper and pad cells <= 105 C at 50 C ambient, h 10 and h 25 (25 K under a 130 C FR-4 class).
+       # Not a gate: the "<= 105 C" stated here was never enforced, and these single-cell peaks are mesh artefacts.
+       # The ratings gate is ../b3-ratings/b3_ratings_gate.py (body model, laminate MOT 130 C; DECISIONS 46).
        "c28": {"I_t": 29.4, "I_line": 11.1, "parts": "nominal", "heat": "c28",
                "basis": "28 A tank ceiling, 1.05 x firmware RMS trip; 11.1 A inlet hold (round 6)"}}
 

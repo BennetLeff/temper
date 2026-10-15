@@ -15,7 +15,8 @@
   "res_a_creepage18": true,
   "d5": true,
   "enclosure_fit": true,
-  "audit_rs": true
+  "audit_rs": true,
+  "b3_ratings": false
  },
  "performance": {
   "d5_hot_selv_mm": 8.047,
@@ -38,7 +39,9 @@
   "track_acute_corners": 206,
   "track_fold_backs": 44,
   "track_right_angle_corners": 104,
-  "track_any_angle_mm": 704.4
+  "track_any_angle_mm": 704.4,
+  "b3_laminate_margin_K": -56.4,
+  "b3_rated_part_margin_K": -38.9
  },
  "cost": {
   "bom_lines": 94,
@@ -116,5 +119,17 @@
    "short_lead_unknown_500"
   ],
   "reason": "DECISIONS 45: buildability from scorecard.buildability() on the s32 BOM (bom-jlcpcb.csv at 38e856ef3) and validation-results/08-manufacturing-package/native-21/sourcing/SNAPSHOT-2026-10-15.csv, added without re-scoring; a full re-score differs from this card only in these metrics"
+ },
+ "restated_b3_ratings": {
+  "date": "2026-10-15",
+  "source": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/audit-2026-10-15/results/margins.json",
+  "values": {
+   "b3_laminate_margin_K": -56.4,
+   "b3_rated_part_margin_K": -38.9,
+   "b3_advisory_margin_K": -41.4,
+   "worst_gated": "laminate: 1 mm-block copper peak"
+  },
+  "pass": false,
+  "reason": "DECISIONS 46: thermal-ratings audit margins on the s32 board (board_sha256 matches), added without re-scoring; b3_ratings is a release gate (not in the compare rule), the two margins are ratchets"
  }
 }

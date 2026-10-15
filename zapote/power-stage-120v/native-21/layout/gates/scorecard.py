@@ -45,8 +45,12 @@ PERF = {
     "return_path_open_changes": ("lower", 0),
     "return_path_worst_asserted_mm": ("lower", 0.2),
     "kelvin_band_low_A": ("higher", 0.5),
-    "b3_c28_h25_peak_C": ("lower", 1.0),
-    "b3_nominal_h10_peak_C": ("lower", 1.0),
+    # 2026-10-15 (thermal-ratings audit): the legacy single-cell B3 peaks (b3_c28_h25_peak_C, b3_nominal_h10_peak_C) stay
+    # on the card for reference but are no longer compared: they are point-deposit artefacts that move 50-80 K with the
+    # mesh (b3-convergence README section 1). Compared instead: margins of the body-level model to the laminate's UL
+    # temperature and to the hot parts' datasheet limits at the declared basis (b3-ratings/b3_ratings_gate.py).
+    "b3_laminate_margin_K": ("higher", 1.0),
+    "b3_rated_part_margin_K": ("higher", 1.0),
     "emi_min_margin_dB": ("higher", 0.5),
     "leakage_touch_mA": ("lower", 0.0),
     "cmti_gate_ratio_min": ("higher", 0.0),
@@ -70,6 +74,20 @@ PERF = {
 def jload(p):
     p = Path(p)
     return json.loads(p.read_text()) if p.exists() else None
+
+
+def b3_ratings(b):
+    """b3-ratings/margins.json (b3_ratings_gate.py via run_basis.py), only if every case was solved on this build's board."""
+    br = jload(VR / "04-board-current-thermal/round5-native21/b3-ratings/margins.json")
+    sha = (jload(b / "barrier-gate-rust.json") or {}).get("board_sha256")
+    if not br or not sha or set((br.get("board_sha256") or {}).values()) != {sha}:
+        return None
+    return br
+
+
+# Release gates: absolute pass / fail at the declared basis. Reported on the card, but not part of the candidate-vs-
+# benchmark rule while the benchmark itself fails them; their margins are ratcheted in PERF instead (DECISIONS 46).
+RELEASE_GATES = {"b3_ratings"}
 
 
 def gates(b, tag, audit):
@@ -109,6 +127,11 @@ def gates(b, tag, audit):
         g["enclosure_fit"] = fit.get("unattributed", 1) == 0 and not fit.get("part_overlaps") and not r4.get("hits")
     if audit:
         g["audit_rs"] = audit == "PASS"
+    # B3 ratings gate: laminate (KB-6164 UL MOT 130 C) and datasheet-limited parts at the declared basis (c22/c28 ceilings,
+    # still-air board bay h 10, 55 C bay air); the file is written by b3-ratings/b3_ratings_gate.py --out
+    br = b3_ratings(b)
+    if br:
+        g["b3_ratings"] = bool(br["pass"])
     return g
 
 
@@ -151,6 +174,12 @@ def performance(b, tag):
     if b3:
         m["b3_c28_h25_peak_C"] = round(b3["runs"]["c28_h25_p1p0"]["peak"]["temperature_c"], 1)
         m["b3_nominal_h10_peak_C"] = round(b3["runs"]["nominal_h10_p1p0"]["peak"]["temperature_c"], 1)
+    br = b3_ratings(b)
+    if br:
+        m["b3_laminate_margin_K"] = br["metrics"]["b3_laminate_margin_K"]
+        m["b3_rated_part_margin_K"] = br["metrics"]["b3_rated_part_margin_K"]
+        src["b3_ratings"] = (f"04-board-current-thermal/round5-native21/b3-ratings/margins.json {br['basis']} "
+                             f"worst {br['metrics']['worst_gated']}")
     emi = jload(VR / "07-conducted-emi/s19b/results.json")
     if emi:
         def margins(o):
@@ -334,7 +363,7 @@ def buildability(bom_path, snap_path):
 def compare(cur, bench):
     reasons, better = [], []
     for k, ok in cur["gates"].items():
-        if not ok:
+        if not ok and k not in RELEASE_GATES:
             reasons.append(f"gate {k} fails")
     for k, (direction, tol) in PERF.items():
         a, b = cur["performance"].get(k), bench["performance"].get(k)
@@ -390,7 +419,8 @@ def main():
             "sources": src}
     card["cost"].update(buildability(Path(a.bom), a.snapshot))
     if a.snapshot:
-        card["sources"]["buildability"] = a.snapshot
+        sp = Path(a.snapshot).resolve()
+        card["sources"]["buildability"] = str(sp.relative_to(UNIT)) if sp.is_relative_to(UNIT) else str(sp)
     for grp in ("gates", "performance", "cost"):
         print(f"[{grp}]")
         for k, v in card[grp].items():
