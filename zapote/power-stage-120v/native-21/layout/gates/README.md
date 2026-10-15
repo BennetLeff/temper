@@ -79,3 +79,11 @@ right angles and snaps any-angle segments on routed copper, keeping every edit o
 spine, fill and connectivity checks hold (the tool's docstring lists them). The export must be the build of COPPER.json.
 It touches every island, so it runs last, after the other lanes merge, then the chain. A second run on its own output
 (rebuilt and re-exported) changes nothing. Controls: `native-21/layout/test_track_cleanup21.py`.
+
+Scoped chain (`scoped/README.md`): a lane iterates without the full chain. The run re-runs only the steps whose inputs
+changed against a full-chain benchmark build, and reuses the rest under content keys. `chain.sh` reads `SCOPED_PLAN`
+(`want STEP`). Every full chain writes `BUILDDIR/scoped-manifest.json`, the keys a later scoped run compares against.
+The full chain stays mandatory at merge, and `scorecard.py --compare` refuses a scoped card as a benchmark.
+
+    python3 -I gates/scoped/scoped_chain.py run TAG PASSDIR BUILDDIR --bench-build FULL_BUILDDIR [--dry-run]
+    python3 -I gates/scoped/test_scoped.py && python3 -I gates/scoped/depmap_check.py   # planner + dependency-map controls

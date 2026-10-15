@@ -407,6 +407,16 @@ def compare(cur, bench):
     return (not reasons), reasons, cheaper, better
 
 
+def bench_card(path):
+    """A benchmark card must come from the full chain: a scoped card (gates/scoped, key "scoped") is never a benchmark."""
+    c = jload(path)
+    if c is None:
+        raise SystemExit(f"{path}: no such card")
+    if "scoped" in c:
+        raise SystemExit(f"{path} is a scoped card ({c['scoped'].get('mode')}); benchmarks come from the full chain.sh")
+    return c
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("tag", nargs="?")
@@ -424,9 +434,14 @@ def main():
     a = ap.parse_args()
     if a.card:
         card = jload(a.card)
-        ok, reasons, cheaper, better = compare(card, jload(a.compare))
+        ok, reasons, cheaper, better = compare(card, bench_card(a.compare))
+        sc = card.get("scoped")
+        if sc and sc.get("stale"):        # a scoped card with stale entries cannot be accepted yet
+            ok = False
+            reasons.append("scoped card not final, stale: " + ", ".join(sorted(sc["stale"])))
         print(("ACCEPT" if ok else "REJECT") + f" {card['tag']} vs {a.compare}: cheaper {cheaper}, better {better}"
-              + ("" if ok else "; " + "; ".join(reasons)))
+              + ("" if ok else "; " + "; ".join(reasons))
+              + (f" [scoped {sc.get('mode')}: {len(sc.get('reused', {}))} entries reused by key; full chain still due at merge]" if sc else ""))
         raise SystemExit(0 if ok else 1)
     b = Path(a.build)
     perf, src = performance(b, a.tag)
@@ -444,7 +459,7 @@ def main():
     if a.json:
         Path(a.json).write_text(json.dumps(card, indent=1))
     if a.compare:
-        ok, reasons, cheaper, better = compare(card, jload(a.compare))
+        ok, reasons, cheaper, better = compare(card, bench_card(a.compare))
         print(("ACCEPT" if ok else "REJECT") + f" vs {a.compare}: cheaper {cheaper}, better {better}"
               + ("" if ok else "; " + "; ".join(reasons)))
         raise SystemExit(0 if ok else 1)

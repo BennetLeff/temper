@@ -20,15 +20,20 @@ MP=${MP:-/Users/bennet/Miniforge3/bin/python3}
 R=validation-results/04-board-current-thermal/round5-native21
 if [ "$MODE" = all ] || [ "$MODE" = core ]; then
   $KP tools/copper_dump.py $B $1/evidence.json >/dev/null 2>&1
+  # REGATE_SKIP_BARRIER=1 (scoped chain only, gates/scoped): the plan reuses the benchmark's barrier-gate-rust.json, which
+  # the scoped run copied into BUILDDIR with the benchmark build (same board_sha256); the full chain never sets it
+  if [ -n "${REGATE_SKIP_BARRIER:-}" ] && [ -f $1/barrier-gate-rust.json ]; then P_BAR=""
+  else
   ZAPOTE_POWER_BARRIER_BIN=${ZAPOTE_POWER_BARRIER_BIN:-/Users/bennet/Desktop/temper/target-shared/debug/zapote-power-barrier} python3 native-21/layout/barrier_gate21.py $1/evidence.json > $1/barrier-gate-rust.json &
   P_BAR=$!
+  fi
   $KP tools/jlc_dfm_check.py $B > $1/jlc-dfm.json 2>/dev/null
   # local bypass: every comparator / Schmitt buffer / rail monitor has its 100 nF within the stage-19 limits (fails the gate)
   $KP native-21/layout/gates/bypass_check.py $B $1/bypass-check.json > $1/bypass-check.txt 2>&1 || { grep -v -i "wxapp\|Debug\|assert" $1/bypass-check.txt >&2; echo "BYPASS GATE FAILED" >&2; exit 1; }
   $KP validation-results/04-board-current-thermal/round4/reextract-b3/extract_geometry.py $B $1/native21-all-copper.json.gz >/dev/null 2>&1
   # exported beside the build; task04 copies it into the study only when it recomputes, so inputs/ always matches outputs/
   $KP tools/export_power_copper.py $B "$BD/power_copper.json.gz" >/dev/null 2>&1
-  wait $P_BAR
+  [ -z "$P_BAR" ] || wait $P_BAR
 fi
 if [ "$MODE" = all ] || [ "$MODE" = task04 ]; then
   CK=$($KP native-21/layout/gates/copper_key.py "$B" 2>/dev/null | tail -1)
