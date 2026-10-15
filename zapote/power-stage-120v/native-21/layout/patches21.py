@@ -463,6 +463,67 @@ def edit_base(base):
     return n
 
 
+# Stage 41 (candidate 36, 11-candidates/c36-tank-copper; DECISIONS 51 targets): tank / FET-row copper at R5. The board
+# copper at R5.4 and the FET row was over the laminate's 130 C MOT in still air (B3 ratings gate). Edits of the frozen
+# s40 base (DECISIONS 52), made before it is loaded (incr21.load), like edit_base; outlines in stage41_pours.json (from
+# c36-tank-copper/scripts/pours41.py, every other-net item and zone outline kept at its rules21 clearance):
+#  - F.Cu hv_ret: the 3.8 x 3.6 mm island at R5.4 becomes an 86 mm2 spreader south to y 25.5 between the LOW-group gate
+#    runs at x 35.95 (leg_b-out_l) and x 43.25 (leg_a-gate_l). It stops 1.5 mm short of C40.2, so C40's lead is not tied
+#    to R5.4's heat (a version reaching C40.2 warmed C40 by 0.75 K on the body model);
+#  - F.Cu leg_ret: R5.1's pour reaches east to Q3.1 (y <= 10.4, LOW group only there);
+#  - B.Cu leg_ret (new): R5.1's via field and Q6.3 on B.Cu, 3.2 mm from the sw_b / sw_a outlines;
+#  - In1 leg_ret: the leg-A neck under Q3.2's antipad (2.83 mm at (50.05, 11.07), task 04's hottest In1 cells) widens
+#    to y 14.7 between the Kelvin run (x 42.2) and x 58; the zone already outranks the hv_ret trunk there;
+#  - two of R5.4's six hv_ret vias (0.8 / 0.5) move from the pad's south-east corner to its north-west, keeping the
+#    via field's drills (the F1 fusing row counts them within 6 mm of R5.4), so the sw_b B.Cu lane, which kept 3.2 mm
+#    from them, can rise over R5 (outline raised to y 15.7 over x 33-42): the lane's pinch between R5.4 and C40.2's
+#    antipad was 4.4 mm.
+S41 = "stage41_pours.json"
+S41_NEW_B = "leg_ret R5.1-Q6.3 (B)"
+
+
+def edit_base41(base):
+    """Stage 41 edit of a frozen base copper dict (in place); a no-op on a base that already carries it."""
+    import json
+    from pathlib import Path
+    from shapely.geometry import Polygon, box
+    if any(z.get("name") == S41_NEW_B for z in base["zones"]):
+        return 0
+    spec = json.loads(Path(__file__).with_name(S41).read_text())
+    zones = base["zones"]
+    for p in spec["pours"]:
+        if p["replaces"]:
+            hit = [z for z in zones if z.get("name") == p["replaces"] and z["layer"] == p["layer"] and z["net"] == p["net"]]
+            if len(hit) != 1:
+                raise SystemExit(f"stage 41: base zone {p['replaces']!r} on {p['layer']} not found once ({len(hit)})")
+            hit[0]["outline"], hit[0]["holes"] = p["outline"], p["holes"]
+        else:
+            zones.append({"net": p["net"], "layer": p["layer"], "priority": 3, "name": p["name"],
+                          "outline": p["outline"], "holes": p["holes"]})
+    r = spec.get("sw_b_raise")
+    if r:
+        swb = [z for z in zones if z["net"] == r["net"] and z["layer"] == r["layer"]]
+        assert len(swb) == 1, len(swb)
+        poly = Polygon(swb[0]["outline"], swb[0]["holes"]).union(box(*r["box"])).simplify(0)
+        assert poly.geom_type == "Polygon", poly.geom_type
+        swb[0]["outline"] = [[round(x, 3), round(y, 3)] for x, y in list(poly.exterior.coords)[:-1]]
+        swb[0]["holes"] = [[[round(x, 3), round(y, 3)] for x, y in list(i.coords)[:-1]] for i in poly.interiors]
+    for net, (x, y), size, dr in spec.get("via_adds", []):
+        if any(v["net"] == net and math.dist(v["at"], (x, y)) < 1e-3 for v in base["vias"]):
+            raise SystemExit(f"stage 41: a {net} via already sits at ({x}, {y})")
+        base["vias"].append({"net": net, "at": [x, y], "size": size, "drill": dr})
+    moved = 0
+    for a, b in spec.get("via_moves", []):
+        hit = [v for v in base["vias"] if v["net"] == "hv_ret" and math.dist(v["at"], a) < 1e-3]
+        if len(hit) != 1:
+            raise SystemExit(f"stage 41: hv_ret via at {a} not found once ({len(hit)})")
+        hit[0]["at"] = list(b)
+        moved += 1
+    print(f"stage 41: {len(spec['pours'])} tank / FET-row pours at R5 ({spec.get('variant', '')}); sw_b B.Cu lane "
+          f"{'raised over R5' if r else 'unchanged'}; {moved} R5.4 vias moved, {len(spec.get('via_adds', []))} added")
+    return moved
+
+
 def add_stage33(g):
     """Six-layer phase A additions (no-op without image_planes): image pours, then their stitching vias."""
     if not IMAGE_PLANES:

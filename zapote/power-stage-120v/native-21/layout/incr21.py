@@ -483,6 +483,9 @@ def load(base_path, patches=True, prune=False):
     # stage 38: base copper of a deleted part (PS1) is edited out before anything is registered, frozen base or not
     if hasattr(patches21, "edit_base"):
         patches21.edit_base(base)
+    # stage 41 (candidate 36): tank / FET-row pours at R5 and the R5.4 via moves, edited into the base the same way
+    if hasattr(patches21, "edit_base41"):
+        patches21.edit_base41(base)
     # nets renamed in the source since the base was frozen keep their base copper (patches21.RENAME_NETS)
     ren = getattr(patches21, "RENAME_NETS", {}) if patches else {}
     for kind in ("zones", "tracks", "vias"):
