@@ -52,15 +52,15 @@ their ratchets.
 | C5 | PS1 deletion (candidate 23) | ~8.40 | Layout lane: SELV side | Waits for the S1 result and the controller's J13 |
 | C7 | Bare board: six layers $19.11 vs four $17.28 pinned; area compaction ~$1.5 per 10 % | DECISIONS 40 | After candidate 23 (compaction) | Open |
 
-## 4. Layout lanes (none building now)
+## 4. Layout lanes (two building: ps-selv, ps-layers)
 
 | Lane (island) | Candidate | Status | Blocked on |
 |---|---|---|---|
 | Tank / FET row (WS3 / WS4 boundary) | 36: tank-copper heat at R5.4 / FET row (wider, more parallel layers, or 3 oz outer); option: 0.5 mΩ shunt | Next | The model-refinement targets (S2) |
-| SELV side (WS5, spine owner) | 23: DECISIONS 47 change set (PS1 deleted, PS2 → MPM-20-24, L1 → SCF31X if it fits) | Ready to start | The controller's J13 and PS3 → MPM-65 gate the merge, not the board work |
+| SELV side (WS5, spine owner) | 23: DECISIONS 47 change set (PS1 deleted, PS2 → MPM-20-24, L1 → SCF31X if it fits); stage tag s38 | Running (ps-selv, branch claude/native21-c23-supply) | The controller's J13 and PS3 → MPM-65 gate the merge, not the board work |
 | HS-B / LS (WS4) | 30a (HS-B → LS ISO6721FB), 30b (C161), return-path fixes (S10) | Needs an LS-pocket / U42 re-placement to open the y 47–60 band | The bias-supply study (C3): U42 may change |
 | Tank / bank | 34: resonant bank | Waits on stock | S9 |
-| Whole board (last) | Geometry cleanup pass (B5); compaction (C7) | After the lanes merge | — |
+| Whole board (last) | Geometry cleanup pass (B5; tool proved on s35 as s37, applied last); compaction (C7) | Tool running (ps-layers, branch claude/native21-geometry-cleanup) | Applied after the other lanes merge |
 
 ## 5. Owner actions
 
