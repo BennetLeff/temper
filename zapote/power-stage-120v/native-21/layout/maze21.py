@@ -16,7 +16,6 @@ _TIE = itertools.count()
 
 from shapely.geometry import LineString, Point
 from shapely.prepared import prep
-from shapely.ops import unary_union
 
 from layers21 import CU, OUTER
 
@@ -42,9 +41,65 @@ def _grow(g, d):
     return grown
 
 
+# Search grids sit on one board-wide lattice (x = i * STEP, y = j * STEP), the box snapped inward to it, so every
+# grown obstacle is rasterised once per lattice tile and reused by every later search (2026-10-15: rebuilding the
+# union of all grown obstacles for every search was most of incr21's time, and it grew with the box area).
+TILE = 32
+_TILES = {}      # (id(shape), STEP) -> (shape, {(ti, tj): bool array | True | False})
+_STABLE = {}     # derived outline shapes, kept so their ids (and tiles) stay valid
+
+
+def _window(bx):
+    """Lattice cells inside box bx: (i0, j0, nx, ny, x0, y0) with x0 = i0 * STEP."""
+    i0, j0 = math.ceil(bx[0] / STEP - 1e-9), math.ceil(bx[1] / STEP - 1e-9)
+    i1, j1 = max(math.floor(bx[2] / STEP + 1e-9), i0), max(math.floor(bx[3] / STEP + 1e-9), j0)
+    return i0, j0, i1 - i0 + 1, j1 - j0 + 1, i0 * STEP, j0 * STEP
+
+
+def _stable(key, make):
+    hit = _STABLE.get(key)
+    if hit is None:
+        hit = _STABLE[key] = make()
+    return hit
+
+
+def _paint(mask, shape, i0, j0, nx, ny):
+    """mask[j - j0, i - i0] |= lattice point (i, j) lies inside shape (strictly: contains_xy), tile by tile."""
+    import numpy as np
+    import shapely
+    bx0, by0, bx1, by1 = shape.bounds
+    a0, a1 = max(math.ceil(bx0 / STEP - 1e-9), i0), min(math.floor(bx1 / STEP + 1e-9), i0 + nx - 1)
+    b0, b1 = max(math.ceil(by0 / STEP - 1e-9), j0), min(math.floor(by1 / STEP + 1e-9), j0 + ny - 1)
+    if a0 > a1 or b0 > b1:
+        return
+    ent = _TILES.get((id(shape), STEP))
+    if ent is None or ent[0] is not shape:
+        shapely.prepare(shape)
+        ent = _TILES[(id(shape), STEP)] = (shape, {})
+    tiles = ent[1]
+    for ti in range(a0 // TILE, a1 // TILE + 1):
+        for tj in range(b0 // TILE, b1 // TILE + 1):
+            t = tiles.get((ti, tj))
+            if t is None:
+                xs, ys = np.meshgrid(np.arange(ti * TILE, ti * TILE + TILE) * STEP,
+                                     np.arange(tj * TILE, tj * TILE + TILE) * STEP)
+                t = shapely.contains_xy(shape, xs, ys)
+                t = False if not t.any() else True if t.all() else t
+                tiles[(ti, tj)] = t
+            if t is False:
+                continue
+            c0, c1 = max(ti * TILE, a0), min(ti * TILE + TILE - 1, a1)
+            r0, r1 = max(tj * TILE, b0), min(tj * TILE + TILE - 1, b1)
+            win = mask[r0 - j0:r1 - j0 + 1, c0 - i0:c1 - i0 + 1]
+            if t is True:
+                win[...] = True
+            else:
+                win |= t[r0 - tj * TILE:r1 - tj * TILE + 1, c0 - ti * TILE:c1 - ti * TILE + 1]
+
+
 def _goal_distance(goal_cells, nx, ny):
     """h for A*: Euclidean distance in cells from every grid cell to its nearest goal cell (one distance transform
-    instead of a min over all goals on every push), as nested lists for fast indexing: h[j][i]."""
+    instead of a min over all goals on every push), as a (ny, nx) array."""
     import numpy as np
     from scipy.ndimage import distance_transform_edt
     far = np.ones((ny, nx), dtype=bool)
@@ -52,17 +107,12 @@ def _goal_distance(goal_cells, nx, ny):
         far[j, i] = False
     _, (gj, gi) = distance_transform_edt(far, return_indices=True)
     jj, ii = np.indices((ny, nx))
-    # math.hypot per distinct offset, as the per-goal min computed it (np.hypot can differ in the last bit and so
-    # break A* ties differently)
-    off = np.stack([np.abs(ii - gi).ravel(), np.abs(jj - gj).ravel()], axis=1)
-    uniq, inv = np.unique(off, axis=0, return_inverse=True)
-    vals = np.array([math.hypot(int(a), int(b)) for a, b in uniq])
-    return vals[inv.ravel()].reshape(ny, nx).tolist()
+    return np.hypot(ii - gi, jj - gj)
 
 
 def _blocked(geo, net, layer, bx, width):
     x0, y0, x1, y1 = bx
-    nx, ny = int(round((x1 - x0) / STEP)) + 1, int(round((y1 - y0) / STEP)) + 1
+    i0, j0, nx, ny, _, _ = _window(bx)
     tree, items = geo._tree(layer)
     import rules21
     shapes = []
@@ -73,27 +123,22 @@ def _blocked(geo, net, layer, bx, width):
             continue
         need = 0.3 if other == "<npth>" else rules21.clearance(net, other)
         shapes.append(_grow(g, need + width / 2 + 0.03))
-    shapes.append(geo.outline.exterior.buffer(width / 2 - 0.005))
+    shapes.append(_stable(("band", id(geo.outline), width), lambda: geo.outline.exterior.buffer(width / 2 - 0.005)))
     ptree, pitems = geo._tree("PLAN")
     for i in ptree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
         g, other = pitems[i]
         if other != net and other != "<npth>" and rules21.barrier(net, other):
             shapes.append(_grow(g, rules21.BARRIER + width / 2 + 0.03))
     import numpy as np
-    import shapely
-    xs, ys = np.meshgrid(x0 + np.arange(nx) * STEP, y0 + np.arange(ny) * STEP)
-    if shapes:
-        bad = unary_union(shapes)
-        shapely.prepare(bad)
-        mask = shapely.contains_xy(bad, xs.ravel(), ys.ravel())
-    else:
-        mask = np.zeros(nx * ny, dtype=bool)
+    mask = np.zeros((ny, nx), dtype=bool)
+    for sh in shapes:
+        _paint(mask, sh, i0, j0, nx, ny)
     return bytearray(mask.astype(np.uint8).tobytes()), nx, ny
 
 
 def connect(geo, net, layer, bx, width, starts, goals):
     """Shortest legal path from any start point to any goal point (lists of (x, y))."""
-    x0, y0 = bx[0], bx[1]
+    x0, y0 = _window(bx)[4:]
     grid, nx, ny = _blocked(geo, net, layer, bx, width)
 
     def cell(p):
@@ -104,7 +149,7 @@ def connect(geo, net, layer, bx, width, starts, goals):
         grid[c[1] * nx + c[0]] = 0
     start_cells = {cell(s): s for s in starts}
     openq, came, cost = [], {}, {}
-    hd = _goal_distance(goal_cells, nx, ny)
+    hd = _goal_distance(goal_cells, nx, ny).tolist()
 
     def h(c):
         return hd[c[1]][c[0]]
@@ -155,43 +200,115 @@ def _via_ok(geo, net, bx, size):
     from shapely.geometry import box as _box
     import rules21
     x0, y0, x1, y1 = bx
-    nx, ny = int(round((x1 - x0) / STEP)) + 1, int(round((y1 - y0) / STEP)) + 1
-    xs, ys = np.meshgrid(x0 + np.arange(nx) * STEP, y0 + np.arange(ny) * STEP)
-    mask = np.zeros(nx * ny, dtype=bool)
+    i0, j0, nx, ny, _, _ = _window(bx)
+    grid = np.zeros((ny, nx), dtype=bool)
     for lay in CU:
         tree, items = geo._tree(lay)
-        shapes = []
         for i in tree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
             g, other = items[i]
             if other == net or id(g) in geo.via_permeable:
                 continue
             need = 0.3 if other == "<npth>" else rules21.clearance(net, other)
-            shapes.append(_grow(g, need + size / 2 + 0.03))
-        if shapes:
-            bad = unary_union(shapes)
-            shapely.prepare(bad)
-            mask |= shapely.contains_xy(bad, xs.ravel(), ys.ravel())
+            _paint(grid, _grow(g, need + size / 2 + 0.03), i0, j0, nx, ny)
     ptree, pitems = geo._tree("PLAN")
-    pshapes = []
     for i in ptree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
         g, other = pitems[i]
         if other != net and other != "<npth>" and rules21.barrier(net, other):
-            pshapes.append(_grow(g, rules21.BARRIER + size / 2 + 0.03))
-    if pshapes:
-        bad = unary_union(pshapes)
-        shapely.prepare(bad)
-        mask |= shapely.contains_xy(bad, xs.ravel(), ys.ravel())
-    inner = geo.outline.buffer(-size / 2 - 0.03)
-    shapely.prepare(inner)
-    mask |= ~shapely.contains_xy(inner, xs.ravel(), ys.ravel())
-    return mask
+            _paint(grid, _grow(g, rules21.BARRIER + size / 2 + 0.03), i0, j0, nx, ny)
+    inside = np.zeros((ny, nx), dtype=bool)
+    _paint(inside, _stable(("inner", id(geo.outline), size), lambda: geo.outline.buffer(-size / 2 - 0.03)), i0, j0, nx, ny)
+    return (grid | ~inside).ravel()
+
+
+_DX = (1, -1, 0, 0, 1, 1, -1, -1)
+_DY = (0, 0, 1, -1, 1, -1, 1, -1)
+_W = (1.0, 1.0, 1.0, 1.0, 1.414, 1.414, 1.414, 1.414)
+
+
+def _astar_core(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost, cost, came):
+    """8-connected A* over nl layers of an nx x ny grid with through-via moves; node = layer * nx * ny + j * nx + i.
+    0.6 per bend, via_cost per layer change. Pushes in the order the tuple-keyed version did (same tie counter), so it
+    returns the same path. Returns the goal node reached or -1; came[] holds each node's predecessor (-1: none)."""
+    P = nx * ny
+    heap = [(0.0, 0, 0, 0)]
+    heap.pop()
+    tie = 0
+    for s in start_nodes:
+        cost[s] = 0.0
+        heapq.heappush(heap, (hd[s % P], tie, s, -1))
+        tie += 1
+    end = -1
+    while len(heap) > 0:
+        _, _, c, d = heapq.heappop(heap)
+        if goal_mask[c]:
+            end = c
+            break
+        li = c // P
+        r = c - li * P
+        j = r // nx
+        i = r - j * nx
+        cc = cost[c]
+        for k in range(8):
+            ni = i + _DX[k]
+            nj = j + _DY[k]
+            if ni < 0 or ni >= nx or nj < 0 or nj >= ny:
+                continue
+            n = li * P + nj * nx + ni
+            if blocked[n]:
+                continue
+            nc = cc + _W[k] + (0.0 if d == -1 or d == k else 0.6)
+            if nc < cost[n]:
+                cost[n] = nc
+                came[n] = c
+                heapq.heappush(heap, (nc + hd[n - li * P], tie, n, k))
+                tie += 1
+        if vok[r]:
+            for lj in range(nl):  # through vias: any layer change
+                n = lj * P + r
+                if lj == li or blocked[n]:
+                    continue
+                nc = cc + via_cost
+                if nc < cost[n]:
+                    cost[n] = nc
+                    came[n] = c
+                    heapq.heappush(heap, (nc + hd[r], tie, n, -1))
+                    tie += 1
+    return end
+
+
+_CORE = None
+
+
+def _astar(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost):
+    """Run the core JIT-compiled (numba, cached beside this file) or, without numba or with MAZE21_NO_JIT, as plain
+    Python on lists: the same code either way."""
+    global _CORE
+    import os
+    import numpy as np
+    N = nl * nx * ny
+    if _CORE is None:
+        _CORE = _astar_core
+        if not os.environ.get("MAZE21_NO_JIT"):
+            try:
+                import numba
+                _CORE = numba.njit(cache=True)(_astar_core)
+            except ImportError:
+                pass
+    if _CORE is _astar_core:
+        came = [-1] * N
+        end = _astar_core(blocked.tolist(), vok.tolist(), hd.tolist(), start_nodes.tolist(), goal_mask.tolist(),
+                          nx, ny, nl, via_cost, [1e18] * N, came)
+        return end, came
+    came = np.full(N, -1, dtype=np.int64)
+    end = _CORE(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost, np.full(N, 1e18), came)
+    return int(end), came
 
 
 def connect2(geo, net, bx, width, starts, goals, layers=OUTER, via=0.75, via_cost=8.0):
     """Multi-layer variant: starts/goals are (x, y, layer_index or None for any layer).
     Returns (segments [(layer, pts)], vias [(x, y)]) or None."""
     import numpy as np
-    x0, y0 = bx[0], bx[1]
+    x0, y0 = _window(bx)[4:]
     grids = []
     for lay in layers:
         g, nx, ny = _blocked(geo, net, lay, bx, width)
@@ -207,53 +324,27 @@ def connect2(geo, net, bx, width, starts, goals, layers=OUTER, via=0.75, via_cos
         for li in (range(len(layers)) if gl is None else [gl]):
             goal[(c[0], c[1], li)] = (gx, gy)
             grids[li][c[1] * nx + c[0]] = 0
-    hd = _goal_distance({(c[0], c[1]) for c in goal}, nx, ny)
-
-    def h(c):
-        return hd[c[1]][c[0]]
-    openq, came, cost = [], {}, {}
-    startpt = {}
+    nl, P = len(layers), nx * ny
+    hd = _goal_distance({(c[0], c[1]) for c in goal}, nx, ny).ravel()
+    goal_mask = np.zeros(nl * P, dtype=np.uint8)
+    for (i, j, li) in goal:
+        goal_mask[li * P + j * nx + i] = 1
+    startpt, start_nodes = {}, []
     for sx, sy, sl in starts:
         c = cell((sx, sy))
-        for li in (range(len(layers)) if sl is None else [sl]):
-            s = (c[0], c[1], li)
+        for li in (range(nl) if sl is None else [sl]):
             grids[li][c[1] * nx + c[0]] = 0
-            cost[s] = 0.0
-            startpt[s] = (sx, sy)
-            heapq.heappush(openq, (h(s), next(_TIE), s, None))
-    moves = [(1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0),
-             (1, 1, 1.414), (1, -1, 1.414), (-1, 1, 1.414), (-1, -1, 1.414)]
-    end = None
-    while openq:
-        _, _, c, d = heapq.heappop(openq)
-        if c in goal:
-            end = c
-            break
-        i, j, li = c
-        for dx, dy, w in moves:
-            n = (i + dx, j + dy, li)
-            if not (0 <= n[0] < nx and 0 <= n[1] < ny) or grids[li][n[1] * nx + n[0]]:
-                continue
-            nc = cost[c] + w + (0.0 if d is None or d == (dx, dy) else 0.6)
-            if nc < cost.get(n, 1e18):
-                cost[n] = nc
-                came[n] = c
-                heapq.heappush(openq, (nc + h(n), next(_TIE), n, (dx, dy)))
-        if vok[j * nx + i]:
-            for lj in range(len(layers)):  # through vias: any layer change
-                if lj == li or grids[lj][j * nx + i]:
-                    continue
-                n = (i, j, lj)
-                nc = cost[c] + via_cost
-                if nc < cost.get(n, 1e18):
-                    cost[n] = nc
-                    came[n] = c
-                    heapq.heappush(openq, (nc + h(n), next(_TIE), n, None))
-    if end is None:
+            startpt[(c[0], c[1], li)] = (sx, sy)
+            start_nodes.append(li * P + c[1] * nx + c[0])
+    blocked = np.frombuffer(b"".join(bytes(g) for g in grids), dtype=np.uint8)
+    end, came = _astar(blocked, np.ascontiguousarray(vok, dtype=np.uint8), hd, np.array(start_nodes, dtype=np.int64),
+                       goal_mask, nx, ny, nl, float(via_cost))
+    if end < 0:
         return None
     cells = [end]
-    while cells[-1] in came:
-        cells.append(came[cells[-1]])
+    while came[cells[-1]] >= 0:
+        cells.append(int(came[cells[-1]]))
+    cells = [(c % P % nx, c % P // nx, c // P) for c in cells]
     cells.reverse()
     segs, vias, cur = [], [], []
     for k, c in enumerate(cells):
