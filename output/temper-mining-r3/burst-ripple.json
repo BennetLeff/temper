@@ -1,0 +1,277 @@
+{
+ "scope": "How much does temper's low-power burst mode ripple the pan?\n\nPower-stage DECISIONS (2026-10-05, F9): below the frequency-control floor\n(about 150-160 W) power is set by line-synchronous bursts at the floor, with a\nburst period T >= max(2 s, ...) and a 20 s default (flicker screen). Impulse\nmarkets \"true continuous control\" and says on/off cycling at low settings\nscorches pans (Cars & Capitalists, 7TZb8I5rVZ8 75:04-75:27); Control Freak\nowners report gentle pulsing (Hungry Onion, Dec 2022).\n\nThis runs the sensor-r2 radial pan model (output/temper-sensor-r2/\nestimator_study.Truth, imported read-only) to a steady hold at an average\npower, then compares continuous power with bursts at the floor power, and\nreports the peak-to-peak swing at the contact point (T_c) and the hottest ring.\nIt is open-loop on purpose: the closed loop cannot do better than the burst\nquantum. Run: python3 burst_ripple.py -> burst-ripple.json",
+ "floor_W": 160.0,
+ "eta": 0.88,
+ "rows": [
+  {
+   "pan": "carbon_steel_28",
+   "P_avg_W": 60.0,
+   "period_s": 20.0,
+   "duty": 0.375,
+   "continuous": {
+    "T_c_mean": 73.6,
+    "T_c_pp_K": 0.0,
+    "hottest_ring_mean": 75.8,
+    "hottest_ring_pp_K": 0.0
+   },
+   "burst": {
+    "T_c_mean": 74.4,
+    "T_c_pp_K": 0.19,
+    "hottest_ring_mean": 76.6,
+    "hottest_ring_pp_K": 2.9
+   }
+  },
+  {
+   "pan": "carbon_steel_28",
+   "P_avg_W": 60.0,
+   "period_s": 10.3,
+   "duty": 0.375,
+   "continuous": {
+    "T_c_mean": 73.6,
+    "T_c_pp_K": 0.0,
+    "hottest_ring_mean": 75.8,
+    "hottest_ring_pp_K": 0.0
+   },
+   "burst": {
+    "T_c_mean": 74.0,
+    "T_c_pp_K": 0.06,
+    "hottest_ring_mean": 76.2,
+    "hottest_ring_pp_K": 1.51
+   }
+  },
+  {
+   "pan": "carbon_steel_28",
+   "P_avg_W": 60.0,
+   "period_s": 2.5,
+   "duty": 0.375,
+   "continuous": {
+    "T_c_mean": 73.6,
+    "T_c_pp_K": 0.0,
+    "hottest_ring_mean": 75.8,
+    "hottest_ring_pp_K": 0.0
+   },
+   "burst": {
+    "T_c_mean": 73.7,
+    "T_c_pp_K": 0.01,
+    "hottest_ring_mean": 75.9,
+    "hottest_ring_pp_K": 0.36
+   }
+  },
+  {
+   "pan": "carbon_steel_28",
+   "P_avg_W": 120.0,
+   "period_s": 20.0,
+   "duty": 0.75,
+   "continuous": {
+    "T_c_mean": 102.6,
+    "T_c_pp_K": 0.0,
+    "hottest_ring_mean": 108.3,
+    "hottest_ring_pp_K": 0.0
+   },
+   "burst": {
+    "T_c_mean": 103.2,
+    "T_c_pp_K": 0.16,
+    "hottest_ring_mean": 109.0,
+    "hottest_ring_pp_K": 2.56
+   }
+  },
+  {
+   "pan": "carbon_steel_28",
+   "P_avg_W": 120.0,
+   "period_s": 10.3,
+   "duty": 0.75,
+   "continuous": {
+    "T_c_mean": 102.6,
+    "T_c_pp_K": 0.0,
+    "hottest_ring_mean": 108.3,
+    "hottest_ring_pp_K": 0.0
+   },
+   "burst": {
+    "T_c_mean": 102.9,
+    "T_c_pp_K": 0.05,
+    "hottest_ring_mean": 108.7,
+    "hottest_ring_pp_K": 1.35
+   }
+  },
+  {
+   "pan": "carbon_steel_28",
+   "P_avg_W": 120.0,
+   "period_s": 2.5,
+   "duty": 0.75,
+   "continuous": {
+    "T_c_mean": 102.6,
+    "T_c_pp_K": 0.0,
+    "hottest_ring_mean": 108.3,
+    "hottest_ring_pp_K": 0.0
+   },
+   "burst": {
+    "T_c_mean": 102.7,
+    "T_c_pp_K": 0.02,
+    "hottest_ring_mean": 108.5,
+    "hottest_ring_pp_K": 0.31
+   }
+  },
+  {
+   "pan": "triply_clad_24",
+   "P_avg_W": 60.0,
+   "period_s": 20.0,
+   "duty": 0.375,
+   "continuous": {
+    "T_c_mean": 78.3,
+    "T_c_pp_K": 0.01,
+    "hottest_ring_mean": 78.8,
+    "hottest_ring_pp_K": 0.01
+   },
+   "burst": {
+    "T_c_mean": 79.0,
+    "T_c_pp_K": 0.91,
+    "hottest_ring_mean": 79.7,
+    "hottest_ring_pp_K": 2.52
+   }
+  },
+  {
+   "pan": "triply_clad_24",
+   "P_avg_W": 60.0,
+   "period_s": 10.3,
+   "duty": 0.375,
+   "continuous": {
+    "T_c_mean": 78.3,
+    "T_c_pp_K": 0.01,
+    "hottest_ring_mean": 78.8,
+    "hottest_ring_pp_K": 0.01
+   },
+   "burst": {
+    "T_c_mean": 78.7,
+    "T_c_pp_K": 0.27,
+    "hottest_ring_mean": 79.2,
+    "hottest_ring_pp_K": 1.26
+   }
+  },
+  {
+   "pan": "triply_clad_24",
+   "P_avg_W": 60.0,
+   "period_s": 2.5,
+   "duty": 0.375,
+   "continuous": {
+    "T_c_mean": 78.3,
+    "T_c_pp_K": 0.01,
+    "hottest_ring_mean": 78.8,
+    "hottest_ring_pp_K": 0.01
+   },
+   "burst": {
+    "T_c_mean": 78.4,
+    "T_c_pp_K": 0.01,
+    "hottest_ring_mean": 78.9,
+    "hottest_ring_pp_K": 0.31
+   }
+  },
+  {
+   "pan": "triply_clad_24",
+   "P_avg_W": 120.0,
+   "period_s": 20.0,
+   "duty": 0.75,
+   "continuous": {
+    "T_c_mean": 115.4,
+    "T_c_pp_K": 0.01,
+    "hottest_ring_mean": 116.9,
+    "hottest_ring_pp_K": 0.01
+   },
+   "burst": {
+    "T_c_mean": 115.9,
+    "T_c_pp_K": 0.71,
+    "hottest_ring_mean": 117.4,
+    "hottest_ring_pp_K": 2.17
+   }
+  },
+  {
+   "pan": "triply_clad_24",
+   "P_avg_W": 120.0,
+   "period_s": 10.3,
+   "duty": 0.75,
+   "continuous": {
+    "T_c_mean": 115.4,
+    "T_c_pp_K": 0.01,
+    "hottest_ring_mean": 116.9,
+    "hottest_ring_pp_K": 0.01
+   },
+   "burst": {
+    "T_c_mean": 115.7,
+    "T_c_pp_K": 0.22,
+    "hottest_ring_mean": 117.1,
+    "hottest_ring_pp_K": 1.19
+   }
+  },
+  {
+   "pan": "triply_clad_24",
+   "P_avg_W": 120.0,
+   "period_s": 2.5,
+   "duty": 0.75,
+   "continuous": {
+    "T_c_mean": 115.4,
+    "T_c_pp_K": 0.01,
+    "hottest_ring_mean": 116.9,
+    "hottest_ring_pp_K": 0.01
+   },
+   "burst": {
+    "T_c_mean": 115.5,
+    "T_c_pp_K": 0.01,
+    "hottest_ring_mean": 117.0,
+    "hottest_ring_pp_K": 0.31
+   }
+  },
+  {
+   "pan": "disc_pot_water_1l5",
+   "P_avg_W": 120.0,
+   "period_s": 20.0,
+   "duty": 0.75,
+   "continuous": {
+    "T_c_mean": 55.0,
+    "T_c_pp_K": 0.33,
+    "hottest_ring_mean": 56.0,
+    "hottest_ring_pp_K": 0.32
+   },
+   "burst": {
+    "T_c_mean": 55.0,
+    "T_c_pp_K": 0.66,
+    "hottest_ring_mean": 56.0,
+    "hottest_ring_pp_K": 1.83
+   }
+  },
+  {
+   "pan": "disc_pot_water_1l5",
+   "P_avg_W": 120.0,
+   "period_s": 10.3,
+   "duty": 0.75,
+   "continuous": {
+    "T_c_mean": 55.0,
+    "T_c_pp_K": 0.33,
+    "hottest_ring_mean": 56.0,
+    "hottest_ring_pp_K": 0.32
+   },
+   "burst": {
+    "T_c_mean": 55.0,
+    "T_c_pp_K": 0.4,
+    "hottest_ring_mean": 56.0,
+    "hottest_ring_pp_K": 1.29
+   }
+  },
+  {
+   "pan": "disc_pot_water_1l5",
+   "P_avg_W": 120.0,
+   "period_s": 2.5,
+   "duty": 0.75,
+   "continuous": {
+    "T_c_mean": 55.0,
+    "T_c_pp_K": 0.33,
+    "hottest_ring_mean": 56.0,
+    "hottest_ring_pp_K": 0.32
+   },
+   "burst": {
+    "T_c_mean": 55.0,
+    "T_c_pp_K": 0.33,
+    "hottest_ring_mean": 56.0,
+    "hottest_ring_pp_K": 0.57
+   }
+  }
+ ]
+}
