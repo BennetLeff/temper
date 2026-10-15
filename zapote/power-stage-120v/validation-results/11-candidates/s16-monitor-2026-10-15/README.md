@@ -273,14 +273,17 @@ The out-D33 hot-load campaign was re-run at a **19 V span**: 128 / 128 pass, neg
 against the 70 mA limit (`round17/delegation/out-D33/rail-hot-19V/`). The qualified span-OV ceiling becomes 19.0 V.
 Span UV catch margin +0.069 V sits inside the 15.5 V droop-campaign basis (positive, below the 0.5 % target).
 
-**Candidate B (TPS3701 per window) not adopted**, for the same reason as simplification A and C: it weakens how
-independently the protection fails.
-- C4: a TL431 open or short today trips the UV and is announced. A drift in the TPS3701's internal reference can
-  silently mask one window. No TPS3701 FMEDA exists.
-- C5: an open bottom resistor puts the 17 V span on a 7 V input pin.
+**Candidate B (TPS3701 per window) not adopted for S16; its safety case is open.** The two studies read B's failure
+modes differently, and both are right in part:
+- For B (`simplify-2026-10-15` Brief B): one IC per window, so a die or reference fault masks one window, not all four
+  thresholds (C2 / C4); the C7 sliver closes.
+- Against B (this study): a TL431 open or short today trips the UV and is announced. A drift in a TPS3701's internal
+  reference can silently mask its window, and no TPS3701 FMD exists. C5: an open bottom resistor puts the 17 V span on
+  a 7 V input pin.
 - Cost: +$1.53 per board, against +$0.17.
 
-Candidate B stays the fallback if the TL431B stage fails its card.
+S16 is a tolerance defect, and 1c-4420 fixes it for the least change. Whether B is worth its cost on fault isolation is
+a separate question, settled by a side-by-side FMEA of s43 / 1c-4420 / B (OPEN-ITEMS S16, running 2026-10-15). Candidate B stays the fallback if the TL431B stage fails its card.
 
 **Carried as items:**
 - the −2 V UV lower corner before the fix (1.7395 V, 15 mV under the −1.6 V edge-rule floor) is cleared by 1c-4420
