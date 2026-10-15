@@ -1,11 +1,17 @@
 #!/bin/sh
-# Rerun every sensor-r3 C1 firmware result (about 4 min on the Mac):
+# Rerun every sensor-r3 C1 firmware result (about 5 min on the Mac):
 #   1. regenerate the golden vectors (firmware/test/*_vectors.h, vectors-summary.json)
-#   2. build + run the four C1 host test targets (firmware/test/CMakeLists.txt)
+#   2. build + run the seven C1 host test targets (firmware/test/CMakeLists.txt):
+#      loop modules, D1, the contact-lost event, and the C1 runtime
+#      (supervisor/conversion units, state machine + pan_control, MAX31865 C1
+#      service through the SPI mock; TEMPER_PAN_CONTROL_C1)
 #   3. build the C1 sources as a host library and run the C-in-the-loop co-sim
-#      (cosim-results.json, gates bars B1-B5 in three gain modes)
+#      (cosim-results.json, gates bars B1-B5 in three gain modes, with the
+#      runtime runaway supervisor in the loop)
 #   4. D1 seed-to-seed Monte Carlo (b5-montecarlo.json, gates safety only)
-#   5. plant-gain sensitivity (sensitivity.json, reported only)
+#   5. runaway checks: legacy vs C1 rules on false-trip and fault scenarios
+#      (runaway-checks.json, gates the C1 rules; DECISIONS.md D-RUN)
+#   6. plant-gain sensitivity (sensitivity.json, reported only)
 # Exits non-zero if any step fails. Build products go to a temp dir.
 set -eu
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -21,9 +27,10 @@ echo "== 1. golden vectors"
 echo "== 2. host tests"
 cmake -S "$repo/firmware/test" -B "$tmp/build" > /dev/null
 cmake --build "$tmp/build" -j 8 --target test_pan_temp_estimator_only \
-    test_contact_check_only test_pan_temp_loop_only test_pan_contact_sm_only > /dev/null
+    test_contact_check_only test_pan_temp_loop_only test_pan_contact_sm_only \
+    test_c1_units_only test_c1_runtime_only test_c1_rtd_service_only > /dev/null
 (cd "$tmp/build" && ctest --output-on-failure \
-    -R '^(pan_temp_estimator|contact_check|pan_temp_loop|pan_contact_sm)_tests$')
+    -R '^(pan_temp_estimator|contact_check|pan_temp_loop|pan_contact_sm|c1_units|c1_runtime|c1_rtd_service)_tests$')
 
 echo "== 3. co-simulation"
 lib=$("$here/build_lib.sh" "$tmp/lib")
@@ -36,6 +43,11 @@ echo "== 4. D1 Monte Carlo"
     || { cat "$tmp/mc.log"; exit 1; }
 grep '^==' "$tmp/mc.log"
 
-echo "== 5. plant-gain sensitivity (reported, not gated)"
+echo "== 5. runaway checks"
+"$py" "$here/runaway_checks.py" --lib "$lib" --out "$here/runaway-checks.json" > "$tmp/rc.log" \
+    || { cat "$tmp/rc.log"; exit 1; }
+grep -E '^(legacy false trips|C1 false trips|CHECKS|ALL RUNAWAY)' "$tmp/rc.log"
+
+echo "== 6. plant-gain sensitivity (reported, not gated)"
 "$py" "$here/sensitivity.py" --lib "$lib" --out "$here/sensitivity.json" > /dev/null
 echo "ALL C1 FIRMWARE CHECKS PASS"

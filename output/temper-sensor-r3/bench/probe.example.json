@@ -1,0 +1,17 @@
+{
+ "_note": "Copy to probe.json and replace every value marked MEASURE with the as-built probe. Units in the keys. tau_int_s is written by 'python fit.py calibrate RUN.csv'.",
+ "probe_id": "S1-alumina-example",
+ "disc": {
+  "material": "99.6 % alumina, polished thin-film grade (example; Si3N4 0.32 mm is the C1-exact option)",
+  "d_mm": 8.0, "t_mm": 0.254, "contact_d_mm": 7.6,
+  "mass_mg": 49.4, "_mass_note": "MEASURE on a 0.1 mg balance; example = rho 3870 kg/m3 x pi 4^2 x 0.254 mm3",
+  "cp_J_kgK": 880.0, "k_W_mK": 26.0
+ },
+ "bond": {"C_extra_J_K": 0.00507, "_note": "post rim bonded to the disc (10 % of the disc) + 0.10 mm bondline (0.72 mJ/K), as cartridge_budget.py"},
+ "element": {"part": "IST P0K1.202 family Pt100, class F0.15 or better", "C_el_J_K": 0.0082},
+ "G_leak_W_K": 0.0008,
+ "tau_int_s": 0.12, "_tau_int_note": "placeholder until the paste calibration is run",
+ "Rref_ohm": 430.0, "R0_ohm": 100.0,
+ "sys": {"C_cap_s": 0.04, "C_el": 0.30, "G_leak_W_K": 0.50, "tau_int_s": 0.015},
+ "_sys_note": "relative (absolute for tau_int_s) probe-constant uncertainties used for the verdict band; C_el drops to ~0.10 if 5 spare elements are weighed together (DECISIONS D6)"
+}

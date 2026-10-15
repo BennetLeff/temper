@@ -49,6 +49,14 @@ extern bool is_fan_running(void);
 extern void delay_ms(uint32_t ms);
 extern void eeprom_log_fault(fault_code_t code, uint32_t timestamp);
 
+#ifdef TEMPER_PAN_CONTROL_C1
+/* sensor-r3 C1 (output/temper-sensor-r3/firmware/DECISIONS.md D-MODE): the
+ * C1 loop (main/pan_control.c) controls PREHEAT/HEATING, and every
+ * pan-temperature read is the latest MAX31865 conversion. */
+#include "pan_control.h"
+#define read_pan_temperature() pan_control_reading_c()
+#endif
+
 /* Pan detection stubs */
 typedef enum { PAN_ABSENT, PAN_PRESENT } pan_status_t;
 extern pan_status_t detect_pan_presence(void);
@@ -250,8 +258,14 @@ void state_preheat_entry(void) {
     /* Enable full power */
     power_enable();
 
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* The C1 loop restarts from the latest reading at every PREHEAT entry
+     * and runs on through HEATING. */
+    pan_control_begin();
+#else
     /* Initialize PID with aggressive tuning */
     pid_set_tuning(2.0f, 0.1f, 0.5f);
+#endif
 
     /* Enable ZVS tracking */
     pll_enable();
@@ -278,6 +292,28 @@ void state_preheat_update(void) {
         return;
     }
     
+#ifdef TEMPER_PAN_CONTROL_C1
+    {
+        const pan_control_status_t pc = pan_control_step(sm_get_context()->target_temperature,
+                                                         sm_get_context()->intensity_level);
+        if (pc == PAN_CONTROL_RUNAWAY) {
+            /* Supervisor stage 2a/2b: the power stage is not obeying. */
+            enter_hardware_latched_fault(FAULT_THERMAL_RUNAWAY);
+            return;
+        }
+        if (pc == PAN_CONTROL_SENSOR_FAULT) {
+            return;   /* reported through the RTD fault sink */
+        }
+        /* Hand over to HEATING on the pan-temperature estimate; the loop
+         * keeps running there (same threshold as the legacy temp_error). */
+        const float t_hat = pan_control_t_hat();
+        if (isfinite(t_hat) && t_hat >= sm_get_context()->target_temperature - 10.0f) {
+            transition_to(STATE_HEATING);
+            return;
+        }
+        (void)temp_error;
+    }
+#else
     /* Aggressive power control with intensity limiting */
     uint8_t requested_power = 0;
     if (temp_error > 50.0f) {
@@ -293,6 +329,7 @@ void state_preheat_update(void) {
     float intensity_max[] = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
     uint8_t clamped_power = (uint8_t)fminf((float)requested_power, intensity_max[sm_get_context()->intensity_level - 1] * 100.0f);
     power_set_level(clamped_power);
+#endif
 
     /* Safety checks */
     if (check_safety_interlocks()) {
@@ -323,6 +360,12 @@ void state_preheat_update(void) {
  * ============================================================================ */
 
 void state_heating_entry(void) {
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* PREHEAT started the loop; it continues here. Any other way in starts it. */
+    if (sm_get_context()->previous_state != STATE_PREHEAT || !pan_control_is_running()) {
+        pan_control_begin();
+    }
+#else
     if (sm_get_context()->target_temperature < 50.0f) {
         /* low_temp_start(sm_get_context()->target_temperature); */
         /* Switch to precision PID tuning for low temp */
@@ -333,6 +376,7 @@ void state_heating_entry(void) {
         pid_set_tuning(1.0f, 0.05f, 0.2f);
         pid_reset_integral();
     }
+#endif
 
     /* Visual feedback */
     display_show_message("HEATING");
@@ -379,6 +423,21 @@ void state_heating_update(void) {
         /* TODO: Handle p_use_probe for cascade control when integrated */
     }
 
+#ifdef TEMPER_PAN_CONTROL_C1
+    {
+        const pan_control_status_t pc = pan_control_step(sm_get_context()->target_temperature,
+                                                         sm_get_context()->intensity_level);
+        if (pc == PAN_CONTROL_RUNAWAY) {
+            watchdog_feed();
+            enter_hardware_latched_fault(FAULT_THERMAL_RUNAWAY);
+            return;
+        }
+        if (pc == PAN_CONTROL_SENSOR_FAULT) {
+            watchdog_feed();
+            return;
+        }
+    }
+#else
     if (sm_get_context()->target_temperature < 50.0f) {
         /* Run low-temperature burst control */
         /* low_temp_update(current_temp); */
@@ -394,6 +453,7 @@ void state_heating_update(void) {
         float clamped_output = fminf(pid_output, intensity_max[sm_get_context()->intensity_level - 1] * 100.0f);
         power_set_level((uint8_t)clamped_output);
     }
+#endif
 
     /* Update PLL for ZVS tracking */
     pll_update();
@@ -404,12 +464,19 @@ void state_heating_update(void) {
         return;
     }
 
+#ifndef TEMPER_PAN_CONTROL_C1
     /* Thermal runaway detection */
     if (current_temp > (sm_get_context()->target_temperature + 10.0f)) {
         watchdog_feed();
         enter_hardware_latched_fault(FAULT_THERMAL_RUNAWAY);
         return;
     }
+#endif
+    /* C1 builds: the supervisor in pan_control_step() replaces this latch
+     * (stage 1 forces the command to 0 above target + 10 K; stage 2a/2b
+     * latch FAULT_THERMAL_RUNAWAY when the pan still heats). A hot pan
+     * placed above target, an h_c drop (T_c up to target + 13 K) or a lowered
+     * target tripped it falsely (DECISIONS.md D-RUN). */
 
     /* Pan removal detection (with debouncing) */
     if (detect_pan_presence() == PAN_ABSENT) {

@@ -24,6 +24,15 @@ are change requests: no design source was edited.
      (`output/temper-sensor-r2`) and pan classification.
    - **Verify:** compare against true-RMS line current at 108, 120 and 132 V
      over the pan grid.
+   - **Power-stage reply (2026-10-15):** logged as an open item in
+     `zapote/power-stage-120v/OPEN-ITEMS.md`. It rides with the
+     candidate-23 SELV-side lane.
+     - The board of record is now s35 (DECISIONS 44).
+     - A thermal-ratings audit puts still-air board copper near R5 at about
+       4 K above the laminate's 130 °C MOT at 22 A.
+     - So the +7–9 % power gain may be capped thermally rather than by
+       current-measurement error. Re-check this item against that audit
+       before claiming the gain.
 3. **Dither the frequency in firmware (M).**
    - **Change:** triangular, ±1 kHz, one period per line half-cycle.
    - **Effect:** −8.5 to −10.5 dB band-A QP in the model. It may relax the

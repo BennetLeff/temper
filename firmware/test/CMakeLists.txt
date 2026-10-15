@@ -543,3 +543,67 @@ add_test(NAME pan_temp_estimator_tests COMMAND test_pan_temp_estimator_only)
 add_test(NAME contact_check_tests COMMAND test_contact_check_only)
 add_test(NAME pan_temp_loop_tests COMMAND test_pan_temp_loop_only)
 add_test(NAME pan_contact_sm_tests COMMAND test_pan_contact_sm_only)
+
+# ============================================================================
+# sensor-r3 C1 runtime (TEMPER_PAN_CONTROL_C1): runaway supervisor and RTD
+# conversion units, the state machine driving the C1 loop through
+# main/pan_control.c, and the C1 MAX31865 service path (CR-7) through the SPI
+# mock. output/temper-sensor-r3/firmware/DECISIONS.md D-MODE, D-RUN, D-STALE.
+# The legacy targets above build without TEMPER_PAN_CONTROL_C1.
+# ============================================================================
+
+set(C1_RUNTIME_SOURCES
+    ${PAN_TEMP_LOOP_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_supervisor.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/pan_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/profiles.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/state_machine_stubs.c
+)
+
+add_executable(test_c1_units_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_supervisor.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_units.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_units.c
+)
+target_include_directories(test_c1_units_only PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_c1_units_only m)
+
+add_executable(test_c1_runtime_only
+    ${UNITY_SOURCES}
+    ${C1_RUNTIME_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_runtime.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_runtime.c
+)
+target_compile_definitions(test_c1_runtime_only PRIVATE TEMPER_PAN_CONTROL_C1=1)
+target_include_directories(test_c1_runtime_only PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_c1_runtime_only m)
+add_dependencies(test_c1_runtime_only gen_config gen_fault_list gen_transition_table)
+
+add_executable(test_c1_rtd_service_only
+    ${UNITY_SOURCES}
+    ${MOCK_HAL_SOURCES}
+    ${C1_RUNTIME_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/max31865.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_rtd_service.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_rtd_service.c
+)
+target_compile_definitions(test_c1_rtd_service_only PRIVATE TEMPER_PAN_CONTROL_C1=1)
+target_include_directories(test_c1_rtd_service_only PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_c1_rtd_service_only m)
+add_dependencies(test_c1_rtd_service_only gen_config gen_fault_list gen_transition_table)
+
+add_test(NAME c1_units_tests COMMAND test_c1_units_only)
+add_test(NAME c1_runtime_tests COMMAND test_c1_runtime_only)
+add_test(NAME c1_rtd_service_tests COMMAND test_c1_rtd_service_only)

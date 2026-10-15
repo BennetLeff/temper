@@ -122,3 +122,46 @@ derivations:
           - sheetpath: rtd_pan.r_ref
             footprint: Resistor_SMD:R_0805_2012Metric
             value: 430ohm
+
+  - constant: MAX31865_C1_LOW_THRESHOLD_WORD
+    firmware_file: firmware/config.yaml
+    formula: max31865_low_threshold_word
+    compare: "=="
+    description: >-
+      MAX31865 low fault-threshold register word for the 84.27 ohm C1
+      Pt100 low boundary (-40 degC, sensor-r3 CR-7): the smallest 15-bit
+      ratiometric ADC code strictly above RTD/RREF * 2^15 (so an RTD AT or
+      BELOW 84.27 ohm trips), shifted left one bit.
+    inputs:
+      - name: rtd_resistance
+        provenance: declared-assumed
+        source: firmware/config.yaml
+        symbol: RTD_C1_SHORT_FAULT_OHM
+      - name: r_ref
+        provenance: board-derived
+        components:
+          - sheetpath: rtd_pan.r_ref
+            footprint: Resistor_SMD:R_0805_2012Metric
+            value: 430ohm
+
+  - constant: MAX31865_C1_HIGH_THRESHOLD_WORD
+    firmware_file: firmware/config.yaml
+    formula: max31865_high_threshold_word
+    compare: "=="
+    description: >-
+      MAX31865 high fault-threshold register word for the 233.21 ohm C1
+      Pt100 high boundary (360 degC, sensor-r3 CR-7): the largest 15-bit
+      ratiometric ADC code at-or-below RTD/RREF * 2^15 (so an RTD AT or
+      ABOVE 233.21 ohm trips), shifted left one bit. CR-7 lists word 35544;
+      this rule gives 35542 (code 17771).
+    inputs:
+      - name: rtd_resistance
+        provenance: declared-assumed
+        source: firmware/config.yaml
+        symbol: RTD_C1_OPEN_FAULT_OHM
+      - name: r_ref
+        provenance: board-derived
+        components:
+          - sheetpath: rtd_pan.r_ref
+            footprint: Resistor_SMD:R_0805_2012Metric
+            value: 430ohm

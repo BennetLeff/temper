@@ -38,7 +38,8 @@ shadow_parity).
   ΔT̂ = a·ΔE.
   - Prior a0 = 1.8e-3 K/J (the lightest modelled pan, so the least power per
     K/s); clamps 5e-5 to 5e-3.
-  - No forgetting in the first heat-up; 0.99 per block on later ramps.
+  - No forgetting in the first heat-up. Later setpoint steps use a
+    hold-to-hold energy balance instead (D-ID2).
   - Updates start after a 10 K rise. The estimate is used only after a 20 K
     rise and 30 kJ of regressed energy.
 - **Gate.** Identification runs only while all of these hold:
@@ -159,30 +160,285 @@ covered by unit tests only.
   record were regenerated. Edge counts were updated: 32 → 34 transitions and
   42 → 44 mutation targets.
 
+## D-MODE. One compile-time switch, TEMPER_PAN_CONTROL_C1
+
+The C1 runtime is selected by `TEMPER_PAN_CONTROL_C1`:
+- `main/CMakeLists.txt` defines it for the ESP-IDF target;
+- the C1 host targets define it (`test_c1_runtime_only`,
+  `test_c1_rtd_service_only`);
+- the legacy host suites build without it and still test the legacy control
+  and runaway behaviour unchanged.
+
+The legacy suites encode legacy behaviour in dozens of assertions:
+- bang-bang preheat and PID power levels (the intensity-clamping tests assert
+  20/50/100/30 %);
+- step temperature jumps that the C1 guard would flag;
+- `test_fault_thermal_runaway` (`test_integration.c`) and
+  `test_sm_fault_on_thermal_runaway` (`test_state_machine.c`), which assert
+  the target + 10 K latch;
+- the SIL trace invariant of 15 K/s per 100 ms.
+
+The transition model, its invariants and the `EVENT_RUNAWAY_RISE_RATE` /
+`EVENT_THERMAL_RUNAWAY` edges stay abstract and unchanged. What changes is
+how the firmware decides that the event happened.
+
+With the switch on:
+- `main/pan_control.{c,h}` owns the loop (`ptl_t`) and the supervisor
+  (`psup_t`). It runs `ptl_step` every 100 ms from the 10 ms state-machine
+  update and holds the command in between. Its inputs are:
+  - `rtd_service_latest_sample()`;
+  - `read_rim_ntc_temperature()` (a new peripherals extern);
+  - the last command, as `PG_POWER_ESTIMATED`.
+
+  Its output is `power_set_level()` in percent of 1.8 kW. The intensity level
+  becomes the loop's own power limit (`ptl_set_power_limit`), so the PID
+  anti-windup and the plant-gain saturation gate see it.
+- PREHEAT entry starts the loop. PREHEAT hands over to HEATING at
+  T̂ ≥ target − 10 K, the legacy threshold, and the loop runs on through
+  HEATING. Any other way into HEATING starts the loop, and leaving the power
+  states stops it (`transition_to`).
+- Events:
+  - guard verdicts go to `state_machine_report_rtd_device_fault`;
+  - D1 contact lost goes to `state_machine_report_pan_contact_lost`;
+  - supervisor stage 2a/2b latches `FAULT_THERMAL_RUNAWAY`;
+  - frozen codes latch `FAULT_ADC_STUCK` through the new
+    `state_machine_report_rtd_frozen`.
+- Every `read_pan_temperature()` / `read_rtd_resistance()` in
+  `state_machine.c` and `state_handlers.c` reads the latest conversion. The
+  RTD resistance interlock uses the C1 window, 84.27 / 233.21 Ω.
+
+## D-THRESH. C1 threshold words: 12844 / 35542 (CR-7 lists 35544)
+
+These are new `config.yaml` constants with `board_derivation: true` and
+derivations in `firmware/tools/board_derivations.yaml`:
+- `RTD_C1_SHORT_FAULT_OHM` 84.27;
+- `RTD_C1_OPEN_FAULT_OHM` 233.21;
+- `MAX31865_C1_LOW_THRESHOLD_WORD` 12844;
+- `MAX31865_C1_HIGH_THRESHOLD_WORD` 35542.
+
+The board contract rounds the low code up and the high code down, so the
+window stays inside the requested resistances:
+- 84.27 Ω gives code 6421.7, which rounds up to 6422 (word 12844);
+- 233.21 Ω gives code 17771.95, which rounds down to 17771 (word 35542).
+
+CR-7's 35544 is 233.22 Ω, just outside the window. The oracle caught it, and
+`scripts/check_firmware_board_contract.py` passes 5/5. The legacy words
+1526/45722 are unchanged.
+
+## D-CR7. Where each CR-7 item landed
+
+| CR-7 item | Where |
+|---|---|
+| CONFIG 0xC0 (VBIAS, auto conversion, 60 Hz) | `max31865_start_conversions`, after the power-up cycle |
+| One automatic fault cycle at power-up, coil off; completion by polling CONFIG D3:D2 | `rtd_service` C1 bootstrap / `max31865_fault_cycle_busy`. **Manual** cycle (needs CR-1 filter): open |
+| Thresholds 84.27 / 233.21 Ω | D-THRESH |
+| Self-heating 0.061 K subtracted | `rtd_convert_code_to_c` |
+| Loading correction R − (7.86e-4·R − 0.0331) | `rtd_convert`, behind `RTD_FRONT_END_CR1` (default 0: the captured controller has no CR-1) |
+| Stale: no DRDY for 3 × 20 ms | `RTD_C1_STALE_CONTROL_TICKS` 6 (60 ms) |
+| Rim ADC attenuation and rim faults | no rim driver exists (open) |
+| 25 K cross-check | the guard (D-XCHK) |
+
+## D-STALE. Stale means no DRDY; a frozen code means 250 identical codes
+
+CR-7's "code does not change in 3 reads" would fault a healthy sensor. At
+15 bits (about 0.034 K/LSB) and sub-LSB noise, identical consecutive codes are
+normal. In the runaway runs the longest run of identical codes on a healthy
+sensor is (`runaway-checks.json` margins.max_identical_codes_by_noise):
+- 88 conversions at 0.3 LSB noise;
+- 12 at 1 LSB;
+- 6 at the 0.2 K design noise.
+
+So in C1 builds:
+- **stale** is no DRDY for 6 control ticks (60 ms);
+- **frozen** is `RTD_C1_FROZEN_CONVERSIONS` = 250 identical codes, 5 s at
+  50 Hz, which latches `FAULT_ADC_STUCK`. That is 2.8× the longest healthy
+  run.
+
+The legacy equal-reading check (49 equal 10 ms reads, about 0.5 s) is
+compiled out in C1 builds. It trips 24 of 25 benign runs at 0.3 LSB
+(`runaway-checks.json` legacy_false_trips.L_stuck; all 24 at 0.3 LSB). A
+frozen reading is caught 4.7–5.0 s after it freezes, against the legacy
+0.2–0.5 s (`runaway-checks.json` faults, kind fault_frozen). In those 5 s the
+loop keeps heating, so the pan can rise by up to 5 s × the heating rate. The
+pan peak stays ≤ 198.6 °C across the 24 frozen runs, which include freezes
+during the first heat-up.
+
+## D-RUN. Runaway checks: R1 replaces the 10 ms rate latch, R2 replaces target + 10 K
+
+`components/control/pan_supervisor.{c,h}` replaces the two legacy checks.
+`runaway_checks.py` produces the evidence and `run.sh` gates it. Each run
+closes the C loop and the C supervisor around the truth plant. The model
+feeds a 50 Hz quantised MAX31865 stream to 10 ms state-machine ticks, at
+three noise levels (0.3 LSB, 1 LSB, 0.2 K). The scenarios are:
+- 25 benign runs per noise level: design, hot pan at sp and sp + 40 K, h_c
+  steps, food, setpoint lowered by 30 K;
+- 4 contact-loss runs;
+- 23 fault runs.
+
+**The legacy checks false-trip** on benign runs, out of 75 (25 per noise
+level; `legacy_false_trips`):
+- **15 K/s per 10 ms:** 58 runs (8 at 0.3 LSB, 25 at 1 LSB, 25 at 0.2 K).
+  These include all hot-pan placements, design runs and h_c steps. One LSB
+  in 10 ms is 3.4 K/s.
+- **Target + 10 K:** 21 runs: every lowered setpoint (12) and hot-pan
+  placement (9).
+
+**R1 (sustained rise).** It latches the RUNAWAY boundary when the 1 s block
+means rise > 15 K/s for 5 consecutive blocks.
+- No benign run sustains more than 1.5 K/s over 5 blocks. The largest
+  single-block rise is a 79.4 K/s placement transient.
+- No fault runs faster than 3.84 K/s (`margins`). 1.8 kW cannot heat even the
+  lightest pan at 15 K/s.
+
+So R1, like the legacy rate latch, guards the sensor path, not the pan. A
+real runaway meets the absolute 300 °C check, which still runs every 10 ms
+and is unchanged.
+
+**R2 runs at 10 Hz in PREHEAT/HEATING.**
+- **Stage 1** is not latching: max(T̂, reading) > target + 10 K forces the
+  command to 0. In the co-sim it was active in 5 runs, for at most 1.4 s
+  (`cosim-results.json` summary.supervisor).
+- **Stage 2a** latches `FAULT_THERMAL_RUNAWAY` on bus current that the
+  command cannot explain, for 0.5 s:
+  - > 0.5 A with the command at 0 for 0.3 s, or
+  - > P_cmd/100 V + 2.5 A, taking the largest command of the last 0.3 s.
+
+  That is a power stage not obeying, which is the failure the legacy latch
+  was a proxy for. For a stage stuck on at 600–1800 W it trips within
+  0.4–3.1 s on every hazardous run, while the pan is still ≤ 198.3 °C. The
+  legacy latch takes 7.8–35.1 s on the same runs.
+- **Stage 2b** latches when the pan is over target with the command at 0 for
+  20 s and still rising ≥ 2 K over 5 s. It is current-independent, for the
+  double fault: a stuck-on stage with the current sense reading 0. The sweep
+  (`stage_2b_sweep`) covered holds 5–60 s, windows 5–20 s and rises 1–4 K.
+  - Holds of 5 s, and of 10 s with a 10–20 s window, false-trip on the hot
+    pan placed at sp + 40 K.
+  - 20/5/2 and its half-hold neighbour 10/5/2 have no false trip.
+  - 20/5/2 catches all 15 hazardous double-fault runs in ≤ 35.0 s, with
+    T_c ≤ 245.7 °C at the trip. The pan centre peaks at 259.9 °C after the
+    cut.
+  - The placeholder hold of 60 s took up to 75.1 s and reached 360.4 °C.
+
+**Trade-off (double fault only).** With the current sense also failed, C1
+latches later than the legacy target + 10 K check: up to 35.0 s against 7.8 s
+at best for legacy, which also latches falsely. The pan stays under 300 °C at
+the C1 trip (≤ 245.7 °C). The absolute 300 °C check, the hardware comparator
+(299–322 °C), the rim-NTC trip (262–288 °C, CR-5) and the TCO are unchanged.
+
+**Checks that pass** (`runaway-checks.json` checks):
+- there are no C1 false trips on any benign run or before any fault;
+- every hazardous fault is caught by a C1 rule before T_c exceeds 301 °C;
+- C1 is never later than the legacy budget, except for the double fault and
+  the frozen code (D-STALE), and those two are allowed explicitly with
+  reasons in `allowed_later_than_legacy`;
+- RTD open and short are caught at 0.00 s and no-DRDY at 0.05 s (legacy
+  0.45–0.47 s);
+- contact loss is confirmed in ≤ 20.8 s.
+
+A 600 W stuck stage on cast iron settles at 223.5 °C, below 230 + 10 K, so
+it is not hazardous. 2a still catches it with current sensing.
+
+The C1 runtime tests (`test_c1_runtime_only`) repeat the key cases through
+the real state machine:
+- a hot pan placed in IDLE does not latch;
+- target + 13 K holds the power off without latching;
+- a lowered target does not latch;
+- 10 A with the power off latches `FAULT_THERMAL_RUNAWAY`;
+- 3 K/s with the power off latches after 20 s;
+- 305 °C still latches the RUNAWAY boundary.
+
+## D-ID2. Plant gain on later setpoint steps: one hold-to-hold energy balance
+
+Before, a never changed after the first heat-up. A later step (10–30 K) is
+too short for the 20-block window.
+
+A short sliding window on later ramps is corrupted by the pan-centre lag. The
+sensor sits at the pan centre, and during a ramp the pan mean runs well ahead
+of it: in the design runs the mean overshoots the setpoint by up to 18.5 K
+while the reading overshoots ≤ 3.2 K (`cosim-results.json` design
+worst_T_mean_overshoot_K and worst_overshoot_K). A window also absorbs the
+hold loss, several hundred W at 200 °C, into a, which pushes it low: the
+over-powering side.
+
+A later step therefore makes one update, from an energy balance between two
+holds:
+
+  a = (T_end − T_0) / (E_in − ∫L dt)
+
+- T_0, P_0 are the mean reading and input power over the 10 s before the
+  step. They must be a hold: block means within 1 K. The hold power is the
+  measured loss at T_0.
+- T_end, P_end are the same over the first 10 s hold after the step.
+- L(T) is linear through (T_0, P_0) and (T_end, P_end).
+- The gate must stay closed-clean from the step to the end hold: no D1 event,
+  no fault, contact normal. The update also needs a rise of ≥ 5 K, and it
+  times out after 300 s.
+
+Protection:
+- The phase estimate must lie within [θ/1.5, 1.5θ], or it is rejected. That
+  rejects a boil plateau (the end-hold power is the boil power), a lifted pan
+  and a stuck reading.
+- One phase may raise a by up to 1.5× and lower it by up to 1/1.25.
+- The covariance floor is (0.2θ)².
+
+Results (`cosim-results.json`):
+- **Carbon steel and cast iron** now update: a/a_true moves from 0.88–1.115
+  to 1.049–1.251.
+- **Triply clad** is rejected: its end hold is not yet steady, so the
+  estimate falls outside 1.5θ.
+- **Water pot:** the boil plateau is rejected.
+- **Food runs:** a stays at its first-ramp value.
+
+Every update moved a up, the sluggish and safe side. The design bars are
+unchanged in every gain mode: B1 15/16, B2 16/16, B3 16/16, worst overshoot
+3.15 K. The new bar `a_after_later_ramp_0p7_to_1p6` passes. `sensitivity.json`
+shows B2/B3 pass at 1.4× a.
+
+Unit tests in `test_pan_temp_loop_only` cover:
+- recovering a from hold to hold;
+- rejecting a boil plateau;
+- requiring a clean phase that starts from a hold;
+- limiting a decrease per phase.
+
 ## Open items for the firmware owner
 
-1. **Integration is not done.** `pan_temp_loop` is not wired into
-   `state_handlers.c` or the ESP-IDF build. `main/CMakeLists.txt` does not
-   list the new sources.
-2. **Hot-pan placement against the runaway checks.** On hot-pan placement the
-   reading rises at > 300 K/s. If that reading feeds the existing
-   `check_runaway_boundary`, its 15 K/s rise latch (non-clearable RUNAWAY)
-   would trip.
-3. **h_c drops against the heating handler.** The heating handler's
-   "temp > target + 10 → FAULT_THERMAL_RUNAWAY" would trip on the h_c-drop
-   cases. Overshoot reaches 13.09 K for 1000 → 300 (`cosim-results.json`
-   h_step: B1 0/4, B2 0/4, B3 2/4; reported, not gated).
-4. **PCB CR-7 constants are driver-level** (`components/sensors/`, outside my
-   write scope):
-   - MAX31865 thresholds 12844 / 35544;
-   - the loading correction;
-   - the 0.061 K self-heating subtraction;
-   - the 20 ms read with the 3-read stale rule;
-   - rim ADC attenuation.
+1. **The ESP-IDF target has never linked**, before or after this work
+   (IDF v5.3.6, esp32s3). The blockers are all pre-existing:
+   - `partitions.csv` is missing (`sdkconfig.defaults` selects a custom
+     table);
+   - the project's `components/hal` shadows IDF's `hal`, so `driver/gpio.h`
+     and mbedtls cannot find `hal/*_types.h`;
+   - `components/webui` needs `esp_vfs_fat` and `json`;
+   - the IDF Python env lacks jinja2;
+   - many peripheral externs exist only in test stubs (`read_pan_temperature`,
+     `peripherals_init`, …). This work adds `read_rim_ntc_temperature`.
 
-   The guard's stale check is a second layer at 10 Hz.
-5. **Later-ramp identification never updates.** In every design case, a at the
-   end of the run equals a at the end of the first ramp (`cosim-results.json`
-   a_ratio_end). The later ramps are too short or not saturated.
-6. **Hot-pan starts run on the prior.** a is never identified (no updates,
-   src_mask 0), so a0 is used. For cast iron that is 2.34 × a_true. B1–B3 still pass.
+   All C1 objects compile with the real IDF flags (`xtensa-esp32s3-elf-gcc`,
+   `TEMPER_PAN_CONTROL_C1=1`):
+   - the 7 `control` sources;
+   - `pan_control.c`, `rtd_service.c`, `rtd_convert.c`, `max31865.c` and
+     `state_handlers.c`;
+   - `state_machine.c` and `main.c`, which compile once IDF's hal includes
+     are put ahead of the shadow.
+2. **Rim NTC driver and rim faults** (CR-7 rim ADC attenuation): not
+   implemented. The loop's cross-check needs `read_rim_ntc_temperature()`.
+3. **Manual fault-detection cycle** (needs the CR-1 filter): not implemented.
+   C1 runs the automatic cycle at power-up with the coil off.
+4. **The double-fault trade-off (D-RUN)** is for the safety owner to accept or
+   tighten. Options:
+   - a bus-current validity signal, which would turn 2b into 2a;
+   - a bus-voltage sense, to replace the 100 V placeholder in P_cmd/V.
+5. **Bench items:**
+   - real MAX31865 conversion noise. Below about 0.25 LSB the 250-code frozen
+     check needs lengthening;
+   - the bus-current sense scaling for stage 2a;
+   - whether the end hold is steady on clad pans (D-ID2 rejections).
+6. **The SIL suite is not run in C1 mode.** It encodes the legacy loop.
+7. **CR-7 high threshold word:** CR-7 lists 35544 and the firmware has 35542
+   (D-THRESH). The PCB agent should confirm.
+8. **Hot-pan starts run on the prior.** a is never identified (no updates,
+   src_mask 0), so a0 is used. For cast iron that is 2.34 × a_true. B1–B3
+   still pass.
+9. **h_c steps are reported, not gated:** B1 0/4, B2 0/4, overshoot up to
+   13.09 K for 1000 → 300 (`cosim-results.json` h_step). C1 no longer latches
+   on them (D-RUN).

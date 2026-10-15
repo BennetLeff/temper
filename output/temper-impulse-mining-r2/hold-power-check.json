@@ -1,0 +1,51 @@
+{
+ "scope": "Cross-check sensor-r2's pan loss model against Impulse's published hold powers.\n\nImpulse (YouTube jgJ89Jr_0a8, \"Everything you need to know\", 17:21-17:55 and\n16:48): holding all four 9-inch burners at 482 F (250 C) draws \"about 1.73 kW\"\nin total (~0.43 kW per burner), and holding \"medium, around 350 F\" (177 C)\ntakes about 150-300 W per burner (four at medium = 600-1200 W). Their pans,\nlids and loads are unstated, and the figure is probably battery-side input.\n\nThis runs output/temper-sensor-r2/estimator_study.py's truth plant in its\nperfect-feedback closed loop, holds each empty pan at 177 C and 250 C, and\nreports the mean input power over the last 60 s of each hold. It is a\nplausibility check of the loss model's magnitude, not a calibration.\n\nRun: python3 hold_power_check.py  -> hold-power-check.json",
+ "impulse_W_per_burner": {
+  "177": [
+   150.0,
+   300.0
+  ],
+  "250": [
+   432.5,
+   432.5
+  ]
+ },
+ "rows": [
+  {
+   "pan": "cast_iron_26",
+   "eta": 0.82,
+   "P_hold_177C_W": 411.0,
+   "P_hold_250C_W": 637.0
+  },
+  {
+   "pan": "cast_iron_26",
+   "eta": 0.92,
+   "P_hold_177C_W": 367.0,
+   "P_hold_250C_W": 567.0
+  },
+  {
+   "pan": "carbon_steel_28",
+   "eta": 0.82,
+   "P_hold_177C_W": 331.0,
+   "P_hold_250C_W": 539.0
+  },
+  {
+   "pan": "carbon_steel_28",
+   "eta": 0.92,
+   "P_hold_177C_W": 295.0,
+   "P_hold_250C_W": 481.0
+  },
+  {
+   "pan": "triply_clad_24",
+   "eta": 0.82,
+   "P_hold_177C_W": 247.0,
+   "P_hold_250C_W": 383.0
+  },
+  {
+   "pan": "triply_clad_24",
+   "eta": 0.92,
+   "P_hold_177C_W": 220.0,
+   "P_hold_250C_W": 342.0
+  }
+ ]
+}

@@ -30,6 +30,13 @@ void pg_default_params(pg_params_t *p)
     p->forget_first = 1.0f;
     p->forget_later = 0.99f;
     p->update_later_ramps = true;
+    p->later_rise_min_k = 5.0f;
+    p->later_hold_blocks = 10u;
+    p->later_hold_band_k = 1.0f;
+    p->later_timeout_blocks = 300u;
+    p->later_max_rel_step = 0.5f;
+    p->later_max_rel_down = 0.25f;
+    p->later_cov_floor_rel = 0.2f;
 }
 
 static void clear_window(pg_t *g)
@@ -47,7 +54,10 @@ bool pg_init(pg_t *g, const pg_params_t *p)
         p->window_blocks + 1u > PG_MAX_BLOCKS || !(p->a0_k_per_j > 0.0f) ||
         !(p->a_min_k_per_j > 0.0f) || !(p->a_max_k_per_j > p->a_min_k_per_j) ||
         !(p->forget_first > 0.0f && p->forget_first <= 1.0f) ||
-        !(p->forget_later > 0.0f && p->forget_later <= 1.0f) || !(p->lag_s >= 0.0f)) {
+        !(p->forget_later > 0.0f && p->forget_later <= 1.0f) || !(p->lag_s >= 0.0f) ||
+        p->later_hold_blocks < 2u || p->later_hold_blocks + 1u > PG_MAX_BLOCKS ||
+        !(p->later_hold_band_k > 0.0f) || !(p->later_max_rel_step > 0.0f) ||
+        !(p->later_max_rel_down > 0.0f) || !(p->later_cov_floor_rel >= 0.0f)) {
         return false;
     }
     memset(g, 0, sizeof(*g));
@@ -59,19 +69,61 @@ bool pg_init(pg_t *g, const pg_params_t *p)
     }
     g->forget = p->forget_first;
     g->phase_first = true;
+    g->theta_phase0 = g->theta;
+    return true;
+}
+
+/* Hold over the last later_hold_blocks blocks: mean temperature and input
+ * power, if the block means stay within the band. */
+static bool measure_hold(const pg_t *g, float *t_c, float *p_w)
+{
+    const uint16_t n = g->p.later_hold_blocks;
+    if (g->count < n + 1u) {
+        return false;
+    }
+    const pg_block_t *now = &g->ring[(g->head + PG_MAX_BLOCKS - 1u) % PG_MAX_BLOCKS];
+    const pg_block_t *old = &g->ring[(g->head + PG_MAX_BLOCKS - 1u - n) % PG_MAX_BLOCKS];
+    float lo = now->t;
+    float hi = now->t;
+    float sum = 0.0f;
+    for (uint16_t i = 0u; i < n; i++) {
+        const float t = g->ring[(g->head + PG_MAX_BLOCKS - 1u - i) % PG_MAX_BLOCKS].t;
+        lo = t < lo ? t : lo;
+        hi = t > hi ? t : hi;
+        sum += t;
+    }
+    const float span_s = (float)n * (float)g->p.block_samples * g->p.dt_s;
+    const float p = (now->e_lag - old->e_lag) / span_s;
+    if (!(hi - lo <= g->p.later_hold_band_k) || !isfinite(p) || p < 0.0f) {
+        return false;
+    }
+    *t_c = sum / (float)n;
+    *p_w = p;
     return true;
 }
 
 void pg_begin_phase(pg_t *g, bool first)
 {
+    g->later_open = false;
+    if (!first && g->p.update_later_ramps) {
+        g->later_open = measure_hold(g, &g->t_base_c, &g->p_base_w);
+        g->later_clean = true;
+        g->later_blocks = 0u;
+        g->later_e0_j = g->e_lag_j;
+        g->later_s0_ks = g->s_ks;
+        g->later_src = g->src_window;
+    }
     g->phase_first = first;
     g->phase_has_start = false;
     g->forget = first ? g->p.forget_first : g->p.forget_later;
+    g->theta_phase0 = g->theta;
     g->t_acc = 0.0f;
     g->n_acc = 0u;
     g->gate_acc = true;
     g->src_block_set = false;
-    clear_window(g);
+    if (first) {
+        clear_window(g);
+    }
 }
 
 float pg_gain(const pg_t *g)
@@ -98,6 +150,88 @@ static void rls_update(pg_t *g, float phi, float y)
     g->theta += k * (y - phi * g->theta);
     g->pcov = (pp - k * phi * pp) / lam;
     g->updates++;
+}
+
+static void mark_used(pg_t *g, float de, pg_power_source_t src)
+{
+    g->regressed_energy_j += de;
+    g->src_mask |= (uint8_t)(1u << src);
+    if (!g->valid && g->phase_rise_k >= g->p.valid_rise_k && g->regressed_energy_j >= g->p.valid_energy_j) {
+        g->valid = true;
+    }
+}
+
+/* First heat-up: sliding window of window_blocks over gated blocks. */
+static void first_window(pg_t *g)
+{
+    const pg_params_t *p = &g->p;
+    const uint16_t w = p->window_blocks;
+    if (g->count < w + 1u) {
+        return;
+    }
+    for (uint16_t i = 0u; i <= w; i++) {
+        if (!g->ring[(g->head + PG_MAX_BLOCKS - 1u - i) % PG_MAX_BLOCKS].gated) {
+            return;
+        }
+    }
+    const pg_block_t *old = &g->ring[(g->head + PG_MAX_BLOCKS - 1u - w) % PG_MAX_BLOCKS];
+    const pg_block_t *now = &g->ring[(g->head + PG_MAX_BLOCKS - 1u) % PG_MAX_BLOCKS];
+    const float de = now->e_lag - old->e_lag;
+    const float phi = de - p->k_loss_w_per_k * (now->s - old->s);
+    if (!(phi > 0.0f)) {
+        return;
+    }
+    rls_update(g, phi, now->t - old->t);
+    mark_used(g, de, g->src_window);
+}
+
+/* Later phase: wait for the end hold, then one energy-balance update. */
+static void later_block(pg_t *g, bool block_gate, pg_power_source_t bsrc)
+{
+    const pg_params_t *p = &g->p;
+    g->later_clean = g->later_clean && block_gate && bsrc == g->later_src;
+    g->later_blocks++;
+    if (!g->later_clean || g->later_blocks > p->later_timeout_blocks) {
+        g->later_open = false;
+        return;
+    }
+    float t_end;
+    float p_end;
+    if (g->later_blocks < p->later_hold_blocks || !measure_hold(g, &t_end, &p_end)) {
+        return;
+    }
+    const float y = t_end - g->t_base_c;
+    if (y < p->later_rise_min_k) {
+        return;   /* still at the old hold, or a hold on the way up */
+    }
+    g->later_open = false;
+
+    const double dur_s = (double)g->later_blocks * (double)p->block_samples * (double)p->dt_s;
+    const double de = g->e_lag_j - g->later_e0_j;
+    /* Loss linear in T through the two measured holds:
+     *   L(T) = P_0 + (P_end - P_0) (T - T_0) / (T_end - T_0)
+     *   int L dt = P_0 dur + slope (dS - (T_0 - T_amb) dur). */
+    const double slope = ((double)p_end - (double)g->p_base_w) / (double)y;
+    const double ds = g->s_ks - g->later_s0_ks;
+    const double e_loss = (double)g->p_base_w * dur_s + slope * (ds - ((double)g->t_base_c - (double)p->t_amb_c) * dur_s);
+    const float phi = (float)(de - e_loss);
+    const float a_w = phi > 0.0f ? y / phi : NAN;
+    g->last_window_a = a_w;
+    const float r_up = 1.0f + p->later_max_rel_step;
+    if (!(a_w >= g->theta / r_up && a_w <= g->theta * r_up)) {
+        g->rejected++;
+        return;
+    }
+    const float floor_sd = p->later_cov_floor_rel * g->theta;
+    if (g->pcov < floor_sd * floor_sd) {
+        g->pcov = floor_sd * floor_sd;
+    }
+    rls_update(g, phi, y);
+    const float lo = g->theta_phase0 / (1.0f + p->later_max_rel_down);
+    const float hi = g->theta_phase0 * r_up;
+    g->theta = g->theta < lo ? lo : (g->theta > hi ? hi : g->theta);
+    g->later_updates++;
+    mark_used(g, (float)de, bsrc);
 }
 
 void pg_update(pg_t *g, float t_hat_c, float power_w, pg_power_source_t src, bool gate)
@@ -161,38 +295,18 @@ void pg_update(pg_t *g, float t_hat_c, float power_w, pg_power_source_t src, boo
     b->t = tb;
     b->e_lag = (float)g->e_lag_j;
     b->s = (float)g->s_ks;
-    b->gated = block_gate && (g->phase_rise_k >= p->rise_min_k) &&
-               (g->phase_first || p->update_later_ramps);
+    b->gated = block_gate && g->phase_first && (g->phase_rise_k >= p->rise_min_k);
     g->head = (uint16_t)((g->head + 1u) % PG_MAX_BLOCKS);
-    if (g->count < p->window_blocks + 1u) {
+    /* Keep enough history for the hold measurements of a later phase. */
+    const uint16_t keep = (uint16_t)((p->window_blocks > p->later_hold_blocks ? p->window_blocks
+                                                                               : p->later_hold_blocks) + 1u);
+    if (g->count < keep) {
         g->count++;
     }
-    if (g->count < p->window_blocks + 1u) {
-        return;
-    }
 
-    /* Window: oldest of the last window_blocks+1 blocks to the newest. */
-    bool all_gated = true;
-    for (uint16_t i = 0u; i <= p->window_blocks; i++) {
-        const uint16_t idx = (uint16_t)((g->head + PG_MAX_BLOCKS - 1u - i) % PG_MAX_BLOCKS);
-        all_gated = all_gated && g->ring[idx].gated;
-    }
-    if (!all_gated) {
-        return;
-    }
-    const pg_block_t *old = &g->ring[(g->head + PG_MAX_BLOCKS - 1u - p->window_blocks) % PG_MAX_BLOCKS];
-    const pg_block_t *now = &g->ring[(g->head + PG_MAX_BLOCKS - 1u) % PG_MAX_BLOCKS];
-    const float de = now->e_lag - old->e_lag;
-    const float ds = now->s - old->s;
-    const float phi = de - p->k_loss_w_per_k * ds;
-    const float y = now->t - old->t;
-    if (!(phi > 0.0f)) {
-        return;
-    }
-    rls_update(g, phi, y);
-    g->regressed_energy_j += de;
-    g->src_mask |= (uint8_t)(1u << bsrc);
-    if (!g->valid && g->phase_rise_k >= p->valid_rise_k && g->regressed_energy_j >= p->valid_energy_j) {
-        g->valid = true;
+    if (g->phase_first) {
+        first_window(g);
+    } else if (g->later_open) {
+        later_block(g, block_gate, bsrc);
     }
 }

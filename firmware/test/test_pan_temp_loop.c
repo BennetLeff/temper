@@ -291,6 +291,118 @@ static void test_plant_gain_never_mixes_power_sources_in_a_window(void)
     TEST_ASSERT_EQUAL_UINT(0u, g.updates);
 }
 
+/* Later setpoint steps (DECISIONS.md D-ID2): one hold-to-hold energy-balance
+ * update per step. Lumped pan with a loss linear in T that the first heat-up
+ * (k_loss = 0) absorbs into a low a; the later step measures the loss at both
+ * holds and recovers the true a. */
+typedef struct {
+    float a, k_loss, T;
+} lumped_t;
+
+static void lumped_run(pg_t *g, lumped_t *m, float P, float seconds, bool gate)
+{
+    for (int k = 0; k < (int)(seconds * 10.0f); k++) {
+        pg_update(g, m->T, P, PG_POWER_MEASURED, gate);
+        m->T += m->a * (P - m->k_loss * (m->T - 25.0f)) * 0.1f;
+    }
+}
+
+/* Heat at full power to t_to, then hold there at exactly the loss power. */
+static void lumped_step_and_hold(pg_t *g, lumped_t *m, float t_to, float hold_s, bool gate)
+{
+    while (m->T < t_to) {
+        lumped_run(g, m, 1800.0f, 0.1f, gate);
+    }
+    lumped_run(g, m, m->k_loss * (m->T - 25.0f), hold_s, gate);
+}
+
+static void first_heat_up(pg_t *g, pg_params_t *p, lumped_t *m)
+{
+    pg_default_params(p);
+    TEST_ASSERT_TRUE(pg_init(g, p));
+    pg_begin_phase(g, true);
+    lumped_step_and_hold(g, m, 180.0f, 0.0f, true);
+    lumped_run(g, m, m->k_loss * (m->T - 25.0f), 30.0f, false);
+    TEST_ASSERT_TRUE(pg_valid(g));
+}
+
+static void test_plant_gain_later_step_recovers_a_from_hold_to_hold(void)
+{
+    pg_t g;
+    pg_params_t p;
+    lumped_t m = {.a = 1.8e-3f, .k_loss = 1.6f, .T = 25.0f};
+    first_heat_up(&g, &p, &m);
+    const float a_first = pg_gain(&g);
+    TEST_ASSERT_TRUE(a_first < 0.95f * m.a);    /* loss absorbed: biased low */
+    pg_begin_phase(&g, false);
+    lumped_step_and_hold(&g, &m, 210.0f, 15.0f, true);
+    TEST_ASSERT_EQUAL_UINT32(1u, g.later_updates);
+    TEST_ASSERT_FLOAT_WITHIN(0.05f * m.a, m.a, pg_gain(&g));
+}
+
+static void test_plant_gain_later_step_rejects_a_boil_plateau(void)
+{
+    pg_t g;
+    pg_params_t p;
+    lumped_t m = {.a = 6e-4f, .k_loss = 1.0f, .T = 25.0f};
+    pg_default_params(&p);
+    TEST_ASSERT_TRUE(pg_init(&g, &p));
+    pg_begin_phase(&g, true);
+    lumped_step_and_hold(&g, &m, 90.0f, 0.0f, true);
+    lumped_run(&g, &m, m.k_loss * (m.T - 25.0f), 30.0f, false);
+    const float a_before = pg_gain(&g);
+    pg_begin_phase(&g, false);
+    lumped_step_and_hold(&g, &m, 100.0f, 0.0f, true);
+    /* boiling: the reading sits at 100 degC while the coil runs flat out */
+    for (int k = 0; k < 300; k++) {
+        pg_update(&g, 100.0f, 1800.0f, PG_POWER_MEASURED, true);
+    }
+    TEST_ASSERT_EQUAL_UINT32(0u, g.later_updates);
+    TEST_ASSERT_EQUAL_UINT32(1u, g.rejected);
+    TEST_ASSERT_FLOAT_WITHIN(1e-9f, a_before, pg_gain(&g));
+}
+
+static void test_plant_gain_later_step_needs_a_clean_phase_and_a_measured_hold(void)
+{
+    pg_t g;
+    pg_params_t p;
+    lumped_t m = {.a = 1.8e-3f, .k_loss = 1.6f, .T = 25.0f};
+    first_heat_up(&g, &p, &m);
+    const float a_before = pg_gain(&g);
+    /* the gate drops mid-step (D1 event, lifted pan): no update */
+    pg_begin_phase(&g, false);
+    lumped_step_and_hold(&g, &m, 195.0f, 0.0f, true);
+    lumped_run(&g, &m, 0.0f, 1.0f, false);
+    lumped_step_and_hold(&g, &m, 200.0f, 20.0f, true);
+    TEST_ASSERT_EQUAL_UINT32(0u, g.later_updates);
+    TEST_ASSERT_FLOAT_WITHIN(1e-9f, a_before, pg_gain(&g));
+    /* a step that does not start from a hold: no update */
+    lumped_run(&g, &m, 1800.0f, 5.0f, true);
+    pg_begin_phase(&g, false);
+    lumped_step_and_hold(&g, &m, m.T + 20.0f, 20.0f, true);
+    TEST_ASSERT_EQUAL_UINT32(0u, g.later_updates);
+    TEST_ASSERT_FLOAT_WITHIN(1e-9f, a_before, pg_gain(&g));
+}
+
+static void test_plant_gain_later_step_limits_a_decrease(void)
+{
+    pg_t g;
+    pg_params_t p;
+    lumped_t m = {.a = 1.8e-3f, .k_loss = 1.6f, .T = 25.0f};
+    first_heat_up(&g, &p, &m);
+    pg_begin_phase(&g, false);
+    lumped_step_and_hold(&g, &m, 210.0f, 15.0f, true);
+    const float a0 = pg_gain(&g);
+    /* food adds a third to the heat capacity (a x 0.75, inside the 1/1.5
+     * plausibility band); one phase may lower a only to 1/1.25 */
+    m.a *= 0.75f;
+    lumped_run(&g, &m, m.k_loss * (m.T - 25.0f), 15.0f, false);
+    pg_begin_phase(&g, false);
+    lumped_step_and_hold(&g, &m, 240.0f, 15.0f, true);
+    TEST_ASSERT_EQUAL_UINT32(2u, g.later_updates);
+    TEST_ASSERT_FLOAT_WITHIN(1e-3f * a0, a0 / 1.25f, pg_gain(&g));
+}
+
 /* -------------------------------------------------------------- rate PID -- */
 
 static void test_rate_pid_matches_reference_law(void)
@@ -427,6 +539,10 @@ void run_pan_temp_loop_tests(void)
     RUN_TEST(test_plant_gain_identifies_lumped_pan);
     RUN_TEST(test_plant_gain_gate_and_clamps);
     RUN_TEST(test_plant_gain_never_mixes_power_sources_in_a_window);
+    RUN_TEST(test_plant_gain_later_step_recovers_a_from_hold_to_hold);
+    RUN_TEST(test_plant_gain_later_step_rejects_a_boil_plateau);
+    RUN_TEST(test_plant_gain_later_step_needs_a_clean_phase_and_a_measured_hold);
+    RUN_TEST(test_plant_gain_later_step_limits_a_decrease);
     RUN_TEST(test_rate_pid_matches_reference_law);
     RUN_TEST(test_rate_pid_integrator_clamp_scales_with_gain);
     RUN_TEST(test_loop_fault_forces_zero_power);

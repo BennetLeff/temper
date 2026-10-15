@@ -1,0 +1,40 @@
+{
+ "scope": "sensor-r3 bench jig: surrogate post, holder and spring plug for the cookware contact survey.\n\nMachinable geometry (STEP) for a C1-surrogate probe held under a 4 mm \"glass\" plate\nwith an \u00d818 bore, like the product. z = 0 is the plate top; the pan rests on it.\n\n  post    PEEK (or Vespel) turned part: \u00d88 neck, wall 0.5, disc bonded on the top rim,\n          \u00d812 shoulder whose top face is the up-stop, \u00d86 foot with a 90\u00b0 cone for a\n          \u00d83 ball. The post rocks on the ball and is free in a loose guide, so the disc\n          follows the pan's tilt (C1 needs >= \u00b15 mrad free rocking; CAD gate G5).\n  holder  6061 or PEEK block, flange registered on the plate underside, 4 mm guide\n          bore \u00d88.3 (0.15 radial clearance), counterbore \u00d812.6 for the shoulder.\n          Nominal proud with no shims is PROUD_NO_SHIM; 0.05 mm shims under the\n          flange set 0.60 mm.\n  plug    M10x1 threaded spring seat (1 mm of preload per turn).\n\nRun (build123d env, see ../cad/DECISIONS.md):  cadenv/bin/python jig.py  -> jig.json + jig-*.step",
+ "z_mm": {
+  "disc_top_no_shim": 0.8,
+  "post_top": 0.48,
+  "plate_bottom": -4.0,
+  "up_stop": -8.0,
+  "shoulder_bottom": -10.0,
+  "foot_bottom": -14.0
+ },
+ "neck_len_mm": 8.48,
+ "shims_to_nominal_proud_mm": 0.2,
+ "stroke_to_hard_stop_mm": 2.5,
+ "free_rocking_mrad_guide_limited": 37.5,
+ "spring": {
+  "od": 5.5,
+  "free_len": 16.0,
+  "rate_N_mm": 0.3,
+  "solid_len": 6.0,
+  "length_at_rest_mm": 10.5,
+  "length_at_flush_mm": 9.9,
+  "length_at_stroke_mm": 8.5,
+  "force_at_rest_N": 1.32,
+  "force_at_flush_N": 1.5,
+  "force_at_stroke_N": 1.92,
+  "free_length_needed_for_mid_window_at_flush_mm": 14.9,
+  "plug_turns_per_0p3N": 1.0
+ },
+ "volumes_mm3": {
+  "post": 421.6,
+  "holder": 20995.7
+ },
+ "checks": {
+  "proud_reachable_with_shims": true,
+  "stroke_ge_1p2": true,
+  "rocking_ge_5mrad": true,
+  "force_at_flush_in_window": true,
+  "spring_not_solid_at_stroke": true
+ }
+}

@@ -25,10 +25,14 @@ extern "C" {
 #define MAX31865_REG_HIGH_THRESHOLD_MSB 0x03u
 #define MAX31865_REG_LOW_THRESHOLD_MSB  0x05u
 #define MAX31865_REG_FAULT_STATUS       0x07u
+#define MAX31865_REG_RTD_MSB            0x01u  /* MSB, then LSB (bit 0 = fault) */
 
 /* Config register values used by the non-blocking automatic fault cycle. */
 #define MAX31865_CONFIG_VBIAS                 0x80u
 #define MAX31865_CONFIG_FAULT_CYCLE_AUTOMATIC 0x04u
+#define MAX31865_CONFIG_AUTO_CONVERT          0x40u
+#define MAX31865_CONFIG_FAULT_CLEAR           0x02u
+#define MAX31865_CONFIG_FAULT_CYCLE_MASK      0x0Cu
 
 /* Fault-status bits from register 07h. */
 #define MAX31865_FAULT_HIGH_THRESHOLD 0x80u
@@ -71,6 +75,23 @@ hal_status_t max31865_read_fault_status(const max31865_device_t *device,
 hal_status_t max31865_service_fault_cycle(const max31865_device_t *device,
                                           max31865_fault_sink_t fault_sink,
                                           void *context);
+
+/* ---- Continuous conversion (sensor-r3 C1, pcb/CHANGE-REQUEST.md CR-7) ---- */
+
+/** Write the low/high fault-threshold register words. */
+hal_status_t max31865_set_thresholds(const max31865_device_t *device,
+                                     uint16_t low_word, uint16_t high_word);
+
+/** CONFIG 0xC0: VBIAS on, automatic conversion, 4-wire, 60 Hz notch. */
+hal_status_t max31865_start_conversions(const max31865_device_t *device);
+
+/** True while a fault-detection cycle is still running (CONFIG D3:D2 != 0). */
+hal_status_t max31865_fault_cycle_busy(const max31865_device_t *device,
+                                       bool *busy);
+
+/** Read the RTD register pair (01h MSB, 02h LSB; LSB bit 0 = fault flag). */
+hal_status_t max31865_read_rtd(const max31865_device_t *device,
+                               uint8_t *msb, uint8_t *lsb);
 
 #ifdef __cplusplus
 }

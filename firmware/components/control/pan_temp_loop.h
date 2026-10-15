@@ -76,16 +76,25 @@ typedef struct {
     psg_t guard;
     bool started;
     bool first_phase_open;
-    bool ident_phase_open;
+    bool ident_phase_open;   /**< first heat-up identification window open */
+    bool later_phase_open;   /**< later setpoint step: open until plant_gain's end hold */
     float last_sp;
     float last_p_cmd;
     bool lost_latched_ui;
     bool settled_prev;       /**< last step held within the margin of the setpoint */
+    float pid_p_max_cfg_w;   /**< configured pid.p_max_w (ptl_set_power_limit ceiling) */
 } ptl_t;
 
 void ptl_default_params(ptl_params_t *p);
 bool ptl_init(ptl_t *l, const ptl_params_t *p, float t0_c);
 void ptl_step(ptl_t *l, const ptl_input_t *in, ptl_output_t *out);
+
+/**
+ * Runtime power limit (the hob's intensity level), clamped to
+ * (0, the configured pid.p_max_w]. The rate PID's output and anti-windup and
+ * the plant-gain saturation gate use it; D1 keeps the configured maximum.
+ */
+void ptl_set_power_limit(ptl_t *l, float p_max_w);
 
 #ifdef __cplusplus
 }

@@ -142,6 +142,36 @@ thresholds:
     doc: "300Ω PT100 open threshold for 430Ω RREF; 15-bit ADC code shifted left one"
     board_derivation: true  # re-derived from the board's r_ref by scripts/check_firmware_board_contract.py (registry: firmware/tools/board_derivations.yaml)
 
+  - c_symbol: RTD_C1_SHORT_FAULT_OHM
+    field: rtd_c1_short_fault_ohm
+    value: 84.27
+    c_type: float
+    units: "Ω"
+    doc: "sensor-r3 C1 Pt100 low fault boundary (-40 degC); pcb/CHANGE-REQUEST.md CR-7"
+
+  - c_symbol: RTD_C1_OPEN_FAULT_OHM
+    field: rtd_c1_open_fault_ohm
+    value: 233.21
+    c_type: float
+    units: "Ω"
+    doc: "sensor-r3 C1 Pt100 high fault boundary (360 degC); pcb/CHANGE-REQUEST.md CR-7"
+
+  - c_symbol: MAX31865_C1_LOW_THRESHOLD_WORD
+    field: max31865_c1_low_threshold_word
+    value: 12844
+    c_type: uint16_t
+    units: "register word"
+    doc: "C1 low fault-threshold word (84.27 ohm, -40 degC) for 430 ohm RREF; CR-7"
+    board_derivation: true  # re-derived from the board's r_ref by scripts/check_firmware_board_contract.py (registry: firmware/tools/board_derivations.yaml)
+
+  - c_symbol: MAX31865_C1_HIGH_THRESHOLD_WORD
+    field: max31865_c1_high_threshold_word
+    value: 35542
+    c_type: uint16_t
+    units: "register word"
+    doc: "C1 high fault-threshold word (233.21 ohm, 360 degC) for 430 ohm RREF; CR-7 lists 35544, but floor(233.21/430*2^15)=17771 -> 35542 (derivation rule)"
+    board_derivation: true  # re-derived from the board's r_ref by scripts/check_firmware_board_contract.py (registry: firmware/tools/board_derivations.yaml)
+
   - c_symbol: PAN_DEBOUNCE_COUNT
     field: pan_debounce_count
     value: 10

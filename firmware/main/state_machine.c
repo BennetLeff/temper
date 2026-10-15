@@ -78,6 +78,20 @@ extern bool is_fan_running(void);
 extern void delay_ms(uint32_t ms);
 extern void eeprom_log_fault(fault_code_t code, uint32_t timestamp);
 
+#ifdef TEMPER_PAN_CONTROL_C1
+/* sensor-r3 C1 (output/temper-sensor-r3/firmware/DECISIONS.md D-MODE): every
+ * pan-temperature and RTD-resistance read is the latest MAX31865 conversion,
+ * and the C1 Pt100 window bounds the resistance interlock. */
+#include "pan_control.h"
+#define read_pan_temperature() pan_control_reading_c()
+#define read_rtd_resistance() pan_control_resistance_ohm()
+#define SM_RTD_OPEN_FAULT_OHM RTD_C1_OPEN_FAULT_OHM
+#define SM_RTD_SHORT_FAULT_OHM RTD_C1_SHORT_FAULT_OHM
+#else
+#define SM_RTD_OPEN_FAULT_OHM RTD_OPEN_FAULT_OHM
+#define SM_RTD_SHORT_FAULT_OHM RTD_SHORT_FAULT_OHM
+#endif
+
 /* Pan detection stubs */
 typedef enum { PAN_ABSENT, PAN_PRESENT } pan_status_t;
 extern pan_status_t detect_pan_presence(void);
@@ -136,6 +150,10 @@ void state_machine_report_rtd_device_fault(bool short_fault, bool open_fault,
     } else if (open_fault) {
         enter_hardware_latched_fault(FAULT_PROBE_OPEN);
     }
+}
+
+void state_machine_report_rtd_frozen(void) {
+    enter_hardware_latched_fault(FAULT_ADC_STUCK);
 }
 
 void state_machine_report_pan_contact_lost(void) {
@@ -361,6 +379,13 @@ void transition_to(system_state_t new_state) {
     if (sm_ctx.current_state == STATE_HEATING) {
         /* low_temp_stop(); */
     }
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* Leaving the power states stops the C1 loop (command 0). */
+    if ((sm_ctx.current_state == STATE_PREHEAT || sm_ctx.current_state == STATE_HEATING) &&
+        new_state != STATE_PREHEAT && new_state != STATE_HEATING) {
+        pan_control_stop();
+    }
+#endif
 
     /* Record previous state */
     sm_ctx.previous_state = sm_ctx.current_state;
@@ -429,18 +454,22 @@ bool check_safety_interlocks(void) {
         enter_hardware_latched_fault(FAULT_PROBE_OPEN);
         return true;
     }
-    if (rtd_resistance >= RTD_OPEN_FAULT_OHM) {
+    if (rtd_resistance >= SM_RTD_OPEN_FAULT_OHM) {
         enter_hardware_latched_fault(FAULT_PROBE_OPEN);
         return true;
     }
-    if (rtd_resistance <= RTD_SHORT_FAULT_OHM) {
+    if (rtd_resistance <= SM_RTD_SHORT_FAULT_OHM) {
         enter_hardware_latched_fault(FAULT_PROBE_SHORT);
         return true;
     }
 
+#ifndef TEMPER_PAN_CONTROL_C1
     /* ADC stuck check — identical pan temperature across consecutive reads
      * indicates a frozen sensor. Uses its own tracking separate from the
-     * runaway rate-of-rise tracker (which updates every pass). */
+     * runaway rate-of-rise tracker (which updates every pass).
+     * C1 builds: identical 15-bit codes are normal for 49 reads (up to 88
+     * conversions at 0.3 LSB noise); rtd_service's DRDY-stale and 250-code
+     * frozen checks replace this one (D-STALE). */
     float pan_temp = read_pan_temperature();
     if (sm_ctx.prev_stuck_check_temp == pan_temp) {
         sm_ctx.pan_temp_stuck_count++;
@@ -454,6 +483,7 @@ bool check_safety_interlocks(void) {
         sm_ctx.pan_temp_stuck_count = 0;
         sm_ctx.prev_stuck_check_temp = pan_temp;
     }
+#endif
 
     return false;
 }
@@ -461,6 +491,12 @@ bool check_safety_interlocks(void) {
 static void check_runaway_boundary(void) {
     /* If already latched, nothing to check */
     if (sm_ctx.runaway_latched) return;
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* No conversion yet (power-up fault cycle): nothing to check. A MAX31865
+     * that never converts is reported by rtd_service (fault-cycle timeout,
+     * DRDY stale). */
+    if (!pan_control_have_reading()) return;
+#endif
 
     float temp = read_pan_temperature();
     uint32_t now = get_time_ms();
@@ -477,6 +513,15 @@ static void check_runaway_boundary(void) {
         goto trigger_runaway;
     }
 
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* R1 sustained rise (pan_supervisor.c): 1 s means rising > 15 K/s for 5
+     * blocks. The 10 ms check below trips on C1 noise and on a preheated pan
+     * placed on the 40 mJ/K disc (D-RUN). */
+    if (pan_control_rate_sample(temp, now)) {
+        sm_ctx.fault_code = FAULT_RUNAWAY_BOUNDARY;
+        goto trigger_runaway;
+    }
+#else
     /* Rate-of-rise check (requires at least one prior reading) */
     if (sm_ctx.last_pan_temp_time_ms > 0) {
         uint32_t dt_ms = now - sm_ctx.last_pan_temp_time_ms;
@@ -489,6 +534,7 @@ static void check_runaway_boundary(void) {
             }
         }
     }
+#endif
 
     /* Store for next iteration */
     sm_ctx.last_pan_temp_c = temp;
@@ -510,6 +556,9 @@ trigger_runaway:
 void state_machine_reset_temp_baseline(void) {
     sm_ctx.last_pan_temp_c = read_pan_temperature();
     sm_ctx.last_pan_temp_time_ms = get_time_ms();
+#ifdef TEMPER_PAN_CONTROL_C1
+    pan_control_rate_reset();
+#endif
 }
 
 void state_machine_reset_stuck_tracking(void) {

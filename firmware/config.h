@@ -95,6 +95,10 @@ typedef struct {
     float rtd_gross_open_diagnostic_ohm; /**< Legacy gross-open diagnostic retained while SIL fixtures migrate (Ω) */
     uint16_t max31865_low_threshold_word; /**< 10Ω PT100 short threshold for 430Ω RREF; 15-bit ADC code shifted left one (register word) */
     uint16_t max31865_high_threshold_word; /**< 300Ω PT100 open threshold for 430Ω RREF; 15-bit ADC code shifted left one (register word) */
+    float rtd_c1_short_fault_ohm; /**< sensor-r3 C1 Pt100 low fault boundary (-40 degC); pcb/CHANGE-REQUEST.md CR-7 (Ω) */
+    float rtd_c1_open_fault_ohm; /**< sensor-r3 C1 Pt100 high fault boundary (360 degC); pcb/CHANGE-REQUEST.md CR-7 (Ω) */
+    uint16_t max31865_c1_low_threshold_word; /**< C1 low fault-threshold word (84.27 ohm, -40 degC) for 430 ohm RREF; CR-7 (register word) */
+    uint16_t max31865_c1_high_threshold_word; /**< C1 high fault-threshold word (233.21 ohm, 360 degC) for 430 ohm RREF; CR-7 lists 35544, but floor(233.21/430*2^15)=17771 -> 35542 (derivation rule) (register word) */
     uint16_t pan_debounce_count; /**< Pan detection debounce samples */
     uint8_t pan_confidence_required; /**< Pan detection confirmations needed */
     uint16_t adc_min_valid_raw; /**< ADC minimum valid raw value */
@@ -112,6 +116,10 @@ typedef struct {
     .rtd_gross_open_diagnostic_ohm = 10000.0f, \
     .max31865_low_threshold_word = 1526, \
     .max31865_high_threshold_word = 45722, \
+    .rtd_c1_short_fault_ohm = 84.27f, \
+    .rtd_c1_open_fault_ohm = 233.21f, \
+    .max31865_c1_low_threshold_word = 12844, \
+    .max31865_c1_high_threshold_word = 35542, \
     .pan_debounce_count = 10, \
     .pan_confidence_required = 3, \
     .adc_min_valid_raw = 100, \
@@ -274,6 +282,10 @@ void config_print(void);
 #define RTD_GROSS_OPEN_DIAGNOSTIC_OHM 10000.0f
 #define MAX31865_LOW_THRESHOLD_WORD 1526
 #define MAX31865_HIGH_THRESHOLD_WORD 45722
+#define RTD_C1_SHORT_FAULT_OHM 84.27f
+#define RTD_C1_OPEN_FAULT_OHM 233.21f
+#define MAX31865_C1_LOW_THRESHOLD_WORD 12844
+#define MAX31865_C1_HIGH_THRESHOLD_WORD 35542
 #define PAN_DEBOUNCE_COUNT 10
 #define PAN_CONFIDENCE_REQUIRED 3
 #define MESSAGE_DISPLAY_TIME_MS 2000

@@ -5,6 +5,7 @@
 
 #include "pan_temp_loop.h"
 
+#include <math.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -33,6 +34,7 @@ bool ptl_init(ptl_t *l, const ptl_params_t *p, float t0_c)
     }
     memset(l, 0, sizeof(*l));
     l->p = *p;
+    l->pid_p_max_cfg_w = p->pid.p_max_w;
     return pte_init(&l->est, &p->est, t0_c) && pg_init(&l->pg, &p->pg) && prp_init(&l->pid, &p->pid) &&
            cc_init(&l->cc, &p->cc) && psg_init(&l->guard, &p->guard);
 }
@@ -68,7 +70,10 @@ void ptl_step(ptl_t *l, const ptl_input_t *in, ptl_output_t *out)
         /* A later ramp is identified only if it starts from a settled hold:
          * a pan still recovering from a load (food) is not a clean ramp. */
         pg_begin_phase(&l->pg, false);
-        l->ident_phase_open = true;
+        l->later_phase_open = true;
+    }
+    if (sp < l->last_sp) {
+        l->later_phase_open = false;   /* the end hold would not be the step's */
     }
     if (sp < l->last_sp || sp >= l->last_sp + p->new_phase_sp_step_k) {
         l->last_sp = sp;
@@ -83,7 +88,10 @@ void ptl_step(ptl_t *l, const ptl_input_t *in, ptl_output_t *out)
     const bool ramping = sp > l->pid.sp_eff || !l->pid.started;
     const bool saturated = l->last_p_cmd >= 0.999f * p->pid.p_max_w;
     const bool cc_normal = !p->detector_enabled || l->cc.state == CC_NORMAL;
-    const bool gate = l->ident_phase_open && approaching && (ramping || saturated) && cc_normal && !faulted;
+    /* First heat-up: sliding windows while approaching. Later steps: the
+     * gate must hold from the step to the end hold (plant_gain D-ID2). */
+    const bool gate = (l->ident_phase_open && approaching && (ramping || saturated) && cc_normal && !faulted) ||
+                      (l->later_phase_open && cc_normal && !faulted);
 
     pg_update(&l->pg, t_hat, in->power_applied_w, in->power_source, gate);
     const float a = p->identify_gain ? pg_gain(&l->pg) : p->fixed_gain_k_per_j;
@@ -107,6 +115,7 @@ void ptl_step(ptl_t *l, const ptl_input_t *in, ptl_output_t *out)
             /* Any D1 activity ends the identification phase: a disturbance
              * (food, lifted pan) must not be regressed as plant gain. */
             l->ident_phase_open = false;
+            l->later_phase_open = false;
         }
         if (co.event == CC_EVT_LOST) {
             l->lost_latched_ui = true;
@@ -138,4 +147,14 @@ void ptl_step(ptl_t *l, const ptl_input_t *in, ptl_output_t *out)
     out->fault = g.verdict;
     out->diag = g.diag;
     out->ui_pan_must_touch = l->lost_latched_ui;
+}
+
+void ptl_set_power_limit(ptl_t *l, float p_max_w)
+{
+    float lim = l->pid_p_max_cfg_w;
+    if (isfinite(p_max_w) && p_max_w > 0.0f && p_max_w < lim) {
+        lim = p_max_w;
+    }
+    l->p.pid.p_max_w = lim;
+    l->pid.p.p_max_w = lim;
 }

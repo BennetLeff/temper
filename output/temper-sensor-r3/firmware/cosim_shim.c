@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "pan_supervisor.h"
 #include "pan_temp_loop.h"
 
 typedef struct {
@@ -16,6 +17,8 @@ typedef struct {
     ptl_t loop;
     pte_t est;
     cc_t cc;
+    psup_params_t sp;
+    psup_t sup;
 } sim_t;
 
 void *sim_new(void)
@@ -23,6 +26,7 @@ void *sim_new(void)
     sim_t *s = (sim_t *)calloc(1, sizeof(sim_t));
     if (s != NULL) {
         ptl_default_params(&s->p);
+        psup_default_params(&s->sp);
     }
     return s;
 }
@@ -67,6 +71,24 @@ int sim_set(void *h, const char *key, double v)
     U("identify", p->identify_gain = (v != 0.0))
     F("fixed_a", p->fixed_gain_k_per_j)
     F("xcheck_hold", p->guard.xcheck_hold_s)
+    F("pg_later_rise_min", p->pg.later_rise_min_k)
+    U("pg_later_hold_blocks", p->pg.later_hold_blocks = (uint16_t)v)
+    F("pg_later_hold_band", p->pg.later_hold_band_k)
+    F("pg_later_max_rel_step", p->pg.later_max_rel_step)
+    F("pg_later_max_rel_down", p->pg.later_max_rel_down)
+    F("pg_later_cov_floor", p->pg.later_cov_floor_rel)
+    {
+        psup_params_t *q = &((sim_t *)h)->sp;
+        F("sup_margin", q->margin_k)
+        F("sup_rise_hold", q->rise_hold_s)
+        F("sup_rise_window", q->rise_window_s)
+        F("sup_rise_min", q->rise_min_k)
+        F("sup_disobey_a", q->disobey_current_a)
+        F("sup_disobey_excess_a", q->disobey_excess_a)
+        F("sup_cmd_v_min", q->cmd_v_min)
+        F("sup_rate_max", q->rate_max_k_per_s)
+        U("sup_rate_blocks", q->rate_blocks_required = (uint8_t)v)
+    }
     return -1;
 }
 
@@ -128,4 +150,48 @@ int est_start(void *h, double t0)
 double est_step(void *h, double y, double rim)
 {
     return pte_step(&((sim_t *)h)->est, (float)y, (float)rim);
+}
+
+/* ---- runaway supervisor (components/control/pan_supervisor.c) ---------- */
+int sup_start(void *h)
+{
+    sim_t *s = (sim_t *)h;
+    return psup_init(&s->sup, &s->sp) ? 0 : -1;
+}
+
+int sup_rate(void *h, double t_raw, unsigned int now_ms)
+{
+    return psup_rate_sample(&((sim_t *)h)->sup, (float)t_raw, (uint32_t)now_ms) ? 1 : 0;
+}
+
+/* out: force_zero, latch, rise_k */
+void sup_step(void *h, double t_hat, double t_raw, double sp, double p_cmd, double i_bus, int valid, double *out)
+{
+    const psup_input_t in = {
+        .t_hat_c = (float)t_hat,
+        .t_raw_c = (float)t_raw,
+        .setpoint_c = (float)sp,
+        .p_cmd_w = (float)p_cmd,
+        .bus_current_a = (float)i_bus,
+        .current_valid = valid != 0,
+    };
+    psup_output_t o;
+    psup_step(&((sim_t *)h)->sup, &in, &o);
+    out[0] = o.force_zero;
+    out[1] = o.latch;
+    out[2] = o.rise_k;
+}
+
+/* Plant-gain diagnostics: out = later_updates, rejected, updates, theta,
+ * last later-phase estimate, later phase open, hold power P_0 (W). */
+void sim_pg_stats(void *h, double *out)
+{
+    const pg_t *g = &((sim_t *)h)->loop.pg;
+    out[0] = (double)g->later_updates;
+    out[1] = (double)g->rejected;
+    out[2] = (double)g->updates;
+    out[3] = (double)g->theta;
+    out[4] = (double)g->last_window_a;
+    out[5] = (double)g->later_open;
+    out[6] = (double)g->p_base_w;
 }

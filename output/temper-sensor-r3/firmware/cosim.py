@@ -18,7 +18,10 @@ Cases: the 16 C1 design cases and 12 stress cases of screen.py (same seeds),
 loss / food / nominal D1 runs (same seeds), a probe forced on intact contact
 in both holds (4 pans x both h_c extremes), a preheated pan placed on the hob,
 and h_c steps 1000->300 and 300->3000 at 250 s. D1 is ON in every run
-(production configuration). Seed-to-seed robustness of D1 is in
+(production configuration), and so is the runtime runaway supervisor
+(pan_supervisor.c: R1 sustained-rise latch, R2 stage 1 forcing the command to
+0 above sp + 10 K, stage 2a/2b latches; bus current = P/120 V): no run may
+latch it (DECISIONS.md D-RUN; runaway_checks.py covers the fault scenarios). Seed-to-seed robustness of D1 is in
 b5_montecarlo.py. A Python double-precision shadow KF with the same
 constants as the C filter runs on the identical readings for the parity bar.
 
@@ -68,6 +71,12 @@ def lib():
         L.sim_request_probe.argtypes = [ctypes.c_void_p]
         L.sim_step.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double,
                                ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_double)]
+        L.sup_start.argtypes = [ctypes.c_void_p]
+        L.sup_start.restype = ctypes.c_int
+        L.sup_rate.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_uint]
+        L.sup_rate.restype = ctypes.c_int
+        L.sup_step.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double,
+                               ctypes.c_double, ctypes.c_int, ctypes.POINTER(ctypes.c_double)]
         LIB = L
     return LIB
 
@@ -101,6 +110,10 @@ def run_case(case):
     for key, v in case.get("params", {}).items():
         assert L_.sim_set(h, key.encode(), v) == 0, key
     assert L_.sim_start(h, es.T_AMB) == 0
+    assert L_.sup_start(h) == 0
+    sup_out = (ctypes.c_double * 3)()
+    sup_latch = r1_trip = None
+    force_zero_steps = 0
     shadow = ref.KFRef(es.T_AMB, screen.NOISE, k_fw)
 
     out = (ctypes.c_double * len(OUT))()
@@ -151,6 +164,16 @@ def run_case(case):
         if o["fault"] and not faults:
             faults.append((round(t, 1), int(o["fault"]), int(o["diag"])))
         P_cmd = o["p_cmd"]
+        # Runtime supervisor (pan_supervisor.c, as main/pan_control.c runs it):
+        # R1 on every reading, R2 at 10 Hz; stage 1 forces the command to 0.
+        if L_.sup_rate(h, y, int(round(t * 1000))) and r1_trip is None:
+            r1_trip = round(t, 1)
+        L_.sup_step(h, o["t_hat"], y, sp, P_cmd, P_true / 120.0, 1, sup_out)
+        if sup_out[0]:
+            P_cmd = 0.0
+            force_zero_steps += 1
+        if sup_out[1] and sup_latch is None:
+            sup_latch = (round(t, 1), int(sup_out[1]))
         a_log.append((o["a"] / a_true, o["a_valid"], o["src_mask"]))
         log_.append((t + es.DT_CTRL, sp, o["t_hat"], tr.T_c(), tr.T_mean(), y, P_cmd, h_now, float("nan")))
     L_.sim_free(h)
@@ -167,7 +190,8 @@ def run_case(case):
            "a_ratio_end_ramp1": round(float(A[min(max(i_end1, 0), len(A) - 1), 0]), 3),
            "a_valid_end_ramp1": bool(A[min(max(i_end1, 0), len(A) - 1), 1]),
            "a_ratio_end": round(float(A[-1, 0]), 3), "a_src_mask_end": int(A[-1, 2]),
-           "shadow_rms_K": float(np.sqrt(np.mean(sd**2))), "shadow_max_K": float(np.abs(sd).max())}
+           "shadow_rms_K": float(np.sqrt(np.mean(sd**2))), "shadow_max_K": float(np.abs(sd).max()),
+           "sup_latch": sup_latch, "r1_trip": r1_trip, "sup_force_zero_s": round(force_zero_steps * es.DT_CTRL, 1)}
     sp_hi = pan["sp"][1]
     b3_lim = 1.5 if sp_hi <= 100 else 3.0
     kind = case["kind"]
@@ -244,6 +268,10 @@ def summarise(rows):
                            "worst_T_mean_overshoot_K": max(r["T_mean_overshoot_K"] for r in G),
                            "probes": sum(r["probes"] for r in G), "false_latches": sum(r["false_latch"] for r in G),
                            "faults": sum(bool(r["faults"]) for r in G)}
+        d["supervisor"] = {"latches": sum(r["sup_latch"] is not None for r in R),
+                           "r1_trips": sum(r["r1_trip"] is not None for r in R),
+                           "cases_with_stage1": sum(r["sup_force_zero_s"] > 0 for r in R),
+                           "worst_stage1_s": max(r["sup_force_zero_s"] for r in R)}
         loss = [r for r in R if r["kind"] == "loss"]
         if loss:
             d["loss"] = {"cases": len(loss), "detected": sum(r["detected_at"] is not None for r in loss),
@@ -283,10 +311,15 @@ def bars(summary):
             "no_false_latch_design": d["design"]["false_latches"] == 0,
             "no_false_latch_probe_on_intact_contact": d["probe_intact"]["false_latches"] == 0,
             "C_vs_Python_rms_le_0p05K": d["shadow_parity"]["worst_rms_K"] <= 0.05,
+            "no_runaway_supervisor_trip": d["supervisor"]["latches"] == 0 and d["supervisor"]["r1_trips"] == 0,
         }
         if g != "true":
             lo, hi = d["a_ratio_end_ramp1_design"]
             b["a_within_30pct_end_ramp1"] = lo >= 0.7 and hi <= 1.3 and d["a_valid_end_ramp1_design"] == 16
+            # Later-ramp updates (D-ID2) never move a to the over-powering side
+            # past 0.7x, and stay inside the +50 % plausibility bound.
+            lo, hi = d["a_ratio_end_design"]
+            b["a_after_later_ramp_0p7_to_1p6"] = lo >= 0.7 and hi <= 1.6
         out[g] = b
     return out
 

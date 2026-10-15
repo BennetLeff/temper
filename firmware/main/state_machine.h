@@ -283,6 +283,13 @@ void state_machine_report_rtd_device_fault(bool short_fault, bool open_fault,
 void state_machine_report_pan_contact_lost(void);
 
 /**
+ * TEMPER_PAN_CONTROL_C1: the MAX31865 keeps answering DRDY with an identical
+ * code for RTD_C1_FROZEN_CONVERSIONS conversions (rtd_service.h). Latches
+ * FAULT_ADC_STUCK, the fault the legacy equal-reading check raises.
+ */
+void state_machine_report_rtd_frozen(void);
+
+/**
  * @brief Get current intensity level
  * 
  * @return Current intensity level (1-10)

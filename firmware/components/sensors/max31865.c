@@ -119,3 +119,61 @@ hal_status_t max31865_service_fault_cycle(const max31865_device_t *device,
     }
     return status;
 }
+
+hal_status_t max31865_set_thresholds(const max31865_device_t *device,
+                                     uint16_t low_word, uint16_t high_word)
+{
+    const uint8_t high_threshold[] = {(uint8_t)(high_word >> 8), (uint8_t)high_word};
+    const uint8_t low_threshold[] = {(uint8_t)(low_word >> 8), (uint8_t)low_word};
+    hal_status_t status;
+
+    if (!device_ready(device)) {
+        return HAL_ERROR_INVALID_ARG;
+    }
+    status = HAL_SPI_WRITE_REG(device->spi_device, MAX31865_REG_HIGH_THRESHOLD_MSB,
+                               high_threshold, sizeof(high_threshold));
+    if (status != HAL_OK) {
+        return status;
+    }
+    return HAL_SPI_WRITE_REG(device->spi_device, MAX31865_REG_LOW_THRESHOLD_MSB,
+                             low_threshold, sizeof(low_threshold));
+}
+
+hal_status_t max31865_start_conversions(const max31865_device_t *device)
+{
+    const uint8_t config = MAX31865_CONFIG_VBIAS | MAX31865_CONFIG_AUTO_CONVERT;
+
+    if (!device_ready(device)) {
+        return HAL_ERROR_INVALID_ARG;
+    }
+    return HAL_SPI_WRITE_REG(device->spi_device, MAX31865_REG_CONFIG, &config, 1u);
+}
+
+hal_status_t max31865_fault_cycle_busy(const max31865_device_t *device,
+                                       bool *busy)
+{
+    uint8_t config = 0u;
+    hal_status_t status;
+
+    if (!device_ready(device) || busy == NULL) {
+        return HAL_ERROR_INVALID_ARG;
+    }
+    status = HAL_SPI_READ_REG(device->spi_device, MAX31865_REG_CONFIG, &config, 1u);
+    *busy = (status == HAL_OK) && ((config & MAX31865_CONFIG_FAULT_CYCLE_MASK) != 0u);
+    return status;
+}
+
+hal_status_t max31865_read_rtd(const max31865_device_t *device,
+                               uint8_t *msb, uint8_t *lsb)
+{
+    uint8_t buf[2] = {0u, 0u};
+    hal_status_t status;
+
+    if (!device_ready(device) || msb == NULL || lsb == NULL) {
+        return HAL_ERROR_INVALID_ARG;
+    }
+    status = HAL_SPI_READ_REG(device->spi_device, MAX31865_REG_RTD_MSB, buf, 2u);
+    *msb = buf[0];
+    *lsb = buf[1];
+    return status;
+}
