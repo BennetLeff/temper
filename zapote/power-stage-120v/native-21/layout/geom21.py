@@ -16,9 +16,9 @@ from shapely.geometry import LineString, Point, Polygon, box
 from shapely.strtree import STRtree
 
 import rules21
+from layers21 import CU  # noqa: F401  (copper layers, top to bottom, from native-21/stackup.json)
 
 HERE = Path(__file__).resolve().parent
-CU = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
 EDGE = [(0, 0), (290, 0), (290, 140), (91, 140), (91, 190), (0, 190)]
 EDGE_CLEARANCE = 0.5
 EPS = 0.01

@@ -35,6 +35,7 @@ import sys  # noqa: E402
 sys.path.insert(0, str(HERE))
 from geom21 import Geometry  # noqa: E402
 import maze21  # noqa: E402
+from layers21 import CU, OUTER, INNER, PLANE_ROLE  # noqa: E402  (native-21/stackup.json)
 
 GEO = Geometry()
 ZONES, TRACKS, VIAS, ESCAPES = [], [], [], []
@@ -134,7 +135,7 @@ def _legal(net, segs, width, vias=()):
         if len(path) > 1 and GEO.conflicts(net, (lay,), LineString(path).buffer(width / 2), limit=1):
             return False
     for v in vias:
-        if GEO.conflicts(net, ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"), Point(v[0], v[1]).buffer(0.3), limit=1, via=True):
+        if GEO.conflicts(net, CU, Point(v[0], v[1]).buffer(0.3), limit=1, via=True):
             return False
     return True
 
@@ -149,7 +150,7 @@ def link(net, layer, bx, width, pads):
     width = min([width] + [min(b[2] - b[0], b[3] - b[1]) * 0.9 for b in (GEO.pad(pp)["box"] for pp in pads
                                                                           if not pp.startswith("@"))])
     width = max(round(width, 2), 0.2)
-    layers = ("F.Cu", "B.Cu") if layer == "F+B" else (layer if isinstance(layer, tuple) else None)
+    layers = OUTER if layer == "F+B" else (layer if isinstance(layer, tuple) else None)
     two = layers is not None
     def _pt(pp):
         if pp.startswith("@"):
@@ -260,7 +261,7 @@ def island_signals(bx, layer="F+B", width=0.25, exclude=()):
             by.setdefault(p["net"], []).append(p)
     nets = []
     for n, ps in by.items():
-        if n in exclude or len(ps) < 2 or any((n, lay) in PLANES for lay in ("In1.Cu", "In2.Cu", "B.Cu")):
+        if n in exclude or len(ps) < 2 or any((n, lay) in PLANES for lay in CU[1:]):
             continue
         if all(bx[0] <= q["x"] <= bx[2] and bx[1] <= q["y"] <= bx[3] for q in ps):
             nets.append((sum(math.dist((q["x"], q["y"]), (ps[0]["x"], ps[0]["y"])) for q in ps), n, ps))
@@ -278,10 +279,10 @@ VIA_1 = {"size": 1.0, "drill": 0.5}
 # LS-A bank, then a 23 mm stacked band right to the resonant bank and down to C5/C6/D3.
 TRUNK = [(0.6, 0.6, 76.5, 25.5), (0.6, 25.5, 100.5, 48.0), (77.0, 27.2, 214.0, 50.5),
          (198.0, 50.5, 214.0, 57.0), (198.0, 57.0, 289.4, 113.0)]
-zone("bus_p", "In2.Cu", *TRUNK, (137.0, 21.0, 148.5, 27.2), name="bus_p trunk")      # J8 from below
-zone("hv_ret", "In1.Cu", *TRUNK, (144.5, 0.6, 160.0, 13.2), (150.8, 13.2, 160.0, 27.2),
+zone("bus_p", PLANE_ROLE["bus_p"], *TRUNK, (137.0, 21.0, 148.5, 27.2), name="bus_p trunk")      # J8 from below
+zone("hv_ret", PLANE_ROLE["hv_ret"], *TRUNK, (144.5, 0.6, 160.0, 13.2), (150.8, 13.2, 160.0, 27.2),
      name="hv_ret trunk")                                                               # J10 round J8
-zone("leg_ret", "In1.Cu", (18.0, 0.6, 58.0, 12.5), priority=2, name="leg_ret sources")
+zone("leg_ret", PLANE_ROLE["leg_ret"], (18.0, 0.6, 58.0, 12.5), priority=2, name="leg_ret sources")
 
 # ---------------------------------------------------------------- rectifier to the links
 zone("rect_p", "In1.Cu", (79.7, 0.6, 86.4, 9.8), (79.7, 9.8, 128.6, 24.0), name="rect_p BR1.1-J7", protect=True)
@@ -474,7 +475,7 @@ track("ocp_kelvin_n", "F.Cu", 0.3, list(KN), "R33.2")
 for ref, (cx, cy) in {"J9": (130.0, 6.5), "J10": (143.0, 6.5), "J7": (130.0, 19.5), "J8": (143.0, 19.5),
                       "J5": (132.0, 70.5), "J2": (132.0, 85.5)}.items():
     n = [p["net"] for p in GEO.pads if p["ref"] == ref and p["net"]][0]
-    for lay in ("F.Cu", "B.Cu"):
+    for lay in OUTER:
         zone(n, lay, (cx - 4.6, cy - 4.6, cx + 4.6, cy + 4.6), priority=4, name=f"{ref} stud land")
 
 # Mains input (line current): J1.1 -> fuse line clips on F; fuse load clips (L_F) on F down to
@@ -557,7 +558,7 @@ SELV_REGION = [(0.6, 114.0, 160.0, 139.4), (0.6, 139.4, 90.4, 189.4), (22.0, 52.
 # High-side islands: -2 V rail (N_Hx) on In1 (B under the HS reservoir bank); +15 V routed.
 for leg, isl, bank in (("b", (0.6, 60.0, 22.0, 119.0), (12.0, 30.6, 28.5, 48.0)),
                        ("a", (44.5, 64.0, 70.0, 119.0), (58.5, 30.6, 75.5, 48.0))):
-    zone(f"n_h{leg}", "In1.Cu", isl, name=f"n_h{leg} island")
+    zone(f"n_h{leg}", PLANE_ROLE[f"n_h{leg}"], isl, name=f"n_h{leg} island")
     # strip from the bank down into the island, kept 3.2 mm clear of the transformer primaries
     strip_x0 = 17.5 if leg == "b" else 64.5
     ext = [(28.5, 38.5, 31.4, 48.0)] if leg == "b" else []          # under U2.14 (VSSA) via
@@ -565,13 +566,13 @@ for leg, isl, bank in (("b", (0.6, 60.0, 22.0, 119.0), (12.0, 30.6, 28.5, 48.0))
 # LOW blocks: protection (OCP_KELVIN_P ground) and LS bias (N_LS) on In1; HOT5 / V15_LS routed. B N_LS also
 # under both LS reservoir banks, joined to the block past U1's SELV moat (x >= 92.5).
 PROT, LSB = (100.5, 51.0, 123.0, 75.3), (100.5, 75.3, 123.0, 113.0)
-zone("ocp_kelvin_p", "In1.Cu", PROT, name="ocp_kelvin_p protection")
-zone("n_ls", "In1.Cu", LSB, name="n_ls LS block")
+zone("ocp_kelvin_p", PLANE_ROLE["ocp_kelvin_p"], PROT, name="ocp_kelvin_p protection")
+zone("n_ls", PLANE_ROLE["n_ls"], LSB, name="n_ls LS block")
 zone("n_ls", "B.Cu", (84.0, 30.6, 97.3, 48.0), name="n_ls LS-A bank")
 zone("n_ls", "B.Cu", (37.5, 30.6, 54.0, 48.0), name="n_ls LS-B bank")
 # SELV planes last, so they are clipped against every HOT pour above (plan view, 8.2 mm).
-zone("v3v3", "In1.Cu", *SELV_REGION, name="v3v3 SELV island")
-zone("selv_gnd", "In2.Cu", *SELV_REGION, name="selv_gnd SELV island")
+zone("v3v3", PLANE_ROLE["v3v3"], *SELV_REGION, name="v3v3 SELV island")
+zone("selv_gnd", PLANE_ROLE["selv_gnd"], *SELV_REGION, name="selv_gnd SELV island")
 
 # Long SELV runs first, before the pad fan-outs crowd the driver tongues (F/B only; the SELV
 # planes on In1/In2 stay whole). U2's PWM pair lands on J4 from B, U1's from F, so they cross.
@@ -590,14 +591,14 @@ for net, pads_, bx in SELV_LONG:
 # bank (B) to island (In1) for each high-side -2 V rail
 for net, x, y in (("n_hb", 18.6, 61.6), ("n_hb", 19.4, 62.4), ("n_ha", 65.6, 65.6), ("n_ha", 66.4, 66.0)):
     via(net, x, y)
-fanout("v3v3", (0, 52, 160, 190), "In1.Cu")
-fanout("selv_gnd", (0, 52, 160, 190), "In2.Cu")
+fanout("v3v3", (0, 52, 160, 190), PLANE_ROLE["v3v3"])
+fanout("selv_gnd", (0, 52, 160, 190), PLANE_ROLE["selv_gnd"])
 for leg, isl, bank in (("b", (0, 30, 29, 120), None), ("a", (44, 30, 76, 120), None)):  # noqa
     fanout(f"n_h{leg}", (isl[0], isl[1], isl[2], 48.5), "B.Cu")
-    fanout(f"n_h{leg}", (isl[0], 58.0, isl[2], isl[3]), "In1.Cu")
-fanout("ocp_kelvin_p", PROT, "In1.Cu")
+    fanout(f"n_h{leg}", (isl[0], 58.0, isl[2], isl[3]), PLANE_ROLE[f"n_h{leg}"])
+fanout("ocp_kelvin_p", PROT, PLANE_ROLE["ocp_kelvin_p"])
 fanout("n_ls", (84, 30, 100, 49), "B.Cu")
-fanout("n_ls", (100, 75.3, 124, 114), "In1.Cu")
+fanout("n_ls", (100, 75.3, 124, 114), PLANE_ROLE["n_ls"])
 fanout("n_ls", (37, 30, 55, 49), "B.Cu")
 
 # ---------------------------------------------------------------- remaining connections
@@ -614,10 +615,10 @@ def protect_pours():
     from shapely.geometry import Polygon
     opened = unary_union([box(*r) for r in OPEN_IN1])
     for z in ZONES:
-        if z["net"] not in ("hv_ret", "bus_p") or z["layer"] not in ("In1.Cu", "In2.Cu"):
+        if z["net"] not in ("hv_ret", "bus_p") or z["layer"] not in INNER:
             continue          # island / SELV / LOW-block planes yield to vias; lanes protected at creation
         poly = Polygon(z["outline"], z["holes"])
-        if z["layer"] == "In1.Cu":
+        if z["layer"] == PLANE_ROLE["hv_ret"]:      # the OPEN_IN1 corridors are cut in the HV_RET plane
             poly = poly.difference(opened)
         if not poly.is_empty:
             GEO.protect(z["net"], z["layer"], poly, via_ok=True)
@@ -625,12 +626,13 @@ def protect_pours():
 
 # In2 inside the islands and the LOW blocks is a signal layer (their +15 V / HOT5 rails are
 # routed, only the reference planes are poured); elsewhere In2 is the protected BUS_P trunk.
-LAYERS_FOR = {"LOW": ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"), "SW_A": ("F.Cu", "In2.Cu", "B.Cu"),
-              "SW_B": ("F.Cu", "In2.Cu", "B.Cu")}
+# (SW_A / SW_B / L3: every copper layer but the HV_RET plane's, i.e. F.Cu, In2.Cu, B.Cu)
+NOT_HV_RET = tuple(lay for lay in CU if lay != PLANE_ROLE["hv_ret"])
+LAYERS_FOR = {"LOW": CU, "SW_A": NOT_HV_RET, "SW_B": NOT_HV_RET}
 
 # ---------------------------------------------------------------- island-local signals (F.Cu)
 protect_pours()
-L3 = ("F.Cu", "In2.Cu", "B.Cu")
+L3 = NOT_HV_RET
 island_signals((0.6, 34.0, 28.0, 120.0), layer=L3)            # SW_B island
 island_signals((44.0, 50.0, 70.5, 120.0), layer=L3)           # SW_A island
 island_signals((100.0, 50.0, 123.5, 114.0), layer=L3)         # protection + LS block
@@ -641,11 +643,11 @@ if TODO.exists():
     import rules21
     for net, a, b in json.loads(TODO.read_text()):
         group = rules21.GROUP.get(net)
-        layers = LAYERS_FOR.get(group, ("F.Cu", "B.Cu"))
+        layers = LAYERS_FOR.get(group, OUTER)
         if rules21.domain(net) == "SELV":
             # SELV signals may use In1/In2 inside the SELV region (only the SELV planes live there,
             # and they yield); the plan-view barrier keeps them out of everything else.
-            layers = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
+            layers = CU
         w = 0.4 if net in ("leg_ret", "v15_ls", "n_ls", "v24_raw", "bias_sw1", "bias_sw2", "hot5",
                            "v15_selv", "pe", "l_filt", "n_filt", "l_f", "ac_n_in", "ac_l_in", "tco_l") else 0.25
         try:

@@ -41,7 +41,9 @@ V_BUS_OVP = 280.0            # U7 hardware OVP (DECISIONS item 62) / RESOLUTION-
 V_BUS_CORNER = 286.0         # ALT-D3 / aoe_04 bus corner used by the repo
 F = 60.0
 # copper
-CU_T = {"F.Cu": 0.070, "In1.Cu": 0.061, "In2.Cu": 0.061, "B.Cu": 0.070}   # native-21/stackup.json (mm)
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "native-21/layout"))
+import layers21  # noqa: E402
+CU_T = dict(layers21.T_MM)   # copper thickness per layer, mm (stage 33: read from native-21/stackup.json)
 CU_TM = 1083.0               # copper melting point, C
 CMIL_MM2 = 5.067075e-4       # 1 circular mil in mm^2
 TA_HOT = 105.0               # governing ambient before the fault (hot board); 25 C also reported

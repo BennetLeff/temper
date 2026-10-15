@@ -33,6 +33,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import rules21  # noqa: E402
 from geom21 import EDGE  # noqa: E402
+from layers21 import INNER, OUTER  # noqa: E402  (native-21/stackup.json)
 
 SIGNALS = [  # (net, reference net, purpose)
     ("leg_a-out_l", "n_ls", "leg A low-side driver output vs VSSB"),
@@ -85,7 +86,7 @@ SELV_INNER = []                      # SELV inner-layer pours: they refill round
 for z in d["zones"]:
     g = Polygon(z["pts"])
     ALL.append((z["net"], g, None))
-    if z["layer"] in ("In1.Cu", "In2.Cu") and rules21.domain(z["net"]) == "SELV":
+    if z["layer"] in INNER and rules21.domain(z["net"]) == "SELV":
         SELV_INNER.append(g)
     if z["layer"] == "F.Cu":
         F.append((z["net"], g, None))
@@ -146,7 +147,7 @@ for v in d["vias"]:
 # a test pad may also sit on the net's own F.Cu / B.Cu track (sampled every 0.5 mm, ends excluded)
 cand = {"F": {n: list(v) for n, v in vias.items()}, "B": {n: list(v) for n, v in vias.items()}}
 for t in d["tracks"]:
-    if t["layer"] not in ("F.Cu", "B.Cu"):
+    if t["layer"] not in OUTER:
         continue
     seg = LineString([t["a"], t["b"]])
     for k in range(1, int(seg.length / 0.5)):

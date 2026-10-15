@@ -36,10 +36,7 @@ from shapely.ops import nearest_points
 UNIT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(UNIT / "native-21/layout"))
 import rules21  # noqa: E402
-
-OUTER = ("F.Cu", "B.Cu")
-INNER = ("In1.Cu", "In2.Cu")
-CU = OUTER[:1] + INNER + OUTER[1:]
+from layers21 import CU, INNER, OUTER  # noqa: E402,F401  (stage 33: native-21/stackup.json)
 FLOOR = rules21.RES_A_CREEPAGE      # 12.6 mm
 HV = rules21.RES_A_NETS             # {"res_a"}
 # CRBLEED_1 (3/4 tap of the bleed string) is 242.5 V rms with the L70 coil of record (8.0 mm band) but 255.1 V rms

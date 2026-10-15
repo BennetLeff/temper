@@ -18,7 +18,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 from loops import path, pad, flux, area, emf_mv, BOARD_SHA
 from field import ComplexProfile, CASES
-F, I1, I2, B = 'F.Cu', 'In1.Cu', 'In2.Cu', 'B.Cu'
+from loops import layers21
+# stage 33: outer layers and the Kelvin plane from native-21/stackup.json. I1 = the ocp_kelvin_p (KELVIN_P pour) plane
+# layer; I2 = the copper layer just below it, where the 'move' variant runs KELVIN_N as the pour's image.
+F, B = layers21.OUTER
+I1 = layers21.PLANE_ROLE['ocp_kelvin_p']
+I2 = layers21.CU[layers21.index(I1) + 1]
 
 def P_(net, a, la, b, lb):
     for l0 in (la, F, B, I1, I2):         # F added (stage 22: ocp_thresh re-routed all on F.Cu from U6.4 to C31.1)

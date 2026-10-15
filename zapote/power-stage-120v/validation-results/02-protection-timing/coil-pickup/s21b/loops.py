@@ -16,8 +16,21 @@ D = dict(tracks=[dict(net=p['net'], a=p['start'], b=p['end'], layer=p['layer']) 
          vias=[dict(net=p['net'], at=p['centre']) for p in _raw['primitives'] if p['kind'] == 'via'])
 _PADS = {p['ref']: p['centre'] for p in _raw['primitives'] if p['kind'] == 'pad'}
 BOARD_SHA = _raw['board_sha256']
-# layer heights (mm, world z): F.Cu at the map's copper plane 26.8, then down through the 1.65 mm stack
-Z = {'F.Cu': 26.8, 'In1.Cu': 26.8 - 0.47, 'In2.Cu': 26.8 - 1.03, 'B.Cu': 26.8 - 1.50}
+# layer heights (mm, world z): F.Cu at the map's copper plane 26.8, then down through the 1.65 mm stack.
+# Stage 33 (layer-stack refactor): these depths below F.Cu (0.47 / 1.03 / 1.50 mm) are a DOCUMENTED OVERRIDE, kept so
+# every committed result-*.json reproduces. They are NOT native-21/stackup.json's copper-centre depths below F.Cu
+# (In1 0.501, In2 1.062, B 1.563 mm: layers21.Z_MM minus Z_MM['F.Cu']); the owner decides whether to switch.
+# F8_Z=stackup takes them from the stackup instead (any layer count); the default stays the override.
+Z_DEPTH_OVERRIDE_MM = {'F.Cu': 0.0, 'In1.Cu': 0.47, 'In2.Cu': 1.03, 'B.Cu': 1.50}
+sys.path.insert(0, os.path.join(HERE, '..', '..', '..', '..', 'native-21', 'layout'))
+import layers21  # noqa: E402
+if os.environ.get('F8_Z') == 'stackup':
+    Z_DEPTH_MM = {l: layers21.Z_MM[l] - layers21.Z_MM['F.Cu'] for l in layers21.CU}
+else:
+    Z_DEPTH_MM = Z_DEPTH_OVERRIDE_MM
+    assert set(Z_DEPTH_MM) == set(layers21.CU), ('loops.py Z override covers', sorted(Z_DEPTH_MM),
+                                                 'but native-21/stackup.json has', layers21.CU)
+Z = {l: 26.8 - d for l, d in Z_DEPTH_MM.items()}     # 26.8 - 0.0 == 26.8: the same values as before
 I_MAP = 45.0
 def scale(i_pk): return i_pk / I_MAP
 

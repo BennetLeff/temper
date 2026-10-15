@@ -56,9 +56,33 @@ RHO_CU = 1.68e-8          # ohm*m at 20 C
 ALPHA_CU = 0.00393         # per K
 # Copper-centre heights (mm from the top surface) for stackup.json
 # JLC041622-7628: 70 um / 0.4355 / 61 um / 0.5 / 61 um / 0.4355 / 70 um.
+# The default for callers that pass no layer_z_mm (older boards' scripts). Stage 33: a board's own stack is read with
+# stackup_layers(path) and passed as Net(layer_z_mm=...); stackup_layers(native-20/stackup.json) equals this table.
 LAYER_Z_MM = {"F.Cu": 0.035, "In1.Cu": 0.07 + 0.4355 + 0.0305,
               "In2.Cu": 0.07 + 0.4355 + 0.061 + 0.5 + 0.0305,
               "B.Cu": 0.07 + 0.4355 + 0.061 + 0.5 + 0.061 + 0.4355 + 0.035}
+
+
+def stackup_layers(path) -> dict:
+    """Copper layers of a temper stackup.json (schema v1 / v2: KiCad stackup order, masks included).
+
+    Returns {"names": (F.Cu, ..., B.Cu), "z_mm": {name: copper-centre depth below the top copper surface, mm},
+    "t_um": {name: copper thickness, um (an int when whole)}}. z is summed in stack order (everything above plus
+    half the copper), the same arithmetic as LAYER_Z_MM, so a four-layer JLC041622-7628 file reproduces it bit for bit.
+    Any layer count; an unknown layer name in add_layer / add_via then raises KeyError instead of being dropped."""
+    import json
+    from pathlib import Path
+    st = json.loads(Path(path).read_text())
+    solid = [e for e in st["layers"] if e["type"] not in ("Top Solder Mask", "Bottom Solder Mask")]
+    z, t_um, above = {}, {}, None
+    for e in solid:
+        t = e["thickness_mm"]
+        if e["type"] == "copper":
+            z[e["name"]] = t / 2 if above is None else above + t / 2
+            um = round(t * 1000, 6)
+            t_um[e["name"]] = int(um) if um == int(um) else um
+        above = t if above is None else above + t
+    return {"names": tuple(z), "z_mm": z, "t_um": t_um}
 
 
 class Net:

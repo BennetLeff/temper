@@ -17,9 +17,14 @@ earlier in the same run. Pad 1 is v3v3 (In1 is the nearer plane under F.Cu), pad
 import argparse
 import json
 import math
+import sys
+from pathlib import Path
 
 from shapely.geometry import Point, Polygon, box
 from shapely.ops import unary_union
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import layers21  # noqa: E402  (native-21/stackup.json: the v3v3 / selv_gnd plane layers)
 
 PAD_W, PAD_H, PITCH = 0.95, 0.90, 1.55
 CY_W, CY_H = 3.05, 1.55
@@ -41,7 +46,7 @@ def main():
     tg = [tuple(map(float, t.split(","))) for t in a.targets]
     d = json.load(open(a.dump))
     plane = {}
-    for lay, net in (("In1.Cu", "v3v3"), ("In2.Cu", "selv_gnd")):
+    for lay, net in ((layers21.PLANE_ROLE["v3v3"], "v3v3"), (layers21.PLANE_ROLE["selv_gnd"], "selv_gnd")):
         ps = [Polygon(z["pts"], [h for h in z["holes"] if len(h) > 2]).buffer(0)
               for z in d["zones"] if z["layer"] == lay and z["net"] == net and len(z["pts"]) > 2]
         plane[net] = unary_union(ps).buffer(-0.5)

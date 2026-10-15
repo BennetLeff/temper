@@ -7,8 +7,8 @@ Reads a routed board's copper dump (`plot_copper.py --dump`: filled pours, track
 and, for every fast signal below:
 
 * walks each track at 0.25 mm steps and finds its reference: the nearest adjacent copper layer that has a filled
-  pour under the point (stackup F.Cu 0.4355 In1 0.5 In2 0.4355 B.Cu, so F -> In1 then In2, B -> In2 then In1,
-  In2 -> B then In1, In1 -> F then In2). A track of an expected return net beside it on the same layer (edge gap <= 0.3 mm), or over /
+  pour under the point (layers21.ADJ: nearest first by copper-centre distance in native-21/stackup.json; on today's
+  F.Cu 0.4355 In1 0.5 In2 0.4355 B.Cu stack F -> In1 then In2, B -> In2 then In1, In2 -> B then In1, In1 -> F then In2). A track of an expected return net beside it on the same layer (edge gap <= 0.3 mm), or over /
   under it on the next copper layer(s) up to the first poured one (plan edge gap <= 0.5 mm), counts as a coupled
   dedicated return there (stage 18 had 18.7 mm between bus_fault_hot and its Kelvin return).
   Points within 0.6 mm of the signal's own pads / vias (antipads, launches) are skipped;
@@ -38,16 +38,21 @@ moves, C47 beside U13); on the integration stage-18 board 3768a126 (caps still i
 import argparse
 import json
 import math
+import sys
 from collections import Counter, defaultdict
+from pathlib import Path
 
 from shapely.geometry import LineString, Point, Polygon
 from shapely.strtree import STRtree
 
-LAYERS = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
-# adjacent reference layers, nearest first (stackup.json: 0.4355 / 0.5 / 0.4355 mm dielectrics)
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import layers21  # noqa: E402  (native-21/stackup.json)
+
+LAYERS = list(layers21.CU)
+# adjacent reference layers, nearest first by copper-centre distance (stage 33: from the stackup; it equals the former
+# hand table F: In1 In2 B / In1: F In2 B / In2: B In1 F / B: In2 In1 F, test_layers21.py)
 # (nearest first; a layer with no pour under the point is looked through to the next)
-ADJ = {"F.Cu": ["In1.Cu", "In2.Cu", "B.Cu"], "In1.Cu": ["F.Cu", "In2.Cu", "B.Cu"],
-       "In2.Cu": ["B.Cu", "In1.Cu", "F.Cu"], "B.Cu": ["In2.Cu", "In1.Cu", "F.Cu"]}
+ADJ = layers21.ADJ
 SELV_REF = {"v3v3", "selv_gnd"}
 KELVIN = {"ocp_kelvin_p"}
 LS_REF = {"n_ls", "hv_ret", "leg_ret"}   # the LS domain's return (ISO6721FB GND2 = n_ls) and the LOW planes it rides over

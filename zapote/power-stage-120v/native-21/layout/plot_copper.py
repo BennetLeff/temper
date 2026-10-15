@@ -4,14 +4,18 @@
     KICAD_PY plot_copper.py --dump BOARD.kicad_pcb OUT.json
     python3  plot_copper.py OUT.json PNG [x0 x1 y0 y1]
 
-Filled zone polygons, tracks, vias and pads on each of the four copper layers,
+Filled zone polygons, tracks, vias and pads on each copper layer (layers21.CU, native-21/stackup.json),
 coloured by net (power nets fixed colours, everything else grey); the outline
 from Edge.Cuts. Run after `kicad-cli pcb drc --refill-zones --save-board`.
 """
 import json
 import sys
+from pathlib import Path
 
-LAYERS = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import layers21  # noqa: E402
+
+LAYERS = list(layers21.CU)
 
 if sys.argv[1] == "--dump":
     import pcbnew
@@ -65,7 +69,8 @@ COL = {"bus_p": "#d32f2f", "hv_ret": "#1565c0", "leg_ret": "#00897b", "sw_a": "#
 d = json.load(open(sys.argv[1]))
 box = [float(v) for v in sys.argv[3:7]] if len(sys.argv) > 6 else [-2, 292, -2, 192]
 w, h = box[1] - box[0], box[3] - box[2]
-fig, axes = plt.subplots(2, 2, figsize=(2 * w / 12 + 1, 2 * h / 12 + 1), dpi=110)
+rows = (len(LAYERS) + 1) // 2           # two columns: 2 x 2 for four layers, 3 x 2 for six
+fig, axes = plt.subplots(rows, 2, figsize=(2 * w / 12 + 1, rows * h / 12 + 1), dpi=110)
 for ax, layer in zip(axes.flat, LAYERS):
     for z in d["zones"]:
         if z["layer"] != layer:

@@ -67,6 +67,9 @@ s = re.sub(r'native21[0-9a-z]+-all-copper\.json\.gz', f'{tag}-all-copper.json.gz
 open(p, 'w').write(s)
 PY
 BP=$B/section.kicad_pcb
+# copper layers for the Gerbers, top to bottom, from native-21/stackup.json (stage 33)
+CUL=$(python3 -c "import sys; sys.path.insert(0, 'native-21/layout'); import layers21; print(','.join(layers21.CU))")
+case "$CUL" in F.Cu,*,B.Cu) ;; *) echo "layers21 failed: $CUL" >&2; exit 1;; esac
 # ---- parallel blocks ---------------------------------------------------------------------------------------------
 ( $KC pcb export step --force --subst-models --define-var KIPRJMOD=$U/native-21 --output "$B/board.step" "$BP" > "$B/step.log" 2>&1
   uv run --offline --no-project --with cadquery-ocp python $E/board_boxes.py "$B/board.step" $E/native21-boxes.json >/dev/null 2>&1
@@ -76,7 +79,7 @@ BP=$B/section.kicad_pcb
   python3 -c "import json;a=json.load(open('$E/native21-body-collisions.json'));b=json.load(open('$E/native21-in-r4.json'));print('FIT',a['solids'],a['unattributed'],len(a['part_overlaps']),b['bodies'],len(b['hits']))"
 ) > "$B/blk-fit.log" 2>&1 &
 P_FIT=$!
-( $KC pcb export gerbers --output $O/gerbers/ --layers F.Cu,In1.Cu,In2.Cu,B.Cu,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,F.Mask,B.Mask,Edge.Cuts --subtract-soldermask $BP >/dev/null 2>&1
+( $KC pcb export gerbers --output $O/gerbers/ --layers $CUL,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,F.Mask,B.Mask,Edge.Cuts --subtract-soldermask $BP >/dev/null 2>&1
   $KC pcb export drill --output $O/gerbers/ --format excellon --excellon-units mm --excellon-separate-th --generate-map --map-format gerberx2 --generate-report --report-path $O/drill-report.txt $BP >/dev/null 2>&1
   $KC pcb export pos --output $O/positions-kicad.csv --format csv --units mm --side both $BP >/dev/null 2>&1
   $KP validation-results/08-manufacturing-package/native-21/scripts/bom_cpl_jlc.py $BP native-21/frozen/default.csv $O 2>&1 | grep -v -i "wxapp\|Debug:" | tail -1

@@ -29,6 +29,7 @@ exec(compile(tail, "route21.py", "exec"), g)
 GEO = g["GEO"]
 import patches21  # noqa: E402
 import rules21  # noqa: E402
+from layers21 import CU, INNER, OUTER, PLANE_ROLE  # noqa: E402  (native-21/stackup.json)
 
 WIDE = ("leg_ret", "v15_ls", "n_ls", "v24_raw", "bias_sw1", "bias_sw2", "hot5", "v15_selv", "pe", "l_filt",
         "n_filt", "l_f", "ac_n_in", "ac_l_in", "tco_l")
@@ -109,7 +110,7 @@ def prune_dangling(base, nets):
             lays |= {z["layer"] for z in (FILLS or base["zones"]) if z["net"] == v["net"] and zgeom(z).intersects(pt)}
             for p in GEO.pads:
                 if p["net"] == v["net"] and _box(*p["box"]).intersects(pt):
-                    lays |= set(CU4) if p["tht"] else {"F.Cu"}
+                    lays |= set(CU) if p["tht"] else {"F.Cu"}
             if len(lays) <= 1:
                 vgone.append(v)
         if not gone and not vgone:
@@ -322,7 +323,7 @@ def dogbone():
                 d = ex + r + step
                 x, y = round(pad["x"] + d * math.cos(a), 3), round(pad["y"] + d * math.sin(a), 3)
                 nv = _Pt(x, y).buffer(r)
-                if GEO.conflicts(net, CU4, nv, limit=1, via=True):
+                if GEO.conflicts(net, CU, nv, limit=1, via=True):
                     continue
                 stub = _LS([(pad["x"], pad["y"]), (x, y)]).buffer(0.125)
                 if GEO.conflicts(net, ("F.Cu",), stub, limit=1):
@@ -347,8 +348,6 @@ def dogbone():
         moved += 1
     return moved, kept
 
-
-CU4 = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
 
 
 def merge_close_vias(gap=0.5):
@@ -584,7 +583,7 @@ def load(base_path, patches=True):
     # tracks of other nets may not cut them (vias may pass; the fill opens antipads). A re-route
     # across the In1 Kelvin pour split it once, and its resistance is budgeted.
     for z in g["ZONES"]:
-        if (z["net"] in ("n_ha", "n_hb") and z["layer"] in ("B.Cu", "In1.Cu")) or \
+        if (z["net"] in ("n_ha", "n_hb") and z["layer"] in ("B.Cu", PLANE_ROLE[z["net"]])) or \
                 z["net"] in ("ocp_kelvin_p", "ocp_kelvin_n"):
             GEO.protect(z["net"], z["layer"], Polygon(z["outline"], z["holes"]), via_ok=True)
     if patches and hasattr(patches21, "OPEN_IN1"):
@@ -634,9 +633,9 @@ if __name__ == "__main__":
             seen.add(key)
             pairs.append((net, pa, pb))
     for net, a, b in pairs:
-        layers = g["LAYERS_FOR"].get(rules21.GROUP.get(net), ("F.Cu", "B.Cu"))
+        layers = g["LAYERS_FOR"].get(rules21.GROUP.get(net), OUTER)
         if rules21.domain(net) == "SELV":
-            layers = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
+            layers = CU
         w = 0.4 if net in WIDE else 0.25
         items, cid = clusters(net)
         ca, cb = cluster_of(items, cid, a), cluster_of(items, cid, b)
@@ -649,7 +648,7 @@ if __name__ == "__main__":
                 continue
             a, b = q, q
         # SELV: outer layers first, the In1 / In2 reference planes only as a fallback
-        tries = [("F.Cu", "B.Cu"), layers] if rules21.domain(net) == "SELV" else [layers]
+        tries = [OUTER, layers] if rules21.domain(net) == "SELV" else [layers]
         # a pad end joins the other end's cluster anywhere along it (not only the item KiCad named)
         ends = [(q, o if o != q else None) for q, o in ((a, b), (b, a)) if not q.startswith("@")][:1 if a == b else 2]
         try:
@@ -662,7 +661,7 @@ if __name__ == "__main__":
         if a != b and any(join_clusters(net, a, b, lays, w) for lays in tries):
             g["LINK_LOG"].append((net, "join", 2, []))
             continue
-        if len(tries) > 1 and not any(q.startswith("@") and q.rsplit(",", 1)[1] in ("In1.Cu", "In2.Cu")
+        if len(tries) > 1 and not any(q.startswith("@") and q.rsplit(",", 1)[1] in INNER
                                       for q in (a, b)):
             n_log = len(g["LINK_LOG"])
             if g["link"](net, tries[0], (0.6, 0.6, 289.4, 189.4), w, [a, b]):

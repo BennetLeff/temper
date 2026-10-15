@@ -14,8 +14,8 @@ and the trip shifts by dI/de_th = -(2 - 2k)/Rs (k = R35/(R34+R35); about
 -1.03 A per mV with R34 = 10.6 k, R35 = 10 k, Rs = 1 mOhm). A positive e_th lowers
 the trip current, eating into the 44 A minimum.
 
-Copper: the kit's thicknesses (70 um outer, 61 um inner); the 2 oz stackup
-specifies more. Via plating 18 um (JLCPCB minimum class). Pads are injected
+Copper: 70 um outer, 61 um inner and the copper z, read from the board's stackup.json
+(stage 33; they were the kit's literals); the 2 oz stackup specifies more. Via plating 18 um (JLCPCB minimum class). Pads are injected
 at their centres. Grid 0.1 mm. Input: the committed native-19 copper export
 (board SHA-256 3557aa44..., copper byte-identical to native-20).
 
@@ -27,6 +27,7 @@ from __future__ import annotations
 import gzip
 import importlib.util
 import json
+import os
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -50,6 +51,15 @@ DIVIDER = {"native21s13": (12.4e3, 11.7e3), "native21s13b": (12.4e3, 11.7e3), "n
            "native21s17b": (12.6e3, 11.7e3), "native21s18": (12.6e3, 11.7e3),
            "native21s19": (12.6e3, 11.7e3), "native21s19b": (12.6e3, 11.7e3), "native21s19c": (12.6e3, 11.7e3), "native21s20": (12.6e3, 11.7e3), "native21s21": (12.6e3, 11.7e3), "native21s21b": (12.6e3, 11.7e3), "native21s22": (12.6e3, 11.7e3), "native21s26": (12.6e3, 11.7e3), "native21s27": (12.6e3, 11.7e3), "native21s28": (12.6e3, 11.7e3), "native21s29": (12.6e3, 11.7e3), "native21s30": (12.6e3, 11.7e3), "native21s31": (12.6e3, 11.7e3), "native21s32": (12.6e3, 11.7e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
 PLATING_UM, PITCH, TEMP = 18.0, 0.1, 125.0
+
+
+def thickness_summary(t_um: dict) -> dict:
+    """{"outer": um, "inner": um} as recorded since stage 6; refuses a stack whose outer (or inner) layers differ."""
+    names = list(t_um)
+    outer, inner = {t_um[names[0]], t_um[names[-1]]}, {t_um[n] for n in names[1:-1]}
+    if len(outer) != 1 or len(inner) != 1:
+        raise ValueError(f"per-layer copper thicknesses {t_um}: record them per layer")
+    return {"outer": outer.pop(), "inner": inner.pop()}
 
 
 def main() -> None:
@@ -88,7 +98,11 @@ def main() -> None:
               "native21s31": "5ef1c37a41914825db33138bbbf765390b1fa5ae9ea4391b45c92fc8c2854bad",
               "native21s32": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e"}
     assert data["board_sha256"] == PINNED[tag], f"{export} is not the pinned {tag} board"
-    net = kit.Net(pitch_mm=PITCH, temp_c=TEMP)
+    # stage 33: copper z and thickness from the board's stackup.json (the native-20 export: native-20's; every
+    # native21* tag: native-21's single layer-stack source). Same 70 / 61 um and JLC041622-7628 z as the old literals.
+    stack = kit.stackup_layers(PS / "native-20/stackup.json" if tag == "native20" else
+                               os.environ.get("NATIVE21_STACKUP") or PS / "native-21/stackup.json")
+    net = kit.Net(pitch_mm=PITCH, temp_c=TEMP, layer_z_mm=stack["z_mm"])
     shapes, vias, pads = defaultdict(list), {}, {}
     for it in data["primitives"]:
         if it["net"] != NET:
@@ -110,7 +124,7 @@ def main() -> None:
     for lay, parts in shapes.items():
         g = unary_union(parts)
         polys = list(g.geoms) if g.geom_type == "MultiPolygon" else [g]
-        net.add_layer(lay, [list(p.exterior.coords) for p in polys], 70 if lay in ("F.Cu", "B.Cu") else 61,
+        net.add_layer(lay, [list(p.exterior.coords) for p in polys], stack["t_um"][lay],
                       [list(r.coords) for p in polys for r in p.interiors])
     for xy, v in vias.items():
         net.add_via(xy, v["drill"], PLATING_UM, v["layers"])
@@ -123,7 +137,7 @@ def main() -> None:
     a_per_mv = -(2 - 2 * k) / RS * 1e-3
     worst = max((r for r in T if r != SINK), key=lambda r: T[r])
     res = {"board_sha256": data["board_sha256"], "net": NET, "sink": SINK, "probe": PROBE,
-           "pitch_mm": PITCH, "temp_C": TEMP, "plating_um": PLATING_UM, "thickness_um": {"outer": 70, "inner": 61},
+           "pitch_mm": PITCH, "temp_C": TEMP, "plating_um": PLATING_UM, "thickness_um": thickness_summary(stack["t_um"]),
            "transfer_mohm_to_R35_2": {r: round(v, 4) for r, v in T.items()},
            "R_eff_R35_2_mohm": round(T[PROBE], 4), "max_transfer": {"pad": worst, "mohm": round(T[worst], 4)},
            "trip_shift_A_per_mV_at_R35_2": round(a_per_mv, 4),

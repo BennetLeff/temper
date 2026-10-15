@@ -18,6 +18,8 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
+import layers21  # noqa: E402  (native-21/stackup.json)
 PADS = json.loads((HERE.parent / "pads.json").read_text())
 
 
@@ -188,7 +190,7 @@ def follow_on(copper, nets, done):
                     and LineString([xy(q) for q in t["points"]]).distance(vp) <= vr + t["width"] / 2 + 0.02}
             on_pad = any(q["net"] == w["net"] and q["box"][0] - vr <= w["at"][0] <= q["box"][2] + vr
                          and q["box"][1] - vr <= w["at"][1] <= q["box"][3] + vr for q in PADS)
-            if len(lays) <= 1 and not on_pad and not in_zone(w["at"], w["net"], ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"), copper, pad=vr):
+            if len(lays) <= 1 and not on_pad and not in_zone(w["at"], w["net"], layers21.CU, copper, pad=vr):
                 copper["vias"].remove(w)
                 done.append((w["net"], "via", tuple(w["at"]), 0.0))
                 changed = True

@@ -6,6 +6,7 @@ clearance(a, b) -> mm, the same order of precedence as the rules file: SELV/PE v
 modelled here; KiCad DRC remains the authority.
 """
 import importlib.util
+import sys
 from pathlib import Path
 
 _spec = importlib.util.spec_from_file_location("wr21", Path(__file__).with_name("write_rules21.py"))
@@ -46,7 +47,9 @@ BARRIER = _m.wr.REINFORCED_MM
 # stage 18: RES_A to SELV/PE on outer layers (DECISIONS item 7): 12.6 mm; inner layers keep BARRIER
 RES_A_NETS = set(_m.RES_A_NETS)
 RES_A_CREEPAGE = _m.RES_A_CREEPAGE_MM
-OUTER = ("F.Cu", "B.Cu")
+if str(Path(__file__).resolve().parent) not in sys.path:     # some callers load this file by path (importlib)
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+from layers21 import OUTER  # noqa: E402,F401  (F.Cu, B.Cu from native-21/stackup.json)
 
 
 def res_a_pair(a, b):

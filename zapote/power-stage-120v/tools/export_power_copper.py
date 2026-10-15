@@ -29,6 +29,8 @@ import pcbnew as p  # type: ignore[import-not-found]
 
 NETS = {"bus_p", "hv_ret", "leg_ret", "sw_a", "sw_b", "res_a", "coil_feed",
         "ac_l_in", "ac_n_in", "l_f", "l_filt", "n_filt", "rect_p", "rect_n"}
+# copper layers, top to bottom, are read from each board (export(): its enabled copper stack), so a board with
+# more inner layers is exported whole; this tuple is only the four-layer default kept for importers.
 LAYERS = (p.F_Cu, p.In1_Cu, p.In2_Cu, p.B_Cu)
 
 
@@ -50,6 +52,7 @@ def export(board_path: Path) -> dict:
     board = p.LoadBoard(str(board_path))
     mm = p.ToMM
     primitives, suppressed = [], 0
+    LAYERS = tuple(board.GetEnabledLayers().CuStack())    # F.Cu, In1.Cu ... InN.Cu, B.Cu (stage 33)
     for zone in board.Zones():
         if zone.GetIsRuleArea() or zone.GetNetname() not in NETS:
             continue

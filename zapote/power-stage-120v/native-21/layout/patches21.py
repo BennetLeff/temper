@@ -6,6 +6,11 @@ REMOVE / add(g) / OPEN_IN1 / HANDLED as in patches21_v1.py. IN_PAD: references w
 intended (filled and capped, DECISIONS.md 2026-10-08) and must not be moved off by dogbone().
 """
 from patches21_v1 import CU, OPEN_IN1, drill  # noqa: F401  (OPEN_IN1 / CU re-exported for incr21)
+from layers21 import PLANE_ROLE  # noqa: E402  (stage 33: role planes from native-21/stackup.json)
+
+# Stage 33 (layer-stack refactor): whole-stack layer sets (CU) and role planes (PLANE_ROLE: the hv_ret / bus_p trunks,
+# the n_ls block) come from native-21/stackup.json; the layer of each hand-laid track or pour below is authored
+# geometry and stays literal.
 
 # SW_B neck (task 04 round 5): SW_B's B.Cu lane narrowed to ~4.5 mm for ~16 mm under leg A
 # (x 58-74), squeezed by the SW_A B.Cu link pour above (3.2 mm HOT spacing) and C38/C39's antipads
@@ -128,7 +133,8 @@ def edit_zones(zones):
     # each trunk's own outline (one zone; KiCad refuses intersecting zones of equal priority), joining BR1.1
     # (In2 bus_p) and BR1.4 (In1 hv_ret) to the trunks.
     for i, z in enumerate(zones):
-        if (z["net"], z["layer"], z.get("name")) in (("hv_ret", "In1.Cu", "hv_ret trunk"), ("bus_p", "In2.Cu", "bus_p trunk")):
+        if (z["net"], z["layer"], z.get("name")) in (("hv_ret", PLANE_ROLE["hv_ret"], "hv_ret trunk"),
+                                                     ("bus_p", PLANE_ROLE["bus_p"], "bus_p trunk")):
             u = Polygon(z["outline"], z["holes"]).union(Polygon(STAGE21_FEED)).buffer(0)
             u = max(getattr(u, "geoms", [u]), key=lambda q: q.area)
             zones[i] = {**z, "outline": [[round(x, 3), round(y, 3)] for x, y in list(u.exterior.coords)[:-1]],
@@ -262,7 +268,7 @@ def add_ep(g):
                     break
             G._trees.clear()
             cleared.add(t["net"])
-        for lay in ("In1.Cu", "In2.Cu", "B.Cu"):
+        for lay in CU[1:]:                  # every layer under the (F.Cu) exposed pad
             G.protect(pd["net"], lay, field, via_ok=True)
         placed = 0
         for i in range(n):
@@ -327,7 +333,7 @@ def add_stage18(g):
 # the bank, sw_a / sw_b, l_filt / sw_b, res_a / coil_feed between stages 14-17). Every such pair now has a declared
 # winner; strict orders already in copper.json are kept, and gates/zone_priority_gate.py fails any unresolved pair.
 # Winners: In1 n_ls (stage-17b review call); the rest keep stage 15b's fill (the board DECISIONS 14 accepted for 28 A).
-ZONE_WINNERS = [("In1.Cu", "n_ls LS block", "ocp_kelvin_p protection"),
+ZONE_WINNERS = [(PLANE_ROLE["n_ls"], "n_ls LS block", "ocp_kelvin_p protection"),
                 ("B.Cu", "l_filt BR1.2-L1", "sw_b leg B-C21..C23"),
                 ("B.Cu", "sw_a leg-A link", "sw_b leg B-C21..C23"),
                 ("B.Cu", "sw_b leg B-C21..C23", "res_a J5-C21..C23"),
@@ -491,7 +497,7 @@ def add_stage19_pi(g):
     returns."""
     from patches21_v1 import put, route_group
     F1 = ("F.Cu",)
-    L4 = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
+    L4 = CU
     # --- U41 (leg A high side)
     put(g, "p_ha", "F.Cu", 0.3, "U41.29", [57.475, 73.82], "C75.1")
     put(g, "p_ha", "F.Cu", 0.3, "U41.28", [56.825, 72.6], [57.475, 72.6])
@@ -680,7 +686,7 @@ def add_stage19_si(g):
         for pad in ("1", "2"):
             plane_via(g, f"{ref}.{pad}", reach=(0.85, 2.2))
     # PI2 follow-up (after the SI1 lanes are laid): the LS rail and leg_ret round the moved U26
-    L4 = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
+    L4 = CU
     from patches21_v1 import route_group
     route_group(g, [("v15_ls", L4, (98.0, 50.0, 124.0, 114.0), 0.4,
                      ["C99.1", "U29.3", "C70.1", "U37.1", "C65.1", "R59.1", "C100.1", "C131.1", "R85.1", "R87.1", "C25.1", "U3.1"]),
@@ -970,8 +976,8 @@ def add_stage30(g):
     put(g, "n_ls", "F.Cu", 0.2, "U29.12", [107.82, 78.955], [108.82, 77.955], [109.42, 77.955], [109.82, 78.355])
     drill(g, "v3v3", 37.7, 57.9)
     put(g, "v3v3", "F.Cu", 0.4, "U2.8", [37.445, 57.645], [37.7, 57.9])
-    HS = ("F.Cu", "In2.Cu", "B.Cu")
-    L4 = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
+    HS = tuple(lay for lay in CU if lay != PLANE_ROLE["n_ha"])   # every layer but the high-side islands' plane
+    L4 = CU
     route_group(g, [("hb_rx", ("F.Cu",), (92.5, 124.5, 99.0, 133.5), 0.25, ["U32.13", "U46.2"]),
                     ("bus_fault_iso", "F+B", (28.0, 118.0, 122.0, 140.0), 0.25, ["U9.13", "R134.1"]),
                     ("ct_s2", "F+B", (0.6, 126.0, 32.0, 146.0), 0.25, ["R40.2", "@18.183,139.695,B.Cu"])])

@@ -7,7 +7,7 @@ open pairs are routed. put()/drill() refuse illegal copper loudly.
 """
 from shapely.geometry import LineString, Point, Polygon, box
 
-CU = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
+from layers21 import CU  # noqa: F401  (stage 33: copper layers from native-21/stackup.json; re-exported to patches21)
 
 # U34 (leg-B monitor isolator): its SELV pins 16 / 14 / 9 had no room for plane vias because the
 # SELV long runs (PWM_HB on F, PERMIT and BIAS_*_BAD on B) were laid first, hugging the pin row.

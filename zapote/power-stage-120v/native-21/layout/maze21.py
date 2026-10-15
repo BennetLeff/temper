@@ -18,6 +18,8 @@ from shapely.geometry import LineString, Point
 from shapely.prepared import prep
 from shapely.ops import unary_union
 
+from layers21 import CU, OUTER
+
 STEP = 0.2
 # Polygonal buffers are inscribed in the true offset curve: with 8 segments per quarter circle a
 # corner falls short by r(1 - cos(pi/32)), 0.04 mm at the 8 mm barrier -- more than the 0.03 mm
@@ -129,7 +131,7 @@ def _via_ok(geo, net, bx, size):
     nx, ny = int(round((x1 - x0) / STEP)) + 1, int(round((y1 - y0) / STEP)) + 1
     xs, ys = np.meshgrid(x0 + np.arange(nx) * STEP, y0 + np.arange(ny) * STEP)
     mask = np.zeros(nx * ny, dtype=bool)
-    for lay in ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"):
+    for lay in CU:
         tree, items = geo._tree(lay)
         shapes = []
         for i in tree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
@@ -158,7 +160,7 @@ def _via_ok(geo, net, bx, size):
     return mask
 
 
-def connect2(geo, net, bx, width, starts, goals, layers=("F.Cu", "B.Cu"), via=0.75, via_cost=8.0):
+def connect2(geo, net, bx, width, starts, goals, layers=OUTER, via=0.75, via_cost=8.0):
     """Multi-layer variant: starts/goals are (x, y, layer_index or None for any layer).
     Returns (segments [(layer, pts)], vias [(x, y)]) or None."""
     import numpy as np

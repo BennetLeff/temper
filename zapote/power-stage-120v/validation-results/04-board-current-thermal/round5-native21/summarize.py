@@ -9,9 +9,13 @@ import math
 from collections import defaultdict
 from pathlib import Path
 
+import sys
+
 import numpy as np
 
 HERE=Path(__file__).resolve().parent
+sys.path.insert(0,str(HERE.parents[2]/'native-21/layout'))
+import layers21  # noqa: E402  (stage 33: copper order from native-21/stackup.json)
 OUT=HERE/'outputs'
 INPUT=HERE/'inputs/power_copper.json.gz'
 
@@ -38,8 +42,8 @@ def barrel_index(data):
             'drill_mm':drill,'layers':[]})
         if item['layer'] not in barrel['layers']:
             barrel['layers'].append(item['layer'])
-    order={'F.Cu':0,'In1.Cu':1,'In2.Cu':2,'B.Cu':3}
-    return {net:[{**barrel,'layers':sorted(barrel['layers'],key=order.get)}
+    # layers21.index raises on a layer the stack does not have (order.get returned None and broke the sort)
+    return {net:[{**barrel,'layers':sorted(barrel['layers'],key=layers21.index)}
                  for barrel in barrels.values()] for net,barrels in by_net.items()}
 
 
@@ -137,7 +141,7 @@ def main():
              'all_numeric_checks_pass':not failed,'failures':failed,
              'thermal_handoff':{
                  'nodal_heat_files':'outputs/<case>-heat.npz',
-                 'grid_keys':'<F_Cu|In1_Cu|In2_Cu|B_Cu>_<x_mm|y_mm|copper|joule_w|thickness_um>',
+                 'grid_keys':'<'+'|'.join(n.replace('.','_') for n in layers21.CU)+'>_<x_mm|y_mm|copper|joule_w|thickness_um>',
                  'barrel_heat':'scenario JSON barrel_heat_by_layer',
                  'accounting':'sum nodal joule_w + sum barrel_heat_by_layer layer_joule_w = loss_w',
                  'copper_only_rise_c':None,'component_plus_copper_temperature_c':None}}

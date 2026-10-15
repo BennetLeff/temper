@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Energy-conserving 2.5-D finite-volume board heat solve for conditional cases.
 
-Seven sheets represent four copper planes and three FR-4 dielectrics. All
-quantities are SI internally. This is a thermal experiment, not an acceptance
+One sheet per solid stackup layer (four copper planes and three FR-4 dielectrics on today's board). All
+quantities are SI internally. Stage 33: the sheets come from --stackup (default native-21/stackup.json, the
+board's single layer-stack source; it was native-17/stackup.json, the same JLC041622-7628 numbers), and copper on
+a layer the stack does not have is an error, not silently dropped. This is a thermal experiment, not an acceptance
 rule or a substitute for measured assembly cooling.
 """
 from __future__ import annotations
@@ -37,17 +39,26 @@ A4 = HERE.parent / "outputs"
 # Stage 17: B3_A4_DIR points the solve at another A4 output set (the G6 control re-solves the stage-16 board).
 if os.environ.get("B3_A4_DIR"):
     A4 = Path(os.environ["B3_A4_DIR"])
-LAYER_NAMES = ("F.Cu", "dielectric 1", "In1.Cu", "dielectric 2",
-               "In2.Cu", "dielectric 3", "B.Cu")
-CU_INDEX = {"F.Cu": 0, "In1.Cu": 2, "In2.Cu": 4, "B.Cu": 6}
-STACKUP_PATH = UNIT / "native-17/stackup.json"
-STACKUP = json.loads(STACKUP_PATH.read_text())
-SOLID_LAYERS = [entry for entry in STACKUP["layers"]
-                if entry["type"] not in ("Top Solder Mask", "Bottom Solder Mask")]
-THICK_MM = np.array([entry["thickness_mm"] for entry in SOLID_LAYERS])
-assert tuple(entry["name"] for entry in SOLID_LAYERS) == LAYER_NAMES
-assert abs(sum(entry["thickness_mm"] for entry in STACKUP["layers"])
-           - STACKUP["board_thickness_mm"]) < 1e-9
+STACKUP_DEFAULT = UNIT / "native-21/stackup.json"
+
+
+def use_stackup(path) -> None:
+    """Set the sheet stack (LAYER_NAMES, CU_INDEX, THICK_MM) from a stackup.json; copper and dielectric alternate."""
+    global STACKUP_PATH, STACKUP, SOLID_LAYERS, THICK_MM, LAYER_NAMES, CU_INDEX
+    STACKUP_PATH = Path(path)
+    STACKUP = json.loads(STACKUP_PATH.read_text())
+    SOLID_LAYERS = [entry for entry in STACKUP["layers"]
+                    if entry["type"] not in ("Top Solder Mask", "Bottom Solder Mask")]
+    THICK_MM = np.array([entry["thickness_mm"] for entry in SOLID_LAYERS])
+    LAYER_NAMES = tuple(entry["name"] for entry in SOLID_LAYERS)
+    CU_INDEX = {entry["name"]: i for i, entry in enumerate(SOLID_LAYERS) if entry["type"] == "copper"}
+    if sorted(CU_INDEX.values()) != list(range(0, len(SOLID_LAYERS), 2)) or len(SOLID_LAYERS) % 2 != 1:
+        raise ValueError(f"{path}: copper and dielectric sheets must alternate, copper outermost")
+    assert abs(sum(entry["thickness_mm"] for entry in STACKUP["layers"])
+               - STACKUP["board_thickness_mm"]) < 1e-9
+
+
+use_stackup(os.environ.get("B3_STACKUP") or os.environ.get("NATIVE21_STACKUP") or STACKUP_DEFAULT)
 K_CU = 390.0
 K_FR4 = 0.3
 TAMB_C = 50.0
@@ -98,7 +109,8 @@ def grid_geometry(data: dict, pitch_mm: float):
     for item in data["primitives"]:
         layer = item["layer"]
         if layer not in copper:
-            continue
+            # stage 33: was `continue`, which dropped a whole copper layer the stack does not know
+            raise ValueError(f"copper on {layer!r}, which {STACKUP_PATH} does not have ({tuple(CU_INDEX)})")
         kind = item["kind"]
         if kind in ("zone", "pad"):
             shape = Polygon(item["shell"], item["holes"])
@@ -244,9 +256,9 @@ def analytic_selftest() -> dict:
     # One watt enters at the centre of top copper; bottom exterior is fixed
     # at ambient. The half top slab plus full lower slabs are series resistors.
     p = 0.010
-    col_k = np.array([K_CU, K_FR4, K_CU, K_FR4, K_CU, K_FR4, K_CU])
+    col_k = np.array([K_CU if name in CU_INDEX else K_FR4 for name in LAYER_NAMES])
     col_thick = THICK_MM*1e-3
-    col_heat = np.zeros((7, 1, 1))
+    col_heat = np.zeros((len(LAYER_NAMES), 1, 1))
     col_heat[0, 0, 0] = 1.0
     column, receipt = solve_stack(np.ones((1, 1), bool), col_k[:, None, None],
                                   col_thick, col_heat, 0.0, p,
@@ -365,7 +377,7 @@ def barrel_edges(barrels, x, y, board):
         ix, iy = int((b["xy_mm"][0]-xmin)//pitch), int((b["xy_mm"][1]-ymin)//pitch)
         if not (0 <= ix < len(x) and 0 <= iy < len(y) and board[ix, iy]):
             continue
-        zs = sorted(CU_INDEX[layer] for layer in b["layers"] if layer in CU_INDEX)
+        zs = sorted(CU_INDEX[layer] for layer in b["layers"])     # stage 33: an unknown layer raises (was dropped)
         for za, zb in zip(zs, zs[1:]):
             # Conservative plating-only thermal bridge; no lead/solder core.
             area = math.pi*b["drill_mm"]*0.018*1e-6
@@ -406,7 +418,7 @@ def run(args):
                                 args.h, args.pitch_mm*1e-3, links)
     local_copper = None
     for layer, z in CU_INDEX.items():
-        adjacent = {0: (1,), 2: (1, 3), 4: (3, 5), 6: (5,)}[z]
+        adjacent = tuple(a for a in (z-1, z+1) if 0 <= a < nz)     # the dielectric sheet(s) beside it
         delta = rise[z]-np.mean(rise[list(adjacent)], axis=0)
         delta[~copper[layer]] = -np.inf
         if np.isfinite(delta).any():
@@ -501,7 +513,10 @@ def main():
     ap.add_argument("--a6-heat")
     ap.add_argument("--a6-mode", choices=("nominal", "worst"), default="nominal")
     ap.add_argument("--output")
+    ap.add_argument("--stackup", help="stackup.json (default: $B3_STACKUP, $NATIVE21_STACKUP or native-21/stackup.json)")
     args = ap.parse_args()
+    if args.stackup:
+        use_stackup(args.stackup)
     if args.selftest:
         print(json.dumps(analytic_selftest(), indent=2))
     else:

@@ -12,6 +12,7 @@ import hashlib
 import importlib.util
 import json
 import math
+import os
 from collections import defaultdict
 from pathlib import Path
 
@@ -25,10 +26,12 @@ KIT = UNIT / 'validation-plan/sim-kit/04-current/sheet_solver.py'
 spec = importlib.util.spec_from_file_location('kit_solver', KIT)
 solver = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(solver)
+# stage 33: copper z and thickness from native-21/stackup.json (same values as the kit default and the 70 / 61 literals)
+STACK = solver.stackup_layers(os.environ.get('NATIVE21_STACKUP') or UNIT / 'native-21/stackup.json')
 
 
 def load_net(data: dict, name: str, pitch: float, plating: float):
-    net = solver.Net(pitch_mm=pitch)
+    net = solver.Net(pitch_mm=pitch, layer_z_mm=STACK['z_mm'])
     shapes, barrels, pads, smd = defaultdict(list), {}, defaultdict(list), []
     for item in data['primitives']:
         if item['net'] != name:
@@ -64,7 +67,7 @@ def load_net(data: dict, name: str, pitch: float, plating: float):
         geom = unary_union(parts)
         polys = list(geom.geoms) if geom.geom_type == 'MultiPolygon' else [geom]
         net.add_layer(layer, [list(p.exterior.coords) for p in polys],
-                      70 if layer in ('F.Cu','B.Cu') else 61,
+                      STACK['t_um'][layer],
                       [list(r.coords) for p in polys for r in p.interiors])
     # Round 5: a via inside a same-net SMD pad is epoxy-filled and copper-capped (POFV,
     # DECISIONS.md 2026-10-08), so the pad copper is continuous over it: model it filled
