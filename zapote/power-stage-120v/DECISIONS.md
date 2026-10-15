@@ -1257,3 +1257,39 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       export, since 30a's new crossing room exists only on six layers. The BOM-only lane is not affected.
     - **Reverses if:** FEM or ZVS margin on the six-layer copper is worse than s32's, or the Gerber quote prices six
       layers above four-layer POFV.
+
+40. **Six layers not adopted: the Gerber quote prices the pinned stack above four layers (2026-10-14; board of record stays s32, four layers).**
+    - **Quote** (`validation-results/11-candidates/c33-six-layer/jlc-gerber-quote-2026-10-14.json`; owner approved the
+      upload). JLC parsed the s33 Gerber ZIP as 6 layers, 290 × 190 mm. At 500, ENIG, 2 / 2 oz, epoxy filled and capped,
+      flying probe:
+
+      | build | per board | build time |
+      |---|---|---|
+      | 6 L, JLC061622-1080A pinned (the stack phase A was modelled and scored on) | **$19.11** (stackup fee $2.93) | 10–11 days |
+      | 4 L, JLC041622-7628 pinned (FAB-JLCPCB.md requires it) | **$17.28** (stackup fee $0.49) | 5–6 days |
+      | 6 L, "No requirement" | $16.18 | 10–11 days |
+      | 4 L, "No requirement" | $16.79 | 5–6 days |
+
+    - **What was wrong before:** items 36 and 39 compared $16.18 with $16.79. Both are "No requirement" prices, and the
+      instant quote showed no stackup fee. Pinning a stack adds one, and the "No requirement" builds are not the stacks
+      the designs assume:
+      - six layers by default: 0.35 mm cores and two-ply outer prepreg, not 1080A's 0.30 mm and three-ply;
+      - four layers by default: 3313 prepreg on a 0.96 mm core, not 7628's 0.5 mm.
+
+      **The four-layer board of record costs $17.28 per board at 500, not $16.79.**
+    - **Decision:** six layers on the pinned stack is $1.83 per board dearer ($915 per 500) and 5 days slower. Item 39's
+      reversal condition holds, and the standing rule is that a change must be both cheaper and better. Six layers is not
+      adopted. Phase A's tooling stays merged (stack file, images, frozen-base passes, cache fix). Its scorecard gains
+      (return-path open changes 18 → 8, B3 −5.6 / −6.9 °C, OCP pickup 4.13 → 3.72 A) are the measure of what a later
+      four-layer change has to match.
+    - **Not pursued now: six layers on "No requirement".** That build is $1.10 per board below four layers pinned, but JLC
+      does not say whether it is fixed. On a mains board whose loop, thermal and pickup models depend on dielectric depths,
+      an unpinned stack is acceptable only if every gate passes over every stack JLC might build. That would mean
+      scoring s33 on each JLC 6-layer 2 / 2 oz stack, or on the envelope of them. Question 6 of the CTI inquiry
+      (`08-manufacturing-package/native-21/sourcing/inquiries/CTI-JLC-6L.md`) asks JLC whether the "No requirement" stack
+      is fixed; the route reopens only if JLC says it is.
+    - **Adoption checks (item 39):** the ZVS and EMI confirmations finish and stay on record. The FEM loop re-extraction is
+      deferred; the remote box was offline anyway.
+    - **Lanes:** the island lanes and the SELV-spine lock stay on the four-layer s32 board (`selv_spine_lock.json` as
+      committed). 30a / 30b stay blocked on four layers (stage 31 analysis), so the next layout lane is the SELV side
+      (candidate 23) once the controller merges J13.

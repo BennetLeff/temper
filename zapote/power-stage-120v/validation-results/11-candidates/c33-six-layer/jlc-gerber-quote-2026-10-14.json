@@ -1,0 +1,26 @@
+{
+ "source": "https://cart.jlcpcb.com/quote, read 2026-10-14 (not signed in, nothing added to cart). 6-layer: Gerber upload of native-21-gerbers-s33-6L.zip (ZIP dd592045, board 710c0a45; JLC detected 6 layers, 190 x 290 mm). 4-layer: same form, dimensions typed, no upload.",
+ "common": {"material": "FR-4 TG135", "size_mm": [290, 190], "thickness": "1.6 mm class", "finish": "ENIG 1u\"", "outer_oz": 2, "inner_oz": 2,
+            "via": "Epoxy Filled & Capped", "min_via": "0.3/(0.4-0.45)", "test": "flying probe", "build": "slowest standard option", "qty": 500},
+ "notes": [
+  "Specifying a stackup adds a 'Stackup fee' line. Unspecified ('No requirement') carries none; that is what the earlier instant quotes priced.",
+  "6-layer 'No requirement' as displayed: 1080 + 1080 prepreg (0.084 + 0.0535) / L2 / 0.35 mm core / L3 / 1080 + 2116 + 1080 / L4 / 0.35 mm core / L5 / 1080 + 1080 / bottom. It differs from JLC061622-1080A (3-ply outer prepreg 0.2215 mm, 0.30 mm cores).",
+  "4-layer 'No requirement' as displayed: 3313 prepregs with a 0.96 mm core, not JLC041622-7628's 0.5 mm core.",
+  "JLC061622-1080A as displayed matches native-21/stackup-6L.json layer for layer. JLC warns its actual thickness is 1.658 mm (tolerance +/-10 %), not 1.6 mm.",
+  "Both pinned stackups are flagged 'a special stackup, and it doesn't support economic PCB assembly'.",
+  "The 6-layer stackup fee is the same for JLC061622-1080 and -1080A ($1,466.39 at 500)."
+ ],
+ "quotes": [
+  {"layers": 6, "stackup": "JLC061622-1080A", "qty": 5, "total": 310.56, "build": "8-9 days",
+   "lines": {"engineering": 33.00, "via_covering": 0, "stackup_fee": 112.92, "finish": 23.00, "outer_cu": 51.40, "inner_cu": 53.59, "board": 35.60, "confirm_file": 1.05}},
+  {"layers": 6, "stackup": "No requirement", "qty": 5, "total": 196.59, "note": "same as the instant quote"},
+  {"layers": 6, "stackup": "JLC061622-1080A", "qty": 500, "total": 9554.14, "per_board": 19.11, "build": "10-11 days",
+   "lines": {"engineering": 33.00, "via_covering": 0, "stackup_fee": 1466.39, "finish": 654.60, "testing": 244.40, "film": 24.90, "outer_cu": 1856.00, "inner_cu": 2083.80, "board": 3190.00, "confirm_file": 1.05}},
+  {"layers": 6, "stackup": "JLC061622-1080", "qty": 500, "total": 9554.14, "lines": {"stackup_fee": 1466.39}},
+  {"layers": 4, "stackup": "No requirement", "qty": 500, "total": 8395.03, "per_board": 16.79, "build": "5-6 days", "note": "same as the instant quote"},
+  {"layers": 4, "stackup": "JLC041622-7628", "qty": 500, "total": 8639.43, "per_board": 17.28, "build": "5-6 days",
+   "lines": {"engineering": 25.00, "via_covering": 700.11, "stackup_fee": 244.40, "finish": 654.60, "testing": 227.90, "film": 19.90, "outer_cu": 1856.00, "inner_cu": 2083.80, "board": 2755.00, "via_plating": 71.67, "confirm_file": 1.05}}
+ ],
+ "comparison_at_500": {"pinned_stack_basis": {"4L_JLC041622-7628": 17.28, "6L_JLC061622-1080A": 19.11, "delta_6L_minus_4L": 1.83},
+                       "unspecified_basis": {"4L": 16.79, "6L": 16.18, "delta_6L_minus_4L": -0.61}}
+}
