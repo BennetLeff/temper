@@ -235,6 +235,86 @@ def _samples(items, cid, c, layers):
     return out
 
 
+PORTALS = {}        # (net, x, y) of an escape portal -> (layer, the "REF.PAD" it leads to) (filled by portals())
+
+
+def portals(net, p, layers, width):
+    """Maze ends for a pad with a bounded pad escape (copper.json "escapes"; apply_copper21 writes the KiCad rule):
+    inside the escape area this net may come as close to the same part's other pad as the part's own pad gap, which
+    is closer than the group clearance the maze keeps, so the pad's cell is sealed in the maze. Each portal is a
+    lattice point of the area from which a straight stub to the pad centre lies wholly inside the area (KiCad's
+    enclosedByArea), keeps that gap from the other pad and every other clearance, and is itself legal under the full
+    rules; the maze runs from the portals, and the stub is added when a path ends on one (escape_stubs)."""
+    import maze21
+    from shapely.geometry import LineString, Point, box
+    ref, num = p["ref"], p["pad"]
+    es = [e for e in g["ESCAPES"] if e["ref"] == ref and e["pad"] == num]
+    if not es or p["net"] != net:
+        return []
+    others = [q for q in GEO.pads if q["ref"] == ref and q["pad"] != num and q["net"]]
+    if len(others) != 1:
+        return []                       # apply_copper21 writes escapes for two-pin parts only
+    ob = others[0]["box"]
+    # the rule's clearance: the pads' own gap, floored to 0.05 mm (apply_copper21)
+    gx = max(ob[0] - p["box"][2], p["box"][0] - ob[2], 0)
+    gy = max(ob[1] - p["box"][3], p["box"][1] - ob[3], 0)
+    gap = math.floor(math.hypot(gx, gy) / 0.05 + 1e-9) * 0.05
+    out = []
+    for e in es:
+        lay = e.get("layer", "F.Cu")
+        if lay not in layers or (not p["tht"] and lay != "F.Cu"):
+            continue
+        li = layers.index(lay)
+        # relaxed to the gap: the other pad, and, when the other pad has its own escape on this layer, the other net's
+        # copper enclosed by that area (apply_copper21's track-to-track condition for a part with two escapes)
+        mate = [box(*m["rect"]) for m in g["ESCAPES"] if m["ref"] == ref and m["pad"] == others[0]["pad"]
+                and m.get("layer", "F.Cu") == lay]
+        vias = [Point(*v["at"]) for v in g["VIAS"] if v["net"] == others[0]["net"]]   # the rule names tracks only
+        relaxed = [gm for gm, n in GEO.items[lay] if n == others[0]["net"] and
+                   (gm.bounds == tuple(ob) or (any(r.contains(gm) for r in mate) and
+                                               not any(gm.centroid.distance(v) < 1e-3 for v in vias)))]
+        other = {id(gm) for gm in relaxed}
+        x0, y0, x1, y1 = e["rect"]
+        inner = box(x0, y0, x1, y1).buffer(-(width / 2 + 0.02), join_style=2)
+        if inner.is_empty or not inner.contains(Point(p["x"], p["y"])):
+            continue
+        ib = inner.bounds
+        for i in range(math.ceil(ib[0] / maze21.STEP), math.floor(ib[2] / maze21.STEP) + 1):
+            for j in range(math.ceil(ib[1] / maze21.STEP), math.floor(ib[3] / maze21.STEP) + 1):
+                qx, qy = round(i * maze21.STEP, 3), round(j * maze21.STEP, 3)
+                if math.hypot(qx - p["x"], qy - p["y"]) < 1e-6:
+                    continue
+                stub = LineString([(p["x"], p["y"]), (qx, qy)]).buffer(width / 2)
+                if any(gm.distance(stub) < gap for gm in relaxed) or GEO.conflicts(net, (lay,), stub, limit=1, ignore=other):
+                    continue
+                if GEO.conflicts(net, (lay,), Point(qx, qy).buffer(width / 2), limit=1):
+                    continue
+                PORTALS[(net, qx, qy)] = (lay, f"{ref}.{num}")
+                out.append((qx, qy, li))
+    return out
+
+
+def cluster_portals(net, items, cid, c, layers, width):
+    """Escape portals of every pad of cluster c."""
+    return [q for (kind, _, _, payload), k in zip(items, cid) if k == c and kind == "pad"
+            for q in portals(net, payload, layers, width)]
+
+
+def add_path(net, res, width):
+    """Record a found maze path (segments, vias) and the pad stub of each end that is an escape portal."""
+    for lay, path in res[0]:
+        g["track"](net, lay, width, *path)
+    for x, y, la, lb in res[1]:
+        g["add_signal_via"](net, x, y, la, lb, width)
+    # an end on a portal gets its stub on the escape's layer, also when the path leaves the portal through a via
+    # at once (the one-point segment on the escape's layer is dropped; the through via joins every layer)
+    ends = {tuple(res[0][0][1][0]), tuple(res[0][-1][1][-1])} if res[0] else set()
+    for x, y in sorted(ends):
+        hit = PORTALS.get((net, round(x, 3), round(y, 3)))
+        if hit:
+            g["track"](net, hit[0], width, hit[1], [x, y])
+
+
 def join_clusters(net, a, b, layers, width):
     """Join the cluster holding end `a` to the one holding `b` anywhere along them (multi-start,
     multi-goal maze), growing the search box around the two named ends."""
@@ -253,14 +333,134 @@ def join_clusters(net, a, b, layers, width):
         if not sa or not sb:
             continue
         for w in (width, 0.2):
-            res = maze21.connect2(GEO, net, bx, w, sa, sb, layers=layers, via=0.6)
+            pa = [q for q in cluster_portals(net, items, cid, ca, layers, w) if bx[0] < q[0] < bx[2] and bx[1] < q[1] < bx[3]]
+            pb = [q for q in cluster_portals(net, items, cid, cb, layers, w) if bx[0] < q[0] < bx[2] and bx[1] < q[1] < bx[3]]
+            res = maze21.connect2(GEO, net, bx, w, sa + pa, sb + pb, layers=layers, via=0.6)
             if res is not None and g["_legal"](net, res[0], w, res[1]):
-                for lay, path in res[0]:
-                    g["track"](net, lay, w, *path)
-                for x, y, la, lb in res[1]:
-                    g["add_signal_via"](net, x, y, la, lb, w)
+                add_path(net, res, w)
                 return True
     return False
+
+
+def route_pair(net, a, b):
+    """Join one open pair (pad names or "@x,y,layer" points on copper): attach a bare pad end, else join the two
+    clusters, else route21's link. True when joined (or nothing is left to do), False when it stays open."""
+    layers = g["LAYERS_FOR"].get(rules21.GROUP.get(net), OUTER)
+    if rules21.domain(net) == "SELV":
+        layers = CU
+    # stage 33 (six layers): the image-plane layer (In4) is kept for the planes; open pairs may use In3
+    layers = tuple(lay for lay in layers if lay not in set(patches21.IMAGE_PLANES.values()))
+    w = 0.4 if net in WIDE else 0.25
+    items, cid = clusters(net)
+    ca, cb = cluster_of(items, cid, a), cluster_of(items, cid, b)
+    if ca is not None and ca == cb:
+        return True                        # already joined (by a patch or an earlier pair)
+    if None in (ca, cb):
+        # a stale point (its copper was re-laid): only a bare pad end still needs work
+        q = a if cb is None else b
+        if q.startswith("@") or not isolated(net, q):
+            return True
+        a, b = q, q
+    # SELV: outer layers first, the In1 / In2 reference planes only as a fallback
+    tries = [OUTER, layers] if rules21.domain(net) == "SELV" else [layers]
+    # stage 33 (six layers): the four layers the stage-1..32 copper was routed on first (so a pair routes as it did
+    # on four layers), In3 only as the last fallback
+    four = tuple(lay for lay in layers if lay in patches21.ROUTE4)
+    if four != layers:
+        tries = [t for t in tries if t != layers] + [four, layers]
+    # a pad end joins the other end's cluster anywhere along it (not only the item KiCad named)
+    ends = [(q, o if o != q else None) for q, o in ((a, b), (b, a)) if not q.startswith("@")][:1 if a == b else 2]
+    try:
+        ok = any(attach(net, q, lays, w, target=o) for q, o in ends for lays in tries)
+    except KeyError:              # multi-pad numbers (fuse clips, ...): leave to link()
+        ok = False
+    if ok:
+        g["LINK_LOG"].append((net, "attach", 1, []))
+        return True
+    if a != b and any(join_clusters(net, a, b, lays, w) for lays in tries):
+        g["LINK_LOG"].append((net, "join", 2, []))
+        return True
+    if len(tries) > 1 and not any(q.startswith("@") and q.rsplit(",", 1)[1] in INNER
+                                  for q in (a, b)):
+        done = False
+        for t in tries[:-1]:          # four layers: the outer layers (SELV); stage 33: then the four-layer set
+            n_log = len(g["LINK_LOG"])
+            if g["link"](net, t, (0.6, 0.6, 289.4, 189.4), w, [a, b]):
+                done = True
+                break
+            del g["LINK_LOG"][n_log:]
+        if done:
+            return True
+    n_log = len(g["LINK_LOG"])
+    try:
+        g["link"](net, layers, (0.6, 0.6, 289.4, 189.4), w, [a, b])
+    except KeyError as e:
+        g["LINK_LOG"].append((net, "?", 2, [a, b, str(e)]))
+    return not any(f for _, _, _, f in g["LINK_LOG"][n_log:])
+
+
+def _snapshot():
+    return [*g["TRACKS"]], [*g["VIAS"]], {lay: [*its] for lay, its in GEO.items.items()}, [*g["LINK_LOG"]]
+
+
+def _restore(snap):
+    import maze21
+    g["TRACKS"][:], g["VIAS"][:] = snap[0], snap[1]
+    for lay, its in snap[2].items():
+        GEO.items[lay][:] = its
+    g["LINK_LOG"][:] = snap[3]
+    GEO._trees.clear()
+    maze21.forget(GEO)
+
+
+def _rip(nets, base):
+    """Drop the copper `nets` laid in this run (past the base lengths)."""
+    import maze21
+    g["TRACKS"][:] = [t for i, t in enumerate(g["TRACKS"]) if i < base["tracks"] or t["net"] not in nets]
+    g["VIAS"][:] = [v for i, v in enumerate(g["VIAS"]) if i < base["vias"] or v["net"] not in nets]
+    for lay, its in GEO.items.items():
+        its[:] = [it for i, it in enumerate(its) if i < base[lay] or it[1] not in nets]
+    GEO._trees.clear()
+    maze21.forget(GEO)
+
+
+def ripup(failed, pairs, base, margin=10.0, most=3):
+    """Congestion: a pair the run left open may be blocked by copper the run laid for other pairs. When it routes
+    with the nearby new copper of every other net ripped, it is retried with one such net's new copper ripped at a
+    time (the `most` nets with the most new items in its box), and that net's pairs are routed again after it; the
+    result is kept only when all of them close, else undone. Returns the pairs closed."""
+    from collections import Counter
+    from shapely.geometry import box
+    by_net = {}
+    for p in pairs:
+        by_net.setdefault(p[0], []).append(p)
+    closed = []
+    for net, a, b, lo, hi in failed:
+        xy = [incr21_point(q) for q in (a, b)]
+        bx = box(min(x for x, _ in xy) - margin, min(y for _, y in xy) - margin,
+                 max(x for x, _ in xy) + margin, max(y for _, y in xy) + margin)
+        near = Counter(it[1] for lay, its in GEO.items.items() if lay != "PLAN"
+                       for it in its[base[lay]:] if it[1] != net and it[1] in by_net and it[0].intersects(bx))
+        if not near:
+            continue
+        snap = _snapshot()
+        _rip(set(near), base)
+        alone = route_pair(net, a, b)
+        _restore(snap)
+        if not alone:
+            continue                    # not congestion: it stays open with all of them gone
+        for other, _ in sorted(near.items(), key=lambda kv: (-kv[1], kv[0]))[:most]:
+            snap = _snapshot()
+            _rip({other}, base)
+            if route_pair(net, a, b) and all(route_pair(*p) for p in by_net[other]):
+                for k in range(lo, hi):
+                    n_, lay_, k_, f_ = g["LINK_LOG"][k]
+                    if f_:
+                        g["LINK_LOG"][k] = (n_, "rip-up", k_, [])
+                closed.append((net, a, b, other))
+                break
+            _restore(snap)
+    return closed
 
 
 def drop_reported_tails(drc_path, longest=0.5):
@@ -462,12 +662,13 @@ def attach(net, ref_pad, layers, width, target=None):
         if not gl:
             continue
         for w in (width, 0.2):
-            res = maze21.connect2(GEO, net, bx, w, start, gl, layers=layers, via=0.6)
+            ps = portals(net, p, layers, w)
+            pg = [q for c in sorted({c for c in cid if c != mine and (want is None or c == want)})
+                  for q in cluster_portals(net, items, cid, c, layers, w)
+                  if bx[0] < q[0] < bx[2] and bx[1] < q[1] < bx[3] and math.hypot(q[0] - p["x"], q[1] - p["y"]) > 1.0]
+            res = maze21.connect2(GEO, net, bx, w, start + ps, gl + pg, layers=layers, via=0.6)
             if res is not None and g["_legal"](net, res[0], w, res[1]):
-                for lay, path in res[0]:
-                    g["track"](net, lay, w, *path)
-                for x, y, la, lb in res[1]:
-                    g["add_signal_via"](net, x, y, la, lb, w)
+                add_path(net, res, w)
                 return True
     return False
 
@@ -679,57 +880,20 @@ if __name__ == "__main__":
         if pa != pb and key not in seen and net not in PATCHED:
             seen.add(key)
             pairs.append((net, pa, pb))
+    import maze21
+    # the maze pays to cross other nets' pours (maze21.POURS): a new track across a pour's neck splits it
+    maze21.POURS[:] = [(z["layer"], z["net"], Polygon(z["outline"], [h for h in z.get("holes", []) if len(h) > 2]).buffer(0))
+                       for z in g["ZONES"] if len(z["outline"]) > 2]
+    base = {"tracks": len(g["TRACKS"]), "vias": len(g["VIAS"]), **{lay: len(its) for lay, its in GEO.items.items()}}
+    failed = []
     for net, a, b in pairs:
-        layers = g["LAYERS_FOR"].get(rules21.GROUP.get(net), OUTER)
-        if rules21.domain(net) == "SELV":
-            layers = CU
-        # stage 33 (six layers): the image-plane layer (In4) is kept for the planes; open pairs may use In3
-        layers = tuple(lay for lay in layers if lay not in set(patches21.IMAGE_PLANES.values()))
-        w = 0.4 if net in WIDE else 0.25
-        items, cid = clusters(net)
-        ca, cb = cluster_of(items, cid, a), cluster_of(items, cid, b)
-        if ca is not None and ca == cb:
-            continue                        # already joined (by a patch or an earlier pair)
-        if None in (ca, cb):
-            # a stale point (its copper was re-laid): only a bare pad end still needs work
-            q = a if cb is None else b
-            if q.startswith("@") or not isolated(net, q):
-                continue
-            a, b = q, q
-        # SELV: outer layers first, the In1 / In2 reference planes only as a fallback
-        tries = [OUTER, layers] if rules21.domain(net) == "SELV" else [layers]
-        # stage 33 (six layers): the four layers the stage-1..32 copper was routed on first (so a pair routes as it did
-        # on four layers), In3 only as the last fallback
-        four = tuple(lay for lay in layers if lay in patches21.ROUTE4)
-        if four != layers:
-            tries = [t for t in tries if t != layers] + [four, layers]
-        # a pad end joins the other end's cluster anywhere along it (not only the item KiCad named)
-        ends = [(q, o if o != q else None) for q, o in ((a, b), (b, a)) if not q.startswith("@")][:1 if a == b else 2]
-        try:
-            ok = any(attach(net, q, lays, w, target=o) for q, o in ends for lays in tries)
-        except KeyError:              # multi-pad numbers (fuse clips, ...): leave to link()
-            ok = False
-        if ok:
-            g["LINK_LOG"].append((net, "attach", 1, []))
-            continue
-        if a != b and any(join_clusters(net, a, b, lays, w) for lays in tries):
-            g["LINK_LOG"].append((net, "join", 2, []))
-            continue
-        if len(tries) > 1 and not any(q.startswith("@") and q.rsplit(",", 1)[1] in INNER
-                                      for q in (a, b)):
-            done = False
-            for t in tries[:-1]:          # four layers: the outer layers (SELV); stage 33: then the four-layer set
-                n_log = len(g["LINK_LOG"])
-                if g["link"](net, t, (0.6, 0.6, 289.4, 189.4), w, [a, b]):
-                    done = True
-                    break
-                del g["LINK_LOG"][n_log:]
-            if done:
-                continue
-        try:
-            g["link"](net, layers, (0.6, 0.6, 289.4, 189.4), w, [a, b])
-        except KeyError as e:
-            g["LINK_LOG"].append((net, "?", 2, [a, b, str(e)]))
+        lo = len(g["LINK_LOG"])
+        if not route_pair(net, a, b):
+            failed.append((net, a, b, lo, len(g["LINK_LOG"])))
+    if failed and os.environ.get("INCR21_RIPUP", "1") != "0":
+        closed = ripup(failed, pairs, base)
+        print(f"rip-up: {len(closed)} of {len(failed)} failed pairs closed" +
+              "".join(f"; {n} {a}-{b} (re-routed {o})" for n, a, b, o in closed))
     n_tail = 0 if FROZEN else drop_reported_tails(sys.argv[2].split(",")[-1])
     print(f"KiCad-reported dangling tails dropped: {n_tail}")
     if FROZEN:

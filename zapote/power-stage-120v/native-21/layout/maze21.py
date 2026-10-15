@@ -135,18 +135,22 @@ _CLS = {}        # geo key -> {"seen": {layer: (id(list), len, id(last))}, "own"
 
 def _cls(net):
     import rules21
-    return (rules21.domain(net), net in rules21.TANK, rules21.GROUP.get(net))
+    return (rules21.domain(net), net in rules21.TANK, rules21.GROUP.get(net), net in rules21.RES_A_NETS)
 
 
-def _clr(c, other):
-    """rules21.clearance(a, other) for a net a of class c, a != other (checked against rules21 by _check_cls)."""
+def _clr(c, other, layer):
+    """rules21.clearance_on(a, other, layer) for a net a of class c, a != other (checked against rules21 by
+    _check_cls). The layer matters for RES_A against SELV / PE: 12.6 mm on the outer layers (stage 18)."""
     import rules21
     if other == "<npth>":
         return 0.3
     if not other:
         return rules21.FLOOR
-    da, ta, ga = c
+    da, ta, ga, ra = c
     db = rules21.domain(other)
+    if layer in OUTER and ((ra and db in ("SELV", "PE")) or (other in rules21.RES_A_NETS and da in ("SELV", "PE"))):
+        return max(rules21.BARRIER if {da, db} in ({"SELV", "HOT"}, {"PE", "HOT"}) else rules21.FLOOR,
+                   rules21.RES_A_CREEPAGE)
     if {da, db} in ({"SELV", "HOT"}, {"PE", "HOT"}):
         return rules21.BARRIER
     if da == db == "HOT":
@@ -164,8 +168,10 @@ def _check_cls(nets):
     for a in nets:
         c = _cls(a)
         for b in nets:
-            if a != b and _clr(c, b) != rules21.clearance(a, b):
-                raise AssertionError(f"maze21 class clearance {a} / {b}: {_clr(c, b)} != {rules21.clearance(a, b)}")
+            for lay in CU:
+                if a != b and _clr(c, b, lay) != rules21.clearance_on(a, b, lay):
+                    raise AssertionError(f"maze21 class clearance {a} / {b} on {lay}: {_clr(c, b, lay)} != "
+                                         f"{rules21.clearance_on(a, b, lay)}")
 
 
 def _state(geo):
@@ -174,6 +180,15 @@ def _state(geo):
         st = _CLS[id(geo)] = {"geo": geo, "seen": {}, "own": {}, "rasters": {}, "grow": {}}
         _check_cls({n for its in geo.items.values() for _, n in its})
     return st
+
+
+def forget(geo):
+    """After items were removed from or restored into geo (incr21's rip-up): every layer's rasters are rebuilt on
+    the next query. (_sync alone could miss it: a list cut and refilled to its old length keeps its fingerprint
+    when a new item reuses a freed item's id.)"""
+    st = _CLS.get(id(geo))
+    if st is not None:
+        st["seen"].clear()
 
 
 def _sync(st, layer):
@@ -221,14 +236,26 @@ def _sync(st, layer):
     st["seen"][layer] = fp
 
 
-def _tile_shapes(geo, layer, ti, tj, grow_of):
-    """Grown obstacles (grow_of(geom, net) -> grown or None) whose bounds reach lattice tile (ti, tj)."""
+def _reach(c, layer, width):
+    """How far a grown obstacle of class c's grid on `layer` can reach past its copper: the class's largest clearance
+    there plus the trace and margins. RES_A against SELV / PE on F.Cu / B.Cu is 12.6 mm; a fixed 9 mm query missed
+    RES_A copper 9-12.6 mm from a SELV path, which the final check then rejected (2026-10-15)."""
+    import rules21
+    big = max(rules21.BARRIER, rules21._m.wr.TANK_CREEPAGE_MM)
+    if layer in OUTER and (c[3] or c[0] in ("SELV", "PE")):
+        big = max(big, rules21.RES_A_CREEPAGE)
+    return big + width / 2 + 0.1
+
+
+def _tile_shapes(geo, layer, ti, tj, grow_of, r=9):
+    """Grown obstacles (grow_of(geom, net) -> grown or None) whose bounds reach lattice tile (ti, tj); r bounds how
+    far a grown shape reaches past its copper."""
     from shapely.geometry import box as _box
     x0, y0 = ti * TILE * STEP, tj * TILE * STEP
     x1, y1 = x0 + (TILE - 1) * STEP, y0 + (TILE - 1) * STEP
     tree, items = geo._tree(layer)
     out = []
-    for i in tree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
+    for i in tree.query(_box(x0 - r, y0 - r, x1 + r, y1 + r)):
         g, other = items[i]
         sh = grow_of(g, other)
         if sh is None:
@@ -287,11 +314,12 @@ def _copper_grid(geo, net, layer, i0, j0, nx, ny, width, via):
     def grow_of(g, other):
         if via and id(g) in perm:
             return None
-        return _grow(g, _clr(c, other) + width / 2 + 0.03)
+        return _grow(g, _clr(c, other, layer) + width / 2 + 0.03)
     key = ("via" if via else "trk", layer, c, width, STEP)
+    reach = _reach(c, layer, width)
     st["grow"][key] = grow_of
     count = _raster_window(st, key, i0, j0, nx, ny,
-                           lambda ti, tj: _cover(_tile_shapes(geo, layer, ti, tj, grow_of), ti, tj, True), np.int16)
+                           lambda ti, tj: _cover(_tile_shapes(geo, layer, ti, tj, grow_of, reach), ti, tj, True), np.int16)
     own = st["own"][layer].get(net, ())
     if own:
         items = geo.items[layer]
@@ -394,6 +422,31 @@ def connect(geo, net, layer, bx, width, starts, goals):
     return [[round(x, 3), round(y, 3)] for x, y in simple]
 
 
+# Other nets' pours, [(layer, net, polygon)] (incr21 sets it from the board's zone outlines; route21 leaves it empty):
+# a track may cross one (the fill knocks out round it) but can cut it in two, as a re-route across the stage-40 n_ls
+# "GOOD change" pour did (2026-10-15), so each step into a cell inside one costs POUR_COST more.
+POURS = []
+POUR_COST = 2.0
+
+
+def _pour_mask(net, layer, i0, j0, nx, ny):
+    """Cells inside another net's pour on `layer`."""
+    import numpy as np
+    from shapely.geometry import box as _box
+    from shapely.strtree import STRtree
+
+    def build():
+        polys = [poly for lay, _, poly in POURS if lay == layer]
+        return STRtree(polys), [n for lay, n, _ in POURS if lay == layer], polys
+    tree, nets, polys = _stable(("pours", id(POURS), len(POURS), layer), build)
+    mask = np.zeros((ny, nx), dtype=bool)
+    win = _box(i0 * STEP, j0 * STEP, (i0 + nx - 1) * STEP, (j0 + ny - 1) * STEP)
+    for k in sorted(tree.query(win)):
+        if nets[k] != net:
+            _paint(mask, polys[k], i0, j0, nx, ny)
+    return mask
+
+
 def _via_ok(geo, net, bx, size):
     """Grid of cells where a through via of `size` is legal on every copper layer."""
     import numpy as np
@@ -417,9 +470,10 @@ _DY = (0, 0, 1, -1, 1, -1, 1, -1)
 _W = (1.0, 1.0, 1.0, 1.0, 1.414, 1.414, 1.414, 1.414)
 
 
-def _astar_core(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost, cost, came):
+def _astar_core(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost, pour_cost, cost, came):
     """8-connected A* over nl layers of an nx x ny grid with through-via moves; node = layer * nx * ny + j * nx + i.
-    0.6 per bend, via_cost per layer change. Pushes in the order the tuple-keyed version did (same tie counter), so it
+    blocked: 0 free, 1 blocked, 2 inside another net's pour (pour_cost more per step into it). 0.6 per bend, via_cost
+    per layer change. Pushes in the order the tuple-keyed version did (same tie counter), so it
     returns the same path. Returns the goal node reached or -1; came[] holds each node's predecessor (-1: none)."""
     P = nx * ny
     heap = [(0.0, 0, 0, 0)]
@@ -446,9 +500,10 @@ def _astar_core(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost, 
             if ni < 0 or ni >= nx or nj < 0 or nj >= ny:
                 continue
             n = li * P + nj * nx + ni
-            if blocked[n]:
+            b = blocked[n]
+            if b == 1:
                 continue
-            nc = cc + _W[k] + (0.0 if d == -1 or d == k else 0.6)
+            nc = cc + _W[k] + (0.0 if d == -1 or d == k else 0.6) + (pour_cost if b == 2 else 0.0)
             if nc < cost[n]:
                 cost[n] = nc
                 came[n] = c
@@ -457,9 +512,9 @@ def _astar_core(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost, 
         if vok[r]:
             for lj in range(nl):  # through vias: any layer change
                 n = lj * P + r
-                if lj == li or blocked[n]:
+                if lj == li or blocked[n] == 1:
                     continue
-                nc = cc + via_cost
+                nc = cc + via_cost + (pour_cost if blocked[n] == 2 else 0.0)
                 if nc < cost[n]:
                     cost[n] = nc
                     came[n] = c
@@ -471,7 +526,7 @@ def _astar_core(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost, 
 _CORE = None
 
 
-def _astar(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost):
+def _astar(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost, pour_cost=0.0):
     """Run the core JIT-compiled (numba, cached beside this file) or, without numba or with MAZE21_NO_JIT, as plain
     Python on lists: the same code either way."""
     global _CORE
@@ -489,10 +544,10 @@ def _astar(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost):
     if _CORE is _astar_core:
         came = [-1] * N
         end = _astar_core(blocked.tolist(), vok.tolist(), hd.tolist(), start_nodes.tolist(), goal_mask.tolist(),
-                          nx, ny, nl, via_cost, [1e18] * N, came)
+                          nx, ny, nl, via_cost, pour_cost, [1e18] * N, came)
         return end, came
     came = np.full(N, -1, dtype=np.int64)
-    end = _CORE(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost, np.full(N, 1e18), came)
+    end = _CORE(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost, pour_cost, np.full(N, 1e18), came)
     return int(end), came
 
 
@@ -504,6 +559,10 @@ def connect2(geo, net, bx, width, starts, goals, layers=OUTER, via=0.75, via_cos
     grids = []
     for lay in layers:
         g, nx, ny = _blocked(geo, net, lay, bx, width)
+        if POURS:
+            i0, j0 = _window(bx)[:2]
+            a = np.frombuffer(g, dtype=np.uint8)
+            a[(a == 0) & _pour_mask(net, lay, i0, j0, nx, ny).ravel()] = 2
         grids.append(g)
     vok = ~_via_ok(geo, net, bx, via)
 
@@ -530,7 +589,7 @@ def connect2(geo, net, bx, width, starts, goals, layers=OUTER, via=0.75, via_cos
             start_nodes.append(li * P + c[1] * nx + c[0])
     blocked = np.frombuffer(b"".join(bytes(g) for g in grids), dtype=np.uint8)
     end, came = _astar(blocked, np.ascontiguousarray(vok, dtype=np.uint8), hd, np.array(start_nodes, dtype=np.int64),
-                       goal_mask, nx, ny, nl, float(via_cost))
+                       goal_mask, nx, ny, nl, float(via_cost), float(POUR_COST))
     if end < 0:
         return None
     cells = [end]

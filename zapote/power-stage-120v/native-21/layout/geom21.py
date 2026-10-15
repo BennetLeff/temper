@@ -78,7 +78,8 @@ class Geometry:
             self._trees[lay] = (STRtree(geoms), self.items[lay])
         return self._trees[lay]
 
-    def conflicts(self, net, layers, geom, limit=3, via=False):
+    def conflicts(self, net, layers, geom, limit=3, via=False, ignore=()):
+        """ignore: ids of copper items the caller checks itself (a pad escape's other pad); the barrier still sees them."""
         out = []
         if not self.outline.contains(geom):
             out.append(("edge", None))
@@ -87,7 +88,7 @@ class Geometry:
             for i in tree.query(geom.buffer(rules21.RES_A_CREEPAGE + 0.1 if net in rules21.RES_A_NETS or
                                             rules21.domain(net) in ("SELV", "PE") else 8.5)):
                 g, other = items[i]
-                if other == net or (via and id(g) in self.via_permeable):
+                if other == net or (via and id(g) in self.via_permeable) or id(g) in ignore:
                     continue
                 need = 0.3 if other == "<npth>" else rules21.clearance_on(net, other, lay)
                 if g.distance(geom) < need + 0.03:
