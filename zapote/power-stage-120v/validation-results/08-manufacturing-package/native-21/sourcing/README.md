@@ -1,5 +1,7 @@
 # LCSC sourcing for native-21 (survey 2026-10-08)
 
+> **Stale for the board of record (2026-10-15):** this survey describes the 2026-10-08 BOM and still names superseded parts (UCC21550, ISO7710, CST3015-100ED, B32656G0275J000, 74650074R). For s43, use `../PROTOTYPE-LOT.md` and `SNAPSHOT-2026-10-15.csv` (s43 rows).
+
 `lcsc-map.csv`: every one of the 92 BOM lines looked up on jlcpcb.com/parts and lcsc.com product
 pages (URL per line in `Source_URL`; no C-number guessed). `../scripts/apply_lcsc.py` writes the
 result into `../fab/bom-jlcpcb.csv`.
