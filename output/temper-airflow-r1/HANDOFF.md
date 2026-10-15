@@ -64,3 +64,11 @@ R45 builds them as real parts in `src/r45_world.py`, with flat patterns or drawi
 ## What the power stage must re-run (relayed by the parent; R45 does not edit their records)
 
 See `DECISIONS.md` D6.
+
+## Open item found by the bench kit (2026-10-15)
+
+The channel side-wall and feed-duct sizes in this handoff don't fit its own
+12 mm envelope. The jet bench kit (`bench/`, RIG.md and DECISIONS.md) had to
+pick one set to build its replica. R45 must settle the geometry, and the
+bench replica should be rebuilt to match if it changes, because the spent-jet
+escape path affects h.
