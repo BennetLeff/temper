@@ -14,6 +14,16 @@ has an LCSC number); the other 20 are consigned or hand-assembled and are listed
 | CORRECTED | 10 | non-zero offset, two independent sources agree; applied in `cpl-jlcpcb.corrected.csv` |
 | NEEDS-PREVIEW | 47 | sources disagree, a source is missing, or polarity cannot be settled offline; not changed |
 
+## Stage 31 isolators (2026-10-14)
+
+U9 / U32 / U44 changed to Chipanalog CA-IS3720HW (C428883) / CA-IS3720LW (C2890049) at stage 31 (DECISIONS 34).
+- C428883's EasyEDA footprint was fetched (lceda.cn component API, GET; `fetch_easyeda.py`'s `distill`, merged into
+  `sources/easyeda-footprints.json`). The fit agrees with the DB rule (+270), so **U9 / U32 are CORRECTED 270 -> 180**.
+- C2890049 returns 404 from the EasyEDA library, so **U44 stays NEEDS-PREVIEW** with the DB's 270. The LW is the same
+  SOIC-16W package as the HW (datasheet s.11.3), whose footprint gives the same +270 offset, so 270 is expected; confirm
+  pin 1 in JLC's preview.
+- The rest of the counts in this README date from stage 19b; `audit.json` is current.
+
 ## CORRECTED (old -> new rotation)
 
 | Designators | Footprint / LCSC | Old -> new | Why |

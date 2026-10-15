@@ -5,8 +5,8 @@
   "lines_excluded_not_placed": 11,
   "counts": {
    "OK": 275,
-   "NEEDS-PREVIEW": 57,
-   "CORRECTED": 6
+   "NEEDS-PREVIEW": 55,
+   "CORRECTED": 8
   },
   "controls": {
    "R7": {
@@ -5914,17 +5914,17 @@
    "mount": "SMD",
    "kicad_rot": 270,
    "proposed_jlc_rot": 180,
-   "class": "NEEDS-PREVIEW",
+   "class": "CORRECTED",
    "db_rule": "^SOIC- (via alias SOIC-16W_DW0016B_HV)",
    "db_offset": 270,
-   "easyeda_package": "",
-   "easyeda_offset": "",
-   "easyeda_rot": "",
+   "easyeda_package": "SOIC-16_L10.3-W7.5-P1.27-LS10.3-BL",
+   "easyeda_offset": "270",
+   "easyeda_rot": "180",
    "db_rot": 180,
-   "fit_method": "",
-   "fit_rms_mm": "",
-   "pin1_evidence": "KiCad pad 1 at (+4.45,-4.87) mm = up-right of centre at board rotation 270",
-   "reason": "only the JLC rotation DB speaks (rule '^SOIC- (via alias SOIC-16W_DW0016B_HV)' offset +270); no EasyEDA footprint for this LCSC number"
+   "fit_method": "pad number",
+   "fit_rms_mm": 0.125,
+   "pin1_evidence": "KiCad pad 1 at (+4.45,-4.87) mm = up-right of centre at board rotation 270; EasyEDA pad 1 down-left of centre at JLC rot 0",
+   "reason": "EasyEDA footprint fit needs [270] deg and DB rule '^SOIC- (via alias SOIC-16W_DW0016B_HV)' gives +270: agree"
   },
   {
    "designator": "U10",
@@ -6294,17 +6294,17 @@
    "mount": "SMD",
    "kicad_rot": 270,
    "proposed_jlc_rot": 180,
-   "class": "NEEDS-PREVIEW",
+   "class": "CORRECTED",
    "db_rule": "^SOIC- (via alias SOIC-16W_DW0016B_HV)",
    "db_offset": 270,
-   "easyeda_package": "",
-   "easyeda_offset": "",
-   "easyeda_rot": "",
+   "easyeda_package": "SOIC-16_L10.3-W7.5-P1.27-LS10.3-BL",
+   "easyeda_offset": "270",
+   "easyeda_rot": "180",
    "db_rot": 180,
-   "fit_method": "",
-   "fit_rms_mm": "",
-   "pin1_evidence": "KiCad pad 1 at (+4.45,-4.87) mm = up-right of centre at board rotation 270",
-   "reason": "only the JLC rotation DB speaks (rule '^SOIC- (via alias SOIC-16W_DW0016B_HV)' offset +270); no EasyEDA footprint for this LCSC number"
+   "fit_method": "pad number",
+   "fit_rms_mm": 0.125,
+   "pin1_evidence": "KiCad pad 1 at (+4.45,-4.87) mm = up-right of centre at board rotation 270; EasyEDA pad 1 down-left of centre at JLC rot 0",
+   "reason": "EasyEDA footprint fit needs [270] deg and DB rule '^SOIC- (via alias SOIC-16W_DW0016B_HV)' gives +270: agree"
   },
   {
    "designator": "U36",
