@@ -1,0 +1,80 @@
+{
+ "board_sha256": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e",
+ "layers": [
+  "F.Cu",
+  "In1.Cu",
+  "In2.Cu",
+  "B.Cu"
+ ],
+ "stack": "/Users/bennet/Desktop/temper/worktrees/ps-layers/zapote/power-stage-120v/native-21/stackup.json",
+ "box": [
+  0.0,
+  47.0,
+  26.0,
+  60.0
+ ],
+ "probes": {
+  "LOW": "mon_good_ha",
+  "SELV": "hsb_good",
+  "SW_B": "bias_hb-fbm"
+ },
+ "rows": {
+  "LOW": {
+   "F.Cu": {
+    "free_frac": 0.323,
+    "crossing_y47_to_y60": true
+   },
+   "In1.Cu": {
+    "free_frac": 0.2811,
+    "crossing_y47_to_y60": false
+   },
+   "In2.Cu": {
+    "free_frac": 0.2169,
+    "crossing_y47_to_y60": false
+   },
+   "B.Cu": {
+    "free_frac": 0.0921,
+    "crossing_y47_to_y60": true
+   },
+   "via_legal_cells": 59
+  },
+  "SELV": {
+   "F.Cu": {
+    "free_frac": 0.0,
+    "crossing_y47_to_y60": false
+   },
+   "In1.Cu": {
+    "free_frac": 0.0018,
+    "crossing_y47_to_y60": false
+   },
+   "In2.Cu": {
+    "free_frac": 0.0,
+    "crossing_y47_to_y60": false
+   },
+   "B.Cu": {
+    "free_frac": 0.0,
+    "crossing_y47_to_y60": false
+   },
+   "via_legal_cells": 0
+  },
+  "SW_B": {
+   "F.Cu": {
+    "free_frac": 0.029,
+    "crossing_y47_to_y60": false
+   },
+   "In1.Cu": {
+    "free_frac": 0.1224,
+    "crossing_y47_to_y60": false
+   },
+   "In2.Cu": {
+    "free_frac": 0.1405,
+    "crossing_y47_to_y60": true
+   },
+   "B.Cu": {
+    "free_frac": 0.133,
+    "crossing_y47_to_y60": false
+   },
+   "via_legal_cells": 1
+  }
+ }
+}
