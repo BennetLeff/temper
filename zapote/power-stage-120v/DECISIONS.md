@@ -1213,3 +1213,47 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **Merged** (`63f175d1e`, `0561f5870`): `native-21/stackup.json` is tracked and is native-21's single layer-stack source; `build_native21.py` writes the board stack from it (it no longer copies native-20's); `native-21/layout/layers21.py` serves the layout scripts, gates and models; `$NATIVE21_STACKUP` swaps the stack. B3 now raises on copper on an unknown layer instead of dropping it. Proof: `validation-results/11-candidates/c33-six-layer/REFACTOR-PROOF.md` (86 / 86 artefacts equal on the same board file for s31 and s32; fresh rebuilds equal after removing KiCad UUIDs and zone-fill noise; scorecard compare: no change). Tests `test_layers21.py`, `b3/test_layers.py` and `sheet_solver --selftest` pass on the integration branch.
     - **F8 depths:** coil-pickup `loops.py` used In1 / In2 / B at 0.47 / 1.03 / 1.50 mm below F.Cu; the stack gives 0.501 / 1.062 / 1.563. On s32 copper the stack depths give 4.133 A against 4.173 A (`ocp_pickup_stack_pan60_A`, −1 %; old depths reproduce 4.173 exactly). The old values stay the default (`Z_DEPTH_OVERRIDE_MM`) so every committed result reproduces. **Decision:** the six-layer study scores with stack depths (`F8_Z=stackup`) for both its own boards and a re-run of s32, so every comparison is on one basis. The same rule applies to the sheet solver's fixed 1.6 mm barrel length (stack: 1.563 mm centre to centre).
     - **Chain cache trap (open, fix before phase A):** when scripts change but copper does not, task 04 takes a cache hit while B3 recomputes, and B3 then fails its board-hash check. Cache keys must include the hashes of the scripts they run.
+
+39. **Six-layer phase A merged and accepted on the data; adoption pending checks (2026-10-14; candidate 33; board of record still s32).**
+    - **Merged** from `claude/native21-six-layer` (cherry-picked as `1bbc23b3b`, `d71df9623`, `e4641c663`):
+      - the chain cache fix: one model key for the task-04 and B3 caches (`gates/model_key.py`, `c33-six-layer/CACHE-PROOF.md`);
+      - `native-21/stackup-6L.json`; `patches21.add_stage33` (image pours, stitch vias); `INCR21_FROZEN` (an accepted
+        routed copper.json as the base, plus only the stage-33 layers);
+      - return_path19 / scorecard judge a same-net stitch farther than 3.0 mm as an open change;
+      - the evidence in `validation-results/11-candidates/c33-six-layer/` (PHASE-A.md).
+    - **Plan A + In3 image:** In1 as today; In2 bus_p / selv_gnd, so bus_p / hv_ret are a 0.30 mm core pair (0.5 mm on
+      four layers); In3 signal plus a bus_p image under the bridge (without it task 04's bus_p span was 3.17 % > 3 %);
+      In4 images of v3v3, n_ha, n_hb, n_ls and ocp_kelvin_p, with no plane under the B-side switch nodes. Plan B (In4 as
+      the plane) is rejected: +2.90 / +1.67 nH on the plane-pair screen against A's −1.28 / −0.74 nH.
+    - **Board native21s33 (710c0a45):** stage 32's routed copper frozen as the base; one pass, 0 unconnected, 0 errors;
+      CHAIN_DONE with every gate clean. **Scorecard ACCEPT against 19c, s32 and s32 restated on the stack basis**
+      (item 38), with identical parts. Better against s32 restated: return-path open changes 18 → 8, worst asserted
+      2.72 → 2.38 mm, B3 c28_h25 134.9 → 129.3 °C, nominal_h10 162.0 → 155.1 °C, OCP pickup 4.13 → 3.72 A, Kelvin band
+      low 67.77 → 67.79 A. Nothing is worse. Bare board $16.18 against $16.79 per board at 500, but a 10–11 day build
+      against 5–6.
+    - **Re-checked on the integration branch after the merge:**
+      - the scorecard compares reproduce both ACCEPTs;
+      - return_path19 on the s32 copper dump is identical to s32's committed output (only the new, empty `stitches`
+        keys and Python object ids differ), so the gate change is neutral on four layers;
+      - `ROUTE4` is every layer on four layers, and `add_stage33` is a no-op without `image_planes`;
+      - the spine-lock, trim-tails and datasheet-ledger controls pass;
+      - `spine_lock.py` on s33: 0 removed, 128 added (THT pad copper on In3 / In4, the In4 v3v3 image, stitch vias).
+        Every s32 spine item is still there.
+    - **Not closed:** 30b (C161 still reaches n_ls through about 4.5 mm of In1; the In4 image is cut under bus_fault_hot).
+      30a was not attempted. In the y 47–60 band HS-B can now cross on In2 and In4, but no cell is via-legal on every layer.
+      Eight open changes remain where no pour reaches.
+    - **Before adoption** (the stack becomes the board of record, copper-s33 becomes `layout/copper.json`, the FAB-NOTE
+      moves to six layers):
+      1. FEM re-extraction of the commutation loops on the six-layer copper (round-17 set-up: leg A 37.6, leg B 24.5 nH),
+         with the F6 decision and startup cases re-run if either loop rises;
+      2. the switch-node capacitance (screen 303 → 312 pF; sw_a 91 → 155 pF) against the ZVS dead-time margin;
+      3. EMI: `emi_s19b.py` models only the outer-layer switch-node pours to the PE pedestal. Those are unchanged on s33
+         (frozen base), and only the B.Cu depth moves (1.6 → 1.658 mm), so it is a confirmation run;
+      4. a 6-layer Gerber quote of `native-21-gerbers-s33-6L.zip` (an upload to JLC: owner's yes first);
+      5. the CTI / solid-insulation inquiry re-asked for JLC061622-1080A (owner's outreach).
+    - **Touch leakage is not on the list.** `leakage_budget.py` counts only the Y capacitors and the supplies' datasheet
+      maximum leakage; the BOM is identical, so it does not depend on the stack.
+    - **Lanes:** the island lanes (13-coupling) start on the adopted board, and the SELV-spine lock is re-issued from its
+      export, since 30a's new crossing room exists only on six layers. The BOM-only lane is not affected.
+    - **Reverses if:** FEM or ZVS margin on the six-layer copper is worse than s32's, or the Gerber quote prices six
+      layers above four-layer POFV.
