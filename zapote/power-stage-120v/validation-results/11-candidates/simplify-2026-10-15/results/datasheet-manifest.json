@@ -1,0 +1,44 @@
+{
+ "2edr8259.pdf": {
+  "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-eicedriver-2edr8259h-2edrx259x-2edrx258x-datasheet-en.pdf",
+  "revision": "Infineon EiceDRIVER 2EDR8259H, 2EDRx259X, 2EDRx258X datasheet Rev. 1.7, 2026-04-09 (same file as the repo ledger, sha f49391ca00e15397)",
+  "sha256": "f49391ca00e15397076dfc7482f56b0a1ea794a5249f1d14a1a60bb5ef33ae33",
+  "fetched": "2026-10-15"
+ },
+ "tps3700.pdf": {
+  "url": "https://www.ti.com/lit/ds/symlink/tps3700.pdf",
+  "revision": "TI SBVS187G, Feb 2012, revised Feb 2019",
+  "sha256": "3bb7daed20b154bf22ded78e23269c6437eb587400b89bce0f543813df94ebf0",
+  "fetched": "2026-10-15"
+ },
+ "tps3701.pdf": {
+  "url": "https://www.ti.com/lit/ds/symlink/tps3701.pdf",
+  "revision": "TI SBVS240C, Nov 2014, revised Feb 2019",
+  "sha256": "27c94a6c3a243bf539e98942d26f0bd9ed979c5775c12cf86b7c1a8c3d7d9560",
+  "fetched": "2026-10-15"
+ },
+ "tlv3201.pdf": {
+  "url": "https://www.ti.com/lit/ds/symlink/tlv3201.pdf",
+  "revision": "TI SBOS561C (TLV3201, TLV3202), Mar 2012, revised May 2024",
+  "sha256": "1777bba814c74772bb54c6f1f56702985039043ce2fb2affaf996a83eaf1076e",
+  "fetched": "2026-10-15"
+ },
+ "lm339b.pdf": {
+  "url": "https://www.ti.com/lit/ds/symlink/lm339b.pdf",
+  "revision": "TI SLCS006Z, Oct 1979, revised May 2025",
+  "sha256": "406e7bd1ab1f2fb15b46bff397bde497ba714b00ed4455a556d84e1113546f6a",
+  "fetched": "2026-10-15"
+ },
+ "tl431.pdf": {
+  "url": "https://www.ti.com/lit/ds/symlink/tl431.pdf",
+  "revision": "TI SLVS543S, Aug 2004, revised May 2024",
+  "sha256": "ed2e90697de4e2c553195514adf1ee59cda42863716b6ef702b8304a5b921d22",
+  "fetched": "2026-10-15"
+ },
+ "tps7a47.pdf": {
+  "url": "https://www.ti.com/lit/ds/symlink/tps7a47.pdf",
+  "revision": "TI SBVS204G, Jun 2012, revised May 2026",
+  "sha256": "8ca46a9968923d2ec9a4deedacfe37220ee5159f4570009cb7c3163661c5dfe0",
+  "fetched": "2026-10-15"
+ }
+}

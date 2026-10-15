@@ -1,0 +1,282 @@
+{
+ "baseline_s43": {
+  "placements": 351,
+  "lines": 93,
+  "jlc": 210.72,
+  "card": 202.32
+ },
+ "candidates": {
+  "A": {
+   "title": "G08: bus OVP onto U14's spare OV channel (INB), U14 TPS3700 -> TPS3701, NAND3 -> Schmitt NAND2",
+   "placements_delta": -6,
+   "lines_delta": -1,
+   "lines_removed": [
+    "RT0603BRD07105KL",
+    "RT0603BRD07140KL",
+    "RT0603BRD0715K8L",
+    "SN74LVC1G10DBVR",
+    "TPS3700DDCR"
+   ],
+   "lines_added": [
+    "RT0603BRD07102KL",
+    "RT0603BRD0713KL",
+    "RT0603BRD072K74L",
+    "TPS3701DDCR"
+   ],
+   "usd500_delta_jlc": -1.236,
+   "usd500_delta_card": -1.137,
+   "new_part_stock": {
+    "RT0603BRD07102KL": 9451,
+    "RT0603BRD0713KL": 19105,
+    "RT0603BRD072K74L": 7216,
+    "TPS3701DDCR": 26599
+   },
+   "new_line_classes": {
+    "RT0603BRD07102KL": "expand",
+    "RT0603BRD0713KL": "expand",
+    "RT0603BRD072K74L": "expand",
+    "TPS3701DDCR": "expand"
+   }
+  },
+  "A0": {
+   "title": "G08 fallback if A's shared die is refused: U14 TPS3700 -> TPS3701 (+ R48 105k -> 102k) only, BOM-only",
+   "placements_delta": 0,
+   "lines_delta": 0,
+   "lines_removed": [
+    "RT0603BRD07105KL",
+    "TPS3700DDCR"
+   ],
+   "lines_added": [
+    "RT0603BRD07102KL",
+    "TPS3701DDCR"
+   ],
+   "usd500_delta_jlc": -0.459,
+   "usd500_delta_card": -0.01,
+   "new_part_stock": {
+    "RT0603BRD07102KL": 9451,
+    "TPS3701DDCR": 26599
+   },
+   "new_line_classes": {
+    "RT0603BRD07102KL": "expand",
+    "TPS3701DDCR": "expand"
+   }
+  },
+  "B": {
+   "title": "G07: each rail monitor's TL431A + LM339B + rref + halfref -> two TPS3701 (one per window), own dividers",
+   "placements_delta": -6,
+   "lines_delta": -2,
+   "lines_removed": [
+    "ARG03BTC1333",
+    "LM339BIDR",
+    "RC1206FR-072K2L",
+    "RT0603BRD07120KL",
+    "RT0603BRD074K42L",
+    "TL431AIDBZR"
+   ],
+   "lines_added": [
+    "RT0603BRD0710K2L",
+    "RT0603BRD0744K2L",
+    "RT0603BRD07453KL",
+    "TPS3701DDCR"
+   ],
+   "usd500_delta_jlc": 1.634,
+   "usd500_delta_card": 0.257,
+   "new_part_stock": {
+    "RT0603BRD0710K2L": 13263,
+    "RT0603BRD0744K2L": 4707,
+    "RT0603BRD07453KL": 5264,
+    "TPS3701DDCR": 26599
+   },
+   "new_line_classes": {
+    "RT0603BRD0710K2L": "expand",
+    "RT0603BRD0744K2L": "expand",
+    "RT0603BRD07453KL": "expand",
+    "TPS3701DDCR": "expand"
+   }
+  },
+  "C": {
+   "title": "G09 CT: U10 (CT_OC_POS) + U12 (CT_ZC) -> one TLV3202 dual; U11 (CT_OC_NEG) stays single",
+   "placements_delta": -2,
+   "lines_delta": 1,
+   "lines_removed": [],
+   "lines_added": [
+    "TLV3202AIDR"
+   ],
+   "usd500_delta_jlc": -0.639,
+   "usd500_delta_card": -0.313,
+   "new_part_stock": {
+    "TLV3202AIDR": 7339
+   },
+   "new_line_classes": {
+    "TLV3202AIDR": "expand"
+   }
+  },
+  "C-hot": {
+   "title": "(alternative, not recommended) G08: U6 (OCP) + U7 (OVP) -> one TLV3202",
+   "placements_delta": -2,
+   "lines_delta": 1,
+   "lines_removed": [],
+   "lines_added": [
+    "TLV3202AIDR"
+   ],
+   "usd500_delta_jlc": -0.639,
+   "usd500_delta_card": -0.313,
+   "new_part_stock": {
+    "TLV3202AIDR": 7339
+   },
+   "new_line_classes": {
+    "TLV3202AIDR": "expand"
+   }
+  },
+  "D": {
+   "title": "G05: U1/U2 2EDR8259X (8 V UVLO) -> 2EDR9259X (15 V UVLO), monitor kept",
+   "placements_delta": 0,
+   "lines_delta": 0,
+   "lines_removed": [
+    "2EDR8259XXUMA1"
+   ],
+   "lines_added": [
+    "2EDR9259XXUMA1"
+   ],
+   "usd500_delta_jlc": 0.476,
+   "usd500_delta_card": 0.969,
+   "new_part_stock": {
+    "2EDR9259XXUMA1": 12
+   },
+   "new_line_classes": {
+    "2EDR9259XXUMA1": "expand"
+   }
+  },
+  "E": {
+   "title": "G05 reservoirs: 2 x 10 uF 1210 -> 1 x 22 uF 1210 per VSS (src-n sits at ~2 V)",
+   "placements_delta": -4,
+   "lines_delta": 1,
+   "lines_removed": [],
+   "lines_added": [
+    "CL32B226KAJNNNE"
+   ],
+   "usd500_delta_jlc": -0.626,
+   "usd500_delta_card": -0.627,
+   "new_part_stock": {
+    "CL32B226KAJNNNE": 90706
+   },
+   "new_line_classes": {
+    "CL32B226KAJNNNE": "expand"
+   }
+  },
+  "H": {
+   "title": "G06: delete C24 (V15_LS 10 uF in parallel with the TPS7A4700's C99/C100)",
+   "placements_delta": -1,
+   "lines_delta": 0,
+   "lines_removed": [],
+   "lines_added": [],
+   "usd500_delta_jlc": -0.157,
+   "usd500_delta_card": -0.157,
+   "new_part_stock": {},
+   "new_line_classes": {}
+  },
+  "A+B+C": {
+   "title": "A + B + C",
+   "placements_delta": -14,
+   "lines_delta": -3,
+   "lines_removed": [
+    "ARG03BTC1333",
+    "LM339BIDR",
+    "RC1206FR-072K2L",
+    "RT0603BRD07105KL",
+    "RT0603BRD07120KL",
+    "RT0603BRD07140KL",
+    "RT0603BRD0715K8L",
+    "RT0603BRD074K42L",
+    "SN74LVC1G10DBVR",
+    "TL431AIDBZR",
+    "TPS3700DDCR"
+   ],
+   "lines_added": [
+    "RT0603BRD07102KL",
+    "RT0603BRD0710K2L",
+    "RT0603BRD0713KL",
+    "RT0603BRD072K74L",
+    "RT0603BRD0744K2L",
+    "RT0603BRD07453KL",
+    "TLV3202AIDR",
+    "TPS3701DDCR"
+   ],
+   "usd500_delta_jlc": -0.262,
+   "usd500_delta_card": -1.214,
+   "new_part_stock": {
+    "RT0603BRD07102KL": 9451,
+    "RT0603BRD0710K2L": 13263,
+    "RT0603BRD0713KL": 19105,
+    "RT0603BRD072K74L": 7216,
+    "RT0603BRD0744K2L": 4707,
+    "RT0603BRD07453KL": 5264,
+    "TLV3202AIDR": 7339,
+    "TPS3701DDCR": 26599
+   },
+   "new_line_classes": {
+    "RT0603BRD07102KL": "expand",
+    "RT0603BRD0710K2L": "expand",
+    "RT0603BRD0713KL": "expand",
+    "RT0603BRD072K74L": "expand",
+    "RT0603BRD0744K2L": "expand",
+    "RT0603BRD07453KL": "expand",
+    "TLV3202AIDR": "expand",
+    "TPS3701DDCR": "expand"
+   }
+  },
+  "A+B+C+E+H": {
+   "title": "A + B + C + E + H",
+   "placements_delta": -19,
+   "lines_delta": -2,
+   "lines_removed": [
+    "ARG03BTC1333",
+    "LM339BIDR",
+    "RC1206FR-072K2L",
+    "RT0603BRD07105KL",
+    "RT0603BRD07120KL",
+    "RT0603BRD07140KL",
+    "RT0603BRD0715K8L",
+    "RT0603BRD074K42L",
+    "SN74LVC1G10DBVR",
+    "TL431AIDBZR",
+    "TPS3700DDCR"
+   ],
+   "lines_added": [
+    "CL32B226KAJNNNE",
+    "RT0603BRD07102KL",
+    "RT0603BRD0710K2L",
+    "RT0603BRD0713KL",
+    "RT0603BRD072K74L",
+    "RT0603BRD0744K2L",
+    "RT0603BRD07453KL",
+    "TLV3202AIDR",
+    "TPS3701DDCR"
+   ],
+   "usd500_delta_jlc": -1.046,
+   "usd500_delta_card": -1.998,
+   "new_part_stock": {
+    "CL32B226KAJNNNE": 90706,
+    "RT0603BRD07102KL": 9451,
+    "RT0603BRD0710K2L": 13263,
+    "RT0603BRD0713KL": 19105,
+    "RT0603BRD072K74L": 7216,
+    "RT0603BRD0744K2L": 4707,
+    "RT0603BRD07453KL": 5264,
+    "TLV3202AIDR": 7339,
+    "TPS3701DDCR": 26599
+   },
+   "new_line_classes": {
+    "CL32B226KAJNNNE": "expand",
+    "RT0603BRD07102KL": "expand",
+    "RT0603BRD0710K2L": "expand",
+    "RT0603BRD0713KL": "expand",
+    "RT0603BRD072K74L": "expand",
+    "RT0603BRD0744K2L": "expand",
+    "RT0603BRD07453KL": "expand",
+    "TLV3202AIDR": "expand",
+    "TPS3701DDCR": "expand"
+   }
+  }
+ }
+}

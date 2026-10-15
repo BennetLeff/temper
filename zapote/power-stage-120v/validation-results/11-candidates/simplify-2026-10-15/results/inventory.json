@@ -1,0 +1,2577 @@
+{
+ "basis": {
+  "parts_usd_at_500_total": 202.32,
+  "placements": 351,
+  "bom_lines": 93,
+  "price_source": "STOCK-2026-10-13*.csv merged as scorecard.cost(); stock from SNAPSHOT-2026-10-15.csv",
+  "parts_usd_at_500_jlc_total": 210.72
+ },
+ "blocks": {
+  "BIAS-HA RECOM module + split": {
+   "placements": 15,
+   "bom_lines_touched": 11,
+   "bom_lines_exclusive": 0,
+   "usd_at_500": 8.324,
+   "usd_at_500_jlc": 8.361,
+   "lines": {
+    "R24C2T25/R-R": {
+     "refs": [
+      "U41"
+     ],
+     "unit_usd_500": 7.37148,
+     "unit_usd_500_jlc": 7.37148,
+     "jlc_class": "hand/consign",
+     "jlc_stock": "0",
+     "exclusive": false
+    },
+    "CL32B106KBJNNNE": {
+     "refs": [
+      "C102",
+      "C103",
+      "C104"
+     ],
+     "unit_usd_500": 0.1575,
+     "unit_usd_500_jlc": 0.1574,
+     "jlc_class": "Extended",
+     "jlc_stock": "44171",
+     "exclusive": false
+    },
+    "TLVH431BQDBZR": {
+     "refs": [
+      "U18"
+     ],
+     "unit_usd_500": 0.4,
+     "unit_usd_500_jlc": 0.3522,
+     "jlc_class": "Extended",
+     "jlc_stock": "1536",
+     "exclusive": false
+    },
+    "CL10C331JB8NNNC": {
+     "refs": [
+      "C71",
+      "C105"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0122,
+     "jlc_class": "Basic",
+     "jlc_stock": "795118",
+     "exclusive": false
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C74",
+      "C75"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "0603WAF1003T5E": {
+     "refs": [
+      "R62"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0024,
+     "jlc_class": "Basic",
+     "jlc_stock": "19818130",
+     "exclusive": false
+    },
+    "RT0603BRD0763K4L": {
+     "refs": [
+      "R92"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0345,
+     "jlc_class": "Extended",
+     "jlc_stock": "7353",
+     "exclusive": false
+    },
+    "RT0603BRD0711KL": {
+     "refs": [
+      "R93"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.038,
+     "jlc_class": "Extended",
+     "jlc_stock": "10027",
+     "exclusive": false
+    },
+    "RT0603BRD076K2L": {
+     "refs": [
+      "R95"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0237,
+     "jlc_class": "Extended",
+     "jlc_stock": "90071",
+     "exclusive": false
+    },
+    "RT0603BRD0710KL": {
+     "refs": [
+      "R96"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0232,
+     "jlc_class": "Extended",
+     "jlc_stock": "2125333",
+     "exclusive": false
+    },
+    "0603WAF2702T5E": {
+     "refs": [
+      "R127"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0038,
+     "jlc_class": "Basic",
+     "jlc_stock": "615778",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C71": "bias_ha.cfb",
+    "C74": "bias_ha.cinhf",
+    "C75": "bias_ha.split.chf",
+    "C102": "bias_ha.cin1",
+    "C103": "bias_ha.cin2",
+    "C104": "bias_ha.split.cout1",
+    "C105": "bias_ha.cavin",
+    "R62": "bias_ha.ren_top",
+    "R92": "bias_ha.rfbt",
+    "R93": "bias_ha.rfbb",
+    "R95": "bias_ha.split.rtop",
+    "R96": "bias_ha.split.rbot",
+    "R127": "bias_ha.ren_bot",
+    "U18": "bias_ha.split.shunt",
+    "U41": "bias_ha.iso"
+   }
+  },
+  "BIAS-HB RECOM module + split": {
+   "placements": 15,
+   "bom_lines_touched": 11,
+   "bom_lines_exclusive": 0,
+   "usd_at_500": 8.324,
+   "usd_at_500_jlc": 8.361,
+   "lines": {
+    "R24C2T25/R-R": {
+     "refs": [
+      "U42"
+     ],
+     "unit_usd_500": 7.37148,
+     "unit_usd_500_jlc": 7.37148,
+     "jlc_class": "hand/consign",
+     "jlc_stock": "0",
+     "exclusive": false
+    },
+    "CL32B106KBJNNNE": {
+     "refs": [
+      "C106",
+      "C107",
+      "C108"
+     ],
+     "unit_usd_500": 0.1575,
+     "unit_usd_500_jlc": 0.1574,
+     "jlc_class": "Extended",
+     "jlc_stock": "44171",
+     "exclusive": false
+    },
+    "TLVH431BQDBZR": {
+     "refs": [
+      "U20"
+     ],
+     "unit_usd_500": 0.4,
+     "unit_usd_500_jlc": 0.3522,
+     "jlc_class": "Extended",
+     "jlc_stock": "1536",
+     "exclusive": false
+    },
+    "CL10C331JB8NNNC": {
+     "refs": [
+      "C72",
+      "C109"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0122,
+     "jlc_class": "Basic",
+     "jlc_stock": "795118",
+     "exclusive": false
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C81",
+      "C82"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "RT0603BRD0711KL": {
+     "refs": [
+      "R61"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.038,
+     "jlc_class": "Extended",
+     "jlc_stock": "10027",
+     "exclusive": false
+    },
+    "RT0603BRD0763K4L": {
+     "refs": [
+      "R94"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0345,
+     "jlc_class": "Extended",
+     "jlc_stock": "7353",
+     "exclusive": false
+    },
+    "RT0603BRD076K2L": {
+     "refs": [
+      "R110"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0237,
+     "jlc_class": "Extended",
+     "jlc_stock": "90071",
+     "exclusive": false
+    },
+    "RT0603BRD0710KL": {
+     "refs": [
+      "R111"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0232,
+     "jlc_class": "Extended",
+     "jlc_stock": "2125333",
+     "exclusive": false
+    },
+    "0603WAF1003T5E": {
+     "refs": [
+      "R128"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0024,
+     "jlc_class": "Basic",
+     "jlc_stock": "19818130",
+     "exclusive": false
+    },
+    "0603WAF2702T5E": {
+     "refs": [
+      "R129"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0038,
+     "jlc_class": "Basic",
+     "jlc_stock": "615778",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C72": "bias_hb.cfb",
+    "C81": "bias_hb.cinhf",
+    "C82": "bias_hb.split.chf",
+    "C106": "bias_hb.cin1",
+    "C107": "bias_hb.cin2",
+    "C108": "bias_hb.split.cout1",
+    "C109": "bias_hb.cavin",
+    "R61": "bias_hb.rfbb",
+    "R94": "bias_hb.rfbt",
+    "R110": "bias_hb.split.rtop",
+    "R111": "bias_hb.split.rbot",
+    "R128": "bias_hb.ren_top",
+    "R129": "bias_hb.ren_bot",
+    "U20": "bias_hb.split.shunt",
+    "U42": "bias_hb.iso"
+   }
+  },
+  "BIAS-LS PS2 + LS span LDO + split": {
+   "placements": 11,
+   "bom_lines_touched": 8,
+   "bom_lines_exclusive": 2,
+   "usd_at_500": 17.894,
+   "usd_at_500_jlc": 14.814,
+   "lines": {
+    "MPM-20-24": {
+     "refs": [
+      "PS2"
+     ],
+     "unit_usd_500": 12.6,
+     "unit_usd_500_jlc": 9.7843,
+     "jlc_class": "Extended",
+     "jlc_stock": "5047",
+     "exclusive": true
+    },
+    "TPS7A4700RGWR": {
+     "refs": [
+      "U26"
+     ],
+     "unit_usd_500": 4.232,
+     "unit_usd_500_jlc": 3.9637,
+     "jlc_class": "Extended",
+     "jlc_stock": "998",
+     "exclusive": true
+    },
+    "CL32B106KBJNNNE": {
+     "refs": [
+      "C24",
+      "C98",
+      "C99",
+      "C100"
+     ],
+     "unit_usd_500": 0.1575,
+     "unit_usd_500_jlc": 0.1574,
+     "jlc_class": "Extended",
+     "jlc_stock": "44171",
+     "exclusive": false
+    },
+    "TLVH431BQDBZR": {
+     "refs": [
+      "U16"
+     ],
+     "unit_usd_500": 0.4,
+     "unit_usd_500_jlc": 0.3522,
+     "jlc_class": "Extended",
+     "jlc_stock": "1536",
+     "exclusive": false
+    },
+    "GRM188R71E105KA12D": {
+     "refs": [
+      "C64"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0297,
+     "jlc_class": "Extended",
+     "jlc_stock": "139391",
+     "exclusive": false
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C65"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "RT0603BRD076K2L": {
+     "refs": [
+      "R77"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0237,
+     "jlc_class": "Extended",
+     "jlc_stock": "90071",
+     "exclusive": false
+    },
+    "RT0603BRD0710KL": {
+     "refs": [
+      "R78"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0232,
+     "jlc_class": "Extended",
+     "jlc_stock": "2125333",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C24": "c_v15",
+    "C64": "bias_ls.cnr",
+    "C65": "bias_ls.chf",
+    "C98": "bias_ls.cin",
+    "C99": "bias_ls.cout1",
+    "C100": "bias_ls.cout2",
+    "PS2": "ps_gate",
+    "R77": "bias_ls.rtop",
+    "R78": "bias_ls.rbot",
+    "U16": "bias_ls.shunt",
+    "U26": "bias_ls.ldo"
+   }
+  },
+  "CT tank-CT detector + fault OR": {
+   "placements": 23,
+   "bom_lines_touched": 12,
+   "bom_lines_exclusive": 8,
+   "usd_at_500": 2.014,
+   "usd_at_500_jlc": 2.579,
+   "lines": {
+    "TLV3201AIDBVR": {
+     "refs": [
+      "U10",
+      "U11",
+      "U12"
+     ],
+     "unit_usd_500": 0.45,
+     "unit_usd_500_jlc": 0.6131,
+     "jlc_class": "Extended",
+     "jlc_stock": "4030",
+     "exclusive": false
+    },
+    "SN74LVC1G332DBVR": {
+     "refs": [
+      "U13"
+     ],
+     "unit_usd_500": 0.4,
+     "unit_usd_500_jlc": 0.1592,
+     "jlc_class": "Extended",
+     "jlc_stock": "15608",
+     "exclusive": true
+    },
+    "BAS116H,115": {
+     "refs": [
+      "D4",
+      "D5"
+     ],
+     "unit_usd_500": 0.04,
+     "unit_usd_500_jlc": 0.0447,
+     "jlc_class": "Extended",
+     "jlc_stock": "63242",
+     "exclusive": true
+    },
+    "GRM31C5C1H104JA01L": {
+     "refs": [
+      "C42",
+      "C43"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.1393,
+     "jlc_class": "Extended",
+     "jlc_stock": "34816",
+     "exclusive": true
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C44",
+      "C45",
+      "C46",
+      "C47"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "RC1206FR-073RL": {
+     "refs": [
+      "R39"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.019,
+     "jlc_class": "Extended",
+     "jlc_stock": "994",
+     "exclusive": true
+    },
+    "1206W4F1001T5E": {
+     "refs": [
+      "R42"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0066,
+     "jlc_class": "Basic",
+     "jlc_stock": "2203989",
+     "exclusive": true
+    },
+    "RT0603BRD071KL": {
+     "refs": [
+      "R40",
+      "R41"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0226,
+     "jlc_class": "Extended",
+     "jlc_stock": "1819360",
+     "exclusive": true
+    },
+    "RT0603BRD072K21L": {
+     "refs": [
+      "R43",
+      "R46"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0276,
+     "jlc_class": "Extended",
+     "jlc_stock": "4018",
+     "exclusive": true
+    },
+    "RT0603BRD0710KL": {
+     "refs": [
+      "R44",
+      "R45"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0232,
+     "jlc_class": "Extended",
+     "jlc_stock": "2125333",
+     "exclusive": false
+    },
+    "0603WAF1001T5E": {
+     "refs": [
+      "R47",
+      "R134"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0016,
+     "jlc_class": "Basic",
+     "jlc_stock": "24490215",
+     "exclusive": true
+    },
+    "CL10C101JB8NNNC": {
+     "refs": [
+      "C167"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0065,
+     "jlc_class": "Basic",
+     "jlc_stock": "3195130",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C42": "c_ct_burden",
+    "C43": "c_ct_bias",
+    "C44": "c_ct_pos",
+    "C45": "c_ct_neg",
+    "C46": "c_ct_zc",
+    "C47": "c_fault_or",
+    "C167": "c_bf",
+    "D4": "d_ct_hi",
+    "D5": "d_ct_lo",
+    "R39": "r_ct_burden",
+    "R40": "r_ct_bias_top",
+    "R41": "r_ct_bias_bot",
+    "R42": "r_ct_series",
+    "R43": "r_ct_hi_top",
+    "R44": "r_ct_hi_bot",
+    "R45": "r_ct_lo_top",
+    "R46": "r_ct_lo_bot",
+    "R47": "r_ct_mon",
+    "R134": "r_bf",
+    "U10": "u_ct_pos",
+    "U11": "u_ct_neg",
+    "U12": "u_ct_zc",
+    "U13": "u_fault_or"
+   }
+  },
+  "DIS PERMIT/DIS logic": {
+   "placements": 10,
+   "bom_lines_touched": 5,
+   "bom_lines_exclusive": 2,
+   "usd_at_500": 0.864,
+   "usd_at_500_jlc": 0.201,
+   "lines": {
+    "SN74LVC1G00DBVR": {
+     "refs": [
+      "U22",
+      "U23"
+     ],
+     "unit_usd_500": 0.4,
+     "unit_usd_500_jlc": 0.0843,
+     "jlc_class": "Extended",
+     "jlc_stock": "3897",
+     "exclusive": true
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C54",
+      "C61"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "0603WAF1000T5E": {
+     "refs": [
+      "R6",
+      "R14"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.002,
+     "jlc_class": "Basic",
+     "jlc_stock": "11275345",
+     "exclusive": true
+    },
+    "0603WAF1003T5E": {
+     "refs": [
+      "R7",
+      "R15"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0024,
+     "jlc_class": "Basic",
+     "jlc_stock": "19818130",
+     "exclusive": false
+    },
+    "0603WAF1002T5E": {
+     "refs": [
+      "R73",
+      "R76"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0043,
+     "jlc_class": "Basic",
+     "jlc_stock": "32557244",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C54": "leg_a.c_dis_or",
+    "C61": "leg_b.c_dis_or",
+    "R6": "leg_a.r_permit",
+    "R7": "leg_a.r_permit_pd",
+    "R14": "leg_b.r_permit",
+    "R15": "leg_b.r_permit_pd",
+    "R73": "leg_a.r_driver_dis",
+    "R76": "leg_b.r_driver_dis",
+    "U22": "leg_a.dis_or",
+    "U23": "leg_b.dis_or"
+   }
+  },
+  "DRV drivers + pin decoupling": {
+   "placements": 18,
+   "bom_lines_touched": 7,
+   "bom_lines_exclusive": 3,
+   "usd_at_500": 3.348,
+   "usd_at_500_jlc": 4.129,
+   "lines": {
+    "2EDR8259XXUMA1": {
+     "refs": [
+      "U1",
+      "U2"
+     ],
+     "unit_usd_500": 1.3207,
+     "unit_usd_500_jlc": 1.5669,
+     "jlc_class": "Extended",
+     "jlc_stock": "97",
+     "exclusive": true
+    },
+    "CL32B106KBJNNNE": {
+     "refs": [
+      "C9",
+      "C16"
+     ],
+     "unit_usd_500": 0.1575,
+     "unit_usd_500_jlc": 0.1574,
+     "jlc_class": "Extended",
+     "jlc_stock": "44171",
+     "exclusive": false
+    },
+    "GRM21BZ71E106KE15L": {
+     "refs": [
+      "C11",
+      "C18"
+     ],
+     "unit_usd_500": 0.1,
+     "unit_usd_500_jlc": 0.212,
+     "jlc_class": "Extended",
+     "jlc_stock": "151263",
+     "exclusive": true
+    },
+    "CC0805KRX7R9BB104": {
+     "refs": [
+      "C8",
+      "C10",
+      "C15",
+      "C17"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0116,
+     "jlc_class": "Basic",
+     "jlc_stock": "21638159",
+     "exclusive": true
+    },
+    "CL21B105KBFNNNE": {
+     "refs": [
+      "C145",
+      "C146",
+      "C147",
+      "C148"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0327,
+     "jlc_class": "Basic",
+     "jlc_stock": "2122556",
+     "exclusive": false
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C7",
+      "C14"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "RT0603BRD0749K9L": {
+     "refs": [
+      "R9",
+      "R17"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0318,
+     "jlc_class": "Extended",
+     "jlc_stock": "174112",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C7": "leg_a.c_vcci",
+    "C8": "leg_a.c_ls",
+    "C9": "leg_a.c_ls_bulk",
+    "C10": "leg_a.c_hs",
+    "C11": "leg_a.c_hs_bulk",
+    "C14": "leg_b.c_vcci",
+    "C15": "leg_b.c_ls",
+    "C16": "leg_b.c_ls_bulk",
+    "C17": "leg_b.c_hs",
+    "C18": "leg_b.c_hs_bulk",
+    "C145": "leg_a.c_hs_1u",
+    "C146": "leg_a.c_ls_1u",
+    "C147": "leg_b.c_hs_1u",
+    "C148": "leg_b.c_ls_1u",
+    "R9": "leg_a.r_dt",
+    "R17": "leg_b.r_dt",
+    "U1": "leg_a.driver",
+    "U2": "leg_b.driver"
+   }
+  },
+  "FET FETs + snubbers": {
+   "placements": 8,
+   "bom_lines_touched": 2,
+   "bom_lines_exclusive": 2,
+   "usd_at_500": 40.784,
+   "usd_at_500_jlc": 70.199,
+   "lines": {
+    "IPW65R018CFD7": {
+     "refs": [
+      "Q2",
+      "Q3",
+      "Q5",
+      "Q6"
+     ],
+     "unit_usd_500": 10.17612,
+     "unit_usd_500_jlc": 17.5306,
+     "jlc_class": "Extended",
+     "jlc_stock": "4",
+     "exclusive": true
+    },
+    "CC1206JKNPOCBN102": {
+     "refs": [
+      "C12",
+      "C13",
+      "C19",
+      "C20"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0191,
+     "jlc_class": "Extended",
+     "jlc_stock": "4619",
+     "exclusive": true
+    }
+   },
+   "addresses": {
+    "C12": "leg_a.c_snub_h",
+    "C13": "leg_a.c_snub_l",
+    "C19": "leg_b.c_snub_h",
+    "C20": "leg_b.c_snub_l",
+    "Q2": "leg_a.q_high",
+    "Q3": "leg_a.q_low",
+    "Q5": "leg_b.q_high",
+    "Q6": "leg_b.q_low"
+   }
+  },
+  "FLT fault NAND + U9 isolator": {
+   "placements": 5,
+   "bom_lines_touched": 3,
+   "bom_lines_exclusive": 1,
+   "usd_at_500": 0.912,
+   "usd_at_500_jlc": 0.624,
+   "lines": {
+    "CA-IS3720HW": {
+     "refs": [
+      "U9"
+     ],
+     "unit_usd_500": 0.4878,
+     "unit_usd_500_jlc": 0.4876,
+     "jlc_class": "Extended",
+     "jlc_stock": "1640",
+     "exclusive": false
+    },
+    "SN74LVC1G10DBVR": {
+     "refs": [
+      "U8"
+     ],
+     "unit_usd_500": 0.4,
+     "unit_usd_500_jlc": 0.1134,
+     "jlc_class": "Extended",
+     "jlc_stock": "1480",
+     "exclusive": true
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C35",
+      "C36",
+      "C37"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C35": "c_nand_vcc",
+    "C36": "c_iso1",
+    "C37": "c_iso2",
+    "U8": "u_nand",
+    "U9": "u_iso"
+   }
+  },
+  "GATE gate networks (x4)": {
+   "placements": 20,
+   "bom_lines_touched": 5,
+   "bom_lines_exclusive": 4,
+   "usd_at_500": 1.09,
+   "usd_at_500_jlc": 1.058,
+   "lines": {
+    "PMEG6030EP,115": {
+     "refs": [
+      "D6",
+      "D7",
+      "D8",
+      "D9"
+     ],
+     "unit_usd_500": 0.2,
+     "unit_usd_500_jlc": 0.199,
+     "jlc_class": "Extended",
+     "jlc_stock": "7",
+     "exclusive": true
+    },
+    "25121WF680JT4E": {
+     "refs": [
+      "R10",
+      "R12",
+      "R18",
+      "R20"
+     ],
+     "unit_usd_500": 0.0294,
+     "unit_usd_500_jlc": 0.0294,
+     "jlc_class": "Extended",
+     "jlc_stock": "3131",
+     "exclusive": true
+    },
+    "1206W4F100KT5E": {
+     "refs": [
+      "R53",
+      "R54",
+      "R57",
+      "R58"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0167,
+     "jlc_class": "Basic",
+     "jlc_stock": "146492",
+     "exclusive": true
+    },
+    "GRM1885C1H472JA01D": {
+     "refs": [
+      "C55",
+      "C56",
+      "C62",
+      "C63"
+     ],
+     "unit_usd_500": 0.015,
+     "unit_usd_500_jlc": 0.015,
+     "jlc_class": "Extended",
+     "jlc_stock": "76738",
+     "exclusive": true
+    },
+    "0603WAF1002T5E": {
+     "refs": [
+      "R11",
+      "R13",
+      "R19",
+      "R21"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0043,
+     "jlc_class": "Basic",
+     "jlc_stock": "32557244",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C55": "leg_a.cgs_h",
+    "C56": "leg_a.cgs_l",
+    "C62": "leg_b.cgs_h",
+    "C63": "leg_b.cgs_l",
+    "D6": "leg_a.doff_h",
+    "D7": "leg_a.doff_l",
+    "D8": "leg_b.doff_h",
+    "D9": "leg_b.doff_l",
+    "R10": "leg_a.r_gh",
+    "R11": "leg_a.r_gh_pd",
+    "R12": "leg_a.r_gl",
+    "R13": "leg_a.r_gl_pd",
+    "R18": "leg_b.r_gh",
+    "R19": "leg_b.r_gh_pd",
+    "R20": "leg_b.r_gl",
+    "R21": "leg_b.r_gl_pd",
+    "R53": "leg_a.roff_h",
+    "R54": "leg_a.roff_l",
+    "R57": "leg_b.roff_h",
+    "R58": "leg_b.roff_l"
+   }
+  },
+  "H5UV HOT5 UV supervisor": {
+   "placements": 7,
+   "bom_lines_touched": 5,
+   "bom_lines_exclusive": 2,
+   "usd_at_500": 0.84,
+   "usd_at_500_jlc": 1.011,
+   "lines": {
+    "TPS3700DDCR": {
+     "refs": [
+      "U14"
+     ],
+     "unit_usd_500": 0.4,
+     "unit_usd_500_jlc": 0.8316,
+     "jlc_class": "Extended",
+     "jlc_stock": "13589",
+     "exclusive": true
+    },
+    "SN74LVC1G17DBVR": {
+     "refs": [
+      "U15"
+     ],
+     "unit_usd_500": 0.4,
+     "unit_usd_500_jlc": 0.0918,
+     "jlc_class": "Extended",
+     "jlc_stock": "39402",
+     "exclusive": false
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C48",
+      "C49"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "RT0603BRD0710KL": {
+     "refs": [
+      "R49",
+      "R50"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0232,
+     "jlc_class": "Extended",
+     "jlc_stock": "2125333",
+     "exclusive": false
+    },
+    "RT0603BRD07105KL": {
+     "refs": [
+      "R48"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0261,
+     "jlc_class": "Extended",
+     "jlc_stock": "6912",
+     "exclusive": true
+    }
+   },
+   "addresses": {
+    "C48": "c_hot5_uv",
+    "C49": "c_hot5_schmitt",
+    "R48": "r_hot5_uv_top",
+    "R49": "r_hot5_uv_bot",
+    "R50": "r_hot5_uv_pull",
+    "U14": "u_hot5_uv",
+    "U15": "u_hot5_schmitt"
+   }
+  },
+  "HB heartbeat + BIAS_GOOD": {
+   "placements": 20,
+   "bom_lines_touched": 11,
+   "bom_lines_exclusive": 3,
+   "usd_at_500": 1.434,
+   "usd_at_500_jlc": 1.157,
+   "lines": {
+    "CA-IS3720HW": {
+     "refs": [
+      "U32"
+     ],
+     "unit_usd_500": 0.4878,
+     "unit_usd_500_jlc": 0.4876,
+     "jlc_class": "Extended",
+     "jlc_stock": "1640",
+     "exclusive": false
+    },
+    "SN74LVC1G17DBVR": {
+     "refs": [
+      "U40"
+     ],
+     "unit_usd_500": 0.4,
+     "unit_usd_500_jlc": 0.0918,
+     "jlc_class": "Extended",
+     "jlc_stock": "39402",
+     "exclusive": false
+    },
+    "BAT54S-7-F": {
+     "refs": [
+      "D18",
+      "D19",
+      "D20"
+     ],
+     "unit_usd_500": 0.0785,
+     "unit_usd_500_jlc": 0.0772,
+     "jlc_class": "Extended",
+     "jlc_stock": "12110",
+     "exclusive": true
+    },
+    "SN74LVC1G132DBVR": {
+     "refs": [
+      "U45",
+      "U46"
+     ],
+     "unit_usd_500": 0.1056,
+     "unit_usd_500_jlc": 0.1055,
+     "jlc_class": "Extended",
+     "jlc_stock": "28977",
+     "exclusive": true
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C133",
+      "C134",
+      "C144",
+      "C161",
+      "C163"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "C0603C102J5GACTU": {
+     "refs": [
+      "C164",
+      "C165",
+      "C166"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0144,
+     "jlc_class": "Extended",
+     "jlc_stock": "7198",
+     "exclusive": false
+    },
+    "CL10C331JB8NNNC": {
+     "refs": [
+      "C162"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0122,
+     "jlc_class": "Basic",
+     "jlc_stock": "795118",
+     "exclusive": false
+    },
+    "0603WAF4991T5E": {
+     "refs": [
+      "R131"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0016,
+     "jlc_class": "Basic",
+     "jlc_stock": "1994638",
+     "exclusive": false
+    },
+    "RT0603BRD0749K9L": {
+     "refs": [
+      "R133"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0318,
+     "jlc_class": "Extended",
+     "jlc_stock": "174112",
+     "exclusive": false
+    },
+    "0603WAF1002T5E": {
+     "refs": [
+      "R135"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0043,
+     "jlc_class": "Basic",
+     "jlc_stock": "32557244",
+     "exclusive": false
+    },
+    "0603WAF2200T5E": {
+     "refs": [
+      "R132"
+     ],
+     "unit_usd_500": 0.0035,
+     "unit_usd_500_jlc": 0.0035,
+     "jlc_class": "Basic",
+     "jlc_stock": "2055511",
+     "exclusive": true
+    }
+   },
+   "addresses": {
+    "C133": "hb.civcc1",
+    "C134": "hb.civcc2",
+    "C144": "c_bias_flt_vcc",
+    "C161": "hb.cosc_vcc",
+    "C162": "hb.cosc",
+    "C163": "hb.cbuf",
+    "C164": "hb.cp1",
+    "C165": "hb.cp2",
+    "C166": "hb.chold",
+    "D18": "hb.vote",
+    "D19": "hb.pump",
+    "D20": "hb.vote_b",
+    "R131": "hb.rosc",
+    "R132": "hb.rs",
+    "R133": "hb.rbleed",
+    "R135": "hb.rgate",
+    "U32": "hb.iso",
+    "U40": "u_bias_flt",
+    "U45": "hb.osc",
+    "U46": "hb.buf"
+   }
+  },
+  "HOT5 LDO": {
+   "placements": 3,
+   "bom_lines_touched": 3,
+   "bom_lines_exclusive": 0,
+   "usd_at_500": 0.967,
+   "usd_at_500_jlc": 0.46,
+   "lines": {
+    "TPS70950DBVR": {
+     "refs": [
+      "U3"
+     ],
+     "unit_usd_500": 0.80122,
+     "unit_usd_500_jlc": 0.2952,
+     "jlc_class": "Extended",
+     "jlc_stock": "5921",
+     "exclusive": false
+    },
+    "CL32B106KBJNNNE": {
+     "refs": [
+      "C26"
+     ],
+     "unit_usd_500": 0.1575,
+     "unit_usd_500_jlc": 0.1574,
+     "jlc_class": "Extended",
+     "jlc_stock": "44171",
+     "exclusive": false
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C25"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C25": "c_ldo_in",
+    "C26": "c_ldo_out",
+    "U3": "u_ldo"
+   }
+  },
+  "LINK HS->LS verdict links": {
+   "placements": 6,
+   "bom_lines_touched": 2,
+   "bom_lines_exclusive": 1,
+   "usd_at_500": 0.809,
+   "usd_at_500_jlc": 0.852,
+   "lines": {
+    "ISO6721FBDR": {
+     "refs": [
+      "U43",
+      "U44"
+     ],
+     "unit_usd_500": 0.3883,
+     "unit_usd_500_jlc": 0.4109,
+     "jlc_class": "Extended",
+     "jlc_stock": "5302",
+     "exclusive": true
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C157",
+      "C158",
+      "C159",
+      "C160"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C157": "bias_ha.clink1",
+    "C158": "bias_ha.clink2",
+    "C159": "bias_hb.clink1",
+    "C160": "bias_hb.clink2",
+    "U43": "bias_ha.link",
+    "U44": "bias_hb.link"
+   }
+  },
+  "LZC line zero-cross": {
+   "placements": 8,
+   "bom_lines_touched": 5,
+   "bom_lines_exclusive": 3,
+   "usd_at_500": 0.837,
+   "usd_at_500_jlc": 0.46,
+   "lines": {
+    "SN74LVC1G17DBVR": {
+     "refs": [
+      "U24"
+     ],
+     "unit_usd_500": 0.4,
+     "unit_usd_500_jlc": 0.0918,
+     "jlc_class": "Extended",
+     "jlc_stock": "39402",
+     "exclusive": false
+    },
+    "VOL628A-2X001T": {
+     "refs": [
+      "U36"
+     ],
+     "unit_usd_500": 0.3409,
+     "unit_usd_500_jlc": 0.3408,
+     "jlc_class": "Extended",
+     "jlc_stock": "172",
+     "exclusive": true
+    },
+    "RC1206FR-0716K5L": {
+     "refs": [
+      "R67",
+      "R68",
+      "R69",
+      "R70"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0044,
+     "jlc_class": "Extended",
+     "jlc_stock": "4724",
+     "exclusive": true
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C89"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "0603WAF3302T5E": {
+     "refs": [
+      "R125"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0021,
+     "jlc_class": "Basic",
+     "jlc_stock": "3638348",
+     "exclusive": true
+    }
+   },
+   "addresses": {
+    "C89": "line_zc.cbuffer",
+    "R67": "line_zc.r1",
+    "R68": "line_zc.r2",
+    "R69": "line_zc.r3",
+    "R70": "line_zc.r4",
+    "R125": "line_zc.pullup",
+    "U24": "line_zc.buffer",
+    "U36": "line_zc.opto"
+   }
+  },
+  "MON-HA rail monitor (HS-A)": {
+   "placements": 22,
+   "bom_lines_touched": 13,
+   "bom_lines_exclusive": 0,
+   "usd_at_500": 1.765,
+   "usd_at_500_jlc": 0.944,
+   "lines": {
+    "TPS70950DBVR": {
+     "refs": [
+      "U38"
+     ],
+     "unit_usd_500": 0.80122,
+     "unit_usd_500_jlc": 0.2952,
+     "jlc_class": "Extended",
+     "jlc_stock": "5921",
+     "exclusive": false
+    },
+    "TL431AIDBZR": {
+     "refs": [
+      "U19"
+     ],
+     "unit_usd_500": 0.4,
+     "unit_usd_500_jlc": 0.0486,
+     "jlc_class": "Extended",
+     "jlc_stock": "134248",
+     "exclusive": false
+    },
+    "LM339BIDR": {
+     "refs": [
+      "U30"
+     ],
+     "unit_usd_500": 0.25,
+     "unit_usd_500_jlc": 0.1152,
+     "jlc_class": "Extended",
+     "jlc_stock": "4479",
+     "exclusive": false
+    },
+    "CL32B106KBJNNNE": {
+     "refs": [
+      "C136"
+     ],
+     "unit_usd_500": 0.1575,
+     "unit_usd_500_jlc": 0.1574,
+     "jlc_class": "Extended",
+     "jlc_stock": "44171",
+     "exclusive": false
+    },
+    "RT0603BRD0710KL": {
+     "refs": [
+      "R97",
+      "R98",
+      "R100",
+      "R102",
+      "R104",
+      "R106"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0232,
+     "jlc_class": "Extended",
+     "jlc_stock": "2125333",
+     "exclusive": false
+    },
+    "C0603C102J5GACTU": {
+     "refs": [
+      "C76",
+      "C77",
+      "C78",
+      "C79"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0144,
+     "jlc_class": "Extended",
+     "jlc_stock": "7198",
+     "exclusive": false
+    },
+    "RC1206FR-072K2L": {
+     "refs": [
+      "R63"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0104,
+     "jlc_class": "Extended",
+     "jlc_stock": "141159",
+     "exclusive": false
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C80",
+      "C135"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "RT0603BRD074K42L": {
+     "refs": [
+      "R99"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0265,
+     "jlc_class": "Extended",
+     "jlc_stock": "8076",
+     "exclusive": false
+    },
+    "RT0603BRD077K68L": {
+     "refs": [
+      "R101"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0273,
+     "jlc_class": "Extended",
+     "jlc_stock": "6376",
+     "exclusive": false
+    },
+    "RT0603BRD07120KL": {
+     "refs": [
+      "R103"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0301,
+     "jlc_class": "Extended",
+     "jlc_stock": "93453",
+     "exclusive": false
+    },
+    "ARG03BTC1333": {
+     "refs": [
+      "R105"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0168,
+     "jlc_class": "Extended",
+     "jlc_stock": "2265",
+     "exclusive": false
+    },
+    "0603WAF1002T5E": {
+     "refs": [
+      "R109"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0043,
+     "jlc_class": "Basic",
+     "jlc_stock": "32557244",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C76": "bias_ha.monitor.cuv",
+    "C77": "bias_ha.monitor.cov",
+    "C78": "bias_ha.monitor.cspanuv",
+    "C79": "bias_ha.monitor.cspanov",
+    "C80": "bias_ha.monitor.cmonitor",
+    "C135": "bias_ha.monitor.cldo_in",
+    "C136": "bias_ha.monitor.cldo_out",
+    "R63": "bias_ha.monitor.rref",
+    "R97": "bias_ha.monitor.rhalf_top",
+    "R98": "bias_ha.monitor.rhalf_bot",
+    "R99": "bias_ha.monitor.ruv_top",
+    "R100": "bias_ha.monitor.ruv_bot",
+    "R101": "bias_ha.monitor.rov_top",
+    "R102": "bias_ha.monitor.rov_bot",
+    "R103": "bias_ha.monitor.rspanuv_top",
+    "R104": "bias_ha.monitor.rspanuv_bot",
+    "R105": "bias_ha.monitor.rspanov_top",
+    "R106": "bias_ha.monitor.rspanov_bot",
+    "R109": "bias_ha.monitor.rpull",
+    "U19": "bias_ha.monitor.reference",
+    "U30": "bias_ha.monitor.monitor",
+    "U38": "bias_ha.monitor.ldo5"
+   }
+  },
+  "MON-HB rail monitor (HS-B)": {
+   "placements": 22,
+   "bom_lines_touched": 13,
+   "bom_lines_exclusive": 0,
+   "usd_at_500": 1.765,
+   "usd_at_500_jlc": 0.944,
+   "lines": {
+    "TPS70950DBVR": {
+     "refs": [
+      "U39"
+     ],
+     "unit_usd_500": 0.80122,
+     "unit_usd_500_jlc": 0.2952,
+     "jlc_class": "Extended",
+     "jlc_stock": "5921",
+     "exclusive": false
+    },
+    "TL431AIDBZR": {
+     "refs": [
+      "U21"
+     ],
+     "unit_usd_500": 0.4,
+     "unit_usd_500_jlc": 0.0486,
+     "jlc_class": "Extended",
+     "jlc_stock": "134248",
+     "exclusive": false
+    },
+    "LM339BIDR": {
+     "refs": [
+      "U31"
+     ],
+     "unit_usd_500": 0.25,
+     "unit_usd_500_jlc": 0.1152,
+     "jlc_class": "Extended",
+     "jlc_stock": "4479",
+     "exclusive": false
+    },
+    "CL32B106KBJNNNE": {
+     "refs": [
+      "C140"
+     ],
+     "unit_usd_500": 0.1575,
+     "unit_usd_500_jlc": 0.1574,
+     "jlc_class": "Extended",
+     "jlc_stock": "44171",
+     "exclusive": false
+    },
+    "RT0603BRD0710KL": {
+     "refs": [
+      "R112",
+      "R113",
+      "R115",
+      "R117",
+      "R119",
+      "R121"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0232,
+     "jlc_class": "Extended",
+     "jlc_stock": "2125333",
+     "exclusive": false
+    },
+    "C0603C102J5GACTU": {
+     "refs": [
+      "C83",
+      "C84",
+      "C85",
+      "C86"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0144,
+     "jlc_class": "Extended",
+     "jlc_stock": "7198",
+     "exclusive": false
+    },
+    "RC1206FR-072K2L": {
+     "refs": [
+      "R65"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0104,
+     "jlc_class": "Extended",
+     "jlc_stock": "141159",
+     "exclusive": false
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C87",
+      "C139"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "RT0603BRD074K42L": {
+     "refs": [
+      "R114"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0265,
+     "jlc_class": "Extended",
+     "jlc_stock": "8076",
+     "exclusive": false
+    },
+    "RT0603BRD077K68L": {
+     "refs": [
+      "R116"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0273,
+     "jlc_class": "Extended",
+     "jlc_stock": "6376",
+     "exclusive": false
+    },
+    "RT0603BRD07120KL": {
+     "refs": [
+      "R118"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0301,
+     "jlc_class": "Extended",
+     "jlc_stock": "93453",
+     "exclusive": false
+    },
+    "ARG03BTC1333": {
+     "refs": [
+      "R120"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0168,
+     "jlc_class": "Extended",
+     "jlc_stock": "2265",
+     "exclusive": false
+    },
+    "0603WAF1002T5E": {
+     "refs": [
+      "R124"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0043,
+     "jlc_class": "Basic",
+     "jlc_stock": "32557244",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C83": "bias_hb.monitor.cuv",
+    "C84": "bias_hb.monitor.cov",
+    "C85": "bias_hb.monitor.cspanuv",
+    "C86": "bias_hb.monitor.cspanov",
+    "C87": "bias_hb.monitor.cmonitor",
+    "C139": "bias_hb.monitor.cldo_in",
+    "C140": "bias_hb.monitor.cldo_out",
+    "R65": "bias_hb.monitor.rref",
+    "R112": "bias_hb.monitor.rhalf_top",
+    "R113": "bias_hb.monitor.rhalf_bot",
+    "R114": "bias_hb.monitor.ruv_top",
+    "R115": "bias_hb.monitor.ruv_bot",
+    "R116": "bias_hb.monitor.rov_top",
+    "R117": "bias_hb.monitor.rov_bot",
+    "R118": "bias_hb.monitor.rspanuv_top",
+    "R119": "bias_hb.monitor.rspanuv_bot",
+    "R120": "bias_hb.monitor.rspanov_top",
+    "R121": "bias_hb.monitor.rspanov_bot",
+    "R124": "bias_hb.monitor.rpull",
+    "U21": "bias_hb.monitor.reference",
+    "U31": "bias_hb.monitor.monitor",
+    "U39": "bias_hb.monitor.ldo5"
+   }
+  },
+  "MON-LS rail monitor (LS)": {
+   "placements": 22,
+   "bom_lines_touched": 13,
+   "bom_lines_exclusive": 0,
+   "usd_at_500": 1.765,
+   "usd_at_500_jlc": 0.944,
+   "lines": {
+    "TPS70950DBVR": {
+     "refs": [
+      "U37"
+     ],
+     "unit_usd_500": 0.80122,
+     "unit_usd_500_jlc": 0.2952,
+     "jlc_class": "Extended",
+     "jlc_stock": "5921",
+     "exclusive": false
+    },
+    "TL431AIDBZR": {
+     "refs": [
+      "U17"
+     ],
+     "unit_usd_500": 0.4,
+     "unit_usd_500_jlc": 0.0486,
+     "jlc_class": "Extended",
+     "jlc_stock": "134248",
+     "exclusive": false
+    },
+    "LM339BIDR": {
+     "refs": [
+      "U29"
+     ],
+     "unit_usd_500": 0.25,
+     "unit_usd_500_jlc": 0.1152,
+     "jlc_class": "Extended",
+     "jlc_stock": "4479",
+     "exclusive": false
+    },
+    "CL32B106KBJNNNE": {
+     "refs": [
+      "C132"
+     ],
+     "unit_usd_500": 0.1575,
+     "unit_usd_500_jlc": 0.1574,
+     "jlc_class": "Extended",
+     "jlc_stock": "44171",
+     "exclusive": false
+    },
+    "RT0603BRD0710KL": {
+     "refs": [
+      "R79",
+      "R80",
+      "R82",
+      "R84",
+      "R86",
+      "R88"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0232,
+     "jlc_class": "Extended",
+     "jlc_stock": "2125333",
+     "exclusive": false
+    },
+    "C0603C102J5GACTU": {
+     "refs": [
+      "C66",
+      "C67",
+      "C68",
+      "C69"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0144,
+     "jlc_class": "Extended",
+     "jlc_stock": "7198",
+     "exclusive": false
+    },
+    "RC1206FR-072K2L": {
+     "refs": [
+      "R59"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0104,
+     "jlc_class": "Extended",
+     "jlc_stock": "141159",
+     "exclusive": false
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C70",
+      "C131"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "RT0603BRD074K42L": {
+     "refs": [
+      "R81"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0265,
+     "jlc_class": "Extended",
+     "jlc_stock": "8076",
+     "exclusive": false
+    },
+    "RT0603BRD077K68L": {
+     "refs": [
+      "R83"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0273,
+     "jlc_class": "Extended",
+     "jlc_stock": "6376",
+     "exclusive": false
+    },
+    "RT0603BRD07120KL": {
+     "refs": [
+      "R85"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0301,
+     "jlc_class": "Extended",
+     "jlc_stock": "93453",
+     "exclusive": false
+    },
+    "ARG03BTC1333": {
+     "refs": [
+      "R87"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0168,
+     "jlc_class": "Extended",
+     "jlc_stock": "2265",
+     "exclusive": false
+    },
+    "0603WAF1002T5E": {
+     "refs": [
+      "R91"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0043,
+     "jlc_class": "Basic",
+     "jlc_stock": "32557244",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C66": "monitor_ls.cuv",
+    "C67": "monitor_ls.cov",
+    "C68": "monitor_ls.cspanuv",
+    "C69": "monitor_ls.cspanov",
+    "C70": "monitor_ls.cmonitor",
+    "C131": "monitor_ls.cldo_in",
+    "C132": "monitor_ls.cldo_out",
+    "R59": "monitor_ls.rref",
+    "R79": "monitor_ls.rhalf_top",
+    "R80": "monitor_ls.rhalf_bot",
+    "R81": "monitor_ls.ruv_top",
+    "R82": "monitor_ls.ruv_bot",
+    "R83": "monitor_ls.rov_top",
+    "R84": "monitor_ls.rov_bot",
+    "R85": "monitor_ls.rspanuv_top",
+    "R86": "monitor_ls.rspanuv_bot",
+    "R87": "monitor_ls.rspanov_top",
+    "R88": "monitor_ls.rspanov_bot",
+    "R91": "monitor_ls.rpull",
+    "U17": "monitor_ls.reference",
+    "U29": "monitor_ls.monitor",
+    "U37": "monitor_ls.ldo5"
+   }
+  },
+  "OCP shunt comparator + ref": {
+   "placements": 10,
+   "bom_lines_touched": 9,
+   "bom_lines_exclusive": 4,
+   "usd_at_500": 0.914,
+   "usd_at_500_jlc": 2.031,
+   "lines": {
+    "TLV3201AIDBVR": {
+     "refs": [
+      "U6"
+     ],
+     "unit_usd_500": 0.45,
+     "unit_usd_500_jlc": 0.6131,
+     "jlc_class": "Extended",
+     "jlc_stock": "4030",
+     "exclusive": false
+    },
+    "LM4040A25IDBZR": {
+     "refs": [
+      "U5"
+     ],
+     "unit_usd_500": 0.4,
+     "unit_usd_500_jlc": 1.2636,
+     "jlc_class": "Extended",
+     "jlc_stock": "4775",
+     "exclusive": true
+    },
+    "RT0603BRD0710KL": {
+     "refs": [
+      "R32",
+      "R33"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0232,
+     "jlc_class": "Extended",
+     "jlc_stock": "2125333",
+     "exclusive": false
+    },
+    "CL10C101JB8NNNC": {
+     "refs": [
+      "C30"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0065,
+     "jlc_class": "Basic",
+     "jlc_stock": "3195130",
+     "exclusive": false
+    },
+    "C0603C102J5GACTU": {
+     "refs": [
+      "C31"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0144,
+     "jlc_class": "Extended",
+     "jlc_stock": "7198",
+     "exclusive": false
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C32"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "0603WAF5601T5E": {
+     "refs": [
+      "R31"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0032,
+     "jlc_class": "Basic",
+     "jlc_stock": "1036450",
+     "exclusive": true
+    },
+    "RT0603BRD0712K6L": {
+     "refs": [
+      "R34"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0181,
+     "jlc_class": "Extended",
+     "jlc_stock": "1162",
+     "exclusive": true
+    },
+    "TNPW060311K7BEEA": {
+     "refs": [
+      "R35"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0584,
+     "jlc_class": "Extended",
+     "jlc_stock": "2839",
+     "exclusive": true
+    }
+   },
+   "addresses": {
+    "C30": "c_ocp_node",
+    "C31": "c_th",
+    "C32": "c_ocp_vcc",
+    "R31": "r_ref_bias",
+    "R32": "r_ocp_ref",
+    "R33": "r_ocp_sense",
+    "R34": "r_th_top",
+    "R35": "r_th_bot",
+    "U5": "u_ref",
+    "U6": "u_ocp"
+   }
+  },
+  "OTHER mains / power path / tank / connectors": {
+   "placements": 41,
+   "bom_lines_touched": 23,
+   "bom_lines_exclusive": 22,
+   "usd_at_500": 102.039,
+   "usd_at_500_jlc": 85.612,
+   "lines": {
+    "30KPA150CA": {
+     "refs": [
+      "D3",
+      "D17"
+     ],
+     "unit_usd_500": 9.82,
+     "unit_usd_500_jlc": 9.82,
+     "jlc_class": "hand/consign",
+     "jlc_stock": "0",
+     "exclusive": true
+    },
+    "KLDR025.TXP": {
+     "refs": [
+      "F1"
+     ],
+     "unit_usd_500": 18.516,
+     "unit_usd_500_jlc": 18.516,
+     "jlc_class": "hand/consign",
+     "jlc_stock": "0",
+     "exclusive": true
+    },
+    "B32676G1905K000": {
+     "refs": [
+      "C5",
+      "C6"
+     ],
+     "unit_usd_500": 6.17074,
+     "unit_usd_500_jlc": 6.17074,
+     "jlc_class": "hand/consign",
+     "jlc_stock": "0",
+     "exclusive": true
+    },
+    "CST3015-200ED": {
+     "refs": [
+      "T1"
+     ],
+     "unit_usd_500": 11.43,
+     "unit_usd_500_jlc": 7.3028,
+     "jlc_class": "Extended",
+     "jlc_stock": "64",
+     "exclusive": true
+    },
+    "B32654A1104J000": {
+     "refs": [
+      "C21",
+      "C22",
+      "C23",
+      "C151",
+      "C152"
+     ],
+     "unit_usd_500": 1.9947,
+     "unit_usd_500_jlc": 0.5218,
+     "jlc_class": "Extended",
+     "jlc_stock": "104",
+     "exclusive": true
+    },
+    "B82726S2203A020": {
+     "refs": [
+      "L1"
+     ],
+     "unit_usd_500": 9.88484,
+     "unit_usd_500_jlc": 9.88484,
+     "jlc_class": "Extended",
+     "jlc_stock": "0",
+     "exclusive": true
+    },
+    "GBJ2510-F": {
+     "refs": [
+      "BR1"
+     ],
+     "unit_usd_500": 4.02,
+     "unit_usd_500_jlc": 0.6555,
+     "jlc_class": "Extended",
+     "jlc_stock": "1589",
+     "exclusive": true
+    },
+    "7466004R": {
+     "refs": [
+      "J2",
+      "J5"
+     ],
+     "unit_usd_500": 1.914,
+     "unit_usd_500_jlc": 1.914,
+     "jlc_class": "Extended",
+     "jlc_stock": "0",
+     "exclusive": true
+    },
+    "1704004": {
+     "refs": [
+      "J6"
+     ],
+     "unit_usd_500": 2.366,
+     "unit_usd_500_jlc": 2.366,
+     "jlc_class": "Extended",
+     "jlc_stock": "0",
+     "exclusive": true
+    },
+    "B32652A0104K000": {
+     "refs": [
+      "C38",
+      "C39",
+      "C40",
+      "C41"
+     ],
+     "unit_usd_500": 0.44916,
+     "unit_usd_500_jlc": 0.2544,
+     "jlc_class": "Extended",
+     "jlc_stock": "310",
+     "exclusive": true
+    },
+    "0430451612": {
+     "refs": [
+      "J4"
+     ],
+     "unit_usd_500": 1.6944,
+     "unit_usd_500_jlc": 0.8104,
+     "jlc_class": "Extended",
+     "jlc_stock": "7785",
+     "exclusive": true
+    },
+    "3403.0279.23": {
+     "refs": [
+      "F2"
+     ],
+     "unit_usd_500": 1.616,
+     "unit_usd_500_jlc": 1.616,
+     "jlc_class": "Extended",
+     "jlc_stock": "0",
+     "exclusive": true
+    },
+    "TMOV20RP175E": {
+     "refs": [
+      "RV1"
+     ],
+     "unit_usd_500": 1.1946,
+     "unit_usd_500_jlc": 1.187,
+     "jlc_class": "Extended",
+     "jlc_stock": "114",
+     "exclusive": true
+    },
+    "R463N410050N1K": {
+     "refs": [
+      "C1",
+      "C2"
+     ],
+     "unit_usd_500": 0.57212,
+     "unit_usd_500_jlc": 0.8528,
+     "jlc_class": "hand/consign",
+     "jlc_stock": "46",
+     "exclusive": true
+    },
+    "1714971": {
+     "refs": [
+      "J1"
+     ],
+     "unit_usd_500": 1.03,
+     "unit_usd_500_jlc": 1.0158,
+     "jlc_class": "Extended",
+     "jlc_stock": "164",
+     "exclusive": true
+    },
+    "AC05000001507JAC00": {
+     "refs": [
+      "R130"
+     ],
+     "unit_usd_500": 0.52,
+     "unit_usd_500_jlc": 0.5185,
+     "jlc_class": "Extended",
+     "jlc_stock": "245",
+     "exclusive": true
+    },
+    "CSS2H-2512R-1L00F": {
+     "refs": [
+      "R5"
+     ],
+     "unit_usd_500": 0.50108,
+     "unit_usd_500_jlc": 0.3131,
+     "jlc_class": "Extended",
+     "jlc_stock": "1380",
+     "exclusive": true
+    },
+    "B2P3-VH(LF)(SN)": {
+     "refs": [
+      "J3",
+      "J11"
+     ],
+     "unit_usd_500": 0.11626,
+     "unit_usd_500_jlc": 0.0356,
+     "jlc_class": "hand/consign",
+     "jlc_stock": "983",
+     "exclusive": true
+    },
+    "DE1E3RA222MA4BP01F": {
+     "refs": [
+      "C3",
+      "C4"
+     ],
+     "unit_usd_500": 0.0707,
+     "unit_usd_500_jlc": 0.0764,
+     "jlc_class": "Extended",
+     "jlc_stock": "6",
+     "exclusive": true
+    },
+    "RC1206FR-07470KL": {
+     "refs": [
+      "R22",
+      "R23",
+      "R24",
+      "R25"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0082,
+     "jlc_class": "Extended",
+     "jlc_stock": "116409",
+     "exclusive": false
+    },
+    "1206W4F1003T5E": {
+     "refs": [
+      "R1",
+      "R2"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0082,
+     "jlc_class": "Basic",
+     "jlc_stock": "1174353",
+     "exclusive": true
+    },
+    "RC1206FR-07220KL": {
+     "refs": [
+      "R3",
+      "R4"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0045,
+     "jlc_class": "Extended",
+     "jlc_stock": "33609",
+     "exclusive": true
+    },
+    "0603WAF0000T5E": {
+     "refs": [
+      "R38"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0022,
+     "jlc_class": "Basic",
+     "jlc_stock": "24186601",
+     "exclusive": true
+    }
+   },
+   "addresses": {
+    "BR1": "br1",
+    "C1": "cx1",
+    "C2": "cx2",
+    "C3": "cy1",
+    "C4": "cy2",
+    "C5": "c_bus1",
+    "C6": "c_bus2",
+    "C21": "c_res1",
+    "C22": "c_res2",
+    "C23": "c_res3",
+    "C38": "c_hf_a1",
+    "C39": "c_hf_a2",
+    "C40": "c_hf_b1",
+    "C41": "c_hf_b2",
+    "C151": "c_res4",
+    "C152": "c_res5",
+    "D3": "tvs_bus",
+    "D17": "tvs_bus_b",
+    "F1": "f1",
+    "F2": "f_blw",
+    "J1": "j_mains",
+    "J2": "j_coil",
+    "J3": "j_tco",
+    "J4": "j_selv",
+    "J5": "j_coil_return",
+    "J6": "j_pe",
+    "J11": "j_blw_ac",
+    "L1": "l1",
+    "R1": "rb1a",
+    "R2": "rb1b",
+    "R3": "r_bus1",
+    "R4": "r_bus2",
+    "R5": "r_shunt",
+    "R22": "r_crb1",
+    "R23": "r_crb2",
+    "R24": "r_crb3",
+    "R25": "r_crb4",
+    "R38": "r_fe",
+    "R130": "r_blw",
+    "RV1": "rv1",
+    "T1": "t_ct"
+   }
+  },
+  "OVP bus OV comparator": {
+   "placements": 5,
+   "bom_lines_touched": 5,
+   "bom_lines_exclusive": 1,
+   "usd_at_500": 0.482,
+   "usd_at_500_jlc": 0.688,
+   "lines": {
+    "TLV3201AIDBVR": {
+     "refs": [
+      "U7"
+     ],
+     "unit_usd_500": 0.45,
+     "unit_usd_500_jlc": 0.6131,
+     "jlc_class": "Extended",
+     "jlc_stock": "4030",
+     "exclusive": false
+    },
+    "C0603C102J5GACTU": {
+     "refs": [
+      "C33"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0144,
+     "jlc_class": "Extended",
+     "jlc_stock": "7198",
+     "exclusive": false
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C34"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "RT0603BRD0710KL": {
+     "refs": [
+      "R36"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0232,
+     "jlc_class": "Extended",
+     "jlc_stock": "2125333",
+     "exclusive": false
+    },
+    "RT0603BRD07140KL": {
+     "refs": [
+      "R37"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0299,
+     "jlc_class": "Extended",
+     "jlc_stock": "8000",
+     "exclusive": true
+    }
+   },
+   "addresses": {
+    "C33": "c_ovp_th",
+    "C34": "c_ovp_vcc",
+    "R36": "r_ovp_top",
+    "R37": "r_ovp_bot",
+    "U7": "u_ovp"
+   }
+  },
+  "RES F6 VSS reservoirs (x4)": {
+   "placements": 44,
+   "bom_lines_touched": 6,
+   "bom_lines_exclusive": 3,
+   "usd_at_500": 3.528,
+   "usd_at_500_jlc": 3.658,
+   "lines": {
+    "6SVPC220MV": {
+     "refs": [
+      "C126",
+      "C127",
+      "C128",
+      "C129"
+     ],
+     "unit_usd_500": 0.491,
+     "unit_usd_500_jlc": 0.5006,
+     "jlc_class": "Extended",
+     "jlc_stock": "845",
+     "exclusive": true
+    },
+    "CL32B106KBJNNNE": {
+     "refs": [
+      "C90",
+      "C91",
+      "C92",
+      "C93",
+      "C94",
+      "C95",
+      "C96",
+      "C97"
+     ],
+     "unit_usd_500": 0.1575,
+     "unit_usd_500_jlc": 0.1574,
+     "jlc_class": "Extended",
+     "jlc_stock": "44171",
+     "exclusive": false
+    },
+    "CL05B104KB54PNC": {
+     "refs": [
+      "C110",
+      "C111",
+      "C112",
+      "C113",
+      "C114",
+      "C115",
+      "C116",
+      "C117",
+      "C118",
+      "C119",
+      "C120",
+      "C121",
+      "C122",
+      "C123",
+      "C124",
+      "C125"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0061,
+     "jlc_class": "Basic",
+     "jlc_stock": "14443715",
+     "exclusive": true
+    },
+    "RL1206FR-070R68L": {
+     "refs": [
+      "R51",
+      "R52",
+      "R55",
+      "R56"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0136,
+     "jlc_class": "Extended",
+     "jlc_stock": "2537",
+     "exclusive": true
+    },
+    "GRM188R71E105KA12D": {
+     "refs": [
+      "C50",
+      "C51",
+      "C52",
+      "C53",
+      "C57",
+      "C58",
+      "C59",
+      "C60"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0297,
+     "jlc_class": "Extended",
+     "jlc_stock": "139391",
+     "exclusive": false
+    },
+    "0603WAF4991T5E": {
+     "refs": [
+      "R71",
+      "R72",
+      "R74",
+      "R75"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0016,
+     "jlc_class": "Basic",
+     "jlc_stock": "1994638",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C50": "leg_a.bias_h.cmid1",
+    "C51": "leg_a.bias_h.cmid2",
+    "C52": "leg_a.bias_l.cmid1",
+    "C53": "leg_a.bias_l.cmid2",
+    "C57": "leg_b.bias_h.cmid1",
+    "C58": "leg_b.bias_h.cmid2",
+    "C59": "leg_b.bias_l.cmid1",
+    "C60": "leg_b.bias_l.cmid2",
+    "C90": "leg_a.bias_h.clocal1",
+    "C91": "leg_a.bias_h.clocal2",
+    "C92": "leg_a.bias_l.clocal1",
+    "C93": "leg_a.bias_l.clocal2",
+    "C94": "leg_b.bias_h.clocal1",
+    "C95": "leg_b.bias_h.clocal2",
+    "C96": "leg_b.bias_l.clocal1",
+    "C97": "leg_b.bias_l.clocal2",
+    "C110": "leg_a.bias_h.chf1",
+    "C111": "leg_a.bias_h.chf2",
+    "C112": "leg_a.bias_h.chf3",
+    "C113": "leg_a.bias_h.chf4",
+    "C114": "leg_a.bias_l.chf1",
+    "C115": "leg_a.bias_l.chf2",
+    "C116": "leg_a.bias_l.chf3",
+    "C117": "leg_a.bias_l.chf4",
+    "C118": "leg_b.bias_h.chf1",
+    "C119": "leg_b.bias_h.chf2",
+    "C120": "leg_b.bias_h.chf3",
+    "C121": "leg_b.bias_h.chf4",
+    "C122": "leg_b.bias_l.chf1",
+    "C123": "leg_b.bias_l.chf2",
+    "C124": "leg_b.bias_l.chf3",
+    "C125": "leg_b.bias_l.chf4",
+    "C126": "leg_a.bias_h.cbulk",
+    "C127": "leg_a.bias_l.cbulk",
+    "C128": "leg_b.bias_h.cbulk",
+    "C129": "leg_b.bias_l.cbulk",
+    "R51": "leg_a.bias_h.rdamp",
+    "R52": "leg_a.bias_l.rdamp",
+    "R55": "leg_b.bias_h.rdamp",
+    "R56": "leg_b.bias_l.rdamp",
+    "R71": "leg_a.bias_h.rbleed",
+    "R72": "leg_a.bias_l.rbleed",
+    "R74": "leg_b.bias_h.rbleed",
+    "R75": "leg_b.bias_l.rbleed"
+   }
+  },
+  "VSNS bus divider + AMC1311": {
+   "placements": 11,
+   "bom_lines_touched": 6,
+   "bom_lines_exclusive": 2,
+   "usd_at_500": 1.584,
+   "usd_at_500_jlc": 1.593,
+   "lines": {
+    "AMC1311BDWVR": {
+     "refs": [
+      "U4"
+     ],
+     "unit_usd_500": 1.4316,
+     "unit_usd_500_jlc": 1.4185,
+     "jlc_class": "Extended",
+     "jlc_stock": "6455",
+     "exclusive": true
+    },
+    "RC1206FR-07470KL": {
+     "refs": [
+      "R26",
+      "R27",
+      "R28",
+      "R29"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0082,
+     "jlc_class": "Extended",
+     "jlc_stock": "116409",
+     "exclusive": false
+    },
+    "CL21B105KBFNNNE": {
+     "refs": [
+      "C149",
+      "C150"
+     ],
+     "unit_usd_500": 0.02,
+     "unit_usd_500_jlc": 0.0327,
+     "jlc_class": "Basic",
+     "jlc_stock": "2122556",
+     "exclusive": false
+    },
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C28",
+      "C29"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    },
+    "C0603C102J5GACTU": {
+     "refs": [
+      "C27"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0144,
+     "jlc_class": "Extended",
+     "jlc_stock": "7198",
+     "exclusive": false
+    },
+    "RT0603BRD0715K8L": {
+     "refs": [
+      "R30"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0467,
+     "jlc_class": "Extended",
+     "jlc_stock": "7399",
+     "exclusive": true
+    }
+   },
+   "addresses": {
+    "C27": "c_div",
+    "C28": "c_vs1",
+    "C29": "c_vs2",
+    "C149": "c_vs1_1u",
+    "C150": "c_vs2_1u",
+    "R26": "r_div1",
+    "R27": "r_div2",
+    "R28": "r_div3",
+    "R29": "r_div4",
+    "R30": "r_div_bot",
+    "U4": "u_vsense"
+   }
+  },
+  "XFER SELV reference-transfer caps": {
+   "placements": 5,
+   "bom_lines_touched": 1,
+   "bom_lines_exclusive": 0,
+   "usd_at_500": 0.04,
+   "usd_at_500_jlc": 0.038,
+   "lines": {
+    "CC0603KRX7R9BB104": {
+     "refs": [
+      "C153",
+      "C154",
+      "C155",
+      "C156",
+      "C168"
+     ],
+     "unit_usd_500": 0.008,
+     "unit_usd_500_jlc": 0.0076,
+     "jlc_class": "Basic",
+     "jlc_stock": "50927495",
+     "exclusive": false
+    }
+   },
+   "addresses": {
+    "C153": "c_ref_xfer_1",
+    "C154": "c_ref_xfer_2",
+    "C155": "c_ref_xfer_3",
+    "C156": "c_ref_xfer_4",
+    "C168": "c_ref_xfer_5"
+   }
+  }
+ }
+}

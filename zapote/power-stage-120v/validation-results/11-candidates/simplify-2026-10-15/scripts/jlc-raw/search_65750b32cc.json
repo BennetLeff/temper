@@ -1,0 +1,2421 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 229,
+   "list": [
+    {
+     "componentId": 1791354,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u8584\u819c\u7535\u963b 2.71k\u03a9 \u00b10.1% 100mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_yageo-rt0603brb072k71l_C1700581.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.13
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.13
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.13
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.0504
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0486
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0477
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0459
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.0486
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.1252
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.1252
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.1252
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0469
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "YAGEO-RT0603BRB072K71L/C1700581",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 70,
+     "minPurchaseNum": 70,
+     "initialPrice": 0.13,
+     "componentCode": "C1700581",
+     "componentBrandEn": "YAGEO",
+     "componentModelEn": "RT0603BRB072K71L",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2403111522_YAGEO-RT0603BRB072K71L_C1700581.pdf",
+     "dataManualFileAccessId": "8755647129803612160",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YAGEO RT0603BRB072K71L",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+155\u2103 100mW 2.71k\u03a9 75V Thin Film Resistor \u00b10.1% \u00b110ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+155\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "100mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thin Film Resistor"
+      },
+      {
+       "attribute_name_en": "Voltage-Supply(Max)",
+       "attribute_value_name": "75V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b110ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+155\u2103 100mW <span class='lucene_highlight_class'>2.71k\u03a9</span> 75V Thin Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b110ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1814556,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u8584\u819c\u7535\u963b 2.71k\u03a9 \u00b10.1% 150mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_vishay-intertech-pat0603e2711bst1_C1723776.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2727
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.2727
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.2727
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1055
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1018
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0963
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1017
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.2627
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2627
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0981
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.2627
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "VishayIntertech-PAT0603E2711BST1/C1723776",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 34,
+     "minPurchaseNum": 34,
+     "initialPrice": 0.2727,
+     "componentCode": "C1723776",
+     "componentBrandEn": "Vishay Intertech",
+     "componentModelEn": "PAT0603E2711BST1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Vishay-Intertech-PAT0603E2711BST1_C1723776.pdf",
+     "dataManualFileAccessId": "8589825658881933312",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "VISHAY PAT0603E2711BST1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+155\u2103 150mW 2.71k\u03a9 75V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "150mW"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+155\u2103"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thin Film Resistor"
+      },
+      {
+       "attribute_name_en": "Voltage-Supply(Max)",
+       "attribute_value_name": "75V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b125ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+155\u2103 150mW <span class='lucene_highlight_class'>2.71k\u03a9</span> 75V Thin Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b125ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1814854,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u8584\u819c\u7535\u963b 2.71k\u03a9 \u00b10.1% 100mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_vishay-intertech-tnpw06032k71beta_C1724074.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2676
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.2676
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.2676
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1036
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0982
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0946
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.0998
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.2578
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2578
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0963
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.2578
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "VishayIntertech-TNPW06032K71BETA/C1724074",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 34,
+     "minPurchaseNum": 34,
+     "initialPrice": 0.2676,
+     "componentCode": "C1724074",
+     "componentBrandEn": "Vishay Intertech",
+     "componentModelEn": "TNPW06032K71BETA",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Vishay-Intertech-TNPW06032K71BETA_C1724074.pdf",
+     "dataManualFileAccessId": "8589825452077445120",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "VISHAY TNPW06032K71BETA",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+125\u2103 100mW 2.71k\u03a9 75V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "100mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thin Film Resistor"
+      },
+      {
+       "attribute_name_en": "Voltage-Supply(Max)",
+       "attribute_value_name": "75V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b125ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+125\u2103 100mW <span class='lucene_highlight_class'>2.71k\u03a9</span> 75V Thin Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b125ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1817756,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u8584\u819c\u7535\u963b 2.71k\u03a9 \u00b10.1% 125mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_vishay-intertech-tnpw06032k71been_C1726976.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2851
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.2851
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.2851
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1103
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1065
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1046
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1007
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1062
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.2746
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2746
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1026
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.2746
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "VishayIntertech-TNPW06032K71BEEN/C1726976",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 32,
+     "minPurchaseNum": 32,
+     "initialPrice": 0.2851,
+     "componentCode": "C1726976",
+     "componentBrandEn": "Vishay Intertech",
+     "componentModelEn": "TNPW06032K71BEEN",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Vishay-Intertech-TNPW06032K71BEEN_C1726976.pdf",
+     "dataManualFileAccessId": "8589826906582380544",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "VISHAY TNPW06032K71BEEN",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+155\u2103 125mW 2.71k\u03a9 75V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+155\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "125mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thin Film Resistor"
+      },
+      {
+       "attribute_name_en": "Voltage-Supply(Max)",
+       "attribute_value_name": "75V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b125ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+155\u2103 125mW <span class='lucene_highlight_class'>2.71k\u03a9</span> 75V Thin Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b125ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1820568,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u8584\u819c\u7535\u963b 2.71k\u03a9 \u00b10.1% 100mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_vishay-intertech-tnpw06032k71becn_C1729788.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.342
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.342
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.342
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1324
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1277
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1254
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1208
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1276
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.3295
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3295
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.123
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.3295
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "VishayIntertech-TNPW06032K71BECN/C1729788",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 27,
+     "minPurchaseNum": 27,
+     "initialPrice": 0.342,
+     "componentCode": "C1729788",
+     "componentBrandEn": "Vishay Intertech",
+     "componentModelEn": "TNPW06032K71BECN",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Vishay-Intertech-TNPW06032K71BECN_C1729788.pdf",
+     "dataManualFileAccessId": "8589829464000929792",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "VISHAY TNPW06032K71BECN",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+125\u2103 100mW 2.71k\u03a9 75V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "100mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thin Film Resistor"
+      },
+      {
+       "attribute_name_en": "Voltage-Supply(Max)",
+       "attribute_value_name": "75V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b125ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+125\u2103 100mW <span class='lucene_highlight_class'>2.71k\u03a9</span> 75V Thin Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b125ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2237038,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u8584\u819c\u7535\u963b 2.71k\u03a9 \u00b10.1% 100mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_yageo-rt0603brc072k71l_C2145438.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.1047
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.1047
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.1047
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.0405
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0392
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0384
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.037
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.039
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.1009
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.1009
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.1009
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0377
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "YAGEO-RT0603BRC072K71L/C2145438",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 87,
+     "minPurchaseNum": 87,
+     "initialPrice": 0.1047,
+     "componentCode": "C2145438",
+     "componentBrandEn": "YAGEO",
+     "componentModelEn": "RT0603BRC072K71L",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2403291715_YAGEO-RT0603BRC072K71L_C2145438.pdf",
+     "dataManualFileAccessId": "8755639063787921408",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "YAGEO RT0603BRC072K71L",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+155\u2103 100mW 2.71k\u03a9 75V Thin Film Resistor \u00b10.1% \u00b115ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+155\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "100mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thin Film Resistor"
+      },
+      {
+       "attribute_name_en": "Voltage-Supply(Max)",
+       "attribute_value_name": "75V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b115ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+155\u2103 100mW <span class='lucene_highlight_class'>2.71k\u03a9</span> 75V Thin Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b115ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2646859,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u8584\u819c\u7535\u963b 2.71k\u03a9 \u00b10.1% 100mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_koa-speer-elec-rn73r1jttd2711b25_C2554979.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.0493
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.0395
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.0346
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.031
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0281
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0266
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0257
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.0333
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.0475
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0271
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.0299
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.0381
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KOA_SpeerElec-RN73R1JTTD2711B25/C2554979",
+     "leastPatchNumber": 5,
+     "lossNumber": 5,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 292,
+     "minPurchaseNum": 292,
+     "initialPrice": 0.031,
+     "componentCode": "C2554979",
+     "componentBrandEn": "KOA Speer Elec",
+     "componentModelEn": "RN73R1JTTD2711B25",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_KOA-Speer-Elec-RN73R1JTTD2711B25_C2554979.pdf",
+     "dataManualFileAccessId": "8602869695380791296",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KOA RN73R1JTTD2711B25",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+155\u2103 100mW 2.71k\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+155\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "100mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thin Film Resistor"
+      },
+      {
+       "attribute_name_en": "Voltage-Supply(Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b125ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+155\u2103 100mW <span class='lucene_highlight_class'>2.71k\u03a9</span> Thin Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b125ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2656017,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u8584\u819c\u7535\u963b 2.71k\u03a9 \u00b10.1% 100mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_koa-speer-elec-rn73r1jttd2711b10_C2564136.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.1856
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.1481
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.132
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.1119
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1029
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0976
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.094
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.1271
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.1788
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0992
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.1078
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.1427
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KOA_SpeerElec-RN73R1JTTD2711B10/C2564136",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 69,
+     "minPurchaseNum": 69,
+     "initialPrice": 0.132,
+     "componentCode": "C2564136",
+     "componentBrandEn": "KOA Speer Elec",
+     "componentModelEn": "RN73R1JTTD2711B10",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404021016_KOA-Speer-Elec-RN73R1JTTD2711B10_C2564136.pdf",
+     "dataManualFileAccessId": "8602866861717532672",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KOA RN73R1JTTD2711B10",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+155\u2103 100mW 2.71k\u03a9 Thin Film Resistor \u00b10.1% \u00b110ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+155\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "100mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thin Film Resistor"
+      },
+      {
+       "attribute_name_en": "Voltage-Supply(Max)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b110ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+155\u2103 100mW <span class='lucene_highlight_class'>2.71k\u03a9</span> Thin Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b110ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4480748,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u8584\u819c\u7535\u963b 2.71k\u03a9 \u00b10.1% 100mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_vishay-intertech-tnpw06032k71byta_C3912216.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6718
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.6718
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.6718
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.2609
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2511
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2462
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2372
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.2513
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.6471
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.6471
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6471
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2419
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "VishayIntertech-TNPW06032K71BYTA/C3912216",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 14,
+     "minPurchaseNum": 14,
+     "initialPrice": 0.6718,
+     "componentCode": "C3912216",
+     "componentBrandEn": "Vishay Intertech",
+     "componentModelEn": "TNPW06032K71BYTA",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312121659_Vishay-Intertech-TNPW06032K71BYTA_C3912216.pdf",
+     "dataManualFileAccessId": "8590468446472605696",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "VISHAY TNPW06032K71BYTA",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+125\u2103 100mW 2.71k\u03a9 Thin Film Resistor \u00b10.1% \u00b110ppm/\u2103 0603 Chip Resistor - Surface Mount",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "100mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thin Film Resistor"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b110ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+125\u2103 100mW <span class='lucene_highlight_class'>2.71k\u03a9</span> Thin Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b110ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4503453,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u8584\u819c\u7535\u963b 2.71k\u03a9 \u00b10.1% 62.5mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_koa-speer-elec-rn731jttd2711b50_C3934897.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0905
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 119,
+       "productPrice": 0.0905
+      },
+      {
+       "startNumber": 120,
+       "endNumber": 1999,
+       "productPrice": 0.0905
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 4999,
+       "productPrice": 0.0351
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0338
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": -1,
+       "productPrice": 0.0331
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 2000,
+       "endNumber": 4999,
+       "productPrice": 0.0338
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": -1,
+       "productPrice": 0.0319
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0872
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0326
+      },
+      {
+       "startNumber": 120,
+       "endNumber": 1999,
+       "productPrice": 0.0872
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 119,
+       "productPrice": 0.0872
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KOA_SpeerElec-RN731JTTD2711B50/C3934897",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 100,
+     "minPurchaseNum": 100,
+     "initialPrice": 0.0905,
+     "componentCode": "C3934897",
+     "componentBrandEn": "KOA Speer Elec",
+     "componentModelEn": "RN731JTTD2711B50",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2403201144_KOA-Speer-Elec-RN731JTTD2711B50_C3934897.pdf",
+     "dataManualFileAccessId": "8590885282927489024",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KOA RN731JTTD2711B50",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+155\u2103 2.71k\u03a9 62.5mW Thin Film Resistor \u00b10.1% \u00b150ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+155\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "62.5mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thin Film Resistor"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b150ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+155\u2103 <span class='lucene_highlight_class'>2.71k\u03a9</span> 62.5mW Thin Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b150ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4518034,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "2.71k\u03a9 \u00b10.1% 100mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/current-sense-resistors-shunt-resistors_koa-speer-elec-rn73h1jttd2711b10_C3949475.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3318
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.3318
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.3318
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1284
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.124
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1217
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1172
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1237
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.3196
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.3196
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3196
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1194
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "84b4ca3d6c6349f298bee26651c69d63",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KOA_SpeerElec-RN73H1JTTD2711B10/C3949475",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 28,
+     "minPurchaseNum": 28,
+     "initialPrice": 0.3318,
+     "componentCode": "C3949475",
+     "componentBrandEn": "KOA Speer Elec",
+     "componentModelEn": "RN73H1JTTD2711B10",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404081328_KOA-Speer-Elec-RN73H1JTTD2711B10_C3949475.pdf",
+     "dataManualFileAccessId": "8590430545952727040",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KOA RN73H1JTTD2711B10",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "100mW 2.71k\u03a9 Metal Film Resistor \u00b10.1% \u00b110ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "100mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Metal Film Resistor"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b110ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "100mW <span class='lucene_highlight_class'>2.71k\u03a9</span> Metal Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b110ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4523022,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u8584\u819c\u7535\u963b 2.71k\u03a9 \u00b10.1% 100mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_koa-speer-elec-rn73r1jttd2711b05_C3954462.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4549
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.4549
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.4549
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1761
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1699
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1668
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1607
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1696
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.4383
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.4383
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4383
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1637
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KOA_SpeerElec-RN73R1JTTD2711B05/C3954462",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 20,
+     "minPurchaseNum": 20,
+     "initialPrice": 0.4549,
+     "componentCode": "C3954462",
+     "componentBrandEn": "KOA Speer Elec",
+     "componentModelEn": "RN73R1JTTD2711B05",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404081356_KOA-Speer-Elec-RN73R1JTTD2711B05_C3954462.pdf",
+     "dataManualFileAccessId": "8590894443589550080",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KOA RN73R1JTTD2711B05",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+155\u2103 100mW 2.71k\u03a9 Thin Film Resistor \u00b10.1% \u00b15ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+155\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "100mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thin Film Resistor"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b15ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+155\u2103 100mW <span class='lucene_highlight_class'>2.71k\u03a9</span> Thin Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b15ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4558209,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u8584\u819c\u7535\u963b 2.71k\u03a9 \u00b10.1% 100mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_vishay-intertech-tnpw06032k71byea_C3989020.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2793
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.2793
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.2793
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1081
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1044
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1024
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0987
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1042
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.2691
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.2691
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2691
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1006
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "VishayIntertech-TNPW06032K71BYEA/C3989020",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 33,
+     "minPurchaseNum": 33,
+     "initialPrice": 0.2793,
+     "componentCode": "C3989020",
+     "componentBrandEn": "Vishay Intertech",
+     "componentModelEn": "TNPW06032K71BYEA",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312181345_Vishay-Intertech-TNPW06032K71BYEA_C3989020.pdf",
+     "dataManualFileAccessId": "8590442629226651648",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "VISHAY TNPW06032K71BYEA",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+155\u2103 100mW 2.71k\u03a9 Thin Film Resistor \u00b10.1% \u00b110ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+155\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "100mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thin Film Resistor"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b110ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+155\u2103 100mW <span class='lucene_highlight_class'>2.71k\u03a9</span> Thin Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b110ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4559143,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u8584\u819c\u7535\u963b 2.71k\u03a9 \u00b10.1% 375mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_vishay-intertech-php00603e2711bst1_C3989954.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6995
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.6995
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.6995
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.2707
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2609
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2577
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2482
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.2608
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.6738
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.6738
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6738
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2513
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "VishayIntertech-PHP00603E2711BST1/C3989954",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 13,
+     "minPurchaseNum": 13,
+     "initialPrice": 0.6995,
+     "componentCode": "C3989954",
+     "componentBrandEn": "Vishay Intertech",
+     "componentModelEn": "PHP00603E2711BST1",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312121747_Vishay-Intertech-PHP00603E2711BST1_C3989954.pdf",
+     "dataManualFileAccessId": "8590893354199183360",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "VISHAY PHP00603E2711BST1",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+155\u2103 2.71k\u03a9 375mW Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+155\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "375mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thin Film Resistor"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b125ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+155\u2103 <span class='lucene_highlight_class'>2.71k\u03a9</span> 375mW Thin Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b125ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4621516,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "\u8584\u819c\u7535\u963b 2.71k\u03a9 \u00b10.1% 62.5mW",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_koa-speer-elec-rn731jttd2711b05_C4052296.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5903
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.5903
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.5903
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.2283
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2218
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2169
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2089
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.2199
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.5686
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.5686
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5686
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2137
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KOA_SpeerElec-RN731JTTD2711B05/C4052296",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 5000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 16,
+     "minPurchaseNum": 16,
+     "initialPrice": 0.5903,
+     "componentCode": "C4052296",
+     "componentBrandEn": "KOA Speer Elec",
+     "componentModelEn": "RN731JTTD2711B05",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2403201242_KOA-Speer-Elec-RN731JTTD2711B05_C4052296.pdf",
+     "dataManualFileAccessId": "8590467059181256704",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KOA RN731JTTD2711B05",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "0603",
+     "describe": "-55\u2103~+155\u2103 2.71k\u03a9 62.5mW Thin Film Resistor \u00b10.1% \u00b15ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>2.71k\u03a9</span>",
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "2.71k\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+155\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "62.5mW"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Thin Film Resistor"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b15ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": "-55\u2103~+155\u2103 <span class='lucene_highlight_class'>2.71k\u03a9</span> 62.5mW Thin Film Resistor \u00b1<span class='lucene_highlight_class'>0.1</span>% \u00b15ppm/\u2103 <span class='lucene_highlight_class'>0603</span> Chip Resistor - Surface Mount ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": "<span class='lucene_highlight_class'>0603</span>",
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 15,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 16,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "2.71k\u03a9 0.1% 0603"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-15T21:06:08Z"
+}
