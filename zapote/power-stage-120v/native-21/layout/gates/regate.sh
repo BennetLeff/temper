@@ -5,7 +5,8 @@
 # task04: the A4 DC current-flow cases on the power copper (needs core's power_copper.json.gz). Cached: skipped when the
 #         board's copper inputs (copper_key.py: tracks, vias, pads, zone outlines and rules, not the refill, which KiCad
 #         does not reproduce bit for bit), the case list and the solver scripts are unchanged since the last run; the hit
-#         is recorded in outputs/cache.json (computed-on vs reused-for board) - stage 22, chain speed-up.
+#         is recorded in outputs/cache.json (computed-on vs reused-for board) - stage 22, chain speed-up. Stage 33: the key
+#         is copper_key.py + model_key.py (every task-04 and B3 model input, shared with chain.sh's B3 key).
 set -e
 # a step piped through tail must still fail the gate (summarize.py exits 1 on any A4 failure; the pipe hid it)
 set -o pipefail
@@ -32,19 +33,19 @@ fi
 if [ "$MODE" = all ] || [ "$MODE" = task04 ]; then
   CK=$($KP native-21/layout/gates/copper_key.py "$B" 2>/dev/null | tail -1)
   case "$CK" in [0-9a-f]*) ;; *) echo "copper_key failed" >&2; exit 1;; esac
+  # stage 33 (DECISIONS 38, chain cache trap): the model half of the key is model_key.py, shared with chain.sh's B3
+  # cache - every task-04 and B3 script, B3's heat inputs, the resolved stackup file(s) and SHEET_BARREL - so a change
+  # to any model input misses both caches (it used to hash only the four task-04 scripts: a B3 script or stackup
+  # change gave a task-04 hit and a B3 recompute, which then failed B3's same-board check)
+  MK=$(python3 native-21/layout/gates/model_key.py | tail -1)
+  case "$MK" in [0-9a-f]*) ;; *) echo "model_key failed" >&2; exit 1;; esac
   cd $R
-  KEY=$(python3 - "$CK" <<'PY'
-import hashlib, sys
-h = hashlib.sha256(sys.argv[1].encode())
-for f in ("run_cases.py", "run_board.py", "summarize.py", "../round3/scripts/kit_topology_native13.py"):
-    h.update(open(f, "rb").read())
-print(h.hexdigest())
-PY
-)
+  KEY=$(python3 -c "import hashlib,sys;print(hashlib.sha256(('task04|'+sys.argv[1]+'|'+sys.argv[2]).encode()).hexdigest())" "$CK" "$MK")
   BOARD=$(shasum -a 256 "$B" | cut -d' ' -f1)
   # the nodal heat files (*.npz) are gitignored: a hit also needs the local ones to be those the results were computed with
   NPZ=$(python3 -c "import glob,hashlib;h=hashlib.sha256();[h.update(open(f,'rb').read()) for f in sorted(glob.glob('outputs/*.npz'))];print(h.hexdigest())")
-  if [ -f outputs/cache.json ] && [ -f outputs/summary.json ] && grep -q "\"key\": \"$KEY\"" outputs/cache.json \
+  # TASK04_FORCE=1 recomputes regardless (chain.sh uses it if B3 misses after a task-04 hit; see there)
+  if [ -z "${TASK04_FORCE:-}" ] && [ -f outputs/cache.json ] && [ -f outputs/summary.json ] && grep -q "\"key\": \"$KEY\"" outputs/cache.json \
      && grep -q "\"npz_sha256\": \"$NPZ\"" outputs/cache.json; then
     python3 - "$BOARD" <<'PY'
 import json, sys
@@ -67,7 +68,7 @@ PY
     $MP run_board.py --net bus_p --source BR1.1:15 --sink Q2.2 --pitch 0.0625 --plating 18 --name bus-dc-q2-p00625-pl18 >/dev/null
     wait
     NPZ=$(python3 -c "import glob,hashlib;h=hashlib.sha256();[h.update(open(f,'rb').read()) for f in sorted(glob.glob('outputs/*.npz'))];print(h.hexdigest())")
-    printf '{"key": "%s", "npz_sha256": "%s", "computed_on_board": "%s", "reused_for_boards": []}\n' "$KEY" "$NPZ" "$BOARD" > outputs/cache.json
+    printf '{"key": "%s", "copper_key": "%s", "model_key": "%s", "npz_sha256": "%s", "computed_on_board": "%s", "reused_for_boards": []}\n' "$KEY" "$CK" "$MK" "$NPZ" "$BOARD" > outputs/cache.json
   fi
   $MP summarize.py | tail -1
   python3 compare_native17.py > outputs/compare_native17.txt

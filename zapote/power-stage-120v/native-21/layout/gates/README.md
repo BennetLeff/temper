@@ -51,6 +51,11 @@ Stage 19c (DECISIONS item 19c) and the benchmark (item 22, `validation-results/1
 
 `return_path19.py` asserts ct_zc and every PWM input from 19c on; on 19b it fails (pwm_ha 7.59, pwm_la 5.11 mm).
 
+Stage 33 (DECISIONS 38, chain cache trap; `validation-results/11-candidates/c33-six-layer/CACHE-PROOF.md`): task 04's
+and B3's caches share one model key, so a change to any model input misses both:
+
+    python3 gates/model_key.py [--list]   # every task-04 / B3 script, heat inputs, stackup file(s), $SHEET_BARREL
+
 SELV-spine lock (13-coupling contract WS4 ↔ WS5, `validation-results/13-coupling/README.md` §8 and §10 item 1):
 
     python3 -I gates/spine_lock.py native-21/verification/TAG-all-copper.json.gz [--owner selv]

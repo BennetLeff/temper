@@ -101,26 +101,35 @@ cp "$B/bypass-check.json" native-21/verification/bypass-check-$TAG.json
 cp "$B/jlc-dfm.json" validation-results/08-manufacturing-package/native-21/jlc-dfm.json
 CK=$($KP $G/copper_key.py "$B/section.kicad_pcb" 2>/dev/null | tail -1)
 case "$CK" in [0-9a-f]*) ;; *) echo "copper_key failed" >&2; exit 1;; esac
-( sh $G/regate.sh "$B" task04 > "$B/task04.log" 2>&1 || { tail -5 "$B/task04.log"; exit 1; }
+( # B3's heat inputs first: they are part of the shared model key (model_key.py) that task 04's cache key also takes
+  ( cd validation-results/04-board-current-thermal/round5-native21/b3 && python3 make_heat_sources.py >/dev/null )
+  sh $G/regate.sh "$B" task04 > "$B/task04.log" 2>&1 || { tail -5 "$B/task04.log"; exit 1; }
   tail -2 "$B/task04.log"
-  cd validation-results/04-board-current-thermal/round5-native21/b3
-  python3 make_heat_sources.py >/dev/null
-  # key: the board's copper inputs (copper_key.py; the refilled copper is not bit-reproducible), the heat sources, the
-  # scripts (run_study.py with this TAG's geometry file name masked) and the task-04 results it reads
-  KEY=$(python3 - "$CK" <<'PY'
-import glob, hashlib, json, re, sys
-h = hashlib.sha256(sys.argv[1].encode())
-for f in sorted(glob.glob("inputs/*.json")) + ["make_heat_sources.py", "run_study.py", "ceiling_sweep.py", "thermal.py"]:
-    t = open(f, "rb").read()
-    h.update(re.sub(rb'native21[0-9a-z]+-all-copper\.json\.gz', b'TAG-all-copper.json.gz', t) if f == "run_study.py" else t)
+  # key: the board's copper inputs (copper_key.py; the refilled copper is not bit-reproducible), the shared model key
+  # (model_key.py: every task-04 and B3 script, the heat sources, the stackup file(s), SHEET_BARREL; stage 33, so a
+  # model change misses both caches together) and the task-04 results B3 reads
+  b3key() { python3 - "$CK" "$(python3 $G/model_key.py | tail -1)" <<'PY'
+import glob, hashlib, json, sys
+h = hashlib.sha256(("b3|" + sys.argv[1] + "|" + sys.argv[2]).encode())
 for f in sorted(glob.glob("../outputs/*-pl*.json")):
     r = json.load(open(f)); r.pop("board_sha256", None); h.update(json.dumps(r, sort_keys=True).encode())
 print(h.hexdigest())
 PY
-)
-  if [ -f outputs/cache.json ] && [ -f outputs/summary.json ] && grep -q "\"key\": \"$KEY\"" outputs/cache.json; then
+  }
+  cd validation-results/04-board-current-thermal/round5-native21/b3
+  KEY=$(b3key)
+  b3hit() { [ -f outputs/cache.json ] && [ -f outputs/summary.json ] && grep -q "\"key\": \"$KEY\"" outputs/cache.json; }
+  if ! b3hit && grep -q "task04 cache hit" "$B/task04.log"; then
+    # B3 must recompute but task 04 reused results computed on another build of this copper; B3's same-board check
+    # (thermal.py) would then fail. With the shared model key this means B3's cache was lost or overwritten
+    # elsewhere, so recompute task 04 on this build too instead of failing late.
+    echo "B3 miss after a task-04 hit: recomputing task 04 on this build"
+    ( cd "$U" && TASK04_FORCE=1 sh $G/regate.sh "$B" task04 > "$B/task04-forced.log" 2>&1 ) || { tail -5 "$B/task04-forced.log"; exit 1; }
+    tail -1 "$B/task04-forced.log"; KEY=$(b3key)
+  fi
+  if b3hit; then
     python3 -c "import json;p='outputs/cache.json';c=json.load(open(p));c.setdefault('reused_for_boards',[]).append('$H');json.dump(c,open(p,'w'),indent=1)"
-    echo "B3 cache hit (copper, heat and task-04 inputs unchanged)"
+    echo "B3 cache hit (copper, model and task-04 inputs unchanged)"
   else
     python3 run_study.py >/dev/null 2>&1; python3 ceiling_sweep.py
     printf '{"key": "%s", "computed_on_board": "%s", "reused_for_boards": []}\n' "$KEY" "$H" > outputs/cache.json

@@ -41,6 +41,7 @@ inside a drill attaches to the barrel node.
 from __future__ import annotations
 
 import math
+import os
 import sys
 
 import numpy as np
@@ -117,11 +118,17 @@ class Net:
         self.layers[name] = {"geom0": geom, "t": thickness_um * 1e-6}
         self._built = None
 
-    def add_via(self, xy, drill_mm: float, plating_um: float, layers, length_mm: float = 1.6,
+    def add_via(self, xy, drill_mm: float, plating_um: float, layers, length_mm: float | None = None,
                 filled: bool = False) -> None:
         """A plated barrel joining `layers`. `length_mm` is the barrel length
         between the outermost listed layers; each hop gets its share in
         proportion to the layer spacing.
+
+        length_mm=None (every board caller): 1.6 mm, the board's nominal
+        thickness, as before stage 33; with SHEET_BARREL=stackup, the copper-
+        centre distance between the outermost listed layers from layer_z_mm
+        (1.563 mm F.Cu to B.Cu on JLC041622-7628, 1.588 mm on JLC061622-1080A).
+        That is the depth basis DECISIONS 38 sets for the six-layer study.
 
         filled=False (a via): the hole is empty, so the barrel is a thin tube.
         It is split into VIA_SECTORS azimuthal columns, each touching only the
@@ -135,6 +142,13 @@ class Net:
         The vertical resistance is still the plating alone (the lead and
         solder are ignored, which is conservative)."""
         layers = tuple(sorted(layers, key=lambda n: self.layer_z[n]))
+        if length_mm is None:
+            if os.environ.get("SHEET_BARREL", "") == "stackup":
+                length_mm = self.layer_z[layers[-1]] - self.layer_z[layers[0]]
+            elif os.environ.get("SHEET_BARREL", "") in ("", "fixed"):
+                length_mm = 1.6
+            else:
+                raise ValueError(f"SHEET_BARREL={os.environ['SHEET_BARREL']!r}: use 'stackup' or 'fixed'")
         r_in = drill_mm / 2 * 1e-3
         area = math.pi * ((r_in + plating_um * 1e-6) ** 2 - r_in ** 2)
         span = self.layer_z[layers[-1]] - self.layer_z[layers[0]]
