@@ -19,6 +19,7 @@ their ratchets.
 | # | Item | Evidence | Lane / owner | Status | Next |
 |---|---|---|---|---|---|
 | S2 | **Board copper over the laminate MOT in still air.** R5.4 copper ~12 K over 130 °C at 22 A with 55 °C bay air (~56 K at 28 A). HF film C38 / C40 over 110 °C at 22 A. At 28 A also R5's element (197 / 170 °C), the gate resistors and C21. Release gate FAIL: laminate −56.4 K, parts −38.9 K | DECISIONS 46; `b3-ratings/` | Analysis: model refinement (FET-lead path, c28 heat file, film-cap / 1206 limits, fix targets) | Running | Then: candidate 36 (tank copper at R5.4 / FET row), 0.5 mΩ shunt option, enclosure airflow reply. Until it passes: still-air ceiling ≤ 18 A (owner → controller) |
+| S14 | **IPW65R018CFD7 reverse-diode dv/dt 70 V/ns exceeded in S4** (IL −20 A hard commutation): 85.8 V/ns modelled, 1.23× the rating, 1.5× the 80 % rule (56 V/ns). Ledger VIOLATION (ledger_violations 1 on every card) | DECISIONS 49; device study | Analysis: candidate 39 gate network (split R_on / R_off, CM8 alongside); then a layout lane | Running | Fix ≤ 56 V/ns at every S4 corner; bench D-8 double pulse measures it |
 | S1 | Touch leakage: 0.974 mA design case FAILS the 0.5 mA UL 1026 portable limit and the 0.25 mA (50 %) rule. **Change set fixed (DECISIONS 47):** 0.2412 mA (8.8 µA margin), EMI min 8.19 dB | `07-conducted-emi/leakage/co-design-2026-10-15/` | Layout lane: candidate 23; controller (PS3 → MPM-65-15ST); D-22 module records | Decided | c23 lane builds it; bench: measured supply leakage, SCF31X DM leakage, HF touch with the lab's meter network |
 | S12 | Laminate UL scope: KB-616(X) multilayer recognition lists max inner copper 35 µm; the stack has 2 oz (61 µm) inner layers. KB-6164F / KB-6165F list 102 µm | DECISIONS 46 side finding | Analysis: model refinement (task 5, public sources) | Running | Pick the order material in scope; certifier packet A3 |
 | S3 | F6's 252/252 result rests on round-17 loop matrices from board 76ec8cca, not s35 | `c33-six-layer/adoption/README.md` | FEM (remote box) | Blocked: box offline | Owner restarts the box; run `adoption/fem/chain_c33.sh` for s35 |
@@ -45,20 +46,21 @@ their ratchets.
 
 | # | Item | $ per board | Lane / owner | Status |
 |---|---|---|---|---|
-| C1 | Bridge MOSFETs 4 × IPW65R018CFD7 | 40.70 | Analysis: device frontier (loss, ZVS, thermal) | Running |
+| C1 | Bridge MOSFETs 4 × IPW65R018CFD7 | 40.70 | CM8 −$6.77 (drop-in, needs R_ext 12 Ω; proxy model; DigiKey 482 vs 2,000, 24 wk): deferred to candidate 39 (DECISIONS 49) | Studied |
 | C2 | Bus TVS D3 / D17 (snapshot: $8.17 from Good-Ark at DigiKey, not $19.64) and F1 (A2 #5) | 8.17 + 18.52 | Owner / certifier | Packet |
-| C3 | U41 / U42 RECOM bias modules | 14.74 | Analysis: discrete isolated supply (bootstrap rejected, DECISIONS:91) | Running |
+| C3 | U41 / U42 RECOM bias modules | 14.74 | Kept (DECISIONS 49: discrete saves $2.8–3.9, zero-stock controller, transformer Cw unbounded); T&R at the 750 break −$0.38 | Closed |
 | C4 | C5 / C6 | 12.34 | Parts (S8) | Alternate chosen, pending suffix |
 | C5 | PS1 deletion (candidate 23) | ~8.40 | Layout lane: SELV side | Waits for the S1 result and the controller's J13 |
 | C7 | Bare board: six layers $19.11 vs four $17.28 pinned; area compaction ~$1.5 per 10 % | DECISIONS 40 | After candidate 23 (compaction) | Open |
 
-## 4. Layout lanes (one building: ps-selv)
+## 4. Layout lanes (two building: ps-selv, ps-layers)
 
 | Lane (island) | Candidate | Status | Blocked on |
 |---|---|---|---|
 | Tank / FET row (WS3 / WS4 boundary) | 36: tank-copper heat at R5.4 / FET row (wider, more parallel layers, or 3 oz outer); option: 0.5 mΩ shunt | Next | The model-refinement targets (S2) |
+| Gate networks (HS / LS driver outputs) | 39: S4 dv/dt fix (S14), CM8 option | After its analysis | The gate-network study |
 | SELV side (WS5, spine owner) | 23: DECISIONS 47 change set (PS1 deleted, PS2 → MPM-20-24, L1 → SCF31X if it fits); stage tag s38 | Running (ps-selv, branch claude/native21-c23-supply) | The controller's J13 and PS3 → MPM-65 gate the merge, not the board work |
-| HS-B / LS (WS4) | 30a (HS-B → LS ISO6721FB), 30b (C161), return-path fixes (S10) | Needs an LS-pocket / U42 re-placement to open the y 47–60 band | The bias-supply study (C3): U42 may change |
+| HS-B / LS (WS4) | 30a (HS-B → LS ISO6721FB), 30b (C161), return-path fixes (S10); stage tag s40 | Running (ps-layers, branch claude/native21-c30-ls-pocket) | — (U42 stays RECOM, DECISIONS 49) |
 | Tank / bank | 34: resonant bank | Waits on stock | S9 |
 | Whole board (last) | Geometry cleanup pass (B5; tool merged, DECISIONS 48: s35 → s37 right angles 104 → 50, acute 206 → 23, fold-backs 44 → 3, any-angle 704 → 308 mm; ACCEPT); compaction (C7) | Tool ready; ps-layers free | Run on the merged copper after c23 / c36 / c30 land |
 
