@@ -1,0 +1,555 @@
+{
+ "scope": "temper-aux-load-r1: how much of the inlet budget's auxiliary allowance is real?\n\nThe power stage regulates the reported inlet current\n    inlet = I_ps,est * (1 + e_est) + I_aux <= 13.5 A,\nand the firmware sets I_aux from datasheet AC-current figures summed linearly\n(blower_aux.c: base 1.3 A = \"PS1 + PS2, both IRM-20 at full load\", plus the PS3\nblower term). This script totals the actual auxiliary loads of the current\ndesign, models each module's AC input current, and measures what adding that\ncurrent does to the RMS of the total inlet current.\n\nDesign state read (read-only, 2026-10-15):\n- power stage s38+ (DECISIONS 47 / 50): PS1 deleted, PS2 = MEAN WELL MPM-20-24\n  (HOT side, TCO-switched gate bias + HOT5), PS3 = MPM-65-15ST (controller logic\n  over the J13 merge + blower buck).\n- PS2 load: ALT-BIAS.md:163 allocation with the adopted RECOM R24C2T25 modules\n  (6.81 / 7.45 / 11.10 W at 33 / 40 / 80 kHz, 45 % module efficiency, 740 nC\n  edge allowance), plus a HOT5 allocation.\n- PS3 load: controller verify (controller-layout 300b8a934, evidence/verify.json):\n  logic 4.83 W at datasheet max; blower buck input 39.72 W at the duty-0 corner.\n\nMethod:\n- Each module = full-bridge rectifier + bulk C + series R + constant-power load.\n  C comes from the datasheet hold-up time (70 / 100 V dropout); R is swept\n  (0.5 / 2 / 5 ohm). No physical variant reaches the datasheet AC current at\n  rated load, so each variant's harmonic content is scaled up (fundamental kept,\n  since power balance fixes it) until its full-load RMS equals the datasheet\n  figure; the same scale is applied at the actual load. The worst variant is kept.\n- The power stage draws a near-sinusoidal current in phase with the line (PF ~ 1\n  on the unsmoothed bus, DECISIONS 2026-10-08); a 3rd-harmonic content h3 is\n  swept with the worst sign.\n- The aux increment is RMS(i_ps + i_aux) - RMS(i_ps) at the operating point.\n  To first order it is the aux real-power current P_in/V; the aux harmonics add\n  only (I_rms^2 - I_1^2)/(2 I_ps).\n\nEvery number in the JSON comes from this file. Run: python3 aux_load.py",
+ "datasheets": {
+  "PS2 MPM-20-24": "MPM-20-SPEC 2024-10-30 p.2: 21.6 W, eff 87 % typ, AC 0.75 A/115 VAC typ, hold-up 10 ms/115 VAC full load, no-load < 0.1 W",
+  "PS3 MPM-65-15ST": "MPM-65-SPEC 2024-10-30 p.2: 65 W convection, eff 92.5 % typ, AC 1.5 A/115 VAC typ, hold-up 12 ms/115 VAC full load, no-load < 0.1 W"
+ },
+ "loads_W": {
+  "PS2_bias_allocation_by_frequency": {
+   "33k": 6.81,
+   "40k": 7.45,
+   "80k": 11.1
+  },
+  "PS2_HOT5_allocation": {
+   "worst": 0.48,
+   "typical": 0.28800000000000003
+  },
+  "PS3_logic_max": 4.831,
+  "PS3_logic_typical_estimate": 1.98,
+  "PS3_logic_typical_3V3_mA": 368.7,
+  "PS3_blower_buck_input": {
+   "off": {
+    "typ": 0.0,
+    "max": 0.0
+   },
+   "duty_0.5": {
+    "typ": 8.3,
+    "max": 15.78
+   },
+   "full": {
+    "typ": 20.89,
+    "max": 39.72
+   }
+  }
+ },
+ "calibration": {
+  "PS2 MPM-20-24": [
+   {
+    "v_dropout_V": 70.0,
+    "C_uF": 23.7,
+    "R_ohm": 0.5,
+    "model_rms_A": 0.3857,
+    "harmonic_scale_k": 2.39,
+    "datasheet_A": 0.75
+   },
+   {
+    "v_dropout_V": 70.0,
+    "C_uF": 23.7,
+    "R_ohm": 2.0,
+    "model_rms_A": 0.3823,
+    "harmonic_scale_k": 2.4291,
+    "datasheet_A": 0.75
+   },
+   {
+    "v_dropout_V": 70.0,
+    "C_uF": 23.7,
+    "R_ohm": 5.0,
+    "model_rms_A": 0.3759,
+    "harmonic_scale_k": 2.5089,
+    "datasheet_A": 0.75
+   },
+   {
+    "v_dropout_V": 100.0,
+    "C_uF": 31.3,
+    "R_ohm": 0.5,
+    "model_rms_A": 0.402,
+    "harmonic_scale_k": 2.2024,
+    "datasheet_A": 0.75
+   },
+   {
+    "v_dropout_V": 100.0,
+    "C_uF": 31.3,
+    "R_ohm": 2.0,
+    "model_rms_A": 0.3961,
+    "harmonic_scale_k": 2.2563,
+    "datasheet_A": 0.75
+   },
+   {
+    "v_dropout_V": 100.0,
+    "C_uF": 31.3,
+    "R_ohm": 5.0,
+    "model_rms_A": 0.385,
+    "harmonic_scale_k": 2.3665,
+    "datasheet_A": 0.75
+   }
+  ],
+  "PS3 MPM-65-15ST": [
+   {
+    "v_dropout_V": 70.0,
+    "C_uF": 80.4,
+    "R_ohm": 0.5,
+    "model_rms_A": 1.112,
+    "harmonic_scale_k": 1.5239,
+    "datasheet_A": 1.5
+   },
+   {
+    "v_dropout_V": 70.0,
+    "C_uF": 80.4,
+    "R_ohm": 2.0,
+    "model_rms_A": 1.075,
+    "harmonic_scale_k": 1.6153,
+    "datasheet_A": 1.5
+   },
+   {
+    "v_dropout_V": 70.0,
+    "C_uF": 80.4,
+    "R_ohm": 5.0,
+    "model_rms_A": 1.0181,
+    "harmonic_scale_k": 1.795,
+    "datasheet_A": 1.5
+   },
+   {
+    "v_dropout_V": 100.0,
+    "C_uF": 106.3,
+    "R_ohm": 0.5,
+    "model_rms_A": 1.1587,
+    "harmonic_scale_k": 1.4192,
+    "datasheet_A": 1.5
+   },
+   {
+    "v_dropout_V": 100.0,
+    "C_uF": 106.3,
+    "R_ohm": 2.0,
+    "model_rms_A": 1.0982,
+    "harmonic_scale_k": 1.545,
+    "datasheet_A": 1.5
+   },
+   {
+    "v_dropout_V": 100.0,
+    "C_uF": 106.3,
+    "R_ohm": 5.0,
+    "model_rms_A": 1.0196,
+    "harmonic_scale_k": 1.7683,
+    "datasheet_A": 1.5
+   }
+  ]
+ },
+ "datasheet_linear_sum_at_108V_A": {
+  "PS2 MPM-20-24": 0.799,
+  "PS3 MPM-65-15ST": 1.597,
+  "total": 2.396
+ },
+ "firmware_allowance_today_A": {
+  "off": 1.35,
+  "duty_0.5": 1.93,
+  "full": 2.569
+ },
+ "results": {
+  "typical/off": {
+   "calibration_variant": {
+    "v_dropout_V": 70.0,
+    "R_ohm": 5.0
+   },
+   "per_supply": {
+    "PS2 MPM-20-24": {
+     "P_out_W": 7.74,
+     "eta": 0.852,
+     "P_in_W": 9.09,
+     "I_rms_A": 0.346,
+     "I_1_in_phase_A": 0.078
+    },
+    "PS3 MPM-65-15ST": {
+     "P_out_W": 1.98,
+     "eta": 0.814,
+     "P_in_W": 2.43,
+     "I_rms_A": 0.096,
+     "I_1_in_phase_A": 0.021
+    }
+   },
+   "aux_I_rms_A": 0.376,
+   "aux_I_1_A": 0.098,
+   "linear_sum_module_rms_A": 0.442,
+   "rms_increment_at_hold_A": 0.104,
+   "hold_A": 12.179,
+   "firmware_allowance_A": 1.35,
+   "firmware_hold_A": 11.045,
+   "recoverable_allowance_A": 1.246,
+   "hold_gain_A": 1.134,
+   "power_gain_W_at_120V_pf1": 136.0,
+   "line_V": 120.0,
+   "ps2_bias_frequency_Hz": 40000.0,
+   "h3": 0.0
+  },
+  "typical/duty_0.5": {
+   "calibration_variant": {
+    "v_dropout_V": 100.0,
+    "R_ohm": 5.0
+   },
+   "per_supply": {
+    "PS2 MPM-20-24": {
+     "P_out_W": 7.74,
+     "eta": 0.852,
+     "P_in_W": 9.09,
+     "I_rms_A": 0.341,
+     "I_1_in_phase_A": 0.078
+    },
+    "PS3 MPM-65-15ST": {
+     "P_out_W": 10.28,
+     "eta": 0.904,
+     "P_in_W": 11.36,
+     "I_rms_A": 0.333,
+     "I_1_in_phase_A": 0.097
+    }
+   },
+   "aux_I_rms_A": 0.603,
+   "aux_I_1_A": 0.175,
+   "linear_sum_module_rms_A": 0.674,
+   "rms_increment_at_hold_A": 0.189,
+   "hold_A": 12.101,
+   "firmware_allowance_A": 1.93,
+   "firmware_hold_A": 10.519,
+   "recoverable_allowance_A": 1.741,
+   "hold_gain_A": 1.582,
+   "power_gain_W_at_120V_pf1": 190.0,
+   "line_V": 120.0,
+   "ps2_bias_frequency_Hz": 40000.0,
+   "h3": 0.0
+  },
+  "typical/full": {
+   "calibration_variant": {
+    "v_dropout_V": 70.0,
+    "R_ohm": 5.0
+   },
+   "per_supply": {
+    "PS2 MPM-20-24": {
+     "P_out_W": 7.74,
+     "eta": 0.852,
+     "P_in_W": 9.09,
+     "I_rms_A": 0.346,
+     "I_1_in_phase_A": 0.078
+    },
+    "PS3 MPM-65-15ST": {
+     "P_out_W": 22.87,
+     "eta": 0.918,
+     "P_in_W": 24.92,
+     "I_rms_A": 0.632,
+     "I_1_in_phase_A": 0.217
+    }
+   },
+   "aux_I_rms_A": 0.945,
+   "aux_I_1_A": 0.294,
+   "linear_sum_module_rms_A": 0.978,
+   "rms_increment_at_hold_A": 0.327,
+   "hold_A": 11.976,
+   "firmware_allowance_A": 2.569,
+   "firmware_hold_A": 9.937,
+   "recoverable_allowance_A": 2.242,
+   "hold_gain_A": 2.039,
+   "power_gain_W_at_120V_pf1": 245.0,
+   "line_V": 120.0,
+   "ps2_bias_frequency_Hz": 40000.0,
+   "h3": 0.0
+  },
+  "worst/off": {
+   "calibration_variant": {
+    "v_dropout_V": 100.0,
+    "R_ohm": 5.0
+   },
+   "per_supply": {
+    "PS2 MPM-20-24": {
+     "P_out_W": 11.58,
+     "eta": 0.814,
+     "P_in_W": 14.22,
+     "I_rms_A": 0.508,
+     "I_1_in_phase_A": 0.136
+    },
+    "PS3 MPM-65-15ST": {
+     "P_out_W": 4.83,
+     "eta": 0.859,
+     "P_in_W": 5.62,
+     "I_rms_A": 0.201,
+     "I_1_in_phase_A": 0.053
+    }
+   },
+   "aux_I_rms_A": 0.59,
+   "aux_I_1_A": 0.19,
+   "linear_sum_module_rms_A": 0.709,
+   "rms_increment_at_hold_A": 0.254,
+   "hold_A": 12.042,
+   "firmware_allowance_A": 1.35,
+   "firmware_hold_A": 11.045,
+   "recoverable_allowance_A": 1.096,
+   "hold_gain_A": 0.997,
+   "power_gain_W_at_120V_pf1": 120.0,
+   "line_V": 108.0,
+   "ps2_bias_frequency_Hz": 80000.0,
+   "h3": 0.2
+  },
+  "worst/duty_0.5": {
+   "calibration_variant": {
+    "v_dropout_V": 100.0,
+    "R_ohm": 5.0
+   },
+   "per_supply": {
+    "PS2 MPM-20-24": {
+     "P_out_W": 11.58,
+     "eta": 0.814,
+     "P_in_W": 14.22,
+     "I_rms_A": 0.508,
+     "I_1_in_phase_A": 0.136
+    },
+    "PS3 MPM-65-15ST": {
+     "P_out_W": 20.61,
+     "eta": 0.871,
+     "P_in_W": 23.65,
+     "I_rms_A": 0.644,
+     "I_1_in_phase_A": 0.23
+    }
+   },
+   "aux_I_rms_A": 1.042,
+   "aux_I_1_A": 0.366,
+   "linear_sum_module_rms_A": 1.152,
+   "rms_increment_at_hold_A": 0.5,
+   "hold_A": 11.818,
+   "firmware_allowance_A": 1.93,
+   "firmware_hold_A": 10.519,
+   "recoverable_allowance_A": 1.43,
+   "hold_gain_A": 1.299,
+   "power_gain_W_at_120V_pf1": 156.0,
+   "line_V": 108.0,
+   "ps2_bias_frequency_Hz": 80000.0,
+   "h3": 0.2
+  },
+  "worst/full": {
+   "calibration_variant": {
+    "v_dropout_V": 100.0,
+    "R_ohm": 5.0
+   },
+   "per_supply": {
+    "PS2 MPM-20-24": {
+     "P_out_W": 11.58,
+     "eta": 0.814,
+     "P_in_W": 14.22,
+     "I_rms_A": 0.508,
+     "I_1_in_phase_A": 0.136
+    },
+    "PS3 MPM-65-15ST": {
+     "P_out_W": 44.55,
+     "eta": 0.873,
+     "P_in_W": 51.02,
+     "I_rms_A": 1.202,
+     "I_1_in_phase_A": 0.509
+    }
+   },
+   "aux_I_rms_A": 1.682,
+   "aux_I_1_A": 0.645,
+   "linear_sum_module_rms_A": 1.71,
+   "rms_increment_at_hold_A": 0.882,
+   "hold_A": 11.471,
+   "firmware_allowance_A": 2.569,
+   "firmware_hold_A": 9.937,
+   "recoverable_allowance_A": 1.687,
+   "hold_gain_A": 1.534,
+   "power_gain_W_at_120V_pf1": 184.0,
+   "line_V": 108.0,
+   "ps2_bias_frequency_Hz": 80000.0,
+   "h3": 0.2
+  }
+ },
+ "worst_full_blower_line_sweep": {
+  "108": {
+   "calibration_variant": [
+    100.0,
+    5.0
+   ],
+   "aux_I_rms_A": 1.682,
+   "aux_I_1_A": 0.645,
+   "rms_increment_A": 0.882,
+   "hold_A": 11.471
+  },
+  "120": {
+   "calibration_variant": [
+    100.0,
+    5.0
+   ],
+   "aux_I_rms_A": 1.578,
+   "aux_I_1_A": 0.575,
+   "rms_increment_A": 0.8,
+   "hold_A": 11.546
+  },
+  "132": {
+   "calibration_variant": [
+    100.0,
+    5.0
+   ],
+   "aux_I_rms_A": 1.489,
+   "aux_I_1_A": 0.519,
+   "rms_increment_A": 0.731,
+   "hold_A": 11.608
+  }
+ },
+ "firmware_model_proposed": {
+  "form": "level(off) = base + idle; level(duty) = min(worst, base + (1 + margin) * ps3(duty) + idle); worst = base + ps3(0); ps3(duty) = 32.4 W * (V(duty) / 12 V)^3 / 0.90 / (eta_ps3 * pf_eff * 108 V), V(duty) = 12.40 - 6.57 * duty",
+  "base_A": 0.26,
+  "pf_eff": 0.67,
+  "eta_ps3": 0.875,
+  "idle_A": 0.05,
+  "margin": 0.15,
+  "v_line_low_V": 108.0,
+  "pf_eff_by_duty_before_rounding": {
+   "0.00": 0.6763,
+   "0.05": 0.6762,
+   "0.10": 0.6766,
+   "0.15": 0.6776,
+   "0.20": 0.6791,
+   "0.25": 0.681,
+   "0.30": 0.6832,
+   "0.35": 0.6858,
+   "0.40": 0.6887,
+   "0.45": 0.6918,
+   "0.50": 0.6953,
+   "0.55": 0.6991,
+   "0.60": 0.7033,
+   "0.65": 0.708,
+   "0.70": 0.7132,
+   "0.75": 0.7191,
+   "0.80": 0.7259,
+   "0.85": 0.7339,
+   "0.90": 0.7433,
+   "0.95": 0.7546,
+   "1.00": 0.7687
+  },
+  "unmargined_model_min_slack_A": 0.0052,
+  "worst_increment_by_line_and_duty_A": {
+   "108": {
+    "off": 0.2538,
+    "0.00": 0.8815,
+    "0.05": 0.8335,
+    "0.10": 0.7876,
+    "0.15": 0.7439,
+    "0.20": 0.7023,
+    "0.25": 0.663,
+    "0.30": 0.626,
+    "0.35": 0.5913,
+    "0.40": 0.5587,
+    "0.45": 0.5284,
+    "0.50": 0.5001,
+    "0.55": 0.4739,
+    "0.60": 0.4497,
+    "0.65": 0.4273,
+    "0.70": 0.4067,
+    "0.75": 0.3879,
+    "0.80": 0.3707,
+    "0.85": 0.3551,
+    "0.90": 0.341,
+    "0.95": 0.3282,
+    "1.00": 0.3168
+   },
+   "120": {
+    "off": 0.2321,
+    "0.00": 0.7997,
+    "0.05": 0.756,
+    "0.10": 0.7144,
+    "0.15": 0.6748,
+    "0.20": 0.6373,
+    "0.25": 0.6017,
+    "0.30": 0.5682,
+    "0.35": 0.5368,
+    "0.40": 0.5074,
+    "0.45": 0.48,
+    "0.50": 0.4545,
+    "0.55": 0.4308,
+    "0.60": 0.4089,
+    "0.65": 0.3887,
+    "0.70": 0.3701,
+    "0.75": 0.3531,
+    "0.80": 0.3376,
+    "0.85": 0.3235,
+    "0.90": 0.3107,
+    "0.95": 0.2992,
+    "1.00": 0.2889
+   },
+   "132": {
+    "off": 0.2135,
+    "0.00": 0.731,
+    "0.05": 0.6911,
+    "0.10": 0.6531,
+    "0.15": 0.6169,
+    "0.20": 0.5827,
+    "0.25": 0.5503,
+    "0.30": 0.5198,
+    "0.35": 0.4911,
+    "0.40": 0.4643,
+    "0.45": 0.4393,
+    "0.50": 0.416,
+    "0.55": 0.3945,
+    "0.60": 0.3745,
+    "0.65": 0.3561,
+    "0.70": 0.3392,
+    "0.75": 0.3237,
+    "0.80": 0.3096,
+    "0.85": 0.2967,
+    "0.90": 0.2851,
+    "0.95": 0.2746,
+    "1.00": 0.2653
+   }
+  },
+  "c_test_vectors_max_over_lines_A": {
+   "off": 0.2538,
+   "0.00": 0.8815,
+   "0.05": 0.8335,
+   "0.10": 0.7876,
+   "0.15": 0.7439,
+   "0.20": 0.7023,
+   "0.25": 0.663,
+   "0.30": 0.626,
+   "0.35": 0.5913,
+   "0.40": 0.5587,
+   "0.45": 0.5284,
+   "0.50": 0.5001,
+   "0.55": 0.4739,
+   "0.60": 0.4497,
+   "0.65": 0.4273,
+   "0.70": 0.4067,
+   "0.75": 0.3879,
+   "0.80": 0.3707,
+   "0.85": 0.3551,
+   "0.90": 0.341,
+   "0.95": 0.3282,
+   "1.00": 0.3168
+  },
+  "allowance_A": {
+   "off": {
+    "today": 1.35,
+    "proposed": 0.31,
+    "worst_increment_108V": 0.254,
+    "hold_today_A": 11.045,
+    "hold_proposed_A": 11.991,
+    "trip_proposed_A": 13.355
+   },
+   "duty_0.5": {
+    "today": 1.93,
+    "proposed": 0.597,
+    "worst_increment_108V": 0.5,
+    "hold_today_A": 10.519,
+    "hold_proposed_A": 11.73,
+    "trip_proposed_A": 13.094
+   },
+   "full": {
+    "today": 2.569,
+    "proposed": 0.887,
+    "worst_increment_108V": 0.882,
+    "hold_today_A": 9.937,
+    "hold_proposed_A": 11.466,
+    "trip_proposed_A": 12.83
+   }
+  }
+ },
+ "notes": [
+  "duty_0.5 is GPIO46 duty 0.5 (12.40 - 6.57 x 0.5 = 9.12 V upper envelope), not fan-law drive 0.5 (drive 0.5 -> duty ~0.43 through blower_pwm_duty_from_drive)",
+  "firmware base 1.3 A still assumes PS1 + PS2 IRM-20 at full load; PS1 was deleted at s38 and the logic moved onto PS3, which the firmware PS3 model does not count (it models the blower only)",
+  "aux increment = RMS(i_ps + i_aux) - RMS(i_ps) at the hold point; worst calibration variant kept",
+  "the gain applies only where the inlet limit binds; tank-current-limited pans see none",
+  "a higher hold raises bus current through R5 / C40: re-check the B3 c22 cases (s41: laminate 22.3 A, laminate + film 21.1 A still-air) before adopting"
+ ]
+}

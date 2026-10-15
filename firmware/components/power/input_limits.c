@@ -3,9 +3,9 @@
 #include <math.h>
 input_limits_cfg_t input_limits_native21(void)
 {
-    /* est_error provisional until bench qualification; PS1 + PS2 from IRM-20-SPEC 2025-11-21
-     * (0.6 A typ. at 115 Vac each) scaled to 108 V and rounded up (1.28 -> 1.3 A, the existing
-     * basis); worst case adds PS3 at full blower (blower_aux.h, DECISIONS 16); tank ceiling: the
+    /* est_error provisional until bench qualification; static part PS2 + PS3 logic (MPM-20-24 /
+     * MPM-65-15ST, blower off: 0.26 A, the worst-corner inlet-RMS increment rounded up) and worst
+     * case with the PS3 blower at full (0.887 A), both from blower_aux.h; tank ceiling: the
      * 22 A shipping default (2026-10-08 envelope; DECISIONS 10). The commissioned value replaces
      * it (Kconfig TEMPER_POWER_TANK_CEILING_DA via n21_config_set_tank_ceiling). */
     blower_aux_cfg_t b = blower_aux_native21();

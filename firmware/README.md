@@ -76,10 +76,12 @@ used; there is no spare pin.
   stopped, locked or unplugged blower or an open FG wire reads 0 rpm and
   derates tank power after 1 s (`blower_ctrl_step()`).
 - **Blower supply and the inlet limit (stage 16)**: the blower runs from PS3
-  (IRM-60-15ST, power-board tap F2 / J11), so the inlet estimate's auxiliary
-  allowance is PS1 + PS2 (1.3 A) + PS3 scheduled from the commanded drive
-  (`components/power/blower_aux.h`): 1.35 A off, 2.03 A typical, 2.57 A at full
-  speed or whenever the drive is unknown. A speed-up takes the allowance first
+  (MPM-65-15ST, power-board tap F2 / J11, also the controller logic since
+  s38; PS1 is deleted), so the inlet estimate's auxiliary allowance is PS2 +
+  PS3 logic (0.26 A) + the PS3 blower term scheduled from the commanded drive
+  (`components/power/blower_aux.h`), each counted by its worst-corner increment
+  to the inlet RMS: 0.31 A off, 0.65 A typical, 0.887 A at full speed or
+  whenever the drive is unknown. A speed-up takes the allowance first
   and moves the blower 300 ms later; a fault goes to full speed at once. The
   regulated inlet total stays 13.5 A (COMMISSIONING.md step 8c).
 - **BLW_PG, PS3 present (expander P16, controller C33)**: 20 k / 4.7 k from

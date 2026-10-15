@@ -2,7 +2,8 @@
  * power-stage DECISIONS 16 and stage-16 PLAN section 5 (budget16.py). Assertions are the oracle
  * (built with -UNDEBUG).
  *  - the model against its sources: the C28 drive map (recomputed over its corners), Delta's
- *    32.4 W maximum, IRM-60-15 efficiency and AC current, budget16.py's 1.27 A at full blower;
+ *    32.4 W maximum, MPM-65 efficiency, and the temper-aux-load-r1 worst-corner inlet-RMS
+ *    increments (aux-load.json) at every duty, which the allowance must cover;
  *  - the allowance at blower off / slowest / typical / fan-law cap / full / unknown;
  *  - the schedule: allowance first on a speed-up, at once on a fault, released late on a
  *    slow-down, worst case on every unknown;
@@ -53,13 +54,14 @@ static void test_config(void)
     b = C; b.margin = -0.1f; assert(!blower_aux_config_ok(&b));
     b = C; b.urgent_a_per_s = 1.0f; assert(!blower_aux_config_ok(&b));    /* urgent >= normal rise */
     b = C; b.lead_ms = 50u; assert(!blower_aux_config_ok(&b));            /* < one blower tick */
-    b = C; b.p_rated_max_w = 200.0f; assert(!blower_aux_config_ok(&b));   /* worst case >= 5 A */
+    b = C; b.p_rated_max_w = 300.0f; assert(!blower_aux_config_ok(&b));   /* worst case >= 5 A (6.07) */
+    b = C; b.p_rated_max_w = 200.0f; assert(blower_aux_config_ok(&b));    /* 3.87 A: under the cap */
     /* Off is confirmed against the stall threshold the blower controller uses. */
     assert(C.off_rpm == BLOWER_STALL_RPM);
     /* input_limits takes its static part and its worst case from here. */
     input_limits_cfg_t l = input_limits_native21();
     assert(input_limits_config_ok(&l));
-    assert(l.aux_min_a == C.base_a && l.aux_min_a == 1.3f);
+    assert(l.aux_min_a == C.base_a && l.aux_min_a == 0.26f);
     assert(NEAR(l.aux_max_a, blower_aux_worst_a(&C), 1e-6));
     input_limits_cfg_t bad = l; bad.aux_min_a = l.aux_max_a + 0.1f; assert(!input_limits_config_ok(&bad));
     bad = l; bad.aux_min_a = NAN; assert(!input_limits_config_ok(&bad));
@@ -68,8 +70,9 @@ static void test_config(void)
 
 static void test_model_sources(void)
 {
-    /* IRM-60-SPEC p.2: PF implied by 1.8 A at 115 Vac, 60 W out at 89 %. */
-    assert(NEAR(C.ps3_pf, 0.3257, 1e-4));
+    /* MPM-65-SPEC 2024-10-30 p.2: 92.5 % typ. less 5 points; effective PF 0.6762 at its lowest
+     * (aux-load.json pf_eff_by_duty_before_rounding, full blower), rounded down. */
+    assert(C.ps3_eta == 0.875f && C.ps3_pf == 0.67f && C.ps3_pf <= 0.6762f);
     /* Drive map: the model is an upper bound on the C28 buck output at every duty the firmware can
      * command (0 .. BLOWER_PWM_DUTY_MAX), and tight (< 60 mV above the corner envelope). */
     for (float d = 0; d <= BLOWER_PWM_DUTY_MAX + 1e-6f; d += 0.01f) {
@@ -78,15 +81,68 @@ static void test_model_sources(void)
     }
     assert(NEAR(blower_aux_vout_max_v(&C, 0), 12.40, 1e-6));
     assert(blower_aux_vout_max_v(&C, NAN) == C.vout_max_v && blower_aux_vout_max_v(&C, -1) == C.vout_max_v);
-    /* Anchor: Delta's maximum 32.4 W at 12 V -> 36 W out of PS3 -> 1.8 A x 115/108 x 36/60 at 108 V. */
-    assert(NEAR(blower_aux_ps3_model_a(&C, 12.0f), 1.8 * 115.0 / 108.0 * 36.0 / 60.0, 1e-4));
-    /* Full blower at the 12.40 V corner: 35.7 W, budget16.py's 1.27 A of PS3 input. */
+    /* Anchor: Delta's maximum 32.4 W at 12 V -> 36 W out of PS3 -> 36 / (0.875 x 0.67 x 108 V). */
+    assert(NEAR(blower_aux_ps3_model_a(&C, 12.0f), 36.0 / (0.875 * 0.67 * 108.0), 1e-4));
+    /* Full blower at the 12.40 V corner: 35.7 W, 39.72 W into the buck (aux-load.json loads_W),
+     * 0.627 A above base; worst case 0.887 A against the 0.8815 A modelled. */
     double p12 = 32.4 * pow(12.4 / 12.0, 3);
-    assert(NEAR(p12, 35.75, 0.01));
-    assert(NEAR(blower_aux_ps3_model_a(&C, 12.40f), 1.27, 0.005));
-    assert(NEAR(blower_aux_worst_a(&C), 2.569, 0.002));
+    assert(NEAR(p12, 35.75, 0.01) && NEAR(p12 / 0.9, 39.72, 0.005));
+    assert(NEAR(blower_aux_ps3_model_a(&C, 12.40f), 0.6273, 0.0005));
+    assert(NEAR(blower_aux_worst_a(&C), 0.887, 0.0005));
     /* Fan law V^3: half the voltage, an eighth of the current. */
     assert(NEAR(blower_aux_ps3_model_a(&C, 6.0f), blower_aux_ps3_model_a(&C, 12.0f) / 8, 1e-5));
+    tests++;
+}
+
+/* temper-aux-load-r1 aux-load.json firmware_model_proposed.c_test_vectors_max_over_lines_A: the
+ * worst-corner increment of PS2 + PS3 to the inlet RMS at the hold point (108 V; max over 108 / 120 /
+ * 132 V and the six module calibration variants), by GPIO46 duty. Regenerate with aux_load.py. */
+static const struct { float duty; double a; } AUX_LOAD[] = {
+    {0.00f, 0.8815},
+    {0.05f, 0.8335},
+    {0.10f, 0.7876},
+    {0.15f, 0.7439},
+    {0.20f, 0.7023},
+    {0.25f, 0.6630},
+    {0.30f, 0.6260},
+    {0.35f, 0.5913},
+    {0.40f, 0.5587},
+    {0.45f, 0.5284},
+    {0.50f, 0.5001},
+    {0.55f, 0.4739},
+    {0.60f, 0.4497},
+    {0.65f, 0.4273},
+    {0.70f, 0.4067},
+    {0.75f, 0.3879},
+    {0.80f, 0.3707},
+    {0.85f, 0.3551},
+    {0.90f, 0.3410},
+    {0.95f, 0.3282},
+    {1.00f, 0.3168},
+};
+#define AUX_LOAD_OFF_A 0.2538
+
+static void test_aux_load_vectors(void)
+{
+    /* The UNMARGINED model covers the modelled increment at every duty, and the scheduled level
+     * (margin, idle) covers it with room; blower off: base + idle covers the off increment. */
+    double min_model = 1e9, min_level = 1e9;
+    for (unsigned k = 0; k < sizeof AUX_LOAD / sizeof AUX_LOAD[0]; k++) {
+        float d = AUX_LOAD[k].duty;
+        double model = C.base_a + blower_aux_ps3_model_a(&C, blower_aux_vout_max_v(&C, d));
+        double level = blower_aux_level_a(&C, true, d);
+        assert(model >= AUX_LOAD[k].a && level >= AUX_LOAD[k].a);
+        if (model - AUX_LOAD[k].a < min_model) min_model = model - AUX_LOAD[k].a;
+        if (level - AUX_LOAD[k].a < min_level) min_level = level - AUX_LOAD[k].a;
+    }
+    assert(C.base_a >= AUX_LOAD_OFF_A && blower_aux_level_a(&C, false, 0) >= AUX_LOAD_OFF_A);
+    assert(blower_aux_worst_a(&C) >= AUX_LOAD[0].a && AUX_LOAD[0].duty == 0.0f);
+    /* Pinned: the model is tight (>= 5 mA over the worst point, aux-load.json
+     * unmargined_model_min_slack_A 0.0052) and the worst case is 5 mA over the full-blower 0.8815 A. */
+    printf("  aux-load vectors: unmargined model min slack %+.4f A, scheduled level min slack %+.4f A\n",
+           min_model, min_level);
+    assert(min_model >= 0.005 && min_model < 0.006);
+    assert(NEAR(blower_aux_worst_a(&C) - AUX_LOAD[0].a, 0.0055, 0.0005));
     tests++;
 }
 
@@ -104,10 +160,10 @@ static void test_allowance_points(void)
     printf("  aux allowance: off %.3f, slowest (drive 0) %.3f, typical (drive 0.5, %.2f V, %.1f W) %.3f,\n"
            "                 fan-law cap (drive %.1f) %.3f, full %.3f, unknown %.3f A\n",
            off, slowest, v_typ, p_typ, typical, (double)FAN_DRIVE_CAP, cap, full, unknown);
-    assert(NEAR(off, 1.35, 1e-5));                       /* PS1 + PS2 + PS3 idle */
-    assert(NEAR(slowest, 1.592, 0.002));
-    assert(p_typ > 16.0 && p_typ < 17.1 && NEAR(typical, 2.029, 0.002));
-    assert(NEAR(cap, 2.449, 0.002));
+    assert(NEAR(off, 0.31, 1e-5));                       /* PS2 + PS3 logic + idle */
+    assert(NEAR(slowest, 0.430, 0.001));
+    assert(p_typ > 16.0 && p_typ < 17.1 && NEAR(typical, 0.646, 0.001));
+    assert(NEAR(cap, 0.854, 0.001));
     assert(full == worst && unknown == worst);
     assert(blower_aux_level_a(&C, true, -0.1f) == worst && blower_aux_level_a(&C, true, 1.5f) == worst);
     assert(blower_aux_level_a(&C, true, INFINITY) == worst);
@@ -224,7 +280,7 @@ static void test_schedule(void)
 typedef struct { double L, C, R, v1; } tank_t;
 static const tank_t PAN = {.L = 55e-6, .C = 0.5e-6, .R = 3.5, .v1 = 108};
 #define LINE_V 120.0
-#define BASE_REAL_A 1.278 /* PS1 + PS2 at 108 V (budget16.py), under the 1.3 A allowance */
+#define BASE_REAL_A 0.2538 /* PS2 + PS3 logic, worst corner (aux-load.json), under the 0.26 A base */
 
 static double p_tank(uint32_t f)
 {
@@ -336,7 +392,7 @@ static void test_tank_hold(void)
      * itself: a half drawing exactly the hold reports a 13.5 A bound. */
     input_limits_cfg_t l = input_limits_native21();
     const struct { const char *name; float aux; } st[] = {
-        {"PS1+PS2 only (pre-stage-16 basis)", l.aux_min_a},
+        {"static part (PS2 + PS3 logic)", l.aux_min_a},
         {"blower off", blower_aux_level_a(&C, false, 0)},
         {"typical blower (drive 0.5)", level_drive(0.5f)},
         {"fan-law cap (drive 0.8)", level_drive(FAN_DRIVE_CAP)},
@@ -363,9 +419,12 @@ static void test_tank_hold(void)
         if (k == 4) hold_full = hold;
     }
     float base_120 = (13.5f - l.aux_min_a) / 1.1f * 0.93f * 120.0f;
-    assert(NEAR(base_120, 1237.7, 0.5)); /* 11.09 A (DECISIONS' 1239 W uses the rounded 11.1 A) */
-    assert(NEAR(hold_full, 9.937, 0.002) && NEAR(hold_full * 0.93f * 120, 1109.0, 1.0));
-    assert(NEAR(hold_typ, 10.428, 0.002) && NEAR(hold_typ * 0.93f * 120, 1163.8, 1.0));
+    /* temper-aux-load-r1 (s38 supplies, inlet-RMS increments): static 12.04 A / 1343 W at 120 V
+     * (the IRM basis was 11.09 A / 1238 W), full blower 11.47 A / 1280 W (was 9.94 A / 1109 W),
+     * typical 11.69 A / 1304 W (was 10.43 A / 1164 W). */
+    assert(NEAR(base_120, 1343.3, 0.5));
+    assert(NEAR(hold_full, 11.466, 0.002) && NEAR(hold_full * 0.93f * 120, 1279.6, 1.0));
+    assert(NEAR(hold_typ, 11.686, 0.002) && NEAR(hold_typ * 0.93f * 120, 1304.1, 1.0));
     tests++;
 }
 
@@ -416,6 +475,7 @@ int main(void)
     C = blower_aux_native21();
     test_config();
     test_model_sources();
+    test_aux_load_vectors();
     test_allowance_points();
     test_schedule();
     test_closed_loop_step_up();

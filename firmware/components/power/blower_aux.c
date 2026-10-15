@@ -5,8 +5,10 @@
 blower_aux_cfg_t blower_aux_native21(void)
 {
     return (blower_aux_cfg_t){
-        /* IRM-20-SPEC 2025-11-21: 0.6 A typ. at 115 Vac each, at 108 V, rounded up (input_limits). */
-        .base_a = 1.3f,
+        /* PS2 (MPM-20-24, gate bias at the 80 kHz allocation + HOT5) + PS3 logic (4.83 W, controller
+         * verify) with the blower off: their increment to the inlet RMS at the worst corner, 0.2538 A
+         * (temper-aux-load-r1 aux-load.json firmware_model_proposed), rounded up. PS1 is deleted (s38). */
+        .base_a = 0.26f,
         /* C28: 140 k / 11.5 k FB, 56.2 k + 12.1 k injection, VFB 0.788-0.812 V, v3v3 high
          * 3.242-3.367 V, 0.1 % / 1 % resistors. Envelope: 12.3999 V at duty 0 and a slope of at
          * least 6.573 V per unit duty (test_blower_aux.c recomputes both over the 32 corners). */
@@ -14,9 +16,12 @@ blower_aux_cfg_t blower_aux_native21(void)
         /* Delta BFB1012VH-F00 spec p.1 (enclosure R33 study 10): 12 V, 2.70 A / 32.40 W maximum. */
         .v_rated_v = 12.0f, .p_rated_max_w = 32.4f, .fan_law_exp = 3.0f,
         .eta_buck = 0.90f,
-        /* IRM-60-SPEC 2025-11-21 p.2, IRM-60-15: efficiency 89 % typ.; AC current 1.8 A typ. at
-         * 115 Vac -> PF = 60 / 0.89 / (115 * 1.8). Low-line corner 108 V (DECISIONS 2026-10-08). */
-        .ps3_eta = 0.89f, .ps3_pf = (60.0f / 0.89f) / (115.0f * 1.8f), .v_line_low_v = 108.0f,
+        /* PS3 = MPM-65-15ST. MPM-65-SPEC 2024-10-30 p.2: efficiency 92.5 % typ., no minimum
+         * published -> 87.5 % (typ. - 5 points). ps3_pf: the effective power factor of PS3's increment
+         * to the inlet RMS, P_in / 108 V over the increment, with its harmonics inflated to the
+         * datasheet's 1.5 A typ. AC current at 115 Vac full load; lowest over duty and 108 / 120 / 132 V
+         * is 0.6762 (aux-load.json), rounded down. Low-line corner 108 V (DECISIONS 2026-10-08). */
+        .ps3_eta = 0.875f, .ps3_pf = 0.67f, .v_line_low_v = 108.0f,
         .idle_a = 0.05f, .margin = 0.15f,
         /* Schedule. rise: 0.4 A per 100 ms blower tick, which the binding spreads over halves at
          * aux_slew_a; lead 300 ms > one tick plus the binding's ramp of one tick's step (8 halves). */

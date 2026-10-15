@@ -188,8 +188,8 @@ This step qualifies the firmware estimate that replaces a line-current sensor (D
 4. **Error:** e = (I_line − I_aux) / i_ps_a − 1 at each point. Only under-estimation is unsafe. Take e_est = max(0, max e) + the analyser's uncertainty, rounded up to 0.5 %.
    - If any point shows efficiency below 0.93, lower `eta_min` instead of folding it into e_est.
    - If e_est > 0.5 the estimator is unusable (`input_limits_config_ok` rejects it), and the board needs a hardware line-current sense (DECISIONS option (b)).
-5. **Set** `TEMPER_POWER_EST_ERROR_PPM = e_est × 10⁶`. The hold is then (13.5 − I_aux) / (1 + e_est) and the trip, where the bound reaches 15 A, (15 − I_aux) / (1 + e_est). Since stage 16, I_aux is scheduled with the blower (step 8c): 1.35 A with the blower off (11.05 / 12.41 A at the provisional 10 %), 2.03 A at typical blower (10.43 A hold), 2.57 A at full blower or whenever the drive is unknown (9.94 / 11.30 A). Recompute them and record them.
-   - I_aux in this step is the measured auxiliary current at the blower state of each point; run the grid with the blower off and again at full blower.
+5. **Set** `TEMPER_POWER_EST_ERROR_PPM = e_est × 10⁶`. The hold is then (13.5 − I_aux) / (1 + e_est) and the trip, where the bound reaches 15 A, (15 − I_aux) / (1 + e_est). Since stage 16, I_aux is scheduled with the blower (step 8c): 0.31 A with the blower off (11.99 / 13.36 A at the provisional 10 %), 0.65 A at typical blower (11.69 A hold), 0.887 A at full blower or whenever the drive is unknown (11.47 / 12.83 A). Recompute them and record them.
+   - I_aux in this step is the firmware's scheduled allowance at the blower state of each point (`blower_aux_level_a()`), NOT the auxiliaries' own RMS measured alone: they add to the line RMS only by their increment (temper-aux-load-r1), so subtracting their stand-alone RMS would understate e. Run the grid with the blower off and again at full blower; temper-aux-load-r1 `BENCH-RMS.md` is the same check at the hold.
 6. **Re-run** the grid's highest-current points with the new value. Confirm that `inlet_bound_a` ≥ the analyser's I_line at every point.
 
 ## Step 8: thermal and endurance (bench mode)
@@ -210,38 +210,38 @@ Firmware: `components/control/thermal_mgmt.{c,h}` (host-tested by `test/test_the
 
 Bench (record below):
 1. FG pulses per revolution (`BLOWER_TACH_PULSES_PER_REV`, `config.yaml`): FG frequency against an optical rpm at fixed V_BLOWER.
-2. V_BLOWER at duty 0, at 85 % and with the MCU held in reset; blower start at 85 % from standstill at the PS1 low corner.
+2. V_BLOWER at duty 0, at 85 % and with the MCU held in reset; blower start at 85 % from standstill at the PS3 low corner.
 3. Stall: lock the rotor, then unplug J10 and then open FG alone, each while driven: `power_cap_pct` falls to 10 % after > 1 s, then 0 if the sink or coil keeps rising (`BLOWER_STALL_RPM`, `BLOWER_STALL_POWER_CAP_PCT`, `BLOWER_STALL_RISE_K`).
 4. ADC top: the calibrated reading of HS / COIL / RIM with the NTC open and with a 100 kΩ resistor in its place; confirm the ~3.1 V `THERMAL_ADC_MEAS_MAX_MV`.
 5. Plausibility: unplug J12 with the pan above 150 °C (rim fault after 30 s); unplug the coil NTC (hardware OPEN_REF latch) and, separately, replace it with a 100 kΩ resistor (coil fault after 5 min at > 50 %). Tune the four constants from logged cold starts.
 
 ## Step 8c: blower supply PS3 inlet current against blower drive (replaces the model constants)
 
-Stage 16 (power-stage DECISIONS 16) feeds the blower from PS3 (Mean Well IRM-60-15ST) on the mains tap F2 / J11. The inlet estimate counts it through an allowance scheduled with the commanded blower drive (`components/power/blower_aux.{c,h}`, host-tested by `test/test_blower_aux.c`):
-- I_aux = PS1 + PS2 (1.3 A static, `aux_min_a`) + PS3(drive).
-- PS3(drive) = P_blower / η_buck / (η_PS3 × PF × 108 V), with P_blower = 32.4 W × (V / 12 V)³ (Delta's maximum at 12 V, fan law), V the C28 drive map's upper envelope, η_buck 0.90, η_PS3 0.89 and PF 0.326 (IRM-60-SPEC p.2).
-- Below full speed the allowance adds 15 % plus 0.05 A (PS3 idle).
-- Full speed, unknown drive, failed blower write, stall, boot and an unconfirmed off all use the worst case, 2.57 A.
+Stage 16 (power-stage DECISIONS 16) feeds the blower from PS3 on the mains tap F2 / J11; since s38 PS3 is a Mean Well MPM-65-15ST that also carries the controller logic (J13 merge), PS1 is deleted and PS2 is an MPM-20-24. The inlet estimate counts the auxiliaries by their increment to the inlet RMS at the hold point (temper-aux-load-r1 `aux_load.py` → `aux-load.json`), through an allowance scheduled with the commanded blower drive (`components/power/blower_aux.{c,h}`, host-tested by `test/test_blower_aux.c`):
+- I_aux = PS2 + PS3 logic (0.26 A static, `aux_min_a`; worst-corner increment 0.254 A) + PS3 blower(drive).
+- PS3 blower(drive) = P_blower / η_buck / (η_PS3 × PF_eff × 108 V), with P_blower = 32.4 W × (V / 12 V)³ (Delta's maximum at 12 V, fan law), V the C28 drive map's upper envelope, η_buck 0.90, η_PS3 0.875 (MPM-65-SPEC 2024-10-30 p.2, 92.5 % typ. − 5 points) and PF_eff 0.67 (the effective power factor of the inlet-RMS increment, its lowest over duty and line).
+- Below full speed the allowance adds 15 % plus 0.05 A.
+- Full speed, unknown drive, failed blower write, stall, boot and an unconfirmed off all use the worst case, 0.887 A (modelled 0.882 A).
 - Speed-ups take the allowance first (4 A/s, then 300 ms in force before the blower moves; the binding ramps it 0.05 A per half). A fault goes to full speed at once.
 
 All of it is PROVISIONAL. This step replaces the model with measurements.
 
 Setup:
-- Bridge idle (no power request), so the inlet carries PS1 / PS2 / PS3 only; the inlet fed from the variac through the power analyser (true RMS, ≥ 0.2 %, bandwidth ≥ 100 kHz).
+- Bridge idle (no power request), so the inlet carries PS2 / PS3 only (steps 1–4); the increment at the hold point is checked in temper-aux-load-r1 `BENCH-RMS.md`; the inlet fed from the variac through the power analyser (true RMS, ≥ 0.2 %, bandwidth ≥ 100 kHz).
 - A bench-config hook forces the blower drive (fan law bypassed); log `V_BLOWER` (J10), the 15 V rail at J13, the tach rpm and the duty.
 
 Procedure:
-1. **Baseline:** blower off with FAN_OFF confirmed (tach 0): I_PS1+PS2+PS3 at 108 / 120 / 132 V. This sets `base_a` + `idle_a`.
+1. **Baseline:** blower off with FAN_OFF confirmed (tach 0): I_PS2+PS3 at 108 / 120 / 132 V. This sets `base_a` + `idle_a`.
 2. **Sweep:** drive 0 (duty 0.85), 0.25, 0.5, 0.75, 0.8 and 1.0 (duty 0), each settled ≥ 30 s, at 108 / 120 / 132 V. Record the true-RMS inlet current, real power, PF, V_BLOWER and rpm. Do it on two blowers if available (Delta's maximum vs typical spread).
 3. **Model check:** at each point, the scheduled allowance (`blower_aux_level_a()`, printed by `test_blower_aux`) must be ≥ the measured auxiliary current. Report the worst ratio.
 4. **Replace the constants** in `blower_aux_native21()` from the data, keeping each one conservative:
    - `vout_max_v` / `vout_slope_min_v`: the measured V_BLOWER envelope against duty;
    - `fan_law_exp` and `p_rated_max_w`: a fit of P_blower against V_BLOWER, through the highest unit; if the exponent fits below 3, use the fitted value (a lower exponent gives a larger allowance at partial drive);
-   - `ps3_eta × ps3_pf`: the measured I_in × 108 V / P_out at the low line, taking the lowest product over load;
+   - `ps3_eta × ps3_pf`: P_out / (108 V × the measured inlet-RMS increment above the blower-off point, at the hold), taking the lowest product over load;
    - `idle_a` from step 1, and `margin` reduced only to cover the unit-to-unit spread seen.
    Re-run `test_blower_aux`; update its pinned numbers and the hold table in DECISIONS.
 5. **Step-up on the bench (COMMISSIONED, after 9a):** at the inlet hold on the 120 V nominal pan, force the fan law from off to 0.8 drive, then a fault (full speed at once). With the analyser at 10 ms resolution, the inlet stays ≤ 13.5 A on the normal step and < 15 A on the fault step, with no `freq_reason` other than UP_INLET / HOLD_LIMIT and no adapter trip.
-6. **Blower start (G-B1):** at a full-voltage enable, record PS3's output and input peak, and confirm no IRM-60 hiccup.
+6. **Blower start (G-B1):** at a full-voltage enable, record PS3's output and input peak, and confirm no MPM-65 hiccup.
 7. **BLW_PG (expander P16, controller C33):**
    - With PS3 on, P16 reads 1 and the diagnosis is clear.
    - Unplug J13 (PS3 output) with the bridge idle. P16 reads 0 after the 3-poll debounce, the start button stays in IDLE showing "NO BLOWER PWR", and no power is applied.
@@ -332,14 +332,14 @@ Then one reviewed change sets `CONFIG_TEMPER_POWER_CALIBRATED=y`, enters the mea
 | CT_ZC delay (ns), polarity | `CT_ZC_DELAY_NS`, `CT_ZC_INVERTED` | 0, n | | 4 |
 | LINE_ZC centre offset (µs) | `LINE_ZC_OFFSET_US` | 0 | | 5 |
 | Estimator error e_est | `EST_ERROR_PPM` | 100000 | | 7 |
-| Resulting hold / trip (A), blower off | — | 11.05 / 12.41 | | 7 |
-| Resulting hold / trip (A), full blower or unknown | — | 9.94 / 11.30 | | 7, 8c |
-| PS1 + PS2 static allowance (A) | (`blower_aux_native21` `base_a`) | 1.3 | | 8c.1 |
-| PS3 idle (A), margin below full speed | (`idle_a`, `margin`) | 0.05, 15 % | | 8c.1, 8c.4 |
+| Resulting hold / trip (A), blower off | — | 11.99 / 13.36 | | 7 |
+| Resulting hold / trip (A), full blower or unknown | — | 11.47 / 12.83 | | 7, 8c |
+| PS2 + PS3 logic static allowance (A) | (`blower_aux_native21` `base_a`) | 0.26 | | 8c.1 |
+| Idle (A), margin below full speed | (`idle_a`, `margin`) | 0.05, 15 % | | 8c.1, 8c.4 |
 | Drive map envelope (V at duty 0, V per duty) | (`vout_max_v`, `vout_slope_min_v`) | 12.40, 6.57 | | 8c.4 |
 | Blower power: max at 12 V (W), fan-law exponent | (`p_rated_max_w`, `fan_law_exp`) | 32.4, 3 | | 8c.4 |
-| PS3 η × PF at 108 V | (`ps3_eta`, `ps3_pf`) | 0.89 × 0.326 | | 8c.4 |
-| Worst-case auxiliary allowance (A) | (`input_limits` `aux_max_a`) | 2.57 | | 8c.3 |
+| PS3 η × PF_eff at 108 V | (`ps3_eta`, `ps3_pf`) | 0.875 × 0.67 | | 8c.4 |
+| Worst-case auxiliary allowance (A) | (`input_limits` `aux_max_a`) | 0.887 | | 8c.3 |
 | η_min check | (`input_limits_native21`) | 0.93 | | 7 |
 | Blower FG pulses / rev | (`BLOWER_TACH_PULSES_PER_REV`, config.yaml) | 2 | | 8b.1 |
 | Blower stall threshold (rpm) | (`BLOWER_STALL_RPM`) | 300 | | 8b.3 |
@@ -356,7 +356,7 @@ Then one reviewed change sets `CONFIG_TEMPER_POWER_CALIBRATED=y`, enters the mea
   - **GPIO:** none is free. The candidates are TCA9555 P06/P07 (slow, adequate for an enable that is not a trip path), or freeing a GPIO.
   - **Rejected:** turning MAX31865 BIAS off to trip the runaway comparator as a stop. That makes a firmware reset request the "run" action, i.e. firmware asserting PERMIT.
 - **H2. No power actuator at a fixed frequency.**
-  - The adapter computes a conductance from the inlet hold (11.1 A; 9.94–11.05 A with the stage-16 blower allowance) and min(pan, tank ceiling), but `fullbridge_apply` uses it only as on/off. Phase shift is removed (DECISIONS 2026-10-05) and frequency is fixed (`power_service_frequency` accepts only the configured value).
+  - The adapter computes a conductance from the inlet hold (11.1 A pre-stage-16; 11.47–11.99 A with the blower-scheduled allowance on the s38 supplies) and min(pan, tank ceiling), but `fullbridge_apply` uses it only as on/off. Phase shift is removed (DECISIONS 2026-10-05) and frequency is fixed (`power_service_frequency` accepts only the configured value).
   - **Stage 15 (partly closed):** the per-pan frequency loop (`tank_freq.h`) now regulates the tank ceiling, the inlet hold and the peak limit by frequency, from 60 kHz down. The trips stay as the backstop (adapter 15 A inlet bound; binding 1.05 × ceiling on the half-cycle RMS).
   - **Power level:** the adapter's `requested_w` (`power_set_level`) is the loop's power target: input power = min(request, the limit-bound maximum), in a ±6 % dead band (wider than the ~5.7 % power change of one 250 Hz step, so it cannot chatter). Every limit wins over the request; level 0 stops the bridge.
   - **Still open (H12):** below the power the pan draws at 60 kHz the loop caps at 60 kHz and over-delivers.

@@ -557,7 +557,7 @@ target_compile_options(test_tank_freq PRIVATE -UNDEBUG -Wall -Wextra -Werror)
 add_test(NAME tank_freq_tests COMMAND test_tank_freq)
 
 # Stage-16 blower supply (PS3): inlet allowance scheduled from the blower drive, its model against
-# the C28 drive map and the Delta / IRM-60 data, the allowance-first speed-up in closed loop with
+# the C28 drive map, the Delta data and the temper-aux-load-r1 MPM-20 / MPM-65 increments, the allowance-first speed-up in closed loop with
 # the frequency loop, and the resulting tank holds at 108 / 120 / 132 V.
 add_executable(test_blower_aux test_blower_aux.c ../components/power/blower_aux.c
     ../components/power/input_limits.c ../components/power/tank_freq.c

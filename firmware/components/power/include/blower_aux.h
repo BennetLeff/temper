@@ -1,40 +1,51 @@
 #ifndef TEMPER_BLOWER_AUX_H
 #define TEMPER_BLOWER_AUX_H
 /*
- * Inlet allowance for the blower supply PS3, scheduled with the blower drive (power-stage
+ * Inlet allowance for the auxiliary supplies PS2 + PS3, scheduled with the blower drive (power-stage
  * DECISIONS 16; stage-16 PLAN section 5, budget16.py). Pure functions, no HAL; host-tested by
  * firmware/test/test_blower_aux.c.
  *
- * Stage 16 moves the blower off PS1 onto its own module, PS3 (Mean Well IRM-60-15ST, mains tap
- * F2 / J11), so the inlet carries three modules. The firmware inlet estimate (input_limits.h)
- * adds an auxiliary allowance to the power-stage estimate and regulates the total to 13.5 A:
- *   I_aux = PS1 + PS2 (static, the existing 1.3 A basis) + PS3(drive).
- * A static PS3 at full blower (I_aux 2.57 A) holds the power stage at 9.94 A, -127 W against the
- * 1239 W hold. Scheduling PS3 with the drive the fan law actually commands returns most of that
- * whenever the blower runs below full speed.
+ * The inlet feeds two modules since s38 (PS1 deleted): PS2 (Mean Well MPM-20-24, HOT side, gate
+ * bias + HOT5) and PS3 (MPM-65-15ST, mains tap F2 / J11: the controller logic through the J13 merge
+ * plus the blower buck). The firmware inlet estimate (input_limits.h) adds an auxiliary allowance
+ * to the power-stage estimate and regulates the total to 13.5 A:
+ *   I_aux = base (PS2 + PS3 logic, static) + PS3 blower(drive).
+ * The allowance is each module's INCREMENT to the inlet RMS at the hold point, RMS(i_ps + i_aux) -
+ * RMS(i_ps), not the linear sum of datasheet AC currents: the power stage draws a near-sinusoidal
+ * in-phase current, so the auxiliaries add mostly their real-power current P_in / V plus a
+ * harmonic term (temper-aux-load-r1, aux_load.py -> aux-load.json, the single source of the
+ * numbers below). At full blower the static worst case is 0.887 A, holding the power stage at
+ * 11.47 A (it was 2.57 A / 9.94 A on the IRM-20 + IRM-60 linear-sum basis).
  *
- * PS3(drive) model, conservative at every step (all values PROVISIONAL until COMMISSIONING.md
- * step 8c measures PS3's input current against the drive and replaces them):
+ * Model, conservative at every step (all values PROVISIONAL until COMMISSIONING.md step 8c measures
+ * the inlet true-RMS current against the drive and replaces them):
+ *   0. base_a: the worst-corner increment with the blower off, 0.2538 A, rounded up to 0.26 A.
+ *      Worst corner: 108 V; PS2 at the 80 kHz bias allocation (11.6 W); logic 4.83 W (every part at
+ *      datasheet maximum); efficiency typ. - 5 points; each module's harmonics inflated until its
+ *      full-load RMS equals the datasheet AC current (MPM-20-SPEC / MPM-65-SPEC 2024-10-30 p.2:
+ *      0.75 A / 1.5 A typ. at 115 Vac); the power-stage current with 20 % 3rd harmonic, worst sign.
  *   1. Drive -> blower voltage: the C28 buck with GPIO46 injection, duty 0 = full speed.
  *      V(duty) <= vout_max_v - vout_slope_min_v * duty, the upper envelope over every VFB,
  *      resistor and v3v3 corner (12.40 V at duty 0, 6.81 V at the 0.85 duty cap).
  *   2. Blower power: fan law P = p_rated_max_w * (V / v_rated_v)^fan_law_exp, anchored on the
  *      Delta BFB1012VH-F00's MAXIMUM 32.4 W at 12 V (spec p.1, enclosure R33 study 10; typical
  *      is 17.0 W), so 35.7 W at the 12.40 V corner.
- *   3. PS3 output = P / eta_buck (TPS62933, 0.90, controller C28 / controller_calcs.json).
- *   4. PS3 input current at the low-line corner: P_out / (ps3_eta * ps3_pf * v_line_low_v), with
- *      ps3_eta = 89 % (IRM-60-15 typ., IRM-60-SPEC 2025-11-21 p.2) and the capacitor-input power
- *      factor implied by the same page's AC current, 1.8 A typ. at 115 Vac full load:
- *      PF = (60 W / 0.89) / (115 V * 1.8 A) = 0.326. At full blower this is 1.27 A, the
- *      budget16.py basis; total worst case 1.3 + 1.27 = 2.57 A.
- *   5. Margin below full speed: (1 + margin) on the modelled current plus idle_a (PS3 no-load and
- *      X-capacitor current; < 0.15 W no-load, p.1) - light-load efficiency and power factor are
- *      worse than the full-load figures above - capped at the worst case.
+ *   3. PS3 output added by the blower = P / eta_buck (TPS62933, 0.90, controller C28).
+ *   4. Inlet increment above base at the low-line corner: P_out / (ps3_eta * ps3_pf * v_line_low_v),
+ *      ps3_eta = 87.5 % (MPM-65 92.5 % typ., MPM-65-SPEC 2024-10-30 p.2, less 5 points: no minimum
+ *      is published) and ps3_pf = 0.67, the effective power factor of the increment (real-power
+ *      current over increment above base at the same worst corner). It falls with load, so the
+ *      lowest value over duty 0..1 and 108 / 120 / 132 V (0.676, at full blower) is used, rounded
+ *      down: the unmargined model alone is >= the worst-corner increment at every duty (by >= 5 mA;
+ *      test_blower_aux.c pins the aux-load.json vectors). Full blower: 0.627 A; worst case
+ *      0.26 + 0.627 = 0.887 A against 0.882 A modelled.
+ *   5. Margin below full speed: (1 + margin) on the modelled current plus idle_a (PS3 X-capacitor
+ *      and light-load spread), capped at the worst case.
  *   The worst case (no margin: it already stacks the blower's maximum power, the buck's high
- *   voltage corner and the low line) is used whenever the drive is unknown: at boot, after a
- *   failed blower write, with the blower faulted (stall), at full speed (duty 0, the fan law's
- *   fault output), and with the blower commanded off but still turning (FAN_OFF not confirmed
- *   by the tach).
+ *   voltage corner, the low line and the worst module corner) is used whenever the drive is
+ *   unknown: at boot, after a failed blower write, with the blower faulted (stall), at full speed
+ *   (duty 0, the fan law's fault output), and with the blower commanded off but still turning
+ *   (FAN_OFF not confirmed by the tach).
  *
  * Schedule (blower_aux_step(), once per blower tick, between blower_ctrl and the hardware):
  *   - Speed-up: allowance first. The allowance rises at rise_a_per_s towards the level of the
@@ -60,7 +71,7 @@
 #include <stdint.h>
 
 typedef struct {
-    float base_a;              /* PS1 + PS2 static allowance (input_limits aux_min_a), A */
+    float base_a;              /* PS2 + PS3 logic static allowance (input_limits aux_min_a), A */
     /* drive -> blower voltage (C28 buck, upper envelope) */
     float vout_max_v;          /* at duty 0 */
     float vout_slope_min_v;    /* minimum dV / d(duty) over the corners */
@@ -68,8 +79,8 @@ typedef struct {
     float v_rated_v, p_rated_max_w, fan_law_exp;
     float eta_buck;
     /* PS3 */
-    float ps3_eta, ps3_pf, v_line_low_v;
-    float idle_a;              /* PS3 input with the blower off (FAN_OFF) or added below full speed */
+    float ps3_eta, ps3_pf, v_line_low_v; /* ps3_pf: effective PF of the inlet-RMS increment */
+    float idle_a;              /* added with the blower off (FAN_OFF) and below full speed */
     float margin;              /* relative, below full speed */
     /* schedule */
     float rise_a_per_s, urgent_a_per_s, fall_a_per_s;
@@ -83,7 +94,7 @@ bool blower_aux_config_ok(const blower_aux_cfg_t *);
 /* Model pieces (exposed for the tests and telemetry). */
 float blower_aux_vout_max_v(const blower_aux_cfg_t *, float duty);  /* NaN / < 0 duty: full */
 float blower_aux_ps3_model_a(const blower_aux_cfg_t *, float vout_v); /* unmargined */
-float blower_aux_worst_a(const blower_aux_cfg_t *);                  /* PS1 + PS2 + PS3 full */
+float blower_aux_worst_a(const blower_aux_cfg_t *);                  /* base + PS3 blower full */
 /* Total allowance for a blower state: off -> base + idle; on -> base + PS3(duty) with margin,
  * capped at the worst case; duty 0 (full speed) or invalid -> the worst case. */
 float blower_aux_level_a(const blower_aux_cfg_t *, bool on, float duty);

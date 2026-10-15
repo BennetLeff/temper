@@ -176,11 +176,11 @@ static const n21_hw_ops_t OPS = {
 
 /* Blower-schedule allowance handed to the binding every 100 ms by run_ms() (thermal_io.c does it
  * every blower tick). The fixed-operating-point scenarios below run with the blower off (stopped):
- * PS1 + PS2 + PS3 idle, 1.35 A. NAN: no schedule (the binding stays at the worst case). */
+ * PS2 + PS3 logic + idle, 0.31 A. NAN: no schedule (the binding stays at the worst case). */
 static float G_aux;
 static void fake_reset(bool with_gate)
 {
-    G_aux = 1.35f;
+    G_aux = 0.31f;
     memset(&F, 0, sizeof F);
     F.now = 1000000;
     F.next_zero = 1003000;
@@ -935,7 +935,7 @@ static void test_aux_allowance_live(void)
     G_aux = NAN;
     n21_config_t c = commissioned_cfg();
     float worst = c.limits.aux_max_a;
-    assert(NEAR(worst, 2.569, 0.002) && c.limits.aux_min_a == 1.3f && c.aux_slew_a == 0.05f);
+    assert(NEAR(worst, 0.887, 0.0005) && c.limits.aux_min_a == 0.26f && c.aux_slew_a == 0.05f);
     assert(bind_commissioned(c));
     n21_telemetry_t t;
     n21_telemetry(&B, &t);
@@ -944,12 +944,12 @@ static void test_aux_allowance_live(void)
     n21_telemetry(&B, &t);
     assert(t.aux_a == worst && t.have_half && NEAR(t.last_half.est.inlet_bound_a, worst, 1e-4)); /* idle */
     /* Blower off: down at once. */
-    assert(n21_set_aux_allowance(&B, 1.35f));
+    assert(n21_set_aux_allowance(&B, 0.31f));
     run_ms(20);
     n21_telemetry(&B, &t);
-    assert(t.aux_a == 1.35f && NEAR(t.last_half.est.inlet_bound_a, 1.35, 1e-4));
-    /* Speed-up scheduled to 2.4 A: 0.05 A per half, never a step. */
-    assert(n21_set_aux_allowance(&B, 2.4f));
+    assert(t.aux_a == 0.31f && NEAR(t.last_half.est.inlet_bound_a, 0.31, 1e-4));
+    /* Speed-up scheduled to 0.8 A: 0.05 A per half, never a step. */
+    assert(n21_set_aux_allowance(&B, 0.8f));
     uint32_t h0 = t.halves_ok, h_start = t.halves_ok;
     float prev = t.aux_a;
     for (unsigned k = 0; k < 40; k++) {
@@ -957,15 +957,15 @@ static void test_aux_allowance_live(void)
         n21_telemetry(&B, &t);
         unsigned dh = t.halves_ok - h0;
         assert(t.aux_a - prev <= 0.05f * (float)dh + 1e-4f);
-        assert(t.aux_a <= 1.35f + 0.05f * (float)(t.halves_ok - h_start) + 1e-4f);
+        assert(t.aux_a <= 0.31f + 0.05f * (float)(t.halves_ok - h_start) + 1e-4f);
         h0 = t.halves_ok;
         prev = t.aux_a;
     }
-    assert(t.aux_a == 2.4f);
+    assert(t.aux_a == 0.8f);
     /* Out of range or NaN: the worst case. */
-    const float bad[] = {1.0f, 3.0f, NAN, INFINITY};
+    const float bad[] = {0.1f, 3.0f, NAN, INFINITY};
     for (unsigned k = 0; k < 4; k++) {
-        assert(n21_set_aux_allowance(&B, 1.35f));
+        assert(n21_set_aux_allowance(&B, 0.31f));
         run_ms(20);
         assert(n21_set_aux_allowance(&B, bad[k]));
         run_ms(300);
@@ -973,14 +973,14 @@ static void test_aux_allowance_live(void)
         assert(t.aux_a == worst);
     }
     /* Stale: no update for > aux_max_age_us (the thermal task stopped): back to the worst case. */
-    assert(n21_set_aux_allowance(&B, 1.35f));
+    assert(n21_set_aux_allowance(&B, 0.31f));
     run_ms(400);
     n21_telemetry(&B, &t);
-    assert(t.aux_a == 1.35f);
+    assert(t.aux_a == 0.31f);
     run_ms(200 + 300);
     n21_telemetry(&B, &t);
     assert(t.aux_a == worst);
-    assert(!n21_set_aux_allowance(NULL, 1.35f));
+    assert(!n21_set_aux_allowance(NULL, 0.31f));
     /* Default config: the knobs are validated. */
     c = commissioned_cfg();
     power_binding_t pb;

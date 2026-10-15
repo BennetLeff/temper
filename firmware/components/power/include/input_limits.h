@@ -17,10 +17,11 @@
  * (13.5 - I_aux) / (1 + est_error). Bench qualification of est_error (true-RMS line current vs
  * the estimate, 108/120/132 V x pans) replaces the provisional 10 %.
  *
- * Auxiliary allowance I_aux (power-stage DECISIONS 16, stage-16 PLAN section 5). The inlet feeds
- * three modules: PS1 + PS2 (IRM-20, logic and gate drive, static aux_min_a = 1.3 A) and, from
- * stage 16, PS3 (IRM-60-15ST on the F2 / J11 mains tap) for the blower. aux_max_a is the worst
- * case, PS1 + PS2 + PS3 at full blower (blower_aux.h: 2.57 A, hold 9.94 A), and is what
+ * Auxiliary allowance I_aux (power-stage DECISIONS 16, stage-16 PLAN section 5). Since s38 the
+ * inlet feeds two modules: PS2 (MPM-20-24, gate drive) and PS3 (MPM-65-15ST on the F2 / J11 mains
+ * tap, controller logic + blower). Each is counted by its increment to the inlet RMS at the hold
+ * point (blower_aux.h): static aux_min_a = 0.26 A with the blower off; aux_max_a is the worst
+ * case, PS3 blower at full (0.887 A, hold 11.47 A; temper-aux-load-r1 aux-load.json), and is what
  * input_limits_half_cycle() uses. The binding replaces it, per half, with the allowance scheduled
  * from the commanded blower drive (blower_aux.h, n21_set_aux_allowance()) through
  * input_limits_half_cycle_aux(); a missing, stale or out-of-range allowance falls back to
@@ -30,9 +31,9 @@
 typedef struct {
     float eta_min;      /* inverter + bridge efficiency lower bound, 0.5..1 */
     float est_error;    /* estimator relative error bound, 0..0.5 */
-    float aux_max_a;    /* worst-case auxiliary allowance: PS1 + PS2 + PS3 at full blower */
-    float aux_min_a;    /* static part, PS1 + PS2 (both IRM-20 at full load): the lowest
-                         * allowance a schedule may set */
+    float aux_max_a;    /* worst-case auxiliary allowance: PS2 + PS3 with the blower at full */
+    float aux_min_a;    /* static part, PS2 + PS3 logic (blower off, inlet-RMS increment): the
+                         * lowest allowance a schedule may set */
     float tank_limit_a; /* commissioned tank RMS ceiling: 22 A default, <= 28 A (hardware basis) */
 } input_limits_cfg_t;
 typedef struct {

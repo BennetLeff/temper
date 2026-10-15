@@ -312,7 +312,7 @@ float blower_pwm_duty_from_drive(float drive);
 uint32_t blower_ledc_counts(float duty, unsigned res_bits);
 
 /* ---------------------------------------------------------------- blower supply (stage 16, C33) */
-/* PS3 (IRM-60-15ST) feeds the blower buck through J13; BLW_PG (expander P16, a 20 k / 4.7 k divider
+/* PS3 (MPM-65-15ST since s38) feeds the blower buck through J13; BLW_PG (expander P16, a 20 k / 4.7 k divider
  * from V15_BLW) reads 1 with PS3 present. The glue hands in the debounced level
  * (controller_board.h ctrl_blw_pg_t: 3 polls at 10 ms; a failed or stale expander read = UNKNOWN). */
 typedef enum {
