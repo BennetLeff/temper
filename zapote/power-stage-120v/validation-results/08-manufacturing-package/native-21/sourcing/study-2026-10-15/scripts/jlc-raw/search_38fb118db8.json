@@ -1,0 +1,397 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 2,
+   "list": [
+    {
+     "componentId": 4746049,
+     "componentLibraryType": "expand",
+     "stockCount": 1380,
+     "componentTypeEn": "Chip Resistor - Surface Mount",
+     "erpComponentName": "1m\u03a9 \u00b11% 5W",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/chip-resistor-surface-mount_bourns-css2h-2512r-1l00f_C4175647.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5642
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4549
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3995
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.3457
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3131
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2968
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2859
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4383
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3848
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5435
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3016
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.333
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "a49341812cad4b0bafa2ddd547a82bd4",
+     "canPresaleNumber": 1344,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "BOURNS-CSS2H_2512R1L00F/C4175647",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 1.5509,
+     "preMinPurchaseNum": 20,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.5642,
+     "componentCode": "C4175647",
+     "componentBrandEn": "BOURNS",
+     "componentModelEn": "CSS2H-2512R-1L00F",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8584856167046107136",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401221722_BOURNS-CSS2H-2512R-1L00F_C4175647.pdf",
+     "dataManualFileAccessId": "8590250993716920320",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "BOURNS CSS2H-2512R-1L00F",
+     "minImage": "",
+     "minImageAccessId": "8584856167915139072",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "2512",
+     "describe": "-55\u2103~+170\u2103 1m\u03a9 5W \u00b11% \u00b150ppm/\u2103 2512 Chip Resistor - Surface Mount ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "1m\u03a9"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+170\u2103"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "5W"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b11%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b150ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Chip Resistor - Surface Mount",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>CSS2H-2512R-1L00F</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2185257,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Current Sense Resistors / Shunt Resistors",
+     "erpComponentName": "1m\u03a9 \u00b11% 5W",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/current-sense-resistors-shunt-resistors_bourns-css2h-2512r-1l00fe_C2093666.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.1197
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.117
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.115
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.1132
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.1132
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.1132
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.1153
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.1091
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.1127
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.1091
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.1108
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.1091
+      }
+     ],
+     "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+     "secondSortAccessId": "84b4ca3d6c6349f298bee26651c69d63",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "BOURNS-CSS2H_2512R1L00FE/C2093666",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 3.4198,
+     "preMinPurchaseNum": 79,
+     "minPurchaseNum": 79,
+     "initialPrice": 0.115,
+     "componentCode": "C2093666",
+     "componentBrandEn": "BOURNS",
+     "componentModelEn": "CSS2H-2512R-1L00FE",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583286932449742848",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_BOURNS-CSS2H-2512R-1L00FE_C2093666.pdf",
+     "dataManualFileAccessId": "8588893333561622528",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "BOURNS CSS2H-2512R-1L00FE",
+     "minImage": "",
+     "minImageAccessId": "8583286933284139008",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "2512",
+     "describe": "1m\u03a9 5W Current Sense Resistor \u00b11% \u00b175ppm/\u2103 2512 Current Sense Resistors / Shunt Resistors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Resistance",
+       "attribute_value_name": "1m\u03a9"
+      },
+      {
+       "attribute_name_en": "Power(Watts)",
+       "attribute_value_name": "5W"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "Current Sense Resistor"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b11%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "\u00b175ppm/\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Current Sense Resistors / Shunt Resistors",
+     "secondSortName": "Resistors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>CSS2H-2512R-1L00F</span>E",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "CSS2H-2512R-1L00F"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-15T06:41:23Z"
+}

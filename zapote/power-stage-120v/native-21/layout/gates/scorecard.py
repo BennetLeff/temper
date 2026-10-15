@@ -18,6 +18,9 @@ containment, CMTI). Every metric names its source file. Three groups:
 * performance: margins, each with a direction ("higher" or "lower" is better).
 * cost: parts, lines, JLC extended lines, hand / consigned lines, parts cost at 5 and 500 boards (joined to the
   stock survey by MPN; lines it lacks count as unpriced), vias, board area, zero-stock and single-source lines.
+  Buildability (added 2026-10-15, sourcing study; --snapshot, a SNAPSHOT-*.csv from build_snapshot.py): lines no single
+  source holds for 5 / 500 boards, the share JLC can place from its own stock or via Global Sourcing, consign-only lines,
+  and the build lead (max factory lead among lines short everywhere). A snapshot is dated: re-take it before comparing.
 
 --compare BENCH.json applies the acceptance rule fixed on 2026-10-13 (RESOLUTION-PLAN / benchmark README) against a
 benchmark's scorecard: every gate passes; no performance metric is worse than the benchmark beyond its tolerance;
@@ -288,6 +291,46 @@ def cost(b, bom_path, stock_path):
     return c
 
 
+def _bom_tier(r, n):
+    """jlc: JLC library + JLC stock >= need; global: one authorised distributor holds need (JLC Global Sourcing);
+    consign: stock exists only split / at brokers; short: no source. Same rule as sourcing/scripts/buildability.py."""
+    need = int(r["qty_per_board"]) * n
+    js, ab = float(r["jlc_stock"] or 0), float(r["auth_best_stock"] or 0)
+    if r["jlc_library"] in ("basic", "extended") and js >= need:
+        return "jlc"
+    if ab >= need:
+        return "global"
+    tot = js + float(r["auth_total_stock"] or 0) + float(r.get("unauth_max_stock") or 0)
+    return "consign" if tot >= need else "short"
+
+
+def buildability(bom_path, snap_path):
+    """Lines of BOM joined by MPN to the snapshot; a BOM line the snapshot lacks counts as short with unknown lead."""
+    if not snap_path or not Path(snap_path).exists():
+        return {}
+    snap = {r["mpn"].strip(): r for r in csv.DictReader(open(snap_path))}
+    rows = list(csv.DictReader(open(bom_path)))
+    b = {}
+    for n in (5, 500):
+        tiers, leads, unknown = [], [], 0
+        for r in rows:
+            s = snap.get(r["Manufacturer Part Number"].strip())
+            t = _bom_tier(s, n) if s else "short"
+            tiers.append(t)
+            if t == "short":
+                lw = (s or {}).get("factory_lead_wk", "")
+                if lw in ("", None):
+                    unknown += 1
+                else:
+                    leads.append(float(lw))
+        b[f"lines_short_for_{n}"] = sum(t in ("short", "consign") for t in tiers)
+        b[f"jlc_assemblable_share_{n}"] = round(sum(t in ("jlc", "global") for t in tiers) / len(rows), 3)
+        b[f"consign_lines_{n}"] = sum(t == "consign" for t in tiers)
+        b[f"build_lead_wk_{n}"] = max(leads) if leads else 0
+        b[f"short_lead_unknown_{n}"] = unknown
+    return b
+
+
 def compare(cur, bench):
     reasons, better = [], []
     for k, ok in cur["gates"].items():
@@ -304,9 +347,14 @@ def compare(cur, bench):
             better.append(k)
     ca, cb = cur["cost"], bench["cost"]
     cheaper = [k for k in ("parts_usd_at_500", "bom_lines", "placements", "jlc_extended_lines", "hand_or_consign_lines",
-                           "consign_lines", "zero_stock_lines") if k in ca and k in cb and ca[k] < cb[k]]
-    dearer = [k for k in ("parts_usd_at_500", "bom_lines", "jlc_extended_lines", "hand_or_consign_lines", "consign_lines")
+                           "consign_lines", "zero_stock_lines", "lines_short_for_500", "lines_short_for_5", "build_lead_wk_500")
+               if k in ca and k in cb and ca[k] < cb[k]]
+    dearer = [k for k in ("parts_usd_at_500", "bom_lines", "jlc_extended_lines", "hand_or_consign_lines", "consign_lines",
+                          "lines_short_for_500", "lines_short_for_5", "build_lead_wk_500")
               if k in ca and k in cb and ca[k] > cb[k]]
+    for k in ("jlc_assemblable_share_500", "jlc_assemblable_share_5"):     # higher is better
+        if k in ca and k in cb:
+            (cheaper if ca[k] > cb[k] else dearer if ca[k] < cb[k] else []).append(k)
     if dearer and not better:
         reasons.append(f"costlier on {dearer} with no performance gain")
     if not cheaper and not better:
@@ -322,6 +370,9 @@ def main():
     ap.add_argument("--bom", default=str(FAB / "bom-jlcpcb.csv"))
     ap.add_argument("--stock", default=",".join(str(p) for p in sorted((VR / "08-manufacturing-package/native-21/sourcing").glob("STOCK-2026-10-13*.csv"))),
                     help="comma-separated stock CSVs; addenda (STOCK-2026-10-13-addendum-*.csv) add rows for new MPNs")
+    snaps = sorted((VR / "08-manufacturing-package/native-21/sourcing").glob("SNAPSHOT-*.csv"))
+    ap.add_argument("--snapshot", default=str(snaps[-1]) if snaps else "",
+                    help="dated stock snapshot (build_snapshot.py) for the buildability metrics; latest by name")
     ap.add_argument("--audit")
     ap.add_argument("--json")
     ap.add_argument("--compare")
@@ -337,6 +388,9 @@ def main():
     card = {"tag": a.tag, "build": str(b), "board_sha256": (jload(b / "barrier-gate-rust.json") or {}).get("board_sha256"),
             "gates": gates(b, a.tag, a.audit), "performance": perf, "cost": cost(b, Path(a.bom), a.stock),
             "sources": src}
+    card["cost"].update(buildability(Path(a.bom), a.snapshot))
+    if a.snapshot:
+        card["sources"]["buildability"] = a.snapshot
     for grp in ("gates", "performance", "cost"):
         print(f"[{grp}]")
         for k, v in card[grp].items():

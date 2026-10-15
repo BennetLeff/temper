@@ -1,0 +1,186 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 1,
+   "list": [
+    {
+     "componentId": 4366638,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "1.5uF \u00b110% 630V 250V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r75pr4150aa30k_C3798966.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.3631
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.3631
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.3631
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 351,
+       "productPrice": 0.5283
+      },
+      {
+       "startNumber": 352,
+       "endNumber": 1055,
+       "productPrice": 0.5104
+      },
+      {
+       "startNumber": 1056,
+       "endNumber": -1,
+       "productPrice": 0.5006
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 200,
+       "endNumber": 351,
+       "productPrice": 0.5089
+      },
+      {
+       "startNumber": 352,
+       "endNumber": 1055,
+       "productPrice": 0.4917
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.3131
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.3131
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.3131
+      },
+      {
+       "startNumber": 1056,
+       "endNumber": -1,
+       "productPrice": 0.4822
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R75PR4150AA30K/C3798966",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 352,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 7,
+     "minPurchaseNum": 7,
+     "initialPrice": 1.3631,
+     "componentCode": "C3798966",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R75PR4150AA30K",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161243_KEMET-R75PR4150AA30K_C3798966.pdf",
+     "dataManualFileAccessId": "8603111429138628608",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R75PR4150AA30K",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-55\u2103~+105\u2103 1.5uF 250V\u3001630V \u00b110% Plugin,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "250V\u3001630V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1.5uF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R75PR4150AA30K</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "R75PR4150AA30K"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-15T06:41:16Z"
+}

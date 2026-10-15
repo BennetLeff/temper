@@ -1,0 +1,190 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 1,
+   "list": [
+    {
+     "componentId": 52704084,
+     "componentLibraryType": "expand",
+     "stockCount": 64,
+     "componentTypeEn": "Current Sensors",
+     "erpComponentName": "\u7535\u6d41\u611f\u5e94\u53d8\u538b\u5668\uff0c\u6700\u9ad81MHz\u53ca\u4ee5\u4e0a\uff0c\u611f\u5e94\u7535\u6d4180A\u53ca\u66f4\u9ad8",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.7088
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.5343
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 7.4186
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 91,
+       "productPrice": 7.3028
+      },
+      {
+       "startNumber": 92,
+       "endNumber": 93,
+       "productPrice": 7.3028
+      },
+      {
+       "startNumber": 94,
+       "endNumber": -1,
+       "productPrice": 7.3028
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.2578
+      },
+      {
+       "startNumber": 92,
+       "endNumber": 93,
+       "productPrice": 7.0348
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 91,
+       "productPrice": 7.0348
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.4259
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 7.1463
+      },
+      {
+       "startNumber": 94,
+       "endNumber": -1,
+       "productPrice": 7.0348
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 64,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Coilcraft-CST3015200ED/C50132500",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 90,
+     "shopCostPrice": 37.05171,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 7.7088,
+     "componentCode": "C50132500",
+     "componentBrandEn": "Coilcraft",
+     "componentModelEn": "CST3015-200ED",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.coilcraft.com/getmedia/df31d5fe-b3af-4586-82a7-7b773ac9f838/cst3015.pdf",
+     "componentName": "Coilcraft CST3015-200ED",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD-4P",
+     "describe": "-40\u2103~+125\u2103 5kVrms SMD-4P Current Sensors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Current Range",
+       "attribute_value_name": "87A"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Isolation Voltage(Vrms)",
+       "attribute_value_name": "5kVrms"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Current Terminal Resistance",
+       "attribute_value_name": "0.1m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Current Sensors",
+     "secondSortName": "Magnetic Sensors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>CST3015-200ED</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "CST3015-200ED"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-15T06:41:22Z"
+}

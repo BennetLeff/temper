@@ -1,0 +1,1870 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 45,
+   "list": [
+    {
+     "componentId": 4355368,
+     "componentLibraryType": "expand",
+     "stockCount": 10,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "220nF \u00b15% 650V 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r76tr322050h3j_C3787700.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.9164
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 6.768
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 6.6686
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 6.5691
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 6.5691
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 6.5691
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 6.328
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 6.328
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 6.4238
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.6626
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 6.328
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 6.5197
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 10,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76TR322050H3J/C3787700",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 128,
+     "shopCostPrice": 31.65,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 6.9164,
+     "componentCode": "C3787700",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76TR322050H3J",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8770826632523194368",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161158_KEMET-R76TR322050H3J_C3787700.pdf",
+     "dataManualFileAccessId": "8590273582950748160",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76TR322050H3J",
+     "minImage": "",
+     "minImageAccessId": "8770826633601671168",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-55\u2103~+125\u2103 220nF 650V\u30011.6kV \u00b15% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "Polypropylene"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "650V\u30011.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "220nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76TR</span>322050H3J",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4371781,
+     "componentLibraryType": "expand",
+     "stockCount": 5,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "120nF \u00b15% 650V 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r76tr312050h3j_C3804109.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.8126
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.7522
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.7115
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 2.6723
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 2.6723
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 2.6723
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 2.5743
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.6512
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 2.5743
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.7094
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.612
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 2.5743
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 5,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76TR312050H3J/C3804109",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 288,
+     "shopCostPrice": 12.8683,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.8126,
+     "componentCode": "C3804109",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76TR312050H3J",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161301_KEMET-R76TR312050H3J_C3804109.pdf",
+     "dataManualFileAccessId": "8590261435616813056",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76TR312050H3J",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-55\u2103~+125\u2103 120nF 650V\u30011.6kV \u00b15% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "Polypropylene"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "650V\u30011.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "120nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76TR</span>312050H3J",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4350363,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "470nF \u00b15% 650V 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r76tr34704030j_C3782697.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 9.5023
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 9.3066
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 9.1778
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 9.0474
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 9.0474
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 9.0474
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 8.7154
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 8.7154
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 8.841
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 9.1536
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 8.7154
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 8.9651
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76TR34704030J/C3782697",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 112,
+     "shopCostPrice": 41.622,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 9.5023,
+     "componentCode": "C3782697",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76TR34704030J",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585133785180069888",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161137_KEMET-R76TR34704030J_C3782697.pdf",
+     "dataManualFileAccessId": "8590434357342613504",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76TR34704030J",
+     "minImage": "",
+     "minImageAccessId": "8585133785981992960",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-55\u2103~+110\u2103 470nF 650V\u30011.6kV \u00b15% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Dielectric Material",
+       "attribute_value_name": "Polypropylene"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "650V\u30011.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "470nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76TR</span>34704030J",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4350390,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "100nF \u00b15% 650V 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r76tr310050h3j_C3782724.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.874
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.874
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 335,
+       "productPrice": 0.874
+      },
+      {
+       "startNumber": 336,
+       "endNumber": 671,
+       "productPrice": 0.3392
+      },
+      {
+       "startNumber": 672,
+       "endNumber": 1007,
+       "productPrice": 0.3278
+      },
+      {
+       "startNumber": 1008,
+       "endNumber": -1,
+       "productPrice": 0.3212
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1008,
+       "endNumber": -1,
+       "productPrice": 0.3095
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.8419
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8419
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 335,
+       "productPrice": 0.8419
+      },
+      {
+       "startNumber": 672,
+       "endNumber": 1007,
+       "productPrice": 0.3157
+      },
+      {
+       "startNumber": 336,
+       "endNumber": 671,
+       "productPrice": 0.3267
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76TR310050H3J/C3782724",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 336,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 11,
+     "minPurchaseNum": 11,
+     "initialPrice": 0.874,
+     "componentCode": "C3782724",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76TR310050H3J",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161137_KEMET-R76TR310050H3J_C3782724.pdf",
+     "dataManualFileAccessId": "8590311031886286848",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76TR310050H3J",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-55\u2103~+125\u2103 100nF 650V\u30011.6kV \u00b15% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "650V\u30011.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "100nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76TR</span>310050H3J",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4351346,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "390nF \u00b15% 650V 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r76tr339050h3j_C3783679.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.231
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.231
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 4.231
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.637
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.5799
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.5522
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.4953
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.5769
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 4.0758
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.0758
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.522
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.0758
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76TR339050H3J/C3783679",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 112,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 4.231,
+     "componentCode": "C3783679",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76TR339050H3J",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161141_KEMET-R76TR339050H3J_C3783679.pdf",
+     "dataManualFileAccessId": "8590279520298303488",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76TR339050H3J",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-55\u2103~+125\u2103 390nF 650V\u30011.6kV \u00b15% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "650V\u30011.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "390nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76TR</span>339050H3J",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4353422,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "330nF \u00b15% 650V 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r76tr33304030j_C3785755.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.48
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.48
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.48
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.9604
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.9261
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.9098
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8765
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.9251
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.3889
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.3889
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8922
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.3889
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76TR33304030J/C3785755",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 128,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.48,
+     "componentCode": "C3785755",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76TR33304030J",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161150_KEMET-R76TR33304030J_C3785755.pdf",
+     "dataManualFileAccessId": "8590339149510447104",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76TR33304030J",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-55\u2103~+110\u2103 330nF 650V\u30011.6kV \u00b15% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "650V\u30011.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "330nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76TR</span>33304030J",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4359659,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "330nF \u00b15% 650V 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r76tr3330se30j_C3791990.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.3022
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.3022
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 255,
+       "productPrice": 2.3022
+      },
+      {
+       "startNumber": 256,
+       "endNumber": 511,
+       "productPrice": 0.8919
+      },
+      {
+       "startNumber": 512,
+       "endNumber": 1023,
+       "productPrice": 0.8609
+      },
+      {
+       "startNumber": 1024,
+       "endNumber": -1,
+       "productPrice": 0.8446
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1024,
+       "endNumber": -1,
+       "productPrice": 0.8136
+      },
+      {
+       "startNumber": 256,
+       "endNumber": 511,
+       "productPrice": 0.8592
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.2178
+      },
+      {
+       "startNumber": 512,
+       "endNumber": 1023,
+       "productPrice": 0.8293
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.2178
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 255,
+       "productPrice": 2.2178
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76TR3330SE30J/C3791990",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 256,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.3022,
+     "componentCode": "C3791990",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76TR3330SE30J",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161217_KEMET-R76TR3330SE30J_C3791990.pdf",
+     "dataManualFileAccessId": "8590286624454959104",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76TR3330SE30J",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-55\u2103~+110\u2103 330nF 650V\u30011.6kV \u00b15% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "650V\u30011.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "330nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76TR</span>3330SE30J",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4370566,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "330nF \u00b15% 650V 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r76tr333050h3j_C3802894.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.4767
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.4767
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 255,
+       "productPrice": 2.4767
+      },
+      {
+       "startNumber": 256,
+       "endNumber": 511,
+       "productPrice": 0.9588
+      },
+      {
+       "startNumber": 512,
+       "endNumber": 1023,
+       "productPrice": 0.9261
+      },
+      {
+       "startNumber": 1024,
+       "endNumber": -1,
+       "productPrice": 0.9082
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 255,
+       "productPrice": 2.3858
+      },
+      {
+       "startNumber": 512,
+       "endNumber": 1023,
+       "productPrice": 0.8922
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.3858
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.3858
+      },
+      {
+       "startNumber": 256,
+       "endNumber": 511,
+       "productPrice": 0.9236
+      },
+      {
+       "startNumber": 1024,
+       "endNumber": -1,
+       "productPrice": 0.8749
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76TR333050H3J/C3802894",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 128,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.4767,
+     "componentCode": "C3802894",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76TR333050H3J",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161257_KEMET-R76TR333050H3J_C3802894.pdf",
+     "dataManualFileAccessId": "8590415879683792896",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76TR333050H3J",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-55\u2103~+125\u2103 330nF 650V\u30011.6kV \u00b15% - Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "650V\u30011.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "330nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76TR</span>333050H3J",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4372203,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "270nF \u00b15% 650V 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r76tr327050h3j_C3804531.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.5941
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.5941
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.5941
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.0044
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.9685
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.9522
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.9173
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.9675
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.4989
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.4989
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.933
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.4989
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76TR327050H3J/C3804531",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 128,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.5941,
+     "componentCode": "C3804531",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76TR327050H3J",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161302_KEMET-R76TR327050H3J_C3804531.pdf",
+     "dataManualFileAccessId": "8590392766732660736",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76TR327050H3J",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-55\u2103~+125\u2103 270nF 650V\u30011.6kV \u00b15% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "650V\u30011.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "270nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76TR</span>327050H3J",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4374172,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "180nF \u00b15% 650V 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r76tr318050h4j_C3806500.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.924
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.924
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 1.924
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.7452
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.7191
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.706
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6801
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.7178
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 1.8534
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.8534
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6927
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.8534
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76TR318050H4J/C3806500",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 176,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 5,
+     "initialPrice": 1.924,
+     "componentCode": "C3806500",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76TR318050H4J",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161308_KEMET-R76TR318050H4J_C3806500.pdf",
+     "dataManualFileAccessId": "8603107164521451520",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76TR318050H4J",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-55\u2103~+125\u2103 180nF 650V\u30011.6kV \u00b15% Plugin,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "650V\u30011.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "180nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76TR</span>318050H4J",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4374689,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "470nF \u00b15% 650V 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r76tr347050h3j_C3807017.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.7305
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.7305
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 3.7305
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.4446
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.3941
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.368
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.3178
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.3916
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 3.5936
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.5936
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.3429
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.5936
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76TR347050H3J/C3807017",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 112,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.7305,
+     "componentCode": "C3807017",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76TR347050H3J",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161310_KEMET-R76TR347050H3J_C3807017.pdf",
+     "dataManualFileAccessId": "8590245149206089728",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76TR347050H3J",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-55\u2103~+125\u2103 470nF 650V\u30011.6kV \u00b15% - Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "650V\u30011.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b15%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "470nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76TR</span>347050H3J",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4375597,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Polypropylene Film Capacitors (CBB)",
+     "erpComponentName": "220nF \u00b110% 650V 1.6kV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/polypropylene-film-capacitors-cbb_kemet-r76tr3220se30k_C3807925.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.5131
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.5131
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 255,
+       "productPrice": 1.5131
+      },
+      {
+       "startNumber": 256,
+       "endNumber": 511,
+       "productPrice": 0.5854
+      },
+      {
+       "startNumber": 512,
+       "endNumber": 1023,
+       "productPrice": 0.5658
+      },
+      {
+       "startNumber": 1024,
+       "endNumber": -1,
+       "productPrice": 0.556
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1024,
+       "endNumber": -1,
+       "productPrice": 0.5356
+      },
+      {
+       "startNumber": 256,
+       "endNumber": 511,
+       "productPrice": 0.5639
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.4576
+      },
+      {
+       "startNumber": 512,
+       "endNumber": 1023,
+       "productPrice": 0.5451
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.4576
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 255,
+       "productPrice": 1.4576
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "af9a78a6dd1e4c61a238d621af254b33",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R76TR3220SE30K/C3807925",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 256,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 6,
+     "initialPrice": 1.5131,
+     "componentCode": "C3807925",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R76TR3220SE30K",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161313_KEMET-R76TR3220SE30K_C3807925.pdf",
+     "dataManualFileAccessId": "8590323701515657216",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R76TR3220SE30K",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=27.5mm",
+     "describe": "-55\u2103~+110\u2103 220nF 650V\u30011.6kV \u00b110% \u63d2\u4ef6,P=27.5mm Polypropylene Film Capacitors (CBB) ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating",
+       "attribute_value_name": "650V\u30011.6kV"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "220nF"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Polypropylene Film Capacitors (CBB)",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R76TR</span>3220SE30K",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 4,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "R76TR"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-15T06:52:11Z"
+}

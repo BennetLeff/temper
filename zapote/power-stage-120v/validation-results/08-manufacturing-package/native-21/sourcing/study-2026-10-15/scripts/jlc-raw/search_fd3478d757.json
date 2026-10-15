@@ -1,0 +1,190 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 1,
+   "list": [
+    {
+     "componentId": 3864475,
+     "componentLibraryType": "expand",
+     "stockCount": 46,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "\u7b49\u7ea7:X2 1uF \u00b110% 310V",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://lcsc.com/product-detail/safety-capacitors_kemet-r463n410050n1k_C3299886.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8952
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.8756
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.8642
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.8528
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.8528
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.8528
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.8435
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.8215
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.8215
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.8325
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8623
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.8215
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 46,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-R463N410050N1K/C3299886",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 3.8691,
+     "preMinPurchaseNum": 11,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.8952,
+     "componentCode": "C3299886",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "R463N410050N1K",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2411041524_KEMET-R463N410050N1K_C3299886.pdf",
+     "dataManualFileAccessId": "8590319690737487872",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET R463N410050N1K",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=22.5mm",
+     "describe": "-40\u2103~+110\u2103 1uF 310V X2 \u00b110% Plugin,P=22.5mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+110\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "310V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b110%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "1uF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X2"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>R463N410050N1K</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "R463N410050N1K"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-15T06:40:39Z"
+}

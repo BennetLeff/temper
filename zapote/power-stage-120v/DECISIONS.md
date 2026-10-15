@@ -1396,3 +1396,40 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
         choice (step stencil or aperture). J2 / J5 CPL rows are NEEDS-PREVIEW.
     - **Reverses if:** the bench shows the soldered terminal failing the lug pull or torque, or running hotter at 28 A
       than the THR by more than the model's few kelvin; or JLC's file review refuses the part, the paste or the height.
+
+45. **Sourcing snapshot, buildability metric and pre-order plan (2026-10-15; scorecard metric and records, no board
+    change).** Study: `validation-results/08-manufacturing-package/native-21/sourcing/study-2026-10-15/` (`run_all.sh`
+    reproduces every result offline).
+    - **Snapshot** `sourcing/SNAPSHOT-2026-10-15.csv`: one numeric row per BOM line (JLC parts API for all 94 lines and
+      40 alternates; Octopart public pages for 52 MPNs; DigiKey read in a browser for 9 before a bot check, which was
+      not bypassed). Lines nothing could read today carry the 2026-10-13 DigiKey count and are flagged.
+    - **Scorecard** (`scorecard.buildability`, `--snapshot`, latest `SNAPSHOT-*.csv` by default). For 5 and 500 boards:
+      `lines_short_for` (no single source holds the need: consign-only or short), `jlc_assemblable_share` (JLC stock or
+      one authorised distributor via Global Sourcing), `consign_lines`, `build_lead_wk` (worst factory lead among short
+      lines), `short_lead_unknown`. In the compare, the first three are cost axes (lower better, share higher better).
+      s35 card re-scored (differs only in these); s32 restated (`restated_buildability`); 19c has no snapshot join, so the
+      compare skips these axes against it. A snapshot is dated: re-take it before comparing across dates.
+    - **s32 / s35 (identical):** short for 5 / 500: 3 / 14; JLC-assemblable 0.968 / 0.851; consign 0 / 3 (KLDR025,
+      B32676G1905K000, B32654A1104J000); **build lead 29 weeks (L1)**. Five "short" lines are read gaps, not proven
+      shortages (DE1E3RA222MA4BP01F, PMEG6030EP, 6SVPC220MV, C0603C102J5GACTU, AC05000001507JAC00).
+    - **L1 B82726S2203A020 sets the build date:** no authorised stock anywhere, 29-week factory lead; a 500-board build
+      is ~2027-05-06 at the earliest if ordered now. Brokers (35,580) are not an acceptable source for a safety part.
+      The same-series 24 A part (B82726S2243A020, 0.63 rating use) halves the CM inductance and drops DM leakage
+      18 → 8 µH, so it is an EMI candidate (c29 / D-22 re-run), not a drop-in.
+    - **C5 / C6 ripple (closes the S8 question on the vendor basis):** TDK's permissible-current curve is flat within
+      −2.3 / +4.3 % over 10–95 kHz, so the repo's ESR basis holds (0.80 at 22 A reproduces; 1.12 / 1.30 at 26 / 28 A
+      confirmed). The fitted part carries 28 A only with cap ambient ≤ 80.1 °C; no stocked part fixes 28 A at 85 °C.
+      Preferred alternate: **B32676G1106K (10 µF / 750 V, same body)**, 1.25 at 28 A / 85 °C (≤ 80.8 °C for 28 A), DigiKey
+      18,789 as "B32676G1106K Z 1" (18 wk); it replaces the fitted part once the "Z 1" suffix is shown to be the
+      catalogue part (ESL ~+1 nH per site, ~+2.5 V die VDS; bus 18 → 20 µF). Bench gates above 22 A unchanged: cap
+      ambient ≤ 75 °C and a C5 case-temperature measurement. Open: 28 % of the HF ripple power is above TDK's 95 kHz
+      chart edge (if ESR rose as √f there, 28 A at 75 °C would read ~1.07).
+    - **Resonant bank (S9):** no ≤ 0.85 option is in authorised stock (brokers only); c34 reproduces at 1.045.
+    - **Corrections to the 2026-10-13 survey:** D3 / D17 30KPA150CA is stocked from its own maker (Good-Ark, DigiKey
+      1,750): $8.17 per board instead of $19.64. R5, PS1, PS2, U26 are not short for 500 (JLC's own stock). Parts cost
+      on the snapshot is $186.54 per board at 500 ($250.04 at 5); the scorecard's `parts_usd_*` stay on the 2026-10-13
+      survey so the cards remain comparable.
+    - **Pre-order plan:** README §4 (owner action; ordering is the owner's). Now: L1 × 520, VOL628A
+      (JLC 172 + backorder), bank × 2,600 (part choice), C5 / C6 × 1,040, 2EDR8259X × 1,040, R463N410050N1K, 30KPA150CA
+      × 1,040, J2 / J5 7466004R × 1,040, JLC reservations for TPS7A4700 and IRM-20-15, a Coilcraft quote for T1. By
+      ~2027-02: the FETs, 1704004, KLDR025 split buy, 3403.0279.23.

@@ -1,0 +1,14 @@
+{"source": "DigiKey public product pages read in a normal browser tab (scripts/dk_extract_page.js), 2026-10-15 06:47-06:49Z; no login/cart. After ~30 page loads DigiKey served a bot challenge ('Just a moment...') and reading stopped; it was not bypassed.",
+ "records": [
+  {"mpn": "B82726S2203A020", "stock": 0, "lead_wk": 29, "tiers": [[1, 15.9], [10, 13.074], [25, 12.0972], [91, 10.84473], [182, 10.22846], [273, 9.88484], [546, 9.813]], "url": "https://www.digikey.com/en/products/detail/tdk/B82726S2203A020/3502593", "t": "2026-10-15T06:47:27Z"},
+  {"mpn": "B32676G1905K000", "stock": 547, "lead_wk": 27, "tiers": [[1, 10.53], [10, 8.015], [50, 7.0094], [100, 6.698], [500, 6.17074], [1000, 6.00734]], "url": "https://www.digikey.com/en/products/detail/tdk/B32676G1905K000/1277788", "t": "2026-10-15T06:47:55Z"},
+  {"mpn": "B32676G8106K000", "stock": 7, "lead_wk": 27, "tiers": [[1, 17.09], [45, 12.03956], [90, 11.57256], [135, 11.33859], [540, 10.71226]], "url": "https://www.digikey.com/en/products/detail/tdk/B32676G8106K000/3492263", "t": "2026-10-15T06:47:58Z"},
+  {"mpn": "B32676G1106K   Z 1", "stock": 18789, "lead_wk": 18, "tiers": [[1, 11.39], [10, 8.715], [50, 7.6458], [100, 7.3147], [500, 6.75394], [1000, 6.58018]], "url": "https://www.digikey.com/en/products/detail/tdk/B32676G1106K-Z-1/1277789", "t": "2026-10-15T06:48:03Z"},
+  {"mpn": "B32676G8755K000", "stock": 0, "lead_wk": 27, "tiers": [[432, 7.29282]], "url": "https://www.digikey.com/en/products/detail/tdk/B32676G8755K000/1277796", "t": "2026-10-15T06:48:06Z"},
+  {"mpn": "7466004R", "stock": 8856, "lead_wk": 26, "tiers": [[1, 2.64], [10, 2.507], [50, 2.268], [100, 2.03], [500, 1.914]], "url": "https://www.digikey.com/en/products/detail/w%C3%BCrth-elektronik/7466004R/4915479", "t": "2026-10-15T06:48:22Z"}
+ ],
+ "listed_multi_match_not_read": {"KLDR025.TXP": "/en/products/detail/littelfuse-ibu/KLDR025-TXP/3740687", "30KPA150CA": ["good-ark 22168209", "MDE 15196998", "Littelfuse 2520316"], "30KPA150A": ["MDE 15196660", "Littelfuse 2520616"], "AK3-430C": "littelfuse-inc/AK3-430C/3131008", "1704004": "phoenix-contact/1704004/348662", "CSS2H-2512R-1L00F": "bourns-inc/CSS2H-2512R-1L00F/6023764"},
+ "no_exact_match": ["B32676G1126K000", "CST3015-200ED"],
+ "not_readable_bot_check": ["74650074 and every later MPN in the batch (pages returned empty, then 'Just a moment...')"],
+ "earlier_fetch_ok": {"1714971": [8292, 6, 1.91, 1.323], "TMOV20RP175E": [1520, 16, 2.1, 1.1744], "R463N410050N1K": [945, 24, 0.928, 0.54073], "_fields": "stock, lead_wk, unit at 5 boards, unit at 500 boards (06:4x Z, in-page fetch before the rate limit)"}
+}

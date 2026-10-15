@@ -1,0 +1,107 @@
+{
+ "metrics": {
+  "lines_short_for_5": 3,
+  "jlc_assemblable_share_5": 0.968,
+  "consign_lines_5": 0,
+  "build_lead_wk_5": 29.0,
+  "short_lead_unknown_5": 2,
+  "lines_short_for_500": 14,
+  "jlc_assemblable_share_500": 0.851,
+  "consign_lines_500": 3,
+  "build_lead_wk_500": 29.0,
+  "short_lead_unknown_500": 6
+ },
+ "detail": {
+  "5": {
+   "short": [
+    [
+     "B82726S2203A020",
+     "29.0"
+    ],
+    [
+     "DE1E3RA222MA4BP01F",
+     ""
+    ],
+    [
+     "PMEG6030EP,115",
+     ""
+    ]
+   ],
+   "consign": [],
+   "global": [
+    "KLDR025.TXP",
+    "B32676G1905K000",
+    "IPW65R018CFD7",
+    "74650074",
+    "3403.0279.23",
+    "30KPA150CA",
+    "1704004",
+    "R24C2T25/R-R"
+   ]
+  },
+  "500": {
+   "short": [
+    [
+     "R463N410050N1K",
+     "24"
+    ],
+    [
+     "B82726S2203A020",
+     "29.0"
+    ],
+    [
+     "DE1E3RA222MA4BP01F",
+     ""
+    ],
+    [
+     "6SVPC220MV",
+     ""
+    ],
+    [
+     "C0603C102J5GACTU",
+     ""
+    ],
+    [
+     "PMEG6030EP,115",
+     ""
+    ],
+    [
+     "IPW65R018CFD7",
+     "8.0"
+    ],
+    [
+     "CST3015-200ED",
+     ""
+    ],
+    [
+     "AC05000001507JAC00",
+     ""
+    ],
+    [
+     "1704004",
+     "7.0"
+    ],
+    [
+     "VOL628A-2X001T",
+     "28.0"
+    ]
+   ],
+   "consign": [
+    "KLDR025.TXP",
+    "B32676G1905K000",
+    "B32654A1104J000"
+   ],
+   "global": [
+    "1714971",
+    "TMOV20RP175E",
+    "2EDR8259XXUMA1",
+    "74650074",
+    "B2P3-VH(LF)(SN)",
+    "3403.0279.23",
+    "30KPA150CA",
+    "B32652A0104K000",
+    "R24C2T25/R-R"
+   ]
+  }
+ }
+}

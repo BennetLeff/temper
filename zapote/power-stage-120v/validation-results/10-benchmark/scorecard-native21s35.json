@@ -54,7 +54,17 @@
   "zero_stock_lines": 8,
   "single_source_lines": 19,
   "vias": 750,
-  "board_bbox_mm2": 55100.0
+  "board_bbox_mm2": 55100.0,
+  "lines_short_for_5": 3,
+  "jlc_assemblable_share_5": 0.968,
+  "consign_lines_5": 0,
+  "build_lead_wk_5": 29.0,
+  "short_lead_unknown_5": 2,
+  "lines_short_for_500": 14,
+  "jlc_assemblable_share_500": 0.851,
+  "consign_lines_500": 3,
+  "build_lead_wk_500": 29.0,
+  "short_lead_unknown_500": 6
  },
  "sources": {
   "d5": "native-21/verification/d5-audit.json",
@@ -67,6 +77,7 @@
   "bank_35k": "11-candidates/c34-bank-margin/results/bank_margin.json basis_comparison J_at_35k",
   "ocp_pickup": "02-protection-timing/coil-pickup/s21b/result-s35.json",
   "ledger": "native-21/verification/datasheet-ledger: {'PARTIAL': 32, 'UNAUDITED': 59, 'VERIFIED': 3, 'VIOLATION': 0}",
-  "track_geometry": "gates/track_geometry.py on BUILDDIR/native21-all-copper.json.gz"
+  "track_geometry": "gates/track_geometry.py on BUILDDIR/native21-all-copper.json.gz",
+  "buildability": "validation-results/08-manufacturing-package/native-21/sourcing/SNAPSHOT-2026-10-15.csv"
  }
 }

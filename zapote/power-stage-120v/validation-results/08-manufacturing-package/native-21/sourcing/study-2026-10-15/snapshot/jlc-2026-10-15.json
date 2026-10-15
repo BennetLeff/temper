@@ -1,0 +1,5384 @@
+{
+ "bom": [
+  {
+   "lcsc_code": "C92145",
+   "jlc_found": true,
+   "jlc_model": "1714971",
+   "jlc_library": "expand",
+   "jlc_stock": 164,
+   "jlc_presale": 106,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     1.8033
+    ],
+    [
+     10,
+     1.4821
+    ],
+    [
+     30,
+     1.3044
+    ],
+    [
+     100,
+     1.1055
+    ],
+    [
+     500,
+     1.0158
+    ],
+    [
+     1000,
+     0.9767
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:37Z",
+   "url": "https://jlcpcb.com/partdetail/C92145",
+   "mpn": "1714971",
+   "designators": "J1",
+   "qty": 1,
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 1.8033,
+   "jlc_unit_500": 1.0158
+  },
+  {
+   "lcsc_code": "C187688",
+   "jlc_found": true,
+   "jlc_model": "KLDR025.TXP",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     39.6557
+    ],
+    [
+     3,
+     39.6557
+    ],
+    [
+     5,
+     39.6557
+    ],
+    [
+     30,
+     37.8263
+    ],
+    [
+     32,
+     37.8263
+    ],
+    [
+     34,
+     37.8263
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:39Z",
+   "url": "https://jlcpcb.com/partdetail/C187688",
+   "mpn": "KLDR025.TXP",
+   "designators": "F1",
+   "qty": 1,
+   "mount": "THT",
+   "bom_assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+   "jlc_unit_5": 39.6557,
+   "jlc_unit_500": 37.8263
+  },
+  {
+   "lcsc_code": "C1527834",
+   "jlc_found": true,
+   "jlc_model": "TMOV20RP175E",
+   "jlc_library": "expand",
+   "jlc_stock": 114,
+   "jlc_presale": 114,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     1.7968
+    ],
+    [
+     10,
+     1.5278
+    ],
+    [
+     30,
+     1.3598
+    ],
+    [
+     100,
+     1.187
+    ],
+    [
+     400,
+     1.187
+    ],
+    [
+     800,
+     1.187
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:39Z",
+   "url": "https://jlcpcb.com/partdetail/C1527834",
+   "mpn": "TMOV20RP175E",
+   "designators": "RV1",
+   "qty": 1,
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 114 / LCSC 114",
+   "jlc_unit_5": 1.7968,
+   "jlc_unit_500": 1.187
+  },
+  {
+   "lcsc_code": "C3299886",
+   "jlc_found": true,
+   "jlc_model": "R463N410050N1K",
+   "jlc_library": "expand",
+   "jlc_stock": 46,
+   "jlc_presale": 46,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     0.8952
+    ],
+    [
+     10,
+     0.8756
+    ],
+    [
+     30,
+     0.8642
+    ],
+    [
+     100,
+     0.8528
+    ],
+    [
+     102,
+     0.8528
+    ],
+    [
+     104,
+     0.8528
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:40Z",
+   "url": "https://jlcpcb.com/partdetail/C3299886",
+   "mpn": "R463N410050N1K",
+   "designators": "C1,C2",
+   "qty": 2,
+   "mount": "THT",
+   "bom_assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+   "jlc_unit_5": 0.8756,
+   "jlc_unit_500": 0.8528
+  },
+  {
+   "lcsc_code": "C17900",
+   "jlc_found": true,
+   "jlc_model": "1206W4F1003T5E",
+   "jlc_library": "base",
+   "jlc_stock": 1174353,
+   "jlc_presale": 1001369,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0102
+    ],
+    [
+     500,
+     0.0082
+    ],
+    [
+     1500,
+     0.0071
+    ],
+    [
+     5000,
+     0.0057
+    ],
+    [
+     25000,
+     0.0051
+    ],
+    [
+     50000,
+     0.0048
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:40Z",
+   "url": "https://jlcpcb.com/partdetail/C17900",
+   "mpn": "1206W4F1003T5E",
+   "designators": "R1,R2",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0102,
+   "jlc_unit_500": 0.0082
+  },
+  {
+   "lcsc_code": "C1534260",
+   "jlc_found": true,
+   "jlc_model": "B82726S2203A020",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     5.6463
+    ],
+    [
+     10,
+     5.6463
+    ],
+    [
+     30,
+     5.6463
+    ],
+    [
+     200,
+     2.1848
+    ],
+    [
+     500,
+     2.1082
+    ],
+    [
+     1000,
+     2.0707
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:41Z",
+   "url": "https://jlcpcb.com/partdetail/C1534260",
+   "mpn": "B82726S2203A020",
+   "designators": "L1",
+   "qty": 1,
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 0 / LCSC 0",
+   "jlc_unit_5": 5.6463,
+   "jlc_unit_500": 2.1082
+  },
+  {
+   "lcsc_code": "C907949",
+   "jlc_found": true,
+   "jlc_model": "DE1E3RA222MA4BP01F",
+   "jlc_library": "expand",
+   "jlc_stock": 6,
+   "jlc_presale": 6,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     0.1233
+    ],
+    [
+     50,
+     0.0998
+    ],
+    [
+     250,
+     0.0852
+    ],
+    [
+     500,
+     0.0764
+    ],
+    [
+     2500,
+     0.0693
+    ],
+    [
+     5000,
+     0.0658
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:41Z",
+   "url": "https://jlcpcb.com/partdetail/C907949",
+   "mpn": "DE1E3RA222MA4BP01F",
+   "designators": "C3,C4",
+   "qty": 2,
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 6 / LCSC 5",
+   "jlc_unit_5": 0.1233,
+   "jlc_unit_500": 0.0764
+  },
+  {
+   "lcsc_code": "C526644",
+   "jlc_found": true,
+   "jlc_model": "GBJ2510-F",
+   "jlc_library": "expand",
+   "jlc_stock": 1589,
+   "jlc_presale": 1585,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     1.1756
+    ],
+    [
+     10,
+     0.9636
+    ],
+    [
+     30,
+     0.8462
+    ],
+    [
+     105,
+     0.7142
+    ],
+    [
+     495,
+     0.6555
+    ],
+    [
+     1005,
+     0.6294
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:41Z",
+   "url": "https://jlcpcb.com/partdetail/C526644",
+   "mpn": "GBJ2510-F",
+   "designators": "BR1",
+   "qty": 1,
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 1589 / LCSC 1589",
+   "jlc_unit_5": 1.1756,
+   "jlc_unit_500": 0.6555
+  },
+  {
+   "lcsc_code": "C3802167",
+   "jlc_found": true,
+   "jlc_model": "B32676G1905K000",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     3.2805
+    ],
+    [
+     10,
+     3.2805
+    ],
+    [
+     30,
+     3.2805
+    ],
+    [
+     200,
+     1.2702
+    ],
+    [
+     500,
+     1.2261
+    ],
+    [
+     1000,
+     1.2033
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:42Z",
+   "url": "https://jlcpcb.com/partdetail/C3802167",
+   "mpn": "B32676G1905K000",
+   "designators": "C5,C6",
+   "qty": 2,
+   "mount": "THT",
+   "bom_assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+   "jlc_unit_5": 3.2805,
+   "jlc_unit_500": 1.2033
+  },
+  {
+   "lcsc_code": "C130275",
+   "jlc_found": true,
+   "jlc_model": "RC1206FR-07220KL",
+   "jlc_library": "expand",
+   "jlc_stock": 33609,
+   "jlc_presale": 29430,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0054
+    ],
+    [
+     1000,
+     0.0045
+    ],
+    [
+     5000,
+     0.0039
+    ],
+    [
+     10000,
+     0.0036
+    ],
+    [
+     50000,
+     0.0033
+    ],
+    [
+     100000,
+     0.0032
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:42Z",
+   "url": "https://jlcpcb.com/partdetail/C130275",
+   "mpn": "RC1206FR-07220KL",
+   "designators": "R3,R4",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 56239 / LCSC 54400",
+   "jlc_unit_5": 0.0054,
+   "jlc_unit_500": 0.0045
+  },
+  {
+   "lcsc_code": "C4175647",
+   "jlc_found": true,
+   "jlc_model": "CSS2H-2512R-1L00F",
+   "jlc_library": "expand",
+   "jlc_stock": 1380,
+   "jlc_presale": 1344,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.5642
+    ],
+    [
+     10,
+     0.4549
+    ],
+    [
+     30,
+     0.3995
+    ],
+    [
+     100,
+     0.3457
+    ],
+    [
+     500,
+     0.3131
+    ],
+    [
+     1000,
+     0.2968
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:42Z",
+   "url": "https://jlcpcb.com/partdetail/C4175647",
+   "mpn": "CSS2H-2512R-1L00F",
+   "designators": "R5",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.5642,
+   "jlc_unit_500": 0.3131
+  },
+  {
+   "lcsc_code": "C17455725",
+   "jlc_found": true,
+   "jlc_model": "2EDR8259XXUMA1",
+   "jlc_library": "expand",
+   "jlc_stock": 97,
+   "jlc_presale": 94,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     2.6658
+    ],
+    [
+     10,
+     2.2354
+    ],
+    [
+     30,
+     1.9664
+    ],
+    [
+     100,
+     1.6908
+    ],
+    [
+     500,
+     1.5669
+    ],
+    [
+     1500,
+     1.5131
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:43Z",
+   "url": "https://jlcpcb.com/partdetail/C17455725",
+   "mpn": "2EDR8259XXUMA1",
+   "designators": "U1,U2",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 2.2354,
+   "jlc_unit_500": 1.5669
+  },
+  {
+   "lcsc_code": "C14663",
+   "jlc_found": true,
+   "jlc_model": "CC0603KRX7R9BB104",
+   "jlc_library": "base",
+   "jlc_stock": 50927495,
+   "jlc_presale": 33908678,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.014
+    ],
+    [
+     500,
+     0.0106
+    ],
+    [
+     1500,
+     0.0091
+    ],
+    [
+     4000,
+     0.0076
+    ],
+    [
+     24000,
+     0.0071
+    ],
+    [
+     48000,
+     0.0068
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:43Z",
+   "url": "https://jlcpcb.com/partdetail/C14663",
+   "mpn": "CC0603KRX7R9BB104",
+   "designators": "C7,C54,C14,C61,C25,C28,C29,C32,C34,C35,C36,C37,C44,C45,C46,C47,C153,C154,C155,C156,C48,C49,C65,C131,C70,C74,C75,C135,C80,C157,C158,C81,C82,C139,C87,C159,C160,C161,C133,C134,C163,C144,C89",
+   "qty": 43,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.014,
+   "jlc_unit_500": 0.0076
+  },
+  {
+   "lcsc_code": "C22775",
+   "jlc_found": true,
+   "jlc_model": "0603WAF1000T5E",
+   "jlc_library": "base",
+   "jlc_stock": 11275345,
+   "jlc_presale": 9147506,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0025
+    ],
+    [
+     1000,
+     0.002
+    ],
+    [
+     5000,
+     0.0018
+    ],
+    [
+     10000,
+     0.0014
+    ],
+    [
+     50000,
+     0.0013
+    ],
+    [
+     50200,
+     0.0013
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:43Z",
+   "url": "https://jlcpcb.com/partdetail/C22775",
+   "mpn": "0603WAF1000T5E",
+   "designators": "R6,R14",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0025,
+   "jlc_unit_500": 0.002
+  },
+  {
+   "lcsc_code": "C25803",
+   "jlc_found": true,
+   "jlc_model": "0603WAF1003T5E",
+   "jlc_library": "base",
+   "jlc_stock": 19818130,
+   "jlc_presale": 17563406,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0031
+    ],
+    [
+     1000,
+     0.0024
+    ],
+    [
+     5000,
+     0.0021
+    ],
+    [
+     10000,
+     0.0017
+    ],
+    [
+     50000,
+     0.0016
+    ],
+    [
+     50200,
+     0.0016
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:43Z",
+   "url": "https://jlcpcb.com/partdetail/C25803",
+   "mpn": "0603WAF1003T5E",
+   "designators": "R7,R15,R62,R128",
+   "qty": 4,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0031,
+   "jlc_unit_500": 0.0024
+  },
+  {
+   "lcsc_code": "C705780",
+   "jlc_found": true,
+   "jlc_model": "RT0603BRD0749K9L",
+   "jlc_library": "expand",
+   "jlc_stock": 174112,
+   "jlc_presale": 160906,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0413
+    ],
+    [
+     200,
+     0.0351
+    ],
+    [
+     600,
+     0.0318
+    ],
+    [
+     5000,
+     0.0297
+    ],
+    [
+     10000,
+     0.0279
+    ],
+    [
+     20000,
+     0.0271
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:44Z",
+   "url": "https://jlcpcb.com/partdetail/C705780",
+   "mpn": "RT0603BRD0749K9L",
+   "designators": "R9,R17,R133",
+   "qty": 3,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 184932 / LCSC 166300",
+   "jlc_unit_5": 0.0413,
+   "jlc_unit_500": 0.0318
+  },
+  {
+   "lcsc_code": "C49678",
+   "jlc_found": true,
+   "jlc_model": "CC0805KRX7R9BB104",
+   "jlc_library": "base",
+   "jlc_stock": 21638159,
+   "jlc_presale": 18404186,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0188
+    ],
+    [
+     200,
+     0.0138
+    ],
+    [
+     600,
+     0.0116
+    ],
+    [
+     4000,
+     0.0096
+    ],
+    [
+     8000,
+     0.0089
+    ],
+    [
+     20000,
+     0.0085
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:44Z",
+   "url": "https://jlcpcb.com/partdetail/C49678",
+   "mpn": "CC0805KRX7R9BB104",
+   "designators": "C8,C10,C15,C17",
+   "qty": 4,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0188,
+   "jlc_unit_500": 0.0116
+  },
+  {
+   "lcsc_code": "C28323",
+   "jlc_found": true,
+   "jlc_model": "CL21B105KBFNNNE",
+   "jlc_library": "base",
+   "jlc_stock": 2122556,
+   "jlc_presale": 1672326,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0508
+    ],
+    [
+     100,
+     0.0415
+    ],
+    [
+     300,
+     0.0366
+    ],
+    [
+     2000,
+     0.0327
+    ],
+    [
+     4000,
+     0.0314
+    ],
+    [
+     10000,
+     0.0304
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:44Z",
+   "url": "https://jlcpcb.com/partdetail/C28323",
+   "mpn": "CL21B105KBFNNNE",
+   "designators": "C146,C145,C148,C147,C149,C150",
+   "qty": 6,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0508,
+   "jlc_unit_500": 0.0327
+  },
+  {
+   "lcsc_code": "C138687",
+   "jlc_found": true,
+   "jlc_model": "CL32B106KBJNNNE",
+   "jlc_library": "expand",
+   "jlc_stock": 44171,
+   "jlc_presale": 1972,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.3237
+    ],
+    [
+     10,
+     0.2568
+    ],
+    [
+     30,
+     0.2242
+    ],
+    [
+     100,
+     0.1951
+    ],
+    [
+     500,
+     0.1871
+    ],
+    [
+     1000,
+     0.1574
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:45Z",
+   "url": "https://jlcpcb.com/partdetail/C138687",
+   "mpn": "CL32B106KBJNNNE",
+   "designators": "C9,C90,C91,C92,C93,C16,C94,C95,C96,C97,C24,C26,C98,C99,C100,C132,C102,C103,C104,C136,C106,C107,C108,C140",
+   "qty": 24,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.1951,
+   "jlc_unit_500": 0.1574
+  },
+  {
+   "lcsc_code": "C237493",
+   "jlc_found": true,
+   "jlc_model": "GRM21BZ71E106KE15L",
+   "jlc_library": "expand",
+   "jlc_stock": 151263,
+   "jlc_presale": 132545,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.3342
+    ],
+    [
+     50,
+     0.2707
+    ],
+    [
+     150,
+     0.2396
+    ],
+    [
+     500,
+     0.212
+    ],
+    [
+     3000,
+     0.1663
+    ],
+    [
+     6000,
+     0.1618
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:45Z",
+   "url": "https://jlcpcb.com/partdetail/C237493",
+   "mpn": "GRM21BZ71E106KE15L",
+   "designators": "C11,C18",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.3342,
+   "jlc_unit_500": 0.212
+  },
+  {
+   "lcsc_code": "C86020",
+   "jlc_found": true,
+   "jlc_model": "GRM188R71E105KA12D",
+   "jlc_library": "expand",
+   "jlc_stock": 139391,
+   "jlc_presale": 136711,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0472
+    ],
+    [
+     200,
+     0.0385
+    ],
+    [
+     600,
+     0.0336
+    ],
+    [
+     4000,
+     0.0297
+    ],
+    [
+     8000,
+     0.0273
+    ],
+    [
+     20000,
+     0.0258
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:45Z",
+   "url": "https://jlcpcb.com/partdetail/C86020",
+   "mpn": "GRM188R71E105KA12D",
+   "designators": "C50,C51,C52,C53,C57,C58,C59,C60,C64",
+   "qty": 9,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 27921 / LCSC 24150",
+   "jlc_unit_5": 0.0472,
+   "jlc_unit_500": 0.0297
+  },
+  {
+   "lcsc_code": "C307331",
+   "jlc_found": true,
+   "jlc_model": "CL05B104KB54PNC",
+   "jlc_library": "base",
+   "jlc_stock": 14443715,
+   "jlc_presale": 10701788,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0091
+    ],
+    [
+     1000,
+     0.007
+    ],
+    [
+     3000,
+     0.0061
+    ],
+    [
+     10000,
+     0.0054
+    ],
+    [
+     50000,
+     0.0051
+    ],
+    [
+     100000,
+     0.0049
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:45Z",
+   "url": "https://jlcpcb.com/partdetail/C307331",
+   "mpn": "CL05B104KB54PNC",
+   "designators": "C110,C111,C112,C113,C114,C115,C116,C117,C118,C119,C120,C121,C122,C123,C124,C125",
+   "qty": 16,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0091,
+   "jlc_unit_500": 0.0061
+  },
+  {
+   "lcsc_code": "C728510",
+   "jlc_found": true,
+   "jlc_model": "RL1206FR-070R68L",
+   "jlc_library": "expand",
+   "jlc_stock": 2537,
+   "jlc_presale": 2535,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.019
+    ],
+    [
+     500,
+     0.0155
+    ],
+    [
+     1500,
+     0.0136
+    ],
+    [
+     5000,
+     0.0124
+    ],
+    [
+     25000,
+     0.0114
+    ],
+    [
+     50000,
+     0.0109
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:46Z",
+   "url": "https://jlcpcb.com/partdetail/C728510",
+   "mpn": "RL1206FR-070R68L",
+   "designators": "R51,R52,R55,R56",
+   "qty": 4,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.019,
+   "jlc_unit_500": 0.0136
+  },
+  {
+   "lcsc_code": "C128504",
+   "jlc_found": true,
+   "jlc_model": "6SVPC220MV",
+   "jlc_library": "expand",
+   "jlc_stock": 845,
+   "jlc_presale": 609,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     1.0191
+    ],
+    [
+     50,
+     0.7827
+    ],
+    [
+     150,
+     0.6832
+    ],
+    [
+     1000,
+     0.5577
+    ],
+    [
+     2000,
+     0.5006
+    ],
+    [
+     5000,
+     0.468
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:46Z",
+   "url": "https://jlcpcb.com/partdetail/C128504",
+   "mpn": "6SVPC220MV",
+   "designators": "C126,C127,C128,C129",
+   "qty": 4,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 1.0191,
+   "jlc_unit_500": 0.5006
+  },
+  {
+   "lcsc_code": "C23046",
+   "jlc_found": true,
+   "jlc_model": "0603WAF4991T5E",
+   "jlc_library": "base",
+   "jlc_stock": 1994638,
+   "jlc_presale": 1914047,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0021
+    ],
+    [
+     1000,
+     0.0016
+    ],
+    [
+     5000,
+     0.0013
+    ],
+    [
+     10000,
+     0.0012
+    ],
+    [
+     50000,
+     0.001
+    ],
+    [
+     50200,
+     0.001
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:46Z",
+   "url": "https://jlcpcb.com/partdetail/C23046",
+   "mpn": "0603WAF4991T5E",
+   "designators": "R71,R72,R74,R75,R131",
+   "qty": 5,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0021,
+   "jlc_unit_500": 0.0016
+  },
+  {
+   "lcsc_code": "C7826",
+   "jlc_found": true,
+   "jlc_model": "SN74LVC1G00DBVR",
+   "jlc_library": "expand",
+   "jlc_stock": 3897,
+   "jlc_presale": 3526,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.1225
+    ],
+    [
+     50,
+     0.1021
+    ],
+    [
+     150,
+     0.092
+    ],
+    [
+     500,
+     0.0843
+    ],
+    [
+     3000,
+     0.0783
+    ],
+    [
+     6000,
+     0.0752
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:47Z",
+   "url": "https://jlcpcb.com/partdetail/C7826",
+   "mpn": "SN74LVC1G00DBVR",
+   "designators": "U22,U23",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.1225,
+   "jlc_unit_500": 0.0843
+  },
+  {
+   "lcsc_code": "C25804",
+   "jlc_found": true,
+   "jlc_model": "0603WAF1002T5E",
+   "jlc_library": "base",
+   "jlc_stock": 32557244,
+   "jlc_presale": 22753315,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0052
+    ],
+    [
+     1000,
+     0.0043
+    ],
+    [
+     5000,
+     0.0039
+    ],
+    [
+     10000,
+     0.0036
+    ],
+    [
+     50000,
+     0.0035
+    ],
+    [
+     100000,
+     0.0034
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:47Z",
+   "url": "https://jlcpcb.com/partdetail/C25804",
+   "mpn": "0603WAF1002T5E",
+   "designators": "R73,R11,R13,R76,R19,R21,R91,R109,R124",
+   "qty": 9,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0052,
+   "jlc_unit_500": 0.0043
+  },
+  {
+   "lcsc_code": "C323355",
+   "jlc_found": true,
+   "jlc_model": "RS-06L8R20FT",
+   "jlc_library": "expand",
+   "jlc_stock": 9594,
+   "jlc_presale": 9384,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0124
+    ],
+    [
+     500,
+     0.0098
+    ],
+    [
+     1500,
+     0.0083
+    ],
+    [
+     5000,
+     0.0074
+    ],
+    [
+     25000,
+     0.0067
+    ],
+    [
+     50000,
+     0.0062
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:47Z",
+   "url": "https://jlcpcb.com/partdetail/C323355",
+   "mpn": "RS-06L8R20FT",
+   "designators": "R10,R12,R18,R20",
+   "qty": 4,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.0124,
+   "jlc_unit_500": 0.0083
+  },
+  {
+   "lcsc_code": "C2181873",
+   "jlc_found": true,
+   "jlc_model": "C0603C102J5GACTU",
+   "jlc_library": "expand",
+   "jlc_stock": 7198,
+   "jlc_presale": 6987,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0265
+    ],
+    [
+     200,
+     0.0209
+    ],
+    [
+     600,
+     0.018
+    ],
+    [
+     4000,
+     0.016
+    ],
+    [
+     8000,
+     0.0144
+    ],
+    [
+     20000,
+     0.0136
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:47Z",
+   "url": "https://jlcpcb.com/partdetail/C2181873",
+   "mpn": "C0603C102J5GACTU",
+   "designators": "C55,C56,C62,C63,C27,C31,C33,C66,C67,C68,C69,C76,C77,C78,C79,C83,C84,C85,C86,C164,C165,C166",
+   "qty": 22,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 7526 / LCSC 7340",
+   "jlc_unit_5": 0.0265,
+   "jlc_unit_500": 0.0144
+  },
+  {
+   "lcsc_code": "C456127",
+   "jlc_found": true,
+   "jlc_model": "PMEG6030EP,115",
+   "jlc_library": "expand",
+   "jlc_stock": 7,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.4077
+    ],
+    [
+     10,
+     0.318
+    ],
+    [
+     30,
+     0.2805
+    ],
+    [
+     100,
+     0.2332
+    ],
+    [
+     500,
+     0.212
+    ],
+    [
+     1000,
+     0.199
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:48Z",
+   "url": "https://jlcpcb.com/partdetail/C456127",
+   "mpn": "PMEG6030EP,115",
+   "designators": "D6,D7,D8,D9",
+   "qty": 4,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 13136 / LCSC 13136",
+   "jlc_unit_5": 0.318,
+   "jlc_unit_500": 0.199
+  },
+  {
+   "lcsc_code": "C17928",
+   "jlc_found": true,
+   "jlc_model": "1206W4F100KT5E",
+   "jlc_library": "base",
+   "jlc_stock": 146492,
+   "jlc_presale": 79022,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0234
+    ],
+    [
+     500,
+     0.0191
+    ],
+    [
+     1500,
+     0.0167
+    ],
+    [
+     5000,
+     0.0136
+    ],
+    [
+     25000,
+     0.0123
+    ],
+    [
+     50000,
+     0.0117
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:48Z",
+   "url": "https://jlcpcb.com/partdetail/C17928",
+   "mpn": "1206W4F100KT5E",
+   "designators": "R53,R54,R57,R58",
+   "qty": 4,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0234,
+   "jlc_unit_500": 0.0167
+  },
+  {
+   "lcsc_code": "C3289047",
+   "jlc_found": true,
+   "jlc_model": "IPW65R018CFD7XKSA1",
+   "jlc_library": "expand",
+   "jlc_stock": 4,
+   "jlc_presale": 4,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     21.5675
+    ],
+    [
+     10,
+     20.617
+    ],
+    [
+     30,
+     18.9686
+    ],
+    [
+     100,
+     17.5306
+    ],
+    [
+     102,
+     17.5306
+    ],
+    [
+     104,
+     17.5306
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:48Z",
+   "url": "https://jlcpcb.com/partdetail/C3289047",
+   "mpn": "IPW65R018CFD7",
+   "designators": "Q2,Q3,Q5,Q6",
+   "qty": 4,
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 6 / LCSC 6",
+   "jlc_unit_5": 20.617,
+   "jlc_unit_500": 17.5306
+  },
+  {
+   "lcsc_code": "C113872",
+   "jlc_found": true,
+   "jlc_model": "CC1206JKNPOCBN102",
+   "jlc_library": "expand",
+   "jlc_stock": 4619,
+   "jlc_presale": 692,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0274
+    ],
+    [
+     200,
+     0.0222
+    ],
+    [
+     600,
+     0.0191
+    ],
+    [
+     3000,
+     0.0175
+    ],
+    [
+     9000,
+     0.0159
+    ],
+    [
+     21000,
+     0.015
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:50Z",
+   "url": "https://jlcpcb.com/partdetail/C113872",
+   "mpn": "GRM31A5C3A102JW01D",
+   "designators": "C12,C13,C19,C20",
+   "qty": 4,
+   "mount": "SMD",
+   "bom_assembly": "JLC substitute CC1206JKNPOCBN102 (equivalent: 1206 1 nF 5 % 1 kV C0G)",
+   "jlc_unit_5": 0.0274,
+   "jlc_unit_500": 0.0191
+  },
+  {
+   "lcsc_code": "C50132500",
+   "jlc_found": true,
+   "jlc_model": "CST3015-200ED",
+   "jlc_library": "expand",
+   "jlc_stock": 64,
+   "jlc_presale": 64,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     7.7088
+    ],
+    [
+     10,
+     7.5343
+    ],
+    [
+     30,
+     7.4186
+    ],
+    [
+     90,
+     7.3028
+    ],
+    [
+     92,
+     7.3028
+    ],
+    [
+     94,
+     7.3028
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:50Z",
+   "url": "https://jlcpcb.com/partdetail/C50132500",
+   "mpn": "CST3015-200ED",
+   "designators": "T1",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 7.7088,
+   "jlc_unit_500": 7.3028
+  },
+  {
+   "lcsc_code": "C5118857",
+   "jlc_found": true,
+   "jlc_model": "74650074R",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     1.249
+    ],
+    [
+     10,
+     1.218
+    ],
+    [
+     30,
+     1.1968
+    ],
+    [
+     100,
+     1.1772
+    ],
+    [
+     102,
+     1.1772
+    ],
+    [
+     104,
+     1.1772
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:50Z",
+   "url": "https://jlcpcb.com/partdetail/C5118857",
+   "mpn": "74650074",
+   "designators": "J2,J5",
+   "qty": 2,
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 0",
+   "jlc_unit_5": 1.218,
+   "jlc_unit_500": 1.1772
+  },
+  {
+   "lcsc_code": "C3794777",
+   "jlc_found": true,
+   "jlc_model": "B32654A1104J000",
+   "jlc_library": "expand",
+   "jlc_stock": 104,
+   "jlc_presale": 103,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     0.9702
+    ],
+    [
+     10,
+     0.7876
+    ],
+    [
+     30,
+     0.6962
+    ],
+    [
+     260,
+     0.6049
+    ],
+    [
+     520,
+     0.5511
+    ],
+    [
+     1040,
+     0.5218
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:50Z",
+   "url": "https://jlcpcb.com/partdetail/C3794777",
+   "mpn": "B32654A1104J000",
+   "designators": "C21,C22,C23,C151,C152",
+   "qty": 5,
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.7876,
+   "jlc_unit_500": 0.5218
+  },
+  {
+   "lcsc_code": "C137273",
+   "jlc_found": true,
+   "jlc_model": "RC1206FR-07470KL",
+   "jlc_library": "expand",
+   "jlc_stock": 116409,
+   "jlc_presale": 105375,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0097
+    ],
+    [
+     1000,
+     0.0082
+    ],
+    [
+     5000,
+     0.0073
+    ],
+    [
+     10000,
+     0.0068
+    ],
+    [
+     50000,
+     0.0064
+    ],
+    [
+     100000,
+     0.0062
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:51Z",
+   "url": "https://jlcpcb.com/partdetail/C137273",
+   "mpn": "RC1206FR-07470KL",
+   "designators": "R22,R23,R24,R25,R26,R27,R28,R29",
+   "qty": 8,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 121554 / LCSC 102400",
+   "jlc_unit_5": 0.0097,
+   "jlc_unit_500": 0.0082
+  },
+  {
+   "lcsc_code": "C6211072",
+   "jlc_found": true,
+   "jlc_model": "IRM-20-15",
+   "jlc_library": "expand",
+   "jlc_stock": 1497,
+   "jlc_presale": 1487,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     6.3604
+    ],
+    [
+     10,
+     6.3604
+    ],
+    [
+     50,
+     6.3588
+    ],
+    [
+     240,
+     6.3588
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:51Z",
+   "url": "https://jlcpcb.com/partdetail/C6211072",
+   "mpn": "IRM-20-15",
+   "designators": "PS1",
+   "qty": 1,
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 1568 / LCSC 1568",
+   "jlc_unit_5": 6.3604,
+   "jlc_unit_500": 6.3588
+  },
+  {
+   "lcsc_code": "C160745",
+   "jlc_found": true,
+   "jlc_model": "B2P3-VH(LF)(SN)",
+   "jlc_library": "expand",
+   "jlc_stock": 983,
+   "jlc_presale": 862,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0653
+    ],
+    [
+     100,
+     0.0522
+    ],
+    [
+     300,
+     0.0459
+    ],
+    [
+     1000,
+     0.0356
+    ],
+    [
+     5000,
+     0.0317
+    ],
+    [
+     10000,
+     0.0297
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:52Z",
+   "url": "https://jlcpcb.com/partdetail/C160745",
+   "mpn": "B2P3-VH(LF)(SN)",
+   "designators": "J3,J11",
+   "qty": 2,
+   "mount": "THT",
+   "bom_assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+   "jlc_unit_5": 0.0653,
+   "jlc_unit_500": 0.0356
+  },
+  {
+   "lcsc_code": "C3163739",
+   "jlc_found": true,
+   "jlc_model": "3403.0279.23",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     2.043
+    ],
+    [
+     10,
+     2.043
+    ],
+    [
+     12,
+     2.043
+    ],
+    [
+     200,
+     0.7908
+    ],
+    [
+     500,
+     0.7631
+    ],
+    [
+     1500,
+     0.7501
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:52Z",
+   "url": "https://jlcpcb.com/partdetail/C3163739",
+   "mpn": "3403.0279.23",
+   "designators": "F2",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 2.043,
+   "jlc_unit_500": 0.7631
+  },
+  {
+   "lcsc_code": "C1382388",
+   "jlc_found": true,
+   "jlc_model": "AC05000001507JAC00",
+   "jlc_library": "expand",
+   "jlc_stock": 245,
+   "jlc_presale": 245,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     0.9147
+    ],
+    [
+     10,
+     0.7419
+    ],
+    [
+     30,
+     0.6555
+    ],
+    [
+     100,
+     0.5691
+    ],
+    [
+     500,
+     0.5185
+    ],
+    [
+     1000,
+     0.4924
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:53Z",
+   "url": "https://jlcpcb.com/partdetail/C1382388",
+   "mpn": "AC05000001507JAC00",
+   "designators": "R130",
+   "qty": 1,
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.9147,
+   "jlc_unit_500": 0.5185
+  },
+  {
+   "lcsc_code": "C194964",
+   "jlc_found": true,
+   "jlc_model": "IRM-20-24",
+   "jlc_library": "expand",
+   "jlc_stock": 7095,
+   "jlc_presale": 6671,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     6.3604
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:53Z",
+   "url": "https://jlcpcb.com/partdetail/C194964",
+   "mpn": "IRM-20-24",
+   "designators": "PS2",
+   "qty": 1,
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 7413 / LCSC 6682",
+   "jlc_unit_5": 6.3604,
+   "jlc_unit_500": 6.3604
+  },
+  {
+   "lcsc_code": "C96028",
+   "jlc_found": true,
+   "jlc_model": "TPS70950DBVR",
+   "jlc_library": "expand",
+   "jlc_stock": 5921,
+   "jlc_presale": 5802,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.5707
+    ],
+    [
+     10,
+     0.4582
+    ],
+    [
+     30,
+     0.4011
+    ],
+    [
+     100,
+     0.3457
+    ],
+    [
+     500,
+     0.3115
+    ],
+    [
+     1000,
+     0.2952
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:53Z",
+   "url": "https://jlcpcb.com/partdetail/C96028",
+   "mpn": "TPS70950DBVR",
+   "designators": "U3,U37,U38,U39",
+   "qty": 4,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 9976 / LCSC 9976",
+   "jlc_unit_5": 0.4582,
+   "jlc_unit_500": 0.2952
+  },
+  {
+   "lcsc_code": "C861143",
+   "jlc_found": true,
+   "jlc_model": "RT0603BRD0715K8L",
+   "jlc_library": "expand",
+   "jlc_stock": 7399,
+   "jlc_presale": 7371,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0545
+    ],
+    [
+     200,
+     0.0467
+    ],
+    [
+     600,
+     0.0424
+    ],
+    [
+     5000,
+     0.039
+    ],
+    [
+     10000,
+     0.0367
+    ],
+    [
+     20000,
+     0.0356
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:54Z",
+   "url": "https://jlcpcb.com/partdetail/C861143",
+   "mpn": "RT0603BRD0715K8L",
+   "designators": "R30",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 7479 / LCSC 7460",
+   "jlc_unit_5": 0.0545,
+   "jlc_unit_500": 0.0467
+  },
+  {
+   "lcsc_code": "C783598",
+   "jlc_found": true,
+   "jlc_model": "AMC1311BDWVR",
+   "jlc_library": "expand",
+   "jlc_stock": 6455,
+   "jlc_presale": 6439,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     2.2321
+    ],
+    [
+     10,
+     1.9647
+    ],
+    [
+     30,
+     1.7756
+    ],
+    [
+     100,
+     1.4984
+    ],
+    [
+     500,
+     1.4185
+    ],
+    [
+     1000,
+     1.3876
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:54Z",
+   "url": "https://jlcpcb.com/partdetail/C783598",
+   "mpn": "AMC1311BDWVR",
+   "designators": "U4",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 1586 / LCSC 663",
+   "jlc_unit_5": 2.2321,
+   "jlc_unit_500": 1.4185
+  },
+  {
+   "lcsc_code": "C23189",
+   "jlc_found": true,
+   "jlc_model": "0603WAF5601T5E",
+   "jlc_library": "base",
+   "jlc_stock": 1036450,
+   "jlc_presale": 914898,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0032
+    ],
+    [
+     1000,
+     0.0024
+    ],
+    [
+     5000,
+     0.002
+    ],
+    [
+     10000,
+     0.0018
+    ],
+    [
+     50000,
+     0.0016
+    ],
+    [
+     50200,
+     0.0016
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:54Z",
+   "url": "https://jlcpcb.com/partdetail/C23189",
+   "mpn": "0603WAF5601T5E",
+   "designators": "R31",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0032,
+   "jlc_unit_500": 0.0032
+  },
+  {
+   "lcsc_code": "C9421",
+   "jlc_found": true,
+   "jlc_model": "LM4040A25IDBZR",
+   "jlc_library": "expand",
+   "jlc_stock": 4775,
+   "jlc_presale": 4605,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     1.9827
+    ],
+    [
+     10,
+     1.7006
+    ],
+    [
+     30,
+     1.5245
+    ],
+    [
+     100,
+     1.3452
+    ],
+    [
+     500,
+     1.2636
+    ],
+    [
+     1000,
+     1.2278
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:54Z",
+   "url": "https://jlcpcb.com/partdetail/C9421",
+   "mpn": "LM4040A25IDBZR",
+   "designators": "U5",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 4845 / LCSC 4558",
+   "jlc_unit_5": 1.9827,
+   "jlc_unit_500": 1.2636
+  },
+  {
+   "lcsc_code": "C95204",
+   "jlc_found": true,
+   "jlc_model": "RT0603BRD0710KL",
+   "jlc_library": "expand",
+   "jlc_stock": 2125333,
+   "jlc_presale": 1263723,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0328
+    ],
+    [
+     200,
+     0.0279
+    ],
+    [
+     600,
+     0.0258
+    ],
+    [
+     5000,
+     0.0239
+    ],
+    [
+     10000,
+     0.0232
+    ],
+    [
+     20000,
+     0.0227
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:55Z",
+   "url": "https://jlcpcb.com/partdetail/C95204",
+   "mpn": "RT0603BRD0710KL",
+   "designators": "R32,R33,R36,R44,R45,R49,R50,R78,R79,R80,R82,R84,R86,R88,R96,R97,R98,R100,R102,R104,R106,R111,R112,R113,R115,R117,R119,R121",
+   "qty": 28,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 2140811 / LCSC 383720",
+   "jlc_unit_5": 0.0328,
+   "jlc_unit_500": 0.0232
+  },
+  {
+   "lcsc_code": "C14858",
+   "jlc_found": true,
+   "jlc_model": "CL10C101JB8NNNC",
+   "jlc_library": "base",
+   "jlc_stock": 3195130,
+   "jlc_presale": 2383451,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0086
+    ],
+    [
+     500,
+     0.0065
+    ],
+    [
+     1500,
+     0.0055
+    ],
+    [
+     4000,
+     0.0048
+    ],
+    [
+     24000,
+     0.0045
+    ],
+    [
+     48000,
+     0.0043
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:55Z",
+   "url": "https://jlcpcb.com/partdetail/C14858",
+   "mpn": "CL10C101JB8NNNC",
+   "designators": "C30,C167",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0086,
+   "jlc_unit_500": 0.0065
+  },
+  {
+   "lcsc_code": "C861103",
+   "jlc_found": true,
+   "jlc_model": "RT0603BRD0712K6L",
+   "jlc_library": "expand",
+   "jlc_stock": 1162,
+   "jlc_presale": 1074,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0234
+    ],
+    [
+     200,
+     0.0181
+    ],
+    [
+     600,
+     0.0152
+    ],
+    [
+     5000,
+     0.0135
+    ],
+    [
+     10000,
+     0.012
+    ],
+    [
+     20000,
+     0.0112
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:55Z",
+   "url": "https://jlcpcb.com/partdetail/C861103",
+   "mpn": "RT0603BRD0712K6L",
+   "designators": "R34",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.0234,
+   "jlc_unit_500": 0.0181
+  },
+  {
+   "lcsc_code": "C4553285",
+   "jlc_found": true,
+   "jlc_model": "TNPW060311K7BEEA",
+   "jlc_library": "expand",
+   "jlc_stock": 2839,
+   "jlc_presale": 2827,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0928
+    ],
+    [
+     50,
+     0.0744
+    ],
+    [
+     150,
+     0.0653
+    ],
+    [
+     500,
+     0.0584
+    ],
+    [
+     2500,
+     0.0529
+    ],
+    [
+     5000,
+     0.0501
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:56Z",
+   "url": "https://jlcpcb.com/partdetail/C4553285",
+   "mpn": "TNPW060311K7BEEA",
+   "designators": "R35",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.0928,
+   "jlc_unit_500": 0.0584
+  },
+  {
+   "lcsc_code": "C105188",
+   "jlc_found": true,
+   "jlc_model": "TLV3201AIDBVR",
+   "jlc_library": "expand",
+   "jlc_stock": 4030,
+   "jlc_presale": 3249,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.9751
+    ],
+    [
+     10,
+     0.8577
+    ],
+    [
+     30,
+     0.7468
+    ],
+    [
+     100,
+     0.6636
+    ],
+    [
+     500,
+     0.631
+    ],
+    [
+     1000,
+     0.6131
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:56Z",
+   "url": "https://jlcpcb.com/partdetail/C105188",
+   "mpn": "TLV3201AIDBVR",
+   "designators": "U6,U7,U10,U11,U12",
+   "qty": 5,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 30200 / LCSC 27302",
+   "jlc_unit_5": 0.8577,
+   "jlc_unit_500": 0.6131
+  },
+  {
+   "lcsc_code": "C861125",
+   "jlc_found": true,
+   "jlc_model": "RT0603BRD07140KL",
+   "jlc_library": "expand",
+   "jlc_stock": 8000,
+   "jlc_presale": 7934,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0358
+    ],
+    [
+     200,
+     0.0299
+    ],
+    [
+     600,
+     0.0268
+    ],
+    [
+     5000,
+     0.0248
+    ],
+    [
+     10000,
+     0.023
+    ],
+    [
+     20000,
+     0.0222
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:56Z",
+   "url": "https://jlcpcb.com/partdetail/C861125",
+   "mpn": "RT0603BRD07140KL",
+   "designators": "R37",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 9034 / LCSC 8960",
+   "jlc_unit_5": 0.0358,
+   "jlc_unit_500": 0.0299
+  },
+  {
+   "lcsc_code": "C403721",
+   "jlc_found": true,
+   "jlc_model": "SN74LVC1G10DBVR",
+   "jlc_library": "expand",
+   "jlc_stock": 1480,
+   "jlc_presale": 1458,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.1877
+    ],
+    [
+     50,
+     0.1497
+    ],
+    [
+     150,
+     0.1336
+    ],
+    [
+     500,
+     0.1134
+    ],
+    [
+     3000,
+     0.0918
+    ],
+    [
+     6000,
+     0.0865
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:56Z",
+   "url": "https://jlcpcb.com/partdetail/C403721",
+   "mpn": "SN74LVC1G10DBVR",
+   "designators": "U8",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 1525 / LCSC 1525",
+   "jlc_unit_5": 0.1877,
+   "jlc_unit_500": 0.1134
+  },
+  {
+   "lcsc_code": "C428883",
+   "jlc_found": true,
+   "jlc_model": "CA-IS3720HW",
+   "jlc_library": "expand",
+   "jlc_stock": 1640,
+   "jlc_presale": 1640,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     1.0011
+    ],
+    [
+     10,
+     0.7908
+    ],
+    [
+     30,
+     0.6848
+    ],
+    [
+     100,
+     0.5805
+    ],
+    [
+     500,
+     0.5185
+    ],
+    [
+     1000,
+     0.4876
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:57Z",
+   "url": "https://jlcpcb.com/partdetail/C428883",
+   "mpn": "CA-IS3720HW",
+   "designators": "U9,U32",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.7908,
+   "jlc_unit_500": 0.4876
+  },
+  {
+   "lcsc_code": "C491447",
+   "jlc_found": true,
+   "jlc_model": "430451612",
+   "jlc_library": "expand",
+   "jlc_stock": 7785,
+   "jlc_presale": 7740,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     1.1723
+    ],
+    [
+     10,
+     0.9914
+    ],
+    [
+     30,
+     0.9001
+    ],
+    [
+     132,
+     0.8104
+    ],
+    [
+     528,
+     0.7566
+    ],
+    [
+     990,
+     0.7289
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:57Z",
+   "url": "https://jlcpcb.com/partdetail/C491447",
+   "mpn": "0430451612",
+   "designators": "J4",
+   "qty": 1,
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: LCSC 7797 (2026-10-08 re-check; C17616543 had 0)",
+   "jlc_unit_5": 1.1723,
+   "jlc_unit_500": 0.8104
+  },
+  {
+   "lcsc_code": "C21189",
+   "jlc_found": true,
+   "jlc_model": "0603WAF0000T5E",
+   "jlc_library": "base",
+   "jlc_stock": 24186601,
+   "jlc_presale": 21832544,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0022
+    ],
+    [
+     1000,
+     0.0017
+    ],
+    [
+     5000,
+     0.0015
+    ],
+    [
+     10000,
+     0.0013
+    ],
+    [
+     50000,
+     0.0012
+    ],
+    [
+     50200,
+     0.0012
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:58Z",
+   "url": "https://jlcpcb.com/partdetail/C21189",
+   "mpn": "0603WAF0000T5E",
+   "designators": "R38",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0022,
+   "jlc_unit_500": 0.0022
+  },
+  {
+   "lcsc_code": "C19111562",
+   "jlc_found": true,
+   "jlc_model": "30KPA150CA",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     5.2175
+    ],
+    [
+     10,
+     5.2175
+    ],
+    [
+     12,
+     5.2175
+    ],
+    [
+     200,
+     2.0821
+    ],
+    [
+     500,
+     2.0136
+    ],
+    [
+     800,
+     1.9794
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:58Z",
+   "url": "https://jlcpcb.com/partdetail/C19111562",
+   "mpn": "30KPA150CA",
+   "designators": "D3,D17",
+   "qty": 2,
+   "mount": "THT",
+   "bom_assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+   "jlc_unit_5": 5.2175,
+   "jlc_unit_500": 1.9794
+  },
+  {
+   "lcsc_code": "C5481600",
+   "jlc_found": true,
+   "jlc_model": "1704004",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     2.33
+    ],
+    [
+     10,
+     2.33
+    ],
+    [
+     12,
+     2.33
+    ],
+    [
+     200,
+     0.9294
+    ],
+    [
+     500,
+     0.8984
+    ],
+    [
+     1000,
+     0.8838
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:59Z",
+   "url": "https://jlcpcb.com/partdetail/C5481600",
+   "mpn": "1704004",
+   "designators": "J6",
+   "qty": 1,
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 0 / LCSC 0",
+   "jlc_unit_5": 2.33,
+   "jlc_unit_500": 0.8984
+  },
+  {
+   "lcsc_code": "C125402",
+   "jlc_found": true,
+   "jlc_model": "B32652A0104K000",
+   "jlc_library": "expand",
+   "jlc_stock": 310,
+   "jlc_presale": 299,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     0.4908
+    ],
+    [
+     10,
+     0.3897
+    ],
+    [
+     30,
+     0.3473
+    ],
+    [
+     100,
+     0.2935
+    ],
+    [
+     500,
+     0.2691
+    ],
+    [
+     1000,
+     0.2544
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:59Z",
+   "url": "https://jlcpcb.com/partdetail/C125402",
+   "mpn": "B32652A0104K000",
+   "designators": "C38,C39,C40,C41",
+   "qty": 4,
+   "mount": "THT",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 288 / LCSC 263",
+   "jlc_unit_5": 0.3897,
+   "jlc_unit_500": 0.2544
+  },
+  {
+   "lcsc_code": "C137279",
+   "jlc_found": true,
+   "jlc_model": "RC1206FR-073RL",
+   "jlc_library": "expand",
+   "jlc_stock": 994,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0227
+    ],
+    [
+     500,
+     0.019
+    ],
+    [
+     1500,
+     0.017
+    ],
+    [
+     5000,
+     0.0155
+    ],
+    [
+     25000,
+     0.0144
+    ],
+    [
+     50000,
+     0.0138
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:59Z",
+   "url": "https://jlcpcb.com/partdetail/C137279",
+   "mpn": "RC1206FR-073RL",
+   "designators": "R39",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.0227,
+   "jlc_unit_500": 0.019
+  },
+  {
+   "lcsc_code": "C97946",
+   "jlc_found": true,
+   "jlc_model": "GRM31C5C1H104JA01L",
+   "jlc_library": "expand",
+   "jlc_stock": 34816,
+   "jlc_presale": 23307,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.1854
+    ],
+    [
+     50,
+     0.1616
+    ],
+    [
+     150,
+     0.1494
+    ],
+    [
+     500,
+     0.1393
+    ],
+    [
+     2000,
+     0.1329
+    ],
+    [
+     4000,
+     0.1305
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:00Z",
+   "url": "https://jlcpcb.com/partdetail/C97946",
+   "mpn": "GRM31C5C1H104JA01L",
+   "designators": "C42,C43",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 83031 / LCSC 59510",
+   "jlc_unit_5": 0.1854,
+   "jlc_unit_500": 0.1393
+  },
+  {
+   "lcsc_code": "C110776",
+   "jlc_found": true,
+   "jlc_model": "RT0603BRD071KL",
+   "jlc_library": "expand",
+   "jlc_stock": 1819360,
+   "jlc_presale": 1624016,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0296
+    ],
+    [
+     200,
+     0.0248
+    ],
+    [
+     600,
+     0.0226
+    ],
+    [
+     5000,
+     0.0211
+    ],
+    [
+     10000,
+     0.0204
+    ],
+    [
+     20000,
+     0.0199
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:00Z",
+   "url": "https://jlcpcb.com/partdetail/C110776",
+   "mpn": "RT0603BRD071KL",
+   "designators": "R40,R41",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 974650 / LCSC 637880",
+   "jlc_unit_5": 0.0296,
+   "jlc_unit_500": 0.0226
+  },
+  {
+   "lcsc_code": "C4410",
+   "jlc_found": true,
+   "jlc_model": "1206W4F1001T5E",
+   "jlc_library": "base",
+   "jlc_stock": 2203989,
+   "jlc_presale": 1918669,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0085
+    ],
+    [
+     500,
+     0.0066
+    ],
+    [
+     1500,
+     0.0057
+    ],
+    [
+     5000,
+     0.005
+    ],
+    [
+     25000,
+     0.0048
+    ],
+    [
+     50000,
+     0.0046
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:00Z",
+   "url": "https://jlcpcb.com/partdetail/C4410",
+   "mpn": "1206W4F1001T5E",
+   "designators": "R42",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0085,
+   "jlc_unit_500": 0.0066
+  },
+  {
+   "lcsc_code": "C74210",
+   "jlc_found": true,
+   "jlc_model": "BAS116H,115",
+   "jlc_library": "expand",
+   "jlc_stock": 63242,
+   "jlc_presale": 62962,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0664
+    ],
+    [
+     100,
+     0.0519
+    ],
+    [
+     300,
+     0.0447
+    ],
+    [
+     3000,
+     0.0393
+    ],
+    [
+     6000,
+     0.0351
+    ],
+    [
+     9000,
+     0.033
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:00Z",
+   "url": "https://jlcpcb.com/partdetail/C74210",
+   "mpn": "BAS116H,115",
+   "designators": "D4,D5",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 65672 / LCSC 65670",
+   "jlc_unit_5": 0.0664,
+   "jlc_unit_500": 0.0447
+  },
+  {
+   "lcsc_code": "C705758",
+   "jlc_found": true,
+   "jlc_model": "RT0603BRD072K21L",
+   "jlc_library": "expand",
+   "jlc_stock": 4018,
+   "jlc_presale": 3250,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0356
+    ],
+    [
+     200,
+     0.0304
+    ],
+    [
+     600,
+     0.0276
+    ],
+    [
+     5000,
+     0.0258
+    ],
+    [
+     10000,
+     0.0243
+    ],
+    [
+     20000,
+     0.0235
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:01Z",
+   "url": "https://jlcpcb.com/partdetail/C705758",
+   "mpn": "RT0603BRD072K21L",
+   "designators": "R43,R46",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.0356,
+   "jlc_unit_500": 0.0276
+  },
+  {
+   "lcsc_code": "C43368",
+   "jlc_found": true,
+   "jlc_model": "SN74LVC1G332DBVR",
+   "jlc_library": "expand",
+   "jlc_stock": 15608,
+   "jlc_presale": 14118,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.2678
+    ],
+    [
+     50,
+     0.2125
+    ],
+    [
+     150,
+     0.1887
+    ],
+    [
+     500,
+     0.1592
+    ],
+    [
+     3000,
+     0.1372
+    ],
+    [
+     6000,
+     0.1292
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:01Z",
+   "url": "https://jlcpcb.com/partdetail/C43368",
+   "mpn": "SN74LVC1G332DBVR",
+   "designators": "U13",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 15983 / LCSC 13110",
+   "jlc_unit_5": 0.2678,
+   "jlc_unit_500": 0.1592
+  },
+  {
+   "lcsc_code": "C21190",
+   "jlc_found": true,
+   "jlc_model": "0603WAF1001T5E",
+   "jlc_library": "base",
+   "jlc_stock": 24490215,
+   "jlc_presale": 18127060,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0019
+    ],
+    [
+     1000,
+     0.0016
+    ],
+    [
+     5000,
+     0.0014
+    ],
+    [
+     10000,
+     0.0011
+    ],
+    [
+     50000,
+     0.001
+    ],
+    [
+     50200,
+     0.001
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:01Z",
+   "url": "https://jlcpcb.com/partdetail/C21190",
+   "mpn": "0603WAF1001T5E",
+   "designators": "R134,R47",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0019,
+   "jlc_unit_500": 0.0016
+  },
+  {
+   "lcsc_code": "C33002",
+   "jlc_found": true,
+   "jlc_model": "TPS3700DDCR",
+   "jlc_library": "expand",
+   "jlc_stock": 13589,
+   "jlc_presale": 13290,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     1.4104
+    ],
+    [
+     10,
+     1.174
+    ],
+    [
+     30,
+     1.0435
+    ],
+    [
+     100,
+     0.8968
+    ],
+    [
+     500,
+     0.8316
+    ],
+    [
+     1000,
+     0.8022
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:02Z",
+   "url": "https://jlcpcb.com/partdetail/C33002",
+   "mpn": "TPS3700DDCR",
+   "designators": "U14",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 14580 / LCSC 14120",
+   "jlc_unit_5": 1.4104,
+   "jlc_unit_500": 0.8316
+  },
+  {
+   "lcsc_code": "C861072",
+   "jlc_found": true,
+   "jlc_model": "RT0603BRD07105KL",
+   "jlc_library": "expand",
+   "jlc_stock": 6912,
+   "jlc_presale": 6811,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.032
+    ],
+    [
+     200,
+     0.0261
+    ],
+    [
+     600,
+     0.0227
+    ],
+    [
+     5000,
+     0.0203
+    ],
+    [
+     10000,
+     0.0185
+    ],
+    [
+     20000,
+     0.0177
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:02Z",
+   "url": "https://jlcpcb.com/partdetail/C861072",
+   "mpn": "RT0603BRD07105KL",
+   "designators": "R48",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 18263 / LCSC 18100",
+   "jlc_unit_5": 0.032,
+   "jlc_unit_500": 0.0261
+  },
+  {
+   "lcsc_code": "C7836",
+   "jlc_found": true,
+   "jlc_model": "SN74LVC1G17DBVR",
+   "jlc_library": "expand",
+   "jlc_stock": 39402,
+   "jlc_presale": 37284,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.1684
+    ],
+    [
+     50,
+     0.1287
+    ],
+    [
+     150,
+     0.1091
+    ],
+    [
+     500,
+     0.0918
+    ],
+    [
+     3000,
+     0.0871
+    ],
+    [
+     6000,
+     0.0842
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:02Z",
+   "url": "https://jlcpcb.com/partdetail/C7836",
+   "mpn": "SN74LVC1G17DBVR",
+   "designators": "U15,U40,U24",
+   "qty": 3,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 21347 / LCSC 18965",
+   "jlc_unit_5": 0.1684,
+   "jlc_unit_500": 0.0918
+  },
+  {
+   "lcsc_code": "C114839",
+   "jlc_found": true,
+   "jlc_model": "TPS7A4700RGWR",
+   "jlc_library": "expand",
+   "jlc_stock": 998,
+   "jlc_presale": 684,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     5.2419
+    ],
+    [
+     10,
+     4.7414
+    ],
+    [
+     30,
+     4.43
+    ],
+    [
+     100,
+     4.0876
+    ],
+    [
+     500,
+     3.9637
+    ],
+    [
+     1000,
+     3.9115
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:02Z",
+   "url": "https://jlcpcb.com/partdetail/C114839",
+   "mpn": "TPS7A4700RGWR",
+   "designators": "U26",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 2045 / LCSC 1597",
+   "jlc_unit_5": 5.2419,
+   "jlc_unit_500": 3.9637
+  },
+  {
+   "lcsc_code": "C545172",
+   "jlc_found": true,
+   "jlc_model": "TLVH431BQDBZR",
+   "jlc_library": "expand",
+   "jlc_stock": 1536,
+   "jlc_presale": 1508,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.556
+    ],
+    [
+     10,
+     0.4778
+    ],
+    [
+     30,
+     0.4223
+    ],
+    [
+     100,
+     0.3751
+    ],
+    [
+     500,
+     0.3604
+    ],
+    [
+     1000,
+     0.3522
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:03Z",
+   "url": "https://jlcpcb.com/partdetail/C545172",
+   "mpn": "TLVH431BQDBZR",
+   "designators": "U16,U18,U20",
+   "qty": 3,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 1590 / LCSC 1590",
+   "jlc_unit_5": 0.4778,
+   "jlc_unit_500": 0.3522
+  },
+  {
+   "lcsc_code": "C136960",
+   "jlc_found": true,
+   "jlc_model": "RT0603BRD076K2L",
+   "jlc_library": "expand",
+   "jlc_stock": 90071,
+   "jlc_presale": 88443,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.039
+    ],
+    [
+     100,
+     0.0307
+    ],
+    [
+     300,
+     0.0266
+    ],
+    [
+     1000,
+     0.0237
+    ],
+    [
+     5000,
+     0.0211
+    ],
+    [
+     10000,
+     0.0199
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:03Z",
+   "url": "https://jlcpcb.com/partdetail/C136960",
+   "mpn": "RT0603BRD076K2L",
+   "designators": "R77,R95,R110",
+   "qty": 3,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.039,
+   "jlc_unit_500": 0.0237
+  },
+  {
+   "lcsc_code": "C23892",
+   "jlc_found": true,
+   "jlc_model": "TL431AIDBZR",
+   "jlc_library": "expand",
+   "jlc_stock": 134248,
+   "jlc_presale": 130375,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0804
+    ],
+    [
+     50,
+     0.0641
+    ],
+    [
+     150,
+     0.0556
+    ],
+    [
+     500,
+     0.0486
+    ],
+    [
+     3000,
+     0.0462
+    ],
+    [
+     6000,
+     0.0446
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:03Z",
+   "url": "https://jlcpcb.com/partdetail/C23892",
+   "mpn": "TL431AIDBZR",
+   "designators": "U17,U19,U21",
+   "qty": 3,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 147262 / LCSC 140005",
+   "jlc_unit_5": 0.0804,
+   "jlc_unit_500": 0.0486
+  },
+  {
+   "lcsc_code": "C114933",
+   "jlc_found": true,
+   "jlc_model": "RC1206FR-072K2L",
+   "jlc_library": "expand",
+   "jlc_stock": 141159,
+   "jlc_presale": 130723,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0144
+    ],
+    [
+     500,
+     0.0118
+    ],
+    [
+     1500,
+     0.0104
+    ],
+    [
+     5000,
+     0.0095
+    ],
+    [
+     25000,
+     0.0087
+    ],
+    [
+     50000,
+     0.0083
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:04Z",
+   "url": "https://jlcpcb.com/partdetail/C114933",
+   "mpn": "RC1206FR-072K2L",
+   "designators": "R59,R63,R65",
+   "qty": 3,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 151459 / LCSC 131150",
+   "jlc_unit_5": 0.0144,
+   "jlc_unit_500": 0.0104
+  },
+  {
+   "lcsc_code": "C861442",
+   "jlc_found": true,
+   "jlc_model": "RT0603BRD074K42L",
+   "jlc_library": "expand",
+   "jlc_stock": 8076,
+   "jlc_presale": 7970,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0351
+    ],
+    [
+     200,
+     0.0296
+    ],
+    [
+     600,
+     0.0265
+    ],
+    [
+     5000,
+     0.0245
+    ],
+    [
+     10000,
+     0.023
+    ],
+    [
+     20000,
+     0.0221
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:04Z",
+   "url": "https://jlcpcb.com/partdetail/C861442",
+   "mpn": "RT0603BRD074K42L",
+   "designators": "R81,R99,R114",
+   "qty": 3,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 8672 / LCSC 8660",
+   "jlc_unit_5": 0.0351,
+   "jlc_unit_500": 0.0265
+  },
+  {
+   "lcsc_code": "C375517",
+   "jlc_found": true,
+   "jlc_model": "RT0603BRD077K68L",
+   "jlc_library": "expand",
+   "jlc_stock": 6376,
+   "jlc_presale": 5939,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0353
+    ],
+    [
+     200,
+     0.0302
+    ],
+    [
+     600,
+     0.0273
+    ],
+    [
+     5000,
+     0.0255
+    ],
+    [
+     10000,
+     0.024
+    ],
+    [
+     20000,
+     0.0232
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:04Z",
+   "url": "https://jlcpcb.com/partdetail/C375517",
+   "mpn": "RT0603BRD077K68L",
+   "designators": "R83,R101,R116",
+   "qty": 3,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.0353,
+   "jlc_unit_500": 0.0273
+  },
+  {
+   "lcsc_code": "C705720",
+   "jlc_found": true,
+   "jlc_model": "RT0603BRD07120KL",
+   "jlc_library": "expand",
+   "jlc_stock": 93453,
+   "jlc_presale": 89417,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0397
+    ],
+    [
+     200,
+     0.0335
+    ],
+    [
+     600,
+     0.0301
+    ],
+    [
+     5000,
+     0.0281
+    ],
+    [
+     10000,
+     0.0263
+    ],
+    [
+     20000,
+     0.0253
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:05Z",
+   "url": "https://jlcpcb.com/partdetail/C705720",
+   "mpn": "RT0603BRD07120KL",
+   "designators": "R85,R103,R118",
+   "qty": 3,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 58620 / LCSC 43680",
+   "jlc_unit_5": 0.0397,
+   "jlc_unit_500": 0.0301
+  },
+  {
+   "lcsc_code": "C1509631",
+   "jlc_found": true,
+   "jlc_model": "ARG03BTC1333",
+   "jlc_library": "expand",
+   "jlc_stock": 2265,
+   "jlc_presale": 2226,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0243
+    ],
+    [
+     200,
+     0.0195
+    ],
+    [
+     600,
+     0.0168
+    ],
+    [
+     5000,
+     0.0152
+    ],
+    [
+     10000,
+     0.0138
+    ],
+    [
+     20000,
+     0.013
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:05Z",
+   "url": "https://jlcpcb.com/partdetail/C1509631",
+   "mpn": "ARG03BTC1333",
+   "designators": "R87,R105,R120",
+   "qty": 3,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.0243,
+   "jlc_unit_500": 0.0168
+  },
+  {
+   "lcsc_code": "C22416291",
+   "jlc_found": true,
+   "jlc_model": "LM339BIDR",
+   "jlc_library": "expand",
+   "jlc_stock": 4479,
+   "jlc_presale": 4203,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.1869
+    ],
+    [
+     50,
+     0.1496
+    ],
+    [
+     150,
+     0.1315
+    ],
+    [
+     500,
+     0.1152
+    ],
+    [
+     3000,
+     0.1108
+    ],
+    [
+     6000,
+     0.108
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:05Z",
+   "url": "https://jlcpcb.com/partdetail/C22416291",
+   "mpn": "LM339BIDR",
+   "designators": "U29,U30,U31",
+   "qty": 3,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 7604 / LCSC 7215",
+   "jlc_unit_5": 0.1869,
+   "jlc_unit_500": 0.1152
+  },
+  {
+   "lcsc_code": "C9900245652",
+   "jlc_found": true,
+   "jlc_model": "R24C2T25/R-R",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0397
+    ],
+    [
+     100,
+     0.0204
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:06Z",
+   "url": "https://jlcpcb.com/partdetail/C9900245652",
+   "mpn": "R24C2T25/R-R",
+   "designators": "U41,U42",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "consign or hand-assemble (not on LCSC / no stock / no exact match)",
+   "jlc_unit_5": 0.0397,
+   "jlc_unit_500": 0.0204
+  },
+  {
+   "lcsc_code": "C22967",
+   "jlc_found": true,
+   "jlc_model": "0603WAF2702T5E",
+   "jlc_library": "base",
+   "jlc_stock": 615778,
+   "jlc_presale": 513167,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0047
+    ],
+    [
+     1000,
+     0.0038
+    ],
+    [
+     5000,
+     0.0033
+    ],
+    [
+     10000,
+     0.0025
+    ],
+    [
+     50000,
+     0.0023
+    ],
+    [
+     100000,
+     0.0022
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:06Z",
+   "url": "https://jlcpcb.com/partdetail/C22967",
+   "mpn": "0603WAF2702T5E",
+   "designators": "R127,R129",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0047,
+   "jlc_unit_500": 0.0038
+  },
+  {
+   "lcsc_code": "C1664",
+   "jlc_found": true,
+   "jlc_model": "CL10C331JB8NNNC",
+   "jlc_library": "base",
+   "jlc_stock": 795118,
+   "jlc_presale": 639061,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.018
+    ],
+    [
+     500,
+     0.0143
+    ],
+    [
+     1500,
+     0.0122
+    ],
+    [
+     4000,
+     0.0099
+    ],
+    [
+     24000,
+     0.0088
+    ],
+    [
+     48000,
+     0.0082
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:07Z",
+   "url": "https://jlcpcb.com/partdetail/C1664",
+   "mpn": "CL10C331JB8NNNC",
+   "designators": "C105,C71,C109,C72,C162",
+   "qty": 5,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.018,
+   "jlc_unit_500": 0.0122
+  },
+  {
+   "lcsc_code": "C326723",
+   "jlc_found": true,
+   "jlc_model": "RT0603BRD0763K4L",
+   "jlc_library": "expand",
+   "jlc_stock": 7353,
+   "jlc_presale": 7331,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.047
+    ],
+    [
+     200,
+     0.039
+    ],
+    [
+     600,
+     0.0345
+    ],
+    [
+     5000,
+     0.0305
+    ],
+    [
+     10000,
+     0.0283
+    ],
+    [
+     20000,
+     0.0271
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:07Z",
+   "url": "https://jlcpcb.com/partdetail/C326723",
+   "mpn": "RT0603BRD0763K4L",
+   "designators": "R92,R94",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.047,
+   "jlc_unit_500": 0.0345
+  },
+  {
+   "lcsc_code": "C728581",
+   "jlc_found": true,
+   "jlc_model": "RT0603BRD0711KL",
+   "jlc_library": "expand",
+   "jlc_stock": 10027,
+   "jlc_presale": 3966,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0496
+    ],
+    [
+     200,
+     0.0421
+    ],
+    [
+     600,
+     0.038
+    ],
+    [
+     5000,
+     0.0354
+    ],
+    [
+     10000,
+     0.0333
+    ],
+    [
+     20000,
+     0.0322
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:07Z",
+   "url": "https://jlcpcb.com/partdetail/C728581",
+   "mpn": "RT0603BRD0711KL",
+   "designators": "R93,R61",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.0496,
+   "jlc_unit_500": 0.038
+  },
+  {
+   "lcsc_code": "C5216431",
+   "jlc_found": true,
+   "jlc_model": "ISO6721FBDR",
+   "jlc_library": "expand",
+   "jlc_stock": 5302,
+   "jlc_presale": 5300,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.7403
+    ],
+    [
+     10,
+     0.5968
+    ],
+    [
+     30,
+     0.5251
+    ],
+    [
+     100,
+     0.4533
+    ],
+    [
+     500,
+     0.4109
+    ],
+    [
+     1000,
+     0.3881
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:07Z",
+   "url": "https://jlcpcb.com/partdetail/C5216431",
+   "mpn": "ISO6721FBDR",
+   "designators": "U43",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.7403,
+   "jlc_unit_500": 0.4109
+  },
+  {
+   "lcsc_code": "C2890049",
+   "jlc_found": true,
+   "jlc_model": "CA-IS3720LW",
+   "jlc_library": "expand",
+   "jlc_stock": 2542,
+   "jlc_presale": 2542,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     1.0011
+    ],
+    [
+     10,
+     0.7908
+    ],
+    [
+     30,
+     0.6848
+    ],
+    [
+     100,
+     0.5805
+    ],
+    [
+     500,
+     0.5185
+    ],
+    [
+     1000,
+     0.4876
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:08Z",
+   "url": "https://jlcpcb.com/partdetail/C2890049",
+   "mpn": "CA-IS3720LW",
+   "designators": "U44",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 1.0011,
+   "jlc_unit_500": 0.5185
+  },
+  {
+   "lcsc_code": "C83574",
+   "jlc_found": true,
+   "jlc_model": "BAT54S-7-F",
+   "jlc_library": "expand",
+   "jlc_stock": 12110,
+   "jlc_presale": 10027,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.113
+    ],
+    [
+     50,
+     0.094
+    ],
+    [
+     150,
+     0.0843
+    ],
+    [
+     500,
+     0.0772
+    ],
+    [
+     3000,
+     0.0685
+    ],
+    [
+     6000,
+     0.0656
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:08Z",
+   "url": "https://jlcpcb.com/partdetail/C83574",
+   "mpn": "BAT54S-7-F",
+   "designators": "D18,D19",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.113,
+   "jlc_unit_500": 0.0772
+  },
+  {
+   "lcsc_code": "C403723",
+   "jlc_found": true,
+   "jlc_model": "SN74LVC1G132DBVR",
+   "jlc_library": "expand",
+   "jlc_stock": 28977,
+   "jlc_presale": 21501,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.1635
+    ],
+    [
+     50,
+     0.1326
+    ],
+    [
+     150,
+     0.1171
+    ],
+    [
+     500,
+     0.1055
+    ],
+    [
+     3000,
+     0.0904
+    ],
+    [
+     6000,
+     0.0856
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:09Z",
+   "url": "https://jlcpcb.com/partdetail/C403723",
+   "mpn": "SN74LVC1G132DBVR",
+   "designators": "U45,U46",
+   "qty": 2,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.1635,
+   "jlc_unit_500": 0.1055
+  },
+  {
+   "lcsc_code": "C22962",
+   "jlc_found": true,
+   "jlc_model": "0603WAF2200T5E",
+   "jlc_library": "base",
+   "jlc_stock": 2055511,
+   "jlc_presale": 1659837,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0035
+    ],
+    [
+     1000,
+     0.0027
+    ],
+    [
+     5000,
+     0.0023
+    ],
+    [
+     10000,
+     0.0021
+    ],
+    [
+     50000,
+     0.0018
+    ],
+    [
+     50200,
+     0.0018
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:09Z",
+   "url": "https://jlcpcb.com/partdetail/C22962",
+   "mpn": "0603WAF2200T5E",
+   "designators": "R132",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0035,
+   "jlc_unit_500": 0.0035
+  },
+  {
+   "lcsc_code": "C274054",
+   "jlc_found": true,
+   "jlc_model": "RC1206FR-0716K5L",
+   "jlc_library": "expand",
+   "jlc_stock": 4724,
+   "jlc_presale": 4712,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0053
+    ],
+    [
+     1000,
+     0.0044
+    ],
+    [
+     5000,
+     0.0039
+    ],
+    [
+     10000,
+     0.0036
+    ],
+    [
+     50000,
+     0.0033
+    ],
+    [
+     100000,
+     0.0031
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:09Z",
+   "url": "https://jlcpcb.com/partdetail/C274054",
+   "mpn": "RC1206FR-0716K5L",
+   "designators": "R67,R68,R69,R70",
+   "qty": 4,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended); stock at survey: JLC 5024 / LCSC 4900",
+   "jlc_unit_5": 0.0053,
+   "jlc_unit_500": 0.0044
+  },
+  {
+   "lcsc_code": "C145344",
+   "jlc_found": true,
+   "jlc_model": "VOL628A-2X001T",
+   "jlc_library": "expand",
+   "jlc_stock": 172,
+   "jlc_presale": 171,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.6115
+    ],
+    [
+     10,
+     0.499
+    ],
+    [
+     30,
+     0.4419
+    ],
+    [
+     100,
+     0.3848
+    ],
+    [
+     500,
+     0.3408
+    ],
+    [
+     1000,
+     0.3245
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:10Z",
+   "url": "https://jlcpcb.com/partdetail/C145344",
+   "mpn": "VOL628A-2X001T",
+   "designators": "U36",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Extended)",
+   "jlc_unit_5": 0.6115,
+   "jlc_unit_500": 0.3408
+  },
+  {
+   "lcsc_code": "C4216",
+   "jlc_found": true,
+   "jlc_model": "0603WAF3302T5E",
+   "jlc_library": "base",
+   "jlc_stock": 3638348,
+   "jlc_presale": 3431258,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0021
+    ],
+    [
+     1000,
+     0.0016
+    ],
+    [
+     5000,
+     0.0013
+    ],
+    [
+     10000,
+     0.0012
+    ],
+    [
+     50000,
+     0.001
+    ],
+    [
+     50200,
+     0.001
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:10Z",
+   "url": "https://jlcpcb.com/partdetail/C4216",
+   "mpn": "0603WAF3302T5E",
+   "designators": "R125",
+   "qty": 1,
+   "mount": "SMD",
+   "bom_assembly": "JLC (Basic)",
+   "jlc_unit_5": 0.0021,
+   "jlc_unit_500": 0.0021
+  }
+ ],
+ "extra": [
+  {
+   "lcsc_code": "C187688",
+   "jlc_found": true,
+   "jlc_model": "KLDR025.TXP",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     39.6557
+    ],
+    [
+     3,
+     39.6557
+    ],
+    [
+     5,
+     39.6557
+    ],
+    [
+     30,
+     37.8263
+    ],
+    [
+     32,
+     37.8263
+    ],
+    [
+     34,
+     37.8263
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:39Z",
+   "url": "https://jlcpcb.com/partdetail/C187688",
+   "mpn": "KLDR025.TXP"
+  },
+  {
+   "lcsc_code": "C3802167",
+   "jlc_found": true,
+   "jlc_model": "B32676G1905K000",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     3.2805
+    ],
+    [
+     10,
+     3.2805
+    ],
+    [
+     30,
+     3.2805
+    ],
+    [
+     200,
+     1.2702
+    ],
+    [
+     500,
+     1.2261
+    ],
+    [
+     1000,
+     1.2033
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:42Z",
+   "url": "https://jlcpcb.com/partdetail/C3802167",
+   "mpn": "B32676G1905K000"
+  },
+  {
+   "lcsc_code": "C3805920",
+   "jlc_found": true,
+   "jlc_model": "B32676G8106K000",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     5.8452
+    ],
+    [
+     10,
+     5.8452
+    ],
+    [
+     30,
+     5.8452
+    ],
+    [
+     200,
+     2.2631
+    ],
+    [
+     500,
+     2.1832
+    ],
+    [
+     1000,
+     2.1441
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:11Z",
+   "url": "https://jlcpcb.com/partdetail/C3805920",
+   "mpn": "B32676G8106K000"
+  },
+  {
+   "lcsc_code": "C3789525",
+   "jlc_found": true,
+   "jlc_model": "B32676G1106K000",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     6.8593
+    ],
+    [
+     10,
+     6.8593
+    ],
+    [
+     30,
+     6.8593
+    ],
+    [
+     200,
+     2.6544
+    ],
+    [
+     500,
+     2.5615
+    ],
+    [
+     1000,
+     2.5158
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:11Z",
+   "url": "https://jlcpcb.com/partdetail/C3789525",
+   "mpn": "B32676G1106K000"
+  },
+  {
+   "lcsc_code": "C3805845",
+   "jlc_found": true,
+   "jlc_model": "B32676G8755K000",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     3.6979
+    ],
+    [
+     10,
+     3.6979
+    ],
+    [
+     30,
+     3.6979
+    ],
+    [
+     200,
+     1.4316
+    ],
+    [
+     500,
+     1.381
+    ],
+    [
+     1000,
+     1.3566
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:12Z",
+   "url": "https://jlcpcb.com/partdetail/C3805845",
+   "mpn": "B32676G8755K000"
+  },
+  {
+   "lcsc_code": "",
+   "jlc_found": false,
+   "searched": "B32776G1906K000",
+   "mpn": "B32776G1906K000"
+  },
+  {
+   "lcsc_code": "C3794777",
+   "jlc_found": true,
+   "jlc_model": "B32654A1104J000",
+   "jlc_library": "expand",
+   "jlc_stock": 104,
+   "jlc_presale": 103,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     0.9702
+    ],
+    [
+     10,
+     0.7876
+    ],
+    [
+     30,
+     0.6962
+    ],
+    [
+     260,
+     0.6049
+    ],
+    [
+     520,
+     0.5511
+    ],
+    [
+     1040,
+     0.5218
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:50Z",
+   "url": "https://jlcpcb.com/partdetail/C3794777",
+   "mpn": "B32654A1104J000"
+  },
+  {
+   "lcsc_code": "C3811101",
+   "jlc_found": true,
+   "jlc_model": "B32654A1104K000",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.6865
+    ],
+    [
+     10,
+     0.6865
+    ],
+    [
+     12,
+     0.6865
+    ],
+    [
+     260,
+     0.2658
+    ],
+    [
+     520,
+     0.256
+    ],
+    [
+     1040,
+     0.2528
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:13Z",
+   "url": "https://jlcpcb.com/partdetail/C3811101",
+   "mpn": "B32654A1104K000"
+  },
+  {
+   "lcsc_code": "C3781430",
+   "jlc_found": true,
+   "jlc_model": "B32643B8104J000",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.6734
+    ],
+    [
+     10,
+     0.6734
+    ],
+    [
+     12,
+     0.6734
+    ],
+    [
+     260,
+     0.2609
+    ],
+    [
+     520,
+     0.2528
+    ],
+    [
+     1040,
+     0.2479
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:14Z",
+   "url": "https://jlcpcb.com/partdetail/C3781430",
+   "mpn": "B32643B8104J000"
+  },
+  {
+   "lcsc_code": "",
+   "jlc_found": false,
+   "searched": "B32656G0275J000",
+   "mpn": "B32656G0275J000"
+  },
+  {
+   "lcsc_code": "",
+   "jlc_found": false,
+   "searched": "B32656G0275K000",
+   "mpn": "B32656G0275K000"
+  },
+  {
+   "lcsc_code": "C3786276",
+   "jlc_found": true,
+   "jlc_model": "R75PR415050H3J",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     1.1854
+    ],
+    [
+     10,
+     1.1854
+    ],
+    [
+     30,
+     1.1854
+    ],
+    [
+     200,
+     0.4598
+    ],
+    [
+     500,
+     0.4435
+    ],
+    [
+     1000,
+     0.4354
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:15Z",
+   "url": "https://jlcpcb.com/partdetail/C3786276",
+   "mpn": "R75PR415050H3J"
+  },
+  {
+   "lcsc_code": "C3798966",
+   "jlc_found": true,
+   "jlc_model": "R75PR4150AA30K",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     1.3631
+    ],
+    [
+     10,
+     1.3631
+    ],
+    [
+     12,
+     1.3631
+    ],
+    [
+     200,
+     0.5283
+    ],
+    [
+     352,
+     0.5104
+    ],
+    [
+     1056,
+     0.5006
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:16Z",
+   "url": "https://jlcpcb.com/partdetail/C3798966",
+   "mpn": "R75PR4150AA30K"
+  },
+  {
+   "lcsc_code": "",
+   "jlc_found": false,
+   "searched": "R76PI3100SE40J",
+   "mpn": "R76PI3100SE40J"
+  },
+  {
+   "lcsc_code": "",
+   "jlc_found": false,
+   "searched": "R76PR3100SE40J",
+   "mpn": "R76PR3100SE40J"
+  },
+  {
+   "lcsc_code": "",
+   "jlc_found": false,
+   "searched": "MKP1848C61010JY5",
+   "mpn": "MKP1848C61010JY5"
+  },
+  {
+   "lcsc_code": "C19111562",
+   "jlc_found": true,
+   "jlc_model": "30KPA150CA",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     5.2175
+    ],
+    [
+     10,
+     5.2175
+    ],
+    [
+     12,
+     5.2175
+    ],
+    [
+     200,
+     2.0821
+    ],
+    [
+     500,
+     2.0136
+    ],
+    [
+     800,
+     1.9794
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:58Z",
+   "url": "https://jlcpcb.com/partdetail/C19111562",
+   "mpn": "30KPA150CA"
+  },
+  {
+   "lcsc_code": "C1976335",
+   "jlc_found": true,
+   "jlc_model": "30KPA150A",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     4.9664
+    ],
+    [
+     10,
+     4.9664
+    ],
+    [
+     12,
+     4.9664
+    ],
+    [
+     200,
+     1.9223
+    ],
+    [
+     500,
+     1.8555
+    ],
+    [
+     800,
+     1.8213
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:18Z",
+   "url": "https://jlcpcb.com/partdetail/C1976335",
+   "mpn": "30KPA150A"
+  },
+  {
+   "lcsc_code": "",
+   "jlc_found": false,
+   "searched": "SLD8S170A",
+   "mpn": "SLD8S170A"
+  },
+  {
+   "lcsc_code": "C7436441",
+   "jlc_found": true,
+   "jlc_model": "AK3-430C",
+   "jlc_library": "expand",
+   "jlc_stock": 19,
+   "jlc_presale": 19,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     18.2382
+    ],
+    [
+     10,
+     17.405
+    ],
+    [
+     56,
+     15.9621
+    ],
+    [
+     112,
+     14.7018
+    ],
+    [
+     114,
+     14.7018
+    ],
+    [
+     116,
+     14.7018
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:19Z",
+   "url": "https://jlcpcb.com/partdetail/C7436441",
+   "mpn": "AK3-430C"
+  },
+  {
+   "lcsc_code": "C5481600",
+   "jlc_found": true,
+   "jlc_model": "1704004",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     2.33
+    ],
+    [
+     10,
+     2.33
+    ],
+    [
+     12,
+     2.33
+    ],
+    [
+     200,
+     0.9294
+    ],
+    [
+     500,
+     0.8984
+    ],
+    [
+     1000,
+     0.8838
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:59Z",
+   "url": "https://jlcpcb.com/partdetail/C5481600",
+   "mpn": "1704004"
+  },
+  {
+   "lcsc_code": "",
+   "jlc_found": false,
+   "searched": "74650074",
+   "mpn": "74650074"
+  },
+  {
+   "lcsc_code": "C6708126",
+   "jlc_found": true,
+   "jlc_model": "7466004R",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     3.3278
+    ],
+    [
+     10,
+     3.3278
+    ],
+    [
+     12,
+     3.3278
+    ],
+    [
+     200,
+     1.3289
+    ],
+    [
+     500,
+     1.2832
+    ],
+    [
+     1000,
+     1.262
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:20Z",
+   "url": "https://jlcpcb.com/partdetail/C6708126",
+   "mpn": "7466004R"
+  },
+  {
+   "lcsc_code": "C160745",
+   "jlc_found": true,
+   "jlc_model": "B2P3-VH(LF)(SN)",
+   "jlc_library": "expand",
+   "jlc_stock": 983,
+   "jlc_presale": 862,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0653
+    ],
+    [
+     100,
+     0.0522
+    ],
+    [
+     300,
+     0.0459
+    ],
+    [
+     1000,
+     0.0356
+    ],
+    [
+     5000,
+     0.0317
+    ],
+    [
+     10000,
+     0.0297
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:52Z",
+   "url": "https://jlcpcb.com/partdetail/C160745",
+   "mpn": "B2P3-VH(LF)(SN)"
+  },
+  {
+   "lcsc_code": "C1534260",
+   "jlc_found": true,
+   "jlc_model": "B82726S2203A020",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     5.6463
+    ],
+    [
+     10,
+     5.6463
+    ],
+    [
+     30,
+     5.6463
+    ],
+    [
+     200,
+     2.1848
+    ],
+    [
+     500,
+     2.1082
+    ],
+    [
+     1000,
+     2.0707
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:41Z",
+   "url": "https://jlcpcb.com/partdetail/C1534260",
+   "mpn": "B82726S2203A020"
+  },
+  {
+   "lcsc_code": "",
+   "jlc_found": false,
+   "searched": "B82726S2163A020",
+   "mpn": "B82726S2163A020"
+  },
+  {
+   "lcsc_code": "C6509317",
+   "jlc_found": true,
+   "jlc_model": "B82725A2202N001",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     2.1865
+    ],
+    [
+     10,
+     2.1865
+    ],
+    [
+     12,
+     2.1865
+    ],
+    [
+     160,
+     0.8723
+    ],
+    [
+     480,
+     0.843
+    ],
+    [
+     960,
+     0.8299
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:22Z",
+   "url": "https://jlcpcb.com/partdetail/C6509317",
+   "mpn": "B82725A2202N001"
+  },
+  {
+   "lcsc_code": "",
+   "jlc_found": false,
+   "searched": "B82726E6203A021",
+   "mpn": "B82726E6203A021"
+  },
+  {
+   "lcsc_code": "C50132500",
+   "jlc_found": true,
+   "jlc_model": "CST3015-200ED",
+   "jlc_library": "expand",
+   "jlc_stock": 64,
+   "jlc_presale": 64,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     7.7088
+    ],
+    [
+     10,
+     7.5343
+    ],
+    [
+     30,
+     7.4186
+    ],
+    [
+     90,
+     7.3028
+    ],
+    [
+     92,
+     7.3028
+    ],
+    [
+     94,
+     7.3028
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:50Z",
+   "url": "https://jlcpcb.com/partdetail/C50132500",
+   "mpn": "CST3015-200ED"
+  },
+  {
+   "lcsc_code": "C4175647",
+   "jlc_found": true,
+   "jlc_model": "CSS2H-2512R-1L00F",
+   "jlc_library": "expand",
+   "jlc_stock": 1380,
+   "jlc_presale": 1344,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.5642
+    ],
+    [
+     10,
+     0.4549
+    ],
+    [
+     30,
+     0.3995
+    ],
+    [
+     100,
+     0.3457
+    ],
+    [
+     500,
+     0.3131
+    ],
+    [
+     1000,
+     0.2968
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:42Z",
+   "url": "https://jlcpcb.com/partdetail/C4175647",
+   "mpn": "CSS2H-2512R-1L00F"
+  },
+  {
+   "lcsc_code": "",
+   "jlc_found": false,
+   "searched": "CSS2H-2512K-1L00F",
+   "mpn": "CSS2H-2512K-1L00F"
+  },
+  {
+   "lcsc_code": "C241862",
+   "jlc_found": true,
+   "jlc_model": "WSLP2512R0100FEA",
+   "jlc_library": "expand",
+   "jlc_stock": 6399,
+   "jlc_presale": 6323,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.7093
+    ],
+    [
+     10,
+     0.5789
+    ],
+    [
+     30,
+     0.5136
+    ],
+    [
+     100,
+     0.4484
+    ],
+    [
+     500,
+     0.4109
+    ],
+    [
+     1000,
+     0.362
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:23Z",
+   "url": "https://jlcpcb.com/partdetail/C241862",
+   "mpn": "WSLP2512R0100FEA"
+  },
+  {
+   "lcsc_code": "C6211072",
+   "jlc_found": true,
+   "jlc_model": "IRM-20-15",
+   "jlc_library": "expand",
+   "jlc_stock": 1497,
+   "jlc_presale": 1487,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     6.3604
+    ],
+    [
+     10,
+     6.3604
+    ],
+    [
+     50,
+     6.3588
+    ],
+    [
+     240,
+     6.3588
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:51Z",
+   "url": "https://jlcpcb.com/partdetail/C6211072",
+   "mpn": "IRM-20-15"
+  },
+  {
+   "lcsc_code": "C194964",
+   "jlc_found": true,
+   "jlc_model": "IRM-20-24",
+   "jlc_library": "expand",
+   "jlc_stock": 7095,
+   "jlc_presale": 6671,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     6.3604
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:53Z",
+   "url": "https://jlcpcb.com/partdetail/C194964",
+   "mpn": "IRM-20-24"
+  },
+  {
+   "lcsc_code": "C114839",
+   "jlc_found": true,
+   "jlc_model": "TPS7A4700RGWR",
+   "jlc_library": "expand",
+   "jlc_stock": 998,
+   "jlc_presale": 684,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     5.2419
+    ],
+    [
+     10,
+     4.7414
+    ],
+    [
+     30,
+     4.43
+    ],
+    [
+     100,
+     4.0876
+    ],
+    [
+     500,
+     3.9637
+    ],
+    [
+     1000,
+     3.9115
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:02Z",
+   "url": "https://jlcpcb.com/partdetail/C114839",
+   "mpn": "TPS7A4700RGWR"
+  },
+  {
+   "lcsc_code": "C90084",
+   "jlc_found": true,
+   "jlc_model": "TPS7A4701RGWR",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     13.1789
+    ],
+    [
+     10,
+     11.8729
+    ],
+    [
+     30,
+     11.3985
+    ],
+    [
+     100,
+     10.4577
+    ],
+    [
+     102,
+     10.4577
+    ],
+    [
+     104,
+     10.4577
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:25Z",
+   "url": "https://jlcpcb.com/partdetail/C90084",
+   "mpn": "TPS7A4701RGWR"
+  },
+  {
+   "lcsc_code": "C96028",
+   "jlc_found": true,
+   "jlc_model": "TPS70950DBVR",
+   "jlc_library": "expand",
+   "jlc_stock": 5921,
+   "jlc_presale": 5802,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.5707
+    ],
+    [
+     10,
+     0.4582
+    ],
+    [
+     30,
+     0.4011
+    ],
+    [
+     100,
+     0.3457
+    ],
+    [
+     500,
+     0.3115
+    ],
+    [
+     1000,
+     0.2952
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:53Z",
+   "url": "https://jlcpcb.com/partdetail/C96028",
+   "mpn": "TPS70950DBVR"
+  },
+  {
+   "lcsc_code": "C2877721",
+   "jlc_found": true,
+   "jlc_model": "TPS70950DBVT",
+   "jlc_library": "expand",
+   "jlc_stock": 9,
+   "jlc_presale": 6,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.6082
+    ],
+    [
+     10,
+     0.5055
+    ],
+    [
+     30,
+     0.4615
+    ],
+    [
+     250,
+     0.406
+    ],
+    [
+     500,
+     0.3816
+    ],
+    [
+     1000,
+     0.3669
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:26Z",
+   "url": "https://jlcpcb.com/partdetail/C2877721",
+   "mpn": "TPS70950DBVT"
+  },
+  {
+   "lcsc_code": "C3752807",
+   "jlc_found": true,
+   "jlc_model": "TLV76750DGNR",
+   "jlc_library": "expand",
+   "jlc_stock": 228,
+   "jlc_presale": 224,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.8495
+    ],
+    [
+     10,
+     0.7321
+    ],
+    [
+     30,
+     0.6506
+    ],
+    [
+     100,
+     0.5821
+    ],
+    [
+     500,
+     0.5593
+    ],
+    [
+     1000,
+     0.5462
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:26Z",
+   "url": "https://jlcpcb.com/partdetail/C3752807",
+   "mpn": "TLV76750DGNR"
+  },
+  {
+   "lcsc_code": "C3299886",
+   "jlc_found": true,
+   "jlc_model": "R463N410050N1K",
+   "jlc_library": "expand",
+   "jlc_stock": 46,
+   "jlc_presale": 46,
+   "jlc_process": "THT",
+   "jlc_ladder": [
+    [
+     1,
+     0.8952
+    ],
+    [
+     10,
+     0.8756
+    ],
+    [
+     30,
+     0.8642
+    ],
+    [
+     100,
+     0.8528
+    ],
+    [
+     102,
+     0.8528
+    ],
+    [
+     104,
+     0.8528
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:40:40Z",
+   "url": "https://jlcpcb.com/partdetail/C3299886",
+   "mpn": "R463N410050N1K"
+  },
+  {
+   "lcsc_code": "C9900245652",
+   "jlc_found": true,
+   "jlc_model": "R24C2T25/R-R",
+   "jlc_library": "expand",
+   "jlc_stock": 0,
+   "jlc_presale": 0,
+   "jlc_process": "SMT",
+   "jlc_ladder": [
+    [
+     1,
+     0.0397
+    ],
+    [
+     100,
+     0.0204
+    ]
+   ],
+   "jlc_status": "yes",
+   "fetched_utc": "2026-10-15T06:41:06Z",
+   "url": "https://jlcpcb.com/partdetail/C9900245652",
+   "mpn": "R24C2T25/R-R"
+  }
+ ]
+}
