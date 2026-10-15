@@ -1,0 +1,186 @@
+{
+ "before": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s42/c42b/copper-dump.json",
+ "after": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s43/c43/copper-dump.json",
+ "nets": {
+  "leg_a-gate_h F.Cu": {
+   "before": {
+    "length_mm": 31.949,
+    "min_other_net_mm": 0.275,
+    "min_other_group_mm": 3.425
+   },
+   "after": {
+    "length_mm": 30.544,
+    "min_other_net_mm": 0.275,
+    "min_other_group_mm": 3.425
+   }
+  },
+  "leg_a-gate_l F.Cu": {
+   "before": {
+    "length_mm": 31.949,
+    "min_other_net_mm": 0.2,
+    "min_other_group_mm": 3.8
+   },
+   "after": {
+    "length_mm": 30.544,
+    "min_other_net_mm": 0.2,
+    "min_other_group_mm": 3.8
+   }
+  },
+  "leg_a-off_h F.Cu": {
+   "before": {
+    "length_mm": 11.7,
+    "min_other_net_mm": 0.201,
+    "min_other_group_mm": 4.8
+   },
+   "after": {
+    "length_mm": 10.294,
+    "min_other_net_mm": 0.209,
+    "min_other_group_mm": 4.8
+   }
+  },
+  "leg_a-off_l F.Cu": {
+   "before": {
+    "length_mm": 11.7,
+    "min_other_net_mm": 0.525,
+    "min_other_group_mm": 4.8
+   },
+   "after": {
+    "length_mm": 10.294,
+    "min_other_net_mm": 0.8,
+    "min_other_group_mm": 4.8
+   }
+  },
+  "leg_a-out_h F.Cu": {
+   "before": {
+    "length_mm": 47.198,
+    "min_other_net_mm": 0.2,
+    "min_other_group_mm": 3.4
+   },
+   "after": {
+    "length_mm": 47.223,
+    "min_other_net_mm": 0.2,
+    "min_other_group_mm": 3.4
+   }
+  },
+  "leg_a-out_l F.Cu": {
+   "before": {
+    "length_mm": 40.838,
+    "min_other_net_mm": 0.296,
+    "min_other_group_mm": 3.365
+   },
+   "after": {
+    "length_mm": 41.209,
+    "min_other_net_mm": 0.296,
+    "min_other_group_mm": 3.365
+   }
+  },
+  "leg_a-out_l In1.Cu": {
+   "before": {
+    "length_mm": 32.0,
+    "min_other_net_mm": 0.2,
+    "min_other_group_mm": 3.3
+   },
+   "after": {
+    "length_mm": 31.657,
+    "min_other_net_mm": 0.2,
+    "min_other_group_mm": 3.3
+   }
+  },
+  "leg_b-gate_h F.Cu": {
+   "before": {
+    "length_mm": 31.949,
+    "min_other_net_mm": 0.275,
+    "min_other_group_mm": 3.8
+   },
+   "after": {
+    "length_mm": 30.544,
+    "min_other_net_mm": 0.275,
+    "min_other_group_mm": 3.8
+   }
+  },
+  "leg_b-gate_l F.Cu": {
+   "before": {
+    "length_mm": 31.949,
+    "min_other_net_mm": 0.275,
+    "min_other_group_mm": 3.425
+   },
+   "after": {
+    "length_mm": 30.544,
+    "min_other_net_mm": 0.275,
+    "min_other_group_mm": 3.425
+   }
+  },
+  "leg_b-off_h F.Cu": {
+   "before": {
+    "length_mm": 11.7,
+    "min_other_net_mm": 0.525,
+    "min_other_group_mm": 4.8
+   },
+   "after": {
+    "length_mm": 10.294,
+    "min_other_net_mm": 0.8,
+    "min_other_group_mm": 4.8
+   }
+  },
+  "leg_b-off_l F.Cu": {
+   "before": {
+    "length_mm": 11.7,
+    "min_other_net_mm": 0.525,
+    "min_other_group_mm": 4.8
+   },
+   "after": {
+    "length_mm": 10.294,
+    "min_other_net_mm": 0.8,
+    "min_other_group_mm": 4.8
+   }
+  },
+  "leg_b-out_h F.Cu": {
+   "before": {
+    "length_mm": 66.265,
+    "min_other_net_mm": 0.296,
+    "min_other_group_mm": 3.204
+   },
+   "after": {
+    "length_mm": 64.156,
+    "min_other_net_mm": 0.296,
+    "min_other_group_mm": 3.204
+   }
+  },
+  "leg_b-out_l F.Cu": {
+   "before": {
+    "length_mm": 46.509,
+    "min_other_net_mm": 0.2,
+    "min_other_group_mm": 3.4
+   },
+   "after": {
+    "length_mm": 46.754,
+    "min_other_net_mm": 0.2,
+    "min_other_group_mm": 3.4
+   }
+  }
+ },
+ "loops": {
+  "leg_a_h": {
+   "before_mm": 90.847,
+   "after_mm": 88.061
+  },
+  "leg_a_l": {
+   "before_mm": 116.487,
+   "after_mm": 113.704
+  },
+  "leg_b_h": {
+   "before_mm": 109.914,
+   "after_mm": 104.994
+  },
+  "leg_b_l": {
+   "before_mm": 90.158,
+   "after_mm": 87.592
+  }
+ },
+ "failures": [],
+ "notes": [
+  "leg_a-out_l F.Cu: length 40.838 -> 41.209",
+  "leg_b-out_l F.Cu: length 46.509 -> 46.754"
+ ],
+ "verdict": "PASS"
+}
