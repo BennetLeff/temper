@@ -1,0 +1,289 @@
+{
+ "scope": "Problem B: contaminated contact between the C1 disc and the pan (oil, water, crud).\n\nExtends contact_model.py (Yovanovich light-load gap conductance, same face, pans,\ntilts) with a fluid in the gap, a solid film in series, a sticky post that no\nlonger follows the pan, and a boiling water pocket around the post. Writes the\ncontact values to contaminants.json and provides truth plants for the closed loop\n(pyloop.py, hc_cosim.py).\n\nProperty values (each an ASSUMPTION with a source; the bench replaces them):\n  air k at 150 C          0.0349 W/m K   contact_model.K_AIR_150C (as r3)\n  edible oil k            0.15-0.17 W/m K (0.17 at 25 C falling ~0.0002 /K; used\n                          0.155 at 150 C). Turgut, Tavman & Tavman, Int. J. Food Prop.\n                          12 (2009) 741 (hot wire, olive / sunflower / corn, 25-80 C);\n                          Coupland & McClements, JAOCS 74 (1997) 1559.\n  oil viscosity           canola 0.060 Pa s at 25 C, 0.0055 at 150 C, 0.004 at 180 C.\n                          Fasina & Colley, Int. J. Food Prop. 11 (2008) 738 (35-180 C;\n                          the 25 C value extrapolated).\n  polymerised oil film    k 0.15-0.25 W/m K: crosslinked amorphous polymer range\n  (\"varnish\")             (Mark (ed.), Physical Properties of Polymers Handbook, 2007,\n                          ch. 10). Thickness 0-100 um is a sweep, not a measurement.\n  water, 100 C            k_l 0.680, k_v 0.0248 W/m K, cp 4217 J/kg K, h_fg 2.257 MJ/kg:\n                          Incropera & DeWitt, Fundamentals of Heat and Mass Transfer\n                          6th ed., Table A.6.\n  boiling curve, water,   free convection below dT_e 5 K (h 1000 W/m2 K); nucleate\n  1 atm                   q'' = q''_max (dT_e/30)^3 to q''_max = 1.26 MW/m2 at 30 K;\n                          transition log-linear to the Leidenfrost q''_min = 1.8e4 W/m2\n                          at 120 K; film boiling q''_min dT_e/120 above. Incropera 6th ed.\n                          section 10.4, Fig. 10.4 and Example 10.1. A confined pocket may\n                          dry out earlier: boil_scale 0.3 is run as a sensitivity.\n  pocket geometry         from cad/cartridge_r3.py: glass bore r 9.0, neck r 4.0, collar\n                          r 8.0 (top 0.2 mm under the glass top), relief r 5.5 down to\n                          the wiper 2.8 mm below: pan-bottom area over the pocket\n                          pi (9^2 - 4^2) = 204 mm2, liquid volume above the wiper and in\n                          the collar annulus 0.05-0.35 ml. Wetted disc edge pi 8 x 0.32\n                          = 8 mm2.\n  wiper and spring        cad/tilt-follow.json: friction 0.056 N (mu 0.3) / 0.185 N\n                          (dry mu 1.0); spring 1.21-1.79 N.\n  pan bow when hot        0-0.3 mm rise of the base centre at 230 C, linear in the pan\n                          mean temperature: an ASSUMPTION (no measured value found);\n                          the bench measures it with a dial gauge on a hot pan.\n\nRun: python contaminants.py  -> contaminants.json",
+ "constants": {
+  "k_air": 0.0344,
+  "k_oil": 0.155,
+  "k_oil_range": [
+   0.15,
+   0.17
+  ],
+  "mu_oil_Pa_s": {
+   "25": 0.06,
+   "150": 0.0055,
+   "180": 0.004
+  },
+  "k_varnish_range": [
+   0.15,
+   0.25
+  ],
+  "k_water": 0.68,
+  "k_vapour": 0.0248,
+  "h_fg": 2257000.0,
+  "q_max": 1260000.0,
+  "q_min": 18000.0,
+  "A_pocket_mm2": 204.2,
+  "A_edge_mm2": 8.0,
+  "wiper_friction_N": [
+   0.056,
+   0.185
+  ],
+  "spring_N": [
+   1.21,
+   1.79
+  ]
+ },
+ "oil_h_W_m2K": {
+  "clad_polished_ss": {
+   "dry": 4815,
+   "oil_wet_k0.15": 22731,
+   "oil_wet_k0.17": 25761,
+   "oil_film_2um": 16817,
+   "oil_film_5um": 12267,
+   "oil_film_20um": 5490,
+   "oil_film_100um": 1435,
+   "varnish_10um_k0.15": 3645,
+   "varnish_30um_k0.15": 2453,
+   "varnish_60um_k0.15": 1646,
+   "varnish_100um_k0.15": 1144,
+   "varnish_10um_k0.25": 4037,
+   "varnish_30um_k0.25": 3052,
+   "varnish_60um_k0.25": 2234,
+   "varnish_100um_k0.25": 1646
+  },
+  "disc_base_brushed": {
+   "dry": 3543,
+   "oil_wet_k0.15": 16192,
+   "oil_wet_k0.17": 18350,
+   "oil_film_2um": 13395,
+   "oil_film_5um": 10444,
+   "oil_film_20um": 5116,
+   "oil_film_100um": 1409,
+   "varnish_10um_k0.15": 2866,
+   "varnish_30um_k0.15": 2074,
+   "varnish_60um_k0.15": 1466,
+   "varnish_100um_k0.15": 1054,
+   "varnish_10um_k0.25": 3103,
+   "varnish_30um_k0.25": 2486,
+   "varnish_60um_k0.25": 1915,
+   "varnish_100um_k0.25": 1466
+  },
+  "carbon_steel": {
+   "dry": 2596,
+   "oil_wet_k0.15": 11670,
+   "oil_wet_k0.17": 13225,
+   "oil_film_2um": 10325,
+   "oil_film_5um": 8529,
+   "oil_film_20um": 4628,
+   "oil_film_100um": 1370,
+   "varnish_10um_k0.15": 2213,
+   "varnish_30um_k0.15": 1709,
+   "varnish_60um_k0.15": 1274,
+   "varnish_100um_k0.15": 951,
+   "varnish_10um_k0.25": 2352,
+   "varnish_30um_k0.25": 1979,
+   "varnish_60um_k0.25": 1599,
+   "varnish_100um_k0.25": 1274
+  },
+  "cast_iron_machined": {
+   "dry": 2233,
+   "oil_wet_k0.15": 9983,
+   "oil_wet_k0.17": 11312,
+   "oil_film_2um": 9042,
+   "oil_film_5um": 7649,
+   "oil_film_20um": 4363,
+   "oil_film_100um": 1346,
+   "varnish_10um_k0.15": 1944,
+   "varnish_30um_k0.15": 1544,
+   "varnish_60um_k0.15": 1179,
+   "varnish_100um_k0.15": 897,
+   "varnish_10um_k0.25": 2050,
+   "varnish_30um_k0.25": 1761,
+   "varnish_60um_k0.25": 1454,
+   "varnish_100um_k0.25": 1179
+  },
+  "cast_iron_as_cast": {
+   "dry": 888,
+   "oil_wet_k0.15": 3888,
+   "oil_wet_k0.17": 4405,
+   "oil_film_2um": 3819,
+   "oil_film_5um": 3555,
+   "oil_film_20um": 2645,
+   "oil_film_100um": 1124,
+   "varnish_10um_k0.15": 839,
+   "varnish_30um_k0.15": 754,
+   "varnish_60um_k0.15": 655,
+   "varnish_100um_k0.15": 558,
+   "varnish_10um_k0.25": 858,
+   "varnish_30um_k0.25": 803,
+   "varnish_60um_k0.25": 732,
+   "varnish_100um_k0.25": 655
+  },
+  "enamel_cast_iron": {
+   "dry": 4022,
+   "oil_wet_k0.15": 18572,
+   "oil_wet_k0.17": 21047,
+   "oil_film_2um": 14784,
+   "oil_film_5um": 11223,
+   "oil_film_20um": 5285,
+   "oil_film_100um": 1421,
+   "varnish_10um_k0.15": 3172,
+   "varnish_30um_k0.15": 2229,
+   "varnish_60um_k0.15": 1542,
+   "varnish_100um_k0.15": 1093,
+   "varnish_10um_k0.25": 3465,
+   "varnish_30um_k0.25": 2713,
+   "varnish_60um_k0.25": 2046,
+   "varnish_100um_k0.25": 1542
+  }
+ },
+ "oil_squeeze_film_s": {
+  "25C": {
+   "100->20um_s": 0.058,
+   "100->5um_s": 0.972,
+   "20->2um_s": 6.03
+  },
+  "150C": {
+   "100->20um_s": 0.005,
+   "100->5um_s": 0.089,
+   "20->2um_s": 0.553
+  },
+  "180C": {
+   "100->20um_s": 0.004,
+   "100->5um_s": 0.065,
+   "20->2um_s": 0.402
+  }
+ },
+ "water_h_W_m2K": {
+  "clad_polished_ss": {
+   "dry": 4815,
+   "liquid_gap": 103017,
+   "vapour_gap": 3478
+  },
+  "disc_base_brushed": {
+   "dry": 3543,
+   "liquid_gap": 73373,
+   "vapour_gap": 2560
+  },
+  "carbon_steel": {
+   "dry": 2596,
+   "liquid_gap": 52874,
+   "vapour_gap": 1876
+  },
+  "cast_iron_machined": {
+   "dry": 2233,
+   "liquid_gap": 45224,
+   "vapour_gap": 1614
+  },
+  "cast_iron_as_cast": {
+   "dry": 888,
+   "liquid_gap": 17596,
+   "vapour_gap": 644
+  },
+  "enamel_cast_iron": {
+   "dry": 4022,
+   "liquid_gap": 84163,
+   "vapour_gap": 2906
+  }
+ },
+ "crud_h_W_m2K": {
+  "clad_polished_ss": {
+   "dry": 4815,
+   "partial_Ff0.5N_tilt5mrad": 2411,
+   "partial_Ff1.0N_tilt5mrad": 2389,
+   "partial_Ff1.1N_tilt5mrad": 2379,
+   "stuck_gap_0um": 2311,
+   "stuck_gap_10um": 1249,
+   "stuck_gap_25um": 791,
+   "stuck_gap_50um": 502,
+   "stuck_gap_100um": 294,
+   "stuck_gap_200um": 164,
+   "stuck_gap_300um": 116,
+   "stuck_gap_500um": 75
+  },
+  "disc_base_brushed": {
+   "dry": 3543,
+   "partial_Ff0.5N_tilt5mrad": 1965,
+   "partial_Ff1.0N_tilt5mrad": 1934,
+   "partial_Ff1.1N_tilt5mrad": 1919,
+   "stuck_gap_0um": 1826,
+   "stuck_gap_10um": 1126,
+   "stuck_gap_25um": 744,
+   "stuck_gap_50um": 483,
+   "stuck_gap_100um": 288,
+   "stuck_gap_200um": 162,
+   "stuck_gap_300um": 115,
+   "stuck_gap_500um": 74
+  },
+  "carbon_steel": {
+   "dry": 2596,
+   "partial_Ff0.5N_tilt5mrad": 1584,
+   "partial_Ff1.0N_tilt5mrad": 1550,
+   "partial_Ff1.1N_tilt5mrad": 1533,
+   "stuck_gap_0um": 1431,
+   "stuck_gap_10um": 981,
+   "stuck_gap_25um": 681,
+   "stuck_gap_50um": 456,
+   "stuck_gap_100um": 279,
+   "stuck_gap_200um": 160,
+   "stuck_gap_300um": 113,
+   "stuck_gap_500um": 74
+  },
+  "cast_iron_machined": {
+   "dry": 2233,
+   "partial_Ff0.5N_tilt5mrad": 1422,
+   "partial_Ff1.0N_tilt5mrad": 1387,
+   "partial_Ff1.1N_tilt5mrad": 1369,
+   "stuck_gap_0um": 1266,
+   "stuck_gap_10um": 906,
+   "stuck_gap_25um": 645,
+   "stuck_gap_50um": 441,
+   "stuck_gap_100um": 273,
+   "stuck_gap_200um": 158,
+   "stuck_gap_300um": 113,
+   "stuck_gap_500um": 73
+  },
+  "cast_iron_as_cast": {
+   "dry": 888,
+   "partial_Ff0.5N_tilt5mrad": 697,
+   "partial_Ff1.0N_tilt5mrad": 670,
+   "partial_Ff1.1N_tilt5mrad": 657,
+   "stuck_gap_0um": 582,
+   "stuck_gap_10um": 498,
+   "stuck_gap_25um": 411,
+   "stuck_gap_50um": 319,
+   "stuck_gap_100um": 222,
+   "stuck_gap_200um": 140,
+   "stuck_gap_300um": 104,
+   "stuck_gap_500um": 70
+  },
+  "enamel_cast_iron": {
+   "dry": 4022,
+   "partial_Ff0.5N_tilt5mrad": 2141,
+   "partial_Ff1.0N_tilt5mrad": 2115,
+   "partial_Ff1.1N_tilt5mrad": 2102,
+   "stuck_gap_0um": 2020,
+   "stuck_gap_10um": 1182,
+   "stuck_gap_25um": 766,
+   "stuck_gap_50um": 492,
+   "stuck_gap_100um": 291,
+   "stuck_gap_200um": 163,
+   "stuck_gap_300um": 115,
+   "stuck_gap_500um": 74
+  }
+ },
+ "boiling_curve_W_m2": {
+  "2": 2000,
+  "5": 5000,
+  "10": 46667,
+  "20": 373333,
+  "30": 1260000,
+  "60": 305730,
+  "100": 46269,
+  "120": 18000,
+  "150": 22500,
+  "200": 30000
+ },
+ "crud_friction_margin": {
+  "stick_needs_friction_rise_x": 6.5
+ }
+}

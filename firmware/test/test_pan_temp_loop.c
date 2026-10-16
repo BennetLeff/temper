@@ -1,7 +1,8 @@
 /**
  * @file test_pan_temp_loop.c
  * @brief sensor-r3 C1 loop: sensor guard, plant-gain identification, rate PID
- *        and the power authority ("never chase a cold reading").
+ *        (with the latent-plateau guard), the contact-shift window and the
+ *        power authority ("never chase a cold reading").
  */
 
 #include <math.h>
@@ -449,6 +450,245 @@ static void test_rate_pid_integrator_clamp_scales_with_gain(void)
     TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1800.0f * 1e-4f, c.integ);
 }
 
+/* Latent-plateau guard (DECISIONS.md D-LPG): T_hat flat in the boiling band
+ * well below the setpoint limits the PID to lpg_rate / a once the energy
+ * budget (a * E >= sp - T_hat since entering the band from below) is spent;
+ * at once when the reading fell into the band; outside the band, while rising,
+ * or near the setpoint it does nothing. */
+static void test_rate_pid_latent_plateau_guard(void)
+{
+    prp_t c;
+    prp_params_t p;
+    prp_default_params(&p);
+    TEST_ASSERT_TRUE(p.lpg_enable);
+    TEST_ASSERT_TRUE(p.lpg_budget);
+    TEST_ASSERT_TRUE(prp_init(&c, &p));
+    const float a = 1e-3f;
+    prp_start(&c, 100.0f);
+    c.sp_eff = 200.0f;
+    float P = 0.0f;
+    for (int k = 0; k < 100; k++) {
+        P = prp_step(&c, 200.0f, 100.0f, a);
+        TEST_ASSERT_FALSE(prp_lpg_active(&c));   /* needs lpg_n earlier samples */
+    }
+    TEST_ASSERT_FLOAT_WITHIN(1e-3f, 1800.0f, P);
+    /* budget: (200 - 100) / a = 1e5 J at 1800 W = 55.6 s */
+    int k_cap = -1;
+    for (int k = 0; k < 1000 && k_cap < 0; k++) {
+        P = prp_step(&c, 200.0f, 100.0f, a);
+        if (prp_lpg_active(&c)) {
+            k_cap = k;
+        }
+    }
+    TEST_ASSERT_TRUE(k_cap >= 550 && k_cap <= 560);
+    TEST_ASSERT_FLOAT_WITHIN(1e-3f, 0.2f / a, P);
+
+    /* the reading fell into the band from 150 C: no budget, limited once flat */
+    TEST_ASSERT_TRUE(prp_init(&c, &p));
+    prp_start(&c, 150.0f);
+    c.sp_eff = 200.0f;
+    for (int k = 0; k < 100; k++) {
+        (void)prp_step(&c, 200.0f, 150.0f, a);
+    }
+    k_cap = -1;
+    for (int k = 0; k < 300 && k_cap < 0; k++) {
+        P = prp_step(&c, 200.0f, 100.0f, a);
+        if (prp_lpg_active(&c)) {
+            k_cap = k;
+        }
+    }
+    TEST_ASSERT_TRUE(k_cap >= 0 && k_cap <= 100);
+    TEST_ASSERT_FLOAT_WITHIN(1e-3f, 0.2f / a, P);
+
+    /* the same flat history at 150 C (out of the band): no limit */
+    TEST_ASSERT_TRUE(prp_init(&c, &p));
+    prp_start(&c, 150.0f);
+    c.sp_eff = 200.0f;
+    for (int k = 0; k < 150; k++) {
+        P = prp_step(&c, 200.0f, 150.0f, a);
+        TEST_ASSERT_FALSE(prp_lpg_active(&c));
+    }
+    /* rising through the band at 0.3 K/s: no limit */
+    TEST_ASSERT_TRUE(prp_init(&c, &p));
+    prp_start(&c, 90.0f);
+    c.sp_eff = 200.0f;
+    for (int k = 0; k < 600; k++) {   /* 90 -> 108 C */
+        P = prp_step(&c, 200.0f, 90.0f + 0.03f * (float)k, a);
+        TEST_ASSERT_FALSE(prp_lpg_active(&c));
+    }
+    /* flat at 100 C with the setpoint at 103 C (a simmer hold): no limit */
+    TEST_ASSERT_TRUE(prp_init(&c, &p));
+    prp_start(&c, 100.0f);
+    for (int k = 0; k < 150; k++) {
+        P = prp_step(&c, 103.0f, 100.0f, a);
+        TEST_ASSERT_FALSE(prp_lpg_active(&c));
+    }
+    /* disabled */
+    p.lpg_enable = false;
+    TEST_ASSERT_TRUE(prp_init(&c, &p));
+    prp_start(&c, 100.0f);
+    c.sp_eff = 200.0f;
+    for (int k = 0; k < 150; k++) {
+        P = prp_step(&c, 200.0f, 100.0f, a);
+    }
+    TEST_ASSERT_FALSE(prp_lpg_active(&c));
+    TEST_ASSERT_FLOAT_WITHIN(1e-3f, 1800.0f, P);
+}
+
+/* ------------------------------------------------- contact-shift window -- */
+
+/* Cartridge truth with the estimator's own constants (pte model, 5 Euler
+ * substeps): the pan centre follows t_pan, the contact is g_c W/K. */
+typedef struct {
+    double tcap, tel;
+} cart_t;
+
+static void cart_step(cart_t *m, const pte_params_t *k, double g_c, double t_pan, double t_sink)
+{
+    const double h = 0.1 / 5.0;
+    for (int i = 0; i < 5; i++) {
+        const double dcap = (g_c * (t_pan - m->tcap) - k->g_leak_w_per_k * (m->tcap - t_sink) -
+                             k->g_bond_w_per_k * (m->tcap - m->tel)) / k->c_cap_j_per_k;
+        const double dele = k->g_bond_w_per_k * (m->tcap - m->tel) / k->c_el_j_per_k;
+        m->tcap += h * dcap;
+        m->tel += h * dele;
+    }
+}
+
+typedef struct {
+    int opens_down, accepts, escalates, reverts;
+    float h_accept, t_hat_end;
+    int first_open_k;
+} csw_run_t;
+
+/* A pan held at 200 C (sink 60 C, constant power p_w until k_pdrop, then
+ * p_after_w); the contact steps from h0 to h1 at k_step. Deterministic
+ * +-0.05 K dither on the reading. allow_until_k: gate drops after that. */
+static csw_run_t csw_run(float h0, float h1, int k_step, float p_w, int k_pdrop, float p_after_w, int allow_until_k,
+                         int n)
+{
+    pte_params_t kp;
+    pte_default_params(&kp);
+    csw_params_t cp;
+    csw_default_params(&cp);
+    static csw_t c;
+    pte_t est;
+    TEST_ASSERT_TRUE(pte_init(&est, &kp, 200.0f));
+    TEST_ASSERT_TRUE(csw_init(&c, &cp, &kp));
+    const double area = kp.contact_area_m2;
+    cart_t m = {200.0, 200.0};
+    csw_run_t r = {0};
+    r.first_open_k = -1;
+    for (int k = 0; k < n; k++) {
+        const double g = (k < k_step ? h0 : h1) * area;
+        const double t_sink = 60.0;
+        /* settle the truth at the steady offset before the run */
+        if (k == 0) {
+            for (int i = 0; i < 3000; i++) {
+                cart_step(&m, &kp, h0 * area, 200.0, t_sink);
+            }
+        }
+        cart_step(&m, &kp, g, 200.0, t_sink);
+        const float y = (float)m.tel + ((k % 2) ? 0.05f : -0.05f);
+        const float pw = (k < k_pdrop) ? p_w : p_after_w;
+        csw_output_t o;
+        csw_step(&c, &est, y, (float)t_sink, pw, k < allow_until_k, true, &o);
+        switch (o.event) {
+        case CSW_EVT_OPEN_DOWN:
+            r.opens_down++;
+            if (r.first_open_k < 0) {
+                r.first_open_k = k;
+            }
+            break;
+        case CSW_EVT_ACCEPT:
+            r.accepts++;
+            r.h_accept = o.h_model_w_per_m2k;
+            break;
+        case CSW_EVT_ESCALATE:
+            r.escalates++;
+            break;
+        case CSW_EVT_REVERT:
+            r.reverts++;
+            break;
+        default:
+            break;
+        }
+        r.t_hat_end = o.t_hat_c;
+    }
+    return r;
+}
+
+/* An abrupt drop 1300 -> 400 W/m2K at a constant 200 C pan: the window opens
+ * within 1.5 s, accepts a contact within 30 % of the truth, and the estimate
+ * returns to the pan temperature (the fixed-contact KF reads low by the
+ * change in the static offset, about 3 K). */
+static void test_csw_lowers_contact_after_abrupt_drop(void)
+{
+    const csw_run_t r = csw_run(1300.0f, 400.0f, 600, 300.0f, 1 << 30, 300.0f, 1 << 30, 1200);
+    TEST_ASSERT_EQUAL_INT(1, r.opens_down);
+    TEST_ASSERT_TRUE(r.first_open_k >= 600 && r.first_open_k <= 615);
+    TEST_ASSERT_EQUAL_INT(1, r.accepts);
+    TEST_ASSERT_TRUE(r.h_accept > 400.0f * 0.7f && r.h_accept < 400.0f * 1.3f);
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, 200.0f, r.t_hat_end);
+
+    /* the same run with the window disabled reads low */
+    pte_params_t kp;
+    pte_default_params(&kp);
+    pte_t est;
+    TEST_ASSERT_TRUE(pte_init(&est, &kp, 200.0f));
+    cart_t m = {200.0, 200.0};
+    for (int i = 0; i < 3000; i++) {
+        cart_step(&m, &kp, 1300.0 * kp.contact_area_m2, 200.0, 60.0);
+    }
+    float t_hat = 0.0f;
+    for (int k = 0; k < 1200; k++) {
+        cart_step(&m, &kp, (k < 600 ? 1300.0 : 400.0) * kp.contact_area_m2, 200.0, 60.0);
+        t_hat = pte_step(&est, (float)m.tel + ((k % 2) ? 0.05f : -0.05f), 60.0f);
+    }
+    TEST_ASSERT_TRUE(t_hat < 198.5f);
+}
+
+/* A power cut explains a falling reading: no window. */
+static void test_csw_power_change_vetoes_the_trigger(void)
+{
+    const csw_run_t r = csw_run(1300.0f, 400.0f, 600, 1000.0f, 590, 0.0f, 1 << 30, 900);
+    TEST_ASSERT_EQUAL_INT(0, r.opens_down);
+    TEST_ASSERT_EQUAL_INT(0, r.accepts);
+}
+
+/* Contact loss (h -> 2): faster than any partial contact -> ESCALATE (the
+ * loop requests a D1 probe), and the model keeps the old contact. */
+static void test_csw_escalates_on_contact_loss(void)
+{
+    const csw_run_t r = csw_run(1300.0f, 2.0f, 600, 300.0f, 1 << 30, 300.0f, 1 << 30, 700);
+    TEST_ASSERT_EQUAL_INT(1, r.opens_down);
+    TEST_ASSERT_EQUAL_INT(1, r.escalates);
+    TEST_ASSERT_EQUAL_INT(0, r.accepts);
+}
+
+/* The gate drops mid-window (D1 left NORMAL): REVERT, contact unchanged;
+ * csw_reset_contact returns the model to nominal. */
+static void test_csw_gate_reverts_and_reset_returns_nominal(void)
+{
+    const csw_run_t r = csw_run(1300.0f, 400.0f, 600, 300.0f, 1 << 30, 300.0f, 620, 700);
+    TEST_ASSERT_EQUAL_INT(1, r.opens_down);
+    TEST_ASSERT_EQUAL_INT(1, r.reverts);
+    TEST_ASSERT_EQUAL_INT(0, r.accepts);
+
+    pte_params_t kp;
+    pte_default_params(&kp);
+    csw_params_t cp;
+    csw_default_params(&cp);
+    static csw_t c;
+    pte_t est;
+    TEST_ASSERT_TRUE(pte_init(&est, &kp, 200.0f));
+    TEST_ASSERT_TRUE(csw_init(&c, &cp, &kp));
+    c.g = 400.0 * kp.contact_area_m2;
+    TEST_ASSERT_TRUE(pte_set_contact(&est, 400.0f));
+    csw_reset_contact(&c, &est);
+    TEST_ASSERT_FLOAT_WITHIN(1e-3f, kp.h_nom_w_per_m2k, csw_h_model(&c));
+}
+
 /* ------------------------------------------------------- loop authority -- */
 
 static ptl_input_t loop_in(float y, float sp, float p_applied)
@@ -545,6 +785,11 @@ void run_pan_temp_loop_tests(void)
     RUN_TEST(test_plant_gain_later_step_limits_a_decrease);
     RUN_TEST(test_rate_pid_matches_reference_law);
     RUN_TEST(test_rate_pid_integrator_clamp_scales_with_gain);
+    RUN_TEST(test_rate_pid_latent_plateau_guard);
+    RUN_TEST(test_csw_lowers_contact_after_abrupt_drop);
+    RUN_TEST(test_csw_power_change_vetoes_the_trigger);
+    RUN_TEST(test_csw_escalates_on_contact_loss);
+    RUN_TEST(test_csw_gate_reverts_and_reset_returns_nominal);
     RUN_TEST(test_loop_fault_forces_zero_power);
     RUN_TEST(test_loop_never_chases_a_cold_reading);
 }

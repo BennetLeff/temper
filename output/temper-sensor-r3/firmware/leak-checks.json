@@ -23,21 +23,21 @@
   "leak": {
    "all_onsets": {
     "runs": 624,
-    "hazardous_runs": 234,
+    "hazardous_runs": 235,
     "hazardous_latched_before_300": 7,
-    "hazardous_latched_after_300": 218,
+    "hazardous_latched_after_300": 219,
     "hazardous_never_latched": 9,
     "hazardous_leak_check_latched": 38,
     "hazardous_leak_check_first": 38,
-    "hazardous_rim_fault_first": 187,
+    "hazardous_rim_fault_first": 188,
     "leak_check_latch_T_c_range": [
-     285.3,
-     375.0
+     283.8,
+     373.1
     ],
-    "hazardous_with_suspect_before_300": 25,
+    "hazardous_with_suspect_before_300": 27,
     "hazardous_cr5_band_low_edge_before_300": 13,
     "hazardous_cr5_band_top_edge_before_300": 0,
-    "late_first_latch_T_c_max": 474.1,
+    "late_first_latch_T_c_max": 474.2,
     "late_first_latch_s_after_300_range": [
      30.8,
      367.3
@@ -55,15 +55,15 @@
       "T_c_steady": 318.7,
       "T_c_drift_last_100s": -0.04,
       "T_c_max": 319.2,
-      "t_T_c_over_300_s": 434.9,
+      "t_T_c_over_300_s": 435.1,
       "suspects": 0,
       "first_suspect_s": null,
       "leak_latch": null,
       "rim_fault": null,
       "d1_lost": null,
       "glass_cr5_low": {
-       "t_s": 555.5,
-       "T_c": 318.9,
+       "t_s": 556.3,
+       "T_c": 318.8,
        "glass": 262.3
       },
       "glass_cr5_top": null,
@@ -134,7 +134,7 @@
       "rim_fault": null,
       "d1_lost": null,
       "glass_cr5_low": {
-       "t_s": 530.2,
+       "t_s": 530.3,
        "T_c": 319.0,
        "glass": 262.3
       },
@@ -150,16 +150,16 @@
       "r_leak_ohm": 1732.1,
       "T_c_steady": 318.9,
       "T_c_drift_last_100s": 0.01,
-      "T_c_max": 320.1,
-      "t_T_c_over_300_s": 413.6,
+      "T_c_max": 319.4,
+      "t_T_c_over_300_s": 414.7,
       "suspects": 0,
       "first_suspect_s": null,
       "leak_latch": null,
       "rim_fault": null,
       "d1_lost": null,
       "glass_cr5_low": {
-       "t_s": 537.1,
-       "T_c": 318.1,
+       "t_s": 528.0,
+       "T_c": 319.3,
        "glass": 262.3
       },
       "glass_cr5_top": null,
@@ -206,7 +206,7 @@
       "rim_fault": null,
       "d1_lost": null,
       "glass_cr5_low": {
-       "t_s": 533.6,
+       "t_s": 533.7,
        "T_c": 319.2,
        "glass": 262.3
       },
@@ -272,15 +272,15 @@
      "T_c_steady": 318.7,
      "T_c_drift_last_100s": -0.04,
      "T_c_max": 319.2,
-     "t_T_c_over_300_s": 434.9,
+     "t_T_c_over_300_s": 435.1,
      "suspects": 0,
      "first_suspect_s": null,
      "leak_latch": null,
      "rim_fault": null,
      "d1_lost": null,
      "glass_cr5_low": {
-      "t_s": 555.5,
-      "T_c": 318.9,
+      "t_s": 556.3,
+      "T_c": 318.8,
       "glass": 262.3
      },
      "glass_cr5_top": null,
@@ -296,31 +296,31 @@
      "T_c_steady": 819.5,
      "T_c_drift_last_100s": 0.01,
      "T_c_max": 819.5,
-     "t_T_c_over_300_s": 303.4,
+     "t_T_c_over_300_s": 303.2,
      "suspects": 0,
      "first_suspect_s": null,
      "leak_latch": null,
      "rim_fault": {
       "t_s": 348.6,
-      "T_c": 419.6,
-      "glass": 279.8
+      "T_c": 419.8,
+      "glass": 279.7
      },
      "d1_lost": null,
      "glass_cr5_low": {
       "t_s": 340.4,
-      "T_c": 400.7,
-      "glass": 262.4
+      "T_c": 401.0,
+      "glass": 262.3
      },
      "glass_cr5_top": {
-      "t_s": 352.5,
-      "T_c": 428.3,
-      "glass": 288.1
+      "t_s": 352.6,
+      "T_c": 428.7,
+      "glass": 288.3
      },
      "first_latch": {
       "rule": "rim_fault",
       "t_s": 348.6,
-      "T_c": 419.6,
-      "glass": 279.8
+      "T_c": 419.8,
+      "glass": 279.7
      },
      "latched_before_300": false
     },
@@ -333,8 +333,8 @@
       "latched_before_300": 0,
       "leak_latched": 6,
       "any_latch": 44,
-      "runs_with_suspect": 18,
-      "d1_lost": 5
+      "runs_with_suspect": 16,
+      "d1_lost": 2
      },
      "401.8": {
       "runs": 48,
@@ -344,19 +344,19 @@
       "latched_before_300": 2,
       "leak_latched": 8,
       "any_latch": 42,
-      "runs_with_suspect": 16,
+      "runs_with_suspect": 18,
       "d1_lost": 4
      },
      "538.2": {
       "runs": 48,
       "T_c_steady_min": 111.4,
       "T_c_steady_max": 568.8,
-      "hazardous": 35,
+      "hazardous": 36,
       "latched_before_300": 1,
       "leak_latched": 7,
       "any_latch": 42,
       "runs_with_suspect": 13,
-      "d1_lost": 8
+      "d1_lost": 6
      },
      "720.8": {
       "runs": 48,
@@ -367,7 +367,7 @@
       "leak_latched": 6,
       "any_latch": 42,
       "runs_with_suspect": 21,
-      "d1_lost": 18
+      "d1_lost": 16
      },
      "965.5": {
       "runs": 48,
@@ -377,30 +377,30 @@
       "latched_before_300": 0,
       "leak_latched": 7,
       "any_latch": 42,
-      "runs_with_suspect": 19,
+      "runs_with_suspect": 20,
       "d1_lost": 11
      },
      "1293.2": {
       "runs": 48,
       "T_c_steady_min": 111.8,
       "T_c_steady_max": 346.4,
-      "hazardous": 32,
+      "hazardous": 31,
       "latched_before_300": 1,
-      "leak_latched": 17,
-      "any_latch": 37,
-      "runs_with_suspect": 21,
-      "d1_lost": 7
+      "leak_latched": 16,
+      "any_latch": 36,
+      "runs_with_suspect": 20,
+      "d1_lost": 8
      },
      "1732.1": {
       "runs": 48,
       "T_c_steady_min": 115.3,
       "T_c_steady_max": 318.9,
-      "hazardous": 34,
+      "hazardous": 35,
       "latched_before_300": 3,
-      "leak_latched": 20,
-      "any_latch": 26,
-      "runs_with_suspect": 20,
-      "d1_lost": 3
+      "leak_latched": 21,
+      "any_latch": 27,
+      "runs_with_suspect": 21,
+      "d1_lost": 0
      },
      "2319.9": {
       "runs": 48,
@@ -411,7 +411,7 @@
       "leak_latched": 13,
       "any_latch": 18,
       "runs_with_suspect": 18,
-      "d1_lost": 2
+      "d1_lost": 0
      },
      "3107.2": {
       "runs": 48,
@@ -422,7 +422,7 @@
       "leak_latched": 9,
       "any_latch": 9,
       "runs_with_suspect": 9,
-      "d1_lost": 2
+      "d1_lost": 0
      },
      "4161.8": {
       "runs": 48,
@@ -433,7 +433,7 @@
       "leak_latched": 0,
       "any_latch": 0,
       "runs_with_suspect": 0,
-      "d1_lost": 2
+      "d1_lost": 0
      },
      "5574.3": {
       "runs": 48,
@@ -444,7 +444,7 @@
       "leak_latched": 0,
       "any_latch": 0,
       "runs_with_suspect": 0,
-      "d1_lost": 1
+      "d1_lost": 0
      },
      "7466.1": {
       "runs": 48,
@@ -455,7 +455,7 @@
       "leak_latched": 0,
       "any_latch": 0,
       "runs_with_suspect": 0,
-      "d1_lost": 1
+      "d1_lost": 0
      },
      "10000.0": {
       "runs": 48,
@@ -466,31 +466,31 @@
       "leak_latched": 0,
       "any_latch": 0,
       "runs_with_suspect": 0,
-      "d1_lost": 1
+      "d1_lost": 0
      }
     }
    },
    "by_onset": {
     "step": {
      "runs": 208,
-     "hazardous_runs": 82,
+     "hazardous_runs": 84,
      "hazardous_latched_before_300": 0,
-     "hazardous_latched_after_300": 79,
+     "hazardous_latched_after_300": 81,
      "hazardous_never_latched": 3,
-     "hazardous_leak_check_latched": 7,
-     "hazardous_leak_check_first": 7,
+     "hazardous_leak_check_latched": 9,
+     "hazardous_leak_check_first": 9,
      "hazardous_rim_fault_first": 72,
      "leak_check_latch_T_c_range": [
-      307.3,
+      307.2,
       340.4
      ],
-     "hazardous_with_suspect_before_300": 0,
+     "hazardous_with_suspect_before_300": 1,
      "hazardous_cr5_band_low_edge_before_300": 0,
      "hazardous_cr5_band_top_edge_before_300": 0,
-     "late_first_latch_T_c_max": 474.1,
+     "late_first_latch_T_c_max": 474.2,
      "late_first_latch_s_after_300_range": [
-      38.7,
-      240.7
+      38.1,
+      241.8
      ],
      "hazardous_steady_T_c_max": 819.5,
      "lowest_r_hazardous_ohm": 300.0,
@@ -505,15 +505,15 @@
        "T_c_steady": 318.7,
        "T_c_drift_last_100s": -0.04,
        "T_c_max": 319.2,
-       "t_T_c_over_300_s": 434.9,
+       "t_T_c_over_300_s": 435.1,
        "suspects": 0,
        "first_suspect_s": null,
        "leak_latch": null,
        "rim_fault": null,
        "d1_lost": null,
        "glass_cr5_low": {
-        "t_s": 555.5,
-        "T_c": 318.9,
+        "t_s": 556.3,
+        "T_c": 318.8,
         "glass": 262.3
        },
        "glass_cr5_top": null,
@@ -536,7 +536,7 @@
        "rim_fault": null,
        "d1_lost": null,
        "glass_cr5_low": {
-        "t_s": 530.2,
+        "t_s": 530.3,
         "T_c": 319.0,
         "glass": 262.3
        },
@@ -560,7 +560,7 @@
        "rim_fault": null,
        "d1_lost": null,
        "glass_cr5_low": {
-        "t_s": 533.6,
+        "t_s": 533.7,
         "T_c": 319.2,
         "glass": 262.3
        },
@@ -578,15 +578,15 @@
       "T_c_steady": 318.7,
       "T_c_drift_last_100s": -0.04,
       "T_c_max": 319.2,
-      "t_T_c_over_300_s": 434.9,
+      "t_T_c_over_300_s": 435.1,
       "suspects": 0,
       "first_suspect_s": null,
       "leak_latch": null,
       "rim_fault": null,
       "d1_lost": null,
       "glass_cr5_low": {
-       "t_s": 555.5,
-       "T_c": 318.9,
+       "t_s": 556.3,
+       "T_c": 318.8,
        "glass": 262.3
       },
       "glass_cr5_top": null,
@@ -602,31 +602,31 @@
       "T_c_steady": 819.5,
       "T_c_drift_last_100s": 0.01,
       "T_c_max": 819.5,
-      "t_T_c_over_300_s": 303.4,
+      "t_T_c_over_300_s": 303.2,
       "suspects": 0,
       "first_suspect_s": null,
       "leak_latch": null,
       "rim_fault": {
        "t_s": 348.6,
-       "T_c": 419.6,
-       "glass": 279.8
+       "T_c": 419.8,
+       "glass": 279.7
       },
       "d1_lost": null,
       "glass_cr5_low": {
        "t_s": 340.4,
-       "T_c": 400.7,
-       "glass": 262.4
+       "T_c": 401.0,
+       "glass": 262.3
       },
       "glass_cr5_top": {
-       "t_s": 352.5,
-       "T_c": 428.3,
-       "glass": 288.1
+       "t_s": 352.6,
+       "T_c": 428.7,
+       "glass": 288.3
       },
       "first_latch": {
        "rule": "rim_fault",
        "t_s": 348.6,
-       "T_c": 419.6,
-       "glass": 279.8
+       "T_c": 419.8,
+       "glass": 279.7
       },
       "latched_before_300": false
      },
@@ -673,7 +673,7 @@
        "leak_latched": 2,
        "any_latch": 14,
        "runs_with_suspect": 4,
-       "d1_lost": 2
+       "d1_lost": 0
       },
       "965.5": {
        "runs": 16,
@@ -684,29 +684,29 @@
        "leak_latched": 2,
        "any_latch": 14,
        "runs_with_suspect": 3,
-       "d1_lost": 2
+       "d1_lost": 0
       },
       "1293.2": {
        "runs": 16,
        "T_c_steady_min": 113.3,
        "T_c_steady_max": 346.4,
-       "hazardous": 11,
+       "hazardous": 12,
        "latched_before_300": 0,
-       "leak_latched": 3,
-       "any_latch": 12,
+       "leak_latched": 4,
+       "any_latch": 13,
        "runs_with_suspect": 4,
-       "d1_lost": 4
+       "d1_lost": 0
       },
       "1732.1": {
        "runs": 16,
        "T_c_steady_min": 115.3,
        "T_c_steady_max": 318.9,
-       "hazardous": 11,
+       "hazardous": 12,
        "latched_before_300": 0,
-       "leak_latched": 5,
-       "any_latch": 8,
-       "runs_with_suspect": 5,
-       "d1_lost": 3
+       "leak_latched": 6,
+       "any_latch": 9,
+       "runs_with_suspect": 6,
+       "d1_lost": 0
       },
       "2319.9": {
        "runs": 16,
@@ -717,7 +717,7 @@
        "leak_latched": 3,
        "any_latch": 6,
        "runs_with_suspect": 6,
-       "d1_lost": 2
+       "d1_lost": 0
       },
       "3107.2": {
        "runs": 16,
@@ -728,7 +728,7 @@
        "leak_latched": 3,
        "any_latch": 3,
        "runs_with_suspect": 3,
-       "d1_lost": 2
+       "d1_lost": 0
       },
       "4161.8": {
        "runs": 16,
@@ -739,7 +739,7 @@
        "leak_latched": 0,
        "any_latch": 0,
        "runs_with_suspect": 0,
-       "d1_lost": 2
+       "d1_lost": 0
       },
       "5574.3": {
        "runs": 16,
@@ -750,7 +750,7 @@
        "leak_latched": 0,
        "any_latch": 0,
        "runs_with_suspect": 0,
-       "d1_lost": 1
+       "d1_lost": 0
       },
       "7466.1": {
        "runs": 16,
@@ -761,7 +761,7 @@
        "leak_latched": 0,
        "any_latch": 0,
        "runs_with_suspect": 0,
-       "d1_lost": 1
+       "d1_lost": 0
       },
       "10000.0": {
        "runs": 16,
@@ -772,29 +772,29 @@
        "leak_latched": 0,
        "any_latch": 0,
        "runs_with_suspect": 0,
-       "d1_lost": 1
+       "d1_lost": 0
       }
      }
     },
     "ramp120": {
      "runs": 208,
-     "hazardous_runs": 82,
+     "hazardous_runs": 80,
      "hazardous_latched_before_300": 3,
-     "hazardous_latched_after_300": 76,
+     "hazardous_latched_after_300": 74,
      "hazardous_never_latched": 3,
-     "hazardous_leak_check_latched": 13,
-     "hazardous_leak_check_first": 13,
+     "hazardous_leak_check_latched": 11,
+     "hazardous_leak_check_first": 11,
      "hazardous_rim_fault_first": 66,
      "leak_check_latch_T_c_range": [
-      285.3,
-      375.0
+      283.8,
+      373.1
      ],
-     "hazardous_with_suspect_before_300": 20,
+     "hazardous_with_suspect_before_300": 21,
      "hazardous_cr5_band_low_edge_before_300": 0,
      "hazardous_cr5_band_top_edge_before_300": 0,
-     "late_first_latch_T_c_max": 458.3,
+     "late_first_latch_T_c_max": 458.2,
      "late_first_latch_s_after_300_range": [
-      42.1,
+      35.7,
       234.4
      ],
      "hazardous_steady_T_c_max": 819.5,
@@ -833,16 +833,16 @@
        "r_leak_ohm": 1732.1,
        "T_c_steady": 318.9,
        "T_c_drift_last_100s": 0.01,
-       "T_c_max": 320.1,
-       "t_T_c_over_300_s": 413.6,
+       "T_c_max": 319.4,
+       "t_T_c_over_300_s": 414.7,
        "suspects": 0,
        "first_suspect_s": null,
        "leak_latch": null,
        "rim_fault": null,
        "d1_lost": null,
        "glass_cr5_low": {
-        "t_s": 537.1,
-        "T_c": 318.1,
+        "t_s": 528.0,
+        "T_c": 319.3,
         "glass": 262.3
        },
        "glass_cr5_top": null,
@@ -907,30 +907,30 @@
       "T_c_steady": 819.5,
       "T_c_drift_last_100s": 0.01,
       "T_c_max": 819.5,
-      "t_T_c_over_300_s": 308.0,
+      "t_T_c_over_300_s": 308.2,
       "suspects": 1,
-      "first_suspect_s": 321.9,
+      "first_suspect_s": 322.6,
       "leak_latch": null,
       "rim_fault": {
-       "t_s": 362.0,
-       "T_c": 385.7,
+       "t_s": 362.3,
+       "T_c": 385.4,
        "glass": 279.5
       },
       "d1_lost": null,
       "glass_cr5_low": {
-       "t_s": 350.0,
-       "T_c": 352.3,
+       "t_s": 350.3,
+       "T_c": 352.4,
        "glass": 262.4
       },
       "glass_cr5_top": {
-       "t_s": 367.3,
-       "T_c": 400.8,
+       "t_s": 367.6,
+       "T_c": 400.3,
        "glass": 288.1
       },
       "first_latch": {
        "rule": "rim_fault",
-       "t_s": 362.0,
-       "T_c": 385.7,
+       "t_s": 362.3,
+       "T_c": 385.4,
        "glass": 279.5
       },
       "latched_before_300": false
@@ -944,30 +944,30 @@
        "latched_before_300": 0,
        "leak_latched": 4,
        "any_latch": 14,
-       "runs_with_suspect": 14,
-       "d1_lost": 4
+       "runs_with_suspect": 12,
+       "d1_lost": 1
       },
       "401.8": {
        "runs": 16,
-       "T_c_steady_min": 112.9,
+       "T_c_steady_min": 112.0,
        "T_c_steady_max": 703.5,
        "hazardous": 12,
        "latched_before_300": 2,
        "leak_latched": 4,
        "any_latch": 14,
-       "runs_with_suspect": 12,
+       "runs_with_suspect": 14,
        "d1_lost": 4
       },
       "538.2": {
        "runs": 16,
-       "T_c_steady_min": 111.4,
+       "T_c_steady_min": 111.6,
        "T_c_steady_max": 531.4,
        "hazardous": 12,
        "latched_before_300": 1,
        "leak_latched": 3,
        "any_latch": 14,
-       "runs_with_suspect": 8,
-       "d1_lost": 7
+       "runs_with_suspect": 9,
+       "d1_lost": 6
       },
       "720.8": {
        "runs": 16,
@@ -988,19 +988,19 @@
        "latched_before_300": 0,
        "leak_latched": 2,
        "any_latch": 14,
-       "runs_with_suspect": 2,
-       "d1_lost": 6
+       "runs_with_suspect": 3,
+       "d1_lost": 8
       },
       "1293.2": {
        "runs": 16,
        "T_c_steady_min": 113.0,
        "T_c_steady_max": 346.4,
-       "hazardous": 11,
+       "hazardous": 9,
        "latched_before_300": 0,
-       "leak_latched": 4,
-       "any_latch": 12,
-       "runs_with_suspect": 4,
-       "d1_lost": 1
+       "leak_latched": 2,
+       "any_latch": 10,
+       "runs_with_suspect": 3,
+       "d1_lost": 6
       },
       "1732.1": {
        "runs": 16,
@@ -1083,13 +1083,13 @@
     },
     "ramp600": {
      "runs": 208,
-     "hazardous_runs": 70,
+     "hazardous_runs": 71,
      "hazardous_latched_before_300": 4,
-     "hazardous_latched_after_300": 63,
+     "hazardous_latched_after_300": 64,
      "hazardous_never_latched": 3,
      "hazardous_leak_check_latched": 18,
      "hazardous_leak_check_first": 18,
-     "hazardous_rim_fault_first": 49,
+     "hazardous_rim_fault_first": 50,
      "leak_check_latch_T_c_range": [
       285.6,
       346.2
@@ -1097,7 +1097,7 @@
      "hazardous_with_suspect_before_300": 5,
      "hazardous_cr5_band_low_edge_before_300": 13,
      "hazardous_cr5_band_top_edge_before_300": 0,
-     "late_first_latch_T_c_max": 423.7,
+     "late_first_latch_T_c_max": 420.8,
      "late_first_latch_s_after_300_range": [
       30.8,
       367.3
@@ -1267,12 +1267,12 @@
        "runs": 16,
        "T_c_steady_min": 111.4,
        "T_c_steady_max": 568.8,
-       "hazardous": 11,
+       "hazardous": 12,
        "latched_before_300": 0,
        "leak_latched": 2,
        "any_latch": 14,
-       "runs_with_suspect": 3,
-       "d1_lost": 1
+       "runs_with_suspect": 2,
+       "d1_lost": 0
       },
       "720.8": {
        "runs": 16,
@@ -1405,8 +1405,8 @@
    "met": false,
    "status": "not_met",
    "expected": "not_met",
-   "failing_runs": 227,
-   "of_hazardous": 234
+   "failing_runs": 228,
+   "of_hazardous": 235
   },
   "benign": {
    "runs": 548,
@@ -1507,31 +1507,31 @@
    "T_c_steady": 819.5,
    "T_c_drift_last_100s": 0.01,
    "T_c_max": 819.5,
-   "t_T_c_over_300_s": 303.4,
+   "t_T_c_over_300_s": 303.2,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 348.6,
-    "T_c": 419.6,
-    "glass": 279.8
+    "T_c": 419.8,
+    "glass": 279.7
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 340.4,
-    "T_c": 400.7,
-    "glass": 262.4
+    "T_c": 401.0,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 352.5,
-    "T_c": 428.3,
-    "glass": 288.1
+    "t_s": 352.6,
+    "T_c": 428.7,
+    "glass": 288.3
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 348.6,
-    "T_c": 419.6,
-    "glass": 279.8
+    "T_c": 419.8,
+    "glass": 279.7
    },
    "latched_before_300": false
   },
@@ -1544,31 +1544,31 @@
    "T_c_steady": 703.1,
    "T_c_drift_last_100s": -0.02,
    "T_c_max": 703.2,
-   "t_T_c_over_300_s": 303.4,
+   "t_T_c_over_300_s": 303.2,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 348.6,
-    "T_c": 419.6,
-    "glass": 279.8
+    "T_c": 419.8,
+    "glass": 279.7
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 340.4,
-    "T_c": 400.7,
-    "glass": 262.4
+    "T_c": 401.0,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 352.5,
-    "T_c": 427.4,
-    "glass": 288.1
+    "t_s": 352.6,
+    "T_c": 427.7,
+    "glass": 288.3
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 348.6,
-    "T_c": 419.6,
-    "glass": 279.8
+    "T_c": 419.8,
+    "glass": 279.7
    },
    "latched_before_300": false
   },
@@ -1581,29 +1581,29 @@
    "T_c_steady": 531.4,
    "T_c_drift_last_100s": -0.01,
    "T_c_max": 531.5,
-   "t_T_c_over_300_s": 303.4,
+   "t_T_c_over_300_s": 303.2,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 359.4,
+    "t_s": 359.5,
     "T_c": 365.0,
     "glass": 279.5
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 346.4,
-    "T_c": 359.7,
-    "glass": 262.4
+    "t_s": 346.5,
+    "T_c": 359.8,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 366.8,
-    "T_c": 366.1,
+    "t_s": 366.9,
+    "T_c": 366.2,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 359.4,
+    "t_s": 359.5,
     "T_c": 365.0,
     "glass": 279.5
    },
@@ -1617,31 +1617,31 @@
    "r_leak_ohm": 720.8,
    "T_c_steady": 454.3,
    "T_c_drift_last_100s": -0.01,
-   "T_c_max": 454.8,
-   "t_T_c_over_300_s": 332.7,
+   "T_c_max": 454.9,
+   "t_T_c_over_300_s": 332.8,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 399.7,
-    "T_c": 345.9,
+    "t_s": 399.9,
+    "T_c": 346.1,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 378.7,
-    "T_c": 317.9,
+    "t_s": 379.0,
+    "T_c": 318.2,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 409.0,
-    "T_c": 358.2,
-    "glass": 288.1
+    "t_s": 409.2,
+    "T_c": 358.5,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 399.7,
-    "T_c": 345.9,
+    "t_s": 399.9,
+    "T_c": 346.1,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -1655,30 +1655,30 @@
    "T_c_steady": 388.0,
    "T_c_drift_last_100s": -0.01,
    "T_c_max": 389.7,
-   "t_T_c_over_300_s": 392.8,
+   "t_T_c_over_300_s": 392.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 431.5,
-    "T_c": 353.5,
+    "t_s": 431.7,
+    "T_c": 353.7,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 413.9,
-    "T_c": 328.2,
-    "glass": 262.4
+    "t_s": 414.1,
+    "T_c": 328.5,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 439.9,
-    "T_c": 362.7,
+    "t_s": 440.0,
+    "T_c": 362.8,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 431.5,
-    "T_c": 353.5,
+    "t_s": 431.7,
+    "T_c": 353.7,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -1692,30 +1692,30 @@
    "T_c_steady": 346.2,
    "T_c_drift_last_100s": -0.01,
    "T_c_max": 348.3,
-   "t_T_c_over_300_s": 415.6,
+   "t_T_c_over_300_s": 415.7,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 459.8,
-    "T_c": 339.6,
+    "t_s": 460.1,
+    "T_c": 339.4,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 440.1,
-    "T_c": 329.5,
-    "glass": 262.3
+    "t_s": 440.5,
+    "T_c": 329.6,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 471.4,
-    "T_c": 342.5,
+    "t_s": 471.8,
+    "T_c": 342.4,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 459.8,
-    "T_c": 339.6,
+    "t_s": 460.1,
+    "T_c": 339.4,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -1734,25 +1734,25 @@
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 493.7,
-    "T_c": 319.3,
+    "t_s": 493.9,
+    "T_c": 319.2,
     "glass": 279.3
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 464.7,
+    "t_s": 464.9,
     "T_c": 315.8,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 517.2,
-    "T_c": 318.4,
+    "t_s": 517.5,
+    "T_c": 318.3,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 493.7,
-    "T_c": 319.3,
+    "t_s": 493.9,
+    "T_c": 319.2,
     "glass": 279.3
    },
    "latched_before_300": false
@@ -1765,27 +1765,27 @@
    "r_leak_ohm": 2319.9,
    "T_c_steady": 299.4,
    "T_c_drift_last_100s": -0.01,
-   "T_c_max": 302.4,
-   "t_T_c_over_300_s": 477.0,
+   "T_c_max": 302.3,
+   "t_T_c_over_300_s": 478.4,
    "suspects": 1,
-   "first_suspect_s": 530.6,
+   "first_suspect_s": 531.4,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 556.5,
-    "T_c": 298.5,
+    "t_s": 557.7,
+    "T_c": 298.2,
     "glass": 279.2
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 492.2,
-    "T_c": 300.0,
+    "t_s": 492.9,
+    "T_c": 299.7,
     "glass": 262.3
    },
    "glass_cr5_top": null,
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 556.5,
-    "T_c": 298.5,
+    "t_s": 557.7,
+    "T_c": 298.2,
     "glass": 279.2
    },
    "latched_before_300": false
@@ -1797,28 +1797,28 @@
    "corner": "hot",
    "r_leak_ohm": 3107.2,
    "T_c_steady": 280.6,
-   "T_c_drift_last_100s": -0.25,
-   "T_c_max": 290.3,
+   "T_c_drift_last_100s": -0.26,
+   "T_c_max": 290.4,
    "t_T_c_over_300_s": null,
    "suspects": 25,
-   "first_suspect_s": 584.0,
+   "first_suspect_s": 585.0,
    "leak_latch": {
-    "t_s": 653.6,
-    "T_c": 284.5,
+    "t_s": 655.7,
+    "T_c": 284.6,
     "glass": 270.4
    },
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 533.4,
+    "t_s": 534.1,
     "T_c": 286.5,
     "glass": 262.3
    },
    "glass_cr5_top": null,
    "first_latch": {
     "rule": "leak",
-    "t_s": 653.6,
-    "T_c": 284.5,
+    "t_s": 655.7,
+    "T_c": 284.6,
     "glass": 270.4
    },
    "latched_before_300": true
@@ -1831,7 +1831,7 @@
    "r_leak_ohm": 4161.8,
    "T_c_steady": 276.7,
    "T_c_drift_last_100s": -0.01,
-   "T_c_max": 277.1,
+   "T_c_max": 277.4,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -1839,7 +1839,7 @@
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 625.0,
+    "t_s": 621.7,
     "T_c": 277.1,
     "glass": 262.3
    },
@@ -1855,7 +1855,7 @@
    "r_leak_ohm": 5574.3,
    "T_c_steady": 269.7,
    "T_c_drift_last_100s": -0.01,
-   "T_c_max": 271.0,
+   "T_c_max": 270.0,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -1875,7 +1875,7 @@
    "r_leak_ohm": 7466.1,
    "T_c_steady": 264.5,
    "T_c_drift_last_100s": -0.01,
-   "T_c_max": 265.7,
+   "T_c_max": 266.0,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -1895,7 +1895,7 @@
    "r_leak_ohm": 10000.0,
    "T_c_steady": 260.8,
    "T_c_drift_last_100s": -0.01,
-   "T_c_max": 261.9,
+   "T_c_max": 262.1,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -1916,30 +1916,30 @@
    "T_c_steady": 819.5,
    "T_c_drift_last_100s": 0.01,
    "T_c_max": 819.5,
-   "t_T_c_over_300_s": 308.0,
+   "t_T_c_over_300_s": 308.2,
    "suspects": 1,
-   "first_suspect_s": 321.9,
+   "first_suspect_s": 322.6,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 362.0,
-    "T_c": 385.7,
+    "t_s": 362.3,
+    "T_c": 385.4,
     "glass": 279.5
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 350.0,
-    "T_c": 352.3,
+    "t_s": 350.3,
+    "T_c": 352.4,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 367.3,
-    "T_c": 400.8,
+    "t_s": 367.6,
+    "T_c": 400.3,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 362.0,
-    "T_c": 385.7,
+    "t_s": 362.3,
+    "T_c": 385.4,
     "glass": 279.5
    },
    "latched_before_300": false
@@ -1953,30 +1953,30 @@
    "T_c_steady": 703.1,
    "T_c_drift_last_100s": -0.02,
    "T_c_max": 703.2,
-   "t_T_c_over_300_s": 323.4,
+   "t_T_c_over_300_s": 323.5,
    "suspects": 1,
-   "first_suspect_s": 332.2,
+   "first_suspect_s": 333.1,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 377.9,
-    "T_c": 388.0,
+    "t_s": 378.1,
+    "T_c": 387.4,
     "glass": 279.6
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 366.1,
-    "T_c": 352.3,
-    "glass": 262.3
+    "t_s": 366.2,
+    "T_c": 351.4,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 383.1,
-    "T_c": 402.7,
+    "t_s": 383.3,
+    "T_c": 402.1,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 377.9,
-    "T_c": 388.0,
+    "t_s": 378.1,
+    "T_c": 387.4,
     "glass": 279.6
    },
    "latched_before_300": false
@@ -1990,31 +1990,31 @@
    "T_c_steady": 531.4,
    "T_c_drift_last_100s": -0.01,
    "T_c_max": 531.5,
-   "t_T_c_over_300_s": 345.2,
+   "t_T_c_over_300_s": 345.0,
    "suspects": 1,
-   "first_suspect_s": 342.7,
+   "first_suspect_s": 343.7,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 397.3,
-    "T_c": 391.4,
-    "glass": 279.5
+    "t_s": 397.7,
+    "T_c": 391.5,
+    "glass": 279.6
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 386.4,
-    "T_c": 362.2,
+    "t_s": 386.7,
+    "T_c": 361.4,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 402.4,
-    "T_c": 403.0,
-    "glass": 288.2
+    "t_s": 402.7,
+    "T_c": 403.1,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 397.3,
-    "T_c": 391.4,
-    "glass": 279.5
+    "t_s": 397.7,
+    "T_c": 391.5,
+    "glass": 279.6
    },
    "latched_before_300": false
   },
@@ -2027,30 +2027,30 @@
    "T_c_steady": 454.3,
    "T_c_drift_last_100s": -0.01,
    "T_c_max": 454.9,
-   "t_T_c_over_300_s": 359.6,
+   "t_T_c_over_300_s": 385.1,
    "suspects": 1,
-   "first_suspect_s": 358.4,
+   "first_suspect_s": 357.2,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 414.5,
-    "T_c": 365.0,
+    "t_s": 420.8,
+    "T_c": 373.7,
     "glass": 279.5
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 399.7,
-    "T_c": 339.5,
+    "t_s": 407.8,
+    "T_c": 349.8,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 421.4,
-    "T_c": 375.8,
-    "glass": 288.1
+    "t_s": 427.1,
+    "T_c": 384.1,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 414.5,
-    "T_c": 365.0,
+    "t_s": 420.8,
+    "T_c": 373.7,
     "glass": 279.5
    },
    "latched_before_300": false
@@ -2063,32 +2063,32 @@
    "r_leak_ohm": 965.5,
    "T_c_steady": 388.0,
    "T_c_drift_last_100s": -0.01,
-   "T_c_max": 392.6,
-   "t_T_c_over_300_s": 388.1,
+   "T_c_max": 392.3,
+   "t_T_c_over_300_s": 389.0,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 432.5,
-    "T_c": 363.1,
-    "glass": 279.5
+    "t_s": 433.7,
+    "T_c": 363.9,
+    "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 417.6,
-    "T_c": 341.1,
+    "t_s": 419.1,
+    "T_c": 342.3,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 439.7,
-    "T_c": 371.1,
-    "glass": 288.1
+    "t_s": 441.0,
+    "T_c": 371.4,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 432.5,
-    "T_c": 363.1,
-    "glass": 279.5
+    "t_s": 433.7,
+    "T_c": 363.9,
+    "glass": 279.4
    },
    "latched_before_300": false
   },
@@ -2100,31 +2100,31 @@
    "r_leak_ohm": 1293.2,
    "T_c_steady": 346.2,
    "T_c_drift_last_100s": -0.01,
-   "T_c_max": 350.2,
-   "t_T_c_over_300_s": 412.6,
+   "T_c_max": 349.4,
+   "t_T_c_over_300_s": 414.3,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 459.3,
-    "T_c": 344.6,
+    "t_s": 461.9,
+    "T_c": 343.1,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 441.4,
-    "T_c": 335.0,
-    "glass": 262.3
+    "t_s": 443.6,
+    "T_c": 334.1,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 469.7,
-    "T_c": 347.0,
-    "glass": 288.1
+    "t_s": 472.7,
+    "T_c": 345.5,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 459.3,
-    "T_c": 344.6,
+    "t_s": 461.9,
+    "T_c": 343.1,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -2742,30 +2742,30 @@
    "T_c_steady": 819.5,
    "T_c_drift_last_100s": 0.01,
    "T_c_max": 819.5,
-   "t_T_c_over_300_s": 303.4,
+   "t_T_c_over_300_s": 303.2,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 359.2,
-    "T_c": 442.8,
+    "T_c": 443.0,
     "glass": 302.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 340.4,
-    "T_c": 400.6,
-    "glass": 262.3
+    "t_s": 340.5,
+    "T_c": 401.1,
+    "glass": 262.4
    },
    "glass_cr5_top": {
     "t_s": 352.6,
-    "T_c": 428.5,
-    "glass": 288.3
+    "T_c": 428.6,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 359.2,
-    "T_c": 442.8,
+    "T_c": 443.0,
     "glass": 302.4
    },
    "latched_before_300": false
@@ -2779,30 +2779,30 @@
    "T_c_steady": 702.9,
    "T_c_drift_last_100s": -0.04,
    "T_c_max": 703.0,
-   "t_T_c_over_300_s": 303.4,
+   "t_T_c_over_300_s": 303.2,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 359.3,
-    "T_c": 439.9,
+    "T_c": 440.0,
     "glass": 302.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 340.4,
-    "T_c": 400.6,
-    "glass": 262.3
+    "t_s": 340.5,
+    "T_c": 401.1,
+    "glass": 262.4
    },
    "glass_cr5_top": {
     "t_s": 352.6,
-    "T_c": 428.1,
+    "T_c": 428.2,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 359.3,
-    "T_c": 439.9,
+    "T_c": 440.0,
     "glass": 302.4
    },
    "latched_before_300": false
@@ -2816,31 +2816,31 @@
    "T_c_steady": 531.4,
    "T_c_drift_last_100s": -0.04,
    "T_c_max": 531.5,
-   "t_T_c_over_300_s": 303.4,
+   "t_T_c_over_300_s": 303.2,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 379.7,
     "T_c": 381.2,
-    "glass": 302.2
+    "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 346.6,
-    "T_c": 359.2,
+    "t_s": 346.7,
+    "T_c": 359.3,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 367.0,
-    "T_c": 367.5,
+    "t_s": 367.1,
+    "T_c": 367.6,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 379.7,
     "T_c": 381.2,
-    "glass": 302.2
+    "glass": 302.1
    },
    "latched_before_300": false
   },
@@ -2853,30 +2853,30 @@
    "T_c_steady": 454.3,
    "T_c_drift_last_100s": -0.04,
    "T_c_max": 454.9,
-   "t_T_c_over_300_s": 333.8,
+   "t_T_c_over_300_s": 333.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 422.4,
-    "T_c": 381.4,
+    "t_s": 422.5,
+    "T_c": 381.5,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 379.1,
-    "T_c": 318.0,
-    "glass": 262.4
+    "t_s": 379.4,
+    "T_c": 318.3,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 409.2,
-    "T_c": 360.0,
-    "glass": 288.1
+    "t_s": 409.4,
+    "T_c": 360.3,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 422.4,
-    "T_c": 381.4,
+    "t_s": 422.5,
+    "T_c": 381.5,
     "glass": 302.1
    },
    "latched_before_300": false
@@ -2895,24 +2895,24 @@
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 453.8,
+    "t_s": 453.9,
     "T_c": 372.0,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 414.1,
-    "T_c": 328.2,
+    "t_s": 414.4,
+    "T_c": 328.5,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 440.1,
-    "T_c": 363.5,
+    "t_s": 440.3,
+    "T_c": 363.6,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 453.8,
+    "t_s": 453.9,
     "T_c": 372.0,
     "glass": 302.1
    },
@@ -2927,30 +2927,30 @@
    "T_c_steady": 346.2,
    "T_c_drift_last_100s": -0.04,
    "T_c_max": 348.4,
-   "t_T_c_over_300_s": 415.8,
+   "t_T_c_over_300_s": 416.0,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 493.3,
-    "T_c": 347.3,
+    "t_s": 493.8,
+    "T_c": 347.2,
     "glass": 302.0
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 440.3,
-    "T_c": 329.5,
-    "glass": 262.4
+    "t_s": 440.7,
+    "T_c": 329.6,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 471.5,
-    "T_c": 343.1,
-    "glass": 288.1
+    "t_s": 472.0,
+    "T_c": 343.0,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 493.3,
-    "T_c": 347.3,
+    "t_s": 493.8,
+    "T_c": 347.2,
     "glass": 302.0
    },
    "latched_before_300": false
@@ -2961,26 +2961,26 @@
    "delta": 12.0,
    "corner": "cold",
    "r_leak_ohm": 1732.1,
-   "T_c_steady": 310.7,
+   "T_c_steady": 310.6,
    "T_c_drift_last_100s": -1.48,
-   "T_c_max": 320.7,
+   "T_c_max": 320.6,
    "t_T_c_over_300_s": 434.5,
    "suspects": 27,
    "first_suspect_s": 542.5,
    "leak_latch": {
     "t_s": 611.0,
     "T_c": 313.9,
-    "glass": 299.2
+    "glass": 299.1
    },
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 465.0,
+    "t_s": 465.2,
     "T_c": 315.7,
-    "glass": 262.4
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 518.1,
+    "t_s": 518.5,
     "T_c": 318.6,
     "glass": 288.1
    },
@@ -2988,7 +2988,7 @@
     "rule": "leak",
     "t_s": 611.0,
     "T_c": 313.9,
-    "glass": 299.2
+    "glass": 299.1
    },
    "latched_before_300": false
   },
@@ -2998,21 +2998,21 @@
    "delta": 12.0,
    "corner": "cold",
    "r_leak_ohm": 2319.9,
-   "T_c_steady": 293.3,
-   "T_c_drift_last_100s": -0.71,
+   "T_c_steady": 293.2,
+   "T_c_drift_last_100s": -0.69,
    "T_c_max": 302.8,
-   "t_T_c_over_300_s": 480.1,
+   "t_T_c_over_300_s": 480.3,
    "suspects": 20,
    "first_suspect_s": 705.9,
    "leak_latch": {
     "t_s": 777.1,
-    "T_c": 296.9,
+    "T_c": 296.8,
     "glass": 284.5
    },
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 493.3,
+    "t_s": 493.6,
     "T_c": 299.2,
     "glass": 262.3
    },
@@ -3020,7 +3020,7 @@
    "first_latch": {
     "rule": "leak",
     "t_s": 777.1,
-    "T_c": 296.9,
+    "T_c": 296.8,
     "glass": 284.5
    },
    "latched_before_300": false
@@ -3033,7 +3033,7 @@
    "r_leak_ohm": 3107.2,
    "T_c_steady": 286.2,
    "T_c_drift_last_100s": -0.03,
-   "T_c_max": 286.8,
+   "T_c_max": 286.7,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -3041,8 +3041,8 @@
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 534.7,
-    "T_c": 286.3,
+    "t_s": 535.3,
+    "T_c": 286.2,
     "glass": 262.3
    },
    "glass_cr5_top": null,
@@ -3056,8 +3056,8 @@
    "corner": "cold",
    "r_leak_ohm": 4161.8,
    "T_c_steady": 276.4,
-   "T_c_drift_last_100s": -0.04,
-   "T_c_max": 278.0,
+   "T_c_drift_last_100s": -0.03,
+   "T_c_max": 277.0,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -3065,7 +3065,7 @@
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 616.7,
+    "t_s": 626.7,
     "T_c": 276.8,
     "glass": 262.3
    },
@@ -3081,7 +3081,7 @@
    "r_leak_ohm": 5574.3,
    "T_c_steady": 269.4,
    "T_c_drift_last_100s": -0.04,
-   "T_c_max": 270.8,
+   "T_c_max": 271.0,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -3101,7 +3101,7 @@
    "r_leak_ohm": 7466.1,
    "T_c_steady": 264.3,
    "T_c_drift_last_100s": -0.05,
-   "T_c_max": 265.5,
+   "T_c_max": 265.7,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -3121,7 +3121,7 @@
    "r_leak_ohm": 10000.0,
    "T_c_steady": 260.5,
    "T_c_drift_last_100s": -0.05,
-   "T_c_max": 261.6,
+   "T_c_max": 261.9,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -3142,31 +3142,31 @@
    "T_c_steady": 819.5,
    "T_c_drift_last_100s": 0.01,
    "T_c_max": 819.5,
-   "t_T_c_over_300_s": 308.1,
+   "t_T_c_over_300_s": 308.2,
    "suspects": 1,
-   "first_suspect_s": 331.2,
+   "first_suspect_s": 331.6,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 373.2,
-    "T_c": 410.7,
-    "glass": 302.2
+    "t_s": 373.6,
+    "T_c": 410.9,
+    "glass": 302.3
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 345.3,
-    "T_c": 371.5,
-    "glass": 262.3
+    "t_s": 345.8,
+    "T_c": 371.8,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 363.9,
-    "T_c": 384.6,
+    "t_s": 364.3,
+    "T_c": 384.9,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 373.2,
-    "T_c": 410.7,
-    "glass": 302.2
+    "t_s": 373.6,
+    "T_c": 410.9,
+    "glass": 302.3
    },
    "latched_before_300": false
   },
@@ -3179,31 +3179,31 @@
    "T_c_steady": 702.9,
    "T_c_drift_last_100s": -0.04,
    "T_c_max": 703.0,
-   "t_T_c_over_300_s": 323.6,
+   "t_T_c_over_300_s": 323.7,
    "suspects": 1,
-   "first_suspect_s": 342.0,
+   "first_suspect_s": 342.6,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 390.0,
-    "T_c": 413.9,
-    "glass": 302.3
+    "t_s": 390.1,
+    "T_c": 413.5,
+    "glass": 302.2
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 360.6,
-    "T_c": 350.4,
-    "glass": 262.4
+    "t_s": 360.7,
+    "T_c": 352.2,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 381.0,
-    "T_c": 388.3,
-    "glass": 288.1
+    "t_s": 381.1,
+    "T_c": 387.8,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 390.0,
-    "T_c": 413.9,
-    "glass": 302.3
+    "t_s": 390.1,
+    "T_c": 413.5,
+    "glass": 302.2
    },
    "latched_before_300": false
   },
@@ -3216,29 +3216,29 @@
    "T_c_steady": 531.4,
    "T_c_drift_last_100s": -0.04,
    "T_c_max": 531.5,
-   "t_T_c_over_300_s": 345.1,
+   "t_T_c_over_300_s": 345.2,
    "suspects": 1,
-   "first_suspect_s": 355.2,
+   "first_suspect_s": 355.5,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 412.6,
+    "t_s": 412.8,
     "T_c": 419.0,
     "glass": 302.3
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 385.0,
-    "T_c": 337.6,
-    "glass": 262.3
+    "t_s": 385.3,
+    "T_c": 338.0,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 404.2,
+    "t_s": 404.4,
     "T_c": 396.3,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 412.6,
+    "t_s": 412.8,
     "T_c": 419.0,
     "glass": 302.3
    },
@@ -3252,32 +3252,32 @@
    "r_leak_ohm": 720.8,
    "T_c_steady": 454.3,
    "T_c_drift_last_100s": -0.04,
-   "T_c_max": 460.5,
-   "t_T_c_over_300_s": 359.9,
+   "T_c_max": 454.9,
+   "t_T_c_over_300_s": 371.3,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 420.5,
-    "T_c": 400.4,
-    "glass": 302.2
+    "t_s": 433.7,
+    "T_c": 398.3,
+    "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 391.2,
-    "T_c": 351.4,
+    "t_s": 403.4,
+    "T_c": 347.4,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 410.6,
-    "T_c": 383.4,
-    "glass": 288.2
+    "t_s": 423.5,
+    "T_c": 380.9,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 420.5,
-    "T_c": 400.4,
-    "glass": 302.2
+    "t_s": 433.7,
+    "T_c": 398.3,
+    "glass": 302.1
    },
    "latched_before_300": false
   },
@@ -3289,31 +3289,31 @@
    "r_leak_ohm": 965.5,
    "T_c_steady": 388.0,
    "T_c_drift_last_100s": -0.04,
-   "T_c_max": 392.6,
-   "t_T_c_over_300_s": 388.4,
+   "T_c_max": 392.1,
+   "t_T_c_over_300_s": 389.3,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 452.1,
-    "T_c": 380.4,
+    "t_s": 453.4,
+    "T_c": 380.1,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 417.9,
-    "T_c": 341.0,
+    "t_s": 419.4,
+    "T_c": 342.2,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 440.0,
-    "T_c": 371.7,
-    "glass": 288.1
+    "t_s": 441.3,
+    "T_c": 371.9,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 452.1,
-    "T_c": 380.4,
+    "t_s": 453.4,
+    "T_c": 380.1,
     "glass": 302.1
    },
    "latched_before_300": false
@@ -3326,31 +3326,31 @@
    "r_leak_ohm": 1293.2,
    "T_c_steady": 346.2,
    "T_c_drift_last_100s": -0.04,
-   "T_c_max": 350.7,
-   "t_T_c_over_300_s": 412.6,
+   "T_c_max": 349.4,
+   "t_T_c_over_300_s": 414.6,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 489.6,
-    "T_c": 350.5,
+    "t_s": 493.7,
+    "T_c": 349.1,
     "glass": 302.0
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 441.5,
-    "T_c": 335.0,
+    "t_s": 443.9,
+    "T_c": 333.9,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 469.8,
-    "T_c": 347.7,
+    "t_s": 473.1,
+    "T_c": 345.9,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 489.6,
-    "T_c": 350.5,
+    "t_s": 493.7,
+    "T_c": 349.1,
     "glass": 302.0
    },
    "latched_before_300": false
@@ -3542,30 +3542,30 @@
    "T_c_steady": 819.5,
    "T_c_drift_last_100s": 0.03,
    "T_c_max": 819.5,
-   "t_T_c_over_300_s": 408.2,
+   "t_T_c_over_300_s": 408.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 465.6,
-    "T_c": 397.5,
+    "t_s": 466.7,
+    "T_c": 397.3,
     "glass": 302.2
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 437.7,
-    "T_c": 359.6,
-    "glass": 262.4
+    "t_s": 438.8,
+    "T_c": 360.2,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 455.6,
+    "t_s": 456.8,
     "T_c": 385.6,
-    "glass": 288.1
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 465.6,
-    "T_c": 397.5,
+    "t_s": 466.7,
+    "T_c": 397.3,
     "glass": 302.2
    },
    "latched_before_300": false
@@ -3946,30 +3946,30 @@
    "T_c_steady": 814.9,
    "T_c_drift_last_100s": 0.01,
    "T_c_max": 814.9,
-   "t_T_c_over_300_s": 304.1,
+   "t_T_c_over_300_s": 303.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 365.5,
-    "T_c": 452.5,
+    "T_c": 452.6,
     "glass": 279.7
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 357.3,
-    "T_c": 435.2,
-    "glass": 262.3
+    "t_s": 357.4,
+    "T_c": 435.6,
+    "glass": 262.5
    },
    "glass_cr5_top": {
     "t_s": 369.5,
-    "T_c": 460.6,
+    "T_c": 460.8,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 365.5,
-    "T_c": 452.5,
+    "T_c": 452.6,
     "glass": 279.7
    },
    "latched_before_300": false
@@ -3983,30 +3983,30 @@
    "T_c_steady": 703.4,
    "T_c_drift_last_100s": -0.13,
    "T_c_max": 703.5,
-   "t_T_c_over_300_s": 304.1,
+   "t_T_c_over_300_s": 303.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 365.7,
-    "T_c": 447.3,
+    "T_c": 447.4,
     "glass": 279.6
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 357.4,
-    "T_c": 434.4,
-    "glass": 262.5
+    "T_c": 434.5,
+    "glass": 262.4
    },
    "glass_cr5_top": {
     "t_s": 370.0,
-    "T_c": 453.4,
+    "T_c": 453.5,
     "glass": 288.3
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 365.7,
-    "T_c": 447.3,
+    "T_c": 447.4,
     "glass": 279.6
    },
    "latched_before_300": false
@@ -4020,31 +4020,31 @@
    "T_c_steady": 531.4,
    "T_c_drift_last_100s": -0.11,
    "T_c_max": 531.5,
-   "t_T_c_over_300_s": 304.1,
+   "t_T_c_over_300_s": 303.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 390.0,
-    "T_c": 396.9,
-    "glass": 279.4
+    "t_s": 390.1,
+    "T_c": 397.1,
+    "glass": 279.5
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 375.0,
-    "T_c": 374.6,
+    "t_s": 375.1,
+    "T_c": 374.7,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 397.2,
-    "T_c": 407.9,
+    "t_s": 397.3,
+    "T_c": 408.0,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 390.0,
-    "T_c": 396.9,
-    "glass": 279.4
+    "t_s": 390.1,
+    "T_c": 397.1,
+    "glass": 279.5
    },
    "latched_before_300": false
   },
@@ -4057,30 +4057,30 @@
    "T_c_steady": 454.3,
    "T_c_drift_last_100s": -0.11,
    "T_c_max": 454.9,
-   "t_T_c_over_300_s": 335.4,
+   "t_T_c_over_300_s": 335.5,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 432.5,
-    "T_c": 398.0,
+    "t_s": 432.6,
+    "T_c": 398.2,
     "glass": 279.5
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 417.5,
-    "T_c": 373.0,
-    "glass": 262.3
+    "t_s": 417.7,
+    "T_c": 373.3,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 439.6,
-    "T_c": 407.3,
+    "t_s": 439.7,
+    "T_c": 407.4,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 432.5,
-    "T_c": 398.0,
+    "t_s": 432.6,
+    "T_c": 398.2,
     "glass": 279.5
    },
    "latched_before_300": false
@@ -4094,30 +4094,30 @@
    "T_c_steady": 388.0,
    "T_c_drift_last_100s": -0.1,
    "T_c_max": 389.6,
-   "t_T_c_over_300_s": 393.5,
+   "t_T_c_over_300_s": 393.6,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 466.7,
-    "T_c": 376.4,
+    "t_s": 467.0,
+    "T_c": 376.2,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 448.4,
+    "t_s": 448.7,
     "T_c": 369.0,
-    "glass": 262.3
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 477.6,
-    "T_c": 379.1,
-    "glass": 288.1
+    "t_s": 478.0,
+    "T_c": 379.0,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 466.7,
-    "T_c": 376.4,
+    "t_s": 467.0,
+    "T_c": 376.2,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -4130,31 +4130,31 @@
    "r_leak_ohm": 1293.2,
    "T_c_steady": 346.2,
    "T_c_drift_last_100s": -0.09,
-   "T_c_max": 349.0,
-   "t_T_c_over_300_s": 415.8,
+   "T_c_max": 348.8,
+   "t_T_c_over_300_s": 416.1,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 517.6,
-    "T_c": 349.0,
+    "t_s": 518.6,
+    "T_c": 348.8,
     "glass": 279.3
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 484.0,
-    "T_c": 345.7,
+    "t_s": 484.7,
+    "T_c": 345.4,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 546.2,
-    "T_c": 348.4,
+    "t_s": 547.4,
+    "T_c": 348.3,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 517.6,
-    "T_c": 349.0,
+    "t_s": 518.6,
+    "T_c": 348.8,
     "glass": 279.3
    },
    "latched_before_300": false
@@ -4166,28 +4166,28 @@
    "corner": "hot",
    "r_leak_ohm": 1732.1,
    "T_c_steady": 310.0,
-   "T_c_drift_last_100s": 0.05,
+   "T_c_drift_last_100s": 0.03,
    "T_c_max": 320.7,
-   "t_T_c_over_300_s": 434.6,
+   "t_T_c_over_300_s": 434.7,
    "suspects": 25,
-   "first_suspect_s": 607.3,
+   "first_suspect_s": 608.1,
    "leak_latch": {
-    "t_s": 675.3,
-    "T_c": 313.6,
+    "t_s": 676.5,
+    "T_c": 313.3,
     "glass": 267.8
    },
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 553.4,
+    "t_s": 553.8,
     "T_c": 319.2,
     "glass": 262.3
    },
    "glass_cr5_top": null,
    "first_latch": {
     "rule": "leak",
-    "t_s": 675.3,
-    "T_c": 313.6,
+    "t_s": 676.5,
+    "T_c": 313.3,
     "glass": 267.8
    },
    "latched_before_300": false
@@ -4200,8 +4200,8 @@
    "r_leak_ohm": 2319.9,
    "T_c_steady": 299.6,
    "T_c_drift_last_100s": -0.07,
-   "T_c_max": 300.2,
-   "t_T_c_over_300_s": 554.8,
+   "T_c_max": 300.1,
+   "t_T_c_over_300_s": 483.0,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
@@ -4260,7 +4260,7 @@
    "r_leak_ohm": 5574.3,
    "T_c_steady": 269.2,
    "T_c_drift_last_100s": -0.07,
-   "T_c_max": 270.7,
+   "T_c_max": 270.9,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -4280,7 +4280,7 @@
    "r_leak_ohm": 7466.1,
    "T_c_steady": 264.1,
    "T_c_drift_last_100s": -0.07,
-   "T_c_max": 265.4,
+   "T_c_max": 265.6,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -4300,7 +4300,7 @@
    "r_leak_ohm": 10000.0,
    "T_c_steady": 260.3,
    "T_c_drift_last_100s": -0.07,
-   "T_c_max": 261.4,
+   "T_c_max": 261.7,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -4321,35 +4321,31 @@
    "T_c_steady": 814.9,
    "T_c_drift_last_100s": 0.01,
    "T_c_max": 814.9,
-   "t_T_c_over_300_s": 343.8,
-   "suspects": 1,
-   "first_suspect_s": 363.7,
+   "t_T_c_over_300_s": 308.6,
+   "suspects": 0,
+   "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 417.2,
-    "T_c": 431.6,
-    "glass": 279.6
+    "t_s": 382.2,
+    "T_c": 432.3,
+    "glass": 279.7
    },
-   "d1_lost": {
-    "t_s": 270.4,
-    "T_c": 193.6,
-    "glass": 124.3
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 407.0,
-    "T_c": 404.8,
-    "glass": 262.4
+    "t_s": 372.0,
+    "T_c": 405.6,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 422.0,
-    "T_c": 443.2,
-    "glass": 288.3
+    "t_s": 386.9,
+    "T_c": 443.7,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 417.2,
-    "T_c": 431.6,
-    "glass": 279.6
+    "t_s": 382.2,
+    "T_c": 432.3,
+    "glass": 279.7
    },
    "latched_before_300": false
   },
@@ -4362,30 +4358,30 @@
    "T_c_steady": 703.4,
    "T_c_drift_last_100s": -0.13,
    "T_c_max": 703.5,
-   "t_T_c_over_300_s": 323.7,
+   "t_T_c_over_300_s": 323.9,
    "suspects": 1,
-   "first_suspect_s": 357.4,
+   "first_suspect_s": 357.9,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 392.5,
-    "T_c": 408.3,
+    "t_s": 392.7,
+    "T_c": 408.1,
     "glass": 279.5
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 378.9,
-    "T_c": 383.6,
-    "glass": 262.3
+    "t_s": 379.2,
+    "T_c": 384.3,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 398.5,
-    "T_c": 424.8,
+    "t_s": 398.7,
+    "T_c": 424.5,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 392.5,
-    "T_c": 408.3,
+    "t_s": 392.7,
+    "T_c": 408.1,
     "glass": 279.5
    },
    "latched_before_300": false
@@ -4404,26 +4400,26 @@
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 410.1,
-    "T_c": 428.2,
-    "glass": 279.7
+    "t_s": 410.2,
+    "T_c": 428.3,
+    "glass": 279.5
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 399.8,
-    "T_c": 407.1,
+    "t_s": 400.0,
+    "T_c": 407.4,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 415.1,
-    "T_c": 437.9,
-    "glass": 288.3
+    "t_s": 415.2,
+    "T_c": 438.0,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 410.1,
-    "T_c": 428.2,
-    "glass": 279.7
+    "t_s": 410.2,
+    "T_c": 428.3,
+    "glass": 279.5
    },
    "latched_before_300": false
   },
@@ -4435,31 +4431,31 @@
    "r_leak_ohm": 720.8,
    "T_c_steady": 454.3,
    "T_c_drift_last_100s": -0.11,
-   "T_c_max": 460.6,
-   "t_T_c_over_300_s": 360.0,
+   "T_c_max": 454.9,
+   "t_T_c_over_300_s": 371.7,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 428.3,
-    "T_c": 414.3,
+    "t_s": 442.2,
+    "T_c": 409.2,
     "glass": 279.5
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 416.5,
-    "T_c": 393.6,
-    "glass": 262.4
+    "t_s": 430.0,
+    "T_c": 391.4,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 434.1,
-    "T_c": 424.0,
+    "t_s": 448.6,
+    "T_c": 413.8,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 428.3,
-    "T_c": 414.3,
+    "t_s": 442.2,
+    "T_c": 409.2,
     "glass": 279.5
    },
    "latched_before_300": false
@@ -4472,32 +4468,32 @@
    "r_leak_ohm": 965.5,
    "T_c_steady": 388.0,
    "T_c_drift_last_100s": -0.1,
-   "T_c_max": 392.7,
-   "t_T_c_over_300_s": 388.4,
+   "T_c_max": 392.3,
+   "t_T_c_over_300_s": 389.3,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 462.8,
-    "T_c": 386.0,
-    "glass": 279.5
+    "t_s": 464.2,
+    "T_c": 385.4,
+    "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 447.0,
-    "T_c": 377.3,
-    "glass": 262.4
+    "t_s": 448.3,
+    "T_c": 377.1,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 471.9,
-    "T_c": 388.3,
+    "t_s": 473.4,
+    "T_c": 387.7,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 462.8,
-    "T_c": 386.0,
-    "glass": 279.5
+    "t_s": 464.2,
+    "T_c": 385.4,
+    "glass": 279.4
    },
    "latched_before_300": false
   },
@@ -5075,30 +5071,30 @@
    "T_c_steady": 814.9,
    "T_c_drift_last_100s": 0.01,
    "T_c_max": 814.9,
-   "t_T_c_over_300_s": 304.2,
+   "t_T_c_over_300_s": 303.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 376.3,
-    "T_c": 474.1,
+    "T_c": 474.2,
     "glass": 302.3
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 357.4,
-    "T_c": 435.4,
+    "T_c": 435.5,
     "glass": 262.4
    },
    "glass_cr5_top": {
     "t_s": 369.6,
-    "T_c": 460.7,
+    "T_c": 460.9,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 376.3,
-    "T_c": 474.1,
+    "T_c": 474.2,
     "glass": 302.3
    },
    "latched_before_300": false
@@ -5112,30 +5108,30 @@
    "T_c_steady": 703.5,
    "T_c_drift_last_100s": -0.06,
    "T_c_max": 703.6,
-   "t_T_c_over_300_s": 304.2,
+   "t_T_c_over_300_s": 303.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 377.2,
-    "T_c": 467.1,
+    "T_c": 467.2,
     "glass": 302.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 357.4,
-    "T_c": 434.2,
+    "T_c": 434.4,
     "glass": 262.4
    },
    "glass_cr5_top": {
     "t_s": 370.0,
-    "T_c": 453.8,
+    "T_c": 453.9,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 377.2,
-    "T_c": 467.1,
+    "T_c": 467.2,
     "glass": 302.4
    },
    "latched_before_300": false
@@ -5149,31 +5145,31 @@
    "T_c_steady": 531.4,
    "T_c_drift_last_100s": -0.06,
    "T_c_max": 531.5,
-   "t_T_c_over_300_s": 304.2,
+   "t_T_c_over_300_s": 303.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 408.2,
     "T_c": 429.8,
-    "glass": 302.3
+    "glass": 302.2
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 375.3,
-    "T_c": 374.5,
+    "t_s": 375.4,
+    "T_c": 374.6,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 397.4,
-    "T_c": 409.4,
+    "t_s": 397.5,
+    "T_c": 409.5,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 408.2,
     "T_c": 429.8,
-    "glass": 302.3
+    "glass": 302.2
    },
    "latched_before_300": false
   },
@@ -5186,31 +5182,31 @@
    "T_c_steady": 454.3,
    "T_c_drift_last_100s": -0.06,
    "T_c_max": 454.9,
-   "t_T_c_over_300_s": 336.3,
+   "t_T_c_over_300_s": 336.4,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 451.5,
-    "T_c": 417.6,
-    "glass": 302.1
+    "t_s": 451.6,
+    "T_c": 417.7,
+    "glass": 302.2
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 417.8,
-    "T_c": 373.1,
+    "t_s": 417.9,
+    "T_c": 373.3,
     "glass": 262.3
    },
    "glass_cr5_top": {
     "t_s": 439.9,
     "T_c": 408.0,
-    "glass": 288.2
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 451.5,
-    "T_c": 417.6,
-    "glass": 302.1
+    "t_s": 451.6,
+    "T_c": 417.7,
+    "glass": 302.2
    },
    "latched_before_300": false
   },
@@ -5223,29 +5219,29 @@
    "T_c_steady": 388.0,
    "T_c_drift_last_100s": -0.06,
    "T_c_max": 389.7,
-   "t_T_c_over_300_s": 393.5,
+   "t_T_c_over_300_s": 393.6,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 497.8,
+    "t_s": 498.0,
     "T_c": 385.3,
     "glass": 302.0
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 448.5,
-    "T_c": 368.8,
+    "t_s": 448.7,
+    "T_c": 368.9,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 477.7,
-    "T_c": 380.1,
+    "t_s": 477.9,
+    "T_c": 380.0,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 497.8,
+    "t_s": 498.0,
     "T_c": 385.3,
     "glass": 302.0
    },
@@ -5271,12 +5267,12 @@
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 484.8,
+    "t_s": 485.0,
     "T_c": 345.3,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 547.3,
+    "t_s": 547.5,
     "T_c": 348.7,
     "glass": 288.1
    },
@@ -5297,15 +5293,15 @@
    "T_c_steady": 318.7,
    "T_c_drift_last_100s": -0.04,
    "T_c_max": 319.2,
-   "t_T_c_over_300_s": 434.9,
+   "t_T_c_over_300_s": 435.1,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 555.5,
-    "T_c": 318.9,
+    "t_s": 556.3,
+    "T_c": 318.8,
     "glass": 262.3
    },
    "glass_cr5_top": null,
@@ -5340,7 +5336,7 @@
    "r_leak_ohm": 3107.2,
    "T_c_steady": 285.7,
    "T_c_drift_last_100s": -0.04,
-   "T_c_max": 286.4,
+   "T_c_max": 286.3,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -5360,7 +5356,7 @@
    "r_leak_ohm": 4161.8,
    "T_c_steady": 276.0,
    "T_c_drift_last_100s": -0.04,
-   "T_c_max": 277.6,
+   "T_c_max": 276.7,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -5380,7 +5376,7 @@
    "r_leak_ohm": 5574.3,
    "T_c_steady": 269.0,
    "T_c_drift_last_100s": -0.04,
-   "T_c_max": 270.4,
+   "T_c_max": 270.6,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -5400,7 +5396,7 @@
    "r_leak_ohm": 7466.1,
    "T_c_steady": 263.9,
    "T_c_drift_last_100s": -0.04,
-   "T_c_max": 265.1,
+   "T_c_max": 265.3,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -5420,7 +5416,7 @@
    "r_leak_ohm": 10000.0,
    "T_c_steady": 260.1,
    "T_c_drift_last_100s": -0.04,
-   "T_c_max": 261.3,
+   "T_c_max": 261.4,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -5441,34 +5437,30 @@
    "T_c_steady": 814.9,
    "T_c_drift_last_100s": 0.01,
    "T_c_max": 814.9,
-   "t_T_c_over_300_s": 343.8,
-   "suspects": 1,
-   "first_suspect_s": 367.6,
+   "t_T_c_over_300_s": 308.7,
+   "suspects": 0,
+   "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 429.2,
-    "T_c": 458.3,
+    "t_s": 394.1,
+    "T_c": 458.2,
     "glass": 302.3
    },
-   "d1_lost": {
-    "t_s": 270.4,
-    "T_c": 193.6,
-    "glass": 124.3
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 405.6,
-    "T_c": 398.1,
-    "glass": 262.3
+    "t_s": 370.5,
+    "T_c": 397.8,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 421.3,
-    "T_c": 439.7,
-    "glass": 288.1
+    "t_s": 386.3,
+    "T_c": 439.8,
+    "glass": 288.3
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 429.2,
-    "T_c": 458.3,
+    "t_s": 394.1,
+    "T_c": 458.2,
     "glass": 302.3
    },
    "latched_before_300": false
@@ -5482,31 +5474,31 @@
    "T_c_steady": 703.5,
    "T_c_drift_last_100s": -0.06,
    "T_c_max": 703.6,
-   "t_T_c_over_300_s": 323.8,
+   "t_T_c_over_300_s": 323.9,
    "suspects": 1,
-   "first_suspect_s": 364.4,
+   "first_suspect_s": 364.8,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 405.5,
-    "T_c": 438.3,
-    "glass": 302.3
+    "t_s": 405.7,
+    "T_c": 438.1,
+    "glass": 302.2
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 376.3,
-    "T_c": 406.5,
+    "t_s": 376.7,
+    "T_c": 407.0,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 395.4,
-    "T_c": 411.7,
-    "glass": 288.2
+    "t_s": 395.6,
+    "T_c": 411.6,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 405.5,
-    "T_c": 438.3,
-    "glass": 302.3
+    "t_s": 405.7,
+    "T_c": 438.1,
+    "glass": 302.2
    },
    "latched_before_300": false
   },
@@ -5519,31 +5511,31 @@
    "T_c_steady": 531.4,
    "T_c_drift_last_100s": -0.06,
    "T_c_max": 531.5,
-   "t_T_c_over_300_s": 345.4,
+   "t_T_c_over_300_s": 345.5,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 423.2,
-    "T_c": 455.3,
-    "glass": 302.3
+    "t_s": 423.4,
+    "T_c": 455.7,
+    "glass": 302.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 399.9,
-    "T_c": 406.8,
-    "glass": 262.3
+    "t_s": 400.2,
+    "T_c": 407.4,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 415.2,
-    "T_c": 438.4,
+    "t_s": 415.4,
+    "T_c": 438.8,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 423.2,
-    "T_c": 455.3,
-    "glass": 302.3
+    "t_s": 423.4,
+    "T_c": 455.7,
+    "glass": 302.4
    },
    "latched_before_300": false
   },
@@ -5555,31 +5547,31 @@
    "r_leak_ohm": 720.8,
    "T_c_steady": 454.3,
    "T_c_drift_last_100s": -0.06,
-   "T_c_max": 460.0,
-   "t_T_c_over_300_s": 361.5,
+   "T_c_max": 454.9,
+   "t_T_c_over_300_s": 371.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 444.9,
-    "T_c": 436.3,
+    "t_s": 459.8,
+    "T_c": 420.6,
     "glass": 302.2
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 418.1,
-    "T_c": 394.7,
+    "t_s": 430.2,
+    "T_c": 391.4,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 435.6,
-    "T_c": 425.2,
+    "t_s": 448.8,
+    "T_c": 414.3,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 444.9,
-    "T_c": 436.3,
+    "t_s": 459.8,
+    "T_c": 420.6,
     "glass": 302.2
    },
    "latched_before_300": false
@@ -5592,31 +5584,31 @@
    "r_leak_ohm": 965.5,
    "T_c_steady": 388.0,
    "T_c_drift_last_100s": -0.06,
-   "T_c_max": 392.7,
-   "t_T_c_over_300_s": 388.7,
+   "T_c_max": 392.4,
+   "t_T_c_over_300_s": 389.4,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 489.1,
-    "T_c": 392.1,
+    "t_s": 490.5,
+    "T_c": 391.7,
     "glass": 302.0
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 447.3,
-    "T_c": 377.1,
-    "glass": 262.4
+    "t_s": 448.4,
+    "T_c": 377.0,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 472.2,
-    "T_c": 388.7,
-    "glass": 288.1
+    "t_s": 473.5,
+    "T_c": 388.3,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 489.1,
-    "T_c": 392.1,
+    "t_s": 490.5,
+    "T_c": 391.7,
     "glass": 302.0
    },
    "latched_before_300": false
@@ -6413,8 +6405,8 @@
    "corner": "hot",
    "r_leak_ohm": 4161.8,
    "T_c_steady": 111.8,
-   "T_c_drift_last_100s": 1.48,
-   "T_c_max": 112.7,
+   "T_c_drift_last_100s": 1.54,
+   "T_c_max": 112.8,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -6432,8 +6424,8 @@
    "delta": 12.0,
    "corner": "hot",
    "r_leak_ohm": 5574.3,
-   "T_c_steady": 108.9,
-   "T_c_drift_last_100s": 1.22,
+   "T_c_steady": 108.8,
+   "T_c_drift_last_100s": 1.23,
    "T_c_max": 110.1,
    "t_T_c_over_300_s": null,
    "suspects": 0,
@@ -6550,16 +6542,16 @@
    "delta": 12.0,
    "corner": "hot",
    "r_leak_ohm": 538.2,
-   "T_c_steady": 111.4,
-   "T_c_drift_last_100s": 0.29,
+   "T_c_steady": 113.0,
+   "T_c_drift_last_100s": 2.64,
    "T_c_max": 115.6,
    "t_T_c_over_300_s": null,
    "suspects": 18,
-   "first_suspect_s": 444.8,
+   "first_suspect_s": 457.9,
    "leak_latch": {
-    "t_s": 546.4,
+    "t_s": 542.4,
     "T_c": 106.6,
-    "glass": 99.9
+    "glass": 99.0
    },
    "rim_fault": null,
    "d1_lost": null,
@@ -6567,9 +6559,9 @@
    "glass_cr5_top": null,
    "first_latch": {
     "rule": "leak",
-    "t_s": 546.4,
+    "t_s": 542.4,
     "T_c": 106.6,
-    "glass": 99.9
+    "glass": 99.0
    },
    "latched_before_300": true
   },
@@ -7346,7 +7338,7 @@
    "corner": "cold",
    "r_leak_ohm": 4161.8,
    "T_c_steady": 111.9,
-   "T_c_drift_last_100s": 0.84,
+   "T_c_drift_last_100s": 0.83,
    "T_c_max": 112.7,
    "t_T_c_over_300_s": null,
    "suspects": 0,
@@ -7366,7 +7358,7 @@
    "corner": "cold",
    "r_leak_ohm": 5574.3,
    "T_c_steady": 109.3,
-   "T_c_drift_last_100s": -1.07,
+   "T_c_drift_last_100s": -1.06,
    "T_c_max": 110.1,
    "t_T_c_over_300_s": null,
    "suspects": 0,
@@ -7454,16 +7446,16 @@
    "delta": 12.0,
    "corner": "cold",
    "r_leak_ohm": 401.8,
-   "T_c_steady": 113.2,
-   "T_c_drift_last_100s": 1.32,
+   "T_c_steady": 112.0,
+   "T_c_drift_last_100s": -9.05,
    "T_c_max": 115.5,
    "t_T_c_over_300_s": null,
-   "suspects": 18,
-   "first_suspect_s": 473.8,
+   "suspects": 19,
+   "first_suspect_s": 473.7,
    "leak_latch": {
-    "t_s": 564.8,
+    "t_s": 561.3,
     "T_c": 106.6,
-    "glass": 99.7
+    "glass": 99.6
    },
    "rim_fault": null,
    "d1_lost": null,
@@ -7471,9 +7463,9 @@
    "glass_cr5_top": null,
    "first_latch": {
     "rule": "leak",
-    "t_s": 564.8,
+    "t_s": 561.3,
     "T_c": 106.6,
-    "glass": 99.7
+    "glass": 99.6
    },
    "latched_before_300": true
   },
@@ -7483,16 +7475,16 @@
    "delta": 12.0,
    "corner": "cold",
    "r_leak_ohm": 538.2,
-   "T_c_steady": 112.0,
-   "T_c_drift_last_100s": -9.0,
-   "T_c_max": 115.5,
+   "T_c_steady": 111.6,
+   "T_c_drift_last_100s": -4.97,
+   "T_c_max": 115.6,
    "t_T_c_over_300_s": null,
-   "suspects": 18,
-   "first_suspect_s": 458.7,
+   "suspects": 19,
+   "first_suspect_s": 473.7,
    "leak_latch": {
-    "t_s": 554.0,
+    "t_s": 559.4,
     "T_c": 106.6,
-    "glass": 99.9
+    "glass": 99.5
    },
    "rim_fault": null,
    "d1_lost": null,
@@ -7500,9 +7492,9 @@
    "glass_cr5_top": null,
    "first_latch": {
     "rule": "leak",
-    "t_s": 554.0,
+    "t_s": 559.4,
     "T_c": 106.6,
-    "glass": 99.9
+    "glass": 99.5
    },
    "latched_before_300": true
   },
@@ -7514,14 +7506,14 @@
    "r_leak_ohm": 720.8,
    "T_c_steady": 112.2,
    "T_c_drift_last_100s": 0.38,
-   "T_c_max": 115.5,
+   "T_c_max": 115.6,
    "t_T_c_over_300_s": null,
    "suspects": 17,
-   "first_suspect_s": 458.7,
+   "first_suspect_s": 473.7,
    "leak_latch": {
-    "t_s": 554.0,
+    "t_s": 573.5,
     "T_c": 106.6,
-    "glass": 99.9
+    "glass": 100.1
    },
    "rim_fault": null,
    "d1_lost": null,
@@ -7529,9 +7521,9 @@
    "glass_cr5_top": null,
    "first_latch": {
     "rule": "leak",
-    "t_s": 554.0,
+    "t_s": 573.5,
     "T_c": 106.6,
-    "glass": 99.9
+    "glass": 100.1
    },
    "latched_before_300": true
   },
@@ -8224,8 +8216,8 @@
    "delta": 46.0,
    "corner": "hot",
    "r_leak_ohm": 4161.8,
-   "T_c_steady": 112.1,
-   "T_c_drift_last_100s": -0.0,
+   "T_c_steady": 112.2,
+   "T_c_drift_last_100s": -0.02,
    "T_c_max": 112.7,
    "t_T_c_over_300_s": null,
    "suspects": 0,
@@ -8244,8 +8236,8 @@
    "delta": 46.0,
    "corner": "hot",
    "r_leak_ohm": 5574.3,
-   "T_c_steady": 109.1,
-   "T_c_drift_last_100s": -1.57,
+   "T_c_steady": 109.2,
+   "T_c_drift_last_100s": -0.13,
    "T_c_max": 110.1,
    "t_T_c_over_300_s": null,
    "suspects": 0,
@@ -8284,7 +8276,7 @@
    "delta": 46.0,
    "corner": "hot",
    "r_leak_ohm": 10000.0,
-   "T_c_steady": 105.4,
+   "T_c_steady": 105.3,
    "T_c_drift_last_100s": 0.81,
    "T_c_max": 106.8,
    "t_T_c_over_300_s": null,
@@ -9034,7 +9026,7 @@
    "corner": "cold",
    "r_leak_ohm": 5574.3,
    "T_c_steady": 108.6,
-   "T_c_drift_last_100s": 2.42,
+   "T_c_drift_last_100s": 2.41,
    "T_c_max": 110.0,
    "t_T_c_over_300_s": null,
    "suspects": 0,
@@ -9616,30 +9608,30 @@
    "T_c_steady": 546.5,
    "T_c_drift_last_100s": 0.0,
    "T_c_max": 546.5,
-   "t_T_c_over_300_s": 318.0,
+   "t_T_c_over_300_s": 317.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 361.5,
-    "T_c": 401.1,
+    "t_s": 361.6,
+    "T_c": 401.4,
     "glass": 279.6
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 352.0,
-    "T_c": 382.7,
-    "glass": 262.3
+    "t_s": 352.2,
+    "T_c": 383.3,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 366.2,
-    "T_c": 409.4,
+    "t_s": 366.3,
+    "T_c": 409.7,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 361.5,
-    "T_c": 401.1,
+    "t_s": 361.6,
+    "T_c": 401.4,
     "glass": 279.6
    },
    "latched_before_300": false
@@ -9658,25 +9650,25 @@
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 361.5,
-    "T_c": 401.1,
+    "t_s": 361.6,
+    "T_c": 401.4,
     "glass": 279.6
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 352.0,
-    "T_c": 382.7,
-    "glass": 262.3
+    "t_s": 352.2,
+    "T_c": 383.3,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 366.2,
-    "T_c": 409.4,
+    "t_s": 366.3,
+    "T_c": 409.7,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 361.5,
-    "T_c": 401.1,
+    "t_s": 361.6,
+    "T_c": 401.4,
     "glass": 279.6
    },
    "latched_before_300": false
@@ -9695,26 +9687,26 @@
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 361.8,
-    "T_c": 394.9,
-    "glass": 279.5
+    "t_s": 362.0,
+    "T_c": 395.2,
+    "glass": 279.6
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 352.1,
-    "T_c": 381.5,
-    "glass": 262.4
+    "t_s": 352.3,
+    "T_c": 382.0,
+    "glass": 262.5
    },
    "glass_cr5_top": {
-    "t_s": 366.9,
-    "T_c": 399.4,
-    "glass": 288.2
+    "t_s": 367.1,
+    "T_c": 399.6,
+    "glass": 288.3
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 361.8,
-    "T_c": 394.9,
-    "glass": 279.5
+    "t_s": 362.0,
+    "T_c": 395.2,
+    "glass": 279.6
    },
    "latched_before_300": false
   },
@@ -9732,25 +9724,25 @@
    "first_suspect_s": 371.7,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 377.1,
-    "T_c": 340.4,
+    "t_s": 377.5,
+    "T_c": 340.5,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 358.9,
+    "t_s": 359.2,
     "T_c": 339.2,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 388.9,
-    "T_c": 340.6,
+    "t_s": 389.2,
+    "T_c": 340.5,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 377.1,
-    "T_c": 340.4,
+    "t_s": 377.5,
+    "T_c": 340.5,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -9761,33 +9753,33 @@
    "delta": 12.0,
    "corner": "hot",
    "r_leak_ohm": 965.5,
-   "T_c_steady": 388.0,
-   "T_c_drift_last_100s": -0.01,
-   "T_c_max": 388.4,
-   "t_T_c_over_300_s": 367.6,
-   "suspects": 0,
-   "first_suspect_s": null,
+   "T_c_steady": 367.4,
+   "T_c_drift_last_100s": -0.0,
+   "T_c_max": 367.4,
+   "t_T_c_over_300_s": 369.9,
+   "suspects": 1,
+   "first_suspect_s": 362.9,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 409.0,
-    "T_c": 344.8,
+    "t_s": 417.6,
+    "T_c": 343.7,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 387.1,
-    "T_c": 314.6,
+    "t_s": 391.1,
+    "T_c": 302.5,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 418.4,
-    "T_c": 358.1,
+    "t_s": 427.1,
+    "T_c": 357.8,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 409.0,
-    "T_c": 344.8,
+    "t_s": 417.6,
+    "T_c": 343.7,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -9800,35 +9792,31 @@
    "r_leak_ohm": 1293.2,
    "T_c_steady": 346.2,
    "T_c_drift_last_100s": -0.0,
-   "T_c_max": 346.5,
-   "t_T_c_over_300_s": 404.7,
+   "T_c_max": 346.6,
+   "t_T_c_over_300_s": 398.7,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 451.5,
-    "T_c": 334.2,
+    "t_s": 436.8,
+    "T_c": 340.2,
     "glass": 279.4
    },
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 203.3,
-    "glass": 170.3
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 431.0,
-    "T_c": 330.0,
-    "glass": 262.3
+    "t_s": 416.7,
+    "T_c": 323.8,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 465.1,
-    "T_c": 335.0,
+    "t_s": 448.3,
+    "T_c": 342.2,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 451.5,
-    "T_c": 334.2,
+    "t_s": 436.8,
+    "T_c": 340.2,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -9841,35 +9829,31 @@
    "r_leak_ohm": 1732.1,
    "T_c_steady": 318.5,
    "T_c_drift_last_100s": -0.0,
-   "T_c_max": 318.7,
-   "t_T_c_over_300_s": 421.3,
+   "T_c_max": 318.8,
+   "t_T_c_over_300_s": 416.4,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 486.4,
-    "T_c": 316.2,
+    "t_s": 470.8,
+    "T_c": 317.8,
     "glass": 279.3
    },
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 203.3,
-    "glass": 170.3
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 452.6,
-    "T_c": 311.1,
+    "t_s": 440.5,
+    "T_c": 315.7,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 511.4,
-    "T_c": 317.6,
+    "t_s": 494.6,
+    "T_c": 318.4,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 486.4,
-    "T_c": 316.2,
+    "t_s": 470.8,
+    "T_c": 317.8,
     "glass": 279.3
    },
    "latched_before_300": false
@@ -9880,33 +9864,29 @@
    "delta": 12.0,
    "corner": "hot",
    "r_leak_ohm": 2319.9,
-   "T_c_steady": 148.1,
-   "T_c_drift_last_100s": -2.58,
-   "T_c_max": 300.1,
-   "t_T_c_over_300_s": 530.0,
+   "T_c_steady": 299.4,
+   "T_c_drift_last_100s": 0.0,
+   "T_c_max": 300.3,
+   "t_T_c_over_300_s": 489.4,
    "suspects": 1,
-   "first_suspect_s": 537.5,
+   "first_suspect_s": 505.6,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 547.6,
-    "T_c": 299.1,
+    "t_s": 538.9,
+    "T_c": 293.9,
     "glass": 279.2
    },
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 203.3,
-    "glass": 170.3
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 481.2,
-    "T_c": 297.5,
+    "t_s": 468.3,
+    "T_c": 299.1,
     "glass": 262.3
    },
    "glass_cr5_top": null,
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 547.6,
-    "T_c": 299.1,
+    "t_s": 538.9,
+    "T_c": 293.9,
     "glass": 279.2
    },
    "latched_before_300": false
@@ -9917,34 +9897,30 @@
    "delta": 12.0,
    "corner": "hot",
    "r_leak_ohm": 3107.2,
-   "T_c_steady": 279.0,
-   "T_c_drift_last_100s": -0.15,
+   "T_c_steady": 277.6,
+   "T_c_drift_last_100s": 0.27,
    "T_c_max": 286.6,
    "t_T_c_over_300_s": null,
-   "suspects": 24,
-   "first_suspect_s": 585.4,
+   "suspects": 23,
+   "first_suspect_s": 560.9,
    "leak_latch": {
-    "t_s": 651.6,
-    "T_c": 277.9,
-    "glass": 268.8
+    "t_s": 628.8,
+    "T_c": 276.1,
+    "glass": 268.2
    },
    "rim_fault": null,
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 203.3,
-    "glass": 170.3
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 537.0,
-    "T_c": 286.1,
+    "t_s": 512.5,
+    "T_c": 285.8,
     "glass": 262.3
    },
    "glass_cr5_top": null,
    "first_latch": {
     "rule": "leak",
-    "t_s": 651.6,
-    "T_c": 277.9,
-    "glass": 268.8
+    "t_s": 628.8,
+    "T_c": 276.1,
+    "glass": 268.2
    },
    "latched_before_300": true
   },
@@ -9955,20 +9931,16 @@
    "corner": "hot",
    "r_leak_ohm": 4161.8,
    "T_c_steady": 276.8,
-   "T_c_drift_last_100s": 0.01,
+   "T_c_drift_last_100s": -0.0,
    "T_c_max": 276.9,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": null,
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 203.3,
-    "glass": 170.3
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 643.2,
+    "t_s": 604.8,
     "T_c": 276.9,
     "glass": 262.3
    },
@@ -9982,19 +9954,15 @@
    "delta": 12.0,
    "corner": "hot",
    "r_leak_ohm": 5574.3,
-   "T_c_steady": 146.3,
-   "T_c_drift_last_100s": 1.58,
-   "T_c_max": 204.9,
+   "T_c_steady": 269.7,
+   "T_c_drift_last_100s": -0.0,
+   "T_c_max": 269.8,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": null,
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 203.3,
-    "glass": 170.3
-   },
+   "d1_lost": null,
    "glass_cr5_low": null,
    "glass_cr5_top": null,
    "first_latch": null,
@@ -10006,19 +9974,15 @@
    "delta": 12.0,
    "corner": "hot",
    "r_leak_ohm": 7466.1,
-   "T_c_steady": 146.3,
-   "T_c_drift_last_100s": 1.58,
-   "T_c_max": 204.9,
+   "T_c_steady": 264.6,
+   "T_c_drift_last_100s": -0.0,
+   "T_c_max": 264.7,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": null,
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 203.3,
-    "glass": 170.3
-   },
+   "d1_lost": null,
    "glass_cr5_low": null,
    "glass_cr5_top": null,
    "first_latch": null,
@@ -10030,19 +9994,15 @@
    "delta": 12.0,
    "corner": "hot",
    "r_leak_ohm": 10000.0,
-   "T_c_steady": 146.3,
-   "T_c_drift_last_100s": 1.58,
-   "T_c_max": 204.9,
+   "T_c_steady": 260.8,
+   "T_c_drift_last_100s": -0.0,
+   "T_c_max": 260.9,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": null,
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 203.3,
-    "glass": 170.3
-   },
+   "d1_lost": null,
    "glass_cr5_low": null,
    "glass_cr5_top": null,
    "first_latch": null,
@@ -10057,35 +10017,35 @@
    "T_c_steady": 546.5,
    "T_c_drift_last_100s": 0.0,
    "T_c_max": 546.5,
-   "t_T_c_over_300_s": 325.4,
+   "t_T_c_over_300_s": 328.3,
    "suspects": 2,
-   "first_suspect_s": 304.8,
+   "first_suspect_s": 303.7,
    "leak_latch": {
-    "t_s": 370.8,
-    "T_c": 363.2,
-    "glass": 272.9
+    "t_s": 369.7,
+    "T_c": 360.8,
+    "glass": 270.1
    },
    "rim_fault": {
-    "t_s": 376.0,
-    "T_c": 364.6,
-    "glass": 279.4
+    "t_s": 377.2,
+    "T_c": 363.2,
+    "glass": 279.5
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 363.0,
-    "T_c": 357.0,
+    "t_s": 364.0,
+    "T_c": 356.5,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 383.4,
+    "t_s": 384.7,
     "T_c": 368.4,
-    "glass": 288.1
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "leak",
-    "t_s": 370.8,
-    "T_c": 363.2,
-    "glass": 272.9
+    "t_s": 369.7,
+    "T_c": 360.8,
+    "glass": 270.1
    },
    "latched_before_300": false
   },
@@ -10098,30 +10058,30 @@
    "T_c_steady": 546.5,
    "T_c_drift_last_100s": 0.0,
    "T_c_max": 546.5,
-   "t_T_c_over_300_s": 318.9,
+   "t_T_c_over_300_s": 319.1,
    "suspects": 1,
-   "first_suspect_s": 345.9,
+   "first_suspect_s": 344.2,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 363.0,
-    "T_c": 389.8,
+    "t_s": 363.6,
+    "T_c": 387.2,
     "glass": 279.6
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 353.0,
-    "T_c": 381.3,
+    "t_s": 353.4,
+    "T_c": 380.2,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 368.4,
-    "T_c": 390.6,
-    "glass": 288.1
+    "t_s": 369.2,
+    "T_c": 387.8,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 363.0,
-    "T_c": 389.8,
+    "t_s": 363.6,
+    "T_c": 387.2,
     "glass": 279.6
    },
    "latched_before_300": false
@@ -10135,35 +10095,31 @@
    "T_c_steady": 504.4,
    "T_c_drift_last_100s": -0.01,
    "T_c_max": 504.5,
-   "t_T_c_over_300_s": 360.3,
-   "suspects": 0,
-   "first_suspect_s": null,
+   "t_T_c_over_300_s": 329.6,
+   "suspects": 1,
+   "first_suspect_s": 345.5,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 403.0,
-    "T_c": 400.4,
-    "glass": 279.7
+    "t_s": 380.5,
+    "T_c": 357.8,
+    "glass": 279.4
    },
-   "d1_lost": {
-    "t_s": 270.6,
-    "T_c": 202.8,
-    "glass": 170.6
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 393.4,
-    "T_c": 381.7,
-    "glass": 262.4
+    "t_s": 365.6,
+    "T_c": 348.6,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 407.7,
-    "T_c": 408.8,
-    "glass": 288.2
+    "t_s": 388.3,
+    "T_c": 368.0,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 403.0,
-    "T_c": 400.4,
-    "glass": 279.7
+    "t_s": 380.5,
+    "T_c": 357.8,
+    "glass": 279.4
    },
    "latched_before_300": false
   },
@@ -10176,34 +10132,34 @@
    "T_c_steady": 421.6,
    "T_c_drift_last_100s": -0.0,
    "T_c_max": 421.7,
-   "t_T_c_over_300_s": 361.4,
+   "t_T_c_over_300_s": 361.3,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 408.7,
-    "T_c": 381.4,
+    "t_s": 409.0,
+    "T_c": 381.8,
     "glass": 279.6
    },
    "d1_lost": {
-    "t_s": 270.9,
-    "T_c": 202.5,
-    "glass": 170.6
+    "t_s": 269.9,
+    "T_c": 200.3,
+    "glass": 170.0
    },
    "glass_cr5_low": {
-    "t_s": 397.2,
-    "T_c": 364.8,
-    "glass": 262.3
+    "t_s": 397.6,
+    "T_c": 365.3,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 414.4,
-    "T_c": 389.9,
+    "t_s": 414.7,
+    "T_c": 390.3,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 408.7,
-    "T_c": 381.4,
+    "t_s": 409.0,
+    "T_c": 381.8,
     "glass": 279.6
    },
    "latched_before_300": false
@@ -10217,34 +10173,34 @@
    "T_c_steady": 367.4,
    "T_c_drift_last_100s": -0.0,
    "T_c_max": 367.4,
-   "t_T_c_over_300_s": 381.2,
+   "t_T_c_over_300_s": 381.3,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 429.4,
-    "T_c": 360.2,
+    "t_s": 429.6,
+    "T_c": 360.4,
     "glass": 279.4
    },
    "d1_lost": {
-    "t_s": 271.3,
-    "T_c": 202.4,
-    "glass": 170.7
+    "t_s": 270.2,
+    "T_c": 200.5,
+    "glass": 170.1
    },
    "glass_cr5_low": {
-    "t_s": 414.6,
-    "T_c": 342.8,
-    "glass": 262.3
+    "t_s": 414.9,
+    "T_c": 343.2,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 437.2,
-    "T_c": 364.9,
+    "t_s": 437.4,
+    "T_c": 365.0,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 429.4,
-    "T_c": 360.2,
+    "t_s": 429.6,
+    "T_c": 360.4,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -10899,30 +10855,30 @@
    "T_c_steady": 546.5,
    "T_c_drift_last_100s": 0.0,
    "T_c_max": 546.5,
-   "t_T_c_over_300_s": 318.0,
+   "t_T_c_over_300_s": 317.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 374.0,
-    "T_c": 422.2,
+    "T_c": 422.4,
     "glass": 302.3
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 352.0,
-    "T_c": 382.7,
+    "t_s": 352.1,
+    "T_c": 383.2,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 366.2,
-    "T_c": 409.4,
-    "glass": 288.2
+    "t_s": 366.3,
+    "T_c": 409.8,
+    "glass": 288.3
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 374.0,
-    "T_c": 422.2,
+    "T_c": 422.4,
     "glass": 302.3
    },
    "latched_before_300": false
@@ -10936,30 +10892,30 @@
    "T_c_steady": 546.5,
    "T_c_drift_last_100s": 0.0,
    "T_c_max": 546.5,
-   "t_T_c_over_300_s": 318.0,
+   "t_T_c_over_300_s": 317.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 374.0,
-    "T_c": 422.2,
+    "T_c": 422.4,
     "glass": 302.3
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 352.0,
-    "T_c": 382.7,
+    "t_s": 352.1,
+    "T_c": 383.2,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 366.2,
-    "T_c": 409.4,
-    "glass": 288.2
+    "t_s": 366.3,
+    "T_c": 409.8,
+    "glass": 288.3
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 374.0,
-    "T_c": 422.2,
+    "T_c": 422.4,
     "glass": 302.3
    },
    "latched_before_300": false
@@ -10973,31 +10929,31 @@
    "T_c_steady": 504.5,
    "T_c_drift_last_100s": -0.04,
    "T_c_max": 504.5,
-   "t_T_c_over_300_s": 318.0,
+   "t_T_c_over_300_s": 317.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 375.8,
-    "T_c": 405.6,
-    "glass": 302.2
+    "t_s": 375.9,
+    "T_c": 405.7,
+    "glass": 302.3
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 352.1,
-    "T_c": 381.4,
+    "t_s": 352.2,
+    "T_c": 381.8,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 366.9,
-    "T_c": 399.2,
-    "glass": 288.1
+    "t_s": 367.0,
+    "T_c": 399.3,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 375.8,
-    "T_c": 405.6,
-    "glass": 302.2
+    "t_s": 375.9,
+    "T_c": 405.7,
+    "glass": 302.3
    },
    "latched_before_300": false
   },
@@ -11010,30 +10966,30 @@
    "T_c_steady": 421.6,
    "T_c_drift_last_100s": -0.03,
    "T_c_max": 421.7,
-   "t_T_c_over_300_s": 318.1,
+   "t_T_c_over_300_s": 318.0,
    "suspects": 1,
-   "first_suspect_s": 372.6,
+   "first_suspect_s": 372.8,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 412.2,
-    "T_c": 352.4,
+    "t_s": 412.3,
+    "T_c": 352.5,
     "glass": 302.0
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 359.0,
+    "t_s": 359.3,
     "T_c": 338.8,
-    "glass": 262.3
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 389.1,
-    "T_c": 341.0,
+    "t_s": 389.3,
+    "T_c": 341.2,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 412.2,
-    "T_c": 352.4,
+    "t_s": 412.3,
+    "T_c": 352.5,
     "glass": 302.0
    },
    "latched_before_300": false
@@ -11052,24 +11008,24 @@
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 432.7,
+    "t_s": 432.8,
     "T_c": 372.7,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 387.4,
-    "T_c": 314.7,
-    "glass": 262.4
+    "t_s": 387.7,
+    "T_c": 315.0,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 418.6,
-    "T_c": 358.4,
+    "t_s": 418.7,
+    "T_c": 358.5,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 432.7,
+    "t_s": 432.8,
     "T_c": 372.7,
     "glass": 302.1
    },
@@ -11083,35 +11039,31 @@
    "r_leak_ohm": 1293.2,
    "T_c_steady": 346.2,
    "T_c_drift_last_100s": -0.03,
-   "T_c_max": 346.5,
-   "t_T_c_over_300_s": 404.8,
+   "T_c_max": 346.6,
+   "t_T_c_over_300_s": 398.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 491.9,
-    "T_c": 341.7,
+    "t_s": 471.8,
+    "T_c": 344.4,
     "glass": 302.0
    },
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 203.2,
-    "glass": 170.3
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 431.1,
-    "T_c": 329.9,
+    "t_s": 416.9,
+    "T_c": 323.8,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 465.2,
-    "T_c": 335.5,
+    "t_s": 448.6,
+    "T_c": 342.3,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 491.9,
-    "T_c": 341.7,
+    "t_s": 471.8,
+    "T_c": 344.4,
     "glass": 302.0
    },
    "latched_before_300": false
@@ -11124,40 +11076,36 @@
    "r_leak_ohm": 1732.1,
    "T_c_steady": 318.5,
    "T_c_drift_last_100s": -0.02,
-   "T_c_max": 318.9,
-   "t_T_c_over_300_s": 421.6,
+   "T_c_max": 319.3,
+   "t_T_c_over_300_s": 416.5,
    "suspects": 2,
-   "first_suspect_s": 533.9,
+   "first_suspect_s": 519.8,
    "leak_latch": {
-    "t_s": 599.9,
+    "t_s": 585.8,
     "T_c": 307.3,
-    "glass": 297.4
+    "glass": 297.7
    },
    "rim_fault": {
-    "t_s": 715.6,
+    "t_s": 700.9,
     "T_c": 318.3,
     "glass": 301.9
    },
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 203.2,
-    "glass": 170.3
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 453.0,
-    "T_c": 310.9,
+    "t_s": 440.8,
+    "T_c": 315.5,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 511.9,
-    "T_c": 318.1,
+    "t_s": 495.0,
+    "T_c": 318.9,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "leak",
-    "t_s": 599.9,
+    "t_s": 585.8,
     "T_c": 307.3,
-    "glass": 297.4
+    "glass": 297.7
    },
    "latched_before_300": false
   },
@@ -11167,36 +11115,32 @@
    "delta": 12.0,
    "corner": "cold",
    "r_leak_ohm": 2319.9,
-   "T_c_steady": 292.0,
-   "T_c_drift_last_100s": -1.67,
-   "T_c_max": 300.0,
-   "t_T_c_over_300_s": null,
+   "T_c_steady": 299.7,
+   "T_c_drift_last_100s": -0.29,
+   "T_c_max": 300.1,
+   "t_T_c_over_300_s": 512.2,
    "suspects": 9,
-   "first_suspect_s": 715.2,
+   "first_suspect_s": 686.3,
    "leak_latch": {
-    "t_s": 782.8,
-    "T_c": 290.4,
-    "glass": 283.2
+    "t_s": 753.0,
+    "T_c": 290.3,
+    "glass": 283.3
    },
    "rim_fault": null,
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 203.2,
-    "glass": 170.3
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 498.2,
-    "T_c": 296.8,
+    "t_s": 468.8,
+    "T_c": 298.9,
     "glass": 262.3
    },
    "glass_cr5_top": null,
    "first_latch": {
     "rule": "leak",
-    "t_s": 782.8,
-    "T_c": 290.4,
-    "glass": 283.2
+    "t_s": 753.0,
+    "T_c": 290.3,
+    "glass": 283.3
    },
-   "latched_before_300": true
+   "latched_before_300": false
   },
   {
    "onset": "step",
@@ -11204,20 +11148,20 @@
    "delta": 12.0,
    "corner": "cold",
    "r_leak_ohm": 3107.2,
-   "T_c_steady": 146.3,
-   "T_c_drift_last_100s": 1.58,
-   "T_c_max": 204.9,
+   "T_c_steady": 286.2,
+   "T_c_drift_last_100s": -0.02,
+   "T_c_max": 286.3,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": null,
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 203.2,
-    "glass": 170.3
+   "d1_lost": null,
+   "glass_cr5_low": {
+    "t_s": 512.3,
+    "T_c": 285.8,
+    "glass": 262.3
    },
-   "glass_cr5_low": null,
    "glass_cr5_top": null,
    "first_latch": null,
    "latched_before_300": false
@@ -11228,20 +11172,20 @@
    "delta": 12.0,
    "corner": "cold",
    "r_leak_ohm": 4161.8,
-   "T_c_steady": 146.3,
-   "T_c_drift_last_100s": 1.58,
-   "T_c_max": 204.9,
+   "T_c_steady": 276.5,
+   "T_c_drift_last_100s": -0.02,
+   "T_c_max": 276.6,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": null,
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 203.2,
-    "glass": 170.3
+   "d1_lost": null,
+   "glass_cr5_low": {
+    "t_s": 609.8,
+    "T_c": 276.6,
+    "glass": 262.3
    },
-   "glass_cr5_low": null,
    "glass_cr5_top": null,
    "first_latch": null,
    "latched_before_300": false
@@ -11254,7 +11198,7 @@
    "r_leak_ohm": 5574.3,
    "T_c_steady": 269.4,
    "T_c_drift_last_100s": -0.02,
-   "T_c_max": 269.6,
+   "T_c_max": 269.5,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -11294,7 +11238,7 @@
    "r_leak_ohm": 10000.0,
    "T_c_steady": 260.5,
    "T_c_drift_last_100s": -0.02,
-   "T_c_max": 260.6,
+   "T_c_max": 260.7,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -11315,35 +11259,35 @@
    "T_c_steady": 546.5,
    "T_c_drift_last_100s": 0.0,
    "T_c_max": 546.5,
-   "t_T_c_over_300_s": 319.3,
+   "t_T_c_over_300_s": 320.3,
    "suspects": 2,
-   "first_suspect_s": 311.7,
+   "first_suspect_s": 310.9,
    "leak_latch": {
-    "t_s": 377.7,
-    "T_c": 375.0,
-    "glass": 285.7
+    "t_s": 376.9,
+    "T_c": 373.1,
+    "glass": 283.2
    },
    "rim_fault": {
-    "t_s": 391.7,
-    "T_c": 379.8,
+    "t_s": 393.0,
+    "T_c": 379.9,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 360.6,
-    "T_c": 356.4,
-    "glass": 262.3
+    "t_s": 361.7,
+    "T_c": 357.7,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 379.7,
-    "T_c": 375.4,
+    "t_s": 380.8,
+    "T_c": 373.8,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "leak",
-    "t_s": 377.7,
-    "T_c": 375.0,
-    "glass": 285.7
+    "t_s": 376.9,
+    "T_c": 373.1,
+    "glass": 283.2
    },
    "latched_before_300": false
   },
@@ -11356,31 +11300,31 @@
    "T_c_steady": 546.5,
    "T_c_drift_last_100s": 0.0,
    "T_c_max": 546.5,
-   "t_T_c_over_300_s": 318.9,
+   "t_T_c_over_300_s": 319.4,
    "suspects": 1,
-   "first_suspect_s": 348.0,
+   "first_suspect_s": 347.2,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 377.7,
-    "T_c": 395.6,
-    "glass": 302.2
+    "t_s": 378.6,
+    "T_c": 394.7,
+    "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 353.0,
-    "T_c": 382.3,
-    "glass": 262.4
+    "t_s": 353.6,
+    "T_c": 382.2,
+    "glass": 262.5
    },
    "glass_cr5_top": {
-    "t_s": 368.1,
-    "T_c": 394.2,
-    "glass": 288.2
+    "t_s": 368.8,
+    "T_c": 392.2,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 377.7,
-    "T_c": 395.6,
-    "glass": 302.2
+    "t_s": 378.6,
+    "T_c": 394.7,
+    "glass": 302.1
    },
    "latched_before_300": false
   },
@@ -11393,35 +11337,35 @@
    "T_c_steady": 504.5,
    "T_c_drift_last_100s": -0.04,
    "T_c_max": 504.5,
-   "t_T_c_over_300_s": 360.3,
+   "t_T_c_over_300_s": 360.4,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 415.5,
-    "T_c": 421.7,
-    "glass": 302.2
+    "t_s": 415.9,
+    "T_c": 422.1,
+    "glass": 302.3
    },
    "d1_lost": {
-    "t_s": 270.6,
-    "T_c": 202.7,
-    "glass": 170.5
+    "t_s": 269.9,
+    "T_c": 200.5,
+    "glass": 170.0
    },
    "glass_cr5_low": {
-    "t_s": 393.4,
-    "T_c": 381.6,
+    "t_s": 393.9,
+    "T_c": 382.5,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 407.7,
-    "T_c": 408.8,
-    "glass": 288.2
+    "t_s": 408.1,
+    "T_c": 409.3,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 415.5,
-    "T_c": 421.7,
-    "glass": 302.2
+    "t_s": 415.9,
+    "T_c": 422.1,
+    "glass": 302.3
    },
    "latched_before_300": false
   },
@@ -11434,34 +11378,34 @@
    "T_c_steady": 421.6,
    "T_c_drift_last_100s": -0.03,
    "T_c_max": 421.7,
-   "t_T_c_over_300_s": 361.5,
+   "t_T_c_over_300_s": 361.8,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 424.0,
-    "T_c": 403.4,
+    "t_s": 424.4,
+    "T_c": 403.9,
     "glass": 302.2
    },
    "d1_lost": {
-    "t_s": 270.9,
-    "T_c": 202.4,
-    "glass": 170.6
+    "t_s": 270.5,
+    "T_c": 200.5,
+    "glass": 170.2
    },
    "glass_cr5_low": {
-    "t_s": 397.3,
-    "T_c": 364.6,
+    "t_s": 397.9,
+    "T_c": 365.4,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 414.6,
-    "T_c": 389.9,
-    "glass": 288.2
+    "t_s": 415.0,
+    "T_c": 390.5,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 424.0,
-    "T_c": 403.4,
+    "t_s": 424.4,
+    "T_c": 403.9,
     "glass": 302.2
    },
    "latched_before_300": false
@@ -11472,33 +11416,37 @@
    "delta": 12.0,
    "corner": "cold",
    "r_leak_ohm": 965.5,
-   "T_c_steady": 388.0,
-   "T_c_drift_last_100s": -0.04,
-   "T_c_max": 390.8,
-   "t_T_c_over_300_s": 366.3,
+   "T_c_steady": 367.4,
+   "T_c_drift_last_100s": -0.03,
+   "T_c_max": 367.5,
+   "t_T_c_over_300_s": 381.4,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 429.5,
-    "T_c": 382.1,
+    "t_s": 451.9,
+    "T_c": 367.5,
     "glass": 302.1
    },
-   "d1_lost": null,
+   "d1_lost": {
+    "t_s": 271.2,
+    "T_c": 200.6,
+    "glass": 170.4
+   },
    "glass_cr5_low": {
-    "t_s": 393.7,
-    "T_c": 336.8,
+    "t_s": 415.3,
+    "T_c": 343.4,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 417.3,
-    "T_c": 368.5,
-    "glass": 288.1
+    "t_s": 437.8,
+    "T_c": 364.9,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 429.5,
-    "T_c": 382.1,
+    "t_s": 451.9,
+    "T_c": 367.5,
     "glass": 302.1
    },
    "latched_before_300": false
@@ -12132,33 +12080,33 @@
    "delta": 46.0,
    "corner": "hot",
    "r_leak_ohm": 300.0,
-   "T_c_steady": 542.2,
-   "T_c_drift_last_100s": 0.0,
-   "T_c_max": 542.2,
-   "t_T_c_over_300_s": 319.1,
+   "T_c_steady": 439.1,
+   "T_c_drift_last_100s": 64.05,
+   "T_c_max": 503.3,
+   "t_T_c_over_300_s": 319.0,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 382.0,
-    "T_c": 429.5,
+    "T_c": 429.7,
     "glass": 279.6
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 372.2,
-    "T_c": 415.0,
-    "glass": 262.4
+    "T_c": 415.2,
+    "glass": 262.3
    },
    "glass_cr5_top": {
     "t_s": 387.0,
-    "T_c": 436.3,
+    "T_c": 436.5,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 382.0,
-    "T_c": 429.5,
+    "T_c": 429.7,
     "glass": 279.6
    },
    "latched_before_300": false
@@ -12172,30 +12120,30 @@
    "T_c_steady": 542.2,
    "T_c_drift_last_100s": 0.0,
    "T_c_max": 542.2,
-   "t_T_c_over_300_s": 319.1,
+   "t_T_c_over_300_s": 319.0,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 382.0,
-    "T_c": 429.5,
+    "T_c": 429.7,
     "glass": 279.6
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 372.2,
-    "T_c": 415.0,
-    "glass": 262.4
+    "t_s": 372.3,
+    "T_c": 415.3,
+    "glass": 262.5
    },
    "glass_cr5_top": {
     "t_s": 387.0,
-    "T_c": 436.3,
+    "T_c": 436.4,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 382.0,
-    "T_c": 429.5,
+    "T_c": 429.7,
     "glass": 279.6
    },
    "latched_before_300": false
@@ -12209,30 +12157,30 @@
    "T_c_steady": 504.9,
    "T_c_drift_last_100s": 0.05,
    "T_c_max": 505.0,
-   "t_T_c_over_300_s": 319.1,
+   "t_T_c_over_300_s": 319.0,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 384.6,
-    "T_c": 413.1,
+    "t_s": 384.7,
+    "T_c": 413.2,
     "glass": 279.5
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 373.3,
-    "T_c": 402.9,
+    "t_s": 373.4,
+    "T_c": 403.0,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 390.6,
-    "T_c": 419.6,
-    "glass": 288.1
+    "t_s": 390.7,
+    "T_c": 419.7,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 384.6,
-    "T_c": 413.1,
+    "t_s": 384.7,
+    "T_c": 413.2,
     "glass": 279.5
    },
    "latched_before_300": false
@@ -12246,34 +12194,30 @@
    "T_c_steady": 421.8,
    "T_c_drift_last_100s": 0.05,
    "T_c_max": 421.8,
-   "t_T_c_over_300_s": 360.8,
+   "t_T_c_over_300_s": 319.1,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 431.8,
-    "T_c": 412.2,
+    "t_s": 415.4,
+    "T_c": 391.7,
     "glass": 279.5
    },
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 202.5,
-    "glass": 136.8
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 420.2,
-    "T_c": 398.0,
-    "glass": 262.3
+    "t_s": 398.6,
+    "T_c": 364.0,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 437.9,
-    "T_c": 416.7,
-    "glass": 288.1
+    "t_s": 423.1,
+    "T_c": 403.5,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 431.8,
-    "T_c": 412.2,
+    "t_s": 415.4,
+    "T_c": 391.7,
     "glass": 279.5
    },
    "latched_before_300": false
@@ -12284,38 +12228,34 @@
    "delta": 46.0,
    "corner": "hot",
    "r_leak_ohm": 965.5,
-   "T_c_steady": 367.4,
-   "T_c_drift_last_100s": 0.04,
-   "T_c_max": 367.4,
-   "t_T_c_over_300_s": 380.0,
+   "T_c_steady": 388.2,
+   "T_c_drift_last_100s": 0.05,
+   "T_c_max": 388.6,
+   "t_T_c_over_300_s": 370.1,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 464.8,
-    "T_c": 367.2,
-    "glass": 279.4
+    "t_s": 445.4,
+    "T_c": 377.0,
+    "glass": 279.3
    },
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 202.5,
-    "glass": 136.8
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 444.3,
-    "T_c": 366.9,
-    "glass": 262.3
+    "t_s": 427.5,
+    "T_c": 368.5,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 479.0,
-    "T_c": 366.6,
+    "t_s": 456.4,
+    "T_c": 378.1,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 464.8,
-    "T_c": 367.2,
-    "glass": 279.4
+    "t_s": 445.4,
+    "T_c": 377.0,
+    "glass": 279.3
    },
    "latched_before_300": false
   },
@@ -12327,36 +12267,32 @@
    "r_leak_ohm": 1293.2,
    "T_c_steady": 346.4,
    "T_c_drift_last_100s": 0.05,
-   "T_c_max": 346.5,
-   "t_T_c_over_300_s": 406.4,
-   "suspects": 1,
-   "first_suspect_s": 518.4,
+   "T_c_max": 346.8,
+   "t_T_c_over_300_s": 398.8,
+   "suspects": 0,
+   "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 594.6,
-    "T_c": 332.2,
-    "glass": 279.2
+    "t_s": 498.4,
+    "T_c": 346.6,
+    "glass": 279.3
    },
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 202.5,
-    "glass": 136.8
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 505.0,
-    "T_c": 331.0,
+    "t_s": 461.6,
+    "T_c": 343.4,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 712.7,
-    "T_c": 341.7,
+    "t_s": 530.4,
+    "T_c": 346.5,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 594.6,
-    "T_c": 332.2,
-    "glass": 279.2
+    "t_s": 498.4,
+    "T_c": 346.6,
+    "glass": 279.3
    },
    "latched_before_300": false
   },
@@ -12366,22 +12302,31 @@
    "delta": 46.0,
    "corner": "hot",
    "r_leak_ohm": 1732.1,
-   "T_c_steady": 131.9,
-   "T_c_drift_last_100s": 1.54,
-   "T_c_max": 203.8,
-   "t_T_c_over_300_s": null,
-   "suspects": 0,
-   "first_suspect_s": null,
-   "leak_latch": null,
-   "rim_fault": null,
-   "d1_lost": {
-    "t_s": 269.5,
-    "T_c": 202.5,
-    "glass": 136.8
+   "T_c_steady": 313.5,
+   "T_c_drift_last_100s": 12.32,
+   "T_c_max": 319.5,
+   "t_T_c_over_300_s": 416.5,
+   "suspects": 13,
+   "first_suspect_s": 582.7,
+   "leak_latch": {
+    "t_s": 648.7,
+    "T_c": 307.2,
+    "glass": 266.4
    },
-   "glass_cr5_low": null,
+   "rim_fault": null,
+   "d1_lost": null,
+   "glass_cr5_low": {
+    "t_s": 528.8,
+    "T_c": 319.4,
+    "glass": 262.3
+   },
    "glass_cr5_top": null,
-   "first_latch": null,
+   "first_latch": {
+    "rule": "leak",
+    "t_s": 648.7,
+    "T_c": 307.2,
+    "glass": 266.4
+   },
    "latched_before_300": false
   },
   {
@@ -12412,7 +12357,7 @@
    "r_leak_ohm": 3107.2,
    "T_c_steady": 286.1,
    "T_c_drift_last_100s": 0.04,
-   "T_c_max": 286.3,
+   "T_c_max": 286.4,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -12513,35 +12458,31 @@
    "T_c_steady": 542.2,
    "T_c_drift_last_100s": 0.0,
    "T_c_max": 542.2,
-   "t_T_c_over_300_s": 376.9,
+   "t_T_c_over_300_s": 320.6,
    "suspects": 1,
-   "first_suspect_s": 338.2,
+   "first_suspect_s": 334.5,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 439.5,
-    "T_c": 422.8,
-    "glass": 279.6
+    "t_s": 394.2,
+    "T_c": 405.5,
+    "glass": 279.5
    },
-   "d1_lost": {
-    "t_s": 270.2,
-    "T_c": 202.7,
-    "glass": 137.0
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 428.9,
-    "T_c": 405.8,
-    "glass": 262.4
+    "t_s": 381.2,
+    "T_c": 386.4,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 444.8,
-    "T_c": 430.5,
+    "t_s": 400.7,
+    "T_c": 415.2,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 439.5,
-    "T_c": 422.8,
-    "glass": 279.6
+    "t_s": 394.2,
+    "T_c": 405.5,
+    "glass": 279.5
    },
    "latched_before_300": false
   },
@@ -12554,34 +12495,34 @@
    "T_c_steady": 542.2,
    "T_c_drift_last_100s": 0.0,
    "T_c_max": 542.2,
-   "t_T_c_over_300_s": 361.5,
-   "suspects": 0,
-   "first_suspect_s": null,
+   "t_T_c_over_300_s": 393.2,
+   "suspects": 1,
+   "first_suspect_s": 338.0,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 423.8,
-    "T_c": 429.4,
+    "t_s": 453.7,
+    "T_c": 425.1,
     "glass": 279.6
    },
    "d1_lost": {
-    "t_s": 270.4,
-    "T_c": 202.5,
-    "glass": 137.0
+    "t_s": 270.0,
+    "T_c": 199.8,
+    "glass": 136.6
    },
    "glass_cr5_low": {
-    "t_s": 414.0,
-    "T_c": 414.7,
+    "t_s": 443.4,
+    "T_c": 408.9,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 428.8,
-    "T_c": 436.2,
+    "t_s": 458.9,
+    "T_c": 432.5,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 423.8,
-    "T_c": 429.4,
+    "t_s": 453.7,
+    "T_c": 425.1,
     "glass": 279.6
    },
    "latched_before_300": false
@@ -12595,35 +12536,35 @@
    "T_c_steady": 504.9,
    "T_c_drift_last_100s": 0.05,
    "T_c_max": 505.0,
-   "t_T_c_over_300_s": 361.9,
+   "t_T_c_over_300_s": 362.7,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 424.2,
-    "T_c": 429.4,
-    "glass": 279.6
+    "t_s": 425.2,
+    "T_c": 429.7,
+    "glass": 279.5
    },
    "d1_lost": {
-    "t_s": 270.6,
-    "T_c": 202.2,
-    "glass": 137.1
+    "t_s": 270.5,
+    "T_c": 199.7,
+    "glass": 136.7
    },
    "glass_cr5_low": {
-    "t_s": 414.4,
-    "T_c": 414.8,
-    "glass": 262.4
+    "t_s": 415.5,
+    "T_c": 415.3,
+    "glass": 262.5
    },
    "glass_cr5_top": {
-    "t_s": 429.2,
-    "T_c": 436.2,
-    "glass": 288.2
+    "t_s": 430.2,
+    "T_c": 436.5,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 424.2,
-    "T_c": 429.4,
-    "glass": 279.6
+    "t_s": 425.2,
+    "T_c": 429.7,
+    "glass": 279.5
    },
    "latched_before_300": false
   },
@@ -12636,34 +12577,34 @@
    "T_c_steady": 421.8,
    "T_c_drift_last_100s": 0.05,
    "T_c_max": 421.8,
-   "t_T_c_over_300_s": 362.7,
+   "t_T_c_over_300_s": 363.8,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 432.3,
-    "T_c": 412.6,
+    "t_s": 433.0,
+    "T_c": 413.1,
     "glass": 279.6
    },
    "d1_lost": {
-    "t_s": 270.9,
-    "T_c": 201.9,
-    "glass": 137.1
+    "t_s": 271.2,
+    "T_c": 199.7,
+    "glass": 136.9
    },
    "glass_cr5_low": {
-    "t_s": 420.7,
-    "T_c": 399.1,
-    "glass": 262.3
+    "t_s": 421.6,
+    "T_c": 400.3,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 438.3,
-    "T_c": 416.8,
+    "t_s": 439.0,
+    "T_c": 417.1,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 432.3,
-    "T_c": 412.6,
+    "t_s": 433.0,
+    "T_c": 413.1,
     "glass": 279.6
    },
    "latched_before_300": false
@@ -12677,33 +12618,33 @@
    "T_c_steady": 367.4,
    "T_c_drift_last_100s": 0.04,
    "T_c_max": 367.4,
-   "t_T_c_over_300_s": 403.1,
+   "t_T_c_over_300_s": 405.0,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 487.4,
+    "t_s": 489.7,
     "T_c": 366.6,
     "glass": 279.4
    },
    "d1_lost": {
-    "t_s": 271.2,
-    "T_c": 201.7,
+    "t_s": 272.5,
+    "T_c": 199.7,
     "glass": 137.2
    },
    "glass_cr5_low": {
-    "t_s": 466.5,
+    "t_s": 468.8,
     "T_c": 366.0,
-    "glass": 262.3
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 501.7,
+    "t_s": 504.0,
     "T_c": 366.6,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 487.4,
+    "t_s": 489.7,
     "T_c": 366.6,
     "glass": 279.4
    },
@@ -12717,32 +12658,36 @@
    "r_leak_ohm": 1293.2,
    "T_c_steady": 346.4,
    "T_c_drift_last_100s": 0.05,
-   "T_c_max": 349.0,
-   "t_T_c_over_300_s": 392.6,
-   "suspects": 0,
-   "first_suspect_s": null,
+   "T_c_max": 346.5,
+   "t_T_c_over_300_s": 409.5,
+   "suspects": 1,
+   "first_suspect_s": 522.8,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 489.6,
-    "T_c": 348.6,
-    "glass": 279.3
+    "t_s": 599.4,
+    "T_c": 332.2,
+    "glass": 279.2
    },
-   "d1_lost": null,
+   "d1_lost": {
+    "t_s": 274.9,
+    "T_c": 199.4,
+    "glass": 137.8
+   },
    "glass_cr5_low": {
-    "t_s": 457.0,
-    "T_c": 349.0,
+    "t_s": 510.0,
+    "T_c": 331.0,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 519.2,
-    "T_c": 347.3,
+    "t_s": 737.9,
+    "T_c": 341.3,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 489.6,
-    "T_c": 348.6,
-    "glass": 279.3
+    "t_s": 599.4,
+    "T_c": 332.2,
+    "glass": 279.2
    },
    "latched_before_300": false
   },
@@ -13284,33 +13229,33 @@
    "delta": 46.0,
    "corner": "cold",
    "r_leak_ohm": 300.0,
-   "T_c_steady": 542.2,
-   "T_c_drift_last_100s": 0.0,
-   "T_c_max": 542.2,
-   "t_T_c_over_300_s": 319.1,
+   "T_c_steady": 437.0,
+   "T_c_drift_last_100s": 64.88,
+   "T_c_max": 503.7,
+   "t_T_c_over_300_s": 319.0,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 395.4,
-    "T_c": 446.7,
+    "T_c": 446.9,
     "glass": 302.2
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 372.2,
-    "T_c": 414.9,
-    "glass": 262.4
+    "T_c": 415.2,
+    "glass": 262.3
    },
    "glass_cr5_top": {
     "t_s": 387.0,
-    "T_c": 436.3,
+    "T_c": 436.4,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 395.4,
-    "T_c": 446.7,
+    "T_c": 446.9,
     "glass": 302.2
    },
    "latched_before_300": false
@@ -13324,30 +13269,30 @@
    "T_c_steady": 542.2,
    "T_c_drift_last_100s": 0.0,
    "T_c_max": 542.2,
-   "t_T_c_over_300_s": 319.1,
+   "t_T_c_over_300_s": 319.0,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 395.4,
-    "T_c": 446.7,
+    "T_c": 446.9,
     "glass": 302.2
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 372.2,
-    "T_c": 414.9,
-    "glass": 262.4
+    "T_c": 415.2,
+    "glass": 262.3
    },
    "glass_cr5_top": {
     "t_s": 387.0,
-    "T_c": 436.3,
+    "T_c": 436.4,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 395.4,
-    "T_c": 446.7,
+    "T_c": 446.9,
     "glass": 302.2
    },
    "latched_before_300": false
@@ -13361,31 +13306,31 @@
    "T_c_steady": 505.0,
    "T_c_drift_last_100s": 0.01,
    "T_c_max": 505.1,
-   "t_T_c_over_300_s": 319.1,
+   "t_T_c_over_300_s": 319.0,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 400.8,
-    "T_c": 431.2,
-    "glass": 302.3
+    "T_c": 431.1,
+    "glass": 302.2
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 373.3,
-    "T_c": 402.6,
-    "glass": 262.3
+    "t_s": 373.4,
+    "T_c": 402.7,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 390.7,
-    "T_c": 419.3,
-    "glass": 288.1
+    "t_s": 390.8,
+    "T_c": 419.4,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 400.8,
-    "T_c": 431.2,
-    "glass": 302.3
+    "T_c": 431.1,
+    "glass": 302.2
    },
    "latched_before_300": false
   },
@@ -13398,34 +13343,30 @@
    "T_c_steady": 421.8,
    "T_c_drift_last_100s": 0.01,
    "T_c_max": 421.9,
-   "t_T_c_over_300_s": 360.8,
+   "t_T_c_over_300_s": 319.1,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 448.9,
-    "T_c": 420.5,
+    "t_s": 435.3,
+    "T_c": 416.2,
     "glass": 302.1
    },
-   "d1_lost": {
-    "t_s": 269.6,
-    "T_c": 202.7,
-    "glass": 136.8
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 420.3,
-    "T_c": 397.8,
-    "glass": 262.3
+    "t_s": 398.8,
+    "T_c": 364.0,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 438.1,
-    "T_c": 416.5,
+    "t_s": 423.3,
+    "T_c": 403.7,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 448.9,
-    "T_c": 420.5,
+    "t_s": 435.3,
+    "T_c": 416.2,
     "glass": 302.1
    },
    "latched_before_300": false
@@ -13436,38 +13377,34 @@
    "delta": 46.0,
    "corner": "cold",
    "r_leak_ohm": 965.5,
-   "T_c_steady": 367.4,
+   "T_c_steady": 388.2,
    "T_c_drift_last_100s": 0.01,
-   "T_c_max": 367.5,
-   "t_T_c_over_300_s": 401.2,
-   "suspects": 1,
-   "first_suspect_s": 505.8,
+   "T_c_max": 388.6,
+   "t_T_c_over_300_s": 370.3,
+   "suspects": 0,
+   "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 538.3,
-    "T_c": 359.5,
-    "glass": 301.9
+    "t_s": 478.1,
+    "T_c": 382.0,
+    "glass": 302.0
    },
-   "d1_lost": {
-    "t_s": 269.6,
-    "T_c": 202.7,
-    "glass": 136.8
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 464.8,
-    "T_c": 365.8,
-    "glass": 262.3
+    "t_s": 427.6,
+    "T_c": 368.4,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 500.2,
-    "T_c": 366.8,
+    "t_s": 456.6,
+    "T_c": 378.3,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 538.3,
-    "T_c": 359.5,
-    "glass": 301.9
+    "t_s": 478.1,
+    "T_c": 382.0,
+    "glass": 302.0
    },
    "latched_before_300": false
   },
@@ -13477,22 +13414,35 @@
    "delta": 46.0,
    "corner": "cold",
    "r_leak_ohm": 1293.2,
-   "T_c_steady": 131.9,
-   "T_c_drift_last_100s": 1.52,
-   "T_c_max": 204.0,
-   "t_T_c_over_300_s": null,
-   "suspects": 0,
-   "first_suspect_s": null,
-   "leak_latch": null,
-   "rim_fault": null,
-   "d1_lost": {
-    "t_s": 269.6,
-    "T_c": 202.7,
-    "glass": 136.8
+   "T_c_steady": 330.3,
+   "T_c_drift_last_100s": 0.26,
+   "T_c_max": 347.3,
+   "t_T_c_over_300_s": 399.0,
+   "suspects": 16,
+   "first_suspect_s": 556.1,
+   "leak_latch": {
+    "t_s": 622.1,
+    "T_c": 331.8,
+    "glass": 291.5
    },
-   "glass_cr5_low": null,
-   "glass_cr5_top": null,
-   "first_latch": null,
+   "rim_fault": null,
+   "d1_lost": null,
+   "glass_cr5_low": {
+    "t_s": 462.0,
+    "T_c": 343.2,
+    "glass": 262.3
+   },
+   "glass_cr5_top": {
+    "t_s": 530.8,
+    "T_c": 347.2,
+    "glass": 288.1
+   },
+   "first_latch": {
+    "rule": "leak",
+    "t_s": 622.1,
+    "T_c": 331.8,
+    "glass": 291.5
+   },
    "latched_before_300": false
   },
   {
@@ -13511,7 +13461,7 @@
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 530.2,
+    "t_s": 530.3,
     "T_c": 319.0,
     "glass": 262.3
    },
@@ -13646,36 +13596,36 @@
    "corner": "cold",
    "r_leak_ohm": 300.0,
    "T_c_steady": 542.2,
-   "T_c_drift_last_100s": 0.0,
+   "T_c_drift_last_100s": 0.02,
    "T_c_max": 542.2,
-   "t_T_c_over_300_s": 376.9,
+   "t_T_c_over_300_s": 377.7,
    "suspects": 1,
-   "first_suspect_s": 338.2,
+   "first_suspect_s": 337.7,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 453.7,
-    "T_c": 442.3,
+    "t_s": 454.4,
+    "T_c": 442.7,
     "glass": 302.3
    },
    "d1_lost": {
-    "t_s": 270.2,
-    "T_c": 202.6,
-    "glass": 137.0
+    "t_s": 269.7,
+    "T_c": 199.9,
+    "glass": 136.5
    },
    "glass_cr5_low": {
-    "t_s": 428.9,
-    "T_c": 405.8,
+    "t_s": 429.8,
+    "T_c": 406.7,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 444.8,
-    "T_c": 430.5,
+    "t_s": 445.6,
+    "T_c": 431.1,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 453.7,
-    "T_c": 442.3,
+    "t_s": 454.4,
+    "T_c": 442.7,
     "glass": 302.3
    },
    "latched_before_300": false
@@ -13689,34 +13639,34 @@
    "T_c_steady": 542.2,
    "T_c_drift_last_100s": 0.0,
    "T_c_max": 542.2,
-   "t_T_c_over_300_s": 361.5,
-   "suspects": 0,
-   "first_suspect_s": null,
+   "t_T_c_over_300_s": 393.1,
+   "suspects": 1,
+   "first_suspect_s": 338.3,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 437.2,
-    "T_c": 446.7,
+    "t_s": 467.5,
+    "T_c": 443.8,
     "glass": 302.3
    },
    "d1_lost": {
-    "t_s": 270.4,
-    "T_c": 202.6,
-    "glass": 137.0
+    "t_s": 270.3,
+    "T_c": 199.9,
+    "glass": 136.6
    },
    "glass_cr5_low": {
-    "t_s": 413.9,
-    "T_c": 414.6,
+    "t_s": 443.2,
+    "T_c": 408.7,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 428.8,
-    "T_c": 436.2,
+    "t_s": 458.8,
+    "T_c": 432.5,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 437.2,
-    "T_c": 446.7,
+    "t_s": 467.5,
+    "T_c": 443.8,
     "glass": 302.3
    },
    "latched_before_300": false
@@ -13730,35 +13680,35 @@
    "T_c_steady": 505.0,
    "T_c_drift_last_100s": 0.01,
    "T_c_max": 505.1,
-   "t_T_c_over_300_s": 361.9,
+   "t_T_c_over_300_s": 362.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 437.6,
-    "T_c": 446.7,
-    "glass": 302.3
+    "t_s": 438.8,
+    "T_c": 446.9,
+    "glass": 302.2
    },
    "d1_lost": {
-    "t_s": 270.6,
-    "T_c": 202.2,
-    "glass": 137.0
+    "t_s": 270.8,
+    "T_c": 199.9,
+    "glass": 136.8
    },
    "glass_cr5_low": {
-    "t_s": 414.3,
-    "T_c": 414.7,
-    "glass": 262.3
+    "t_s": 415.7,
+    "T_c": 415.3,
+    "glass": 262.5
    },
    "glass_cr5_top": {
-    "t_s": 429.2,
-    "T_c": 436.3,
-    "glass": 288.3
+    "t_s": 430.4,
+    "T_c": 436.5,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 437.6,
-    "T_c": 446.7,
-    "glass": 302.3
+    "t_s": 438.8,
+    "T_c": 446.9,
+    "glass": 302.2
    },
    "latched_before_300": false
   },
@@ -13771,35 +13721,35 @@
    "T_c_steady": 421.8,
    "T_c_drift_last_100s": 0.01,
    "T_c_max": 421.9,
-   "t_T_c_over_300_s": 402.7,
+   "t_T_c_over_300_s": 407.8,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 482.8,
-    "T_c": 420.9,
-    "glass": 302.2
+    "t_s": 488.0,
+    "T_c": 420.8,
+    "glass": 302.1
    },
    "d1_lost": {
-    "t_s": 270.8,
-    "T_c": 201.8,
-    "glass": 137.0
+    "t_s": 271.8,
+    "T_c": 199.9,
+    "glass": 137.1
    },
    "glass_cr5_low": {
-    "t_s": 455.9,
-    "T_c": 411.5,
-    "glass": 262.4
+    "t_s": 461.1,
+    "T_c": 411.3,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 472.2,
+    "t_s": 477.4,
     "T_c": 419.8,
-    "glass": 288.2
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 482.8,
-    "T_c": 420.9,
-    "glass": 302.2
+    "t_s": 488.0,
+    "T_c": 420.8,
+    "glass": 302.1
    },
    "latched_before_300": false
   },
@@ -13809,34 +13759,38 @@
    "delta": 46.0,
    "corner": "cold",
    "r_leak_ohm": 965.5,
-   "T_c_steady": 388.2,
+   "T_c_steady": 367.4,
    "T_c_drift_last_100s": 0.01,
-   "T_c_max": 391.6,
-   "t_T_c_over_300_s": 366.6,
-   "suspects": 0,
-   "first_suspect_s": null,
+   "T_c_max": 367.5,
+   "t_T_c_over_300_s": 406.0,
+   "suspects": 1,
+   "first_suspect_s": 511.0,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 465.3,
-    "T_c": 391.6,
-    "glass": 302.0
+    "t_s": 543.2,
+    "T_c": 359.5,
+    "glass": 301.9
    },
-   "d1_lost": null,
+   "d1_lost": {
+    "t_s": 273.6,
+    "T_c": 200.0,
+    "glass": 137.6
+   },
    "glass_cr5_low": {
-    "t_s": 424.6,
-    "T_c": 377.4,
+    "t_s": 469.8,
+    "T_c": 365.7,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 448.7,
-    "T_c": 390.7,
-    "glass": 288.2
+    "t_s": 505.2,
+    "T_c": 366.9,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 465.3,
-    "T_c": 391.6,
-    "glass": 302.0
+    "t_s": 543.2,
+    "T_c": 359.5,
+    "glass": 301.9
    },
    "latched_before_300": false
   },
@@ -13846,35 +13800,22 @@
    "delta": 46.0,
    "corner": "cold",
    "r_leak_ohm": 1293.2,
-   "T_c_steady": 330.1,
-   "T_c_drift_last_100s": -2.82,
-   "T_c_max": 348.7,
-   "t_T_c_over_300_s": 392.9,
-   "suspects": 16,
-   "first_suspect_s": 547.3,
-   "leak_latch": {
-    "t_s": 613.3,
-    "T_c": 331.8,
-    "glass": 291.6
-   },
+   "T_c_steady": 131.9,
+   "T_c_drift_last_100s": -0.98,
+   "T_c_max": 201.3,
+   "t_T_c_over_300_s": null,
+   "suspects": 0,
+   "first_suspect_s": null,
+   "leak_latch": null,
    "rim_fault": null,
-   "d1_lost": null,
-   "glass_cr5_low": {
-    "t_s": 457.4,
-    "T_c": 348.7,
-    "glass": 262.3
+   "d1_lost": {
+    "t_s": 277.4,
+    "T_c": 200.6,
+    "glass": 138.6
    },
-   "glass_cr5_top": {
-    "t_s": 520.0,
-    "T_c": 347.9,
-    "glass": 288.1
-   },
-   "first_latch": {
-    "rule": "leak",
-    "t_s": 613.3,
-    "T_c": 331.8,
-    "glass": 291.6
-   },
+   "glass_cr5_low": null,
+   "glass_cr5_top": null,
+   "first_latch": null,
    "latched_before_300": false
   },
   {
@@ -13885,16 +13826,16 @@
    "r_leak_ohm": 1732.1,
    "T_c_steady": 318.9,
    "T_c_drift_last_100s": 0.01,
-   "T_c_max": 320.1,
-   "t_T_c_over_300_s": 413.6,
+   "T_c_max": 319.4,
+   "t_T_c_over_300_s": 414.7,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 537.1,
-    "T_c": 318.1,
+    "t_s": 528.0,
+    "T_c": 319.3,
     "glass": 262.3
    },
    "glass_cr5_top": null,
@@ -13907,10 +13848,10 @@
    "delta": 46.0,
    "corner": "cold",
    "r_leak_ohm": 2319.9,
-   "T_c_steady": 299.5,
+   "T_c_steady": 299.2,
    "T_c_drift_last_100s": 0.01,
-   "T_c_max": 300.5,
-   "t_T_c_over_300_s": 441.3,
+   "T_c_max": 299.2,
+   "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
@@ -13927,9 +13868,9 @@
    "delta": 46.0,
    "corner": "cold",
    "r_leak_ohm": 3107.2,
-   "T_c_steady": 285.9,
+   "T_c_steady": 285.3,
    "T_c_drift_last_100s": 0.01,
-   "T_c_max": 286.6,
+   "T_c_max": 285.4,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -14030,31 +13971,31 @@
    "T_c_steady": 542.2,
    "T_c_drift_last_100s": 0.0,
    "T_c_max": 542.2,
-   "t_T_c_over_300_s": 396.2,
+   "t_T_c_over_300_s": 397.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 479.3,
-    "T_c": 423.7,
-    "glass": 302.2
+    "t_s": 485.6,
+    "T_c": 412.2,
+    "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 447.3,
-    "T_c": 383.7,
+    "t_s": 450.7,
+    "T_c": 382.6,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 468.1,
-    "T_c": 408.9,
-    "glass": 288.1
+    "t_s": 472.8,
+    "T_c": 401.0,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 479.3,
-    "T_c": 423.7,
-    "glass": 302.2
+    "t_s": 485.6,
+    "T_c": 412.2,
+    "glass": 302.1
    },
    "latched_before_300": false
   },
@@ -14067,30 +14008,30 @@
    "T_c_steady": 542.2,
    "T_c_drift_last_100s": 0.0,
    "T_c_max": 542.2,
-   "t_T_c_over_300_s": 409.5,
+   "t_T_c_over_300_s": 410.1,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 517.6,
-    "T_c": 397.9,
+    "t_s": 519.2,
+    "T_c": 398.3,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 472.0,
-    "T_c": 363.4,
+    "t_s": 473.7,
+    "T_c": 363.2,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 501.1,
-    "T_c": 385.5,
-    "glass": 288.2
+    "t_s": 502.8,
+    "T_c": 385.8,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 517.6,
-    "T_c": 397.9,
+    "t_s": 519.2,
+    "T_c": 398.3,
     "glass": 302.1
    },
    "latched_before_300": false
@@ -14101,37 +14042,33 @@
    "delta": 46.0,
    "corner": "cold",
    "r_leak_ohm": 538.2,
-   "T_c_steady": 134.9,
-   "T_c_drift_last_100s": -3.96,
-   "T_c_max": 382.7,
-   "t_T_c_over_300_s": 422.5,
-   "suspects": 1,
-   "first_suspect_s": 572.2,
+   "T_c_steady": 542.2,
+   "T_c_drift_last_100s": 0.0,
+   "T_c_max": 542.2,
+   "t_T_c_over_300_s": 425.5,
+   "suspects": 0,
+   "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 573.3,
-    "T_c": 380.6,
+    "t_s": 573.7,
+    "T_c": 382.1,
     "glass": 302.0
    },
-   "d1_lost": {
-    "t_s": 590.2,
-    "T_c": 381.9,
-    "glass": 310.4
-   },
+   "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 504.2,
-    "T_c": 345.5,
-    "glass": 262.4
+    "t_s": 506.8,
+    "T_c": 346.0,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 548.1,
-    "T_c": 367.7,
+    "t_s": 549.6,
+    "T_c": 369.1,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 573.3,
-    "T_c": 380.6,
+    "t_s": 573.7,
+    "T_c": 382.1,
     "glass": 302.0
    },
    "latched_before_300": false
@@ -14143,36 +14080,36 @@
    "corner": "cold",
    "r_leak_ohm": 720.8,
    "T_c_steady": 135.4,
-   "T_c_drift_last_100s": -1.97,
-   "T_c_max": 366.5,
-   "t_T_c_over_300_s": 447.9,
+   "T_c_drift_last_100s": -2.52,
+   "T_c_max": 368.1,
+   "t_T_c_over_300_s": 451.8,
    "suspects": 1,
-   "first_suspect_s": 638.8,
+   "first_suspect_s": 640.3,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 653.8,
-    "T_c": 365.9,
+    "t_s": 652.4,
+    "T_c": 367.8,
     "glass": 301.9
    },
    "d1_lost": {
-    "t_s": 656.8,
-    "T_c": 365.5,
-    "glass": 302.8
+    "t_s": 658.3,
+    "T_c": 367.1,
+    "glass": 303.8
    },
    "glass_cr5_low": {
-    "t_s": 547.9,
-    "T_c": 332.9,
+    "t_s": 550.4,
+    "T_c": 333.5,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 615.2,
-    "T_c": 356.2,
+    "t_s": 615.5,
+    "T_c": 357.0,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 653.8,
-    "T_c": 365.9,
+    "t_s": 652.4,
+    "T_c": 367.8,
     "glass": 301.9
    },
    "latched_before_300": false
@@ -14405,32 +14342,32 @@
    "delta": 12.0,
    "corner": "hot",
    "r_leak_ohm": 300.0,
-   "T_c_steady": 513.9,
-   "T_c_drift_last_100s": 0.03,
-   "T_c_max": 513.9,
-   "t_T_c_over_300_s": 361.8,
+   "T_c_steady": 436.9,
+   "T_c_drift_last_100s": -50.21,
+   "T_c_max": 462.1,
+   "t_T_c_over_300_s": 361.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 411.8,
+    "t_s": 412.0,
     "T_c": 351.2,
     "glass": 279.5
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 394.8,
+    "t_s": 395.0,
     "T_c": 335.4,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 420.6,
+    "t_s": 420.8,
     "T_c": 358.8,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 411.8,
+    "t_s": 412.0,
     "T_c": 351.2,
     "glass": 279.5
    },
@@ -14450,24 +14387,24 @@
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 411.8,
+    "t_s": 411.9,
     "T_c": 351.2,
     "glass": 279.5
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 394.8,
+    "t_s": 394.9,
     "T_c": 335.4,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 420.6,
-    "T_c": 358.8,
+    "t_s": 420.7,
+    "T_c": 358.9,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 411.8,
+    "t_s": 411.9,
     "T_c": 351.2,
     "glass": 279.5
    },
@@ -14487,24 +14424,24 @@
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 411.8,
+    "t_s": 411.9,
     "T_c": 351.2,
     "glass": 279.5
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 394.8,
+    "t_s": 394.9,
     "T_c": 335.4,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 420.6,
-    "T_c": 358.8,
+    "t_s": 420.7,
+    "T_c": 358.9,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 411.8,
+    "t_s": 411.9,
     "T_c": 351.2,
     "glass": 279.5
    },
@@ -14524,24 +14461,24 @@
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 411.8,
+    "t_s": 411.9,
     "T_c": 351.2,
     "glass": 279.5
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 394.8,
+    "t_s": 394.9,
     "T_c": 335.4,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 420.6,
-    "T_c": 358.8,
+    "t_s": 420.7,
+    "T_c": 358.9,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 411.8,
+    "t_s": 411.9,
     "T_c": 351.2,
     "glass": 279.5
    },
@@ -14561,25 +14498,25 @@
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 424.1,
-    "T_c": 341.7,
+    "t_s": 424.2,
+    "T_c": 341.8,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 403.3,
-    "T_c": 322.3,
-    "glass": 262.3
+    "t_s": 403.5,
+    "T_c": 322.4,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 434.4,
+    "t_s": 434.5,
     "T_c": 351.2,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 424.1,
-    "T_c": 341.7,
+    "t_s": 424.2,
+    "T_c": 341.8,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -14592,31 +14529,31 @@
    "r_leak_ohm": 1293.2,
    "T_c_steady": 346.3,
    "T_c_drift_last_100s": -0.02,
-   "T_c_max": 346.7,
+   "T_c_max": 346.8,
    "t_T_c_over_300_s": 405.6,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 446.4,
-    "T_c": 338.7,
+    "t_s": 446.5,
+    "T_c": 338.8,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 425.3,
-    "T_c": 321.3,
+    "t_s": 425.4,
+    "T_c": 321.4,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 458.1,
-    "T_c": 341.9,
+    "t_s": 458.2,
+    "T_c": 342.0,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 446.4,
-    "T_c": 338.7,
+    "t_s": 446.5,
+    "T_c": 338.8,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -14630,29 +14567,29 @@
    "T_c_steady": 318.5,
    "T_c_drift_last_100s": -0.02,
    "T_c_max": 319.0,
-   "t_T_c_over_300_s": 420.4,
+   "t_T_c_over_300_s": 420.5,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 473.7,
+    "t_s": 473.8,
     "T_c": 318.7,
     "glass": 279.3
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 444.4,
+    "t_s": 444.5,
     "T_c": 316.6,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 497.1,
+    "t_s": 497.2,
     "T_c": 318.6,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 473.7,
+    "t_s": 473.8,
     "T_c": 318.7,
     "glass": 279.3
    },
@@ -14667,26 +14604,26 @@
    "T_c_steady": 299.4,
    "T_c_drift_last_100s": -0.02,
    "T_c_max": 300.5,
-   "t_T_c_over_300_s": 484.7,
+   "t_T_c_over_300_s": 485.6,
    "suspects": 1,
    "first_suspect_s": 506.9,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 535.3,
-    "T_c": 296.3,
+    "t_s": 535.6,
+    "T_c": 296.2,
     "glass": 279.2
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 468.4,
-    "T_c": 299.8,
+    "t_s": 468.6,
+    "T_c": 299.7,
     "glass": 262.3
    },
    "glass_cr5_top": null,
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 535.3,
-    "T_c": 296.3,
+    "t_s": 535.6,
+    "T_c": 296.2,
     "glass": 279.2
    },
    "latched_before_300": false
@@ -14711,8 +14648,8 @@
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 507.9,
-    "T_c": 286.5,
+    "t_s": 508.0,
+    "T_c": 286.4,
     "glass": 262.3
    },
    "glass_cr5_top": null,
@@ -14740,7 +14677,7 @@
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 594.8,
+    "t_s": 594.9,
     "T_c": 277.0,
     "glass": 262.3
    },
@@ -14756,7 +14693,7 @@
    "r_leak_ohm": 5574.3,
    "T_c_steady": 269.7,
    "T_c_drift_last_100s": -0.02,
-   "T_c_max": 270.3,
+   "T_c_max": 270.2,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -14776,7 +14713,7 @@
    "r_leak_ohm": 7466.1,
    "T_c_steady": 264.6,
    "T_c_drift_last_100s": -0.02,
-   "T_c_max": 265.4,
+   "T_c_max": 265.2,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -14814,33 +14751,33 @@
    "delta": 12.0,
    "corner": "hot",
    "r_leak_ohm": 300.0,
-   "T_c_steady": 513.9,
-   "T_c_drift_last_100s": 0.03,
-   "T_c_max": 513.9,
-   "t_T_c_over_300_s": 404.5,
+   "T_c_steady": 448.9,
+   "T_c_drift_last_100s": 21.62,
+   "T_c_max": 462.0,
+   "t_T_c_over_300_s": 405.1,
    "suspects": 1,
-   "first_suspect_s": 349.3,
+   "first_suspect_s": 349.4,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 446.6,
-    "T_c": 343.3,
+    "t_s": 447.3,
+    "T_c": 343.5,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 426.4,
-    "T_c": 322.9,
-    "glass": 262.4
+    "t_s": 427.1,
+    "T_c": 323.1,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 456.7,
+    "t_s": 457.3,
     "T_c": 352.8,
-    "glass": 288.2
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 446.6,
-    "T_c": 343.3,
+    "t_s": 447.3,
+    "T_c": 343.5,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -14854,35 +14791,35 @@
    "T_c_steady": 513.9,
    "T_c_drift_last_100s": 0.03,
    "T_c_max": 513.9,
-   "t_T_c_over_300_s": 404.5,
+   "t_T_c_over_300_s": 405.2,
    "suspects": 2,
-   "first_suspect_s": 310.9,
+   "first_suspect_s": 310.1,
    "leak_latch": {
-    "t_s": 376.9,
-    "T_c": 285.3,
-    "glass": 231.2
+    "t_s": 376.1,
+    "T_c": 283.8,
+    "glass": 229.6
    },
    "rim_fault": {
-    "t_s": 445.6,
-    "T_c": 340.4,
+    "t_s": 446.4,
+    "T_c": 340.9,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 423.8,
-    "T_c": 318.6,
+    "t_s": 424.9,
+    "T_c": 319.3,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 456.1,
-    "T_c": 350.4,
-    "glass": 288.1
+    "t_s": 456.9,
+    "T_c": 350.9,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "leak",
-    "t_s": 376.9,
-    "T_c": 285.3,
-    "glass": 231.2
+    "t_s": 376.1,
+    "T_c": 283.8,
+    "glass": 229.6
    },
    "latched_before_300": true
   },
@@ -14895,35 +14832,35 @@
    "T_c_steady": 513.9,
    "T_c_drift_last_100s": 0.03,
    "T_c_max": 513.9,
-   "t_T_c_over_300_s": 391.4,
+   "t_T_c_over_300_s": 396.3,
    "suspects": 2,
-   "first_suspect_s": 324.8,
+   "first_suspect_s": 324.7,
    "leak_latch": {
-    "t_s": 390.8,
-    "T_c": 299.9,
-    "glass": 245.3
+    "t_s": 390.7,
+    "T_c": 299.0,
+    "glass": 244.4
    },
    "rim_fault": {
-    "t_s": 442.7,
-    "T_c": 335.0,
+    "t_s": 443.7,
+    "T_c": 335.4,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 417.5,
-    "T_c": 312.0,
-    "glass": 262.4
+    "t_s": 418.8,
+    "T_c": 312.4,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 454.4,
-    "T_c": 346.1,
+    "t_s": 455.3,
+    "T_c": 346.4,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "leak",
-    "t_s": 390.8,
-    "T_c": 299.9,
-    "glass": 245.3
+    "t_s": 390.7,
+    "T_c": 299.0,
+    "glass": 244.4
    },
    "latched_before_300": true
   },
@@ -14936,34 +14873,34 @@
    "T_c_steady": 432.5,
    "T_c_drift_last_100s": -0.02,
    "T_c_max": 432.5,
-   "t_T_c_over_300_s": 425.2,
+   "t_T_c_over_300_s": 425.9,
    "suspects": 1,
-   "first_suspect_s": 338.0,
+   "first_suspect_s": 337.9,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 472.7,
-    "T_c": 349.9,
+    "t_s": 473.7,
+    "T_c": 350.1,
     "glass": 279.4
    },
    "d1_lost": {
-    "t_s": 270.0,
-    "T_c": 200.6,
-    "glass": 170.6
+    "t_s": 269.9,
+    "T_c": 199.5,
+    "glass": 170.5
    },
    "glass_cr5_low": {
-    "t_s": 455.3,
-    "T_c": 333.1,
+    "t_s": 456.3,
+    "T_c": 333.4,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 481.7,
-    "T_c": 357.9,
-    "glass": 288.1
+    "t_s": 482.7,
+    "T_c": 358.1,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 472.7,
-    "T_c": 349.9,
+    "t_s": 473.7,
+    "T_c": 350.1,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -14977,35 +14914,35 @@
    "T_c_steady": 388.0,
    "T_c_drift_last_100s": -0.02,
    "T_c_max": 388.6,
-   "t_T_c_over_300_s": 405.5,
+   "t_T_c_over_300_s": 406.0,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 455.3,
-    "T_c": 351.5,
-    "glass": 279.4
+    "t_s": 455.9,
+    "T_c": 351.6,
+    "glass": 279.5
    },
    "d1_lost": {
-    "t_s": 270.2,
-    "T_c": 200.5,
-    "glass": 170.7
+    "t_s": 270.0,
+    "T_c": 199.7,
+    "glass": 170.5
    },
    "glass_cr5_low": {
-    "t_s": 438.5,
-    "T_c": 335.8,
+    "t_s": 439.1,
+    "T_c": 335.9,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 464.1,
-    "T_c": 359.0,
-    "glass": 288.2
+    "t_s": 464.6,
+    "T_c": 359.1,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 455.3,
-    "T_c": 351.5,
-    "glass": 279.4
+    "t_s": 455.9,
+    "T_c": 351.6,
+    "glass": 279.5
    },
    "latched_before_300": false
   },
@@ -15016,33 +14953,37 @@
    "corner": "hot",
    "r_leak_ohm": 1293.2,
    "T_c_steady": 346.3,
-   "T_c_drift_last_100s": -0.01,
-   "T_c_max": 352.1,
-   "t_T_c_over_300_s": 394.6,
+   "T_c_drift_last_100s": -0.02,
+   "T_c_max": 346.7,
+   "t_T_c_over_300_s": 406.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 438.5,
-    "T_c": 344.6,
-    "glass": 279.4
+    "t_s": 460.0,
+    "T_c": 336.5,
+    "glass": 279.3
    },
-   "d1_lost": null,
+   "d1_lost": {
+    "t_s": 271.0,
+    "T_c": 199.8,
+    "glass": 170.8
+   },
    "glass_cr5_low": {
-    "t_s": 419.2,
-    "T_c": 326.5,
+    "t_s": 440.3,
+    "T_c": 332.3,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 448.6,
-    "T_c": 350.0,
-    "glass": 288.2
+    "t_s": 472.8,
+    "T_c": 337.7,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 438.5,
-    "T_c": 344.6,
-    "glass": 279.4
+    "t_s": 460.0,
+    "T_c": 336.5,
+    "glass": 279.3
    },
    "latched_before_300": false
   },
@@ -15239,9 +15180,9 @@
    "delta": 12.0,
    "corner": "hot",
    "r_leak_ohm": 300.0,
-   "T_c_steady": 513.9,
-   "T_c_drift_last_100s": 0.03,
-   "T_c_max": 513.9,
+   "T_c_steady": 439.6,
+   "T_c_drift_last_100s": -52.27,
+   "T_c_max": 499.0,
    "t_T_c_over_300_s": 405.3,
    "suspects": 0,
    "first_suspect_s": null,
@@ -15656,10 +15597,10 @@
    "delta": 12.0,
    "corner": "cold",
    "r_leak_ohm": 300.0,
-   "T_c_steady": 513.9,
-   "T_c_drift_last_100s": 0.03,
-   "T_c_max": 513.9,
-   "t_T_c_over_300_s": 361.8,
+   "T_c_steady": 444.1,
+   "T_c_drift_last_100s": -34.65,
+   "T_c_max": 461.8,
+   "t_T_c_over_300_s": 361.7,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
@@ -15671,7 +15612,7 @@
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 394.9,
-    "T_c": 335.4,
+    "T_c": 335.5,
     "glass": 262.4
    },
    "glass_cr5_top": {
@@ -15696,7 +15637,7 @@
    "T_c_steady": 513.9,
    "T_c_drift_last_100s": 0.03,
    "T_c_max": 513.9,
-   "t_T_c_over_300_s": 361.8,
+   "t_T_c_over_300_s": 361.7,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
@@ -15708,7 +15649,7 @@
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 394.9,
-    "T_c": 335.4,
+    "T_c": 335.5,
     "glass": 262.4
    },
    "glass_cr5_top": {
@@ -15733,20 +15674,20 @@
    "T_c_steady": 513.9,
    "T_c_drift_last_100s": 0.03,
    "T_c_max": 513.9,
-   "t_T_c_over_300_s": 361.8,
+   "t_T_c_over_300_s": 361.7,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 435.1,
-    "T_c": 370.6,
+    "t_s": 435.2,
+    "T_c": 370.7,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 394.9,
-    "T_c": 335.4,
-    "glass": 262.4
+    "T_c": 335.5,
+    "glass": 262.3
    },
    "glass_cr5_top": {
     "t_s": 420.6,
@@ -15755,8 +15696,8 @@
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 435.1,
-    "T_c": 370.6,
+    "t_s": 435.2,
+    "T_c": 370.7,
     "glass": 302.1
    },
    "latched_before_300": false
@@ -15770,30 +15711,30 @@
    "T_c_steady": 432.5,
    "T_c_drift_last_100s": 0.02,
    "T_c_max": 432.5,
-   "t_T_c_over_300_s": 361.8,
+   "t_T_c_over_300_s": 361.7,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 435.1,
-    "T_c": 370.6,
+    "t_s": 435.2,
+    "T_c": 370.7,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 394.9,
-    "T_c": 335.4,
-    "glass": 262.4
+    "T_c": 335.5,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 420.6,
-    "T_c": 358.8,
-    "glass": 288.1
+    "t_s": 420.7,
+    "T_c": 358.9,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 435.1,
-    "T_c": 370.6,
+    "t_s": 435.2,
+    "T_c": 370.7,
     "glass": 302.1
    },
    "latched_before_300": false
@@ -15812,25 +15753,25 @@
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 451.0,
-    "T_c": 365.0,
+    "t_s": 451.1,
+    "T_c": 365.1,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 403.6,
-    "T_c": 322.3,
+    "t_s": 403.7,
+    "T_c": 322.4,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 434.7,
-    "T_c": 351.2,
-    "glass": 288.1
+    "t_s": 434.8,
+    "T_c": 351.3,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 451.0,
-    "T_c": 365.0,
+    "t_s": 451.1,
+    "T_c": 365.1,
     "glass": 302.1
    },
    "latched_before_300": false
@@ -15849,7 +15790,7 @@
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 481.6,
+    "t_s": 481.7,
     "T_c": 344.6,
     "glass": 302.0
    },
@@ -15857,7 +15798,7 @@
    "glass_cr5_low": {
     "t_s": 425.7,
     "T_c": 321.4,
-    "glass": 262.4
+    "glass": 262.3
    },
    "glass_cr5_top": {
     "t_s": 458.6,
@@ -15866,7 +15807,7 @@
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 481.6,
+    "t_s": 481.7,
     "T_c": 344.6,
     "glass": 302.0
    },
@@ -15890,7 +15831,7 @@
     "glass": 299.3
    },
    "rim_fault": {
-    "t_s": 664.7,
+    "t_s": 664.8,
     "T_c": 318.5,
     "glass": 301.9
    },
@@ -15901,7 +15842,7 @@
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 497.9,
+    "t_s": 498.0,
     "T_c": 319.0,
     "glass": 288.1
    },
@@ -15922,7 +15863,7 @@
    "T_c_steady": 294.4,
    "T_c_drift_last_100s": 0.51,
    "T_c_max": 300.2,
-   "t_T_c_over_300_s": 497.5,
+   "t_T_c_over_300_s": 497.4,
    "suspects": 10,
    "first_suspect_s": 682.5,
    "leak_latch": {
@@ -15933,7 +15874,7 @@
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 468.9,
+    "t_s": 469.0,
     "T_c": 299.5,
     "glass": 262.3
    },
@@ -15962,7 +15903,7 @@
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 509.3,
+    "t_s": 509.6,
     "T_c": 286.1,
     "glass": 262.3
    },
@@ -15986,7 +15927,7 @@
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 602.3,
+    "t_s": 602.5,
     "T_c": 276.7,
     "glass": 262.3
    },
@@ -16022,7 +15963,7 @@
    "r_leak_ohm": 7466.1,
    "T_c_steady": 264.3,
    "T_c_drift_last_100s": 0.02,
-   "T_c_max": 265.1,
+   "T_c_max": 264.9,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -16042,7 +15983,7 @@
    "r_leak_ohm": 10000.0,
    "T_c_steady": 260.6,
    "T_c_drift_last_100s": 0.02,
-   "T_c_max": 261.3,
+   "T_c_max": 261.4,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -16060,33 +16001,33 @@
    "delta": 12.0,
    "corner": "cold",
    "r_leak_ohm": 300.0,
-   "T_c_steady": 513.9,
-   "T_c_drift_last_100s": 0.03,
-   "T_c_max": 513.9,
-   "t_T_c_over_300_s": 404.7,
+   "T_c_steady": 446.0,
+   "T_c_drift_last_100s": 34.85,
+   "T_c_max": 462.5,
+   "t_T_c_over_300_s": 404.9,
    "suspects": 1,
-   "first_suspect_s": 350.4,
+   "first_suspect_s": 348.1,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 472.7,
-    "T_c": 366.5,
+    "t_s": 473.1,
+    "T_c": 366.9,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 426.2,
-    "T_c": 322.4,
-    "glass": 262.3
+    "t_s": 427.3,
+    "T_c": 323.6,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 456.7,
-    "T_c": 352.5,
-    "glass": 288.1
+    "t_s": 457.3,
+    "T_c": 353.1,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 472.7,
-    "T_c": 366.5,
+    "t_s": 473.1,
+    "T_c": 366.9,
     "glass": 302.1
    },
    "latched_before_300": false
@@ -16100,35 +16041,35 @@
    "T_c_steady": 513.9,
    "T_c_drift_last_100s": 0.03,
    "T_c_max": 513.9,
-   "t_T_c_over_300_s": 401.5,
+   "t_T_c_over_300_s": 402.7,
    "suspects": 2,
-   "first_suspect_s": 320.5,
+   "first_suspect_s": 320.0,
    "leak_latch": {
-    "t_s": 386.5,
-    "T_c": 295.4,
-    "glass": 240.9
+    "t_s": 386.0,
+    "T_c": 294.3,
+    "glass": 239.7
    },
    "rim_fault": {
-    "t_s": 472.4,
-    "T_c": 363.3,
+    "t_s": 473.0,
+    "T_c": 363.5,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 419.9,
-    "T_c": 313.9,
+    "t_s": 421.0,
+    "T_c": 314.4,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 455.2,
-    "T_c": 347.7,
-    "glass": 288.2
+    "t_s": 455.9,
+    "T_c": 348.0,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "leak",
-    "t_s": 386.5,
-    "T_c": 295.4,
-    "glass": 240.9
+    "t_s": 386.0,
+    "T_c": 294.3,
+    "glass": 239.7
    },
    "latched_before_300": true
   },
@@ -16141,35 +16082,35 @@
    "T_c_steady": 513.9,
    "T_c_drift_last_100s": 0.04,
    "T_c_max": 513.9,
-   "t_T_c_over_300_s": 425.2,
+   "t_T_c_over_300_s": 429.0,
    "suspects": 1,
-   "first_suspect_s": 338.0,
+   "first_suspect_s": 337.7,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 496.4,
-    "T_c": 370.2,
-    "glass": 302.1
+    "t_s": 500.0,
+    "T_c": 370.0,
+    "glass": 302.0
    },
    "d1_lost": {
-    "t_s": 270.0,
-    "T_c": 200.6,
-    "glass": 170.5
+    "t_s": 269.7,
+    "T_c": 199.4,
+    "glass": 170.3
    },
    "glass_cr5_low": {
-    "t_s": 455.3,
-    "T_c": 333.1,
+    "t_s": 458.8,
+    "T_c": 332.8,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 481.7,
-    "T_c": 357.9,
+    "t_s": 485.3,
+    "T_c": 357.7,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 496.4,
-    "T_c": 370.2,
-    "glass": 302.1
+    "t_s": 500.0,
+    "T_c": 370.0,
+    "glass": 302.0
    },
    "latched_before_300": false
   },
@@ -16182,35 +16123,35 @@
    "T_c_steady": 432.5,
    "T_c_drift_last_100s": 0.02,
    "T_c_max": 432.5,
-   "t_T_c_over_300_s": 425.3,
+   "t_T_c_over_300_s": 426.4,
    "suspects": 1,
    "first_suspect_s": 338.2,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 496.5,
-    "T_c": 370.2,
-    "glass": 302.0
+    "t_s": 497.8,
+    "T_c": 370.3,
+    "glass": 302.1
    },
    "d1_lost": {
     "t_s": 270.2,
-    "T_c": 200.6,
-    "glass": 170.6
+    "T_c": 199.2,
+    "glass": 170.4
    },
    "glass_cr5_low": {
-    "t_s": 455.4,
-    "T_c": 333.1,
+    "t_s": 456.8,
+    "T_c": 333.4,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 481.9,
+    "t_s": 483.1,
     "T_c": 358.0,
-    "glass": 288.2
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 496.5,
-    "T_c": 370.2,
-    "glass": 302.0
+    "t_s": 497.8,
+    "T_c": 370.3,
+    "glass": 302.1
    },
    "latched_before_300": false
   },
@@ -16223,34 +16164,34 @@
    "T_c_steady": 388.0,
    "T_c_drift_last_100s": 0.02,
    "T_c_max": 388.6,
-   "t_T_c_over_300_s": 405.6,
+   "t_T_c_over_300_s": 407.4,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 478.7,
-    "T_c": 369.1,
+    "t_s": 480.6,
+    "T_c": 369.2,
     "glass": 302.0
    },
    "d1_lost": {
-    "t_s": 270.3,
-    "T_c": 200.5,
+    "t_s": 271.0,
+    "T_c": 199.1,
     "glass": 170.6
    },
    "glass_cr5_low": {
-    "t_s": 438.6,
-    "T_c": 335.8,
+    "t_s": 440.6,
+    "T_c": 336.0,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 464.2,
-    "T_c": 359.2,
-    "glass": 288.2
+    "t_s": 466.1,
+    "T_c": 359.3,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 478.7,
-    "T_c": 369.1,
+    "t_s": 480.6,
+    "T_c": 369.2,
     "glass": 302.0
    },
    "latched_before_300": false
@@ -16263,31 +16204,35 @@
    "r_leak_ohm": 1293.2,
    "T_c_steady": 346.2,
    "T_c_drift_last_100s": 0.02,
-   "T_c_max": 352.5,
-   "t_T_c_over_300_s": 394.8,
+   "T_c_max": 346.7,
+   "t_T_c_over_300_s": 408.4,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 467.6,
-    "T_c": 352.4,
+    "t_s": 499.7,
+    "T_c": 342.8,
     "glass": 302.0
    },
-   "d1_lost": null,
+   "d1_lost": {
+    "t_s": 272.1,
+    "T_c": 199.2,
+    "glass": 170.9
+   },
    "glass_cr5_low": {
-    "t_s": 419.4,
-    "T_c": 326.5,
-    "glass": 262.3
+    "t_s": 441.9,
+    "T_c": 332.1,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 448.8,
-    "T_c": 349.9,
+    "t_s": 474.5,
+    "T_c": 337.8,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 467.6,
-    "T_c": 352.4,
+    "t_s": 499.7,
+    "T_c": 342.8,
     "glass": 302.0
    },
    "latched_before_300": false
@@ -16480,9 +16425,9 @@
    "delta": 12.0,
    "corner": "cold",
    "r_leak_ohm": 300.0,
-   "T_c_steady": 513.9,
-   "T_c_drift_last_100s": 0.03,
-   "T_c_max": 513.9,
+   "T_c_steady": 436.7,
+   "T_c_drift_last_100s": -49.11,
+   "T_c_max": 499.0,
    "t_T_c_over_300_s": 405.5,
    "suspects": 0,
    "first_suspect_s": null,
@@ -16892,33 +16837,33 @@
    "delta": 46.0,
    "corner": "hot",
    "r_leak_ohm": 300.0,
-   "T_c_steady": 510.1,
-   "T_c_drift_last_100s": 0.03,
-   "T_c_max": 510.1,
-   "t_T_c_over_300_s": 363.8,
+   "T_c_steady": 448.4,
+   "T_c_drift_last_100s": -15.56,
+   "T_c_max": 460.5,
+   "t_T_c_over_300_s": 363.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 450.2,
-    "T_c": 378.5,
+    "t_s": 450.4,
+    "T_c": 378.6,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 431.6,
+    "t_s": 431.8,
     "T_c": 364.6,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 460.3,
+    "t_s": 460.5,
     "T_c": 385.6,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 450.2,
-    "T_c": 378.5,
+    "t_s": 450.4,
+    "T_c": 378.6,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -16932,30 +16877,30 @@
    "T_c_steady": 510.1,
    "T_c_drift_last_100s": 0.03,
    "T_c_max": 510.1,
-   "t_T_c_over_300_s": 363.8,
+   "t_T_c_over_300_s": 363.7,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 450.2,
-    "T_c": 378.5,
+    "T_c": 378.6,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 431.6,
-    "T_c": 364.6,
-    "glass": 262.4
+    "t_s": 431.5,
+    "T_c": 364.5,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 460.3,
+    "t_s": 460.2,
     "T_c": 385.6,
-    "glass": 288.2
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 450.2,
-    "T_c": 378.5,
+    "T_c": 378.6,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -16969,30 +16914,30 @@
    "T_c_steady": 510.1,
    "T_c_drift_last_100s": 0.03,
    "T_c_max": 510.1,
-   "t_T_c_over_300_s": 363.8,
+   "t_T_c_over_300_s": 363.7,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 450.2,
-    "T_c": 378.5,
+    "T_c": 378.6,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 431.6,
-    "T_c": 364.6,
-    "glass": 262.4
+    "t_s": 431.5,
+    "T_c": 364.5,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 460.3,
+    "t_s": 460.2,
     "T_c": 385.6,
-    "glass": 288.2
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 450.2,
-    "T_c": 378.5,
+    "T_c": 378.6,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -17006,30 +16951,30 @@
    "T_c_steady": 432.4,
    "T_c_drift_last_100s": -0.03,
    "T_c_max": 432.5,
-   "t_T_c_over_300_s": 363.8,
+   "t_T_c_over_300_s": 363.7,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
     "t_s": 450.2,
-    "T_c": 378.5,
+    "T_c": 378.6,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 431.6,
-    "T_c": 364.6,
-    "glass": 262.4
+    "t_s": 431.5,
+    "T_c": 364.5,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 460.3,
+    "t_s": 460.2,
     "T_c": 385.6,
-    "glass": 288.2
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
     "t_s": 450.2,
-    "T_c": 378.5,
+    "T_c": 378.6,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -17048,26 +16993,26 @@
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 466.1,
+    "t_s": 466.2,
     "T_c": 371.6,
-    "glass": 279.3
+    "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 445.4,
+    "t_s": 445.5,
     "T_c": 359.1,
-    "glass": 262.3
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 478.3,
+    "t_s": 478.4,
     "T_c": 373.6,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 466.1,
+    "t_s": 466.2,
     "T_c": 371.6,
-    "glass": 279.3
+    "glass": 279.4
    },
    "latched_before_300": false
   },
@@ -17093,7 +17038,7 @@
    "glass_cr5_low": {
     "t_s": 472.6,
     "T_c": 343.3,
-    "glass": 262.3
+    "glass": 262.4
    },
    "glass_cr5_top": {
     "t_s": 541.4,
@@ -17149,8 +17094,8 @@
    "r_leak_ohm": 2319.9,
    "T_c_steady": 299.8,
    "T_c_drift_last_100s": -0.03,
-   "T_c_max": 300.1,
-   "t_T_c_over_300_s": 505.8,
+   "T_c_max": 300.2,
+   "t_T_c_over_300_s": 505.7,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
@@ -17209,7 +17154,7 @@
    "r_leak_ohm": 5574.3,
    "T_c_steady": 269.4,
    "T_c_drift_last_100s": -0.02,
-   "T_c_max": 270.0,
+   "T_c_max": 269.9,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -17229,7 +17174,7 @@
    "r_leak_ohm": 7466.1,
    "T_c_steady": 264.2,
    "T_c_drift_last_100s": -0.02,
-   "T_c_max": 265.0,
+   "T_c_max": 264.9,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -17267,33 +17212,33 @@
    "delta": 46.0,
    "corner": "hot",
    "r_leak_ohm": 300.0,
-   "T_c_steady": 510.0,
-   "T_c_drift_last_100s": 0.03,
-   "T_c_max": 510.1,
-   "t_T_c_over_300_s": 407.7,
+   "T_c_steady": 447.4,
+   "T_c_drift_last_100s": 16.69,
+   "T_c_max": 460.2,
+   "t_T_c_over_300_s": 408.5,
    "suspects": 1,
    "first_suspect_s": 351.2,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 489.4,
-    "T_c": 376.0,
+    "t_s": 490.2,
+    "T_c": 376.1,
     "glass": 279.4
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 469.4,
-    "T_c": 359.9,
-    "glass": 262.3
+    "t_s": 470.3,
+    "T_c": 360.1,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 499.8,
-    "T_c": 383.7,
-    "glass": 288.1
+    "t_s": 500.7,
+    "T_c": 383.8,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 489.4,
-    "T_c": 376.0,
+    "t_s": 490.2,
+    "T_c": 376.1,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -17307,33 +17252,33 @@
    "T_c_steady": 510.0,
    "T_c_drift_last_100s": 0.04,
    "T_c_max": 510.1,
-   "t_T_c_over_300_s": 427.9,
+   "t_T_c_over_300_s": 428.8,
    "suspects": 1,
-   "first_suspect_s": 337.9,
+   "first_suspect_s": 338.1,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 512.4,
+    "t_s": 513.4,
     "T_c": 378.5,
     "glass": 279.4
    },
    "d1_lost": {
-    "t_s": 269.9,
-    "T_c": 200.3,
-    "glass": 137.3
+    "t_s": 270.1,
+    "T_c": 199.4,
+    "glass": 137.2
    },
    "glass_cr5_low": {
-    "t_s": 493.6,
-    "T_c": 364.1,
-    "glass": 262.3
+    "t_s": 494.7,
+    "T_c": 364.2,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 522.4,
-    "T_c": 385.6,
-    "glass": 288.1
+    "t_s": 523.5,
+    "T_c": 385.7,
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 512.4,
+    "t_s": 513.4,
     "T_c": 378.5,
     "glass": 279.4
    },
@@ -17347,35 +17292,35 @@
    "r_leak_ohm": 538.2,
    "T_c_steady": 510.0,
    "T_c_drift_last_100s": 0.04,
-   "T_c_max": 510.1,
-   "t_T_c_over_300_s": 428.5,
+   "T_c_max": 510.0,
+   "t_T_c_over_300_s": 437.5,
    "suspects": 1,
-   "first_suspect_s": 344.3,
+   "first_suspect_s": 343.9,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 512.7,
-    "T_c": 378.3,
+    "t_s": 521.5,
+    "T_c": 378.4,
     "glass": 279.4
    },
    "d1_lost": {
-    "t_s": 270.0,
-    "T_c": 200.3,
-    "glass": 137.3
+    "t_s": 270.8,
+    "T_c": 199.5,
+    "glass": 137.4
    },
    "glass_cr5_low": {
-    "t_s": 493.8,
-    "T_c": 363.8,
-    "glass": 262.3
+    "t_s": 502.7,
+    "T_c": 363.9,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 522.7,
-    "T_c": 385.4,
+    "t_s": 531.5,
+    "T_c": 385.5,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 512.7,
-    "T_c": 378.3,
+    "t_s": 521.5,
+    "T_c": 378.4,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -17389,33 +17334,33 @@
    "T_c_steady": 432.4,
    "T_c_drift_last_100s": -0.03,
    "T_c_max": 432.5,
-   "t_T_c_over_300_s": 408.0,
+   "t_T_c_over_300_s": 409.9,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 494.0,
+    "t_s": 496.0,
     "T_c": 379.0,
     "glass": 279.4
    },
    "d1_lost": {
-    "t_s": 270.2,
-    "T_c": 200.4,
-    "glass": 137.4
+    "t_s": 271.4,
+    "T_c": 199.5,
+    "glass": 137.6
    },
    "glass_cr5_low": {
-    "t_s": 475.5,
+    "t_s": 477.4,
     "T_c": 365.0,
-    "glass": 262.4
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 504.0,
-    "T_c": 386.0,
-    "glass": 288.2
+    "t_s": 505.9,
+    "T_c": 385.9,
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 494.0,
+    "t_s": 496.0,
     "T_c": 379.0,
     "glass": 279.4
    },
@@ -17430,34 +17375,34 @@
    "T_c_steady": 388.2,
    "T_c_drift_last_100s": -0.03,
    "T_c_max": 388.7,
-   "t_T_c_over_300_s": 450.3,
+   "t_T_c_over_300_s": 457.2,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 537.6,
-    "T_c": 372.9,
+    "t_s": 544.5,
+    "T_c": 373.0,
     "glass": 279.4
    },
    "d1_lost": {
-    "t_s": 270.3,
-    "T_c": 200.2,
-    "glass": 137.4
+    "t_s": 272.9,
+    "T_c": 199.4,
+    "glass": 138.0
    },
    "glass_cr5_low": {
-    "t_s": 518.2,
-    "T_c": 365.0,
+    "t_s": 525.1,
+    "T_c": 365.1,
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 549.7,
+    "t_s": 556.5,
     "T_c": 373.7,
-    "glass": 288.2
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 537.6,
-    "T_c": 372.9,
+    "t_s": 544.5,
+    "T_c": 373.0,
     "glass": 279.4
    },
    "latched_before_300": false
@@ -17469,17 +17414,17 @@
    "corner": "hot",
    "r_leak_ohm": 1293.2,
    "T_c_steady": 118.5,
-   "T_c_drift_last_100s": -0.08,
-   "T_c_max": 200.2,
+   "T_c_drift_last_100s": -0.85,
+   "T_c_max": 199.6,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": null,
    "d1_lost": {
-    "t_s": 270.5,
-    "T_c": 200.1,
-    "glass": 137.4
+    "t_s": 275.6,
+    "T_c": 199.5,
+    "glass": 138.7
    },
    "glass_cr5_low": null,
    "glass_cr5_top": null,
@@ -18028,32 +17973,32 @@
    "delta": 46.0,
    "corner": "cold",
    "r_leak_ohm": 300.0,
-   "T_c_steady": 510.1,
-   "T_c_drift_last_100s": 0.03,
-   "T_c_max": 510.1,
-   "t_T_c_over_300_s": 363.9,
+   "T_c_steady": 444.5,
+   "T_c_drift_last_100s": -27.88,
+   "T_c_max": 460.9,
+   "t_T_c_over_300_s": 363.8,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 477.1,
+    "t_s": 477.0,
     "T_c": 396.5,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 431.6,
-    "T_c": 364.5,
-    "glass": 262.3
+    "T_c": 364.6,
+    "glass": 262.4
    },
    "glass_cr5_top": {
     "t_s": 460.3,
     "T_c": 385.6,
-    "glass": 288.1
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 477.1,
+    "t_s": 477.0,
     "T_c": 396.5,
     "glass": 302.1
    },
@@ -18068,29 +18013,29 @@
    "T_c_steady": 510.1,
    "T_c_drift_last_100s": 0.03,
    "T_c_max": 510.1,
-   "t_T_c_over_300_s": 363.9,
+   "t_T_c_over_300_s": 363.8,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 477.1,
+    "t_s": 477.0,
     "T_c": 396.5,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 431.6,
-    "T_c": 364.5,
-    "glass": 262.3
+    "T_c": 364.6,
+    "glass": 262.4
    },
    "glass_cr5_top": {
     "t_s": 460.3,
     "T_c": 385.6,
-    "glass": 288.1
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 477.1,
+    "t_s": 477.0,
     "T_c": 396.5,
     "glass": 302.1
    },
@@ -18105,29 +18050,29 @@
    "T_c_steady": 510.1,
    "T_c_drift_last_100s": 0.03,
    "T_c_max": 510.1,
-   "t_T_c_over_300_s": 363.9,
+   "t_T_c_over_300_s": 363.8,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 477.1,
+    "t_s": 477.0,
     "T_c": 396.5,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 431.6,
-    "T_c": 364.5,
-    "glass": 262.3
+    "T_c": 364.6,
+    "glass": 262.4
    },
    "glass_cr5_top": {
     "t_s": 460.3,
     "T_c": 385.6,
-    "glass": 288.1
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 477.1,
+    "t_s": 477.0,
     "T_c": 396.5,
     "glass": 302.1
    },
@@ -18142,29 +18087,29 @@
    "T_c_steady": 432.5,
    "T_c_drift_last_100s": 0.03,
    "T_c_max": 432.5,
-   "t_T_c_over_300_s": 363.9,
+   "t_T_c_over_300_s": 363.8,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 477.1,
+    "t_s": 477.0,
     "T_c": 396.5,
     "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 431.6,
-    "T_c": 364.5,
-    "glass": 262.3
+    "T_c": 364.6,
+    "glass": 262.4
    },
    "glass_cr5_top": {
     "t_s": 460.3,
     "T_c": 385.6,
-    "glass": 288.1
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 477.1,
+    "t_s": 477.0,
     "T_c": 396.5,
     "glass": 302.1
    },
@@ -18184,15 +18129,15 @@
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 503.6,
-    "T_c": 376.5,
+    "t_s": 503.7,
+    "T_c": 376.6,
     "glass": 302.0
    },
    "d1_lost": null,
    "glass_cr5_low": {
     "t_s": 445.7,
     "T_c": 359.1,
-    "glass": 262.4
+    "glass": 262.3
    },
    "glass_cr5_top": {
     "t_s": 478.7,
@@ -18201,8 +18146,8 @@
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 503.6,
-    "T_c": 376.5,
+    "t_s": 503.7,
+    "T_c": 376.6,
     "glass": 302.0
    },
    "latched_before_300": false
@@ -18213,14 +18158,14 @@
    "delta": 46.0,
    "corner": "cold",
    "r_leak_ohm": 1293.2,
-   "T_c_steady": 341.9,
-   "T_c_drift_last_100s": -11.04,
+   "T_c_steady": 339.6,
+   "T_c_drift_last_100s": -8.64,
    "T_c_max": 347.5,
-   "t_T_c_over_300_s": 406.9,
+   "t_T_c_over_300_s": 406.8,
    "suspects": 16,
-   "first_suspect_s": 566.7,
+   "first_suspect_s": 566.0,
    "leak_latch": {
-    "t_s": 632.7,
+    "t_s": 632.0,
     "T_c": 336.2,
     "glass": 293.5
    },
@@ -18232,13 +18177,13 @@
     "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 541.9,
+    "t_s": 541.8,
     "T_c": 347.3,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "leak",
-    "t_s": 632.7,
+    "t_s": 632.0,
     "T_c": 336.2,
     "glass": 293.5
    },
@@ -18260,7 +18205,7 @@
    "rim_fault": null,
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 533.6,
+    "t_s": 533.7,
     "T_c": 319.2,
     "glass": 262.3
    },
@@ -18336,7 +18281,7 @@
    "r_leak_ohm": 5574.3,
    "T_c_steady": 269.2,
    "T_c_drift_last_100s": 0.01,
-   "T_c_max": 269.8,
+   "T_c_max": 269.7,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -18356,7 +18301,7 @@
    "r_leak_ohm": 7466.1,
    "T_c_steady": 264.0,
    "T_c_drift_last_100s": 0.01,
-   "T_c_max": 264.8,
+   "T_c_max": 264.7,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -18376,7 +18321,7 @@
    "r_leak_ohm": 10000.0,
    "T_c_steady": 260.3,
    "T_c_drift_last_100s": 0.01,
-   "T_c_max": 261.1,
+   "T_c_max": 261.2,
    "t_T_c_over_300_s": null,
    "suspects": 0,
    "first_suspect_s": null,
@@ -18394,34 +18339,34 @@
    "delta": 46.0,
    "corner": "cold",
    "r_leak_ohm": 300.0,
-   "T_c_steady": 510.0,
-   "T_c_drift_last_100s": 0.03,
-   "T_c_max": 510.1,
-   "t_T_c_over_300_s": 407.7,
+   "T_c_steady": 448.6,
+   "T_c_drift_last_100s": 10.78,
+   "T_c_max": 460.8,
+   "t_T_c_over_300_s": 408.7,
    "suspects": 1,
    "first_suspect_s": 350.1,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 517.0,
-    "T_c": 395.4,
-    "glass": 302.0
+    "t_s": 518.0,
+    "T_c": 395.5,
+    "glass": 302.1
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 469.5,
-    "T_c": 360.2,
-    "glass": 262.4
+    "t_s": 470.5,
+    "T_c": 360.3,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 499.8,
-    "T_c": 383.7,
+    "t_s": 500.8,
+    "T_c": 383.8,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 517.0,
-    "T_c": 395.4,
-    "glass": 302.0
+    "t_s": 518.0,
+    "T_c": 395.5,
+    "glass": 302.1
    },
    "latched_before_300": false
   },
@@ -18434,35 +18379,35 @@
    "T_c_steady": 510.0,
    "T_c_drift_last_100s": 0.04,
    "T_c_max": 510.1,
-   "t_T_c_over_300_s": 427.9,
+   "t_T_c_over_300_s": 428.9,
    "suspects": 1,
-   "first_suspect_s": 337.8,
+   "first_suspect_s": 338.1,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 539.2,
-    "T_c": 396.7,
-    "glass": 302.1
+    "t_s": 540.2,
+    "T_c": 396.6,
+    "glass": 302.0
    },
    "d1_lost": {
-    "t_s": 269.8,
-    "T_c": 200.1,
+    "t_s": 270.1,
+    "T_c": 199.2,
     "glass": 137.2
    },
    "glass_cr5_low": {
-    "t_s": 493.7,
-    "T_c": 364.1,
+    "t_s": 494.8,
+    "T_c": 364.2,
     "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 522.5,
+    "t_s": 523.5,
     "T_c": 385.6,
-    "glass": 288.2
+    "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 539.2,
-    "T_c": 396.7,
-    "glass": 302.1
+    "t_s": 540.2,
+    "T_c": 396.6,
+    "glass": 302.0
    },
    "latched_before_300": false
   },
@@ -18474,35 +18419,35 @@
    "r_leak_ohm": 538.2,
    "T_c_steady": 510.0,
    "T_c_drift_last_100s": 0.04,
-   "T_c_max": 510.1,
-   "t_T_c_over_300_s": 429.7,
+   "T_c_max": 510.0,
+   "t_T_c_over_300_s": 442.1,
    "suspects": 1,
-   "first_suspect_s": 359.0,
+   "first_suspect_s": 358.0,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 540.1,
-    "T_c": 396.2,
+    "t_s": 552.3,
+    "T_c": 396.5,
     "glass": 302.0
    },
    "d1_lost": {
-    "t_s": 270.0,
-    "T_c": 200.2,
-    "glass": 137.3
+    "t_s": 270.8,
+    "T_c": 199.1,
+    "glass": 137.4
    },
    "glass_cr5_low": {
-    "t_s": 494.0,
-    "T_c": 362.8,
-    "glass": 262.4
+    "t_s": 506.5,
+    "T_c": 363.4,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 523.3,
-    "T_c": 385.0,
+    "t_s": 535.6,
+    "T_c": 385.4,
     "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 540.1,
-    "T_c": 396.2,
+    "t_s": 552.3,
+    "T_c": 396.5,
     "glass": 302.0
    },
    "latched_before_300": false
@@ -18516,35 +18461,35 @@
    "T_c_steady": 432.5,
    "T_c_drift_last_100s": 0.03,
    "T_c_max": 432.5,
-   "t_T_c_over_300_s": 450.1,
+   "t_T_c_over_300_s": 459.5,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 562.8,
+    "t_s": 572.1,
     "T_c": 397.0,
-    "glass": 302.0
+    "glass": 302.1
    },
    "d1_lost": {
-    "t_s": 270.1,
-    "T_c": 200.2,
-    "glass": 137.3
+    "t_s": 271.7,
+    "T_c": 199.2,
+    "glass": 137.6
    },
    "glass_cr5_low": {
-    "t_s": 518.0,
-    "T_c": 365.5,
-    "glass": 262.3
+    "t_s": 527.3,
+    "T_c": 365.4,
+    "glass": 262.4
    },
    "glass_cr5_top": {
-    "t_s": 546.3,
+    "t_s": 555.6,
     "T_c": 386.3,
-    "glass": 288.1
+    "glass": 288.2
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 562.8,
+    "t_s": 572.1,
     "T_c": 397.0,
-    "glass": 302.0
+    "glass": 302.1
    },
    "latched_before_300": false
   },
@@ -18557,34 +18502,34 @@
    "T_c_steady": 388.2,
    "T_c_drift_last_100s": 0.03,
    "T_c_max": 388.7,
-   "t_T_c_over_300_s": 450.3,
+   "t_T_c_over_300_s": 457.5,
    "suspects": 0,
    "first_suspect_s": null,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 574.3,
-    "T_c": 377.8,
+    "t_s": 581.6,
+    "T_c": 377.6,
     "glass": 302.0
    },
    "d1_lost": {
-    "t_s": 270.2,
-    "T_c": 200.0,
-    "glass": 137.3
+    "t_s": 273.4,
+    "T_c": 199.4,
+    "glass": 138.1
    },
    "glass_cr5_low": {
-    "t_s": 518.3,
-    "T_c": 365.0,
-    "glass": 262.4
+    "t_s": 525.4,
+    "T_c": 364.9,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 549.8,
+    "t_s": 557.0,
     "T_c": 373.7,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 574.3,
-    "T_c": 377.8,
+    "t_s": 581.6,
+    "T_c": 377.6,
     "glass": 302.0
    },
    "latched_before_300": false
@@ -18595,35 +18540,22 @@
    "delta": 46.0,
    "corner": "cold",
    "r_leak_ohm": 1293.2,
-   "T_c_steady": 330.8,
-   "T_c_drift_last_100s": -3.58,
-   "T_c_max": 352.2,
-   "t_T_c_over_300_s": 395.5,
-   "suspects": 23,
-   "first_suspect_s": 541.7,
-   "leak_latch": {
-    "t_s": 607.7,
-    "T_c": 331.6,
-    "glass": 291.2
-   },
+   "T_c_steady": 118.6,
+   "T_c_drift_last_100s": -1.18,
+   "T_c_max": 199.9,
+   "t_T_c_over_300_s": null,
+   "suspects": 0,
+   "first_suspect_s": null,
+   "leak_latch": null,
    "rim_fault": null,
-   "d1_lost": null,
-   "glass_cr5_low": {
-    "t_s": 460.3,
-    "T_c": 351.9,
-    "glass": 262.3
+   "d1_lost": {
+    "t_s": 277.5,
+    "T_c": 199.9,
+    "glass": 139.2
    },
-   "glass_cr5_top": {
-    "t_s": 526.2,
-    "T_c": 344.7,
-    "glass": 288.1
-   },
-   "first_latch": {
-    "rule": "leak",
-    "t_s": 607.7,
-    "T_c": 331.6,
-    "glass": 291.2
-   },
+   "glass_cr5_low": null,
+   "glass_cr5_top": null,
+   "first_latch": null,
    "latched_before_300": false
   },
   {
@@ -18776,33 +18708,33 @@
    "delta": 46.0,
    "corner": "cold",
    "r_leak_ohm": 300.0,
-   "T_c_steady": 510.0,
-   "T_c_drift_last_100s": 0.04,
-   "T_c_max": 510.0,
-   "t_T_c_over_300_s": 406.4,
+   "T_c_steady": 446.1,
+   "T_c_drift_last_100s": 24.8,
+   "T_c_max": 491.6,
+   "t_T_c_over_300_s": 408.3,
    "suspects": 1,
-   "first_suspect_s": 486.6,
+   "first_suspect_s": 488.6,
    "leak_latch": null,
    "rim_fault": {
-    "t_s": 520.3,
-    "T_c": 380.3,
+    "t_s": 523.3,
+    "T_c": 380.2,
     "glass": 302.0
    },
    "d1_lost": null,
    "glass_cr5_low": {
-    "t_s": 469.1,
-    "T_c": 361.8,
-    "glass": 262.4
+    "t_s": 472.2,
+    "T_c": 362.6,
+    "glass": 262.3
    },
    "glass_cr5_top": {
-    "t_s": 499.0,
-    "T_c": 381.3,
+    "t_s": 501.9,
+    "T_c": 381.2,
     "glass": 288.1
    },
    "first_latch": {
     "rule": "rim_fault",
-    "t_s": 520.3,
-    "T_c": 380.3,
+    "t_s": 523.3,
+    "T_c": 380.2,
     "glass": 302.0
    },
    "latched_before_300": false

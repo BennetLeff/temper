@@ -78,6 +78,13 @@ float pte_step(pte_t *f, float y_pt100_c, float t_sink_c);
 /** Predict only (no measurement this period, e.g. a rejected sample). */
 float pte_predict(pte_t *f, float t_sink_c);
 
+/**
+ * Change the model contact conductance (W/m^2K) and recompose the transition,
+ * keeping the state and covariance (contact_shift.c, after a contact-shift
+ * window). False (nothing changed) if h is not positive and finite.
+ */
+bool pte_set_contact(pte_t *f, float h_w_per_m2k);
+
 static inline float pte_estimate(const pte_t *f) { return f->x[0]; }
 static inline float pte_rate(const pte_t *f) { return f->x[1]; }
 

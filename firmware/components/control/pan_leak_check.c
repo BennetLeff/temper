@@ -37,6 +37,7 @@ bool plc_init(plc_t *c, const plc_params_t *p)
 static void restart(plc_t *c)
 {
     c->pending = false;
+    c->probing = false;
     c->count = 0u;
 }
 
@@ -49,9 +50,10 @@ bool plc_step(plc_t *c, bool suspect, int cc_event, float t_pt100_c, float t_rim
     }
     if (cc_event == (int)CC_EVT_LOST || cc_event == (int)CC_EVT_RESTORED) {
         restart(c);   /* contact really was in doubt: not a leak signature */
+        c->d1_busy = cc_event == (int)CC_EVT_LOST;   /* LOST retries until RESTORED */
         return false;
     }
-    if (suspect) {
+    if (suspect && !c->d1_busy) {
         if (!isfinite(t_pt100_c) || !isfinite(t_rim_c)) {
             restart(c);
             return false;
@@ -61,8 +63,20 @@ bool plc_step(plc_t *c, bool suspect, int cc_event, float t_pt100_c, float t_rim
         c->sus_pt_c = t_pt100_c;
         c->sus_rim_c = t_rim_c;
     }
-    if (cc_event == (int)CC_EVT_PROBE_PASSED && c->pending) {
+    /* Only a probe that starts at or after the suspect answers it. A probe
+     * already running (the contact-shift window's, D-CSW, or D1's own
+     * trigger) did not test the cross-check's doubt: its verdict does not
+     * count, and a suspect raised during it is not armed. */
+    if (cc_event == (int)CC_EVT_SUSPECT) {
+        c->d1_busy = true;
+        c->probing = c->pending;
         c->pending = false;
+    }
+    if (cc_event == (int)CC_EVT_PROBE_PASSED) {
+        c->d1_busy = false;
+    }
+    if (cc_event == (int)CC_EVT_PROBE_PASSED && c->probing) {
+        c->probing = false;
         const bool chained = c->count > 0u && c->sus_t_s - c->last_t_s <= p->gap_s &&
                              c->sus_rim_c - c->last_rim_c >= -p->rim_fall_k &&
                              c->sus_pt_c - c->last_pt_c <= p->pt_rise_k;

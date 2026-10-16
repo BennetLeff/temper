@@ -105,18 +105,19 @@ all exactly as in screen.py. The constants are in `cc_params_t`.
     false restores and T_c up to SP + 15.22 K;
   - the firmware rules detected all 80 losses, with 0 false restores and
     0 false latches in 60 food, 80 nominal and 160 probe-on-intact-contact
-    runs, and T_c ≤ SP + 11.88 K.
+    runs, and T_c ≤ SP + 6.43 K (11.88 K before the contact-shift window,
+    D-CSW).
 
 ## D-B5. The B5 stretch (≤ 15 s confirm) is not adopted
 
 The candidate was a 3/6/3 s first probe at 60 %, with a 1.5 s lag.
-- It confirmed in ≤ 16.2 s.
+- It confirmed in ≤ 15.4 s (16.2 s before D-CSW).
 - It latched falsely in 40 of 160 probe-on-intact-contact runs
   (`b5-montecarlo.json`).
 
 The default stays at 5/8/5 s, 50 %. The ≤ 21 s confirm bar is met on screen.py's
-seeds: 20.6 s worst. Across 20 seeds the water pot takes up to 4.2 s to suspect
-and up to 22.2 s to confirm. This is reported, not gated: its probe response is
+seeds: 20.9 s worst. Across 20 seeds the water pot takes up to 3.4 s to suspect
+and up to 21.4 s to confirm (4.2 s and 22.2 s before D-CSW). This is reported, not gated: its probe response is
 only 0.12 K/kJ, an SNR limit.
 
 ## D-RATE. Rate fault = spike or sustained slew, not one fast step
@@ -738,19 +739,20 @@ Results:
     (gated).
   - 2 cross-check suspects, both cast iron food at Δ 12 K, 50 s after the
     food. These are probes on intact contact, which D-B5 shows never latch.
-  - Worst estimate error 1.96 K nominal and 9.92 K food. cosim.py's own food
+  - Worst estimate error 1.96 K nominal and 13.13 K food (9.92 K before D-CSW). cosim.py's own food
     runs reach 8.47 K.
 - **Element-parallel leakage** from 250 s, 16 runs (cold corner):
-  - **1 kΩ:** the cross-check fires in 6 of 8, 208–292 s after the leak. D1's
-    probe then (correctly) finds the sensor in contact, so heating continues.
-    T_c reaches SP + 121.9 K, about 352 °C. In the other two (carbon steel
-    and cast iron, Δ 12 K) the glass passes 300 °C and the rim channel's
-    over-range fault latches first, at 463–485 s. (Until D-LEAK the glass
-    model clamped the NTC at its 300 °C table top, which hid that fault: 7
-    of 8 fired then.)
-  - **3 kΩ:** no cross-check. T_c settles at SP + 35.4 K.
+  - **1 kΩ:** the cross-check fires in 5 of 8, 233–292 s after the leak
+    (with the contact-shift window in the loop, D-CSW). D1's probe then
+    (correctly) finds the sensor in contact, so heating continues. T_c
+    reaches SP + 121.9 K, about 352 °C. On carbon steel and cast iron at
+    Δ 12 K the glass passes 300 °C and the rim channel's over-range fault
+    latches first, at 447–463 s. (Until D-LEAK the glass model clamped the
+    NTC at its 300 °C table top, which hid that fault.) The water pot at
+    Δ 46 K never fires.
+  - **3 kΩ:** no cross-check. T_c settles at SP + 35.8 K.
   - **CR-5 hardware trip:** the glass reaches the band's low edge (262.3 °C)
-    in 6 of 16 runs and its top (288.1 °C) in 4.
+    in 6 of 16 runs and its top (288.1 °C) in 5.
 
   So the cross-check as specified (D-XCHK: suspect → probe) does not stop
   leakage. See D-LEAK and open item 10.
@@ -860,7 +862,7 @@ the C library is driven passively on every run):
   - dies at 100 s: (a) latches at 100.4 s, 18/18.
 
   Acting, the stage never gets to stick: peak T_c is 32.6–34.2 °C and
-  108.2–117.2 °C. The same double fault with the sense dying at the moment
+  107.8–117.2 °C. The same double fault with the sense dying at the moment
   the stage sticks peaks at 197.4–259.9 °C.
 - **Simultaneous double fault** (the existing `current_broken` runs, the
   sense now dying at 250 s with the stage). Cast iron: (a) latches 0.4 s
@@ -895,7 +897,7 @@ the C library is driven passively on every run):
   10 s with a 10–20 s window, and of 20 s with a 20 s window. Every variant
   that had no false trip still has none, 20/5/2 and its half-hold 10/5/2
   included.
-- `max_identical_codes` at 0.3 LSB rises from 88 to 108 (burst runs), still
+- `max_identical_codes` at 0.3 LSB rises from 88 to 93 (burst runs), still
   under 250.
 
 **Limits.**
@@ -951,21 +953,22 @@ step 3c). The setup:
 - frying pans at a 250 °C final setpoint, 1800 s.
 
 Results:
-- **Hazardous** (untripped steady T_c > 300 °C): 234 runs, all at 300 Ω –
+- **Hazardous** (untripped steady T_c > 300 °C): 235 runs, all at 300 Ω –
   1.73 kΩ. Steady T_c reaches up to 819.5 °C (300 Ω, the plant's
   uncontrolled ceiling). 2.32 kΩ peaks at a steady 299.8 °C.
-- **The bar is not met.** 7 of 234 latch before T_c first exceeds 300 °C: 6
+- **The bar is not met.** 7 of 235 latch before T_c first exceeds 300 °C: 6
   by the leak check and 1 by the rim over-range fault, all with a ramp
-  onset. By onset that is step 0/82, 120 s ramp 3/82 and 600 s ramp 4/70.
-- **218 latch after T_c passes 300 °C:** the first latch comes 30.8–367.3 s
-  later, at T_c up to 474.1 °C. The rim over-range fault is the first latch
-  in 187 hazardous runs and the leak check in 38.
+  onset. By onset that is step 0/84, 120 s ramp 3/80 and 600 s ramp 4/71.
+- **219 latch after T_c passes 300 °C:** the first latch comes 30.8–367.3 s
+  later, at T_c up to 474.2 °C. The rim over-range fault is the first latch
+  in 188 hazardous runs and the leak check in 38 (the leak check latches at
+  T_c 283.8–373.1 °C).
 - **9 never latch:** 1.73 kΩ at Δ 46 K, cold bead corner, all three frying
   pans, every onset, at a steady 318.7–318.9 °C. This is the largest
   uncaught leak: **1.73 kΩ, steady 318.9 °C.**
 - **No rule on these signals can meet the bar.** Any such rule needs a
-  cross-check suspect, and 209 of the 234 hazardous runs have none before
-  T_c passes 300 °C (step 82/82, 120 s 62/82, 600 s 65/70). The reasons:
+  cross-check suspect, and 208 of the 235 hazardous runs have none before
+  T_c passes 300 °C (step 83/84, 120 s 59/80, 600 s 66/71). The reasons:
   - The cross-check needs the reading 25 K below a rim that reads the glass.
     The glass sits 12–46 K below the pan, and the bead is ±10.2 K at 250 °C
     (D-XCHK). So with the reading held at a 250 °C setpoint, the first
@@ -974,7 +977,7 @@ Results:
   - The suspect also needs a reading that does not rise for 30 s.
 - **The CR-5 hardware rim trip is no guaranteed backstop either.** Its band
   is 262.3–288.1 °C on the glass. The glass reaches the band's top before
-  T_c passes 300 °C in 0 of 234 hazardous runs, and its low edge in 13.
+  T_c passes 300 °C in 0 of 235 hazardous runs, and its low edge in 13.
 - **Moderate leaks are firmware-invisible.**
   - ≥ 4.16 kΩ (steady T_c ≤ 276.8 °C): no suspect and no latch in any run.
   - 3.11 kΩ (the owner's ~3 kΩ: steady up to 286.2 °C): latched in 9 of
@@ -984,17 +987,24 @@ Results:
     latches 31 of its 156 leak runs, which are real leaks but not hazards.
 - **D1 sometimes takes a leak for a lifted pan.** A leaky reading falling
   under power can look like a lift, and D1 then zeroes the power until a
-  retry probe passes (`d1_lost` per leak in the JSON). That is why the same
-  leak is not hazardous in every run. It does not latch.
+  retry probe passes (47 of 624 leak runs; `d1_lost` per leak in the JSON).
+  That is why the same leak is not hazardous in every run. It does not
+  latch.
 - **Benign: 0 leak latches in 548 runs** (gated). The runs are xcheck's 28,
   and b5-style sets through the glass and rim model (5 seeds × Δ × corner):
   nominal 80, food 60, probe on intact contact 160, food batches every
   120 s 60, a cold pan on 200 °C glass 80, and the setpoint lowered by 60 K
   80. There were also 0 D1 LOST and 0 other latches (gated).
+- **D1 probes the cross-check did not ask for do not count.** The
+  contact-shift window (D-CSW) and D1's own trigger also start probes. Only
+  a probe that starts at or after the suspect counts (D1's CC_EVT_SUSPECT
+  while the suspect is pending). A suspect raised while another probe or
+  LOST is in progress is not armed (unit test
+  `test_leak_a_probe_not_started_by_the_suspect_does_not_count`).
 - **SIL C1:** *C1 Pt100 Element-Parallel Leakage (HEATING)*: the pan and rim
   at 140 °C, the reading at 100 °C. It latches in 972 rows (bound 1250). The
   SIL trace limit was raised from 1000 to 2000 rows for it.
-- **Unit tests:** 4 (`test_c1_units_only`).
+- **Unit tests:** 5 (`test_c1_units_only`).
 
 **What the hardware and production must carry** (the firmware cannot):
 1. **Hot-zone insulation ≥ 10 MΩ at 300 °C** between leads and across the
@@ -1012,6 +1022,104 @@ Results:
    the credible way a hot-zone leak forms. Qualify the seal with steam/damp
    heat, thermal cycling and wash exposure. Afterwards the cartridge must
    still pass the 10 MΩ at 300 °C test.
+
+## D-CSW. Contact-shift window: re-estimate the contact after an abrupt change
+
+Open item 9: a mid-cook h_c drop made the fixed-contact KF read low by the
+change in its static offset, and the loop over-heated the pan by up to
+13.09 K. Coil power cannot identify absolute h_c (sensor-r2), but it can
+identify a **step**: the cartridge re-settles in 0.2–3.5 s while the pan
+cannot change its rate unless the power changes.
+
+`contact_shift.{c,h}` (Python reference `../robustness/shift_kf.py`):
+- **Trigger** (D1 NORMAL, no sensor fault, ≥ 30 s after start, > 20 s after
+  the last window): the reading's slope over the last 1.5 s minus its slope
+  over the 3 s before is below −0.6 K/s (DOWN), or above +0.6 K/s while the
+  model contact is below 0.95 h_nom (UP); and no 1 s block of applied power in
+  the last 8 s is more than 10 % P_max below (DOWN) / above (UP) the mean of
+  the 8 s before. A power change explains a change of rate; a contact change
+  does not.
+- **Window:** the KF state from 2.5 s ago is replayed as a 5-state EKF
+  [T_pan, v, T_cap, T_el, ln G] in double. The pan is pinned (T from the
+  snapshot, sd 0.1 K; v from the reading slope over the 5 s before, sd
+  0.03 K/s). ln G (sd 1.0) is clamped to [ln G_floor (150 W/m²K), ln G_old]
+  for DOWN, [ln G_old, ln G_nom] for UP. While open, its T̂ is the loop's T̂.
+  The base KF runs on underneath.
+- **Close:** ESCALATE when ln G reaches the floor (a fall faster than any
+  partial contact: loss or real cooling). The loop requests a D1 probe and
+  keeps the old contact. ACCEPT after ≥ 4 s (8 s when the loop was steady at
+  its setpoint), with ln G settled (< 0.04 over 2 s), a change ≥ 25 % and
+  sd ≤ 0.2 (or an UP estimate at nominal). The estimator takes the window's
+  state and the contact exp(ln G − 1 sd): the lower side, because a contact
+  assumed too good reads low and over-heats. REVERT at 12 s or when the gate
+  drops.
+- **Loop wiring** (`pan_temp_loop.c`): the gate is D1 NORMAL and no fault;
+  "steady" is sp_eff ≥ SP and |T̂ − SP| < 3 K for 10 s. ESCALATE requests a
+  D1 probe. D1 RESTORED (a new seating after a loss) resets the contact to
+  nominal. Any window event ends the a-identification phase.
+- **Cost:** ~5 kB of state, double math only inside a window (≤ 12 s).
+
+Evidence (`../robustness/DECISIONS.md` R-A): four candidates in the Python
+screen (power cap, an immediate D1 probe, a power-frozen window, the window).
+Only the window fixes the static error. In the C co-sim, 64 steps per gain
+mode, before → after:
+- B2: 36/36/39 → 64/64/64;
+- worst overshoot: 12.83/13.14/13.14 → 4.95/5.00/4.72 K;
+- B1 (3 K): 11/11/10 → 49/49/45;
+- D1 probes: 31/32/30 → 1/2/1.
+The cases nearest the 5 K bar are water-pot steps the window cannot see; they
+are unchanged.
+
+Effects on the gated co-sim (`cosim-results.json`, all bars still pass):
+- **Loss:** T_c − SP 11.65–12.04 → 6.72–6.94 K, because T̂ no longer chases
+  the falling reading. The suspect time moves from 2.5–2.6 to 2.7–2.9 s:
+  0.1 s margin to the 3 s bar in id_measured.
+- **Original h_step cases:** 1000 → 300 overshoot 9.88–13.09 → 1.93–4.21 K.
+  The 300 → 3000 cases still overshoot 5.65–7.08 K, unchanged: that is the
+  first ramp at h_c 300 from the start, before the step.
+- **Stress:** B1 8/12 → 6–7/12, reported. A window opened without a contact
+  change on carbon steel at 3000 W/m²K and, in id_measured, accepted
+  585 W/m²K: the hold ran 3.66 K cool. A false DOWN acceptance errs cool.
+
+The co-sim shadow is now `shift_kf.ShiftKF`, fed C's gate and steady flag.
+Parity: worst 1.3e-4 K rms here, 2.2e-4 K rms in `hc-cosim.json`, against a
+bar of 0.05 K. Unit tests in `test_pan_temp_loop_only`:
+- an abrupt drop is accepted within 30 % of the truth;
+- a power cut vetoes the trigger;
+- contact loss escalates;
+- the gate reverts the window, and reset returns the contact to nominal.
+
+## D-LPG. Latent-plateau guard with an energy budget, in the rate PID
+
+Water trapped in the bore boils under the pan centre and pins the reading
+near 100 °C. The PID then holds full power while the annulus runs away. In
+the Python screen, 5 of 54 water cases exceeded SP + 15 K (up to +27 K).
+Before this change the runaway supervisor latched only after that
+(`../robustness/hc-cosim.json` before).
+
+`pan_rate_pid.c`:
+- **Condition:** T̂ in 95–118 °C, the least-squares slope of the previous
+  100 T̂ within ±0.15 K/s, and SP − T̂ > 5 K.
+- **Action:** limit the PID to 0.2 K/s / a, once the budget is spent.
+- **Budget:** a·E ≥ SP − T̂. E is the PID output energy since T̂ entered the
+  band from below. That is the energy to take the whole pan to the setpoint,
+  enough to boil the pocket off by heating the pan around it.
+- **Entering from above:** the reading fell into the band, so the pan was
+  hotter than T̂. There is no budget.
+
+Without the budget, the plain cap held a clad pan at ~100 °C for 480 s with
+the pocket intact (hold −105 K). With it, the worst under-temperature is
+−6.64 K.
+
+Results, water cases, C co-sim:
+- 54/54 stay ≤ SP + 15 K in every gain mode, worst SP + 6.05 K;
+- before this change: 49–51/54, worst SP + 29.14 K;
+- 0 D1 latches and 0 supervisor latches.
+
+The pan mean still reaches SP + 22 K; the B5 line is on T_c. A deglaze above
+105 °C gets the budget, then the cap, until the liquid boils off. Both are
+open items in `../robustness/DECISIONS.md` R-C. The design, nominal, food,
+stress and probe-on-intact runs are unchanged by the guard.
 
 ## Open items for the firmware owner
 
@@ -1120,14 +1228,18 @@ Results:
 8. **Hot-pan starts run on the prior.** a is never identified (no updates,
    src_mask 0), so a0 is used. For cast iron that is 2.34 × a_true. B1–B3
    still pass.
-9. **h_c steps are reported, not gated:** B1 0/4, B2 0/4, overshoot up to
-   13.09 K for 1000 → 300 (`cosim-results.json` h_step). C1 no longer latches
-   on them (D-RUN).
+9. **h_c steps: closed by D-CSW / D-LPG.** Was: B1 0/4, B2 0/4, overshoot up to
+   13.09 K for 1000 → 300. Now gated on 64 steps in three gain modes
+   (`../robustness/hc-cosim.json`, bars R-HS1–5): B2 64/64, worst 5.00 K;
+   the original case is 4.21 K. What remains open is in
+   `../robustness/DECISIONS.md` R-C: gradual contact loss (warp, a stuck post
+   with pan bow) is not observable by the window or D1, and needs the rim
+   cross-check or the mechanical margin.
 10. **Element-parallel leakage: a firmware latch now exists (D-LEAK), and the
     300 °C bar is not met.** Firmware cannot meet it on these signals:
-    - 7 of 234 hazardous leak runs latch before the pan passes 300 °C;
+    - 7 of 235 hazardous leak runs latch before the pan passes 300 °C;
     - the leak check and the rim over-range fault latch most of the rest
-      after it (T_c ≤ 474.1 °C);
+      after it (T_c ≤ 474.2 °C);
     - 1.73 kΩ at Δ 46 K on the cold corner never latches (318.9 °C steady);
     - ≥ 4.16 kΩ is invisible.
 
@@ -1137,10 +1249,10 @@ Results:
     note follows.
     In `xcheck-cosim.json`:
     - 1 kΩ drives the pan to SP + 121.9 K;
-    - 3 kΩ holds it at SP + 35.4 K;
-    - the cross-check fires on 6 of the 8 1 kΩ runs only (7 before D-LEAK
-      extrapolated the NTC above 300 °C; the other two now meet the rim
-      over-range fault), and its D1 probe correctly confirms contact.
+    - 3 kΩ holds it at SP + 35.8 K;
+    - the cross-check fires on 5 of the 8 1 kΩ runs only (7 before D-LEAK
+      extrapolated the NTC above 300 °C and D-CSW joined the loop), and its
+      D1 probe correctly confirms contact.
 
     Only the CR-5 hardware trip remains: the glass reaches the band's low edge
     in 6 of 16 runs and its top in 4.

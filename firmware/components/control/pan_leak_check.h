@@ -18,7 +18,10 @@
  * reading recovers or the rim cools).
  *
  * Rule (output/temper-sensor-r3/firmware/DECISIONS.md D-LEAK): a "leak cycle"
- * is a cross-check suspect followed by PROBE_PASSED. `cycles` consecutive
+ * is a cross-check suspect, a D1 probe that starts at or after it
+ * (CC_EVT_SUSPECT), and that probe's PROBE_PASSED. A probe already running
+ * when the cross-check fires (the contact-shift window's or D1's own) does
+ * not count: it did not answer the cross-check. `cycles` consecutive
  * leak cycles, each suspect within gap_s of the previous one, with the rim
  * reading not more than rim_fall_k lower and the Pt100 reading not more than
  * pt_rise_k higher at each suspect than at the previous one, latch. A
@@ -56,7 +59,9 @@ typedef struct {
 typedef struct {
     plc_params_t p;
     float t_s;            /**< time since plc_init                              */
-    bool pending;         /**< a suspect waits for its probe's verdict          */
+    bool pending;         /**< a suspect waits for its probe to start           */
+    bool probing;         /**< the probe that answers the suspect is running    */
+    bool d1_busy;         /**< a D1 probe (any source) or LOST is in progress   */
     float sus_t_s, sus_pt_c, sus_rim_c;
     uint8_t count;        /**< consecutive leak cycles                          */
     float last_t_s, last_pt_c, last_rim_c;

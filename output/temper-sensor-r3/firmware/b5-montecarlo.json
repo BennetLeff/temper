@@ -20,33 +20,33 @@
    "loss/carbon_steel_28": {
     "runs": 20,
     "detected": 20,
-    "worst_confirm_s": 20.2,
-    "worst_suspect_s": 2.2,
-    "worst_Tc_over_sp_K": 2.07,
+    "worst_confirm_s": 20.6,
+    "worst_suspect_s": 2.6,
+    "worst_Tc_over_sp_K": -0.8,
     "runs_with_false_restore": 0
    },
    "loss/cast_iron_26": {
     "runs": 20,
     "detected": 20,
-    "worst_confirm_s": 19.9,
-    "worst_suspect_s": 1.9,
-    "worst_Tc_over_sp_K": -0.72,
+    "worst_confirm_s": 20.6,
+    "worst_suspect_s": 2.6,
+    "worst_Tc_over_sp_K": -1.32,
     "runs_with_false_restore": 0
    },
    "loss/disc_pot_water_1l5": {
     "runs": 20,
     "detected": 15,
     "worst_confirm_s": 1000000000.0,
-    "worst_suspect_s": 4.2,
+    "worst_suspect_s": 3.4,
     "worst_Tc_over_sp_K": 15.22,
-    "runs_with_false_restore": 12
+    "runs_with_false_restore": 13
    },
    "loss/triply_clad_24": {
     "runs": 20,
     "detected": 20,
-    "worst_confirm_s": 20.5,
-    "worst_suspect_s": 2.5,
-    "worst_Tc_over_sp_K": 11.88,
+    "worst_confirm_s": 20.7,
+    "worst_suspect_s": 2.7,
+    "worst_Tc_over_sp_K": 6.43,
     "runs_with_false_restore": 0
    },
    "food": {
@@ -61,7 +61,7 @@
    },
    "probe_intact": {
     "runs": 160,
-    "probes": 325,
+    "probes": 338,
     "false_latches": 0
    }
   },
@@ -69,33 +69,33 @@
    "loss/carbon_steel_28": {
     "runs": 20,
     "detected": 20,
-    "worst_confirm_s": 20.2,
-    "worst_suspect_s": 2.2,
-    "worst_Tc_over_sp_K": 2.07,
+    "worst_confirm_s": 20.6,
+    "worst_suspect_s": 2.6,
+    "worst_Tc_over_sp_K": -0.8,
     "runs_with_false_restore": 0
    },
    "loss/cast_iron_26": {
     "runs": 20,
     "detected": 20,
-    "worst_confirm_s": 19.9,
-    "worst_suspect_s": 1.9,
-    "worst_Tc_over_sp_K": -0.72,
+    "worst_confirm_s": 20.6,
+    "worst_suspect_s": 2.6,
+    "worst_Tc_over_sp_K": -1.32,
     "runs_with_false_restore": 0
    },
    "loss/disc_pot_water_1l5": {
     "runs": 20,
     "detected": 20,
-    "worst_confirm_s": 22.2,
-    "worst_suspect_s": 4.2,
-    "worst_Tc_over_sp_K": -5.54,
+    "worst_confirm_s": 21.4,
+    "worst_suspect_s": 3.4,
+    "worst_Tc_over_sp_K": -5.7,
     "runs_with_false_restore": 0
    },
    "loss/triply_clad_24": {
     "runs": 20,
     "detected": 20,
-    "worst_confirm_s": 20.5,
-    "worst_suspect_s": 2.5,
-    "worst_Tc_over_sp_K": 11.88,
+    "worst_confirm_s": 20.7,
+    "worst_suspect_s": 2.7,
+    "worst_Tc_over_sp_K": 6.43,
     "runs_with_false_restore": 0
    },
    "food": {
@@ -110,7 +110,7 @@
    },
    "probe_intact": {
     "runs": 160,
-    "probes": 325,
+    "probes": 338,
     "false_latches": 0
    }
   },
@@ -118,33 +118,33 @@
    "loss/carbon_steel_28": {
     "runs": 20,
     "detected": 20,
-    "worst_confirm_s": 14.2,
-    "worst_suspect_s": 2.2,
-    "worst_Tc_over_sp_K": 2.89,
+    "worst_confirm_s": 14.6,
+    "worst_suspect_s": 2.6,
+    "worst_Tc_over_sp_K": 0.25,
     "runs_with_false_restore": 0
    },
    "loss/cast_iron_26": {
     "runs": 20,
     "detected": 20,
-    "worst_confirm_s": 13.9,
-    "worst_suspect_s": 1.9,
-    "worst_Tc_over_sp_K": -0.09,
+    "worst_confirm_s": 14.6,
+    "worst_suspect_s": 2.6,
+    "worst_Tc_over_sp_K": -0.83,
     "runs_with_false_restore": 0
    },
    "loss/disc_pot_water_1l5": {
     "runs": 20,
     "detected": 20,
-    "worst_confirm_s": 16.2,
-    "worst_suspect_s": 4.2,
-    "worst_Tc_over_sp_K": -5.54,
+    "worst_confirm_s": 15.4,
+    "worst_suspect_s": 3.4,
+    "worst_Tc_over_sp_K": -5.7,
     "runs_with_false_restore": 0
    },
    "loss/triply_clad_24": {
     "runs": 20,
     "detected": 20,
-    "worst_confirm_s": 14.5,
-    "worst_suspect_s": 2.5,
-    "worst_Tc_over_sp_K": 12.74,
+    "worst_confirm_s": 14.7,
+    "worst_suspect_s": 2.7,
+    "worst_Tc_over_sp_K": 7.16,
     "runs_with_false_restore": 0
    },
    "food": {
@@ -159,7 +159,7 @@
    },
    "probe_intact": {
     "runs": 160,
-    "probes": 322,
+    "probes": 334,
     "false_latches": 40
    }
   }

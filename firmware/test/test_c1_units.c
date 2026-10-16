@@ -505,8 +505,42 @@ static void test_leak_contact_doubt_or_no_rim_restarts_the_count(void)
     TEST_ASSERT_FALSE(plc_cycle(251.0f, 285.0f));
     plc_new();   /* a probe D1 started on its own (no cross-check suspect) */
     TEST_ASSERT_FALSE(plc_cycle(251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_step(&plc, false, CC_EVT_SUSPECT, 251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_idle(60, 251.0f, 285.0f));
     TEST_ASSERT_FALSE(plc_step(&plc, false, CC_EVT_PROBE_PASSED, 251.0f, 285.0f));
     TEST_ASSERT_FALSE(plc_idle(100, 251.0f, 285.0f));
+}
+
+static void test_leak_a_probe_not_started_by_the_suspect_does_not_count(void)
+{
+    plc_new();
+    TEST_ASSERT_FALSE(plc_cycle(251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_idle(300, 245.0f, 286.0f));
+    /* the contact-shift window starts a probe; the cross-check fires during
+     * it; the window's probe passes: not a leak cycle */
+    TEST_ASSERT_FALSE(plc_step(&plc, false, CC_EVT_SUSPECT, 245.0f, 286.0f));
+    TEST_ASSERT_FALSE(plc_idle(20, 245.0f, 286.0f));
+    TEST_ASSERT_FALSE(plc_step(&plc, true, CC_EVT_NONE, 245.0f, 286.0f));
+    TEST_ASSERT_FALSE(plc_idle(40, 245.0f, 286.0f));
+    TEST_ASSERT_FALSE(plc_step(&plc, false, CC_EVT_PROBE_PASSED, 245.0f, 286.0f));
+    /* a suspect whose probe never starts (D1 hold-off): a later PASSED of
+     * some other probe that did not start after it does not count either */
+    plc_new();
+    TEST_ASSERT_FALSE(plc_cycle(251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_idle(300, 245.0f, 286.0f));
+    TEST_ASSERT_FALSE(plc_step(&plc, true, CC_EVT_NONE, 245.0f, 286.0f));
+    TEST_ASSERT_FALSE(plc_idle(40, 245.0f, 286.0f));
+    TEST_ASSERT_FALSE(plc_step(&plc, false, CC_EVT_PROBE_PASSED, 245.0f, 286.0f));
+    /* ...but the request held through the hold-off starts a probe later, and
+     * that probe's verdict does count */
+    plc_new();
+    TEST_ASSERT_FALSE(plc_cycle(251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_idle(300, 245.0f, 286.0f));
+    TEST_ASSERT_FALSE(plc_step(&plc, true, CC_EVT_NONE, 245.0f, 286.0f));
+    TEST_ASSERT_FALSE(plc_idle(40, 245.0f, 286.0f));
+    TEST_ASSERT_FALSE(plc_step(&plc, false, CC_EVT_SUSPECT, 245.0f, 286.0f));
+    TEST_ASSERT_FALSE(plc_idle(60, 245.0f, 286.0f));
+    TEST_ASSERT_TRUE(plc_step(&plc, false, CC_EVT_PROBE_PASSED, 245.0f, 286.0f));
 }
 
 void run_c1_units_tests(void)
@@ -545,4 +579,5 @@ void run_c1_units_tests(void)
     RUN_TEST(test_leak_one_cycle_or_cycles_beyond_the_gap_never_latch);
     RUN_TEST(test_leak_a_resolving_disturbance_breaks_the_chain);
     RUN_TEST(test_leak_contact_doubt_or_no_rim_restarts_the_count);
+    RUN_TEST(test_leak_a_probe_not_started_by_the_suspect_does_not_count);
 }

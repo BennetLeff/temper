@@ -16,7 +16,11 @@
 #      runtime runaway supervisor in the loop)
 #   3b. rim NTC in the loop: the cross-check against a rim truth signal
 #      (xcheck-cosim.json, gates benign runs; DECISIONS.md D-RIM)
-#   3c. element-parallel Pt100 leakage against the leak check (leak-checks.json,
+#   3c. h_c steps (64 gated) and oil / water / crud cases through the same C
+#      loop (../robustness/hc_cosim.py --after-only: hc-cosim.json, gates
+#      robustness/DECISIONS.md R-HS / R-CT; the "before" baseline rows are
+#      kept from the last full run)
+#   3d. element-parallel Pt100 leakage against the leak check (leak-checks.json,
 #      gates benign runs and the recorded status of the 300 degC bar;
 #      DECISIONS.md D-LEAK)
 #   4. D1 seed-to-seed Monte Carlo (b5-montecarlo.json, gates safety only)
@@ -67,8 +71,12 @@ echo "== 3b. rim NTC cross-check co-simulation"
 "$py" "$here/xcheck_cosim.py" --lib "$lib" --out "$here/xcheck-cosim.json" > "$tmp/xc.log" \
     || { cat "$tmp/xc.log"; exit 1; }
 tail -1 "$tmp/xc.log"
+echo "== 3c. h_c steps and contaminated contact"
+"$py" "$here/../robustness/hc_cosim.py" --lib "$lib" --after-only > "$tmp/hc.log" \
+    || { grep -E '^(BARS|FAIL)' "$tmp/hc.log"; exit 1; }
+tail -1 "$tmp/hc.log"
 
-echo "== 3c. Pt100 leakage"
+echo "== 3d. Pt100 leakage"
 "$py" "$here/leak_checks.py" --lib "$lib" --out "$here/leak-checks.json" > "$tmp/leak.log" \
     || { cat "$tmp/leak.log"; exit 1; }
 grep -E '^(   hazardous|hazardous|never|requirements|BAR|benign|LEAK)' "$tmp/leak.log"
