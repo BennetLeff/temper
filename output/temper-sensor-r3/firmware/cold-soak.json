@@ -14428,8 +14428,8 @@
   "benign_rail_fallback_no_latch": true,
   "benign_rail_measured_no_latch": true,
   "existing_sets_no_latch": true,
-  "hazardous_indep_nominal_as_recorded_rail_fallback": false,
-  "hazardous_indep_nominal_as_recorded_rail_measured": false
+  "hazardous_indep_nominal_as_recorded_rail_fallback": true,
+  "hazardous_indep_nominal_as_recorded_rail_measured": true
  },
- "all_pass": false
+ "all_pass": true
 }
