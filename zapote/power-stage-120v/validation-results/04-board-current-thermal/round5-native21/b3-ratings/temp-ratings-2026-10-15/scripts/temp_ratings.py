@@ -42,6 +42,9 @@ _ap.add_argument("--snap", default=str(ROOT / "snap"), help="input snapshot dire
 _ap.add_argument("--rebase", action="store_true",
                  help="the snapshot's margins / runs are a later model on one board: assert their equivalence, report the "
                       "c47 sweep difference instead of asserting it")
+_ap.add_argument("--stage", default="s47", help="--rebase: the stage of the chain the snapshot comes from (named in results.md)")
+_ap.add_argument("--note", default="the S18 model's move: PS2's own pads, which the S18 gate now rates on local air",
+                 help="--rebase: why the sweep refs listed in results.md moved")
 ARGS = _ap.parse_args() if __name__ == "__main__" else _ap.parse_args([])
 SNAP = Path(ARGS.snap).resolve()
 os.environ["TEMP_RATINGS_SNAP"] = str(SNAP)    # read by the vendor gate's BOM_CSV
@@ -102,14 +105,21 @@ def equivalence(data):
     sw = json.loads(C47_SWEEP.read_text())
     assert sw["board_sha256"] == S47_BOARD
     smax = 0.0
+    by_ref = {}
     for r in sw["sweep_unrated"] + sw["sweep_rated_le_105c"]:
         for c in (REL, C28):
-            smax = max(smax, abs(pad(data, c, r["ref"]) - r["pad_est_c"][c]))
+            dd = abs(pad(data, c, r["ref"]) - r["pad_est_c"][c])
+            smax = max(smax, dd)
+            by_ref[r["ref"]] = max(by_ref.get(r["ref"], 0.0), dd)
     assert dmax <= 0.05 and (ARGS.rebase or smax <= 0.06), (dmax, smax)
     out = {"margins_rows": n, "margins_max_abs_diff_c": round(dmax, 3), "sweep_refs": len(sw["sweep_unrated"]) + len(sw["sweep_rated_le_105c"]),
            "sweep_max_abs_diff_c": round(smax, 3), "run_board_sha256": data[REL][0]["board_sha256"], "s47_board_sha256": S47_BOARD,
            "head_margins": head, "gate_rows": res}
     if ARGS.rebase:
+        top = sorted(((k, v) for k, v in by_ref.items() if v >= 1.0), key=lambda kv: -kv[1])
+        out["stage"], out["note"] = ARGS.stage, ARGS.note
+        out["sweep_top_text"] = ", ".join(f"{k} {v:.1f} K" for k, v in top) or "none over 1.0 K"
+        out["sweep_rest_max_c"] = round(max([v for v in by_ref.values() if v < 1.0] or [0.0]), 1)
         out["rebase"] = {"margins_board_sha256": board, "sweep_asserted": False,
                          "note": "re-based run files (later B3 model); the c47 monitor sweep is the pre-S18 s47 record, so "
                                  "sweep_max_abs_diff_c is the model's move, not an equivalence"}

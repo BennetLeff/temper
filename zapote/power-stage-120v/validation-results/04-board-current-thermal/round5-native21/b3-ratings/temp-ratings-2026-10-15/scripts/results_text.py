@@ -21,14 +21,16 @@ from them with max |difference| {margins_max_abs_diff_c} K at the file's 0.1 K r
 
 Ranked by release margin (worst ref of each line in each case)."""
 
-# re-base (S18, 2026-10-15): the same count and estimator on run files of a later B3 model (temp_ratings.py --rebase)
-HEAD_REBASE = HEAD.split("**Run files.**")[0] + """**Run files (re-based).** The run files are the B3 BASIS solves of the integration chain on board {board8} with PS2's
-body-to-air path (S18, `11-candidates/s18-ps2-body`), snapshotted with that chain's `margins.json`. The vendor copy of the
-gate (refreshed to the S18 gate) reproduces all {margins_rows} rows of that `margins.json` from them with max |difference|
-{margins_max_abs_diff_c} K. The c47 monitor sweep is the pre-S18 s47 record: its {sweep_refs} pad estimates now differ by up to
-{sweep_max_abs_diff_c} K (the S18 model's move: PS2's own pads, which the S18 gate now rates on local air; every other ref within 0.9 K;
-reported, not asserted). The numbers quoted under "Did not match" are the s47 (pre-S18) records; the table above is
-current. Every ref has a probe.
+# re-base (S18, 2026-10-15; stage 48, 2026-10-16): the same count and estimator on run files of a later chain
+# (temp_ratings.py --rebase --stage TAG --note TEXT); the sweep move is listed per ref from the run files
+HEAD_REBASE = (HEAD.split("**Run files.**")[0].replace("native-21 s47 BOM lines", "native-21 {stage} BOM lines")
+               .replace("`native-21/frozen/default.csv` (s47)", "`native-21/frozen/default.csv` ({stage})")) + """**Run files (re-based).** The run files are the B3 BASIS solves of the {stage} integration chain on board {board8} (B3
+with PS2's body-to-air path, S18, `11-candidates/s18-ps2-body`), snapshotted with that chain's `margins.json`, frozen BOM and
+the pre-S21 ledger. The vendor copy of the gate (refreshed to that chain's gate) reproduces all {margins_rows} rows of that
+`margins.json` from them with max |difference| {margins_max_abs_diff_c} K. The c47 monitor sweep is the pre-S18 s47 record:
+its {sweep_refs} pad estimates now differ by up to {sweep_max_abs_diff_c} K ({sweep_top_text}; every other ref within
+{sweep_rest_max_c} K; {note}; reported, not asserted). The numbers quoted under "Did not match" are the s47 (pre-S18)
+records; the table above is current. Every ref has a probe.
 
 Ranked by release margin (worst ref of each line in each case)."""
 

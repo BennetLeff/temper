@@ -191,6 +191,9 @@ ROLE = {"0603WAF1003T5E": "stage 48: R136 / R138 / R140 / R142 are the LDO EN di
         "RC1206FR-07220KL": "stage 48: R146 is the BIAS_GOOD -> J4 pin 1 readback series resistor (SELV, 3.3 V logic)",
         "CC0603KRX7R9BB104": "stage 48: C176 / C177 / C178 are v3v3 - selv_gnd transfer caps beside BIAS_GOOD's J4.1 branch "
                              "vias (3.3 V)"}
+# GAP48 was the lane's gap text. On ps-integrate the S21 temperature pipeline is re-based on the s48 chain and BOM
+# (temps_snap48.py; temp_ratings.py --rebase; ledger_temps.py --board-tag s48), which counts the stage-48 designators on
+# their lines, so the gap no longer holds: it is removed where present and not added.
 GAP48 = "[stage 48] the stage-48 designators ({}) have no local-temperature row (they post-date temp-ratings 2026-10-15)"
 
 
@@ -201,8 +204,7 @@ def resistors(E):
         if ROLE[mpn] not in e["function"]:
             e["function"] = f"{e['function']}; {ROLE[mpn]}"
         g = GAP48.format(" / ".join(refs))
-        if g not in e["gaps"]:
-            e["gaps"].append(g)
+        e["gaps"] = [x for x in e["gaps"] if x != g]
     e = E["RC1206FR-07220KL"]
     if not any(s["parameter"] == "V across R146" for s in e["stresses"]):
         e["stresses"].append({"parameter": "V across R146", "worst_case_value": 3.6, "unit": "V",

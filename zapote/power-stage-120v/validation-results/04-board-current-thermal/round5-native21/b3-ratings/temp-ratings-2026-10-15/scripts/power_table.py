@@ -91,6 +91,18 @@ def resistor_powers():
     put(["R134"], 1e-4, "logic series 1 k into an RC filter: transient only")
     put(["R132"], 0.0113 ** 2 * 220, "heartbeat pump: the 11.3 mA SPICE peak (ledger BAT54S) taken as RMS, bound")
     put(["R125"], r_w(V33, 33e3), "ZC pull-up 3.47 V over 33 k")
+    # stage 48 (c48-ldo-en-ref-watch; the s48 re-base): the LDO EN dividers 100 k / 27 k, bounded at the span-OV corner
+    # IN (U3 16.68 V, U37-U39 18.643 V: ledger48.py LDOS), the REF25 watchdog 63.4 k + 11.7 k at VR max 2.5162 V, and R146
+    # 220 k with J4.1 shorted to selv_gnd at 3.6 V (audit.rs stage48)
+    put(["R136"], r_w(16.68 * 100 / 127, 100e3), "U3 EN divider top: 13.13 V over 100 k (IN 16.68 V, span-OV corner)")
+    put(["R137"], r_w(16.68 * 27 / 127, 27e3), "U3 EN divider bottom: 3.55 V over 27 k (IN 16.68 V)")
+    put(["R138", "R140", "R142"], r_w(18.643 * 100 / 127, 100e3),
+        "monitor LDO EN divider top: 14.68 V over 100 k (IN 18.643 V, span-OV corner)")
+    put(["R139", "R141", "R143"], r_w(18.643 * 27 / 127, 27e3), "monitor LDO EN divider bottom: 3.96 V over 27 k")
+    i_wd = 2.5162 / 75.1e3
+    put(["R144"], i_wd ** 2 * 63.4e3, "REF25 watchdog 63.4 k + 11.7 k from REF25 2.5162 V max")
+    put(["R145"], i_wd ** 2 * 11.7e3, "REF25 watchdog 63.4 k + 11.7 k from REF25 2.5162 V max")
+    put(["R146"], r_w(3.6, 220e3), "BIAS_GOOD readback: 3.6 V over 220 k (J4.1 shorted to selv_gnd)")
     return P
 
 

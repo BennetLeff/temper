@@ -32,6 +32,7 @@ MARGINS = "validation-results/04-board-current-thermal/round5-native21/b3-rating
 SWEEP = "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
 TAG = "temp-ratings 2026-10-15"
 BOARD8 = "4139c87b"     # the s47 records; a re-based results.json (temp_ratings.py --rebase) names its own board
+BOARD_TAG = "s47"       # --board-tag: the stage the re-based run files were solved on (s48 from the stage-48 integration)
 REL, C28 = "c17.5_h10", "c28_h10"
 P_REL = "Local temperature, release case (c17.5_h10 @ 61 C)"
 P_C28 = "Local temperature, c28_h10 @ 55 C"
@@ -84,7 +85,7 @@ def build(rec, margins, sweep_refs):
                 s += f" + {w['extra_k']} K ({w['extra_basis']})"
         elif "element_c" in w:
             s += f"; body element {w['element_c']} C"
-        s += f"), {case} still air at bay {bay:g} C; worst of {len(rec['refs'])} ref(s); board s47 {BOARD8}"
+        s += f"), {case} still air at bay {bay:g} C; worst of {len(rec['refs'])} ref(s); board {BOARD_TAG} {BOARD8}"
         return s
 
     st = [{"parameter": P_REL, "worst_case_value": rel["est_c"], "unit": "C", "condition": cond(rel, REL, 61),
@@ -150,12 +151,14 @@ def main():
     ap.add_argument("--ledger", default=str(HERE.parents[4] / "native-21/verification/datasheet-ledger/ledger.json"))
     ap.add_argument("--results", default=str(HERE / "results.json"))
     ap.add_argument("--margins", default=str(HERE.parent / "margins.json"))
+    ap.add_argument("--board-tag", default="s47", help="stage of the run files' board, named in each condition")
     ap.add_argument("--sweep", default="/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/" + SWEEP)
     a = ap.parse_args()
     lp = Path(a.ledger).resolve()
     led = json.loads(lp.read_text())
     res = json.loads(Path(a.results).read_text())
-    global BOARD8
+    global BOARD8, BOARD_TAG
+    BOARD_TAG = a.board_tag
     if "rebase" in res["equivalence"]:
         BOARD8 = res["equivalence"]["rebase"]["margins_board_sha256"][:8] + " (S18 B3 model)"
     margins = json.loads(Path(a.margins).read_text())
