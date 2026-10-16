@@ -17,10 +17,15 @@ C. Cold-soak plausibility. After an idle soak every part is at ambient. A
    leak that conducts at room temperature reads low there:
    - the reading error at 5 / 25 / 40 degC for the sweep's leaks;
    - the check threshold from the reference's error budget (the heatsink
-     NTC, the only on-board candidate; its driver is a stub today);
+     NTC, the only on-board candidate: hs-ntc.json cold_soak_budget, the
+     threshold the firmware's cold-soak check uses, DECISIONS D-HSNTC/D-SOAK),
+     evaluated at T_EVAL = 35 degC: the heatsink channel is SATURATED below
+     28.6-35.7 degC (ATTEN3), so at 25 degC the check skips;
    - an Arrhenius leak R(T) = R_300 exp(Ea/k (1/T - 1/573.15)), equal to a
-     hazardous value at 300 degC: its room-temperature resistance and
-     reading error, and the activation energy above which C misses it.
+     hazardous value at 300 degC: its resistance and reading error at T_EVAL,
+     and the activation energy above which C misses it.
+   The implemented check, through the firmware's C, is cold_soak.py
+   (cold-soak.json); this is the closed-form view.
 
 Writes leak-alternatives.json. Run: python3 leak_alternatives.py
 """
@@ -44,11 +49,10 @@ from ref import es, screen  # noqa: E402
 K_B_EV = 8.617333e-5
 A_PRIOR = {"a0": 1.8e-3, "a_min": 5e-5, "a_max": 5e-3}   # plant_gain.c defaults, K/J
 R_HAZ = 1732.1     # leak-checks.json: the largest hazardous leak (highest R), ohm
-# Reference error budget (heatsink NTC NTCALUG01A104GA on ADC1_CH2, 10k pull-up;
-# docs/evidence/2026-07-27-threshold-sensitivity-tempco-budget.md:164 for R25/B):
-REF_BUDGET_K = {"pt100_class_at_25C": 0.2, "ntc_R25_2pct": 0.45, "adc_atten3_50mV_at_12.8mV_per_K": 3.9,
-                "rail_2pct_uncorrected": 4.7, "soak_gradient_allowance": 3.0}
-REF_BUDGET_RAIL_CORRECTED_K = dict(REF_BUDGET_K, rail_2pct_uncorrected=0.0)
+# Reference error budget: the heatsink NTC (NTCALUG01A104GA, GPIO6 / ADC1_CH5,
+# 10 k pull-up), hs_ntc.py -> hs-ntc.json cold_soak_budget.
+HS_NTC_BUDGET = json.loads((HERE / "hs-ntc.json").read_text(encoding="utf-8"))["cold_soak_budget"]
+T_EVAL = 35.0
 
 
 def t_of_reading(reading, r_leak):
@@ -143,40 +147,45 @@ def main():
     cold = {}
     for r in LC.R_LEAKS:
         cold[str(round(r, 1))] = {str(t): round(t - X.pt100_read(float(t), r), 2) for t in (5, 25, 40)}
-    thr = round(sum(REF_BUDGET_K.values()), 1)
-    thr_c = round(sum(REF_BUDGET_RAIL_CORRECTED_K.values()), 1)
+    thr = HS_NTC_BUDGET["threshold_K"]
+    thr_c = HS_NTC_BUDGET["threshold_rail_corrected_K"]
 
-    def largest_r_caught(th, t=25.0):
+    def largest_r_caught(th, t=T_EVAL):
         lo, hi = 100.0, 1e7
         for _ in range(100):
             mid = math.sqrt(lo * hi)
             lo, hi = (mid, hi) if t - X.pt100_read(t, mid) > th else (lo, mid)
         return round(lo, -1)
 
+    te_k = T_EVAL + 273.15
     arr = []
     for ea in (0.0, 0.05, 0.1, 0.2, 0.3, 0.5, 0.8, 1.0):
-        r25 = R_HAZ * math.exp(ea / K_B_EV * (1 / 298.15 - 1 / 573.15))
-        arr.append({"Ea_eV": ea, "R_at_300C_ohm": R_HAZ, "R_at_25C_ohm": round(r25, 0),
-                    "reading_low_at_25C_K": round(25.0 - X.pt100_read(25.0, r25), 3),
-                    "caught_at_threshold": 25.0 - X.pt100_read(25.0, r25) > thr,
-                    "caught_rail_corrected": 25.0 - X.pt100_read(25.0, r25) > thr_c})
+        r_e = R_HAZ * math.exp(ea / K_B_EV * (1 / te_k - 1 / 573.15))
+        low = T_EVAL - X.pt100_read(T_EVAL, r_e)
+        arr.append({"Ea_eV": ea, "R_at_300C_ohm": R_HAZ, "R_at_35C_ohm": round(r_e, 0),
+                    "reading_low_at_35C_K": round(low, 3),
+                    "caught_at_threshold": low > thr, "caught_rail_corrected": low > thr_c})
 
     def ea_max(th):
         lo, hi = 0.0, 1.0
         for _ in range(60):
             mid = 0.5 * (lo + hi)
-            r25 = R_HAZ * math.exp(mid / K_B_EV * (1 / 298.15 - 1 / 573.15))
-            lo, hi = (mid, hi) if 25.0 - X.pt100_read(25.0, r25) > th else (lo, mid)
+            r_e = R_HAZ * math.exp(mid / K_B_EV * (1 / te_k - 1 / 573.15))
+            lo, hi = (mid, hi) if T_EVAL - X.pt100_read(T_EVAL, r_e) > th else (lo, mid)
         return round(lo, 4)
 
     out["C"] = {"reading_low_K_temperature_independent_leak": cold,
-                "reference": "heatsink NTC (NTCALUG01A104GA, GPIO3/ADC1_CH2); read_heatsink_temperature() is a "
-                             "TODO stub returning +INF (firmware/main/board_peripherals.c), so C cannot run today",
-                "threshold_budget_K": REF_BUDGET_K, "threshold_K": thr,
-                "threshold_budget_rail_corrected_K": REF_BUDGET_RAIL_CORRECTED_K, "threshold_rail_corrected_K": thr_c,
-                "largest_r_caught_at_25C_ohm": largest_r_caught(thr),
-                "largest_r_caught_at_25C_rail_corrected_ohm": largest_r_caught(thr_c),
+                "reference": "heatsink NTC (NTCALUG01A104GA, GPIO6 / ADC1_CH5, components/sensors/hs_ntc.c; "
+                             "DECISIONS D-HSNTC). Its channel is SATURATED below 28.6-35.7 degC (ATTEN3's "
+                             "2900 mV top), so C runs only in a warm room; the check is implemented "
+                             "(components/control/pan_cold_soak.c, D-SOAK) and run through the C in cold_soak.py",
+                "t_eval_C": T_EVAL,
+                "threshold_budget_K": {"source": "hs-ntc.json cold_soak_budget", "band_C": HS_NTC_BUDGET["band_C"]},
+                "threshold_K": thr, "threshold_rail_corrected_K": thr_c,
+                "largest_r_caught_at_35C_ohm": largest_r_caught(thr),
+                "largest_r_caught_at_35C_rail_corrected_ohm": largest_r_caught(thr_c),
                 "hazardous_r_leak_reading_low_at_25C_K": cold[str(R_HAZ)]["25"],
+                "hazardous_r_leak_reading_low_at_35C_K": round(T_EVAL - X.pt100_read(T_EVAL, R_HAZ), 2),
                 "arrhenius_equal_to_hazardous_at_300C": arr,
                 "arrhenius_Ea_max_caught_eV": ea_max(thr),
                 "arrhenius_Ea_max_caught_rail_corrected_eV": ea_max(thr_c)}

@@ -125,6 +125,10 @@ static struct {
  * Mock Control Functions (called from tests)
  * ============================================================================ */
 
+#ifdef TEMPER_PAN_CONTROL_C1
+void mock_sm_set_heatsink_ntc_state(int state);
+#endif
+
 void mock_sm_reset(void) {
     memset(&mock_sm_state, 0, sizeof(mock_sm_state));
     mock_sm_state.pan_temperature = 25.0f;
@@ -140,6 +144,9 @@ void mock_sm_reset(void) {
     mock_sm_state.test_rtd_pass = true;
     mock_sm_state.test_display_pass = true;
     mock_sm_state.test_eeprom_pass = true;
+#ifdef TEMPER_PAN_CONTROL_C1
+    mock_sm_set_heatsink_ntc_state(-1);
+#endif
 }
 
 void mock_sm_advance_time(uint32_t ms) {
@@ -364,6 +371,35 @@ float read_pan_temperature(void) {
 float read_heatsink_temperature(void) {
     return mock_sm_state.heatsink_temperature;
 }
+
+#ifdef TEMPER_PAN_CONTROL_C1
+/* C1 builds: the heatsink NTC driver's reading for the cold-soak check
+ * (main/pan_control.c, DECISIONS D-SOAK; main/board_peripherals.c on the
+ * target). VALID at the mock heatsink temperature unless a test forces the
+ * driver state (mock_sm_set_heatsink_ntc_state). */
+#include <math.h>
+#include "hs_ntc.h"
+static int s_mock_hs_state = -1;
+
+void mock_sm_set_heatsink_ntc_state(int state) {
+    s_mock_hs_state = state;
+}
+
+bool read_heatsink_ntc(hs_ntc_reading_t *out) {
+    hs_ntc_reading_t rd;
+    memset(&rd, 0, sizeof(rd));
+    rd.state = s_mock_hs_state >= 0 ? (hs_ntc_state_t)s_mock_hs_state : HS_NTC_VALID;
+    rd.t_c = (rd.state == HS_NTC_VALID || rd.state == HS_NTC_SATURATED) ? mock_sm_state.heatsink_temperature
+                                                                          : NAN;
+    rd.t_raw_c = rd.t_c;
+    rd.rail_nominal = true;
+    rd.v3v3_mv = 3300.0f;
+    if (out != NULL) {
+        *out = rd;
+    }
+    return rd.state == HS_NTC_VALID;
+}
+#endif
 
 float read_dc_bus_current(void) {
     return mock_sm_state.dc_bus_current;

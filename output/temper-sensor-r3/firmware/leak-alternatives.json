@@ -1,5 +1,5 @@
 {
- "scope": "DECISIONS.md D-RIMLIM, candidates B and C: what energy and a cold soak can say about Pt100 leakage.\n\nB. Energy plausibility. A leak compresses the reading's response to the pan:\n   dReading/dT_true < 1 at the operating point. Can anything the controller\n   observes separate that from a heavier or less efficient pan?\n   - the compression factor per leak, where the reading is 250 (and 200) degC;\n   - the identified plant gain a = eta / C against its spread over the\n     modelled pan classes, eta 0.82-0.92 and a food load (screen.Truth\n     food_C), and against the firmware prior bounds (plant_gain.c);\n   - the hold power: the steady truth-plant power that holds each pan at\n     250 and at 300 degC (GlassTruth, glass delta 12 and 46 K), i.e. what a\n     leak that holds a 300 degC pan at a 250 degC reading would draw,\n     against what another pan draws at an honest 250 degC;\n   - the rim's rise against the Pt100's: the glass follows the pan with a\n     weight w of 0.646-0.955 (rim_limit.py envelope).\nC. Cold-soak plausibility. After an idle soak every part is at ambient. A\n   leak that conducts at room temperature reads low there:\n   - the reading error at 5 / 25 / 40 degC for the sweep's leaks;\n   - the check threshold from the reference's error budget (the heatsink\n     NTC, the only on-board candidate; its driver is a stub today);\n   - an Arrhenius leak R(T) = R_300 exp(Ea/k (1/T - 1/573.15)), equal to a\n     hazardous value at 300 degC: its room-temperature resistance and\n     reading error, and the activation energy above which C misses it.\n\nWrites leak-alternatives.json. Run: python3 leak_alternatives.py",
+ "scope": "DECISIONS.md D-RIMLIM, candidates B and C: what energy and a cold soak can say about Pt100 leakage.\n\nB. Energy plausibility. A leak compresses the reading's response to the pan:\n   dReading/dT_true < 1 at the operating point. Can anything the controller\n   observes separate that from a heavier or less efficient pan?\n   - the compression factor per leak, where the reading is 250 (and 200) degC;\n   - the identified plant gain a = eta / C against its spread over the\n     modelled pan classes, eta 0.82-0.92 and a food load (screen.Truth\n     food_C), and against the firmware prior bounds (plant_gain.c);\n   - the hold power: the steady truth-plant power that holds each pan at\n     250 and at 300 degC (GlassTruth, glass delta 12 and 46 K), i.e. what a\n     leak that holds a 300 degC pan at a 250 degC reading would draw,\n     against what another pan draws at an honest 250 degC;\n   - the rim's rise against the Pt100's: the glass follows the pan with a\n     weight w of 0.646-0.955 (rim_limit.py envelope).\nC. Cold-soak plausibility. After an idle soak every part is at ambient. A\n   leak that conducts at room temperature reads low there:\n   - the reading error at 5 / 25 / 40 degC for the sweep's leaks;\n   - the check threshold from the reference's error budget (the heatsink\n     NTC, the only on-board candidate: hs-ntc.json cold_soak_budget, the\n     threshold the firmware's cold-soak check uses, DECISIONS D-HSNTC/D-SOAK),\n     evaluated at T_EVAL = 35 degC: the heatsink channel is SATURATED below\n     28.6-35.7 degC (ATTEN3), so at 25 degC the check skips;\n   - an Arrhenius leak R(T) = R_300 exp(Ea/k (1/T - 1/573.15)), equal to a\n     hazardous value at 300 degC: its resistance and reading error at T_EVAL,\n     and the activation energy above which C misses it.\n   The implemented check, through the firmware's C, is cold_soak.py\n   (cold-soak.json); this is the closed-form view.\n\nWrites leak-alternatives.json. Run: python3 leak_alternatives.py",
  "B": {
   "compression_dReading_dT_by_r_leak": {
    "300.0": {
@@ -274,93 +274,88 @@
     "40": 3.42
    }
   },
-  "reference": "heatsink NTC (NTCALUG01A104GA, GPIO3/ADC1_CH2); read_heatsink_temperature() is a TODO stub returning +INF (firmware/main/board_peripherals.c), so C cannot run today",
+  "reference": "heatsink NTC (NTCALUG01A104GA, GPIO6 / ADC1_CH5, components/sensors/hs_ntc.c; DECISIONS D-HSNTC). Its channel is SATURATED below 28.6-35.7 degC (ATTEN3's 2900 mV top), so C runs only in a warm room; the check is implemented (components/control/pan_cold_soak.c, D-SOAK) and run through the C in cold_soak.py",
+  "t_eval_C": 35.0,
   "threshold_budget_K": {
-   "pt100_class_at_25C": 0.2,
-   "ntc_R25_2pct": 0.45,
-   "adc_atten3_50mV_at_12.8mV_per_K": 3.9,
-   "rail_2pct_uncorrected": 4.7,
-   "soak_gradient_allowance": 3.0
+   "source": "hs-ntc.json cold_soak_budget",
+   "band_C": [
+    23.89,
+    45.0
+   ]
   },
-  "threshold_K": 12.2,
-  "threshold_budget_rail_corrected_K": {
-   "pt100_class_at_25C": 0.2,
-   "ntc_R25_2pct": 0.45,
-   "adc_atten3_50mV_at_12.8mV_per_K": 3.9,
-   "rail_2pct_uncorrected": 0.0,
-   "soak_gradient_allowance": 3.0
-  },
-  "threshold_rail_corrected_K": 7.5,
-  "largest_r_caught_at_25C_ohm": 2430.0,
-  "largest_r_caught_at_25C_rail_corrected_ohm": 4020.0,
+  "threshold_K": 12.9,
+  "threshold_rail_corrected_K": 8.8,
+  "largest_r_caught_at_35C_ohm": 2470.0,
+  "largest_r_caught_at_35C_rail_corrected_ohm": 3670.0,
   "hazardous_r_leak_reading_low_at_25C_K": 16.81,
+  "hazardous_r_leak_reading_low_at_35C_K": 18.03,
   "arrhenius_equal_to_hazardous_at_300C": [
    {
     "Ea_eV": 0.0,
     "R_at_300C_ohm": 1732.1,
-    "R_at_25C_ohm": 1732.0,
-    "reading_low_at_25C_K": 16.811,
+    "R_at_35C_ohm": 1732.0,
+    "reading_low_at_35C_K": 18.031,
     "caught_at_threshold": true,
     "caught_rail_corrected": true
    },
    {
     "Ea_eV": 0.05,
     "R_at_300C_ohm": 1732.1,
-    "R_at_25C_ohm": 4406.0,
-    "reading_low_at_25C_K": 6.866,
+    "R_at_35C_ohm": 4137.0,
+    "reading_low_at_35C_K": 7.842,
     "caught_at_threshold": false,
     "caught_rail_corrected": false
    },
    {
     "Ea_eV": 0.1,
     "R_at_300C_ohm": 1732.1,
-    "R_at_25C_ohm": 11210.0,
-    "reading_low_at_25C_K": 2.741,
+    "R_at_35C_ohm": 9880.0,
+    "reading_low_at_35C_K": 3.337,
     "caught_at_threshold": false,
     "caught_rail_corrected": false
    },
    {
     "Ea_eV": 0.2,
     "R_at_300C_ohm": 1732.1,
-    "R_at_25C_ohm": 72552.0,
-    "reading_low_at_25C_K": 0.427,
+    "R_at_35C_ohm": 56356.0,
+    "reading_low_at_35C_K": 0.591,
     "caught_at_threshold": false,
     "caught_rail_corrected": false
    },
    {
     "Ea_eV": 0.3,
     "R_at_300C_ohm": 1732.1,
-    "R_at_25C_ohm": 469554.0,
-    "reading_low_at_25C_K": 0.066,
+    "R_at_35C_ohm": 321456.0,
+    "reading_low_at_35C_K": 0.104,
     "caught_at_threshold": false,
     "caught_rail_corrected": false
    },
    {
     "Ea_eV": 0.5,
     "R_at_300C_ohm": 1732.1,
-    "R_at_25C_ohm": 19668047.0,
-    "reading_low_at_25C_K": 0.002,
+    "R_at_35C_ohm": 10458933.0,
+    "reading_low_at_35C_K": 0.003,
     "caught_at_threshold": false,
     "caught_rail_corrected": false
    },
    {
     "Ea_eV": 0.8,
     "R_at_300C_ohm": 1732.1,
-    "R_at_25C_ohm": 5331804459.0,
-    "reading_low_at_25C_K": 0.0,
+    "R_at_35C_ohm": 1941046778.0,
+    "reading_low_at_35C_K": 0.0,
     "caught_at_threshold": false,
     "caught_rail_corrected": false
    },
    {
     "Ea_eV": 1.0,
     "R_at_300C_ohm": 1732.1,
-    "R_at_25C_ohm": 223331265321.0,
-    "reading_low_at_25C_K": 0.0,
+    "R_at_35C_ohm": 63154130707.0,
+    "reading_low_at_35C_K": 0.0,
     "caught_at_threshold": false,
     "caught_rail_corrected": false
    }
   ],
-  "arrhenius_Ea_max_caught_eV": 0.0181,
-  "arrhenius_Ea_max_caught_rail_corrected_eV": 0.0451
+  "arrhenius_Ea_max_caught_eV": 0.0203,
+  "arrhenius_Ea_max_caught_rail_corrected_eV": 0.0432
  }
 }

@@ -11,12 +11,16 @@
 
 #include <math.h>
 
+#include "config.h"   /* MAX31865_C1_LOW_THRESHOLD_WORD (84.27 ohm) */
 #include "current_sense_check.h"
+#include "hs_ntc.h"
+#include "pan_cold_soak.h"
 #include "pan_leak_check.h"
 #include "pan_rim_limit.h"
 #include "pan_supervisor.h"
 #include "pan_temp_loop.h"
 #include "rim_ntc.h"
+#include "rtd_convert.h"
 
 typedef struct {
     ptl_params_t p;
@@ -364,4 +368,144 @@ int prl_run(void *h, double sp, double t_hat, int rim_valid, double t_rim)
 {
     sim_t *s = (sim_t *)h;
     return prl_step(&s->prl, (float)sp, (float)t_hat, rim_valid != 0, (float)t_rim) ? 1 : 0;
+}
+
+/* ---- cold-soak check (components/control/pan_cold_soak.c) with the heatsink
+ * NTC driver (components/sensors/hs_ntc.c) and the Pt100 conversion
+ * (components/sensors/rtd_convert.c), cold_soak.py ------------------------
+ * One trajectory per call, one second per sample: the heatsink driver steps
+ * once (dt_s 1.0), the history takes one note (pan_control_soak_note's
+ * cadence when idle), and every eval_every samples the check is evaluated as
+ * main/pan_control.c would at a PREHEAT entry then. */
+typedef struct {
+    hs_ntc_t hs;
+    pcs_t pcs;
+    float node_mv;        /* HS_SENSE node this sample */
+    float gain;           /* the board's divider after the buffer (actual) */
+    float err_sign;       /* ADC total error: sign x the CR-7 magnitude per attenuation */
+    float rail_read_mv;   /* <= 0: no rail reading */
+    float noise_mv;       /* ADC noise, standard deviation per sample */
+    uint64_t rng;
+} soak_t;
+
+/* Deterministic normal deviates (xorshift64* + Box-Muller). */
+static double soak_uniform(soak_t *k)
+{
+    k->rng ^= k->rng >> 12;
+    k->rng ^= k->rng << 25;
+    k->rng ^= k->rng >> 27;
+    return ((double)((k->rng * 2685821657736338717ull) >> 11) + 0.5) / 9007199254740992.0;
+}
+
+static double soak_normal(soak_t *k)
+{
+    const double u1 = soak_uniform(k);
+    const double u2 = soak_uniform(k);
+    return sqrt(-2.0 * log(u1)) * cos(6.283185307179586 * u2);
+}
+
+static bool soak_pin(void *ctx, rim_atten_t a, float *mv)
+{
+    soak_t *k = (soak_t *)ctx;
+    const float mag = a == RIM_ATTEN_0 ? 5.0f : (a == RIM_ATTEN_2 ? 10.0f : 50.0f);
+    const float clip = a == RIM_ATTEN_0 ? 950.0f : (a == RIM_ATTEN_2 ? 1700.0f : 3100.0f);
+    float v = k->node_mv * k->gain + k->err_sign * mag + (float)(k->noise_mv * soak_normal(k));
+    v = v < 0.0f ? 0.0f : (v > clip ? clip : v);
+    *mv = roundf(v);
+    return true;
+}
+
+static bool soak_rail(void *ctx, float *mv)
+{
+    const soak_t *k = (const soak_t *)ctx;
+    if (!(k->rail_read_mv > 0.0f)) {
+        return false;
+    }
+    *mv = k->rail_read_mv;
+    return true;
+}
+
+void *soak_new(void) { return calloc(1, sizeof(soak_t)); }
+void soak_free(void *h) { free(h); }
+
+/* adc_gain_nominal: the driver's adc_gain (1.0 as built, 0.85 with CR-8);
+ * gain_actual: the divider as fitted; threshold_k <= 0: PCS_THRESHOLD_K. */
+int soak_init(void *h, double adc_gain_nominal, double gain_actual, double err_sign, double rail_read_mv,
+              double threshold_k, double noise_mv, double seed)
+{
+    soak_t *k = (soak_t *)h;
+    hs_ntc_params_t hp;
+    hs_ntc_default_params(&hp);
+    hp.dt_s = 1.0f;
+    hp.adc_gain = (float)adc_gain_nominal;
+    if (!hs_ntc_init(&k->hs, &hp)) {
+        return -1;
+    }
+    pcs_params_t pp;
+    pcs_default_params(&pp);
+    if (threshold_k > 0.0) {
+        pp.threshold_k = (float)threshold_k;
+    }
+    if (!pcs_init(&k->pcs, &pp, 0u)) {
+        return -2;
+    }
+    k->gain = (float)gain_actual;
+    k->err_sign = (float)err_sign;
+    k->rail_read_mv = (float)rail_read_mv;
+    k->noise_mv = (float)noise_mv;
+    k->rng = 0x9E3779B97F4A7C15ull ^ (uint64_t)seed;
+    if (k->rng == 0u) {
+        k->rng = 1u;
+    }
+    return 0;
+}
+
+double soak_param(void *h, int i)
+{
+    const pcs_params_t *p = &((soak_t *)h)->pcs.p;
+    const float v[] = {p->threshold_k, p->soak_n_s, p->window_s, p->bucket_s, p->hs_flat_k, p->pt_flat_k,
+                       p->hs_max_c};
+    return (i >= 0 && i < (int)(sizeof(v) / sizeof(v[0]))) ? (double)v[i] : NAN;
+}
+
+/* Samples 0..n-1 at t = i s (t = 0: the coil last active / power-up).
+ * node_mv: HS_SENSE; pt_ohm: what the MAX31865 measures (element || leak);
+ * rref_ohm: the reference as fitted (the firmware assumes 430); offset_lsb:
+ * converter offset; coil: coil active; rim_sat: the rim NTC SATURATED.
+ * Evaluations at i % eval_every == 0: out rows of 6 doubles
+ * {t_s, verdict, gap_k, hs_state, hs_c, pt_c}; pt_c is NAN when the code is
+ * a sensor failure (the short window, FAULT_PROBE_SHORT). Returns rows. */
+int soak_run(void *h, int n, const double *node_mv, const double *pt_ohm, const int *coil, const int *rim_sat,
+             double rref_ohm, double offset_lsb, int eval_every, double *out)
+{
+    soak_t *k = (soak_t *)h;
+    const hs_ntc_hal_t hal = {.read_pin_mv = soak_pin, .read_v3v3_mv = soak_rail, .ctx = k};
+    rtd_convert_params_t rp;
+    rtd_convert_default_params(&rp);
+    int rows = 0;
+    for (int i = 0; i < n; i++) {
+        const uint32_t now = (uint32_t)i * 1000u;
+        k->node_mv = (float)node_mv[i];
+        hs_ntc_reading_t rd;
+        hs_ntc_step(&k->hs, &hal, &rd);
+        long code = lround(pt_ohm[i] / rref_ohm * 32768.0 + offset_lsb);
+        code = code < 0 ? 0 : (code > 0x7FFF ? 0x7FFF : code);
+        const bool short_low = code < (long)(MAX31865_C1_LOW_THRESHOLD_WORD >> 1);
+        const float pt = (short_low || rtd_convert_classify_failure((uint16_t)code, 0u) != RTD_SENSOR_OK)
+                             ? NAN
+                             : rtd_convert_code_to_c(&rp, (uint16_t)code);
+        const bool hs_valid = rd.state == HS_NTC_VALID;
+        pcs_note(&k->pcs, now, coil[i] != 0, pt, hs_valid, rd.t_c);
+        if (eval_every > 0 && i % eval_every == 0) {
+            const pcs_result_t r = pcs_evaluate(&k->pcs, now, pt, hs_valid, rd.t_c, rim_sat[i] != 0);
+            double *o = out + 6 * rows++;
+            o[0] = (double)i;
+            o[1] = (double)r.verdict;
+            o[2] = (double)r.gap_k;
+            o[3] = (double)rd.state;
+            o[4] = (double)rd.t_c;
+            o[5] = (double)pt;
+        }
+    }
+    return rows;
 }

@@ -3,8 +3,9 @@
  * @brief sensor-r3 C1 runtime units: runaway supervisor (pan_supervisor.c),
  *        MAX31865 code conversion (rtd_convert.c), current-sense plausibility
  *        (current_sense_check.c, D-ISENSE), the Pt100 leak check
- *        (pan_leak_check.c, D-LEAK) and the setpoint-relative rim limit
- *        (pan_rim_limit.c, D-RIMLIM).
+ *        (pan_leak_check.c, D-LEAK), the setpoint-relative rim limit
+ *        (pan_rim_limit.c, D-RIMLIM) and the cold-soak check
+ *        (pan_cold_soak.c, D-SOAK).
  *
  * Scenario values mirror output/temper-sensor-r3/firmware/runaway_checks.py
  * (DECISIONS.md D-RUN): a preheated pan placed on the disc, an h_c drop, a
@@ -16,6 +17,7 @@
 #include "unity/unity.h"
 #include "../components/control/contact_check.h"
 #include "../components/control/current_sense_check.h"
+#include "../components/control/pan_cold_soak.h"
 #include "../components/control/pan_leak_check.h"
 #include "../components/control/pan_rim_limit.h"
 #include "../components/control/pan_supervisor.h"
@@ -647,6 +649,151 @@ static void test_rimlim_rejects_bad_parameters(void)
     TEST_ASSERT_FALSE(prl_init(&prl, &rlp));
 }
 
+
+/* ---- cold-soak check (pan_cold_soak.c, D-SOAK) ---------------------------- */
+
+static pcs_t soak;
+
+static void soak_new(uint32_t t0_ms)
+{
+    pcs_params_t p;
+    pcs_default_params(&p);
+    TEST_ASSERT_TRUE(pcs_init(&soak, &p, t0_ms));
+}
+
+/* 1 s notes from t0 for n_s seconds with constant readings. */
+static uint32_t soak_feed(uint32_t t0_ms, uint32_t n_s, float pt, bool hs_valid, float hs)
+{
+    uint32_t t = t0_ms;
+    for (uint32_t k = 0; k < n_s; k++, t += 1000u) {
+        pcs_note(&soak, t, false, pt, hs_valid, hs);
+    }
+    return t;
+}
+
+static void test_soak_leak_after_the_soak_and_not_before(void)
+{
+    soak_new(0u);
+    uint32_t t = soak_feed(0u, 1799u, 15.0f, true, 35.0f);
+    pcs_result_t r = pcs_evaluate(&soak, t, 15.0f, true, 35.0f, true);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_NOT_SOAKED, r.verdict);   /* power-up counts as coil-on */
+    t = soak_feed(t, 2u, 15.0f, true, 35.0f);
+    r = pcs_evaluate(&soak, t, 15.0f, true, 35.0f, true);
+    TEST_ASSERT_EQUAL_INT(PCS_LEAK, r.verdict);
+    TEST_ASSERT_FLOAT_WITHIN(1e-3f, 20.0f, r.gap_k);
+    /* 12.9 K is the threshold: 12.8 K passes, 13.0 K latches */
+    /* the window and the present reading must both be over the threshold */
+    r = pcs_evaluate(&soak, t, 22.2f, true, 35.0f, true);
+    TEST_ASSERT_EQUAL_INT(PCS_PASS, r.verdict);
+    soak_new(0u);
+    t = soak_feed(0u, 1900u, 22.2f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_PASS, pcs_evaluate(&soak, t, 22.2f, true, 35.0f, true).verdict);
+    soak_new(0u);
+    t = soak_feed(0u, 1900u, 22.0f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_LEAK, pcs_evaluate(&soak, t, 22.0f, true, 35.0f, true).verdict);
+}
+
+static void test_soak_coil_activity_restarts_the_soak_and_the_history(void)
+{
+    soak_new(0u);
+    uint32_t t = soak_feed(0u, 3000u, 15.0f, true, 35.0f);
+    pcs_note(&soak, t, true, 15.0f, true, 35.0f);
+    t = soak_feed(t + 1000u, 1700u, 15.0f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_NOT_SOAKED, pcs_evaluate(&soak, t, 15.0f, true, 35.0f, true).verdict);
+    t = soak_feed(t, 200u, 15.0f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_LEAK, pcs_evaluate(&soak, t, 15.0f, true, 35.0f, true).verdict);
+}
+
+static void test_soak_skips_on_a_saturated_or_warm_or_drifting_reference(void)
+{
+    /* the heatsink saturated (cold room) for one minute of the window */
+    soak_new(0u);
+    uint32_t t = soak_feed(0u, 1500u, 15.0f, true, 35.0f);
+    t = soak_feed(t, 60u, 15.0f, false, NAN);
+    t = soak_feed(t, 300u, 15.0f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_HS_INVALID, pcs_evaluate(&soak, t, 15.0f, true, 35.0f, true).verdict);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_HS_INVALID, pcs_evaluate(&soak, t, 15.0f, false, NAN, true).verdict);
+    /* above 45 degC */
+    soak_new(0u);
+    t = soak_feed(0u, 1900u, 15.0f, true, 46.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_HS_WARM, pcs_evaluate(&soak, t, 15.0f, true, 46.0f, true).verdict);
+    /* still cooling: 1.2 K over the window */
+    soak_new(0u);
+    t = 0u;
+    for (uint32_t k = 0; k < 1900u; k++, t += 1000u) {
+        pcs_note(&soak, t, false, 15.0f, true, 40.0f - (float)k * (1.2f / 900.0f));
+    }
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_HS_DRIFT, pcs_evaluate(&soak, t, 15.0f, true, 37.5f, true).verdict);
+}
+
+static void test_soak_skips_when_the_pt100_moved_or_the_rim_is_warm(void)
+{
+    /* a cold pan placed 5 min before the evaluation: the reading stepped */
+    soak_new(0u);
+    uint32_t t = soak_feed(0u, 1600u, 34.5f, true, 35.0f);
+    t = soak_feed(t, 300u, 5.0f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_PT_DRIFT, pcs_evaluate(&soak, t, 5.0f, true, 35.0f, true).verdict);
+    /* 0.3 K of drift over 15 min is more than 0.25 K */
+    soak_new(0u);
+    t = 0u;
+    for (uint32_t k = 0; k < 1900u; k++, t += 1000u) {
+        pcs_note(&soak, t, false, 15.0f + (float)k * (0.3f / 900.0f), true, 35.0f);
+    }
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_PT_DRIFT, pcs_evaluate(&soak, t, 15.6f, true, 35.0f, true).verdict);
+    /* no Pt100 reading for a moment */
+    soak_new(0u);
+    t = soak_feed(0u, 1700u, 15.0f, true, 35.0f);
+    t = soak_feed(t, 1u, NAN, true, 35.0f);
+    t = soak_feed(t, 200u, 15.0f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_PT_INVALID, pcs_evaluate(&soak, t, 15.0f, true, 35.0f, true).verdict);
+    /* the glass still warm under the rim NTC */
+    soak_new(0u);
+    t = soak_feed(0u, 1900u, 15.0f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_RIM_WARM, pcs_evaluate(&soak, t, 15.0f, true, 35.0f, false).verdict);
+}
+
+static void test_soak_needs_the_whole_window_and_survives_clock_steps(void)
+{
+    /* soaked, but notes only for the last 10 min (e.g. a gap): history */
+    soak_new(0u);
+    pcs_note(&soak, 0u, false, 15.0f, true, 35.0f);
+    uint32_t t = soak_feed(1300000u, 600u, 15.0f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_HISTORY, pcs_evaluate(&soak, t, 15.0f, true, 35.0f, true).verdict);
+    /* the clock going backwards restarts the soak instead of wrapping */
+    soak_new(5000000u);
+    t = soak_feed(1000u, 1000u, 15.0f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_NOT_SOAKED, pcs_evaluate(&soak, t, 15.0f, true, 35.0f, true).verdict);
+    t = soak_feed(t, 900u, 15.0f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_LEAK, pcs_evaluate(&soak, t, 15.0f, true, 35.0f, true).verdict);
+    /* the coil-off time is held, not wrapped, over a long idle (60 days) */
+    soak_new(0u);
+    t = 0u;
+    for (uint32_t k = 0; k < 60u * 24u * 60u; k++, t += 60000u) {
+        pcs_note(&soak, t, false, 15.0f, true, 35.0f);
+    }
+    t = soak_feed(t, 1000u, 15.0f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_LEAK, pcs_evaluate(&soak, t, 15.0f, true, 35.0f, true).verdict);
+}
+
+static void test_soak_agreement_and_parameters(void)
+{
+    soak_new(0u);
+    TEST_ASSERT_TRUE(pcs_agrees(&soak, 30.0f, true, 35.0f));
+    TEST_ASSERT_TRUE(pcs_agrees(&soak, 22.2f, true, 35.0f));
+    TEST_ASSERT_FALSE(pcs_agrees(&soak, 22.0f, true, 35.0f));
+    TEST_ASSERT_FALSE(pcs_agrees(&soak, 34.0f, false, NAN));
+    TEST_ASSERT_FALSE(pcs_agrees(&soak, NAN, true, 35.0f));
+    pcs_params_t p;
+    pcs_default_params(&p);
+    TEST_ASSERT_EQUAL_FLOAT(12.9f, p.threshold_k);
+    TEST_ASSERT_EQUAL_FLOAT(1800.0f, p.soak_n_s);
+    p.window_s = 3000.0f;   /* more than PCS_BUCKET_MAX minutes, and longer than the soak */
+    TEST_ASSERT_FALSE(pcs_init(&soak, &p, 0u));
+    pcs_default_params(&p);
+    p.threshold_k = 0.0f;
+    TEST_ASSERT_FALSE(pcs_init(&soak, &p, 0u));
+}
+
 void run_c1_units_tests(void)
 {
     RUN_TEST(test_r1_ignores_hot_pan_placement_that_the_10ms_check_trips);
@@ -690,4 +837,10 @@ void run_c1_units_tests(void)
     RUN_TEST(test_rimlim_a_falling_glass_above_the_limit_never_latches);
     RUN_TEST(test_rimlim_needs_a_full_fall_window_and_the_full_sustain);
     RUN_TEST(test_rimlim_rejects_bad_parameters);
+    RUN_TEST(test_soak_leak_after_the_soak_and_not_before);
+    RUN_TEST(test_soak_coil_activity_restarts_the_soak_and_the_history);
+    RUN_TEST(test_soak_skips_on_a_saturated_or_warm_or_drifting_reference);
+    RUN_TEST(test_soak_skips_when_the_pt100_moved_or_the_rim_is_warm);
+    RUN_TEST(test_soak_needs_the_whole_window_and_survives_clock_steps);
+    RUN_TEST(test_soak_agreement_and_parameters);
 }

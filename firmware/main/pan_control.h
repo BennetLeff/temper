@@ -24,9 +24,17 @@
  *           supervisor stage 2a/2b latches -> PAN_CONTROL_RUNAWAY (the
  *           caller latches FAULT_THERMAL_RUNAWAY);
  *           current-sense plausibility (D-ISENSE) -> FAULT_CURRENT_SENSE and
- *           element-parallel Pt100 leakage (D-LEAK) -> FAULT_PROBE_LEAKAGE,
+ *           element-parallel Pt100 leakage (D-LEAK, D-RIMLIM, and the
+ *           cold-soak check D-SOAK) -> FAULT_PROBE_LEAKAGE,
  *           both through state_machine_report_latched_fault() (hardware
- *           cut, not software-clearable).
+ *           cut; only the cold-soak latch can be reset, once the Pt100
+ *           agrees with the heatsink again).
+ *
+ * Cold soak (DECISIONS.md D-SOAK): pan_control_soak_note() keeps, from every
+ * state-machine tick, when the coil was last active and the per-minute Pt100
+ * and heatsink history (components/control/pan_cold_soak.c);
+ * pan_control_begin() freezes it, and the first control period of the
+ * session evaluates it with the rim NTC's first reading, before any power.
  *
  * The supervisor's R1 (sustained-rise) half is fed every 10 ms tick from
  * check_runaway_boundary() through pan_control_rate_sample().
@@ -40,6 +48,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "hs_ntc.h"
+#include "pan_cold_soak.h"
 #include "rim_ntc.h"
 #include "rtd_convert.h"
 
@@ -136,6 +146,27 @@ bool pan_control_leak_latched(void);
  * FAULT_PROBE_LEAKAGE. Read-only diagnostics for the SIL.
  */
 bool pan_control_rim_limit_latched(void);
+
+/**
+ * Cold-soak history (D-SOAK): call every state-machine tick, in every state.
+ * Samples at most once a second; the coil counts as active while the loop
+ * runs or the last period commanded power.
+ */
+void pan_control_soak_note(uint32_t now_ms);
+/** Power-up / state_machine_init(): the coil counts as just active (no soak). */
+void pan_control_soak_restart(void);
+/** The cold-soak result of the last heating session's first period
+ *  (verdict PCS_NONE before one ran). Read-only diagnostics. */
+pcs_result_t pan_control_cold_soak_result(void);
+/** The cold-soak check latched FAULT_PROBE_LEAKAGE this session. */
+bool pan_control_cold_soak_latched(void);
+/**
+ * fault_cleared() for FAULT_PROBE_LEAKAGE: true only when the cold-soak
+ * check raised it (not D-LEAK or D-RIMLIM) and the Pt100 now reads within
+ * the threshold of a VALID heatsink (a cold item removed or thawed). A
+ * persisting leak keeps it latched.
+ */
+bool pan_control_cold_soak_clearable(void);
 
 /** R1: feed one 10 ms reading; true when the sustained-rise latch trips. */
 bool pan_control_rate_sample(float reading_c, uint32_t now_ms);

@@ -258,6 +258,12 @@ void state_machine_init(void) {
     sm_ctx.heatsink_temp_stuck_count = 0;
     sm_ctx.prev_stuck_check_temp = -1.0f;
 
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* Power-up: the time of the last cook is unknown, so the cold soak
+     * (D-SOAK) counts from here. */
+    pan_control_soak_restart();
+#endif
+
     transition_to(STATE_INIT);
 }
 
@@ -280,6 +286,12 @@ void state_machine_update(void) {
      * will timeout after 1.6s and disable the power stage.
      * See SAFETY_INTERLOCK_DESIGN.md Section 7. */
     watchdog_hardware_feed();
+
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* Cold-soak history (D-SOAK): coil activity and the soaked Pt100 and
+     * heatsink readings, in every state. */
+    pan_control_soak_note(now);
+#endif
     
     /* Runaway boundary interlock: check before ALL state-specific logic.
      * This fires even during message display to ensure safety-critical
@@ -671,6 +683,15 @@ bool fault_cleared(void) {
 
         case FAULT_RUNAWAY_BOUNDARY:
             return false;  /* Never clearable by software */
+
+#ifdef TEMPER_PAN_CONTROL_C1
+        case FAULT_PROBE_LEAKAGE:
+            /* D-LEAK / D-RIMLIM latches stay latched. A cold-soak latch
+             * (D-SOAK) clears once the Pt100 agrees with the heatsink again:
+             * a cold item on the sensor (a thawing pot) also reads low, and
+             * a persisting leak keeps reading low. */
+            return pan_control_cold_soak_clearable();
+#endif
 
         case FAULT_NONE:
             return true;   /* No active fault */

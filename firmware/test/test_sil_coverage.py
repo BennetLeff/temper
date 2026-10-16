@@ -119,7 +119,9 @@ _C1_ISENSE = ("pan_control_step() current-sense checks (components/control/curre
 _C1_LEAK = ("pan_control_step() Pt100 leak check (components/control/pan_leak_check.c, DECISIONS "
             "D-LEAK) -> state_machine_report_latched_fault(); needs a hot pan, HEATING")
 _C1_RIMLIM = ("pan_control_step() setpoint-relative rim limit (components/control/pan_rim_limit.c, "
-              "DECISIONS D-RIMLIM) -> state_machine_report_latched_fault(); a VALID rim, PREHEAT/HEATING")
+              "DECISIONS D-RIMLIM) -> state_machine_report_latched_fault(); a VALID rim, PREHEAT/HEATING; "
+              "and the cold-soak check (components/control/pan_cold_soak.c, DECISIONS D-SOAK) in the "
+              "first PREHEAT period")
 C1_SUPPLEMENTAL_PAIRS = {
     ("FAULT_PROBE_OPEN", "IDLE"): _C1_SERVICE,
     ("FAULT_PROBE_SHORT", "IDLE"): _C1_SERVICE,
@@ -154,6 +156,12 @@ C1_MECHANISMS = {
     "rim-limit": (("HEATING", "PREHEAT"),
                   "setpoint-relative rim limit: rim over the glass envelope of max(setpoint, t_hat) "
                   "+ 19.1 K, not falling, for 5 s"),
+    "cold-soak": (("PREHEAT",),
+                  "cold-soak check: soaked >= 30 min, the heatsink NTC over the Pt100 by > 12.9 K "
+                  "through the window, before the first power"),
+    "cold-soak-pass": (("PREHEAT",), "cold-soak check runs on an intact probe: verdict pass, no latch"),
+    "cold-soak-skip": (("PREHEAT",), "cold-soak check skips when not soaked (power-up counts as "
+                                     "coil activity): no latch"),
 }
 
 # Fault classes with NO manifest path at all (no transition_table.yaml row,

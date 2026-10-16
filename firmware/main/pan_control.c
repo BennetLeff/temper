@@ -9,6 +9,8 @@
 #include <stddef.h>
 
 #include "current_sense_check.h"
+#include "hs_ntc.h"
+#include "pan_cold_soak.h"
 #include "pan_leak_check.h"
 #include "pan_rim_limit.h"
 #include "pan_supervisor.h"
@@ -20,6 +22,9 @@
 extern uint32_t get_time_ms(void);
 extern void power_set_level(uint8_t level);
 extern float read_dc_bus_current(void);
+/* The heatsink NTC driver's reading (main/board_peripherals.c on the target,
+ * the test stubs on the host); true when it is VALID. */
+extern bool read_heatsink_ntc(hs_ntc_reading_t *out);
 
 /* (c) of D-ISENSE: the input-current (AMC1301) vs bus-current cross-check.
  * Off until the input-current sense is on the board (nameplate-r1 D3). */
@@ -45,6 +50,17 @@ static uint32_t s_xcheck_suspects;
 static csc_t s_csc;                 /* bus-current sense plausibility (D-ISENSE) */
 static plc_t s_plc;                 /* element-parallel Pt100 leakage (D-LEAK) */
 static prl_t s_prl;                 /* setpoint-relative rim limit (D-RIMLIM) */
+static pcs_t s_pcs;                 /* cold-soak history (D-SOAK) */
+static pcs_t s_pcs_begin;           /* ... frozen at pan_control_begin() */
+static bool s_soak_pending;         /* evaluate in the session's first period */
+static uint32_t s_soak_begin_ms;
+static float s_soak_pt_c;
+static bool s_soak_hs_valid;
+static float s_soak_hs_c;
+static pcs_result_t s_soak_res;
+static bool s_soak_latched;
+static bool s_soak_have_note;
+static uint32_t s_soak_last_note_ms;
 
 static void ensure_init(void)
 {
@@ -63,6 +79,10 @@ static void ensure_init(void)
     prl_params_t rl;
     prl_default_params(&rl);
     (void)prl_init(&s_prl, &rl);
+    pcs_params_t sp2;
+    pcs_default_params(&sp2);
+    (void)pcs_init(&s_pcs, &sp2, get_time_ms());
+    s_soak_res.verdict = PCS_NONE;
     ptl_default_params(&s_params);
     rim_ntc_params_t rp;
     rim_ntc_default_params(&rp);
@@ -184,6 +204,66 @@ bool pan_control_rim_limit_latched(void)
     return s_inited && s_prl.latched;
 }
 
+/* The Pt100 reading for the cold soak: a conversion that is not a sensor
+ * failure (D-OPEN), else NAN. */
+static float soak_reading(void)
+{
+    rtd_sample_t smp;
+    if (!latest(&smp) || !isfinite(smp.t_c) ||
+        rtd_convert_classify_failure(smp.code, smp.fault_status) != RTD_SENSOR_OK) {
+        return NAN;
+    }
+    return smp.t_c;
+}
+
+void pan_control_soak_note(uint32_t now_ms)
+{
+    ensure_init();
+    const bool coil_active = s_running || s_p_applied_w > 0.0f;
+    if (!coil_active && s_soak_have_note && (uint32_t)(now_ms - s_soak_last_note_ms) < 1000u) {
+        return;
+    }
+    s_soak_have_note = true;
+    s_soak_last_note_ms = now_ms;
+    hs_ntc_reading_t hs;
+    const bool hs_valid = read_heatsink_ntc(&hs);
+    pcs_note(&s_pcs, now_ms, coil_active, soak_reading(), hs_valid, hs.t_c);
+}
+
+void pan_control_soak_restart(void)
+{
+    ensure_init();
+    /* state_machine_init() enters INIT without leaving PREHEAT/HEATING
+     * through transition_to(), so the loop is marked stopped here: no
+     * session survives a (re)initialisation, and the soak history must not
+     * see one as coil activity. */
+    s_running = false;
+    s_p_applied_w = 0.0f;
+    const pcs_params_t p = s_pcs.p;
+    (void)pcs_init(&s_pcs, &p, get_time_ms());
+    s_soak_have_note = false;
+}
+
+pcs_result_t pan_control_cold_soak_result(void)
+{
+    return s_soak_res;
+}
+
+bool pan_control_cold_soak_latched(void)
+{
+    return s_soak_latched;
+}
+
+bool pan_control_cold_soak_clearable(void)
+{
+    if (!s_inited || !s_soak_latched || s_plc.latched || s_prl.latched) {
+        return false;
+    }
+    hs_ntc_reading_t hs;
+    const bool hs_valid = read_heatsink_ntc(&hs);
+    return pcs_agrees(&s_pcs, soak_reading(), hs_valid, hs.t_c);
+}
+
 bool pan_control_rate_sample(float reading_c, uint32_t now_ms)
 {
     ensure_init();
@@ -222,6 +302,19 @@ void pan_control_begin(void)
     s_running = rim_ntc_init(&s_rim, &rp) && s_running;
     s_rim_rd = s_rim.last;
     s_xcheck_suspects = 0u;
+    /* D-SOAK: freeze the coil-off history before this session marks the coil
+     * active; the first control period evaluates it with the rim's reading. */
+    s_pcs_begin = s_pcs;
+    s_soak_begin_ms = get_time_ms();
+    s_soak_pt_c = soak_reading();
+    {
+        hs_ntc_reading_t hs;
+        s_soak_hs_valid = read_heatsink_ntc(&hs);
+        s_soak_hs_c = hs.t_c;
+    }
+    s_soak_pending = true;
+    s_soak_latched = false;
+    s_soak_res.verdict = PCS_NONE;
     s_last_ms = get_time_ms();
     s_last_seq = latest(&smp) ? smp.seq : 0u;
     s_p_applied_w = 0.0f;
@@ -267,6 +360,19 @@ pan_control_status_t pan_control_step(float setpoint_c, uint8_t intensity_level)
     /* Rim NTC: one driver period; the open rule uses the last estimate. */
     rim_ntc_step(&s_rim, rim_ntc_board_hal(), s_t_hat, &s_rim_rd);
     const bool rim_fault = s_rim_rd.state == RIM_NTC_FAULT;
+    /* D-SOAK: the session's first period, before any power is commanded. */
+    if (s_soak_pending) {
+        s_soak_pending = false;
+        s_soak_res = pcs_evaluate(&s_pcs_begin, s_soak_begin_ms, s_soak_pt_c, s_soak_hs_valid, s_soak_hs_c,
+                                  s_rim_rd.state == RIM_NTC_SATURATED);
+        if (s_soak_res.verdict == PCS_LEAK) {
+            s_soak_latched = true;
+            s_p_applied_w = 0.0f;
+            power_set_level(0);
+            state_machine_report_latched_fault(FAULT_PROBE_LEAKAGE);
+            return PAN_CONTROL_SENSOR_FAULT;
+        }
+    }
     const ptl_input_t in = {
         .t_pt100_c = have ? smp.t_c : NAN,
         .t_rim_c = loop_rim_input(&s_rim_rd, have ? smp.t_c : NAN),

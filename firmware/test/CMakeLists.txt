@@ -562,6 +562,7 @@ set(C1_RUNTIME_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/current_sense_check.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_leak_check.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_rim_limit.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_cold_soak.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/pan_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
@@ -579,6 +580,7 @@ add_executable(test_c1_units_only
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/current_sense_check.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_leak_check.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_rim_limit.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_cold_soak.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_units.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_units.c
@@ -648,11 +650,27 @@ target_include_directories(test_c1_rim_ntc_only PRIVATE ${INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
 target_link_libraries(test_c1_rim_ntc_only m)
 
+# sensor-r3 heatsink NTC driver (NTCALUG01A104GA on HS_ADC, GPIO6 / ADC1_CH5;
+# DECISIONS.md D-HSNTC): the driver through a mock HAL, and its board binding
+# through the hal_adc mock.
+add_executable(test_c1_hs_ntc_only
+    ${UNITY_SOURCES}
+    ${MOCK_HAL_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/hs_ntc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/hs_ntc_board.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_hs_ntc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_hs_ntc.c
+)
+target_include_directories(test_c1_hs_ntc_only PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_c1_hs_ntc_only m)
+
 add_test(NAME c1_units_tests COMMAND test_c1_units_only)
 add_test(NAME c1_runtime_tests COMMAND test_c1_runtime_only)
 add_test(NAME c1_runtime_isense_tests COMMAND test_c1_runtime_isense_only)
 add_test(NAME c1_rtd_service_tests COMMAND test_c1_rtd_service_only)
 add_test(NAME c1_rim_ntc_tests COMMAND test_c1_rim_ntc_only)
+add_test(NAME c1_hs_ntc_tests COMMAND test_c1_hs_ntc_only)
 
 # SIL fault injection in the C1 configuration: the same runner and manifest
 # (test_sil_fault_injection.c, traces/manifest.json "modes"), built with

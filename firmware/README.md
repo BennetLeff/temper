@@ -84,9 +84,10 @@ idf.py flash monitor
 
 **The target image is not yet bench-ready.** `main/board_peripherals.c`
 holds `TODO(hardware)` implementations for every peripheral without a driver
-(display, buttons, buzzer, LEDs, fan, heatsink NTC, bus current, power stage,
-the self-tests, the fault log). The rim NTC has its real driver
-(`components/sensors/rim_ntc.c`). They all fail safe: temperatures and currents read
+(display, buttons, buzzer, LEDs, fan, bus current, power stage, the
+self-tests, the fault log). The rim NTC and the heatsink NTC have real
+drivers (`components/sensors/rim_ntc.c`, `hs_ntc.c` on GPIO6 / ADC1_CH5;
+the heatsink reads +INFINITY on a driver fault). The rest fail safe: temperatures and currents read
 +INFINITY, the fan reads stopped, buttons read released, the self-tests fail,
 and the power outputs refuse any non-zero command. A unit flashed with this
 image stops in FAULT (`FAULT_SELF_TEST_FAILED`) with the coil off.

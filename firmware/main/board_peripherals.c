@@ -9,7 +9,7 @@
  * Two kinds of function live here:
  *
  * - Real implementations, where the hardware path already exists in this
- *   firmware (esp_timer, the MAX31865 service).
+ *   firmware (esp_timer, the MAX31865 service, the heatsink NTC).
  *
  * - `TODO(hardware)` implementations, where no driver exists and the board
  *   path is not specified in firmware/config.yaml or config.h (pins in
@@ -33,6 +33,7 @@
 
 #include "state_machine.h"
 #include "pan_control.h"
+#include "hs_ntc.h"
 
 static const char *TAG = "board";
 
@@ -207,18 +208,71 @@ bool is_fan_running(void)
 }
 
 /* ============================================================================
- * Analog sensing (TODO(hardware)). +INFINITY, not NAN: state_machine.c tests
- * these with `>` (a NAN would pass every over-limit check), and safety.c and
- * pan_control.c reject any non-finite value. The heatsink NTC and bus-current
- * channels exist in temper_pins.h, but their scaling is not specified in
- * config.yaml.
+ * Heatsink NTC (real): the NTCALUG01A104GA on HS_ADC = GPIO6 / ADC1_CH5
+ * through components/sensors/hs_ntc.c (output/temper-sensor-r3/firmware/
+ * DECISIONS.md D-HSNTC).
+ *
+ * read_heatsink_temperature() callers and what they get:
+ *   state_machine.c check_safety_interlocks()   > OVER_TEMP_THRESHOLD (80)
+ *   state_machine.c fault_cleared()             < 70 releases FAULT_OVER_TEMP
+ *   state_handlers.c state_idle_update()        background read (discarded)
+ *   state_handlers.c state_cooldown_entry/update < SAFE_IDLE_TEMP (50) ends
+ *                                               COOLDOWN; > start + 5 K latches
+ *   state_handlers.c state_fault_update()       > FAULT_STATE_MAX_TEMP_C (125)
+ *                                               triggers the hardware shutdown
+ *   components/safety/safety.c check_hardware_interlocks(),
+ *   run_safety_check()                         non-finite or > 80: over-temp
+ *                                               (linked, no caller in this image)
+ * VALID gives the filtered reading; SATURATED (colder than about 32 degC,
+ * the normal room-temperature state of this channel) gives the upper bound,
+ * which is below every limit and release above; no reading or a latched
+ * driver fault (short, over-range, ADC) gives +INFINITY, as the former
+ * TODO(hardware) stub always did: the `>` limits trip (FAULT_OVER_TEMP),
+ * the `<` releases refuse, and in FAULT the hardware shutdown is asserted.
+ * A driver fault stays latched until power-up. An open sensor reads
+ * SATURATED; the board's HS_OPEN comparator latches it in hardware.
  * ============================================================================ */
+
+static hs_ntc_t s_hs;
+static bool s_hs_inited;
+
+bool read_heatsink_ntc(hs_ntc_reading_t *out)
+{
+    if (!s_hs_inited) {
+        hs_ntc_params_t p;
+        hs_ntc_default_params(&p);
+        s_hs_inited = hs_ntc_init(&s_hs, &p);
+    }
+    hs_ntc_reading_t rd = {.state = HS_NTC_FAULT, .diag = HS_NTC_DIAG_ADC, .t_c = NAN};
+    if (s_hs_inited) {
+        hs_ntc_poll(&s_hs, hs_ntc_board_hal(), get_time_ms(), &rd);
+    }
+    if (rd.state == HS_NTC_FAULT) {
+        static bool s_logged;
+        if (!s_logged) {
+            s_logged = true;
+            ESP_LOGE(TAG, "heatsink NTC fault (diag %d): reads +INF", (int)rd.diag);
+        }
+    }
+    if (out != NULL) {
+        *out = rd;
+    }
+    return rd.state == HS_NTC_VALID;
+}
 
 float read_heatsink_temperature(void)
 {
-    TODO_HW_ONCE("read_heatsink_temperature (reads +INF)");
-    return INFINITY;
+    hs_ntc_reading_t rd;
+    (void)read_heatsink_ntc(&rd);
+    return hs_ntc_interlock_c(&rd);
 }
+
+/* ============================================================================
+ * Bus current (TODO(hardware)). +INFINITY, not NAN: state_machine.c tests it
+ * with `>` (a NAN would pass every over-limit check), and pan_control.c
+ * rejects any non-finite value. The channel exists in temper_pins.h, but its
+ * scaling is not specified in config.yaml.
+ * ============================================================================ */
 
 float read_dc_bus_current(void)
 {

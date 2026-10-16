@@ -15,6 +15,7 @@
 #include "unity/unity.h"
 #include "../main/state_machine.h"
 #include "../main/pan_control.h"
+#include "../main/state_handlers.h"
 #include "../components/sensors/include/rim_ntc.h"
 #include "../components/sensors/include/rtd_service.h"
 
@@ -23,6 +24,8 @@ extern void mock_sm_advance_time(uint32_t ms);
 extern void mock_sm_set_pan_status(int status);
 extern void mock_sm_set_dc_bus_current(float amps);
 extern uint32_t mock_sm_get_power_level(void);
+extern void mock_sm_set_heatsink_temperature(float temp_c);
+extern void mock_sm_set_heatsink_ntc_state(int state);
 
 #define MOCK_PAN_PRESENT 1
 
@@ -510,6 +513,121 @@ static void test_input_sense_dead_latches_current_sense(void)
 }
 #endif
 
+
+/* ---- cold-soak check (DECISIONS.md D-SOAK) --------------------------------
+ * The unit idles with the heatsink NTC VALID at 35 degC (the stub's reading),
+ * the rim saturated (40 degC glass), then PREHEAT starts. */
+
+static uint32_t s_soak_max_power;
+
+static void soak_idle(float pt_c, float hs_c, uint32_t idle_ms)
+{
+    start(STATE_IDLE, 200.0f, 10u, pt_c);
+    mock_sm_set_heatsink_temperature(hs_c);
+    s_hold_t = pt_c;
+    run_ms(idle_ms, hold, &s_clock);
+    TEST_ASSERT_EQUAL_INT(STATE_IDLE, state_machine_get_state());
+}
+
+static void soak_preheat(uint32_t ms)
+{
+    s_soak_max_power = 0u;
+    state_machine_force_state(STATE_PREHEAT);
+    for (uint32_t t = 0; t < ms; t += 10u) {
+        run_ms(10u, hold, &s_clock);
+        if (mock_sm_get_power_level() > s_soak_max_power) {
+            s_soak_max_power = mock_sm_get_power_level();
+        }
+    }
+}
+
+static void test_cold_soak_leak_latches_before_any_power_and_holds(void)
+{
+    /* a leak reading 20 K low after 31 min idle */
+    soak_idle(15.0f, 35.0f, 31u * 60000u);
+    soak_preheat(300u);
+    TEST_ASSERT_EQUAL_INT(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL_INT(FAULT_PROBE_LEAKAGE, state_machine_get_fault());
+    TEST_ASSERT_TRUE(pan_control_cold_soak_latched());
+    TEST_ASSERT_EQUAL_INT(PCS_LEAK, pan_control_cold_soak_result().verdict);
+    TEST_ASSERT_FLOAT_WITHIN(0.1f, 20.0f, pan_control_cold_soak_result().gap_k);
+    TEST_ASSERT_EQUAL_UINT32(0u, s_soak_max_power);           /* the coil never started */
+    TEST_ASSERT_FALSE(fault_cleared());                       /* the leak persists */
+    /* a cold item removed or thawed: the reading agrees again, reset allowed */
+    s_hold_t = 33.0f;
+    run_ms(100u, hold, &s_clock);
+    TEST_ASSERT_TRUE(fault_cleared());
+}
+
+static void test_cold_soak_skips_before_30_min_and_heats(void)
+{
+    soak_idle(15.0f, 35.0f, 20u * 60000u);
+    soak_preheat(1500u);
+    TEST_ASSERT_EQUAL_INT(STATE_PREHEAT, state_machine_get_state());
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_NOT_SOAKED, pan_control_cold_soak_result().verdict);
+    TEST_ASSERT_TRUE(s_soak_max_power > 0u);
+}
+
+static void test_cold_soak_passes_when_the_readings_agree(void)
+{
+    soak_idle(33.0f, 35.0f, 31u * 60000u);
+    soak_preheat(1500u);
+    TEST_ASSERT_EQUAL_INT(STATE_PREHEAT, state_machine_get_state());
+    TEST_ASSERT_EQUAL_INT(PCS_PASS, pan_control_cold_soak_result().verdict);
+    TEST_ASSERT_TRUE(s_soak_max_power > 0u);
+}
+
+static void test_cold_soak_skips_with_the_heatsink_saturated_or_the_rim_warm(void)
+{
+    start(STATE_IDLE, 200.0f, 10u, 15.0f);
+    mock_sm_set_heatsink_ntc_state(HS_NTC_SATURATED);   /* a 25 degC room */
+    s_hold_t = 15.0f;
+    run_ms(31u * 60000u, hold, &s_clock);
+    soak_preheat(300u);
+    TEST_ASSERT_EQUAL_INT(STATE_PREHEAT, state_machine_get_state());
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_HS_INVALID, pan_control_cold_soak_result().verdict);
+    soak_idle(15.0f, 35.0f, 31u * 60000u);
+    s_rim = 150.0f;                                       /* glass still hot */
+    soak_preheat(300u);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_RIM_WARM, pan_control_cold_soak_result().verdict);
+    TEST_ASSERT_TRUE(state_machine_get_state() != STATE_FAULT);
+}
+
+static float s_cold_pan_at;
+static float cold_pan(uint32_t t_ms)
+{
+    return (float)t_ms < s_cold_pan_at ? 34.0f : 5.0f;
+}
+
+static void test_cold_soak_skips_a_cold_pan_placed_in_the_window(void)
+{
+    start(STATE_IDLE, 200.0f, 10u, 34.0f);
+    mock_sm_set_heatsink_temperature(35.0f);
+    s_cold_pan_at = (float)(s_clock + 26u * 60000u);
+    run_ms(31u * 60000u, cold_pan, &s_clock);
+    s_hold_t = 5.0f;
+    soak_preheat(300u);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_PT_DRIFT, pan_control_cold_soak_result().verdict);
+    TEST_ASSERT_TRUE(state_machine_get_state() != STATE_FAULT);
+}
+
+static void test_a_rim_limit_leak_latch_is_not_cleared_by_agreement(void)
+{
+    /* D-RIMLIM: the rim far above the envelope of a 100 degC reading */
+    start(STATE_HEATING, 100.0f, 10u, 100.0f);
+    s_hold_t = 100.0f;
+    s_rim = 160.0f;
+    run_ms(60000u, hold, &s_clock);
+    TEST_ASSERT_EQUAL_INT(FAULT_PROBE_LEAKAGE, state_machine_get_fault());
+    TEST_ASSERT_TRUE(pan_control_rim_limit_latched());
+    TEST_ASSERT_FALSE(pan_control_cold_soak_latched());
+    mock_sm_set_heatsink_temperature(35.0f);
+    s_hold_t = 34.0f;
+    s_rim = 40.0f;
+    run_ms(100u, hold, &s_clock);
+    TEST_ASSERT_FALSE(fault_cleared());
+}
+
 void run_c1_runtime_tests(void)
 {
     RUN_TEST(test_no_runaway_latch_before_the_first_conversion);
@@ -537,4 +655,10 @@ void run_c1_runtime_tests(void)
     RUN_TEST(test_rim_short_latches_probe_short_and_cuts_power);
     RUN_TEST(test_rim_open_latches_probe_open_after_600s_hot);
     RUN_TEST(test_rim_adc_failure_latches_probe_open);
+    RUN_TEST(test_cold_soak_leak_latches_before_any_power_and_holds);
+    RUN_TEST(test_cold_soak_skips_before_30_min_and_heats);
+    RUN_TEST(test_cold_soak_passes_when_the_readings_agree);
+    RUN_TEST(test_cold_soak_skips_with_the_heatsink_saturated_or_the_rim_warm);
+    RUN_TEST(test_cold_soak_skips_a_cold_pan_placed_in_the_window);
+    RUN_TEST(test_a_rim_limit_leak_latch_is_not_cleared_by_agreement);
 }

@@ -1117,6 +1117,106 @@
     "latency_bound_note": "Latency counts from the end of the perturbation (tick 184). The rim turns VALID at ~92 degC, tick ~102; the fall window needs 31 s of VALID history (tick ~412), then 5 s over the limit plus the 1 s filter: tick ~472, 288 rows; 400 rows. Observed 267."
   },
   {
+    "name": "SIL: C1 Cold-Soak Leak Before Heating (PREHEAT)",
+    "description": "DECISIONS D-SOAK. A temperature-independent 1 kohm leak in parallel with the Pt100 from power-up (moisture, a conductive film): soaked at 35 degC the leaky element reads ~102 ohm, 5.2 degC, inside the C1 window (above the 84.27 ohm short threshold). The unit idles 40 min (>= the 30 min soak plus history), then the start press: PREHEAT entry freezes the coil-off history and the first control period, before any power, finds the heatsink NTC (35 degC, VALID) 29.8 K above the Pt100 through the 15 min window, over the 12.9 K threshold, with the rim NTC saturated: FAULT_PROBE_LEAKAGE. The leak never reaches a cook.",
+    "trace_file": "trace_c1_cold_soak_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 0,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 0
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_LEAKAGE",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_LEAKAGE"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "cold-soak",
+    "c1_idle_soak_s": 2400,
+    "c1_pt100_leak_ohm": 1000.0,
+    "c1_only_reason": "A C1 check (main/pan_control.c, components/control/pan_cold_soak.c; DECISIONS D-SOAK) on the heatsink NTC driver (components/sensors/hs_ntc.c, D-HSNTC) and the C1 Pt100 reading: the legacy loop has neither.",
+    "latency_bound_note": "Timed from the first trace row; PREHEAT entry ran during the boilerplate (pan_control_begin froze the history), and the first control period (100 ms) evaluates the check before it commands power: at most one period plus one row, 2 rows."
+  },
+  {
+    "name": "SIL: C1 Cold Soak Passes an Intact Probe (PREHEAT)",
+    "description": "DECISIONS D-SOAK, the benign case. The same 40 min idle at 35 degC with an intact Pt100: the check runs (soaked, history complete, heatsink VALID and flat, Pt100 flat, rim saturated), the heatsink and the Pt100 agree within the 12.9 K threshold, verdict pass, and PREHEAT holds with no fault.",
+    "trace_file": "trace_c1_cold_soak_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 0,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 0
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "PREHEAT",
+      "fault_code": "FAULT_NONE",
+      "max_latency_ticks": 1,
+      "hold_state": true
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "cold-soak-pass",
+    "c1_idle_soak_s": 2400,
+    "c1_only_reason": "A C1 check (main/pan_control.c, components/control/pan_cold_soak.c; DECISIONS D-SOAK) on the heatsink NTC driver (components/sensors/hs_ntc.c, D-HSNTC) and the C1 Pt100 reading: the legacy loop has neither."
+  },
+  {
+    "name": "SIL: C1 Cold Soak Skips After a Short Idle (PREHEAT)",
+    "description": "DECISIONS D-SOAK, the skip path and its limit. The 1 kohm leak is present but the unit idled only 10 min after power-up: power-up counts as coil activity (nothing persists the last cook across a reset), so the coil-off time is under the 30 min soak and the check skips (not soaked) instead of comparing a heatsink and a probe that need not agree; PREHEAT holds with no fault from the check. The leak is then left to the runtime checks (D-LEAK cross-check, D-RIMLIM), which need a hot pan.",
+    "trace_file": "trace_c1_cold_soak_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 0,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 0
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "PREHEAT",
+      "fault_code": "FAULT_NONE",
+      "max_latency_ticks": 1,
+      "hold_state": true
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "cold-soak-skip",
+    "c1_idle_soak_s": 600,
+    "c1_pt100_leak_ohm": 1000.0,
+    "c1_only_reason": "A C1 check (main/pan_control.c, components/control/pan_cold_soak.c; DECISIONS D-SOAK) on the heatsink NTC driver (components/sensors/hs_ntc.c, D-HSNTC) and the C1 Pt100 reading: the legacy loop has neither."
+  },
+  {
     "name": "SIL: C1 Current-Sense Start-Up Pulse Fails (PREHEAT)",
     "description": "The bus-current sense reads 0 A from power-up (c1_bus_sense_dead). PREHEAT entry runs the start-up pulse (360 W for 1 s, a pan present) before the loop heats; no current -> FAULT_CURRENT_SENSE, so a dead sense never reaches a cook.",
     "trace_file": "trace_c1_pulse_sense_dead_preheat.csv",

@@ -12,6 +12,8 @@ idf_component_register(
         "../components/sensors/rtd_convert.c"
         "../components/sensors/rim_ntc.c"
         "../components/sensors/rim_ntc_board.c"
+        "../components/sensors/hs_ntc.c"
+        "../components/sensors/hs_ntc_board.c"
         "../components/safety/safety.c"
         "../config.c"
         "board_peripherals.c"

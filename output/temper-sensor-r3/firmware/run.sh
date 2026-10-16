@@ -1,15 +1,17 @@
 #!/bin/sh
 # Rerun every sensor-r3 C1 firmware result (about 20 min on the Mac):
 #   0. rim NTC table and channel numbers (rim_ntc.py -> rim-ntc.json and
-#      firmware/components/sensors/rim_ntc_table.h) and the CR-7 threshold
-#      words (cr7_thresholds.py -> cr7-thresholds.json); both gate
+#      firmware/components/sensors/rim_ntc_table.h), the heatsink NTC table,
+#      channel and cold-soak budget (hs_ntc.py -> hs-ntc.json and
+#      firmware/components/sensors/hs_ntc_table.h; gates pan_cold_soak.h) and
+#      the CR-7 threshold words (cr7_thresholds.py -> cr7-thresholds.json); all gate
 #   1. regenerate the golden vectors (firmware/test/*_vectors.h, vectors-summary.json)
 #   2. build + run the C1 host test targets (firmware/test/CMakeLists.txt):
 #      loop modules, D1, the contact-lost event, the C1 runtime
 #      (supervisor/conversion/current-sense/leak units, state machine +
 #      pan_control with and without the input-current sense, MAX31865 C1
-#      service through the SPI mock; TEMPER_PAN_CONTROL_C1), the rim NTC
-#      driver, and the SIL fault-injection suite in both configurations
+#      service through the SPI mock; TEMPER_PAN_CONTROL_C1), the rim and
+#      heatsink NTC drivers, and the SIL fault-injection suite in both configurations
 #      (legacy and C1) with its coverage gate (DECISIONS.md D-SIL)
 #   3. build the C1 sources as a host library and run the C-in-the-loop co-sim
 #      (cosim-results.json, gates bars B1-B5 in three gain modes, with the
@@ -28,6 +30,10 @@
 #      gates the firmware constants and the chosen variant's 0 false latches;
 #      DECISIONS.md D-RIMLIM), and candidates B/C (leak-alternatives.json,
 #      reported only)
+#   3f. the cold-soak leakage check through the C (heatsink driver, Pt100
+#      conversion, pan_cold_soak.c): threshold cross-check, benign cold starts
+#      (gated: 0 latches), hazardous leaks caught before heating
+#      (cold-soak.json; DECISIONS.md D-SOAK)
 #   4. D1 seed-to-seed Monte Carlo (b5-montecarlo.json, gates safety only)
 #   5. runaway checks: legacy vs C1 rules on false-trip and fault scenarios,
 #      with the current-sense checks (runaway-checks.json, gates the C1 rules;
@@ -44,9 +50,11 @@ py=${PYTHON:-python3}
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
-echo "== 0. rim NTC table, CR-7 threshold words"
+echo "== 0. rim and heatsink NTC tables, CR-7 threshold words"
 "$py" "$here/rim_ntc.py" > "$tmp/rim.log" || { cat "$tmp/rim.log"; exit 1; }
 tail -1 "$tmp/rim.log"
+"$py" "$here/hs_ntc.py" > "$tmp/hs.log" || { cat "$tmp/hs.log"; exit 1; }
+tail -1 "$tmp/hs.log"
 "$py" "$here/cr7_thresholds.py" > "$tmp/cr7.log" || { cat "$tmp/cr7.log"; exit 1; }
 tail -1 "$tmp/cr7.log"
 
@@ -58,10 +66,10 @@ cmake -S "$repo/firmware/test" -B "$tmp/build" > /dev/null
 cmake --build "$tmp/build" -j 8 --target test_pan_temp_estimator_only \
     test_contact_check_only test_pan_temp_loop_only test_pan_contact_sm_only \
     test_c1_units_only test_c1_runtime_only test_c1_runtime_isense_only test_c1_rtd_service_only \
-    test_c1_rim_ntc_only \
+    test_c1_rim_ntc_only test_c1_hs_ntc_only \
     test_sil_fault_injection test_sil_fault_injection_c1 > /dev/null
 (cd "$tmp/build" && ctest --output-on-failure \
-    -R '^(pan_temp_estimator|contact_check|pan_temp_loop|pan_contact_sm|c1_units|c1_runtime|c1_runtime_isense|c1_rtd_service|c1_rim_ntc|sil_fault)_tests(_c1)?$')
+    -R '^(pan_temp_estimator|contact_check|pan_temp_loop|pan_contact_sm|c1_units|c1_runtime|c1_runtime_isense|c1_rtd_service|c1_rim_ntc|c1_hs_ntc|sil_fault)_tests(_c1)?$')
 "$py" "$repo/firmware/test/test_sil_coverage.py" --gate > "$tmp/cov.log" 2>&1 \
     || { cat "$tmp/cov.log"; exit 1; }
 grep '^SUMMARY' "$tmp/cov.log"
@@ -91,6 +99,11 @@ echo "== 3e. rim limit study; energy and cold-soak alternatives"
     || { grep -vE '^m ' "$tmp/rl.log"; exit 1; }
 grep -E '^(baseline|chosen|GATE|RIM LIMIT)' "$tmp/rl.log"
 "$py" "$here/leak_alternatives.py" > /dev/null
+
+echo "== 3f. cold-soak leakage check"
+"$py" "$here/cold_soak.py" --lib "$lib" --out "$here/cold-soak.json" > "$tmp/cs.log" \
+    || { cat "$tmp/cs.log"; exit 1; }
+grep -E '^(threshold|benign|baseline|PASS|FAIL|ALL COLD)' "$tmp/cs.log"
 
 echo "== 4. D1 Monte Carlo"
 "$py" "$here/b5_montecarlo.py" --lib "$lib" --out "$here/b5-montecarlo.json" > "$tmp/mc.log" \

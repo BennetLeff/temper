@@ -60,6 +60,13 @@
  *   c1_bus_sense_dead    true (C1): the bus-current sense reads 0 A from
  *                        power-up, whatever the stage draws (a latent sense
  *                        failure; DECISIONS D-ISENSE)
+ *   c1_idle_soak_s       C1: seconds the unit idles in IDLE, cycling the
+ *                        trace's rows 0-4, between power-up and the start press (the
+ *                        cold-soak check, DECISIONS D-SOAK, needs >= 30 min
+ *                        of coil-off history)
+ *   c1_pt100_leak_ohm    C1: a leak in parallel with the Pt100 element from
+ *                        power-up, temperature-independent (D-LEAK, D-SOAK);
+ *                        0 or absent: none
  *   xfail                {"c1": "reason"}: a known defect, reported as
  *                        XFAIL; an unexpected pass fails the run
  *
@@ -233,6 +240,14 @@ static int extract_int(const char **pp) {
     return val;
 }
 
+/* Extract a JSON number, advance *pp past it */
+static double extract_number(const char **pp) {
+    const char *p = skip_ws(*pp);
+    double val = strtod(p, (char **)&p);
+    *pp = p;
+    return val;
+}
+
 /* Extract a JSON boolean, advance *pp past it (false on anything else) */
 static bool extract_bool(const char **pp) {
     const char *p = skip_ws(*pp);
@@ -319,6 +334,8 @@ typedef struct {
     bool reset_accepted;
     bool c1_escalates_to_runaway;
     bool c1_bus_sense_dead;
+    int  c1_idle_soak_s;          /* C1: idle seconds before the start press */
+    float c1_pt100_leak_ohm;      /* C1: element-parallel leak, 0 = none */
     /* hard assertions (KTD3): a scenario that reaches the right state but
      * misses these side effects fails the run, it does not warn. */
     bool require_power_off;
@@ -444,6 +461,10 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
                 e->c1_escalates_to_runaway = extract_bool(&p);
             } else if (!strcmp(key, "c1_bus_sense_dead")) {
                 e->c1_bus_sense_dead = extract_bool(&p);
+            } else if (!strcmp(key, "c1_idle_soak_s")) {
+                e->c1_idle_soak_s = extract_int(&p);
+            } else if (!strcmp(key, "c1_pt100_leak_ohm")) {
+                e->c1_pt100_leak_ohm = (float)extract_number(&p);
             } else if (!strcmp(key, "modes")) {
                 parse_modes(&p, e);
             } else if (!strcmp(key, "xfail")) {
@@ -710,9 +731,12 @@ static int load_csv(const char *path, csvrow_t *rows, int max_rows) {
  *              a crossing latches register 07h bit 7/6 and sets the fault
  *              bit (RTD LSB D0); DRDY falls. CONFIG D1 clears 07h.
  *   R          the Pt100 at the trace pan temperature plus the CR-7 0.061 K
- *              self-heating (IEC 60751), unless the trace's rtd_resistance
+ *              self-heating (IEC 60751), in parallel with the manifest's
+ *              c1_pt100_leak_ohm if set, unless the trace's rtd_resistance
  *              column departs from its row-0 placeholder: then that value
  *              is the element's resistance (an injected RTD fault).
+ *   heatsink   the heatsink NTC driver VALID at the trace's hs_temp
+ *              (state_machine_stubs.c read_heatsink_ntc).
  *   bus I      an obeying stage, P_cmd / 120 V (from the last power level;
  *              the supervisor allows down to 100 V), and 0 A with no pan
  *              (no coupling, so no real power), unless the trace's
@@ -747,6 +771,7 @@ static struct {
     float r_override;     /* NAN: Pt100 follows the pan temperature */
     float i_override;     /* NAN: bus current follows the command   */
     bool sense_dead;      /* the bus-current sense reads 0 A        */
+    float leak_ohm;       /* element-parallel leak, 0 = none        */
     bool drdy;
     uint32_t tick;
     uint32_t conversions;
@@ -798,9 +823,12 @@ static uint8_t threshold_bits(uint16_t code) {
 }
 
 static uint16_t element_code(void) {
-    const double r = isnan(s_plant.r_override)
+    double r = isnan(s_plant.r_override)
         ? pt100_ohm((double)read_pan_temperature() + C1_SELF_HEATING_K)
         : (double)s_plant.r_override;
+    if (isnan(s_plant.r_override) && s_plant.leak_ohm > 0.0f) {
+        r = r * (double)s_plant.leak_ohm / (r + (double)s_plant.leak_ohm);
+    }
     long code = lround(r / C1_R_REF_OHM * 32768.0);
     if (code < 0) code = 0;
     if (code > 0x7FFF) code = 0x7FFF;
@@ -864,6 +892,7 @@ static void c1_reset(void) {
     s_plant.r_override = NAN;
     s_plant.i_override = NAN;
     s_plant.sense_dead = false;
+    s_plant.leak_ohm = 0.0f;
     s_plant.drdy = true;
     s_plant.tick = 0u;
     s_plant.conversions = 0u;
@@ -897,6 +926,7 @@ static void sil_reset(const manifest_entry_t *entry) {
 #ifdef TEMPER_PAN_CONTROL_C1
     c1_reset();
     s_plant.sense_dead = entry->c1_bus_sense_dead;
+    s_plant.leak_ohm = entry->c1_pt100_leak_ohm;
 #else
     (void)entry;
 #endif
@@ -952,6 +982,12 @@ static bool sil_fail(const char *msg) {
  * as the original helper.
  * --------------------------------------------------------------------------- */
 
+/* C1 cold-soak scenarios: idle seconds in IDLE before the start press, at
+ * the trace's row 0 (set by run_sil_scenario; 0 for every other caller). */
+static int g_idle_soak_s;
+static const csvrow_t *g_idle_rows;
+static void apply_row(const csvrow_t *rows, int t);
+
 static void sm_boilerplate_to_origin(system_state_t origin, bool self_test_pass,
                                      float trace_start_temp_c) {
     /* INIT -> IDLE (self-test runs on first update) */
@@ -974,6 +1010,19 @@ static void sm_boilerplate_to_origin(system_state_t origin, bool self_test_pass,
     /* Self-test failure short-circuits every origin: already in FAULT. */
     if (state_machine_get_state() == STATE_FAULT) return;
     if (origin == STATE_INIT || origin == STATE_IDLE) return;
+
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* Idle soak (D-SOAK): the unit sits in IDLE, cycling the trace's first
+     * 5 rows (the live-sensor pattern: a converter returning one code for
+     * 250 conversions is a frozen converter, D-OPEN). */
+    if (g_idle_soak_s > 0 && g_idle_rows != NULL) {
+        for (int i = 0; i < g_idle_soak_s * 10 && state_machine_get_state() == STATE_IDLE; i++) {
+            apply_row(g_idle_rows, i % 5);
+            sil_step_row();
+        }
+        if (state_machine_get_state() != STATE_IDLE) return;
+    }
+#endif
 
     /* IDLE -> PAN_DET */
     state_machine_set_target_temp(100.0f);
@@ -1368,6 +1417,20 @@ static bool assert_c1_mechanism(const manifest_entry_t *entry, float reading_at_
         }
         printf("  [C1] Pt100 leak check latched after %u cross-check suspects\n",
                (unsigned)pan_control_xcheck_suspects());
+    } else if (!strcmp(m, "cold-soak") || !strcmp(m, "cold-soak-pass") ||
+               !strcmp(m, "cold-soak-skip")) {
+        const pcs_result_t r = pan_control_cold_soak_result();
+        const pcs_verdict_t want = !strcmp(m, "cold-soak") ? PCS_LEAK
+                                 : (!strcmp(m, "cold-soak-pass") ? PCS_PASS : PCS_SKIP_NOT_SOAKED);
+        if (r.verdict != want || pan_control_cold_soak_latched() != (want == PCS_LEAK)) {
+            snprintf(msg, sizeof(msg), "C1 mechanism %s expected: cold-soak verdict '%s' "
+                     "(latched %d), got '%s'", m, pcs_verdict_name(want),
+                     (int)pan_control_cold_soak_latched(), pcs_verdict_name(r.verdict));
+            return sil_fail(msg);
+        }
+        printf("  [C1] cold soak: %s (coil off %.0f s, heatsink %.2f C, Pt100 %.2f C, gap %.2f K)\n",
+               pcs_verdict_name(r.verdict), (double)r.off_s, (double)r.hs_c, (double)r.pt_c,
+               (double)r.gap_k);
     } else if (!strcmp(m, "rim-limit")) {
         if (!pan_control_rim_limit_latched()) {
             return sil_fail("C1 mechanism rim-limit expected: the setpoint-relative rim limit has not latched");
@@ -1531,7 +1594,11 @@ static bool run_sil_scenario(const manifest_entry_t *entry) {
 
     /* Boilerplate: get to the scenario's designed origin state (or FAULT if
      * self-test fails) */
+    g_idle_soak_s = entry->c1_idle_soak_s;
+    g_idle_rows = rows;
     sm_boilerplate_to_origin(entry->origin_state, entry->self_test_pass, rows[0][2]);
+    g_idle_soak_s = 0;
+    g_idle_rows = NULL;
 
     /* If self-test was set to fail, we should already be in FAULT */
     if (!entry->self_test_pass) {

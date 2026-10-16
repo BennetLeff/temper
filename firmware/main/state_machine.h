@@ -294,11 +294,13 @@ void state_machine_report_rtd_frozen(void);
  * the hardware cut (main/pan_control.c): FAULT_CURRENT_SENSE (the bus-current
  * sense reads no current while the stage is commanded, DECISIONS.md
  * D-ISENSE) and FAULT_PROBE_LEAKAGE (element-parallel Pt100 leakage: the
- * chained cross-check cycles, D-LEAK, or the setpoint-relative rim limit,
- * D-RIMLIM).
+ * chained cross-check cycles, D-LEAK, the setpoint-relative rim limit,
+ * D-RIMLIM, or the cold-soak check at PREHEAT entry, D-SOAK).
  * Same latch rule as the RTD sinks (D-LATCH): a report while a fault is
  * already latched only re-asserts the cut. Neither fault is software-
- * clearable (fault_cleared(): a power cycle re-runs the checks).
+ * clearable (fault_cleared(): a power cycle re-runs the checks), except a
+ * cold-soak FAULT_PROBE_LEAKAGE once the Pt100 agrees with the heatsink
+ * again (pan_control_cold_soak_clearable()).
  */
 void state_machine_report_latched_fault(fault_code_t fault);
 

@@ -1233,41 +1233,23 @@ about 254.5–280.3 °C.
   identified a when a leak forms mid-cook is real, but adding food does the
   same.
 
-### C. Cold-soak plausibility: separates temperature-independent leaks; no reference is readable today
+### C. Cold-soak plausibility: implemented as D-SOAK; the reference saturates at room temperature
 
-- **The reference.** After an idle soak every part is at ambient. The rim
-  NTC saturates below about 92 °C and cannot serve. The only on-board
-  candidate is the heatsink NTC: NTCALUG01A104GA, 100 k, B 4190, a 10 k
-  pull-up on GPIO3 / ADC1_CH2 (legacy `elec/src`, BOM). Its firmware read,
-  `read_heatsink_temperature()`, is a TODO stub returning +INF
-  (`main/board_peripherals.c`). MCP3202 CH1 is the rail reference, and CH0
-  is undocumented here. The ESP32-S3 die sensor is unused and self-heated.
-  So C cannot run on this board's firmware today.
-- **Threshold budget**, Pt100 against the heatsink NTC: Pt100 0.2 K, NTC
-  R25 0.45 K, ADC at ATTEN3 3.9 K, the uncorrected rail 4.7 K, and 3 K of
-  soak gradient. That is **12.2 K**, or 7.5 K with the MCP3202 CH1 rail
-  correction.
-- **A temperature-independent leak** (moisture, a conductive film) reads
-  low at room temperature by 16.8 K at 1.73 kΩ (14.5 K at 5 °C, 18.7 K at
-  40 °C), and by more at every lower resistance. At the 12.2 K threshold
-  the check catches every leak ≤ 2.43 kΩ (≤ 4.02 kΩ rail-corrected): all
-  235 hazardous sweep runs, before heating ever starts.
+This section first evaluated C on paper, before a heatsink NTC driver existed
+(a 12.2 K budget on "GPIO3 / ADC1_CH2"; the board has the NTC on GPIO6 /
+ADC1_CH5). Both now exist: D-HSNTC (the driver) and D-SOAK (the check, its
+threshold of 12.9 K, the benign sets and the coverage, through the C).
+`leak_alternatives.py` keeps the closed-form view at 35 °C against the
+`hs-ntc.json` threshold:
+- **A temperature-independent leak** reads low by 16.8 K at 1.73 kΩ at
+  25 °C (14.5 K at 5 °C, 18.7 K at 40 °C), more at every lower resistance.
 - **An Arrhenius leak** R(T) = R_300·exp(Ea/k·(1/T − 1/573 K)), equal to
-  the hazardous 1.73 kΩ at 300 °C, is 4.4 kΩ at 25 °C for Ea 0.05 eV (reads
-  6.9 K low) and 72.6 kΩ for 0.2 eV (0.43 K low). C misses it above
-  **Ea 0.018 eV** (0.045 eV rail-corrected). Ionic or contamination
-  conduction that only conducts hot is invisible to it.
-- **Spec for when the reference exists** (not implemented):
-  - in IDLE, with the coil off ≥ 30 min and the heatsink NTC within 3 K of
-    its own reading 10 min earlier;
-  - Pt100 < heatsink − 12.2 K for 10 min, with the reading flat (±0.5 K):
-    refuse to start heating with FAULT_PROBE_LEAKAGE;
-  - a frozen item on the hob also reads cold, and the flatness and IDLE
-    conditions do not exclude a thawing block at 0 °C, so the fault must
-    clear when the reading returns within the threshold.
-
-  The heatsink NTC needs a driver: its scaling is not specified in
-  `config.yaml`. The zapote capture must confirm it still exists there.
+  the hazardous 1.73 kΩ at 300 °C, is missed above **Ea 0.020 eV** at
+  35 °C (0.043 eV rail-corrected). Conduction that only conducts hot is
+  invisible to C.
+- **What changed from the paper version:** the heatsink channel is SATURATED
+  below 28.6–35.7 °C, so C runs only in a warm room; at the worst corner it
+  adds nothing to the 84.27 Ω window (D-SOAK table).
 
 ### D. Coil-impedance pan temperature: feasibility only, no signal today
 
@@ -1315,8 +1297,8 @@ about 254.5–280.3 °C.
 2. **The bead's dissipation constant on the glass** (D-RIM, open item 2).
    The 4.53 K still-air self-heating is in the tolerance table; bearing on
    the glass it is smaller, and the measured value would lower the limit.
-3. **The heatsink NTC against ambient after a soak** (for C), at 10 min
-   intervals over an hour after a 250 °C cook and after an overnight idle.
+3. **The heatsink NTC against ambient after a soak** (for C): D-SOAK bench
+   item 1, with the rest of the cold-soak list there.
 
 ## D-CSW. Contact-shift window: re-estimate the contact after an abrupt change
 
@@ -1415,6 +1397,288 @@ The pan mean still reaches SP + 22 K; the B5 line is on T_c. A deglaze above
 105 °C gets the budget, then the cap, until the liquid boils off. Both are
 open items in `../robustness/DECISIONS.md` R-C. The design, nominal, food,
 stress and probe-on-intact runs are unchanged by the guard.
+
+## D-HSNTC. Heatsink NTC driver, from the zapote/controller circuit
+
+**The circuit** (zapote/controller, read only; `controller-layout` 300b8a934
+and `controller-c1-crs` 1f39c1933 agree on every part here):
+- `elec/src/thermal_block.ato` ThermalSenseUnit: `hs_fixed` 10 kΩ 1 %
+  (RC0603FR-0710KL) from v3v3 to HS_SENSE, the NTC (external lug
+  NTCALUG01A104GA) from HS_SENSE to ground, `hs_filter` 100 nF. A TLV3201
+  hot comparator (HS_HOT) and a TLV9031 open comparator (HS_OPEN: HS_SENSE
+  above v3v3 · 100 k / 101.21 k, i.e. colder than −16.1 °C) OR into HS_FAULT,
+  a hardware latch input.
+- `elec/src/controller.ato`: 10 kΩ / 100 nF into the TLV9062 follower U6B,
+  then 100 Ω / 100 nF into HS_ADC; **`mcu.IO6 ~ hs_adc`, so GPIO6 =
+  ADC1_CH5.** GPIO3 is the blower tach (`mcu.IO3 ~ fan_tach`); the legacy
+  `temper_pins.h` name `ADC_CHANNEL_NTC` = GPIO3 / ADC1_CH2 is wrong for this
+  board (open item 13).
+- zapote DECISIONS C13: "values above ATTEN3's 2.9 V occur only cold or
+  open"; C32: the firmware heatsink trip should be 95 °C.
+
+**The R-T table.** The NTCALUG01A data sheet (Vishay doc 29092, rev
+14-Jan-2026, sha256 a14f8704…189b) has no table: its ordering line gives
+NTCALUG01A104GA as 100 kΩ ± 2 %, B25/85 4190 K ± 1.5 %. 4190 K ± 1.5 % is
+Vishay material D, curve 11 (NTCLE100E3 data sheet, doc 29049, rev
+07-May-2025, sha256 f9d61537…c9cb, p. 4), and the table is that document's
+p. 12 NTCLE100E3104 column, −40 to 150 °C in 5 K steps, with its "dR/R due
+to B tolerance" column. The power-stage branch's `thermal_mgmt.c` (44cf184a7)
+uses the same curve for this part. `hs_ntc.py` holds the table and checks it:
+- material D's own A1–D1 polynomial: within 0.027 K over the table (the
+  4-digit rounding);
+- B25/85 from the table: 4190 K;
+- `--verify-pdf ntcle100.pdf`, `--verify-lug-pdf ntcalug01a.pdf`,
+  `--verify-esp-pdf esp32-s3_datasheet_en.pdf` re-extract the column, the
+  ordering line and Table 5-6 with pdftotext. All three pass (run
+  2026-10-15 on the files with the sha256 above; `run.sh` runs `hs_ntc.py`
+  without the PDFs).
+
+It writes `firmware/components/sensors/hs_ntc_table.h` (deterministic) and
+`hs-ntc.json`.
+
+**The driver** (`components/sensors/hs_ntc.{c,h}`, the structure of
+`rim_ntc.c`):
+- hardware only through `hs_ntc_hal_t` (`read_pin_mv(atten)`,
+  `read_v3v3_mv`), so host tests use a mock; `hs_ntc_board.c` binds it to
+  `hal_adc` on ADC1_CH5 with the per-channel calibration the rim uses;
+- each 100 ms period (`hs_ntc_poll`): 8 samples, trimmed mean, the CR-7
+  attenuation rule with 30 mV hysteresis and the clip re-read; node =
+  pin / `adc_gain` (1.0 as built; 0.85 with CR-8); R from the v3v3 ratio;
+  T from the table (1/T linear in ln R; leave-one-out over 10 K 0.029 K,
+  whole-mV chain ≤ 0.03 K); a 1 s filter;
+- **VALID** inside ATTEN3's calibrated range; **SATURATED** at ≥ 2900 mV
+  (colder than 28.6–35.7 °C, or an open sensor, which HS_OPEN latches in
+  hardware): `t_c` is the upper bound at the rail's contract maximum when the
+  rail is not measured; **FAULT**, latched until `hs_ntc_init()`: SHORT (node
+  < 0.25 V for 3 periods; beyond the table at every rail, so only a shorted
+  sensor or lead), OVER_RANGE (hotter than 150 °C, the part's rating, for 3
+  periods), ADC (10 failed periods).
+- **The rail.** MCP3202 CH1 (the LM4040A25 reference) is the board's rail
+  measurement, but no firmware driver exists: U15 sits on the RTD SPI bus
+  (GPIO10–13, CS GPIO42) with the MAX31865, and a driver needs bus
+  arbitration with `rtd_service`'s conversion timing. That is a driver of
+  its own, not part of this change, so `read_v3v3_mv` reports "not
+  available" and the driver divides by 3.300 V. The rail is then the largest
+  single error term near room temperature (4.1 K at the band edge); the
+  rail-corrected numbers are reported beside every as-built one.
+
+**Accuracy** (`hs-ntc.json` channel rows; the part's R25 and B tolerance, the
+ADC's Table 5-6 error, the uncorrected rail):
+
+| T | node | atten | tolerance | ADC | rail (3.242 / 3.367 V) |
+|---|---|---|---|---|---|
+| 35 °C | 2855 mV | 3 | 0.62 K | 3.00 K | +2.89 / −3.65 K |
+| 50 °C | 2555 mV | 3 | 0.91 K | 2.17 K | +1.91 / −2.30 K |
+| 80 °C | 1748 mV | 3 | 1.53 K | 1.77 K | +1.08 / −1.26 K |
+| 95 °C | 1340 mV | 2 | 1.87 K | 0.39 K | +0.93 / −1.06 K |
+| 125 °C | 718 mV | 0 | 2.60 K | 0.32 K | +0.81 / −0.92 K |
+
+**The finding: this channel is saturated at room temperature.** The node is
+above ATTEN3's 2900 mV calibrated top below 28.64 / 32.17 / 35.72 °C (v3v3
+3.242 / 3.300 / 3.367 V); with every tolerance and the ADC at the low
+corner it can read VALID from 23.9 °C. The 10 k pull-up was sized for the
+85–101 °C hardware trip (C13/C32), and the earlier 12.2 K budget (D-RIMLIM C,
+"ADC1_CH2") missed it. Every limit `read_heatsink_temperature()` serves is
+far above saturation, so the over-temperature functions are unaffected. The
+cold-soak check (D-SOAK) is not: it can only run in a warm room. **CR-8
+(recommended, a PCB change request):** a divider after the U6B follower,
+gain ≈ 0.85 (e.g. 1.5 k / 8.45 k 0.1 %), keeps the whole −40..150 °C node
+under 2.9 V; the driver takes it as `adc_gain` with no other change. On its
+own CR-8 trades saturation for a poor cold end (the 10 k pull-up gives
+6 mV/K at 5 °C, so ±50 mV is ±8 K): `cold-soak.json` puts its threshold at
+18.6 K. A cold-end-accurate reference needs the rail measured and a second
+pull-up, or a production offset trim of the ADC.
+
+**`read_heatsink_temperature()`** (`main/board_peripherals.c`) is now real:
+VALID gives the filtered reading, SATURATED the upper bound (below every
+limit and release), and a latched fault or no reading +INF, as the stub
+always returned. Its callers: `check_safety_interlocks()` (> 80 °C,
+FAULT_OVER_TEMP), `fault_cleared()` (< 70 °C releases it), the IDLE
+background read, COOLDOWN (< 50 °C ends it; > start + 5 K latches), FAULT
+(> 125 °C asserts the hardware shutdown), and `safety.c`
+`check_hardware_interlocks()` / `run_safety_check()` (non-finite or > 80,
+linked, no caller in this image). On the target the stub's +INF made every
+PREHEAT entry FAULT_OVER_TEMP; with the driver the interlock passes, so
+**`OVER_TEMP_THRESHOLD` 80 °C now matters**: the sink runs at 88.6 °C at full
+power (airflow-r1), so 80 °C trips in normal use; C32 sets 95 °C (open item
+12, not changed here). `read_heatsink_ntc()` gives the cold-soak check the
+driver state as well.
+
+Tests (`test_c1_hs_ntc_only`, 10): the table against the data-sheet points;
+chain accuracy at the trip points; room temperature saturated with an upper
+bound; short latches after 3 periods and reads +INF; over-range latches; ADC
+failure reads +INF then latches; the 1 s filter; one period per 100 ms; the
+CR-8 gain brings 25 °C into range; the board binding reads ADC1_CH5 only.
+
+## D-SOAK. The cold-soak Pt100 leakage check
+
+A leak in parallel with the Pt100 reads low (D-LEAK). If it conducts at room
+temperature it reads low there too, where an idle unit sits at one
+temperature, and the heatsink NTC is the only on-board reference (D-HSNTC).
+The check is `components/control/pan_cold_soak.{c,h}`, run by
+`main/pan_control.c`; `cold_soak.py` → `cold-soak.json` runs it, the heatsink
+driver and the Pt100 conversion in C.
+
+**When: PREHEAT entry, not power-up.** At power-up nothing says how long the
+coil has been off: no time of the last cook persists across a reset, and a
+reset during a cook is exactly when the glass is hot. So uptime counts as
+coil-on time, and the history is kept from power-up. PREHEAT entry is the
+last moment before the coil heats, it is reached on every cook, and the user
+has just placed the pan, which the flatness and rim conditions see.
+`pan_control_begin()` freezes the history; the first control period (100 ms,
+before the start-up pulse or any power) evaluates it with the rim driver's
+first reading.
+
+**History** (`pcs_note`, from `state_machine_update()` in every state, at
+most once a second while idle): the time the coil was last active (power-up,
+the loop running or power commanded), and per-minute min/max of the Pt100
+(conversions that are not a sensor failure) and of the heatsink while VALID.
+
+**Rule** (`pcs_evaluate`; any failed condition skips and records why):
+1. **soaked:** the coil off ≥ N = 30 min;
+2. **history:** the last W = 15 min complete;
+3. **reference:** the heatsink VALID now and through the window, ≤ 45 °C;
+4. **flat:** heatsink max − min ≤ 1.0 K and Pt100 ≤ 0.25 K over W;
+5. **rim:** the rim NTC SATURATED (glass below ~87 °C);
+
+then **LEAK** when the heatsink exceeds the Pt100 by more than 12.9 K
+through the window (the heatsink's minimum against the Pt100's maximum) and
+now; **PASS** otherwise. LEAK commands power 0 and reports
+FAULT_PROBE_LEAKAGE through `state_machine_report_latched_fault()` (the D-LEAK
+path: FAULT, logged once, power off). The latch is clearable:
+`fault_cleared()` accepts a reset once the Pt100 is within 12.9 K of a VALID
+heatsink (`pan_control_cold_soak_clearable()`), because a frozen pot reads
+the same as a leak (below). A leak keeps it latched.
+
+**The thermal argument for N, W and the flatness limits.** No time constant
+is measured (bench items 3–4). Estimates: the 4 mm CERAN glass, 8160 J/m²K
+(`bench/plate_check.py`), at h 10 W/m²K (`cad/thermal_axisym.py` h_eye),
+816 s with one face cooling, 408 s with two; the ~1 kg aluminium heatsink
+(~900 J/K) at 0.5 K/W natural convection (BOM HS1, fan off) 450 s; the
+cartridge off-pan 50–73 s, slaved to the glass. The flatness tests carry the
+bound: a single exponential with τ ≤ τ_max = 1800 s (2.2× the largest
+estimate) that moved ≤ f over the last W lies within f/(e^(W/τ) − 1) of its
+final value: 1.54 K for the heatsink, 0.39 K for the Pt100. N keeps the check
+out of the first two estimated time constants after a cook, where the fast
+components would pass a flatness window; it is not itself the bound.
+
+**The threshold, 12.9 K** (`hs-ntc.json` `cold_soak_budget`, gated against
+`pan_cold_soak.h`): the false-latch stack at its worst over the band where
+the check can run, at its cold edge (heatsink 23.9 °C, all parts at the low
+corner):
+- heatsink reads high 5.05 K: ADC −50 mV 4.16, NTC R25 0.44, pull-up 1 % +
+  100 ppm/K 0.26, buffer 2 mV 0.17 (an assumption: TLV906x V_OS ±1.6 mV),
+  B 0.02, self-heating 0.01;
+- rail 3.242 V read as 3.300 V: 4.12 K;
+- Pt100 reads low 0.79 K: class F0.15 0.20, Rref 0.1 % + 25 ppm/K 0.43,
+  converter 3 LSB 0.10, the 0.061 K correction;
+- soak residuals 1.54 + 0.39 K, and a 1.0 K standby offset of the heatsink
+  over the room (an assumption, bench item 2).
+
+The C path (`cold-soak.json`, the same corner through `hs_ntc.c` and
+`rtd_convert.c` with modelled noise) needs 11.7 K; the gate holds it at or
+under the firmware's 12.9 K. With the rail measured the stack is 8.8 K.
+The miss stack is 16.0 K at the band edge (12.4 K at 40 °C), including the
+Pt100's off-pan self-heating, 2.7 K (2 V bias, G_cold 0.553 mW/K): where the
+channel is VALID, a leak is caught at every corner only above 26–29 K of
+reading offset (≤ ~1.2 kΩ at 35 °C), and nominally above 12.9 K.
+
+**Benign cold starts** (`cold-soak.json`, gated: 0 latches as built, at every
+corner, evaluated every 10 s along each trajectory):
+
+| Set | Trajectories | Evaluations that ran | Latches | Largest gap |
+|---|---|---|---|---|
+| ambient 5–40 °C from power-up | 18 | 5400 | 0 | 9.5 K |
+| warm restart after a 250 °C cook (τ_g 408/816/1800 × τ_h 450/900/1800 s) | 162 | 35668 | 0 | 10.8 K |
+| hot pan (100/200 °C) placed on a soaked unit | 72 | 2184 | 0 | 9.5 K |
+| cold pan (4 / −18 °C, τ 900/1800 s) placed | 144 | 21812 | 0 | 9.8 K |
+| transport (5 / 50 / 60 °C into a 25–40 °C room, powered on arrival) | 216 | 108659 | 0 | 10.9 K |
+
+The rail-corrected and CR-8 variants also latch 0 times on the same sets at
+their own thresholds. Warm restart at the idle times asked for (as built,
+all corners, 162 trajectories each): 0/10/20 min skip (not soaked); 30 min
+skip (heatsink warm, drifting or saturated); the first passes appear at
+90 min (12) and 120 min (36); never a latch. The existing sets'
+cold starts (every `leak-checks.json` benign kind starts from a unit at
+25 °C): pass at the false corner, skip (heatsink saturated) otherwise; the
+`hot_glass` kind is the warm restart at idle 0.
+
+**Outside the assumptions (reported, not gated):**
+- **a frozen pot**, whose melting contents hold the glass near 2 °C for
+  hours: latches in 12 of 36 trajectories, wherever the heatsink is VALID
+  (35–40 °C nominal, 25–35 °C at the false corner). A flat, cold Pt100 is
+  what a leak looks like; nothing on the board tells them apart. The latch
+  clears once the pot is lifted and the probe returns to the room;
+- **a large pot of cold water** (τ 20000 s): 4 of 36, false corner only,
+  after 8–10 h on the hob;
+- **τ_h = 3600 s** (twice τ_max) after a cook or transport: 0 of 90, largest
+  gap 12.6 K, against 12.9 K: the margin is thin, so bench item 3 must
+  measure τ_h.
+
+**Hazardous leaks caught before heating** (`cold-soak.json`): the 235 runs
+of `leak-checks.json` whose untripped steady T_c exceeds 300 °C (7 leak
+values, 300 Ω–1.73 kΩ), with the same leak present at a cold start (a leak
+there before the cook, or the next cook after one developed), soaked at each
+ambient. Caught = cold-soak LEAK, or the leaky element below the C1 window's
+84.27 Ω (FAULT_PROBE_SHORT in any state, the baseline):
+
+| As built | 5 °C | 15 °C | 25 °C | 30 °C | 35 °C | 40 °C |
+|---|---|---|---|---|---|---|
+| 84.27 Ω window alone | 71 | 71 | 35 | 35 | 35 | 35 |
+| temperature-independent, nominal | 71 | 71 | 35 | 35 | **235** | **235** |
+| temperature-independent, miss corner | 71 | 35 | 35 | 35 | 35 | 35 |
+| Arrhenius Ea 0.05 eV, nominal | 0 | 0 | 0 | 0 | 169 | 169 |
+| Arrhenius Ea 0.1 eV, nominal | 0 | 0 | 0 | 0 | 71 | 71 |
+| Arrhenius Ea 0.2 eV, nominal | 0 | 0 | 0 | 0 | 0 | 0 |
+
+So, as built, the check adds coverage only in a room ≥ ~32 °C with nominal
+parts, where it catches every temperature-independent hazardous leak; at the
+worst corner the channel stays saturated through 40 °C and the check adds
+nothing to the 84.27 Ω window. A leak that conducts mostly hot is missed:
+Arrhenius leaks equal to 1.73 kΩ at 300 °C go unseen above Ea 0.020 eV
+(`leak-alternatives.json`). With CR-8 (threshold 18.6 K) the nominal
+coverage is 200/235 at every ambient 5–40 °C and 35–136 at the miss corner;
+measuring the rail alone changes the Arrhenius rows only (Ea 0.05: 200, 0.1:
+107 at 35–40 °C). The 300 °C bar stays not met (open item 10).
+
+**SIL** (D-SIL; `trace_c1_cold_soak_preheat.csv`, new manifest fields
+`c1_idle_soak_s` and `c1_pt100_leak_ohm`, mechanisms `cold-soak`,
+`cold-soak-pass`, `cold-soak-skip`): a 1 kΩ temperature-independent leak
+after a 40 min idle at 35 °C latches FAULT_PROBE_LEAKAGE in the first
+PREHEAT period (1 row, bound 2; the reading 5.2 °C, gap 29.8 K) and a reset
+is refused; the intact probe passes and PREHEAT holds; after a 10 min idle
+the check skips with the leak present.
+
+**Host tests:** `test_c1_units_only` +6 (`pan_cold_soak.c`: not before
+30 min, threshold edges, coil activity restarts, a full window and clock
+steps, saturated / warm / drifting references, Pt100 drift and a warm rim,
+agreement and parameters); `test_c1_runtime_only` and `_isense_only` +6
+(through `pan_control` and the state machine: a leak latches before any
+power and holds, agreement passes, a cold pan placed in the window skips,
+< 30 min skips and heats, a saturated heatsink or warm rim skips).
+
+**Limits.**
+- A power cycle restarts the soak: unplug, plug in and start within 30 min
+  and the check skips. Persisting the last coil-off time (NVS) would close
+  it (open item 14).
+- Not soaked is not a pass: the check skips and records the reason
+  (`pan_control_cold_soak_result()`); nothing is logged to EEPROM.
+
+**Bench measurements this needs** (`../bench/`):
+1. **The heatsink NTC against ambient after a soak** (the first): log the
+   channel (raw mV and `t_c`) against a reference thermometer at the lug and
+   one in the room, every 10 min for an hour after a 250 °C cook and through
+   an overnight idle, at a room ≥ 30 °C (or a box warmed to 35 °C) so the
+   channel is VALID. This measures the channel's offset and the standby
+   offset (assumed 1.0 K).
+2. **The standby offset** of the heatsink over the room with the unit idle,
+   fan off.
+3. **τ_h and τ_g**: the heatsink and the glass cooling after a cook and
+   warming after transport (the flatness bound assumes τ ≤ 1800 s).
+4. **The Pt100's off-pan self-heating** (assumed 2.7 K) and its conversion
+   noise at idle (the 0.25 K flatness limit; D-OPEN's frozen-code item).
+5. **The ADC1_CH5 offset at 2.6–2.9 V** on a few boards: the ±50 mV data-sheet
+   bound is 4.2 K of the 12.9 K threshold.
 
 ## Open items for the firmware owner
 
@@ -1544,10 +1808,16 @@ stress and probe-on-intact runs are unchanged by the guard.
     It cannot be met from the rim. At a 250 °C setpoint the benign and
     leaking glass ranges overlap by about 46 K, and the glass lags the pan
     by 18–106 s (D-RIMLIM). What remains:
-    - **C, the cold-soak check, waits for a heatsink NTC driver.** It would
-      catch every temperature-independent hazardous leak before heating
-      (≤ 2.43 kΩ at a 12.2 K threshold), but not a leak that conducts only
-      hot (Ea > 0.018 eV).
+    - **C, the cold-soak check, is implemented (D-HSNTC, D-SOAK) and does
+      not meet the bar either.** As built the heatsink channel saturates
+      below 28.6–35.7 °C, so the check runs only in a warm room: there, with
+      nominal parts, it catches all 235 temperature-independent hazardous
+      leaks before heating (35 and 40 °C); below ~32 °C, or at the worst
+      corner anywhere up to 40 °C, it adds nothing to the 84.27 Ω window
+      (71/235 at 5–15 °C, 35/235 at 25–40 °C). It misses leaks that conduct
+      mostly hot (Arrhenius Ea > 0.020 eV). CR-8 would raise the nominal
+      count to 200/235 at every ambient. 0 false latches on 612 gated benign
+      cold-start trajectories; a frozen pot latches (clearable).
     - **D, coil impedance, waits for measured P and I.**
     - **The bench must measure the glass envelope and lag** (D-RIMLIM bench
       items 1–3).
@@ -1576,3 +1846,20 @@ stress and probe-on-intact runs are unchanged by the guard.
     - the rim's own rise.
 
     D-XCHK is unchanged here.
+11. **MCP3202 CH1 rail driver** (D-RIM open item 2, D-HSNTC): no driver; the
+    chip shares the RTD SPI bus with the MAX31865. With it the cold-soak
+    threshold falls from 12.9 K to 8.8 K and the rim loses up to 4.37 K of
+    error. Needs bus arbitration with `rtd_service`.
+12. **`OVER_TEMP_THRESHOLD` 80 °C → 95 °C** (zapote DECISIONS C32). With the
+    heatsink driver live (D-HSNTC) the 80 °C interlock is real, and the sink
+    runs at 88.6 °C at full power (airflow-r1), so 80 °C would trip in normal
+    use. Not changed here: `config.yaml` belongs to the safety owner, and
+    the 70 °C release and 125 °C FAULT shutdown move with it.
+13. **`temper_pins.h` names GPIO3 / ADC1_CH2 `ADC_CHANNEL_NTC`.** On
+    zapote/controller GPIO3 is the blower tach and the heatsink NTC is GPIO6
+    / ADC1_CH5 (`hs_ntc_board.c`). The legacy pin map should follow the
+    board.
+14. **The cold soak restarts at every power-up** (D-SOAK limits). Persisting
+    the time the coil was last active in NVS would let a check run after a
+    power cycle; it needs a wall clock or an "off since" counter that
+    survives the reset.

@@ -25,6 +25,7 @@ idf_component_register(
         "current_sense_check.c"
         "pan_leak_check.c"
         "pan_rim_limit.c"
+        "pan_cold_soak.c"
         "thermal_mass.c"
         "pid_control.c"
         "profiles.c"
