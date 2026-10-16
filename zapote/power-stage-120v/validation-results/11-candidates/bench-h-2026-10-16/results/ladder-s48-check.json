@@ -1,0 +1,117 @@
+{
+ "snapshot": "snapshot of 05a3d9138393f5cb7bb29fd0d35d4095f2456537 taken Fri Oct 16 09:45:56 CST 2026\nrepo /Users/bennet/Desktop/temper/worktrees/ps-integrate\ngit status of copied tracked paths: clean\ngeometry zapote/power-stage-120v/native-21/verification/native21s48-all-copper.json.gz sha256 c5e5e10067bbd6858055cf5472015c48ec0ab0f44efee667463a110af12f168b\na4 field set sha256 26fd13aff1fc74c50280b7369f0a8fece47f8ca9b25edac1aeca848f16b278d9 (outputs/cache.json npz_sha256 26fd13aff1fc74c50280b7369f0a8fece47f8ca9b25edac1aeca848f16b278d9: match)",
+ "run_basis_exit": 1,
+ "cases": {
+  "c28_h30@61": {
+   "worst_k": -0.9,
+   "worst_item": "laminate: 1 mm-block copper peak",
+   "h_dependent_worst_k": -0.9,
+   "h_dependent_item": "laminate: 1 mm-block copper peak",
+   "laminate_k": -0.9,
+   "rated_part_k": -0.7,
+   "rated_part_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+   "board_sha256": "2b46d90e5de249aab5fb68f2c1d8098200968306e590157031c319d837e05d19",
+   "s47_airflow28": "fail"
+  },
+  "c28_h31@61": {
+   "worst_k": 0.3,
+   "worst_item": "laminate: 1 mm-block copper peak",
+   "h_dependent_worst_k": 0.3,
+   "h_dependent_item": "laminate: 1 mm-block copper peak",
+   "laminate_k": 0.3,
+   "rated_part_k": 0.6,
+   "rated_part_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+   "board_sha256": "2b46d90e5de249aab5fb68f2c1d8098200968306e590157031c319d837e05d19",
+   "s47_airflow28": "pass (laminate block +0.3, R12 +0.6)"
+  },
+  "c28_h26@55": {
+   "worst_k": -0.6,
+   "worst_item": "laminate: 1 mm-block copper peak",
+   "h_dependent_worst_k": -0.6,
+   "h_dependent_item": "laminate: 1 mm-block copper peak",
+   "laminate_k": -0.6,
+   "rated_part_k": -0.4,
+   "rated_part_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+   "board_sha256": "2b46d90e5de249aab5fb68f2c1d8098200968306e590157031c319d837e05d19",
+   "s47_airflow28": "fail"
+  },
+  "c28_h27@55": {
+   "worst_k": 0.9,
+   "worst_item": "laminate: 1 mm-block copper peak",
+   "h_dependent_worst_k": 0.9,
+   "h_dependent_item": "laminate: 1 mm-block copper peak",
+   "laminate_k": 0.9,
+   "rated_part_k": 1.1,
+   "rated_part_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+   "board_sha256": "2b46d90e5de249aab5fb68f2c1d8098200968306e590157031c319d837e05d19",
+   "s47_airflow28": "pass (laminate block +0.9, R12 +1.1)"
+  },
+  "c28_h15_jet100@61": {
+   "worst_k": -0.7,
+   "worst_item": "laminate: FET-row copper",
+   "h_dependent_worst_k": -0.7,
+   "h_dependent_item": "laminate: FET-row copper",
+   "laminate_k": -0.7,
+   "rated_part_k": 4.2,
+   "rated_part_item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "board_sha256": "2b46d90e5de249aab5fb68f2c1d8098200968306e590157031c319d837e05d19",
+   "s47_airflow28": "-0.7 K"
+  },
+  "c28_h16_jet100@61": {
+   "worst_k": 0.7,
+   "worst_item": "laminate: FET-row copper",
+   "h_dependent_worst_k": 0.7,
+   "h_dependent_item": "laminate: FET-row copper",
+   "laminate_k": 0.7,
+   "rated_part_k": 4.2,
+   "rated_part_item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "board_sha256": "2b46d90e5de249aab5fb68f2c1d8098200968306e590157031c319d837e05d19",
+   "s47_airflow28": "+0.7 K"
+  },
+  "c28_h10_jet100@55": {
+   "worst_k": -4.0,
+   "worst_item": "laminate: FET-row copper",
+   "h_dependent_worst_k": -4.0,
+   "h_dependent_item": "laminate: FET-row copper",
+   "laminate_k": -4.0,
+   "rated_part_k": 2.2,
+   "rated_part_item": "U26: TJ max (TI SBVS204G p.4)",
+   "board_sha256": "2b46d90e5de249aab5fb68f2c1d8098200968306e590157031c319d837e05d19",
+   "s47_airflow28": "-4.0 K"
+  },
+  "c28_h12_jet100@55": {
+   "worst_k": 0.4,
+   "worst_item": "laminate: FET-row copper",
+   "h_dependent_worst_k": 0.4,
+   "h_dependent_item": "laminate: FET-row copper",
+   "laminate_k": 0.4,
+   "rated_part_k": 8.7,
+   "rated_part_item": "U26: TJ max (TI SBVS204G p.4)",
+   "board_sha256": "2b46d90e5de249aab5fb68f2c1d8098200968306e590157031c319d837e05d19",
+   "s47_airflow28": "+0.4 K"
+  },
+  "c28_h10@55": {
+   "worst_k": -51.2,
+   "worst_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+   "h_dependent_worst_k": -51.2,
+   "h_dependent_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+   "laminate_k": -51.0,
+   "rated_part_k": -51.2,
+   "rated_part_item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+   "board_sha256": "2b46d90e5de249aab5fb68f2c1d8098200968306e590157031c319d837e05d19",
+   "s47_airflow28": "-51.2 K (committed ratchet, s47)"
+  }
+ },
+ "control_vs_chain_runs": {
+  "0p5": {
+   "same_board": true,
+   "peak_1mm_block_diff_k": 0.0,
+   "max_part_tj_diff_k": 0.0
+  },
+  "0p25": {
+   "same_board": true,
+   "peak_1mm_block_diff_k": 0.0,
+   "max_part_tj_diff_k": 0.0
+  }
+ }
+}

@@ -1,0 +1,542 @@
+{
+ "snapshot": "snapshot of 05a3d9138393f5cb7bb29fd0d35d4095f2456537 taken Fri Oct 16 09:45:56 CST 2026\nrepo /Users/bennet/Desktop/temper/worktrees/ps-integrate\ngit status of copied tracked paths: clean\ngeometry zapote/power-stage-120v/native-21/verification/native21s48-all-copper.json.gz sha256 c5e5e10067bbd6858055cf5472015c48ec0ab0f44efee667463a110af12f168b\na4 field set sha256 26fd13aff1fc74c50280b7369f0a8fece47f8ca9b25edac1aeca848f16b278d9 (outputs/cache.json npz_sha256 26fd13aff1fc74c50280b7369f0a8fece47f8ca9b25edac1aeca848f16b278d9: match)",
+ "lead_g_bounds_w_k": [
+  0.02020147184213776,
+  0.08447269233611707,
+  0.280337831489732
+ ],
+ "cases": [
+  {
+   "run_id": "st2_face31_diag1",
+   "config": "diag1",
+   "h_true": 31.0,
+   "i_dc_a": 28.0,
+   "t_air_true_c": 25.0,
+   "truth_var_unknown_to_fit": {
+    "lead_g": 0.280337831489732,
+    "attach_g_scale": 1.3
+   },
+   "tab_guard_error_k": 0.5,
+   "truth_peak": {
+    "temperature_c": 70.378867923878,
+    "layer": "F.Cu",
+    "x_mm": 38.5,
+    "y_mm": 15.5
+   },
+   "truth_leads": [
+    {
+     "ref": "Q2",
+     "pad": "2",
+     "g_w_per_k": 0.280337831489732,
+     "t_case_c": 87.71000000000001,
+     "pad_mean_c": 88.71229396986966,
+     "w_to_sink": 0.2809809180284958
+    },
+    {
+     "ref": "Q3",
+     "pad": "2",
+     "g_w_per_k": 0.280337831489732,
+     "t_case_c": 81.7,
+     "pad_mean_c": 81.38925660889232,
+     "w_to_sink": -0.08711312841289219
+    },
+    {
+     "ref": "Q5",
+     "pad": "2",
+     "g_w_per_k": 0.280337831489732,
+     "t_case_c": 81.95,
+     "pad_mean_c": 81.01908111351709,
+     "w_to_sink": -0.2609717819294561
+    },
+    {
+     "ref": "Q6",
+     "pad": "2",
+     "g_w_per_k": 0.280337831489732,
+     "t_case_c": 91.8,
+     "pad_mean_c": 92.39704336718434,
+     "w_to_sink": 0.16737384286178597
+    }
+   ],
+   "truth_rises_k": {
+    "LAM_R5.4": 45.09,
+    "R12.1": 36.87,
+    "R12.2": 37.87,
+    "R10.1": 28.13,
+    "R10.2": 27.9,
+    "R20.1": 23.23,
+    "R20.2": 22.75,
+    "R18.2": 15.08,
+    "R5.1": 42.61,
+    "FETROW_B": 42.02,
+    "Q2S_F": 40.7,
+    "Q2S_B": 36.28,
+    "TANK_T1.1": 20.98,
+    "J2.1": 16.29,
+    "J5.1": 15.06,
+    "BANK_C152.1": 6.13,
+    "BANK_C21.2": 9.27,
+    "C40.2": 23.33,
+    "U26.21": 2.03,
+    "Q2.2": 37.88,
+    "Q3.2": 31.17,
+    "Q5.2": 31.34,
+    "Q6.2": 42.32
+   },
+   "fit": {
+    "cluster": "C1",
+    "sites_used": [
+     "LAM_R5.4",
+     "R12.1",
+     "R12.2",
+     "R10.1",
+     "R10.2",
+     "R20.1",
+     "R20.2",
+     "R18.2",
+     "R5.1",
+     "FETROW_B",
+     "Q2S_F",
+     "Q2S_B"
+    ],
+    "search_pitch": 0.5,
+    "h_p0p5": 31.504593840212614,
+    "search_history": [
+     31.441,
+     31.505
+    ],
+    "fit_p0p5": {
+     "h": 31.504593840212614,
+     "sigma_stat": 0.32790331950001456,
+     "chi2": 19.765606666376577,
+     "dof": 11,
+     "birge": 1.340475040165598,
+     "sites": {
+      "LAM_R5.4": {
+       "h": 29.58,
+       "meas_c": 70.76,
+       "model_c": 69.54,
+       "sigma_k": 1.355,
+       "dT_dh_k_per_w_m2k": -0.604,
+       "rise_over_air_k": 45.5
+      },
+      "R12.1": {
+       "h": 30.62,
+       "meas_c": 62.25,
+       "model_c": 61.7,
+       "sigma_k": 1.363,
+       "dT_dh_k_per_w_m2k": -0.604,
+       "rise_over_air_k": 37.0
+      },
+      "R12.2": {
+       "h": 28.99,
+       "meas_c": 63.34,
+       "model_c": 61.72,
+       "sigma_k": 1.633,
+       "dT_dh_k_per_w_m2k": -0.611,
+       "rise_over_air_k": 38.1
+      },
+      "R10.1": {
+       "h": 32.37,
+       "meas_c": 52.85,
+       "model_c": 53.36,
+       "sigma_k": 0.399,
+       "dT_dh_k_per_w_m2k": -0.602,
+       "rise_over_air_k": 27.6
+      },
+      "R10.2": {
+       "h": 32.98,
+       "meas_c": 52.6,
+       "model_c": 53.47,
+       "sigma_k": 0.354,
+       "dT_dh_k_per_w_m2k": -0.607,
+       "rise_over_air_k": 27.3
+      },
+      "R20.1": {
+       "h": 31.05,
+       "meas_c": 48.24,
+       "model_c": 48.0,
+       "sigma_k": 0.487,
+       "dT_dh_k_per_w_m2k": -0.511,
+       "rise_over_air_k": 23.0
+      },
+      "R20.2": {
+       "h": 32.23,
+       "meas_c": 47.83,
+       "model_c": 48.19,
+       "sigma_k": 0.538,
+       "dT_dh_k_per_w_m2k": -0.512,
+       "rise_over_air_k": 22.5
+      },
+      "R18.2": {
+       "h": 31.78,
+       "meas_c": 40.02,
+       "model_c": 40.13,
+       "sigma_k": 0.316,
+       "dT_dh_k_per_w_m2k": -0.41,
+       "rise_over_air_k": 14.7
+      },
+      "R5.1": {
+       "h": 29.57,
+       "meas_c": 68.27,
+       "model_c": 67.1,
+       "sigma_k": 0.716,
+       "dT_dh_k_per_w_m2k": -0.583,
+       "rise_over_air_k": 43.0
+      },
+      "FETROW_B": {
+       "h": 30.45,
+       "meas_c": 67.23,
+       "model_c": 66.54,
+       "sigma_k": 0.319,
+       "dT_dh_k_per_w_m2k": -0.635,
+       "rise_over_air_k": 41.9
+      },
+      "Q2S_F": {
+       "h": 30.63,
+       "meas_c": 66.25,
+       "model_c": 65.76,
+       "sigma_k": 0.474,
+       "dT_dh_k_per_w_m2k": -0.556,
+       "rise_over_air_k": 41.0
+      },
+      "Q2S_B": {
+       "h": 32.38,
+       "meas_c": 61.52,
+       "model_c": 61.89,
+       "sigma_k": 0.386,
+       "dT_dh_k_per_w_m2k": -0.431,
+       "rise_over_air_k": 36.2
+      }
+     },
+     "bracketed": 1.0
+    },
+    "points_p0p5": [
+     17.36,
+     24.8,
+     31.44,
+     34.72
+    ],
+    "h_p0p25": 31.58790819587887,
+    "fit_p0p25": {
+     "h": 31.58790819587887,
+     "sigma_stat": 0.24704471115795254,
+     "chi2": 7.9008352936393065,
+     "dof": 11,
+     "birge": 1.0,
+     "sites": {
+      "LAM_R5.4": {
+       "h": 30.4,
+       "meas_c": 70.76,
+       "model_c": 70.01,
+       "sigma_k": 1.074,
+       "dT_dh_k_per_w_m2k": -0.62,
+       "rise_over_air_k": 45.5
+      },
+      "R12.1": {
+       "h": 30.85,
+       "meas_c": 62.25,
+       "model_c": 61.79,
+       "sigma_k": 1.024,
+       "dT_dh_k_per_w_m2k": -0.615,
+       "rise_over_air_k": 37.0
+      },
+      "R12.2": {
+       "h": 30.72,
+       "meas_c": 63.34,
+       "model_c": 62.79,
+       "sigma_k": 1.051,
+       "dT_dh_k_per_w_m2k": -0.625,
+       "rise_over_air_k": 38.1
+      },
+      "R10.1": {
+       "h": 32.3,
+       "meas_c": 52.85,
+       "model_c": 53.28,
+       "sigma_k": 0.428,
+       "dT_dh_k_per_w_m2k": -0.612,
+       "rise_over_air_k": 27.6
+      },
+      "R10.2": {
+       "h": 32.28,
+       "meas_c": 52.6,
+       "model_c": 53.02,
+       "sigma_k": 0.306,
+       "dT_dh_k_per_w_m2k": -0.618,
+       "rise_over_air_k": 27.3
+      },
+      "R20.1": {
+       "h": 31.27,
+       "meas_c": 48.24,
+       "model_c": 48.07,
+       "sigma_k": 0.448,
+       "dT_dh_k_per_w_m2k": -0.521,
+       "rise_over_air_k": 23.0
+      },
+      "R20.2": {
+       "h": 31.11,
+       "meas_c": 47.83,
+       "model_c": 47.58,
+       "sigma_k": 0.313,
+       "dT_dh_k_per_w_m2k": -0.517,
+       "rise_over_air_k": 22.5
+      },
+      "R18.2": {
+       "h": 30.92,
+       "meas_c": 40.02,
+       "model_c": 39.74,
+       "sigma_k": 0.301,
+       "dT_dh_k_per_w_m2k": -0.41,
+       "rise_over_air_k": 14.7
+      },
+      "R5.1": {
+       "h": 30.4,
+       "meas_c": 68.27,
+       "model_c": 67.56,
+       "sigma_k": 0.656,
+       "dT_dh_k_per_w_m2k": -0.588,
+       "rise_over_air_k": 43.0
+      },
+      "FETROW_B": {
+       "h": 31.15,
+       "meas_c": 67.23,
+       "model_c": 66.94,
+       "sigma_k": 0.878,
+       "dT_dh_k_per_w_m2k": -0.644,
+       "rise_over_air_k": 41.9
+      },
+      "Q2S_F": {
+       "h": 31.28,
+       "meas_c": 66.25,
+       "model_c": 66.08,
+       "sigma_k": 0.707,
+       "dT_dh_k_per_w_m2k": -0.564,
+       "rise_over_air_k": 41.0
+      },
+      "Q2S_B": {
+       "h": 32.52,
+       "meas_c": 61.52,
+       "model_c": 61.92,
+       "sigma_k": 0.381,
+       "dT_dh_k_per_w_m2k": -0.433,
+       "rise_over_air_k": 36.2
+      }
+     },
+     "bracketed": 1.0
+    },
+    "points_p0p25": [
+     27.72,
+     31.5,
+     35.92
+    ],
+    "h": 31.58790819587887,
+    "u_terms_1sigma": {
+     "statistical (TC + placement, Birge-inflated)": 0.24704471115795254,
+     "mesh (0.25 vs 0.5 mm fit)": 0.083314355666257,
+     "copper loss +2%": 0.5004298018796653,
+     "film / module air rise +1.5 K": 0.19403146256041737,
+     "tab TCs +0.5 K": 0.2284935129907666,
+     "drain-lead g (drawing range)": 0.7105244475761445,
+     "bench attachments (g x 0.5 .. x 1.5)": 0.19361483716875583,
+     "air reference +/-0.3 K": 0.5627744017026295,
+     "TC common offset +/-0.2 K": 0.36740937807440943
+    },
+    "u_1sigma": 1.1841858915756274,
+    "U95": 2.3683717831512547,
+    "h_L95": 29.219536412727617,
+    "chi2_dof": 0.7182577539672097,
+    "birge": 1.0,
+    "site_fit": {
+     "LAM_R5.4": {
+      "h": 30.4,
+      "meas_c": 70.76,
+      "model_c": 70.01,
+      "sigma_k": 1.074,
+      "dT_dh_k_per_w_m2k": -0.62,
+      "rise_over_air_k": 45.5
+     },
+     "R12.1": {
+      "h": 30.85,
+      "meas_c": 62.25,
+      "model_c": 61.79,
+      "sigma_k": 1.024,
+      "dT_dh_k_per_w_m2k": -0.615,
+      "rise_over_air_k": 37.0
+     },
+     "R12.2": {
+      "h": 30.72,
+      "meas_c": 63.34,
+      "model_c": 62.79,
+      "sigma_k": 1.051,
+      "dT_dh_k_per_w_m2k": -0.625,
+      "rise_over_air_k": 38.1
+     },
+     "R10.1": {
+      "h": 32.3,
+      "meas_c": 52.85,
+      "model_c": 53.28,
+      "sigma_k": 0.428,
+      "dT_dh_k_per_w_m2k": -0.612,
+      "rise_over_air_k": 27.6
+     },
+     "R10.2": {
+      "h": 32.28,
+      "meas_c": 52.6,
+      "model_c": 53.02,
+      "sigma_k": 0.306,
+      "dT_dh_k_per_w_m2k": -0.618,
+      "rise_over_air_k": 27.3
+     },
+     "R20.1": {
+      "h": 31.27,
+      "meas_c": 48.24,
+      "model_c": 48.07,
+      "sigma_k": 0.448,
+      "dT_dh_k_per_w_m2k": -0.521,
+      "rise_over_air_k": 23.0
+     },
+     "R20.2": {
+      "h": 31.11,
+      "meas_c": 47.83,
+      "model_c": 47.58,
+      "sigma_k": 0.313,
+      "dT_dh_k_per_w_m2k": -0.517,
+      "rise_over_air_k": 22.5
+     },
+     "R18.2": {
+      "h": 30.92,
+      "meas_c": 40.02,
+      "model_c": 39.74,
+      "sigma_k": 0.301,
+      "dT_dh_k_per_w_m2k": -0.41,
+      "rise_over_air_k": 14.7
+     },
+     "R5.1": {
+      "h": 30.4,
+      "meas_c": 68.27,
+      "model_c": 67.56,
+      "sigma_k": 0.656,
+      "dT_dh_k_per_w_m2k": -0.588,
+      "rise_over_air_k": 43.0
+     },
+     "FETROW_B": {
+      "h": 31.15,
+      "meas_c": 67.23,
+      "model_c": 66.94,
+      "sigma_k": 0.878,
+      "dT_dh_k_per_w_m2k": -0.644,
+      "rise_over_air_k": 41.9
+     },
+     "Q2S_F": {
+      "h": 31.28,
+      "meas_c": 66.25,
+      "model_c": 66.08,
+      "sigma_k": 0.707,
+      "dT_dh_k_per_w_m2k": -0.564,
+      "rise_over_air_k": 41.0
+     },
+     "Q2S_B": {
+      "h": 32.52,
+      "meas_c": 61.52,
+      "model_c": 61.92,
+      "sigma_k": 0.381,
+      "dT_dh_k_per_w_m2k": -0.433,
+      "rise_over_air_k": 36.2
+     }
+    },
+    "loss_check": {
+     "model_board_w": 14.911,
+     "measured_w": 14.941,
+     "ratio": 1.002,
+     "action": "if |ratio - 1| > 2 sigma_cu_rel, re-fit with cu_scale = ratio - 1 and say so"
+    },
+    "peak_model": {
+     "temperature_c": 70.34415418173336,
+     "layer": "F.Cu",
+     "x_mm": 38.5,
+     "y_mm": 15.5
+    },
+    "leads": [
+     {
+      "ref": "Q2",
+      "pad": "2",
+      "g_w_per_k": 0.08447269233611707,
+      "t_case_c": 87.30000000000001,
+      "pad_mean_c": 90.11193538342927,
+      "w_to_sink": 0.2375317525134617
+     },
+     {
+      "ref": "Q3",
+      "pad": "2",
+      "g_w_per_k": 0.08447269233611707,
+      "t_case_c": 81.19,
+      "pad_mean_c": 80.31810756554059,
+      "w_to_sink": -0.07365110136627828
+     },
+     {
+      "ref": "Q5",
+      "pad": "2",
+      "g_w_per_k": 0.08447269233611707,
+      "t_case_c": 81.13,
+      "pad_mean_c": 78.47896879974542,
+      "w_to_sink": -0.22393974295255248
+     },
+     {
+      "ref": "Q6",
+      "pad": "2",
+      "g_w_per_k": 0.08447269233611707,
+      "t_case_c": 91.19,
+      "pad_mean_c": 92.9454789111978,
+      "w_to_sink": 0.14829002996815338
+     }
+    ]
+   },
+   "fit_C2_p0p5": {
+    "h": 30.711285659445053,
+    "sigma_stat": 0.8565676758399745,
+    "sites": {
+     "TANK_T1.1": {
+      "h": 33.11,
+      "meas_c": 45.52,
+      "model_c": 46.55,
+      "sigma_k": 0.74,
+      "dT_dh_k_per_w_m2k": -0.46,
+      "rise_over_air_k": 20.2
+     },
+     "J2.1": {
+      "h": 30.91,
+      "meas_c": 41.72,
+      "model_c": 41.82,
+      "sigma_k": 1.762,
+      "dT_dh_k_per_w_m2k": -0.474,
+      "rise_over_air_k": 16.4
+     },
+     "J5.1": {
+      "h": 32.25,
+      "meas_c": 39.8,
+      "model_c": 40.4,
+      "sigma_k": 0.831,
+      "dT_dh_k_per_w_m2k": -0.409,
+      "rise_over_air_k": 14.5
+     },
+     "BANK_C152.1": {
+      "h": 30.36,
+      "meas_c": 31.47,
+      "model_c": 31.41,
+      "sigma_k": 0.301,
+      "dT_dh_k_per_w_m2k": -0.184,
+      "rise_over_air_k": 6.2
+     },
+     "BANK_C21.2": {
+      "h": 28.81,
+      "meas_c": 34.96,
+      "model_c": 34.51,
+      "sigma_k": 0.301,
+      "dT_dh_k_per_w_m2k": -0.223,
+      "rise_over_air_k": 9.7
+     }
+    }
+   },
+   "recovered_within_U95": 1.0
+  }
+ ]
+}
