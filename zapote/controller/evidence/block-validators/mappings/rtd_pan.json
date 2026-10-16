@@ -3,21 +3,55 @@
     "unit_io"
   ],
   "block": "rtd_pan",
-  "controller_board": "/Users/bennet/Desktop/temper/worktrees/controller-l4/zapote/controller/pcb/controller.kicad_pcb",
-  "controller_census": 35,
+  "controller_board": "/Users/bennet/Desktop/temper/.claude/worktrees/agent-aca19bcf1cfbbdbc6/zapote/controller/pcb/controller.kicad_pcb",
+  "controller_census": 51,
   "dropped_items": {
-    "footprint": 213,
+    "footprint": 233,
     "graphics": 16,
-    "segment": 2235,
-    "via": 444,
+    "segment": 2582,
+    "via": 496,
     "zone": 13
   },
-  "extra_controller_instances": [],
+  "extra_controller_instances": [
+    "rtd_pan.c_cm_n",
+    "rtd_pan.c_cm_p",
+    "rtd_pan.c_j_fn",
+    "rtd_pan.c_j_fp",
+    "rtd_pan.c_j_sn",
+    "rtd_pan.c_j_sp",
+    "rtd_pan.c_s1",
+    "rtd_pan.c_window",
+    "rtd_pan.d_j_fn",
+    "rtd_pan.d_j_fp",
+    "rtd_pan.d_j_sn",
+    "rtd_pan.d_j_sp",
+    "rtd_pan.r_s1n",
+    "rtd_pan.r_s1p",
+    "rtd_pan.r_s2n",
+    "rtd_pan.r_s2p"
+  ],
   "negative_control": {
     "drop": [],
     "swap": []
   },
-  "net_map_conflicts": [],
+  "net_map_conflicts": [
+    {
+      "controller_nets": [
+        "rtd_sense_n",
+        "rtd_sense_n_ext"
+      ],
+      "kind": "unit net on several controller nets",
+      "unit_net": "rtd_sense_n"
+    },
+    {
+      "controller_nets": [
+        "rtd_sense_p",
+        "rtd_sense_p_ext"
+      ],
+      "kind": "unit net on several controller nets",
+      "unit_net": "rtd_sense_p"
+    }
+  ],
   "net_map_controller_to_unit": {
     "RTD_AVDD": "RTD_AVDD",
     "RTD_CS_N": "RTD_CS_N",
@@ -39,8 +73,6 @@
     "rtd_pan.low_window-out": "rtd_pan.low_window-out",
     "rtd_pan.r_high_top-inp": "inp",
     "rtd_pan.rail_monitor-ct": "ct",
-    "rtd_sense_n": "rtd_sense_n",
-    "rtd_sense_p": "rtd_sense_p",
     "sclk": "sclk",
     "sdi": "sdi",
     "sdo": "sdo",
@@ -52,12 +84,52 @@
     "y": "y"
   },
   "pad_net_equivalence_with_unit_netlist": {
-    "controller_pad_connected_but_not_in_unit_netlist": [],
+    "controller_pad_connected_but_not_in_unit_netlist": [
+      "rtd_pan.c_cm_n.1",
+      "rtd_pan.c_cm_n.2",
+      "rtd_pan.c_cm_p.1",
+      "rtd_pan.c_cm_p.2",
+      "rtd_pan.c_j_fn.1",
+      "rtd_pan.c_j_fn.2",
+      "rtd_pan.c_j_fp.1",
+      "rtd_pan.c_j_fp.2",
+      "rtd_pan.c_j_sn.1",
+      "rtd_pan.c_j_sn.2",
+      "rtd_pan.c_j_sp.1",
+      "rtd_pan.c_j_sp.2",
+      "rtd_pan.c_s1.1",
+      "rtd_pan.c_s1.2",
+      "rtd_pan.c_window.1",
+      "rtd_pan.c_window.2",
+      "rtd_pan.d_j_fn.1",
+      "rtd_pan.d_j_fn.2",
+      "rtd_pan.d_j_fp.1",
+      "rtd_pan.d_j_fp.2",
+      "rtd_pan.d_j_sn.1",
+      "rtd_pan.d_j_sn.2",
+      "rtd_pan.d_j_sp.1",
+      "rtd_pan.d_j_sp.2",
+      "rtd_pan.r_s1n.1",
+      "rtd_pan.r_s1n.2",
+      "rtd_pan.r_s1p.1",
+      "rtd_pan.r_s1p.2",
+      "rtd_pan.r_s2n.1",
+      "rtd_pan.r_s2n.2",
+      "rtd_pan.r_s2p.1",
+      "rtd_pan.r_s2p.2"
+    ],
     "pads_compared": 109,
     "unit_pad_missing_or_on_other_net": []
   },
   "unit_census": 36,
   "unit_name_collisions_with_unmapped_controller_nets": [],
-  "unit_source_manifest": "/Users/bennet/Desktop/temper/worktrees/controller-l4/zapote/rtd/unit/candidate/source-manifest.json",
-  "unmapped_controller_nets_on_kept_pads": []
+  "unit_source_manifest": "/Users/bennet/Desktop/temper/.claude/worktrees/agent-aca19bcf1cfbbdbc6/zapote/rtd/unit/candidate/source-manifest.json",
+  "unmapped_controller_nets_on_kept_pads": [
+    "rtd_sense_n",
+    "rtd_sense_n_ext",
+    "rtd_sense_n_mid",
+    "rtd_sense_p",
+    "rtd_sense_p_ext",
+    "rtd_sense_p_mid"
+  ]
 }

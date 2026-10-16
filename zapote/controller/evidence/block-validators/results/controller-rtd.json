@@ -2,6 +2,87 @@
   "status": "fail",
   "findings": [
     {
+      "rule": "ERC.RTD.UNIT_COMPONENT_MPN",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit rtd_input_filter rtd_pan.c_rtd_input has MPN GRM31C5C1H104JA01L; expected C0603C102J5GACTU",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_COMPONENT_MPN",
+      "severity": "error",
+      "status": "fail",
+      "message": "source binding rtd_pan.r_window_sense_p.1 expects rtd_sense_p, observed Some(\"rtd_sense_p_ext\")",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_COMPONENT_MPN",
+      "severity": "error",
+      "status": "fail",
+      "message": "source binding rtd_pan.r_rtdin_p_bias.1 expects rtd_sense_p, observed Some(\"rtd_sense_p_ext\")",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_COMPONENT_MPN",
+      "severity": "error",
+      "status": "fail",
+      "message": "source binding rtd_pan.j_rtd1.2 expects rtd_sense_p, observed Some(\"rtd_sense_p_ext\")",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_COMPONENT_MPN",
+      "severity": "error",
+      "status": "fail",
+      "message": "source binding rtd_pan.r_rtdin_n_bias.1 expects rtd_sense_n, observed Some(\"rtd_sense_n_ext\")",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_COMPONENT_MPN",
+      "severity": "error",
+      "status": "fail",
+      "message": "source binding rtd_pan.r_low_bottom.2 expects rtd_sense_n, observed Some(\"rtd_sense_n_ext\")",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_COMPONENT_MPN",
+      "severity": "error",
+      "status": "fail",
+      "message": "source binding rtd_pan.j_rtd1.3 expects rtd_sense_n, observed Some(\"rtd_sense_n_ext\")",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.UNIT_PAD_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "native component census does not exactly match compiled source components",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.UNIT_PAD_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "native pad census does not exactly match compiled source bindings",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
       "rule": "ERC.RTD.MODEL_QUALIFICATION",
       "severity": "info",
       "status": "pass",
@@ -25,6 +106,24 @@
       "status": "fail",
       "message": "unit host connector source component is absent from native board",
       "object": "unit_io",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.FOUR_WIRE_PINOUT",
+      "severity": "error",
+      "status": "fail",
+      "message": "probe pad rtd_pan.j_rtd1.2 is not connected to authored source net rtd_sense_p",
+      "object": "rtd_pan.j_rtd1.2",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.FOUR_WIRE_PINOUT",
+      "severity": "error",
+      "status": "fail",
+      "message": "probe pad rtd_pan.j_rtd1.3 is not connected to authored source net rtd_sense_n",
+      "object": "rtd_pan.j_rtd1.3",
       "actual": null,
       "required": null
     },
@@ -133,6 +232,42 @@
       "status": "pass",
       "message": "source-derived local load 8.448898 mA and reference boundary 100.000 uA/10.000 nF are within contract",
       "object": "RTD_LOCAL_10MA",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.j_rtd1.2 -> rtd_sense_p connection",
+      "object": "rtd_pan.j_rtd1.2",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board has no rtd_pan.j_rtd1.3 -> rtd_sense_n connection",
+      "object": "rtd_pan.j_rtd1.3",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.NATIVE_CONNECTIVITY",
+      "severity": "error",
+      "status": "fail",
+      "message": "native copper does not connect all required endpoints on rtd_sense_p",
+      "object": "rtd_sense_p",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.NATIVE_CONNECTIVITY",
+      "severity": "error",
+      "status": "fail",
+      "message": "native copper does not connect all required endpoints on rtd_sense_n",
+      "object": "rtd_sense_n",
       "actual": null,
       "required": null
     },

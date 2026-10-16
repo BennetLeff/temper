@@ -33,7 +33,7 @@ cp "$Z/rtd/native_measure.py" "$WORK/repo/zapote/rtd/native_measure.py"
 ( cd "$BIN" && shasum -a 256 zapote-interlock zapote-thermal zapote-rtd ) > "$OUT/binaries.sha256"
 shasum -a 256 "$Z/current-sense/tools/extract_current_sense_native.py" "$Z/rtd/native_measure.py" \
   "$Z/rtd/unit/bind_native.py" "$HERE/filter_block.py" "$HERE/bind_controller_rtd.py" \
-  "$HERE/profile-controller.json" "$HERE/profile-controller-roles.json" "$HERE/controller_pins.h" "$HERE/vendor/harness-lab/assembly_geometry.py" \
+  "$HERE/profile-controller.json" "$HERE/profile-controller-roles.json" "$HERE/controller_pins.h" "$HERE/rtd-deviations-c37.json" "$HERE/vendor/harness-lab/assembly_geometry.py" \
   "$BOARD" > "$OUT/inputs.sha256"
 
 record() { # name, then command...: stdout -> results/name.json, exit -> results/name.exit

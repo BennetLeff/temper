@@ -435,8 +435,8 @@
     },
     {
       "rule": "ERC.INTERLOCK.PARTS",
-      "severity": "info",
-      "status": "pass",
+      "severity": "error",
+      "status": "fail",
       "message": "exact MPN aggregate: CD74HC30PWR",
       "object": "aggregate",
       "actual": null,

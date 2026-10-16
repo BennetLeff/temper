@@ -435,8 +435,8 @@
     },
     {
       "rule": "ERC.INTERLOCK.PARTS",
-      "severity": "info",
-      "status": "pass",
+      "severity": "error",
+      "status": "fail",
       "message": "exact MPN aggregate: CD74HC30PWR",
       "object": "aggregate",
       "actual": null,
@@ -708,7 +708,7 @@
       "severity": "error",
       "status": "fail",
       "message": "pad/trace clearance 0.000000 mm is below 0.150000 mm",
-      "object": "fault_inv_bypass.1 / 4cca53c1-5143-410f-842e-8d3ad674bd2a",
+      "object": "fault_inv_bypass.1 / e03ad41f-658f-4afc-aab3-7613258b87b7",
       "actual": null,
       "required": null
     },
@@ -717,7 +717,7 @@
       "severity": "error",
       "status": "fail",
       "message": "pad/via clearance 0.000000 mm is below 0.150000 mm",
-      "object": "fault_inv_bypass.1 / c6ec6bbb-50f1-4ac4-a53f-ec41c22a8c8b",
+      "object": "fault_inv_bypass.1 / 3dc69081-0100-443b-8d84-ca2a6fe96de9",
       "actual": null,
       "required": null
     },

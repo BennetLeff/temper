@@ -14,6 +14,12 @@ Counts: `summary.json` (this rerun) against `summary-before-C34.json` (the C30 r
 | Thermal-sense | 86 / 14 / 7 | 88 / 9 / 7 | 9 | W1 (4), W2 (5) |
 | RTD | 5 / 165 / 6 | 5 / 18 / 5 | 18 | W1 (16), W3 (2) |
 
+**C44 rerun (current `results/`, `summary.json`; C1 board, sha256 `969936fb…`):** interlock **69 / 6 / 5**
+(+1: `aggregate` exact MPN, W6), thermal-sense **88 / 9 / 7** (unchanged), RTD **5 / 33 / 5** (+15: the C37
+sense filter and J3 protection, W7). Fails: interlock W1 (5) + W6 (1); thermal W1 (4) + W2 (5); RTD W1 (16) +
+W3 (2) + W7 (15). Indeterminates unchanged. The RTD binder now takes `--deviations rtd-deviations-c37.json`
+(W7); without it, it aborts on the census, as it would already have done on C36's `r_avdd_top` swap.
+
 The indeterminate findings left are those of each unit's own standalone control (W5), plus for the RTD
 `unit_io` pending (W1) and the two layer-role gaps (W4). The standalone controls themselves exit 1 with zero
 FAIL and only these INDETERMINATE findings, so exit 0 is not reachable for any of the three (README).
@@ -122,3 +128,41 @@ here in advance and to be confirmed on the next validator run:
   16.5 k 0.1 % 25 ppm 0603) and `r_ref` (R39: RG2012V-431-W-T1 0.05 % -> RT0805BRD07430RL 0.1 % 25 ppm, 0805;
   about 0.13-0.26 C more PT100 error over 0-250 C, DECISIONS C35). The 10 / 300 ohm fault thresholds are unaffected.
 - No validator, contract or unit profile was edited.
+
+*Confirmed by the C44 rerun:* the interlock reports exactly the `aggregate` MPN finding (69 / 6 / 5). The RTD
+validator reports no MPN finding for `r_avdd_top` (it checks the MPN of `c_rtd_input` only, see W7), and `r_ref`
+is the unit's RG2012V-431-W-T1 again (C37 reverted the swap; consigned). The swap does show in the RTD binder's
+census gate, which `rtd-deviations-c37.json` declares (W7).
+
+## W7. RTD sense filter and J3 protection (DECISIONS C37; 15 findings)
+
+C37 applies sensor-r3 CR-1 / CR-2: a two-stage 1.00 k / 100 nF C0G differential filter per sense line, 1 nF
+C0G to ground at each RTDIN pin, 220 nF and an ESD5Z3.3T1G on every J3 pin, the 499 k open-input pull-ups,
+the window branch and the low-window return on the connector side of the filter (`rtd_sense_*_ext`), and
+10 nF on the window node. That is 16 parts the unit does not have, 4 changed MPNs and 6 pads on a
+connector-side net. All of them are declared in `rtd-deviations-c37.json`, which only lets them past the
+binder's abort gates; the export and the unit bindings reach Rust unchanged, and Rust reports:
+
+| Finding | n | What it is |
+|---|---|---|
+| `ERC.RTD.UNIT_COMPONENT_MPN` `c_rtd_input` GRM31C5C1H104JA01L, unit C0603C102J5GACTU | 1 | the RTDIN differential cap is the second filter stage, 100 nF C0G 1206 |
+| `ERC.RTD.UNIT_COMPONENT_MPN` source binding on `rtd_sense_*_ext` (J3.2, J3.3, `r_window_sense_p.1`, `r_low_bottom.2`, `r_rtdin_p_bias.1`, `r_rtdin_n_bias.1`) | 6 | the declared pad-net moves |
+| `DRC.RTD.UNIT_PAD_GEOMETRY` component census, pad census | 2 | the 16 added parts and their pads |
+| `ERC.RTD.FOUR_WIRE_PINOUT` J3.2 / J3.3 not on `rtd_sense_p` / `rtd_sense_n` | 2 | the probe reaches RTDIN through 2 x 1.00 k |
+| `ERC.RTD.BOARD_COMPONENT_BINDING` no J3.2 / J3.3 -> `rtd_sense_*` | 2 | same |
+| `ERC.RTD.NATIVE_CONNECTIVITY` `rtd_sense_p`, `rtd_sense_n` lack the J3 endpoint | 2 | same |
+
+**Justification:** the unit validator's model is the unit's direct probe-to-RTDIN topology, so it cannot accept
+a filter in the sense path. The filter is checked where it was specified: `evidence/sensor-r3-checks/`
+(`run_as_built.py` on the frozen netlist, the unmodified sensor-r3 `checks.py`: 11/11 gates PASS, no
+difference from the change request: pickup 0.105 LSB worst DM at 20 kHz, runaway shift 0.03 K, open lead
+detected, protection and ratings), and `verify_controller.py` (`sensor_io`, `sources`: the block is
+generated from the byte-identical library plus listed edits). Accepting the filter in the RTD unit's own
+contract is a change request to `zapote/rtd`, not made here.
+
+What still holds: no new FAIL or INDETERMINATE in any other RTD rule; the analog-return corridor check
+(`DRC.RTD.NATIVE_GEOMETRY`) passes on every trace of the unit's analog nets. The four new `_ext` / `_mid`
+nets are not unit nets, so the validator does not check them; the router applies the same rule to them
+(`RTD_ANALOG_NETS` in `layout/floorplan.py`: F.Cu / In2.Cu only, a ground via within 2.5 mm of each via).
+Informative layer-roles run: 87 clock-return trace findings on the RTD SPI nets (74 on C34's board; W4,
+routing differs per run), no analog finding.

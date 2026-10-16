@@ -1,8 +1,26 @@
 # Block validators re-run on the controller layout (DECISIONS C30, C34)
 
-## C34 rerun (current results)
+## C44 rerun (current results)
 
-`results/`, `mappings/`, `summary.json` and the `*.sha256` files are now from the **C34 board**
+`results/`, `mappings/`, `summary.json` and the `*.sha256` files are from the **C1 board** (DECISIONS
+C37-C44; `pcb/controller.kicad_pcb` sha256 `969936fbeedb9f313ee00c5eb2869b513591b93fa7b641dd5d702cbffeb04874`),
+same binaries, exporters, filter and profiles as C34. One change to the binder: `--deviations
+rtd-deviations-c37.json` declares the C37 RTD parts, MPNs and pad-net moves so that its census / MPN / pad gates
+do not abort on them (any undeclared or stale difference still aborts); Rust still judges every one.
+
+| Validator | C34 (pass / fail / indet) | C44 | New non-pass |
+|---|---|---|---|
+| Interlock | 70 / 5 / 5 | **69 / 6 / 5** | `aggregate` exact MPN (74HC30PW,118, C35/C36), WAIVERS W6 |
+| Thermal-sense | 88 / 9 / 7 | **88 / 9 / 7** | none |
+| RTD | 5 / 18 / 5 | **5 / 33 / 5** | 15 from the C37 sense filter and J3 protection, WAIVERS W7 |
+
+Controls unchanged (standalone and pipeline). Negative controls still trip: interlock 67 / 8 and 68 / 8, thermal
+86 / 11 and 87 / 11, RTD declared-absent `c_dvdd` 5 / 36; the undeclared `c_dvdd` drop and swap still abort the
+binder. Not rerun on several boards (one routed board this round; see LAYOUT.md).
+
+## C34 rerun (history)
+
+`results/`, `mappings/`, `summary.json` and the `*.sha256` files were from the **C34 board**
 (`pcb/controller.kicad_pcb`, sha256 `187cc5e5aaa8176047392705da45ecf8e58f9bb9055f9ace1e6eeb4f408b9228`, convergence run 3), with the same binaries, exporters,
 filter, binder and profiles as the C30 run below. `summary-before-C34.json` keeps the C30 counts.
 
