@@ -206,7 +206,7 @@ def _check_cls(nets):
 def _state(geo):
     st = _CLS.get(id(geo))
     if st is None or st["geo"] is not geo:
-        st = _CLS[id(geo)] = {"geo": geo, "seen": {}, "own": {}, "rasters": {}, "grow": {}}
+        st = _CLS[id(geo)] = {"geo": geo, "seen": {}, "own": {}, "rasters": {}, "grow": {}, "indexes": {}}
         _check_cls({n for its in geo.items.values() for _, n in its})
     return st
 
@@ -234,6 +234,7 @@ def _sync(st, layer):
     if seen is None or seen[0] != fp[0] or seen[1] > fp[1] or (seen[1] and id(items[seen[1] - 1]) != seen[2]):
         for k in rasters:
             del st["rasters"][k]
+            st["indexes"].pop(k, None)
         own.clear()
         start = 0
     else:
@@ -276,22 +277,39 @@ def _reach(c, layer, width):
     return big + width / 2 + 0.1
 
 
-def _tile_shapes(geo, layer, ti, tj, grow_of, r=9):
-    """Grown obstacles (grow_of(geom, net) -> grown or None) whose bounds reach lattice tile (ti, tj); r bounds how
-    far a grown shape reaches past its copper."""
+def _shape_index(items, grow_of):
+    from shapely.strtree import STRtree
+    shapes, bounds = [], []
+    for g, other in items:
+        sh = grow_of(g, other)
+        if sh is not None:
+            shapes.append(sh)
+            bounds.append(_bounds(g))
+    return STRtree(shapes), shapes, bounds
+
+
+def _tile_shapes(st, key, ti, tj, grow_of, r=9):
+    """Grown obstacles reaching a tile, indexed after growth so distant copper needs no per-tile growth lookup."""
     from shapely.geometry import box as _box
+    items = st["geo"].items[key[1]]
+    ent = st["indexes"].get(key)
+    # A small append index avoids rebuilding all grown obstacles for every new track.
+    if ent is None or len(items) - ent[0] > 64:
+        ent = st["indexes"][key] = [len(items), _shape_index(items, grow_of), len(items), None]
+    elif ent[2] != len(items):
+        ent[2], ent[3] = len(items), _shape_index(items[ent[0]:], grow_of)
     x0, y0 = ti * TILE * STEP, tj * TILE * STEP
     x1, y1 = x0 + (TILE - 1) * STEP, y0 + (TILE - 1) * STEP
-    tree, items = geo._tree(layer)
+    win = _stable(("tile", ti, tj, STEP), lambda: _box(x0, y0, x1, y1))
     out = []
-    for i in tree.query(_box(x0 - r, y0 - r, x1 + r, y1 + r)):
-        g, other = items[i]
-        sh = grow_of(g, other)
-        if sh is None:
+    for index in (ent[1], ent[3]):
+        if index is None:
             continue
-        b = _bounds(sh)
-        if b[2] >= x0 and b[0] <= x1 and b[3] >= y0 and b[1] <= y1:
-            out.append(sh)
+        tree, shapes, bounds = index
+        for i in tree.query(win):
+            b = bounds[i]   # preserve the original raw-copper reach filter
+            if b[2] >= x0 - r and b[0] <= x1 + r and b[3] >= y0 - r and b[1] <= y1 + r:
+                out.append(shapes[i])
     return out
 
 
@@ -348,7 +366,7 @@ def _copper_grid(geo, net, layer, i0, j0, nx, ny, width, via):
     reach = _reach(c, layer, width)
     st["grow"][key] = grow_of
     count = _raster_window(st, key, i0, j0, nx, ny,
-                           lambda ti, tj: _cover(_tile_shapes(geo, layer, ti, tj, grow_of, reach), ti, tj, True), np.int16)
+                           lambda ti, tj: _cover(_tile_shapes(st, key, ti, tj, grow_of, reach), ti, tj, True), np.int16)
     own = st["own"][layer].get(net, ())
     if own:
         items = geo.items[layer]
@@ -379,7 +397,7 @@ def _barrier_grid(geo, net, i0, j0, nx, ny, width):
     key = ("bar", "PLAN", side, width, STEP)
     st["grow"][key] = grow_of
     return _raster_window(st, key, i0, j0, nx, ny,
-                          lambda ti, tj: _cover(_tile_shapes(geo, "PLAN", ti, tj, grow_of), ti, tj, False), bool)
+                          lambda ti, tj: _cover(_tile_shapes(st, key, ti, tj, grow_of), ti, tj, False), bool)
 
 
 def _blocked(geo, net, layer, bx, width):
