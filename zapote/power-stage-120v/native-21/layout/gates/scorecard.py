@@ -98,7 +98,9 @@ def b3_ratings(b):
 # Release gates: absolute pass / fail at the declared basis. Reported on the card, but not part of the candidate-vs-
 # benchmark rule while the benchmark itself fails them; their margins are ratcheted in PERF instead (DECISIONS 46).
 # b3_ratings is decided on the release case alone since 2026-10-15 (c17.5_h10 at bay 61 C since DECISIONS 61, b3_ratings_gate.BASIS).
-RELEASE_GATES = {"b3_ratings"}
+# pin_absmax (gates/pin_absmax.py) joined 2026-10-15 with the four TPS70950 EN violations on the benchmark itself (stage 48 fixes
+# them on another branch); until pin_absmax_expected.json is empty it is reported here, and a NEW failure still stops chain.sh.
+RELEASE_GATES = {"b3_ratings", "pin_absmax"}
 
 
 def gates(b, tag, audit):
@@ -133,6 +135,10 @@ def gates(b, tag, audit):
     if ct:
         g["cu_temp_basis"] = not ct["errors"]
         src["cu_temp_basis"] = str(b / "cu-temp-basis.json")
+    pa = jload(b / "pin-absmax.json")              # gates/pin_absmax.py, written by chain.sh; older builds lack it
+    if pa:
+        g["pin_absmax"] = not pa["failures"] and not pa["errors"]       # True only with no failure at all, expected or not
+        src["pin_absmax"] = str(b / "pin-absmax.json")
     d5 = jload(UNIT / "native-21/verification/d5-audit.json")
     if d5:
         g["d5"] = bool(d5["verdict_pcb"])

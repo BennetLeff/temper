@@ -1,0 +1,10 @@
+{
+ "schema": 1,
+ "about": "Known pin_absmax violations on board of record s47 (commit 2f7241f61). chain.sh fails only on a FAIL that is not listed here; scorecard gate `pin_absmax` stays False until this list is empty because the report keeps every failure. Remove an entry when the fix lands (run with --fail-stale to be told).",
+ "expected": {
+  "U3.3": "TPS70950 EN tied to IN (v15_ls, 14.38-15.58 V against GND = OCP Kelvin): VEN abs max 7 V (SBVS186H 6.1 p.4), 'Do not connect EN to VIN' (7.4 p.13). Fixed by stage 48 (other branch).",
+  "U37.3": "TPS70950 EN tied to IN (v15_ls, 16.575-17.425 V): same rows. Fixed by stage 48 (other branch).",
+  "U38.3": "TPS70950 EN tied to IN (p_ha, 16.548-17.277 V above n_ha): same rows. Fixed by stage 48 (other branch).",
+  "U39.3": "TPS70950 EN tied to IN (p_hb, 16.548-17.277 V above n_hb): same rows. Fixed by stage 48 (other branch)."
+ }
+}

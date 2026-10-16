@@ -831,6 +831,27 @@
    ]
   },
   {
+   "glob": "native-21/layout/gates/pin_absmax.py",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/pin_absmax_registry.json",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/pin_absmax_expected.json",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
    "glob": "native-21/layout/gates/bom_cpl_check.py",
    "class": "input",
    "steps": [
