@@ -76,11 +76,8 @@ def _stable(key, make):
     return hit
 
 
-def _shape_tile(shape, ti, tj, step=None):
-    """Lattice tile (ti, tj) of one shape: True / False when wholly inside / outside, else a bool array."""
-    import numpy as np
+def _shape_entry(shape, step):
     import shapely
-    step = STEP if step is None else step
     ent = _TILES.get((id(shape), step))
     if ent is None or ent[0] is not shape:
         shapely.prepare(shape)
@@ -90,6 +87,15 @@ def _shape_tile(shape, ti, tj, step=None):
             math.floor(bx0 / step) - 1, math.floor(by0 / step) - 1,
             math.ceil(bx1 / step) + 1, math.ceil(by1 / step) + 1)
         ent = _TILES[(id(shape), step)] = (shape, {}, bounds)
+    return ent
+
+
+def _shape_tile(shape, ti, tj, step=None, blocks=None):
+    """Lattice tile (ti, tj) of one shape: True / False when wholly inside / outside, else a bool array."""
+    import numpy as np
+    import shapely
+    step = STEP if step is None else step
+    ent = _shape_entry(shape, step)
     t = ent[1].get((ti, tj))
     if t is None:
         xy = _TILE_XY.get((ti, tj, step))
@@ -103,13 +109,16 @@ def _shape_tile(shape, ti, tj, step=None):
         if c0 >= c1 or r0 >= r1:
             t = False
         elif (c1 - c0) * (r1 - r0) >= 1024:
-            block = TILE // 4
+            block = TILE // 8
             rects = _stable(("blocks", ti, tj, step), lambda: shapely.box(
                 xy[0][:, ::block], xy[1][::block, :],
                 xy[0][:, block - 1::block], xy[1][block - 1::block, :]))
             # Boundary blocks still use the exact point predicate.
-            inside = shapely.contains_properly(shape, rects)
-            hits = shapely.intersects(shape, rects)
+            if blocks is None:
+                inside = shapely.contains_properly(shape, rects)
+                hits = shapely.intersects(shape, rects)
+            else:
+                inside, hits = blocks
             t = inside.repeat(block, axis=0).repeat(block, axis=1)
             boundary = (hits & ~inside).repeat(block, axis=0).repeat(block, axis=1)
             rows, cols = np.nonzero(boundary[r0:r1, c0:c1])
@@ -352,13 +361,47 @@ def _raster_window(st, key, i0, j0, nx, ny, compute, dtype):
     return out
 
 
+def _batch_tiles(entries, ti, tj):
+    import numpy as np
+    import shapely
+    large = []
+    for ent in entries:
+        if (ti, tj) in ent[1]:
+            continue
+        a0, b0, a1, b1 = ent[2]
+        c0, c1 = max(a0 - ti * TILE, 0), min(a1 - ti * TILE + 1, TILE)
+        r0, r1 = max(b0 - tj * TILE, 0), min(b1 - tj * TILE + 1, TILE)
+        if c0 < c1 and r0 < r1 and (c1 - c0) * (r1 - r0) >= 1024:
+            large.append(ent[0])
+    if not large:
+        return
+    xy = _TILE_XY.get((ti, tj, STEP))
+    if xy is None:
+        xy = _TILE_XY[(ti, tj, STEP)] = np.meshgrid(
+            np.arange(ti * TILE, ti * TILE + TILE) * STEP,
+            np.arange(tj * TILE, tj * TILE + TILE) * STEP, sparse=True)
+    block = TILE // 8
+    rects = _stable(("blocks", ti, tj, STEP), lambda: shapely.box(
+        xy[0][:, ::block], xy[1][::block, :],
+        xy[0][:, block - 1::block], xy[1][block - 1::block, :]))
+    shapes = np.asarray(large, dtype=object)[:, None, None]
+    inside = shapely.contains_properly(shapes, rects)
+    hits = shapely.intersects(shapes, rects)
+    for shape, ins, hit in zip(large, inside, hits):
+        _shape_tile(shape, ti, tj, blocks=(ins, hit))
+
+
 def _cover(shapes, ti, tj, count):
     """Per lattice point of tile (ti, tj): how many shapes contain it (count) or whether any does, from the shapes'
     own cached tiles (shared by every class whose growth gives the same shape); 0 when none."""
     import numpy as np
+    entries = [_shape_entry(sh, STEP) for sh in shapes]
+    _batch_tiles(entries, ti, tj)
     acc = np.zeros((TILE, TILE), dtype=np.int16 if count else bool)
-    for sh in shapes:
-        t = _shape_tile(sh, ti, tj)
+    for ent in entries:
+        t = ent[1].get((ti, tj))
+        if t is None:
+            t = _shape_tile(ent[0], ti, tj)
         if t is False:
             continue
         if count:
