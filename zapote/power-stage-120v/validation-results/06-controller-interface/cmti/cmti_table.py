@@ -8,10 +8,15 @@ Every number is either (a) quoted from a cited datasheet / repo document (DATA b
 with page + URL) or (b) computed here.  The crossing list is cross-checked against
 elec/src/*.ato (instance counts and the time-filter R/C are read from the source).
 
+dv/dt basis (stage 42, S6 study 11-candidates/s6-cmti-2026-10-16): 49.70 V/ns typical Qrr, 68.16 V/ns maximum Qrr
+(20-80 % chord, adopted 68 ohm + 4.7 nF gate network); the old 95 V/ns ALT-BIAS R10 edge is superseded.  The "seen" column is
+the dv/dt each barrier actually sees (F6 step 1): the chord on switch-node barriers, the cm_barrier.json divider result on
+the HOT-return barriers U32 / U9 / U4.
+
 Verdict rules (RESOLUTION-PLAN F6):
-  GATE     upset can produce a gate command  -> PASS iff CMTI >= 1.5 x dv/dt_hard
+  GATE     upset can produce a gate command  -> PASS iff CMTI >= 1.5 x dv/dt_hard (the only class the 1.5x applies to)
   FILTERED upset reaches only a time-filtered line (tau >= 10 us) -> PASS on the filter
-  BIAS     isolated bias module (upset = regulation upset, not logic) -> ratio rule, plus
+  BIAS     isolated bias module (upset = regulation upset, not logic) -> rating >= edge, plus
            injected C*dv/dt reported
   OPEN     no datasheet number, or the consumer is off-board / not in this repo, so the
            rule cannot be closed from this repository
@@ -28,14 +33,31 @@ PS = HERE.parents[2]                      # .../zapote/power-stage-120v
 SRC = PS / "elec" / "src"
 
 MARGIN = 1.5                              # F6 pass margin
-DVDT_HARD = 95.0                          # V/ns, S4/S5 hard edges (ALT-BIAS.md R10; ECO.md:72)
+# Stage-42 basis (S6 study, validation-results/11-candidates/s6-cmti-2026-10-16/README.md section 2a): the adopted gate
+# network (R_on 68 ohm 2512 + Cgs 4.7 nF), S4 leg A HS turn-on, 280 V, strong driver, 150 C, ESL 10 nH, full 640/640 grid,
+# 20-80 % chord.  Replaces the pre-stage-42 ALT-BIAS R10 model edge of 95 V/ns (and the 106.21 V/ns 47 ohm / 1 nF stand-in).
+DVDT_TYP = 49.70                          # V/ns, typical Qrr (TT 125 ns)
+DVDT_HARD = 68.16                         # V/ns, maximum Qrr (TT 260 ns, 4.60 uC): the basis for every ratio below
 DVDT_ZVS = 10.0                           # V/ns, ZVS edges        (ALT-BIAS.md R10)
 V_SW_PEAK = 520.0                         # V, <=520 V transient target (ALT-BIAS.md R9)
 # 1 V/ns == 1 kV/us, so a "V/ns" CMTI and a "kV/us" CMTI compare directly.
 
-DV_SRC = ("ALT-BIAS.md R10 (08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/"
-          "ALT-BIAS.md:49): 10 V/ns ZVS, up to 95 V/ns hard edges S4/S5; native-21/ECO.md:72; "
-          "01-switching-parasitics/FINDINGS.md F2/F11 (S4 hard turn-on, S5 burst-start edge)")
+DV_SRC = ("S6 study 11-candidates/s6-cmti-2026-10-16 (README s.2a, results/s6_verdict.stdout.txt): S4 hard turn-on on the adopted "
+          "68 ohm + 4.7 nF network, 20-80 % chord, 49.70 V/ns typical Qrr / 68.16 V/ns maximum Qrr; 10 V/ns ZVS (ALT-BIAS.md R10); "
+          "HOT-return barriers: results/cm_barrier.json")
+
+# dv/dt the crossing actually sees (RESOLUTION-PLAN F6 step 1).  Switch-node barriers see the S4 chord itself.  The HOT-return
+# barriers (U32, U9, U4) see only the parasitic-divider fraction on HV_RET relative to PE (SELV_GND): cm_barrier.json at the
+# 68.16 V/ns max-Qrr chord, 1 ns chord, one 287.6 V leg-A ramp, leg B static.
+SEEN_COND, SEEN_BLOCK, SEEN_WORST1 = 0.74, 6.59, 22.6     # V/ns: nominal rectifier conducting / blocking / worst single parasitic
+SEEN_BLOCK_TYP = 5.22                                     # V/ns: nominal blocking at the typical-Qrr chord (s6_verdict.stdout.txt)
+CM_SRC = ("cm_barrier.json (S6 study): HV_RET to PE at the 68.16 V/ns chord = 0.74 V/ns rectifier conducting, 6.59 V/ns all four "
+          "diodes blocking (nominal), 22.6 V/ns worst single parasitic (100 pF coil-to-PE all on the SW_A end, blocking); the "
+          "stacked-pessimistic corner (86.7 V/ns) is a stack of assumed corners and a bench item")
+SEEN_SW = dict(seen_typ=DVDT_TYP, seen_max=DVDT_HARD, seen_note="switch-node edge itself (S4 chord)")
+SEEN_HOT = dict(seen_typ=SEEN_BLOCK_TYP, seen_max=SEEN_BLOCK,
+                seen_note=f"HOT return to SELV/PE divider: {SEEN_COND:g} conducting, {SEEN_BLOCK:g} blocking (nominal), {SEEN_WORST1:g} worst single parasitic")
+SEEN_NONE = dict(seen_typ=None, seen_max=None, seen_note="not computed (no switch-node or HOT-return path)")
 
 URL_UCC = "https://www.ti.com/lit/ds/symlink/ucc21550.pdf"
 URL_2EDR = "https://www.infineon.com/assets/row/public/documents/24/49/infineon-eicedriver-2edr8259h-2edrx259x-2edrx258x-datasheet-en.pdf"
@@ -127,6 +149,7 @@ def schematic_facts():
     facts["iso_mpn"] = re.search(r'component IsoReinfH:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["iso_f_mpn"] = re.search(r'component IsoReinfL:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["link_mpn"] = re.search(r'component Iso6721Fb:.*?mpn = "([^"]+)"', parts, re.S).group(1)
+    facts["ps2_mpn"] = re.search(r'component HotSupply24:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["mod_mpn"] = re.search(r'component IsoBiasModule:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["opto_mpn"] = re.search(r'component LineOpto:.*?mpn = "([^"]+)"', parts, re.S).group(1)
     facts["ct_mpn"] = re.search(r'component CST3015_[0-9]+E:.*?mpn = "([^"]+)"', parts, re.S).group(1)
@@ -164,6 +187,7 @@ def build_rows(f):
         k.setdefault("cmti_dyn", "not specified")
         k.setdefault("cio_pf", None)
         k.setdefault("filter", "none")
+        k.setdefault("seen_typ", None), k.setdefault("seen_max", None), k.setdefault("seen_note", "")
         rows.append(k)
 
     # ------------------------------------------------------------------ gate drivers
@@ -173,54 +197,49 @@ def build_rows(f):
             cmti_static=DRIVER_DATA[f["ucc_mpn"]]["cmti"], cmti_dyn=DRIVER_DATA[f["ucc_mpn"]]["dyn"],
             cio_pf=DRIVER_DATA[f["ucc_mpn"]]["cio"],
             cite=DRIVER_DATA[f["ucc_mpn"]]["cite"],
-            url=DRIVER_DATA[f["ucc_mpn"]]["url"],
+            url=DRIVER_DATA[f["ucc_mpn"]]["url"], **SEEN_SW,
             effect="FALSE GATE COMMAND: a barrier upset on INA/INB is downstream of the dead-time logic, so it can turn on a "
                    "FET (the DT interlock sits on the input side; this reasoning is mine, not a datasheet claim). DIS upset: "
                    "outputs forced low (off), the safe direction.")
     # ------------------------------------------------------------------ rail-monitor group (filtered by the heartbeat)
-    for ref, hs, node in (("U43", "HS-A", "SW_A"),):
+    for ref, hs, node, up in (("U43", "HS-A", "SW_A", "OUTB -> BAT54S half (D18) -> LS GOOD node = the LVC1G132 oscillator's enable"),
+                              ("U44", "HS-B", "SW_B", "OUTB -> LS vote, joining U43's verdict at the LVC1G132 oscillator's enable (stage 40, candidate 30a)")):
         row(ref=ref, mpn=f["link_mpn"], role=f"Digital isolator, {hs} rail verdict (monitor GOOD -> MON_GOOD into the LS vote)",
             cls="FILTERED", node=node, cmti_static=100.0,
             cmti_dyn="100 kV/us min, 150 typ, VCM = 1200 V, VI = VCC or 0 V (both input states); default output LOW = not good",
             cio_pf=0.5,
             cite="ISO6721 SLLSFJ0F (Feb 2023) s.6.9 / 6.10 Electrical Characteristics (5 V) CMTI min 100 / typ 150 kV/us, "
                  "VCM = 1200 V; s.6.6 p.7 CIO ~0.5 pF",
-            url=URL_6721, filter=filt_txt, tau=tau, tg_max=tg_max,
-            effect="OUTB -> BAT54S half (D18) -> LS GOOD node = the LVC1G132 oscillator's enable. A glitch LOW pauses the oscillator for "
-                   "under one period; a glitch HIGH while the rail is bad adds at most one or two edges. Neither holds the wave, "
-                   "so neither moves BIAS_GOOD (FMEA s6a).")
-    row(ref="U44", mpn=f["iso_f_mpn"], role="Digital isolator, HS-B rail verdict (monitor GOOD -> HSB_GOOD, the SELV NAND's gate)",
-        cls="FILTERED", node="SW_B", cmti_static=100.0,
-        cmti_dyn="100 kV/us min, 150 typ, VCM=1200 V (single figure); default output LOW = not good (L suffix)", cio_pf=0.5,
-        cite=CITE_ISO + "; s.9.3 Table 9-1 default LOW on VDDA loss or an open input (L suffix); CIO ~0.5 pF s.7.6",
-        url=URL_ISO, filter=filt_txt, tau=tau, tg_max=tg_max,
-        effect="HSB_GOOD -> U46 (G132 NAND) A input, the heartbeat on B. A glitch LOW while HS-B is good blocks at most one pump "
-               "edge; a glitch HIGH while HS-B is bad passes at most one edge. Neither holds the wave, so neither moves "
-               "BIAS_GOOD (FMEA s6a).")
+            url=URL_6721, filter=filt_txt, tau=tau, tg_max=tg_max, **SEEN_SW,
+            effect=up + ". A glitch LOW pauses the oscillator for under one period; a glitch HIGH while the rail is bad adds at most "
+                   "one or two edges. Neither holds the wave, so neither moves BIAS_GOOD (FMEA s6a).")
     row(ref="U32", mpn=f["iso_mpn"], role="Digital isolator, bias-monitor heartbeat (LS oscillator -> SELV charge pump)",
-        cls="FILTERED", node="N_LS/LEG_RET (not a switch node; 95 V/ns applied as a conservative bound)", cmti_static=100.0,
+        cls="FILTERED", node="N_LS/LEG_RET (HOT return, not a switch node)", cmti_static=100.0,
         cmti_dyn="100 kV/us min, 150 typ, VCM=1200 V (single figure)", cio_pf=0.5,
         cite=CITE_ISO + "; CIO ~0.5 pF s.7.6",
         url=URL_ISO, filter=filt_txt, tau=tau, tg_max=tg_max,
+        **SEEN_HOT,
         effect="HB_RX -> G132 NAND (U46, gated by U44) -> diode pump -> hold node -> U40 (G17) -> BIAS_GOOD -> DIS NAND of both legs. An upset drops or "
                "adds one edge; only a sustained wave holds BIAS_GOOD, and every static failure (either output state) trips.")
     # ------------------------------------------------------------------ bus fault isolator
     row(ref="U9", mpn=f["iso_mpn"], role="Digital isolator, BUS_FAULT (OCP/OVP/HOT5-OK NAND -> J4 pin 10)", cls="OPEN",
-        node="OCP_KELVIN_P/LEG_RET (not a switch node; 95 V/ns applied as a conservative bound)", cmti_static=100.0,
+        node="OCP_KELVIN_P/LEG_RET (HOT return, not a switch node)", cmti_static=100.0,
         cmti_dyn="100 kV/us min, 150 typ, VCM=1200 V", cio_pf=0.5,
         cite=CITE_ISO + "; CIO ~0.5 pF s.7.6", url=URL_ISO,
         filter=f"R134 {f['bf_R']:g} ohm / C167 {f['bf_C']*1e12:g} pF (tau {f['bf_R']*f['bf_C']*1e9:.0f} ns, >> the {V_SW_PEAK/DVDT_HARD:.1f} ns "
                f"edge, < 10 us) into U13 (LVC1G332) -> BUS_FAULT on J4",
+        **SEEN_HOT,
         effect="Fault line to the controller. High = fault: a false HIGH is a nuisance trip (safe direction); a false LOW "
                "during a real fault lasts only the glitch (fault persists). No gate command on the power board, but whether the "
                "controller debounces BUS_FAULT is not in this repo (06 README: no controller counterpart) -> OPEN.",
         open_reason="consumer (controller) filter not in repo")
     # ------------------------------------------------------------------ AMC1311
     row(ref="U4", mpn=f["amc_mpn"], role="Isolated amplifier, bus-voltage sense (VINP -> VOUTP/N -> VBUS_P/N on J4)", cls="OPEN",
-        node="OCP_KELVIN_P/LEG_RET (not a switch node; 95 V/ns applied as a conservative bound)", cmti_static=100.0,
+        node="OCP_KELVIN_P/LEG_RET (HOT return, not a switch node)", cmti_static=100.0,
         cmti_dyn="AMC1311B: 100 kV/us min, 150 typ (AMC1311 non-B: 15 min, 30 typ)", cio_pf=1.5,
         cite="AMC1311 SBAS786C (Jun 2022) p.10 Table 7.9 CMTI row (AMC1311B 100 min / 150 typ) and p.4 Table 5 (100 kV/us min B-grade); the BOM MPN is the B grade; revision note p.2: 'changed CMTI from 75 min'",
         url=URL_AMC, filter="none on the board (VOUTP/N straight to J4; ADC filter is on the controller)",
+        **SEEN_HOT,
         effect="MEASUREMENT upset (a spurious VBUS sample), not a gate command; the OVP comparator is HOT-side and independent. "
                "Whether firmware acts on a single VBUS sample is outside this repo -> OPEN.",
         open_reason="consumer (controller ADC/firmware) not in repo")
@@ -230,6 +249,7 @@ def build_rows(f):
         cmti_dyn="NO numeric CMTI in datasheet (only the feature bullet 'High common mode transient immunity')", cio_pf=None,
         cite="VOL628A Vishay doc 82401 Rev. 1.9 (10-Feb-2023) p.1 features list; no CMTI row in the characteristics tables (pp.1-9 searched)",
         url=URL_VOL, filter="33k pull-up + SN74LVC1G17 Schmitt, no deliberate RC",
+        **SEEN_NONE,
         effect="A false edge = a false zero-cross timestamp for burst/line-synchronous timing in firmware; not a gate command "
                "by itself (PWM is generated by the controller). No datasheet number -> cannot compute a ratio.",
         open_reason="no datasheet CMTI number")
@@ -240,57 +260,63 @@ def build_rows(f):
             cmti_dyn="+/-150 V/ns (RECOM lists one value in a Min/Typ/Max table; the column is not recoverable from the PDF text, so it is treated as the rating)",
             cio_pf=3.5,
             cite="RECOM R24C2T25/R Rev.1-2024 p.7 'Common Mode Transient Immunity +/-150 V/ns'; p.8 'Isolation Capacitance input to output 3.5 pF'; also ALT-BIAS.md:144,160 (1.58x)",
-            url=URL_REC, filter="reservoir + rail monitor (above); regulation ms-scale",
+            url=URL_REC, filter="reservoir + rail monitor (above); regulation ms-scale", **SEEN_SW,
             effect="Not a logic path: an upset is a regulation / injected-charge event (Cio x dv/dt into the LS split), held by the "
-                   "2x10uF+220uF reservoirs; ALT-BIAS.md section 2 runs 95 V/ns at 3.5 pF (369 mA / 0.98 nC / 192 mV at LS VSS).")
+                   "2x10uF+220uF reservoirs; ALT-BIAS.md section 2 ran 95 V/ns at 3.5 pF (369 mA / 0.98 nC / 192 mV at LS VSS), a superseded edge; at 68.16 V/ns the injected peak is 3.5 pF x 68.16 = 239 mA.")
     # ------------------------------------------------------------------ transformer / mains supplies
     row(ref="T1", mpn=f["ct_mpn"], role="Current transformer, tank CT (P1 on SW_A -> CT_S1/S2 -> OCP comparators -> BUS_FAULT)", cls="OPEN",
         node="SW_A (primary P1 = SW_A)", cmti_static=None,
         cmti_dyn="transformer: no CMTI spec; interwinding capacitance NOT given", cio_pf=None,
         cite="Coilcraft CST3015 Doc 1608-1 rev 09/08/25: '5000 Vrms, one minute isolation (hipot)'; no interwinding-capacitance entry",
-        url=URL_CST, filter="1.5 ohm burden + 100 nF across S1-S2; 1k series + BAS116H clamps",
+        url=URL_CST, **SEEN_SW, filter="1.5 ohm burden + 100 nF across S1-S2; 1k series + BAS116H clamps",
         effect="Capacitive injection from SW_A into the secondary could in principle trip the ~70 A OCP comparators "
                "(fail-safe: shuts down); break-even Cww is computed in the derived block (about 190 pF, simple charge model).",
         open_reason="Cww not specified")
-    row(ref="PS1", mpn="IRM-20-15", role="AC-DC module, SELV 15 V (mains -> SELV)", cls="OPEN",
+    row(ref="PS2", mpn=f["ps2_mpn"], role="AC-DC module, HOT gate bias 24 V (mains -> N_LS); MPM-20-24 since stage 38", cls="OPEN",
         node="mains L/N (not a switch node)", cmti_static=None, cmti_dyn="no CMTI / Cio in the repo's cited material",
-        cite="Mean Well IRM-20 spec (native-21/ECO.md:185); no CMTI figure", url="https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF",
-        effect="Supply, not a signal path; sees mains common mode, not the bridge switch node.", open_reason="not on a switch node; no CMTI spec")
-    row(ref="PS2", mpn="IRM-20-24", role="AC-DC module, HOT gate bias 24 V (mains -> N_LS)", cls="OPEN",
-        node="mains L/N (not a switch node)", cmti_static=None, cmti_dyn="no CMTI / Cio in the repo's cited material",
-        cite="Mean Well IRM-20 spec (native-21/ECO.md:185); no CMTI figure", url="https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF",
+        cite="Mean Well MPM-20 spec (MPM-20-SPEC 2024-10-30; same Case 219A as IRM-20, see f6_parts.ato HotSupply24); no CMTI figure",
+        url="https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF", **SEEN_NONE,
         effect="Supply, not a signal path; secondary is N_LS (HOT, LEG_RET), primary mains.", open_reason="not on a switch node; no CMTI spec")
     # ------------------------------------------------------------------ control
     row(ref="CTRL", mpn="HYPOTHETICAL-50kV/us", role="CONTROL: hypothetical 50 kV/us part on a gate path", cls="GATE",
-        node="SW_A", cmti_static=50.0, cmti_dyn="hypothetical", cite="none (control row; must FAIL)", url="-",
+        node="SW_A", cmti_static=50.0, cmti_dyn="hypothetical", cite="none (control row; must FAIL)", url="-", **SEEN_SW,
         effect="Self-test of the verdict logic: must print FAIL.")
     return rows, (tau, tg_max, v_at)
 
 
 def judge(r):
+    """Verdicts per RESOLUTION-PLAN F6.  1.5x applies only to GATE crossings (an upset that produces a gate command).
+    FILTERED rows pass on the >= 10 us filter; BIAS rows are a regulation upset, judged as a rating >= edge; OPEN rows are
+    open on the consumer or a missing datasheet number.  Every ratio is against the stage-42 maximum-Qrr chord."""
     c = r["cmti_static"]
     r["dvdt_hard"], r["dvdt_zvs"] = DVDT_HARD, DVDT_ZVS
     r["ratio_hard"] = None if c is None else c / DVDT_HARD
     r["ratio_zvs"] = None if c is None else c / DVDT_ZVS
+    r["ratio_seen"] = None if (c is None or r["seen_max"] is None) else c / r["seen_max"]
+    r["rule"] = f"{MARGIN}x" if r["cls"] == "GATE" else "none (not a gate command)"
     cls = r["cls"]
     if c is None:
         r["verdict"], r["why"] = "OPEN", r.get("open_reason", "no number")
     elif cls == "GATE":
         ok = c >= MARGIN * DVDT_HARD
         r["verdict"] = "PASS" if ok else "FAIL"
-        r["why"] = (f"{c:g} >= {MARGIN}x{DVDT_HARD:g}={MARGIN*DVDT_HARD:g}" if ok else
-                    f"{c:g} < {MARGIN}x{DVDT_HARD:g}={MARGIN*DVDT_HARD:g} (short by {MARGIN*DVDT_HARD-c:.1f} kV/us)")
+        r["why"] = (f"{c:g} >= {MARGIN}x{DVDT_HARD:g}={MARGIN*DVDT_HARD:.1f} ({c/DVDT_HARD:.2f}x)" if ok else
+                    f"{c:g} < {MARGIN}x{DVDT_HARD:g}={MARGIN*DVDT_HARD:.1f} (short by {MARGIN*DVDT_HARD-c:.1f} kV/us)")
     elif cls == "FILTERED":
         ok = r["tau"] >= 10e-6 - 1e-12
         r["verdict"] = "PASS" if ok else "FAIL"
-        r["why"] = (f"time-filtered, tau={r['tau']*1e6:.1f}us>=10us (raw ratio {r['ratio_hard']:.2f}x<1.5 is covered by the filter; "
-                    f"valid only while an upset lasts < {r['tg_max']*1e6:.2f}us - bench item)")
+        r["why"] = (f"time-filtered, tau={r['tau']*1e6:.1f}us>=10us; 1.5x not applicable (raw {r['ratio_hard']:.2f}x of the "
+                    f"{DVDT_HARD:g} V/ns chord, {r['ratio_seen']:.2f}x of the dv/dt seen); valid only while an upset lasts "
+                    f"< {r['tg_max']*1e6:.2f}us - bench item")
     elif cls == "BIAS":
-        ok = c >= MARGIN * DVDT_HARD
+        ok = c >= DVDT_HARD
         r["verdict"] = "PASS" if ok else "FAIL"
-        r["why"] = f"{c:g} >= {MARGIN*DVDT_HARD:g}" if ok else f"{c:g} < {MARGIN*DVDT_HARD:g}"
+        r["why"] = (f"rating {c:g} >= edge {DVDT_HARD:g} ({c/DVDT_HARD:.2f}x); regulation upset, not a gate command, so 1.5x "
+                    f"not applicable") if ok else f"rating {c:g} < edge {DVDT_HARD:g}"
     else:
         r["verdict"], r["why"] = "OPEN", r.get("open_reason", "consumer not in this repo")
+        if r["ratio_seen"] is not None:
+            r["why"] += f" (rating is {r['ratio_seen']:.1f}x the dv/dt seen)"
     # injected charge: Cio * dv/dt (peak current) and Cio * V_SW (charge), simple and unfiltered
     if r.get("cio_pf"):
         cio = r["cio_pf"] * 1e-12
@@ -305,8 +331,8 @@ def main():
     f = schematic_facts()
     print("== schematic enumeration (read from elec/src/*.ato) ==")
     expect = {"drivers_in_leg": 1, "bridge_legs": 2, "rail_monitors": 3, "iso7710_bus_fault": 1, "heartbeats": 1,
-              "iso7710_heartbeat": 1, "iso6721_links": 1, "iso7710f_verdicts": 1,
-              "amc1311": 1, "line_opto": 1, "bias_modules": 2, "ct": 1, "ps1": 1, "ps2": 1}
+              "iso7710_heartbeat": 1, "iso6721_links": 2, "iso7710f_verdicts": 0,
+              "amc1311": 1, "line_opto": 1, "bias_modules": 2, "ct": 1, "ps1": 0, "ps2": 1}
     bad = False
     for k, v in expect.items():
         ok = f[k] == v
@@ -314,15 +340,14 @@ def main():
         print(f"  {k:20s} found {f[k]}  expected {v}  {'ok' if ok else 'MISMATCH'}")
     n_drv = f["drivers_in_leg"] * f["bridge_legs"]
     n_iso = f["iso7710_heartbeat"] + f["iso7710_bus_fault"]
-    print(f"  => {f['ucc_mpn']} x{n_drv}, CA-IS3720HW x{n_iso} (heartbeat + bus fault), {f['link_mpn']} x{f['iso6721_links']} (HS-A verdict), "
-          f"{f['iso_f_mpn']} x{f['iso7710f_verdicts']} (HS-B verdict), "
+    print(f"  => {f['ucc_mpn']} x{n_drv}, CA-IS3720HW x{n_iso} (heartbeat + bus fault), {f['link_mpn']} x{f['iso6721_links']} (HS-A + HS-B verdicts), "
           f"AMC1311 x1, VOL628A x1, "
-          f"R24C2T25 x{f['bias_modules']}, CST3015 x1, IRM x2; BiasOpto (VO617A) defined but instantiated {f['bias_opto_unused']}x")
+          f"R24C2T25 x{f['bias_modules']}, CST3015 x1, {f['ps2_mpn']} x1; BiasOpto (VO617A) defined but instantiated {f['bias_opto_unused']}x")
     print("  watch-listed MPNs defined in parts: " + ", ".join(f["watch_mpns"]))
     rows, (tau, tg_max, v_at) = build_rows(f)
     listed = {r["mpn"] for r in rows}
-    # defined in parts.ato but not instantiated: IRM-05-15, VO617A, and the UCC21550 the 2EDR8259X replaced in stage 29
-    unused = ("IRM-05-15", "VO617A-3X017T") + (("UCC21550BDWKR",) if f["ucc_mpn"] != "UCC21550BDWKR" else ())
+    # defined in parts.ato but not instantiated: IRM-05-15, VO617A, CA-IS3720LW (IsoReinfL; U44 is an ISO6721FB since stage 40), and the UCC21550 the 2EDR8259X replaced in stage 29
+    unused = ("IRM-05-15", "VO617A-3X017T", f["iso_f_mpn"]) + (("UCC21550BDWKR",) if f["ucc_mpn"] != "UCC21550BDWKR" else ())
     unlisted = [m for m in f["watch_mpns"] if m not in listed and m not in unused]
     # defined-but-unused parts are allowed; anything else unlisted is a missing row
     for m in unlisted:
@@ -330,13 +355,17 @@ def main():
         bad = True
     rows = [judge(r) for r in rows]
 
-    print("\n== CMTI table (hard = %g V/ns, ZVS = %g V/ns, pass = CMTI >= %.1fx hard = %.1f kV/us) ==" % (DVDT_HARD, DVDT_ZVS, MARGIN, MARGIN * DVDT_HARD))
-    print(f"{'ref':5s} {'MPN':22s} {'class':8s} {'CMTI':>6s} {'hard x':>7s} {'ZVS x':>6s}  {'verdict':7s} reason")
+    print("\n== CMTI table (stage-42 basis: S4 chord %g V/ns typical Qrr, %g V/ns maximum Qrr; ZVS %g V/ns) ==" % (DVDT_TYP, DVDT_HARD, DVDT_ZVS))
+    print("   1.5x applies ONLY to gate-command crossings (F6): pass = CMTI >= %.1fx%g = %.1f kV/us.  'seen' = dv/dt the barrier actually sees at max Qrr" % (MARGIN, DVDT_HARD, MARGIN * DVDT_HARD))
+    print("   (" + CM_SRC + ")")
+    print(f"{'ref':5s} {'MPN':22s} {'class':8s} {'CMTI':>6s} {'seen':>6s} {'seen x':>7s} {'chord x':>8s} {'ZVS x':>6s}  {'verdict':7s} reason")
     for r in rows:
         c = "n/a" if r["cmti_static"] is None else f"{r['cmti_static']:g}"
         rh = "n/a" if r["ratio_hard"] is None else f"{r['ratio_hard']:.2f}"
+        sn = "n/a" if r["seen_max"] is None else f"{r['seen_max']:.2f}"
+        rs = "n/a" if r["ratio_seen"] is None else f"{r['ratio_seen']:.1f}"
         rz = "n/a" if r["ratio_zvs"] is None else f"{r['ratio_zvs']:.1f}"
-        print(f"{r['ref']:5s} {r['mpn'][:22]:22s} {r['cls']:8s} {c:>6s} {rh:>7s} {rz:>6s}  {r['verdict']:7s} {r['why']}")
+        print(f"{r['ref']:5s} {r['mpn'][:22]:22s} {r['cls']:8s} {c:>6s} {sn:>6s} {rs:>7s} {rh:>8s} {rz:>6s}  {r['verdict']:7s} {r['why']}")
 
     ctrl = [r for r in rows if r["ref"] == "CTRL"][0]
     print(f"\ncontrol row (50 kV/us on a gate path) -> {ctrl['verdict']} (must be FAIL)")
@@ -345,16 +374,14 @@ def main():
         return 2
 
     # ------------------------------------------------------------- derived numbers
-    ucc = 125.0
+    drv = DRIVER_DATA[f["ucc_mpn"]]["cmti"]
     print("\n== derived ==")
-    print(f"UCC21550 allowed dv/dt at {MARGIN}x margin = {ucc/MARGIN:.1f} V/ns -> the modelled 95 V/ns hard edge must drop "
-          f"{(1-(ucc/MARGIN)/DVDT_HARD)*100:.1f}% (to <= {ucc/MARGIN:.1f}) or be shown by bench measurement to be below it")
-    print(f"UCC21550 at ZVS: {ucc/DVDT_ZVS:.1f}x (PASS); hard: {ucc/DVDT_HARD:.2f}x (FAIL, bare datasheet ratio > 1 so no upset is "
-          f"*predicted* - the rating is simply not demonstrated with margin)")
+    print(f"{f['ucc_mpn']} ({drv:g} V/ns): {drv/DVDT_TYP:.2f}x the typical-Qrr chord, {drv/DVDT_HARD:.2f}x the maximum-Qrr chord "
+          f"(rule {MARGIN}x -> {'met' if drv >= MARGIN*DVDT_HARD else 'NOT met'}); allowed dv/dt at {MARGIN}x = {drv/MARGIN:.1f} V/ns")
     print(f"hard-edge duration for a {V_SW_PEAK:g} V swing at {DVDT_HARD:g} V/ns = {V_SW_PEAK/DVDT_HARD:.2f} ns; at {DVDT_ZVS:g} V/ns = {V_SW_PEAK/DVDT_ZVS:.0f} ns")
     print(f"monitor-group filter (heartbeat hold): tau = {tau*1e6:.2f} us; one dropped period >= {tg_max*1e6:.2f} us rides "
           f"through (SPICE design J); a {V_SW_PEAK/DVDT_HARD:.2f} ns upset is {tg_max/(V_SW_PEAK/DVDT_HARD*1e-9):.0f}x shorter")
-    print("injected current/charge across each barrier (Cio x 95 V/ns; Cio x 520 V), simple C*dv/dt:")
+    print(f"injected current/charge across each barrier (Cio x {DVDT_HARD:g} V/ns; Cio x 520 V), simple C*dv/dt:")
     for r in rows:
         if r["i_inj_hard_mA"] is not None and r["ref"] != "CTRL":
             print(f"  {r['ref']:4s} Cio {r['cio_pf']:g} pF -> {r['i_inj_hard_mA']:.0f} mA peak, {r['q_inj_nC']:.2f} nC")
@@ -371,7 +398,7 @@ def main():
 
     # ------------------------------------------------------------- CSV
     cols = ["ref", "mpn", "role", "cls", "node", "cmti_min_kV_per_us", "cmti_note", "cio_pF", "datasheet_cite", "url",
-            "dvdt_hard_V_per_ns", "dvdt_zvs_V_per_ns", "ratio_hard", "ratio_zvs", "required_hard", "verdict", "why",
+            "dvdt_hard_V_per_ns", "dvdt_zvs_V_per_ns", "ratio_hard", "ratio_zvs", "dvdt_typ_qrr_V_per_ns", "dvdt_seen_typ_qrr_V_per_ns", "dvdt_seen_max_qrr_V_per_ns", "dvdt_seen_note", "ratio_seen", "rule", "required_gate_1p5x", "verdict", "why",
             "i_inj_hard_mA", "q_inj_nC", "filter", "upset_effect", "dvdt_source"]
     with open(HERE / "cmti.csv", "w", newline="") as fh:
         w = csv.writer(fh, lineterminator="\n")
@@ -380,13 +407,13 @@ def main():
             fmt = lambda x, p=3: "" if x is None else (f"{x:.{p}f}" if isinstance(x, float) else x)
             w.writerow([r["ref"], r["mpn"], r["role"], r["cls"], r["node"], fmt(r["cmti_static"], 1), r["cmti_dyn"],
                         fmt(r["cio_pf"], 2), r["cite"], r["url"], r["dvdt_hard"], r["dvdt_zvs"], fmt(r["ratio_hard"]),
-                        fmt(r["ratio_zvs"], 2), MARGIN * DVDT_HARD, r["verdict"], r["why"], fmt(r["i_inj_hard_mA"], 1),
+                        fmt(r["ratio_zvs"], 2), DVDT_TYP, fmt(r["seen_typ"], 2), fmt(r["seen_max"], 2), r["seen_note"], fmt(r["ratio_seen"], 2), r["rule"], round(MARGIN * DVDT_HARD, 2), r["verdict"], r["why"], fmt(r["i_inj_hard_mA"], 1),
                         fmt(r["q_inj_nC"], 3), r["filter"], r["effect"], DV_SRC])
     real = [r for r in rows if r["ref"] != "CTRL"]
     n = lambda v: sum(1 for r in real if r["verdict"] == v)
     print(f"\nSUMMARY: {n('PASS')} PASS, {n('FAIL')} FAIL, {n('OPEN')} OPEN (control excluded); wrote {HERE/'cmti.csv'}")
     fails = [r["ref"] for r in real if r["verdict"] == "FAIL"]
-    print("OVERALL: " + ("FAIL - gate-command crossing(s) below 1.5x at 95 V/ns: " + ", ".join(fails) if fails else "no FAIL rows"))
+    print("OVERALL: " + ("FAIL - gate-command crossing(s) below 1.5x at the 68.16 V/ns maximum-Qrr chord: " + ", ".join(fails) if fails else "no FAIL rows"))
     return 1 if bad else 0
 
 

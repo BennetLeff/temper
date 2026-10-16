@@ -866,11 +866,11 @@
     {
      "id": "CMTI 1.5x, max Qrr",
      "max_ratio": 0.6667,
-     "ok": false,
+     "ok": true,
      "rating": "CMTI min",
-     "ratio": 0.7081,
+     "ratio": 0.4544,
      "severity": "gap",
-     "stress": "CMTI edge, maximum Qrr (open)"
+     "stress": "CMTI edge, maximum Qrr"
     },
     {
      "id": "temperature, release case (temp-ratings 2026-10-15)",
@@ -899,7 +899,7 @@
    "finding": null,
    "function": "Isolated dual gate driver, leg A / leg B (stage 29, DECISIONS 31; Infineon 2EDR8259X, PG-DSO-14 on the DWK pads)",
    "gaps": [
-    "bench: CMTI is a characterisation figure (not production tested). s42's S4 edge at typical Qrr is 49.7 V/ns (3.0x); the maximum-Qrr basis is open (nearest tested network 106 V/ns, 1.41x): the D-8 double-pulse bench measures S4/S5 dv/dt (DECISIONS 54).",
+    "bench: CMTI is a characterisation figure (not production tested). s42's S4 edge at typical Qrr is 49.7 V/ns (3.0x); the maximum-Qrr edge on the adopted network is 68.16 V/ns (2.20x, S6 study): the D-8 double-pulse bench measures S4/S5 dv/dt (DECISIONS 54).",
     "bench: no DIS-to-output delay is specified (Table 21 p.16 has none; Fig. 6 p.21 only defines it): the protection budget assumed TI's 80 ns; measure. No channel-to-channel voltage rating (Table 25: 3.3 mm creepage only).",
     "owner: DIS has an internal pull-down (open = enabled): R73 / R76 alone hold an open DIS disabled.",
     "owner: single source (Infineon), 39-week lead time; bench: VDD start-up overshoot < 21 V and driver / Rg temperature.",
@@ -1226,11 +1226,11 @@
     {
      "id": "CMTI, max Qrr",
      "max_ratio": 1.0,
-     "ok": false,
+     "ok": true,
      "rating": "CMTI min",
-     "ratio": 1.0621,
+     "ratio": 0.6816,
      "severity": "gap",
-     "stress": "CMTI edge, maximum Qrr (open)"
+     "stress": "CMTI edge, maximum Qrr"
     },
     {
      "id": "barrier",
@@ -1312,7 +1312,7 @@
    "finding": null,
    "function": "Isolated bus-voltage amplifier U4 (reinforced)",
    "gaps": [
-    "bench: CMTI. U4 straddles OCP_KELVIN_P, not a switch node; the bound (s42's S4 at typical Qrr, 49.7 V/ns) is 2.0x the 100 V/ns minimum; maximum Qrr is open (nearest tested network 106 V/ns). An upset is a spurious VBUS sample, no gate command (validation-results/06-controller-interface/cmti/README.md:21). Probe HV_RET-to-SELV dv/dt at hard S4/S5 edges (D-8).",
+    "bench: CMTI. U4 straddles OCP_KELVIN_P, not a switch node; the bound (s42's S4 at typical Qrr, 49.7 V/ns) is 2.0x the 100 V/ns minimum; maximum Qrr is 68.16 V/ns (S6 study; adopted network 68.16 V/ns). An upset is a spurious VBUS sample, no gate command (validation-results/06-controller-interface/cmti/README.md:21). Probe HV_RET-to-SELV dv/dt at hard S4/S5 edges (D-8).",
     "owner: bus readings above 240.0 V are outside the 2 V linear range (clipping at 301.9 V). Firmware flags VBUS over-range at 230.9 V (N21_VBUS_OVERRANGE_MV) and the hardware OVP is the TLV3201 on VSENSE_IN (elec/src/power_stage_120v.ato:614), so no protection relies on the nonlinear band; nothing gates that dependency.",
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
@@ -1843,11 +1843,11 @@
     {
      "id": "CMTI, max Qrr",
      "max_ratio": 1.0,
-     "ok": false,
+     "ok": true,
      "rating": "CMTI min",
-     "ratio": 1.0621,
+     "ratio": 0.6816,
      "severity": "gap",
-     "stress": "CMTI edge, maximum Qrr (open)"
+     "stress": "CMTI edge, maximum Qrr"
     },
     {
      "id": "working",
@@ -1894,7 +1894,7 @@
    "finding": null,
    "function": "Reinforced digital isolators U9 (bus_fault) and U32 (the bias-monitor heartbeat), default output HIGH on input-side power loss or an open input",
    "gaps": [
-    "bench: CMTI. Neither crossing is on a switch node; the bound (s42's S4 at typical Qrr, 49.7 V/ns) is 2.0x the 100 V/ns minimum. Maximum Qrr is open (nearest tested network 106 V/ns would be 1.06x over): U9 has R134 / C167 (1 k / 100 pF, tau 100 ns) before U13.A against a ns upset; U32 is a heartbeat carrier, an upset drops or adds an edge but cannot sustain a wave (FMEA 6a). Probe BUS_FAULT_FLT and the heartbeat at hard S4/S5 edges (D-8).",
+    "bench: CMTI. Neither crossing is on a switch node; the bound (s42's S4 at typical Qrr, 49.7 V/ns) is 2.0x the 100 V/ns minimum. Maximum Qrr reads 68.16 V/ns (S6 study; adopted network 68.16 V/ns would be 1.06x over): U9 has R134 / C167 (1 k / 100 pF, tau 100 ns) before U13.A against a ns upset; U32 is a heartbeat carrier, an upset drops or adds an edge but cannot sustain a wave (FMEA 6a). Probe BUS_FAULT_FLT and the heartbeat at hard S4/S5 edges (D-8).",
     "certifier: no CSA certificate is listed (UL 1577 E511334, VDE 40057278, TUV CB JPTUV-111116); UL Product iQ 403. Confirm E511334 covers CA-IS3720HW (SOIC16-WB, 5000 Vrms) and whether UL 1577 alone serves Canada.",
     "owner: single source (Chipanalog). JLC 1,640 at 2026-10-14 (C428883), two per board.",
     "bench: mixed-supply (5 V / 3.3 V) timing is not tabulated; the 3.3 V table is used for the SELV side. VOH at 3.3 V is specified at -2 mA; the loads are CMOS gate inputs and the 1 k R134.",
@@ -2882,11 +2882,11 @@
     {
      "id": "CMTI, max Qrr",
      "max_ratio": 1.0,
-     "ok": false,
+     "ok": true,
      "rating": "CMTI min",
-     "ratio": 1.0621,
+     "ratio": 0.6816,
      "severity": "gap",
-     "stress": "CMTI edge, maximum Qrr (open)"
+     "stress": "CMTI edge, maximum Qrr"
     },
     {
      "id": "gap",
@@ -2924,7 +2924,7 @@
    "finding": null,
    "function": "U43 / U44: HS-A / HS-B rail verdicts into the LS domain (functional HS-LS crossings in the bias-monitor PEC); default output LOW = not good. Stage 40 (candidate 30a): U44 replaces the HS-B -> SELV verdict isolator (CA-IS3720LW) in U42's n_ls pocket, as M1b drew it; both verdicts meet on the LS vote (D18 / D20)",
    "gaps": [
-    "bench: maximum-Qrr basis (DECISIONS 54): s42's S4 edge at typical recovery charge is 49.7 V/ns (2.0x the 100 V/ns minimum); the 4.60 uC maximum was not run on the adopted network, and the nearest tested network reads 106 V/ns (1.06x over). The D-8 double-pulse bench measures S4/S5 dv/dt and probes OUTB of U43/U44 for upsets at hard edges (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json); an upset is availability, not safety (c24 FMEA).",
+    "bench: maximum-Qrr basis (DECISIONS 54): s42's S4 edge at typical recovery charge is 49.7 V/ns (2.0x the 100 V/ns minimum); the 4.60 uC maximum on the adopted network reads 68.16 V/ns (0.68 of the minimum, S6 study). The D-8 double-pulse bench measures S4/S5 dv/dt and probes OUTB of U43/U44 for upsets at hard edges (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json); an upset is availability, not safety (c24 FMEA).",
     "certifier: basic insulation (UL 1577 single protection E181974, CSA 220991 basic) used as the functional HS-LS crossing; the certifier is asked whether its barrier short may be excluded (FMEA section 7 Q4).",
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
@@ -3470,11 +3470,11 @@
     {
      "id": "CMTI 1.5x, max Qrr",
      "max_ratio": 0.6667,
-     "ok": false,
+     "ok": true,
      "rating": "CMTI",
-     "ratio": 0.7081,
+     "ratio": 0.4544,
      "severity": "gap",
-     "stress": "CMTI edge, maximum Qrr (open)"
+     "stress": "CMTI edge, maximum Qrr"
     },
     {
      "id": "Tj c17.5 (release)",
@@ -3512,7 +3512,7 @@
    "finding": "Isolation claim resolved: elec/src/f6_parts.ato:354 ('reinforced 5 kVAC / 1.4 kVDC working') matches the current R24C2T25/R Rev. 1-2024 sheet (p.1; p.8: 1.4 kVp repetitive, 1000 Vrms TDDB, 1.4 kVDC). The 'preliminary 850 Vrms / 1.2 kVp functional' copy was the different non-/R R24C2T25 series. Barrier check now 520/1400 = 37 % (was 43 % against the wrong part).",
    "function": "High-side isolated gate-bias modules U41/U42 (RECOM), HOT-to-HOT functional barrier",
    "gaps": [
-    "bench: CMTI. s42's S4 edge at typical Qrr is 49.7 V/ns, 3.0x the 150 V/ns. The 1.5x rule (validation-results/06-controller-interface/cmti/README.md:8) applies to gate-command crossings; a RECOM upset is a regulation transient the reservoir rides through (validation-results/06-controller-interface/cmti/README.md:23), so its severity is gap. Maximum Qrr is open (nearest tested network 106 V/ns, 1.41x): D-8 bench.",
+    "bench: CMTI. s42's S4 edge at typical Qrr is 49.7 V/ns, 3.0x the 150 V/ns. The 1.5x rule (validation-results/06-controller-interface/cmti/README.md:8) applies to gate-command crossings; a RECOM upset is a regulation transient the reservoir rides through (validation-results/06-controller-interface/cmti/README.md:23), so its severity is gap. Maximum Qrr reads 68.16 V/ns (S6 study; adopted network 68.16 V/ns, 2.20x): D-8 bench.",
     "bench: B3 body model gives Tj 133.7 C (U42) at the c18 release case (bay 61 C; 130.6 / 135.4 C at c22 / c28), under 150 C; the 2 W / 82 C knee is an ambient curve on RECOM's 50 x 50 mm EVM, not this board. IR the module tops at first power (DECISIONS.md:836).",
     "bench: start-up (6-13 ms vs 16 ms timeout) and 11-16 MHz switching emissions (DECISIONS.md:442-448)."
    ],

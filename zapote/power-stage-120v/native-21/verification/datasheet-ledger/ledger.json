@@ -5759,11 +5759,11 @@
      "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923"
     },
     {
-     "parameter": "CMTI edge, maximum Qrr (open)",
-     "worst_case_value": 106.21,
+     "parameter": "CMTI edge, maximum Qrr",
+     "worst_case_value": 68.16,
      "unit": "V/ns",
-     "condition": "maximum recovery charge (4.60 uC): the adopted 68 ohm + 4.7 nF network was not run on this basis; the nearest tested network (47 ohm, Cgs 1 nF, 280 V screen) reads 106.2 V/ns. D-8 double-pulse bench decides",
-     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/s4screen.md:80; DECISIONS.md:1939-1942"
+     "condition": "maximum recovery charge (4.60 uC, TT 260 ns): the adopted 68 ohm + 4.7 nF network at the 20-80 % chord, full grid 640/640, S4 leg A HS turn-on, 280 V, strong driver, 150 C, ESL 10 nH reads 68.16 V/ns (S6 study; the 106.21 V/ns formerly cited was the 47 ohm / Cgs 1 nF stand-in, not the fitted network); U4 is not on a switch node: the HV_RET-to-PE divider puts 6.59 V/ns on it (0.74 rectifier conducting, 22.6 worst single parasitic), the 68.16 is applied as a bound",
+     "evidence": "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md"
     },
     {
      "parameter": "Barrier peak",
@@ -5842,11 +5842,11 @@
     {
      "id": "CMTI, max Qrr",
      "rating": "CMTI min",
-     "stress": "CMTI edge, maximum Qrr (open)",
+     "stress": "CMTI edge, maximum Qrr",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "bound 106.2 V/ns would be 1.06x over the minimum: basis not closed (D-8 bench)",
-     "ratio": 1.0621
+     "rule": "68.16 V/ns bound is 0.68 of the 100 V/ns minimum (rating >= edge); the dv/dt seen is 6.59 V/ns; 1.5x not applicable",
+     "ratio": 0.6816
     },
     {
      "id": "barrier",
@@ -5928,7 +5928,7 @@
     }
    ],
    "gaps": [
-    "bench: CMTI. U4 straddles OCP_KELVIN_P, not a switch node; the bound (s42's S4 at typical Qrr, 49.7 V/ns) is 2.0x the 100 V/ns minimum; maximum Qrr is open (nearest tested network 106 V/ns). An upset is a spurious VBUS sample, no gate command (validation-results/06-controller-interface/cmti/README.md:21). Probe HV_RET-to-SELV dv/dt at hard S4/S5 edges (D-8).",
+    "bench: CMTI. U4 straddles OCP_KELVIN_P, not a switch node; the bound (s42's S4 at typical Qrr, 49.7 V/ns) is 2.0x the 100 V/ns minimum; maximum Qrr is 68.16 V/ns (S6 study; adopted network 68.16 V/ns). An upset is a spurious VBUS sample, no gate command (validation-results/06-controller-interface/cmti/README.md:21). Probe HV_RET-to-SELV dv/dt at hard S4/S5 edges (D-8).",
     "owner: bus readings above 240.0 V are outside the 2 V linear range (clipping at 301.9 V). Firmware flags VBUS over-range at 230.9 V (N21_VBUS_OVERRANGE_MV) and the hardware OVP is the TLV3201 on VSENSE_IN (elec/src/power_stage_120v.ato:614), so no protection relies on the nonlinear band; nothing gates that dependency.",
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
@@ -10085,11 +10085,11 @@
      "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923"
     },
     {
-     "parameter": "CMTI edge, maximum Qrr (open)",
-     "worst_case_value": 106.21,
+     "parameter": "CMTI edge, maximum Qrr",
+     "worst_case_value": 68.16,
      "unit": "V/ns",
-     "condition": "maximum recovery charge (4.60 uC): the adopted 68 ohm + 4.7 nF network was not run on this basis; the nearest tested network (47 ohm, Cgs 1 nF, 280 V screen) reads 106.2 V/ns. D-8 double-pulse bench decides",
-     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/s4screen.md:80; DECISIONS.md:1939-1942"
+     "condition": "maximum recovery charge (4.60 uC, TT 260 ns): the adopted 68 ohm + 4.7 nF network at the 20-80 % chord, full grid 640/640, S4 leg A HS turn-on, 280 V, strong driver, 150 C, ESL 10 nH reads 68.16 V/ns (S6 study; the 106.21 V/ns formerly cited was the 47 ohm / Cgs 1 nF stand-in, not the fitted network)",
+     "evidence": "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md"
     },
     {
      "parameter": "Pout at 80 kHz",
@@ -10188,11 +10188,11 @@
     {
      "id": "CMTI 1.5x, max Qrr",
      "rating": "CMTI",
-     "stress": "CMTI edge, maximum Qrr (open)",
+     "stress": "CMTI edge, maximum Qrr",
      "max_ratio": 0.6667,
      "severity": "gap",
-     "rule": "106.2 V/ns would be 1.41x: basis not closed (D-8 bench)",
-     "ratio": 0.7081
+     "rule": "68.16 V/ns is 2.20x under the 150 V/ns rating (1.5x met although the rule applies to gate crossings only)",
+     "ratio": 0.4544
     },
     {
      "id": "Tj c17.5 (release)",
@@ -10233,7 +10233,7 @@
     }
    ],
    "gaps": [
-    "bench: CMTI. s42's S4 edge at typical Qrr is 49.7 V/ns, 3.0x the 150 V/ns. The 1.5x rule (validation-results/06-controller-interface/cmti/README.md:8) applies to gate-command crossings; a RECOM upset is a regulation transient the reservoir rides through (validation-results/06-controller-interface/cmti/README.md:23), so its severity is gap. Maximum Qrr is open (nearest tested network 106 V/ns, 1.41x): D-8 bench.",
+    "bench: CMTI. s42's S4 edge at typical Qrr is 49.7 V/ns, 3.0x the 150 V/ns. The 1.5x rule (validation-results/06-controller-interface/cmti/README.md:8) applies to gate-command crossings; a RECOM upset is a regulation transient the reservoir rides through (validation-results/06-controller-interface/cmti/README.md:23), so its severity is gap. Maximum Qrr reads 68.16 V/ns (S6 study; adopted network 68.16 V/ns, 2.20x): D-8 bench.",
     "bench: B3 body model gives Tj 133.7 C (U42) at the c18 release case (bay 61 C; 130.6 / 135.4 C at c22 / c28), under 150 C; the 2 W / 82 C knee is an ambient curve on RECOM's 50 x 50 mm EVM, not this board. IR the module tops at first power (DECISIONS.md:836).",
     "bench: start-up (6-13 ms vs 16 ms timeout) and 11-16 MHz switching emissions (DECISIONS.md:442-448)."
    ],
@@ -11615,11 +11615,11 @@
      "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923"
     },
     {
-     "parameter": "CMTI edge, maximum Qrr (open)",
-     "worst_case_value": 106.21,
+     "parameter": "CMTI edge, maximum Qrr",
+     "worst_case_value": 68.16,
      "unit": "V/ns",
-     "condition": "maximum recovery charge (4.60 uC): the adopted 68 ohm + 4.7 nF network was not run on this basis; the nearest tested network (47 ohm, Cgs 1 nF, 280 V screen) reads 106.2 V/ns. D-8 double-pulse bench decides",
-     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/s4screen.md:80; DECISIONS.md:1939-1942"
+     "condition": "maximum recovery charge (4.60 uC, TT 260 ns): the adopted 68 ohm + 4.7 nF network at the 20-80 % chord, full grid 640/640, S4 leg A HS turn-on, 280 V, strong driver, 150 C, ESL 10 nH reads 68.16 V/ns (S6 study; the 106.21 V/ns formerly cited was the 47 ohm / Cgs 1 nF stand-in, not the fitted network)",
+     "evidence": "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md"
     },
     {
      "parameter": "CMTI edge, as built s29-s41 (history)",
@@ -11697,11 +11697,11 @@
     {
      "id": "CMTI 1.5x, max Qrr",
      "rating": "CMTI min",
-     "stress": "CMTI edge, maximum Qrr (open)",
+     "stress": "CMTI edge, maximum Qrr",
      "max_ratio": 0.6667,
      "severity": "gap",
-     "rule": "106.2 V/ns would be 1.41x (< 1.5x, under the rating): basis not closed (D-8 bench)",
-     "ratio": 0.7081
+     "rule": "68.16 V/ns is 2.20x under the 150 V/ns minimum, so the 1.5x rule is met (S6 study)",
+     "ratio": 0.4544
     },
     {
      "id": "temperature, release case (temp-ratings 2026-10-15)",
@@ -11733,7 +11733,7 @@
     }
    ],
    "gaps": [
-    "bench: CMTI is a characterisation figure (not production tested). s42's S4 edge at typical Qrr is 49.7 V/ns (3.0x); the maximum-Qrr basis is open (nearest tested network 106 V/ns, 1.41x): the D-8 double-pulse bench measures S4/S5 dv/dt (DECISIONS 54).",
+    "bench: CMTI is a characterisation figure (not production tested). s42's S4 edge at typical Qrr is 49.7 V/ns (3.0x); the maximum-Qrr edge on the adopted network is 68.16 V/ns (2.20x, S6 study): the D-8 double-pulse bench measures S4/S5 dv/dt (DECISIONS 54).",
     "bench: no DIS-to-output delay is specified (Table 21 p.16 has none; Fig. 6 p.21 only defines it): the protection budget assumed TI's 80 ns; measure. No channel-to-channel voltage rating (Table 25: 3.3 mm creepage only).",
     "owner: DIS has an internal pull-down (open = enabled): R73 / R76 alone hold an open DIS disabled.",
     "owner: single source (Infineon), 39-week lead time; bench: VDD start-up overshoot < 21 V and driver / Rg temperature.",
@@ -11820,11 +11820,11 @@
      "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923"
     },
     {
-     "parameter": "CMTI edge, maximum Qrr (open)",
-     "worst_case_value": 106.21,
+     "parameter": "CMTI edge, maximum Qrr",
+     "worst_case_value": 68.16,
      "unit": "V/ns",
-     "condition": "maximum recovery charge (4.60 uC): the adopted 68 ohm + 4.7 nF network was not run on this basis; the nearest tested network (47 ohm, Cgs 1 nF, 280 V screen) reads 106.2 V/ns. D-8 double-pulse bench decides",
-     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/s4screen.md:80; DECISIONS.md:1939-1942"
+     "condition": "maximum recovery charge (4.60 uC, TT 260 ns): the adopted 68 ohm + 4.7 nF network at the 20-80 % chord, full grid 640/640, S4 leg A HS turn-on, 280 V, strong driver, 150 C, ESL 10 nH reads 68.16 V/ns (S6 study; the 106.21 V/ns formerly cited was the 47 ohm / Cgs 1 nF stand-in, not the fitted network)",
+     "evidence": "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md"
     },
     {
      "parameter": "CMTI edge, as built s29-s41 (history)",
@@ -11902,11 +11902,11 @@
     {
      "id": "CMTI, max Qrr",
      "rating": "CMTI min",
-     "stress": "CMTI edge, maximum Qrr (open)",
+     "stress": "CMTI edge, maximum Qrr",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "106.2 V/ns would be 1.06x the 100 V/ns minimum: basis not closed (D-8 bench)",
-     "ratio": 1.0621
+     "rule": "68.16 V/ns is 0.68 of the 100 V/ns minimum (rating >= edge); 1.5x not applicable (filtered, tau 49.9 us)",
+     "ratio": 0.6816
     },
     {
      "id": "gap",
@@ -11947,7 +11947,7 @@
     }
    ],
    "gaps": [
-    "bench: maximum-Qrr basis (DECISIONS 54): s42's S4 edge at typical recovery charge is 49.7 V/ns (2.0x the 100 V/ns minimum); the 4.60 uC maximum was not run on the adopted network, and the nearest tested network reads 106 V/ns (1.06x over). The D-8 double-pulse bench measures S4/S5 dv/dt and probes OUTB of U43/U44 for upsets at hard edges (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json); an upset is availability, not safety (c24 FMEA).",
+    "bench: maximum-Qrr basis (DECISIONS 54): s42's S4 edge at typical recovery charge is 49.7 V/ns (2.0x the 100 V/ns minimum); the 4.60 uC maximum on the adopted network reads 68.16 V/ns (0.68 of the minimum, S6 study). The D-8 double-pulse bench measures S4/S5 dv/dt and probes OUTB of U43/U44 for upsets at hard edges (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json); an upset is availability, not safety (c24 FMEA).",
     "certifier: basic insulation (UL 1577 single protection E181974, CSA 220991 basic) used as the functional HS-LS crossing; the certifier is asked whether its barrier short may be excluded (FMEA section 7 Q4).",
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
@@ -12367,11 +12367,11 @@
      "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923"
     },
     {
-     "parameter": "CMTI edge, maximum Qrr (open)",
-     "worst_case_value": 106.21,
+     "parameter": "CMTI edge, maximum Qrr",
+     "worst_case_value": 68.16,
      "unit": "V/ns",
-     "condition": "maximum recovery charge (4.60 uC): the adopted 68 ohm + 4.7 nF network was not run on this basis; the nearest tested network (47 ohm, Cgs 1 nF, 280 V screen) reads 106.2 V/ns. D-8 double-pulse bench decides",
-     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/s4screen.md:80; DECISIONS.md:1939-1942"
+     "condition": "maximum recovery charge (4.60 uC, TT 260 ns): the adopted 68 ohm + 4.7 nF network at the 20-80 % chord, full grid 640/640, S4 leg A HS turn-on, 280 V, strong driver, 150 C, ESL 10 nH reads 68.16 V/ns (S6 study; the 106.21 V/ns formerly cited was the 47 ohm / Cgs 1 nF stand-in, not the fitted network); U32/U9 are not on a switch node: the HV_RET-to-PE divider puts 6.59 V/ns on them (0.74 rectifier conducting, 22.6 worst single parasitic), the 68.16 is applied as a bound",
+     "evidence": "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md"
     },
     {
      "parameter": "CMTI event duration",
@@ -12438,11 +12438,11 @@
     {
      "id": "CMTI, max Qrr",
      "rating": "CMTI min",
-     "stress": "CMTI edge, maximum Qrr (open)",
+     "stress": "CMTI edge, maximum Qrr",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "bound 106.2 V/ns would be 1.06x over the minimum: basis not closed (D-8 bench)",
-     "ratio": 1.0621
+     "rule": "68.16 V/ns bound is 0.68 of the 100 V/ns minimum (rating >= edge); the dv/dt seen is 6.59 V/ns; 1.5x not applicable",
+     "ratio": 0.6816
     },
     {
      "id": "working",
@@ -12496,7 +12496,7 @@
     }
    ],
    "gaps": [
-    "bench: CMTI. Neither crossing is on a switch node; the bound (s42's S4 at typical Qrr, 49.7 V/ns) is 2.0x the 100 V/ns minimum. Maximum Qrr is open (nearest tested network 106 V/ns would be 1.06x over): U9 has R134 / C167 (1 k / 100 pF, tau 100 ns) before U13.A against a ns upset; U32 is a heartbeat carrier, an upset drops or adds an edge but cannot sustain a wave (FMEA 6a). Probe BUS_FAULT_FLT and the heartbeat at hard S4/S5 edges (D-8).",
+    "bench: CMTI. Neither crossing is on a switch node; the bound (s42's S4 at typical Qrr, 49.7 V/ns) is 2.0x the 100 V/ns minimum. Maximum Qrr reads 68.16 V/ns (S6 study; adopted network 68.16 V/ns would be 1.06x over): U9 has R134 / C167 (1 k / 100 pF, tau 100 ns) before U13.A against a ns upset; U32 is a heartbeat carrier, an upset drops or adds an edge but cannot sustain a wave (FMEA 6a). Probe BUS_FAULT_FLT and the heartbeat at hard S4/S5 edges (D-8).",
     "certifier: no CSA certificate is listed (UL 1577 E511334, VDE 40057278, TUV CB JPTUV-111116); UL Product iQ 403. Confirm E511334 covers CA-IS3720HW (SOIC16-WB, 5000 Vrms) and whether UL 1577 alone serves Canada.",
     "owner: single source (Chipanalog). JLC 1,640 at 2026-10-14 (C428883), two per board.",
     "bench: mixed-supply (5 V / 3.3 V) timing is not tabulated; the 3.3 V table is used for the SELV side. VOH at 3.3 V is specified at -2 mA; the loads are CMOS gate inputs and the 1 k R134.",
