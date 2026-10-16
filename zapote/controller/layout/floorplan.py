@@ -206,6 +206,7 @@ ANCHOR = {
     "rtd_pan.r_miso": "rtd_pan.adc",
     # ADC anti-kick RC at the ESP32 pad
     "r_vbus_adc": "U4", "r_hs_adc": "U4", "r_coil_adc": "U4", "r_m12_adc": "U4",
+    "r_hs_adc_bot": "U4",            # C45 (CR-8): the divider's bottom R at the ADC pad, beside c_hs_adc
     # interlock pull-ups / pull-downs in the interlock region
     "interlock.ocp_pullup": "interlock.fault_inv", "interlock.ovp_pullup": "interlock.fault_inv",
     "interlock.hs_pullup": "interlock.fault_inv", "interlock.coil_pullup": "interlock.fault_inv",
