@@ -1,0 +1,77 @@
+{
+ "bom": "validation-results/08-manufacturing-package/native-21/sourcing/study-2026-10-15/snapshot/s44/bom-jlcpcb.s44.csv",
+ "bom_lines": 93,
+ "legacy_committed_card": {
+  "parts_usd_at_5": 306.9,
+  "parts_usd_at_500": 202.38
+ },
+ "legacy_lines_estimated": 60,
+ "legacy_recomputed": {
+  "parts_usd_at_5": 306.9,
+  "parts_usd_at_500": 202.38
+ },
+ "new_basis": {
+  "parts_usd_at_500_v2": 171.53,
+  "parts_usd_at_5_v2": 262.58,
+  "price_artefact_lines": [
+   "R24C2T25/R-R: A3 0.0204 is below 10% of the median 7.37148 of the other reads",
+   "R24C2T25/R-R: A3 0.0397 is below 10% of the median 7.954 of the other reads"
+  ],
+  "price_basis": "bom_pricing-v1",
+  "price_estimated_lines": [],
+  "price_short_lines_5": [
+   "1704004",
+   "3403.0279.23",
+   "B82726S2203A020",
+   "DE1E3RA222MA4BP01F",
+   "IPW65R018CFD7",
+   "PMEG6030EP,115",
+   "R24C2T25/R-R"
+  ],
+  "price_short_lines_500": [
+   "1704004",
+   "2EDR8259XXUMA1",
+   "3403.0279.23",
+   "6SVPC220MV",
+   "AC05000001507JAC00",
+   "B2P3-VH(LF)(SN)",
+   "B32652A0104K000",
+   "B32654A1104J000",
+   "B32676G1905K000",
+   "B82726S2203A020",
+   "C0603C102J5GACTU",
+   "CST3015-200ED",
+   "DE1E3RA222MA4BP01F",
+   "IPW65R018CFD7",
+   "KLDR025.TXP",
+   "PMEG6030EP,115",
+   "R24C2T25/R-R",
+   "R463N410050N1K",
+   "VOL628A-2X001T"
+  ],
+  "price_tiers_5": {
+   "P1": 82,
+   "P2": 4,
+   "P3": 7,
+   "P4": 0,
+   "P5": 0,
+   "none": 0
+  },
+  "price_tiers_500": {
+   "P1": 70,
+   "P2": 4,
+   "P3": 19,
+   "P4": 0,
+   "P5": 0,
+   "none": 0
+  },
+  "price_unpriced_lines": []
+ },
+ "new_totals_unrounded": {
+  "parts_usd_at_5": 262.5752,
+  "parts_usd_at_500": 171.5294,
+  "parts_usd_at_500_cheapest_stock_holding": 171.5294,
+  "parts_usd_at_5_cheapest_stock_holding": 262.3561
+ },
+ "tag": "s44"
+}

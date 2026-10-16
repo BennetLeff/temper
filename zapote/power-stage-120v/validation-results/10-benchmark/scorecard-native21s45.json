@@ -58,6 +58,61 @@
   "unpriced_lines": [],
   "zero_stock_lines": 7,
   "single_source_lines": 17,
+  "price_basis": "bom_pricing-v1",
+  "parts_usd_at_5_v2": 262.77,
+  "parts_usd_at_500_v2": 171.71,
+  "price_estimated_lines": [],
+  "price_unpriced_lines": [],
+  "price_artefact_lines": [
+   "R24C2T25/R-R: A3 0.0204 is below 10% of the median 7.37148 of the other reads",
+   "R24C2T25/R-R: A3 0.0397 is below 10% of the median 7.954 of the other reads"
+  ],
+  "price_short_lines_5": [
+   "1704004",
+   "3403.0279.23",
+   "B82726S2203A020",
+   "DE1E3RA222MA4BP01F",
+   "IPW65R018CFD7",
+   "PMEG6030EP,115",
+   "R24C2T25/R-R"
+  ],
+  "price_short_lines_500": [
+   "1704004",
+   "2EDR8259XXUMA1",
+   "3403.0279.23",
+   "6SVPC220MV",
+   "AC05000001507JAC00",
+   "B2P3-VH(LF)(SN)",
+   "B32652A0104K000",
+   "B32654A1104J000",
+   "B32676G1905K000",
+   "B82726S2203A020",
+   "C0603C102J5GACTU",
+   "CST3015-200ED",
+   "DE1E3RA222MA4BP01F",
+   "IPW65R018CFD7",
+   "KLDR025.TXP",
+   "PMEG6030EP,115",
+   "R24C2T25/R-R",
+   "R463N410050N1K",
+   "VOL628A-2X001T"
+  ],
+  "price_tiers_5": {
+   "P1": 83,
+   "P2": 4,
+   "P3": 7,
+   "P4": 0,
+   "P5": 0,
+   "none": 0
+  },
+  "price_tiers_500": {
+   "P1": 71,
+   "P2": 4,
+   "P3": 19,
+   "P4": 0,
+   "P5": 0,
+   "none": 0
+  },
   "vias": 765,
   "board_bbox_mm2": 55100.0,
   "lines_short_for_5": 3,
@@ -84,6 +139,7 @@
   "ocp_pickup": "02-protection-timing/coil-pickup/s21b/result-s45.json",
   "ledger": "native-21/verification/datasheet-ledger: {'PARTIAL': 37, 'UNAUDITED': 54, 'VERIFIED': 3, 'VIOLATION': 0}",
   "track_geometry": "gates/track_geometry.py on BUILDDIR/native21-all-copper.json.gz",
+  "bom_pricing": "gates/bom_pricing.py bom_pricing-v1 over the 2026-10-15 JLC / DigiKey / Octopart snapshots and the STOCK-2026-10-13*.csv survey reads (sourcing/)",
   "buildability": "validation-results/08-manufacturing-package/native-21/sourcing/SNAPSHOT-2026-10-15.csv"
  }
 }

@@ -809,6 +809,27 @@
    ]
   },
   {
+   "glob": "native-21/layout/gates/bom_pricing.py",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/cu_temp_basis.py",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/cu_temp_registry.json",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
    "glob": "native-21/layout/gates/bom_cpl_check.py",
    "class": "input",
    "steps": [

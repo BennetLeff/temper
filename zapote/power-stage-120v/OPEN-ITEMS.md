@@ -51,7 +51,7 @@ their ratchets.
 | B13 | **No proof test covers dormant masking in the rail monitors** (any variant; FMEA DECISIONS 59): B8 screens the HS veto corridor only. Options: an end-of-line per-tap forcing test (catches 72–91 %, manufacturing defects only); an LS rail-raise test (ground the unused TPS7A4700 3P2V pin → 20.2 V) that catches every LS span-OV mask, dividers included | `11-candidates/s16-fmea-b-2026-10-15/` §proof tests | Bring-up / test plan (owner) | New | Choose the test hooks (a test pad on 3P2V, per-tap pads) before the next layout touches the monitor islands |
 | B9 | PMEG6030EP,115 (gate turn-off diode): JLC holds 3 at the c39 read, 7 in the s43 snapshot (8 needed for 2 boards, 20 for 5); the JSMSEMI clone C53114006 is not qualified | DECISIONS 54 | Sourcing (owner pre-order) | New | Add to the pre-order list or qualify an alternate |
 
-## 3. Cost (scorecard parts $206.44 at 500 on the 2026-10-13 survey; $186.54 on the 2026-10-15 snapshot; bare board $17.28)
+## 3. Cost (scorecard parts, s45, `bom_pricing-v1`: $171.71 at 500 / $262.77 at 5, every line from a dated read, not a quote: 19 lines at 500 have no read holding the whole lot; legacy basis $201.60; bare board $17.28)
 
 | # | Item | $ per board | Lane / owner | Status |
 |---|---|---|---|---|
@@ -60,7 +60,7 @@ their ratchets.
 | C3 | U41 / U42 RECOM bias modules | 14.74 | Kept (DECISIONS 49: discrete saves $2.8–3.9, zero-stock controller, transformer Cw unbounded); T&R at the 750 break −$0.38 | Closed |
 | C4 | C5 / C6 | 12.34 | Parts (S8) | Alternate chosen, pending suffix |
 | C5 | PS1 deletion (candidate 23) | 4.20 saved net of PS2 → MPM | Done (DECISIONS 50) | Closed |
-| C8 | **The scorecard prices 58 of 93 BOM lines at class-default estimates** (e.g. LM4040A $0.40 vs JLC $1.26; TL431A $0.40 vs $0.049), so logic swaps score wrong. The snapshot also prices U41 / U42 at $0.0204, a JLC 'listed_no_stock' artefact; the card uses DK $7.37 Stage 45 shows it again: the card reads −$0.78 for a change that costs +$0.18 on like-for-like JLC ladders (`c45-s16-monitor/results/cost-s44-s45.md`) | simplify-2026-10-15 §6 S2 / S3 | Sourcing / scorecard | New | Price every line from the snapshot or a stock addendum; estimates only where there is no read, flagged on the card |
+| C8 | **The scorecard prices 58 of 93 BOM lines at class-default estimates** (e.g. LM4040A $0.40 vs JLC $1.26; TL431A $0.40 vs $0.049), so logic swaps score wrong. The snapshot also prices U41 / U42 at $0.0204, a JLC 'listed_no_stock' artefact; the card uses DK $7.37 Stage 45 shows it again: the card reads −$0.78 for a change that costs +$0.18 on like-for-like JLC ladders (`c45-s16-monitor/results/cost-s44-s45.md`) | simplify-2026-10-15 §6 S2 / S3 | Sourcing / scorecard | **Done (2026-10-15)** | `gates/bom_pricing.py` (card keys `*_v2`, `price_basis`, `price_estimated_lines` = [], artefact rule rejects the RECOM $0.0204 / $0.0397 rows); s44 → s45 delta +$0.1807 = `cost45.py`. Compare uses v2 only when both cards carry the same basis, else NOTE (or `--strict-basis` refuses). s45 benchmark re-scored. Residual: re-take reads for the 19 lines with no lot-holding source (IPW65R018CFD7, B32654 bank, 30KPA150CA, KLDR025) |
 | C7 | Bare board: six layers $19.11 vs four $17.28 pinned; area compaction ~$1.5 per 10 % | DECISIONS 40 | After candidate 23 (compaction) | Open |
 
 ## 4. Layout lanes (none building; ps-layers and ps-selv free)
