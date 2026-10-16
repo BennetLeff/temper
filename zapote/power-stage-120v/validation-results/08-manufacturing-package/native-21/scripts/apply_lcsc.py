@@ -95,7 +95,11 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 # stage 47 (S17 hot copper, c47-ref25-grade): REF25 on the extended-range LM4050AEM3-2.5 (JLC part API
                 # 2026-10-15: 50 in stock against 500, so the lot is an owner pre-order consigned to JLC; the listing's
                 # -40..85 C is wrong for the E suffix, SNOS455H 5.3 p.5 and addendum p.25 give -40..125 C)
-                "LM4050AEM3-2.5/NOPB": "C2156518"})
+                "LM4050AEM3-2.5/NOPB": "C2156518",
+                # stage 48 (OPEN-ITEMS S19, c48-ldo-en-ref-watch): U3 / U37 / U38 / U39 on the TPS709-Q1 grade (was
+                # TPS70950DBVR C96028): JLC part API 2026-10-16, Extended, 11,607 in stock, $0.7048 at 500
+                # (sourcing/study-2026-10-15/scripts/jlc-raw/detail_C485909.json)
+                "TPS70950QDBVRQ1": "C485909"})
 ACCEPT_ALT = set()   # stage 43: the only accepted alternate (GRM31A5C3A102JW01D -> CC1206JKNPOCBN102) is now the source MPN
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))

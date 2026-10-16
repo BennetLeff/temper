@@ -492,6 +492,9 @@ def load(base_path, patches=True, prune=False):
     # stage 44 (candidate 44): SELV return-path transfer caps C169-C175, the bus_fault drop via and the bias_good In2 leg
     if hasattr(patches21, "edit_base44"):
         patches21.edit_base44(base)
+    # stage 48 (candidate 48): LDO EN dividers, the REF25 watchdog on U14 channel B, U3 / C48 moved, BIAS_GOOD to J4.1
+    if hasattr(patches21, "edit_base48"):
+        patches21.edit_base48(base)
     # nets renamed in the source since the base was frozen keep their base copper (patches21.RENAME_NETS)
     ren = getattr(patches21, "RENAME_NETS", {}) if patches else {}
     for kind in ("zones", "tracks", "vias"):

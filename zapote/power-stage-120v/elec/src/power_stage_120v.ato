@@ -894,6 +894,22 @@ module PowerStage120V:
     c_ref_xfer_12.value = 100nF
     c_ref_xfer_12.p1 ~ V3V3
     c_ref_xfer_12.p2 ~ SELV_GND
+    # Stage 48 (B13 H2, c48-ldo-en-ref-watch): BIAS_GOOD's branch to its J4.1 readback (R146) changes layer three times
+    # in the SELV spine (B.Cu at U40's feed via, F.Cu over the PERMIT / J4 B.Cu fan-out, B.Cu again under the pwm F.Cu
+    # fan-out); one transfer cap beside each, as stage 44 did for the other slow SELV lines. The fourth change sits
+    # beside C174.
+    c_ref_xfer_13 = new C100n0603
+    c_ref_xfer_13.value = 100nF
+    c_ref_xfer_13.p1 ~ V3V3
+    c_ref_xfer_13.p2 ~ SELV_GND
+    c_ref_xfer_14 = new C100n0603
+    c_ref_xfer_14.value = 100nF
+    c_ref_xfer_14.p1 ~ V3V3
+    c_ref_xfer_14.p2 ~ SELV_GND
+    c_ref_xfer_15 = new C100n0603
+    c_ref_xfer_15.value = 100nF
+    c_ref_xfer_15.p1 ~ V3V3
+    c_ref_xfer_15.p2 ~ SELV_GND
     r_ct_mon = new R1k0603
     r_ct_mon.value = 1kohm
     r_ct_mon.p1 ~ CT_SENSE_MON
@@ -1079,6 +1095,9 @@ module PowerStage120V:
     c_ref_xfer_10.designator = "C173"
     c_ref_xfer_11.designator = "C174"
     c_ref_xfer_12.designator = "C175"
+    c_ref_xfer_13.designator = "C176"
+    c_ref_xfer_14.designator = "C177"
+    c_ref_xfer_15.designator = "C178"
     c_hot5_uv.designator = "C48"
     # stage 48: EN dividers (S19), the REF25 watchdog (B13 H1) and the BIAS_GOOD readback (B13 H2)
     r_ldo_en_top.designator = "R136"

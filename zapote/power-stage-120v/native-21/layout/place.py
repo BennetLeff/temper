@@ -85,6 +85,13 @@ def group(*prefixes, exclude=()):
     return [p for p in out if p not in POSE and p not in exclude]
 
 
+# Stage 48 (candidate 48, c48-ldo-en-ref-watch): the EN dividers, the REF25 watchdog divider and the BIAS_GOOD readback
+# resistor go first, so the zone packs below (bias_ha / bias_hb / monitor_ls) skip them and no packed part moves; the
+# poses are patches21.S48_PARTS (one source for the part and its copper).
+from patches21 import S48_PARTS  # noqa: E402
+for _ref, (_path, _cx, _cy, _ang, _fp) in S48_PARTS.items():
+    put(_path, _cx, _cy, _ang)
+
 # ---------------- sink row (rear edge), native-20 core shifted by DX ----------
 DX = -88.0
 Q = {"leg_b.q_high": 9.95, "leg_b.q_low": 27.95, "leg_a.q_low": 50.05, "leg_a.q_high": 68.05}  # courtyard centres
@@ -540,6 +547,13 @@ for leg, q, side in (("leg_b", "leg_b.q_high", "h"), ("leg_b", "leg_b.q_low", "l
 from patches21 import S44_CAPS  # noqa: E402
 for _ref, (path, cx, cy, ang, _v1, _v2) in S44_CAPS.items():
     POSE[path] = (cx, cy, ang)
+
+# Stage 48 (candidate 48): U3 (the HOT5 LDO) and C48 (U14's VDD cap) leave their stage-29 poses here, after every restore,
+# so no other part moves: U3's slot beside U14 takes the REF25 watchdog divider, U3 sits beside its output cap C26 with its
+# EN divider (patches21.S48_MOVES / edit_base48).
+from patches21 import S48_MOVES  # noqa: E402
+for _ref, (_path, _cx, _cy, _ang, _fp) in S48_MOVES.items():
+    POSE[_path] = (_cx, _cy, _ang)
 
 missing = sorted(set(PARTS) - set(POSE))
 if missing:

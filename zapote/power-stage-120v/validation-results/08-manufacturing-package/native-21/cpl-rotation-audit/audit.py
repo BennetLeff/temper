@@ -475,6 +475,9 @@ CONTROLS = {
     # SOT-23-3 (LM4050AEM3-2.5/NOPB C2156518 since stage 47; LM4040A25IDBZR C9421 before, the same DBZ pinout and
     # EasyEDA pad arrangement): EasyEDA fit 180, DB "^SOT-23" -90; settled by the TI SNOS455H p.3 pinout
     "U5": {"class": "CORRECTED", "delta": -180},
+    # SOT-23-5 (TPS70950QDBVRQ1 C485909 since stage 48; TPS70950DBVR C96028 before, the same DBV pinout and EasyEDA pad
+    # arrangement at a 2.2 mm column pitch): EasyEDA fit 180, DB "^SOT-23" -90; settled by the TI SLVSCE6D p.3 pinout
+    "U3": {"class": "CORRECTED", "delta": -180},
 }
 
 

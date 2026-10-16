@@ -88,7 +88,7 @@
   },
   "U37": {
    "fp": "Package_TO_SOT_SMD:SOT-23-5",
-   "mpn": "TPS70950DBVR",
+   "mpn": "TPS70950QDBVRQ1",
    "at": [
     109.995,
     87.145
@@ -492,7 +492,7 @@
   },
   "U38": {
    "fp": "Package_TO_SOT_SMD:SOT-23-5",
-   "mpn": "TPS70950DBVR",
+   "mpn": "TPS70950QDBVRQ1",
    "at": [
     60.995,
     100.645
@@ -686,7 +686,7 @@
   },
   "U39": {
    "fp": "Package_TO_SOT_SMD:SOT-23-5",
-   "mpn": "TPS70950DBVR",
+   "mpn": "TPS70950QDBVRQ1",
    "at": [
     15.895,
     96.895
@@ -770,10 +770,10 @@
   },
   "U3": {
    "fp": "Package_TO_SOT_SMD:SOT-23-5",
-   "mpn": "TPS70950DBVR",
+   "mpn": "TPS70950QDBVRQ1",
    "at": [
-    113.675,
-    53.145
+    118.3,
+    61.75
    ],
    "fab": [
     -0.8,
@@ -942,6 +942,7 @@
  },
  "edits": [
   "stage 38 (candidate 23, 2026-10-15): PS1 removed (deleted part, no heat row); PS2 mpn IRM-20-24 -> MPM-20-24 (same Case 219A footprint, pose and body). The rest is the stage-19b extraction unchanged; a full re-extraction on the s38 board also picks up later MPN changes of other lanes (U1/U2, R10/R12/R18/R20, R39, bank grade) and is left to the B3 owner.",
-  "stage 42 (candidate 39, 2026-10-15): R10/R12/R18/R20 -> UniRoyal 25121WF680JT4E 68 ohm 2512 (KiCad Resistor_SMD:R_2512_6332Metric: F.Fab +/-3.15 x 1.60, F.CrtYd +/-3.83 x 1.93 mm), same axis, centre y 12.6 -> 12.4, rotation 270; their stale stage-19b MPN (RC1206FR-073R9L) is corrected with it. R11/R13/R19/R21 (no heat row) move 0.5 mm west and 0.5 mm north (R11 also turned 180 deg)."
+  "stage 42 (candidate 39, 2026-10-15): R10/R12/R18/R20 -> UniRoyal 25121WF680JT4E 68 ohm 2512 (KiCad Resistor_SMD:R_2512_6332Metric: F.Fab +/-3.15 x 1.60, F.CrtYd +/-3.83 x 1.93 mm), same axis, centre y 12.6 -> 12.4, rotation 270; their stale stage-19b MPN (RC1206FR-073R9L) is corrected with it. R11/R13/R19/R21 (no heat row) move 0.5 mm west and 0.5 mm north (R11 also turned 180 deg).",
+  "stage 48 (candidate 48, 2026-10-16): U3 / U37 / U38 / U39 mpn TPS70950DBVR -> TPS70950QDBVRQ1 (same DBV body); U3 moved to (118.3, 61.75) at rotation 0 (patches21.S48_MOVES), same SOT-23-5 fab / courtyard box. Body positions only feed the FET lead links and the 'gap' sensitivity; the main solve takes pads from the board."
  ]
 }

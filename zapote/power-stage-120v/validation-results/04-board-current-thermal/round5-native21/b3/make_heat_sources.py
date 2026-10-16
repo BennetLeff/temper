@@ -113,7 +113,15 @@ for ref in ("C38", "C39", "C40", "C41"):
     add(ref, 0.05, 0.2, "estimate", "B32652 0.1 µF HF film: edge-harmonic current only (estimate, bounded 0.2 W)")
 
 # small rails
-add("U3", 0.1, 0.26, "estimate", "TPS70950 HOT5: ≤ 19 V drop × 13.6 mA (Kelvin census)")
+# Stage 48 (c48-ldo-en-ref-watch): U3 deposits its bound, not a typical: IN 15.46 V (S16 rail model maximum) - HOT5 4.89 V
+# (TPS70950QDBVRQ1 -2 %, SLVSCE6D 5.5 p.5) = 10.57 V x 15.1 mA (the HOT5 loads of the Kelvin census at their maxima, U9 at
+# the CA-IS3720HW 4.1 mA, the REF25 watchdog inside U5's bound) = 0.160 W; 0.1 W until s47
+add("U3", 0.160, 0.26, "estimate", "TPS70950QDBVRQ1 HOT5: 10.57 V drop (IN 15.46 V max - OUT 4.89 V min) x 15.1 mA (Kelvin census); "
+    "heat on pads 1 / 2 / 3 / 5 (pin 4 NC: 'No internal connection', SLVSCE6D Table 4-1 p.3)")
+# U3's pin 4 has no internal connection, so no die heat enters its pad (as R5's sense fingers above). Heated, the isolated
+# NC pad floats to the junction node and its cell became U3's "pad copper" (s48 runs 3-5: 124.8 / 116.4 / 124.1 C with
+# the pad as the hottest cell, swinging with how the 0.25 mm mesh rasterised the GND run 0.21-0.4 mm from it).
+rows[-1]["pad_numbers"] = ["1", "2", "3", "5"]
 for ref in ("U37", "U38", "U39"):
     add(ref, 0.05, 0.1, "estimate", "TPS70950 monitor 5 V: (15 - 5 V) × ≤ 10 mA")
 for ref in ("R67", "R68", "R69", "R70"):

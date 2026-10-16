@@ -172,6 +172,20 @@
     "C": "CATHODE",
     "A": "ANODE"
    }
+  },
+  "C485909": {
+   "part": "TPS70950QDBVRQ1",
+   "package": "DBV (SOT-23-5), TPS709-Q1 pinout (the plain TPS709 pinout)",
+   "datasheet_pins": {
+    "1": "IN",
+    "2": "GND",
+    "3": "EN",
+    "4": "NC",
+    "5": "OUT"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SLVSCE6D (Dec 2013, rev. Aug 2025), p.3 Figure 4-1 'DBV Package, SOT-23-5 (Top View)' and Table 4-1 Pin Functions (DBV column): IN 1, GND 2, EN 3, NC 4, OUT 5 - the same DBV pinout as TPS70950DBVR (C96028, SBVS186H p.3). https://www.ti.com/lit/ds/symlink/tps709-q1.pdf sha256 bd01fad0eb2defdd3cbe3d07d0d1d8579c8f110dd5420e41df19dc350474eb5f, read 2026-10-16",
+   "kicad_check": "native-21 frozen netlist (stage 48): U3 / U37 / U38 / U39 pad 1 (IN) on v15_ls, v15_ls, p_ha, p_hb; pad 3 (EN) on its own divider tap (hot5_en, monitor_ls-ldo_en, bias_ha.monitor-ldo_en, bias_hb.monitor-ldo_en; audit.rs stage48); pad 2 (GND) on the return (ocp_kelvin_p, n_ls, n_ha, n_hb); pad 4 (NC) on a single-pad *-nc net; pad 5 (OUT) on the 5 V net (hot5, ls_v5, bias_ha.monitor-v5, bias_hb.monitor-v5): KiCad pad n = datasheet pin n. EasyEDA symbol C485909: 1 IN, 2 GND, 3 EN, 4 NC, 5 OUT"
   }
  }
 }

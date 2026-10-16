@@ -111,15 +111,16 @@ nets = {"U17": ["monitor_ls-ref", "n_ls"], "U19": ["bias_ha.monitor-ref", "n_ha"
         "U31": ["bias_hb.monitor-good", "n_hb", "p_hb"], "U16": ["bias_ls-fb", "leg_ret", "n_ls"],
         "U18": ["bias_ha.split-fb", "n_ha", "sw_a"], "U20": ["bias_hb.split-fb", "n_hb", "sw_b"],
         "R59": ["monitor_ls-ref", "v15_ls"], "R80": ["monitor_ls-halfref", "n_ls"], "R5": ["leg_ret", "x"],
-        "U5": ["ocp_kelvin_p", "ref25", "u_ref-nc"]}
+        "U5": ["ocp_kelvin_p", "ref25", "u_ref-nc"], "U3": ["v15_ls", "ocp_kelvin_p", "hot5_en", "u_ldo-nc", "hot5"],
+        "R138": ["v15_ls", "monitor_ls-ldo_en"], "R139": ["monitor_ls-ldo_en", "n_ls"]}
 pr = {r: probe(70.0, n) for r, n in nets.items()}
 S42 = {**{r: "TL431AIDBZR" for r in ("U17", "U19", "U21")}, **{r: "LM339BIDR" for r in ("U29", "U30", "U31")},
-       **{r: "TLVH431BQDBZR" for r in ("U16", "U18", "U20")}, "U5": "LM4040A25IDBZR"}
+       **{r: "TLVH431BQDBZR" for r in ("U16", "U18", "U20")}, "U5": "LM4040A25IDBZR", "U3": "TPS70950QDBVRQ1"}
 S46 = {**S42, **{r: "TL431BQDBZR" for r in ("U17", "U19", "U21")}, **{r: "LM2901BIDR" for r in ("U29", "U30", "U31")}}
 S47 = {**S46, "U5": "LM4050AEM3-2.5/NOPB"}
 rows = gate.probe_rows("c", {"probes": pr}, {"probes": pr}, 61.0, mpns=S42)
 byref = {r["item"].split(":")[0]: r for r in rows}
-ok(all(byref[r]["gated"] for r in gate.MONITORS) and len(gate.MONITORS) == 10, "ten gated monitor-IC rows (U5 from stage 47)")
+ok(all(byref[r]["gated"] for r in gate.MONITORS) and len(gate.MONITORS) == 11, "eleven gated rows (U5 from stage 47, U3 from 48)")
 ok(abs(byref["U17"]["est_c"] - (70.0 + 11.0 + gate.MONITOR_SELF["tl431"] * 206.0)) < 1e-9 and byref["U17"]["limit_c"] == 85.0,
    f"TL431 row = pad + bay shift + P RthJA ({byref['U17']['self_heat_k']} K), limit 85 C")
 ok(byref["U16"]["limit_c"] == 125.0 and byref["U29"]["limit_c"] == 85.0, "TLVH431BQ 125 C, LM339B 85 C")
@@ -138,11 +139,23 @@ ok(rows47["U5"]["limit_c"] == 125.0 and rows47["U5"]["est_c"] == byref["U5"]["es
    "U5 LM4050AEM3-2.5 row: limit 125 C from the MPN grade, same estimate")
 ok(abs(gate.MONITOR_SELF["ref25"] - 0.2382e-3 * 2.5162) < 2e-6, "U5 self-heat power = 0.238 mA x 2.5162 V")
 bom46 = gate.bom_mpns()
-ok(all(bom46[r] == S47[r] for r in gate.MONITORS), "the frozen native-21 BOM carries the stage-46 / 47 grades at the ten refs")
+ok(all(bom46[r] == S47[r] for r in gate.MONITORS), "the frozen native-21 BOM carries the stage-46 / 47 / 48 grades at the eleven refs")
+# stage 48 (c48-ldo-en-ref-watch): U3 (HOT5 LDO) is a gated TJ row, pad copper + its 0.160 W bound x psi_JB 40.7 K/W
+ok(byref["U3"]["limit_c"] == 125.0 and "TPS70950QDBVRQ1" in byref["U3"]["item"] and
+   abs(byref["U3"]["est_c"] - (70.0 + 11.0 + 0.160 * 40.7)) < 1e-9, f"U3 TPS70950-Q1 row: pad + bay shift + 0.160 W psi_JB, TJ 125 C")
+# ... and its heat goes into its connected pads only: pin 4 is NC, "No internal connection" (SLVSCE6D Table 4-1 p.3)
+import json  # noqa: E402
+hs = {r["ref"]: r for r in json.loads((HERE.parent / "b3/inputs/native21-board-heat-sources.json").read_text())["parts"]}
+ok(hs["U3"]["watts_nominal"] == 0.160 and hs["U3"].get("pad_numbers") == ["1", "2", "3", "5"],
+   "U3 heat source: 0.160 W on pads 1 / 2 / 3 / 5, none on the NC pin 4")
+ok(not byref["R138"]["gated"] and not byref["R139"]["gated"] and
+   abs(byref["R138"]["limit_c"] - (155 - 85 * (gate.V_PN * 100 / 127) ** 2 / 100e3 / 0.08)) < 1e-9,
+   "LDO EN divider R138 / R139 advisory rows (100 k / 27 k, terminal derating line)")
 for name, bad in (("unknown MPN", {**S47, "U29": "LM339DR"}), ("MPN of another kind", {**S47, "U17": "LM2901BIDR"}),
                   ("ref missing from the BOM", {k: v for k, v in S47.items() if k != "U30"}),
                   ("U5 on the industrial LM4050AIM3 (no grade row)", {**S47, "U5": "LM4050AIM3-2.5/NOPB"}),
-                  ("U5 on a TL431 (another kind)", {**S47, "U5": "TL431BQDBZR"})):
+                  ("U5 on a TL431 (another kind)", {**S47, "U5": "TL431BQDBZR"}),
+                  ("U3 on the commercial TPS70950DBVR (no grade row)", {**S47, "U3": "TPS70950DBVR"})):
     try:
         gate.probe_rows("c", {"probes": pr}, {"probes": pr}, 61.0, mpns=bad)
         ok(False, f"probe rows refuse: {name}")
@@ -153,7 +166,8 @@ ok(not byref["R59"]["gated"] and abs(byref["R59"]["limit_c"] - (155 - 85 * (gate
 ok("R5" not in byref, "resistors off the monitor nets are not probe rows")
 for name, bad in (("no probes", {}), ("moved ref", {"probes": {**pr, "U17": probe(70.0, ["n_ls", "x"])}}),
                   ("unknown divider", {"probes": {**pr, "R200": probe(70.0, ["monitor_ls-uv", "v15_ls"])}}),
-                  ("U5 moved off ref25", {"probes": {**pr, "U5": probe(70.0, ["ocp_kelvin_p", "hot5"])}})):
+                  ("U5 moved off ref25", {"probes": {**pr, "U5": probe(70.0, ["ocp_kelvin_p", "hot5"])}}),
+                  ("U3 EN back on IN", {"probes": {**pr, "U3": probe(70.0, ["v15_ls", "ocp_kelvin_p", "hot5"])}})):
     try:
         gate.probe_rows("c", bad, bad, 61.0, mpns=S47)
         ok(False, f"probe rows refuse: {name}")

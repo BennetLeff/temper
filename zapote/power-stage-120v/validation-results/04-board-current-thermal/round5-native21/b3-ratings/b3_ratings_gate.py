@@ -61,8 +61,9 @@ Limits (sources re-read 2026-10-15; see the audit's ratings.py for page-level qu
                    125 C from stage 46 (SLVS543S 6.4 p.5); U29 / U30 / U31 LM339BIDR 85 C, LM2901BIDR 125 C from
                    stage 46 (SLCS006Z 6.4 p.6); U16 / U18 / U20 TLVH431BQ 125 C (SLVS555N 5.3 p.5); U5 (REF25,
                    the OCP / OVP threshold reference) from stage 47: LM4040A25IDBZR 85 C (SLOS456Q 6.3 p.5, xxxI),
-                   LM4050AEM3-2.5/NOPB 125 C (SNOS455H 5.3 p.5, extended range); the monitor and split dividers
-                   advisory (terminal derating line)
+                   LM4050AEM3-2.5/NOPB 125 C (SNOS455H 5.3 p.5, extended range); U3 (the HOT5 LDO) from stage 48:
+                   TPS70950QDBVRQ1 TJ 125 C (SLVSCE6D 5.3 p.4), pad copper + 0.160 W x psi_JB 40.7 K/W (5.4 p.4);
+                   the monitor and split dividers (with the stage-48 LDO EN dividers) advisory (terminal derating line)
   PS2 MPM-20-24    (OPEN-ITEMS S18, s18-ps2-body; hot-copper runs only) gated on its LOCAL AIR, the quantity MEAN WELL
                    rates: 'WORKING TEMP. -35 ~ +85 C (Refer to "Derating Curve")' (MPM-20-SPEC 2024-10-30 p.2), the p.3
                    Derating Curve's x-axis is 'AMBIENT TEMPERATURE (C)' (12V~24V, HORIZONTAL: 100 % to 55 C, 70 % at
@@ -138,6 +139,10 @@ MONITOR_SELF = {
     # rounded up) at the reference minimum 2.4838 V, less the three 0.1 % load strings +0.1 % (R32 + R33 20 k to
     # OCP_KELVIN_N at 0 V, R34 + R35 24.3 k, R36 + R37 150 k): 0.238 mA (audit.rs: 65 uA floor, 0.48 mA no-load
     # ceiling); x 2.5162 V (2.5 V + 15 mV + 1.2 mV, SNOS455H 5.6 p.7) = 0.60 mW
+    # HOT5 LDO U3 (stage 48): the heat its B3 row deposits on its pads (b3/make_heat_sources.py, 0.160 W bound, on pads
+    # 1 / 2 / 3 / 5: pin 4 is NC); the row adds it once more over psi_JB, junction to board, so est = pad copper (the
+    # hottest cell of all five pads) + 0.160 W x 40.7 K/W = TJ
+    "tps709": 0.160,
     "ref25": ((5.15 - 2.4838) / (5600.0 * 0.99)
               - 2.4838 / (20000.0 * 1.001) - 2.4838 / (24300.0 * 1.001) - 2.4838 / (150000.0 * 1.001)) * 2.5162,
 }
@@ -145,12 +150,15 @@ RTHJA = {"tl431": (206.0, "SLVS543S 6.3 p.5 DBZ"), "tlvh431": (206.0, "SLVS555N 
          "lm339b": (111.2, "SLCS006Z 6.6 p.6 D (SOIC)"),
          # the larger of the LM4050's two DBZ figures (5.4 p.5 287 K/W; p.11 note 1 326 K/W board mounted, typical);
          # the LM4040's DBZ is 206 K/W (SLOS456Q 6.4 p.5), so this over-states its self-heat
-         "ref25": (326.0, "SNOS455H p.11 note 1 DBZ (5.4 p.5: 287)")}
+         "ref25": (326.0, "SNOS455H p.11 note 1 DBZ (5.4 p.5: 287)"),
+         # U3: psi_JB, not RthJA (the pad copper is the board node): the larger of the DBV legacy / new chip figures
+         "tps709": (40.7, "SLVSCE6D 5.4 p.4 DBV psi_JB, new chip (legacy chip 38.4)")}
 MONITORS = {   # ref -> (kind, net pattern the ref must carry: refs that move stop the gate)
     **{r: ("tl431", r"monitor(_ls)?-ref$") for r in ("U17", "U19", "U21")},
     **{r: ("lm339b", r"monitor(_ls)?-good$") for r in ("U29", "U30", "U31")},
     **{r: ("tlvh431", r"(split|bias_ls)-fb$") for r in ("U16", "U18", "U20")},
     "U5": ("ref25", r"^ref25$"),     # stage 47: the REF25 shunt (OCP and OVP thresholds); a report-only sweep row before
+    "U3": ("tps709", r"^hot5_en$"),  # stage 48: the HOT5 LDO on its junction (TJ 125 C), an S19 / B3 heat-row follow-up
 }
 # The row limit is the T_A grade of the MPN the BOM places at the ref (stage 46: the 125 C grades of the same pinouts).
 # MPN -> (kind, row basis, T_A max C). A monitor ref whose MPN is not here, or is of another kind, stops the gate.
@@ -163,6 +171,8 @@ MONITOR_GRADES = {
     "LM2901BIDR": ("lm339b", "LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)", 125.0),
     "TLVH431BQDBZR": ("tlvh431", "TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)", 125.0),
     "LM4040A25IDBZR": ("ref25", "LM4040A25IDBZR TA max 85 C (TI SLOS456Q 6.3 p.5, LM4040xxxI)", 85.0),
+    "TPS70950QDBVRQ1": ("tps709", "TPS70950QDBVRQ1 TJ max 125 C (TI SLVSCE6D 5.3 p.4, recommended operating; abs max 150 C "
+                        "5.1 p.3)", 125.0),
     "LM4050AEM3-2.5/NOPB": ("ref25", "LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; "
                             "addendum p.25)", 125.0),
 }
@@ -268,7 +278,9 @@ MON_R = {frozenset(("p", "ref")): (2200.0, *RC1206), frozenset(("ref", "halfref"
          frozenset(("ov", "n")): (10e3, *RT0603), frozenset(("p", "spanuv")): (120e3, *RT0603),
          frozenset(("spanuv", "n")): (10e3, *RT0603), frozenset(("p", "spanov")): (133e3, *ARG03),
          frozenset(("spanov", "n")): (10e3, *RT0603), frozenset(("v5", "good")): (10e3, *WAF0603),
-         frozenset(("src", "fb")): (6200.0, *RT0603), frozenset(("fb", "n")): (10e3, *RT0603)}
+         frozenset(("src", "fb")): (6200.0, *RT0603), frozenset(("fb", "n")): (10e3, *RT0603),
+         # stage 48 (S19): the monitor LDOs' EN dividers, 100 k / 27 k 0603WAF from the module rail
+         frozenset(("p", "ldo_en")): (100e3, *WAF0603), frozenset(("ldo_en", "n")): (27e3, *WAF0603)}
 
 
 def mon_role(net):
@@ -286,7 +298,7 @@ def mon_role(net):
 def mon_volts():
     return {"p": V_PN, "n": 0.0, "src": V_SPLIT, "fb": VREF_TLVH431, "ref": VREF_TL431, "halfref": VREF_TL431 / 2,
             "uv": V_SPLIT * 10 / 14.42, "ov": V_SPLIT * 10 / 17.68, "spanuv": V_PN * 10 / 130, "spanov": V_PN * 10 / 143,
-            "v5": 5.0, "good": 0.0}          # good low = fault state: the whole 5 V over the pull-up
+            "v5": 5.0, "good": 0.0, "ldo_en": V_PN * 27 / 127}          # good low = fault state: the whole 5 V over the pull-up
 
 
 def probe_rows(c, r25, r05, bay, mpns=None):

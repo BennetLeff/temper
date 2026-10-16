@@ -32,6 +32,8 @@ P, PI, PO, IN, OUT, OC = "passive", "power_in", "power_out", "input", "output", 
 # pin -> (function, type); sources in native-21/ECO.md "Manufacturer pin/ratings sources"
 TABLES = {
     "TPS70950DBVR": {"1": ("IN", PI), "2": ("GND", PI), "3": ("EN", IN), "4": ("NC", P), "5": ("OUT", PO)},
+    # stage 48: the Q1 grade, the same DBV pinout (TI SLVSCE6D Table 4-1 p.3)
+    "TPS70950QDBVRQ1": {"1": ("IN", PI), "2": ("GND", PI), "3": ("EN", IN), "4": ("NC", P), "5": ("OUT", PO)},
     "TLVH431BQDBZR": {"1": ("REF", P), "2": ("K", P), "3": ("A", P)},
     "TL431AIDBZR": {"1": ("K", P), "2": ("REF", P), "3": ("A", P)},
     # stage 45 (S16 option 1c-4420): the B grade on the same DBZ pads; SLVS543S Table 5-1 p.4 DBZ 1 = K, 2 = REF, 3 = A

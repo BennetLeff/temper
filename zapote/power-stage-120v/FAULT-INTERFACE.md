@@ -55,8 +55,22 @@ also needs a guaranteed shutdown path. Do not
 model the isolator's 2.25 V recommended minimum as its falling UVLO.
 
 HOT5 comes from a 78L05 on V15_LS. A regulator fault can lower HOT5 while
-V15_LS remains 15 V. `u_hot5_uv` (TPS3700DDCR) is therefore powered from
-V15_LS and senses HOT5 through 105 kΩ / 10 kΩ. OUTA is low on undervoltage,
+V15_LS remains 15 V. `u_hot5_uv` (TPS3700DDCR) was therefore powered from
+V15_LS and senses HOT5 through 105 kΩ / 10 kΩ.
+
+**Stage 48 (B13 H1, c48-ldo-en-ref-watch): U14 VDD and its cap C48 are on
+HOT5.** U14's second channel is now the REF25 watchdog (INB− on a 63.4 k /
+11.7 k tap of REF25, OUTB wired to OUTA on HOT5_UV_RAW), and INB− (pin 4)
+sits next to VDD (pin 5): on V15_LS a pin 4–5 short would put ~15 V on a 7 V
+abs-max input (SBVS187G 6.1 p.5). On HOT5 it puts ≤ 5.5 V there and drives
+OUTB low (a fault, not a silent loss). The UV detection still covers a
+regulator that sags: VIT± are specified unchanged from VDD 1.8 V to 18 V
+(6.5 p.6), below UVLO OUTA is driven low (note 3 p.6), and below V(POR)
+0.8 V the HOT5 pull-up of OUTA, the Schmitt buffer and U9 side A are
+unpowered together (U9 defaults high). A regulator that fails high (IN–OUT
+short, HOT5 → V15_LS ≤ 15.46 V) stays inside U14's 18 V VDD range.
+
+OUTA is low on undervoltage,
 is pulled up to HOT5 through 10 kΩ, and enters a Schmitt buffer before the
 three-input NAND. This avoids contention with the two push-pull comparator
 outputs and avoids feeding the supervisor's slow open-drain edge directly to

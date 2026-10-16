@@ -687,6 +687,173 @@ def edit_base44(base):
     return n
 
 
+# Stage 48 (candidate 48, c48-ldo-en-ref-watch; OPEN-ITEMS S19, B13 H1 / H2): the parts this stage adds, one source for
+# place.py (poses, put before the zone packs so no packed part moves) and edit_base48 (the base copper they replace).
+#   S19: EN of U3 / U37 / U38 / U39 (TPS70950QDBVRQ1) from 100 k / 27 k dividers instead of IN (SBVS186H 7.4 p.13);
+#   H1: the REF25 watchdog 63.4 k / 11.7 k into U14 INB- (pin 4), OUTB (pin 6) onto HOT5_UV_RAW, U14 VDD and C48 on HOT5;
+#   H2: BIAS_GOOD -> 220 k (1206) -> J4 pin 1.
+# Each entry: ref -> (path, cx, cy, angle, footprint); at angle 0 pad 1 is west, 90 south, 180 east, 270 north.
+# Poses checked with c48-ldo-en-ref-watch/scripts/fit_check.py (rules21 clearance on every layer, 0.1 mm courtyards).
+S48_PARTS = {
+    "R136": ("r_ldo_en_top", 113.3, 63.1, 270.0, "0603"),          # V15_LS north, HOT5_EN south
+    "R137": ("r_ldo_en_bot", 115.0, 63.1, 90.0, "0603"),           # HOT5_EN south, Kelvin north
+    "R138": ("monitor_ls.rldo_en_top", 108.158, 89.845, 0.0, "0603"),
+    "R139": ("monitor_ls.rldo_en_bot", 108.921, 91.895, 180.0, "0603"),
+    "R140": ("bias_ha.monitor.rldo_en_top", 57.958, 100.545, 270.0, "0603"),
+    "R141": ("bias_ha.monitor.rldo_en_bot", 56.25, 100.807, 90.0, "0603"),
+    "R142": ("bias_hb.monitor.rldo_en_top", 14.958, 94.195, 0.0, "0603"),
+    "R143": ("bias_hb.monitor.rldo_en_bot", 15.07, 92.445, 180.0, "0603"),
+    "R144": ("r_ref_wd_top", 112.4, 52.4, 180.0, "0603"),          # REF25 east, REF25_WD west (U3's old slot)
+    "R145": ("r_ref_wd_bot", 112.4, 54.1, 0.0, "0603"),            # REF25_WD west, Kelvin east
+    "R146": ("r_bias_good_j4", 33.0, 173.5, 270.0, "1206"),        # BIAS_GOOD north, BIAS_GOOD_J4 south (J4.1)
+    # H2: BIAS_GOOD's branch to R146 changes layer at (68.463, 133.0), (60.6, 140.838) and (43.6, 153.238); one v3v3 -
+    # selv_gnd transfer cap beside each (return_path19, <= 3.0 mm; poses from c44-selv-spine/scripts/cap_spots.py on the
+    # s48 run-1 board, each pad on its own plane via 0.85 mm off). Pad 1 v3v3, pad 2 selv_gnd. The fourth change, at
+    # (37.0, 172.0), sits 2.7 mm from C174.
+    "C176": ("c_ref_xfer_13", 66.06, 133.4, 0.0, "0603"),
+    "C177": ("c_ref_xfer_14", 61.7, 141.94, 90.0, "0603"),
+    "C178": ("c_ref_xfer_15", 44.3, 152.14, 0.0, "0603"),
+}
+# Parts that leave their packed slots (place.py applies these after the HOT-protection pack, so no other part moves):
+# U3 next to its output cap C26, where its EN divider fits; C48 (U14's VDD cap, now on HOT5) beside it.
+S48_MOVES = {
+    "U3": ("u_ldo", 118.3, 61.75, 0.0, "SOT23-5"),
+    "C48": ("c_hot5_uv", 121.3, 61.9, 270.0, "0603"),
+}
+
+# Base copper stage 48 removes: (net, layer, first point) of whole s47 tracks, and vias (net, at).
+S48_RM_TRACKS = [
+    ("v15_ls", "F.Cu", (112.537, 52.195), (112.537, 54.095)),      # U3 EN tied to IN (the S19 loop)
+    ("ocp_kelvin_p", "F.Cu", (112.537, 53.145), (110.729, 55.301)), # U3.2's Kelvin loop to its drop via
+    ("v15_ls", "F.Cu", (109.522, 53.145), (112.537, 52.195)),      # U14.5 (VDD, now HOT5) to U3.1
+    ("v15_ls", "F.Cu", (109.8, 53.2), (111.2, 54.4)),              # U14.5 to U3's IN via
+    ("v15_ls", "In1.Cu", (111.2, 54.4), (109.0, 40.8)),            # U3's IN via stub (overlaps the trunk)
+    ("v15_ls", "In1.Cu", (109.0, 40.8), (108.3, 63.2)),            # the x 108.9 detour round U3's IN via (re-laid below)
+    ("v15_ls", "In2.Cu", (108.27, 63.4), (111.27, 57.4)),          # U3 IN feed, In2 leg
+    ("v15_ls", "B.Cu", (111.27, 57.4), (111.07, 54.4)),            # U3 IN feed, B.Cu leg
+    ("v15_ls", "F.Cu", (111.07, 54.4), (112.537, 52.195)),         # U3 IN feed, F.Cu leg
+    ("ocp_kelvin_p", "F.Cu", "U14.4", (110.729, 55.301)),          # U14 INB- tied to ground (now the watchdog)
+    ("ocp_kelvin_p", "F.Cu", (107.248, 53.145), (109.748, 55.1)),  # U14.2's ground diagonal (crosses pin 4, now REF25_WD)
+    ("ocp_kelvin_p", "F.Cu", "C48.2", (118.865, 61.355)),          # C48's old ground drop
+    ("ocp_kelvin_p", "F.Cu", (120.45, 57.635), (118.865, 61.355)), # C26.2 to C48's drop (crosses U3's new pads)
+    ("v15_ls", "F.Cu", (115.84, 61.355), (116.284, 62.428)),       # C48.1's old V15_LS feed
+    ("v15_ls", "In1.Cu", (115.8, 61.4), (116.284, 62.428)),
+    ("v15_ls", "F.Cu", (108.858, 88.095), (102.07, 95.095)),       # U37 EN tied to IN (S19)
+    ("v15_ls", "F.Cu", (108.858, 88.295), (110.457, 90.895)),
+    ("v15_ls", "In1.Cu", (110.457, 90.895), (110.858, 85.295)),
+    ("p_ha", "F.Cu", (59.858, 101.595), (59.843, 104.245)),        # U38 EN tied to IN
+    ("p_hb", "F.Cu", (14.758, 97.845), (14.957, 95.845)),          # U39 EN tied to IN (the loop) ...
+    ("p_hb", "F.Cu", (14.758, 97.845), (13.358, 99.245)),          # ... and its run to the In2 drop
+]
+S48_RM_VIAS = [("v15_ls", (111.2, 54.4)), ("v15_ls", (111.27, 57.4)), ("ocp_kelvin_p", (110.729, 55.301)),
+               ("v15_ls", (116.284, 62.428)), ("ocp_kelvin_p", (118.865, 61.355)), ("v15_ls", (110.457, 90.895))]
+# Copper stage 48 adds: (net, layer, width, points); vias (net, at), 0.6 / 0.3 mm.
+S48_TRACKS = [
+    # U14: OUTB (pin 6) joins OUTA (pin 1) under the body; VDD (pin 5) on HOT5 by the lane above U3's old slot; INB-
+    # (pin 4) to the watchdog tap
+    ("hot5_uv_raw", "F.Cu", 0.2, ["U14.6", "U14.1"]),
+    ("hot5", "F.Cu", 0.25, ["U14.5", (110.55, 53.145), (110.55, 51.95), (110.95, 51.55), (116.0, 51.55), (116.2, 51.75),
+                            (116.2, 52.2)]),
+    ("ocp_kelvin_p", "F.Cu", 0.2, [(107.248, 53.145), (107.347, 53.1), (107.748, 53.1), (108.25, 53.602), (108.25, 54.75),
+                                   (109.748, 55.1)]),                          # U14.2 to its drop via, west of pin 4
+    ("ref25_wd", "F.Cu", 0.2, ["U14.4", "R145.1"]),
+    ("ref25_wd", "F.Cu", 0.2, ["R144.2", "R145.1"]),
+    ("ocp_kelvin_p", "F.Cu", 0.2, ["R145.2", (113.225, 54.65), (112.975, 54.9), (111.45, 54.9), (111.2, 55.15), (111.2, 55.4)]),
+    # REF25 to the watchdog: In2 from U5's REF25 via east past the corridor, up the F.Cu lane west of the HOT5 riser
+    ("ref25", "In2.Cu", 0.25, [(112.618, 57.635), (113.4, 56.853), (115.75, 56.853), (115.75, 56.85)]),
+    ("ref25", "F.Cu", 0.2, [(115.75, 56.85), (115.75, 53.0), (115.15, 52.4), "R144.1"]),
+    # V15_LS: the In1 run to (108.3, 63.2) straight off the x 109 trunk; U3's IN from the x 115.8 trunk
+    ("v15_ls", "In1.Cu", 0.4, [(109.0, 60.0), (108.3, 60.7), (108.3, 63.2)]),
+    ("v15_ls", "F.Cu", 0.4, [(115.85, 60.8), "U3.1"]),
+    ("v15_ls", "F.Cu", 0.25, [(115.85, 60.8), (115.4, 61.25), (114.2, 61.25), (113.55, 61.85), "R136.1"]),
+    # U3 ground, EN divider, output. U3.2 (GND, the DBV heat path) leaves 0.4 mm wide both ways: west to its Kelvin drop
+    # via and east under the body (no pin opposite pin 2) to C48.2 and its drop via (120.25, 63.65): "heavier copper ...
+    # plated through-holes to heat-dissipating layers" (SLVSCE6D 7.4.1.2). The B3 row read +0.2 K without it.
+    ("ocp_kelvin_p", "F.Cu", 0.4, ["U3.2", (116.0, 61.75), (115.8, 61.95), (115.8, 62.3)]),
+    ("ocp_kelvin_p", "F.Cu", 0.4, ["U3.2", (120.375, 61.75), "C48.2"]),   # 45 deg into C48.2: 92 deg to its via run
+    ("ocp_kelvin_p", "F.Cu", 0.25, ["R137.2", (115.8, 62.275)]),     # level with the pad: no acute corner at the via
+    ("hot5_en", "F.Cu", 0.2, ["U3.3", (116.45, 63.0), (116.2, 63.25), (115.525, 63.925), "R137.1"]),
+    ("hot5_en", "F.Cu", 0.2, ["R137.1", "R136.2"]),
+    ("hot5", "F.Cu", 0.3, [(120.6, 60.8), (120.6, 60.2), (120.0, 59.6)]),   # off the C48 run, not U3.5 (no 45 deg corner)
+    ("hot5", "In2.Cu", 0.4, [(120.0, 59.6), (117.49, 59.6)]),
+    ("hot5", "F.Cu", 0.4, ["U3.5", (120.6, 60.8)]),
+    ("hot5", "F.Cu", 0.25, [(120.6, 60.8), (120.875, 61.075), "C48.1"]),
+    ("ocp_kelvin_p", "F.Cu", 0.25, ["C48.2", (120.6, 63.425), (120.25, 63.65)]),
+    # U37 / U38 / U39 EN dividers
+    ("monitor_ls-ldo_en", "F.Cu", 0.2, ["U37.3", (108.983, 88.6), "R138.2"]),
+    ("monitor_ls-ldo_en", "F.Cu", 0.2, ["R138.2", (109.746, 90.608), "R139.1"]),
+    ("bias_ha.monitor-ldo_en", "F.Cu", 0.2, ["U38.3", (58.183, 101.595), "R140.2"]),
+    ("bias_ha.monitor-ldo_en", "F.Cu", 0.2, ["R140.2", (57.7, 101.632), "R141.1"]),
+    ("p_ha", "F.Cu", 0.25, ["R140.1", (58.5, 99.72), (59.058, 99.695)]),
+    ("bias_hb.monitor-ldo_en", "F.Cu", 0.2, ["R143.1", (15.895, 97.4), (15.45, 97.845), "U39.3"]),
+    ("p_hb", "F.Cu", 0.25, ["R142.1", (14.133, 94.878)]),
+    # H2: BIAS_GOOD from U40's feed via (68.463, 133.0) to R146 (the router's stage-48 path, its last via moved beside
+    # C174), BIAS_GOOD_J4 from R146 to J4.1, and the three transfer caps' plane-via stubs
+    ("bias_good", "B.Cu", 0.25, [(68.463, 133.0), (68.2, 133.237), (60.6, 140.838)]),
+    ("bias_good", "F.Cu", 0.25, [(60.6, 140.838), (48.2, 153.238), (43.6, 153.238)]),
+    ("bias_good", "B.Cu", 0.25, [(43.6, 153.238), (43.6, 162.037), (37.0, 168.637), (37.0, 172.0)]),
+    ("bias_good", "F.Cu", 0.25, [(37.0, 172.0), "R146.1"]),
+    ("bias_good_j4", "F.Cu", 0.25, ["R146.2", (33.0, 177.363), (33.6, 177.963), (33.6, 178.363), (33.8, 178.562),
+                                    (33.8, 179.162), (34.6, 179.963), "J4.1"]),
+    ("v3v3", "F.Cu", 0.3, ["C176.1", (64.48, 133.1)]),
+    ("selv_gnd", "F.Cu", 0.3, ["C176.2", (67.54, 132.9)]),
+    ("v3v3", "F.Cu", 0.3, ["C177.1", (61.2, 143.41)]),
+    ("selv_gnd", "F.Cu", 0.3, ["C177.2", (62.5, 140.86)]),
+    ("v3v3", "F.Cu", 0.3, ["C178.1", (42.92, 151.54)]),
+    ("selv_gnd", "F.Cu", 0.3, ["C178.2", (45.37, 151.34)]),
+]
+S48_VIAS = [("ocp_kelvin_p", (111.2, 55.4)), ("ref25", (115.75, 56.85)), ("v15_ls", (115.85, 60.8)),
+            ("ocp_kelvin_p", (115.8, 62.3)), ("hot5", (120.0, 59.6)), ("ocp_kelvin_p", (120.25, 63.65)),
+            ("bias_good", (60.6, 140.838)), ("bias_good", (43.6, 153.238)), ("bias_good", (37.0, 172.0)),
+            ("v3v3", (64.48, 133.1)), ("selv_gnd", (67.54, 132.9)), ("v3v3", (61.2, 143.41)), ("selv_gnd", (62.5, 140.86)),
+            ("v3v3", (42.92, 151.54)), ("selv_gnd", (45.37, 151.34))]
+# bus_fault_hot leaves the strip U3 now stands in: from (118.6, 59.0) it runs at y 59.75 above U3's pads to (114.6, 60.4)
+S48_BUS_FAULT_OLD = [(118.6, 59.0), (117.2, 60.4), (114.6, 60.4)]
+S48_BUS_FAULT_NEW = [(118.6, 59.0), (117.85, 59.75), (115.25, 59.75), (114.6, 60.4)]
+
+
+def edit_base48(base):
+    """Stage 48 edit of a frozen base copper dict (in place); a no-op on a base that already carries it."""
+    r3 = lambda q: q if isinstance(q, str) else (round(q[0], 3), round(q[1], 3))
+    tr, vias = base["tracks"], base["vias"]
+    if any(t["net"] == "ref25_wd" for t in tr):
+        return 0
+
+    def one(seq, what):
+        if len(seq) != 1:
+            raise SystemExit(f"stage 48: {what} not found once ({len(seq)})")
+        return seq[0]
+    for net, lay, first, last in S48_RM_TRACKS:
+        tr.remove(one([t for t in tr if t["net"] == net and t["layer"] == lay and r3(t["points"][0]) == first
+                       and r3(t["points"][-1]) == last], f"{net} {lay} track {first}..{last}"))
+    for net, at in S48_RM_VIAS:
+        vias.remove(one([v for v in vias if v["net"] == net and r3(v["at"]) == at], f"{net} via {at}"))
+    # U3's OUT leaves the HOT5 run to U8: the run now starts at its (116.2, 52.2) tee
+    t = one([t for t in tr if t["net"] == "hot5" and t["layer"] == "F.Cu" and r3(t["points"][0]) == (114.812, 52.195)],
+            "hot5 U3.5 run")
+    t["points"] = t["points"][2:]
+    # the In1 V15_LS trunk fed C48.1's old via from (115.8, 61.4); it now ends on U3's IN via (115.85, 60.8)
+    t = one([t for t in tr if t["net"] == "v15_ls" and t["layer"] == "In1.Cu" and r3(t["points"][-1]) == (115.8, 61.4)
+             and r3(t["points"][-2]) == (115.8, 58.8)], "v15_ls In1 trunk to (115.8, 61.4)")
+    t["points"][-1] = [115.85, 60.8]
+    t = one([t for t in tr if t["net"] == "bus_fault_hot" and t["layer"] == "F.Cu"
+             and S48_BUS_FAULT_OLD[0] in [r3(q) for q in t["points"]]], "bus_fault_hot run")
+    p = [r3(q) for q in t["points"]]
+    i = p.index(S48_BUS_FAULT_OLD[0])
+    if p[i:i + 3] != S48_BUS_FAULT_OLD:
+        raise SystemExit(f"stage 48: bus_fault_hot run not as frozen at {p[i:i + 3]}")
+    t["points"] = t["points"][:i] + [list(q) for q in S48_BUS_FAULT_NEW] + t["points"][i + 3:]
+    for net, lay, w, pts in S48_TRACKS:
+        tr.append({"net": net, "layer": lay, "width": w, "points": [q if isinstance(q, str) else list(q) for q in pts]})
+    for net, at in S48_VIAS:
+        if any(math.dist(v["at"], at) < 0.6 for v in vias):
+            raise SystemExit(f"stage 48: a via already sits at {at}")
+        vias.append({"net": net, "at": list(at), "size": 0.6, "drill": 0.3})
+    print(f"stage 48: {len(S48_RM_TRACKS)} base tracks and {len(S48_RM_VIAS)} vias removed (EN-to-IN ties, U3's and "
+          f"C48's old copper), {len(S48_TRACKS)} tracks and {len(S48_VIAS)} vias added; bus_fault_hot re-laid above U3")
+    return len(S48_TRACKS)
+
+
 def add_stage33(g):
     """Six-layer phase A additions (no-op without image_planes): image pours, then their stitching vias."""
     if not IMAGE_PLANES:

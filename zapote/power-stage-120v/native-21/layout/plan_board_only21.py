@@ -57,6 +57,22 @@ SIGNALS = [  # (net, reference net, purpose)
     ("bias_good", "selv_gnd", "BIAS_GOOD (rail monitors, stage 22)"), ("bus_fault", "selv_gnd", "OCP fault, SELV side"),
     ("line_zc", "selv_gnd", "LINE_ZC"), ("ct_zc", "selv_gnd", "tank CT zero cross"), ("ct_mon", "selv_gnd", "tank CT monitor"),
 ]
+# Stage 48 (B13 H3-H5, end-of-line hooks): the rail monitors' 12 window taps, the TPS7A4700's open 3P2V pin (U26.6:
+# a solder bridge to its GND neighbours U26.5 / U26.7 would add 3.2 V to the LS span) and REF25. Planned after the list
+# above and numbered after its reference pads, so the stage-8..47 designators keep their spots and numbers.
+SIGNALS_EOL = [(f"{m}-{tap}", n, f"{name} monitor {tap.upper()} tap")
+               for m, n, name in (("monitor_ls", "n_ls", "LS"), ("bias_ha.monitor", "n_ha", "HS-A"),
+                                  ("bias_hb.monitor", "n_hb", "HS-B"))
+               for tap in ("uv", "ov", "spanuv", "spanov")] + [
+    ("p6", "n_ls", "TPS7A4700 3P2V pin (U26.6, open)"),
+    ("ref25", "ocp_kelvin_p", "REF25 (U5), the OCP / OVP / watchdog reference"),
+]
+# stage 48: the two end-of-line hooks with no legal pad spot on their copper, and where the fixture contacts them instead
+EOL_PROBE = {
+    "p6": "U26.6 pad toe (0.87 mm outside the VQFN body; H4: ground it to U26.5 / U26.7 to raise the LS span by 3.2 V); "
+          "no copper on the open pin, and a pad needs a 4 mm stub under U26.7-U26.10 (stage 48 record)",
+    "monitor_ls-ov": "C67.1 (0603, the tap capacitor; H3 forcing pad) / R83.2 / R84.1 / U29.4; ground n_ls at C67.2",
+}
 TP_R, REF_REACH, REF_SHARE = 0.5, 10.0, 6.0
 
 d = json.loads(Path(sys.argv[1]).read_text())
@@ -153,36 +169,53 @@ for t in d["tracks"]:
     for k in range(1, int(seg.length / 0.5)):
         q = seg.interpolate(k * 0.5)
         cand[t["layer"][0]].setdefault(t["net"], []).append((round(q.x, 3), round(q.y, 3)))
-NETS = {s for s, _, _ in SIGNALS} | {r for _, r, _ in SIGNALS}
+NETS = {s for s, _, _ in SIGNALS + SIGNALS_EOL} | {r for _, r, _ in SIGNALS + SIGNALS_EOL}
 okF = {n: [(*p, "F") for p in cand["F"].get(n, []) if tp_ok(n, *p, "F")] for n in NETS}
 okB = {n: [(*p, "B") for p in cand["B"].get(n, []) if tp_ok(n, *p, "B")] for n in NETS}
 tps, refs, missing = [], [], []
-for net, ref, why in SIGNALS:
-    best = None
-    for side, ok in (("F", okF), ("B", okB)):                  # top first; bottom when the top has no spot
-        for p3 in ok.get(net, []):
-            p = p3[:2]
-            used = [q for q in refs if q["net"] == ref and q["side"] == side and math.dist(q["at"], p) <= REF_REACH]
-            cands = used or [{"net": ref, "at": q[:2], "side": side} for q in ok.get(ref, []) if math.dist(q[:2], p) <= REF_REACH]
-            for q in cands:
-                dd = math.dist(p, q["at"]) - (2.0 if q in refs else 0.0)      # prefer sharing a reference
-                if all(math.dist(p, t["at"]) > 2.2 for t in tps + refs) and \
-                        all(math.dist(q["at"], t["at"]) > 2.2 or t is q for t in tps + refs) and math.dist(p, q["at"]) > 2.2 and (best is None or dd < best[0]):
-                    best = (dd, p, q, side)
-        if best is not None:
-            break
-    if best is None:
-        missing.append({"net": net, "ref": ref, "why": "no legal via pair within %.0f mm" % REF_REACH})
-        continue
-    _, p, q, side = best
-    if q not in refs:
-        refs.append(q)
-    tps.append({"net": net, "at": list(p), "side": side, "ref_net": ref, "ref_at": list(q["at"]), "purpose": why})
+
+
+def plan(signals):
+    """Give each (net, reference, purpose) a signal pad and a shared or new reference pad (appends to tps / refs / missing)."""
+    for net, ref, why in signals:
+        best = None
+        for side, ok in (("F", okF), ("B", okB)):                  # top first; bottom when the top has no spot
+            for p3 in ok.get(net, []):
+                p = p3[:2]
+                used = [q for q in refs if q["net"] == ref and q["side"] == side and math.dist(q["at"], p) <= REF_REACH]
+                cands = used or [{"net": ref, "at": q[:2], "side": side} for q in ok.get(ref, []) if math.dist(q[:2], p) <= REF_REACH]
+                for q in cands:
+                    dd = math.dist(p, q["at"]) - (2.0 if q in refs else 0.0)      # prefer sharing a reference
+                    if all(math.dist(p, t["at"]) > 2.2 for t in tps + refs) and \
+                            all(math.dist(q["at"], t["at"]) > 2.2 or t is q for t in tps + refs) and math.dist(p, q["at"]) > 2.2 and (best is None or dd < best[0]):
+                        best = (dd, p, q, side)
+            if best is not None:
+                break
+        if best is None:
+            missing.append({"net": net, "ref": ref, "why": "no legal via pair within %.0f mm" % REF_REACH})
+            continue
+        _, p, q, side = best
+        if q not in refs:
+            refs.append(q)
+        tps.append({"net": net, "at": list(p), "side": side, "ref_net": ref, "ref_at": list(q["at"]), "purpose": why})
+
+
+plan(SIGNALS)
 n = 1
 for t in tps:
     t["ref"] = f"TP{n}"
     n += 1
 for r in refs:
+    r["ref"] = f"TP{n}"
+    r["purpose"] = f"{r['net']} reference"
+    r["at"] = list(r["at"])
+    n += 1
+n_tps, n_refs = len(tps), len(refs)
+plan(SIGNALS_EOL)
+for t in tps[n_tps:]:
+    t["ref"] = f"TP{n}"
+    n += 1
+for r in refs[n_refs:]:
     r["ref"] = f"TP{n}"
     r["purpose"] = f"{r['net']} reference"
     r["at"] = list(r["at"])
@@ -263,6 +296,8 @@ for m in missing:
     else:
         on = sorted(f"{pd['ref']}.{pd['pad']}" for pd in pads if pd["net"] == m["net"])   # sorted: dump order varies by build
         m["probe"] = "component pad " + " / ".join(on[:4]) + " (no legal test-pad spot)"
+    if m["net"] in EOL_PROBE:
+        m["probe"] = EOL_PROBE[m["net"]]
 # silk marks (review M12): board ID, HV warning, nylon legend, PE at J6, BR1 outline and pin marks.
 # Text blocks go where no courtyard, pad or other mark lies within the text box + 0.5 mm.
 taken = [b for _, b in court] + [Point(h["at"]).buffer(4.0) for h in holes] + \

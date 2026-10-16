@@ -1,11 +1,11 @@
 {
  "purpose": "SELV-spine contract between WS4 (drive / bias / monitor / protect islands) and WS5 (SELV side), validation-results/13-coupling/README.md section 8 and section 10 item 1. Checked by gates/spine_lock.py.",
- "baseline": "native-21/verification/spine-baseline-native21s44-all-copper.json.gz",
- "baseline_board_sha256": "f27d5bba7a7848942150308e547176090d18e18f3397feca74cbe010f6315a27",
+ "baseline": "native-21/verification/spine-baseline-native21s48-all-copper.json.gz",
+ "baseline_board_sha256": "596ba3bf17e47b2328e148e0ff53eb3b614439bf2c51f01b4cf34dda69e65591",
  "region": [30.0, 130.0, 110.0, 180.0],
  "contract_nets": ["pwm_ha", "pwm_la", "pwm_hb", "pwm_lb", "permit", "vbus_p", "vbus_n", "bus_fault_iso", "bias_good", "sw_a"],
  "plane_nets": ["selv_gnd", "v3v3"],
- "frozen_refs": ["J4", "C47", "C144", "C153", "C154", "C155", "C156", "C169", "C170", "C171", "C172", "C173", "C174", "C175"],
+ "frozen_refs": ["J4", "C47", "C144", "C153", "C154", "C155", "C156", "C169", "C170", "C171", "C172", "C173", "C174", "C175", "C176", "C177", "C178"],
  "zone_inset_mm": 1.0,
  "zone_tolerance_mm2": 0.5,
  "owner_lanes": ["selv"],
@@ -23,6 +23,13 @@
    "previous_baseline": "native-21/verification/spine-baseline-native21s38-all-copper.json.gz",
    "previous_board_sha256": "6f080b0dcd2d078e1725f574dd7f6a7cf86dc555b46aa09184c0fe144bb76d89",
    "why": "SELV return-path transfer caps (C169-C175). In the owner scope (contract nets, selv_gnd / v3v3, frozen refs) the only differences are the plane vias and 0.3 mm F.Cu stubs of C170 (BUS_FAULT, at (35.1, 135.9)) and C174 (PERMIT at J4, at (36.5, 175.4)): 4 vias (16 per-layer via keys) and 4 stubs added, nothing removed, and selv_gnd In2.Cu / v3v3 In1.Cu each 3.155 mm2 less fill (the new antipads). No contract-net track or via, no J4 pad and no frozen transfer cap (C47, C144, C153-C156) moved. In the full (non-owner) scope a lane also sees the C170 / C174 pads, BUS_FAULT's drop via moved down its own trunk (34.843, 131.565) -> (35.0, 132.523) with its F.Cu escape and B.Cu tail (5 track and 4 via keys out, 3 and 4 in), and the board-only test points TP13 (pwm_ha), TP20 (bus_fault) and TP34 -> TP39 (selv_gnd reference) re-planned by plan_board_only21. C169-C175 join frozen_refs (checked wherever they lie, as the stage-19b caps). The baseline is the stage-44 chain-run-1 board f27d5bba."
+  },
+  {
+   "date": "2026-10-16",
+   "by": "selv lane, stage 48 (candidate 48, B13 H2; DECISIONS draft 67)",
+   "previous_baseline": "native-21/verification/spine-baseline-native21s44-all-copper.json.gz",
+   "previous_board_sha256": "f27d5bba7a7848942150308e547176090d18e18f3397feca74cbe010f6315a27",
+   "why": "BIAS_GOOD read back on J4 pin 1 through R146 220 k (1206, at (33.0, 173.5)): J4.1 moves from the single-pin net j4_nc1 to bias_good_j4 (4 pad keys), and the contract net bias_good gains a hand-laid path from U40 to R146.1 in the owner scope (F.Cu / B.Cu tracks and plane-crossing vias at (68.463, 133.0), (60.6, 140.838), (43.6, 153.238) and (37.0, 172.0)). Each crossing has a SELV return-path transfer cap within 3 mm (C176 at (66.06, 133.4), C177 at (61.7, 141.94), C178 at (44.3, 152.14), all CC0603KRX7R9BB104 selv_gnd-to-v3v3 with their plane vias and 0.3 mm F.Cu stubs; the last via sits beside C174), so selv_gnd In2.Cu and v3v3 In1.Cu fill less (the antipads). C176-C178 join frozen_refs. Nothing removed but the j4_nc1 pad keys; no other contract-net track or via, no J4 pad position and no earlier transfer cap moved. In the full scope a lane also sees R146's pads and the bias_good_j4 F.Cu run to J4.1. The baseline is the stage-48 chain-run-3 board 596ba3bf."
   }
  ]
 }

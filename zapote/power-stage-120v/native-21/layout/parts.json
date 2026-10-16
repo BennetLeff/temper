@@ -3578,5 +3578,145 @@
 "ox": 0.0,
 "oy": 0.0,
 "group": "other:hb"
+},
+{
+"ref": "R136",
+"path": "r_ldo_en_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:r_ldo_en_top"
+},
+{
+"ref": "R137",
+"path": "r_ldo_en_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:r_ldo_en_bot"
+},
+{
+"ref": "R138",
+"path": "monitor_ls.rldo_en_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R139",
+"path": "monitor_ls.rldo_en_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "monitor_ls"
+},
+{
+"ref": "R140",
+"path": "bias_ha.monitor.rldo_en_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R141",
+"path": "bias_ha.monitor.rldo_en_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_ha"
+},
+{
+"ref": "R142",
+"path": "bias_hb.monitor.rldo_en_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R143",
+"path": "bias_hb.monitor.rldo_en_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "bias_hb"
+},
+{
+"ref": "R144",
+"path": "r_ref_wd_top",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R145",
+"path": "r_ref_wd_bot",
+"fp": "Resistor_SMD:R_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "hot_protect"
+},
+{
+"ref": "R146",
+"path": "r_bias_good_j4",
+"fp": "Resistor_SMD:R_1206_3216Metric",
+"w": 4.65,
+"h": 2.35,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:r_bias_good_j4"
+},
+{
+"ref": "C176",
+"path": "c_ref_xfer_13",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:c_ref_xfer_13"
+},
+{
+"ref": "C177",
+"path": "c_ref_xfer_14",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:c_ref_xfer_14"
+},
+{
+"ref": "C178",
+"path": "c_ref_xfer_15",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:c_ref_xfer_15"
 }
 ]

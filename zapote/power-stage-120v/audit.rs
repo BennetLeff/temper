@@ -310,6 +310,10 @@ const IDENTITY: &[(&str, &str)] = &[
     ("c_ref_xfer_10", "CC0603KRX7R9BB104"),
     ("c_ref_xfer_11", "CC0603KRX7R9BB104"),
     ("c_ref_xfer_12", "CC0603KRX7R9BB104"),
+    // stage 48 (B13 H2): BIAS_GOOD's J4.1 branch, one beside each of its three layer changes (C176-C178)
+    ("c_ref_xfer_13", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_14", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_15", "CC0603KRX7R9BB104"),
     ("j_blw_ac", "B2P3-VH(LF)(SN)"),
     ("rv1", "TMOV20RP175E"),
     ("br1", "GBJ2510-F"),
@@ -1082,9 +1086,9 @@ fn audit(m: &Model) -> Vec<String> {
         e.push(format!("tco_l must join only the TCO header and PS2, found {:?}", tco));
     }
     // Blower-supply tap (stage 16): fused after F1 and the filter, a branch of its own to J11.
-    // Reference-transfer caps (stage 19b; 5 stage 40; 6-12 stage 44): each joins the two SELV reference planes, v3v3
-    // (In1) and selv_gnd (In2).
-    for i in 1..=12 {
+    // Reference-transfer caps (stage 19b; 5 stage 40; 6-12 stage 44; 13-15 stage 48): each joins the two SELV reference
+    // planes, v3v3 (In1) and selv_gnd (In2).
+    for i in 1..=15 {
         let p = format!("c_ref_xfer_{i}");
         expect(&mut e, m, &p, "1", "v3v3");
         expect(&mut e, m, &p, "2", "selv_gnd");
