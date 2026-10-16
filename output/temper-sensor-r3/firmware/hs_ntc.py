@@ -727,6 +727,8 @@ def main() -> int:
                      "sar_sampling_K": round(terms["sar_sampling"], 3),
                      "whole_mV_chain_err_K": round(chain, 4),
                      "rail_K": {k: round(x, 3) for k, x in rail.items()},
+                     "rail_measured_K": round(max(abs(t_from_node(node_v(t), V3V3_NOM * (1.0 + sg * rail_adc.FULL_TOL))
+                                                      - t) for sg in (-1.0, 1.0)), 3),
                      "corner_reads_high_K": None if math.isnan(hi_r) else round(hi_r - t, 2),
                      "corner_reads_low_K": None if math.isnan(lo_r) else round(t - lo_r, 2)})
     trips = {r["T_C"]: r for r in rows if r["T_C"] in TRIP_POINTS_C}

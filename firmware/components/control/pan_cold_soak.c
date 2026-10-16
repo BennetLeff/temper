@@ -48,6 +48,27 @@ bool pcs_init(pcs_t *s, const pcs_params_t *p, uint32_t now_ms)
 /* A uint32 difference above this means the clock went backwards. */
 #define PCS_BACKWARDS 0x80000000u
 
+void pcs_credit_off(pcs_t *s, uint32_t now_ms, uint32_t off_s)
+{
+    if (s == NULL || off_s == 0u) {
+        return;
+    }
+    /* Never past the 2 x soak cap pcs_note keeps (and far from a wrap). */
+    const uint32_t cap_s = 2u * (uint32_t)lroundf(s->p.soak_n_s);
+    const uint32_t credit_ms = (off_s < cap_s ? off_s : cap_s) * 1000u;
+    const uint32_t since = (uint32_t)(now_ms - s->last_active_ms);
+    if (since < PCS_BACKWARDS && since >= credit_ms) {
+        return;   /* already off longer */
+    }
+    s->last_active_ms = now_ms - credit_ms;
+}
+
+float pcs_off_s(const pcs_t *s, uint32_t now_ms)
+{
+    const uint32_t since = (uint32_t)(now_ms - s->last_active_ms);
+    return since >= PCS_BACKWARDS ? 0.0f : (float)since / 1000.0f;
+}
+
 void pcs_note(pcs_t *s, uint32_t now_ms, bool coil_active, float pt_c, bool hs_valid, float hs_c)
 {
     pcs_note_rail(s, now_ms, coil_active, pt_c, hs_valid, hs_c, false);

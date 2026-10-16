@@ -2,7 +2,8 @@
  * @file rtd_service.h
  * @brief Board-owned MAX31865 SPI2/DRDY service.
  *
- * The DRDY ISR records completion only. `rtd_service_control_tick()` is called
+ * The DRDY ISR (or, on zapote/controller, the expander poll in the control
+ * tick; rtd_drdy_source_t) records completion only. `rtd_service_control_tick()` is called
  * by the control task and is the sole owner of MAX31865 SPI transfers and
  * state-machine fault delivery.
  */
@@ -24,6 +25,38 @@ extern "C" {
  * the specified 21 ms maximum conversion complete well inside this 100 ms
  * fail-silent bound. */
 #define RTD_DRDY_TIMEOUT_CONTROL_TICKS 10u
+
+/**
+ * DRDY source (DECISIONS.md D-DRDY). zapote/controller puts the MAX31865 DRDY
+ * on TCA9555 P07 (EXP_RTD_DRDY), not on a GPIO, and leaves the expander's INT
+ * unconnected, so the target has no DRDY interrupt: PIN_RTD_DRDY is
+ * HAL_PIN_INVALID there and the service polls the expander's Input Port 0 over
+ * I2C once per control tick (10 ms), before its MAX31865 work. DRDY is a level
+ * that "goes low when a new conversion result is available ... When a read
+ * operation of an RTD resistance data register occurs, DRDY returns high"
+ * (19-6478 Rev 3, pin description), so a 10 ms poll cannot miss a conversion
+ * (16.7-17.6 ms apart with CONFIG 0xC0) and never sees one twice; before every
+ * (re)start of conversions the service reads the RTD registers once so a level
+ * left low by a conversion from before the fault cycle cannot pass for a new
+ * one. A failed I2C read is "no DRDY this tick": the stale rule (6 ticks) then
+ * reports the open fault exactly as a silent converter would, and the frozen
+ * rule is unchanged. Reading on a fixed schedule instead was rejected: a
+ * converter that stopped would return its last code until the frozen rule (5 s)
+ * instead of the 60 ms stale rule, and a read could straddle a register update.
+ * A valid PIN_RTD_DRDY keeps the falling-edge interrupt (host mocks).
+ */
+typedef enum {
+    RTD_DRDY_AUTO = 0,       /**< GPIO if PIN_RTD_DRDY is a pin, else the expander */
+    RTD_DRDY_GPIO = 1,       /**< falling-edge interrupt on PIN_RTD_DRDY            */
+    RTD_DRDY_EXPANDER = 2,   /**< poll TCA9555 EXP_RTD_DRDY each control tick       */
+} rtd_drdy_source_t;
+
+/** Select the DRDY source for the next bootstrap (tests; default AUTO). */
+void rtd_service_set_drdy_source(rtd_drdy_source_t source);
+
+/** The source the last bootstrap chose; I2C polls and failures (diagnostics). */
+rtd_drdy_source_t rtd_service_drdy_source(void);
+uint32_t rtd_service_drdy_poll_failures(void);
 
 /** Configure SPI2, MAX31865 chip-select, DRDY, and start the first cycle. */
 hal_status_t rtd_service_bootstrap(void);

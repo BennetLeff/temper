@@ -284,9 +284,9 @@
    ]
   },
   "threshold_K": 19.4,
-  "threshold_rail_corrected_K": 14.5,
+  "threshold_rail_corrected_K": 16.9,
   "largest_r_caught_at_35C_ohm": 1600.0,
-  "largest_r_caught_at_35C_rail_corrected_ohm": 2180.0,
+  "largest_r_caught_at_35C_rail_corrected_ohm": 1860.0,
   "hazardous_r_leak_reading_low_at_25C_K": 16.81,
   "hazardous_r_leak_reading_low_at_35C_K": 18.03,
   "arrhenius_equal_to_hazardous_at_300C": [
@@ -356,6 +356,6 @@
    }
   ],
   "arrhenius_Ea_max_caught_eV": 0.0,
-  "arrhenius_Ea_max_caught_rail_corrected_eV": 0.0133
+  "arrhenius_Ea_max_caught_rail_corrected_eV": 0.004
  }
 }

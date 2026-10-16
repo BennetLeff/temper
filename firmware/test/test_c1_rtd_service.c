@@ -20,6 +20,7 @@
 #include "../components/sensors/include/rail_adc.h"
 #include "../components/sensors/include/rim_ntc.h"
 #include "../components/sensors/include/rtd_service.h"
+#include "../components/sensors/include/tca9555.h"
 #include "../config.h"
 #include "../main/state_machine.h"
 
@@ -31,6 +32,10 @@ extern void mock_gpio_trigger_interrupt(hal_pin_t pin);
 extern void mock_timer_reset(void);
 extern void mock_timer_advance(hal_time_us_t delta_us);
 extern void mock_sm_reset(void);
+extern void mock_tca9555_install(void);
+extern void mock_tca9555_set_fail(bool fail);
+extern uint32_t mock_tca9555_reads(void);
+extern uint8_t mock_tca9555_last_addr(void);
 
 /* pan_control.c (linked through the C1 state machine) reads the rim NTC
  * through rim_ntc_board_hal(): a cold rim here (40 degC, ATTEN3 saturated). */
@@ -56,8 +61,18 @@ void setUp(void)
     TEST_ASSERT_EQUAL(HAL_OK, hal_init_mock());
     mock_max31865_attach(0);
     mock_mcp3202_attach(1);
+    rtd_service_set_drdy_source(RTD_DRDY_GPIO);
+    tca9555_board_set_bus(NULL);
     mock_sm_reset();
     state_machine_init();
+}
+
+/* zapote/controller (D-DRDY): DRDY on TCA9555 P07, polled each control tick. */
+static void use_expander_drdy(void)
+{
+    rtd_service_set_drdy_source(RTD_DRDY_EXPANDER);
+    mock_tca9555_install();
+    mock_max31865_set_drdy_expander(true);
 }
 
 void tearDown(void)
@@ -86,7 +101,7 @@ static void convert(uint16_t code, bool fault_flag)
     const uint16_t word = (uint16_t)((code << 1) | (fault_flag ? 1u : 0u));
     mock_spi_set_register(DEV, MAX31865_REG_RTD_MSB, (uint8_t)(word >> 8));
     mock_spi_set_register(DEV, MAX31865_REG_RTD_MSB + 1u, (uint8_t)word);
-    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    mock_max31865_drdy_assert();
     tick();
 }
 
@@ -428,7 +443,7 @@ static void test_rail_device_shares_the_bus_with_its_own_mode_clock_and_cs(void)
     TEST_ASSERT_EQUAL_UINT8(1u, max_cfg.mode);         /* MAX31865: CPHA 1 */
     TEST_ASSERT_EQUAL_UINT8(0u, rail_cfg.mode);        /* MCP3202: mode 0,0; CPOL 0 as the MAX */
     TEST_ASSERT_EQUAL_UINT32(500000u, rail_cfg.clock_hz);
-    TEST_ASSERT_EQUAL_INT(42, rail_cfg.pin_cs);
+    TEST_ASSERT_EQUAL_INT(PIN_SPI_CS_EXT_ADC, rail_cfg.pin_cs);
     TEST_ASSERT_EQUAL_INT(max_cfg.pin_sclk, rail_cfg.pin_sclk);
     TEST_ASSERT_FALSE(rail_cfg.cs_active_high);
 }
@@ -499,6 +514,110 @@ static void test_rail_and_rtd_share_the_bus_without_starving(void)
     TEST_ASSERT_EQUAL_INT(RAIL_ADC_MEASURED, rail_adc_board_state());
 }
 
+/* D-DRDY: the expander poll reads every conversion once (DRDY is a level the
+ * RTD read returns high), at the board's expander address, and the C1 rules
+ * see the same sequence as with the interrupt. */
+static void test_expander_drdy_reads_each_conversion_once(void)
+{
+    use_expander_drdy();
+    boot_to_converting();
+    TEST_ASSERT_EQUAL_INT(RTD_DRDY_EXPANDER, rtd_service_drdy_source());
+    rtd_sample_t s0, s1;
+    convert(code_for(120.0), false);
+    TEST_ASSERT_TRUE(rtd_service_latest_sample(&s0));
+    TEST_ASSERT_TRUE(mock_max31865_drdy_high());   /* the read returned DRDY high */
+    for (int i = 0; i < 4; i++) {
+        tick();   /* no new conversion: the level stays high, nothing read */
+    }
+    TEST_ASSERT_TRUE(rtd_service_latest_sample(&s1));
+    TEST_ASSERT_EQUAL_UINT32(s0.seq, s1.seq);
+    live(20);
+    TEST_ASSERT_TRUE(rtd_service_latest_sample(&s1));
+    TEST_ASSERT_EQUAL_UINT32(s0.seq + 20u, s1.seq);
+    TEST_ASSERT_EQUAL_HEX8(0x20u, mock_tca9555_last_addr());
+    TEST_ASSERT_TRUE(mock_tca9555_reads() >= 24u);   /* one poll per control tick */
+    TEST_ASSERT_EQUAL_INT(FAULT_NONE, state_machine_get_fault());
+    assert_no_automatic_cycle();
+}
+
+/* A conversion left unread when the reset verification stops the converter
+ * holds DRDY low through the cycle. The service reads the RTD registers before
+ * the restart, so that level cannot pass for the first post-cycle conversion
+ * and clear the reset (a level poll has no edge to tell them apart). */
+static void test_expander_drdy_left_low_before_the_cycle_is_not_a_new_conversion(void)
+{
+    use_expander_drdy();
+    boot_to_converting();
+    mock_spi_set_register(DEV, MAX31865_REG_FAULT_STATUS, MAX31865_FAULT_HIGH_THRESHOLD);
+    convert(0x7FFFu, true);
+    TEST_ASSERT_EQUAL_INT(FAULT_PROBE_OPEN, state_machine_get_fault());
+    TEST_ASSERT_FALSE(rtd_service_fault_status_clean());   /* request */
+    /* a conversion completes just as the verification starts: unread */
+    mock_spi_set_register(DEV, MAX31865_REG_RTD_MSB, (uint8_t)((code_for(109.73) << 1) >> 8));
+    mock_spi_set_register(DEV, MAX31865_REG_RTD_MSB + 1u, (uint8_t)(code_for(109.73) << 1));
+    mock_max31865_drdy_assert();
+    tick();   /* the poll sees DRDY low, but the verification starts: 0x82, step 1 */
+    TEST_ASSERT_FALSE(mock_max31865_converting());
+    TEST_ASSERT_FALSE(mock_max31865_drdy_high());   /* still unread */
+    for (int i = 0; i < 6 && !mock_max31865_converting(); i++) {
+        tick();
+    }
+    TEST_ASSERT_TRUE(mock_max31865_converting());
+    TEST_ASSERT_TRUE(mock_max31865_drdy_high());    /* read before the restart */
+    rtd_sample_t a, b;
+    TEST_ASSERT_TRUE(rtd_service_latest_sample(&a));
+    tick();
+    tick();
+    TEST_ASSERT_TRUE(rtd_service_latest_sample(&b));
+    TEST_ASSERT_EQUAL_UINT32(a.seq, b.seq);
+    TEST_ASSERT_FALSE(rtd_service_fault_status_clean());
+    convert(code_for(109.73), false);   /* the first real post-cycle conversion */
+    TEST_ASSERT_TRUE(rtd_service_fault_status_clean());
+}
+
+/* A failed I2C read is no DRDY this tick: six in a row is the stale open
+ * fault, as for a silent converter (D-STALE unchanged). */
+static void test_expander_i2c_failure_is_stale_open(void)
+{
+    use_expander_drdy();
+    boot_to_converting();
+    live(5);
+    mock_tca9555_set_fail(true);
+    int n = 0;
+    while (n < 20 && state_machine_get_fault() == FAULT_NONE) {
+        mock_max31865_drdy_assert();   /* the converter runs; the bus does not answer */
+        tick();
+        n++;
+    }
+    /* live() ended one tick after its last conversion: 5 or 6 failed polls */
+    TEST_ASSERT_TRUE(n >= (int)RTD_C1_STALE_CONTROL_TICKS - 1 && n <= (int)RTD_C1_STALE_CONTROL_TICKS);
+    TEST_ASSERT_EQUAL_INT(FAULT_PROBE_OPEN, state_machine_get_fault());
+    TEST_ASSERT_FALSE(rtd_service_is_ready());
+    TEST_ASSERT_EQUAL_UINT32((uint32_t)n, rtd_service_drdy_poll_failures());
+}
+
+/* No expander answer at bootstrap: the service fails closed. */
+static void test_expander_absent_at_bootstrap_fails_closed(void)
+{
+    use_expander_drdy();
+    mock_tca9555_set_fail(true);
+    TEST_ASSERT_NOT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    TEST_ASSERT_FALSE(rtd_service_is_ready());
+    tick();
+    TEST_ASSERT_EQUAL_INT(FAULT_PROBE_OPEN, state_machine_get_fault());
+}
+
+/* AUTO: a DRDY GPIO in the pin map keeps the interrupt (host); the target's
+ * HAL_PIN_INVALID selects the expander. */
+static void test_auto_drdy_source_follows_the_pin_map(void)
+{
+    rtd_service_set_drdy_source(RTD_DRDY_AUTO);
+    mock_tca9555_install();
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    TEST_ASSERT_EQUAL_INT(PIN_RTD_DRDY != HAL_PIN_INVALID ? RTD_DRDY_GPIO : RTD_DRDY_EXPANDER,
+                          rtd_service_drdy_source());
+}
+
 void run_c1_rtd_service_tests(void)
 {
     RUN_TEST(test_c1_bootstrap_programs_the_c1_window_without_a_fault_cycle);
@@ -520,4 +639,9 @@ void run_c1_rtd_service_tests(void)
     RUN_TEST(test_rail_reading_feeds_the_seam_and_tracks_the_rail);
     RUN_TEST(test_rail_unknown_states_fall_back_without_a_fault);
     RUN_TEST(test_rail_and_rtd_share_the_bus_without_starving);
+    RUN_TEST(test_expander_drdy_reads_each_conversion_once);
+    RUN_TEST(test_expander_drdy_left_low_before_the_cycle_is_not_a_new_conversion);
+    RUN_TEST(test_expander_i2c_failure_is_stale_open);
+    RUN_TEST(test_expander_absent_at_bootstrap_fails_closed);
+    RUN_TEST(test_auto_drdy_source_follows_the_pin_map);
 }

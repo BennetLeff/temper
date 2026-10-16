@@ -49,6 +49,13 @@ bool mock_max31865_converting(void);
 /** Bits the last fault-detection cycle set (manual or automatic). */
 uint8_t mock_max31865_last_cycle_bits(void);
 
+/** A conversion completed: DRDY falls. As a GPIO edge on PIN_RTD_DRDY (default)
+ *  or, after mock_max31865_set_drdy_expander(true), as a level the TCA9555
+ *  model (test/mock_tca9555.c) reports on P07 until the RTD registers are read. */
+void mock_max31865_drdy_assert(void);
+void mock_max31865_set_drdy_expander(bool on);
+bool mock_max31865_drdy_high(void);
+
 /** MCP3202 model on a mock device index; v3v3 and the CH1 reference in mV. */
 void mock_mcp3202_attach(int device_index);
 void mock_mcp3202_detach(void);

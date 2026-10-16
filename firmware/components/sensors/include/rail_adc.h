@@ -51,6 +51,7 @@
 #include <stdint.h>
 
 #include "hal_types.h"
+#include "temper_pins.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,12 +70,13 @@ extern "C" {
 #define RAIL_ADC_V3V3_MIN_MV   3195.0f
 #define RAIL_ADC_V3V3_MAX_MV   3415.0f
 
-/* CS: GPIO42 on zapote/controller (mcu.IO42 ~ ext_adc_cs_n). The board pin map
- * belongs in temper_pins.h (PIN_SPI_CS_EXT_ADC) once it follows the board. */
+/* CS: PIN_SPI_CS_EXT_ADC (temper_pins.h, @net EXT_ADC_CS_N: GPIO42 on
+ * zapote/controller). A pin map that does not name it has no rail ADC: the
+ * attach is refused (rail unknown, the 3.300 V fallback), never a guessed pin. */
 #ifdef PIN_SPI_CS_EXT_ADC
 #define RAIL_ADC_PIN_CS PIN_SPI_CS_EXT_ADC
 #else
-#define RAIL_ADC_PIN_CS 42
+#define RAIL_ADC_PIN_CS HAL_PIN_INVALID
 #endif
 
 typedef enum {

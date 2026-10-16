@@ -11,8 +11,10 @@
  * hs_ntc.py (hs-ntc.json, which gates the constants below) and cold_soak.py.
  *
  * When: at PREHEAT entry, before the first control period commands power
- * (main/pan_control.c). Power-up cannot prove a soak: nothing persists the
- * time of the last cook across a reset, so uptime counts as coil-on time.
+ * (main/pan_control.c). Power-up alone cannot prove a soak: without a stored
+ * token, uptime counts as coil-on time. A token in NVS (pan_soak_store.h,
+ * D-SOAKNV) credits a lower bound on the coil-off time from before the power
+ * cycle (pcs_credit_off); the window's history still starts at boot.
  *
  * History (pcs_note, from every state-machine tick, at most once a second):
  * the time the coil was last active (from pcs_init, i.e. power-up, while the
@@ -138,6 +140,16 @@ typedef struct {
 
 void pcs_default_params(pcs_params_t *p);
 bool pcs_init(pcs_t *s, const pcs_params_t *p, uint32_t now_ms);
+
+/**
+ * Credit coil-off time from before this boot (pan_soak_store.h, D-SOAKNV): the
+ * coil was last active at least off_s ago. Only moves the last activity
+ * earlier; the history (and so the 15 min window) still starts now.
+ */
+void pcs_credit_off(pcs_t *s, uint32_t now_ms, uint32_t off_s);
+
+/** Coil-off seconds at now_ms (0 after a backwards clock). */
+float pcs_off_s(const pcs_t *s, uint32_t now_ms);
 
 /**
  * One history sample. coil_active restarts the soak and clears the history.

@@ -11,6 +11,7 @@
 
 #include "../include/hal_spi.h"
 #include "../include/hal_timer.h"
+#include "../include/temper_pins.h"
 
 #define REG_CONFIG 0x00u
 #define REG_FAULT  0x07u
@@ -27,6 +28,9 @@ extern uint8_t mock_spi_get_register(hal_spi_device_t device, uint8_t reg);
 extern void mock_spi_set_register(hal_spi_device_t device, uint8_t reg, uint8_t value);
 typedef void (*mock_spi_write_hook_t)(intptr_t device, uint8_t reg, const uint8_t *data, size_t len);
 extern void mock_spi_set_write_hook(mock_spi_write_hook_t hook);
+typedef void (*mock_spi_read_hook_t)(intptr_t device, uint8_t reg, size_t len);
+extern void mock_spi_set_read_hook(mock_spi_read_hook_t hook);
+extern void mock_gpio_trigger_interrupt(hal_pin_t pin);
 
 static struct {
     bool attached;
@@ -42,6 +46,8 @@ static struct {
     uint64_t t_conv_start;
     uint32_t auto_cycles, manual_cycles, fast_steps, early_restarts, conv_starts;
     uint8_t last_bits;
+    bool drdy_expander;    /* DRDY as a level on the expander (zapote), not a GPIO edge */
+    bool drdy_low;
 } m;
 
 static uint64_t now_us(void)
@@ -201,6 +207,35 @@ static void write_hook(intptr_t device, uint8_t reg, const uint8_t *data, size_t
     }
 }
 
+/* "When a read operation of an RTD resistance data register occurs, DRDY
+ * returns high" (19-6478 Rev 3). */
+static void read_hook(intptr_t device, uint8_t reg, size_t len)
+{
+    if (m.attached && device == m.dev && len > 0u && reg <= 0x02u && reg + len > 0x01u) {
+        m.drdy_low = false;
+    }
+}
+
+void mock_max31865_drdy_assert(void)
+{
+    if (m.drdy_expander) {
+        m.drdy_low = true;
+    } else {
+        mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    }
+}
+
+void mock_max31865_set_drdy_expander(bool on)
+{
+    m.drdy_expander = on;
+    m.drdy_low = false;
+}
+
+bool mock_max31865_drdy_high(void)
+{
+    return !m.drdy_low;
+}
+
 void mock_max31865_attach(int device_index)
 {
     memset(&m, 0, sizeof(m));
@@ -211,6 +246,7 @@ void mock_max31865_attach(int device_index)
     m.refn0 = k_mock_max31865_afe_dc[m.input].refn_rest;
     m.rtdn0 = k_mock_max31865_afe_dc[m.input].rtdin_n_rest;
     mock_spi_set_write_hook(write_hook);
+    mock_spi_set_read_hook(read_hook);
 }
 
 void mock_max31865_detach(void)

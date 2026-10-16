@@ -50,6 +50,7 @@
 
 #include "hs_ntc.h"
 #include "pan_cold_soak.h"
+#include "pan_soak_store.h"
 #include "rim_ntc.h"
 #include "rtd_convert.h"
 
@@ -157,6 +158,9 @@ void pan_control_soak_note(uint32_t now_ms);
 void pan_control_soak_restart(void);
 /** The cold-soak result of the last heating session's first period
  *  (verdict PCS_NONE before one ran). Read-only diagnostics. */
+/** The coil-off token store's state (D-SOAKNV diagnostics and tests). */
+const pss_t *pan_control_soak_store(void);
+
 pcs_result_t pan_control_cold_soak_result(void);
 /** The cold-soak check latched FAULT_PROBE_LEAKAGE this session. */
 bool pan_control_cold_soak_latched(void);

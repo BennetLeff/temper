@@ -169,7 +169,9 @@ hal_status_t rail_adc_board_attach(hal_spi_bus_t bus, const hal_spi_config_t *bu
     rail_adc_init(&s_board);
     s_board_inited = true;
     s_board_attached = false;
-    if (hal_spi == NULL || bus_config == NULL) {
+    if (hal_spi == NULL || bus_config == NULL || RAIL_ADC_PIN_CS == HAL_PIN_INVALID) {
+        /* No CS in the pin map: a device without a chip select would answer
+         * every transaction on the bus. */
         s_board.state = RAIL_ADC_UNKNOWN_NO_DEVICE;
         return HAL_ERROR_NOT_READY;
     }

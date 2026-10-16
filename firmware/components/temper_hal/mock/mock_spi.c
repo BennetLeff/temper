@@ -45,8 +45,11 @@ typedef void (*mock_spi_write_hook_t)(intptr_t device, uint8_t reg, const uint8_
 typedef bool (*mock_spi_transfer_hook_t)(intptr_t device, const hal_spi_transaction_t *t);
 static mock_spi_write_hook_t s_write_hook;
 static mock_spi_transfer_hook_t s_transfer_hook;
+typedef void (*mock_spi_read_hook_t)(intptr_t device, uint8_t reg, size_t len);
+static mock_spi_read_hook_t s_read_hook;
 
 void mock_spi_set_write_hook(mock_spi_write_hook_t hook) { s_write_hook = hook; }
+void mock_spi_set_read_hook(mock_spi_read_hook_t hook) { s_read_hook = hook; }
 void mock_spi_set_transfer_hook(mock_spi_transfer_hook_t hook) { s_transfer_hook = hook; }
 
 /* The configuration a device was added with (mode, clock, CS), for tests. */
@@ -203,6 +206,9 @@ static hal_status_t mock_spi_read_reg(hal_spi_device_t device, uint8_t reg,
     /* Read from simulated register file */
     for (size_t i = 0; i < len && (reg + i) < MOCK_SPI_REG_SIZE; i++) {
         data[i] = s_devices[idx].registers[reg + i];
+    }
+    if (s_read_hook != NULL) {
+        s_read_hook(idx, reg, len);
     }
     
     return HAL_OK;

@@ -60,6 +60,9 @@
  *   c1_bus_sense_dead    true (C1): the bus-current sense reads 0 A from
  *                        power-up, whatever the stage draws (a latent sense
  *                        failure; DECISIONS D-ISENSE)
+ *   c1_soak_token_s      C1: a coil-off token (pan_soak_store.h, D-SOAKNV) in
+ *                        the NVS mock at power-up: the unit was soaked that
+ *                        long before a power cycle; 0 or absent: none
  *   c1_idle_soak_s       C1: seconds the unit idles in IDLE, cycling the
  *                        trace's rows 0-4, between power-up and the start press (the
  *                        cold-soak check, DECISIONS D-SOAK, needs >= 30 min
@@ -345,6 +348,7 @@ typedef struct {
     bool c1_escalates_to_runaway;
     bool c1_bus_sense_dead;
     int  c1_idle_soak_s;          /* C1: idle seconds before the start press */
+    int  c1_soak_token_s;         /* C1: coil-off token in NVS at power-up, 0 = none */
     float c1_pt100_leak_ohm;      /* C1: element-parallel leak, 0 = none */
     char c1_afe_input[32];        /* C1: MAX31865 input condition (D-FCYC) */
     int  c1_afe_input_at_tick;    /* -1: from power-up */
@@ -476,6 +480,8 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
                 e->c1_bus_sense_dead = extract_bool(&p);
             } else if (!strcmp(key, "c1_idle_soak_s")) {
                 e->c1_idle_soak_s = extract_int(&p);
+            } else if (!strcmp(key, "c1_soak_token_s")) {
+                e->c1_soak_token_s = extract_int(&p);
             } else if (!strcmp(key, "c1_pt100_leak_ohm")) {
                 e->c1_pt100_leak_ohm = (float)extract_number(&p);
             } else if (!strcmp(key, "c1_afe_input")) {
@@ -753,7 +759,10 @@ static int load_csv(const char *path, csvrow_t *rows, int max_rows) {
  *              rtd_drdy column is 1: code = R / 430 ohm * 2^15
  *              (clamped), compared with the threshold words the firmware
  *              programmed; a crossing latches register 07h bit 7/6 and sets
- *              the fault bit (RTD LSB D0); DRDY falls. An element of 2 kohm
+ *              the fault bit (RTD LSB D0); DRDY falls, as the board has it:
+ *              a level on TCA9555 P07 (mock_tca9555.c) that the service polls
+ *              over I2C each control tick and the RTD read returns high
+ *              (D-DRDY). An element of 2 kohm
  *              or more is an open element to the analog model too; the
  *              manifest's c1_afe_input sets other wiring conditions (an
  *              S- lead shorted to ground adds the lead and switch, 11.8 ohm,
@@ -797,6 +806,8 @@ extern int mock_sm_get_pan_status(void);
 
 extern void mock_timer_reset(void);
 extern void mock_timer_advance(hal_time_us_t delta_us);
+extern void mock_tca9555_install(void);
+extern void mock_soak_nvs_put(uint32_t v);
 
 #define C1_OPEN_ELEMENT_OHM 2000.0f   /* at or above: an open element to the AFE model */
 #define C1_SN_GND_EXTRA_OHM 11.8      /* S- to ground: Fn lead + FORCE- switch (checks.py) */
@@ -916,7 +927,7 @@ static void c1_converter_step(void) {
     mock_spi_set_register(C1_DEV, (uint8_t)(MAX31865_REG_RTD_MSB + 1u), (uint8_t)word);
     mock_spi_set_register(C1_DEV, MAX31865_REG_FAULT_STATUS, status);
     s_plant.conversions++;
-    mock_gpio_trigger_interrupt(PIN_RTD_DRDY);
+    mock_max31865_drdy_assert();
 }
 
 static void c1_control_tick(void) {
@@ -947,6 +958,10 @@ static void c1_reset(const manifest_entry_t *entry) {
     (void)hal_init_mock();
     mock_max31865_attach(0);   /* the MAX31865 is the bus's first device */
     mock_mcp3202_attach(1);    /* U15, the rail ADC, the second (3.300 V) */
+    /* zapote/controller: DRDY on TCA9555 P07, polled over I2C (D-DRDY) */
+    rtd_service_set_drdy_source(RTD_DRDY_EXPANDER);
+    mock_tca9555_install();
+    mock_max31865_set_drdy_expander(true);
     s_plant.r_override = NAN;
     s_plant.i_override = NAN;
     s_plant.sense_dead = false;
@@ -1011,6 +1026,9 @@ static void sil_reset(const manifest_entry_t *entry) {
     mock_sm_reset();
 #ifdef TEMPER_PAN_CONTROL_C1
     c1_reset(entry);
+    if (entry->c1_soak_token_s > 0) {
+        mock_soak_nvs_put((uint32_t)entry->c1_soak_token_s);   /* the flash before the power cycle */
+    }
     s_plant.sense_dead = entry->c1_bus_sense_dead;
     s_plant.leak_ohm = entry->c1_pt100_leak_ohm;
 #else

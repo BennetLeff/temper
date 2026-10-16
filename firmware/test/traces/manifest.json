@@ -1187,7 +1187,7 @@
   },
   {
     "name": "SIL: C1 Cold Soak Skips After a Short Idle (PREHEAT)",
-    "description": "DECISIONS D-SOAK, the skip path and its limit. The 1 kohm leak is present but the unit idled only 10 min after power-up: power-up counts as coil activity (nothing persists the last cook across a reset), so the coil-off time is under the 30 min soak and the check skips (not soaked) instead of comparing a heatsink and a probe that need not agree; PREHEAT holds with no fault from the check. The leak is then left to the runtime checks (D-LEAK cross-check, D-RIMLIM), which need a hot pan.",
+    "description": "DECISIONS D-SOAK, the skip path and its limit. The 1 kohm leak is present but the unit idled only 10 min after power-up: power-up counts as coil activity (a fresh unit: no coil-off token in NVS, D-SOAKNV), so the coil-off time is under the 30 min soak and the check skips (not soaked) instead of comparing a heatsink and a probe that need not agree; PREHEAT holds with no fault from the check. The leak is then left to the runtime checks (D-LEAK cross-check, D-RIMLIM), which need a hot pan.",
     "trace_file": "trace_c1_cold_soak_preheat.csv",
     "origin_state": "PREHEAT",
     "initial_conditions": {
@@ -1215,6 +1215,46 @@
     "c1_idle_soak_s": 600,
     "c1_pt100_leak_ohm": 1000.0,
     "c1_only_reason": "A C1 check (main/pan_control.c, components/control/pan_cold_soak.c; DECISIONS D-SOAK) on the heatsink NTC driver (components/sensors/hs_ntc.c, D-HSNTC) and the C1 Pt100 reading: the legacy loop has neither."
+  },
+  {
+    "name": "SIL: C1 Cold-Soak Leak After a Power Cycle (PREHEAT)",
+    "description": "DECISIONS D-SOAKNV. The same 1 kohm leak, but the unit was soaked before a power cycle: the NVS holds the coil-off token (off >= 900 s, written when the last coil-off period reached soak_n - window). At power-up the token credits 15 min of coil-off time (a lower bound: the unpowered interval counts as zero, the ESP32-S3 RTC timer does not survive a power-on reset), so after 1000 s of uptime (the 15 min RAM history complete) the coil has been off >= 31 min and the check runs: FAULT_PROBE_LEAKAGE before any power. Without the token the same unit would skip (not soaked) until 30 min of uptime.",
+    "trace_file": "trace_c1_cold_soak_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 0,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 0
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_LEAKAGE",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_LEAKAGE"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "cold-soak",
+    "c1_idle_soak_s": 1000,
+    "c1_pt100_leak_ohm": 1000.0,
+    "c1_only_reason": "A C1 check with the C1 coil-off store (components/control/pan_soak_store.c, main/soak_store_nvs.c; DECISIONS D-SOAKNV): the legacy loop has neither.",
+    "latency_bound_note": "Timed from the first trace row; PREHEAT entry ran during the boilerplate (pan_control_begin froze the history), and the first control period (100 ms) evaluates the check before it commands power: at most one period plus one row, 2 rows.",
+    "c1_soak_token_s": 900
   },
   {
     "name": "SIL: C1 Current-Sense Start-Up Pulse Fails (PREHEAT)",

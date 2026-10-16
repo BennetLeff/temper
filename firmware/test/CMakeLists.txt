@@ -182,11 +182,19 @@ add_dependencies(test_state_machine_only gen_config gen_fault_list gen_transitio
 # MAX31865 register and terminal-fault-path contract. This target intentionally
 # combines the real driver and state machine through the SPI mock so threshold
 # programming and decoded fault delivery are exercised together.
+# Pre-merge pin shim (DECISIONS.md D-DRDY): sensor-c1-bringup's temper_pins.h
+# names the MCP3202 chip select and the TCA9555 DRDY pin and address. Until it
+# merges, the host targets that exercise those paths get the same values here;
+# after the merge the header's identical definitions apply (repeating an
+# identical macro definition is valid C) and this list can be deleted.
+set(SENSOR_BUS_PIN_SHIM EXP_RTD_DRDY=7 TEMPER_EXPANDER_I2C_ADDR=0x20 PIN_SPI_CS_EXT_ADC=42)
+
 add_executable(test_max31865_only
     ${UNITY_SOURCES}
     ${MOCK_HAL_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/max31865.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/tca9555.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
@@ -565,6 +573,7 @@ set(C1_RUNTIME_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_leak_check.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_rim_limit.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_cold_soak.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_soak_store.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/pan_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
@@ -583,6 +592,7 @@ add_executable(test_c1_units_only
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_leak_check.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_rim_limit.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_cold_soak.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_soak_store.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_units.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_units.c
@@ -630,10 +640,12 @@ add_executable(test_c1_rtd_service_only
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rail_adc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/tca9555.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_tca9555.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_rtd_service.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_rtd_service.c
 )
-target_compile_definitions(test_c1_rtd_service_only PRIVATE TEMPER_PAN_CONTROL_C1=1)
+target_compile_definitions(test_c1_rtd_service_only PRIVATE TEMPER_PAN_CONTROL_C1=1 ${SENSOR_BUS_PIN_SHIM})
 target_include_directories(test_c1_rtd_service_only PRIVATE ${INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
 target_link_libraries(test_c1_rtd_service_only m)
@@ -692,9 +704,11 @@ add_executable(test_sil_fault_injection_c1
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rail_adc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/tca9555.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_tca9555.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_sil_fault_injection.c
 )
-target_compile_definitions(test_sil_fault_injection_c1 PRIVATE TEMPER_PAN_CONTROL_C1=1)
+target_compile_definitions(test_sil_fault_injection_c1 PRIVATE TEMPER_PAN_CONTROL_C1=1 ${SENSOR_BUS_PIN_SHIM})
 target_include_directories(test_sil_fault_injection_c1 PRIVATE ${INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
 target_link_libraries(test_sil_fault_injection_c1 m)

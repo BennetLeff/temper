@@ -38,6 +38,9 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(HERE))
+import rail_adc  # noqa: E402
 HEADER = REPO / "firmware" / "components" / "sensors" / "rim_ntc_table.h"
 PCB_CHECKS = HERE.parent / "pcb" / "checks.py"
 
@@ -251,6 +254,14 @@ def main() -> int:
     for t in (100.0, 150.0, 200.0, 250.0):
         for vdd in (V3V3_MIN, V3V3_MAX):
             rail.append(abs(t_of_ratio(node_v(t, vdd) / V3V3_NOM) - t))
+    # ... and with it (D-RAIL): the reading off by rail_adc.py's full-range error (-40..85 degC
+    # board, the rim runs while cooking), either way, at every contract voltage
+    rail_m = []
+    for t in (100.0, 150.0, 200.0, 250.0):
+        for vdd in (V3V3_MIN, V3V3_NOM, V3V3_MAX):
+            for sgn in (-1.0, 1.0):
+                rail_m.append(abs(t_of_ratio(node_v(t, vdd) / (vdd * (1.0 + sgn * rail_adc.FULL_TOL))) - t))
+    checks["measured_rail_error_below_fallback"] = max(rail_m) < max(rail)
     write_header()
 
     out = {
@@ -268,7 +279,9 @@ def main() -> int:
                     "self_heating_note": "not subtracted by the driver: on the glass the dissipation is higher "
                                          "than the still-air 0.6 mW/K, so the true offset is smaller; the rim "
                                          "therefore reads high by at most this (DECISIONS D-RIM)",
-                    "rail_error_without_MCP3202_worst_K": round(max(rail), 2)},
+                    "rail_error_without_MCP3202_worst_K": round(max(rail), 2),
+                    "rail_error_with_MCP3202_worst_K": round(max(rail_m), 2),
+                    "rail_with_MCP3202_tol_pct": round(rail_adc.FULL_TOL * 100, 3)},
         "checks": checks, "all_pass": all(checks.values()),
     }
     args.out.write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -276,6 +289,8 @@ def main() -> int:
         print(f"{'PASS' if v else 'FAIL'} {k}")
     print(f"leave-one-out worst: piecewise-beta {worst_pb:.4f} K, log-linear {worst_ll:.4f} K")
     print(f"worst K/mV 100-250 C: {worst_k_per_mv:.4f}; saturation {sat}; short {short}")
+    print(f"rail error 100-250 C: {max(rail):.2f} K assumed 3.300 V, {max(rail_m):.2f} K measured "
+          f"({rail_adc.FULL_TOL * 100:.3f} %)")
     print("ALL RIM NTC CHECKS PASS" if out["all_pass"] else "RIM NTC CHECK FAILURE")
     return 0 if out["all_pass"] else 1
 

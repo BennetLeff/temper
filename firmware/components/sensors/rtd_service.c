@@ -9,7 +9,17 @@
 #include "max31865.h"
 #include "rail_adc.h"
 #include "state_machine.h"
+#include "tca9555.h"
 #include "temper_pins.h"
+
+/* The expander DRDY path needs the bring-up pin map's TCA9555 symbols
+ * (temper_pins.h: EXP_RTD_DRDY, TEMPER_EXPANDER_I2C_ADDR); a pin map without
+ * them has no expander path, and a DRDY that is not a GPIO then fails closed. */
+#if defined(EXP_RTD_DRDY) && defined(TEMPER_EXPANDER_I2C_ADDR)
+#define RTD_HAVE_EXPANDER_DRDY 1
+#else
+#define RTD_HAVE_EXPANDER_DRDY 0
+#endif
 
 #ifdef TEMPER_PAN_CONTROL_C1
 #include "config.h"
@@ -66,6 +76,74 @@ static bool s_ready;
 static bool s_bootstrap_failed;
 static bool s_bootstrap_failure_reported;
 static uint8_t s_drdy_wait_ticks;
+static void rtd_drdy_isr(hal_pin_t pin, void *context);
+static rtd_drdy_source_t s_drdy_request = RTD_DRDY_AUTO;
+static rtd_drdy_source_t s_drdy_source;
+static uint32_t s_drdy_poll_failures;
+
+void rtd_service_set_drdy_source(rtd_drdy_source_t source)
+{
+    s_drdy_request = source;
+}
+
+rtd_drdy_source_t rtd_service_drdy_source(void)
+{
+    return s_drdy_source;
+}
+
+uint32_t rtd_service_drdy_poll_failures(void)
+{
+    return s_drdy_poll_failures;
+}
+
+/* The expander poll (D-DRDY): DRDY low is a completed conversion. */
+static void poll_expander_drdy(void)
+{
+#if RTD_HAVE_EXPANDER_DRDY
+    bool high = true;
+    if (!tca9555_board_read_pin(EXP_RTD_DRDY, &high)) {
+        s_drdy_poll_failures++;   /* no DRDY this tick; the stale rule bounds it */
+        return;
+    }
+    if (!high) {
+        s_drdy_complete = true;
+    }
+#endif
+}
+
+/* Bring up the DRDY path the board has (D-DRDY). */
+static hal_status_t drdy_init(void)
+{
+    rtd_drdy_source_t src = s_drdy_request;
+    if (src == RTD_DRDY_AUTO) {
+        src = (PIN_RTD_DRDY != HAL_PIN_INVALID) ? RTD_DRDY_GPIO : RTD_DRDY_EXPANDER;
+    }
+    s_drdy_source = src;
+    s_drdy_poll_failures = 0u;
+    if (src == RTD_DRDY_GPIO) {
+        if (PIN_RTD_DRDY == HAL_PIN_INVALID) {
+            return HAL_ERROR_INVALID_ARG;
+        }
+        hal_status_t status = HAL_GPIO_INIT(PIN_RTD_DRDY, HAL_GPIO_MODE_INPUT);
+        if (status != HAL_OK) {
+            return status;
+        }
+        /* MAX31865 DRDY is active-low; only its falling edge marks a completed
+         * conversion. */
+        return hal_gpio->set_interrupt(PIN_RTD_DRDY, HAL_GPIO_INTR_FALLING, rtd_drdy_isr, NULL);
+    }
+#if RTD_HAVE_EXPANDER_DRDY
+    hal_status_t status = tca9555_board_attach();
+    if (status != HAL_OK) {
+        return status;
+    }
+    bool high = true;
+    /* The expander must answer before the service counts on it. */
+    return tca9555_board_read_pin(EXP_RTD_DRDY, &high) ? HAL_OK : HAL_ERROR;
+#else
+    return HAL_ERROR_NOT_READY;
+#endif
+}
 
 static void rtd_drdy_isr(hal_pin_t pin, void *context)
 {
@@ -123,16 +201,7 @@ hal_status_t rtd_service_bootstrap(void)
         return status;
     }
 
-    status = HAL_GPIO_INIT(PIN_RTD_DRDY, HAL_GPIO_MODE_INPUT);
-    if (status != HAL_OK) {
-        s_bootstrap_failed = true;
-        return status;
-    }
-
-    /* MAX31865 DRDY is active-low; only its falling edge marks a completed
-     * conversion/fault-detection cycle. */
-    status = hal_gpio->set_interrupt(PIN_RTD_DRDY, HAL_GPIO_INTR_FALLING,
-                                     rtd_drdy_isr, NULL);
+    status = drdy_init();
     if (status != HAL_OK) {
         s_bootstrap_failed = true;
         return status;
@@ -296,6 +365,18 @@ static void c1_fault_cycle_tick(void)
                 c1_fail_open();
             }
             return;
+        }
+        /* D-DRDY: read the RTD registers once so DRDY is high when the
+         * conversions start; a level left low by a conversion from before the
+         * cycle must not pass for the first new one (the expander poll sees
+         * levels, not edges). */
+        {
+            uint8_t msb = 0u;
+            uint8_t lsb = 0u;
+            if (max31865_read_rtd(&s_max31865, &msb, &lsb) != HAL_OK) {
+                c1_fail_open();
+                return;
+            }
         }
         if (max31865_start_conversions(&s_max31865) != HAL_OK) {
             c1_fail_open();
@@ -465,6 +546,9 @@ void rtd_service_control_tick(void)
          * only the control task changes state-machine context. */
         report_bootstrap_failure_once();
         return;
+    }
+    if (s_ready && s_drdy_source == RTD_DRDY_EXPANDER) {
+        poll_expander_drdy();
     }
 
 #ifdef TEMPER_PAN_CONTROL_C1

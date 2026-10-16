@@ -241,6 +241,7 @@
      "rail_low_reads_high": 33.468,
      "rail_high_reads_low": NaN
     },
+    "rail_measured_K": NaN,
     "corner_reads_high_K": 47.3,
     "corner_reads_low_K": null
    },
@@ -261,6 +262,7 @@
      "rail_low_reads_high": 18.89,
      "rail_high_reads_low": NaN
     },
+    "rail_measured_K": NaN,
     "corner_reads_high_K": 30.64,
     "corner_reads_low_K": null
    },
@@ -281,6 +283,7 @@
      "rail_low_reads_high": 9.511,
      "rail_high_reads_low": 21.381
     },
+    "rail_measured_K": 11.594,
     "corner_reads_high_K": 18.06,
     "corner_reads_low_K": null
    },
@@ -301,6 +304,7 @@
      "rail_low_reads_high": 7.947,
      "rail_high_reads_low": 14.698
     },
+    "rail_measured_K": 8.644,
     "corner_reads_high_K": 15.68,
     "corner_reads_low_K": null
    },
@@ -321,6 +325,7 @@
      "rail_low_reads_high": 5.583,
      "rail_high_reads_low": 8.347
     },
+    "rail_measured_K": 5.245,
     "corner_reads_high_K": 11.82,
     "corner_reads_low_K": 24.68
    },
@@ -341,6 +346,7 @@
      "rail_low_reads_high": 3.969,
      "rail_high_reads_low": 5.323
     },
+    "rail_measured_K": 3.438,
     "corner_reads_high_K": 8.99,
     "corner_reads_low_K": 13.8
    },
@@ -361,6 +367,7 @@
      "rail_low_reads_high": 2.892,
      "rail_high_reads_low": 3.649
     },
+    "rail_measured_K": 2.389,
     "corner_reads_high_K": 7.25,
     "corner_reads_low_K": 9.59
    },
@@ -381,6 +388,7 @@
      "rail_low_reads_high": 2.176,
      "rail_high_reads_low": 2.643
     },
+    "rail_measured_K": 1.744,
     "corner_reads_high_K": 6.16,
     "corner_reads_low_K": 7.44
    },
@@ -401,6 +409,7 @@
      "rail_low_reads_high": 1.913,
      "rail_high_reads_low": 2.296
     },
+    "rail_measured_K": 1.519,
     "corner_reads_high_K": 5.8,
     "corner_reads_low_K": 6.77
    },
@@ -421,6 +430,7 @@
      "rail_low_reads_high": 1.26,
      "rail_high_reads_low": 1.462
     },
+    "rail_measured_K": 0.973,
     "corner_reads_high_K": 5.26,
     "corner_reads_low_K": 5.54
    },
@@ -441,6 +451,7 @@
      "rail_low_reads_high": 1.083,
      "rail_high_reads_low": 1.256
     },
+    "rail_measured_K": 0.836,
     "corner_reads_high_K": 3.69,
     "corner_reads_low_K": 5.48
    },
@@ -461,6 +472,7 @@
      "rail_low_reads_high": 0.926,
      "rail_high_reads_low": 1.061
     },
+    "rail_measured_K": 0.708,
     "corner_reads_high_K": 4.01,
     "corner_reads_low_K": 4.02
    },
@@ -481,6 +493,7 @@
      "rail_low_reads_high": 0.808,
      "rail_high_reads_low": 0.92
     },
+    "rail_measured_K": 0.614,
     "corner_reads_high_K": 4.83,
     "corner_reads_low_K": 4.65
    },
@@ -501,6 +514,7 @@
      "rail_low_reads_high": 0.803,
      "rail_high_reads_low": 0.909
     },
+    "rail_measured_K": 0.607,
     "corner_reads_high_K": null,
     "corner_reads_low_K": 5.54
    }

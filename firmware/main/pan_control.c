@@ -11,6 +11,7 @@
 #include "current_sense_check.h"
 #include "hs_ntc.h"
 #include "pan_cold_soak.h"
+#include "pan_soak_store.h"
 #include "pan_leak_check.h"
 #include "pan_rim_limit.h"
 #include "pan_supervisor.h"
@@ -61,6 +62,17 @@ static bool s_soak_rail_measured;   /* the heatsink reading used a measured rail
 static pcs_result_t s_soak_res;
 static bool s_soak_latched;
 static bool s_soak_have_note;
+static pss_t s_pss;                 /* coil-off token in NVS (D-SOAKNV) */
+
+/* The board's NVS binding (main/soak_store_nvs.c; host tests: a mock). */
+extern const pss_hal_t *pan_soak_store_hal(void);
+
+/* Read the coil-off token and credit it to a freshly initialised history. */
+static void soak_store_boot(uint32_t now_ms)
+{
+    const uint32_t credit = pss_boot(&s_pss, pan_soak_store_hal());
+    pcs_credit_off(&s_pcs, now_ms, credit);
+}
 static uint32_t s_soak_last_note_ms;
 
 static void ensure_init(void)
@@ -83,6 +95,7 @@ static void ensure_init(void)
     pcs_params_t sp2;
     pcs_default_params(&sp2);
     (void)pcs_init(&s_pcs, &sp2, get_time_ms());
+    soak_store_boot(get_time_ms());
     s_soak_res.verdict = PCS_NONE;
     ptl_default_params(&s_params);
     rim_ntc_params_t rp;
@@ -229,6 +242,7 @@ void pan_control_soak_note(uint32_t now_ms)
     hs_ntc_reading_t hs;
     const bool hs_valid = read_heatsink_ntc(&hs);
     pcs_note_rail(&s_pcs, now_ms, coil_active, soak_reading(), hs_valid, hs.t_c, !hs.rail_nominal);
+    pss_note(&s_pss, pan_soak_store_hal(), coil_active, pcs_off_s(&s_pcs, now_ms));
 }
 
 void pan_control_soak_restart(void)
@@ -242,7 +256,13 @@ void pan_control_soak_restart(void)
     s_p_applied_w = 0.0f;
     const pcs_params_t p = s_pcs.p;
     (void)pcs_init(&s_pcs, &p, get_time_ms());
+    soak_store_boot(get_time_ms());
     s_soak_have_note = false;
+}
+
+const pss_t *pan_control_soak_store(void)
+{
+    return &s_pss;
 }
 
 pcs_result_t pan_control_cold_soak_result(void)
@@ -303,6 +323,11 @@ void pan_control_begin(void)
     s_running = rim_ntc_init(&s_rim, &rp) && s_running;
     s_rim_rd = s_rim.last;
     s_xcheck_suspects = 0u;
+    /* D-SOAKNV: no coil-off token may outlive this session's first power.
+     * A failed revoke is counted and the store disabled; heating goes on
+     * (pan_soak_store.h: a stale token can only cause a false, clearable
+     * cold-soak latch after a later power cycle). */
+    (void)pss_revoke(&s_pss, pan_soak_store_hal());
     /* D-SOAK: freeze the coil-off history before this session marks the coil
      * active; the first control period evaluates it with the rim's reading. */
     s_pcs_begin = s_pcs;

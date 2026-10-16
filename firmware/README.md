@@ -186,6 +186,36 @@ The firmware implements multiple layers of safety:
 7. **Thermal Runaway Detection**: Pan temp exceeding target by >10°C
 8. **Pan Detection**: Impedance-based detection with confidence threshold
 
+## C1 sensor bus (zapote/controller)
+
+The C1 build (`TEMPER_PAN_CONTROL_C1=1`) reads the pan through one SPI bus,
+one I2C expander pin and three ADC1 channels. The design record is
+`output/temper-sensor-r3/firmware/DECISIONS.md`; `output/temper-sensor-r3/firmware/run.sh`
+reruns every derivation and gate.
+
+- **MAX31865 (Pt100, CR-1)**, `components/sensors/rtd_service.c`: thresholds
+  35544 / 12844, continuous conversion, and the *manual*
+  fault-detection cycle at power-up and before every probe-fault reset
+  (D-FCYC). The automatic cycle's fixed 100 µs wait is shorter than the CR-1
+  input filter (τ_max 1.01 ms) and flags a healthy element; the manual
+  cycle waits 5.5 ms per step and restarts conversion 11.5 ms later
+  (`fault_cycle.py`, `fault-cycle.json`).
+- **DRDY** is TCA9555 P07, not a GPIO: `rtd_service` polls Input Port 0 over
+  I2C each control tick (`components/sensors/tca9555.c`, D-DRDY). A failed
+  I2C read counts as "no DRDY", so a dead expander becomes a stale RTD in
+  5-6 ticks (D-STALE); an expander absent at boot fails the bootstrap closed.
+- **MCP3202 (v3v3 rail)**, `components/sensors/rail_adc.c`: CH1 reads v3v3/2
+  against the LM4040A25 on CH0, on the RTD's bus and tick (one bus owner, no
+  lock). The rim and heatsink NTC drivers divide by the measured rail inside
+  3195-3415 mV and by 3.300 V otherwise; the cold-soak check uses 16.9 K
+  with a measured rail and 19.4 K without (D-RAIL, `rail_adc.py`).
+- **Coil-off token (NVS)**, `components/control/pan_soak_store.c` with
+  `main/soak_store_nvs.c` (namespace `temper_soak`, key `off_s`): one write
+  when a coil-off period reaches 15 min, an erase before the coil is
+  energised, and at boot a credit of 15 min (a lower bound: the unpowered
+  time counts as zero) so the cold-soak check can run after a power cycle
+  (D-SOAKNV).
+
 ## Configuration
 
 Tunable parameters are declared in `firmware/config.yaml` and rendered into
