@@ -10,8 +10,10 @@ Convection: 10 W/m²K both faces (still air) or 25 W/m²K (fan airflow over the 
     python3 run_study.py  ->  outputs/<run>.json / .png, outputs/summary.json
 """
 import json
+import os
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -64,14 +66,22 @@ JOBS = [(f"{op}_h{h}_p{str(p).replace('.', 'p')}", op, p, h) for op in ("nominal
         for h in (10, 25) for p in (1.0, 0.5)]
 
 
+def solve(job):
+    name, op, pitch, h = job
+    path = OUT / f"{name}.json"
+    subprocess.run([sys.executable, str(HERE / "thermal.py"), "--geometry", str(GEOM), "--case", cases(op),
+                    "--pitch-mm", str(pitch), "--h", str(h), "--a6-heat", str(HEAT_C28 if OPS[op].get("heat") == "c28" else HEAT), "--a6-mode", OPS[op]["parts"],
+                    "--output", str(path)], check=True, stdout=subprocess.DEVNULL)
+    return name, path
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     runs = {}
-    for name, op, pitch, h in JOBS:
-        path = OUT / f"{name}.json"
-        subprocess.run([sys.executable, str(HERE / "thermal.py"), "--geometry", str(GEOM), "--case", cases(op),
-                        "--pitch-mm", str(pitch), "--h", str(h), "--a6-heat", str(HEAT_C28 if OPS[op].get("heat") == "c28" else HEAT), "--a6-mode", OPS[op]["parts"],
-                        "--output", str(path)], check=True, stdout=subprocess.DEVNULL)
+    # the solves are independent single-threaded processes; B3_STUDY_WORKERS caps them (a shared machine sets it lower)
+    with ThreadPoolExecutor(int(os.environ.get("B3_STUDY_WORKERS", "4"))) as ex:
+        done = list(ex.map(solve, JOBS))
+    for name, path in done:
         r = json.loads(path.read_text())
         parts = sorted(r["a6_parts_applied"], key=lambda p: -p.get("conditional_pad_cell_max_c", 0))[:8]
         runs[name] = {"peak": r["peak"], "balance": r["balance"], "hottest_parts": [
