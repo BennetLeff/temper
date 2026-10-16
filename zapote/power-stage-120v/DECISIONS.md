@@ -2744,3 +2744,19 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - the bench stop or start times miss these bounds;
       - or the PERMIT-keyed firmware checks (229d6cfed) fail on the bench. Then fall back to the 10 k v3v3 pull-up (s49)
         and option S.
+
+72. **Scorecard stock gate and same-channel price compare (2026-10-16; adopted; new error class).** s49 was ACCEPTed
+    against s48 with a fitted bank part that had no buildable stock (B32643B8104J000: JLC 0, MOQ 2080, 28 weeks), and
+    its −$6.19 compared a DigiKey price with a JLC no-stock catalogue price (−$1.37 like for like). The owner rejected
+    the part. Commit bd64ec121 (`native-21/layout/gates/scorecard.py`, `bom_pricing.py`, `test_stock_gate.py`):
+    - **Gate `bom_buildable_500`, metric `bom_lines_short_at_500`:** every fitted line needs qty × 500 of JLC-library
+      stock or one authorised distributor's in-stock quantity (the larger, never the sum). Broker, split, MOQ-only,
+      lead-time-only and pre-order (`OWNER_PREORDER_CONSIGN`, `LONG_LEAD`, `PREORDER`, `LEAD_ONLY`) count as 0.
+    - **Release gate, ratcheted in `--compare`:** 15 lines are short on s48 and s50 (OPEN-ITEMS B1), so a hard gate
+      would reject everything. A candidate REJECTs if it has more short lines than the benchmark or any short MPN the
+      benchmark did not carry. Re-scored, s49 and s50 REJECT against s48 on B32643B8104J000.
+    - **Price channels:** cards store each line's channel and reads; `--compare` re-prices a changed-channel line on a
+      common channel, or flags it and leaves it out of the like-for-like saving.
+    - **Cards restamped:** s48 (benchmark), s49, s50. s50 against s49 stays ACCEPT (same short set).
+    - **Consequence:** the adoption of s49 / s50 stands on its other gains with the interim bank recorded in DECISIONS
+      70; stage 51 (in-stock bank) must clear this gate's ratchet against s48 to retire the interim part.

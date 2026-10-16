@@ -20,7 +20,8 @@
   "jet_strip_height": true,
   "audit_rs": true,
   "kelvin_floor": true,
-  "b3_ratings": true
+  "b3_ratings": true,
+  "bom_buildable_500": false
  },
  "performance": {
   "d5_hot_selv_mm": 8.047,
@@ -130,7 +131,1246 @@
   "jlc_assemblable_share_500": 0.842,
   "consign_lines_500": 3,
   "build_lead_wk_500": 29.0,
-  "short_lead_unknown_500": 7
+  "short_lead_unknown_500": 7,
+  "bom_lines_short_at_500": 15,
+  "bom_short_lines_500": [
+   {
+    "mpn": "KLDR025.TXP",
+    "designators": "F1",
+    "qty_per_board": 1,
+    "need": 500,
+    "buildable": 300,
+    "jlc_stock": "0",
+    "auth_best_stock": "300",
+    "flags": "NO_LCSC_CODE(consign/hand);SINGLE_SOURCE",
+    "why": "authorised distributor stock (global sourcing)"
+   },
+   {
+    "mpn": "R463N410050N1K",
+    "designators": "C1,C2",
+    "qty_per_board": 2,
+    "need": 1000,
+    "buildable": 945,
+    "jlc_stock": "46",
+    "auth_best_stock": "945",
+    "flags": "NO_LCSC_CODE(consign/hand);LEAD_24wk",
+    "why": "authorised distributor stock (global sourcing)"
+   },
+   {
+    "mpn": "B82726S2203A020",
+    "designators": "L1",
+    "qty_per_board": 1,
+    "need": 500,
+    "buildable": 0,
+    "jlc_stock": "0",
+    "auth_best_stock": "0",
+    "flags": "ZERO_STOCK_ALL_CHECKED_SOURCES;ZERO_JLC_LCSC_STOCK;LEAD_29wk;SINGLE_SOURCE",
+    "why": "no in-stock JLC or authorised source"
+   },
+   {
+    "mpn": "DE1E3RA222MA4BP01F",
+    "designators": "C3,C4",
+    "qty_per_board": 2,
+    "need": 1000,
+    "buildable": 6,
+    "jlc_stock": "6",
+    "auth_best_stock": "0",
+    "flags": "LCSC_STOCK<10x_5board_need;LOW_JLC_STOCK(<10x 5-board need)",
+    "why": "JLC library stock"
+   },
+   {
+    "mpn": "B32676G1905K000",
+    "designators": "C5,C6",
+    "qty_per_board": 2,
+    "need": 1000,
+    "buildable": 547,
+    "jlc_stock": "0",
+    "auth_best_stock": "547",
+    "flags": "NO_LCSC_CODE(consign/hand);LEAD_27wk;SINGLE_SOURCE",
+    "why": "authorised distributor stock (global sourcing)"
+   },
+   {
+    "mpn": "6SVPC220MV",
+    "designators": "C126,C127,C128,C129",
+    "qty_per_board": 4,
+    "need": 2000,
+    "buildable": 845,
+    "jlc_stock": "845",
+    "auth_best_stock": "0",
+    "flags": "",
+    "why": "JLC library stock"
+   },
+   {
+    "mpn": "PMEG6030EP,115",
+    "designators": "D6,D7,D8,D9",
+    "qty_per_board": 4,
+    "need": 2000,
+    "buildable": 7,
+    "jlc_stock": "7",
+    "auth_best_stock": "0",
+    "flags": "",
+    "why": "JLC library stock"
+   },
+   {
+    "mpn": "IPW65R018CFD7",
+    "designators": "Q2,Q3,Q5,Q6",
+    "qty_per_board": 4,
+    "need": 2000,
+    "buildable": 459,
+    "jlc_stock": "4",
+    "auth_best_stock": "459.0",
+    "flags": "LCSC_STOCK<10x_5board_need;SINGLE_SOURCE;LOW_JLC_STOCK(<10x 5-board need)",
+    "why": "authorised distributor stock (global sourcing)"
+   },
+   {
+    "mpn": "CST3015-200ED",
+    "designators": "T1",
+    "qty_per_board": 1,
+    "need": 500,
+    "buildable": 64,
+    "jlc_stock": "64",
+    "auth_best_stock": "0",
+    "flags": "SINGLE_SOURCE",
+    "why": "JLC library stock"
+   },
+   {
+    "mpn": "B32643B8104J000",
+    "designators": "C21,C22,C23,C151,C152",
+    "qty_per_board": 5,
+    "need": 2500,
+    "buildable": 0,
+    "jlc_stock": "0",
+    "auth_best_stock": "0",
+    "flags": "ZERO_JLC_STOCK;OWNER_PREORDER_CONSIGN(MOQ 2080, 28 wk);LONG_LEAD(28 wk)",
+    "why": "flag OWNER_PREORDER_CONSIGN+LONG_LEAD (pre-order / lead-time only)"
+   },
+   {
+    "mpn": "AC05000001507JAC00",
+    "designators": "R130",
+    "qty_per_board": 1,
+    "need": 500,
+    "buildable": 245,
+    "jlc_stock": "245",
+    "auth_best_stock": "0",
+    "flags": "",
+    "why": "JLC library stock"
+   },
+   {
+    "mpn": "C0603C102J5GACTU",
+    "designators": "C27,C31,C33,C66,C67,C68,C69,C76,C77,C78,C79,C83,C84,C85,C86,C164,C165,C166",
+    "qty_per_board": 18,
+    "need": 9000,
+    "buildable": 7198,
+    "jlc_stock": "7198",
+    "auth_best_stock": "0",
+    "flags": "",
+    "why": "JLC library stock"
+   },
+   {
+    "mpn": "LM4050AEM3-2.5/NOPB",
+    "designators": "U5",
+    "qty_per_board": 1,
+    "need": 500,
+    "buildable": 0,
+    "jlc_stock": "50",
+    "auth_best_stock": "0",
+    "flags": "LOW_JLC_STOCK(50 < 500 for 500 boards);OWNER_PREORDER_CONSIGN(>=550)",
+    "why": "flag OWNER_PREORDER_CONSIGN (pre-order / lead-time only)"
+   },
+   {
+    "mpn": "1704004",
+    "designators": "J6",
+    "qty_per_board": 1,
+    "need": 500,
+    "buildable": 48,
+    "jlc_stock": "0",
+    "auth_best_stock": "48",
+    "flags": "ZERO_STOCK_ALL_CHECKED_SOURCES;ZERO_JLC_LCSC_STOCK;SINGLE_SOURCE",
+    "why": "authorised distributor stock (global sourcing)"
+   },
+   {
+    "mpn": "VOL628A-2X001T",
+    "designators": "U36",
+    "qty_per_board": 1,
+    "need": 500,
+    "buildable": 172,
+    "jlc_stock": "172",
+    "auth_best_stock": "0",
+    "flags": "",
+    "why": "JLC library stock"
+   }
+  ],
+  "price_lines_500": [
+   {
+    "designators": "J1",
+    "mpn": "1714971",
+    "qty": 1,
+    "tier": "P2",
+    "channel": "digikey",
+    "unit": 1.323,
+    "channel_prices": {
+     "jlc": 1.0158,
+     "digikey": 1.323
+    }
+   },
+   {
+    "designators": "F1",
+    "mpn": "KLDR025.TXP",
+    "qty": 1,
+    "tier": "P3",
+    "channel": "distributor",
+    "unit": 15.88,
+    "channel_prices": {
+     "jlc_no_stock": 37.8263,
+     "distributor": 15.88,
+     "digikey": 18.516
+    }
+   },
+   {
+    "designators": "RV1",
+    "mpn": "TMOV20RP175E",
+    "qty": 1,
+    "tier": "P2",
+    "channel": "digikey",
+    "unit": 1.1744,
+    "channel_prices": {
+     "jlc": 1.187,
+     "digikey": 1.1744
+    }
+   },
+   {
+    "designators": "C1,C2",
+    "mpn": "R463N410050N1K",
+    "qty": 2,
+    "tier": "P3",
+    "channel": "digikey",
+    "unit": 0.54073,
+    "channel_prices": {
+     "jlc": 0.8528,
+     "digikey": 0.54073
+    }
+   },
+   {
+    "designators": "R1,R2",
+    "mpn": "1206W4F1003T5E",
+    "qty": 2,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0082,
+    "channel_prices": {
+     "jlc": 0.0082
+    }
+   },
+   {
+    "designators": "L1",
+    "mpn": "B82726S2203A020",
+    "qty": 1,
+    "tier": "P3",
+    "channel": "digikey",
+    "unit": 9.88484,
+    "channel_prices": {
+     "jlc_no_stock": 2.1082,
+     "digikey": 9.88484
+    }
+   },
+   {
+    "designators": "C3,C4",
+    "mpn": "DE1E3RA222MA4BP01F",
+    "qty": 2,
+    "tier": "P3",
+    "channel": "jlc",
+    "unit": 0.0707,
+    "channel_prices": {
+     "jlc": 0.0707
+    }
+   },
+   {
+    "designators": "BR1",
+    "mpn": "GBJ2510-F",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.6555,
+    "channel_prices": {
+     "jlc": 0.6555,
+     "digikey": 4.02
+    }
+   },
+   {
+    "designators": "C5,C6",
+    "mpn": "B32676G1905K000",
+    "qty": 2,
+    "tier": "P3",
+    "channel": "digikey",
+    "unit": 6.00734,
+    "channel_prices": {
+     "jlc_no_stock": 1.2033,
+     "digikey": 6.00734
+    }
+   },
+   {
+    "designators": "R3,R4,R146",
+    "mpn": "RC1206FR-07220KL",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0045,
+    "channel_prices": {
+     "jlc": 0.0045
+    }
+   },
+   {
+    "designators": "R5",
+    "mpn": "CSS2H-2512R-1L00F",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.3131,
+    "channel_prices": {
+     "jlc": 0.3131,
+     "distributor": 0.34189,
+     "digikey": 0.50108
+    }
+   },
+   {
+    "designators": "U1,U2",
+    "mpn": "2EDR8259XXUMA1",
+    "qty": 2,
+    "tier": "P3",
+    "channel": "digikey",
+    "unit": 1.3207,
+    "channel_prices": {
+     "jlc": 1.5669,
+     "digikey": 1.3207
+    }
+   },
+   {
+    "designators": "C7,C54,C14,C61,C25,C28,C29,C32,C34,C35,C36,C37,C44,C45,C46,C47,C153,C154,C155,C156,C168,C169,C170,C171,C172,C173,C174,C175,C176,C177,C178,C48,C49,C65,C131,C70,C74,C75,C135,C80,C157,C158,C81,C82,C139,C87,C159,C160,C161,C133,C134,C163,C144,C89",
+    "mpn": "CC0603KRX7R9BB104",
+    "qty": 54,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0071,
+    "channel_prices": {
+     "jlc": 0.0071
+    }
+   },
+   {
+    "designators": "R6,R14",
+    "mpn": "0603WAF1000T5E",
+    "qty": 2,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.002,
+    "channel_prices": {
+     "jlc": 0.002
+    }
+   },
+   {
+    "designators": "R7,R15,R136,R138,R62,R140,R128,R142,R135",
+    "mpn": "0603WAF1003T5E",
+    "qty": 9,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0024,
+    "channel_prices": {
+     "jlc": 0.0024
+    }
+   },
+   {
+    "designators": "R9,R17,R133",
+    "mpn": "RT0603BRD0749K9L",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0318,
+    "channel_prices": {
+     "jlc": 0.0318
+    }
+   },
+   {
+    "designators": "C8,C10,C15,C17",
+    "mpn": "CC0805KRX7R9BB104",
+    "qty": 4,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0116,
+    "channel_prices": {
+     "jlc": 0.0116
+    }
+   },
+   {
+    "designators": "C146,C145,C148,C147,C149,C150",
+    "mpn": "CL21B105KBFNNNE",
+    "qty": 6,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0327,
+    "channel_prices": {
+     "jlc": 0.0327
+    }
+   },
+   {
+    "designators": "C9,C90,C91,C92,C93,C16,C94,C95,C96,C97,C24,C26,C98,C99,C100,C132,C102,C103,C104,C136,C106,C107,C108,C140",
+    "mpn": "CL32B106KBJNNNE",
+    "qty": 24,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.1574,
+    "channel_prices": {
+     "jlc": 0.1574
+    }
+   },
+   {
+    "designators": "C11,C18",
+    "mpn": "GRM21BZ71E106KE15L",
+    "qty": 2,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.212,
+    "channel_prices": {
+     "jlc": 0.212
+    }
+   },
+   {
+    "designators": "C50,C51,C52,C53,C57,C58,C59,C60,C64",
+    "mpn": "GRM188R71E105KA12D",
+    "qty": 9,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0297,
+    "channel_prices": {
+     "jlc": 0.0297
+    }
+   },
+   {
+    "designators": "C110,C111,C112,C113,C114,C115,C116,C117,C118,C119,C120,C121,C122,C123,C124,C125",
+    "mpn": "CL05B104KB54PNC",
+    "qty": 16,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0061,
+    "channel_prices": {
+     "jlc": 0.0061
+    }
+   },
+   {
+    "designators": "R51,R52,R55,R56",
+    "mpn": "RL1206FR-070R68L",
+    "qty": 4,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0136,
+    "channel_prices": {
+     "jlc": 0.0136
+    }
+   },
+   {
+    "designators": "C126,C127,C128,C129",
+    "mpn": "6SVPC220MV",
+    "qty": 4,
+    "tier": "P3",
+    "channel": "jlc",
+    "unit": 0.5006,
+    "channel_prices": {
+     "jlc": 0.491
+    }
+   },
+   {
+    "designators": "R71,R72,R74,R75,R131",
+    "mpn": "0603WAF4991T5E",
+    "qty": 5,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0016,
+    "channel_prices": {
+     "jlc": 0.0016
+    }
+   },
+   {
+    "designators": "U22,U23",
+    "mpn": "SN74LVC1G00DBVR",
+    "qty": 2,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0843,
+    "channel_prices": {
+     "jlc": 0.0843
+    }
+   },
+   {
+    "designators": "R73,R11,R13,R76,R19,R21,R91,R109,R124",
+    "mpn": "0603WAF1002T5E",
+    "qty": 9,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0043,
+    "channel_prices": {
+     "jlc": 0.0043
+    }
+   },
+   {
+    "designators": "R10,R12,R18,R20",
+    "mpn": "25121WF680JT4E",
+    "qty": 4,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0294,
+    "channel_prices": {
+     "jlc": 0.0294
+    }
+   },
+   {
+    "designators": "C55,C56,C62,C63",
+    "mpn": "GRM1885C1H472JA01D",
+    "qty": 4,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.015,
+    "channel_prices": {
+     "jlc": 0.015
+    }
+   },
+   {
+    "designators": "D6,D7,D8,D9",
+    "mpn": "PMEG6030EP,115",
+    "qty": 4,
+    "tier": "P3",
+    "channel": "jlc",
+    "unit": 0.199,
+    "channel_prices": {
+     "jlc": 0.199
+    }
+   },
+   {
+    "designators": "R53,R54,R57,R58",
+    "mpn": "1206W4F100KT5E",
+    "qty": 4,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0167,
+    "channel_prices": {
+     "jlc": 0.0167
+    }
+   },
+   {
+    "designators": "Q2,Q3,Q5,Q6",
+    "mpn": "IPW65R018CFD7",
+    "qty": 4,
+    "tier": "P3",
+    "channel": "digikey",
+    "unit": 10.17612,
+    "channel_prices": {
+     "jlc": 17.5306,
+     "digikey": 10.17612
+    }
+   },
+   {
+    "designators": "C12,C13,C19,C20",
+    "mpn": "CC1206JKNPOCBN102",
+    "qty": 4,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0191,
+    "channel_prices": {
+     "jlc": 0.0191
+    }
+   },
+   {
+    "designators": "T1",
+    "mpn": "CST3015-200ED",
+    "qty": 1,
+    "tier": "P3",
+    "channel": "jlc",
+    "unit": 7.3028,
+    "channel_prices": {
+     "jlc": 7.3028
+    }
+   },
+   {
+    "designators": "J2,J5",
+    "mpn": "7466004R",
+    "qty": 2,
+    "tier": "P2",
+    "channel": "distributor",
+    "unit": 1.83,
+    "channel_prices": {
+     "jlc_no_stock": 1.262,
+     "distributor": 1.83,
+     "digikey": 1.914
+    }
+   },
+   {
+    "designators": "C21,C22,C23,C151,C152",
+    "mpn": "B32643B8104J000",
+    "qty": 5,
+    "tier": "P3",
+    "channel": "jlc",
+    "unit": 0.248,
+    "channel_prices": {
+     "jlc_no_stock": 0.2479
+    }
+   },
+   {
+    "designators": "R22,R23,R24,R25,R26,R27,R28,R29",
+    "mpn": "RC1206FR-07470KL",
+    "qty": 8,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0082,
+    "channel_prices": {
+     "jlc": 0.0082
+    }
+   },
+   {
+    "designators": "J3,J11",
+    "mpn": "B2P3-VH(LF)(SN)",
+    "qty": 2,
+    "tier": "P3",
+    "channel": "digikey",
+    "unit": 0.11626,
+    "channel_prices": {
+     "jlc": 0.0356,
+     "digikey": 0.11626
+    }
+   },
+   {
+    "designators": "F2",
+    "mpn": "3403.0279.23",
+    "qty": 1,
+    "tier": "P3",
+    "channel": "digikey",
+    "unit": 1.616,
+    "channel_prices": {
+     "jlc_no_stock": 0.7631,
+     "digikey": 1.616
+    }
+   },
+   {
+    "designators": "R130",
+    "mpn": "AC05000001507JAC00",
+    "qty": 1,
+    "tier": "P3",
+    "channel": "jlc",
+    "unit": 0.5185,
+    "channel_prices": {
+     "jlc": 0.5185
+    }
+   },
+   {
+    "designators": "PS2",
+    "mpn": "MPM-20-24",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 9.7843,
+    "channel_prices": {
+     "jlc": 9.7843
+    }
+   },
+   {
+    "designators": "U3,U37,U38,U39",
+    "mpn": "TPS70950QDBVRQ1",
+    "qty": 4,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.682,
+    "channel_prices": {
+     "jlc": 0.682
+    }
+   },
+   {
+    "designators": "R137,R139,R127,R141,R129,R143",
+    "mpn": "0603WAF2702T5E",
+    "qty": 6,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0038,
+    "channel_prices": {
+     "jlc": 0.0038
+    }
+   },
+   {
+    "designators": "R30",
+    "mpn": "RT0603BRD0715K8L",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0467,
+    "channel_prices": {
+     "jlc": 0.0467
+    }
+   },
+   {
+    "designators": "C27,C31,C33,C66,C67,C68,C69,C76,C77,C78,C79,C83,C84,C85,C86,C164,C165,C166",
+    "mpn": "C0603C102J5GACTU",
+    "qty": 18,
+    "tier": "P3",
+    "channel": "jlc",
+    "unit": 0.0144,
+    "channel_prices": {
+     "jlc": 0.0144
+    }
+   },
+   {
+    "designators": "U4",
+    "mpn": "AMC1311BDWVR",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 1.4185,
+    "channel_prices": {
+     "jlc": 1.4185
+    }
+   },
+   {
+    "designators": "R31",
+    "mpn": "0603WAF5601T5E",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0032,
+    "channel_prices": {
+     "jlc": 0.0032
+    }
+   },
+   {
+    "designators": "U5",
+    "mpn": "LM4050AEM3-2.5/NOPB",
+    "qty": 1,
+    "tier": "P3",
+    "channel": "jlc",
+    "unit": 3.4228,
+    "channel_prices": {
+     "jlc": 3.4228
+    }
+   },
+   {
+    "designators": "R32,R36,R44,R45,R49,R50,R78,R80,R82,R84,R96,R98,R100,R102,R111,R113,R115,R117",
+    "mpn": "RT0603BRD0710KL",
+    "qty": 18,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0239,
+    "channel_prices": {
+     "jlc": 0.0239
+    }
+   },
+   {
+    "designators": "R33",
+    "mpn": "RT0603BRD077K5L",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0296,
+    "channel_prices": {
+     "jlc": 0.0296
+    }
+   },
+   {
+    "designators": "C30,C167",
+    "mpn": "CL10C101JB8NNNC",
+    "qty": 2,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0065,
+    "channel_prices": {
+     "jlc": 0.0065
+    }
+   },
+   {
+    "designators": "R34",
+    "mpn": "RT0603BRD0716KL",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0462,
+    "channel_prices": {
+     "jlc": 0.0462
+    }
+   },
+   {
+    "designators": "R35,R86,R88,R93,R104,R106,R61,R119,R121",
+    "mpn": "RT0603BRD0711KL",
+    "qty": 9,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.038,
+    "channel_prices": {
+     "jlc": 0.038
+    }
+   },
+   {
+    "designators": "U6,U7,U10,U11,U12",
+    "mpn": "TLV3201AIDBVR",
+    "qty": 5,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.6131,
+    "channel_prices": {
+     "jlc": 0.6131
+    }
+   },
+   {
+    "designators": "R37",
+    "mpn": "RT0603BRD07140KL",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0299,
+    "channel_prices": {
+     "jlc": 0.0299
+    }
+   },
+   {
+    "designators": "U8",
+    "mpn": "SN74LVC1G10DBVR",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.1134,
+    "channel_prices": {
+     "jlc": 0.1134
+    }
+   },
+   {
+    "designators": "U9,U32",
+    "mpn": "CA-IS3720HW",
+    "qty": 2,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.4876,
+    "channel_prices": {
+     "jlc": 0.4876
+    }
+   },
+   {
+    "designators": "J4",
+    "mpn": "0430451612",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.8104,
+    "channel_prices": {
+     "jlc": 0.8104,
+     "digikey": 1.6944
+    }
+   },
+   {
+    "designators": "R38",
+    "mpn": "0603WAF0000T5E",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0022,
+    "channel_prices": {
+     "jlc": 0.0022
+    }
+   },
+   {
+    "designators": "D3,D17",
+    "mpn": "30KPA150CA",
+    "qty": 2,
+    "tier": "P2",
+    "channel": "digikey",
+    "unit": 4.08447,
+    "channel_prices": {
+     "jlc_no_stock": 1.9794,
+     "distributor": 4.938,
+     "digikey": 4.08447
+    }
+   },
+   {
+    "designators": "J6",
+    "mpn": "1704004",
+    "qty": 1,
+    "tier": "P3",
+    "channel": "distributor",
+    "unit": 2.28,
+    "channel_prices": {
+     "jlc_no_stock": 0.8984,
+     "distributor": 2.28,
+     "digikey": 2.366
+    }
+   },
+   {
+    "designators": "C38,C39,C40,C41",
+    "mpn": "B32652A0104K000",
+    "qty": 4,
+    "tier": "P3",
+    "channel": "digikey",
+    "unit": 0.44916,
+    "channel_prices": {
+     "jlc": 0.2544,
+     "digikey": 0.44916
+    }
+   },
+   {
+    "designators": "R39",
+    "mpn": "RC1206FR-073RL",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.019,
+    "channel_prices": {
+     "jlc": 0.019
+    }
+   },
+   {
+    "designators": "C42,C43",
+    "mpn": "GRM31C5C1H104JA01L",
+    "qty": 2,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.1393,
+    "channel_prices": {
+     "jlc": 0.1393
+    }
+   },
+   {
+    "designators": "R40,R41",
+    "mpn": "RT0603BRD071KL",
+    "qty": 2,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0226,
+    "channel_prices": {
+     "jlc": 0.0226
+    }
+   },
+   {
+    "designators": "R42",
+    "mpn": "1206W4F1001T5E",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0066,
+    "channel_prices": {
+     "jlc": 0.0066
+    }
+   },
+   {
+    "designators": "D4,D5",
+    "mpn": "BAS116H,115",
+    "qty": 2,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0447,
+    "channel_prices": {
+     "jlc": 0.0447
+    }
+   },
+   {
+    "designators": "R43,R46",
+    "mpn": "RT0603BRD072K21L",
+    "qty": 2,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0276,
+    "channel_prices": {
+     "jlc": 0.0276
+    }
+   },
+   {
+    "designators": "U13",
+    "mpn": "SN74LVC1G332DBVR",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.1592,
+    "channel_prices": {
+     "jlc": 0.1592
+    }
+   },
+   {
+    "designators": "R134,R47",
+    "mpn": "0603WAF1001T5E",
+    "qty": 2,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0016,
+    "channel_prices": {
+     "jlc": 0.0016
+    }
+   },
+   {
+    "designators": "U14",
+    "mpn": "TPS3700DDCR",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.8316,
+    "channel_prices": {
+     "jlc": 0.8316
+    }
+   },
+   {
+    "designators": "R144,R92,R94",
+    "mpn": "RT0603BRD0763K4L",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0345,
+    "channel_prices": {
+     "jlc": 0.0345
+    }
+   },
+   {
+    "designators": "R145",
+    "mpn": "TNPW060311K7BEEA",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0584,
+    "channel_prices": {
+     "jlc": 0.0584
+    }
+   },
+   {
+    "designators": "R48",
+    "mpn": "RT0603BRD07105KL",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0261,
+    "channel_prices": {
+     "jlc": 0.0261
+    }
+   },
+   {
+    "designators": "U15,U40,U24",
+    "mpn": "SN74LVC1G17DBVR",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0918,
+    "channel_prices": {
+     "jlc": 0.0918
+    }
+   },
+   {
+    "designators": "U26",
+    "mpn": "TPS7A4700RGWR",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 3.9637,
+    "channel_prices": {
+     "jlc": 3.9637,
+     "digikey": 4.232
+    }
+   },
+   {
+    "designators": "U16,U18,U20",
+    "mpn": "TLVH431BQDBZR",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.3522,
+    "channel_prices": {
+     "jlc": 0.3522
+    }
+   },
+   {
+    "designators": "R77,R95,R110",
+    "mpn": "RT0603BRD076K2L",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0237,
+    "channel_prices": {
+     "jlc": 0.0237
+    }
+   },
+   {
+    "designators": "U17,U19,U21",
+    "mpn": "TL431BQDBZR",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0744,
+    "channel_prices": {
+     "jlc": 0.0744
+    }
+   },
+   {
+    "designators": "R59,R63,R65",
+    "mpn": "RC1206FR-072K2L",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0104,
+    "channel_prices": {
+     "jlc": 0.0104
+    }
+   },
+   {
+    "designators": "R79,R97,R112",
+    "mpn": "RT0603BRD074K42L",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0265,
+    "channel_prices": {
+     "jlc": 0.0265
+    }
+   },
+   {
+    "designators": "R81,R99,R114",
+    "mpn": "RT0603BRD07750RL",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0271,
+    "channel_prices": {
+     "jlc": 0.0271
+    }
+   },
+   {
+    "designators": "R83,R101,R116",
+    "mpn": "RT0603BRD072K94L",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0441,
+    "channel_prices": {
+     "jlc": 0.0441
+    }
+   },
+   {
+    "designators": "R85,R103,R118",
+    "mpn": "RT0603BRD0790K9L",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0331,
+    "channel_prices": {
+     "jlc": 0.0331
+    }
+   },
+   {
+    "designators": "R87,R105,R120",
+    "mpn": "RT0603BRD07104KL",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0212,
+    "channel_prices": {
+     "jlc": 0.0212
+    }
+   },
+   {
+    "designators": "U29,U30,U31",
+    "mpn": "LM2901BIDR",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.1266,
+    "channel_prices": {
+     "jlc": 0.1266
+    }
+   },
+   {
+    "designators": "U41,U42",
+    "mpn": "R24C2T25/R-R",
+    "qty": 2,
+    "tier": "P3",
+    "channel": "digikey",
+    "unit": 7.37148,
+    "channel_prices": {
+     "digikey": 7.37148
+    }
+   },
+   {
+    "designators": "C105,C71,C109,C72,C162",
+    "mpn": "CL10C331JB8NNNC",
+    "qty": 5,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0122,
+    "channel_prices": {
+     "jlc": 0.0122
+    }
+   },
+   {
+    "designators": "U43,U44",
+    "mpn": "ISO6721FBDR",
+    "qty": 2,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.3881,
+    "channel_prices": {
+     "jlc": 0.3881
+    }
+   },
+   {
+    "designators": "D18,D20,D19",
+    "mpn": "BAT54S-7-F",
+    "qty": 3,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0772,
+    "channel_prices": {
+     "jlc": 0.0772
+    }
+   },
+   {
+    "designators": "U45,U46",
+    "mpn": "SN74LVC1G132DBVR",
+    "qty": 2,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.1055,
+    "channel_prices": {
+     "jlc": 0.1055
+    }
+   },
+   {
+    "designators": "R132",
+    "mpn": "0603WAF2200T5E",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0035,
+    "channel_prices": {
+     "jlc": 0.0035
+    }
+   },
+   {
+    "designators": "R67,R68,R69,R70",
+    "mpn": "RC1206FR-0716K5L",
+    "qty": 4,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0044,
+    "channel_prices": {
+     "jlc": 0.0044
+    }
+   },
+   {
+    "designators": "U36",
+    "mpn": "VOL628A-2X001T",
+    "qty": 1,
+    "tier": "P3",
+    "channel": "jlc",
+    "unit": 0.3408,
+    "channel_prices": {
+     "jlc": 0.3408,
+     "jlc_no_stock": 0.3409
+    }
+   },
+   {
+    "designators": "R125",
+    "mpn": "0603WAF3302T5E",
+    "qty": 1,
+    "tier": "P1",
+    "channel": "jlc",
+    "unit": 0.0021,
+    "channel_prices": {
+     "jlc": 0.0021
+    }
+   }
+  ]
  },
  "sources": {
   "d5": "native-21/verification/d5-audit.json",
@@ -147,6 +1387,7 @@
   "ledger": "native-21/verification/datasheet-ledger: {'PARTIAL': 92, 'UNAUDITED': 0, 'VERIFIED': 3, 'VIOLATION': 0}",
   "track_geometry": "gates/track_geometry.py on BUILDDIR/native21-all-copper.json.gz",
   "bom_pricing": "gates/bom_pricing.py bom_pricing-v1 over the 2026-10-15 JLC / DigiKey / Octopart snapshots and the STOCK-2026-10-13*.csv survey reads (sourcing/)",
-  "buildability": "validation-results/08-manufacturing-package/native-21/sourcing/SNAPSHOT-2026-10-15.csv"
+  "buildability": "validation-results/08-manufacturing-package/native-21/sourcing/SNAPSHOT-2026-10-15.csv",
+  "stock_gate": "scorecard.py stock_gate over validation-results/08-manufacturing-package/native-21/sourcing/SNAPSHOT-2026-10-15.csv, BOM bom-jlcpcb.csv; restamped /Users/bennet/.claude/jobs/fbfc46b4/tmp/s49r.json"
  }
 }
