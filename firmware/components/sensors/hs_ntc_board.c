@@ -12,9 +12,11 @@
  * disturb each other. An attenuation change re-initialises this channel and
  * rebuilds its calibration; the driver's 30 mV hysteresis keeps that rare.
  *
- * v3v3: no MCP3202 CH1 driver yet (it shares the RTD SPI bus, GPIO10-13 plus
- * CS on GPIO42, with the MAX31865), so read_v3v3_mv reports "not available"
- * and the driver assumes 3.300 V (DECISIONS.md D-HSNTC).
+ * v3v3: the MCP3202 CH1 reading (rail_adc.c, DECISIONS.md D-RAIL), taken by
+ * rtd_service.c on the RTD bus it shares with the MAX31865 (GPIO10-13, CS
+ * GPIO42). While it is not MEASURED, read_v3v3_mv reports "not available" and
+ * the driver assumes 3.300 V (rail_nominal); the cold-soak check then uses its
+ * fallback threshold (D-SOAK).
  *
  * The legacy components/temper_hal/include/temper_pins.h names GPIO3 /
  * ADC1_CH2 ADC_CHANNEL_NTC; on zapote/controller GPIO3 is the blower tach.
@@ -23,6 +25,7 @@
 #include <stddef.h>
 
 #include "hal_adc.h"
+#include "rail_adc.h"
 #include "hs_ntc.h"
 
 #define HS_NTC_ADC_CHANNEL ((hal_adc_channel_t)5)   /* ADC1_CH5 = GPIO6 */
@@ -72,8 +75,7 @@ static bool board_read_pin_mv(void *ctx, rim_atten_t atten, float *mv)
 static bool board_read_v3v3_mv(void *ctx, float *mv)
 {
     (void)ctx;
-    (void)mv;
-    return false;   /* MCP3202 CH1 driver not implemented (see file header) */
+    return rail_adc_board_v3v3_mv(mv);
 }
 
 static const hs_ntc_hal_t s_board_hal = {

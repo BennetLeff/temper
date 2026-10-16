@@ -429,7 +429,9 @@ void *soak_new(void) { return calloc(1, sizeof(soak_t)); }
 void soak_free(void *h) { free(h); }
 
 /* adc_gain_nominal: the driver's adc_gain (HS_NTC_ADC_GAIN 0.855072 as built, zapote C45);
- * gain_actual: the divider as fitted; threshold_k <= 0: PCS_THRESHOLD_K. */
+ * gain_actual: the divider as fitted; rail_read_mv <= 0: no rail reading (the driver's
+ * 3.300 V fallback); threshold_k <= 0: the firmware's PCS_THRESHOLD_K and
+ * PCS_THRESHOLD_MEASURED_K (the check picks one per evaluation, D-RAIL); > 0: both set to it. */
 int soak_init(void *h, double adc_gain_nominal, double gain_actual, double err_sign, double rail_read_mv,
               double threshold_k, double noise_mv, double seed)
 {
@@ -445,6 +447,7 @@ int soak_init(void *h, double adc_gain_nominal, double gain_actual, double err_s
     pcs_default_params(&pp);
     if (threshold_k > 0.0) {
         pp.threshold_k = (float)threshold_k;
+        pp.threshold_measured_k = (float)threshold_k;
     }
     if (!pcs_init(&k->pcs, &pp, 0u)) {
         return -2;
@@ -464,7 +467,7 @@ double soak_param(void *h, int i)
 {
     const pcs_params_t *p = &((soak_t *)h)->pcs.p;
     const float v[] = {p->threshold_k, p->soak_n_s, p->window_s, p->bucket_s, p->hs_flat_k, p->pt_flat_k,
-                       p->hs_max_c};
+                       p->hs_max_c, p->threshold_measured_k};
     return (i >= 0 && i < (int)(sizeof(v) / sizeof(v[0]))) ? (double)v[i] : NAN;
 }
 
@@ -495,9 +498,10 @@ int soak_run(void *h, int n, const double *node_mv, const double *pt_ohm, const 
                              ? NAN
                              : rtd_convert_code_to_c(&rp, (uint16_t)code);
         const bool hs_valid = rd.state == HS_NTC_VALID;
-        pcs_note(&k->pcs, now, coil[i] != 0, pt, hs_valid, rd.t_c);
+        pcs_note_rail(&k->pcs, now, coil[i] != 0, pt, hs_valid, rd.t_c, !rd.rail_nominal);
         if (eval_every > 0 && i % eval_every == 0) {
-            const pcs_result_t r = pcs_evaluate(&k->pcs, now, pt, hs_valid, rd.t_c, rim_sat[i] != 0);
+            const pcs_result_t r = pcs_evaluate_rail(&k->pcs, now, pt, hs_valid, rd.t_c, rim_sat[i] != 0,
+                                                     !rd.rail_nominal);
             double *o = out + 6 * rows++;
             o[0] = (double)i;
             o[1] = (double)r.verdict;

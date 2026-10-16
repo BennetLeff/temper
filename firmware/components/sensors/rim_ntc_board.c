@@ -13,11 +13,12 @@
  * ATTEN2 = ADC_ATTEN_DB_6, ATTEN3 = ADC_ATTEN_DB_12 (HAL_ADC_ATTEN_11dB, the
  * deprecated alias of DB_12).
  *
- * v3v3: the MCP3202 CH1 reading against the LM4040A25 (CR-7) has no firmware
- * driver yet, so read_v3v3_mv reports "not available" and the driver uses
- * 3.300 V (rail_nominal). That costs up to 4.37 K over 100-250 degC at the
- * rail contract limits (rim-ntc.json rail_error_without_MCP3202_worst_K);
- * DECISIONS.md D-RIM, open item.
+ * v3v3: the MCP3202 CH1 reading against the LM4040A25 (CR-7, rail_adc.c;
+ * DECISIONS.md D-RAIL). rtd_service.c takes it on the shared bus every 100 ms;
+ * read_v3v3_mv returns it while it is MEASURED and fresh. Otherwise (no
+ * reading, SPI error, out of the widened contract, stale) it reports "not
+ * available" and the driver uses 3.300 V (rail_nominal), the as-built case
+ * that costs up to 4.37 K over 100-250 degC (rim-ntc.json).
  *
  * Note: the legacy components/temper_hal/include/temper_pins.h still names GPIO9
  * PIN_RTD_DRDY. On zapote/controller DRDY is on TCA9555 P07 and GPIO9 is the
@@ -27,6 +28,7 @@
 #include <stddef.h>
 
 #include "hal_adc.h"
+#include "rail_adc.h"
 #include "rim_ntc.h"
 
 #define RIM_NTC_ADC_CHANNEL ((hal_adc_channel_t)8)   /* ADC1_CH8 = GPIO9 */
@@ -77,8 +79,7 @@ static bool board_read_node_mv(void *ctx, rim_atten_t atten, float *mv)
 static bool board_read_v3v3_mv(void *ctx, float *mv)
 {
     (void)ctx;
-    (void)mv;
-    return false;   /* MCP3202 CH1 driver not implemented (see file header) */
+    return rail_adc_board_v3v3_mv(mv);
 }
 
 static const rim_ntc_hal_t s_board_hal = {

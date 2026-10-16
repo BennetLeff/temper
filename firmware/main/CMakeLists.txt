@@ -7,6 +7,7 @@ idf_component_register(
         "state_machine.c"
         "state_handlers.c"
         "pan_control.c"
+        "soak_store_nvs.c"
         "../components/sensors/max31865.c"
         "../components/sensors/rtd_service.c"
         "../components/sensors/rtd_convert.c"
@@ -14,6 +15,8 @@ idf_component_register(
         "../components/sensors/rim_ntc_board.c"
         "../components/sensors/hs_ntc.c"
         "../components/sensors/hs_ntc_board.c"
+        "../components/sensors/rail_adc.c"
+        "../components/sensors/tca9555.c"
         "../components/safety/safety.c"
         "../components/safety/wdi_supervisor.c"
         "../components/safety/power_gate.c"
@@ -32,6 +35,7 @@ idf_component_register(
         nvs_flash
         esp_timer
         esp_driver_gpio
+        esp_driver_i2c
 )
 
 # sensor-r3 C1 pan sensor: the C1 loop (components/control, main/pan_control.c)

@@ -205,6 +205,10 @@ TRACES = {
     "trace_c1_near_full_scale_heating.csv": lambda: rtd_fault(151, 92.0, 85, 410.0),
     "trace_c1_probe_open_reconnect_idle.csv": lambda: [
         row(t, 25.0 + noise(t), rtd=(15000.0 if 20 <= t < 40 else R_NOMINAL_OHM)) for t in range(120)],
+    # DECISIONS D-FCYC: a healthy 25 degC unit whose MAX31865 input wiring the
+    # manifest's c1_afe_input breaks from power-up (the SPI mock's analog model
+    # carries the fault; the Pt100 column stays nominal).
+    "trace_c1_power_up_fault_cycle_init.csv": lambda: [row(t, 25.0 + noise(t)) for t in range(40)],
     # DECISIONS D-SOAK: a unit soaked in a 25 degC room (heatsink, pan and glass
     # at the room; with the CR-8 divider, zapote C45, the heatsink NTC is VALID
     # from -40 degC). The manifest's c1_idle_soak_s idles it in IDLE on rows 0-4

@@ -64,9 +64,9 @@ the board moves; `--verify-board-ref controller-c1-crs` checks a newer head.
 
 TCA9555: P00/P01 capacitive-mode read-backs, **P07 RTD_DRDY**, P10-P13 fault
 read-backs, P14 SUP_RUN_OK_RB (TPS3823 RESET_N), P15 FAN_OFF, P16 BLW_PG.
-There is no expander driver yet, and `rtd_service` still waits on a GPIO DRDY
-edge, so on the target `PIN_RTD_DRDY` is `HAL_PIN_INVALID` and the MAX31865
-bootstrap fails closed (the legacy map put DRDY on GPIO9, the rim NTC).
+`rtd_service` polls P07 over I2C each control tick (`components/sensors/tca9555.c`,
+D-DRDY), so on the target `PIN_RTD_DRDY` stays `HAL_PIN_INVALID` (the legacy
+map put DRDY on GPIO9, the rim NTC).
 
 The legacy `pcb/temper.kicad_pcb` contracts this section used to list (IO47
 DISCHARGE_CTRL, IO9 DRDY, IO7 WDT_KICK) do not apply to zapote: GPIO47 is the
@@ -115,8 +115,7 @@ gate generator is `TODO(hardware)`, so the PLL has no timer and pan detection
 reports no pan. The rest fail safe: temperatures and currents read
 +INFINITY, the fan reads stopped, buttons read released, the self-tests fail,
 and the power outputs refuse any non-zero command. A unit flashed with this
-image stops in FAULT (`FAULT_SELF_TEST_FAILED`) with the coil off, and the
-MAX31865 bootstrap fails closed until DRDY is read through the TCA9555.
+image stops in FAULT (`FAULT_SELF_TEST_FAILED`) with the coil off.
 
 ### Host Build (Tests Only)
 
@@ -234,6 +233,36 @@ The firmware implements multiple layers of safety:
     threshold. On zapote the pulse needs the native-21 gate drive, which is
     not in this tree, so `detect_pan_presence()` reports no pan (no power)
     until the power stage installs its pulse ops.
+
+## C1 sensor bus (zapote/controller)
+
+The C1 build (`TEMPER_PAN_CONTROL_C1=1`) reads the pan through one SPI bus,
+one I2C expander pin and three ADC1 channels. The design record is
+`output/temper-sensor-r3/firmware/DECISIONS.md`; `output/temper-sensor-r3/firmware/run.sh`
+reruns every derivation and gate.
+
+- **MAX31865 (Pt100, CR-1)**, `components/sensors/rtd_service.c`: thresholds
+  35544 / 12844, continuous conversion, and the *manual*
+  fault-detection cycle at power-up and before every probe-fault reset
+  (D-FCYC). The automatic cycle's fixed 100 µs wait is shorter than the CR-1
+  input filter (τ_max 1.01 ms) and flags a healthy element; the manual
+  cycle waits 5.5 ms per step and restarts conversion 11.5 ms later
+  (`fault_cycle.py`, `fault-cycle.json`).
+- **DRDY** is TCA9555 P07, not a GPIO: `rtd_service` polls Input Port 0 over
+  I2C each control tick (`components/sensors/tca9555.c`, D-DRDY). A failed
+  I2C read counts as "no DRDY", so a dead expander becomes a stale RTD in
+  5-6 ticks (D-STALE); an expander absent at boot fails the bootstrap closed.
+- **MCP3202 (v3v3 rail)**, `components/sensors/rail_adc.c`: CH1 reads v3v3/2
+  against the LM4040A25 on CH0, on the RTD's bus and tick (one bus owner, no
+  lock). The rim and heatsink NTC drivers divide by the measured rail inside
+  3195-3415 mV and by 3.300 V otherwise; the cold-soak check uses 16.9 K
+  with a measured rail and 19.4 K without (D-RAIL, `rail_adc.py`).
+- **Coil-off token (NVS)**, `components/control/pan_soak_store.c` with
+  `main/soak_store_nvs.c` (namespace `temper_soak`, key `off_s`): one write
+  when a coil-off period reaches 15 min, an erase before the coil is
+  energised, and at boot a credit of 15 min (a lower bound: the unpowered
+  time counts as zero) so the cold-soak check can run after a power cycle
+  (D-SOAKNV).
 
 ## Configuration
 

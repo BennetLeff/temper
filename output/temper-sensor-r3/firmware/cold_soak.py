@@ -5,7 +5,9 @@ PREHEAT entry, before the first power): after the coil has been off >= 30 min,
 with 15 min of flat history, the heatsink NTC VALID and <= 45 degC and the rim NTC
 saturated, latch FAULT_PROBE_LEAKAGE when the heatsink exceeds the Pt100 by more
 than PCS_THRESHOLD_K (19.4 K, hs-ntc.json cold_soak_budget) through the window and
-now. Here the heatsink driver (components/sensors/hs_ntc.c), the Pt100 conversion
+now (PCS_THRESHOLD_MEASURED_K, 16.9 K, when the heatsink reading used a measured
+rail at every note through the window and now; D-RAIL). Here the heatsink driver
+(components/sensors/hs_ntc.c), the Pt100 conversion
 (components/sensors/rtd_convert.c) and the check run in C through the cosim shim
 (soak_run: one sample per second, the check evaluated every EVAL_EVERY_S as a
 PREHEAT entry then would), fed by a thermal model of an idle unit:
@@ -33,14 +35,21 @@ picks):
   miss      the other way (gain 0.855722), with the Pt100's off-pan self-heating
             (2.7 K at 30 degC, hs_ntc.py pt_off_pan_self_heating) and v3v3 3.367 V.
 ADC noise (3 mV rms per one-shot sample) runs in every corner.
-Variant rail_corrected (reported; the check's threshold re-derived from its own
-false corner): an MCP3202 CH1 rail reading, +/-0.2 %; no driver exists, D-HSNTC.
+Two variants, both gated, each with the threshold the firmware itself picks:
+  rail_fallback  no rail reading (rail_adc.c "rail unknown"): the driver divides by
+                 3.300 V, the true rail at the contract corner (3.242 / 3.367 V);
+                 the check uses PCS_THRESHOLD_K;
+  rail_measured  the MCP3202 CH1 reading (rail_adc.c), off by rail_adc.py's
+                 soak-band error (0.93 %: LM4040A25 tolerance, tempco, current,
+                 typical drift and hysteresis, MCP3202 offset/gain/INL, half an
+                 LSB, ripple) in the corner's direction; the check uses
+                 PCS_THRESHOLD_MEASURED_K.
 The pre-C45 network (100 R, no divider, gain 1) is no longer run: its results are
 this file's output at 75e512eab (variant as_built there).
 
 1. Threshold cross-check: the C path's steady false-corner gap over the band plus
    the soak residuals (hs-ntc.json) must not exceed PCS_THRESHOLD_K (gated).
-2. Benign cold starts (gated, as built, every corner): 0 latches at any evaluation
+2. Benign cold starts (gated, both variants, every corner): 0 latches at any evaluation
    time. Sets: ambient 5-40 degC from power-up; warm restart after a 250 degC cook
    (glass from 250 degC, heatsink from 88.6 degC, tau_g 408/816/1800 s x tau_h
    450/900/1800 s, evaluated every 10 s for 4 h, which includes idle 0, 10, 20,
@@ -65,9 +74,9 @@ this file's output at 75e512eab (variant as_built there).
    same leak present at a cold start: a leak that was there before the cook, or
    the next cook after one developed. The miss corner adds the soak residuals
    (heatsink still 1.54 K below the room, Pt100 0.39 K above). The as-built
-   nominal coverage of the temperature-independent family is gated against the
-   recorded EXPECTED_INDEP_NOMINAL (a change either way fails until DECISIONS.md
-   is updated).
+   nominal coverage of the temperature-independent family is gated, per variant,
+   against the recorded EXPECTED_INDEP_NOMINAL (a change either way fails until
+   DECISIONS.md is updated).
 
 Writes cold-soak.json. Run: python3 cold_soak.py [--lib path]
 """
@@ -104,17 +113,20 @@ AMBIENTS = H.AMBIENTS
 K_B_EV = 8.617333e-5
 T_ANCHOR_K = 573.15
 EA_EV = (0.01, 0.02, 0.05, 0.1, 0.2)
-RAIL_READ_TOL = 0.002
+RAIL_READ_TOL = H.RAIL_READ_TOL   # rail_adc.py soak-band error of the MCP3202 CH1 reading
 # Noise: ESP32-S3 ADC1 ~3 mV rms per one-shot sample (the driver trims and averages
 # 8 per step, then filters); MAX31865 +/-1 LSB (0.034 K). Assumptions; bench item.
 ADC_NOISE_MV = 3.0
 PT_NOISE_LSB = 1.0
 CORNERS = ("false", "nominal", "miss")
-VARIANTS = {"as_built": {"gain": H.ADC_GAIN, "rail": False},
-            "rail_corrected": {"gain": H.ADC_GAIN, "rail": True}}
-# As-built (CR-8, C45), nominal corner, temperature-independent leaks: hazardous runs
+VARIANTS = {"rail_fallback": {"gain": H.ADC_GAIN, "rail": False},
+            "rail_measured": {"gain": H.ADC_GAIN, "rail": True}}
+# As built (CR-8, C45), nominal corner, temperature-independent leaks: hazardous runs
 # caught before heating (cold soak or the 84.27 ohm window) per ambient. Recorded.
-EXPECTED_INDEP_NOMINAL = {"5.0": 169, "15.0": 200, "25.0": 200, "30.0": 200, "35.0": 200, "40.0": 200}
+EXPECTED_INDEP_NOMINAL = {
+    "rail_fallback": {"5.0": 169, "15.0": 200, "25.0": 200, "30.0": 200, "35.0": 200, "40.0": 200},
+    "rail_measured": {"5.0": 200, "15.0": 200, "25.0": 200, "30.0": 235, "35.0": 235, "40.0": 235},
+}
 IDLE_MIN = (0, 10, 20, 30, 45, 60, 90, 120)
 
 # ---- vectorised physics --------------------------------------------------------------
@@ -380,19 +392,26 @@ def main() -> int:
     h = lib().soak_new()
     lib().soak_init(h, 1.0, 1.0, 0.0, -1.0, 0.0, 0.0, 1.0)
     fw = {n: lib().soak_param(h, i) for i, n in enumerate(("threshold_k", "soak_n_s", "window_s", "bucket_s",
-                                                           "hs_flat_k", "pt_flat_k", "hs_max_c"))}
+                                                           "hs_flat_k", "pt_flat_k", "hs_max_c",
+                                                           "threshold_measured_k"))}
     lib().soak_free(h)
     hs_json = json.loads((HERE / "hs-ntc.json").read_text())
     analytic = hs_json["cold_soak_budget"]
+    analytic_m = hs_json["cold_soak_budget_rail_measured"]
+    fw_thr = {"rail_fallback": fw["threshold_k"], "rail_measured": fw["threshold_measured_k"]}
+    an_thr = {"rail_fallback": analytic["threshold_K"], "rail_measured": analytic_m["threshold_K"]}
 
     # 1. thresholds
     thr = {v: derive_threshold(v) for v in VARIANTS}
-    gate["threshold_c_path_within_firmware"] = thr["as_built"]["threshold_K"] <= fw["threshold_k"] + 1e-6
-    gate["firmware_threshold_is_hs_ntc_budget"] = abs(fw["threshold_k"] - analytic["threshold_K"]) < 1e-6
-    use_thr = {"as_built": fw["threshold_k"], "rail_corrected": thr["rail_corrected"]["threshold_K"]}
+    for v in VARIANTS:
+        gate[f"threshold_c_path_within_firmware_{v}"] = thr[v]["threshold_K"] <= fw_thr[v] + 1e-6
+        gate[f"firmware_threshold_is_hs_ntc_budget_{v}"] = abs(fw_thr[v] - an_thr[v]) < 1e-6
+    # the firmware picks per evaluation (0: its own two thresholds)
+    use_thr = {v: 0.0 for v in VARIANTS}
     for v, d in thr.items():
         print(f"threshold {v}: C-path steady false gap {d['steady_false_gap_max_K']} K + residuals "
-              f"{d['residuals_K']} K -> {d['threshold_K']} K; check runs at {d['band_A_C']} degC (false corner)")
+              f"{d['residuals_K']} K -> {d['threshold_K']} K (firmware {fw_thr[v]:.1f} K); check runs at "
+              f"{d['band_A_C']} degC (false corner)")
 
     # 2. benign
     gated, reported = benign_cases()
@@ -421,13 +440,18 @@ def main() -> int:
     ben_sum = summarize(ben)
     idle = {}
     for x in ben:
-        if x["variant"] == "as_built" and x["at_idle_min"]:
+        if x["variant"] == "rail_fallback" and x["at_idle_min"]:
             for m, vd in x["at_idle_min"].items():
                 d = idle.setdefault(x["kind"], {}).setdefault(str(m), Counter())
                 d[vd] += 1
     idle = {k: {m: dict(c) for m, c in d.items()} for k, d in idle.items()}
     rep_sum = summarize(rep)
-    gate["benign_as_built_no_latch"] = all(d["latches"] == 0 for d in ben_sum["as_built"].values())
+    margin = {}
+    for v in VARIANTS:
+        gate[f"benign_{v}_no_latch"] = all(d["latches"] == 0 for d in ben_sum[v].values())
+        gaps = [d["max_gap_K"] for d in ben_sum[v].values() if d["max_gap_K"] is not None]
+        margin[v] = {"threshold_K": round(fw_thr[v], 1), "largest_benign_gap_K": max(gaps),
+                     "margin_K": round(fw_thr[v] - max(gaps), 3)}
     # existing sets' cold starts (leak-checks.json benign kinds)
     lc = json.loads((HERE / "leak-checks.json").read_text())
     kinds = sorted({f"{b['set']}/{b['kind']}" for b in lc["benign_rows"]})
@@ -436,9 +460,9 @@ def main() -> int:
         if k.endswith("hot_glass"):
             existing[k] = "a pan on glass at 200 degC just after use: warm_restart, idle 0 (gated above)"
         else:
-            r = [steady(25.0, c, "as_built", fw["threshold_k"]) for c in CORNERS]
-            existing[k] = {c: x["verdict"] for c, x in zip(CORNERS, r)}
-    gate["existing_sets_no_latch"] = all(isinstance(v, str) or "leak" not in v.values() for v in existing.values())
+            existing[k] = {v: {c: steady(25.0, c, v, 0.0)["verdict"] for c in CORNERS} for v in VARIANTS}
+    gate["existing_sets_no_latch"] = all(isinstance(e, str) or all("leak" not in d.values() for d in e.values())
+                                         for e in existing.values())
 
     # 3. hazardous
     haz = [r for r in lc["leak_rows"] if r["T_c_steady"] > 300.0]
@@ -461,12 +485,13 @@ def main() -> int:
                         "hazardous": len(haz), "caught_before_heating": soak + win, "cold_soak": soak,
                         "window_84.27_only": win, "not_caught_verdicts_by_leak_value": dict(skip)}
     base = {str(a): sum(by_r[rr] for rr in by_r
-                        if hres[("as_built", "nominal", "independent", a, rr)]["caught_by"] == "window_84.27")
+                        if hres[("rail_fallback", "nominal", "independent", a, rr)]["caught_by"] == "window_84.27")
             for a in AMBIENTS}
-    indep_nom = {a: coverage["as_built"]["nominal"]["independent"][a]["caught_before_heating"] for a in
-                 coverage["as_built"]["nominal"]["independent"]}
-    expected = EXPECTED_INDEP_NOMINAL
-    gate["hazardous_indep_nominal_as_recorded"] = expected is None or indep_nom == expected
+    indep_nom = {v: {a: coverage[v]["nominal"]["independent"][a]["caught_before_heating"] for a in
+                     coverage[v]["nominal"]["independent"]} for v in VARIANTS}
+    for v in VARIANTS:
+        expected = EXPECTED_INDEP_NOMINAL[v]
+        gate[f"hazardous_indep_nominal_as_recorded_{v}"] = expected is None or indep_nom[v] == expected
     per_value = {f"{v}/{c}/{f}/{a}/{rr}": x for (v, c, f, a, rr), x in hres.items()}
 
     out = {
@@ -475,8 +500,10 @@ def main() -> int:
         "hs_ntc_budget_threshold_K": analytic["threshold_K"],
         "thresholds": {v: {k: x for k, x in d.items() if k != "rows"} for v, d in thr.items()},
         "threshold_rows": {v: d["rows"] for v, d in thr.items()},
-        "thresholds_used": use_thr,
-        "benign_gated": ben_sum, "benign_gated_as_built_verdicts_at_idle_min": idle,
+        "thresholds_used": {v: fw_thr[v] for v in VARIANTS},
+        "rail_read_tol_pct": round(RAIL_READ_TOL * 100, 4),
+        "benign_gated": ben_sum, "benign_false_latch_margin": margin,
+        "benign_gated_rail_fallback_verdicts_at_idle_min": idle,
         "benign_reported_outside_assumptions": rep_sum,
         "benign_reported_latched": [r for r in rep if r["latches"]],
         "existing_sets_cold_start_at_25C": existing,
@@ -486,10 +513,12 @@ def main() -> int:
         "gate": gate, "all_pass": all(gate.values()),
     }
     Path(args.out).write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8")
-    print("benign gated (as built):", {k: (d["trajectories"], d["ran"], d["latches"])
-                                       for k, d in ben_sum["as_built"].items()})
-    print("benign reported (as built):", {k: (d["trajectories"], d["latched_trajectories"])
-                                          for k, d in rep_sum["as_built"].items()})
+    for v in VARIANTS:
+        print(f"benign gated ({v}):", {k: (d["trajectories"], d["ran"], d["latches"])
+                                       for k, d in ben_sum[v].items()})
+        print(f"benign reported ({v}):", {k: (d["trajectories"], d["latched_trajectories"])
+                                          for k, d in rep_sum[v].items()})
+        print(f"false-latch margin ({v}):", margin[v])
     for v in VARIANTS:
         for c in ("nominal", "miss"):
             print(f"hazardous caught before heating {v}/{c}: " + "; ".join(
@@ -497,8 +526,9 @@ def main() -> int:
                 for f in fams))
     print("baseline 84.27 ohm window only:", base)
     for m in IDLE_MIN:
-        print(f"warm restart, idle {m} min (as built, all corners):", idle.get("warm_restart", {}).get(str(m)))
-    print("indep nominal as built:", indep_nom)
+        print(f"warm restart, idle {m} min (rail fallback, all corners):",
+              idle.get("warm_restart", {}).get(str(m)))
+    print("indep nominal:", indep_nom)
     for k, v in gate.items():
         print(f"{'PASS' if v else 'FAIL'} {k}")
     print("ALL COLD SOAK CHECKS PASS" if out["all_pass"] else "COLD SOAK CHECK FAILURE")

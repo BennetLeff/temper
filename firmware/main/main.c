@@ -226,10 +226,9 @@ static void init_peripherals(void) {
      * native-21 gate generator is TODO(hardware) (board_power.c). */
     board_power_init();
     
-    /* Board-owned SPI2/MAX31865 bootstrap. On zapote DRDY is on the TCA9555
-     * (P07), not a GPIO, so until rtd_service reads it there this fails
-     * closed (temper_pins.h PIN_RTD_DRDY); no SPI transfer is performed in
-     * an ISR. */
+    /* Board-owned SPI2/MAX31865 bootstrap. On zapote DRDY is TCA9555 P07,
+     * polled over I2C (D-DRDY); an expander that does not answer fails the
+     * bootstrap closed. No SPI transfer is performed in an ISR. */
     if (rtd_service_bootstrap() != HAL_OK) {
         ESP_LOGE(TAG, "MAX31865 bootstrap failed; control task will fail closed");
     }

@@ -250,11 +250,12 @@ unchanged.
 | CR-7 item | Where |
 |---|---|
 | CONFIG 0xC0 (VBIAS, auto conversion, 60 Hz) | `max31865_start_conversions`, after the power-up cycle |
-| One automatic fault cycle at power-up, coil off; completion by polling CONFIG D3:D2 | `rtd_service` C1 bootstrap / `max31865_fault_cycle_busy`. **Manual** cycle (needs CR-1 filter): open |
+| Fault-detection cycle at power-up, coil off; completion by polling CONFIG D3:D2 | **Manual** cycle (D-FCYC): `rtd_service` C1 bootstrap + `c1_fault_cycle_tick`, `max31865_manual_fault_step1/2`, `max31865_fault_cycle_busy`; also on every probe-fault reset request (D-RESET). The automatic cycle is never written in C1 |
 | Thresholds 84.27 / 233.21 Ω (R(−40) / R(360 °C)) | D-THRESH |
 | Self-heating 0.061 K subtracted | `rtd_convert_code_to_c` |
-| Loading correction R − (7.86e-4·R − 0.0331) | `rtd_convert`, behind `RTD_FRONT_END_CR1` (default 0: the captured controller has no CR-1) |
-| Stale: no DRDY for 3 × 20 ms | `RTD_C1_STALE_CONTROL_TICKS` 6 (60 ms) |
+| Loading correction R − (7.86e-4·R − 0.0331) | `rtd_convert`, behind `RTD_FRONT_END_CR1`, default **1** since zapote C37 fitted CR-1 exactly (D-FCYC) |
+| Stale: no DRDY for 3 × 20 ms | `RTD_C1_STALE_CONTROL_TICKS` 6 (60 ms); DRDY from TCA9555 P07, polled (D-DRDY) |
+| V_node / v3v3 with the rail from MCP3202 CH1 | `components/sensors/rail_adc.c` (D-RAIL) |
 | Rim ADC attenuation and rim faults | `components/sensors/rim_ntc.c` (D-RIM) |
 | 25 K cross-check | the guard (D-XCHK) |
 
@@ -282,6 +283,15 @@ frozen reading is caught 4.7–5.0 s after it freezes, against the legacy
 loop keeps heating, so the pan can rise by up to 5 s × the heating rate. The
 pan peak stays ≤ 198.6 °C across the 24 frozen runs, which include freezes
 during the first heat-up.
+
+**With the manual fault cycle and the expander DRDY (D-FCYC, D-DRDY).** The
+first conversion after any (re)start of conversions takes the single-
+conversion time (data sheet Note 5: 52–55 ms with the 60 Hz notch), so it
+gets `RTD_C1_FIRST_DRDY_CONTROL_TICKS` = 8 (80 ms) instead of 6; every later
+one keeps 6. On zapote/controller DRDY is a level on TCA9555 P07, polled once
+per tick: a failed I2C read counts as a tick without DRDY, so a dead expander
+or bus trips the same 60 ms stale rule as a silent converter. The frozen rule
+is unchanged.
 
 ## D-RUN. Runaway checks: R1 replaces the 10 ms rate latch, R2 replaces target + 10 K
 
@@ -591,6 +601,23 @@ reset with the fault present, going FAULT → INIT → IDLE:
 - `test_c1_runtime.c` gains an `rtd_service_is_ready()` stub, because that
   target does not link the service.
 
+**A manual fault cycle before every probe-fault reset (D-FCYC).** For
+FAULT_PROBE_OPEN / SHORT, `fault_cleared()` → `rtd_service_fault_status_clean()`
+asks the service for a verification: CONFIG 0x82 (07h clear, conversions
+stop, VBIAS stays on), 0x88 (step 1), 5.5 ms, 0x8C (step 2), 07h, then the
+restart 11.5 ms after step 2. The reset is accepted only when that cycle read
+07h = 0 **and** a later conversion came back unflagged, and that verdict is
+used once. A flagged cycle is reported (the latch absorbs it) and refuses the
+reset: an input shorted to ground still converts inside the window (the
+short adds the lead and switch, about 12 Ω), so the window alone would have
+accepted it. The verification takes about 0.1 s, longer than a short press,
+so in C1 a probe-fault press stays **armed for 1 s** after it is let go
+(`state_handlers.c`, `RESET_PROBE_ARM_MS`); the check keeps running with the
+coil off, FAULT PERSISTS shows only while the button is held, and other
+faults still need the button held. The SIL's refused-reset check now watches
+2 s past the press. The power-up cycle's fault is terminal (the service
+stops), so a power cycle is still needed for it.
+
 ## D-RIM. Rim NTC driver; a rim fault latches through the RTD sink
 
 **Driver.** The driver is `components/sensors/rim_ntc.{c,h}`.
@@ -646,9 +673,13 @@ Each period:
   100–250 °C" with whole-mV output; the PCB agent's 0.057 K assumed raw LSBs.
 - **Not in these numbers:** the sensor's own tolerance (R25 ±3 %, B ±2 %,
   the PCB agent's 10.2 K at 250 °C), the rail and self-heating:
-  - **The rail.** The MCP3202 CH1 rail reading (CR-7) has no firmware driver.
-    The board binding reports "no rail", and the driver assumes 3.300 V. That
-    costs up to 4.37 K at the contract limits.
+  - **The rail.** With the rail unknown the driver assumes 3.300 V, which
+    costs up to 4.37 K at the contract limits. The MCP3202 CH1 reading
+    (D-RAIL) is now the board binding's `read_v3v3_mv`; measured, the rail
+    term is at most **2.87 K** over 100–250 °C (`rim-ntc.json`
+    `rail_error_with_MCP3202_worst_K`, the reading's full-range 1.33 % error
+    on a −40..85 °C board). The 19.1 K stack below keeps the unknown-rail
+    4.37 K, because the rail can be unknown (D-RAIL: that is not a fault).
   - **Self-heating is not subtracted.** In still air it is at most 4.53 K over
     100–250 °C (0.6 mW/K, datasheet). Bearing on the glass the dissipation is
     higher, so the true offset is smaller, and correcting with the still-air
@@ -1493,14 +1524,14 @@ It writes `firmware/components/sensors/hs_ntc_table.h` (deterministic) and
   periods), OVER_RANGE (hotter than 150 °C for 3 periods), ADC (10 failed
   periods) and, new, **DIVIDER** (below).
 - **The rail.** MCP3202 CH1 (the LM4040A25 reference) is the board's rail
-  measurement, but no firmware driver exists: U15 sits on the RTD SPI bus
-  (GPIO10–13, CS GPIO42) with the MAX31865, and a driver needs bus
-  arbitration with `rtd_service`'s conversion timing. That is a driver of
-  its own, not part of this change, so `read_v3v3_mv` reports "not
-  available" and the driver divides by 3.300 V. With the divider the rail
-  error is largest at the cold end, where the node is near the rail
-  (7.9 K at 5 °C, 4.0 K at 25 °C, rail low); the rail-measured numbers are
-  reported beside every as-built one.
+  measurement; `read_v3v3_mv` is its reading (`rail_adc.c`, D-RAIL) when
+  MEASURED, and 3.300 V (`rail_nominal`) when the rail is unknown. With the
+  divider the rail error is largest at the cold end, where the node is near
+  the rail: assumed 3.300 V it is 7.9 K at 5 °C and 4.0 K at 25 °C (rail
+  low); measured, the reading's own error (1.33 % full range) costs at most
+  8.6 / 3.4 / 0.71 K at 5 / 25 / 95 °C either way (`hs-ntc.json`
+  `channel.rows[].rail_measured_K`; 14.7 / 5.3 / 1.06 K assumed, rail high).
+  The cold soak uses the soak-band figure (D-RAIL, D-SOAK).
 
 **Accuracy** (`hs-ntc.json` `channel.rows`; first-order terms in K, the ADC
 at its Table 5-6 error for the attenuation the pin calls for; "corner" is
@@ -1620,9 +1651,10 @@ The check is `components/control/pan_cold_soak.{c,h}`, run by
 driver and the Pt100 conversion in C.
 
 **When: PREHEAT entry, not power-up.** At power-up nothing says how long the
-coil has been off: no time of the last cook persists across a reset, and a
-reset during a cook is exactly when the glass is hot. So uptime counts as
-coil-on time, and the history is kept from power-up. PREHEAT entry is the
+coil has been off beyond a stored lower bound (D-SOAKNV: a token in NVS,
+written only after 15 min off), and a reset during a cook is exactly when
+the glass is hot. So without a token uptime counts as coil-on time, and the
+history is kept from power-up. PREHEAT entry is the
 last moment before the coil heats, it is reached on every cook, and the user
 has just placed the pan, which the flatness and rim conditions see.
 `pan_control_begin()` freezes the history; the first control period (100 ms,
@@ -1687,8 +1719,15 @@ offset. The worst is at its cold edge, 5 °C:
 
 Total 19.33 K → 19.4 K. The stack falls to 12.7 K at 25 °C and 10.4 K at
 40 °C (one threshold serves the band, so the warm rooms carry the cold
-edge's allowance). With the rail measured (MCP3202 CH1, ±0.2 %) it is
-14.5 K. The C path (`cold-soak.json`: the same corner through `hs_ntc.c`
+edge's allowance). With the rail measured it is **16.9 K**
+(`PCS_THRESHOLD_MEASURED_K`, `cold_soak_budget_rail_measured`; D-RAIL): the
+rail term is then the reading's own 0.93 % soak-band error, not 3.242 V read
+as 3.300 V. The CR-8 study's 14.5 K assumed a ±0.2 % rail reading, which
+the LM4040A25 alone cannot give (0.1 % at 25 °C plus 100 ppm/K, the current
+shift, drift and hysteresis, plus the MCP3202's offset, gain and INL). The
+firmware picks per evaluation: 16.9 K only when the heatsink reading used a
+measured rail at every history note through the window and now
+(`pcs_note_rail` / `pcs_evaluate_rail`), 19.4 K otherwise. The C path (`cold-soak.json`: the same corner through `hs_ntc.c`
 and `rtd_convert.c` with modelled noise, steady at 5–44 °C in 0.5 K steps)
 needs 16.62 + 1.93 = 18.6 K; the gate holds it at or under the firmware's
 19.4 K. The 0.8 K between them is the budget's conservatism (3σ noise and
@@ -1712,8 +1751,11 @@ corner, evaluated every 10 s along each trajectory):
 
 The transport set now starts from the storage minimum (−20 °C) and ends in
 every room 5–40 °C, since the check runs in cold rooms too (it was 216
-trajectories into 25–40 °C rooms). The rail-corrected variant (threshold
-13.8 K from its own C path) also latches 0 times.
+trajectories into 25–40 °C rooms). **Rail measured** (`cold-soak.json`
+variant `rail_measured`, gated the same way, the firmware choosing 16.9 K
+itself): the same 828 trajectories, 532775 evaluations, 0 latches, largest
+gap 15.34 K (transport and warm restart), so a **margin of 1.57 K** (C path
+14.15 + 1.93 = 16.1 K).
 
 **The false-latch margin: 19.4 − 17.88 = 1.52 K** (the largest gap over every
 gated benign trajectory and corner, against the firmware threshold; 0.72 K
@@ -1754,7 +1796,11 @@ C45); the `hot_glass` kind is the warm restart at idle 0.
 - **a large pot of cold water** (τ 20000 s): 0 of 36, largest gap 17.6 K;
 - **τ_h = 3600 s** (twice τ_max) after a cook or transport: 0 of 126,
   largest gap 19.36 K against 19.4 K: the margin there is 0.04 K, so bench
-  item 3 must measure τ_h.
+  item 3 must measure τ_h. Rail measured: **1 of 126 latches** (warm
+  restart into a 5 °C room, false corner, gap 16.95 K against 16.9 K at
+  3 h). Outside the gated τ ≤ 1800 s, but it makes bench item 3 a
+  precondition for trusting the measured-rail threshold. The frozen pot
+  (22/36) and the −5 °C room (1/6) latch in both variants.
 
 **Hazardous leaks caught before heating** (`cold-soak.json`): the 235 runs
 of `leak-checks.json` whose untripped steady T_c exceeds 300 °C (7 leak
@@ -1783,8 +1829,12 @@ threshold), and up to 0.97 kΩ at 5 °C (169; the 1.29 kΩ leak gives 18.6 K
 there). Before C45 it added nothing below ~32 °C. At the miss corner the
 heatsink reads 13.8 K low at 25 °C and below the table under ~7 °C, so the
 check skips or misses there; 107–136 from 25 °C up. With the rail measured
-(threshold 13.8 K) the nominal count is 235 at every ambient and the miss
-corner 71–200. Leaks that conduct mostly hot are still missed
+(threshold 16.9 K, gated `hazardous_indep_nominal_as_recorded_rail_measured`)
+the temperature-independent nominal count is 200 / 200 / 200 / 235 / 235 / 235
+at 5 / 15 / 25 / 30 / 35 / 40 °C (the 1.73 kΩ leak is caught from 30 °C up)
+and the miss corner 71 / 35 / 136 / 136 / 169 / 169; Ea 0.1 eV gains 35 at
+35–40 °C. The CR-8 study's "235 at every ambient" rested on the ±0.2 % rail
+and does not hold. Leaks that conduct mostly hot are still missed
 (Ea ≥ 0.1 eV). The 300 °C bar stays not met (open item 10).
 
 **SIL** (D-SIL; `trace_c1_cold_soak_preheat.csv`, manifest fields
@@ -1794,7 +1844,9 @@ where the pre-C45 channel was VALID): a 1 kΩ temperature-independent leak
 after a 40 min idle latches FAULT_PROBE_LEAKAGE in the first PREHEAT period
 (1 row, bound 2; the reading −2.86 °C, gap 27.86 K) and a reset is refused;
 the intact probe passes (gap 0) and PREHEAT holds; after a 10 min idle the
-check skips with the leak present.
+check skips with the leak present. D-SOAKNV adds a fourth: the same leak
+after a power cycle with a coil-off token in NVS (`c1_soak_token_s` 900)
+latches after 1000 s of uptime (coil off ≥ 1900 s).
 
 **Host tests:** `test_c1_units_only` (`pan_cold_soak.c`: not before
 30 min, threshold edges at 19.3 / 19.5 K, coil activity restarts, a full
@@ -1806,17 +1858,18 @@ the window skips, < 30 min skips and heats, a SATURATED heatsink or warm rim
 skips).
 
 **Limits.**
-- A power cycle restarts the soak: unplug, plug in and start within 30 min
-  and the check skips. Persisting the last coil-off time (NVS) would close
-  it (open item 14).
+- A power cycle no longer restarts the soak from zero if the unit had been
+  off ≥ 15 min before it (D-SOAKNV): the NVS token credits 15 min, so the
+  check can run once the 15 min RAM history is complete. Unplug within
+  15 min of a cook (or of power-up), and power-up still counts as activity.
 - Not soaked is not a pass: the check skips and records the reason
   (`pan_control_cold_soak_result()`); nothing is logged to EEPROM.
 - One threshold for the band: the cold edge's 19.4 K applies in a 35 °C
   room too, where the stack is 11.0 K. A threshold read from the heatsink
   temperature would not recover it simply: at the false corner a reading of
   20 °C can be a 5 °C sink, so the threshold for a reading has to cover every
-  sink that can produce it. Measuring the rail (open item 11) is the larger
-  gain (19.4 → 14.5 K).
+  sink that can produce it. Measuring the rail (D-RAIL) is the larger
+  gain (19.4 → 16.9 K, not the 14.5 K the ±0.2 % assumption gave).
 
 **Bench measurements this needs** (`../bench/`). With CR-8 the heatsink
 channel is VALID at room temperature, so none of these needs a warm room or
@@ -1902,14 +1955,12 @@ latched fault and runaway, toggled GPIO7 (the coil ADC) as WDI from the state
 machine, armed a falling-edge DRDY interrupt on GPIO9 (the rim NTC node), and
 clocked the MAX31865 on GPIO8. None of these is left.
 
-**DRDY on the target.** `rtd_service` still waits on a GPIO DRDY edge, and
-there is no TCA9555 driver. `PIN_RTD_DRDY` is therefore `HAL_PIN_INVALID`
-on the target (`@not-gpio`; the check fails if the board ever puts RTD_DRDY
-on a GPIO) and `rtd_service_bootstrap()` fails closed; the host suites keep
-mock line 63 (`@host-mock`, above the last pad). The fix belongs to the
-`rtd_service` owner (zapote C23: poll DRDY through the expander or read on
-the conversion period). Until then the MAX31865 reports its bootstrap fault
-and the unit stays in FAULT, as it already does on the failed self-tests.
+**DRDY on the target.** `PIN_RTD_DRDY` is `HAL_PIN_INVALID` on the target
+(`@not-gpio`; the check fails if the board ever puts RTD_DRDY on a GPIO); the
+host suites keep mock line 63 (`@host-mock`, above the last pad). When this
+was written `rtd_service` waited on a GPIO edge and the bootstrap failed
+closed on the target; since the sensor-bus merge it polls P07 through the
+TCA9555 instead (D-DRDY).
 
 ## D-BRINGUP. WDI supervisor, RUN_EN interlock, burst start, PLL and pan-detect wiring
 
@@ -2020,6 +2071,247 @@ Any error leaves the PLL unlocked and no pan. **Stubs that remain**
   no power;
 - the TCA9555 driver: DRDY, SUP_RUN_OK_RB and the latch read-backs;
 - the power, fan, UI and self-test stubs in `board_peripherals.c`.
+## D-FCYC. The MAX31865 fault-detection cycle is manual, timed from the CR-1 network
+
+**Why.** zapote/controller C37 fitted CR-1 exactly (as-built checks 11/11): a
+two-stage differential RC (1.00 k / 100 nF / 1.00 k / 100 nF C0G) between J3
+and RTDIN±, 220 nF X7R on every J3 pin, the 499 k open-lead pull-ups. The
+data sheet (19-6478 Rev 3, "Fault Detection Cycle (D3:D2)"): "If the external
+RTD interface circuitry includes an input filter with a time constant
+greater than 100 µs, the fault detection cycle timing should be controlled
+in the manual mode operation." C37 says the same and asks for a 5 ms wait.
+
+**The timing** (`fault_cycle.py` → `fault-cycle.json`, gated). It takes
+`pcb/checks.py`'s MNA model of that circuit unchanged, assembles C·dx/dt +
+G·x = b with FORCE− closed and open at 1536 tolerance corners (C0G ±5 %, X7R
+±10 %, R ±0.1/1 %, the unspecified FORCE− switch 0.5/10/20 Ω, leads
+0.9/1.1×, the element at −40/25/250/360 °C) and integrates the manual
+sequence (backward Euler, 1 µs):
+- **τ_max = 1009.9 µs** (FORCE− open, 360 °C, every capacitor high). C37's
+  5 ms is 4.95 τ_max: just under the data sheet's 5 τ. The firmware does not
+  use it.
+- Worst required waits: a healthy input settles to the 85 % comparators with
+  FORCE− open in 1.193 ms; an open element is flagged 0.584 ms after VBIAS;
+  15-bit settling before a restart 5.533 ms.
+- **Firmware waits** (`rtd_service.h`, gated): STEP = max(5 ms, 5 τ_max,
+  2 × worst) = **5.5 ms** between VBIAS-on, step 1 and step 2; RESTART =
+  max(STEP, 5 τ_max + 1 ms, 10.5 τ_max (Note 4), 2 × worst 15-bit) =
+  **11.5 ms** from step 2, plus 1 ms for the chip's own step-2 check, before
+  CONFIG 0xC0. Each wait is measured with the HAL microsecond clock and
+  checked each 10 ms control tick, so the real spacing is ≥ 10 ms per step.
+- **The automatic cycle flags a healthy input** (07h 0x18: D4, D3) at all 48
+  transient corners: its 100 µs internal delays are a tenth of τ_max.
+- **At the firmware waits**: healthy 0x00; element open 0x28; FORCE+ open
+  0x28; FORCE− open 0x20; RTDIN− shorted to ground 0x18; FORCE+ shorted to
+  ground 0x18. An open RTDIN− lead is not a cycle condition on this board
+  (the 499 k and CR-3 divider pull it to 0.894 VBIAS): the conversion ratio
+  goes negative, code 0, below the low threshold: FAULT_PROBE_SHORT within a
+  conversion.
+
+**Sequence** (`rtd_service.c` C1, `max31865.c`): bootstrap programs the C1
+window and writes 0x82 (VBIAS on, conversions off, 07h clear); the control
+ticks then write 0x88 (step 1: D5 with FORCE− closed), 0x8C (step 2: D4/D3
+with FORCE− open), poll D3:D2 = 00, read 07h, read the RTD registers once
+(D-DRDY), and start conversions (0xC0). The coil is off: the machine is in
+INIT until the service converts. A set bit at power-up is reported (D6/D4/D3
+as SHORT, the rest as OPEN) and is terminal (D-RESET). A phase still
+unfinished 10 ticks past its wait fails open. The same cycle runs on every
+probe-fault reset request (D-RESET). `RTD_FRONT_END_CR1` now defaults to 1:
+the CR-7 loading correction is on for this board.
+
+**Model and tests.** The SPI mock carries an analog model of the input
+(`mock_max31865.c`, its constants generated into `mock_max31865_afe.h` by
+`fault_cycle.py`: τ_max and the DC node fractions per wiring condition): the
+comparators decide at the moment of each step write, a step sooner than
+5 τ_max after the last analog change and a restart sooner than the 15-bit
+settling are counted, and the automatic cycle (D3:D2 = 01, or 11 without a
+prior 10) is run with its 100 µs delays and counted.
+- `test_c1_rtd_service.c`: the manual cycle's order and waits; a cycle run
+  0.5 ms apart, and the automatic cycle, flag a healthy element (the model
+  behind the rule); the power-up cycle catches an open element, an open
+  FORCE− lead and inputs shorted to ground; a stuck cycle fails open.
+- SIL (C1, every scenario): the run fails if the model counted an automatic
+  cycle, a fast step or an early restart. New scenarios: FORCE− open from
+  power-up → FAULT_PROBE_OPEN in INIT (mechanism `rtd-fault-cycle`, 07h
+  0x20); the probe reconnected with RTDIN− shorted to ground → the reset's
+  cycle flags 0x18 and refuses it (mechanism `rtd-fault-cycle-reset`); the
+  reconnect scenario's accepted reset now requires a new cycle. Coverage
+  adds INIT as a C1 origin for FAULT_PROBE_OPEN: 28/28 pairs, 27/27
+  mechanism cells.
+- Mutation check: with the step-1 command set to the automatic code, 50 of
+  51 C1 SIL scenarios fail.
+
+## D-DRDY. DRDY is polled through the TCA9555, once per control tick
+
+On zapote/controller the MAX31865 DRDY is TCA9555 P07 (`EXP_RTD_DRDY`), not a
+GPIO, and the expander's INT is not wired to the MCU; GPIO9 is the rim NTC.
+The bring-up pin map (`sensor-c1-bringup`) sets `PIN_RTD_DRDY` to
+`HAL_PIN_INVALID` on the target.
+
+**Choice: poll the expander's Input Port 0 over I2C every 10 ms control tick,
+before the MAX31865 work** (`rtd_drdy_source_t`, `components/sensors/
+tca9555.c`; `RTD_DRDY_AUTO` picks it whenever `PIN_RTD_DRDY` is invalid; a
+valid pin keeps the falling-edge interrupt, which the host mocks use).
+- DRDY is a level: it "goes low when a new conversion result is available
+  ... When a read operation of an RTD resistance data register occurs, DRDY
+  returns high" (19-6478 Rev 3). Conversions are 16.7–17.6 ms apart (0xC0),
+  so a 10 ms poll cannot miss one, and the read that follows returns the
+  level high, so it cannot see one twice.
+- A level has no edge: a conversion left unread when the converter stops (the
+  reset verification's 0x82) would hold DRDY low through the cycle and pass
+  for the first new conversion, clearing the reset on old data. The service
+  therefore reads the RTD registers once before every (re)start. Without that
+  read the host test fails (mutation checked).
+- A failed I2C read is "no DRDY this tick". Six in a row is the stale open
+  fault, exactly as for a silent converter; an expander that does not answer
+  at bootstrap fails the service closed. D-STALE and the frozen rule are
+  unchanged.
+- **Rejected: reading on schedule** (every 20 ms off the 50 Hz period). A
+  converter that stopped converting would return its last code until the
+  frozen rule (250 codes, 5 s) instead of the 60 ms stale rule, and an
+  unsynchronised read can straddle a register update.
+
+The driver is minimal (TI SCPS200E Table 3: command byte 0x00 = Input Port 0,
+a write of the command byte then a repeated-start read; the power-up
+configuration is all inputs, polarity 0). The ESP-IDF v5.3.6 I2C master
+driver is thread-safe only for bus creation (i2c.rst "Thread Safety"), so
+the binding serialises its transfers with a mutex and shares an existing
+bus (`i2c_master_get_bus_handle`) if another owner created it; 400 kHz, 5 ms
+timeout. One poll is about 40 bit times, 0.1 ms at 400 kHz.
+
+**Tests.** `test_c1_rtd_service.c` (the TCA9555 model `test/mock_tca9555.c`,
+DRDY as the MAX31865 model's level): each conversion read once; the low
+level left over the reset cycle is not a new conversion; an I2C failure is
+stale-open in 5–6 ticks with the failures counted; no expander at bootstrap
+fails closed; AUTO follows the pin map. The C1 SIL now runs every scenario on
+the expander path. The host and target builds take the pin symbols from
+`temper_pins.h` (the pre-merge `SENSOR_BUS_PIN_SHIM` was removed at the
+merge with D-PINS); a pin map without `EXP_RTD_DRDY` and
+`TEMPER_EXPANDER_I2C_ADDR` compiles the expander path out and fails closed
+on an invalid DRDY pin.
+
+## D-RAIL. The v3v3 rail reading: MCP3202 CH1 against the LM4040A25
+
+**Driver** (`components/sensors/rail_adc.{c,h}`). U15 MCP3202-CI/SN, VDD =
+VREF = v3v3, CH1 = the LM4040A25IDBZR fed from v3v3 through 1 k 1 %, CS
+`PIN_SPI_CS_EXT_ADC` (GPIO42, 10 k pull-up), on the MAX31865's bus. Command
+0x01 / 0xE0 / 0x00 (DS21034F Figure 6-1: start, single-ended, CH1, MSB
+first); the null bit must read 0; v3v3 = 2500 mV × 4096 / (code + 0.5), the
+mean of 8 conversions, one reading per 100 ms.
+- **SPI.** MCP3202: modes 0,0 and 1,1, f_CLK ≤ 0.9 MHz at 2.7 V (1.8 MHz at
+  5 V), the sample read within 1.2 ms (DS21034F 6.1, 6.2): its own device
+  handle, **mode 0, 500 kHz**. MAX31865: mode 1 or 3, ≤ 5 MHz: mode 1,
+  500 kHz. Both CPOL 0, so SCLK idles at one level for both. ESP-IDF
+  v5.3.6 configures mode and clock per device (`spi_device_interface_config_t`)
+  and time-multiplexes devices on one bus ("SPI Bus Lock", spi_features.rst);
+  the driver is thread-safe when each device is used by one task
+  (spi_master.rst "Driver Features").
+- **Arbitration.** One task owns the bus: `rtd_service_control_tick()` does
+  its MAX31865 work, then calls `rail_adc_board_service()`, which samples
+  when 100 ms have passed. So the two never contend and there is no lock to
+  starve. A reading is 8 × 24 clocks (≈ 0.4 ms) per 100 ms. DRDY is a
+  latched level (D-DRDY), so a rail reading can delay a MAX31865 read by at
+  most that tick, never lose it; the host test runs 5 s of both (250
+  conversions, 50 readings) with no stale or frozen trip.
+- **Unknown, not a fault.** NO_READING, SPI (a transfer error or a high null
+  bit: an absent converter's floating DOUT), RANGE (outside the window),
+  STALE (no good reading for 1 s), NO_DEVICE (no CS in the pin map, attach
+  failed): the NTC drivers then divide by 3.300 V and set `rail_nominal`.
+  That is the board's validated state, whose error every budget already
+  carries (rim 4.37 K, the cold-soak 19.4 K), so a lost rail reading costs
+  accuracy, never availability.
+- **Window 3195–3415 mV** (`rail_adc.h`, gated): the TPS62933 contract
+  3.242–3.367 V widened by the reading's full-range error and rounded out to
+  5 mV, so a healthy board never reads "unknown". An open reference reads
+  2500 mV, a shorted one 20480 mV: both outside. A reference that drifted
+  inside the window is not detectable; its error is bounded by the window.
+  The NTC drivers' own acceptance (`v3v3_min_mv`) is lowered to 3195 to match.
+
+**Error budget** (`rail_adc.py` → `rail-adc.json`, gated; LM4040 TI SLOS456Q
+§6.8, MCP3202 DS21034F, both verified against the PDFs with
+`--verify-*-pdf`). As a fraction of v3v3, every term at its limit:
+- LM4040A25I: ±2.5 mV at 25 °C, + 100 ppm/K × |T − 25| (capped at the
+  full-range ±19 mV); + 1 mV for the cathode current (the tolerance is at
+  100 µA; the board runs 0.69–0.87 mA, inside IZ,min < IZ < 1 mA over the
+  contract); + 120 ppm long-term and 0.08 % thermal hysteresis (typical
+  values, carried as allowances);
+- MCP3202-C: offset 3 + gain 5 × code/4096 + INL 2 LSB at code ≈ 3103
+  (0.28 %), + ½ LSB of decode. These limits are specified at VDD 5.5 V; at
+  3.3 V they are assumed in LSB (bench item). With them doubled the
+  soak-band error is 1.22 % and the measured-rail threshold would be 17.7 K;
+- v3v3 ripple during a conversion (the converter's reference is v3v3): ±5 mV
+  assumed (10 mV p-p, forced-CCM TPS62933; bench item).
+
+Total **0.68 % at 25 °C, 0.93 % over a 5–50 °C board** (the cold-soak band,
+heatsink 5–45 °C plus 5 K of board self-heating, an assumption), **1.33 %
+over −40..85 °C** (used for the window and the rim). The CR-8 study assumed
+±0.2 %, which the LM4040A25 cannot give.
+
+**What it buys.**
+- **Cold soak:** 19.4 K → **16.9 K** when measured through the window
+  (D-SOAK; both thresholds gated in `hs_ntc.py` and `cold_soak.py`, 0 false
+  latches in both, margins 1.52 / 1.57 K).
+- **Rim:** the rail term 4.37 K → 2.87 K over 100–250 °C (D-RIM); the rim
+  limit keeps the unknown-rail stack.
+- **Heatsink:** at the 95 °C trip ±1.06 K → ±0.71 K; at 25 °C 5.3 → 3.4 K
+  (D-HSNTC).
+
+**Tests** (`test_c1_rtd_service.c`): the decode and its round trip; the
+device's own mode 0, 500 kHz and CS; the reading feeding the rim and heatsink
+seams and tracking 3.242–3.367 V; every unknown state falls back without a
+fault; 5 s of shared bus without starvation. `test_c1_units.c`: the
+threshold switches only with the rail measured through the window.
+
+## D-SOAKNV. The coil-off time survives a power cycle as an NVS lower bound
+
+**Time across mains loss.** The ESP32-S3's RTC timer "can also persist time
+keeping across any resets (with the exception of power-on resets which reset
+the RTC timer)" (ESP-IDF v5.3.6 `system_time.rst`), and zapote/controller has
+no battery, backup supply or external RTC. After a mains loss neither the
+RTC nor the high-resolution timer knows how long the unit was unpowered, and
+wall time (SNTP) is not assumed. So only a **lower bound** can persist: "the
+coil had been off at least X when this was written". The unpowered interval
+counts as zero, which can only make the unit look less soaked.
+
+**Design** (`components/control/pan_soak_store.{c,h}`, NVS binding
+`main/soak_store_nvs.c`, namespace `temper_soak`, key `off_s`):
+- **Write once** per coil-off period, when its coil-off time first reaches
+  N − W = 900 s: token = 900. With it a power-up credits 15 min
+  (`pcs_credit_off`), so the check can run as soon as the 15 min RAM history
+  is complete (16 min of uptime) instead of after 30 min. The window cannot
+  be persisted: the temperatures during the outage are unknown and flatness
+  must be observed. A longer token would buy nothing: the history is the
+  binding constraint after 900 s.
+- **Revoke** (erase, commit, read back) in `pan_control_begin()` before the
+  coil is energised, and on any coil activity the history sees, whenever a
+  token is present. So a token always means "the coil has been off since it
+  was written".
+- **Boot**: a present token in 1..3600 s credits its value; absent,
+  unreadable or implausible = unknown = not soaked (power-up counts as
+  activity, as before); an implausible one is erased.
+- **Write rate**: at most one write and one erase per cook; nothing periodic.
+  On re-initialisation (a fault reset through INIT) the token is read again.
+- **Power loss during NVS writes**: "one should be able to power off the
+  device at any point and time ... This should not result in loss of data,
+  except for the new key-value pair if it was being written" (nvs_flash.rst):
+  a torn write is an absent token (unknown). A torn erase leaves the token,
+  but the erase comes before energising, so the coil was still off.
+- **A failed revoke does not block heating.** The store is disabled for the
+  session and the failure counted. A stale token can only make the check
+  run on a unit still cooling from a later cook after a power cycle: the
+  heatsink warm over the Pt100 reads as a leak, a false and clearable
+  FAULT_PROBE_LEAKAGE. A skip and a pass have the same effect (no latch), so
+  no leak is missed that the RAM-only check would have caught.
+
+**Tests.** `test_c1_units.c`: one write per off period, none periodic,
+boot credit, revoke and verify, no flash traffic on coil activity without a
+token, implausible / unreadable / failed write / failed or unverified erase.
+`test_c1_runtime.c` (through `pan_control` and the state machine, an NVS
+mock that survives `state_machine_init()` as flash survives a power cycle):
+16 min idle writes the token; after a power cycle the leak latches at 16 min
+of uptime before any power and PREHEAT revokes the token; the same unit
+without a token skips; a failing erase does not stop heating. SIL: the
+power-cycle scenario in D-SOAK.
 
 ## Open items for the firmware owner
 
@@ -2075,29 +2367,29 @@ Any error leaves the PLL unlocked and no pan. **Stubs that remain**
    - ~~the control task is not subscribed to the task watchdog~~: it
      subscribes itself (`esp_task_wdt_add`).
 2. **Rim NTC driver and rim faults: closed by D-RIM.** What remains:
-   - **MCP3202 CH1 rail driver.** Without it the rim assumes 3.300 V, which
-     costs up to 4.37 K.
+   - **MCP3202 CH1 rail driver: closed by D-RAIL** (the rail term is 2.87 K
+     measured, 4.37 K when the rail is unknown).
    - **Bench:** the bead's dissipation constant on the glass (self-heating is
      not subtracted), and a transient glass log to replace the 60 s τ_g
      assumption in `xcheck_cosim.py`.
    - ~~**Pin header.** The legacy `hal/include/temper_pins.h` still names GPIO9
      `PIN_RTD_DRDY`.~~ Closed by D-PINS: GPIO9 is `PIN_ADC_RIM_NTC`, DRDY is
      `EXP_RTD_DRDY` (TCA9555 P07) and no GPIO; `rtd_service` reading DRDY
-     there is open item 16.
+     there is D-DRDY (open item 16, closed).
    - **UI wording** for a rim fault, which today shows as a probe fault.
 
    The three changed sources (`rim_ntc.c`, `rim_ntc_board.c`,
    `pan_control.c`) compile with `xtensa-esp32s3-elf-gcc` (`-Wall -Wextra
    -Werror`, C1 on). The IDF link is still item 1.
-3. **Manual fault-detection cycle** (needs the CR-1 filter): still open. It is
-   not trivially doable:
-   - the captured controller has no CR-1, so `RTD_FRONT_END_CR1` defaults
-     to 0;
-   - the manual sequence (FORCE− open, ≥ 5 ms waits, CONFIG D3:D2 steps) is
-     only meaningful against the filter's settling, which the SPI mock does
-     not model.
-
-   C1 runs the automatic cycle at power-up with the coil off.
+3. **Manual fault-detection cycle: closed by D-FCYC.** zapote C37 fitted
+   CR-1; τ_max 1009.9 µs from the board's MNA model; 5.5 ms steps and an
+   11.5 ms restart, at power-up (coil off) and before every probe-fault reset
+   (D-RESET); the SPI mock models the input settling and the SIL fails on an
+   automatic cycle, a fast step or an early restart. Still open:
+   - **bench:** the FORCE− switch resistance (0.5–20 Ω assumed) and τ on a
+     real board (scope REFIN−/RTDIN− through a manual cycle);
+   - C37's 5 ms is 4.95 τ_max; the firmware uses 5.5 ms, so nothing is asked
+     of the board, but C37's text should say ≥ 5.1 ms.
 4. **The double-fault trade-off (D-RUN)** is for the safety owner to accept or
    tighten. **Narrowed by D-ISENSE:** a sense that fails before the stage
    sticks is now caught on its own, by the start-up pulse or by (a) at the
@@ -2114,10 +2406,11 @@ Any error leaves the PLL unlocked and no pan. **Stubs that remain**
    - the bus-current sense scaling for stage 2a;
    - whether the end hold is steady on clad pans (D-ID2 rejections).
 6. **Closed (D-SIL): the SIL suite now runs in C1 mode as well.** It used to
-   encode only the legacy loop. `sil_fault_tests_c1` runs 36 scenarios
-   against the C1 configuration; legacy runs 31. Each of the four
-   legacy-only scenarios names its C1 replacement. Coverage is gated in both modes:
-   20/20 pairs legacy, 23/23 pairs C1, and 16/16 C1 mechanism cells. The C1
+   encode only the legacy loop. `sil_fault_tests_c1` runs 52 scenarios
+   against the C1 configuration (36 when this item closed); legacy runs 31.
+   Each of the four legacy-only scenarios names its C1 replacement. Coverage
+   is gated in both modes: 20/20 pairs legacy, 28/28 pairs C1, and 27/27 C1
+   mechanism cells (23/23 and 16/16 then). The C1
    run found two defects, both fixed (D-LATCH, D-RESET). Still open:
    - **An open Pt100 escalates to RUNAWAY_FAULT: closed by D-OPEN.** A
      conversion at or beyond R(850 °C) or R(−200 °C), or with a 07h input
@@ -2195,12 +2488,18 @@ Any error leaves the PLL unlocked and no pan. **Stubs that remain**
     - the rim's own rise.
 
     D-XCHK is unchanged here.
-11. **MCP3202 CH1 rail driver** (D-RIM open item 2, D-HSNTC): no driver; the
-    chip shares the RTD SPI bus with the MAX31865. With it the cold-soak
-    threshold falls from 19.4 K to 14.5 K (the unmeasured rail is 7.9 K of
-    the heatsink's 5 °C error), every temperature-independent hazardous leak
-    is caught at nominal parts (235/235 at 5–40 °C), and the rim loses up to
-    4.37 K of error. Needs bus arbitration with `rtd_service`.
+11. **MCP3202 CH1 rail driver: closed by D-RAIL.** `rail_adc.c` on the RTD
+    bus, sampled from the RTD service's own tick (one bus owner). The real
+    error budget (LM4040A25 + MCP3202, 0.93 % over the soak band) gives a
+    measured-rail cold-soak threshold of **16.9 K**, not the 14.5 K the
+    ±0.2 % assumption gave, and 200–235 of 235 temperature-independent
+    hazardous leaks at nominal parts (not 235 everywhere). The firmware
+    switches at run time; the rail unknown is the 3.300 V fallback, not a
+    fault. Still open (bench): the MCP3202's offset and gain at 3.3 V (its
+    limits are specified at 5.5 V), v3v3 ripple at U15 (±5 mV assumed), the
+    LM4040's drift and hysteresis (typical values used as allowances), the
+    board's self-heating at idle (5 K assumed), and τ_h (a τ_h of 3600 s
+    latches the measured-rail threshold once in 126 reported trajectories).
 12. **`OVER_TEMP_THRESHOLD` 80 °C → 95 °C: closed (owner decision 2026-10-15).**
     `config.yaml` now sets 95 °C, the firmware trip in the zapote/controller
     ladder (DECISIONS C32): 88.6 °C fan-law operating point < 95 °C firmware
@@ -2214,10 +2513,13 @@ Any error leaves the PLL unlocked and no pan. **Stubs that remain**
     `ADC_CHANNEL_NTC`.~~ The whole pin map now follows the zapote/controller
     netlist (heatsink NTC GPIO6 / ADC1_CH5, GPIO3 FAN_TACH), derived by
     `firmware/tools/check_board_pin_map.py` and checked in CI.
-14. **The cold soak restarts at every power-up** (D-SOAK limits). Persisting
-    the time the coil was last active in NVS would let a check run after a
-    power cycle; it needs a wall clock or an "off since" counter that
-    survives the reset.
+14. **Coil-off time across a power cycle: closed by D-SOAKNV.** No clock
+    survives mains loss on this board (the ESP32-S3 RTC timer resets on a
+    power-on reset), so NVS keeps a lower bound: a token written once when a
+    coil-off period reaches 15 min and revoked before the coil is energised.
+    After a power cycle the check can run at 16 min of uptime instead of
+    30. What it cannot do: credit the unpowered time itself (a unit unplugged
+    overnight right after a cook still waits 30 min).
 15. **zapote/controller open item 22 (C45, `adc_gain` and the divider
     plausibility): closed from the firmware side.** Read at
     `controller-c1-crs` 467917c38 (`hs_ntc.py --verify-board-ref` checks the
@@ -2230,13 +2532,13 @@ Any error leaves the PLL unlocked and no pan. **Stubs that remain**
     (D-SOAK). Nothing is asked of the board. The channel binding itself
     (`hs_ntc_board.c` ADC1_CH5 = HS_ADC = GPIO6) is now also checked against
     the netlist by `check_board_pin_map.py` (D-PINS).
-16. **RTD DRDY on the TCA9555** (D-PINS). On the target `PIN_RTD_DRDY` is
-    `HAL_PIN_INVALID`, so `rtd_service_bootstrap()` fails closed: there is no
-    I²C / TCA9555 driver, and the service waits on a GPIO edge. Needs an
-    expander driver (SDA GPIO37, SCL GPIO0, address 0x20; it also serves
-    SUP_RUN_OK_RB P14, LATCHED_FAULT_RB P10 and the C39 read-backs P00/P01)
-    and `rtd_service` polling P07 or reading on the conversion period (zapote
-    C23). For the `rtd_service` owner.
+16. **RTD DRDY on the TCA9555: closed by D-DRDY.** `rtd_service` polls
+    Input Port 0 bit 7 (`EXP_RTD_DRDY`) over I²C each control tick through
+    `components/sensors/tca9555.c` (SDA `PIN_I2C_SDA`, SCL `PIN_I2C_SCL`,
+    `TEMPER_EXPANDER_I2C_ADDR`); a failed read counts as no DRDY (D-STALE),
+    and an expander absent at boot still fails the bootstrap closed. The
+    other expander read-backs (P14, P10, P00/P01) can use the same driver.
+
 17. **Native-21 gate drive** (D-BRINGUP). This tree has no full-bridge
     generator, so the PLL has no timer, pan detection has no pulse and the
     coil never runs. D-BRINGUP lists what the power stage's driver must do:

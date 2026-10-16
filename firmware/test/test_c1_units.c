@@ -13,11 +13,13 @@
  */
 
 #include <math.h>
+#include <string.h>
 
 #include "unity/unity.h"
 #include "../components/control/contact_check.h"
 #include "../components/control/current_sense_check.h"
 #include "../components/control/pan_cold_soak.h"
+#include "../components/control/pan_soak_store.h"
 #include "../components/control/pan_leak_check.h"
 #include "../components/control/pan_rim_limit.h"
 #include "../components/control/pan_supervisor.h"
@@ -794,6 +796,182 @@ static void test_soak_agreement_and_parameters(void)
     TEST_ASSERT_FALSE(pcs_init(&soak, &p, 0u));
 }
 
+/* D-RAIL: the measured-rail threshold applies only when the rail was measured
+ * at every note through the window and now; one unknown note -> fallback. */
+static void test_soak_threshold_follows_the_rail_through_the_window(void)
+{
+    const float pt = 35.0f - 18.0f;   /* gap 18 K: over 16.9, under 19.4 */
+    soak_new(0u);
+    uint32_t t = 0u;
+    for (uint32_t k = 0; k < 1900u; k++, t += 1000u) {
+        pcs_note_rail(&soak, t, false, pt, true, 35.0f, true);
+    }
+    pcs_result_t r = pcs_evaluate_rail(&soak, t, pt, true, 35.0f, true, true);
+    TEST_ASSERT_EQUAL_INT(PCS_LEAK, r.verdict);
+    TEST_ASSERT_TRUE(r.rail_measured);
+    TEST_ASSERT_EQUAL_FLOAT(PCS_THRESHOLD_MEASURED_K, r.threshold_k);
+    /* the rail unknown now: fallback threshold, pass */
+    r = pcs_evaluate_rail(&soak, t, pt, true, 35.0f, true, false);
+    TEST_ASSERT_EQUAL_INT(PCS_PASS, r.verdict);
+    TEST_ASSERT_FALSE(r.rail_measured);
+    TEST_ASSERT_EQUAL_FLOAT(PCS_THRESHOLD_K, r.threshold_k);
+    /* pcs_evaluate() (no rail information) is the fallback */
+    TEST_ASSERT_EQUAL_INT(PCS_PASS, pcs_evaluate(&soak, t, pt, true, 35.0f, true).verdict);
+    /* one note inside the window with the rail unknown: fallback */
+    soak_new(0u);
+    t = 0u;
+    for (uint32_t k = 0; k < 1900u; k++, t += 1000u) {
+        pcs_note_rail(&soak, t, false, pt, true, 35.0f, k != 1500u);
+    }
+    r = pcs_evaluate_rail(&soak, t, pt, true, 35.0f, true, true);
+    TEST_ASSERT_EQUAL_INT(PCS_PASS, r.verdict);
+    TEST_ASSERT_EQUAL_FLOAT(PCS_THRESHOLD_K, r.threshold_k);
+    /* the same note before the window: measured again */
+    soak_new(0u);
+    t = 0u;
+    for (uint32_t k = 0; k < 1900u; k++, t += 1000u) {
+        pcs_note_rail(&soak, t, false, pt, true, 35.0f, k != 100u);
+    }
+    TEST_ASSERT_EQUAL_INT(PCS_LEAK, pcs_evaluate_rail(&soak, t, pt, true, 35.0f, true, true).verdict);
+    /* clearing a latch uses the reading's own rail state */
+    TEST_ASSERT_FALSE(pcs_agrees_rail(&soak, pt, true, 35.0f, true));
+    TEST_ASSERT_TRUE(pcs_agrees_rail(&soak, pt, true, 35.0f, false));
+    /* the measured threshold may not exceed the fallback */
+    pcs_params_t p;
+    pcs_default_params(&p);
+    TEST_ASSERT_TRUE(p.threshold_measured_k < p.threshold_k);
+    p.threshold_measured_k = p.threshold_k + 1.0f;
+    TEST_ASSERT_FALSE(pcs_init(&soak, &p, 0u));
+}
+
+/* D-SOAKNV: a credit moves the last activity back; the window still starts now. */
+static void test_soak_credit_counts_coil_off_time_but_not_history(void)
+{
+    soak_new(5000u);
+    pcs_credit_off(&soak, 5000u, 900u);
+    TEST_ASSERT_FLOAT_WITHIN(1e-3f, 900.0f, pcs_off_s(&soak, 5000u));
+    uint32_t t = soak_feed(5000u, 900u, 15.0f, true, 35.0f);
+    /* 15 min of uptime: off >= 30 min, but the history is one bucket short */
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_HISTORY, pcs_evaluate(&soak, t, 15.0f, true, 35.0f, true).verdict);
+    t = soak_feed(t, 61u, 15.0f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_LEAK, pcs_evaluate(&soak, t, 15.0f, true, 35.0f, true).verdict);
+    /* without the credit the same unit is not soaked */
+    soak_new(5000u);
+    t = soak_feed(5000u, 961u, 15.0f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_NOT_SOAKED, pcs_evaluate(&soak, t, 15.0f, true, 35.0f, true).verdict);
+    /* a smaller credit never shortens a longer coil-off time */
+    soak_new(0u);
+    t = soak_feed(0u, 1200u, 15.0f, true, 35.0f);
+    pcs_credit_off(&soak, t, 900u);
+    TEST_ASSERT_TRUE(pcs_off_s(&soak, t) >= 1199.0f);
+}
+
+/* ---- coil-off token store (pan_soak_store.c, D-SOAKNV) --------------------- */
+
+static struct {
+    bool present;
+    uint32_t v;
+    bool fail_load, fail_save, fail_clear, clear_lies;
+    unsigned saves, clears;
+} nv;
+
+static bool nv_load(void *c, uint32_t *v) { (void)c; if (nv.fail_load || !nv.present) return false; *v = nv.v; return true; }
+static bool nv_save(void *c, uint32_t v) { (void)c; nv.saves++; if (nv.fail_save) return false; nv.present = true; nv.v = v; return true; }
+static bool nv_clear(void *c)
+{
+    (void)c;
+    nv.clears++;
+    if (nv.fail_clear) return false;
+    if (!nv.clear_lies) nv.present = false;   /* clear_lies: reports success, the token stays */
+    return true;
+}
+static const pss_hal_t nv_hal = {.load = nv_load, .save = nv_save, .clear = nv_clear, .ctx = NULL};
+
+static void test_store_writes_once_per_off_period_and_revokes_before_power(void)
+{
+    memset(&nv, 0, sizeof(nv));
+    pss_t st;
+    TEST_ASSERT_EQUAL_UINT32(0u, pss_boot(&st, &nv_hal));   /* nothing stored: unknown */
+    for (int s = 0; s < 899; s++) {
+        pss_note(&st, &nv_hal, false, (float)s);
+    }
+    TEST_ASSERT_EQUAL_UINT(0u, nv.saves);
+    for (int s = 900; s < 4000; s++) {
+        pss_note(&st, &nv_hal, false, (float)s);
+    }
+    TEST_ASSERT_EQUAL_UINT(1u, nv.saves);                  /* once, not periodically */
+    TEST_ASSERT_TRUE(nv.present);
+    TEST_ASSERT_EQUAL_UINT32(PSS_TOKEN_OFF_S, nv.v);
+    TEST_ASSERT_EQUAL_UINT32(PSS_TOKEN_OFF_S, pss_credit_s(&st));
+    /* power cycle: the token credits 900 s; the period already has its token */
+    TEST_ASSERT_EQUAL_UINT32(PSS_TOKEN_OFF_S, pss_boot(&st, &nv_hal));
+    for (int s = 0; s < 4000; s++) {
+        pss_note(&st, &nv_hal, false, 900.0f + (float)s);
+    }
+    TEST_ASSERT_EQUAL_UINT(1u, nv.saves);
+    /* before power: revoked and verified */
+    TEST_ASSERT_TRUE(pss_revoke(&st, &nv_hal));
+    TEST_ASSERT_FALSE(nv.present);
+    TEST_ASSERT_EQUAL_UINT32(0u, pss_credit_s(&st));
+    /* coil activity with no token: no flash traffic */
+    const unsigned c0 = nv.clears;
+    for (int k = 0; k < 100; k++) {
+        pss_note(&st, &nv_hal, true, 0.0f);
+    }
+    TEST_ASSERT_EQUAL_UINT(c0, nv.clears);
+    /* the next off period writes again */
+    pss_note(&st, &nv_hal, false, 950.0f);
+    TEST_ASSERT_EQUAL_UINT(2u, nv.saves);
+    /* a power cycle mid-cook would find no token: revoke came first */
+    TEST_ASSERT_TRUE(pss_revoke(&st, &nv_hal));
+    TEST_ASSERT_EQUAL_UINT32(0u, pss_boot(&st, &nv_hal));
+}
+
+static void test_store_failures_are_unknown_never_soaked(void)
+{
+    pss_t st;
+    /* implausible token: ignored and removed */
+    memset(&nv, 0, sizeof(nv));
+    nv.present = true;
+    nv.v = 100000u;
+    TEST_ASSERT_EQUAL_UINT32(0u, pss_boot(&st, &nv_hal));
+    TEST_ASSERT_FALSE(nv.present);
+    nv.present = true;
+    nv.v = 0u;
+    TEST_ASSERT_EQUAL_UINT32(0u, pss_boot(&st, &nv_hal));
+    /* unreadable: unknown */
+    memset(&nv, 0, sizeof(nv));
+    nv.present = true;
+    nv.v = 900u;
+    nv.fail_load = true;
+    TEST_ASSERT_EQUAL_UINT32(0u, pss_boot(&st, &nv_hal));
+    /* no HAL: unknown, disabled */
+    TEST_ASSERT_EQUAL_UINT32(0u, pss_boot(&st, NULL));
+    TEST_ASSERT_TRUE(st.disabled);
+    /* a failed write: no token, the store disabled for the session */
+    memset(&nv, 0, sizeof(nv));
+    nv.fail_save = true;
+    (void)pss_boot(&st, &nv_hal);
+    pss_note(&st, &nv_hal, false, 1000.0f);
+    pss_note(&st, &nv_hal, false, 1001.0f);
+    TEST_ASSERT_EQUAL_UINT(1u, nv.saves);
+    TEST_ASSERT_TRUE(st.disabled);
+    TEST_ASSERT_EQUAL_UINT32(0u, pss_credit_s(&st));
+    /* a failed or unverified erase: reported, the store disabled */
+    memset(&nv, 0, sizeof(nv));
+    (void)pss_boot(&st, &nv_hal);
+    pss_note(&st, &nv_hal, false, 1000.0f);
+    nv.fail_clear = true;
+    TEST_ASSERT_FALSE(pss_revoke(&st, &nv_hal));
+    TEST_ASSERT_TRUE(st.disabled);
+    memset(&nv, 0, sizeof(nv));
+    (void)pss_boot(&st, &nv_hal);
+    pss_note(&st, &nv_hal, false, 1000.0f);
+    nv.clear_lies = true;
+    TEST_ASSERT_FALSE(pss_revoke(&st, &nv_hal));   /* read back: still there */
+    TEST_ASSERT_EQUAL_UINT32(1u, st.failures);
+}
+
 void run_c1_units_tests(void)
 {
     RUN_TEST(test_r1_ignores_hot_pan_placement_that_the_10ms_check_trips);
@@ -843,4 +1021,8 @@ void run_c1_units_tests(void)
     RUN_TEST(test_soak_skips_when_the_pt100_moved_or_the_rim_is_warm);
     RUN_TEST(test_soak_needs_the_whole_window_and_survives_clock_steps);
     RUN_TEST(test_soak_agreement_and_parameters);
+    RUN_TEST(test_soak_threshold_follows_the_rail_through_the_window);
+    RUN_TEST(test_soak_credit_counts_coil_off_time_but_not_history);
+    RUN_TEST(test_store_writes_once_per_off_period_and_revokes_before_power);
+    RUN_TEST(test_store_failures_are_unknown_never_soaked);
 }

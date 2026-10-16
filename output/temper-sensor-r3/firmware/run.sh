@@ -1,8 +1,13 @@
 #!/bin/sh
 # Rerun every sensor-r3 C1 firmware result (about 20 min on the Mac):
-#   0. rim NTC table and channel numbers (rim_ntc.py -> rim-ntc.json and
-#      firmware/components/sensors/rim_ntc_table.h), the heatsink NTC table,
-#      channel and cold-soak budget (hs_ntc.py -> hs-ntc.json and
+#   0. the MAX31865 manual fault-detection timing on the CR-1 board
+#      (fault_cycle.py -> fault-cycle.json and firmware/components/temper_hal/
+#      mock/mock_max31865_afe.h; gates rtd_service.h; DECISIONS.md D-FCYC), the
+#      v3v3 rail reading's error budget (rail_adc.py -> rail-adc.json; gates
+#      rail_adc.h; D-RAIL), rim NTC table and channel numbers (rim_ntc.py ->
+#      rim-ntc.json and firmware/components/sensors/rim_ntc_table.h), the
+#      heatsink NTC table, channel and cold-soak budgets, rail unknown and
+#      measured (hs_ntc.py -> hs-ntc.json and
 #      firmware/components/sensors/hs_ntc_table.h; gates pan_cold_soak.h) and
 #      the CR-7 threshold words (cr7_thresholds.py -> cr7-thresholds.json); all gate
 #   1. regenerate the golden vectors (firmware/test/*_vectors.h, vectors-summary.json)
@@ -31,9 +36,9 @@
 #      DECISIONS.md D-RIMLIM), and candidates B/C (leak-alternatives.json,
 #      reported only)
 #   3f. the cold-soak leakage check through the C (heatsink driver, Pt100
-#      conversion, pan_cold_soak.c): threshold cross-check, benign cold starts
-#      (gated: 0 latches), hazardous leaks caught before heating
-#      (cold-soak.json; DECISIONS.md D-SOAK)
+#      conversion, pan_cold_soak.c), rail unknown and rail measured: threshold
+#      cross-checks, benign cold starts (gated: 0 latches in both), hazardous
+#      leaks caught before heating (cold-soak.json; DECISIONS.md D-SOAK, D-RAIL)
 #   4. D1 seed-to-seed Monte Carlo (b5-montecarlo.json, gates safety only)
 #   5. runaway checks: legacy vs C1 rules on false-trip and fault scenarios,
 #      with the current-sense checks (runaway-checks.json, gates the C1 rules;
@@ -50,7 +55,11 @@ py=${PYTHON:-python3}
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
-echo "== 0. rim and heatsink NTC tables, CR-7 threshold words"
+echo "== 0. fault-cycle timing, rail budget, rim and heatsink NTC tables, CR-7 threshold words"
+"$py" "$here/fault_cycle.py" > "$tmp/fc.log" || { cat "$tmp/fc.log"; exit 1; }
+tail -1 "$tmp/fc.log"
+"$py" "$here/rail_adc.py" > "$tmp/rail.log" || { cat "$tmp/rail.log"; exit 1; }
+tail -1 "$tmp/rail.log"
 "$py" "$here/rim_ntc.py" > "$tmp/rim.log" || { cat "$tmp/rim.log"; exit 1; }
 tail -1 "$tmp/rim.log"
 "$py" "$here/hs_ntc.py" > "$tmp/hs.log" || { cat "$tmp/hs.log"; exit 1; }

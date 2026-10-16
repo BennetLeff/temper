@@ -29,16 +29,23 @@ MAX31865 service, the rim NTC driver and the power stage.
 | `current_sense_check.{c,h}` | Bus-current sense plausibility: (a) ≥ 300 W commanded with no current, (b) the start-up pulse at PREHEAT entry, (c) input vs bus current when the input sense is fitted. Latches FAULT_CURRENT_SENSE (DECISIONS D-ISENSE). |
 | `pan_leak_check.{c,h}` | Element-parallel Pt100 leakage: two chained cross-check suspect → probe-passed cycles latch FAULT_PROBE_LEAKAGE (DECISIONS D-LEAK). |
 | `pan_rim_limit.{c,h}` | Setpoint-relative rim limit: a rim above the glass envelope of max(setpoint, t_hat) plus the rim's hot tolerance stack, not falling, for 5 s, latches FAULT_PROBE_LEAKAGE (DECISIONS D-RIMLIM). |
-| `pan_cold_soak.{c,h}` | Cold-soak check at PREHEAT entry: coil off ≥ 30 min, 15 min of flat history, the heatsink NTC VALID and ≤ 45 °C, the rim saturated; the heatsink over the Pt100 by > 19.4 K latches FAULT_PROBE_LEAKAGE before any power (DECISIONS D-SOAK). |
+| `pan_cold_soak.{c,h}` | Cold-soak check at PREHEAT entry: coil off ≥ 30 min, 15 min of flat history, the heatsink NTC VALID and ≤ 45 °C, the rim saturated; the heatsink over the Pt100 by > 19.4 K (16.9 K when the rail was measured through the window, D-RAIL) latches FAULT_PROBE_LEAKAGE before any power (DECISIONS D-SOAK). |
+| `pan_soak_store.{c,h}` | The coil-off token in NVS: written once when a coil-off period reaches 15 min, revoked before the coil is energised, credited at boot as a lower bound (no clock survives mains loss); `main/soak_store_nvs.c` binds it to ESP-IDF NVS (DECISIONS D-SOAKNV). |
 
 The C1 MAX31865 path is in `firmware/components/sensors/`:
 - `rtd_convert.{c,h}` converts code → Ω → °C, with the CR-7 self-heating and
   optional loading correction, and classes a conversion beyond R(850 °C) or
   R(−200 °C), or with a 07h input bit, as a sensor failure (DECISIONS
   D-OPEN);
-- `rtd_service.c` runs the C1 thresholds, the power-up fault cycle, continuous
+- `rtd_service.c` runs the C1 thresholds, the **manual** fault-detection
+  cycle at power-up and before every probe-fault reset (5.5 ms steps, 11.5 ms
+  restart, from the CR-1 network's τ_max 1.01 ms; D-FCYC), continuous
   conversion, the DRDY-stale check and the frozen-code check (DECISIONS
-  D-CR7, D-STALE).
+  D-CR7, D-STALE). DRDY is TCA9555 P07, polled over I2C each tick
+  (`tca9555.c`, D-DRDY);
+- `rail_adc.{c,h}` reads v3v3 from MCP3202 CH1 against the LM4040A25 on the
+  same bus, from the RTD service's tick (one bus owner); the rim and heatsink
+  drivers divide by it, or by 3.300 V when it is unknown (DECISIONS D-RAIL).
 
 The rim NTC (Semitec 104GT-2 on GPIO9 / ADC1_CH8) is also in
 `firmware/components/sensors/` (DECISIONS D-RIM):
@@ -77,13 +84,13 @@ at 2.9–3.3 V with R90 lifted (does the DIVIDER fault fire).
 | `test_contact_check_only` | 11 tests. Replays loss on 4 pans, food on 3 and nominal runs, in screen mode and firmware mode, plus synthetic cases. |
 | `test_pan_temp_loop_only` | 24 tests. Guard, plant gain (including the later-step updates), PID, the latent-plateau guard, the contact-shift window and power authority. |
 | `test_pan_contact_sm_only` | 2 tests. EVENT_CONTACT_LOST in the state machine. |
-| `test_c1_units_only` | 47 tests. Supervisor R1/R2, code-to-temperature conversion and the sensor-failure classes (D-OPEN), the current-sense checks (D-ISENSE), the leak check (D-LEAK), the rim limit (D-RIMLIM) and the cold-soak check (D-SOAK). |
-| `test_c1_runtime_only` | 26 tests. The C1 state machine and `pan_control`: hot pan, h_c drop, lowered target, power stage disobeying, rising with power off, absolute 300 °C, intensity, C1 RTD window. Rim: cross-check on a low flat Pt100, no cross-check on a rising quench or a saturated rim, rim short/open/ADC failure → FAULT_PROBE_SHORT/OPEN. Current sense: dead while heating, failed start-up pulse, a low-power hold without a latch (D-ISENSE). Cold soak: a leak latches before any power and holds; agreement passes; a cold pan in the window, < 30 min, a saturated heatsink or a warm rim skip (D-SOAK). |
-| `test_c1_runtime_isense_only` | 29 tests. `test_c1_runtime_only` built with `TEMPER_INPUT_CURRENT_SENSE=1`, plus the input-vs-bus current cross-check (D-ISENSE (c)). |
-| `test_c1_rtd_service_only` | 8 tests. The C1 MAX31865 sequence through the SPI mock: thresholds (35544 / 12844), fault cycle, conversion, fault flag, stale, frozen, and the 07h clear before a reset (D-OPEN). |
+| `test_c1_units_only` | 51 tests. Supervisor R1/R2, code-to-temperature conversion and the sensor-failure classes (D-OPEN), the current-sense checks (D-ISENSE), the leak check (D-LEAK), the rim limit (D-RIMLIM) and the cold-soak check (D-SOAK), its measured-rail threshold (D-RAIL), the coil-off credit and the token store (D-SOAKNV). |
+| `test_c1_runtime_only` | 28 tests. The C1 state machine and `pan_control`: hot pan, h_c drop, lowered target, power stage disobeying, rising with power off, absolute 300 °C, intensity, C1 RTD window. Rim: cross-check on a low flat Pt100, no cross-check on a rising quench or a saturated rim, rim short/open/ADC failure → FAULT_PROBE_SHORT/OPEN. Current sense: dead while heating, failed start-up pulse, a low-power hold without a latch (D-ISENSE). Cold soak: a leak latches before any power and holds; agreement passes; a cold pan in the window, < 30 min, a saturated heatsink or a warm rim skip (D-SOAK); the coil-off token across a power cycle and a failing NVS erase (D-SOAKNV). |
+| `test_c1_runtime_isense_only` | 31 tests. `test_c1_runtime_only` built with `TEMPER_INPUT_CURRENT_SENSE=1`, plus the input-vs-bus current cross-check (D-ISENSE (c)). |
+| `test_c1_rtd_service_only` | 24 tests. The C1 MAX31865 sequence through the SPI mock and its analog model of the CR-1 input: thresholds (35544 / 12844), the manual cycle's order and waits, a too-fast or automatic cycle flagging a healthy element, open / shorted inputs at power-up and at a reset, a stuck cycle, conversion, fault flag, stale, the first-conversion allowance, frozen (D-FCYC, D-OPEN); the rail ADC's decode, device config, fallback states and 5 s of shared bus (D-RAIL); the expander DRDY path (D-DRDY). |
 | `test_c1_rim_ntc_only` | 13 tests. The rim driver through a mock HAL. Datasheet points 25–250 °C, chain accuracy at 100–250 °C (worst 0.073 K) and the CR-7 attenuation, hysteresis and clip re-read. Saturation, rail fallback, short, glitch, over-range, open (600 s), ADC failure, filter τ, trimmed mean, and the board binding over the `hal_adc` mock. |
 | `test_c1_hs_ntc_only` | 14 tests. The heatsink driver through a mock HAL on the CR-8 board: data-sheet points, chain accuracy at the trip points, room and cold temperatures VALID, SATURATED upper bounds, the divider's bottom open (DIVIDER latch) and top open (SHORT), no false divider fault at the intact extreme, short / over-range / ADC latches (+INF), the 1 s filter, the 100 ms poll, the CR-8 defaults, and the board binding (ADC1_CH5 only). |
-| `test_sil_fault_injection` / `test_sil_fault_injection_c1` | The SIL fault-injection suite, built twice from one runner and `traces/manifest.json` (D-SIL). Legacy runs 31 scenarios. C1 runs 49: it uses the real MAX31865 service through a register-level converter model at the firmware's 10 ms cadence, and the bus current follows the command. |
+| `test_sil_fault_injection` / `test_sil_fault_injection_c1` | The SIL fault-injection suite, built twice from one runner and `traces/manifest.json` (D-SIL). Legacy runs 31 scenarios. C1 runs 52: it uses the real MAX31865 service through a register-level converter model with the CR-1 input's analog model (no automatic cycle, fast step or early restart, asserted in every scenario), DRDY on the TCA9555 model, at the firmware's 10 ms cadence, and the bus current follows the command. |
 
 ## SIL fault injection in both configurations (D-SIL)
 
@@ -93,12 +100,14 @@ coverage. CI runs it as `scripts/check_sil_coverage.py`.
 | Mode | Scenarios | (fault class, origin) pairs | C1 mechanism × origin |
 |---|---|---|---|
 | legacy | 31 | 20/20 | n/a |
-| C1 | 49 | 27/27, a superset of legacy's (adds IDLE, FAULT_CURRENT_SENSE and FAULT_PROBE_LEAKAGE) | 25/25 |
+| C1 | 52 | 28/28, a superset of legacy's (adds IDLE, INIT for FAULT_PROBE_OPEN, FAULT_CURRENT_SENSE and FAULT_PROBE_LEAKAGE) | 27/27 |
 
 The C1 mechanisms are:
 - R1 and the absolute 300 °C check;
 - R2 stages 1, 2a and 2b;
 - register 07h, DRDY stale and frozen code;
+- the manual fault-detection cycle, at power-up (INIT) and on a reset request
+  (IDLE) (D-FCYC);
 - the current-sense checks (a) and (b) (D-ISENSE);
 - the Pt100 leak check (D-LEAK);
 - the setpoint-relative rim limit (D-RIMLIM), from HEATING and PREHEAT;
@@ -155,14 +164,16 @@ The C1 run found two defects, both fixed in `main/state_machine.c`:
 | `sensitivity.py` | Tolerance to errors in a, and the loss-term variant. Writes `sensitivity.json`; reported only. |
 | `runaway_checks.py` | Legacy vs C1 runaway rules on 50 Hz quantised readings: false trips (also with the stage in burst mode), fault detection times, the stage-2b sweep, and the current-sense checks against latent and simultaneous sense failures. Writes `runaway-checks.json`; gates the C1 rules (DECISIONS D-RUN, D-ISENSE, D-OPEN). |
 | `sensor_fail_codes.py` | Recomputes the sensor-failure codes from IEC 60751 and shows 850 °C is out of the plant's reach. Writes `sensor-fail-codes.json`; gates `rtd_convert.h` (DECISIONS D-OPEN). |
-| `rim_ntc.py` | The 104GT-2 R-T table, transcribed from the Semitec GT-2 datasheet (`--verify-pdf` re-extracts it). Writes `rim_ntc_table.h` and `rim-ntc.json`: interpolation error, K/mV, saturation and short temperatures, self-heating, and the rail error without the MCP3202. Gates. |
+| `fault_cycle.py` | The MAX31865 manual fault-detection timing on the CR-1 board (`pcb/checks.py`'s MNA network, 1536 corners): τ_max, the waits, the automatic cycle's false flags, the bits per wiring fault. Writes `fault-cycle.json` and `mock_max31865_afe.h`; gates `rtd_service.h` (DECISIONS D-FCYC). |
+| `rail_adc.py` | The v3v3 reading's error budget (LM4040A25 SLOS456Q, MCP3202 DS21034F; `--verify-*-pdf`) against board temperature, the soak-band and full-range figures, the plausibility window, SPI mode and clock. Writes `rail-adc.json`; gates `rail_adc.h` (DECISIONS D-RAIL). |
+| `rim_ntc.py` | The 104GT-2 R-T table, transcribed from the Semitec GT-2 datasheet (`--verify-pdf` re-extracts it). Writes `rim_ntc_table.h` and `rim-ntc.json`: interpolation error, K/mV, saturation and short temperatures, self-heating, and the rail error with the rail unknown and measured. Gates. |
 | `cr7_thresholds.py` | Recomputes the MAX31865 C1 threshold words from the CR-7 inputs (R(−40 °C), R(360 °C)) using the firmware's derivation rule. Writes `cr7-thresholds.json`; gates `config.yaml` (DECISIONS D-THRESH). |
 | `xcheck_cosim.py` | The rim NTC in the loop. The plant gets a glass node at T_c − Δ, and the NTC runs at its tolerance corners through the C driver. Covers benign runs and Pt100 leakage. Writes `xcheck-cosim.json`; gates benign runs (DECISIONS D-RIM). |
 | `leak_checks.py` | The leak sweep (13 leaks 300 Ω–10 kΩ × 4 pans × Δ × bead corner) and 548 benign runs through the same glass and rim model, against the leak check and the rim limit. Writes `leak-checks.json`; gates 0 benign latches, the recorded status of the 300 °C bar and the recorded rim-limit coverage (DECISIONS D-LEAK, D-RIMLIM). |
 | `rim_limit.py` | The rim limit's glass envelope (from `../cad/thermal-axisym.json` and study 08), its tolerance table, and the trade-off curve (margin × τ_dec × "not falling" × constant/table stack against coverage and false latches) over the sweep, the benign runs and worst-case stress sets; the CR-5 band study. Writes `rim-limit.json`; gates the firmware constants and the chosen variant's 0 false latches (DECISIONS D-RIMLIM). |
 | `leak_alternatives.py` | Candidates B (energy plausibility) and C (cold soak, temperature-independent vs Arrhenius leaks, closed form at 35 °C against the `hs-ntc.json` threshold). Writes `leak-alternatives.json`; reported only (DECISIONS D-RIMLIM). |
 | `hs_ntc.py` | The heatsink NTC's R-T table (Vishay doc 29049 material D column; `--verify-pdf`, `--verify-lug-pdf`, `--verify-esp-pdf` re-extract the sources; `--verify-board-ref controller-c1-crs` re-reads the zapote circuit, PCB and C45), the channel through the CR-8 divider (gain band, accuracy, VALID range, SAR sampling, divider faults, short, trip points, the pre-C45 row) and the cold-soak error budget (as a corner) and timing. Writes `hs_ntc_table.h` and `hs-ntc.json`; gates the table, `HS_NTC_ADC_GAIN` and the `pan_cold_soak.h` constants (DECISIONS D-HSNTC, D-SOAK). |
-| `cold_soak.py` | The cold-soak check through the C (`hs_ntc.c`, `rtd_convert.c`, `pan_cold_soak.c` via `cosim_shim.c` `soak_run`) on the CR-8 board: threshold cross-check (as built, rail-corrected), 828 benign cold-start trajectories × 3 corners (gated: 0 latches), sets outside the assumptions (reported), and the 235 hazardous leak runs at a cold start, temperature-independent and Arrhenius. Writes `cold-soak.json` (DECISIONS D-SOAK). |
+| `cold_soak.py` | The cold-soak check through the C (`hs_ntc.c`, `rtd_convert.c`, `pan_cold_soak.c` via `cosim_shim.c` `soak_run`) on the CR-8 board, rail unknown and rail measured (each with the threshold the firmware picks): threshold cross-checks, 828 benign cold-start trajectories × 3 corners (gated: 0 latches in both), sets outside the assumptions (reported), and the 235 hazardous leak runs at a cold start, temperature-independent and Arrhenius. Writes `cold-soak.json` (DECISIONS D-SOAK). |
 
 The co-sim cases are:
 - 16 design cases;
@@ -250,12 +261,12 @@ From `rim-ntc.json`, `cr7-thresholds.json` and `xcheck-cosim.json`
 | Resolution, 100–250 °C | 0.143 K/mV worst (requirement ≤ 0.3 K) |
 | Saturated (cold) below | 87.05–96.51 °C over v3v3 3.242–3.367 V |
 | Short (0.25 V) | 297.5–300.4 °C |
-| Not corrected | Self-heating ≤ 4.53 K (still air). The rail costs ≤ 4.37 K until an MCP3202 driver exists. |
+| Not corrected | Self-heating ≤ 4.53 K (still air). The rail costs ≤ 4.37 K when unknown, ≤ 2.87 K measured (MCP3202, D-RAIL). |
 | Fault policy | Latch through the RTD sink: short/over-range → FAULT_PROBE_SHORT, open/ADC → FAULT_PROBE_OPEN |
 | Threshold words | 12844 / 35544. Recomputed from R(−40 °C) / R(360 °C), matching CR-7. The firmware was fixed from 35542. |
 | Cross-check co-sim, benign (28 runs) | 0 D1 lost, 0 guard / rim / supervisor faults. 2 cross-check suspects (cast iron food). |
 | Cross-check co-sim, Pt100 leakage (16 runs) | 1 kΩ: suspect in 5 of 8, 233–292 s after the leak, but the probe confirms contact and T_c reaches SP + 121.9 K; two meet the rim over-range fault first. 3 kΩ: no suspect, SP + 35.8 K. |
 | Leak checks (`leak-checks.json`, 624 leak runs, 548 benign) | Hazardous (steady T_c > 300 °C at a 250 °C setpoint): 300 Ω–1.73 kΩ, 235 runs. With the rim limit (D-RIMLIM), latched before T_c passes 300 °C: 59 (7 with the D-LEAK chain alone). After: 176 (T_c ≤ 431.1 °C; was ≤ 474.2 °C). Never: 0 (was 9: 1.73 kΩ, Δ 46 K, cold corner, 318.9 °C). The 300 °C bar is not met: at 250 °C the benign and leaking glass overlap by ~46 K. Insulation, a hot production test and seal qualification carry it (DECISIONS D-LEAK, D-RIMLIM, open item 10). ≥ 4.16 kΩ is invisible. Benign: 0 latches. |
-| Heatsink NTC (`hs-ntc.json`) | Vishay material D, −40–150 °C; polynomial 0.027 K, leave-one-out 0.029 K. CR-8 gain 0.855072 (band 0.854421–0.855722): VALID from −40 °C at every corner (pin ≤ 2.876 V). At 25 / 95 °C: ADC 4.7 / 0.46 K, tolerance 0.44 / 1.87 K, rail ≤ 5.3 / 1.1 K uncorrected, SAR sampling 0.30 / 0.15 K (20 pF assumed). Divider fault at ≥ 2950 mV (intact worst 2937 mV). Cold-soak threshold 19.4 K (14.5 K rail-measured). |
-| Cold soak (`cold-soak.json`) | 0 latches on 828 gated benign trajectories (ambient, warm restart after 250 °C, hot and cold pans placed, transport) at every corner; largest gap 17.88 K, margin 1.52 K to 19.4 K. Hazardous runs caught before heating, as built (CR-8), temperature-independent leak, nominal: 169 / 200 / 200 / 200 / 200 / 200 at 5 / 15 / 25 / 30 / 35 / 40 °C (the 84.27 Ω window alone: 71 / 71 / 35 / 35 / 35 / 35); worst corner 71 / 35 / 107 / 136 / 136 / 136. Arrhenius Ea ≥ 0.1 eV: 0–35. A frozen pot latches (clearable); a −5 °C room latches at the false corner. |
+| Heatsink NTC (`hs-ntc.json`) | Vishay material D, −40–150 °C; polynomial 0.027 K, leave-one-out 0.029 K. CR-8 gain 0.855072 (band 0.854421–0.855722): VALID from −40 °C at every corner (pin ≤ 2.876 V). At 25 / 95 °C: ADC 4.7 / 0.46 K, tolerance 0.44 / 1.87 K, rail ≤ 5.3 / 1.1 K unknown, ≤ 3.4 / 0.71 K measured, SAR sampling 0.30 / 0.15 K (20 pF assumed). Divider fault at ≥ 2950 mV (intact worst 2937 mV). Cold-soak threshold 19.4 K (16.9 K rail measured). |
+| Cold soak (`cold-soak.json`) | 0 latches on 828 gated benign trajectories (ambient, warm restart after 250 °C, hot and cold pans placed, transport) at every corner; largest gap 17.88 K, margin 1.52 K to 19.4 K. Hazardous runs caught before heating, as built (CR-8), temperature-independent leak, nominal: 169 / 200 / 200 / 200 / 200 / 200 at 5 / 15 / 25 / 30 / 35 / 40 °C (the 84.27 Ω window alone: 71 / 71 / 35 / 35 / 35 / 35); worst corner 71 / 35 / 107 / 136 / 136 / 136. Arrhenius Ea ≥ 0.1 eV: 0–35. A frozen pot latches (clearable); a −5 °C room latches at the false corner. Rail measured (16.9 K): 0 latches on the same 828, largest gap 15.34 K, margin 1.57 K; nominal 200 / 200 / 200 / 235 / 235 / 235; τ_h 3600 s (reported) latches once in 126. |
 | Rim limit (`rim-limit.json`) | Limit 125.1 / 210.4 / 260.8 °C at a 100 / 200 / 250 °C reference. Trade-off: margin −1 K → 65/235 but 28 false latches on 132 stress runs; 0 K → 60/235, 0 false; +2.5 K → 55/235 and 9 never latched. At the leak envelope (warped pan, cool eye, cold stack) 0/116 before 300 °C. CR-5: lowering by 8 K (86.6 k → 76.8 k) adds 6/235, 7.8 K over the benign glass. |

@@ -59,6 +59,8 @@ set(MOCK_HAL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_pwm.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_spi.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_timer.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_max31865.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_mcp3202.c
 )
 
 # Firmware components to test (the actual production code)
@@ -185,6 +187,7 @@ add_executable(test_max31865_only
     ${MOCK_HAL_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/max31865.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/tca9555.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
@@ -589,6 +592,7 @@ set(C1_RUNTIME_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_leak_check.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_rim_limit.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_cold_soak.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_soak_store.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/pan_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
@@ -607,6 +611,7 @@ add_executable(test_c1_units_only
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_leak_check.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_rim_limit.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_cold_soak.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_soak_store.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_units.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_units.c
@@ -653,6 +658,9 @@ add_executable(test_c1_rtd_service_only
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/max31865.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rail_adc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/tca9555.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_tca9555.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_rtd_service.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_rtd_service.c
 )
@@ -669,6 +677,7 @@ add_executable(test_c1_rim_ntc_only
     ${MOCK_HAL_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc_board.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rail_adc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_rim_ntc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_rim_ntc.c
 )
@@ -684,6 +693,7 @@ add_executable(test_c1_hs_ntc_only
     ${MOCK_HAL_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/hs_ntc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/hs_ntc_board.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rail_adc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_hs_ntc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_hs_ntc.c
 )
@@ -712,6 +722,9 @@ add_executable(test_sil_fault_injection_c1
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/max31865.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rail_adc.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/tca9555.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_tca9555.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_sil_fault_injection.c
 )
 target_compile_definitions(test_sil_fault_injection_c1 PRIVATE TEMPER_PAN_CONTROL_C1=1)

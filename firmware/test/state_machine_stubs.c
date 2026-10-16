@@ -129,6 +129,10 @@ static struct {
 void mock_sm_set_heatsink_ntc_state(int state);
 #endif
 
+#ifdef TEMPER_PAN_CONTROL_C1
+void mock_soak_nvs_erase(void);
+#endif
+
 void mock_sm_reset(void) {
     memset(&mock_sm_state, 0, sizeof(mock_sm_state));
     mock_sm_state.pan_temperature = 25.0f;
@@ -146,6 +150,7 @@ void mock_sm_reset(void) {
     mock_sm_state.test_eeprom_pass = true;
 #ifdef TEMPER_PAN_CONTROL_C1
     mock_sm_set_heatsink_ntc_state(-1);
+    mock_soak_nvs_erase();   /* a fresh unit; a power cycle is state_machine_init() alone */
 #endif
 }
 
@@ -384,6 +389,60 @@ static int s_mock_hs_state = -1;
 void mock_sm_set_heatsink_ntc_state(int state) {
     s_mock_hs_state = state;
 }
+
+/* NVS for the coil-off token (main/soak_store_nvs.c on the target; D-SOAKNV):
+ * one u32 that survives mock_sm_reset() and state_machine_init(), as flash
+ * survives a power cycle; tests clear it and inject failures. */
+#include "pan_soak_store.h"
+static struct {
+    bool present;
+    uint32_t value;
+    bool fail_load, fail_save, fail_clear;
+    uint32_t loads, saves, clears;
+} s_mock_nvs;
+
+static bool mock_nvs_load(void *ctx, uint32_t *v) {
+    (void)ctx;
+    s_mock_nvs.loads++;
+    if (s_mock_nvs.fail_load || !s_mock_nvs.present) {
+        return false;
+    }
+    *v = s_mock_nvs.value;
+    return true;
+}
+static bool mock_nvs_save(void *ctx, uint32_t v) {
+    (void)ctx;
+    s_mock_nvs.saves++;
+    if (s_mock_nvs.fail_save) {
+        return false;
+    }
+    s_mock_nvs.present = true;
+    s_mock_nvs.value = v;
+    return true;
+}
+static bool mock_nvs_clear(void *ctx) {
+    (void)ctx;
+    s_mock_nvs.clears++;
+    if (s_mock_nvs.fail_clear) {
+        return false;
+    }
+    s_mock_nvs.present = false;
+    return true;
+}
+static const pss_hal_t s_mock_pss_hal = {.load = mock_nvs_load, .save = mock_nvs_save,
+                                         .clear = mock_nvs_clear, .ctx = NULL};
+const pss_hal_t *pan_soak_store_hal(void) { return &s_mock_pss_hal; }
+
+void mock_soak_nvs_erase(void) { memset(&s_mock_nvs, 0, sizeof(s_mock_nvs)); }
+void mock_soak_nvs_put(uint32_t v) { s_mock_nvs.present = true; s_mock_nvs.value = v; }
+bool mock_soak_nvs_get(uint32_t *v) { if (v != NULL) { *v = s_mock_nvs.value; } return s_mock_nvs.present; }
+void mock_soak_nvs_fail(bool load, bool save, bool clear) {
+    s_mock_nvs.fail_load = load;
+    s_mock_nvs.fail_save = save;
+    s_mock_nvs.fail_clear = clear;
+}
+uint32_t mock_soak_nvs_saves(void) { return s_mock_nvs.saves; }
+uint32_t mock_soak_nvs_clears(void) { return s_mock_nvs.clears; }
 
 bool read_heatsink_ntc(hs_ntc_reading_t *out) {
     hs_ntc_reading_t rd;

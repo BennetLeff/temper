@@ -99,12 +99,9 @@ extern "C" {
 #define PIN_SPI_CS_EXT_ADC      42  /**< @net EXT_ADC_CS_N MCP3202 chip select */
 
 /** MAX31865 DRDY is not on a GPIO: it is TCA9555 P07 (EXP_RTD_DRDY, C23).
- *  rtd_service still arms a GPIO falling-edge interrupt on PIN_RTD_DRDY; on
- *  the target that now fails rtd_service_bootstrap() closed instead of
- *  configuring the rim NTC pin (GPIO9) as a digital DRDY input. The host
- *  suites keep a mock line above the last pad. Open item for the
- *  rtd_service owner: poll DRDY through the expander or use the conversion
- *  period (C23). */
+ *  PIN_RTD_DRDY is invalid on the target, so rtd_service polls P07 through
+ *  the TCA9555 each control tick (DECISIONS.md D-DRDY). The host suites keep
+ *  a mock line above the last pad for the GPIO-edge tests. */
 #ifdef ESP_PLATFORM
 #define PIN_RTD_DRDY            HAL_PIN_INVALID /**< @not-gpio RTD_DRDY */
 #else

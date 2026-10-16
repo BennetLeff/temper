@@ -628,6 +628,65 @@ static void test_a_rim_limit_leak_latch_is_not_cleared_by_agreement(void)
     TEST_ASSERT_FALSE(fault_cleared());
 }
 
+/* ---- coil-off token across a power cycle (DECISIONS.md D-SOAKNV) ---------- */
+extern void mock_soak_nvs_put(uint32_t v);
+extern bool mock_soak_nvs_get(uint32_t *v);
+extern void mock_soak_nvs_fail(bool load, bool save, bool clear);
+extern uint32_t mock_soak_nvs_saves(void);
+
+/* A power cycle: a fresh boot whose flash holds `token` (0: none). */
+static void boot_idle_with_token(uint32_t token, float pt_c, float hs_c)
+{
+    start(STATE_IDLE, 200.0f, 10u, pt_c);   /* mock_sm_reset: an erased flash */
+    if (token != 0u) {
+        mock_soak_nvs_put(token);
+    }
+    state_machine_init();                   /* the boot reads the flash */
+    state_machine_force_state(STATE_IDLE);
+    mock_sm_set_heatsink_temperature(hs_c);
+    s_hold_t = pt_c;
+}
+
+static void test_cold_soak_token_survives_a_power_cycle_and_is_revoked_before_power(void)
+{
+    /* 16 min idle after power-up: the token is written once, at 15 min */
+    soak_idle(10.0f, 35.0f, 16u * 60000u);
+    uint32_t tok = 0u;
+    TEST_ASSERT_TRUE(mock_soak_nvs_get(&tok));
+    TEST_ASSERT_EQUAL_UINT32(PSS_TOKEN_OFF_S, tok);
+    TEST_ASSERT_EQUAL_UINT32(1u, mock_soak_nvs_saves());
+    /* power cycle; 16 min of uptime: off >= 900 + 960 s, history complete */
+    boot_idle_with_token(tok, 10.0f, 35.0f);
+    TEST_ASSERT_EQUAL_UINT32(PSS_TOKEN_OFF_S, pan_control_soak_store()->boot_credit_s);
+    run_ms(16u * 60000u, hold, &s_clock);
+    soak_preheat(300u);
+    TEST_ASSERT_EQUAL_INT(FAULT_PROBE_LEAKAGE, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(0u, s_soak_max_power);
+    TEST_ASSERT_TRUE(pan_control_cold_soak_result().off_s >= 1800.0f);
+    /* the PREHEAT entry revoked the token before any power */
+    TEST_ASSERT_FALSE(mock_soak_nvs_get(&tok));
+    /* the same unit without the token: not soaked at 16 min of uptime */
+    boot_idle_with_token(0u, 10.0f, 35.0f);
+    run_ms(16u * 60000u, hold, &s_clock);
+    soak_preheat(300u);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_NOT_SOAKED, pan_control_cold_soak_result().verdict);
+    TEST_ASSERT_TRUE(s_soak_max_power > 0u);
+    TEST_ASSERT_FALSE(mock_soak_nvs_get(&tok));   /* the 15 min write was revoked by this cook */
+}
+
+static void test_cold_soak_store_failure_does_not_block_heating(void)
+{
+    boot_idle_with_token(PSS_TOKEN_OFF_S, 33.0f, 35.0f);
+    mock_soak_nvs_fail(false, false, true);   /* the erase fails */
+    run_ms(16u * 60000u, hold, &s_clock);
+    soak_preheat(1500u);
+    TEST_ASSERT_EQUAL_INT(STATE_PREHEAT, state_machine_get_state());
+    TEST_ASSERT_TRUE(s_soak_max_power > 0u);
+    TEST_ASSERT_TRUE(pan_control_soak_store()->disabled);
+    TEST_ASSERT_TRUE(pan_control_soak_store()->failures >= 1u);
+    mock_soak_nvs_fail(false, false, false);
+}
+
 void run_c1_runtime_tests(void)
 {
     RUN_TEST(test_no_runaway_latch_before_the_first_conversion);
@@ -660,5 +719,7 @@ void run_c1_runtime_tests(void)
     RUN_TEST(test_cold_soak_passes_when_the_readings_agree);
     RUN_TEST(test_cold_soak_skips_with_the_heatsink_saturated_or_the_rim_warm);
     RUN_TEST(test_cold_soak_skips_a_cold_pan_placed_in_the_window);
+    RUN_TEST(test_cold_soak_token_survives_a_power_cycle_and_is_revoked_before_power);
+    RUN_TEST(test_cold_soak_store_failure_does_not_block_heating);
     RUN_TEST(test_a_rim_limit_leak_latch_is_not_cleared_by_agreement);
 }

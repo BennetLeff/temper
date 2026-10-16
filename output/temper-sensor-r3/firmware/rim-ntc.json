@@ -210,7 +210,9 @@
   },
   "self_heating_still_air_max_K_100_250C": 4.53,
   "self_heating_note": "not subtracted by the driver: on the glass the dissipation is higher than the still-air 0.6 mW/K, so the true offset is smaller; the rim therefore reads high by at most this (DECISIONS D-RIM)",
-  "rail_error_without_MCP3202_worst_K": 4.37
+  "rail_error_without_MCP3202_worst_K": 4.37,
+  "rail_error_with_MCP3202_worst_K": 2.87,
+  "rail_with_MCP3202_tol_pct": 1.333
  },
  "checks": {
   "B25_85_from_table_matches_4267K": true,
@@ -219,7 +221,8 @@
   "resolution_1mV_le_0p3K_100_250C": true,
   "25C_is_saturated": true,
   "short_threshold_above_290C": true,
-  "saturation_below_150C_open_rule": true
+  "saturation_below_150C_open_rule": true,
+  "measured_rail_error_below_fallback": true
  },
  "all_pass": true
 }
