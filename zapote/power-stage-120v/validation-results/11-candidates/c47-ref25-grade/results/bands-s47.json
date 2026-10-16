@@ -1,0 +1,288 @@
+{
+ "board_sha256": "4139c87b8a10b0110435d42ecc2751c19ff03b565056d8771d6e771a8e28d33c",
+ "band_basis_s47": {
+  "row": "solved c17.5_h10@61",
+  "ref25": "LM4050AEM3-2.5/NOPB",
+  "kelvin_budget_BAND_BEFORE": [
+   68.87,
+   117.45
+  ]
+ },
+ "controls": "A25I committed network = ocp_band17.json 69.89-116.44 A and OVP 272.09-288.02 V; A25I uniform 105 C OVP top 288.75 V; LM4050 committed 272.50-287.58 V (u5-ref search)",
+ "validate_inputs": {
+  "bom_mpn_checks": 24,
+  "net_endpoint_groups": 12
+ },
+ "kelvin_shift_A": -2.123,
+ "floor_A": 64.17,
+ "ovp_top_rule_V": 288.02,
+ "ovp_low_rule_V": 269.37,
+ "ref25_error": {
+  "LM4040A25IDBZR": {
+   "T_V": 0.019,
+   "L_V": 0.001,
+   "source": "SLOS456Q 6.8 p.9: +-19 mV -40..85 C, 1.0 mV IZ,min..1 mA"
+  },
+  "LM4050AEM3-2.5/NOPB": {
+   "T_V": 0.015,
+   "L_V": 0.0012,
+   "source": "SNOS455H 5.6 p.7: +-15 mV -40..125 C (note 5 p.11), 1.2 mV IRMIN..1 mA"
+  }
+ },
+ "solved_temperatures_C": {
+  "c17.5_h10": {
+   "R26": 78.6,
+   "R27": 76.82,
+   "R28": 76.1,
+   "R29": 81.28,
+   "R30": 91.72,
+   "R32": 93.14,
+   "R33": 94.7,
+   "R34": 95.83,
+   "R35": 95.2,
+   "R36": 92.1,
+   "R37": 92.76,
+   "R31": 94.01,
+   "U5": 88.94,
+   "U6": 88.47,
+   "U7": 89.69,
+   "R5": 124.2
+  },
+  "c28_h10": {
+   "R26": 87.18,
+   "R27": 80.11,
+   "R28": 76.89,
+   "R29": 82.82,
+   "R30": 101.14,
+   "R32": 101.67,
+   "R33": 101.93,
+   "R34": 102.91,
+   "R35": 102.8,
+   "R36": 98.31,
+   "R37": 99.33,
+   "R31": 101.13,
+   "U5": 104.51,
+   "U6": 103.92,
+   "U7": 104.75,
+   "R5": 194.8
+  }
+ },
+ "network_max_C": {
+  "c17.5_h10": 95.83,
+  "c28_h10": 102.91
+ },
+ "ovp_network_max_C": {
+  "c17.5_h10": 92.76,
+  "c28_h10": 101.14
+ },
+ "ocp_network_max_C": {
+  "c17.5_h10": 95.83,
+  "c28_h10": 102.91
+ },
+ "rows": [
+  {
+   "ref25": "LM4040A25IDBZR",
+   "network": "committed -10/85 C",
+   "ocp_band_before_kelvin_A": [
+    69.89,
+    116.44
+   ],
+   "ocp_low_after_kelvin_A": 67.77,
+   "ocp_floor_margin_A": 3.6,
+   "ovp_band_V": [
+    272.09,
+    288.02
+   ],
+   "ovp_top_vs_288_02_V": 0.0,
+   "ovp_low_vs_269_37_V": 2.72,
+   "pass": true
+  },
+  {
+   "ref25": "LM4040A25IDBZR",
+   "network": "uniform -10/105 C",
+   "ocp_band_before_kelvin_A": [
+    67.33,
+    119.25
+   ],
+   "ocp_low_after_kelvin_A": 65.21,
+   "ocp_floor_margin_A": 1.04,
+   "ovp_band_V": [
+    271.39,
+    288.75
+   ],
+   "ovp_top_vs_288_02_V": 0.73,
+   "ovp_low_vs_269_37_V": 2.02,
+   "pass": false
+  },
+  {
+   "ref25": "LM4040A25IDBZR",
+   "network": "solved c17.5_h10@61",
+   "ocp_band_before_kelvin_A": [
+    68.75,
+    117.62
+   ],
+   "ocp_low_after_kelvin_A": 66.63,
+   "ocp_floor_margin_A": 2.46,
+   "ovp_band_V": [
+    272.22,
+    287.88
+   ],
+   "ovp_top_vs_288_02_V": -0.14,
+   "ovp_low_vs_269_37_V": 2.85,
+   "pass": true
+  },
+  {
+   "ref25": "LM4040A25IDBZR",
+   "network": "hottest c17.5_h10@61 (95.8 C uniform, R5 +50 K)",
+   "ocp_band_before_kelvin_A": [
+    68.5,
+    117.96
+   ],
+   "ocp_low_after_kelvin_A": 66.38,
+   "ocp_floor_margin_A": 2.21,
+   "ovp_band_V": [
+    271.71,
+    288.41
+   ],
+   "ovp_top_vs_288_02_V": 0.39,
+   "ovp_low_vs_269_37_V": 2.34,
+   "pass": false
+  },
+  {
+   "ref25": "LM4040A25IDBZR",
+   "network": "solved c28_h10@55",
+   "ocp_band_before_kelvin_A": [
+    67.46,
+    119.25
+   ],
+   "ocp_low_after_kelvin_A": 65.34,
+   "ocp_floor_margin_A": 1.17,
+   "ovp_band_V": [
+    272.05,
+    288.05
+   ],
+   "ovp_top_vs_288_02_V": 0.03,
+   "ovp_low_vs_269_37_V": 2.68,
+   "pass": false
+  },
+  {
+   "ref25": "LM4040A25IDBZR",
+   "network": "hottest c28_h10@55 (102.9 C uniform, R5 +50 K)",
+   "ocp_band_before_kelvin_A": [
+    67.6,
+    118.95
+   ],
+   "ocp_low_after_kelvin_A": 65.48,
+   "ocp_floor_margin_A": 1.31,
+   "ovp_band_V": [
+    271.46,
+    288.67
+   ],
+   "ovp_top_vs_288_02_V": 0.65,
+   "ovp_low_vs_269_37_V": 2.09,
+   "pass": false
+  },
+  {
+   "ref25": "LM4050AEM3-2.5/NOPB",
+   "network": "committed -10/85 C",
+   "ocp_band_before_kelvin_A": [
+    70.01,
+    116.27
+   ],
+   "ocp_low_after_kelvin_A": 67.89,
+   "ocp_floor_margin_A": 3.72,
+   "ovp_band_V": [
+    272.5,
+    287.58
+   ],
+   "ovp_top_vs_288_02_V": -0.44,
+   "ovp_low_vs_269_37_V": 3.13,
+   "pass": true
+  },
+  {
+   "ref25": "LM4050AEM3-2.5/NOPB",
+   "network": "uniform -10/105 C",
+   "ocp_band_before_kelvin_A": [
+    67.44,
+    119.08
+   ],
+   "ocp_low_after_kelvin_A": 65.32,
+   "ocp_floor_margin_A": 1.15,
+   "ovp_band_V": [
+    271.81,
+    288.31
+   ],
+   "ovp_top_vs_288_02_V": 0.29,
+   "ovp_low_vs_269_37_V": 2.44,
+   "pass": false
+  },
+  {
+   "ref25": "LM4050AEM3-2.5/NOPB",
+   "network": "solved c17.5_h10@61",
+   "ocp_band_before_kelvin_A": [
+    68.87,
+    117.45
+   ],
+   "ocp_low_after_kelvin_A": 66.75,
+   "ocp_floor_margin_A": 2.58,
+   "ovp_band_V": [
+    272.64,
+    287.45
+   ],
+   "ovp_top_vs_288_02_V": -0.57,
+   "ovp_low_vs_269_37_V": 3.27,
+   "pass": true
+  },
+  {
+   "ref25": "LM4050AEM3-2.5/NOPB",
+   "network": "hottest c17.5_h10@61 (95.8 C uniform, R5 +50 K)",
+   "ocp_band_before_kelvin_A": [
+    68.62,
+    117.79
+   ],
+   "ocp_low_after_kelvin_A": 66.5,
+   "ocp_floor_margin_A": 2.33,
+   "ovp_band_V": [
+    272.13,
+    287.98
+   ],
+   "ovp_top_vs_288_02_V": -0.04,
+   "ovp_low_vs_269_37_V": 2.76,
+   "pass": true
+  },
+  {
+   "ref25": "LM4050AEM3-2.5/NOPB",
+   "network": "solved c28_h10@55",
+   "ocp_band_before_kelvin_A": [
+    67.57,
+    119.09
+   ],
+   "ocp_low_after_kelvin_A": 65.45,
+   "ocp_floor_margin_A": 1.28,
+   "ovp_band_V": [
+    272.47,
+    287.62
+   ],
+   "ovp_top_vs_288_02_V": -0.4,
+   "ovp_low_vs_269_37_V": 3.1,
+   "pass": true
+  },
+  {
+   "ref25": "LM4050AEM3-2.5/NOPB",
+   "network": "hottest c28_h10@55 (102.9 C uniform, R5 +50 K)",
+   "ocp_band_before_kelvin_A": [
+    67.71,
+    118.79
+   ],
+   "ocp_low_after_kelvin_A": 65.59,
+   "ocp_floor_margin_A": 1.42,
+   "ovp_band_V": [
+    271.88,
+    288.24
+   ],
+   "ovp_top_vs_288_02_V": 0.22,
+   "ovp_low_vs_269_37_V": 2.51,
+   "pass": false
+  }
+ ]
+}

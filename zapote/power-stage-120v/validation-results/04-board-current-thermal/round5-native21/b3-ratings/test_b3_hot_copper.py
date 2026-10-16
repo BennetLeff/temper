@@ -110,21 +110,52 @@ nets = {"U17": ["monitor_ls-ref", "n_ls"], "U19": ["bias_ha.monitor-ref", "n_ha"
         "U29": ["monitor_ls-good", "n_ls", "v15_ls"], "U30": ["bias_ha.monitor-good", "n_ha", "p_ha"],
         "U31": ["bias_hb.monitor-good", "n_hb", "p_hb"], "U16": ["bias_ls-fb", "leg_ret", "n_ls"],
         "U18": ["bias_ha.split-fb", "n_ha", "sw_a"], "U20": ["bias_hb.split-fb", "n_hb", "sw_b"],
-        "R59": ["monitor_ls-ref", "v15_ls"], "R80": ["monitor_ls-halfref", "n_ls"], "R5": ["leg_ret", "x"]}
+        "R59": ["monitor_ls-ref", "v15_ls"], "R80": ["monitor_ls-halfref", "n_ls"], "R5": ["leg_ret", "x"],
+        "U5": ["ocp_kelvin_p", "ref25", "u_ref-nc"]}
 pr = {r: probe(70.0, n) for r, n in nets.items()}
-rows = gate.probe_rows("c", {"probes": pr}, {"probes": pr}, 61.0)
+S42 = {**{r: "TL431AIDBZR" for r in ("U17", "U19", "U21")}, **{r: "LM339BIDR" for r in ("U29", "U30", "U31")},
+       **{r: "TLVH431BQDBZR" for r in ("U16", "U18", "U20")}, "U5": "LM4040A25IDBZR"}
+S46 = {**S42, **{r: "TL431BQDBZR" for r in ("U17", "U19", "U21")}, **{r: "LM2901BIDR" for r in ("U29", "U30", "U31")}}
+S47 = {**S46, "U5": "LM4050AEM3-2.5/NOPB"}
+rows = gate.probe_rows("c", {"probes": pr}, {"probes": pr}, 61.0, mpns=S42)
 byref = {r["item"].split(":")[0]: r for r in rows}
-ok(all(byref[r]["gated"] for r in gate.MONITORS) and len(gate.MONITORS) == 9, "nine gated monitor-IC rows")
+ok(all(byref[r]["gated"] for r in gate.MONITORS) and len(gate.MONITORS) == 10, "ten gated monitor-IC rows (U5 from stage 47)")
 ok(abs(byref["U17"]["est_c"] - (70.0 + 11.0 + gate.MONITOR_SELF["tl431"] * 206.0)) < 1e-9 and byref["U17"]["limit_c"] == 85.0,
    f"TL431 row = pad + bay shift + P RthJA ({byref['U17']['self_heat_k']} K), limit 85 C")
 ok(byref["U16"]["limit_c"] == 125.0 and byref["U29"]["limit_c"] == 85.0, "TLVH431BQ 125 C, LM339B 85 C")
+# stage 46: the limit follows the MPN's grade (the 125 C grades of the same pinouts), the estimate does not move
+rows46 = {r["item"].split(":")[0]: r for r in gate.probe_rows("c", {"probes": pr}, {"probes": pr}, 61.0, mpns=S46)}
+ok(all(rows46[r]["limit_c"] == 125.0 for r in ("U17", "U19", "U21", "U29", "U30", "U31")) and
+   all(rows46[r]["est_c"] == byref[r]["est_c"] for r in gate.MONITORS) and "LM2901BIDR" in rows46["U29"]["item"],
+   "TL431BQ / LM2901B rows: limit 125 C from the MPN grade, same estimate")
+# stage 47 (c47-ref25-grade): U5 (REF25) is a gated row; LM4040A25I 85 C, LM4050AEM3-2.5 125 C, self-heat at the
+# 0.24 mA operating maximum through 326 K/W (SNOS455H p.11 note 1)
+ok(byref["U5"]["limit_c"] == 85.0 and "LM4040A25IDBZR" in byref["U5"]["item"] and
+   abs(byref["U5"]["est_c"] - (70.0 + 11.0 + gate.MONITOR_SELF["ref25"] * 326.0)) < 1e-9 and 0.1 < byref["U5"]["self_heat_k"] < 0.3,
+   f"U5 LM4040A25I row: pad + bay shift + P RthJA ({byref['U5']['self_heat_k']} K), limit 85 C")
+rows47 = {r["item"].split(":")[0]: r for r in gate.probe_rows("c", {"probes": pr}, {"probes": pr}, 61.0, mpns=S47)}
+ok(rows47["U5"]["limit_c"] == 125.0 and rows47["U5"]["est_c"] == byref["U5"]["est_c"] and "LM4050AEM3" in rows47["U5"]["item"],
+   "U5 LM4050AEM3-2.5 row: limit 125 C from the MPN grade, same estimate")
+ok(abs(gate.MONITOR_SELF["ref25"] - 0.2382e-3 * 2.5162) < 2e-6, "U5 self-heat power = 0.238 mA x 2.5162 V")
+bom46 = gate.bom_mpns()
+ok(all(bom46[r] == S47[r] for r in gate.MONITORS), "the frozen native-21 BOM carries the stage-46 / 47 grades at the ten refs")
+for name, bad in (("unknown MPN", {**S47, "U29": "LM339DR"}), ("MPN of another kind", {**S47, "U17": "LM2901BIDR"}),
+                  ("ref missing from the BOM", {k: v for k, v in S47.items() if k != "U30"}),
+                  ("U5 on the industrial LM4050AIM3 (no grade row)", {**S47, "U5": "LM4050AIM3-2.5/NOPB"}),
+                  ("U5 on a TL431 (another kind)", {**S47, "U5": "TL431BQDBZR"})):
+    try:
+        gate.probe_rows("c", {"probes": pr}, {"probes": pr}, 61.0, mpns=bad)
+        ok(False, f"probe rows refuse: {name}")
+    except SystemExit:
+        ok(True, f"probe rows refuse: {name}")
 ok(not byref["R59"]["gated"] and abs(byref["R59"]["limit_c"] - (155 - 85 * (gate.V_PN - gate.VREF_TL431) ** 2 / 2200 / 0.2)) < 1e-9,
    "R59 (2.2 k reference feed) advisory, derating line at its power")
 ok("R5" not in byref, "resistors off the monitor nets are not probe rows")
 for name, bad in (("no probes", {}), ("moved ref", {"probes": {**pr, "U17": probe(70.0, ["n_ls", "x"])}}),
-                  ("unknown divider", {"probes": {**pr, "R200": probe(70.0, ["monitor_ls-uv", "v15_ls"])}})):
+                  ("unknown divider", {"probes": {**pr, "R200": probe(70.0, ["monitor_ls-uv", "v15_ls"])}}),
+                  ("U5 moved off ref25", {"probes": {**pr, "U5": probe(70.0, ["ocp_kelvin_p", "hot5"])}})):
     try:
-        gate.probe_rows("c", bad, bad, 61.0)
+        gate.probe_rows("c", bad, bad, 61.0, mpns=S47)
         ok(False, f"probe rows refuse: {name}")
     except SystemExit:
         ok(True, f"probe rows refuse: {name}")

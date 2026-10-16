@@ -7,9 +7,9 @@ input_limits_cfg_t input_limits_native21(void)
     /* est_error provisional until bench qualification; static part PS2 + PS3 logic (MPM-20-24 /
      * MPM-65-15ST, blower off: 0.26 A, the worst-corner inlet-RMS increment rounded up) and worst
      * case with the PS3 blower at full (0.887 A), both from blower_aux.h; tank ceiling: the
-     * 18 A shipping default (TANK_CEILING_DEFAULT_A; power-stage DECISIONS 55, s42 still-air
-     * rating 18.3 A at bay 61 C). The commissioned value replaces it (Kconfig
-     * TEMPER_POWER_TANK_CEILING_DA via n21_config_set_tank_ceiling). */
+     * 17.5 A shipping default (TANK_CEILING_DEFAULT_A; power-stage OPEN-ITEMS S17, hot-copper B3
+     * basis on s45 at bay 61 C: R10 +1.0 K at 17.5 A, -0.7 K at 18 A). The commissioned value
+     * replaces it (Kconfig TEMPER_POWER_TANK_CEILING_DA via n21_config_set_tank_ceiling). */
     blower_aux_cfg_t b = blower_aux_native21();
     return (input_limits_cfg_t){ .eta_min = 0.93f, .est_error = 0.10f, .aux_min_a = b.base_a,
                                  .aux_max_a = blower_aux_worst_a(&b), .tank_limit_a = TANK_CEILING_DEFAULT_A };

@@ -5,12 +5,14 @@
  * (power-stage DECISIONS.md item 10; stage-15 PLAN section 4). Pure functions, no HAL: the binding
  * (n21_binding.c) calls tank_freq_step() once per closed half line cycle while the bridge runs.
  *
- * Ceiling. The commissioned tank RMS ceiling is a configuration value: 18 A ships (power-stage
- * DECISIONS 55: the s42 board's still-air rating is 18.3 A at the worst bay air, 61 C). The
- * hardware is sized for 28 A (stage 15), reachable only with board-face airflow (or a measured bay
- * air below 61 C) and a passing B3 thermal basis at the higher ceiling; it is raised only through
- * the bench gates in COMMISSIONING.md "Raising the commissioned tank ceiling". Everything else
- * derives from it:
+ * Ceiling. The commissioned tank RMS ceiling is a configuration value: 17.5 A ships (power-stage
+ * OPEN-ITEMS S17: with B3 copper loss taken at the copper's solved temperature, board s45 in still
+ * air at the worst bay air, 61 C, keeps +1.0 K on its binding row, R10's 2512 terminal derating, at
+ * 17.5 A and fails by 0.7 K at the earlier 18.0 A release, DECISIONS 55 / 56). The hardware is
+ * sized for 28 A (stage 15), reachable only with board-face airflow (or a measured bay air below
+ * 61 C) and a passing hot-copper B3 thermal basis at the higher ceiling; it is raised only through
+ * the bench gates in COMMISSIONING.md "Raising the commissioned tank ceiling". The ceiling need not
+ * be a whole number of amps (Kconfig sets it in 0.1 A). Everything else derives from it:
  *   peak trip   = min(2.17 x ceiling + 3, 62) A   (2.17 = round 6's largest peak / line RMS; 3 A pickup)
  *   RMS trip    = 1.05 x ceiling on the half-cycle RMS from input_limits_half_cycle()
  *   crest guard = 1.5 x ceiling on each AD8436 sample (crest sample ~ 1.41 x line RMS)
@@ -72,7 +74,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define TANK_CEILING_DEFAULT_A 18.0f /* shipping commissioned ceiling (DECISIONS 55); also the no-pan clamp */
+#define TANK_CEILING_DEFAULT_A 17.5f /* shipping commissioned ceiling (OPEN-ITEMS S17, hot copper); also the no-pan clamp */
 #define TANK_CEILING_MAX_A     28.0f /* stage-15 hardware sizing basis (DECISIONS 10); needs airflow */
 #define TANK_CEILING_MIN_A     10.0f
 #define TANK_PEAK_PER_RMS      2.17f /* round 6 board-side-protection.csv, 22 A row */

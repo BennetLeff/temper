@@ -547,6 +547,7 @@
   "b3_study": [
    "validation-results/04-board-current-thermal/round5-native21/b3/run_study.py",
    "validation-results/04-board-current-thermal/round5-native21/b3/thermal.py",
+   "validation-plan/sim-kit/04-current/sheet_solver.py",
    "validation-results/04-board-current-thermal/round5-native21/b3/ceiling_sweep.py",
    "validation-results/04-board-current-thermal/round5-native21/b3/make_heat_sources.py",
    "validation-results/04-board-current-thermal/round5-native21/b3/inputs/*.json",
@@ -824,6 +825,27 @@
   },
   {
    "glob": "native-21/layout/gates/cu_temp_registry.json",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/pin_absmax.py",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/pin_absmax_registry.json",
+   "class": "input",
+   "steps": [
+    "card"
+   ]
+  },
+  {
+   "glob": "native-21/layout/gates/pin_absmax_expected.json",
    "class": "input",
    "steps": [
     "card"
@@ -1177,7 +1199,8 @@
    "class": "input",
    "steps": [
     "task04",
-    "kelvin"
+    "kelvin",
+    "b3_study"
    ]
   },
   {

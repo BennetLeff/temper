@@ -52,7 +52,7 @@ extern void eeprom_log_fault(fault_code_t code, uint32_t timestamp);
  * ADC's range). cold_or_open: the node is above the ADC's range (cold, < ~70 C) or open. */
 extern bool read_rim_temperature_status(float *temp_c, bool *cold_or_open);
 extern float read_coil_temperature(void);
-/* L3 sensor-plausibility faults to the thermal glue: coil -> tank clamp <= 18 A, blower full. */
+/* L3 sensor-plausibility faults to the thermal glue: coil -> tank clamp <= 17.5 A, blower full. */
 extern void thermal_set_sensor_faults(bool rim_fault, bool coil_fault);
 /* L3 thermal power cap (DECISIONS C28, C32), 0..100: min(coil derate 150-160 C, blower stall
  * derate). Computed by the blower controller tick (thermal_io.c, blower_ctrl_step()). */

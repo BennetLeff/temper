@@ -49,7 +49,7 @@ DIVIDER = {"native21s13": (12.4e3, 11.7e3), "native21s13b": (12.4e3, 11.7e3), "n
            "native21s15": (12.6e3, 11.7e3), "native21s15b": (12.6e3, 11.7e3),
            "native21s16": (12.6e3, 11.7e3), "native21s17": (12.6e3, 11.7e3),
            "native21s17b": (12.6e3, 11.7e3), "native21s18": (12.6e3, 11.7e3),
-           "native21s19": (12.6e3, 11.7e3), "native21s19b": (12.6e3, 11.7e3), "native21s19c": (12.6e3, 11.7e3), "native21s20": (12.6e3, 11.7e3), "native21s21": (12.6e3, 11.7e3), "native21s21b": (12.6e3, 11.7e3), "native21s22": (12.6e3, 11.7e3), "native21s26": (12.6e3, 11.7e3), "native21s27": (12.6e3, 11.7e3), "native21s28": (12.6e3, 11.7e3), "native21s29": (12.6e3, 11.7e3), "native21s30": (12.6e3, 11.7e3), "native21s31": (12.6e3, 11.7e3), "native21s32": (12.6e3, 11.7e3), "native21s33": (12.6e3, 11.7e3), "native21s35": (12.6e3, 11.7e3), "native21s38": (12.6e3, 11.7e3), "native21s40": (12.6e3, 11.7e3), "native21s41": (12.6e3, 11.7e3), "native21s42": (12.6e3, 11.7e3), "native21s43": (12.6e3, 11.7e3), "native21s44": (12.6e3, 11.7e3), "native21s45": (12.6e3, 11.7e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
+           "native21s19": (12.6e3, 11.7e3), "native21s19b": (12.6e3, 11.7e3), "native21s19c": (12.6e3, 11.7e3), "native21s20": (12.6e3, 11.7e3), "native21s21": (12.6e3, 11.7e3), "native21s21b": (12.6e3, 11.7e3), "native21s22": (12.6e3, 11.7e3), "native21s26": (12.6e3, 11.7e3), "native21s27": (12.6e3, 11.7e3), "native21s28": (12.6e3, 11.7e3), "native21s29": (12.6e3, 11.7e3), "native21s30": (12.6e3, 11.7e3), "native21s31": (12.6e3, 11.7e3), "native21s32": (12.6e3, 11.7e3), "native21s33": (12.6e3, 11.7e3), "native21s35": (12.6e3, 11.7e3), "native21s38": (12.6e3, 11.7e3), "native21s40": (12.6e3, 11.7e3), "native21s41": (12.6e3, 11.7e3), "native21s42": (12.6e3, 11.7e3), "native21s43": (12.6e3, 11.7e3), "native21s44": (12.6e3, 11.7e3), "native21s45": (12.6e3, 11.7e3), "native21s46": (12.6e3, 11.7e3), "native21s47": (12.6e3, 11.7e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
 PLATING_UM, PITCH, TEMP = 18.0, 0.1, 125.0
 
 
@@ -105,7 +105,9 @@ def main() -> None:
               "native21s42": "9e075b4b90320e1e19c7b9740278715a4dabe6c80779fe8082a5bb844083ef86",
               "native21s43": "61447816b9dd4921525b4f610aca40486989964368d69abb17bf7071cbf4d8df",
               "native21s44": "2a84051f251e03a3206e99fdef4bb48e7862c233bcbdf344e61b09952e423136",
-              "native21s45": "26ce953166f87f0538ee008a019406cef5f637461f6f0b415769f39b36f32b87"}
+              "native21s45": "a1e6488f72c6af95a971182d6b024a157339a5a983f29e264f7715f1ae6c0199",
+              "native21s46": "16a588612c9823a5acf80760c75f7e985a5e359b4c9027bd4bedd4a463fea809",
+              "native21s47": "83355da593ae895967b0a72f0b6d30c4cc9855333a18e107d098e3d6e29bd779"}
     assert data["board_sha256"] == PINNED[tag], f"{export} is not the pinned {tag} board"
     # stage 33: copper z and thickness from the board's stackup.json (the native-20 export: native-20's; every
     # native21* tag: native-21's single layer-stack source). Same 70 / 61 um and JLC041622-7628 z as the old literals.

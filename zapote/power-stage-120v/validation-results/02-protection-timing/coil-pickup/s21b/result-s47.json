@@ -1,0 +1,1157 @@
+{
+ "board_sha256": "4139c87b8a10b0110435d42ecc2751c19ff03b565056d8771d6e771a8e28d33c",
+ "rows": {
+  "control31|pan_bars_31kHz_45Apk|base_A|cluster_drawn": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "base_A|cluster_drawn",
+   "dI_abs_A": 0.026594802321323094,
+   "dI_peak_shift_A": 0.020779737340351545,
+   "dI_peak_shift_x1p5_A": 0.03117552942883961,
+   "stack_mag_A": 0.897438308192019,
+   "stack_any_phase_x1p5_A": 1.3461574622880286,
+   "parts_A": {
+    "kelvin": 0.4,
+    "node": 0.437,
+    "thresh": 0.059,
+    "ref25": 0.002
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "control31|pan_bars_31kHz_45Apk|base_B|cluster_image": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "base_B|cluster_image",
+   "dI_abs_A": 0.021133294215843736,
+   "dI_peak_shift_A": 0.017321333357841695,
+   "dI_peak_shift_x1p5_A": 0.025985991767981886,
+   "stack_mag_A": 0.11505068505278841,
+   "stack_any_phase_x1p5_A": 0.1725760275791826,
+   "parts_A": {
+    "kelvin": 0.05,
+    "node": 0.02,
+    "thresh": 0.044,
+    "ref25": 0.002
+   },
+   "kelvin_area_mm2": 113.0
+  },
+  "control31|pan_bars_31kHz_45Apk|move|cluster_drawn": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move|cluster_drawn",
+   "dI_abs_A": 0.1903918055685008,
+   "dI_peak_shift_A": 0.06279648916921587,
+   "dI_peak_shift_x1p5_A": 0.09458549850388565,
+   "stack_mag_A": 0.684103590510432,
+   "stack_any_phase_x1p5_A": 1.026155385765648,
+   "parts_A": {
+    "kelvin": 0.187,
+    "node": 0.437,
+    "thresh": 0.059,
+    "ref25": 0.002
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "control31|pan_bars_31kHz_45Apk|move|cluster_image": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move|cluster_image",
+   "dI_abs_A": 0.2521788561660988,
+   "dI_peak_shift_A": 0.09928126411214677,
+   "dI_peak_shift_x1p5_A": 0.14956987437203395,
+   "stack_mag_A": 0.2522717715907017,
+   "stack_any_phase_x1p5_A": 0.37840765738605253,
+   "parts_A": {
+    "kelvin": 0.187,
+    "node": 0.02,
+    "thresh": 0.044,
+    "ref25": 0.002
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "control31|pan_bars_31kHz_45Apk|move|caps_at_pins": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move|caps_at_pins",
+   "dI_abs_A": 0.20196040212605748,
+   "dI_peak_shift_A": 0.08172977065872189,
+   "dI_peak_shift_x1p5_A": 0.12300453567884517,
+   "stack_mag_A": 0.21076976381220833,
+   "stack_any_phase_x1p5_A": 0.3161546457183125,
+   "parts_A": {
+    "kelvin": 0.187,
+    "node": 0.018,
+    "thresh": 0.004,
+    "ref25": 0.002
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "control31|pan_bars_31kHz_45Apk|move56|cluster_drawn": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move56|cluster_drawn",
+   "dI_abs_A": 0.2009833307309748,
+   "dI_peak_shift_A": 0.06867503785826656,
+   "dI_peak_shift_x1p5_A": 0.10343918558553611,
+   "stack_mag_A": 0.6733628475176531,
+   "stack_any_phase_x1p5_A": 1.0100442712764797,
+   "parts_A": {
+    "kelvin": 0.176,
+    "node": 0.437,
+    "thresh": 0.059,
+    "ref25": 0.002
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "control31|pan_bars_31kHz_45Apk|move56|cluster_image": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move56|cluster_image",
+   "dI_abs_A": 0.24146452198051374,
+   "dI_peak_shift_A": 0.09339416281893875,
+   "dI_peak_shift_x1p5_A": 0.14068597701415442,
+   "stack_mag_A": 0.2415310285979227,
+   "stack_any_phase_x1p5_A": 0.36229654289688407,
+   "parts_A": {
+    "kelvin": 0.176,
+    "node": 0.02,
+    "thresh": 0.044,
+    "ref25": 0.002
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "control31|pan_bars_31kHz_45Apk|move56|caps_at_pins": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move56|caps_at_pins",
+   "dI_abs_A": 0.19122477962115936,
+   "dI_peak_shift_A": 0.07585223523011564,
+   "dI_peak_shift_x1p5_A": 0.11415084859719471,
+   "stack_mag_A": 0.20002902081942933,
+   "stack_any_phase_x1p5_A": 0.300043531229144,
+   "parts_A": {
+    "kelvin": 0.176,
+    "node": 0.018,
+    "thresh": 0.004,
+    "ref25": 0.002
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "control31|nopan_envelope_bars_31kHz_45Apk|base_A|cluster_drawn": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "base_A|cluster_drawn",
+   "dI_abs_A": 0.1815257964761024,
+   "dI_peak_shift_A": 0.035340808182372285,
+   "dI_peak_shift_x1p5_A": 0.053395844087663846,
+   "stack_mag_A": 2.2566284225991957,
+   "stack_any_phase_x1p5_A": 3.3849426338987936,
+   "parts_A": {
+    "kelvin": 1.086,
+    "node": 1.039,
+    "thresh": 0.128,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "control31|nopan_envelope_bars_31kHz_45Apk|base_B|cluster_image": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "base_B|cluster_image",
+   "dI_abs_A": 0.15339053766504818,
+   "dI_peak_shift_A": 0.030842025095971337,
+   "dI_peak_shift_x1p5_A": 0.04653764259383664,
+   "stack_mag_A": 0.17383708558832173,
+   "stack_any_phase_x1p5_A": 0.26075562838248256,
+   "parts_A": {
+    "kelvin": 0.031,
+    "node": 0.044,
+    "thresh": 0.095,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 113.0
+  },
+  "control31|nopan_envelope_bars_31kHz_45Apk|move|cluster_drawn": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move|cluster_drawn",
+   "dI_abs_A": 0.38252639497264945,
+   "dI_peak_shift_A": 0.008701772898984217,
+   "dI_peak_shift_x1p5_A": 0.0148145722309998,
+   "stack_mag_A": 1.695290264532899,
+   "stack_any_phase_x1p5_A": 2.542935396799349,
+   "parts_A": {
+    "kelvin": 0.525,
+    "node": 1.039,
+    "thresh": 0.128,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "control31|nopan_envelope_bars_31kHz_45Apk|move|cluster_image": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move|cluster_image",
+   "dI_abs_A": 0.6676736625829284,
+   "dI_peak_shift_A": 0.039151065652252015,
+   "dI_peak_shift_x1p5_A": 0.06407390350335618,
+   "stack_mag_A": 0.6678420856236097,
+   "stack_any_phase_x1p5_A": 1.0017631284354145,
+   "parts_A": {
+    "kelvin": 0.525,
+    "node": 0.044,
+    "thresh": 0.095,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "control31|nopan_envelope_bars_31kHz_45Apk|move|caps_at_pins": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move|caps_at_pins",
+   "dI_abs_A": 0.5607363709875093,
+   "dI_peak_shift_A": 0.03725348715695276,
+   "dI_peak_shift_x1p5_A": 0.05964898977647337,
+   "stack_mag_A": 0.5816832650776078,
+   "stack_any_phase_x1p5_A": 0.8725248976164117,
+   "parts_A": {
+    "kelvin": 0.525,
+    "node": 0.043,
+    "thresh": 0.01,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "control31|nopan_envelope_bars_31kHz_45Apk|move56|cluster_drawn": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move56|cluster_drawn",
+   "dI_abs_A": 0.42905305486612394,
+   "dI_peak_shift_A": 0.00431667715496431,
+   "dI_peak_shift_x1p5_A": 0.008692667212010008,
+   "stack_mag_A": 1.648503242222028,
+   "stack_any_phase_x1p5_A": 2.472754863333042,
+   "parts_A": {
+    "kelvin": 0.478,
+    "node": 1.039,
+    "thresh": 0.128,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "control31|nopan_envelope_bars_31kHz_45Apk|move56|cluster_image": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move56|cluster_image",
+   "dI_abs_A": 0.6209167167619138,
+   "dI_peak_shift_A": 0.03319948504127623,
+   "dI_peak_shift_x1p5_A": 0.05442505410394105,
+   "stack_mag_A": 0.6210550633127385,
+   "stack_any_phase_x1p5_A": 0.9315825949691078,
+   "parts_A": {
+    "kelvin": 0.478,
+    "node": 0.044,
+    "thresh": 0.095,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "control31|nopan_envelope_bars_31kHz_45Apk|move56|caps_at_pins": {
+   "f_khz": 31,
+   "ipk": 31.112698372208094,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move56|caps_at_pins",
+   "dI_abs_A": 0.5139543774245737,
+   "dI_peak_shift_A": 0.031461253496857466,
+   "dI_peak_shift_x1p5_A": 0.05035784841733815,
+   "stack_mag_A": 0.5348962427667366,
+   "stack_any_phase_x1p5_A": 0.8023443641501049,
+   "parts_A": {
+    "kelvin": 0.478,
+    "node": 0.043,
+    "thresh": 0.01,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f35|pan_bars_31kHz_45Apk|base_A|cluster_drawn": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "base_A|cluster_drawn",
+   "dI_abs_A": 0.05404922811514281,
+   "dI_peak_shift_A": 0.04283420772596003,
+   "dI_peak_shift_x1p5_A": 0.06426258243276095,
+   "stack_mag_A": 1.8695075789771094,
+   "stack_any_phase_x1p5_A": 2.804261368465664,
+   "parts_A": {
+    "kelvin": 0.832,
+    "node": 0.911,
+    "thresh": 0.122,
+    "ref25": 0.003
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f35|pan_bars_31kHz_45Apk|base_B|cluster_image": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "base_B|cluster_image",
+   "dI_abs_A": 0.04288830254798692,
+   "dI_peak_shift_A": 0.035681150335214795,
+   "dI_peak_shift_x1p5_A": 0.05353031266361796,
+   "stack_mag_A": 0.24167412125655194,
+   "stack_any_phase_x1p5_A": 0.3625111818848279,
+   "parts_A": {
+    "kelvin": 0.105,
+    "node": 0.042,
+    "thresh": 0.091,
+    "ref25": 0.003
+   },
+   "kelvin_area_mm2": 113.0
+  },
+  "f35|pan_bars_31kHz_45Apk|move|cluster_drawn": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move|cluster_drawn",
+   "dI_abs_A": 0.3979574630857147,
+   "dI_peak_shift_A": 0.1310878036330152,
+   "dI_peak_shift_x1p5_A": 0.19752516071870474,
+   "stack_mag_A": 1.4254417216910151,
+   "stack_any_phase_x1p5_A": 2.1381625825365225,
+   "parts_A": {
+    "kelvin": 0.388,
+    "node": 0.911,
+    "thresh": 0.122,
+    "ref25": 0.003
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f35|pan_bars_31kHz_45Apk|move|cluster_image": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move|cluster_image",
+   "dI_abs_A": 0.5248503942741013,
+   "dI_peak_shift_A": 0.2066750895789724,
+   "dI_peak_shift_x1p5_A": 0.31148278230852355,
+   "stack_mag_A": 0.5250489487463884,
+   "stack_any_phase_x1p5_A": 0.7875734231195826,
+   "parts_A": {
+    "kelvin": 0.388,
+    "node": 0.042,
+    "thresh": 0.091,
+    "ref25": 0.003
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f35|pan_bars_31kHz_45Apk|move|caps_at_pins": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move|caps_at_pins",
+   "dI_abs_A": 0.4200062523067504,
+   "dI_peak_shift_A": 0.17004617118645626,
+   "dI_peak_shift_x1p5_A": 0.25600525152700015,
+   "stack_mag_A": 0.4383741475817624,
+   "stack_any_phase_x1p5_A": 0.6575612213726436,
+   "parts_A": {
+    "kelvin": 0.388,
+    "node": 0.037,
+    "thresh": 0.009,
+    "ref25": 0.003
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f35|pan_bars_31kHz_45Apk|move56|cluster_drawn": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move56|cluster_drawn",
+   "dI_abs_A": 0.41975298182221665,
+   "dI_peak_shift_A": 0.14329660770498975,
+   "dI_peak_shift_x1p5_A": 0.21592790551012797,
+   "stack_mag_A": 1.4033279570747608,
+   "stack_any_phase_x1p5_A": 2.104991935612141,
+   "parts_A": {
+    "kelvin": 0.366,
+    "node": 0.911,
+    "thresh": 0.122,
+    "ref25": 0.003
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f35|pan_bars_31kHz_45Apk|move56|cluster_image": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move56|cluster_image",
+   "dI_abs_A": 0.502793530936665,
+   "dI_peak_shift_A": 0.194439305589853,
+   "dI_peak_shift_x1p5_A": 0.29301022292114,
+   "stack_mag_A": 0.5029351841301339,
+   "stack_any_phase_x1p5_A": 0.7544027761952009,
+   "parts_A": {
+    "kelvin": 0.366,
+    "node": 0.042,
+    "thresh": 0.091,
+    "ref25": 0.003
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f35|pan_bars_31kHz_45Apk|move56|caps_at_pins": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move56|caps_at_pins",
+   "dI_abs_A": 0.39790351338686614,
+   "dI_peak_shift_A": 0.15784313700815744,
+   "dI_peak_shift_x1p5_A": 0.23760250673556982,
+   "stack_mag_A": 0.416260382965508,
+   "stack_any_phase_x1p5_A": 0.624390574448262,
+   "parts_A": {
+    "kelvin": 0.366,
+    "node": 0.037,
+    "thresh": 0.009,
+    "ref25": 0.003
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f35|nopan_envelope_bars_31kHz_45Apk|base_A|cluster_drawn": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "base_A|cluster_drawn",
+   "dI_abs_A": 0.3847004184891008,
+   "dI_peak_shift_A": 0.07172932750215466,
+   "dI_peak_shift_x1p5_A": 0.10850046399787772,
+   "stack_mag_A": 4.836059700156954,
+   "stack_any_phase_x1p5_A": 7.254089550235431,
+   "parts_A": {
+    "kelvin": 2.325,
+    "node": 2.228,
+    "thresh": 0.276,
+    "ref25": 0.008
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f35|nopan_envelope_bars_31kHz_45Apk|base_B|cluster_image": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "base_B|cluster_image",
+   "dI_abs_A": 0.324896663835363,
+   "dI_peak_shift_A": 0.06257149862682354,
+   "dI_peak_shift_x1p5_A": 0.09449965343480926,
+   "stack_mag_A": 0.36892311482340656,
+   "stack_any_phase_x1p5_A": 0.5533846722351099,
+   "parts_A": {
+    "kelvin": 0.061,
+    "node": 0.095,
+    "thresh": 0.205,
+    "ref25": 0.008
+   },
+   "kelvin_area_mm2": 113.0
+  },
+  "f35|nopan_envelope_bars_31kHz_45Apk|move|cluster_drawn": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move|cluster_drawn",
+   "dI_abs_A": 0.8225549440126344,
+   "dI_peak_shift_A": 0.0185318773393206,
+   "dI_peak_shift_x1p5_A": 0.03207920227892913,
+   "stack_mag_A": 3.634058983850527,
+   "stack_any_phase_x1p5_A": 5.451088475775791,
+   "parts_A": {
+    "kelvin": 1.123,
+    "node": 2.228,
+    "thresh": 0.276,
+    "ref25": 0.008
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f35|nopan_envelope_bars_31kHz_45Apk|move|cluster_image": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move|cluster_image",
+   "dI_abs_A": 1.429962854357718,
+   "dI_peak_shift_A": 0.08209031637001374,
+   "dI_peak_shift_x1p5_A": 0.13601882477140492,
+   "stack_mag_A": 1.4302863993330375,
+   "stack_any_phase_x1p5_A": 2.145429598999556,
+   "parts_A": {
+    "kelvin": 1.123,
+    "node": 0.095,
+    "thresh": 0.205,
+    "ref25": 0.008
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f35|nopan_envelope_bars_31kHz_45Apk|move|caps_at_pins": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move|caps_at_pins",
+   "dI_abs_A": 1.200175146916163,
+   "dI_peak_shift_A": 0.07740865837304511,
+   "dI_peak_shift_x1p5_A": 0.12518011495300385,
+   "stack_mag_A": 1.245095439652822,
+   "stack_any_phase_x1p5_A": 1.867643159479233,
+   "parts_A": {
+    "kelvin": 1.123,
+    "node": 0.092,
+    "thresh": 0.022,
+    "ref25": 0.008
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f35|nopan_envelope_bars_31kHz_45Apk|move56|cluster_drawn": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move56|cluster_drawn",
+   "dI_abs_A": 0.9218684778630118,
+   "dI_peak_shift_A": 0.009879281232834103,
+   "dI_peak_shift_x1p5_A": 0.02019954027372961,
+   "stack_mag_A": 3.534246593380422,
+   "stack_any_phase_x1p5_A": 5.301369890070633,
+   "parts_A": {
+    "kelvin": 1.023,
+    "node": 2.228,
+    "thresh": 0.276,
+    "ref25": 0.008
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f35|nopan_envelope_bars_31kHz_45Apk|move56|cluster_image": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move56|cluster_image",
+   "dI_abs_A": 1.330208465021403,
+   "dI_peak_shift_A": 0.06966454865693805,
+   "dI_peak_shift_x1p5_A": 0.11565178595635928,
+   "stack_mag_A": 1.3304740088629328,
+   "stack_any_phase_x1p5_A": 1.9957110132943991,
+   "parts_A": {
+    "kelvin": 1.023,
+    "node": 0.095,
+    "thresh": 0.205,
+    "ref25": 0.008
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f35|nopan_envelope_bars_31kHz_45Apk|move56|caps_at_pins": {
+   "f_khz": 35,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move56|caps_at_pins",
+   "dI_abs_A": 1.100372465742886,
+   "dI_peak_shift_A": 0.06536571969392213,
+   "dI_peak_shift_x1p5_A": 0.10567993099562045,
+   "stack_mag_A": 1.1452830491827173,
+   "stack_any_phase_x1p5_A": 1.7179245737740758,
+   "parts_A": {
+    "kelvin": 1.023,
+    "node": 0.092,
+    "thresh": 0.022,
+    "ref25": 0.008
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f45|pan_bars_31kHz_45Apk|base_A|cluster_drawn": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "base_A|cluster_drawn",
+   "dI_abs_A": 0.06158534082359233,
+   "dI_peak_shift_A": 0.050651348764887416,
+   "dI_peak_shift_x1p5_A": 0.07598829399114493,
+   "stack_mag_A": 2.2525704740231385,
+   "stack_any_phase_x1p5_A": 3.3788557110347077,
+   "parts_A": {
+    "kelvin": 1.0,
+    "node": 1.1,
+    "thresh": 0.148,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f45|pan_bars_31kHz_45Apk|base_B|cluster_image": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "base_B|cluster_image",
+   "dI_abs_A": 0.04876483560702392,
+   "dI_peak_shift_A": 0.04214523923246105,
+   "dI_peak_shift_x1p5_A": 0.06322740457064668,
+   "stack_mag_A": 0.2970170975362881,
+   "stack_any_phase_x1p5_A": 0.44552564630443214,
+   "parts_A": {
+    "kelvin": 0.132,
+    "node": 0.051,
+    "thresh": 0.111,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 113.0
+  },
+  "f45|pan_bars_31kHz_45Apk|move|cluster_drawn": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move|cluster_drawn",
+   "dI_abs_A": 0.4833080709563588,
+   "dI_peak_shift_A": 0.15829713552374614,
+   "dI_peak_shift_x1p5_A": 0.23876120707873127,
+   "stack_mag_A": 1.7184952171817036,
+   "stack_any_phase_x1p5_A": 2.5777428257725554,
+   "parts_A": {
+    "kelvin": 0.466,
+    "node": 1.1,
+    "thresh": 0.148,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f45|pan_bars_31kHz_45Apk|move|cluster_image": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move|cluster_image",
+   "dI_abs_A": 0.6310437949506691,
+   "dI_peak_shift_A": 0.2484456720295185,
+   "dI_peak_shift_x1p5_A": 0.3747868701362336,
+   "stack_mag_A": 0.6313024651418665,
+   "stack_any_phase_x1p5_A": 0.9469536977127997,
+   "parts_A": {
+    "kelvin": 0.466,
+    "node": 0.051,
+    "thresh": 0.111,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f45|pan_bars_31kHz_45Apk|move|caps_at_pins": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move|caps_at_pins",
+   "dI_abs_A": 0.5040447075763188,
+   "dI_peak_shift_A": 0.2042314589175689,
+   "dI_peak_shift_x1p5_A": 0.30768315957023873,
+   "stack_mag_A": 0.5262242097132784,
+   "stack_any_phase_x1p5_A": 0.7893363145699177,
+   "parts_A": {
+    "kelvin": 0.466,
+    "node": 0.045,
+    "thresh": 0.011,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f45|pan_bars_31kHz_45Apk|move56|cluster_drawn": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move56|cluster_drawn",
+   "dI_abs_A": 0.5087989087017063,
+   "dI_peak_shift_A": 0.17293176598799676,
+   "dI_peak_shift_x1p5_A": 0.2608433187076926,
+   "stack_mag_A": 1.6925933353427025,
+   "stack_any_phase_x1p5_A": 2.5388900030140538,
+   "parts_A": {
+    "kelvin": 0.44,
+    "node": 1.1,
+    "thresh": 0.148,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f45|pan_bars_31kHz_45Apk|move56|cluster_image": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move56|cluster_image",
+   "dI_abs_A": 0.6052171035889122,
+   "dI_peak_shift_A": 0.2337729583455399,
+   "dI_peak_shift_x1p5_A": 0.3526229362252309,
+   "stack_mag_A": 0.6054005833028655,
+   "stack_any_phase_x1p5_A": 0.9081008749542983,
+   "parts_A": {
+    "kelvin": 0.44,
+    "node": 0.051,
+    "thresh": 0.111,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f45|pan_bars_31kHz_45Apk|move56|caps_at_pins": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move56|caps_at_pins",
+   "dI_abs_A": 0.47815736753102384,
+   "dI_peak_shift_A": 0.18959758646668945,
+   "dI_peak_shift_x1p5_A": 0.2856170312581128,
+   "stack_mag_A": 0.5003223278742774,
+   "stack_any_phase_x1p5_A": 0.7504834918114162,
+   "parts_A": {
+    "kelvin": 0.44,
+    "node": 0.045,
+    "thresh": 0.011,
+    "ref25": 0.004
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f45|nopan_envelope_bars_31kHz_45Apk|base_A|cluster_drawn": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "base_A|cluster_drawn",
+   "dI_abs_A": 0.4819888556967191,
+   "dI_peak_shift_A": 0.08198476960174617,
+   "dI_peak_shift_x1p5_A": 0.12440318510664383,
+   "stack_mag_A": 6.189225000483164,
+   "stack_any_phase_x1p5_A": 9.283837500724747,
+   "parts_A": {
+    "kelvin": 2.969,
+    "node": 2.856,
+    "thresh": 0.354,
+    "ref25": 0.01
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f45|nopan_envelope_bars_31kHz_45Apk|base_B|cluster_image": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "base_B|cluster_image",
+   "dI_abs_A": 0.4066288782899822,
+   "dI_peak_shift_A": 0.07142613765140027,
+   "dI_peak_shift_x1p5_A": 0.10815119455831734,
+   "stack_mag_A": 0.4638264431101636,
+   "stack_any_phase_x1p5_A": 0.6957396646652454,
+   "parts_A": {
+    "kelvin": 0.069,
+    "node": 0.121,
+    "thresh": 0.263,
+    "ref25": 0.01
+   },
+   "kelvin_area_mm2": 113.0
+  },
+  "f45|nopan_envelope_bars_31kHz_45Apk|move|cluster_drawn": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move|cluster_drawn",
+   "dI_abs_A": 1.0594332882135704,
+   "dI_peak_shift_A": 0.02395740765386023,
+   "dI_peak_shift_x1p5_A": 0.043044380300877094,
+   "stack_mag_A": 4.653221283025457,
+   "stack_any_phase_x1p5_A": 6.9798319245381855,
+   "parts_A": {
+    "kelvin": 1.433,
+    "node": 2.856,
+    "thresh": 0.354,
+    "ref25": 0.01
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f45|nopan_envelope_bars_31kHz_45Apk|move|cluster_image": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move|cluster_image",
+   "dI_abs_A": 1.8279140426734415,
+   "dI_peak_shift_A": 0.10190854324410736,
+   "dI_peak_shift_x1p5_A": 0.1739068520245013,
+   "stack_mag_A": 1.8282427060450015,
+   "stack_any_phase_x1p5_A": 2.7423640590675022,
+   "parts_A": {
+    "kelvin": 1.433,
+    "node": 0.121,
+    "thresh": 0.263,
+    "ref25": 0.01
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f45|nopan_envelope_bars_31kHz_45Apk|move|caps_at_pins": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move|caps_at_pins",
+   "dI_abs_A": 1.532353015790504,
+   "dI_peak_shift_A": 0.09398052150200442,
+   "dI_peak_shift_x1p5_A": 0.1557551382941611,
+   "stack_mag_A": 1.589915394185716,
+   "stack_any_phase_x1p5_A": 2.384873091278574,
+   "parts_A": {
+    "kelvin": 1.433,
+    "node": 0.118,
+    "thresh": 0.029,
+    "ref25": 0.01
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f45|nopan_envelope_bars_31kHz_45Apk|move56|cluster_drawn": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move56|cluster_drawn",
+   "dI_abs_A": 1.1855648822520073,
+   "dI_peak_shift_A": 0.014854686299592856,
+   "dI_peak_shift_x1p5_A": 0.03117641908718838,
+   "stack_mag_A": 4.526585686384303,
+   "stack_any_phase_x1p5_A": 6.7898785295764545,
+   "parts_A": {
+    "kelvin": 1.306,
+    "node": 2.856,
+    "thresh": 0.354,
+    "ref25": 0.01
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f45|nopan_envelope_bars_31kHz_45Apk|move56|cluster_image": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move56|cluster_image",
+   "dI_abs_A": 1.7013377530637686,
+   "dI_peak_shift_A": 0.08665864399814183,
+   "dI_peak_shift_x1p5_A": 0.1482320416368239,
+   "stack_mag_A": 1.7016071094038479,
+   "stack_any_phase_x1p5_A": 2.5524106641057718,
+   "parts_A": {
+    "kelvin": 1.306,
+    "node": 0.121,
+    "thresh": 0.263,
+    "ref25": 0.01
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f45|nopan_envelope_bars_31kHz_45Apk|move56|caps_at_pins": {
+   "f_khz": 45,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move56|caps_at_pins",
+   "dI_abs_A": 1.405727368061303,
+   "dI_peak_shift_A": 0.07936033189530178,
+   "dI_peak_shift_x1p5_A": 0.1314902109899876,
+   "stack_mag_A": 1.4632797975445624,
+   "stack_any_phase_x1p5_A": 2.194919696316844,
+   "parts_A": {
+    "kelvin": 1.306,
+    "node": 0.118,
+    "thresh": 0.029,
+    "ref25": 0.01
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f60|pan_bars_31kHz_45Apk|base_A|cluster_drawn": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "base_A|cluster_drawn",
+   "dI_abs_A": 0.07029214553196927,
+   "dI_peak_shift_A": 0.060834041077505674,
+   "dI_peak_shift_x1p5_A": 0.09126233246007587,
+   "stack_mag_A": 2.7819529968939336,
+   "stack_any_phase_x1p5_A": 4.172929495340901,
+   "parts_A": {
+    "kelvin": 1.23,
+    "node": 1.363,
+    "thresh": 0.184,
+    "ref25": 0.005
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f60|pan_bars_31kHz_45Apk|base_B|cluster_image": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "base_B|cluster_image",
+   "dI_abs_A": 0.055613403076769034,
+   "dI_peak_shift_A": 0.05055260423667818,
+   "dI_peak_shift_x1p5_A": 0.07583667755995549,
+   "stack_mag_A": 0.377049105003999,
+   "stack_any_phase_x1p5_A": 0.5655736575059985,
+   "parts_A": {
+    "kelvin": 0.171,
+    "node": 0.063,
+    "thresh": 0.138,
+    "ref25": 0.005
+   },
+   "kelvin_area_mm2": 113.0
+  },
+  "f60|pan_bars_31kHz_45Apk|move|cluster_drawn": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move|cluster_drawn",
+   "dI_abs_A": 0.603506865232136,
+   "dI_peak_shift_A": 0.19501887597728995,
+   "dI_peak_shift_x1p5_A": 0.29457934759462745,
+   "stack_mag_A": 2.124091966872959,
+   "stack_any_phase_x1p5_A": 3.1861379503094387,
+   "parts_A": {
+    "kelvin": 0.572,
+    "node": 1.363,
+    "thresh": 0.184,
+    "ref25": 0.005
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f60|pan_bars_31kHz_45Apk|move|cluster_image": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move|cluster_image",
+   "dI_abs_A": 0.7770313448697852,
+   "dI_peak_shift_A": 0.30438889885634524,
+   "dI_peak_shift_x1p5_A": 0.45979473799041415,
+   "stack_mag_A": 0.7773841481062046,
+   "stack_any_phase_x1p5_A": 1.1660762221593068,
+   "parts_A": {
+    "kelvin": 0.572,
+    "node": 0.063,
+    "thresh": 0.138,
+    "ref25": 0.005
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f60|pan_bars_31kHz_45Apk|move|caps_at_pins": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move|caps_at_pins",
+   "dI_abs_A": 0.6189683115453761,
+   "dI_peak_shift_A": 0.2499008731546155,
+   "dI_peak_shift_x1p5_A": 0.3768667518094304,
+   "stack_mag_A": 0.6464443520312699,
+   "stack_any_phase_x1p5_A": 0.9696665280469049,
+   "parts_A": {
+    "kelvin": 0.572,
+    "node": 0.056,
+    "thresh": 0.014,
+    "ref25": 0.005
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f60|pan_bars_31kHz_45Apk|move56|cluster_drawn": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move56|cluster_drawn",
+   "dI_abs_A": 0.6336516889681465,
+   "dI_peak_shift_A": 0.2128560856028301,
+   "dI_peak_shift_x1p5_A": 0.3215341669743239,
+   "stack_mag_A": 2.093394547385948,
+   "stack_any_phase_x1p5_A": 3.140091821078922,
+   "parts_A": {
+    "kelvin": 0.541,
+    "node": 1.363,
+    "thresh": 0.184,
+    "ref25": 0.005
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f60|pan_bars_31kHz_45Apk|move56|cluster_image": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move56|cluster_image",
+   "dI_abs_A": 0.7464379122259932,
+   "dI_peak_shift_A": 0.2864946308531344,
+   "dI_peak_shift_x1p5_A": 0.43273271831218096,
+   "stack_mag_A": 0.746686728619194,
+   "stack_any_phase_x1p5_A": 1.1200300929287912,
+   "parts_A": {
+    "kelvin": 0.541,
+    "node": 0.063,
+    "thresh": 0.138,
+    "ref25": 0.005
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f60|pan_bars_31kHz_45Apk|move56|caps_at_pins": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "pan_bars_31kHz_45Apk",
+   "variant": "move56|caps_at_pins",
+   "dI_abs_A": 0.5882909730771282,
+   "dI_peak_shift_A": 0.23206766868436546,
+   "dI_peak_shift_x1p5_A": 0.34994541027190706,
+   "stack_mag_A": 0.6157469325442594,
+   "stack_any_phase_x1p5_A": 0.9236203988163891,
+   "parts_A": {
+    "kelvin": 0.541,
+    "node": 0.056,
+    "thresh": 0.014,
+    "ref25": 0.005
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f60|nopan_envelope_bars_31kHz_45Apk|base_A|cluster_drawn": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "base_A|cluster_drawn",
+   "dI_abs_A": 0.6260881304245242,
+   "dI_peak_shift_A": 0.09575112775618067,
+   "dI_peak_shift_x1p5_A": 0.14604566186701362,
+   "stack_mag_A": 8.214452308544214,
+   "stack_any_phase_x1p5_A": 12.32167846281632,
+   "parts_A": {
+    "kelvin": 3.932,
+    "node": 3.796,
+    "thresh": 0.472,
+    "ref25": 0.014
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f60|nopan_envelope_bars_31kHz_45Apk|base_B|cluster_image": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "base_B|cluster_image",
+   "dI_abs_A": 0.5276175095640477,
+   "dI_peak_shift_A": 0.0832493621510011,
+   "dI_peak_shift_x1p5_A": 0.1265898378466801,
+   "stack_mag_A": 0.6057990439311414,
+   "stack_any_phase_x1p5_A": 0.908698565896712,
+   "parts_A": {
+    "kelvin": 0.079,
+    "node": 0.162,
+    "thresh": 0.351,
+    "ref25": 0.014
+   },
+   "kelvin_area_mm2": 113.0
+  },
+  "f60|nopan_envelope_bars_31kHz_45Apk|move|cluster_drawn": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move|cluster_drawn",
+   "dI_abs_A": 1.4150375545200489,
+   "dI_peak_shift_A": 0.03360909501763132,
+   "dI_peak_shift_x1p5_A": 0.06308275267536345,
+   "stack_mag_A": 6.178908517490803,
+   "stack_any_phase_x1p5_A": 9.268362776236204,
+   "parts_A": {
+    "kelvin": 1.897,
+    "node": 3.796,
+    "thresh": 0.472,
+    "ref25": 0.014
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f60|nopan_envelope_bars_31kHz_45Apk|move|cluster_image": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move|cluster_image",
+   "dI_abs_A": 2.423163938377511,
+   "dI_peak_shift_A": 0.1346886837686938,
+   "dI_peak_shift_x1p5_A": 0.23897619275617643,
+   "stack_mag_A": 2.423497345361934,
+   "stack_any_phase_x1p5_A": 3.635246018042901,
+   "parts_A": {
+    "kelvin": 1.897,
+    "node": 0.162,
+    "thresh": 0.351,
+    "ref25": 0.014
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f60|nopan_envelope_bars_31kHz_45Apk|move|caps_at_pins": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move|caps_at_pins",
+   "dI_abs_A": 2.0289424293037417,
+   "dI_peak_shift_A": 0.12041249968211076,
+   "dI_peak_shift_x1p5_A": 0.20651730477146657,
+   "stack_mag_A": 2.105438058664854,
+   "stack_any_phase_x1p5_A": 3.1581570879972807,
+   "parts_A": {
+    "kelvin": 1.897,
+    "node": 0.157,
+    "thresh": 0.038,
+    "ref25": 0.014
+   },
+   "kelvin_area_mm2": 105.3
+  },
+  "f60|nopan_envelope_bars_31kHz_45Apk|move56|cluster_drawn": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move56|cluster_drawn",
+   "dI_abs_A": 1.5811330967449397,
+   "dI_peak_shift_A": 0.024533718321158915,
+   "dI_peak_shift_x1p5_A": 0.052626031514499516,
+   "stack_mag_A": 6.012305419660836,
+   "stack_any_phase_x1p5_A": 9.018458129491254,
+   "parts_A": {
+    "kelvin": 1.73,
+    "node": 3.796,
+    "thresh": 0.472,
+    "ref25": 0.014
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f60|nopan_envelope_bars_31kHz_45Apk|move56|cluster_image": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move56|cluster_image",
+   "dI_abs_A": 2.2566212497621656,
+   "dI_peak_shift_A": 0.11486253340059704,
+   "dI_peak_shift_x1p5_A": 0.20436925348490576,
+   "stack_mag_A": 2.2568942475319673,
+   "stack_any_phase_x1p5_A": 3.385341371297951,
+   "parts_A": {
+    "kelvin": 1.73,
+    "node": 0.162,
+    "thresh": 0.351,
+    "ref25": 0.014
+   },
+   "kelvin_area_mm2": 180.0
+  },
+  "f60|nopan_envelope_bars_31kHz_45Apk|move56|caps_at_pins": {
+   "f_khz": 60,
+   "ipk": 59.2,
+   "case": "nopan_envelope_bars_31kHz_45Apk",
+   "variant": "move56|caps_at_pins",
+   "dI_abs_A": 1.8623494814677108,
+   "dI_peak_shift_A": 0.10169056483191241,
+   "dI_peak_shift_x1p5_A": 0.17437990639319878,
+   "stack_mag_A": 1.9388349608348872,
+   "stack_any_phase_x1p5_A": 2.9082524412523307,
+   "parts_A": {
+    "kelvin": 1.73,
+    "node": 0.157,
+    "thresh": 0.038,
+    "ref25": 0.014
+   },
+   "kelvin_area_mm2": 180.0
+  }
+ }
+}

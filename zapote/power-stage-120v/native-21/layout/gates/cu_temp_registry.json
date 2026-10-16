@@ -26,7 +26,11 @@
    "thermal_snap",
    "thermal_lead"
   ],
-  "not_scanned_note": "Older rounds (round1-4, native-0x..1x power-probes) and candidate studies under 11-candidates are outside the scorecard input chain; the audit README lists them."
+  "not_scanned_note": "Older rounds (round1-4, native-0x..1x power-probes) and candidate studies under 11-candidates are outside the scorecard input chain; the audit README lists them.",
+  "live_roots": [
+   "native-21/layout/gates/chain.sh",
+   "native-21/layout/gates/scorecard.py"
+  ]
  },
  "consumers": [
   {
@@ -102,13 +106,9 @@
    ],
    "basis_temp_c": 20,
    "basis_how": "inherited from B3 pad temperature; RHO_CU 1.72e-8 at 20 C (no TCR) in r5_vias17.py",
-   "direction": "hot is conservative",
-   "waiver": {
-    "id": "S17",
-    "reason": "OPEN-ITEMS S17: B3 scales the 20 C A4 fields by I^2 only; hot-copper iteration is in the B3 model lane. Remove when it lands and re-pin the basis.",
-    "expires": "2026-11-30"
-   },
-   "justification": "c28/h25 pad max 134.87 C against the 148.39 C bound (13.5 K headroom, g6.json). The pad rise (84.87 K) includes copper heat built at 20 C; if >~35 % of it is copper the G6 verdict can flip. Needs the hot-copper B3 solve."
+   "direction": "superseded (record)",
+   "justification": "Superseded by G6 (stage17-r5/g6_r5_derating.py, in CU-01): R5 derating on the hot-copper B3 solve, 32.6 % on s45 (DECISIONS 61). This pre-G6 script (DECISIONS 14, WSK2512 era) is kept as the record of that verdict; G6's control A cites its committed results.json numbers, not this code.",
+   "superseded_by": "CU-01"
   },
   {
    "id": "CU-06",
@@ -210,14 +210,10 @@
    ],
    "basis_temp_c": 95,
    "basis_how": "explicit but mislabelled: RHO = 1.72e-8 x (1 + 0.00393 x 75) is 95 C, comment says 100 C",
-   "direction": "hot is conservative",
-   "waiver": {
-    "id": "S17-neck",
-    "reason": "Estimate only (docstring: B3 is the gate). Re-base to the c28 copper temperature (130-160 C) when the B3 hot-copper solve exists.",
-    "expires": "2026-11-30"
-   },
+   "direction": "superseded (record)",
    "pin": "RHO = 1\\.72e-8 \\* \\(1 \\+ 0\\.00393 \\* 75\\)",
-   "justification": "Excess over neighbouring copper at 28 A is up to 30.4 K (out/neck_fin.json). At 130-160 C copper rho is x1.10-1.20 higher than coded: estimate 33.6-36.4 K."
+   "justification": "Superseded by the hot-copper B3 solve (CU-01), which is the gate for local tank-copper temperature on the board of record (DECISIONS 61). The stage-15 estimate is kept as a record; its RHO is 95 C although the comment says 100 C, and at 130-160 C copper the estimate would read about 33.6-36.4 K instead of 30.4 K.",
+   "superseded_by": "CU-01"
   },
   {
    "id": "CU-12",
@@ -231,13 +227,9 @@
    ],
    "basis_temp_c": 45,
    "basis_how": "none stated: the IPC-2221 fit assumes copper near ambient (~25 C) + the 20 K rise = ~45 C",
-   "direction": "hot is conservative",
-   "waiver": {
-    "id": "S17-ipc",
-    "reason": "A design screen superseded by B3; at bay 61 C + 20 K the copper is ~81 C, so the screen needs about +9 % width (estimate). Replace the screen's basis with the B3 copper temperature, or retire the screen.",
-    "expires": "2026-11-30"
-   },
-   "justification": "Required width 9.82 mm at 28 A (sw_widths.py docstring). Copper at 81 C vs 45 C: rho x1.129 -> current-equivalent x1.063 -> width x1.087 -> about 10.7 mm (estimate)."
+   "direction": "superseded (record)",
+   "justification": "Superseded by the hot-copper B3 solve (CU-01): the tank-copper width is now judged by the B3 laminate / part rows at solved copper temperature, not by the IPC-2221 20 K screen. Kept as the stage-15 record; on hot copper the screen would ask about 10.7 mm instead of 9.82 mm (estimate).",
+   "superseded_by": "CU-01"
   },
   {
    "id": "CU-13",
@@ -286,13 +278,9 @@
    ],
    "basis_temp_c": 20,
    "basis_how": "inherited 20 C or pre-S17 run files",
-   "direction": "hot is conservative",
-   "waiver": {
-    "id": "S17",
-    "reason": "OPEN-ITEMS S17: B3 scales the 20 C A4 fields by I^2 only; hot-copper iteration is in the B3 model lane. Remove when it lands and re-pin the basis.",
-    "expires": "2026-11-30"
-   },
-   "justification": "Diagnostics, not gate inputs; re-run on hot copper or retire before the waiver expires."
+   "direction": "superseded (record)",
+   "justification": "Diagnostics and convergence studies on 20 C copper, superseded by the hot-copper B3 solve (CU-01) for every current number (DECISIONS 61); kept as records. Re-run on hot copper before citing any of them again.",
+   "superseded_by": "CU-01"
   },
   {
    "id": "CU-15",

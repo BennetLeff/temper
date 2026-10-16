@@ -1,0 +1,37 @@
+{
+ "note": "datasheets read for OPEN-ITEMS S18 (untrusted data; pdftotext / pdftoppm only); copies in runs-native21/s18-ps2/dl (not in git)",
+ "items": [
+  {
+   "file": "MPM-20-SPEC.PDF",
+   "url": "https://www.meanwell.com/Upload/PDF/MPM-20/MPM-20-SPEC.PDF",
+   "fetched": "2026-10-15",
+   "revision": "MPM-20-SPEC 2024-10-30, 4 pp. (footer 'File Name:MPM-20-SPEC 2024-10-30')",
+   "sha256": "24d3a6bb642d74ea2f652714e239876ac5cc0dbc1ef5c4bf223f8dbe42f2dc12",
+   "bytes": 104032
+  },
+  {
+   "file": "PCB_EN.pdf",
+   "url": "https://www.meanwell.com/Upload/PDF/PCB_EN.pdf",
+   "fetched": "2026-10-15",
+   "revision": "MEAN WELL Installation Manual, Open Frame (PCB) Type (families incl. IRM, MPM), PDF ModDate 2026-01-12, 5 pp.",
+   "sha256": "261817784dbc60e6e5decd86ce4bd6f6a3e2fcb1a73245308322c8bc48e26711",
+   "bytes": 911077
+  }
+ ],
+ "quotes": {
+  "MPM-20-SPEC p.1": "Wide operating temp. range -35 ~ +85℃",
+  "MPM-20-SPEC p.2 ENVIRONMENT": "WORKING TEMP. -35 ~ +85℃ (Refer to \"Derating Curve\")",
+  "MPM-20-SPEC p.2 OUTPUT (MPM-20-24)": "DC VOLTAGE 24V; RATED CURRENT 0.9A; RATED POWER 21.6W",
+  "MPM-20-SPEC p.2 INPUT": "EFFICIENCY (Typ.) 87% (MPM-20-24)",
+  "MPM-20-SPEC p.2 PROTECTION": "OVER TEMPERATURE Protection type : Shut down o/p voltage, recovers automatically after temperature goes down",
+  "MPM-20-SPEC p.2 OTHERS": "DIMENSION 52.4*27.2*24mm (L*W*H) or 2.06\"*1.07\"*0.94\" inch",
+  "MPM-20-SPEC p.2 NOTE 1": "All parameters NOT specially mentioned are measured at 230VAC input, rated load and 25℃ of ambient temperature.",
+  "MPM-20-SPEC p.3 Derating Curve": "x-axis 'AMBIENT TEMPERATURE (℃)', '(HORIZONTAL)'; 12V~24V: 100 % to 55, 70 % at 60, 50 % at 70, 30 % at 85, vertical at 85 (200 dpi render)",
+  "MPM-20-SPEC p.3 Output Derating VS Input Voltage": "100 % from 100 VAC to 264 VAC; 80 % at 80 VAC",
+  "MPM-20-SPEC p.4": "Mechanical Specification (Unit: mm, tolerance ± 0.5 mm) Case No.219A: 52.4, 27.2, 24; 'P/N diameter:1.04'; pin length 3.5 +1/-0.5 mm",
+  "PCB_EN p.1 (4)": "Allow good ventilation for the unit in use to prevent it from overheating. Also, a 10-15 cm clearance must be kept when the adjacent device is a heat source.",
+  "PCB_EN p.1 (5)": "Mounting orientations other than standard orientation or operate under high ambient temperature may increase the internal component temperature and will require a de-rating in output current.",
+  "PCB_EN p.2 Warning (3)": "Please do not install power supplies in places with high ambient temperature or near fire source. Please refer to the specifications about the maximum ambient temperature limitations.",
+  "not published": "no case temperature limit, Tc point, pin limit, OTP threshold, efficiency-vs-load curve, or the position at which 'ambient' is measured (p.1-p.4, PCB_EN p.1-p.2)"
+ }
+}

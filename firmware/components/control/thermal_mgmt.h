@@ -195,9 +195,9 @@ pan_cap_t pan_cap_evaluate(float pan_rtd_c, bool rtd_valid, float rim_c, bool ri
 #define COIL_PLAUS_COLD_C             25.0f
 #define COIL_PLAUS_POWER_PCT             50u
 #define COIL_PLAUS_TIME_MS          300000u
-/* Never above the shipping commissioned ceiling tank_freq.h TANK_CEILING_DEFAULT_A (18 A, power-stage
- * DECISIONS 55); test_thermal_mgmt.c asserts it. */
-#define COIL_SENSOR_FAULT_TANK_MAX_A  18.0f
+/* Never above the shipping commissioned ceiling tank_freq.h TANK_CEILING_DEFAULT_A (17.5 A, power-stage
+ * OPEN-ITEMS S17, hot-copper B3 basis); test_thermal_mgmt.c asserts it. */
+#define COIL_SENSOR_FAULT_TANK_MAX_A  17.5f
 #define THERMAL_PLAUS_MAX_STEP_MS       200u /* a gap between calls (not heating) does not count */
 
 typedef struct {

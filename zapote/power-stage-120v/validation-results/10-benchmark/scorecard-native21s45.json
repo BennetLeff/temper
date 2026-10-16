@@ -1,7 +1,7 @@
 {
  "tag": "native21s45",
- "build": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/c45",
- "board_sha256": "26ce953166f87f0538ee008a019406cef5f637461f6f0b415769f39b36f32b87",
+ "build": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s45/c45hot",
+ "board_sha256": "a1e6488f72c6af95a971182d6b024a157339a5a983f29e264f7715f1ae6c0199",
  "gates": {
   "drc_errors_0": true,
   "drc_unconnected_0": true,
@@ -13,11 +13,12 @@
   "bypass": true,
   "pi_distances": true,
   "res_a_creepage18": true,
+  "cu_temp_basis": true,
   "d5": true,
   "enclosure_fit": true,
   "jet_strip_height": true,
   "audit_rs": true,
-  "b3_ratings": true
+  "b3_ratings": false
  },
  "performance": {
   "d5_hot_selv_mm": 8.047,
@@ -26,11 +27,11 @@
   "return_path_open_changes": 7,
   "return_path_worst_asserted_mm": 2.72,
   "kelvin_band_low_A": 67.77,
-  "b3_c28_h25_peak_C": 147.2,
-  "b3_nominal_h10_peak_C": 165.0,
-  "b3_laminate_margin_K": -30.2,
-  "b3_rated_part_margin_K": -32.3,
-  "b3_release_margin_K": 1.2,
+  "b3_c28_h25_peak_C": 163.6,
+  "b3_nominal_h10_peak_C": 171.3,
+  "b3_laminate_margin_K": -51.1,
+  "b3_rated_part_margin_K": -51.3,
+  "b3_release_margin_K": -17.6,
   "emi_min_margin_dB": 12.4,
   "leakage_touch_mA": 0.241,
   "fuse_copper_fusing_ratio": 0.993,
@@ -129,7 +130,7 @@
  "sources": {
   "d5": "native-21/verification/d5-audit.json",
   "kelvin": "02-protection-timing/kelvin/budget-native21s45.json",
-  "b3_ratings": "04-board-current-thermal/round5-native21/b3-ratings/margins.json {'cases': {'c18_h10': {'bay_c': 61.0, 'i_line_a': 13.5, 'i_t_a': 18.9, 'h': 10, 'role': 'release'}, 'c22_h10': {'bay_c': 55.0, 'i_line_a': 13.5, 'i_t_a': 23.1, 'h': 10, 'role': 'ratchet'}, 'c28_h10': {'bay_c': 55.0, 'i_line_a': 13.5, 'i_t_a': 29.4, 'h': 10, 'role': 'ratchet'}}, 'release': ['c18_h10'], 'k_mesh': 3.0, 'mot_c': 130.0} worst R12: 2512 terminal derating at 0.217 W (20 % margin); release worst c18_h10: C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+  "b3_ratings": "04-board-current-thermal/round5-native21/b3-ratings/margins.json {'cases': {'c17.5_h10': {'bay_c': 61.0, 'i_line_a': 13.5, 'i_t_a': 18.375, 'h': 10, 'role': 'release', 'copper': {'model': 'hot-iterated', 'alpha_per_k': 0.00393, 'max_heated_copper_c': 117.5, 'loss_multiplier': 1.3082, 'max_dT_k': 0.0}}, 'c22_h10': {'bay_c': 55.0, 'i_line_a': 13.5, 'i_t_a': 23.1, 'h': 10, 'role': 'ratchet', 'copper': {'model': 'hot-iterated', 'alpha_per_k': 0.00393, 'max_heated_copper_c': 134.6, 'loss_multiplier': 1.346, 'max_dT_k': 0.0}}, 'c28_h10': {'bay_c': 55.0, 'i_line_a': 13.5, 'i_t_a': 29.4, 'h': 10, 'role': 'ratchet', 'copper': {'model': 'hot-iterated', 'alpha_per_k': 0.00393, 'max_heated_copper_c': 176.1, 'loss_multiplier': 1.4593, 'max_dT_k': 0.0}}}, 'release': ['c17.5_h10'], 'k_mesh': 3.0, 'mot_c': 130.0} worst R12: 2512 terminal derating at 0.217 W (20 % margin); release worst c17.5_h10: U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
   "emi": "07-conducted-emi/s19b/results.json scenarios.nominal (min margin_dB)",
   "leakage": "07-conducted-emi/leakage/result.json DESIGN row",
   "fuse_copper": "02-protection-timing/shoot-through-f1/s45_necks.json (min_ratio_all)",

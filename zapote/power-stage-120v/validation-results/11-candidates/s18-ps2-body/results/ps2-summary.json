@@ -1,0 +1,313 @@
+{
+ "board_sha256": [
+  "4139c87b8a10b0110435d42ecc2751c19ff03b565056d8771d6e771a8e28d33c"
+ ],
+ "cases": {
+  "c17.5_h10": {
+   "bay_c": 61.0,
+   "role": "release",
+   "gated_row": {
+    "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+    "gated": true,
+    "limit_c": 80.2,
+    "est_c": 76.0,
+    "air_rule_k": 15.0,
+    "air_layer_k": 3.0,
+    "limit_curve_c": 82.9,
+    "p_out_w": 7.078,
+    "loss_w": 1.3482,
+    "pins_w": 0.3387,
+    "case_c": 95.5,
+    "pad_max_c": 91.5,
+    "env_upper_c": 84.2,
+    "margin_k": 4.2
+   },
+   "mesh_0p25": {
+    "pad_mean_c": 89.59,
+    "pad_max_cell_c": 91.07,
+    "body_air_w": 1.0095258251168218,
+    "loss_w": 1.3481860740740739,
+    "case_c": 95.24,
+    "pins_w": 0.3386602489606563,
+    "g_air_w_k": 0.0524608,
+    "g_pins_w_k": 0.06666666666666667,
+    "local_air_rule_c": 76.0,
+    "env_upper_c": 83.93,
+    "board_under_body_c": 70.31,
+    "board_ring_c": 77.81
+   },
+   "mesh_0p5": {
+    "pad_max_cell_c": 90.92,
+    "body_air_w": 1.0045764523086402,
+    "case_c": 95.15,
+    "pins_w": 0.3436096217706196,
+    "board_ring_c": 77.82
+   },
+   "pins_only_s47_0p25": {
+    "pad_mean_c": 105.04,
+    "pad_max_cell_c": 109.24,
+    "tj_c": 116.41
+   },
+   "balance_rel": [
+    3.4322714925768095e-11,
+    -2.033888950142755e-11
+   ]
+  },
+  "c22_h10": {
+   "bay_c": 55.0,
+   "role": "ratchet",
+   "gated_row": {
+    "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+    "gated": true,
+    "limit_c": 80.2,
+    "est_c": 70.0,
+    "air_rule_k": 15.0,
+    "air_layer_k": 3.95,
+    "limit_curve_c": 82.9,
+    "p_out_w": 7.078,
+    "loss_w": 1.3482,
+    "pins_w": 0.2716,
+    "case_c": 90.8,
+    "pad_max_c": 87.5,
+    "env_upper_c": 79.5,
+    "margin_k": 10.2
+   },
+   "mesh_0p25": {
+    "pad_mean_c": 86.1,
+    "pad_max_cell_c": 86.85,
+    "body_air_w": 1.076551897113561,
+    "loss_w": 1.3481860740740739,
+    "case_c": 90.52,
+    "pins_w": 0.27163417695670267,
+    "g_air_w_k": 0.0524608,
+    "g_pins_w_k": 0.06666666666666667,
+    "local_air_rule_c": 70.0,
+    "env_upper_c": 79.2,
+    "board_under_body_c": 66.01,
+    "board_ring_c": 77.0
+   },
+   "mesh_0p5": {
+    "pad_max_cell_c": 86.65,
+    "body_air_w": 1.071806146814995,
+    "case_c": 90.43,
+    "pins_w": 0.27637992725997557,
+    "board_ring_c": 76.97
+   },
+   "pins_only_s47_0p25": {
+    "pad_mean_c": 104.64,
+    "pad_max_cell_c": 108.16,
+    "tj_c": 115.93
+   },
+   "balance_rel": [
+    4.3012161627049765e-11,
+    3.5571199458427373e-11
+   ]
+  },
+  "c28_h10": {
+   "bay_c": 55.0,
+   "role": "ratchet",
+   "gated_row": {
+    "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+    "gated": true,
+    "limit_c": 80.2,
+    "est_c": 70.0,
+    "air_rule_k": 15.0,
+    "air_layer_k": 5.75,
+    "limit_curve_c": 82.9,
+    "p_out_w": 7.078,
+    "loss_w": 1.3482,
+    "pins_w": 0.1449,
+    "case_c": 93.2,
+    "pad_max_c": 97.6,
+    "env_upper_c": 81.9,
+    "margin_k": 10.2
+   },
+   "mesh_0p25": {
+    "pad_mean_c": 90.83,
+    "pad_max_cell_c": 97.06,
+    "body_air_w": 1.2032443057317825,
+    "loss_w": 1.3481860740740739,
+    "case_c": 92.94,
+    "pins_w": 0.14494176833778233,
+    "g_air_w_k": 0.0524608,
+    "g_pins_w_k": 0.06666666666666667,
+    "local_air_rule_c": 70.0,
+    "env_upper_c": 81.62,
+    "board_under_body_c": 69.23,
+    "board_ring_c": 86.81
+   },
+   "mesh_0p5": {
+    "pad_max_cell_c": 96.86,
+    "body_air_w": 1.1986935981812494,
+    "case_c": 92.85,
+    "pins_w": 0.1494924758857259,
+    "board_ring_c": 86.67
+   },
+   "pins_only_s47_0p25": {
+    "pad_mean_c": 115.25,
+    "pad_max_cell_c": 117.58,
+    "tj_c": 126.38
+   },
+   "balance_rel": [
+    2.8317523734385353e-11,
+    1.3180791284839496e-11
+   ]
+  }
+ },
+ "metrics": {
+  "b3_release_margin_K": {
+   "s47_pins_only": 1.0,
+   "s18_body_air": 1.2
+  },
+  "release_worst_gated": {
+   "s47_pins_only": "c17.5_h10: R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "s18_body_air": "c17.5_h10: R10: 2512 terminal derating at 0.217 W (20 % margin)"
+  },
+  "b3_laminate_margin_K": {
+   "s47_pins_only": -51.1,
+   "s18_body_air": -51.0
+  },
+  "b3_rated_part_margin_K": {
+   "s47_pins_only": -51.3,
+   "s18_body_air": -51.2
+  },
+  "b3_advisory_margin_K": {
+   "s47_pins_only": -17.5,
+   "s18_body_air": -16.0
+  },
+  "worst_gated": {
+   "s47_pins_only": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+   "s18_body_air": "R12: 2512 terminal derating at 0.217 W (20 % margin)"
+  }
+ },
+ "row_deltas": {
+  "c17.5_h10": {
+   "rows_compared": 96,
+   "rows_moved": 50,
+   "max_abs_move_k": 1.9,
+   "moved": {
+    "R23: 1206 thick film (unverified)": 1.9,
+    "R24: 1206 thick film (unverified)": 1.9,
+    "R25: 1206 thick film (unverified)": 1.8,
+    "R22: 1206 thick film (unverified)": 1.7,
+    "C21: MKP Top,max (TDK June 2026 p.35)": 1.0,
+    "C22: MKP Top,max (TDK June 2026 p.35)": 0.6,
+    "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)": 0.5,
+    "L1: B82726 climatic upper (TDK p.4)": 0.4,
+    "C23: MKP Top,max (TDK June 2026 p.35)": 0.4,
+    "C151: MKP Top,max (TDK June 2026 p.35)": 0.3,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 0.3,
+    "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)": 0.3
+   },
+   "new_rows": [
+    "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)"
+   ],
+   "dropped_rows": []
+  },
+  "c22_h10": {
+   "rows_compared": 96,
+   "rows_moved": 58,
+   "max_abs_move_k": 2.3,
+   "moved": {
+    "R23: 1206 thick film (unverified)": 2.3,
+    "R24: 1206 thick film (unverified)": 2.3,
+    "R22: 1206 thick film (unverified)": 2.1,
+    "R25: 1206 thick film (unverified)": 2.1,
+    "C21: MKP Top,max (TDK June 2026 p.35)": 1.2,
+    "C22: MKP Top,max (TDK June 2026 p.35)": 0.7,
+    "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)": 0.6,
+    "C23: MKP Top,max (TDK June 2026 p.35)": 0.5,
+    "L1: B82726 climatic upper (TDK p.4)": 0.5,
+    "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)": 0.5,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 0.4,
+    "C151: MKP Top,max (TDK June 2026 p.35)": 0.4
+   },
+   "new_rows": [
+    "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)"
+   ],
+   "dropped_rows": []
+  },
+  "c28_h10": {
+   "rows_compared": 96,
+   "rows_moved": 65,
+   "max_abs_move_k": 3.1,
+   "moved": {
+    "R23: 1206 thick film (unverified)": 3.1,
+    "R24: 1206 thick film (unverified)": 3.1,
+    "R22: 1206 thick film (unverified)": 2.8,
+    "R25: 1206 thick film (unverified)": 2.8,
+    "C21: MKP Top,max (TDK June 2026 p.35)": 1.5,
+    "C22: MKP Top,max (TDK June 2026 p.35)": 1.0,
+    "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)": 0.8,
+    "C23: MKP Top,max (TDK June 2026 p.35)": 0.7,
+    "laminate: FET-row copper": 0.6,
+    "R53: 1206 terminal derating at 0.063 W (20 % margin)": 0.6,
+    "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)": 0.6,
+    "L1: B82726 climatic upper (TDK p.4)": 0.6
+   },
+   "new_rows": [
+    "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)"
+   ],
+   "dropped_rows": []
+  }
+ },
+ "pass": {
+  "s47_pins_only": true,
+  "s18_body_air": true
+ },
+ "sensitivities": {
+  "strong tie (r_pad 5 K/W + 0.22 mm bottom gap)": {
+   "case": "c17.5_h10",
+   "sens": {
+    "module_gap_mm": 0.22,
+    "module_r_pad": 5.0
+   },
+   "ps2_row": {
+    "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+    "gated": true,
+    "limit_c": 80.2,
+    "est_c": 76.0,
+    "air_rule_k": 15.0,
+    "air_layer_k": 3.28,
+    "limit_curve_c": 82.9,
+    "p_out_w": 7.078,
+    "loss_w": 1.3482,
+    "pins_w": 0.1486,
+    "case_c": 86.9,
+    "pad_max_c": 86.4,
+    "env_upper_c": 83.7,
+    "margin_k": 4.2
+   },
+   "release_margin_k": 1.1,
+   "release_worst": "c17.5_h10: R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "pins_w_0p25": 0.14861540070400692,
+   "case_c_0p25": 86.81
+  },
+  "weak tie (r_pad 40 K/W)": {
+   "case": "c17.5_h10",
+   "sens": {
+    "module_r_pad": 40.0
+   },
+   "ps2_row": {
+    "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+    "gated": true,
+    "limit_c": 80.2,
+    "est_c": 76.0,
+    "air_rule_k": 15.0,
+    "air_layer_k": 2.91,
+    "limit_curve_c": 82.9,
+    "p_out_w": 7.078,
+    "loss_w": 1.3482,
+    "pins_w": 0.2545,
+    "case_c": 97.0,
+    "pad_max_c": 88.3,
+    "env_upper_c": 79.6,
+    "margin_k": 4.2
+   },
+   "release_margin_k": 1.2,
+   "release_worst": "c17.5_h10: R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "pins_w_0p25": 0.25448698971339356,
+   "case_c_0p25": 96.85
+  }
+ }
+}

@@ -48,6 +48,30 @@
    "path": "dl/tlvh431b/tlvh431b.pdf",
    "sha256": "e30d628cb6475d48e9ae87336ee0f0065eb5faea33f0465188dc4c43b56e6217",
    "bytes": 2148710
+  },
+  {
+   "part": "TL431BQDBZR (C190245; same file as C41283 TL431BIDBZR)",
+   "revision": "SLVS543S Rev. S May 2024",
+   "url": "https://www.ti.com/lit/ds/symlink/tl431.pdf",
+   "path": "runs-native21/s46/dl/tl431.pdf (copy of runs-native21/s16-monitor-dl/tl431.pdf)",
+   "sha256": "ed2e90697de4e2c553195514adf1ee59cda42863716b6ef702b8304a5b921d22",
+   "bytes": 3087819
+  },
+  {
+   "part": "LM2901BIDR (C22427890)",
+   "revision": "SLCS006Z Rev. Z May 2025",
+   "url": "https://www.ti.com/lit/ds/symlink/lm339b.pdf",
+   "path": "runs-native21/s46/dl/lm339b.pdf (copy of runs-native21/s16-monitor-dl/lm339b.pdf)",
+   "sha256": "406e7bd1ab1f2fb15b46bff397bde497ba714b00ed4455a556d84e1113546f6a",
+   "bytes": 2545965
+  },
+  {
+   "part": "LM4050AEM3-2.5/NOPB (C2156518)",
+   "revision": "SNOS455H Rev. H Mar 2025",
+   "url": "https://www.ti.com/lit/ds/symlink/lm4050-n.pdf",
+   "path": "runs-native21/s47/dl/ti_lm4050n.pdf (copy of runs-native21/s46/u5-ref-dl/pdf/ti_lm4050n.pdf)",
+   "sha256": "950d04912ac6cdab64523f3fb8633382a528afdd18239d864ffeaf556ded5aa1",
+   "bytes": 1386315
   }
  ]
 }

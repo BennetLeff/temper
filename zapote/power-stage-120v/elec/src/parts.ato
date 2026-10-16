@@ -611,9 +611,13 @@ component Tlv3201:
     signal VCC ~ pin 5
 
 component Ref2V5:
-    """TI LM4040A25IDBZR 2.5 V shunt reference, SOT-23: 1 K, 2 A, 3 NC."""
+    """2.5 V shunt reference (REF25: OCP and OVP thresholds), SOT-23: 1 K, 2 A, 3 NC.
+    Stage 47 (S17 hot copper; c47-ref25-grade): TI LM4050AEM3-2.5/NOPB, the extended-range A grade, was LM4040A25IDBZR
+    (TA -40..85 C). SNOS455H: TA = TJ -40..125 C (5.3 p.5; orderable addendum p.25, marking RCA); +-2.5 mV at 25 C
+    and +-15 mV over -40..125 C (5.6 p.7, note 5 p.11), dVR/dIR 1.2 mV for IRMIN..1 mA over temperature, IRMIN 65 uA
+    (p.7); DBZ 1 cathode, 2 anode, 3 no internal connection, float or tie to pin 2 (4 p.3), the LM4040 DBZ pinout."""
     designator_prefix = "U"
-    mpn = "LM4040A25IDBZR"
+    mpn = "LM4050AEM3-2.5/NOPB"
     manufacturer = "Texas Instruments"
     footprint = "Package_TO_SOT_SMD:SOT-23"
     signal K ~ pin 1

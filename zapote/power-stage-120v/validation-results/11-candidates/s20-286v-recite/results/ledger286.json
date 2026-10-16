@@ -1,0 +1,399 @@
+{
+ "basis": {
+  "V_OVP": 287.62,
+  "V_EVT": 451.6,
+  "V_rms": 203.38,
+  "VSENSE": 2.3971,
+  "I_TOP": 119.09,
+  "volt_time": 67.8
+ },
+ "src": "/Users/bennet/.claude/jobs/fbfc46b4/tmp/ledger-base-651640.json",
+ "changed_entries": [
+  "2EDR8259XXUMA1",
+  "30KPA150CA",
+  "AMC1311BDWVR",
+  "B32652A0104K000",
+  "B32676G1905K000",
+  "CA-IS3720HW",
+  "CC1206JKNPOCBN102",
+  "CST3015-200ED",
+  "GBJ2510-F",
+  "ISO6721FBDR",
+  "LM4050AEM3-2.5/NOPB",
+  "RC1206FR-07220KL",
+  "RC1206FR-07470KL"
+ ],
+ "rows": [
+  {
+   "mpn": "B32676G1905K000",
+   "designators": [
+    "C5",
+    "C6"
+   ],
+   "check": "Vbus static",
+   "stress": "Vbus static OVP",
+   "rating": "VR 85C DC",
+   "limit": 750,
+   "value": 287.62,
+   "unit": "V",
+   "ratio_old": 0.3813,
+   "ratio_new": 0.3835,
+   "max_ratio": 0.8,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "CC1206JKNPOCBN102",
+   "designators": [
+    "C12",
+    "C13",
+    "C19",
+    "C20"
+   ],
+   "check": "bus static OVP",
+   "stress": "Bus static OVP (continuous)",
+   "rating": "Rated voltage DC",
+   "limit": 1000,
+   "value": 287.62,
+   "unit": "V",
+   "ratio_old": 0.286,
+   "ratio_new": 0.2876,
+   "max_ratio": 0.5,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "30KPA150CA",
+   "designators": [
+    "D3",
+    "D17"
+   ],
+   "check": "standoff",
+   "stress": "Bus static OVP",
+   "rating": "Standoff string",
+   "limit": 300,
+   "value": 287.62,
+   "unit": "V",
+   "ratio_old": 0.9533,
+   "ratio_new": 0.9587,
+   "max_ratio": 1.0,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "AMC1311BDWVR",
+   "designators": [
+    "U4"
+   ],
+   "check": "barrier",
+   "stress": "Barrier peak",
+   "rating": "VIORM",
+   "limit": 2120,
+   "value": 287.62,
+   "unit": "V",
+   "ratio_old": 0.1349,
+   "ratio_new": 0.1357,
+   "max_ratio": 0.5,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "CA-IS3720HW",
+   "designators": [
+    "U9",
+    "U32"
+   ],
+   "check": "barrier",
+   "stress": "Barrier peak",
+   "rating": "VIORM",
+   "limit": 1414,
+   "value": 287.62,
+   "unit": "V",
+   "ratio_old": 0.2023,
+   "ratio_new": 0.2034,
+   "max_ratio": 0.5,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "ISO6721FBDR",
+   "designators": [
+    "U43",
+    "U44"
+   ],
+   "check": "barrier",
+   "stress": "Barrier peak",
+   "rating": "VIORM",
+   "limit": 637,
+   "value": 287.62,
+   "unit": "V",
+   "ratio_old": 0.449,
+   "ratio_new": 0.4515,
+   "max_ratio": 0.5,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "RC1206FR-07220KL",
+   "designators": [
+    "R3",
+    "R4"
+   ],
+   "check": "V",
+   "stress": "V per resistor static",
+   "rating": "V working",
+   "limit": 200,
+   "value": 143.81,
+   "unit": "V",
+   "ratio_old": 0.715,
+   "ratio_new": 0.719,
+   "max_ratio": 0.8,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "RC1206FR-07470KL",
+   "designators": [
+    "R22",
+    "R23",
+    "R24",
+    "R25",
+    "R26",
+    "R27",
+    "R28",
+    "R29"
+   ],
+   "check": "divider",
+   "stress": "V per resistor, bus divider at static OVP",
+   "rating": "V working",
+   "limit": 200,
+   "value": 71.91,
+   "unit": "V",
+   "ratio_old": 0.3575,
+   "ratio_new": 0.3595,
+   "max_ratio": 0.8,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "2EDR8259XXUMA1",
+   "designators": [
+    "U1",
+    "U2"
+   ],
+   "check": "working",
+   "stress": "Barrier rms",
+   "rating": "VIOWM",
+   "limit": 1250,
+   "value": 203.38,
+   "unit": "Vrms",
+   "ratio_old": 0.1618,
+   "ratio_new": 0.1627,
+   "max_ratio": 0.5,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "ISO6721FBDR",
+   "designators": [
+    "U43",
+    "U44"
+   ],
+   "check": "working",
+   "stress": "Barrier rms",
+   "rating": "VIOWM",
+   "limit": 450,
+   "value": 203.38,
+   "unit": "Vrms",
+   "ratio_old": 0.4493,
+   "ratio_new": 0.452,
+   "max_ratio": 0.5,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "AMC1311BDWVR",
+   "designators": [
+    "U4"
+   ],
+   "check": "input clip",
+   "stress": "VSENSE at the OVP band top",
+   "rating": "VClipping",
+   "limit": 2.516,
+   "value": 2.3971,
+   "unit": "V",
+   "ratio_old": 0.9474,
+   "ratio_new": 0.9527,
+   "max_ratio": 1.0,
+   "severity": "gap",
+   "crosses": false
+  },
+  {
+   "mpn": "CC1206JKNPOCBN102",
+   "designators": [
+    "C12",
+    "C13",
+    "C19",
+    "C20"
+   ],
+   "check": "bus no-clamp worst",
+   "stress": "Bus, worst stacked no-clamp case",
+   "rating": "Rated voltage DC",
+   "limit": 1000,
+   "value": 451.6,
+   "unit": "V",
+   "ratio_old": 0.451,
+   "ratio_new": 0.4516,
+   "max_ratio": 0.5,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "B32676G1905K000",
+   "designators": [
+    "C5",
+    "C6"
+   ],
+   "check": "Vbus worst",
+   "stress": "Vbus worst no-clamp",
+   "rating": "VR 85C DC",
+   "limit": 750,
+   "value": 451.6,
+   "unit": "V",
+   "ratio_old": 0.6013,
+   "ratio_new": 0.6021,
+   "max_ratio": 0.8,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "B32676G1905K000",
+   "designators": [
+    "C5",
+    "C6"
+   ],
+   "check": "Vbus worst hot",
+   "stress": "Vbus worst no-clamp",
+   "rating": "Vop at 105 C case",
+   "limit": 570,
+   "value": 451.6,
+   "unit": "V",
+   "ratio_old": 0.7912,
+   "ratio_new": 0.7923,
+   "max_ratio": 0.8,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "B32652A0104K000",
+   "designators": [
+    "C38",
+    "C39",
+    "C40",
+    "C41"
+   ],
+   "check": "V",
+   "stress": "Vbus worst no-clamp",
+   "rating": "VR DC",
+   "limit": 1000,
+   "value": 451.6,
+   "unit": "V",
+   "ratio_old": 0.451,
+   "ratio_new": 0.4516,
+   "max_ratio": 0.8,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "B32652A0104K000",
+   "designators": [
+    "C38",
+    "C39",
+    "C40",
+    "C41"
+   ],
+   "check": "V hot",
+   "stress": "Vbus worst no-clamp",
+   "rating": "VR DC derated at 110 C",
+   "limit": 687.5,
+   "value": 451.6,
+   "unit": "V",
+   "ratio_old": 0.656,
+   "ratio_new": 0.6569,
+   "max_ratio": 0.8,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "GBJ2510-F",
+   "designators": [
+    "BR1"
+   ],
+   "check": "V reverse",
+   "stress": "V reverse worst",
+   "rating": "VRRM",
+   "limit": 1000,
+   "value": 451.6,
+   "unit": "V",
+   "ratio_old": 0.451,
+   "ratio_new": 0.4516,
+   "max_ratio": 0.8,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "2EDR8259XXUMA1",
+   "designators": [
+    "U1",
+    "U2"
+   ],
+   "check": "barrier",
+   "stress": "Barrier peak",
+   "rating": "VIORM",
+   "limit": 1767,
+   "value": 451.6,
+   "unit": "V",
+   "ratio_old": 0.2552,
+   "ratio_new": 0.2556,
+   "max_ratio": 0.5,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "RC1206FR-07220KL",
+   "designators": [
+    "R3",
+    "R4"
+   ],
+   "check": "V transient",
+   "stress": "V per resistor transient",
+   "rating": "V overload",
+   "limit": 400,
+   "value": 225.8,
+   "unit": "V",
+   "ratio_old": 0.5637,
+   "ratio_new": 0.5645,
+   "max_ratio": 1.0,
+   "severity": "violation",
+   "crosses": false
+  },
+  {
+   "mpn": "CST3015-200ED",
+   "designators": [
+    "T1"
+   ],
+   "check": "volt-time",
+   "stress": "Volt-time at the shunt-band top",
+   "rating": "Volt-time secondary",
+   "limit": 1276,
+   "value": 67.8,
+   "unit": "V-us",
+   "ratio_old": 0.053,
+   "ratio_new": 0.0531,
+   "max_ratio": 0.5,
+   "severity": "violation",
+   "crosses": false
+  }
+ ],
+ "crossing": []
+}

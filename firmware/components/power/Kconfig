@@ -33,21 +33,26 @@ config TEMPER_POWER_CALIBRATED
     default n
 
 config TEMPER_POWER_TANK_CEILING_DA
-    int "Commissioned tank RMS ceiling, 0.1 A (180 = 18 A ships; raise only per COMMISSIONING.md)"
+    int "Commissioned tank RMS ceiling, 0.1 A (175 = 17.5 A ships; raise only per COMMISSIONING.md)"
     depends on TEMPER_POWER_HW_BINDING
     range 100 280
-    default 180
+    default 175
     help
-        The one tank-current parameter. The firmware ships at 18 A (power-stage DECISIONS 55: the
-        s42 board's still-air rating is 18.3 A at the worst bay air, 61 C). The hardware (stage 15)
-        is sized for 28 A, but only with board-face airflow. Raising this above 180 needs, first,
-        a B3 thermal basis that passes at the higher ceiling: board-face airflow per
+        The one tank-current parameter. The firmware ships at 17.5 A. The release basis is the
+        hot-copper B3 thermal model (power-stage OPEN-ITEMS S17: copper loss evaluated at the
+        copper's solved temperature). On board s45 in still air at the worst bay air (61 C) its
+        binding row, R10's 2512 terminal derating, keeps +1.0 K at 17.5 A and fails by 0.7 K at
+        the earlier 18.0 A release (DECISIONS 55 / 56, which used 20 C copper). Evidence:
+        zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/
+        b3-ratings/hot-copper-2026-10-15/. The hardware (stage 15) is sized for 28 A, but only
+        with board-face airflow. Raising this above 175 needs, first, a hot-copper B3 thermal
+        basis that passes at the higher ceiling: board-face airflow per
         zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/
         b3-ratings/ENCLOSURE-REQUEST.md, or a measured bay air below 61 C; then each step's bench
         gates (COMMISSIONING.md "Raising the commissioned tank ceiling"). Derived from it:
         half-cycle RMS trip 1.05 x, per-sample crest guard 1.5 x, peak trip min(2.17 x + 3, 62) A.
-        With no pan established the loop holds the tank at or below 18 A (TANK_CEILING_DEFAULT_A)
-        whatever this is set to.
+        With no pan established the loop holds the tank at or below 17.5 A
+        (TANK_CEILING_DEFAULT_A) whatever this is set to.
 
 config TEMPER_POWER_F_MAX_HZ
     int "Frequency loop start / maximum, Hz (bench sessions run here)"

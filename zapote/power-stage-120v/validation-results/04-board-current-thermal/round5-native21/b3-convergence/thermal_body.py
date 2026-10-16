@@ -120,11 +120,16 @@ SPECS = {
         label="TDK MKP 4-pin film capacitor", r_pad=25.0, r_top=0.0, body_mm=None, standoff_mm=3.0,
         pad_filter=None, tj_limit=105.0, body_air=False,
         cite="ASSUMED class value, as film_radial with four leads (25 K/W); TDK datasheet not retrievable (403)"),
-    "meanwell": dict(  # PS2 Mean Well MPM-20-24 (stage 38; IRM-20 before), Case 219A
-        label="Mean Well IRM-20", r_pad=15.0, r_top=0.0, body_mm=None, standoff_mm=1.0,
-        pad_filter=None, tj_limit=85.0, body_air=False,
-        cite="ASSUMED pin conduction class value (potted converter, four 1.0 mm pins, 3 mm) ; limit = IRM-20 spec p.? "
-             "'working temp -30 ~ +85 C (refer to derating curve)' is an AMBIENT rating, not a pin or case rating"),
+    "meanwell": dict(  # PS2 MEAN WELL MPM-20-24 (stage 38; IRM-20 before), Case 219A: pins + body-to-air (S18)
+        label="MEAN WELL MPM-20-24", r_pad=15.0, r_top=0.0, body_mm=None, standoff_mm=1.0,
+        pad_filter=None, tj_limit=85.0, body_air="module_box",
+        cite="pin path ASSUMED class value 15 K/W total (potted module, four pins 'P/N diameter:1.04', 3.5 +1/-0.5 mm, "
+             "MPM-20-SPEC 2024-10-30 p.4 Case No.219A; the in-body path from the windings to the pin roots is not "
+             "published). Body-to-air (OPEN-ITEMS S18): MODULE_BODY box 52.4 x 27.2 x 24 mm (p.2 DIMENSION, p.4), "
+             "module_body_g_air(), air at bay + MODULE_AIR_RISE_K; the network carries the whole module loss. "
+             "tj_limit 85 = p.2 'WORKING TEMP. -35 ~ +85 C (Refer to \"Derating Curve\")', an AMBIENT rating (p.3 "
+             "x-axis 'AMBIENT TEMPERATURE'), not a case or pin rating: the gate rates the local air "
+             "(b3_ratings_gate.MODULES), never this node"),
     "choke": dict(  # L1 TDK B82726S2203A020
         label="TDK B82726S2203A020 choke", r_pad=5.0, r_top=0.0, body_mm=None, standoff_mm=2.0,
         pad_filter=None, tj_limit=125.0, body_air=True,
@@ -249,6 +254,60 @@ FILM_HF_STRONG = dict(lead_d_mm=0.8, lead_k_w_mk=390.0, seat_mm=0.62, n_leads=2,
 # region's air: the jet sweeps the board's layer away. Sensitivity: b3-ratings/jet-2026-10-15/cap-air.json (release
 # margin -0.11 K per K of cap-air rise).
 FILM_HF_AIR_RISE_K = 15.0
+
+
+# --------------------------------------------------------------------------------------------------------------
+# AC-DC module body-to-air path (OPEN-ITEMS S18, PS2 MEAN WELL MPM-20-24). Until then the 'meanwell' class had pins only
+# (body_air False) and the network carried half the module loss (the heat row's board_fraction 0.5; the other half,
+# sink_fraction 0.5, 'convects from the case' and left the model): 0.674 W at the 60 kHz window top, all of it forced
+# through the four pins, so the pin pads read 105-112 C - 34 K of it PS2's own heat (b3-ratings/ps2-thermal-2026-10-15).
+# Now the body node carries the WHOLE module loss (the heat row's watts, Pout (1/eta - 1)) and the network splits it
+# between the pins (r_pad, to the pads) and the case surface (to air): both paths are kept and solved.
+# Body: the encapsulated module's case, 52.4 x 27.2 x 24 mm (L x W x H; MPM-20-SPEC 2024-10-30 p.2 OTHERS 'DIMENSION
+# 52.4*27.2*24mm (L*W*H)', p.4 Case No.219A drawing 52.4 / 27.2 / 24, tolerance +/-0.5 mm). Exposed: the top face and the
+# four sides (5246 mm^2); the bottom faces the board and gets nothing (as film_hf). The case is one isothermal node: the
+# module is potted ('Encapsulated Type', p.1-p.4 header), its loss is generated inside, not brought in at two end contacts
+# as in a film cap, so no fin efficiency. Not credited: radiation (B3's h 10 W/m2K is the still-air basis incl. it, audit
+# README), the bottom face, a board path across the bottom-face gap (sensitivity: sens module_gap_mm).
+MODULE_BODY = {"meanwell": dict(l_mm=52.4, w_mm=27.2, h_mm=24.0,
+                                cite="MEAN WELL MPM-20-SPEC 2024-10-30 (sha256 24d3a6bb642d74ea...): p.2 OTHERS "
+                                     "'DIMENSION 52.4*27.2*24mm (L*W*H)'; p.4 Mechanical Specification Case No.219A "
+                                     "(52.4, 27.2, 24; 'P/N diameter:1.04'; pins 3.5 +1/-0.5 mm; tolerance +/-0.5 mm)")}
+# The air the module sees: the same rule as the HF film-cap bodies (FILM_HF_AIR_RISE_K, one value): the body stands in the
+# board's own natural-convection layer, so its air is bay + 15 K (12 K layer + plume, 3 K headroom) unless a TopRegion
+# credits it. The layer estimate behind that rule, applied to PS2's 24 mm faces: layer_factor(24) = 0.178 x the board's
+# excess over the bay (0.24 for the caps' 17.5 mm); b3_ratings_gate rates the larger of the two.
+MODULE_AIR_RISE_K = FILM_HF_AIR_RISE_K
+BOARD_LAYER_MM = 4.3          # k_air / h of the board's upper-surface layer (Incropera sec. 9.6, see FILM_HF_AIR_RISE_K)
+MODULE_RING_MM = 10.0         # board ring around the body whose F.Cu excess sets the layer estimate (ps2-thermal study)
+
+
+def layer_factor(h_mm: float, d_mm: float = BOARD_LAYER_MM) -> float:
+    """Face-average of an exponential air-layer profile exp(-z/d) over a vertical face of height h_mm: the fraction of
+    the board's excess over the bay that a body face of that height sees (0.24 at 17.5 mm, the film-cap rule's basis)."""
+    return (d_mm / h_mm) * (1.0 - math.exp(-h_mm / d_mm))
+
+
+def module_body_area_mm2(spec: str = "meanwell") -> float:
+    """Exposed case area [mm^2] of an AC-DC module: top + four sides (the bottom faces the board)."""
+    b = MODULE_BODY[spec]
+    return b["l_mm"] * b["w_mm"] + 2.0 * (b["l_mm"] + b["w_mm"]) * b["h_mm"]
+
+
+def module_body_g_air(h: float, spec: str = "meanwell") -> float:
+    """Case-to-air conductance [W/K] of an isothermal potted module body at film coefficient h."""
+    return max(h, 0.0) * module_body_area_mm2(spec) * 1e-6
+
+
+def body_box_mm(fp: dict):
+    """Global (x0, y0, x1, y1) of a footprint's F.Fab body box (fp 'at' + 'fab' offsets, model frame). Rotation 0 only:
+    the local-to-global turn is not needed for any part using it, and a rotated part must not get a wrong box."""
+    rot = fp["at"][2] if len(fp["at"]) > 2 else 0.0
+    if abs(rot) > 1e-9:
+        raise NotImplementedError(f"body_box_mm: rotated footprint ({rot} deg)")
+    x, y = fp["at"][0], fp["at"][1]
+    f = fp["fab"]
+    return (x + f[0], y + f[1], x + f[2], y + f[3])
 
 
 def film_strong_coupling_g(d=FILM_HF_STRONG, body=FILM_HF_BODY) -> float:
@@ -538,6 +597,9 @@ def build_network_parts(board_obj, heat_json, mode, nz, nx, ny, xmin, ymin, pitc
 
     sens: dict(h_body_factor, all_pins, gap, r_scale, film_lead_only)
       film_lead_only: C38-C41 (film_hf) without their body-to-air path - the model before 2026-10-15 (a control).
+      module_pins_only: PS2 (module_box) as before OPEN-ITEMS S18 - pins only, the heat row's board share - a control.
+      module_air_rise: PS2 case air over the bay, K (default MODULE_AIR_RISE_K); module_gap_mm: add the bottom-face
+        air-gap path to the board under the body at this gap; module_r_pad: the pin path in K/W (sensitivities).
     region: None or TopRegion - a part whose heat-row centre (x_mm, y_mm) lies in it takes body-to-air at
       region.h_top, to air at region.t_air_rise; every other part at h, to the model ambient.
     """
@@ -556,6 +618,14 @@ def build_network_parts(board_obj, heat_json, mode, nz, nx, ny, xmin, ymin, pitc
         fp = fps[ref]
         key = spec_for(ref, fp["mpn"] or "", fp["fp"])
         sp = SPECS[key]
+        module = sp.get("body_air") == "module_box" and not sens.get("module_pins_only", False)
+        if module:
+            # the whole module loss goes to the body node: the heat row's board / sink split was the stand-in for the
+            # case-to-air path this network now solves, so it must cover the whole loss (S18)
+            if abs(fr + p.get("sink_fraction", 0.0) - 1.0) > 1e-9:
+                raise ValueError(f"{ref}: module heat row board_fraction {fr} + sink_fraction "
+                                 f"{p.get('sink_fraction', 0.0)} != 1: its loss is not the whole module loss")
+            watts = src
         r_scale = sens.get("r_scale", 1.0)
         pads = board_obj.pads_of(ref)
         # which pad numbers carry the heat
@@ -577,6 +647,8 @@ def build_network_parts(board_obj, heat_json, mode, nz, nx, ny, xmin, ymin, pitc
         tot = sum(e[5].sum() for e in ents)
         np_ = NetPart(ref, watts, key)
         r_pad = sp["r_pad"] * r_scale
+        if module and sens.get("module_r_pad"):      # sensitivity: the pin path's assumed 15 K/W at another value
+            r_pad = float(sens["module_r_pad"])
         gtot = 1.0 / r_pad
         for n, layer, z, ii, jj, a in ents:
             share = a.sum() / tot                    # heat/conductance split by pad copper area
@@ -600,7 +672,23 @@ def build_network_parts(board_obj, heat_json, mode, nz, nx, ny, xmin, ymin, pitc
                 np_.t_air = sens.get("film_air_rise", FILM_HF_AIR_RISE_K)    # board-heated air (FILM_HF_AIR_RISE_K);
                 np_.meta.update(body_area_mm2=film_body_area_mm2(), body_air_model="film_fin", h_body=hb,  # a region
                                 film_air_rise_k=np_.t_air)                    # credit below replaces it
-
+        elif sp.get("body_air") == "module_box":
+            if module:                    # module_pins_only: the model before S18 (pins only, half the loss): a control
+                hb = h_loc * sens.get("h_body_factor", 1.0)
+                np_.g_air = module_body_g_air(hb, key)
+                np_.t_air = sens.get("module_air_rise", MODULE_AIR_RISE_K)
+                np_.meta.update(body_area_mm2=module_body_area_mm2(key), body_air_model="module_box", h_body=hb,
+                                module_air_rise_k=np_.t_air, loss_w=src, heat_row_board_fraction=fr,
+                                body_box_mm=list(body_box_mm(fp)), body_h_mm=MODULE_BODY[key]["h_mm"])
+                gap_mm = sens.get("module_gap_mm")
+                if gap_mm:                # sensitivity: bottom face to the board under it across an air gap
+                    # local conduction: one tie per F.Cu cell under the body (K_AIR a_cell / gap), not one area-mean
+                    # group (a group's flux couples every cell pair: 23 k cells at 0.25 mm is a dense 5e8 block)
+                    poly = shapely.box(*body_box_mm(fp))
+                    ii, jj, a = pad_overlap(poly, xmin, ymin, pitch, i0, j0, nx, ny)
+                    for cid, ac in zip(0 * nxy + ii * ny + jj, a):
+                        np_.groups.append((np.array([cid]), np.ones(1), K_AIR * ac * 1e-6 / (gap_mm * 1e-3), "gap"))
+                    np_.meta["module_gap_mm"] = gap_mm
         elif body is not None and use_air:
             a_top = body[0] * body[1] * 1e-6
             hb = h_loc * sens.get("h_body_factor", 1.0)
@@ -612,6 +700,8 @@ def build_network_parts(board_obj, heat_json, mode, nz, nx, ny, xmin, ymin, pitc
             np_.meta["region_credited"] = True
             if "film_air_rise_k" in np_.meta:
                 np_.meta["film_air_rise_k"] = region.t_air_rise
+            if "module_air_rise_k" in np_.meta:
+                np_.meta["module_air_rise_k"] = region.t_air_rise
         if sens.get("gap") and body is not None:
             cx, cy = fp["at"][0], fp["at"][1]
             rot = math.radians(fp["at"][2]) if len(fp["at"]) > 2 else 0.0

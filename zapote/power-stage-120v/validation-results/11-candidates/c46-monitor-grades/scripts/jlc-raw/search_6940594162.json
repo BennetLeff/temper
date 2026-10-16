@@ -1,0 +1,1072 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 6,
+   "list": [
+    {
+     "componentId": 4285415,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "LM4050BEM3-2.5",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_texas-instruments-lm4050bem3-2-5_C3717596.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.8338
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.8338
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.8338
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.7097
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6852
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6722
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6475
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.6837
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.7665
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.7665
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.7665
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6601
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-LM4050BEM3_25/C3717596",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 5,
+     "initialPrice": 1.8338,
+     "componentCode": "C3717596",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "LM4050BEM3-2.5",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2402270455_Texas-Instruments-LM4050BEM3-2-5_C3717596.pdf",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TI LM4050BEM3-2.5",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-3",
+     "describe": "-40\u2103~+125\u2103@(Ta) 15mA 2.5V 41uVrms 50ppm/\u2103 Fixed Parallel \u00b10.2% SOT-23-3 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "Noise - 1/10Hz to 10Hz",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Fixed"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "15mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.2%"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "50ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "41uVrms"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>LM4050BEM3-2.5</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4285454,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "LM4050BEM3-2.5",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_texas-instruments-lm4050bem3-2-5_C3717635.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.2188
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.2188
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 2.2188
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.8598
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8288
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8141
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7843
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.8283
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 2.1374
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.1374
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.7984
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.1374
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-LM4050BEM3_25/C3717635",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 5,
+     "initialPrice": 2.2188,
+     "componentCode": "C3717635",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "LM4050BEM3-2.5",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2302282030_Texas-Instruments-LM4050BEM3-2-5_C3717635.pdf",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TI LM4050BEM3-2.5",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-3",
+     "describe": "-40\u2103~+125\u2103@(Ta) 15mA 2.5V 41uVrms 50ppm/\u2103 Fixed Parallel \u00b10.2% SOT-23-3 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Fixed"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "15mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.2%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "50ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "41uVrms"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>LM4050BEM3-2.5</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1666324,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "\u5e76\u8054 50ppm/\u2103",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_analog-devices-inc-maxim-integrated-lm4050bem3-2-5-t_C1575510.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6984
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.6984
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.6984
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.6575
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6347
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6233
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6004
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.6334
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.636
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.636
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6114
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.636
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "1666324-LM4050BEM3_2_5T/C1575510",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 6,
+     "initialPrice": 1.6984,
+     "componentCode": "C1575510",
+     "componentBrandEn": "Analog Devices Inc./Maxim Integrated",
+     "componentModelEn": "LM4050BEM3-2.5+T",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2310091019_Analog-Devices-Inc--Maxim-Integrated-LM4050BEM3-2-5-T_C1575510.pdf",
+     "dataManualFileAccessId": "8589038612796592128",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MAXIM LM4050BEM3-2.5+T",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-3",
+     "describe": "-40\u2103~+125\u2103@(Ta) 15mA 2.5V 35uVrms 50ppm/\u2103 Fixed Parallel \u00b10.2% SOT-23-3 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Fixed"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "15mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.2%"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "50ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>LM4050BEM3-2.5</span>+T",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4247944,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "\u5e76\u8054 50ppm/\u2103",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_texas-instruments-lm4050bem3-2-5-ti_C3680141.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.8338
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.8338
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.8338
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.7097
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6852
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6722
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.6475
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.6837
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.7665
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.7665
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.7665
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.6601
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-LM4050BEM3_2_5TI/C3680141",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 5,
+     "initialPrice": 1.8338,
+     "componentCode": "C3680141",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "LM4050BEM3-2.5-TI",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TI LM4050BEM3-2.5-TI",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-3",
+     "describe": "-40\u2103~+125\u2103@(Ta) 15mA 2.5V 41uVrms 50ppm/\u2103 Fixed Parallel \u00b10.2% SOT-23-3 Voltage Reference",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Fixed"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "15mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.2%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "50ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "41uVrms"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>LM4050BEM3-2.5</span>-TI",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2249784,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "3.5V~5.5V \u5e76\u8054 50ppm/\u2103",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_analog-devices-inc-maxim-integrated-lm4050bem3-2-5-v-t_C2157734.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.1258
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.1258
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 2.1258
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.8239
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.7946
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7799
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7513
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.7937
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.0478
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 2.0478
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.0478
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.7654
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "2249784-LM4050BEM3_2_5_VT/C2157734",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 5,
+     "initialPrice": 2.1258,
+     "componentCode": "C2157734",
+     "componentBrandEn": "Analog Devices Inc./Maxim Integrated",
+     "componentModelEn": "LM4050BEM3-2.5/V+T",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2310091022_Analog-Devices-Inc--Maxim-Integrated-LM4050BEM3-2-5-V-T_C2157734.pdf",
+     "dataManualFileAccessId": "8589947913309609984",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MAXIM LM4050BEM3-2.5/V+T",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-3",
+     "describe": "-40\u2103~+125\u2103 15mA 2.5V 3.5V~5.5V 35uVrms 50ppm/\u2103 Fixed Parallel \u00b10.2% SOT-23-3 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "3.5V~5.5V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Fixed"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "15mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.2%"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "50ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>LM4050BEM3-2.5</span>/V+T",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2249740,
+     "componentLibraryType": "expand",
+     "stockCount": 9,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "\u5e76\u8054 50ppm/\u2103",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_texas-instruments-lm4050bem3-2-5-nopb_C2157690.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.4423
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.3803
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.3379
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 2.2971
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 2.2971
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 2.2971
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 2.2128
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.2929
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 2.2128
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.3527
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 2.2128
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.2521
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 9,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "2249740-LM4050BEM3_2_5NOPB/C2157690",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 13.278,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.4423,
+     "componentCode": "C2157690",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "LM4050BEM3-2.5/NOPB",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8768064869684137984",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2202032100_Texas-Instruments-LM4050BEM3-2-5-NOPB_C2157690.pdf",
+     "dataManualFileAccessId": "8588926971954794496",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/lm4050-n",
+     "componentName": "TI LM4050BEM3-2.5/NOPB",
+     "minImage": "",
+     "minImageAccessId": "8768064870883844096",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23",
+     "describe": "-40\u2103~+125\u2103@(Ta) 15mA 2.5V 41uVrms 50ppm/\u2103 Fixed Parallel SOT-23 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Fixed"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "15mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "50ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>LM4050BEM3-2.5</span>/NOPB",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 15,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "LM4050BEM3-2.5"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T01:34:07Z"
+}

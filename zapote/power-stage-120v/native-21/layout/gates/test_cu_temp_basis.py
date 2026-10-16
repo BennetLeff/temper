@@ -105,6 +105,33 @@ with tempfile.TemporaryDirectory() as td:
 check(n_err(r, "dated study folder") == 1 and not any("st-2026-10-15/a.py" in e for e in r["errors"]),
       "'dated record' passes in a dated folder and fails outside one", r["errors"])
 
+# ---- superseded records: a live, unwaived superseder, and no live file may load the record
+SOLVED_F = A4 + "ALPHA = 0.00393\n"
+sup = lambda **kw: entry("old.py", **{"id": "T-O", "kinds": ["a4field"], "basis_temp_c": 20,
+                                      "direction": "superseded (record)", "superseded_by": "T-S", **kw})
+r = run({"s.py": SOLVED_F, "old.py": A4}, [sol, sup()])
+check(not r["errors"], "a superseded record with a live 'solved' superseder and no live loader passes", r["errors"])
+r = run({"s.py": SOLVED_F + "import old\n", "old.py": A4}, [sol, sup()])
+check(n_err(r, "names it") == 1, "a live file that imports the superseded record fails", r["errors"])
+r = run({"s.py": SOLVED_F + "spec = importlib.util.spec_from_file_location('o', '../x/old.py')\n", "old.py": A4}, [sol, sup()])
+check(n_err(r, "names it") == 1, "a live file that loads the record by path (importlib) fails", r["errors"])
+r = run({"s.py": '"""Same command line as ../old.py."""\n' + SOLVED_F + "old = 3  # cf. old.py\n", "old.py": A4}, [sol, sup()])
+check(not r["errors"], "a docstring / comment citation or a same-named local is not a dependency", r["errors"])
+r = run({"s.py": SOLVED_F, "old.py": A4}, [sol, sup(superseded_by="T-X")])
+check(n_err(r, "superseded_by") == 1, "a superseded record with no such superseder fails", r["errors"])
+r = run({"s.py": SOLVED_F, "old.py": A4},
+        [dict(sol, basis_temp_c=20, waiver={"id": "W", "reason": "r", "expires": "2099-01-01"}), sup()])
+check(n_err(r, "superseded_by") == 1, "a superseded record whose superseder is waived fails", r["errors"])
+with tempfile.TemporaryDirectory() as td:
+    for n, t in {"s.py": SOLVED_F, "old.py": A4, "chain.sh": "# python3 old.py was retired\npython3 old.py\n"}.items():
+        (Path(td) / n).write_text(t)
+    reg = {"defaults": {}, "scan": dict(SCAN, live_roots=["chain.sh"]), "consumers": [sol, sup()]}
+    r = g.check(td, reg, today=TODAY)
+    check(n_err(r, "live file chain.sh") == 1, "a live root (chain) that runs the record fails", r["errors"])
+    (Path(td) / "chain.sh").write_text("# python3 old.py was retired\n")
+    r = g.check(td, reg, today=TODAY)
+    check(not r["errors"], "a live root that only mentions the record in a comment passes", r["errors"])
+
 # ---- registry rules
 code = SOLVER_HDR + "net = kit.Net(pitch_mm=0.25)\n"
 r = run({"a.py": code}, [entry("a.py", basis_temp_c=125.0)])
@@ -167,10 +194,10 @@ real_reg = json.loads((HERE / "cu_temp_registry.json").read_text())
 r = g.check(ROOT, real_reg, today=TODAY)
 check(not r["errors"] and r["n_files_scanned"] > 50,
       f"real tree + real registry passes ({r['n_files_scanned']} files, {r['n_registered']} registered, {len(r['warnings'])} waived)", r["errors"][:3])
-r = g.check(ROOT, real_reg, today="2027-01-01")
-check(any("expired" in e for e in r["errors"]), "real tree fails after the waivers expire (2027-01-01)")
-r = g.check(ROOT, real_reg, today=TODAY, fail_waived=True)
-check(any("still open" in e for e in r["errors"]), "real tree fails under --fail-waived while S17 is open")
+# S17 waivers retired after the hot-copper basis (DECISIONS 61): no waiver is left to expire, and the chain runs --fail-waived
+check(not any(e.get("waiver") for e in real_reg["consumers"]), "real registry carries no waivers")
+r = g.check(ROOT, real_reg, today="2027-01-01", fail_waived=True)
+check(not r["errors"] and not r["warnings"], "real tree passes under --fail-waived, also after 2027-01-01", r["errors"][:3])
 found = g.scan_source(SOLVER_HDR + "net = kit.Net(pitch_mm=0.1)\n")
 check(found.get("net", {}).get("explicit") is False, "an injected Net() is flagged by the scanner the gate uses on the real tree")
 reg4 = copy.deepcopy(real_reg)

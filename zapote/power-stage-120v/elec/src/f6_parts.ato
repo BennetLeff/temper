@@ -10,8 +10,11 @@ component Bias10u:
     signal p2 ~ pin 2
 
 component BiasComparator:
+    """Rail-monitor quad comparator. Stage 46 (OPEN-ITEMS S16 / S17 hot copper): the 125 C grade LM2901BIDR, TA
+    -40..125 C (SLCS006Z 6.4 p.6) against the LM339B's -40..85 C; VIO +-5.5 mV, IB 50 nA over its range (6.8 p.8), the
+    LM339B's figures (6.7 p.7); same SOIC-14 (D) pinout (Table 5-1 p.4, one table for both)."""
     designator_prefix = "U"
-    mpn = "LM339BIDR"
+    mpn = "LM2901BIDR"
     manufacturer = "Texas Instruments"
     footprint = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
     signal p1 ~ pin 1
@@ -31,9 +34,11 @@ component BiasComparator:
 
 component BiasReference:
     """Rail-monitor reference. Stage 45 (OPEN-ITEMS S16, DECISIONS 59, option 1c-4420): the B grade, Vref 2.483-2.507 V
-    at 25 C (SLVS543S Table 6.12 p.13) against the A grade's 2.470-2.520 V; same DBZ (SOT-23-3) package and pinout."""
+    at 25 C (SLVS543S Table 6.12 p.13) against the A grade's 2.470-2.520 V; same DBZ (SOT-23-3) package and pinout.
+    Stage 46 (S17 hot copper): the Q temperature grade TL431BQDBZR, TA -40..125 C (6.4 p.5), the same Vref and
+    VI(dev) 34 mV (Table 6.13 p.14) and the same DBZ pinout (p.4: 1 cathode, 2 REF, 3 anode)."""
     designator_prefix = "U"
-    mpn = "TL431BIDBZR"
+    mpn = "TL431BQDBZR"
     manufacturer = "Texas Instruments"
     footprint = "Package_TO_SOT_SMD:SOT-23"
     signal K ~ pin 1

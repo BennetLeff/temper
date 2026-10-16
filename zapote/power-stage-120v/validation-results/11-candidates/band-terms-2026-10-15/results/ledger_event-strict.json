@@ -1,0 +1,97 @@
+{
+ "variant": "strict",
+ "V_event_V": 512.4,
+ "E_t_J": 0.8972,
+ "rows": [
+  {
+   "entry": "CC1206JKNPOCBN102",
+   "check": "bus no-clamp worst",
+   "old_ratio": 0.4516,
+   "new_ratio": 0.5124,
+   "max_ratio": 0.5,
+   "severity": "violation",
+   "old_severity": "violation",
+   "status": "VIOLATION"
+  },
+  {
+   "entry": "B32676G1905K000",
+   "check": "Vbus worst",
+   "old_ratio": 0.6021,
+   "new_ratio": 0.6832,
+   "max_ratio": 0.8,
+   "severity": "violation",
+   "old_severity": "violation",
+   "status": "VIOLATION"
+  },
+  {
+   "entry": "B32676G1905K000",
+   "check": "Vbus worst hot",
+   "old_ratio": 0.7923,
+   "new_ratio": 0.8989,
+   "max_ratio": 0.8,
+   "severity": "violation",
+   "old_severity": "violation",
+   "status": "VIOLATION"
+  },
+  {
+   "entry": "B32652A0104K000",
+   "check": "V",
+   "old_ratio": 0.4516,
+   "new_ratio": 0.5124,
+   "max_ratio": 0.8,
+   "severity": "violation",
+   "old_severity": "violation",
+   "status": "PARTIAL"
+  },
+  {
+   "entry": "B32652A0104K000",
+   "check": "V hot",
+   "old_ratio": 0.6569,
+   "new_ratio": 0.7453,
+   "max_ratio": 0.8,
+   "severity": "violation",
+   "old_severity": "violation",
+   "status": "PARTIAL"
+  },
+  {
+   "entry": "GBJ2510-F",
+   "check": "V reverse",
+   "old_ratio": 0.4516,
+   "new_ratio": 0.5124,
+   "max_ratio": 0.8,
+   "severity": "violation",
+   "old_severity": "violation",
+   "status": "PARTIAL"
+  },
+  {
+   "entry": "2EDR8259XXUMA1",
+   "check": "barrier",
+   "old_ratio": 0.2556,
+   "new_ratio": 0.29,
+   "max_ratio": 0.5,
+   "severity": "violation",
+   "old_severity": "violation",
+   "status": "PARTIAL"
+  },
+  {
+   "entry": "RC1206FR-07220KL",
+   "check": "V transient",
+   "old_ratio": 0.5645,
+   "new_ratio": 0.6405,
+   "max_ratio": 1.0,
+   "severity": "violation",
+   "old_severity": "violation",
+   "status": "PARTIAL"
+  },
+  {
+   "entry": "30KPA150CA",
+   "check": "pulse power, gate-off event",
+   "old_ratio": null,
+   "new_ratio": 0.8141,
+   "max_ratio": 1.0,
+   "severity": "violation",
+   "old_severity": null,
+   "status": "PARTIAL"
+  }
+ ]
+}

@@ -36,6 +36,8 @@ TABLES = {
     "TL431AIDBZR": {"1": ("K", P), "2": ("REF", P), "3": ("A", P)},
     # stage 45 (S16 option 1c-4420): the B grade on the same DBZ pads; SLVS543S Table 5-1 p.4 DBZ 1 = K, 2 = REF, 3 = A
     "TL431BIDBZR": {"1": ("K", P), "2": ("REF", P), "3": ("A", P)},
+    # stage 46 (S17 hot copper): the Q temperature grade on the same DBZ pads (SLVS543S p.4, one DBZ table for all grades)
+    "TL431BQDBZR": {"1": ("K", P), "2": ("REF", P), "3": ("A", P)},
     "MMBT3904-7-F": {"1": ("B", P), "2": ("E", P), "3": ("C", P)},
     "SN74LVC1G32DBVR": {"1": ("A", IN), "2": ("B", IN), "3": ("GND", PI), "4": ("Y", OUT), "5": ("VCC", PI)},
     "IRM-20-24": {"1": ("ACL", P), "2": ("ACN", P), "3": ("VN", P), "4": ("VP", PO)},
@@ -48,6 +50,12 @@ TABLES = {
                   "6": ("IN2-", IN), "7": ("IN2+", IN), "8": ("IN3-", IN), "9": ("IN3+", IN), "10": ("IN4-", IN),
                   "11": ("IN4+", IN), "12": ("GND", PI), "13": ("OUT4", OC), "14": ("OUT3", OC)},
 }
+# stage 47 (S17 hot copper; c47-ref25-grade): REF25 on the LM4050AEM3-2.5, SNOS455H Figure 4-1 / Table 4-1 p.3 DBZ:
+# 1 cathode, 2 anode, 3 no internal connection (float or tie to pin 2) - the reviewed LM4040A25I U5 annotation
+TABLES["LM4050AEM3-2.5/NOPB"] = {"1": ("K", P), "2": ("A", P), "3": ("NC", P)}
+# stage 46 (S17 hot copper): LM2901B SOIC-14 (D) uses the LM339B's pin table (SLCS006Z Table 5-1 p.4 covers both)
+TABLES["LM2901BIDR"] = TABLES["LM339BIDR"]
+QUAD_COMPARATORS = ("LM339BIDR", "LM2901BIDR")
 
 
 # Rails whose physical source is typed passive above (TPS7A4700 / bias module / IRM return /
@@ -84,7 +92,7 @@ def main() -> None:
             ann, basis = reviewed[(m, frozenset(ps))], "native19-reviewed"
         elif m in TABLES and set(TABLES[m]) == ps:
             table = TABLES[m]
-            if m == "LM339BIDR":
+            if m in QUAD_COMPARATORS:
                 vcc, gnd = pin_net[(ref, "3")], pin_net[(ref, "12")]
                 if vcc == gnd or any(pin_net[(ref, o)] in (vcc, gnd) for o in ("1", "2", "13", "14")):
                     raise ValueError(f"{ref}: LM339B pin table does not fit its nets")

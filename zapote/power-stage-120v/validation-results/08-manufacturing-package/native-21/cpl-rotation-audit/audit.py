@@ -227,6 +227,10 @@ def evaluate(kfp, fpname, ee, rules, ref, kind_override=None, evidence=None):
         res["theta"] = [best]
         if evidence and res["method"] == "pad number":
             ee_names = {p["num"]: p["name"].strip().upper() for p in ee.get("pins", [])}
+            # an evidence entry may declare how the EasyEDA symbol abbreviates the datasheet pin names (stage 47:
+            # C2156518's symbol says C / A for the SNOS455H Cathode / Anode); only the names it lists are mapped
+            alias = {k.upper(): v.upper() for k, v in (evidence.get("ee_name_alias") or {}).items()}
+            ee_names = {n: alias.get(v, v) for n, v in ee_names.items()}
             ds = {n: f.upper() for n, f in evidence["datasheet_pins"].items()}
             if ee_names == ds and evidence.get("kicad_pad_is_datasheet_pin") and set(ds) == set(kpads):
                 res["pin_evidence"] = evidence["source"]
@@ -442,6 +446,17 @@ def selftest(rules):
     assert not ev.get("pin_evidence") and decide(0, ev, "U", "SOT-23", False)[0] == "NEEDS-PREVIEW", ev
     ev = evaluate({"pads": k3}, "SOT-23", {"pads": e3, "pins": pins}, rules, "U1")    # no evidence: unchanged
     assert decide(0, ev, "U", "SOT-23", False)[0] == "NEEDS-PREVIEW"
+    # stage 47: an abbreviated EasyEDA symbol (C / A / NC) settles only through the entry's declared alias
+    pins_ab = [{"num": "1", "name": "C"}, {"num": "2", "name": "A"}, {"num": "3", "name": "NC"}]
+    ds_full = {"datasheet_pins": {"1": "CATHODE", "2": "ANODE", "3": "NC"}, "kicad_pad_is_datasheet_pin": True, "source": "t"}
+    ev = evaluate({"pads": k3}, "SOT-23", {"pads": e3, "pins": pins_ab}, rules, "U1", evidence=ds_full)
+    assert not ev.get("pin_evidence"), ev
+    ev = evaluate({"pads": k3}, "SOT-23", {"pads": e3, "pins": pins_ab}, rules, "U1",
+                  evidence=dict(ds_full, ee_name_alias={"C": "CATHODE", "A": "ANODE"}))
+    assert ev.get("pin_evidence") and decide(0, ev, "U", "SOT-23", False)[:2] == ("CORRECTED", 180), ev
+    ev = evaluate({"pads": k3}, "SOT-23", {"pads": e3, "pins": pins_ab}, rules, "U1",     # alias swapped: must not settle
+                  evidence=dict(ds_full, ee_name_alias={"C": "ANODE", "A": "CATHODE"}))
+    assert not ev.get("pin_evidence"), ev
     print("selftest: ok")
 
 
@@ -451,10 +466,15 @@ CONTROLS = {
     "R7": {"class": "OK", "delta": 0},
     # SOT-23-6 (TPS3700, C33002): DB "^SOT-23" -90 and the LCSC footprint fit both give -90
     "U14": {"class": "CORRECTED", "delta": -90},
-    # SOIC-14 (LM339B, C22416291): DB "^SOIC-" 270 and the LCSC footprint fit both give 270
+    # SOIC-14 (LM2901BIDR C22427890 since stage 46; LM339BIDR C22416291 before, the same EasyEDA pads): DB "^SOIC-"
+    # 270 and the LCSC footprint fit both give 270
     "U29": {"class": "CORRECTED", "delta": -90},
-    # SOT-23-3 (TL431BIDBZR, C41283): EasyEDA fit 180, DB "^SOT-23" -90; settled by the TI SLVS543S p.4 pinout
+    # SOT-23-3 (TL431BQDBZR C190245 since stage 46; TL431BIDBZR C41283 before): EasyEDA fit 180, DB "^SOT-23" -90;
+    # settled by the TI SLVS543S p.4 pinout
     "U17": {"class": "CORRECTED", "delta": -180},
+    # SOT-23-3 (LM4050AEM3-2.5/NOPB C2156518 since stage 47; LM4040A25IDBZR C9421 before, the same DBZ pinout and
+    # EasyEDA pad arrangement): EasyEDA fit 180, DB "^SOT-23" -90; settled by the TI SNOS455H p.3 pinout
+    "U5": {"class": "CORRECTED", "delta": -180},
 }
 
 

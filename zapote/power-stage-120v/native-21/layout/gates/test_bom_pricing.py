@@ -26,7 +26,9 @@ PS = Path(os.environ.get("PS_ROOT") or bp.UNIT)
 VR = PS / "validation-results"
 SRC = VR / "08-manufacturing-package/native-21/sourcing"
 SNAP = SRC / "study-2026-10-15/snapshot"
-BOM45 = VR / "08-manufacturing-package/native-21/fab/bom-jlcpcb.csv"
+# the s45 BOM as frozen in the sourcing study (the live fab BOM moved on at stage 46: TL431BQ / LM2901B, stage 47: LM4050)
+BOM45 = SNAP / "s45/bom-jlcpcb.s45.csv"
+BOM_LIVE = VR / "08-manufacturing-package/native-21/fab/bom-jlcpcb.csv"
 BOM44 = SNAP / "s44/bom-jlcpcb.s44.csv"
 fails = 0
 
@@ -175,6 +177,13 @@ with tempfile.TemporaryDirectory() as td:
         check("compare --strict-basis: refuses (REJECT, exit 1)", r.returncode == 1 and "REJECT" in r.stdout and "not comparable" in r.stdout, r.stdout)
         r = subprocess.run([sys.executable, "-I", str(sc), "--card", str(cn), "--compare", str(cn2)], capture_output=True, text=True)
         check("compare: two v2 cards compare on parts_usd_at_500_v2", "parts_usd_at_500_v2" in r.stdout and "NOTE" not in r.stdout, r.stdout)
+
+# stage 47: U5 LM4050AEM3-2.5/NOPB (C2156518), 50 at JLC: JLC stock at 5 boards; nobody holds 500 (P3, short) on the dated reads
+LL = {l["mpn"]: l for l in bp.price_bom(BOM_LIVE, R)["lines"]}
+u5 = LL.get("LM4050AEM3-2.5/NOPB")
+check("LM4050AEM3-2.5 (s47): P1 $5.1472 at 5 boards, P3 $3.4228 (short) at 500 (JLC 2026-10-15 ladder, 50 in stock)",
+      u5 is not None and u5["n5"]["tier"] == "P1" and u5["n5"]["unit"] == 5.1472 and u5["n500"]["tier"] == "P3"
+      and u5["n500"]["unit"] == 3.4228, u5 and (u5["n5"], u5["n500"]))
 
 print("PASS" if not fails else f"FAIL ({fails})")
 raise SystemExit(1 if fails else 0)

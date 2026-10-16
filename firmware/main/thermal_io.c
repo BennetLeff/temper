@@ -13,7 +13,7 @@
  *   from v3v3, so time since boot is a lower bound on time since the rail came up).
  * - Sensor plausibility (coordinator 2026-10-12): the state handlers latch rim / coil sensor faults
  *   (thermal_plaus_t) and hand them here; a coil-sensor fault clamps the native-21 tank ceiling to
- *   COIL_SENSOR_FAULT_TANK_MAX_A (18 A) and runs the blower at full speed.
+ *   COIL_SENSOR_FAULT_TANK_MAX_A (17.5 A) and runs the blower at full speed.
  * - Blower (DECISIONS C28): thermal_blower_tick(), every MONITOR tick (100 ms): fan law -> FAN_OFF
  *   and the GPIO46 duty (duty 0 = full speed), FG tach -> rpm -> stall detector, and the tank
  *   power cap min(coil derate, stall derate) that thermal_power_cap_pct() hands the state
@@ -170,7 +170,7 @@ void thermal_blower_tick(void)
     bool fault = !exp_ok || in.hs_fault || in.coil_fault || in.latched_fault || sink_low || coil_low ||
                  coil_sensor_fault;
 #if CONFIG_TEMPER_POWER_HW_BINDING
-    /* Coil-sensor fault: the tank RMS ceiling is clamped to <= 18 A (n21 frequency loop). */
+    /* Coil-sensor fault: the tank RMS ceiling is clamped to <= 17.5 A (n21 frequency loop). */
     n21_binding_t *b = n21_hw_binding();
     if (b && b->thermal_limited != coil_sensor_fault &&
         !n21_set_thermal_tank_limit(b, coil_sensor_fault, COIL_SENSOR_FAULT_TANK_MAX_A))

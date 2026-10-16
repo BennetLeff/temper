@@ -1,0 +1,240 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 1,
+   "list": [
+    {
+     "componentId": 2249795,
+     "componentLibraryType": "expand",
+     "stockCount": 43,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "\u5e76\u8054 60uA 50ppm/\u2103",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_texas-instruments-lm4050qaem3-2-5-nopb_C2157745.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.2613
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.1781
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 3.1226
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 3.0687
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 3.0687
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 3.0687
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 2.9561
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.0614
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 2.9561
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 3.008
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.1416
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 2.9561
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 43,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "2249795-LM4050QAEM3_2_5NOPB/C2157745",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 17.57146,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.2613,
+     "componentCode": "C2157745",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "LM4050QAEM3-2.5/NOPB",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583729138313646080",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303011800_Texas-Instruments-LM4050QAEM3-2-5-NOPB_C2157745.pdf",
+     "dataManualFileAccessId": "8589906145360965632",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/lm4050-n-q1",
+     "componentName": "TI LM4050QAEM3-2.5/NOPB",
+     "minImage": "",
+     "minImageAccessId": "8583729139211227136",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-3",
+     "describe": "-40\u2103~+125\u2103 15mA 2.5V 41uVrms 50ppm/\u2103 60uA 60uA Fixed Parallel \u00b10.1% SOT-23-3 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Fixed"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "15mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "60uA"
+      },
+      {
+       "attribute_name_en": "Minimum Cathode Current for Regulation",
+       "attribute_value_name": "60uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "50ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "41uVrms"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>LM4050QAEM3-2.5</span>/NOPB",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 15,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "LM4050QAEM3-2.5"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T01:34:07Z"
+}

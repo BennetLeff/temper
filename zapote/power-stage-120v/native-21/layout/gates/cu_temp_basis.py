@@ -50,11 +50,15 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 UNIT = HERE.parents[2]                                    # zapote/power-stage-120v
 DIRECTIONS = ("hot is conservative", "cold is conservative", "both corners", "not a claim (self-test)",
-              "reference (corrected downstream)", "not a claim (dated record)")
+              "reference (corrected downstream)", "not a claim (dated record)", "superseded (record)")
 # basis_temp_c "solved": copper loss is evaluated at each cell's solved temperature (B3 hot copper, S17); the entry's
 # `pin` must match the TCR code in every file. "reference (corrected downstream)": a field solved at a reference
 # temperature that a "solved" entry (`corrected_by`) corrects before any verdict. "not a claim (dated record)": a dated
-# study folder (path contains -YYYY-MM-DD/) kept as a historical record; it feeds no gate.
+# study folder (path contains -YYYY-MM-DD/) kept as a historical record; it feeds no gate. "superseded (record)": an
+# undated script whose claim a live entry (`superseded_by`: basis 'solved', or a numeric basis on its conservative side
+# with no waiver) now makes; the gate checks that no live consumer file and no `scan.live_roots` file (the chain, the
+# card) names its module or file, so a superseded record cannot feed a verdict.
+LIVE = ("hot is conservative", "cold is conservative", "both corners", "reference (corrected downstream)")
 DATED = re.compile(r"-20\d\d-\d\d-\d\d/")
 RHO_VALUES = (1.68e-8, 1.72e-8, 1.724e-8, 1.7241e-8, 0.01724)
 ALPHA_VALUE = 0.00393
@@ -186,6 +190,38 @@ def check(root, registry, today=None, fail_waived=False):
                 if rel in by_file:
                     errors.append(f"{rel}: covered by two registry entries ({by_file[rel]['id']}, {e0['id']})")
                 by_file[rel] = {**e0, "file": rel}
+    live_files = sorted({f for f, x in by_file.items() if x.get("direction") in LIVE}
+                        | set(registry["scan"].get("live_roots", [])))
+    _cache = {}
+
+    def live_text(f):
+        """How a live file can load another: the imports and non-docstring string constants (paths, importlib specs) of a
+        .py file (comments, docstrings and variable names dropped, so a citation or a same-named local is not a
+        dependency); other files minus '#' comment lines."""
+        if f not in _cache:
+            q = root / f
+            t = q.read_text(errors="replace") if q.is_file() else ""
+            if q.suffix == ".py":
+                try:
+                    tree = ast.parse(t)
+                except SyntaxError:
+                    tree = None
+                if tree is not None:
+                    docs = {id(n.value) for n in ast.walk(tree) if isinstance(n, ast.Expr) and isinstance(n.value, ast.Constant)}
+                    parts = []
+                    for n in ast.walk(tree):
+                        if isinstance(n, ast.Import):
+                            parts += [a.name for a in n.names]
+                        elif isinstance(n, ast.ImportFrom):
+                            parts += [n.module or ""] + [a.name for a in n.names]
+                        elif isinstance(n, ast.Constant) and isinstance(n.value, str) and id(n) not in docs:
+                            parts.append(n.value)
+                    t = "\n".join(parts)
+            else:
+                t = "\n".join(l for l in t.splitlines() if not l.lstrip().startswith("#"))
+            _cache[f] = t
+        return _cache[f]
+
     seen = set()
     for rel, p in collect(root, registry["scan"]):
         text = p.read_text(errors="replace")
@@ -233,6 +269,15 @@ def check(root, registry, today=None, fail_waived=False):
             cb = next((x for x in registry.get("consumers", []) if x.get("id") == e.get("corrected_by")), None)
             if cb is None or cb.get("basis_temp_c") != "solved":
                 errors.append(f"{rel}: 'reference (corrected downstream)' needs `corrected_by` naming an entry with basis 'solved'")
+        elif dr == "superseded (record)":
+            sb = next((x for x in registry.get("consumers", []) if x.get("id") == e.get("superseded_by")), None)
+            if sb is None or sb.get("direction") not in LIVE or sb.get("waiver") or not (
+                    sb.get("basis_temp_c") == "solved" or isinstance(sb.get("basis_temp_c"), (int, float))):
+                errors.append(f"{rel}: 'superseded (record)' needs `superseded_by` naming a live, unwaived entry")
+            stem = re.compile(r"(?<![\w.])" + re.escape(Path(rel).stem) + r"(?![\w])")
+            for lf in live_files:
+                if lf != rel and stem.search(live_text(lf)):
+                    errors.append(f"{rel}: 'superseded (record)' but live file {lf} names it ({Path(rel).stem}): it still feeds a verdict")
         elif dr == "not a claim (dated record)":
             if not DATED.search(rel):
                 errors.append(f"{rel}: 'not a claim (dated record)' is only for files in a dated study folder (-YYYY-MM-DD/)")

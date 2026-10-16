@@ -38,7 +38,7 @@ VERIFIED = {   # MPN -> (TA max C, source); read 2026-10-15 from the datasheet t
     "LM4040A25IDBZR": (85.0, "TI SLOS456Q 6.3 p.5, LM4040xxxI TA -40..85"),
     "2EDR8259XXUMA1": (125.0, "Infineon 2EDRx259X Rev 1.7 TA -40..125"),
 }
-GRADE125 = {"tl431": ("TL431BQDBZR", 125.0), "lm339b": ("LM2901BIDR", 125.0), "tlvh431": ("TLVH431BQDBZR (as built)", 125.0)}
+GRADE125 = {"tl431": ("TL431BQDBZR", 125.0), "lm339b": ("LM2901BIDR", 125.0), "tlvh431": ("TLVH431BQDBZR (as built)", 125.0), "ref25": ("LM4050AEM3-2.5/NOPB (stage 47)", 125.0)}   # U5 joined the gate rows at stage 47
 SEMI = re.compile(r"^(U|Q|D|BR|PS)\d+$")
 TEMP = re.compile(r"(^T[_ ]?[JA]\b|^Tj|^TJ|T working|ambient|junction|operating temp)", re.I)
 
@@ -67,7 +67,9 @@ def main():
 
     # ---- 1. monitor rows
     mon = []
-    for ref, (kind, basis, lim, _) in gate.MONITORS.items():
+    bom_now = gate.bom_mpns()      # stage 46: the gate's row limit is the grade of the MPN the frozen BOM places
+    for ref, (kind, _) in gate.MONITORS.items():
+        _, basis, lim = gate.MONITOR_GRADES[bom_now[ref]]
         sh = gate.MONITOR_SELF[kind] * gate.RTHJA[kind][0]
         g_mpn, g_lim = GRADE125[kind]
         row = {"ref": ref, "row": basis, "limit_c": lim, "self_heat_w": round(gate.MONITOR_SELF[kind], 5),

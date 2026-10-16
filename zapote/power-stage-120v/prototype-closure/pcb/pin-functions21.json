@@ -2,9 +2,9 @@
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
   "passive-two-terminal": 236,
-  "native19-reviewed": 87,
+  "native19-reviewed": 86,
   "passive-untyped": 22,
-  "eco-pin-table": 13
+  "eco-pin-table": 14
  },
  "components": {
   "J1": {
@@ -5244,9 +5244,9 @@
    }
   },
   "U5": {
-   "mpn": "LM4040A25IDBZR",
+   "mpn": "LM4050AEM3-2.5/NOPB",
    "source_instance": "u_ref",
-   "basis": "native19-reviewed",
+   "basis": "eco-pin-table",
    "pins": {
     "1": {
      "function": "K",
@@ -5282,7 +5282,7 @@
    }
   },
   "U17": {
-   "mpn": "TL431BIDBZR",
+   "mpn": "TL431BQDBZR",
    "source_instance": "monitor_ls.reference",
    "basis": "eco-pin-table",
    "pins": {
@@ -5320,7 +5320,7 @@
    }
   },
   "U19": {
-   "mpn": "TL431BIDBZR",
+   "mpn": "TL431BQDBZR",
    "source_instance": "bias_ha.monitor.reference",
    "basis": "eco-pin-table",
    "pins": {
@@ -5358,7 +5358,7 @@
    }
   },
   "U21": {
-   "mpn": "TL431BIDBZR",
+   "mpn": "TL431BQDBZR",
    "source_instance": "bias_hb.monitor.reference",
    "basis": "eco-pin-table",
    "pins": {
@@ -5966,7 +5966,7 @@
    }
   },
   "U29": {
-   "mpn": "LM339BIDR",
+   "mpn": "LM2901BIDR",
    "source_instance": "monitor_ls.monitor",
    "basis": "eco-pin-table",
    "pins": {
@@ -6029,7 +6029,7 @@
    }
   },
   "U30": {
-   "mpn": "LM339BIDR",
+   "mpn": "LM2901BIDR",
    "source_instance": "bias_ha.monitor.monitor",
    "basis": "eco-pin-table",
    "pins": {
@@ -6092,7 +6092,7 @@
    }
   },
   "U31": {
-   "mpn": "LM339BIDR",
+   "mpn": "LM2901BIDR",
    "source_instance": "bias_hb.monitor.monitor",
    "basis": "eco-pin-table",
    "pins": {

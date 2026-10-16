@@ -2187,3 +2187,266 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       score; the fix costs +$0.18 / board. The FMEA of this exact variant is DECISIONS 59 (V1). Cherry-picked with the
       card re-scored identical, audit.rs PASS, `cu_temp_basis` PASS, all tests pass on the s45 board. **Board of record
       and benchmark: s45.** FAB-NOTE moved to s45 (vias and drills as s44).
+
+61. **S17: B3 on hot copper becomes the thermal basis; the release tank ceiling drops 18 → 17.5 A (2026-10-15; adopted).
+    Board s45 unchanged (a1e6488f after the chain rebuild, geometry identical to 26ce9531 by `geom_diff45.py`).**
+    Records: `round5-native21/b3-ratings/hot-copper-2026-10-15/README.md` (method, control, s42 BASIS) and its
+    `s45-bay61/` direct solves; firmware 44cf184a7.
+    - **Model.** Every A4 copper cell carries q20·(1 + α(T − 20 °C)), α = 0.00393 /K, solved exactly at each case's own
+      bay with the current held at the 20 °C solution (an upper bound on loss by Thomson's principle). It is now the gate
+      default; cold-copper run files are refused except in named controls. The 20 °C control reproduces the old
+      `margins.json` byte for byte. Copper loss at the old release case rose ×1.31 (6.34 → 8.33 W).
+    - **Ceiling, from direct bay-61 solves on s45** (copper rows; R10 2512 terminal derating binds; `ceilings.py`'s I²
+      extrapolation is optimistic below 22 A and is not used):
+
+      | Tank ceiling (A) | 16.5 | 17 | 17.25 | 17.5 | 17.75 | 18 |
+      |---|---|---|---|---|---|---|
+      | R10 margin (K) | +4.1 | +2.6 | +1.8 | **+1.0** | +0.2 | −0.7 |
+
+      **Release case c18_h10 → c17.5_h10 @ 61 C, I_line 13.5 A.** 17.5 A is the highest step with positive margin on a
+      0.25 A grid; it is not rounded up.
+    - **Firmware (44cf184a7):** TANK_CEILING_DEFAULT_A 17.5, Kconfig 175 dA, COIL_SENSOR_FAULT_TANK_MAX_A 17.5; trips
+      scale with it (peak 40.975, RMS 18.375, crest 26.25 A). The COMMISSIONING ladder now starts at 17.5. Host tests
+      31 / 31 in this worktree.
+    - **Card (s45 re-scored, the benchmark):** release margin +1.2 → **−17.6 K**, bound only by the 85 °C monitor ICs
+      (est °C against 85 °C: U29 / U31 / U30 LM339B 102.6 / 101.3 / 96.5, U17 / U21 TL431B 92.4 / 85.3). Their B3 probe
+      rows are new; they fail at any tank current in still air at bay 61, so the board is **not releasable until stage
+      46** swaps them for 125 °C grades (TL431BQ, LM2901B, and U5's LM4040 Q-grade; BOM-only). At 125 °C the worst
+      monitor row would be +22.4 K, leaving R10 (+1.0 K) as the release limiter. Ratchet: laminate −30.2 → −51.1 K, rated parts
+      −32.3 → −51.3 K (c28, as before a capability-gap diagnostic, not a release claim). `cu_temp_basis` PASS.
+    - **Ledger:** 13 c18 citations re-keyed to c17.5 with the hot values; derived limits for R5 (CSS2H), R22 (RC1206) and
+      R10 / R12 (25121WF) recomputed from their derating curves; 34 ratios recomputed; gate PASS, no release row over
+      its limit.
+    - **G6 R5 derating** (c28 / h25, re-run on s42 hot copper by the B3 lane, hot-copper README) still passes:
+      `g6_margin_pct` 62.7 → **32.6**, R5 pad 123.6 → 144.3 °C against the 148.4 °C bound. Re-run on s45 (board
+      a1e6488f): the same 32.6 % (worst with tolerance and TCR 31.4 %; four-pad sensitivity 26.8 %), trip floor 67.5 A;
+      `stage17-r5/g6-native21s45-hot.json`.
+    - **Stale downstream:** the required jet h_top for the controller enclosure (45 / 59 W/m²K, temper-8d) was solved on
+      cold copper and will rise. It is superseded and must be re-solved on hot copper before it is cited.
+    - **Why not keep 18 A with a thermal candidate:** the heat-attribution levers (tank copper −20 % ≈ +1.75 A, bay 55
+      ≈ +1.6 A, film self-heat ≈ +1.03 A, sink −10 K ≈ +0.92 A) each need a layout or enclosure change. 0.5 A of tank
+      current is the cheapest correct answer now; a later candidate can buy it back and must show it on this basis.
+    - **Reverses if:** a coupled solve with redistributed current (not fixed J) or bench thermocouples at R10 / R12 at
+      17.5–18 A show ≥ 2 K more margin than this model; or a layout candidate raises the R10 row.
+
+62. **Stage 46 (candidate 46): rail-monitor ICs on their 125 °C grades, BOM-only on s45 (2026-10-15; adopted). Board
+    16a58861 (integration build), geometry identical to s45 a1e6488f; card ACCEPT against the hot-copper s45 card.**
+    Records: `11-candidates/c46-monitor-grades/README.md` (lane build 7bfe8b76 on the c18 basis; the integration chain
+    re-ran it on the c17.5 basis of item 61, `runs-native21/s46/chain46int.log`, CHAIN_DONE, no spine owner).
+    - **Change:** U17 / U19 / U21 TL431BIDBZR → **TL431BQDBZR** (C190245, 17,789 at JLC); U29–U31 LM339BIDR →
+      **LM2901BIDR** (C22427890, **1,966 against 1,500: buy early**). Same pads and pinouts; 6 instances; BOM stays at
+      94 lines, 69 Extended; **+$0.12 / board** (v2 pricing $171.71 → $171.83 @ 500). The B3 gate now takes each
+      monitor row's limit from the T_A grade of the MPN in the frozen BOM (`MONITOR_GRADES`); an unknown MPN stops it.
+    - **B3 (hot copper, c17.5 @ 61):** worst monitor U29 102.6 °C, **+22.4 K** against 125 °C (c28: +19.0 K). Release
+      margin −17.6 → **+1.0 K**, bound by R10 2512 terminal derating; **`b3_ratings` gate PASS** for the first time on
+      hot copper. Ratchet unchanged (laminate −51.1, rated part −51.3 K).
+    - **Bands on the 125 °C basis** (dividers unchanged; controls reproduce s45 to 1e-4): rail margins worst case neg
+      UV +0.060, neg OV +0.105, span UV **+0.057** (was +0.096), span OV +0.102 V; joint RSS 6.0σ / 6.4σ unchanged. Span
+      UV is MARGINAL against the 0.080 V target, still positive at the worst-case corner; the span-UV lower corner 15.53 V
+      is +0.03 V over 15.5 V. Span-OV corner 18.643 V, +0.357 V under the 19 V hot-load re-run; 2EDR8259X VDD 0.888 of
+      21 V.
+    - **Card:** every gate and other metric equals s45; better `b3_release_margin_K`; `gates.b3_ratings` False → True.
+      Audit 88 / 88 (with `stage46` checks), ledger PASS 3 / 38 / 53 / 0 of 94 (LM2901BIDR PARTIAL), all unit tests pass.
+    - **U5 stays LM4040A25IDBZR, and is still over its rating:** no A-grade 125 °C LM4040 exists at TI, and the C25Q
+      would raise the OVP upper corner by 2.16 V. The probe sweep reads U5 at 89.5 °C against 85 °C (−4.5 K at c18 @
+      61), a report-only row the gate does not hold. **Open:** a cross-vendor search for a 0.1 % 125 °C 2.5 V shunt
+      that holds the OVP and OCP corners is running; the row becomes gated when it lands.
+    - **Integration note:** the lane's ledger refresh of 30 c18 citations was superseded by item 61's c17.5 re-cite; the
+      new part entries were re-applied with `ledger46.py` on the integration margins.
+    - **Not done:** FMEA C1–C7 re-run on the Q grades; the 15.5 V droop campaign at the span-UV corner; JLC preview of
+      the 6 changed CPL lines (U17 / U19 / U21 180°, U29–U31 270°).
+    - **Board of record and benchmark: s46.** FAB-NOTE moved to 16a58861 / gerbers 059681ec.
+    - **Reverses if:** LM2901BIDR stock cannot cover the lot (fallback LM339BIDR fails the release case at any current).
+63. **Stage 47 (candidate 47): U5 (REF25) on its 125 °C grade, BOM-only on s46; the band network sits at its solved
+    temperature (2026-10-15; adopted with a cost override). Board 63aba33f (integration build), geometry identical to
+    s46 16a58861; card REJECT against s46 on the new Kelvin basis and on cost.**
+    Records: `11-candidates/c47-ref25-grade/README.md` (lane build 4139c87b, copper key d33d77ac; the integration chain
+    re-ran it on the integration tree, `runs-native21/s47/chain47int.log`, CHAIN_DONE, copper key 387b3e2d, no spine
+    owner; `geom_diff45.py` s46 → s47: geometry_identical, only U5 Value / MPN change).
+    - **Change:** U5 LM4040A25IDBZR → **LM4050AEM3-2.5/NOPB** (TI SNOS455H, LCSC C2156518). Rated TA = TJ −40..125 °C
+      (5.3 p.5; addendum p.25); ±15 mV full range plus 1.2 mV current regulation, IRMIN 65 µA (5.6 p.7). Same DBZ pads
+      and pinout (pin 3 has no internal connection and floats on `u_ref-nc`, p.3); 1 instance; no divider change. The
+      JLC listing's −40..85 °C is wrong for the E suffix.
+    - **B3 (hot copper):** U5 is now a gated row, keyed to the frozen MPN (`MONITOR_GRADES`). 89.1 °C at c17.5 @ 61:
+      **+35.9 K** against 125 °C (c28 @ 55: 104.7 °C, **+20.3 K**). At 89.1 °C the A25I was over its 85 °C rating
+      (−4.1 K). Self-heat 0.2 K. Release margin unchanged at +1.0 K (R10); `b3_ratings` PASS.
+    - **New band basis, the solved network temperature** (`c47-ref25-grade/results/bands-s47.md`). The bands assumed
+      the R26–R37 network at −10..85 °C; hot-copper B3 puts R32–R35 at 93–96 °C and R30 / R36 / R37 at 92–93 °C at the
+      release case, up to 102.9 °C at c28. The basis is now the −10 °C corner plus each resistor at its B3 estimate.
+      - With the A25I that network fails the 288.02 V OVP "must not rise" rule: 288.05 V at c28 (288.75 V at a uniform
+        105 °C).
+      - **LM4050AEM3 at release (c17.5 @ 61): OCP 68.87–117.45 A before Kelvin, 66.75 A after (+2.58 A over 64.17 A);
+        OVP 272.64–287.45 V.** At c28: 67.57–119.09 A, 65.45 A after Kelvin (+1.28 A), OVP 272.47–287.62 V.
+      - Like for like, s47 is +0.12 A better on both bases: committed basis 67.89 vs 67.77 A, solved basis 66.75 vs
+        66.63 A (A25I).
+    - **Card** (`10-benchmark/scorecard-native21s47.json`, integration build): every gate and thermal metric equals s46.
+      `--compare` s46: REJECT on kelvin_band_low_A 66.75 vs 67.77 (the basis change above, not a regression) and on
+      cost: parts_usd_at_500_v2 171.83 → **173.99 (+$2.16 / board)**, lines_short_for_500 14 → 15,
+      jlc_assemblable_share_500 0.851 → 0.84 (U5 consigned). Ledger 3 / 39 / 52 / 0 of 94 (LM4050AEM3 PARTIAL; the
+      LM4040 was UNAUDITED), gate PASS.
+    - **Sourcing:** JLC holds 50 (96 with the two Q1 orderables) against 500. **Owner pre-order of ≥ 550
+      LM4050AEM3-2.5/NOPB**, consigned to JLC (OPEN-ITEMS owner action 7); the line keeps C2156518 for placement.
+    - **Integration: adopted with a cost override, as for stage 45.** The card cannot score a datasheet violation: U5
+      was over its 85 °C rating at 89.1 °C at the release case, and the LM4050AEM3 is the only drop-in that holds both
+      band rules with no retrim, including on the hotter network the old part fails. +$2.16 / board is the price.
+      Re-verified on 63aba33f: audit.rs PASS and 89 / 89; ledger gate and its tests PASS; `cu_temp_basis --fail-waived`
+      0 waived PASS; depmap no FAIL; gate, B3 and bom_pricing unit tests and firmware host tests 31 / 31 pass.
+    - **Ledger re-cite:** R5's "OCP transient pulse power" moves from the stage-15 top 118.74 A to the s47 top, the
+      higher of release and c28: 119.09² × 1 mΩ = 14.18 W against ≥ 2 kW for 10 µs (ratio 0.0071),
+      `c47-ref25-grade/scripts/ledger47_r5.py`.
+    - **Board of record and benchmark: s47.** FAB-NOTE moved to 63aba33f / gerbers 72556223.
+    - **Reverses if:**
+      - the LM4050AEM3 lot cannot be bought. Fallbacks: the electrically equal LM4050QAEM3-2.5 or TL4050A25QDBZR (the
+        same bands), or ADR5041B with R37 137 k under ADI's butterfly TC reading;
+      - bench thermocouples put the R26–R37 network ≤ 85 °C, which restores the committed basis and the 67.89 A figure;
+      - a layout stage moves U5 and its network out of the bias heat.
+    - **Not done:** FMEA re-run on the new reference (OVP / OCP rows at the s47 bands); the routine JLC preview of U5
+      (rotation settled at 180°, but the EasyEDA land is the narrower SOT-23); U5 pin 3 to anode, TI's high-EMI
+      recommendation (a layout stage); the CST3015 "Volt-time at 118.74 A" ledger row still quotes the stage-15 top.
+      New open items: U3 TPS70950 temperature and the ledger's 286 V bus-OVP rows (OPEN-ITEMS S19, S20).
+
+64. **S20 follow-up: the stacked bus event re-based on the current tank state, and two ledger rule calls (2026-10-15;
+    adopted). OCP floor CMRR term recorded; the release ceiling is not affected.** Records:
+    `11-candidates/band-terms-2026-10-15/README.md` (analysis lane, reviewed); ledger patch `scripts/ledger_event.py
+    --variant reformed`.
+    - **Event.** The worst case is CT failed (firmware trips blind too), with only the shunt OCP left: trip ≤ 119.09 A,
+      turn-off ≤ 155.7 A, tank energy at gate-off 0.897 J (the bank-ov grid reproduces its committed 155.4 A). With the
+      OVP filter delay (τ ≤ 16.47 µs + 2.27 µs chain) on the coherent 500 µH / 30 A line ring, the no-clamp bus peak is
+      **512.4 V** (was 451.6 V on the stage-13b 0.475 J; the control reproduces it). Shoot-through is prevented, not
+      detected (no desat), and returns no tank energy.
+    - **Call 1, C12 / C13 / C19 / C20 (50 % of 1 kV): credit the fitted D3 / D17 clamp.** A clamp's V–I curve is
+      monotonic, so at the 62–74 A it carries (under its 129.8 A rating) the string is bounded by Good-Ark's published
+      VC max, 2 × 233.4 V at 129.8 A (p.3). Taken to 73 °C at 0.1 %/K (Littelfuse's row for the same part, pp.1–2)
+      that is 489.2 V, ratio 0.489. It holds for a D3 tempco up to 0.148 %/K. The no-clamp 0.512 stays as a gap.
+    - **Call 2, C5 / C6 hot row: the event is held against TDK's transient overvoltage allowance**, 1.5 × Vop for
+      30 ms, 1000 times per life (B3267x p.14 note 1), at the 105 °C Vop 570 V: 855 V, ratio 0.599. The continuous-Vop
+      0.8 rule is the wrong basis for a < 0.3 ms fault transient. It stays as a gap (0.899 no clamp, 0.858 at the
+      published clamp); the ALT-D3 §5 T1 bench test closes it. At the 83.6 °C release-case temperature the 750 V
+      continuous rating applies anyway (0.683).
+    - **D3's own ratings:** ≤ 0.67 J per device; pulse power 0.81 of 34 kW (near-ideal-clamp bound), now a ledger row.
+      **Open:** the BOM's LCSC code C19111562 lists Littelfuse, while the ledger cites Good-Ark (TJ 150 vs 175 °C; the
+      ledger keeps 150). Pin the maker before the lot.
+    - **Ledger:** 7 entries re-based (451.6 → 512.4 V; R3 / R4 225.8 → 256.2 V), D3 event row added; PASS 3 / 91 / 0 /
+      0, test_gate 0 failures. Under the strict rules the gate would fail on two VIOLATIONs; both calls are
+      datasheet-basis corrections, not loosened margins.
+    - **OCP floor and comparator common mode (OPEN-ITEMS S23).** U6 (TLV3201) trips at VCM about 1.2 V, up to 1.36 V
+      from VCC/2, where its 4 mV VIO is specified. CMRR is 60 dB min at 25 °C only (SBOS561C p.5), and the band model
+      has no VCM term. On a 60 dB-hot reading, with the corrected Kelvin census (U9 CA-IS3720HW 4.1 mA, not the
+      ISO7710's 2.4 mA: shift −2.391 A), the OCP low corner is 63.70 A at the release network and 62.42 A at c28. That
+      is −0.47 / −1.75 A against the **64.17 A floor of the 28 A hardware rule**, which is unproven on any guaranteed
+      basis. The failure direction is a nuisance trip, which latches safe. **The shipping 17.5 A ceiling is not
+      affected:** its floor is 43.7–52.3 A, with ≥ 10 A margin on realistic readings and ≥ 3.5 A spec-literal.
+      Before commissioning above about 27 A, U6 needs one of: a bench measurement of VIO at VCM 1.2 V hot, a
+      comparator specified over its common-mode range and temperature, or the trip common mode re-centred toward
+      VCC/2. Raising R34 is not an option, because it breaks the bank's 1600 V limit in the CT-failed double fault.
+      OVP (U7) is unaffected except on the spec-literal reading (288.11 V).
+    - **Reverses if:** D3's tempco or clamp curve, measured or published, puts the string above 500 V at 73 °C; or TDK's
+      transient note is read as excluding repetitive fault events.
+
+65. **OPEN-ITEMS S18: PS2 (MEAN WELL MPM-20-24) gets a body-to-air path in B3 and a gated row on the quantity its
+    datasheet rates, its local air (2026-10-16; adopted). Thermal model and gate only: no BOM or copper change. The
+    tag stays native21s47.** Records: `11-candidates/s18-ps2-body/README.md` (lane `claude/native21-s18-ps2-body`,
+    reviewed; runs in `runs-native21/s18-ps2/`); integration chain `runs-native21/s18-ps2/c47int-s18`.
+    - **Rating basis, read verbatim (MPM-20-SPEC 2024-10-30, sha256 `24d3a6bb…`).**
+      - p.2: "WORKING TEMP. -35 ~ +85℃ (Refer to "Derating Curve")".
+      - p.3: the Derating Curve's x-axis is "AMBIENT TEMPERATURE (℃)", "(HORIZONTAL)". For 12–24 V models: 100 % to
+        55 °C, 70 % at 60 °C, 50 % at 70 °C, 30 % at 85 °C, then nothing.
+      - There is no case, Tc or pin limit on p.1–p.4 or in the PCB-type installation manual. **So the 85 °C rates the air
+        around the module. B3 now rates that air and never the pad.**
+    - **Adopted: the `module_box` model** (`thermal_body.py`, the film caps' pattern from jet-2026-10-15).
+      - **Loss.** The body node carries the whole module loss, 1.348 W (P_out 7.08 W, η 0.84).
+      - **Paths.** The pins take the class 15 K/W to the pads. The case loses h·A to air on the p.2 52.4 × 27.2 × 24 mm
+        body (top and sides, 5246 mm²).
+      - **Air.** The air is bay + 15 K, the same constant as the film caps (`MODULE_AIR_RISE_K` = `FILM_HF_AIR_RISE_K`).
+      - **Control.** `--module-pins-only` is the pre-S18 model (pins only, half the loss, the other half dropped). It
+        reproduces the s47 run files and `margins.json` byte for byte.
+    - **Adopted: the gated local-air row** (`b3_ratings_gate.MODULES`, hot-copper basis only).
+      - **Estimate.** est = bay + max(15 K, layer_factor(24 mm) × the excess of the 10 mm ring around the body).
+      - **Limit.** The p.3 ambient at the as-built load under the ledger's 90 % rule: 80.2 °C at 7.08 W (32.8 %). The
+        curve alone gives 82.9 °C.
+      - **Refusals.** The row refuses pins-only or old runs, pins that carry heat into the module, a load over the rule,
+        another MPN at PS2, and meshes that disagree.
+    - **Numbers on the integration board** (chain CHAIN_DONE; board 83355da5, a zone-fill re-hash of 63aba33f with the
+      same copper key 387b3e2d48c8). `margins.json` equals the lane's `margins-s18.json` row for row.
+
+      | Case | PS2 local air | Limit (90 % / curve) | Margin | Case node | Pad max | Pins / air (W) |
+      |---|---|---|---|---|---|---|
+      | c17.5 @ 61 (release) | 76.0 °C | 80.2 / 82.9 °C | **+4.2 K** (+6.9) | 95.5 °C | 91.5 °C | 0.34 / 1.01 |
+      | c22 @ 55 | 70.0 °C | 80.2 / 82.9 °C | +10.2 K | 90.8 °C | 87.5 °C | 0.27 / 1.08 |
+      | c28 @ 55 | 70.0 °C | 80.2 / 82.9 °C | +10.2 K | 93.2 °C | 97.6 °C | 0.14 / 1.20 |
+
+      - The 15 K rule sets the air in every case; PS2's own layer estimate is 3.0–5.8 K.
+      - PS2 does not bind. The old −26.5 K compared an ambient rating with a pad temperature, in a model that forced the
+        loss through the pins. It was not a rating margin.
+    - **Release margin +1.0 → +1.2 K, still R10.** At release 0.34 W instead of 0.674 W enters the board, so every common
+      row moves cooler, by 0 to +3.1 K (the most at R22–R25, 27–39 mm from PS2).
+      - The other card metrics: laminate −51.1 → −51.0 K, rated parts −51.3 → −51.2 K, `b3_ratings` PASS.
+      - On the lane's pin-tie corners the release margin is +1.1 to +1.2 K. That includes a strong-tie corner that puts
+        more heat into the board (0.78 W) than the old model did.
+      - **Card:** ACCEPT against the s47 card, better on `b3_laminate_margin_K`, `b3_rated_part_margin_K` and
+        `b3_release_margin_K`. `10-benchmark/scorecard-native21s47.json` is re-scored on the S18 model. The other changes
+        are `pin_absmax` None → False (that gate is report-only and was added since) and the ledger totals.
+    - **Ledger.**
+      - `ledger_s18.py` re-cites every keyed B3 citation, S21's included (22 entries).
+      - S21's 73 temperature lines are re-computed on the S18 run files (`temp_ratings.py --rebase`): 55 move, all toward
+        margin, with no verdict change.
+      - MPM-20-24 gains the B3 local-air check, 76.0 / 80.2 °C (0.9476).
+      - `gate.py` PASS: 91 PARTIAL, 3 VERIFIED, 0 VIOLATION. 131 check ratios move, all toward margin, and none crosses
+        its limit.
+    - **Constraints found.**
+      - **The ledger's 9.59 W PS2 sizing allocation fails at the release-case air; the as-built 7.08 W passes.**
+        - At 9.59 W (44.4 % of 21.6 W, the 740 nC / 80 kHz allocation) the limit is 70.5 °C under the 90 % rule (74.2 °C
+          on the curve). Against 76.0 °C air that is −5.5 K (−1.8 K).
+        - The ledger's own "P at 61 C bay" check passes only because it reads the curve at bay air.
+        - **So the firmware's 60 kHz window top is now a PS2 rating constraint:** it is what holds PS2 at 7.08 W. Raising
+          the window top, or adding PS2 load, needs this row re-run.
+      - **The 78 °C stacked-bay case puts PS2's air at 93 °C,** above the 85 °C working maximum at any load. It fails
+        outright. This is an existing ledger gap: it comes from the bay, not from this model.
+      - **The S18 study's +17.8 K is not reproduced.** That study (`b3-ratings/ps2-thermal-2026-10-15`) assumed an
+        equivalent ambient of 61–64 °C air (65.1 °C at c18 @ 61). The gate rates bay + 15 K, the film caps'
+        board-heated-air rule, so it reads +4.2 K. The rule is conservative here, since PS2's own layer estimate is 3.0 K.
+        The study's "pessimistic bound" (+2.9 K) also used bay + 15 K, but it took the hottest pad as the surroundings.
+      - **Clearance from heat sources.** MEAN WELL's PCB-type installation manual (`PCB_EN.pdf` p.1 (4)) asks for
+        10–15 cm from an adjacent heat source. PS2 sits 27–39 mm from R22–R25, on a board that carries 13.5 A. This is a
+        certifier / owner reading, not a rating. It is recorded and not acted on.
+    - **Assumed, not sourced:**
+      - the 15 K/W pin path (corners 5–40 K/W);
+      - η at 120 VAC and 33 % load (0.84 is used; the datasheet's 87 % typ is at 230 VAC and full load);
+      - the bottom-face gap;
+      - where MEAN WELL measures "ambient".
+
+      The legacy point model (`b3/thermal.py`) keeps the old 0.674 W pin deposit for its peak metrics.
+    - **Bench check (S2 soak, the lane README §6).** PS2 is at hazardous voltage on every pin, so use insulated fine-wire
+      K thermocouples on an isolated logger, or IR through a port. Run at the c17.5-equivalent point and log PS2's output.
+      - **TC2, the rated quantity:** a shielded bead in free air 5 mm off PS2's long side face, at 12 mm height, on the
+        side away from J3. It must read TC2 − TC3 ≤ +15 K. It refutes the model at > +19.2 K (the 80.2 °C limit at bay 61).
+      - **TC3:** bay air, at least 50 mm from any board part.
+      - **TC1:** the case top centre. Expect TC1 − TC2 ≈ +19.5 K (+11 … +21 K); ≥ +27 K means the air path is weaker
+        than h·A at h 10.
+      - **TC4:** the pin 1 or pin 4 pad. Expect TC4 − TC3 ≈ +30 K; +44 … +48 K means the pins really carry the loss.
+      - **Load:** PS2's output must be ≤ 7.1 W. Above 9.6 W the margin falls to −5.5 K.
+      - **Ledger criterion:** (TC2 − TC3) + 61 °C ≤ the p.3 limit at the measured load under the 90 % rule.
+    - **Reverses if:**
+      - the bench reads PS2's local air above bay + 19.2 K at the release point, or PS2's output above about 7.1 W;
+      - MEAN WELL or the CB report (Tma) defines the rating at a case or internal point;
+      - the firmware's window top or PS2's load rises without this row being re-run.
+
+66. **Product target: a 28 A tank ceiling, reached through board-face airflow (owner decision, 2026-10-16).**
+    - **Why:** full-power yield (DECISIONS 10, simulated on an ASSUMED pan and coil basis) is about 85 % of pan cases
+      at 28 A against about 13 % at 22 A, and fewer at the 17.5 A that the still-air board supports today
+      (DECISIONS 61). The owner chose full power on most pans over the simpler, fan-free 22 A product.
+    - **How:** the hardware is already sized for 28 A electrically (stage 15). Heat is the blocker: at c28 in still air
+      the laminate and rated-part margins are about −51 K. Board-face airflow is the only lever large enough; the
+      heat-attribution levers without it sum to roughly +5 A (about 22 A). Tank-copper changes follow only where
+      airflow alone does not close a row.
+    - **Ladder unchanged:** firmware ships at 17.5 A and steps up (18 → 20 → 22 → … → 28 A) only on bench evidence at
+      each step: board thermocouples, bank hot spot, coil R_ac and winding temperature, switching loss.
+    - **Blockers to 28 A, tracked in OPEN-ITEMS:**
+      - the airflow requirement (h at the board face and inlet air temperature), to be agreed with the enclosure;
+      - the c28 rows of S21 and the B3 gate;
+      - the resonant bank at 1.045–1.12× TDK's 85 °C curve;
+      - S23, the OCP floor common-mode term, which binds above about 27 A;
+      - U3 TJ at c28 (S19);
+      - a bench check of the yield basis on real pans.
+    - **Reverses if:** the enclosure cannot deliver the required airflow at an acceptable noise and cost, or bench pan
+      data shows the 22 A yield is much higher than simulated.
