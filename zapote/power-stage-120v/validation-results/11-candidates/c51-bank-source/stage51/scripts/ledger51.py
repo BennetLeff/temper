@@ -285,9 +285,9 @@ def main():
     if OLD in E:
         a = dict(E[OLD])
         a["status_as_alternate"] = ("NOT FITTED. Stage 51 (DECISIONS 73): documented drop-in alternate for the 28 A route on "
-                                    "the dual-pitch footprint's 22.5 mm hole; this is its stage-49 / 50 audit on board "
-                                    "4876c42e (s50), kept for the 28 A decision; not on the pre-order list. The gate does "
-                                    "not read `alternates`.")
+                                    "the dual-pitch footprint's 22.5 mm hole; this is its stage-49 / 50 audit on the s50 board "
+                                    "(integration build e842d9c8; lane 4876c42e), kept for the 28 A decision; not on the "
+                                    "pre-order list. The gate does not read `alternates`.")
         alt[OLD] = a
     if alt:
         led["alternates"] = alt
