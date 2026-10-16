@@ -2760,3 +2760,11 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **Cards restamped:** s48 (benchmark), s49, s50. s50 against s49 stays ACCEPT (same short set).
     - **Consequence:** the adoption of s49 / s50 stands on its other gains with the interim bank recorded in DECISIONS
       70; stage 51 (in-stock bank) must clear this gate's ratchet against s48 to retire the interim part.
+    - **Addendum (owner, 2026-10-16): the gate is based on the prototype build, 20 boards** ("we're still
+      prototyping so i'd cap it closer to 10-20"). Commit e2c58d925: gate `bom_buildable_proto` / metric
+      `bom_lines_short_proto` at qty × 20 (`--proto-boards`), counting recorded in-stock quantity even on lines
+      flagged for a production pre-order (LM4050: 50 at JLC covers 20). Brokers, split and zero-stock lead-time
+      listings still count 0. The 500-board figures stay on the card as information only. Short at 20 boards on
+      every card: **L1 B82726S2203A020 0 / 20, C3/C4 DE1E3RA222MA4BP01F 6 / 40, D6–D9 PMEG6030EP 7 / 80** (OPEN-ITEMS
+      B15), so the gate ratchets rather than hard-fails. s49 / s50 add the interim bank (0 / 100) and REJECT against
+      s48; s50 against s49 is ACCEPT.
