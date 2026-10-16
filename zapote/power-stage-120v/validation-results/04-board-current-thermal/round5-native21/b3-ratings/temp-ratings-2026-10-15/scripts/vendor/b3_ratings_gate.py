@@ -63,6 +63,14 @@ Limits (sources re-read 2026-10-15; see the audit's ratings.py for page-level qu
                    the OCP / OVP threshold reference) from stage 47: LM4040A25IDBZR 85 C (SLOS456Q 6.3 p.5, xxxI),
                    LM4050AEM3-2.5/NOPB 125 C (SNOS455H 5.3 p.5, extended range); the monitor and split dividers
                    advisory (terminal derating line)
+  PS2 MPM-20-24    (OPEN-ITEMS S18, s18-ps2-body; hot-copper runs only) gated on its LOCAL AIR, the quantity MEAN WELL
+                   rates: 'WORKING TEMP. -35 ~ +85 C (Refer to "Derating Curve")' (MPM-20-SPEC 2024-10-30 p.2), the p.3
+                   Derating Curve's x-axis is 'AMBIENT TEMPERATURE (C)' (12V~24V, HORIZONTAL: 100 % to 55 C, 70 % at
+                   60, 50 % at 70, 30 % at 85, nothing above), and no case or pin temperature is published. Air = bay +
+                   max(the run's module air rise, thermal_body.MODULE_AIR_RISE_K = 15 K by default; layer_factor(24 mm)
+                   x the 10 mm board ring's excess over the bay). Limit = the curve's ambient at the module's load under the
+                   ledger rule (output <= 90 % of the curve-derated power): MODULES. The case node and the pads are
+                   reported, never rated
   advisory (limit known, package path assumed): bank MKP 110 C (board share only), DC-link C5/C6 TDK B32676G1905K000
                    Top,max 105 C case (B3267* June 2026 p.13; 110 C until 2026-10-15), B82726 125 C (p.4), other
                    1206 (MPNs not re-read)
@@ -71,6 +79,10 @@ Copper temperature (OPEN-ITEMS S17): run files must carry copper_temp_model "hot
 heat at q20 (1 + alpha (T - 20 C)), solved at the case's bay). Run files on 20 C copper (cold-20C, or older files with
 no copper_temp_model) are refused unless --allow-cold-copper is given - for controls only. A hot run solved at another
 air temperature than the case's bay is refused: with hot copper the field is not shift-invariant.
+
+PS2's body-to-air path (S18): hot run files must carry it (body_runs 'body_air_model' module_box); files solved with
+--module-pins-only (the model before it) are refused unless --allow-module-pins-only is given - controls only - and
+then carry no PS2 row (the pre-S18 rows).
 
 Exit 0 if every gated margin of the release case(s) (or, with none, of every case) is >= 0, else 1. Advisory rows never
 fail the gate.
@@ -154,7 +166,83 @@ MONITOR_GRADES = {
     "LM4050AEM3-2.5/NOPB": ("ref25", "LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; "
                             "addendum p.25)", 125.0),
 }
-BOM_CSV = Path(__file__).resolve().parents[2] / "snap/default-HEAD.csv"   # temp-ratings scratch copy: the s47 frozen BOM (PS HEAD); upstream: parents[4] / native-21/frozen/default.csv
+BOM_CSV = Path(__import__("os").environ.get("TEMP_RATINGS_SNAP") or Path(__file__).resolve().parents[2] / "snap") / "default-HEAD.csv"   # temp-ratings scratch copy (TEMP_RATINGS_SNAP, default ../../snap): the s47 frozen BOM (PS HEAD); upstream: parents[4] / native-21/frozen/default.csv
+
+# ---- AC-DC module rows (OPEN-ITEMS S18, s18-ps2-body). MEAN WELL rates MPM-20 on the air around it, with a load derating:
+# p.2 ENVIRONMENT 'WORKING TEMP. -35 ~ +85C (Refer to "Derating Curve")'; p.3 'Derating Curve', x-axis 'AMBIENT
+# TEMPERATURE (C)', '(HORIZONTAL)', 12V~24V line read from a 200 dpi render: 100 % to 55 C, 70 % at 60 C, 50 % at 70 C,
+# 30 % at 85 C, vertical to 0 at 85 C; p.3 'Output Derating VS Input Voltage': 100 % from 100 VAC (the 108-140 VAC line
+# corners are on it); p.2 Note 1 '... 25C of ambient temperature'. No case temperature, Tc point or pin limit is
+# published (p.1-p.4; MEAN WELL PCB-type Installation Manual PCB_EN.pdf p.1 (4) 'Allow good ventilation ...', (5) 'operate
+# under high ambient temperature ... will require a de-rating in output current', p.2 Warning (3) 'refer to the
+# specifications about the maximum ambient temperature limitations'). So the row rates the module's local air.
+# Load: the module output that produces the B3 heat row - make_heat_sources.py C28_F 'PS2': loss = P_out (1/0.84 - 1),
+# P_out = 2 x 17 V x I_ch / 0.45 + 24 V (2 I_ch + 30 mA) + 24 V x 10 mA at the 60 kHz window top (7.08 W, 32.8 %) - so
+# P_out = loss / (1/eta_heat - 1) from the run file. Rule: the ledger's (datasheet-ledger MPM-20-24 derating_rule)
+# 'output ... <= 90 % of the curve-derated power': the limit is the ambient at which 0.9 x curve(T) x P_rated = P_out.
+MODULES = {"PS2": {"mpn": "MPM-20-24", "spec": "meanwell", "p_rated_w": 21.6, "eta_heat": 0.84, "rule": 0.9,
+                   "curve": ((55.0, 100.0), (60.0, 70.0), (70.0, 50.0), (85.0, 30.0)), "t_max_c": 85.0,
+                   "basis": "MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING "
+                            "TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule)"}}
+
+
+def curve_ambient_limit(load_pct, curve, t_max):
+    """Highest ambient [C] at which load_pct (% of rated) is on or under the derating curve (linear between its printed
+    points; the curve ends at t_max). None if load_pct is above 100 % (over the curve at any temperature)."""
+    if load_pct > curve[0][1] + 1e-12:
+        return None
+    if load_pct <= curve[-1][1]:
+        return t_max
+    for (t0, l0), (t1, l1) in zip(curve, curve[1:]):
+        if l1 <= load_pct <= l0:
+            return t0 if l0 == l1 else t0 + (l0 - load_pct) * (t1 - t0) / (l0 - l1)
+    return curve[0][0]
+
+
+def module_rows(c, r25, r05, bay, mpns=None, allow_pins_only=False):
+    """Gated local-air rows of the AC-DC modules (MODULES) from the run files' part rows (hot-copper runs only)."""
+    mpns = bom_mpns() if mpns is None else mpns
+    rows = []
+    for ref, m in MODULES.items():
+        if mpns.get(ref) != m["mpn"]:
+            raise SystemExit(f"b3_ratings_gate: {ref} is {mpns.get(ref)!r} on the BOM, not {m['mpn']}: add its datasheet "
+                             "ambient / derating row (MODULES)")
+        ps = [next((p for p in r["parts"] if p["ref"] == ref), None) for r in (r25, r05)]
+        if None in ps:
+            raise SystemExit(f"b3_ratings_gate: {c} run files carry no {ref} part row (its heat row is gone?)")
+        if any(p.get("spec") != m["spec"] for p in ps):
+            raise SystemExit(f"b3_ratings_gate: {ref} is package spec {ps[0].get('spec')!r}, not {m['spec']!r}")
+        model = {p.get("body_air_model") for p in ps}
+        if model != {"module_box"}:
+            pins_only = all((r.get("sens") or {}).get("module_pins_only") for r in (r25, r05))
+            if pins_only and allow_pins_only:
+                continue                                # the pre-S18 control: no row, the pre-S18 margins
+            raise SystemExit(f"b3_ratings_gate: {c} {ref} has no body-to-air path in its run files (model {model}); the "
+                             "gate needs it (run_basis.py default) - --allow-module-pins-only is for controls only")
+        p25, p05 = ps
+        for k in ("loss_w", "module_air_rise_k"):
+            if abs(p25[k] - p05[k]) > 1e-12:
+                raise SystemExit(f"b3_ratings_gate: {c} {ref} meshes differ in {k} ({p25[k]}, {p05[k]})")
+        for p in ps:
+            if p["pins_w"] < 0:
+                raise SystemExit(f"b3_ratings_gate: {c} {ref} pins carry {p['pins_w']:.3f} W INTO the module: the board "
+                                 "heats it, so its local air does not cover its surroundings (rate an equivalent ambient)")
+        p_out = p25["loss_w"] / (1.0 / m["eta_heat"] - 1.0)
+        load = 100.0 * p_out / m["p_rated_w"]
+        lim = curve_ambient_limit(load / m["rule"], m["curve"], m["t_max_c"])
+        lim_curve = curve_ambient_limit(load, m["curve"], m["t_max_c"])
+        if lim is None:
+            raise SystemExit(f"b3_ratings_gate: {ref} load {p_out:.2f} W ({load:.1f} %) is over the "
+                             f"{m['rule']:.0%} derating rule at any ambient")
+        layer = p25["layer_factor"] * (est(p25["board_ring_c"], p05["board_ring_c"], bay) - bay)
+        rise = max(p25["module_air_rise_k"], layer)
+        rows.append(dict(item=f"{ref}: {m['basis']} at {p_out:.2f} W ({load:.1f} %)", gated=True, limit_c=lim,
+                         est_c=bay + rise, air_rule_k=p25["module_air_rise_k"], air_layer_k=round(layer, 2),
+                         limit_curve_c=round(lim_curve, 1), p_out_w=round(p_out, 3), loss_w=round(p25["loss_w"], 4),
+                         pins_w=round(p25["pins_w"], 4), case_c=round(est(p25["case_c"], p05["case_c"], bay), 1),
+                         pad_max_c=round(est(p25["pad_max_cell_c"], p05["pad_max_cell_c"], bay), 1),
+                         env_upper_c=round(est(p25["env_upper_c"], p05["env_upper_c"], bay), 1)))
+    return rows
 
 
 def bom_mpns(path=BOM_CSV):
@@ -346,7 +434,7 @@ def copper_check(c, r25, r05, bay, allow_cold):
     return None
 
 
-def run(runs: Path, cases, bay: float | None = None, release=None, allow_cold_copper=False):
+def run(runs: Path, cases, bay: float | None = None, release=None, allow_cold_copper=False, allow_module_pins_only=False):
     """cases: CASE / CASE@BAY strings or {case: bay}. release: cases whose gated rows decide `pass` (None: the BASIS
     release cases present; empty: every case). Ratchet metrics are over the other cases."""
     cases = parse_cases(cases, bay)
@@ -398,7 +486,7 @@ def run(runs: Path, cases, bay: float | None = None, release=None, allow_cold_co
             out["basis"]["cases"][c]["copper"] = cu
         rows = evaluate(r25, r05, b)
         if cu is not None:                   # probe rows are part of the hot-copper basis (cold controls: pre-S17 rows)
-            pr = probe_rows(c, r25, r05, b)
+            pr = probe_rows(c, r25, r05, b) + module_rows(c, r25, r05, b, allow_pins_only=allow_module_pins_only)
             for r in pr:
                 r["margin_k"] = round(r["limit_c"] - r["est_c"], 1)
                 r["est_c"], r["limit_c"] = round(r["est_c"], 1), round(r["limit_c"], 1)
@@ -434,12 +522,15 @@ def main():
     ap.add_argument("--release", help="comma list of release cases (default: BASIS release cases present; '' = none)")
     ap.add_argument("--allow-cold-copper", action="store_true",
                     help="accept 20 C copper run files (controls only; OPEN-ITEMS S17)")
+    ap.add_argument("--allow-module-pins-only", action="store_true",
+                    help="accept run files with PS2 on pins only (no row; controls only; OPEN-ITEMS S18)")
     a = ap.parse_args()
     rel = None if a.release is None else [c for c in a.release.split(",") if c]
     if a.cases is None:
         a.cases = ("c22_h10,c28_h10" if a.bay_c is not None else
                    ",".join(f"{c}@{b['bay_c']:g}" for c, b in BASIS.items()))
-    res = run(Path(a.runs), a.cases, a.bay_c, rel, allow_cold_copper=a.allow_cold_copper)
+    res = run(Path(a.runs), a.cases, a.bay_c, rel, allow_cold_copper=a.allow_cold_copper,
+              allow_module_pins_only=a.allow_module_pins_only)
     if a.out:
         Path(a.out).write_text(json.dumps(res, indent=1) + "\n")
     m, bs = res["metrics"], res["basis"]

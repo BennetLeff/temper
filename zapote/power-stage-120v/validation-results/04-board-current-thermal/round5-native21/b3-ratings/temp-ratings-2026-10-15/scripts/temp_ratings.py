@@ -17,17 +17,37 @@ Estimator (b3_ratings_gate.est, vendor copy): Q(0.25) + 3 |Q(0.25) - Q(0.5)| + (
     gate does for its gated part rows.
 Resistors: the terminal (pad) against the derating line T_max - (T_max - T_knee) P / (0.8 P_rated) (the gate's 20 %
 power-margin rule, G6), plus the element (body model) against T_max where B3 has a body.
+
+Re-base on a later B3 model (S18, 2026-10-15: PS2's body-to-air path moves the neighbours 0-3.1 K):
+
+    python3 -I scripts/temp_ratings.py --snap DIR --rebase
+
+DIR holds the same four inputs, with runs/ and margins-HEAD.json from one chain (the run files the committed margins.json
+was solved from) and ledger-HEAD.json the pre-S21 ledger (the 73 lines are the ones it left unrated). The equivalence is
+then: the vendor gate reproduces every row of that margins.json from those runs (both on one board); the c47 monitor sweep
+is a pre-S18 record, so its difference is reported, not asserted.
 """
+import argparse
 import csv
 import json
+import os
 import sys
 from pathlib import Path
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
-SNAP = ROOT / "snap"
+_ap = argparse.ArgumentParser()
+_ap.add_argument("--snap", default=str(ROOT / "snap"), help="input snapshot directory (default ../snap)")
+_ap.add_argument("--rebase", action="store_true",
+                 help="the snapshot's margins / runs are a later model on one board: assert their equivalence, report the "
+                      "c47 sweep difference instead of asserting it")
+ARGS = _ap.parse_args() if __name__ == "__main__" else _ap.parse_args([])
+SNAP = Path(ARGS.snap).resolve()
+os.environ["TEMP_RATINGS_SNAP"] = str(SNAP)    # read by the vendor gate's BOM_CSV
 sys.path.insert(0, str(HERE / "vendor"))
+if not ARGS.rebase:                     # the s47 records: the pre-S18 gate (no MODULES row) they were made with
+    sys.path.insert(0, str(HERE / "vendor" / "s47"))
 sys.path.insert(0, str(HERE))
 import b3_ratings_gate as gate          # noqa: E402  (vendor copy of PS HEAD; BOM_CSV -> snap/default-HEAD.csv)
 import power_table as pt               # noqa: E402
@@ -66,10 +86,16 @@ def equivalence(data):
     """The snapshot run files must reproduce the s47 records: margins.json (HEAD) rows and the c47 monitor sweep."""
     res = gate.run(SNAP / "runs", {c: b for c, b in CASES.items()})
     head = json.loads((SNAP / "margins-HEAD.json").read_text())
-    assert set(head["board_sha256"].values()) == {S47_BOARD}
+    board = S47_BOARD
+    if ARGS.rebase:
+        board = data[REL][0]["board_sha256"]
+        assert all(data[c][0]["board_sha256"] == board for c in CASES), "rebase: run files from more than one board"
+    assert set(head["board_sha256"].values()) == {board}, (set(head["board_sha256"].values()), board)
     dmax, n = 0.0, 0
     for c, rows in head["cases"].items():
         new = {" ".join(r["item"].split()[:3]): r for r in res["cases"][c]}
+        if ARGS.rebase:
+            assert set(new) == {" ".join(r["item"].split()[:3]) for r in rows}, f"rebase: {c} row sets differ"
         for r in rows:
             q = new[" ".join(r["item"].split()[:3])]
             dmax, n = max(dmax, abs(q["est_c"] - r["est_c"]), abs(q["limit_c"] - r["limit_c"])), n + 1
@@ -79,10 +105,15 @@ def equivalence(data):
     for r in sw["sweep_unrated"] + sw["sweep_rated_le_105c"]:
         for c in (REL, C28):
             smax = max(smax, abs(pad(data, c, r["ref"]) - r["pad_est_c"][c]))
-    assert dmax <= 0.05 and smax <= 0.06, (dmax, smax)
-    return {"margins_rows": n, "margins_max_abs_diff_c": round(dmax, 3), "sweep_refs": len(sw["sweep_unrated"]) + len(sw["sweep_rated_le_105c"]),
-            "sweep_max_abs_diff_c": round(smax, 3), "run_board_sha256": data[REL][0]["board_sha256"], "s47_board_sha256": S47_BOARD,
-            "head_margins": head, "gate_rows": res}
+    assert dmax <= 0.05 and (ARGS.rebase or smax <= 0.06), (dmax, smax)
+    out = {"margins_rows": n, "margins_max_abs_diff_c": round(dmax, 3), "sweep_refs": len(sw["sweep_unrated"]) + len(sw["sweep_rated_le_105c"]),
+           "sweep_max_abs_diff_c": round(smax, 3), "run_board_sha256": data[REL][0]["board_sha256"], "s47_board_sha256": S47_BOARD,
+           "head_margins": head, "gate_rows": res}
+    if ARGS.rebase:
+        out["rebase"] = {"margins_board_sha256": board, "sweep_asserted": False,
+                         "note": "re-based run files (later B3 model); the c47 monitor sweep is the pre-S18 s47 record, so "
+                                 "sweep_max_abs_diff_c is the model's move, not an equivalence"}
+    return out
 
 
 def pad(data, c, ref):
@@ -168,7 +199,9 @@ def short_refs(refs):
 
 def render_md(res):
     import results_text as tx
-    L = [tx.HEAD.format(n=res["n_lines"], refs=res["n_refs"], **res["equivalence"]), ""]
+    eq = res["equivalence"]
+    L = [(tx.HEAD_REBASE if "rebase" in eq else tx.HEAD).format(n=res["n_lines"], refs=res["n_refs"],
+                                                                  board8=eq["run_board_sha256"][:8], **eq), ""]
     ls = res["lines"]
     f = lambda w: f"{w['ref']} {w['est_c']} / {w['limit_c']} C ({w['margin_k']:+.1f} K)"
     viol = [r for r in ls if r["release"]["margin_k"] < 0]

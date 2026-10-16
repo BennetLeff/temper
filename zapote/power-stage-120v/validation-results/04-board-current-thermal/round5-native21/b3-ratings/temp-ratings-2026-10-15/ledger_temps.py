@@ -31,6 +31,7 @@ HOME = "validation-results/04-board-current-thermal/round5-native21/b3-ratings/t
 MARGINS = "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json"
 SWEEP = "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
 TAG = "temp-ratings 2026-10-15"
+BOARD8 = "4139c87b"     # the s47 records; a re-based results.json (temp_ratings.py --rebase) names its own board
 REL, C28 = "c17.5_h10", "c28_h10"
 P_REL = "Local temperature, release case (c17.5_h10 @ 61 C)"
 P_C28 = "Local temperature, c28_h10 @ 55 C"
@@ -83,7 +84,7 @@ def build(rec, margins, sweep_refs):
                 s += f" + {w['extra_k']} K ({w['extra_basis']})"
         elif "element_c" in w:
             s += f"; body element {w['element_c']} C"
-        s += f"), {case} still air at bay {bay:g} C; worst of {len(rec['refs'])} ref(s); board s47 4139c87b"
+        s += f"), {case} still air at bay {bay:g} C; worst of {len(rec['refs'])} ref(s); board s47 {BOARD8}"
         return s
 
     st = [{"parameter": P_REL, "worst_case_value": rel["est_c"], "unit": "C", "condition": cond(rel, REL, 61),
@@ -154,6 +155,9 @@ def main():
     lp = Path(a.ledger).resolve()
     led = json.loads(lp.read_text())
     res = json.loads(Path(a.results).read_text())
+    global BOARD8
+    if "rebase" in res["equivalence"]:
+        BOARD8 = res["equivalence"]["rebase"]["margins_board_sha256"][:8] + " (S18 B3 model)"
     margins = json.loads(Path(a.margins).read_text())
     sw = json.loads(Path(a.sweep).read_text())
     sweep_refs = {r["ref"] for r in sw["sweep_unrated"] + sw["sweep_rated_le_105c"]}
