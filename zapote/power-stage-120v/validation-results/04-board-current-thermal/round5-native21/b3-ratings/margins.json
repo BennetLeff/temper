@@ -1992,13 +1992,6 @@
     "margin_k": 81.9
    },
    {
-    "item": "R117: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
-    "gated": false,
-    "limit_c": 154.9,
-    "est_c": 72.9,
-    "margin_k": 81.9
-   },
-   {
     "item": "R98: monitor divider, terminal derating at 0.0002 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
     "gated": false,
     "limit_c": 154.8,
@@ -2007,6 +2000,13 @@
    },
    {
     "item": "R116: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
+    "gated": false,
+    "limit_c": 154.9,
+    "est_c": 72.9,
+    "margin_k": 82.0
+   },
+   {
+    "item": "R117: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
     "gated": false,
     "limit_c": 154.9,
     "est_c": 72.9,
@@ -2120,9 +2120,9 @@
   ]
  },
  "board_sha256": {
-  "c17.5_h10": "4139c87b8a10b0110435d42ecc2751c19ff03b565056d8771d6e771a8e28d33c",
-  "c22_h10": "4139c87b8a10b0110435d42ecc2751c19ff03b565056d8771d6e771a8e28d33c",
-  "c28_h10": "4139c87b8a10b0110435d42ecc2751c19ff03b565056d8771d6e771a8e28d33c"
+  "c17.5_h10": "63aba33faa9ac2cfe30b333e56dfbe9a2408cdaf0fddf084663f5d199e82af69",
+  "c22_h10": "63aba33faa9ac2cfe30b333e56dfbe9a2408cdaf0fddf084663f5d199e82af69",
+  "c28_h10": "63aba33faa9ac2cfe30b333e56dfbe9a2408cdaf0fddf084663f5d199e82af69"
  },
  "metrics": {
   "b3_laminate_margin_K": -51.1,
