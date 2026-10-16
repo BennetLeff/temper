@@ -1100,7 +1100,7 @@
    "why": "dated studies under b3-ratings (audit, line-hold, refine): run_basis.py imports none of them"
   },
   {
-   "glob": "validation-results/04-board-current-thermal/round5-native21/b3-convergence/{thermal_body,body_runs}.py",
+   "glob": "validation-results/04-board-current-thermal/round5-native21/b3-convergence/{thermal_body,body_runs,thermal_multigrid}.py",
    "class": "input",
    "steps": [
     "b3_ratings"
@@ -1116,7 +1116,7 @@
   {
    "glob": "validation-results/04-board-current-thermal/round5-native21/b3-convergence/**",
    "class": "not_read",
-   "why": "convergence study scripts and results; run_basis.py imports only thermal_body / body_runs"
+   "why": "convergence study scripts and results; run_basis.py imports only thermal_body / body_runs (and thermal_body the multigrid preconditioner, thermal_multigrid)"
   },
   {
    "glob": "validation-results/04-board-current-thermal/round5-native21/{stage15b,stage17-r5,h10-stall,r5-derating}/**",
