@@ -13,6 +13,15 @@ Base: zapote/rtd/unit/bind_native.py. Differences, and only these:
      envelope, changing ONLY ``source_hashes.board_sha256`` to the hash of the
      board being validated. Rust re-derives and decides qualification itself;
      the receipt still binds the unit source manifest and the model bytes.
+  3. ``--deviations FILE`` (DECISIONS C37; rtd-deviations-c37.json) declares
+     controller parts that the unit does not have (``extra_instances``), MPNs
+     that differ from the unit (``mpn``: unit and controller MPN) and pads on a
+     different net (``pad_nets``: unit and controller net). Only the binder's
+     ABORT gates accept exactly these: a declared extra must be on the board,
+     a declared MPN / net must be exactly the observed one and the unit's one
+     exactly the source's, and any undeclared difference still aborts. The
+     native export, ``source_components`` and ``source_bindings`` go to Rust
+     unchanged (unit values), so Rust still reports every deviation.
 Everything else is unchanged. Original docstring:
 
 Bind a source-derived native RTDUnit export to an immutable Rust input.
@@ -49,8 +58,13 @@ def main() -> None:
     parser.add_argument("--binary", type=Path)
     parser.add_argument("--absent-instance", action="append", default=[])
     parser.add_argument("--qualified-input", type=Path)
+    parser.add_argument("--deviations", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    deviations = json.loads(args.deviations.read_text()) if args.deviations else {}
+    dev_extra = set(deviations.get("extra_instances", {}))
+    dev_mpn = deviations.get("mpn", {})
+    dev_pad = {tuple(key.rsplit(".", 1)): value for key, value in deviations.get("pad_nets", {}).items()}
     profile_bytes = args.profile.read_bytes()
     native_bytes = args.native.read_bytes()
     profile = json.loads(profile_bytes)
@@ -100,6 +114,18 @@ def main() -> None:
     native_components = {
         item.get("id"): item.get("mpn") for item in native.get("components", [])
     }
+    if deviations:
+        stale = sorted(dev_extra - set(native_components)) + sorted(dev_extra & set(expected_components))
+        for instance, dev in dev_mpn.items():
+            if expected_components.get(instance) != dev["unit"] or native_components.get(instance) != dev["controller"]:
+                stale.append(instance)
+        if stale:
+            raise SystemExit("declared deviations do not match the board/source: " + json.dumps(stale))
+        expected_components = dict(expected_components)
+        for instance in dev_extra:
+            expected_components[instance] = native_components[instance]
+        for instance, dev in dev_mpn.items():
+            expected_components[instance] = dev["controller"]
     if native_components != expected_components:
         raise SystemExit(
             "native/source compiled component census differs: "
@@ -137,7 +163,12 @@ def main() -> None:
         (c["id"], str(p["pad"])): p["net"]
         for c in native["components"] for p in c.get("footprint_pads", [])
     }
-    observed_source = observed
+    observed_source = {key: net for key, net in observed.items() if key[0] not in dev_extra}
+    for key, dev in dev_pad.items():
+        if expected.get(key) != dev["unit"] or observed_source.get(key) != dev["controller"]:
+            raise SystemExit("declared pad/net deviation does not match the board/source: " + json.dumps(list(key)))
+    expected_gate = dict(expected)
+    expected_gate.update({key: dev["controller"] for key, dev in dev_pad.items()})
     if observed_source.keys() != expected.keys():
         missing_pads = sorted(expected.keys() - observed_source.keys())
         extra_pads = sorted(observed_source.keys() - expected.keys())
@@ -145,7 +176,7 @@ def main() -> None:
             "native/source compiled pad set differs: "
             + json.dumps({"missing": missing_pads, "extra": extra_pads}, sort_keys=True)
         )
-    for key, expected_net in expected.items():
+    for key, expected_net in expected_gate.items():
         if observed_source[key] != expected_net:
             raise SystemExit("native pad/net does not match compiled source binding: " + json.dumps({"instance_id": key[0], "pad": key[1], "net": expected_net}, sort_keys=True))
     model = json.loads(args.model.read_text())

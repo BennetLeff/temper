@@ -1,0 +1,36 @@
+{
+  "schema": "temper.controller.rtd-declared-deviations.v1",
+  "purpose": "Declared controller deviations from the RTD unit that bind_controller_rtd.py --deviations lets past its census / MPN / pad-net ABORT gates. The native export goes to Rust unchanged, so the Rust validator still sees and judges every one of them (WAIVERS.md W6, W7). A declaration the board no longer matches aborts the binder, so stale declarations are not accepted silently.",
+  "extra_instances": {
+    "rtd_pan.r_s1p": "C37: sense_p first-stage series 1.00 k (two-stage differential RC)",
+    "rtd_pan.r_s1n": "C37: sense_n first-stage series 1.00 k",
+    "rtd_pan.c_s1": "C37: first-stage differential 100 nF C0G 1206",
+    "rtd_pan.r_s2p": "C37: sense_p second-stage series 1.00 k",
+    "rtd_pan.r_s2n": "C37: sense_n second-stage series 1.00 k",
+    "rtd_pan.c_cm_p": "C37: 1 nF C0G RTDIN+ to selv_gnd",
+    "rtd_pan.c_cm_n": "C37: 1 nF C0G RTDIN- to selv_gnd",
+    "rtd_pan.c_j_fp": "C37: 220 nF on J3.1 (force+)",
+    "rtd_pan.c_j_sp": "C37: 220 nF on J3.2 (sense+)",
+    "rtd_pan.c_j_sn": "C37: 220 nF on J3.3 (sense-)",
+    "rtd_pan.c_j_fn": "C37: 220 nF on J3.4 (force-)",
+    "rtd_pan.d_j_fp": "C37: ESD5Z3.3T1G on J3.1",
+    "rtd_pan.d_j_sp": "C37: ESD5Z3.3T1G on J3.2",
+    "rtd_pan.d_j_sn": "C37: ESD5Z3.3T1G on J3.3",
+    "rtd_pan.d_j_fn": "C37: ESD5Z3.3T1G on J3.4",
+    "rtd_pan.c_window": "C37: 10 nF C0G on the window comparator node"
+  },
+  "mpn": {
+    "rtd_pan.r_avdd_top": {"unit": "ERA-3AEB1652V", "controller": "RT0603BRD0716K5L", "reason": "C35/C36 sourcing swap, same 16.5 k 0.1 % 25 ppm 0603 (W6)"},
+    "rtd_pan.c_rtd_input": {"unit": "C0603C102J5GACTU", "controller": "GRM31C5C1H104JA01L", "reason": "C37: the RTDIN differential cap is the second filter stage, 100 nF C0G 1206"},
+    "rtd_pan.r_rtdin_p_bias": {"unit": "RC0603JR-071ML", "controller": "RC0603FR-07499KL", "reason": "C37: open-input pull-up 499 k on the connector side"},
+    "rtd_pan.r_rtdin_n_bias": {"unit": "RC0603JR-071ML", "controller": "RC0603FR-07499KL", "reason": "C37: open-input pull-up 499 k on the connector side"}
+  },
+  "pad_nets": {
+    "rtd_pan.j_rtd1.2": {"unit": "rtd_sense_p", "controller": "rtd_sense_p_ext", "reason": "C37: J3.2 reaches RTDIN+ through the two-stage filter"},
+    "rtd_pan.j_rtd1.3": {"unit": "rtd_sense_n", "controller": "rtd_sense_n_ext", "reason": "C37: J3.3 reaches RTDIN- through the two-stage filter"},
+    "rtd_pan.r_window_sense_p.1": {"unit": "rtd_sense_p", "controller": "rtd_sense_p_ext", "reason": "C37/C38: window branch taps J3.2"},
+    "rtd_pan.r_low_bottom.2": {"unit": "rtd_sense_n", "controller": "rtd_sense_n_ext", "reason": "C37/C38: low-window return on J3.3"},
+    "rtd_pan.r_rtdin_p_bias.1": {"unit": "rtd_sense_p", "controller": "rtd_sense_p_ext", "reason": "C37: pull-up on the connector side"},
+    "rtd_pan.r_rtdin_n_bias.1": {"unit": "rtd_sense_n", "controller": "rtd_sense_n_ext", "reason": "C37: pull-up on the connector side"}
+  }
+}

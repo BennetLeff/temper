@@ -88,7 +88,7 @@ run_th controller-thermal "$WORK/thermal-native.json"
 filter rtd_pan "$Z/rtd/unit/candidate" rtd_pan
 rtd_native "$WORK/rtd_pan.kicad_pcb" "$WORK/rtd_pan-native.json"
 rtd_bind "$WORK/rtd_pan-native.json" "$WORK/rtd_pan.kicad_pcb" "$HERE/profile-controller.json" "$WORK/rtd_pan-input.json" \
-  --firmware-pins "$HERE/controller_pins.h" --absent-instance unit_io
+  --firmware-pins "$HERE/controller_pins.h" --absent-instance unit_io --deviations "$HERE/rtd-deviations-c37.json"
 run_rtd controller-rtd "$WORK/rtd_pan-input.json"
 
 echo "== informative (not the verdict): RTD with the controller's own layer roles (DECISIONS C34)"
@@ -97,7 +97,7 @@ echo "== informative (not the verdict): RTD with the controller's own layer role
 # (clock return gnd In2.Cu, +3V3 B.Cu). It shows what the two "zone absent" indeterminates of the
 # verdict run hide; see WAIVERS.md.
 rtd_bind "$WORK/rtd_pan-native.json" "$WORK/rtd_pan.kicad_pcb" "$HERE/profile-controller-roles.json" "$WORK/rtd_pan-roles-input.json" \
-  --firmware-pins "$HERE/controller_pins.h" --absent-instance unit_io
+  --firmware-pins "$HERE/controller_pins.h" --absent-instance unit_io --deviations "$HERE/rtd-deviations-c37.json"
 run_rtd informative-controller-rtd-layer-roles "$WORK/rtd_pan-roles-input.json"
 
 echo "== negative controls on the filtered controller exports"
@@ -119,15 +119,15 @@ run_th negative-thermal-swap-hs_bypass-pad1-to-COIL_REF "$WORK/neg-th2.json"
 filter rtd_pan "$Z/rtd/unit/candidate" neg-rtd-drop-bypass --drop-footprint rtd_pan.c_dvdd
 rtd_native "$WORK/neg-rtd-drop-bypass.kicad_pcb" "$WORK/neg-rtd1-native.json"
 rtd_bind "$WORK/neg-rtd1-native.json" "$WORK/neg-rtd-drop-bypass.kicad_pcb" "$HERE/profile-controller.json" "$WORK/neg-rtd1-input.json" \
-  --firmware-pins "$HERE/controller_pins.h" --absent-instance unit_io --absent-instance rtd_pan.c_dvdd
+  --firmware-pins "$HERE/controller_pins.h" --absent-instance unit_io --deviations "$HERE/rtd-deviations-c37.json" --absent-instance rtd_pan.c_dvdd
 run_rtd negative-rtd-drop-c_dvdd-declared-absent "$WORK/neg-rtd1-input.json"
 rtd_bind "$WORK/neg-rtd1-native.json" "$WORK/neg-rtd-drop-bypass.kicad_pcb" "$HERE/profile-controller.json" "$WORK/neg-rtd1b-input.json" \
-  --firmware-pins "$HERE/controller_pins.h" --absent-instance unit_io > "$RES/negative-rtd-drop-c_dvdd-binder-abort.txt" 2>&1
+  --firmware-pins "$HERE/controller_pins.h" --absent-instance unit_io --deviations "$HERE/rtd-deviations-c37.json" > "$RES/negative-rtd-drop-c_dvdd-binder-abort.txt" 2>&1
 echo "binder exit: $?" >> "$RES/negative-rtd-drop-c_dvdd-binder-abort.txt"
 filter rtd_pan "$Z/rtd/unit/candidate" neg-rtd-swap-net --swap-pad-net rtd_pan.c_dvdd:1:gnd
 rtd_native "$WORK/neg-rtd-swap-net.kicad_pcb" "$WORK/neg-rtd2-native.json"
 rtd_bind "$WORK/neg-rtd2-native.json" "$WORK/neg-rtd-swap-net.kicad_pcb" "$HERE/profile-controller.json" "$WORK/neg-rtd2-input.json" \
-  --firmware-pins "$HERE/controller_pins.h" --absent-instance unit_io > "$RES/negative-rtd-swap-c_dvdd-pad1-to-gnd-binder-abort.txt" 2>&1
+  --firmware-pins "$HERE/controller_pins.h" --absent-instance unit_io --deviations "$HERE/rtd-deviations-c37.json" > "$RES/negative-rtd-swap-c_dvdd-pad1-to-gnd-binder-abort.txt" 2>&1
 echo "binder exit: $?" >> "$RES/negative-rtd-swap-c_dvdd-pad1-to-gnd-binder-abort.txt"
 
 ( cd "$WORK" && shasum -a 256 *.kicad_pcb *native*.json *input*.json 2>/dev/null ) > "$OUT/intermediates.sha256"
