@@ -15,6 +15,7 @@
 idf_component_register(
     SRCS
         "pan_temp_estimator.c"
+        "contact_shift.c"
         "plant_gain.c"
         "pan_rate_pid.c"
         "contact_check.c"

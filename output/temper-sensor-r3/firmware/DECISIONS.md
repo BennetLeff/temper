@@ -105,18 +105,19 @@ all exactly as in screen.py. The constants are in `cc_params_t`.
     false restores and T_c up to SP + 15.22 K;
   - the firmware rules detected all 80 losses, with 0 false restores and
     0 false latches in 60 food, 80 nominal and 160 probe-on-intact-contact
-    runs, and T_c ≤ SP + 11.88 K.
+    runs, and T_c ≤ SP + 6.43 K (11.88 K before the contact-shift window,
+    D-CSW).
 
 ## D-B5. The B5 stretch (≤ 15 s confirm) is not adopted
 
 The candidate was a 3/6/3 s first probe at 60 %, with a 1.5 s lag.
-- It confirmed in ≤ 16.2 s.
+- It confirmed in ≤ 15.4 s (16.2 s before D-CSW).
 - It latched falsely in 40 of 160 probe-on-intact-contact runs
   (`b5-montecarlo.json`).
 
 The default stays at 5/8/5 s, 50 %. The ≤ 21 s confirm bar is met on screen.py's
-seeds: 20.6 s worst. Across 20 seeds the water pot takes up to 4.2 s to suspect
-and up to 22.2 s to confirm. This is reported, not gated: its probe response is
+seeds: 20.9 s worst. Across 20 seeds the water pot takes up to 3.4 s to suspect
+and up to 21.4 s to confirm (4.2 s and 22.2 s before D-CSW). This is reported, not gated: its probe response is
 only 0.12 K/kJ, an SNR limit.
 
 ## D-RATE. Rate fault = spike or sustained slew, not one fast step
@@ -743,6 +744,104 @@ Results:
   So the cross-check as specified (D-XCHK: suspect → probe) does not stop
   leakage. See open item 10.
 
+## D-CSW. Contact-shift window: re-estimate the contact after an abrupt change
+
+Open item 9: a mid-cook h_c drop made the fixed-contact KF read low by the
+change in its static offset, and the loop over-heated the pan by up to
+13.09 K. Coil power cannot identify absolute h_c (sensor-r2), but it can
+identify a **step**: the cartridge re-settles in 0.2–3.5 s while the pan
+cannot change its rate unless the power changes.
+
+`contact_shift.{c,h}` (Python reference `../robustness/shift_kf.py`):
+- **Trigger** (D1 NORMAL, no sensor fault, ≥ 30 s after start, > 20 s after
+  the last window): the reading's slope over the last 1.5 s minus its slope
+  over the 3 s before is below −0.6 K/s (DOWN), or above +0.6 K/s while the
+  model contact is below 0.95 h_nom (UP); and no 1 s block of applied power in
+  the last 8 s is more than 10 % P_max below (DOWN) / above (UP) the mean of
+  the 8 s before. A power change explains a change of rate; a contact change
+  does not.
+- **Window:** the KF state from 2.5 s ago is replayed as a 5-state EKF
+  [T_pan, v, T_cap, T_el, ln G] in double. The pan is pinned (T from the
+  snapshot, sd 0.1 K; v from the reading slope over the 5 s before, sd
+  0.03 K/s). ln G (sd 1.0) is clamped to [ln G_floor (150 W/m²K), ln G_old]
+  for DOWN, [ln G_old, ln G_nom] for UP. While open, its T̂ is the loop's T̂.
+  The base KF runs on underneath.
+- **Close:** ESCALATE when ln G reaches the floor (a fall faster than any
+  partial contact: loss or real cooling). The loop requests a D1 probe and
+  keeps the old contact. ACCEPT after ≥ 4 s (8 s when the loop was steady at
+  its setpoint), with ln G settled (< 0.04 over 2 s), a change ≥ 25 % and
+  sd ≤ 0.2 (or an UP estimate at nominal). The estimator takes the window's
+  state and the contact exp(ln G − 1 sd): the lower side, because a contact
+  assumed too good reads low and over-heats. REVERT at 12 s or when the gate
+  drops.
+- **Loop wiring** (`pan_temp_loop.c`): the gate is D1 NORMAL and no fault;
+  "steady" is sp_eff ≥ SP and |T̂ − SP| < 3 K for 10 s. ESCALATE requests a
+  D1 probe. D1 RESTORED (a new seating after a loss) resets the contact to
+  nominal. Any window event ends the a-identification phase.
+- **Cost:** ~5 kB of state, double math only inside a window (≤ 12 s).
+
+Evidence (`../robustness/DECISIONS.md` R-A): four candidates in the Python
+screen (power cap, an immediate D1 probe, a power-frozen window, the window).
+Only the window fixes the static error. In the C co-sim, 64 steps per gain
+mode, before → after:
+- B2: 36/36/39 → 64/64/64;
+- worst overshoot: 12.83/13.14/13.14 → 4.95/5.00/4.72 K;
+- B1 (3 K): 11/11/10 → 49/49/45;
+- D1 probes: 31/32/30 → 1/2/1.
+The cases nearest the 5 K bar are water-pot steps the window cannot see; they
+are unchanged.
+
+Effects on the gated co-sim (`cosim-results.json`, all bars still pass):
+- **Loss:** T_c − SP 11.65–12.04 → 6.72–6.94 K, because T̂ no longer chases
+  the falling reading. The suspect time moves from 2.5–2.6 to 2.7–2.9 s:
+  0.1 s margin to the 3 s bar in id_measured.
+- **Original h_step cases:** 1000 → 300 overshoot 9.88–13.09 → 1.93–4.21 K.
+  The 300 → 3000 cases still overshoot 5.65–7.08 K, unchanged: that is the
+  first ramp at h_c 300 from the start, before the step.
+- **Stress:** B1 8/12 → 6–7/12, reported. A window opened without a contact
+  change on carbon steel at 3000 W/m²K and, in id_measured, accepted
+  585 W/m²K: the hold ran 3.66 K cool. A false DOWN acceptance errs cool.
+
+The co-sim shadow is now `shift_kf.ShiftKF`, fed C's gate and steady flag.
+Parity: worst 1.3e-4 K rms here, 2.2e-4 K rms in `hc-cosim.json`, against a
+bar of 0.05 K. Unit tests in `test_pan_temp_loop_only`:
+- an abrupt drop is accepted within 30 % of the truth;
+- a power cut vetoes the trigger;
+- contact loss escalates;
+- the gate reverts the window, and reset returns the contact to nominal.
+
+## D-LPG. Latent-plateau guard with an energy budget, in the rate PID
+
+Water trapped in the bore boils under the pan centre and pins the reading
+near 100 °C. The PID then holds full power while the annulus runs away. In
+the Python screen, 5 of 54 water cases exceeded SP + 15 K (up to +27 K).
+Before this change the runaway supervisor latched only after that
+(`../robustness/hc-cosim.json` before).
+
+`pan_rate_pid.c`:
+- **Condition:** T̂ in 95–118 °C, the least-squares slope of the previous
+  100 T̂ within ±0.15 K/s, and SP − T̂ > 5 K.
+- **Action:** limit the PID to 0.2 K/s / a, once the budget is spent.
+- **Budget:** a·E ≥ SP − T̂. E is the PID output energy since T̂ entered the
+  band from below. That is the energy to take the whole pan to the setpoint,
+  enough to boil the pocket off by heating the pan around it.
+- **Entering from above:** the reading fell into the band, so the pan was
+  hotter than T̂. There is no budget.
+
+Without the budget, the plain cap held a clad pan at ~100 °C for 480 s with
+the pocket intact (hold −105 K). With it, the worst under-temperature is
+−6.64 K.
+
+Results, water cases, C co-sim:
+- 54/54 stay ≤ SP + 15 K in every gain mode, worst SP + 6.05 K;
+- before this change: 49–51/54, worst SP + 29.14 K;
+- 0 D1 latches and 0 supervisor latches.
+
+The pan mean still reaches SP + 22 K; the B5 line is on T_c. A deglaze above
+105 °C gets the budget, then the cap, until the liquid boils off. Both are
+open items in `../robustness/DECISIONS.md` R-C. The design, nominal, food,
+stress and probe-on-intact runs are unchanged by the guard.
+
 ## Open items for the firmware owner
 
 1. **The ESP-IDF target links** (resolved 2026-10-15, branch
@@ -845,9 +944,13 @@ Results:
 8. **Hot-pan starts run on the prior.** a is never identified (no updates,
    src_mask 0), so a0 is used. For cast iron that is 2.34 × a_true. B1–B3
    still pass.
-9. **h_c steps are reported, not gated:** B1 0/4, B2 0/4, overshoot up to
-   13.09 K for 1000 → 300 (`cosim-results.json` h_step). C1 no longer latches
-   on them (D-RUN).
+9. **h_c steps: closed by D-CSW / D-LPG.** Was: B1 0/4, B2 0/4, overshoot up to
+   13.09 K for 1000 → 300. Now gated on 64 steps in three gain modes
+   (`../robustness/hc-cosim.json`, bars R-HS1–5): B2 64/64, worst 5.00 K;
+   the original case is 4.21 K. What remains open is in
+   `../robustness/DECISIONS.md` R-C: gradual contact loss (warp, a stuck post
+   with pan bow) is not observable by the window or D1, and needs the rim
+   cross-check or the mechanical margin.
 10. **Element-parallel leakage is not stopped by firmware (safety owner).**
     In `xcheck-cosim.json`:
     - 1 kΩ drives the pan to SP + 121.9 K;

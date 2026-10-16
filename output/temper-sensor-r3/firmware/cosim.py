@@ -17,13 +17,17 @@ Gain modes (how the controller and D1 get a = eta / C_total):
 Cases: the 16 C1 design cases and 12 stress cases of screen.py (same seeds),
 loss / food / nominal D1 runs (same seeds), a probe forced on intact contact
 in both holds (4 pans x both h_c extremes), a preheated pan placed on the hob,
-and h_c steps 1000->300 and 300->3000 at 250 s. D1 is ON in every run
+and h_c steps 1000->300 and 300->3000 at 250 s (the gated 64-case h_c-step set
+and the oil / water / crud cases run through run_case from
+../robustness/hc_cosim.py). D1 is ON in every run
 (production configuration), and so is the runtime runaway supervisor
 (pan_supervisor.c: R1 sustained-rise latch, R2 stage 1 forcing the command to
 0 above sp + 10 K, stage 2a/2b latches; bus current = P/120 V): no run may
 latch it (DECISIONS.md D-RUN; runaway_checks.py covers the fault scenarios). Seed-to-seed robustness of D1 is in
-b5_montecarlo.py. A Python double-precision shadow KF with the same
-constants as the C filter runs on the identical readings for the parity bar.
+b5_montecarlo.py. A Python double-precision shadow of the estimator with the
+same constants (../robustness/shift_kf.py: the KF plus the contact-shift
+window, DECISIONS.md D-CSW), fed the identical readings, power and the C
+loop's window gate, runs alongside for the parity bar.
 
 Run: python cosim.py [--lib path] [--out cosim-results.json]
 """
@@ -45,11 +49,16 @@ sys.path.insert(0, str(HERE))
 import ref  # noqa: E402
 from ref import es, screen  # noqa: E402
 
+sys.path.insert(0, str(HERE.parent / "robustness"))
+from shift_kf import ShiftKF  # noqa: E402
+
 LIB = None
 LIB_PATH = str(HERE / "build" / "libpantemp.so")
 OUT = ["t_hat", "p_cmd", "p_pid", "a", "a_valid", "sp_eff", "cc_state", "cc_event", "fault", "diag", "ui", "src_mask",
        "d", "d_exp", "decay_rms", "decay_change"]
-CC_EVT_SUSPECT, CC_EVT_LOST = 1, 3
+CS_OUT = ["event", "window", "h_model", "lpg", "allow", "steady", "windows", "accepts", "escalations"]
+CS_EVT = {1: "open_down", 2: "open_up", 3: "accept", 4: "revert", 5: "escalate"}
+CC_EVT_SUSPECT, CC_EVT_LOST, CC_EVT_RESTORED = 1, 3, 4
 LOSS_T, FOOD_T, HSTEP_T = 250.0, 250.0, 250.0
 
 # Firmware defaults for the cartridge (pte_default_params). The truth plant is
@@ -69,6 +78,7 @@ def lib():
         L.sim_start.argtypes = [ctypes.c_void_p, ctypes.c_double]
         L.sim_start.restype = ctypes.c_int
         L.sim_request_probe.argtypes = [ctypes.c_void_p]
+        L.sim_cs_stats.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_double)]
         L.sim_step.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double,
                                ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_double)]
         L.sup_start.argtypes = [ctypes.c_void_p]
@@ -87,12 +97,19 @@ def deliver(p_cmd, power_mode):
     return p_cmd
 
 
-def run_case(case):
-    """One closed-loop run. case: dict(kind, pan, h, eta, seed, gain, [loss_at, food_at, h_step, T_hot, params])."""
+def run_case(case, truth_factory=None, h_profile=None):
+    """One closed-loop run. case: dict(kind, pan, h, eta, seed, gain, [loss_at, food_at, h_step, T_hot, params]).
+    truth_factory(pan, h0, eta, seed, food_at) replaces the dry truth plant (contaminant
+    truths, which may expose set_time() and reading()); h_profile(t, h0) gives a time-varying
+    true contact. Returns the row; with case["return_log"] also the log array."""
     L_ = lib()
     screen.apply(ref.C1)
     pan = es.PANS[case["pan"]]
-    tr = ref.HotTruth(pan, case["h"], case["eta"], case["seed"], food_at=case.get("food_at"), T_hot=case.get("T_hot"))
+    if truth_factory is not None:
+        tr = truth_factory(pan, case["h"], case["eta"], case["seed"], case.get("food_at"))
+    else:
+        tr = ref.HotTruth(pan, case["h"], case["eta"], case["seed"], food_at=case.get("food_at"),
+                          T_hot=case.get("T_hot"))
     rng = np.random.default_rng(case["seed"] + 1)
     sp1, sp2 = pan["sp"]
     a_true = case["eta"] / (tr.C.sum() + tr.Cw)
@@ -114,7 +131,12 @@ def run_case(case):
     sup_out = (ctypes.c_double * 3)()
     sup_latch = r1_trip = None
     force_zero_steps = 0
-    shadow = ref.KFRef(es.T_AMB, screen.NOISE, k_fw)
+    prm = case.get("params", {})
+    shadow = ShiftKF(es.T_AMB, k_fw, sigma=screen.NOISE, cs_enable=bool(prm.get("csw", 1)),
+                     cs_up=bool(prm.get("csw_up", 1)))
+    cs = (ctypes.c_double * len(CS_OUT))()
+    cs_events = []
+    lpg_steps = 0
 
     out = (ctypes.c_double * len(OUT))()
     P_cmd = 0.0
@@ -135,19 +157,31 @@ def run_case(case):
             h_now = 2.0
         if case.get("h_step") is not None and t >= case["h_step"][0]:
             h_now = case["h_step"][1]
+        if h_profile is not None:
+            h_now = h_profile(t, case["h"])
+        if hasattr(tr, "set_time"):
+            tr.set_time(t)
         if k in force_ticks:
             L_.sim_request_probe(h)
         P_true = deliver(P_cmd, power_mode)
         for _ in range(n_sub):
             tr.step(P_true, h_now)
-        y = tr.Tel + screen.NOISE * rng.standard_normal()
+        y = (tr.reading() if hasattr(tr, "reading") else tr.Tel) + screen.NOISE * rng.standard_normal()
         ntc = tr.sink() + es.NTC_BIAS
         sp = sp1 if t + es.DT_CTRL < es.SP_STEP_T else sp2
         p_applied = P_true if power_mode == "measured" else P_cmd
         src = 0 if power_mode == "measured" else 1
         L_.sim_step(h, y, ntc, sp, p_applied, src, 1, 1, 0, out)
         o = dict(zip(OUT, out))
-        shadow_d.append(o["t_hat"] - shadow.step(y, (P_cmd, ntc)))
+        L_.sim_cs_stats(h, cs)
+        c = dict(zip(CS_OUT, cs))
+        t_sh, _ = shadow.step(y, ntc, p_applied, allow=bool(c["allow"]), steady=bool(c["steady"]))
+        if o["cc_event"] == CC_EVT_RESTORED:
+            shadow.reset_contact()
+        shadow_d.append(o["t_hat"] - t_sh)
+        if c["event"]:
+            cs_events.append((round(t, 1), CS_EVT[int(c["event"])], round(c["h_model"])))
+        lpg_steps += int(c["lpg"])
         if y_prev is not None:
             max_rise_rate = max(max_rise_rate, (y - y_prev) / es.DT_CTRL)
         y_prev = y
@@ -175,7 +209,7 @@ def run_case(case):
         if sup_out[1] and sup_latch is None:
             sup_latch = (round(t, 1), int(sup_out[1]))
         a_log.append((o["a"] / a_true, o["a_valid"], o["src_mask"]))
-        log_.append((t + es.DT_CTRL, sp, o["t_hat"], tr.T_c(), tr.T_mean(), y, P_cmd, h_now, float("nan")))
+        log_.append((t + es.DT_CTRL, sp, o["t_hat"], tr.T_c(), tr.T_mean(), y, P_cmd, h_now, c["h_model"]))
     L_.sim_free(h)
 
     L = np.array(log_)
@@ -191,7 +225,9 @@ def run_case(case):
            "a_valid_end_ramp1": bool(A[min(max(i_end1, 0), len(A) - 1), 1]),
            "a_ratio_end": round(float(A[-1, 0]), 3), "a_src_mask_end": int(A[-1, 2]),
            "shadow_rms_K": float(np.sqrt(np.mean(sd**2))), "shadow_max_K": float(np.abs(sd).max()),
-           "sup_latch": sup_latch, "r1_trip": r1_trip, "sup_force_zero_s": round(force_zero_steps * es.DT_CTRL, 1)}
+           "sup_latch": sup_latch, "r1_trip": r1_trip, "sup_force_zero_s": round(force_zero_steps * es.DT_CTRL, 1),
+           "cs_events": cs_events[:12], "cs_windows": int(cs[6]), "cs_accepts": int(cs[7]),
+           "cs_escalations": int(cs[8]), "h_model_end": round(float(L[-1, 8])), "lpg_s": round(lpg_steps * es.DT_CTRL, 1)}
     sp_hi = pan["sp"][1]
     b3_lim = 1.5 if sp_hi <= 100 else 3.0
     kind = case["kind"]
@@ -204,6 +240,8 @@ def run_case(case):
         row["B5_confirm_s"] = None if detected_at is None else round(detected_at - case["loss_at"], 1)
         row["B5_Tc_over_sp_K"] = m["Tc_max_over_sp_after_loss_K"]
     row["false_latch"] = kind != "loss" and detected_at is not None
+    if case.get("return_log"):
+        return row, L
     return row
 
 

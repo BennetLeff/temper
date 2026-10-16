@@ -16,21 +16,21 @@
    "runs_with_xcheck_suspect": 2,
    "xcheck_suspects": 2,
    "worst_est_err_K_nominal": 1.96,
-   "worst_est_err_K_food": 9.92,
+   "worst_est_err_K_food": 13.13,
    "xcheck_suspect_runs": [
     [
      "food",
      "cast_iron_26",
      12.0,
      "hot",
-     299.9
+     299.0
     ],
     [
      "food",
      "cast_iron_26",
      12.0,
      "cold",
-     299.8
+     299.0
     ]
    ]
   },
@@ -38,21 +38,21 @@
    "runs": 16,
    "xcheck_detected": 7,
    "xcheck_first_after_leak_s": [
-    208.3,
     232.9,
-    235.0,
+    249.3,
+    251.0,
     251.9,
-    257.7,
+    283.0,
     289.7,
     291.7
    ],
-   "d1_lost_latches": 4,
+   "d1_lost_latches": 0,
    "worst_Tc_over_sp_after_leak_K": 121.9,
    "glass_reaches_cr5_band_low": 6,
-   "glass_reaches_cr5_band_top": 4,
+   "glass_reaches_cr5_band_top": 5,
    "worst_Tc_over_sp_after_leak_K_by_r_leak": {
     "1000": 121.9,
-    "3000": 35.4
+    "3000": 35.8
    }
   }
  },
@@ -101,7 +101,7 @@
    "rim_valid_frac": 0.755,
    "Tc_max_C": 196.3,
    "glass_max_C": 174.4,
-   "est_err_c_max_K": 9.92
+   "est_err_c_max_K": 9.88
   },
   {
    "kind": "nominal",
@@ -140,7 +140,7 @@
    "rim_valid_frac": 0.745,
    "Tc_max_C": 196.2,
    "glass_max_C": 174.2,
-   "est_err_c_max_K": 9.6
+   "est_err_c_max_K": 9.57
   },
   {
    "kind": "leak",
@@ -151,18 +151,18 @@
    "corner": "cold",
    "r_leak": 1000.0,
    "xcheck_suspects": 3,
-   "xcheck_first_s": 485.0,
+   "xcheck_first_s": 499.3,
    "d1_probes": 4,
    "d1_lost_at": null,
    "guard_fault": null,
    "rim_fault": null,
    "sup_latch": null,
    "rim_valid_frac": 0.745,
-   "Tc_max_C": 323.1,
-   "glass_max_C": 300.9,
+   "Tc_max_C": 323.4,
+   "glass_max_C": 301.8,
    "est_err_c_max_K": 1.89,
-   "Tc_over_sp_after_leak_K": 113.1,
-   "xcheck_first_after_leak_s": 235.0,
+   "Tc_over_sp_after_leak_K": 113.4,
+   "xcheck_first_after_leak_s": 249.3,
    "glass_reaches_cr5_band": true
   },
   {
@@ -222,10 +222,10 @@
    "guard_fault": null,
    "rim_fault": null,
    "sup_latch": null,
-   "rim_valid_frac": 0.412,
-   "Tc_max_C": 195.8,
-   "glass_max_C": 139.7,
-   "est_err_c_max_K": 9.38
+   "rim_valid_frac": 0.411,
+   "Tc_max_C": 195.7,
+   "glass_max_C": 139.6,
+   "est_err_c_max_K": 9.35
   },
   {
    "kind": "nominal",
@@ -261,10 +261,10 @@
    "guard_fault": null,
    "rim_fault": null,
    "sup_latch": null,
-   "rim_valid_frac": 0.371,
+   "rim_valid_frac": 0.37,
    "Tc_max_C": 195.7,
-   "glass_max_C": 139.6,
-   "est_err_c_max_K": 9.55
+   "glass_max_C": 139.5,
+   "est_err_c_max_K": 10.21
   },
   {
    "kind": "leak",
@@ -283,7 +283,7 @@
    "sup_latch": null,
    "rim_valid_frac": 0.678,
    "Tc_max_C": 322.6,
-   "glass_max_C": 267.2,
+   "glass_max_C": 267.1,
    "est_err_c_max_K": 1.8,
    "Tc_over_sp_after_leak_K": 112.6,
    "xcheck_first_after_leak_s": 251.9,
@@ -305,10 +305,10 @@
    "rim_fault": null,
    "sup_latch": null,
    "rim_valid_frac": 0.677,
-   "Tc_max_C": 243.3,
+   "Tc_max_C": 243.4,
    "glass_max_C": 194.5,
    "est_err_c_max_K": 1.92,
-   "Tc_over_sp_after_leak_K": 33.3,
+   "Tc_over_sp_after_leak_K": 33.4,
    "xcheck_first_after_leak_s": null,
    "glass_reaches_cr5_band": false
   },
@@ -514,10 +514,10 @@
    "guard_fault": null,
    "rim_fault": null,
    "sup_latch": null,
-   "rim_valid_frac": 0.476,
+   "rim_valid_frac": 0.475,
    "Tc_max_C": 199.1,
    "glass_max_C": 163.6,
-   "est_err_c_max_K": 8.76
+   "est_err_c_max_K": 10.32
   },
   {
    "kind": "nominal",
@@ -553,10 +553,10 @@
    "guard_fault": null,
    "rim_fault": null,
    "sup_latch": null,
-   "rim_valid_frac": 0.435,
+   "rim_valid_frac": 0.434,
    "Tc_max_C": 198.9,
    "glass_max_C": 163.5,
-   "est_err_c_max_K": 8.37
+   "est_err_c_max_K": 10.67
   },
   {
    "kind": "leak",
@@ -566,19 +566,19 @@
    "delta": 12.0,
    "corner": "cold",
    "r_leak": 1000.0,
-   "xcheck_suspects": 2,
-   "xcheck_first_s": 458.3,
-   "d1_probes": 3,
-   "d1_lost_at": 269.6,
+   "xcheck_suspects": 3,
+   "xcheck_first_s": 501.0,
+   "d1_probes": 4,
+   "d1_lost_at": null,
    "guard_fault": null,
    "rim_fault": null,
    "sup_latch": null,
    "rim_valid_frac": 0.744,
-   "Tc_max_C": 334.8,
-   "glass_max_C": 317.4,
+   "Tc_max_C": 351.3,
+   "glass_max_C": 328.4,
    "est_err_c_max_K": 1.6,
-   "Tc_over_sp_after_leak_K": 104.8,
-   "xcheck_first_after_leak_s": 208.3,
+   "Tc_over_sp_after_leak_K": 121.3,
+   "xcheck_first_after_leak_s": 251.0,
    "glass_reaches_cr5_band": true
   },
   {
@@ -592,15 +592,15 @@
    "xcheck_suspects": 0,
    "xcheck_first_s": null,
    "d1_probes": 1,
-   "d1_lost_at": 269.6,
+   "d1_lost_at": null,
    "guard_fault": null,
    "rim_fault": null,
    "sup_latch": null,
    "rim_valid_frac": 0.743,
-   "Tc_max_C": 205.1,
-   "glass_max_C": 180.5,
+   "Tc_max_C": 264.8,
+   "glass_max_C": 251.1,
    "est_err_c_max_K": 1.67,
-   "Tc_over_sp_after_leak_K": 5.1,
+   "Tc_over_sp_after_leak_K": 34.8,
    "xcheck_first_after_leak_s": null,
    "glass_reaches_cr5_band": false
   },
@@ -638,10 +638,10 @@
    "guard_fault": null,
    "rim_fault": null,
    "sup_latch": null,
-   "rim_valid_frac": 0.235,
+   "rim_valid_frac": 0.234,
    "Tc_max_C": 198.8,
    "glass_max_C": 130.5,
-   "est_err_c_max_K": 8.34
+   "est_err_c_max_K": 13.13
   },
   {
    "kind": "nominal",
@@ -677,10 +677,10 @@
    "guard_fault": null,
    "rim_fault": null,
    "sup_latch": null,
-   "rim_valid_frac": 0.197,
+   "rim_valid_frac": 0.196,
    "Tc_max_C": 198.6,
    "glass_max_C": 130.4,
-   "est_err_c_max_K": 8.57
+   "est_err_c_max_K": 12.2
   },
   {
    "kind": "leak",
@@ -690,19 +690,19 @@
    "delta": 46.0,
    "corner": "cold",
    "r_leak": 1000.0,
-   "xcheck_suspects": 1,
-   "xcheck_first_s": 507.7,
-   "d1_probes": 2,
-   "d1_lost_at": 269.6,
+   "xcheck_suspects": 2,
+   "xcheck_first_s": 533.0,
+   "d1_probes": 3,
+   "d1_lost_at": null,
    "guard_fault": null,
    "rim_fault": null,
    "sup_latch": null,
    "rim_valid_frac": 0.685,
-   "Tc_max_C": 334.5,
-   "glass_max_C": 282.4,
+   "Tc_max_C": 351.8,
+   "glass_max_C": 298.4,
    "est_err_c_max_K": 1.71,
-   "Tc_over_sp_after_leak_K": 104.5,
-   "xcheck_first_after_leak_s": 257.7,
+   "Tc_over_sp_after_leak_K": 121.8,
+   "xcheck_first_after_leak_s": 283.0,
    "glass_reaches_cr5_band": true
   },
   {
@@ -756,16 +756,16 @@
    "corner": "hot",
    "food_at": 250.0,
    "xcheck_suspects": 1,
-   "xcheck_first_s": 299.9,
+   "xcheck_first_s": 299.0,
    "d1_probes": 2,
    "d1_lost_at": null,
    "guard_fault": null,
    "rim_fault": null,
    "sup_latch": null,
-   "rim_valid_frac": 0.612,
+   "rim_valid_frac": 0.611,
    "Tc_max_C": 199.4,
    "glass_max_C": 164.4,
-   "est_err_c_max_K": 3.77
+   "est_err_c_max_K": 6.56
   },
   {
    "kind": "nominal",
@@ -795,7 +795,7 @@
    "corner": "cold",
    "food_at": 250.0,
    "xcheck_suspects": 1,
-   "xcheck_first_s": 299.8,
+   "xcheck_first_s": 299.0,
    "d1_probes": 2,
    "d1_lost_at": null,
    "guard_fault": null,
@@ -804,7 +804,7 @@
    "rim_valid_frac": 0.553,
    "Tc_max_C": 199.2,
    "glass_max_C": 164.3,
-   "est_err_c_max_K": 4.05
+   "est_err_c_max_K": 7.35
   },
   {
    "kind": "leak",
@@ -840,15 +840,15 @@
    "xcheck_suspects": 0,
    "xcheck_first_s": null,
    "d1_probes": 1,
-   "d1_lost_at": 269.4,
+   "d1_lost_at": null,
    "guard_fault": null,
    "rim_fault": null,
    "sup_latch": null,
    "rim_valid_frac": 0.743,
-   "Tc_max_C": 200.7,
-   "glass_max_C": 177.6,
+   "Tc_max_C": 265.8,
+   "glass_max_C": 251.3,
    "est_err_c_max_K": 1.56,
-   "Tc_over_sp_after_leak_K": 0.7,
+   "Tc_over_sp_after_leak_K": 35.8,
    "xcheck_first_after_leak_s": null,
    "glass_reaches_cr5_band": false
   },
@@ -886,10 +886,10 @@
    "guard_fault": null,
    "rim_fault": null,
    "sup_latch": null,
-   "rim_valid_frac": 0.323,
+   "rim_valid_frac": 0.321,
    "Tc_max_C": 199.0,
    "glass_max_C": 131.4,
-   "est_err_c_max_K": 3.64
+   "est_err_c_max_K": 8.66
   },
   {
    "kind": "nominal",
@@ -925,10 +925,10 @@
    "guard_fault": null,
    "rim_fault": null,
    "sup_latch": null,
-   "rim_valid_frac": 0.282,
+   "rim_valid_frac": 0.281,
    "Tc_max_C": 199.0,
    "glass_max_C": 131.4,
-   "est_err_c_max_K": 3.51
+   "est_err_c_max_K": 8.7
   },
   {
    "kind": "leak",

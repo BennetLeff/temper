@@ -10,6 +10,13 @@
  * Power authority ("never chase a cold reading"): while D1 is probing or has
  * declared contact lost, or while any RTD fault is latched, the output power
  * is the probe/zero value whatever the PID asks.
+ *
+ * Contact changes (output/temper-sensor-r3/firmware/DECISIONS.md D-CSW): the
+ * estimator runs inside the contact-shift window (contact_shift.h), which may
+ * lower the model contact after an abrupt drop, return it toward nominal after
+ * an abrupt rise, or ask D1 for a probe when the fall is faster than any
+ * partial contact. D1 restoring contact after a loss resets the model to
+ * nominal. The rate PID carries the latent-plateau guard (D-LPG).
  */
 
 #ifndef PAN_TEMP_LOOP_H
@@ -19,6 +26,7 @@
 #include <stdint.h>
 
 #include "contact_check.h"
+#include "contact_shift.h"
 #include "pan_rate_pid.h"
 #include "pan_sensor_guard.h"
 #include "pan_temp_estimator.h"
@@ -30,6 +38,7 @@ extern "C" {
 
 typedef struct {
     pte_params_t est;
+    csw_params_t csw;
     pg_params_t pg;
     prp_params_t pid;
     cc_params_t cc;
@@ -39,6 +48,8 @@ typedef struct {
     float fixed_gain_k_per_j;     /**< used when identify_gain is false    */
     float approach_margin_k;      /**< heat-up phase ends at sp - margin, 2 */
     float new_phase_sp_step_k;    /**< setpoint increase that re-arms ID, 5 */
+    float steady_band_k;          /**< "steady" for the contact-shift window: sp_eff at sp */
+    float steady_s;               /**< and |T_hat - sp| < band for this long; 3 K, 10 s */
 } ptl_params_t;
 
 typedef struct {
@@ -66,11 +77,16 @@ typedef struct {
     psg_diag_t diag;
     bool ui_pan_must_touch;  /**< show "pan must touch the sensor" */
     bool xcheck_suspect;     /**< the Pt100-vs-rim cross-check fired this period (D-XCHK) */
+    csw_event_t cs_event;    /**< contact-shift window event this step */
+    bool cs_window;          /**< a contact-shift window is open */
+    float h_model_w_per_m2k; /**< model contact conductance in use */
+    bool lpg_active;         /**< latent-plateau guard limited the PID */
 } ptl_output_t;
 
 typedef struct {
     ptl_params_t p;
     pte_t est;
+    csw_t csw;
     pg_t pg;
     prp_t pid;
     cc_t cc;
@@ -84,6 +100,10 @@ typedef struct {
     bool lost_latched_ui;
     bool settled_prev;       /**< last step held within the margin of the setpoint */
     float pid_p_max_cfg_w;   /**< configured pid.p_max_w (ptl_set_power_limit ceiling) */
+    uint32_t tick;
+    uint32_t settled_tick;   /**< last step that was not steady at the setpoint */
+    bool cs_allow_last;      /**< gate passed to the window this step (logs, co-sim) */
+    bool cs_steady_last;
 } ptl_t;
 
 void ptl_default_params(ptl_params_t *p);

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Rerun every sensor-r3 C1 firmware result (about 5 min on the Mac):
+# Rerun every sensor-r3 C1 firmware result (about 7 min on the Mac):
 #   0. rim NTC table and channel numbers (rim_ntc.py -> rim-ntc.json and
 #      firmware/components/sensors/rim_ntc_table.h) and the CR-7 threshold
 #      words (cr7_thresholds.py -> cr7-thresholds.json); both gate
@@ -15,6 +15,10 @@
 #      runtime runaway supervisor in the loop)
 #   3b. rim NTC in the loop: the cross-check against a rim truth signal
 #      (xcheck-cosim.json, gates benign runs; DECISIONS.md D-RIM)
+#   3c. h_c steps (64 gated) and oil / water / crud cases through the same C
+#      loop (../robustness/hc_cosim.py --after-only: hc-cosim.json, gates
+#      robustness/DECISIONS.md R-HS / R-CT; the "before" baseline rows are
+#      kept from the last full run)
 #   4. D1 seed-to-seed Monte Carlo (b5-montecarlo.json, gates safety only)
 #   5. runaway checks: legacy vs C1 rules on false-trip and fault scenarios
 #      (runaway-checks.json, gates the C1 rules; DECISIONS.md D-RUN)
@@ -59,6 +63,10 @@ echo "== 3b. rim NTC cross-check co-simulation"
 "$py" "$here/xcheck_cosim.py" --lib "$lib" --out "$here/xcheck-cosim.json" > "$tmp/xc.log" \
     || { cat "$tmp/xc.log"; exit 1; }
 tail -1 "$tmp/xc.log"
+echo "== 3c. h_c steps and contaminated contact"
+"$py" "$here/../robustness/hc_cosim.py" --lib "$lib" --after-only > "$tmp/hc.log" \
+    || { grep -E '^(BARS|FAIL)' "$tmp/hc.log"; exit 1; }
+tail -1 "$tmp/hc.log"
 
 echo "== 4. D1 Monte Carlo"
 "$py" "$here/b5_montecarlo.py" --lib "$lib" --out "$here/b5-montecarlo.json" > "$tmp/mc.log" \

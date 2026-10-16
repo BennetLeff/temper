@@ -56,20 +56,11 @@ static void period_map(const pte_params_t *p, double x[PTE_NX], double u)
     }
 }
 
-bool pte_init(pte_t *f, const pte_params_t *p, float t0_c)
+/* The map is affine: x' = F x + g u. Columns of F from unit states with
+ * u = 0; g from the zero state with u = 1. */
+static void compose(pte_t *f)
 {
-    if (f == NULL || p == NULL) {
-        return false;
-    }
-    if (!(p->c_cap_j_per_k > 0.0f) || !(p->c_el_j_per_k > 0.0f) || !(p->g_bond_w_per_k > 0.0f) ||
-        !(p->g_leak_w_per_k >= 0.0f) || !(p->contact_area_m2 > 0.0f) || !(p->h_nom_w_per_m2k > 0.0f) ||
-        !(p->dt_s > 0.0f) || p->substeps == 0u || !(p->sigma_k > 0.0f)) {
-        return false;
-    }
-    f->p = *p;
-
-    /* The map is affine: x' = F x + g u. Columns of F from unit states with
-     * u = 0; g from the zero state with u = 1. */
+    const pte_params_t *p = &f->p;
     for (int j = 0; j < PTE_NX; j++) {
         double e[PTE_NX] = {0.0, 0.0, 0.0, 0.0};
         e[j] = 1.0;
@@ -85,6 +76,30 @@ bool pte_init(pte_t *f, const pte_params_t *p, float t0_c)
             f->g_sink[i] = (float)z[i];
         }
     }
+}
+
+bool pte_set_contact(pte_t *f, float h_w_per_m2k)
+{
+    if (f == NULL || !(h_w_per_m2k > 0.0f) || !isfinite(h_w_per_m2k)) {
+        return false;
+    }
+    f->p.h_nom_w_per_m2k = h_w_per_m2k;
+    compose(f);
+    return true;
+}
+
+bool pte_init(pte_t *f, const pte_params_t *p, float t0_c)
+{
+    if (f == NULL || p == NULL) {
+        return false;
+    }
+    if (!(p->c_cap_j_per_k > 0.0f) || !(p->c_el_j_per_k > 0.0f) || !(p->g_bond_w_per_k > 0.0f) ||
+        !(p->g_leak_w_per_k >= 0.0f) || !(p->contact_area_m2 > 0.0f) || !(p->h_nom_w_per_m2k > 0.0f) ||
+        !(p->dt_s > 0.0f) || p->substeps == 0u || !(p->sigma_k > 0.0f)) {
+        return false;
+    }
+    f->p = *p;
+    compose(f);
 
     f->x[0] = t0_c;
     f->x[1] = 0.0f;
