@@ -2257,3 +2257,50 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       the 6 changed CPL lines (U17 / U19 / U21 180°, U29–U31 270°).
     - **Board of record and benchmark: s46.** FAB-NOTE moved to 16a58861 / gerbers 059681ec.
     - **Reverses if:** LM2901BIDR stock cannot cover the lot (fallback LM339BIDR fails the release case at any current).
+63. **Stage 47 (candidate 47): U5 (REF25) on its 125 °C grade, BOM-only on s46; the band network sits at its solved
+    temperature (2026-10-15; adopted with a cost override). Board 63aba33f (integration build), geometry identical to
+    s46 16a58861; card REJECT against s46 on the new Kelvin basis and on cost.**
+    Records: `11-candidates/c47-ref25-grade/README.md` (lane build 4139c87b, copper key d33d77ac; the integration chain
+    re-ran it on the integration tree, `runs-native21/s47/chain47int.log`, CHAIN_DONE, copper key 387b3e2d, no spine
+    owner; `geom_diff45.py` s46 → s47: geometry_identical, only U5 Value / MPN change).
+    - **Change:** U5 LM4040A25IDBZR → **LM4050AEM3-2.5/NOPB** (TI SNOS455H, LCSC C2156518). Rated TA = TJ −40..125 °C
+      (5.3 p.5; addendum p.25); ±15 mV full range plus 1.2 mV current regulation, IRMIN 65 µA (5.6 p.7). Same DBZ pads
+      and pinout (pin 3 has no internal connection and floats on `u_ref-nc`, p.3); 1 instance; no divider change. The
+      JLC listing's −40..85 °C is wrong for the E suffix.
+    - **B3 (hot copper):** U5 is now a gated row, keyed to the frozen MPN (`MONITOR_GRADES`). 89.1 °C at c17.5 @ 61:
+      **+35.9 K** against 125 °C (c28 @ 55: 104.7 °C, **+20.3 K**). At 89.1 °C the A25I was over its 85 °C rating
+      (−4.1 K). Self-heat 0.2 K. Release margin unchanged at +1.0 K (R10); `b3_ratings` PASS.
+    - **New band basis, the solved network temperature** (`c47-ref25-grade/results/bands-s47.md`). The bands assumed
+      the R26–R37 network at −10..85 °C; hot-copper B3 puts R32–R35 at 93–96 °C and R30 / R36 / R37 at 92–93 °C at the
+      release case, up to 102.9 °C at c28. The basis is now the −10 °C corner plus each resistor at its B3 estimate.
+      - With the A25I that network fails the 288.02 V OVP "must not rise" rule: 288.05 V at c28 (288.75 V at a uniform
+        105 °C).
+      - **LM4050AEM3 at release (c17.5 @ 61): OCP 68.87–117.45 A before Kelvin, 66.75 A after (+2.58 A over 64.17 A);
+        OVP 272.64–287.45 V.** At c28: 67.57–119.09 A, 65.45 A after Kelvin (+1.28 A), OVP 272.47–287.62 V.
+      - Like for like, s47 is +0.12 A better on both bases: committed basis 67.89 vs 67.77 A, solved basis 66.75 vs
+        66.63 A (A25I).
+    - **Card** (`10-benchmark/scorecard-native21s47.json`, integration build): every gate and thermal metric equals s46.
+      `--compare` s46: REJECT on kelvin_band_low_A 66.75 vs 67.77 (the basis change above, not a regression) and on
+      cost: parts_usd_at_500_v2 171.83 → **173.99 (+$2.16 / board)**, lines_short_for_500 14 → 15,
+      jlc_assemblable_share_500 0.851 → 0.84 (U5 consigned). Ledger 3 / 39 / 52 / 0 of 94 (LM4050AEM3 PARTIAL; the
+      LM4040 was UNAUDITED), gate PASS.
+    - **Sourcing:** JLC holds 50 (96 with the two Q1 orderables) against 500. **Owner pre-order of ≥ 550
+      LM4050AEM3-2.5/NOPB**, consigned to JLC (OPEN-ITEMS owner action 7); the line keeps C2156518 for placement.
+    - **Integration: adopted with a cost override, as for stage 45.** The card cannot score a datasheet violation: U5
+      was over its 85 °C rating at 89.1 °C at the release case, and the LM4050AEM3 is the only drop-in that holds both
+      band rules with no retrim, including on the hotter network the old part fails. +$2.16 / board is the price.
+      Re-verified on 63aba33f: audit.rs PASS and 89 / 89; ledger gate and its tests PASS; `cu_temp_basis --fail-waived`
+      0 waived PASS; depmap no FAIL; gate, B3 and bom_pricing unit tests and firmware host tests 31 / 31 pass.
+    - **Ledger re-cite:** R5's "OCP transient pulse power" moves from the stage-15 top 118.74 A to the s47 top, the
+      higher of release and c28: 119.09² × 1 mΩ = 14.18 W against ≥ 2 kW for 10 µs (ratio 0.0071),
+      `c47-ref25-grade/scripts/ledger47_r5.py`.
+    - **Board of record and benchmark: s47.** FAB-NOTE moved to 63aba33f / gerbers 72556223.
+    - **Reverses if:**
+      - the LM4050AEM3 lot cannot be bought. Fallbacks: the electrically equal LM4050QAEM3-2.5 or TL4050A25QDBZR (the
+        same bands), or ADR5041B with R37 137 k under ADI's butterfly TC reading;
+      - bench thermocouples put the R26–R37 network ≤ 85 °C, which restores the committed basis and the 67.89 A figure;
+      - a layout stage moves U5 and its network out of the bias heat.
+    - **Not done:** FMEA re-run on the new reference (OVP / OCP rows at the s47 bands); the routine JLC preview of U5
+      (rotation settled at 180°, but the EasyEDA land is the narrower SOT-23); U5 pin 3 to anode, TI's high-EMI
+      recommendation (a layout stage); the CST3015 "Volt-time at 118.74 A" ledger row still quotes the stage-15 top.
+      New open items: U3 TPS70950 temperature and the ledger's 286 V bus-OVP rows (OPEN-ITEMS S19, S20).

@@ -1,12 +1,14 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 46, the board of record (DECISIONS.md item 62: stage 45 with the rail-monitor ICs on their
-125 °C grades; item 60: the S16 rail-monitor values on stage 44's copper, item 58; the stage history is DECISIONS.md
-items 12–62). Built by `sh native-21/layout/gates/chain.sh native21s46 …`; SHA-256
-`16a588612c9823a5acf80760c75f7e985a5e359b4c9027bd4bedd4a463fea809` (geometry identical to the s45 build a1e6488f by
-`c45-s16-monitor/scripts/geom_diff45.py`; only U17 / U19 / U21 and U29–U31 Value / MPN change).
+Board: native-21 stage 47, the board of record (DECISIONS.md item 63: stage 46 with U5 (REF25) on the 125 °C
+LM4050AEM3-2.5/NOPB; item 62: the rail-monitor ICs on their 125 °C grades; item 60: the S16 rail-monitor values on
+stage 44's copper, item 58; the stage history is DECISIONS.md items 12–63). Built by
+`sh native-21/layout/gates/chain.sh native21s47 …`; SHA-256
+`63aba33faa9ac2cfe30b333e56dfbe9a2408cdaf0fddf084663f5d199e82af69` (geometry identical to the s46 build 16a58861 by
+`c45-s16-monitor/scripts/geom_diff45.py`; only U5 Value / MPN change). U5 is sourced and consigned (JLC stock 50
+against 500; owner pre-order, OPEN-ITEMS owner action 7).
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`059681eca3a4c580b37c3bd74105f657335f36814fe8a6bc080ff1046ea9f6b8`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
+`725562236549c642ac7e076838280e1c36192733d44f4b0c60e63c3180236b64`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
 (DECISIONS.md item 61).
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).
