@@ -48,8 +48,7 @@
   "ct_s2": "current-transformer secondary reference node (R40 / R41 bias plus the CT signal): needs the CT burden model, not a rail figure",
   "led1": "mains-driven LED branch of U36 (R67 / R68 / R69 / R70 from L_FILT / N_FILT): a series-resistor-limited LED, VR 6 V applies to the reverse junction; needs the LED Vf row",
   "led2": "same as led1",
-  "hb_hold": "U40 input on the D19 / C164-C166 hold network (RC with a Schottky): no analysed bound yet",
-  "hsb_good": "U46 input A is connected only to R135 pin 2; R135 pin 1 is in no net in the frozen netlist, so the input is not driven (a floating-input finding, not a voltage one)"
+  "hb_hold": "U40 input on the D19 / C164-C166 hold network (RC with a Schottky): no analysed bound yet"
  },
  "nets": {
   "leg_ret": {
@@ -1099,6 +1098,16 @@
      "quote": "VNRNoisereductionpinvoltage"
     }
    ]
+  },
+  "hsb_good": {
+   "kind": "hull",
+   "ref": "selv_gnd",
+   "nets": [
+    "selv_gnd",
+    "v3v3"
+   ],
+   "cite": "frozen netlist: R135 pin 1 on v3v3 (default.net:3360), pin 2 on hsb_good with U46.1 (default.net:3166-3168)",
+   "derive": "U46 input A tied high through R135 to V3V3; its only other connection is a high-impedance CMOS input, so the node lies in [SELV_GND, V3V3]"
   }
  },
  "parts": {
