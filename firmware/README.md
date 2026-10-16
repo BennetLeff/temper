@@ -35,21 +35,42 @@ firmware/
 └── test/                  # Host-based unit and integration tests
 ```
 
-## Hardware GPIO requirements (board rev with BusDischarge, PR #217)
+## Hardware pin map (zapote/controller)
 
-`gpio_init()` in `main.c` is still stubbed; when it is implemented these
-board-imposed contracts MUST be honored:
+`components/temper_hal/include/temper_pins.h` is the one place firmware names
+a pin, and every value there comes from the controller netlist:
+`firmware/tools/check_board_pin_map.py` derives the board's map from
+`zapote/controller/frozen/default.net` and `controller_parts.ato` (branch
+`controller-c1-crs` at 467917c38) into `tools/zapote_controller_pins.json`,
+and CI fails when a define disagrees, when a wired GPIO or TCA9555 pin has no
+define, when a source hard-codes `GPIO_NUM_n`, or when anything but the owners
+below touches WDI or RUN_EN. Rerun `--derive` (and review the pin diff) when
+the board moves; `--verify-board-ref controller-c1-crs` checks a newer head.
 
-- **IO47 = DISCHARGE_CTRL (active-high, fail-safe-low).** Drives the
-  bus-discharge relay coils via a low-side FET. The pin boots Hi-Z and the
-  gate has a 100k pulldown, so reset/crash/brownout = coils dropped = NC
-  contacts closed = bus discharge engaged. Startup sequence: configure as
-  output-low at boot, drive HIGH only after bus precharge completes and
-  BEFORE enabling PWM; drive LOW (or simply stop kicking the watchdog) on
-  any fault requiring safe discharge. Never configure as input/floating
-  during operation.
-- **IO9 = MAX31865 DRDY** (input, already noted in `main.c`).
-- **IO7 = WDT_KICK** — TPS3823 watchdog; state_machine_update() toggles it.
+| GPIO | Net | Use |
+|---|---|---|
+| 4 / 5 / 15 / 16 | PWM_HA / LA / HB / LB | native-21 full-bridge gate commands, held low as outputs at boot |
+| 14 | RUN_EN | gate enable (PERMIT = latch OK AND RUN_EN, C23); `power_gate.c` only |
+| 18 | IL_WDI | TPS3823 heartbeat (C42); WDI supervisor task only |
+| 17 | IL_RESET_N | interlock latch reset request |
+| 21 / 35 / 36 | BUS_FAULT_RB / RAIL_OK_RB / PERMIT_RB | interlock read-backs |
+| 38 / 39 | CT_ZC_MCU / LINE_ZC_MCU | tank-current and line zero cross (PLL and pan-detect capture on 38) |
+| 1 / 2 / 6 / 7 / 8 / 9 | CT_MON / VBUS / HS / COIL / M12 / RIM ADC | ADC1_CH0 / 1 / 5 / 6 / 7 / 8 |
+| 10 / 11 / 12 / 13 / 42 | RTD_CS_N / SCK / SDO (MISO) / SDI (MOSI) / EXT_ADC_CS_N | SPI2: MAX31865 and MCP3202 |
+| 37 / 0 | I2C_SDA / I2C_SCL_BOOT | TCA9555 at 0x20 (GPIO0 is also the boot strap) |
+| 46 / 3 | FAN_PWM / FAN_TACH | blower speed (strap) and tach |
+| 40 / 41 / 44 / 45 / 47 / 48 | UI bus | OLED + MCP23S08 (J7) |
+| 43 / 19 / 20 | UART0_TX / USB D- / D+ | console, TC2050 land |
+
+TCA9555: P00/P01 capacitive-mode read-backs, **P07 RTD_DRDY**, P10-P13 fault
+read-backs, P14 SUP_RUN_OK_RB (TPS3823 RESET_N), P15 FAN_OFF, P16 BLW_PG.
+There is no expander driver yet, and `rtd_service` still waits on a GPIO DRDY
+edge, so on the target `PIN_RTD_DRDY` is `HAL_PIN_INVALID` and the MAX31865
+bootstrap fails closed (the legacy map put DRDY on GPIO9, the rim NTC).
+
+The legacy `pcb/temper.kicad_pcb` contracts this section used to list (IO47
+DISCHARGE_CTRL, IO9 DRDY, IO7 WDT_KICK) do not apply to zapote: GPIO47 is the
+OLED chip select, GPIO9 the rim NTC and GPIO7 the coil ADC.
 
 ## Building
 
@@ -87,10 +108,15 @@ holds `TODO(hardware)` implementations for every peripheral without a driver
 (display, buttons, buzzer, LEDs, fan, bus current, power stage, the
 self-tests, the fault log). The rim NTC and the heatsink NTC have real
 drivers (`components/sensors/rim_ntc.c`, `hs_ntc.c` on GPIO6 / ADC1_CH5;
-the heatsink reads +INFINITY on a driver fault). The rest fail safe: temperatures and currents read
+the heatsink reads +INFINITY on a driver fault). `main/board_power.c` holds
+the four gate commands low, owns RUN_EN through `power_gate.c`, and starts the
+MCPWM capture on PWM_HA and CT_ZC for the PLL and pan detection; the native-21
+gate generator is `TODO(hardware)`, so the PLL has no timer and pan detection
+reports no pan. The rest fail safe: temperatures and currents read
 +INFINITY, the fan reads stopped, buttons read released, the self-tests fail,
 and the power outputs refuse any non-zero command. A unit flashed with this
-image stops in FAULT (`FAULT_SELF_TEST_FAILED`) with the coil off.
+image stops in FAULT (`FAULT_SELF_TEST_FAILED`) with the coil off, and the
+MAX31865 bootstrap fails closed until DRDY is read through the TCA9555.
 
 ### Host Build (Tests Only)
 
@@ -177,14 +203,37 @@ void test_fault_over_current(void) {
 
 The firmware implements multiple layers of safety:
 
-1. **Hardware Watchdog (TPS3823-33)**: External WDT fed every update cycle, 1.6s timeout
-2. **Software Watchdog**: State-specific timeouts (1-10s depending on state)
-3. **Over-Current Protection**: DC bus current >40A triggers immediate shutdown
-4. **Over-Temperature Protection**: Heatsink >95°C triggers fault (`OVER_TEMP_THRESHOLD`; the hardware comparator backs it at 98.3–104.6°C, zapote C32)
-5. **Fan Failure Detection**: Tachometer monitoring during operation
-6. **RTD Probe Monitoring**: Open circuit (>10kΩ) and short circuit (<10Ω) detection
-7. **Thermal Runaway Detection**: Pan temp exceeding target by >10°C
-8. **Pan Detection**: Impedance-based detection with confidence threshold
+1. **Hardware Watchdog (TPS3823-33, zapote C42)**: WDI (GPIO18) is toggled
+   only by the WDI supervisor task (`main.c`, `components/safety/wdi_supervisor.c`),
+   one edge per 100 ms (C42: <= 400 ms against the TPS3823's 0.9 s minimum),
+   and only while the control loop's sequence counter advances (>= 5 of the
+   expected 10 iterations per period) and the newest MAX31865 conversion is
+   <= 300 ms old. Any failure stops the heartbeat for good; the TPS3823 trips
+   the interlock latch within 0.9-2.5 s and PERMIT drops. Never from an ISR,
+   timer, LEDC, RMT or the state machine.
+2. **Software Watchdog**: the control task is subscribed to the ESP-IDF task
+   watchdog; the state handlers' `watchdog_feed()` resets it with
+   state-specific timeouts (1-10 s). A stall panics and reboots into safe mode.
+3. **RUN_EN interlock (zapote C23 / C39)**: RUN_EN (GPIO14) is raised only
+   through `components/safety/power_gate.c`, which refuses unless every gate
+   PWM channel is idle (stopped with its outputs held low), so the
+   capacitive-mode detector re-arms with no edge in flight. Every fault path
+   (`pwm_disable_all()`) forces the gate PWM low and drops RUN_EN, which takes
+   PERMIT low; the MCU cannot drive the interlock's trip itself (C4).
+4. **Burst start at or above resonance (zapote C39)**: every start of
+   switching in this tree (`pll_enable()`, `pll_reset()`, the pan-detection
+   pulse) takes its first frequency from `pll_burst_start_frequency()`:
+   max(47 kHz, 1.02 x last known resonance), refused (no pulse) when that is
+   above the PLL range.
+5. **Over-Current Protection**: DC bus current >40A triggers immediate shutdown
+6. **Over-Temperature Protection**: Heatsink >95°C triggers fault (`OVER_TEMP_THRESHOLD`; the hardware comparator backs it at 98.3–104.6°C, zapote C32)
+7. **Fan Failure Detection**: Tachometer monitoring during operation
+8. **RTD Probe Monitoring**: Open circuit (>10kΩ) and short circuit (<10Ω) detection
+9. **Thermal Runaway Detection**: Pan temp exceeding target by >10°C
+10. **Pan Detection**: CT_ZC ring-down after a pulse, with a confidence
+    threshold. On zapote the pulse needs the native-21 gate drive, which is
+    not in this tree, so `detect_pan_presence()` reports no pan (no power)
+    until the power stage installs its pulse ops.
 
 ## Configuration
 

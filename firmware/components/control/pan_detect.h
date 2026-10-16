@@ -1,9 +1,25 @@
 /**
  * @file pan_detect.h
- * @brief Pan detection module for induction cooker
- * 
- * Implements "Pulse and Listen" pan detection algorithm using
- * ESP32-S3 MCPWM capture unit for non-blocking edge counting.
+ * @brief Pan detection: pulse the tank and count the CT_ZC ring-down edges
+ *
+ * "Pulse and listen": a short burst into the tank, then the number of
+ * tank-current zero crossings during a listen window. A free coil rings for
+ * many cycles; a ferrous pan damps it within a few.
+ *
+ * zapote/controller wiring:
+ * - Listen: CT_ZC_MCU (GPIO38, PIN_CT_ZC), the tank-current zero cross from
+ *   native-21. On the target pan_detect_init() takes an MCPWM capture channel
+ *   on that pin (board_power_init()) and counts its edges.
+ * - Pulse: the native-21 full-bridge gate drive. Its waveform is the power
+ *   stage's (codex/power-stage-integration) and is not specified in this
+ *   tree, so no pulse ops are installed and detect_pan_presence() reports
+ *   PAN_ABSENT: no pan, no power (TODO(hardware), DECISIONS.md D-BRINGUP).
+ *
+ * The pulse is a start of switching, so it obeys the burst-start rule
+ * (pll_burst_start_frequency(), zapote C39): it runs only from idle gates, at
+ * a frequency at or above the last known resonance, and not at all when the
+ * rule refuses. pan_detect_run_ops() is that sequence; it uses only the ops
+ * it is given, so the host tests drive it.
  */
 
 #ifndef PAN_DETECT_H
@@ -18,10 +34,13 @@
 #else
 /* Stub types for host-based unit testing */
 typedef void* mcpwm_cap_channel_handle_t;
-typedef void* mcpwm_timer_handle_t;
 typedef int esp_err_t;
+#ifndef ESP_OK
 #define ESP_OK 0
-#define ESP_ERR_INVALID_ARG -1
+#endif
+#ifndef ESP_ERR_INVALID_ARG
+#define ESP_ERR_INVALID_ARG 0x102
+#endif
 #endif
 
 #ifdef __cplusplus
@@ -35,7 +54,7 @@ typedef enum {
     PAN_DETECT_NONE,        /**< No pan detected (high Q ringing) */
     PAN_DETECT_FERROUS,     /**< Ferrous pan detected (good for induction) */
     PAN_DETECT_NON_FERROUS, /**< Non-ferrous material (aluminum/copper) */
-    PAN_DETECT_ERROR        /**< Detection error (sensor fault) */
+    PAN_DETECT_ERROR        /**< Detection error, or no pulse was allowed */
 } pan_result_t;
 
 /**
@@ -69,58 +88,70 @@ typedef struct {
 }
 
 /**
- * @brief Initialize pan detection module
- * 
- * @param cap_chan MCPWM capture channel handle for ZCD signal
- * @param config   Configuration parameters (NULL for defaults)
- * @return ESP_OK on success
+ * @brief Gate side of a detection pulse, provided by the power stage.
+ *
+ * Every member is required. The pulse starts only after gates_idle() is true
+ * and set_frequency_hz() has programmed the burst-start frequency.
  */
-esp_err_t pan_detect_init(mcpwm_cap_channel_handle_t cap_chan, 
+typedef struct {
+    bool (*gates_idle)(void);              /**< every gate command low */
+    bool (*set_frequency_hz)(float f_hz);  /**< program the pulse frequency */
+    bool (*pulse)(uint32_t width_us);      /**< switch for width_us; end with every gate low */
+} pan_detect_pulse_ops_t;
+
+/** Count CT_ZC edges over window_ms (from a zero count). */
+typedef uint32_t (*pan_detect_listen_fn)(uint32_t window_ms);
+
+/**
+ * @brief Initialize pan detection on the target: count edges on a CT_ZC
+ *        capture channel (registers the callback and enables the channel).
+ *
+ * @param cap_chan MCPWM capture channel on CT_ZC (NULL: error)
+ * @param config   Configuration parameters (NULL for defaults)
+ * @return ESP_OK on success; on the host, ESP_ERR_INVALID_ARG (no capture)
+ */
+esp_err_t pan_detect_init(mcpwm_cap_channel_handle_t cap_chan,
                           const pan_detect_config_t *config);
 
 /**
- * @brief Set timer handle for detect_pan_presence() wrapper
- * 
- * Must be called before using detect_pan_presence() if not
- * using pan_detect_run() directly with explicit timer handle.
- * 
- * @param timer_handle MCPWM timer handle for pulse generation
+ * @brief Install the power stage's pulse ops (NULL removes them).
+ *
+ * Without them detect_pan_presence() reports PAN_ABSENT.
  */
-void pan_detect_set_timer(mcpwm_timer_handle_t timer_handle);
+void pan_detect_set_pulse_ops(const pan_detect_pulse_ops_t *ops);
 
 /**
- * @brief Run single pan detection cycle
- * 
- * Generates a short pulse and counts decay oscillations.
- * Execution time: ~2-3ms (non-blocking during listen phase)
- * 
- * @param timer_handle MCPWM timer for generating pulse
- * @return Detection result
+ * @brief One detection: burst-start check, pulse, listen, classify.
+ *
+ * @return PAN_DETECT_ERROR without pulsing when any op is missing, the gates
+ *         are not idle, or the burst-start rule refuses; PAN_DETECT_ERROR
+ *         after the pulse when an op fails; otherwise analyze_edges().
  */
-pan_result_t pan_detect_run(mcpwm_timer_handle_t timer_handle);
+pan_result_t pan_detect_run_ops(const pan_detect_pulse_ops_t *ops,
+                                pan_detect_listen_fn listen,
+                                const pan_detect_config_t *config);
 
 /**
  * @brief Get current pan presence status
- * 
- * Wrapper that returns simple present/absent based on pan_detect_run()
- * 
- * @return PAN_PRESENT if ferrous pan detected, PAN_ABSENT otherwise
+ *
+ * @return PAN_PRESENT only for a ferrous result from pan_detect_run_ops()
+ *         with the installed ops; PAN_ABSENT otherwise (fail safe).
  */
 pan_status_t detect_pan_presence(void);
 
 /**
  * @brief Get measured pan impedance (relative value)
- * 
+ *
  * Returns estimated impedance based on decay characteristics.
  * Used for tracking same pan vs different pan.
- * 
+ *
  * @return Relative impedance value (0-1000)
  */
 float get_pan_impedance(void);
 
 /**
  * @brief Analyze edge count (for unit testing)
- * 
+ *
  * @param edges Number of edges counted during decay
  * @return Detection result based on edge analysis
  */

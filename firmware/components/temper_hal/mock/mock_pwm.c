@@ -97,6 +97,7 @@ static hal_status_t mock_pwm_init(hal_pwm_channel_t channel, const hal_pwm_confi
     ch->state.dead_time_ns = config->dead_time_ns;
     ch->state.complementary = config->complementary;
     ch->state.running = false;
+    ch->state.outputs_off = true;
     
     return HAL_OK;
 }
@@ -174,6 +175,7 @@ static hal_status_t mock_pwm_start(hal_pwm_channel_t channel)
     }
     
     s_channels[channel].state.running = true;
+    s_channels[channel].state.outputs_off = false;
     return HAL_OK;
 }
 
@@ -197,6 +199,9 @@ static hal_status_t mock_pwm_emergency_stop(void)
     for (int i = 0; i < MOCK_PWM_MAX_CHANNELS; i++) {
         s_channels[i].state.running = false;
         s_channels[i].state.duty_percent = 0.0f;
+        if (s_channels[i].initialized) {
+            s_channels[i].state.outputs_off = true;
+        }
     }
     
     return HAL_OK;
@@ -206,6 +211,9 @@ static hal_status_t mock_pwm_get_state(hal_pwm_channel_t channel, hal_pwm_state_
 {
     if (channel < 0 || channel >= MOCK_PWM_MAX_CHANNELS || !state) {
         return HAL_ERROR_INVALID_ARG;
+    }
+    if (!s_channels[channel].initialized) {
+        return HAL_ERROR_NOT_READY;   /* as the ESP32 implementation */
     }
     
     *state = s_channels[channel].state;

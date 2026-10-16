@@ -121,6 +121,28 @@ extern "C" {
 #define PLL_DEFAULT_FREQ_HZ 47000
 
 /**
+ * @brief Burst start: the first pulse is at or above the last known resonance.
+ *
+ * zapote/controller DECISIONS C39 ("start every burst at or above resonance",
+ * the 2026-10-03 inductive-side rule; open item 18). Below resonance the
+ * series tank is capacitive and the capacitive-mode detector trips on the
+ * first turn-off edges (C39's burst-start model: 0.9 f0 trips; f/f0 1.02-1.8,
+ * Q 1-15, never samples a wrong sign in the first 40 edges). Every start of
+ * switching in this tree takes its first frequency from
+ * pll_burst_start_frequency():
+ *
+ *   f_start = max(PLL_DEFAULT_FREQ_HZ, (1 + PLL_BURST_START_MARGIN) * f_res,
+ *                 min_freq)
+ *
+ * where f_res is the last known resonance (pll_set_resonant_frequency(); the
+ * declared loaded resonance until something measures it). It refuses (no
+ * pulse) when f_start would exceed max_freq or f_res is not a frequency:
+ * there is then no inductive-side start inside the PLL's range.
+ * output/temper-sensor-r3/firmware/DECISIONS.md D-BRINGUP.
+ */
+#define PLL_BURST_START_MARGIN 0.02f
+
+/**
  * @brief PLL configuration structure
  */
 typedef struct {
@@ -182,12 +204,39 @@ void pll_init(const pll_config_t *config);
  */
 #ifdef ESP_PLATFORM
 #include "driver/mcpwm_prelude.h"
-void pll_set_timer(mcpwm_timer_handle_t timer_handle);
-void pll_set_capture_channel(mcpwm_cap_channel_handle_t cap_chan);
+/** @param resolution_hz the timer's tick rate (mcpwm_timer_config_t
+ *  resolution_hz); the period written is resolution_hz / f. */
+void pll_set_timer(mcpwm_timer_handle_t timer_handle, uint32_t resolution_hz);
+
+/**
+ * @brief Attach the phase-measurement capture channels and register the edge
+ *        callbacks (pwm_edge_cb on the leg-A high-side command, zcd_edge_cb
+ *        on CT_ZC rising = tank current going positive).
+ *
+ * Both channels must share one capture timer, whose tick rate is
+ * cap_resolution_hz. The channels are enabled here; the caller starts the
+ * capture timer. On any error nothing stays registered and the PLL reports
+ * no signal (unlocked).
+ */
+esp_err_t pll_capture_attach(mcpwm_cap_channel_handle_t pwm_edge_chan,
+                             mcpwm_cap_channel_handle_t zcd_chan,
+                             uint32_t cap_resolution_hz);
 #endif
 
 /**
- * @brief Enable PLL tracking
+ * @brief Frequency of the first pulse of a burst (see PLL_BURST_START_MARGIN).
+ *
+ * @param out_hz receives f_start
+ * @return false (out_hz untouched): no inductive-side start in range; do not
+ *         switch.
+ */
+bool pll_burst_start_frequency(float *out_hz);
+
+/**
+ * @brief Enable PLL tracking, starting at pll_burst_start_frequency()
+ *
+ * Programs the start frequency (and the timer, if set) before tracking. If
+ * the burst-start rule refuses, the PLL stays disabled and unlocked.
  */
 void pll_enable(void);
 
@@ -234,7 +283,9 @@ bool pll_is_locked(void);
 void pll_set_target_phase(float phase_us);
 
 /**
- * @brief Reset PLL to default frequency
+ * @brief Reset PLL to the burst-start frequency (PLL_DEFAULT_FREQ_HZ unless
+ *        the last known resonance needs a higher one). If the rule refuses,
+ *        the PLL is disabled.
  */
 void pll_reset(void);
 

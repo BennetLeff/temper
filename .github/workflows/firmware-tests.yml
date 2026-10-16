@@ -100,6 +100,18 @@ jobs:
       - name: Board-derivation coverage drift guard
         run: python3 firmware/tools/check_board_derivation_coverage.py
 
+      # Pin map vs the zapote/controller netlist (output/temper-sensor-r3/
+      # firmware/DECISIONS.md D-PINS): every pin in temper_pins.h must be the
+      # board's (snapshot firmware/tools/zapote_controller_pins.json, derived
+      # from controller-c1-crs 467917c38), every wired GPIO and expander pin
+      # must be named, no source may hard-code GPIO_NUM_n, and WDI / RUN_EN
+      # have single writers (C42, C39). The pytest mutates the header and
+      # sources to prove each rule fails.
+      - name: Firmware pin map vs zapote/controller netlist
+        run: |
+          python3 firmware/tools/check_board_pin_map.py
+          python3 -m pytest firmware/tools/test_check_board_pin_map.py -q -p no:cacheprovider
+
       - name: Regenerate transition table and check drift
         run: |
           python3 firmware/tools/gen_transition_table.py

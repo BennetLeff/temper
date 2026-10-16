@@ -75,7 +75,6 @@ extern void pll_update(void);
 /* Safety stubs */
 extern void watchdog_set_timeout(uint32_t timeout_ms);
 extern void watchdog_feed(void);
-extern void watchdog_hardware_feed(void);
 extern void trigger_hardware_shutdown(void);
 
 /* Self-test stubs */

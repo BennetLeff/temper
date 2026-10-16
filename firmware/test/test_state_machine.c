@@ -1111,15 +1111,20 @@ void test_sm_reset_accepted_when_fault_cleared(void) {
  * ============================================================================ */
 
 /**
- * Test: Hardware watchdog is fed on every update
+ * Test: the state machine never feeds the TPS3823 (zapote C42)
+ *
+ * WDI is toggled only by the WDI supervisor task after it has checked the
+ * control loop's progress (components/safety/wdi_supervisor.c). A heartbeat
+ * from the top of every update would keep the hardware watchdog quiet for a
+ * loop that is wrong but still running.
  */
-void test_sm_hardware_watchdog_fed(void) {
+void test_sm_hardware_watchdog_not_fed_by_state_machine(void) {
     setup_test();
     uint32_t initial_count = mock_sm_get_watchdog_hw_feed_count();
     
     state_machine_update();
     
-    TEST_ASSERT_EQUAL(initial_count + 1, mock_sm_get_watchdog_hw_feed_count());
+    TEST_ASSERT_EQUAL(initial_count, mock_sm_get_watchdog_hw_feed_count());
 }
 
 /* ============================================================================
@@ -1620,7 +1625,7 @@ void run_state_machine_tests(void) {
     RUN_TEST(test_sm_reset_accepted_when_fault_cleared);
     
     /* Watchdog */
-    RUN_TEST(test_sm_hardware_watchdog_fed);
+    RUN_TEST(test_sm_hardware_watchdog_not_fed_by_state_machine);
     
     /* Temperature setpoint */
     RUN_TEST(test_sm_set_temp_valid_range);

@@ -37,6 +37,12 @@ typedef struct {
     uint16_t dead_time_ns;      /**< Current dead-time */
     bool running;               /**< PWM is active */
     bool complementary;         /**< Complementary mode enabled */
+    /** Every output of the channel is held low: true after init (before the
+     *  first start) and after emergency_stop(); false once started. stop()
+     *  halts the timer but leaves the outputs where the last action put them,
+     *  so it does not set this. The RUN_EN interlock (power_gate.c) reads it:
+     *  RUN_EN may rise only while every gate channel is idle (zapote C39). */
+    bool outputs_off;
 } hal_pwm_state_t;
 
 /**
@@ -90,7 +96,8 @@ typedef struct {
     hal_status_t (*start)(hal_pwm_channel_t channel);
     
     /**
-     * @brief Stop PWM output (outputs go low)
+     * @brief Stop the PWM timer (outputs keep their last level; use
+     *        emergency_stop() to force them low)
      * 
      * @param channel PWM channel
      * @return HAL_OK on success

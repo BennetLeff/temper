@@ -678,7 +678,9 @@ void test_fault_thermal_runaway(void) {
 }
 
 /**
- * @test Verify watchdog monitoring (hardware watchdog fed on every update)
+ * @test The hardware watchdog (TPS3823 WDI) is never fed by the state
+ *       machine: only the WDI supervisor task toggles it, after checking the
+ *       control loop's progress (zapote C42, wdi_supervisor.c).
  */
 void test_fault_watchdog_timeout(void) {
     setup_test();
@@ -691,8 +693,7 @@ void test_fault_watchdog_timeout(void) {
         mock_sm_advance_time(100);
     }
     
-    /* Verify watchdog was fed on each update */
-    TEST_ASSERT_EQUAL(initial_count + 10, mock_sm_get_watchdog_hw_feed_count());
+    TEST_ASSERT_EQUAL(initial_count, mock_sm_get_watchdog_hw_feed_count());
 }
 
 /**

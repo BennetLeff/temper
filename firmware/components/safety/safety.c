@@ -18,6 +18,7 @@
 
 #include "safety.h"
 #include "config.h"
+#include "temper_pins.h"
 #include <stddef.h>
 #include <stdbool.h>
 #include <math.h>
@@ -29,6 +30,7 @@
 /* ESP-IDF includes (available when building with ESP-IDF) */
 #ifdef ESP_PLATFORM
 #include "sdkconfig.h"
+#include "driver/gpio.h"
 #include "esp_task_wdt.h"
 #include "esp_system.h"
 #include "freertos/FreeRTOS.h"
@@ -39,7 +41,6 @@ static const char *TAG = "safety";
 #endif
 
 /* Configuration */
-#define CONTROL_LOOP_FREQ_HZ    100
 /* Over-temperature / over-current interlock thresholds are single-sourced
  * in firmware/config.yaml (interlocks: section) and emitted into config.h.
  * Citation status and the open owner decisions on their values are recorded
@@ -47,16 +48,17 @@ static const char *TAG = "safety";
 #define TEMP_HYSTERESIS         5.0f    /* °C - hysteresis band */
 #define CURRENT_HYSTERESIS      2.0f    /* A - hysteresis band */
 
-/* Hardware Watchdog GPIO Configuration
- * TPS3823-33 WDI input - must toggle to prevent timeout
- * Timeout: 1.6 seconds
- * GPIO assignments in safety.h
- */
+/* Hardware watchdog: TPS3823-33 WDI on PIN_IL_WDI (temper_pins.h), toggled
+ * only by the WDI supervisor task (zapote C42; wdi_supervisor.h). Timeout
+ * 0.9-2.5 s (SLVS165O). */
 
 /* Module state */
 static bool safe_mode_active = false;
 static uint32_t current_wdt_timeout = WDT_TIMEOUT_MS;
-static bool wdi_state = false;  /* Current state of WDI GPIO (for toggle) */
+static bool wdi_state = false;  /* Last level written to WDI */
+#ifndef ESP_PLATFORM
+static uint32_t wdi_writes = 0;
+#endif
 
 /* ============================================================================
  * Simulation/Testing Support (Non-ESP builds)
@@ -109,6 +111,8 @@ void safety_sim_reset(void) {
     zvs_sim_set_status(ZVS_OK);
 }
 uint32_t safety_sim_get_wdt_feeds(void) { return sim_state.wdt_feed_count; }
+uint32_t safety_sim_get_wdi_writes(void) { return wdi_writes; }
+bool safety_sim_get_wdi_level(void) { return wdi_state; }
 
 /* Simulated sensor reads */
 static float read_heatsink_temperature(void) { return sim_state.heatsink_temp; }
@@ -209,16 +213,10 @@ void check_boot_reason(void) {
         enter_safe_mode();
     }
     
-    /* Check external hardware watchdog (TPS3823-33) via GPIO6
-     * RESET_N is active-low. If it triggered the last reset, it might
-     * still be low during early boot, or we can check the latch state.
-     * Note: This requires the reset signal to also be tied to ESP32 EN pin
-     * or for the MCU to read it immediately on startup.
-     */
-    if (gpio_get_level(WDT_RESET_GPIO_NUM) == 0) {
-        ESP_LOGE(TAG, "Rebooted due to EXTERNAL Hardware Watchdog! Entering SAFE MODE.");
-        enter_safe_mode();
-    }
+    /* zapote: the TPS3823 trips the interlock latch, not the MCU's EN, so
+     * it never causes this boot. Its RESET_N read-back (SUP_RUN_OK_RB) is on
+     * the TCA9555 (P14), which has no driver yet. (The legacy code read
+     * GPIO6 here, which is the heatsink NTC ADC on zapote.) */
 #endif
 }
 
@@ -282,13 +280,8 @@ bool check_hardware_interlocks(void) {
         return false;
     }
     
-    /* Check external hardware watchdog state */
-#ifdef ESP_PLATFORM
-    if (gpio_get_level(WDT_RESET_GPIO_NUM) == 0) {
-        ESP_LOGW(TAG, "External watchdog fault active");
-        return false;
-    }
-#endif
+    /* The TPS3823 RESET_N read-back (SUP_RUN_OK_RB) is TCA9555 P14 on
+     * zapote: no expander driver yet, so it is not read here. */
     
     return true;
 }
@@ -372,13 +365,6 @@ safety_status_t run_safety_check(void) {
     if (!check_sensors_valid()) {
         return SAFETY_SENSOR_FAULT;
     }
-
-    /* Check external hardware watchdog state */
-#ifdef ESP_PLATFORM
-    if (gpio_get_level(WDT_RESET_GPIO_NUM) == 0) {
-        return SAFETY_INTERLOCK_TRIP;
-    }
-#endif
 
     /* PLL safety check (per ticket temper-1lj.3) */
     safety_status_t pll_status = check_pll_safety();
@@ -468,88 +454,28 @@ void trigger_hardware_shutdown(void) {
  */
 
 void watchdog_hardware_init(void) {
+    wdi_state = false;
 #ifdef ESP_PLATFORM
-    /* Configure WDI output */
+    /* WDI output, low (its 1 k pull-down already holds it low). */
+    gpio_set_level((gpio_num_t)PIN_IL_WDI, 0);
     gpio_config_t wdi_conf = {
-        .pin_bit_mask = (1ULL << WDI_GPIO_NUM),
+        .pin_bit_mask = (1ULL << PIN_IL_WDI),
         .mode = GPIO_MODE_OUTPUT,
         .pull_up_en = GPIO_PULLUP_DISABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
         .intr_type = GPIO_INTR_DISABLE,
     };
     ESP_ERROR_CHECK(gpio_config(&wdi_conf));
-    gpio_set_level(WDI_GPIO_NUM, 0);
-    
-    /* Configure RESET_N input from TPS3823 */
-    gpio_config_t reset_conf = {
-        .pin_bit_mask = (1ULL << WDT_RESET_GPIO_NUM),
-        .mode = GPIO_MODE_INPUT,
-        .pull_up_en = GPIO_PULLUP_ENABLE,  /* TPS3823 is push-pull, but pullup safe */
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_DISABLE,
-    };
-    ESP_ERROR_CHECK(gpio_config(&reset_conf));
-    
-    /* Configure RUNAWAY_CUT_GPIO output (active HIGH cuts power via OR gate) */
-    gpio_config_t runaway_cut_conf = {
-        .pin_bit_mask = (1ULL << RUNAWAY_CUT_GPIO),
-        .mode = GPIO_MODE_OUTPUT,
-        .pull_up_en = GPIO_PULLUP_DISABLE,
-        .pull_down_en = GPIO_PULLDOWN_ENABLE,  /* Default LOW = power ON */
-        .intr_type = GPIO_INTR_DISABLE,
-    };
-    ESP_ERROR_CHECK(gpio_config(&runaway_cut_conf));
-    gpio_set_level(RUNAWAY_CUT_GPIO, 0);
-    
-    wdi_state = false;
-    ESP_LOGI(TAG, "Hardware watchdog WDI on GPIO%d, RESET_N on GPIO%d, RUNAWAY_CUT on GPIO%d", 
-             WDI_GPIO_NUM, WDT_RESET_GPIO_NUM, RUNAWAY_CUT_GPIO);
+    gpio_set_level((gpio_num_t)PIN_IL_WDI, 0);
+    ESP_LOGI(TAG, "TPS3823 WDI on GPIO%d (heartbeat from the WDI supervisor only)", PIN_IL_WDI);
+#endif
+}
+
+void watchdog_hardware_write_wdi(bool level) {
+    wdi_state = level;
+#ifdef ESP_PLATFORM
+    gpio_set_level((gpio_num_t)PIN_IL_WDI, level ? 1 : 0);
 #else
-    /* Simulation: just reset state */
-    wdi_state = false;
+    wdi_writes++;
 #endif
 }
-
-void watchdog_hardware_feed(void) {
-    /* Toggle WDI state to generate edge for TPS3823-33 */
-    wdi_state = !wdi_state;
-    
-#ifdef ESP_PLATFORM
-    gpio_set_level(WDI_GPIO_NUM, wdi_state ? 1 : 0);
-#endif
-    /* No simulation tracking needed - the behavior is in the GPIO toggle */
-}
-
-/* ============================================================================
- * Example Control Task (ESP32 only)
- * ============================================================================ */
-
-#ifdef ESP_PLATFORM
-/**
- * @brief Example critical control task with watchdog monitoring
- * 
- * This shows how to integrate watchdog into the main control loop.
- */
-void task_control_loop(void *arg) {
-    /* 1. Subscribe this task to the WDT */
-    /* If we don't call reset() within timeout, system reboots */
-    ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
-    
-    TickType_t xLastWakeTime = xTaskGetTickCount();
-    const TickType_t xFrequency = pdMS_TO_TICKS(1000 / CONTROL_LOOP_FREQ_HZ);
-    
-    while (1) {
-        /* 2. Execute critical logic */
-        /* If this hangs > timeout, WDT triggers */
-        /* run_pid_loop(); */
-        /* check_safety_interlocks(); */
-        
-        /* 3. "Pet the Dog" (Reset Timer) */
-        /* CRITICAL: Only reset if logical conditions are met */
-        secure_wdt_reset();
-        
-        /* 4. Wait for next cycle */
-        vTaskDelayUntil(&xLastWakeTime, xFrequency);
-    }
-}
-#endif

@@ -1840,6 +1840,187 @@ a heated box any more:
 6. **The ADC1_CH5 reading at 2.9–3.3 V** (the divider's bottom open: lift
    R90): whether the calibrated read reaches 2950 mV, so DIVIDER can latch.
 
+## D-PINS. The pin map comes from the controller netlist, and CI checks it
+
+**Source.** zapote/controller, read only, branch `controller-c1-crs` at
+467917c38 (C45). `firmware/tools/check_board_pin_map.py --derive` reads, with
+`git show`:
+- `frozen/default.net`, the atopile netlist. The MCU and the expander are
+  found by component class (`Esp32S3Wroom1UN8` = U4, `Tca9555` = U8), not by
+  refdes;
+- `elec/src/controller_parts.ato`, for the module pin of every `IOn` /
+  `RXD0` / `TXD0` signal (U0RXD = GPIO44, U0TXD = GPIO43) and every TCA9555
+  port pin;
+- `frozen/build-receipt.json`: the sha256 of each `.ato` source at the ref
+  must match the receipt, so the netlist is the build of those sources.
+
+It writes `firmware/tools/zapote_controller_pins.json`: 36 connected GPIOs,
+10 used expander pins (P02–P05, P06 and P17 single-node), and the commit and
+sha256 of each file read. The branch has since moved to 431ac27df (C46, a
+DECISIONS and calcs change); `--verify-board-ref controller-c1-crs` re-derives
+there and matches.
+
+**Check** (default mode, a step of the Firmware Tests CI job, with
+`firmware/tools/test_check_board_pin_map.py`: 20 tests, each rule broken once
+in a mutated header or source):
+1. every define in `temper_pins.h` carries one tag, `@net`, `@adc1`, `@exp`,
+   `@not-gpio` or `@host-mock`, and agrees with the snapshot;
+2. every connected GPIO and every used expander pin has a define;
+3. no file under `firmware/main` or `firmware/components` hard-codes
+   `GPIO_NUM_n` (comments excluded);
+4. `hs_ntc_board.c` ADC1_CH5 and `rim_ntc_board.c` ADC1_CH8 match HS_ADC
+   (GPIO6) and RIM_ADC (GPIO9);
+5. single writers: `PIN_IL_WDI` only in `safety.c`,
+   `watchdog_hardware_write_wdi()` only from `main.c`'s WDI supervisor task,
+   `PIN_RUN_EN` only in `power_gate.c` (D-BRINGUP).
+
+**Pins that changed** (legacy `temper_pins.h` and `safety.h` → zapote):
+
+| Signal | Was | Now | Note |
+|---|---|---|---|
+| Heatsink NTC | GPIO3, ADC1_CH2 | GPIO6, ADC1_CH5 | GPIO3 is FAN_TACH (open item 13) |
+| MAX31865 DRDY | GPIO9 | none: TCA9555 P07 | GPIO9 is RIM_ADC (D-RIM pin-header note) |
+| RTD SPI clock | GPIO8 | GPIO11 | GPIO8 is M12_ADC |
+| RTD SPI MOSI | GPIO11 | GPIO13 | GPIO11 is RTD_SCK |
+| TPS3823 WDI | GPIO7 (`PIN_WDT_KICK`, `WDI_GPIO_NUM`) | GPIO18 | GPIO7 is COIL_ADC |
+| TPS3823 RESET_N read | GPIO6 (`WDT_RESET_GPIO_NUM`) | none: TCA9555 P14 | GPIO6 is HS_ADC |
+| Runaway-cut output | GPIO15 (`RUNAWAY_CUT_GPIO`) | none | GPIO15 is PWM_HB; the MCU cannot drive the trip (C4) |
+| I2C SDA / SCL | GPIO38 / 39 | GPIO37 / 0 | 38 / 39 are CT_ZC / LINE_ZC |
+| Gate commands | 4 / 5 (half bridge) | 4 / 5 / 15 / 16 | native-21 full bridge |
+| Removed | RTD2 CS 16, FAULT_OUT 20, RELAY_BYPASS 19, RESET_INPUT 14, LED 17 / 18, BUTTON 0, UART RX 44 | | those GPIOs are PWM_LB, USB D+ / D−, RUN_EN, IL_RESET_N, IL_WDI, I2C SCL, UI MISO |
+
+Unchanged: GPIO1 / 2 (CT_MON / VBUS ADC), RTD CS GPIO10, MISO GPIO12, UART
+TX GPIO43. Added: RUN_EN 14, IL_RESET_N 17, PERMIT_RB 36, BUS_FAULT_RB 21,
+RAIL_OK_RB 35, CT_ZC 38, LINE_ZC 39, COIL / M12 / RIM ADC 7 / 8 / 9,
+MCP3202 CS 42, FAN_PWM 46, FAN_TACH 3, the UI bus 40 / 41 / 44 / 45 / 47 /
+48, USB 19 / 20 and the ten expander pins.
+
+**What the legacy map did on this board.** The target image configured
+GPIO6 (the heatsink ADC) as an input with its internal pull-up, configured
+GPIO15 (the leg-B high-side command) as an output and drove it high on every
+latched fault and runaway, toggled GPIO7 (the coil ADC) as WDI from the state
+machine, armed a falling-edge DRDY interrupt on GPIO9 (the rim NTC node), and
+clocked the MAX31865 on GPIO8. None of these is left.
+
+**DRDY on the target.** `rtd_service` still waits on a GPIO DRDY edge, and
+there is no TCA9555 driver. `PIN_RTD_DRDY` is therefore `HAL_PIN_INVALID`
+on the target (`@not-gpio`; the check fails if the board ever puts RTD_DRDY
+on a GPIO) and `rtd_service_bootstrap()` fails closed; the host suites keep
+mock line 63 (`@host-mock`, above the last pad). The fix belongs to the
+`rtd_service` owner (zapote C23: poll DRDY through the expander or read on
+the conversion period). Until then the MAX31865 reports its bootstrap fault
+and the unit stays in FAULT, as it already does on the failed self-tests.
+
+## D-BRINGUP. WDI supervisor, RUN_EN interlock, burst start, PLL and pan-detect wiring
+
+From zapote/controller (467917c38) C39, C42 and open items 8 and 18.
+
+**WDI (C42).** `components/safety/wdi_supervisor.c` is pure logic; `main.c`
+runs it in its own task every 100 ms and is the only caller of
+`watchdog_hardware_write_wdi()` (GPIO18). The control task publishes, once
+per iteration, a loop sequence number and the sequence number of the newest
+MAX31865 conversion (`rtd_service_latest_sample()`). A step toggles WDI only
+when:
+- the loop advanced by ≥ 5 since the last step (10 expected at 10 ms);
+- the newest conversion, aged on the supervisor's own clock from the step it
+  first appeared, is ≤ 300 ms old (5 × D-STALE's 60 ms);
+- the step itself came ≤ 400 ms after the previous one.
+
+The heartbeat is one edge per 100 ms (C42: ≤ 400 ms against the TPS3823's
+0.9 s minimum). Before the first healthy step (power-up, the fault cycle) it
+never toggles. Once running, the first failed check stops it for good: a
+stall shorter than the TPS3823 timeout is not forgiven. The TPS3823 then
+trips the latch in 0.9–2.5 s. Worst case from the last conversion to no
+heartbeat is 400 ms. `state_machine_update()` no longer toggles WDI; the
+two host tests that asserted it did (`test_state_machine.c`,
+`test_integration.c`) now assert it does not. Host tests (`wdi_supervisor_tests`,
+13): a healthy loop toggles every period; a stalled loop stops it for good,
+even after the loop recovers; a live caller with a dead loop never toggles,
+from power-up or after a healthy start; a slow loop (4 of 10), a stale or
+invalid RTD and a late supervisor stop it; sequence wrap; a heartbeat over
+400 ms is rejected.
+
+**Task watchdog.** The control task subscribes itself (`esp_task_wdt_add`),
+so the handlers' `watchdog_feed()` calls reset it instead of logging "task
+not found" (open item 1).
+
+**RUN_EN (C23, C39, item 18).** `components/safety/power_gate.c` is the
+only writer of GPIO14. `power_gate_enable()` raises it only when every gate
+PWM channel is idle: no driver or channel, or `get_state()` reports stopped
+with `outputs_off` (set by init and `emergency_stop()`, not by a bare
+`stop()`, which leaves the outputs where they were; new field in
+`hal_pwm_state_t`, kept by the mock and the ESP32 HAL). Otherwise it refuses
+and drives RUN_EN low. Lowering is never refused. In `board_peripherals.c`:
+`power_enable()` (PREHEAT entry) raises it; `pwm_set_duty_cycle(0)`
+(IDLE / COOLDOWN entry) lowers it; `pwm_disable_all()` (FAULT and RUNAWAY
+entry, `trigger_hardware_shutdown()`, so every latched fault) forces the
+gate PWM low and then lowers it. The fault cut no longer writes GPIO15.
+Host tests (`power_gate_tests`, 10): refused while the PWM runs, after a bare
+stop and with an unreadable PWM state; allowed with no channel, with an
+initialised idle channel and after an emergency stop; lowering always works.
+
+**Burst start (C39, item 18).** This tree has no native-21 switching path;
+the power stage's full bridge (`tank_freq.c`, `burst_scheduler.c`) is on
+`codex/power-stage-integration`. It does have three legacy start paths, and
+all three now take the first frequency from `pll_burst_start_frequency()`:
+f_start = max(47 kHz, 1.02 × f_res, PLL_MIN_FREQ_HZ), refused when that
+exceeds PLL_MAX_FREQ_HZ. The 1.02 is the low end of C39's burst-start model
+(f/f₀ 1.02–1.8, Q 1–15, no wrong-sign sample in 40 edges); f_res is the last
+known resonance (`pll_set_resonant_frequency()`, the declared 37.58 kHz until
+something measures it). The paths: `pll_enable()` (PREHEAT entry; refused
+leaves the PLL disabled), `pll_reset()`, and the pan-detection pulse
+(refused means no pulse). The PLL's running floor is unchanged. Host tests:
+`pll_tests` +4 (start never below 1.02 f_res for f_res 30–49 kHz in 250 Hz
+steps, refusal at 49.5 kHz, restart after the resonance moves up),
+`pan_detection_tests` +9 (the pulse programs the frequency after the idle
+check and before the pulse; refused with busy gates or no inductive start).
+`test_pll_reset_frequency` now expects the burst-start frequency.
+
+**Requirement for the power-stage owner** (the real start path):
+1. the first gate edge after RUN_EN rises is at f ≥ 1.02 × the last
+   measured resonance of this pan, or at f_max when none is known (tank_freq
+   already approaches from 60 kHz down; this asks the same of every burst
+   restart, after a pause or a pan change);
+2. raise RUN_EN only with all four commands low, through `power_gate.c` or
+   an equivalent check, and report gate state through `hal_pwm` or extend
+   `POWER_GATE_PWM_CHANNELS`;
+3. create the leg-A high-side generator after `board_power_init()`, with
+   `io_loop_back = 1`, and call `pll_set_timer(timer, resolution_hz)`, or
+   the PLL's PWM-edge capture goes blind (or replace the legacy PLL with
+   tank_freq);
+4. install `pan_detect_pulse_ops_t` or replace `detect_pan_presence()` with
+   the tank_freq pan evidence; until then there is no pan and no power.
+
+**PLL.** `pll_capture_attach()` registers `pwm_edge_cb` (PWM_HA rising) and
+`zcd_edge_cb` (CT_ZC rising, taken only after a PWM edge) and enables both
+channels. The lag is computed in float µs from the capture timer's own
+resolution (was integer µs from a hard-coded ÷80). `pll_set_timer()` now
+takes the timer's resolution: the old period was 160 MHz / f while hal_pwm
+runs its timer at 80 MHz, which would have programmed half the frequency
+(47 → 23.5 kHz, far below resonance).
+
+**Pan detect.** `pan_detect.c` now builds on the host, and the duplicate
+`test/pan_detect_logic.c` is gone. `pan_detect_init()` counts edges on a
+CT_ZC capture channel. The pulse goes through `pan_detect_pulse_ops_t`
+(gates idle, set the frequency, pulse) in `pan_detect_run_ops()`. Without
+pulse ops or a listener, `detect_pan_presence()` returns PAN_ABSENT.
+
+**Board bring-up** (`main/board_power.c`, called from `init_peripherals()`):
+1. drive the four gate commands low as GPIO outputs;
+2. `power_gate_init()`;
+3. `pll_init()`;
+4. one MCPWM capture timer (group 0, APB) with three channels: PWM_HA
+   (io_loop_back, so the pad stays an output, low), CT_ZC for the PLL, and
+   CT_ZC for pan detection. Then `pll_capture_attach()`,
+   `pan_detect_init()`, and the timer is started.
+
+Any error leaves the PLL unlocked and no pan. **Stubs that remain**
+(`TODO(hardware)`, fail safe):
+- the native-21 gate generator: no PLL timer, no pulse ops, so no pan and
+  no power;
+- the TCA9555 driver: DRDY, SUP_RUN_OK_RB and the latch read-backs;
+- the power, fan, UI and self-test stubs in `board_peripherals.c`.
+
 ## Open items for the firmware owner
 
 1. **The ESP-IDF target links** (resolved 2026-10-15, branch
@@ -1880,21 +2061,29 @@ a heated box any more:
    - `webui` `/api/status` returned a fixed 25.0 degC. It now returns 503.
 
    **The image is not bench-ready.** The self-tests fail by design, so it
-   stops in FAULT with the coil off. Defects seen while linking, not fixed:
-   - `pll_control.c` stores the capture channel but never registers
-     `pwm_edge_cb`/`zcd_edge_cb`, so the PLL cannot lock on the target;
-   - `pan_detect_init()` and the MCPWM bring-up are never called, so
-     `detect_pan_presence()` always reports no pan;
-   - the control task is not subscribed to the task watchdog, so each
-     `watchdog_feed()` logs "task not found".
+   stops in FAULT with the coil off. Defects seen while linking, since
+   addressed by D-BRINGUP (2026-10-16, branch `sensor-c1-bringup`):
+   - ~~`pll_control.c` stores the capture channel but never registers
+     `pwm_edge_cb`/`zcd_edge_cb`~~: `pll_capture_attach()` registers both on
+     PWM_HA and CT_ZC captures that `main/board_power.c` creates. The PLL
+     still cannot lock until the power stage provides the native-21 gate
+     timer (`pll_set_timer()`), which this tree does not have;
+   - ~~`pan_detect_init()` and the MCPWM bring-up are never called~~: the
+     CT_ZC capture and `pan_detect_init()` run at boot. `detect_pan_presence()`
+     still reports no pan, now by design: the pulse needs the native-21 gate
+     drive (`pan_detect_pulse_ops_t`, TODO(hardware));
+   - ~~the control task is not subscribed to the task watchdog~~: it
+     subscribes itself (`esp_task_wdt_add`).
 2. **Rim NTC driver and rim faults: closed by D-RIM.** What remains:
    - **MCP3202 CH1 rail driver.** Without it the rim assumes 3.300 V, which
      costs up to 4.37 K.
    - **Bench:** the bead's dissipation constant on the glass (self-heating is
      not subtracted), and a transient glass log to replace the 60 s τ_g
      assumption in `xcheck_cosim.py`.
-   - **Pin header.** The legacy `hal/include/temper_pins.h` still names GPIO9
-     `PIN_RTD_DRDY`. On zapote DRDY is on TCA9555 P07, and GPIO9 is the rim.
+   - ~~**Pin header.** The legacy `hal/include/temper_pins.h` still names GPIO9
+     `PIN_RTD_DRDY`.~~ Closed by D-PINS: GPIO9 is `PIN_ADC_RIM_NTC`, DRDY is
+     `EXP_RTD_DRDY` (TCA9555 P07) and no GPIO; `rtd_service` reading DRDY
+     there is open item 16.
    - **UI wording** for a rim fault, which today shows as a probe fault.
 
    The three changed sources (`rim_ntc.c`, `rim_ntc_board.c`,
@@ -2021,10 +2210,10 @@ a heated box any more:
     `packages/temper-thermal` `FIRMWARE_TRIP_TS_C` (80.0, asserted in its own
     test), which models the legacy elec board's THM-01 85 °C ladder for the
     placer; it belongs to that package's owner.
-13. **`temper_pins.h` names GPIO3 / ADC1_CH2 `ADC_CHANNEL_NTC`.** On
-    zapote/controller GPIO3 is the blower tach and the heatsink NTC is GPIO6
-    / ADC1_CH5 (`hs_ntc_board.c`). The legacy pin map should follow the
-    board.
+13. **Closed by D-PINS.** ~~`temper_pins.h` names GPIO3 / ADC1_CH2
+    `ADC_CHANNEL_NTC`.~~ The whole pin map now follows the zapote/controller
+    netlist (heatsink NTC GPIO6 / ADC1_CH5, GPIO3 FAN_TACH), derived by
+    `firmware/tools/check_board_pin_map.py` and checked in CI.
 14. **The cold soak restarts at every power-up** (D-SOAK limits). Persisting
     the time the coil was last active in NVS would let a check run after a
     power cycle; it needs a wall clock or an "off since" counter that
@@ -2038,4 +2227,18 @@ a heated box any more:
     the error budget. The plausibility check is implemented as the latched
     DIVIDER fault (pin ≥ 2950 mV at ATTEN3 for 3 periods, above the intact
     divider's 2937 mV worst reading; D-HSNTC). Cold-soak threshold 19.4 K
-    (D-SOAK). Nothing is asked of the board.
+    (D-SOAK). Nothing is asked of the board. The channel binding itself
+    (`hs_ntc_board.c` ADC1_CH5 = HS_ADC = GPIO6) is now also checked against
+    the netlist by `check_board_pin_map.py` (D-PINS).
+16. **RTD DRDY on the TCA9555** (D-PINS). On the target `PIN_RTD_DRDY` is
+    `HAL_PIN_INVALID`, so `rtd_service_bootstrap()` fails closed: there is no
+    I²C / TCA9555 driver, and the service waits on a GPIO edge. Needs an
+    expander driver (SDA GPIO37, SCL GPIO0, address 0x20; it also serves
+    SUP_RUN_OK_RB P14, LATCHED_FAULT_RB P10 and the C39 read-backs P00/P01)
+    and `rtd_service` polling P07 or reading on the conversion period (zapote
+    C23). For the `rtd_service` owner.
+17. **Native-21 gate drive** (D-BRINGUP). This tree has no full-bridge
+    generator, so the PLL has no timer, pan detection has no pulse and the
+    coil never runs. D-BRINGUP lists what the power stage's driver must do:
+    burst start ≥ 1.02 × last resonance, RUN_EN only with the gates idle,
+    PWM_HA loop-back for the PLL capture, and pan evidence.

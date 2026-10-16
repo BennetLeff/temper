@@ -176,37 +176,82 @@ static pll_context_t pll_ctx = {
 
 static bool pll_enabled = false;
 static uint32_t out_of_range_count = 0;
-static uint64_t last_update_time_us = 0;
 static float last_phase_error_us = 0.0f;  /* For detailed status reporting */
 
 #ifdef ESP_PLATFORM
+static uint64_t last_update_time_us = 0;
 static mcpwm_timer_handle_t pll_timer = NULL;
-static mcpwm_cap_channel_handle_t pll_cap_chan = NULL;
-static volatile uint32_t last_pwm_edge_us = 0;
-static volatile uint32_t last_zcd_edge_us = 0;
+static uint32_t pll_timer_resolution_hz = 0;
+static uint32_t pll_cap_resolution_hz = 0;
+/* Capture-timer ticks of the latest leg-A high-side command edge, and the lag
+ * from it to the CT_ZC rising edge that followed, latched in the ZCD
+ * callback (the PWM edge keeps moving at the switching frequency, so the pair
+ * must be taken together, not read later). Raw ticks, not microseconds: the
+ * old code divided by a hard-coded 80 into whole microseconds, a 1 us quantum
+ * on a 1.5 us target lag. */
+static volatile uint32_t last_pwm_edge_ticks = 0;
+static volatile uint32_t last_lag_ticks = 0;
+static volatile bool pwm_edge_seen = false;
 static volatile bool phase_measurement_ready = false;
 
 /**
- * @brief PWM edge capture callback (ISR)
+ * @brief PWM edge capture callback (ISR): leg-A high-side command rising
  */
 static bool IRAM_ATTR pwm_edge_cb(mcpwm_cap_channel_handle_t cap_chan,
                                    const mcpwm_capture_event_data_t *edata,
                                    void *user_data) {
-    last_pwm_edge_us = (uint32_t)(edata->cap_value / 80);  /* 80MHz clock -> us */
+    (void)cap_chan;
+    (void)user_data;
+    last_pwm_edge_ticks = edata->cap_value;
+    pwm_edge_seen = true;
     return false;
 }
 
 /**
- * @brief ZCD edge capture callback (ISR)
+ * @brief ZCD edge capture callback (ISR): CT_ZC rising (current going positive)
  */
 static bool IRAM_ATTR zcd_edge_cb(mcpwm_cap_channel_handle_t cap_chan,
                                    const mcpwm_capture_event_data_t *edata,
                                    void *user_data) {
-    last_zcd_edge_us = (uint32_t)(edata->cap_value / 80);
-    phase_measurement_ready = true;
+    (void)cap_chan;
+    (void)user_data;
+    if (pwm_edge_seen) {
+        /* Unsigned difference: the capture timer wraps. */
+        last_lag_ticks = edata->cap_value - last_pwm_edge_ticks;
+        phase_measurement_ready = true;
+    }
     return false;
 }
+
+/* Write a frequency to the gate timer, if one is attached. */
+static void pll_apply_timer_frequency(float freq_hz) {
+    if (pll_timer != NULL && pll_timer_resolution_hz != 0u && freq_hz > 0.0f) {
+        const uint32_t period = (uint32_t)((float)pll_timer_resolution_hz / freq_hz);
+        mcpwm_timer_set_period(pll_timer, period);
+    }
+}
 #endif
+
+/* Burst-start rule (pll_control.h PLL_BURST_START_MARGIN; zapote C39). */
+bool pll_burst_start_frequency(float *out_hz) {
+    const float f_res = pll_ctx.resonant_freq;
+    if (out_hz == NULL || !isfinite(f_res) || f_res <= 0.0f) {
+        return false;
+    }
+    float f = (float)PLL_DEFAULT_FREQ_HZ;
+    const float floor_hz = (1.0f + PLL_BURST_START_MARGIN) * f_res;
+    if (f < floor_hz) {
+        f = floor_hz;
+    }
+    if (f < (float)pll_ctx.min_freq) {
+        f = (float)pll_ctx.min_freq;
+    }
+    if (!isfinite(f) || f > (float)pll_ctx.max_freq) {
+        return false;
+    }
+    *out_hz = f;
+    return true;
+}
 
 void pll_init(const pll_config_t *config) {
     if (config != NULL) {
@@ -245,34 +290,73 @@ void pll_init(const pll_config_t *config) {
  * @param timer_handle MCPWM timer handle
  */
 #ifdef ESP_PLATFORM
-void pll_set_timer(mcpwm_timer_handle_t timer_handle) {
+void pll_set_timer(mcpwm_timer_handle_t timer_handle, uint32_t resolution_hz) {
     pll_timer = timer_handle;
-    ESP_LOGI(TAG, "PLL timer handle set");
+    pll_timer_resolution_hz = resolution_hz;
+    ESP_LOGI(TAG, "PLL timer handle set (%lu Hz ticks)", (unsigned long)resolution_hz);
 }
-#endif
 
-/**
- * @brief Set capture channel for phase measurement
- * 
- * @param cap_chan MCPWM capture channel handle for ZCD input
- */
-#ifdef ESP_PLATFORM
-void pll_set_capture_channel(mcpwm_cap_channel_handle_t cap_chan) {
-    pll_cap_chan = cap_chan;
-    ESP_LOGI(TAG, "PLL capture channel set");
+esp_err_t pll_capture_attach(mcpwm_cap_channel_handle_t pwm_edge_chan,
+                             mcpwm_cap_channel_handle_t zcd_chan,
+                             uint32_t cap_resolution_hz) {
+    if (pwm_edge_chan == NULL || zcd_chan == NULL || cap_resolution_hz == 0u) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    const mcpwm_capture_event_callbacks_t pwm_cbs = {.on_cap = pwm_edge_cb};
+    const mcpwm_capture_event_callbacks_t zcd_cbs = {.on_cap = zcd_edge_cb};
+    const mcpwm_capture_event_callbacks_t none = {.on_cap = NULL};
+    esp_err_t err = mcpwm_capture_channel_register_event_callbacks(pwm_edge_chan, &pwm_cbs, NULL);
+    if (err == ESP_OK) {
+        err = mcpwm_capture_channel_register_event_callbacks(zcd_chan, &zcd_cbs, NULL);
+        if (err != ESP_OK) {
+            (void)mcpwm_capture_channel_register_event_callbacks(pwm_edge_chan, &none, NULL);
+        }
+    }
+    if (err == ESP_OK) {
+        err = mcpwm_capture_channel_enable(pwm_edge_chan);
+    }
+    if (err == ESP_OK) {
+        err = mcpwm_capture_channel_enable(zcd_chan);
+    }
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "PLL capture attach failed: %s", esp_err_to_name(err));
+        return err;
+    }
+    pll_cap_resolution_hz = cap_resolution_hz;
+    ESP_LOGI(TAG, "PLL capture attached (%lu Hz ticks)", (unsigned long)cap_resolution_hz);
+    return ESP_OK;
 }
 #endif
 
 void pll_enable(void) {
+    float f_start;
+    if (!pll_burst_start_frequency(&f_start)) {
+        /* No inductive-side start in range: do not track, do not switch. */
+        pll_enabled = false;
+        pll_ctx.locked = false;
+#ifdef ESP_PLATFORM
+        ESP_LOGE(TAG, "PLL not enabled: no burst start at or above resonance %.0f Hz "
+                 "within %lu Hz", pll_ctx.resonant_freq, (unsigned long)pll_ctx.max_freq);
+#endif
+        return;
+    }
+    pll_ctx.current_freq = f_start;
+    pll_ctx.integrator = 0.0f;
+    pll_ctx.locked = false;
+    pll_ctx.lock_count = 0;
+    pll_ctx.unlock_count = 0;
     pll_enabled = true;
     out_of_range_count = 0;
     
 #ifdef ESP_PLATFORM
+    pll_apply_timer_frequency(f_start);
+    phase_measurement_ready = false;
+    pwm_edge_seen = false;
     last_update_time_us = esp_timer_get_time();
     if (pll_timer == NULL) {
         ESP_LOGW(TAG, "PLL enabled but timer not set - call pll_set_timer() first");
     }
-    ESP_LOGI(TAG, "PLL tracking enabled");
+    ESP_LOGI(TAG, "PLL tracking enabled, start %.0f Hz", f_start);
 #endif
 }
 
@@ -339,12 +423,11 @@ void pll_update_loop(float measured_lag_us, float dt_sec) {
     /* Apply to hardware with hysteresis to avoid jitter */
     if (fabsf(new_freq - pll_ctx.current_freq) > FREQ_HYSTERESIS_HZ) {
 #ifdef ESP_PLATFORM
-        if (pll_timer != NULL) {
-            /* Calculate timer period from frequency */
-            /* Period = clock_freq / switching_freq */
-            uint32_t period = 160000000 / (uint32_t)new_freq;  /* 160MHz MCPWM clock */
-            mcpwm_timer_set_period(pll_timer, period);
-        }
+        /* Period from the timer's own tick rate. This used a hard-coded
+         * 160 MHz while hal_pwm runs its timer at 80 MHz, which would have
+         * written half the frequency: 47 kHz -> 23.5 kHz, far below
+         * resonance. */
+        pll_apply_timer_frequency(new_freq);
 #endif
         pll_ctx.current_freq = new_freq;
     }
@@ -354,8 +437,6 @@ void pll_update_loop(float measured_lag_us, float dt_sec) {
      * - Phase error < ±15°
      * - Frequency within ±2kHz of resonant frequency
      */
-    float abs_error = fabsf(error);
-
     /* Convert phase error to degrees for checking
      * phase_deg = (phase_us / period_us) * 360°
      * period_us = 1e6 / freq_hz
@@ -421,18 +502,17 @@ void pll_update(void) {
         return;
     }
     phase_measurement_ready = false;
-    
-    /* Calculate phase lag from captured timestamps */
-    int32_t lag_us = (int32_t)(last_zcd_edge_us - last_pwm_edge_us);
-    
-    /* Handle wraparound (should be positive, within one period) */
-    if (lag_us < 0) {
-        /* ZCD before PWM edge - add one period */
-        lag_us += (int32_t)(1000000.0f / pll_ctx.current_freq);
+    if (pll_cap_resolution_hz == 0u) {
+        return;   /* no capture attached: the loss-of-signal path above applies */
     }
     
-    /* Call the control loop with measured phase */
-    pll_update_loop((float)lag_us, dt_sec);
+    /* Phase lag from the latched capture pair (zcd_edge_cb). */
+    const uint32_t lag_ticks = last_lag_ticks;
+    const float lag_us = (float)lag_ticks * 1.0e6f / (float)pll_cap_resolution_hz;
+
+    /* Call the control loop with measured phase; a lag outside
+     * MIN/MAX_VALID_LAG_US counts toward loss of lock there. */
+    pll_update_loop(lag_us, dt_sec);
     
 #else
     /* Non-ESP: no-op, use pll_update_loop() directly for testing */
@@ -454,17 +534,23 @@ void pll_set_target_phase(float phase_us) {
 }
 
 void pll_reset(void) {
-    pll_ctx.current_freq = (float)PLL_DEFAULT_FREQ_HZ;
+    float f_start;
     pll_ctx.integrator = 0.0f;
     pll_ctx.locked = false;
     out_of_range_count = 0;
-    
+    if (!pll_burst_start_frequency(&f_start)) {
+        /* Nowhere inductive to restart from: stop tracking. */
+        pll_enabled = false;
 #ifdef ESP_PLATFORM
-    if (pll_timer != NULL) {
-        uint32_t period = 160000000 / PLL_DEFAULT_FREQ_HZ;
-        mcpwm_timer_set_period(pll_timer, period);
+        ESP_LOGE(TAG, "PLL reset: no burst start at or above resonance; disabled");
+#endif
+        return;
     }
-    ESP_LOGI(TAG, "PLL reset to default frequency %dHz", PLL_DEFAULT_FREQ_HZ);
+    pll_ctx.current_freq = f_start;
+
+#ifdef ESP_PLATFORM
+    pll_apply_timer_frequency(f_start);
+    ESP_LOGI(TAG, "PLL reset to burst-start frequency %.0f Hz", f_start);
 #endif
 }
 
@@ -496,10 +582,6 @@ void pll_set_resonant_frequency(float freq_hz) {
  * - Outside bounds → immediate shutdown required
  */
 bool pll_is_frequency_safe(void) {
-#ifndef ESP_PLATFORM
-    static bool sim_freq_safe = true;
-    /* This allows the simulation API to override the real calculation */
-#endif
     float min_safe_freq = pll_ctx.resonant_freq - FREQ_MARGIN_LOW_HZ;
     float max_safe_freq = pll_ctx.resonant_freq + FREQ_MARGIN_HIGH_HZ;
 

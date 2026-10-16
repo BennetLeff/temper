@@ -1,0 +1,81 @@
+{
+  "schema": "temper.firmware.board-pin-map.v1",
+  "generated_by": "firmware/tools/check_board_pin_map.py --derive",
+  "board": {
+    "branch": "controller-c1-crs",
+    "ref": "467917c381578023137f8b4619b8fc076fe903f5",
+    "commit": "467917c381578023137f8b4619b8fc076fe903f5",
+    "netlist": "zapote/controller/frozen/default.net",
+    "netlist_sha256": "c0808194d2fe1e6ca7691d168d68eeb228e1307b16c5f315fb82f1c058186546",
+    "parts": "zapote/controller/elec/src/controller_parts.ato",
+    "parts_sha256": "1a04cbf032289e422b3d85a4acf6a86e5ae1843eb5f978933bbc420a0b30ec6a",
+    "build_receipt_sha256": "fcc5e24c092db6d4914f827723542038dcd452a1211ef14242a555b298d1a4a3",
+    "mcu": {
+      "ref": "U4",
+      "class": "Esp32S3Wroom1UN8"
+    },
+    "expander": {
+      "ref": "U8",
+      "class": "Tca9555"
+    }
+  },
+  "gpio": {
+    "0": "I2C_SCL_BOOT",
+    "1": "CT_MON_ADC",
+    "2": "VBUS_ADC",
+    "3": "FAN_TACH",
+    "4": "pwm_ha_mcu",
+    "5": "pwm_la_mcu",
+    "6": "HS_ADC",
+    "7": "COIL_ADC",
+    "8": "M12_ADC",
+    "9": "RIM_ADC",
+    "10": "RTD_CS_N",
+    "11": "RTD_SCK",
+    "12": "RTD_SDO",
+    "13": "RTD_SDI",
+    "14": "RUN_EN",
+    "15": "pwm_hb_mcu",
+    "16": "pwm_lb_mcu",
+    "17": "IL_RESET_N",
+    "18": "IL_WDI",
+    "19": "USB_DN",
+    "20": "USB_DP",
+    "21": "BUS_FAULT_RB",
+    "35": "RAIL_OK_RB",
+    "36": "PERMIT_RB",
+    "37": "I2C_SDA",
+    "38": "CT_ZC_MCU",
+    "39": "LINE_ZC_MCU",
+    "40": "UI_SCK",
+    "41": "UI_MOSI",
+    "42": "EXT_ADC_CS_N",
+    "43": "UART0_TX",
+    "44": "UI_MISO",
+    "45": "UI_DC",
+    "46": "FAN_PWM",
+    "47": "UI_CS_OLED_N",
+    "48": "UI_CS_EXP_N"
+  },
+  "gpio_unconnected": [],
+  "expander": {
+    "P00": "CM_HA_OK_RB",
+    "P01": "CM_LA_OK_RB",
+    "P07": "RTD_DRDY",
+    "P10": "LATCHED_FAULT_RB",
+    "P11": "RTD_FAULT_RB",
+    "P12": "HS_FAULT_RB",
+    "P13": "COIL_FAULT_RB",
+    "P14": "SUP_RUN_OK_RB",
+    "P15": "FAN_OFF",
+    "P16": "BLW_PG"
+  },
+  "expander_unconnected": [
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P17"
+  ]
+}

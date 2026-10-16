@@ -18,16 +18,17 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_system.h"
+#include "esp_task_wdt.h"
 #include "nvs_flash.h"
 
 #include "state_machine.h"
 #include "hal.h"
 #include "rtd_service.h"
-/* These will be included when components are built */
-/* #include "pan_detect.h" */
-/* #include "pid_control.h" */
-/* #include "pll_control.h" */
+#include "board_power.h"
 #include "../components/safety/safety.h"
+#include "../components/safety/wdi_supervisor.h"
+
+extern uint32_t get_time_ms(void);
 
 static const char *TAG = "main";
 
@@ -35,11 +36,15 @@ static const char *TAG = "main";
 #define CONTROL_TASK_PRIORITY   (configMAX_PRIORITIES - 1)  /* Highest */
 #define UI_TASK_PRIORITY        (configMAX_PRIORITIES - 3)
 #define MONITOR_TASK_PRIORITY   (configMAX_PRIORITIES - 2)
+/* Below the control task, above UI/monitor: a starved supervisor stops the
+ * heartbeat (fail safe), a starved control loop is what it watches for. */
+#define WDI_SUP_TASK_PRIORITY   (configMAX_PRIORITIES - 2)
 
 /* Task stack sizes */
 #define CONTROL_TASK_STACK_SIZE 4096
 #define UI_TASK_STACK_SIZE      2048
 #define MONITOR_TASK_STACK_SIZE 2048
+#define WDI_SUP_TASK_STACK_SIZE 2048
 
 /* Control loop timing */
 #define CONTROL_LOOP_PERIOD_MS  10  /* 100 Hz */
@@ -56,6 +61,17 @@ static const char *TAG = "main";
  */
 static void control_task(void *arg) {
     ESP_LOGI(TAG, "Control task started");
+
+    /* Subscribe to the task watchdog: the state handlers' watchdog_feed()
+     * calls reset it, and without the subscription each one logged "task not
+     * found" (sensor-r3 DECISIONS.md open item 1). A loop that stops feeding
+     * for the state's timeout panics and reboots into safe mode
+     * (check_boot_reason()). */
+    esp_err_t wdt_err = esp_task_wdt_add(NULL);
+    if (wdt_err != ESP_OK) {
+        /* The WDI supervisor still watches this loop's progress. */
+        ESP_LOGE(TAG, "esp_task_wdt_add(control) failed: %s", esp_err_to_name(wdt_err));
+    }
     
     TickType_t xLastWakeTime = xTaskGetTickCount();
     const TickType_t xFrequency = pdMS_TO_TICKS(CONTROL_LOOP_PERIOD_MS);
@@ -67,8 +83,63 @@ static void control_task(void *arg) {
 
         /* Update state machine (handles PID, PLL internally) */
         state_machine_update();
+
+        /* Progress for the WDI supervisor (zapote C42): one loop iteration,
+         * and the newest RTD conversion this loop has seen. */
+        {
+            bool rtd_valid = false;
+            uint32_t rtd_seq = 0u;
+#ifdef TEMPER_PAN_CONTROL_C1
+            rtd_sample_t rtd;
+            if (rtd_service_latest_sample(&rtd)) {
+                rtd_valid = true;
+                rtd_seq = rtd.seq;
+            }
+#endif
+            wdi_progress_publish(rtd_valid, rtd_seq);
+        }
         
         /* Wait for next period */
+        vTaskDelayUntil(&xLastWakeTime, xFrequency);
+    }
+}
+
+/**
+ * @brief TPS3823 WDI supervisor (zapote/controller DECISIONS C42)
+ *
+ * The only code that toggles WDI (GPIO18). Every WDI_SUP_PERIOD_MS it checks
+ * that the control loop advanced and the newest RTD conversion is recent
+ * (wdi_supervisor.c), and drives one WDI edge only then. A stalled loop, a
+ * stopped converter or a late supervisor stops the heartbeat for good; the
+ * TPS3823 then trips the interlock latch within 0.9-2.5 s and PERMIT drops.
+ * Not an ISR, timer, LEDC or RMT: a live timer with a dead loop must not keep
+ * the heartbeat going.
+ */
+static void wdi_supervisor_task(void *arg) {
+    (void)arg;
+    wdi_sup_t sup;
+    const wdi_sup_params_t params = WDI_SUP_DEFAULT_PARAMS();
+    if (!wdi_sup_init(&sup, &params)) {
+        ESP_LOGE(TAG, "WDI supervisor parameters rejected: no heartbeat");
+    }
+    wdi_stop_reason_t reported = WDI_STOP_NONE;
+
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    const TickType_t xFrequency = pdMS_TO_TICKS(WDI_SUP_PERIOD_MS);
+    while (1) {
+        uint32_t loop_seq;
+        bool rtd_valid;
+        uint32_t rtd_seq;
+        bool level;
+        wdi_progress_read(&loop_seq, &rtd_valid, &rtd_seq);
+        if (wdi_sup_step(&sup, get_time_ms(), loop_seq, rtd_valid, rtd_seq, &level)) {
+            watchdog_hardware_write_wdi(level);
+        }
+        if (wdi_sup_state(&sup) == WDI_SUP_STOPPED && reported == WDI_STOP_NONE) {
+            reported = wdi_sup_stop_reason(&sup);
+            ESP_LOGE(TAG, "WDI heartbeat stopped (reason %d): the TPS3823 will trip the latch",
+                     (int)reported);
+        }
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
 }
@@ -150,11 +221,15 @@ static void init_peripherals(void) {
     /* Initialize ADC for temperature sensing */
     /* adc_init(); */
     
-    /* Initialize MCPWM for gate driver */
-    /* mcpwm_init(); */
+    /* Power-stage side of the controller: gate commands held low, RUN_EN
+     * low through power_gate, the PLL and pan-detect capture on CT_ZC. The
+     * native-21 gate generator is TODO(hardware) (board_power.c). */
+    board_power_init();
     
-    /* Board-owned SPI2/MAX31865 bootstrap. DRDY on GPIO9 is configured as a
-     * falling-edge handoff; no SPI transfer is performed in its ISR. */
+    /* Board-owned SPI2/MAX31865 bootstrap. On zapote DRDY is on the TCA9555
+     * (P07), not a GPIO, so until rtd_service reads it there this fails
+     * closed (temper_pins.h PIN_RTD_DRDY); no SPI transfer is performed in
+     * an ISR. */
     if (rtd_service_bootstrap() != HAL_OK) {
         ESP_LOGE(TAG, "MAX31865 bootstrap failed; control task will fail closed");
     }
@@ -183,10 +258,8 @@ void app_main(void) {
     /* Initialize state machine */
     state_machine_init();
     
-    /* Initialize external hardware watchdog (TPS3823-33)
-     * CRITICAL: Must be called before control task starts!
-     * This configures the WDI GPIO that state_machine_update() toggles.
-     * See SAFETY_INTERLOCK_DESIGN.md Section 7. */
+    /* External hardware watchdog (TPS3823-33, zapote C42): WDI (GPIO18) as an
+     * output, low. Only wdi_supervisor_task toggles it. */
     watchdog_hardware_init();
     
     /* Initialize software safety watchdog */
@@ -206,6 +279,17 @@ void app_main(void) {
         1  /* Pin to Core 1 */
     );
     
+    /* Create the WDI supervisor (C42) */
+    xTaskCreatePinnedToCore(
+        wdi_supervisor_task,
+        "wdi_sup",
+        WDI_SUP_TASK_STACK_SIZE,
+        NULL,
+        WDI_SUP_TASK_PRIORITY,
+        NULL,
+        0  /* Core 0: not the control loop's core */
+    );
+
     /* Create UI task */
     xTaskCreatePinnedToCore(
         ui_task,

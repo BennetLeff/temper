@@ -205,6 +205,7 @@ static hal_status_t esp32_pwm_init(hal_pwm_channel_t channel, const hal_pwm_conf
     ch->state.dead_time_ns = config->dead_time_ns;
     ch->state.running = false;
     ch->state.complementary = config->complementary;
+    ch->state.outputs_off = true;   /* timer not started: generators idle low */
     
     ch->initialized = true;
     
@@ -322,6 +323,14 @@ static hal_status_t esp32_pwm_start(hal_pwm_channel_t channel)
         return HAL_ERROR_NOT_READY;
     }
     
+    /* Release a previous emergency_stop() force, or the outputs stay low. */
+    if (ch->gen_high) {
+        mcpwm_generator_set_force_level(ch->gen_high, -1, true);
+    }
+    if (ch->gen_low) {
+        mcpwm_generator_set_force_level(ch->gen_low, -1, true);
+    }
+
     /* Enable timer */
     esp_err_t err = mcpwm_timer_enable(ch->timer);
     if (err != ESP_OK) {
@@ -335,6 +344,7 @@ static hal_status_t esp32_pwm_start(hal_pwm_channel_t channel)
     }
     
     ch->state.running = true;
+    ch->state.outputs_off = false;
     ESP_LOGI(TAG, "PWM channel %d started", (int)channel);
     return HAL_OK;
 }
@@ -394,6 +404,7 @@ static hal_status_t esp32_pwm_emergency_stop(void)
             /* Stop timer */
             mcpwm_timer_start_stop(ch->timer, MCPWM_TIMER_STOP_FULL);
             ch->state.running = false;
+            ch->state.outputs_off = true;
         }
     }
     

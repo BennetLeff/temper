@@ -110,22 +110,22 @@ extern void pll_update(void);
 /* Safety stubs */
 extern void watchdog_set_timeout(uint32_t timeout_ms);
 extern void watchdog_feed(void);
-extern void watchdog_hardware_feed(void);
 extern void trigger_hardware_shutdown(void);
 
-/* Route software-detected safety faults into the same active-high hardware
- * runaway-cut input used by the UCC21550 fault latch. This keeps RTD/ADC/fan
- * faults fail-safe even when the firmware state transition is delayed.
- *
- * TODO(temper-xxx): Single-point failure risk — gpio_set_level() writes to
- * the GPIO but does not verify pin state. If the output driver is damaged,
- * the fault cut may not be asserted. Consider adding a GPIO read-back
- * verification loop with a watchdog-bounded timeout before falling through
- * to trigger_hardware_shutdown(). */
+/* The TPS3823 WDI heartbeat is not fed from here: only the WDI supervisor
+ * task toggles it, after checking this loop's progress (zapote C42,
+ * components/safety/wdi_supervisor.h). Feeding it at the top of every update
+ * would keep the hardware watchdog quiet for a loop that is wrong but still
+ * running. */
+
+/* The firmware's stop for every software-detected safety fault. On zapote
+ * the MCU cannot drive the interlock's trip (DECISIONS C4): the legacy
+ * board's runaway-cut output on GPIO15 is the leg-B high-side gate command
+ * here. trigger_hardware_shutdown() forces the gate commands low and drops
+ * RUN_EN (pwm_disable_all()), which takes PERMIT low through the board's AND
+ * gate (C23); the hardware trips (RTD runaway, rim, thermal, capacitive mode,
+ * the TPS3823) act on their own. */
 static void assert_hardware_fault_cut(void) {
-#ifdef ESP_PLATFORM
-    gpio_set_level(RUNAWAY_CUT_GPIO, 1);
-#endif
     trigger_hardware_shutdown();
 }
 
@@ -279,14 +279,6 @@ void state_machine_update(void) {
     uint32_t now = get_time_ms();
     sm_ctx.state_duration = now - sm_ctx.state_entry_time;
     
-    /* Feed external hardware watchdog (TPS3823-33) at the TOP of the loop.
-     * This ensures the watchdog is fed even if state processing hangs.
-     * The WDI toggle provides a heartbeat to the hardware watchdog IC.
-     * If this function stops being called (MCU lockup), the watchdog
-     * will timeout after 1.6s and disable the power stage.
-     * See SAFETY_INTERLOCK_DESIGN.md Section 7. */
-    watchdog_hardware_feed();
-
 #ifdef TEMPER_PAN_CONTROL_C1
     /* Cold-soak history (D-SOAK): coil activity and the soaked Pt100 and
      * heatsink readings, in every state. */
@@ -604,12 +596,9 @@ static void check_runaway_boundary(void) {
     return;
 
 trigger_runaway:
-    /* Hardware-level cut: assert GPIO to OR gate */
-#ifdef ESP_PLATFORM
-    gpio_set_level(RUNAWAY_CUT_GPIO, 1);
-#endif
-    /* Software-level cut: disable PWM and power */
-    trigger_hardware_shutdown();
+    /* Gate commands low and RUN_EN low (assert_hardware_fault_cut()); the
+     * board's own RTD runaway comparator (C38) trips independently. */
+    assert_hardware_fault_cut();
 
     sm_ctx.runaway_latched = true;
     transition_to(STATE_RUNAWAY_FAULT);

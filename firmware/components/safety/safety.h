@@ -143,37 +143,31 @@ void trigger_hardware_shutdown(void);
 bool is_safe_mode_active(void);
 
 /**
- * @brief Initialize external hardware watchdog (TPS3823-33)
- * 
- * Configures GPIO for WDI heartbeat output.
- * Must be called during system initialization.
+ * @brief Initialize the external hardware watchdog's heartbeat output
+ *
+ * zapote/controller: TPS3823-33 (U21) WDI on GPIO18 (PIN_IL_WDI, 1 k
+ * pull-down). Configures it as an output, low. Call during system
+ * initialization, before the WDI supervisor task starts.
+ *
+ * The legacy board's GPIO map (WDI on GPIO7, RESET_N read on GPIO6, a
+ * runaway-cut output on GPIO15) does not exist on zapote: GPIO6/7 are the
+ * heatsink and coil ADCs and GPIO15 is the leg-B high-side gate command. The
+ * MCU cannot drive the interlock's trip (C4); its stop is RUN_EN low and the
+ * gate commands low (pwm_disable_all()). The TPS3823 RESET_N read-back is
+ * SUP_RUN_OK_RB on the TCA9555 (EXP_SUP_RUN_OK_RB), which has no driver yet.
  */
 void watchdog_hardware_init(void);
 
 /**
- * @brief Feed the external hardware watchdog
- * 
- * Toggles WDI GPIO to reset the TPS3823-33 timer.
- * Must be called at least every 800ms (1.6s timeout / 2).
- * Call from main control loop for maximum safety.
- */
-void watchdog_hardware_feed(void);
-
-/**
- * @brief Hardware Watchdog and Runaway Interlock GPIO Configuration
+ * @brief Drive the TPS3823 WDI pin
  *
- * GPIO assignments for safety-critical signals:
- * - WDI_GPIO_NUM: Heartbeat output to TPS3823-33 WDI pin
- * - WDT_RESET_GPIO_NUM: Input from TPS3823-33 RESET_N pin
- * - RUNAWAY_CUT_GPIO: Runaway interlock output to fault OR gate
- *   (asserted HIGH on runaway boundary breach, latched until power-cycle)
+ * Only the WDI supervisor task calls this (zapote C42: never an ISR, timer,
+ * LEDC or RMT, and never the control loop itself), with the level
+ * wdi_sup_step() returns after checking control-loop progress.
+ * firmware/tools/check_board_pin_map.py fails if any other file calls it or
+ * names PIN_IL_WDI.
  */
-#ifdef ESP_PLATFORM
-#include "driver/gpio.h"
-#define WDI_GPIO_NUM            GPIO_NUM_7
-#define WDT_RESET_GPIO_NUM      GPIO_NUM_6
-#define RUNAWAY_CUT_GPIO        GPIO_NUM_15
-#endif
+void watchdog_hardware_write_wdi(bool level);
 
 /* ============================================================================
  * Simulation API (Non-ESP builds only)
@@ -191,6 +185,8 @@ void safety_sim_set_wdt_reset(bool active);
 void safety_sim_inject_fault(safety_status_t fault);
 void safety_sim_reset(void);
 uint32_t safety_sim_get_wdt_feeds(void);
+uint32_t safety_sim_get_wdi_writes(void);
+bool safety_sim_get_wdi_level(void);
 #endif
 
 #ifdef __cplusplus

@@ -243,15 +243,39 @@ add_executable(test_safety_only
 target_include_directories(test_safety_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_safety_only m)
 
-# Pan detection tests only
+# Pan detection tests only: the real pan_detect.c (its ESP-IDF capture glue
+# is under ESP_PLATFORM) and the PLL's burst-start rule it uses.
 add_executable(test_pan_detection_only
     ${UNITY_SOURCES}
-    ${CMAKE_CURRENT_SOURCE_DIR}/pan_detect_logic.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_detect.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pll_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_pan_detection.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_pan_detection.c
 )
 target_include_directories(test_pan_detection_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_pan_detection_only m)
+
+# TPS3823 WDI supervisor (zapote/controller C42): heartbeat only after the
+# control loop's progress check. output/temper-sensor-r3/firmware/
+# DECISIONS.md D-BRINGUP.
+add_executable(test_wdi_supervisor_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/safety/wdi_supervisor.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_wdi_supervisor.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_wdi_supervisor.c
+)
+target_include_directories(test_wdi_supervisor_only PRIVATE ${INCLUDE_DIRS})
+
+# RUN_EN raised only with the gate PWM idle (zapote/controller C23 / C39),
+# through the GPIO and PWM mocks.
+add_executable(test_power_gate_only
+    ${UNITY_SOURCES}
+    ${MOCK_HAL_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/safety/power_gate.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_power_gate.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_power_gate.c
+)
+target_include_directories(test_power_gate_only PRIVATE ${INCLUDE_DIRS})
 
 # PLL control tests only
 add_executable(test_pll_only
@@ -404,6 +428,8 @@ add_test(NAME low_temp_tests COMMAND test_low_temp_only)
 add_test(NAME safety_tests COMMAND test_safety_only)
 add_test(NAME pan_detection_tests COMMAND test_pan_detection_only)
 add_test(NAME pll_tests COMMAND test_pll_only)
+add_test(NAME wdi_supervisor_tests COMMAND test_wdi_supervisor_only)
+add_test(NAME power_gate_tests COMMAND test_power_gate_only)
 add_test(NAME integration_tests COMMAND test_integration_only)
 
 # ============================================================================

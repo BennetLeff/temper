@@ -11,9 +11,10 @@
  * - Real implementations, where the hardware path already exists in this
  *   firmware (esp_timer, the MAX31865 service, the heatsink NTC).
  *
- * - `TODO(hardware)` implementations, where no driver exists and the board
- *   path is not specified in firmware/config.yaml or config.h (pins in
- *   temper_hal/include/temper_pins.h are marked provisional). Each one fails
+ * - `TODO(hardware)` implementations, where no driver exists or the board
+ *   path is not specified in firmware/config.yaml or config.h (the pins in
+ *   temper_hal/include/temper_pins.h follow the zapote/controller netlist,
+ *   checked by firmware/tools/check_board_pin_map.py). Each one fails
  *   safe: it never reports a plausible sensor value, inputs read as faults
  *   (temperatures and currents +INFINITY, fan stopped, buttons released,
  *   self-tests failed), and power outputs refuse any non-zero command, so the
@@ -34,6 +35,8 @@
 #include "state_machine.h"
 #include "pan_control.h"
 #include "hs_ntc.h"
+#include "hal.h"
+#include "power_gate.h"
 
 static const char *TAG = "board";
 
@@ -155,22 +158,38 @@ void button_set_enabled(button_id_t button, bool enabled)
 }
 
 /* ============================================================================
- * Power stage (TODO(hardware)): no gate-drive path is wired. The MCPWM is
- * never initialised and the gate pins are never configured as outputs by
- * this image, so a zero command is already the hardware state and every
- * non-zero command is refused.
+ * Power stage (TODO(hardware)): no native-21 gate generator is wired (the
+ * power stage's full-bridge driver lives on codex/power-stage-integration).
+ * board_power_init() holds the four gate commands low as GPIO outputs, so a
+ * zero command is the hardware state and every non-zero command is refused.
+ *
+ * RUN_EN (GPIO14, zapote C23) goes through power_gate.c only, which raises it
+ * only while the gate PWM is idle (C39):
+ *   power_enable()          PREHEAT entry: raise RUN_EN (refused unless idle)
+ *   pwm_set_duty_cycle(0)   IDLE / COOLDOWN entry: RUN_EN low
+ *   pwm_disable_all()       FAULT / RUNAWAY entry, trigger_hardware_shutdown()
+ *                           and every latched fault: gate PWM forced low,
+ *                           then RUN_EN low
+ * power_set_level(0) leaves RUN_EN alone: the C1 loop commands 0 W inside
+ * PREHEAT/HEATING many times.
  * ============================================================================ */
 
 void pwm_set_duty_cycle(uint8_t duty)
 {
     if (duty != 0u) {
         TODO_HW_ONCE("pwm_set_duty_cycle (non-zero refused, coil off)");
+        return;
     }
+    power_gate_disable();
 }
 
 void pwm_disable_all(void)
 {
-    /* Nothing is driving: see the section comment. */
+    /* Force any hal_pwm gate channel low first, then drop RUN_EN. */
+    if (hal_pwm != NULL) {
+        (void)hal_pwm->emergency_stop();
+    }
+    power_gate_disable();
 }
 
 void power_set_level(uint8_t level)
@@ -182,7 +201,11 @@ void power_set_level(uint8_t level)
 
 void power_enable(void)
 {
-    TODO_HW_ONCE("power_enable (refused, coil off)");
+    const hal_status_t st = power_gate_enable();
+    if (st != HAL_OK) {
+        ESP_LOGE(TAG, "RUN_EN refused (%d): gate PWM not idle or gate not initialised",
+                 (int)st);
+    }
 }
 
 /* ============================================================================

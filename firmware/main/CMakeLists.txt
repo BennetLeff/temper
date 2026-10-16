@@ -15,8 +15,11 @@ idf_component_register(
         "../components/sensors/hs_ntc.c"
         "../components/sensors/hs_ntc_board.c"
         "../components/safety/safety.c"
+        "../components/safety/wdi_supervisor.c"
+        "../components/safety/power_gate.c"
         "../config.c"
         "board_peripherals.c"
+        "board_power.c"
     INCLUDE_DIRS 
         "."
         ".."
