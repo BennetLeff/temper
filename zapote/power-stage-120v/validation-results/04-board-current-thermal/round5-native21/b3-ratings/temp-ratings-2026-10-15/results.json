@@ -12,14 +12,14 @@
   "margins_max_abs_diff_c": 0.0,
   "sweep_refs": 37,
   "sweep_max_abs_diff_c": 25.359,
-  "run_board_sha256": "d04715873768ffbb3dde61ecc54510a0143a5e81ebdbc3949044e170abc5b466",
+  "run_board_sha256": "e842d9c8e04f7795f31f026706ab6a1bb74f2ae47d8ad46da1c2fb012b25d59f",
   "s47_board_sha256": "4139c87b8a10b0110435d42ecc2751c19ff03b565056d8771d6e771a8e28d33c",
-  "stage": "s49",
-  "note": "cumulative since the s47 sweep: the S18 model (PS2's own pads on local air), stage 48 (U3 beside C26 at 0.160 W, U14's VDD on HOT5) and stage 49 (the B32643B8104J000 bank on its film_mmkp body and P22.5 pads, the S23 OCP divider)",
+  "stage": "s50",
+  "note": "cumulative since the s47 sweep: the S18 model (PS2's own pads on local air), stage 48 (U3 beside C26 at 0.160 W, U14's VDD on HOT5) and stage 49 (the B32643B8104J000 bank on its film_mmkp body and P22.5 pads, the S23 OCP divider); stage 50 moves no B3 row",
   "sweep_top_text": "PS2 25.4 K, U3 10.8 K, U14 10.7 K, U8 3.8 K, U36 1.8 K, U37 1.4 K, U15 1.3 K, D3 1.3 K, U7 1.1 K, U6 1.0 K, D17 1.0 K",
   "sweep_rest_max_c": 0.9,
   "rebase": {
-   "margins_board_sha256": "d04715873768ffbb3dde61ecc54510a0143a5e81ebdbc3949044e170abc5b466",
+   "margins_board_sha256": "e842d9c8e04f7795f31f026706ab6a1bb74f2ae47d8ad46da1c2fb012b25d59f",
    "sweep_asserted": false,
    "note": "re-based run files (later B3 model); the c47 monitor sweep is the pre-S18 s47 record, so sweep_max_abs_diff_c is the model's move, not an equivalence"
   }
@@ -998,12 +998,12 @@
       "c28_h10": {
        "pad_c": 118.5,
        "self_heat_k": 3.77,
-       "est_c": 122.3,
+       "est_c": 122.2,
        "limit_c": 125.0,
        "p_w": 0.036050000000000006,
        "p_basis": "ISO6721 ICC1 + ICC2 max at 5.5 V (bound)",
        "what": "pad + P x Rth",
-       "margin_k": 2.7
+       "margin_k": 2.8
       }
      }
     }
@@ -1035,12 +1035,12 @@
     "ref": "U44",
     "pad_c": 118.5,
     "self_heat_k": 3.77,
-    "est_c": 122.3,
+    "est_c": 122.2,
     "limit_c": 125.0,
     "p_w": 0.036050000000000006,
     "p_basis": "ISO6721 ICC1 + ICC2 max at 5.5 V (bound)",
     "what": "pad + P x Rth",
-    "margin_k": 2.7
+    "margin_k": 2.8
    },
    "verdict": "pass"
   },
@@ -1257,14 +1257,14 @@
        "margin_k": 27.6
       },
       "c28_h10": {
-       "pad_c": 122.6,
+       "pad_c": 122.5,
        "self_heat_k": 0.0,
-       "est_c": 122.6,
+       "est_c": 122.5,
        "limit_c": 125.0,
        "p_w": 0.0,
        "p_basis": "negligible (no circuit dissipation)",
        "what": "pad (local-ambient proxy)",
-       "margin_k": 2.4
+       "margin_k": 2.5
       }
      }
     },
@@ -1282,14 +1282,14 @@
        "margin_k": 26.6
       },
       "c22_h10": {
-       "pad_c": 102.6,
+       "pad_c": 102.7,
        "self_heat_k": 0.0,
-       "est_c": 102.6,
+       "est_c": 102.7,
        "limit_c": 125.0,
        "p_w": 0.0,
        "p_basis": "negligible (no circuit dissipation)",
        "what": "pad (local-ambient proxy)",
-       "margin_k": 22.4
+       "margin_k": 22.3
       },
       "c28_h10": {
        "pad_c": 121.6,
@@ -1677,14 +1677,14 @@
        "margin_k": 18.2
       },
       "c28_h10": {
-       "pad_c": 119.2,
+       "pad_c": 119.3,
        "self_heat_k": 0.0,
-       "est_c": 119.2,
+       "est_c": 119.3,
        "limit_c": 125.0,
        "p_w": 0.0,
        "p_basis": "negligible (no circuit dissipation)",
        "what": "pad (local-ambient proxy)",
-       "margin_k": 5.8
+       "margin_k": 5.7
       }
      }
     },
@@ -2770,14 +2770,14 @@
        "margin_k": 65.1
       },
       "c28_h10": {
-       "pad_c": 61.3,
+       "pad_c": 61.4,
        "self_heat_k": 0.0,
-       "est_c": 61.3,
+       "est_c": 61.4,
        "limit_c": 125.0,
        "p_w": 0.0,
        "p_basis": "negligible (no circuit dissipation)",
        "what": "pad (local-ambient proxy)",
-       "margin_k": 63.7
+       "margin_k": 63.6
       }
      }
     },
@@ -3310,24 +3310,24 @@
      "ref": "C74",
      "cases": {
       "c17.5_h10": {
-       "pad_c": 110.9,
+       "pad_c": 111.0,
        "self_heat_k": 0.0,
-       "est_c": 110.9,
+       "est_c": 111.0,
        "limit_c": 125.0,
        "p_w": 0.0,
        "p_basis": "negligible (no circuit dissipation)",
        "what": "pad (local-ambient proxy)",
-       "margin_k": 14.1
+       "margin_k": 14.0
       },
       "c22_h10": {
-       "pad_c": 107.2,
+       "pad_c": 107.3,
        "self_heat_k": 0.0,
-       "est_c": 107.2,
+       "est_c": 107.3,
        "limit_c": 125.0,
        "p_w": 0.0,
        "p_basis": "negligible (no circuit dissipation)",
        "what": "pad (local-ambient proxy)",
-       "margin_k": 17.8
+       "margin_k": 17.7
       },
       "c28_h10": {
        "pad_c": 114.3,
@@ -3520,34 +3520,34 @@
      "ref": "C81",
      "cases": {
       "c17.5_h10": {
-       "pad_c": 112.5,
+       "pad_c": 112.6,
        "self_heat_k": 0.0,
-       "est_c": 112.5,
+       "est_c": 112.6,
        "limit_c": 125.0,
        "p_w": 0.0,
        "p_basis": "negligible (no circuit dissipation)",
        "what": "pad (local-ambient proxy)",
-       "margin_k": 12.5
+       "margin_k": 12.4
       },
       "c22_h10": {
-       "pad_c": 111.4,
+       "pad_c": 111.5,
        "self_heat_k": 0.0,
-       "est_c": 111.4,
+       "est_c": 111.5,
        "limit_c": 125.0,
        "p_w": 0.0,
        "p_basis": "negligible (no circuit dissipation)",
        "what": "pad (local-ambient proxy)",
-       "margin_k": 13.6
+       "margin_k": 13.5
       },
       "c28_h10": {
-       "pad_c": 120.1,
+       "pad_c": 120.2,
        "self_heat_k": 0.0,
-       "est_c": 120.1,
+       "est_c": 120.2,
        "limit_c": 125.0,
        "p_w": 0.0,
        "p_basis": "negligible (no circuit dissipation)",
        "what": "pad (local-ambient proxy)",
-       "margin_k": 4.9
+       "margin_k": 4.8
       }
      }
     },
@@ -3940,36 +3940,36 @@
    "no_probe": [],
    "release": {
     "ref": "C81",
-    "pad_c": 112.5,
+    "pad_c": 112.6,
     "self_heat_k": 0.0,
-    "est_c": 112.5,
+    "est_c": 112.6,
     "limit_c": 125.0,
     "p_w": 0.0,
     "p_basis": "negligible (no circuit dissipation)",
     "what": "pad (local-ambient proxy)",
-    "margin_k": 12.5
+    "margin_k": 12.4
    },
    "c22": {
     "ref": "C81",
-    "pad_c": 111.4,
+    "pad_c": 111.5,
     "self_heat_k": 0.0,
-    "est_c": 111.4,
+    "est_c": 111.5,
     "limit_c": 125.0,
     "p_w": 0.0,
     "p_basis": "negligible (no circuit dissipation)",
     "what": "pad (local-ambient proxy)",
-    "margin_k": 13.6
+    "margin_k": 13.5
    },
    "c28": {
     "ref": "C81",
-    "pad_c": 120.1,
+    "pad_c": 120.2,
     "self_heat_k": 0.0,
-    "est_c": 120.1,
+    "est_c": 120.2,
     "limit_c": 125.0,
     "p_w": 0.0,
     "p_basis": "negligible (no circuit dissipation)",
     "what": "pad (local-ambient proxy)",
-    "margin_k": 4.9
+    "margin_k": 4.8
    },
    "verdict": "pass"
   },
@@ -4014,14 +4014,14 @@
        "margin_k": 20.1
       },
       "c22_h10": {
-       "pad_c": 101.3,
+       "pad_c": 101.4,
        "self_heat_k": 0.0,
-       "est_c": 101.3,
+       "est_c": 101.4,
        "limit_c": 125.0,
        "p_w": 0.0,
        "p_basis": "negligible (no circuit dissipation)",
        "what": "pad (local-ambient proxy)",
-       "margin_k": 23.7
+       "margin_k": 23.6
       },
       "c28_h10": {
        "pad_c": 110.4,
@@ -4223,8 +4223,7 @@
     "R21",
     "R91",
     "R109",
-    "R124",
-    "R135"
+    "R124"
    ],
    "footprint": "R_0603_1608Metric",
    "class": "SIGNAL",
@@ -4336,7 +4335,7 @@
        "p_w": 0.012216123944000002,
        "p_basis": "gate-source hold-off: 15.50 V on / -2.01 V off at <= 50 % on-duty (half-bridge, each FET)",
        "what": "terminal (pad) vs derating line at P, 20 % margin",
-       "margin_k": 8.4,
+       "margin_k": 8.5,
        "bare_margin_k": 21.4
       },
       "c28_h10": {
@@ -4425,14 +4424,14 @@
      "ref": "R21",
      "cases": {
       "c17.5_h10": {
-       "pad_c": 119.6,
-       "est_c": 119.6,
+       "pad_c": 119.5,
+       "est_c": 119.5,
        "limit_c": 142.0,
        "p_w": 0.012216123944000002,
        "p_basis": "gate-source hold-off: 15.50 V on / -2.01 V off at <= 50 % on-duty (half-bridge, each FET)",
        "what": "terminal (pad) vs derating line at P, 20 % margin",
        "margin_k": 22.5,
-       "bare_margin_k": 35.4
+       "bare_margin_k": 35.5
       },
       "c22_h10": {
        "pad_c": 130.0,
@@ -4560,41 +4559,6 @@
        "bare_margin_k": 82.2
       }
      }
-    },
-    {
-     "ref": "R135",
-     "cases": {
-      "c17.5_h10": {
-       "pad_c": 65.1,
-       "est_c": 65.1,
-       "limit_c": 153.7,
-       "p_w": 0.0012006224999999999,
-       "p_basis": "3.47 V pull-up over 10 k (output low)",
-       "what": "terminal (pad) vs derating line at P, 20 % margin",
-       "margin_k": 88.6,
-       "bare_margin_k": 89.9
-      },
-      "c22_h10": {
-       "pad_c": 59.9,
-       "est_c": 59.9,
-       "limit_c": 153.7,
-       "p_w": 0.0012006224999999999,
-       "p_basis": "3.47 V pull-up over 10 k (output low)",
-       "what": "terminal (pad) vs derating line at P, 20 % margin",
-       "margin_k": 93.8,
-       "bare_margin_k": 95.1
-      },
-      "c28_h10": {
-       "pad_c": 61.4,
-       "est_c": 61.4,
-       "limit_c": 153.7,
-       "p_w": 0.0012006224999999999,
-       "p_basis": "3.47 V pull-up over 10 k (output low)",
-       "what": "terminal (pad) vs derating line at P, 20 % margin",
-       "margin_k": 92.3,
-       "bare_margin_k": 93.6
-      }
-     }
     }
    ],
    "no_probe": [],
@@ -4617,7 +4581,7 @@
     "p_w": 0.012216123944000002,
     "p_basis": "gate-source hold-off: 15.50 V on / -2.01 V off at <= 50 % on-duty (half-bridge, each FET)",
     "what": "terminal (pad) vs derating line at P, 20 % margin",
-    "margin_k": 8.4,
+    "margin_k": 8.5,
     "bare_margin_k": 21.4
    },
    "c28": {
@@ -5442,7 +5406,7 @@
        "p_w": 0.10247737500000001,
        "p_basis": "TL431 reference feed: (V_PN - Vref) over 2.2 k (b3 gate row value)",
        "what": "terminal (pad) vs derating line at P, 20 % margin",
-       "margin_k": 38.9,
+       "margin_k": 38.8,
        "bare_margin_k": 82.4
       },
       "c28_h10": {
@@ -8341,12 +8305,12 @@
       "c28_h10": {
        "pad_c": 56.7,
        "self_heat_k": 0.04,
-       "est_c": 56.7,
+       "est_c": 56.8,
        "limit_c": 125.0,
        "p_w": 0.0001,
        "p_basis": "LVC1G static ICC x VCC + output into CMOS/10 k loads (bound)",
        "what": "pad + P x Rth",
-       "margin_k": 68.3
+       "margin_k": 68.2
       }
      }
     }
@@ -10073,14 +10037,14 @@
        "bare_margin_k": 44.5
       },
       "c28_h10": {
-       "pad_c": 136.0,
-       "est_c": 136.0,
+       "pad_c": 135.9,
+       "est_c": 135.9,
        "limit_c": 152.2,
        "p_w": 0.00666898917632,
        "p_basis": "bias damp: channel current 49.5 mA mean (make_heat_sources I_CH), RMS bounded at 2x mean",
        "what": "terminal (pad) vs derating line at P, 20 % margin",
        "margin_k": 16.2,
-       "bare_margin_k": 19.0
+       "bare_margin_k": 19.1
       }
      }
     },
@@ -10478,7 +10442,8 @@
     "R62",
     "R140",
     "R128",
-    "R142"
+    "R142",
+    "R135"
    ],
    "footprint": "R_0603_1608Metric",
    "class": "SIGNAL",
@@ -10650,7 +10615,7 @@
        "p_w": 0.00393725587451175,
        "p_basis": "EN divider 100 k / 27 k from V24_RAW 25.2 V: 19.8 V over 100 k",
        "what": "terminal (pad) vs derating line at P, 20 % margin",
-       "margin_k": 55.1,
+       "margin_k": 55.2,
        "bare_margin_k": 59.3
       },
       "c22_h10": {
@@ -10777,6 +10742,41 @@
        "what": "terminal (pad) vs derating line at P, 20 % margin",
        "margin_k": 74.2,
        "bare_margin_k": 76.5
+      }
+     }
+    },
+    {
+     "ref": "R135",
+     "cases": {
+      "c17.5_h10": {
+       "pad_c": 65.1,
+       "est_c": 65.1,
+       "limit_c": 154.9,
+       "p_w": 0.00012006225,
+       "p_basis": "PERMIT series into U46.A: bound 3.47 V over 100 k",
+       "what": "terminal (pad) vs derating line at P, 20 % margin",
+       "margin_k": 89.7,
+       "bare_margin_k": 89.9
+      },
+      "c22_h10": {
+       "pad_c": 59.8,
+       "est_c": 59.8,
+       "limit_c": 154.9,
+       "p_w": 0.00012006225,
+       "p_basis": "PERMIT series into U46.A: bound 3.47 V over 100 k",
+       "what": "terminal (pad) vs derating line at P, 20 % margin",
+       "margin_k": 95.0,
+       "bare_margin_k": 95.2
+      },
+      "c28_h10": {
+       "pad_c": 61.2,
+       "est_c": 61.2,
+       "limit_c": 154.9,
+       "p_w": 0.00012006225,
+       "p_basis": "PERMIT series into U46.A: bound 3.47 V over 100 k",
+       "what": "terminal (pad) vs derating line at P, 20 % margin",
+       "margin_k": 93.6,
+       "bare_margin_k": 93.8
       }
      }
     }
@@ -13027,12 +13027,12 @@
       "c28_h10": {
        "pad_c": 57.3,
        "self_heat_k": 0.04,
-       "est_c": 57.3,
+       "est_c": 57.4,
        "limit_c": 125.0,
        "p_w": 0.0001,
        "p_basis": "LVC1G static ICC x VCC + output into CMOS/10 k loads (bound)",
        "what": "pad + P x Rth",
-       "margin_k": 67.7
+       "margin_k": 67.6
       }
      }
     }
@@ -13064,12 +13064,12 @@
     "ref": "U13",
     "pad_c": 57.3,
     "self_heat_k": 0.04,
-    "est_c": 57.3,
+    "est_c": 57.4,
     "limit_c": 125.0,
     "p_w": 0.0001,
     "p_basis": "LVC1G static ICC x VCC + output into CMOS/10 k loads (bound)",
     "what": "pad + P x Rth",
-    "margin_k": 67.7
+    "margin_k": 67.6
    },
    "verdict": "pass"
   },

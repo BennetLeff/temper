@@ -42,7 +42,10 @@ def resistor_powers():
     put(["R71", "R72", "R74", "R75"], r_w(V_HI, 4990.0),
         f"split bleed p -> src: (V_PN - V_SPLIT) = {V_HI:.2f} V over 4.99 k (b3_ratings_gate MONITOR_SELF['tlvh431'] basis)")
     put(["R131"], r_w(V5, 4990.0), "heartbeat RC: bound 5.15 V over 4.99 k at full duty")
-    put(["R73", "R76", "R135"], r_w(V33, 10e3), "3.47 V pull-up over 10 k (output low)")
+    put(["R73", "R76"], r_w(V33, 10e3), "3.47 V pull-up over 10 k (output low)")
+    # stage 50 (c50-permit-gate): R135 is U46.A's 100 k series resistor from PERMIT (was a 10 k pull-up to v3v3); bound:
+    # the whole 3.47 V logic swing across it
+    put(["R135"], r_w(V33, 100e3), "PERMIT series into U46.A: bound 3.47 V over 100 k")
     put(["R11", "R13", "R19", "R21"], 0.5 * r_w(V_HI, 10e3) + 0.5 * r_w(V_SPLIT, 10e3),
         f"gate-source hold-off: {V_HI:.2f} V on / -{V_SPLIT:.2f} V off at <= 50 % on-duty (half-bridge, each FET)")
     put(["R91", "R109", "R124"], r_w(V5, 10e3), "good pull-up, 5.15 V over 10 k (fault state)")

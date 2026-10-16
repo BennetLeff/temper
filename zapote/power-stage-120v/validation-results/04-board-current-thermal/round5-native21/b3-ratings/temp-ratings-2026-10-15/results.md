@@ -1,8 +1,8 @@
-# Temperature ratings of the native-21 s49 BOM lines with no ledger temperature rating (2026-10-15)
+# Temperature ratings of the native-21 s50 BOM lines with no ledger temperature rating (2026-10-15)
 
 Analysis only; nothing written to PS. Regenerate: `python3 -I scripts/temp_ratings.py` (then `python3 -I ledger_temps.py`).
 
-**Count.** 71 BOM lines (310 refs) of the 94 in `native-21/frozen/default.csv` (s49) have no temperature-unit rating
+**Count.** 71 BOM lines (310 refs) of the 94 in `native-21/frozen/default.csv` (s50) have no temperature-unit rating
 (no TA / TJ / T_op / element row, unit C or K) in `datasheet-ledger/ledger.json` (PS HEAD). That is not "36": **36 is the
 number of semiconductor refs** (U / Q / D / BR / PS designators, not BOM lines) in the s47 monitor sweep's "no rating"
 list (`11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json`, `sweep_unrated`), which skips every passive,
@@ -14,12 +14,12 @@ probe, + P x Rth for a junction / self-heated part (the gate's probe-row rule), 
 part has a heat row. Resistors: terminal (pad) against the datasheet derating line at the part's P with the gate's 20 %
 power margin (G6 rule); element against T_max where B3 has a body.
 
-**Run files (re-based).** The run files are the B3 BASIS solves of the s49 integration chain on board d0471587 (B3
+**Run files (re-based).** The run files are the B3 BASIS solves of the s50 integration chain on board e842d9c8 (B3
 with PS2's body-to-air path, S18, `11-candidates/s18-ps2-body`), snapshotted with that chain's `margins.json`, frozen BOM and
 the pre-S21 ledger. The vendor copy of the gate (refreshed to that chain's gate) reproduces all 312 rows of that
 `margins.json` from them with max |difference| 0.0 K. The c47 monitor sweep is the pre-S18 s47 record:
 its 37 pad estimates now differ by up to 25.359 K (PS2 25.4 K, U3 10.8 K, U14 10.7 K, U8 3.8 K, U36 1.8 K, U37 1.4 K, U15 1.3 K, D3 1.3 K, U7 1.1 K, U6 1.0 K, D17 1.0 K; every other ref within
-0.9 K; cumulative since the s47 sweep: the S18 model (PS2's own pads on local air), stage 48 (U3 beside C26 at 0.160 W, U14's VDD on HOT5) and stage 49 (the B32643B8104J000 bank on its film_mmkp body and P22.5 pads, the S23 OCP divider); reported, not asserted). The numbers quoted under "Did not match" are the s47 (pre-S18)
+0.9 K; cumulative since the s47 sweep: the S18 model (PS2's own pads on local air), stage 48 (U3 beside C26 at 0.160 W, U14's VDD on HOT5) and stage 49 (the B32643B8104J000 bank on its film_mmkp body and P22.5 pads, the S23 OCP divider); stage 50 moves no B3 row; reported, not asserted). The numbers quoted under "Did not match" are the s47 (pre-S18)
 records; the table above is current. Every ref has a probe.
 
 Ranked by release margin (worst ref of each line in each case).
@@ -38,11 +38,11 @@ Ranked by release margin (worst ref of each line in each case).
 | 3 | TPS7A4700RGWR | U26 | 125 C TJ; TI SBVS204G (rev. May 2026) p.4 Absolute Maximum Ratings (sha 8ca46a9968923d2e) | U26: 120.7 / 125.0, **+4.3 K** | U26: 124.9 / 125.0, **+0.1 K** | pass; < 10 K at release |
 | 4 | 6SVPC220MV | C126, C127, C128, C129 | 105 C category (ambient / case); Panasonic OS-CON SVPC AAB8000C256 p.1, p.2 (sha 1c506b7474c01158) | C129: 100.2 / 105.0, **+4.8 K** | C129: 138.6 / 105.0, **-33.6 K** | c28 gap (airflow route); < 10 K at release |
 | 5 | 1206W4F100KT5E | R53, R54, R57, R58 | 155 C (0.25 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019) p.5 ratings table + sect. 9 derating, p.4 power (sha 11cd644d5d8a34a6) | R58: 117.3 / 128.2 (element 118.9 / 155), **+10.9 K** | R58: 170.3 / 128.2 (element 169.9 / 155), **-42.1 K** | c28 gap (airflow route) |
-| 6 | ISO6721FBDR | U43, U44 | 125 C TA; TI SLLSFJ0F (rev. Feb 2023) p.6 (sha bd54a79cc78f46b4) | U43: 113.7 / 125.0 (pad 109.9 + 3.77 K), **+11.3 K** | U44: 122.3 / 125.0 (pad 118.5 + 3.77 K), **+2.7 K** | pass |
+| 6 | ISO6721FBDR | U43, U44 | 125 C TA; TI SLLSFJ0F (rev. Feb 2023) p.6 (sha bd54a79cc78f46b4) | U43: 113.7 / 125.0 (pad 109.9 + 3.77 K), **+11.3 K** | U44: 122.2 / 125.0 (pad 118.5 + 3.77 K), **+2.8 K** | pass |
 | 7 | CL32B106KBJNNNE | C9, C90, C91, C92, C93 ... (24) | 125 C operating (surface); Samsung SEM spec (issued MAR.18.2026) p.2, p.15 (sha f5e74b1afd822274) | C106: 112.7 / 125.0, **+12.3 K** | C97: 133.7 / 125.0, **-8.7 K** | c28 gap (airflow route) |
-| 8 | CC0603KRX7R9BB104 | C7, C54, C14, C61, C25 ... (54) | 125 C operating (surface); Yageo SMD MLCC general purpose V.26 (Nov 19, 2024) p.14 Table 12 (sha 61a606825ab314ea) | C81: 112.5 / 125.0, **+12.5 K** | C81: 120.1 / 125.0, **+4.9 K** | pass |
+| 8 | CC0603KRX7R9BB104 | C7, C54, C14, C61, C25 ... (54) | 125 C operating (surface); Yageo SMD MLCC general purpose V.26 (Nov 19, 2024) p.14 Table 12 (sha 61a606825ab314ea) | C81: 112.6 / 125.0, **+12.4 K** | C81: 120.2 / 125.0, **+4.8 K** | pass |
 | 9 | CL10C331JB8NNNC | C105, C71, C109, C72, C162 | 125 C operating (surface); Samsung SEM spec (issued JUL.17.2020) p.2, p.15 (sha 78b8db7110ad25cd) | C105: 104.9 / 125.0, **+20.1 K** | C109: 112.9 / 125.0, **+12.1 K** | pass |
-| 10 | 0603WAF1002T5E | R73, R11, R13, R76, R19 ... (10) | 155 C (0.1 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019) p.5 ratings table + sect. 9 derating, p.4 power (sha 11cd644d5d8a34a6) | R11: 120.6 / 142.0, **+21.4 K** | R13: 174.8 / 142.0, **-32.8 K** | c28 gap (airflow route) |
+| 10 | 0603WAF1002T5E | R73, R11, R13, R76, R19 ... (9) | 155 C (0.1 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019) p.5 ratings table + sect. 9 derating, p.4 power (sha 11cd644d5d8a34a6) | R11: 120.6 / 142.0, **+21.4 K** | R13: 174.8 / 142.0, **-32.8 K** | c28 gap (airflow route) |
 | 11 | 2EDR8259XXUMA1 | U1, U2 | 125 C TA; Infineon 2EDRx259X Rev 1.7 (2026-04-09) p.12 Table 11 (sha f49391ca00e15397) | U2: 102.1 / 125.0 (pad 95.0 + 7.08 K), **+22.9 K** | U2: 128.2 / 125.0 (pad 121.2 + 7.08 K), **-3.2 K** | c28 gap (airflow route) |
 | 12 | GRM188R71E105KA12D | C50, C51, C52, C53, C57 ... (9) | 125 C operating (surface); Murata product data sheet (updated 04/27/2021, mirror) p.2 (sha 5421aafe2e0574d4); catalog C02E p.269 | C64: 101.7 / 125.0, **+23.3 K** | C59: 136.0 / 125.0, **-11.0 K** | c28 gap (airflow route) |
 | 13 | TLVH431BQDBZR | U16, U18, U20 | 125 C TA; TI SLVS555N (rev. Jun 2024) p.5 (sha e30d628cb6475d48) | U16: 101.1 / 125.0 (pad 99.8 + 1.29 K), **+23.9 K** | U16: 104.4 / 125.0 (pad 103.2 + 1.29 K), **+20.6 K** | pass |
@@ -73,7 +73,7 @@ Ranked by release margin (worst ref of each line in each case).
 | 38 | RL1206FR-070R68L | R51, R52, R55, R56 | 155 C (0.25 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); Yageo RL series V.3 (Apr 07, 2023) p.5 Table 2, p.6 Fig. 5 (sha a222719aba346137, distributor mirror; Yageo URL 404) | R55: 102.1 / 152.2, **+50.0 K** | R56: 138.8 / 152.2, **+13.4 K** | pass |
 | 39 | 1206W4F1003T5E | R1, R2 | 155 C (0.25 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019) p.5 ratings table + sect. 9 derating, p.4 power (sha 11cd644d5d8a34a6) | R2: 82.8 / 134.0, **+51.2 K** | R2: 79.5 / 134.0, **+54.5 K** | pass |
 | 40 | BAT54S-7-F | D18, D20, D19 | 150 C TJ; Diodes DS11005 Rev. 34-2 (Nov 2023) p.2 Thermal Characteristics (sha 50b04e4e17bcf5db) | D20: 98.4 / 150.0 (pad 98.3 + 0.12 K), **+51.6 K** | D18: 123.9 / 150.0 (pad 123.8 + 0.12 K), **+26.1 K** | pass |
-| 41 | 0603WAF1003T5E | R7, R15, R136, R138, R62 ... (8) | 155 C (0.1 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019) p.5 ratings table + sect. 9 derating, p.4 power (sha 11cd644d5d8a34a6) | R128: 98.5 / 150.8, **+52.3 K** | R128: 107.9 / 150.8, **+42.9 K** | pass |
+| 41 | 0603WAF1003T5E | R7, R15, R136, R138, R62 ... (9) | 155 C (0.1 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019) p.5 ratings table + sect. 9 derating, p.4 power (sha 11cd644d5d8a34a6) | R128: 98.5 / 150.8, **+52.3 K** | R128: 107.9 / 150.8, **+42.9 K** | pass |
 | 42 | 0603WAF2702T5E | R137, R139, R127, R141, R129, R143 | 155 C (0.1 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019) p.5 ratings table + sect. 9 derating, p.4 power (sha 11cd644d5d8a34a6) | R137: 98.8 / 154.5, **+55.7 K** | R127: 109.7 / 153.9, **+44.2 K** | pass |
 | 43 | 0603WAF5601T5E | R31 | 155 C (0.1 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019) p.5 ratings table + sect. 9 derating, p.4 power (sha 11cd644d5d8a34a6) | R31: 95.5 / 153.6, **+58.1 K** | R31: 102.0 / 153.6, **+51.7 K** | pass |
 | 44 | RT0603BRD0711KL | R35, R86, R88, R93, R104 ... (9) | 155 C (0.1 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); Yageo RT series V.16 (May 06, 2025) p.5 Table 2, p.6 Fig. 6 (sha 0a729d144519a702) | R35: 96.8 / 154.9, **+58.1 K** | R35: 103.7 / 154.9, **+51.2 K** | pass |
@@ -84,7 +84,7 @@ Ranked by release margin (worst ref of each line in each case).
 | 49 | RT0603BRD07105KL | R48 | 155 C (0.1 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); Yageo RT series V.16 (May 06, 2025) p.5 Table 2, p.6 Fig. 6 (sha 0a729d144519a702) | R48: 93.8 / 154.8, **+60.9 K** | R48: 101.2 / 154.8, **+53.5 K** | pass |
 | 50 | RT0603BRD0715K8L | R30 | 155 C (0.1 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); Yageo RT series V.16 (May 06, 2025) p.5 Table 2, p.6 Fig. 6 (sha 0a729d144519a702) | R30: 94.0 / 155.0, **+61.0 K** | R30: 102.6 / 155.0, **+52.4 K** | pass |
 | 51 | GRM31C5C1H104JA01L | C42, C43 | 125 C operating (surface); Murata reference sheet (as of Mar.5, 2016) p.1, p.13, p.24 (LCSC C97946, sha 5c84ef333cecfe38) | C42: 63.0 / 125.0, **+62.0 K** | C42: 59.2 / 125.0, **+65.8 K** | pass |
-| 52 | SN74LVC1G332DBVR | U13 | 125 C TA; TI SCES489E (rev. Dec 2013) p.3 (RthJA p.2), sha 5ecad3180cb93664 | U13: 62.5 / 125.0 (pad 62.5 + 0.04 K), **+62.5 K** | U13: 57.3 / 125.0 (pad 57.3 + 0.04 K), **+67.7 K** | pass |
+| 52 | SN74LVC1G332DBVR | U13 | 125 C TA; TI SCES489E (rev. Dec 2013) p.3 (RthJA p.2), sha 5ecad3180cb93664 | U13: 62.5 / 125.0 (pad 62.5 + 0.04 K), **+62.5 K** | U13: 57.4 / 125.0 (pad 57.3 + 0.04 K), **+67.6 K** | pass |
 | 53 | 0603WAF2200T5E | R132 | 155 C (0.1 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019) p.5 ratings table + sect. 9 derating, p.4 power (sha 11cd644d5d8a34a6) | R132: 62.6 / 125.2, **+62.6 K** | R132: 57.9 / 125.2, **+67.3 K** | pass |
 | 54 | RC1206FR-073RL | R39 | 155 C (0.25 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); Yageo RC_L series V.12 (Aug 02, 2022) p.6 Table 3, p.7 Fig. 10-1 (sha e7dbabb061192522) | R39: 69.3 / 133.5 (element 70.3 / 155), **+64.2 K** | R39: 75.6 / 99.9 (element 78.1 / 155), **+24.3 K** | pass |
 | 55 | RT0603BRD0790K9L | R85, R103, R118 | 155 C (0.1 W at 70 C to 0 W at 155 C; terminal limit at P with 20 % margin); Yageo RT series V.16 (May 06, 2025) p.5 Table 2, p.6 Fig. 6 (sha 0a729d144519a702) | R85: 84.7 / 152.1, **+67.4 K** | R85: 85.7 / 152.1, **+66.5 K** | pass |

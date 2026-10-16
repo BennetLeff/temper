@@ -116,7 +116,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 77.3,
      "unit": "C",
-     "condition": "F1: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 77.3 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "F1: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 77.3 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -125,7 +125,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 73.0,
      "unit": "C",
-     "condition": "F1: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 73.0 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "F1: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 73.0 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -594,7 +594,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 82.8,
      "unit": "C",
-     "condition": "R2: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R2: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -603,7 +603,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 79.5,
      "unit": "C",
-     "condition": "R2: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R2: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -1647,7 +1647,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 72.5,
      "unit": "C",
-     "condition": "R3: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R3: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -1656,7 +1656,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 72.8,
      "unit": "C",
-     "condition": "R3: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R3: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2115,18 +2115,18 @@
    "stresses": [
     {
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
-     "worst_case_value": 112.5,
+     "worst_case_value": 112.6,
      "unit": "C",
-     "condition": "C81: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 112.5 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 54 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C81: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 112.6 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 54 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
     },
     {
      "parameter": "Local temperature, c28_h10 @ 55 C",
-     "worst_case_value": 120.1,
+     "worst_case_value": 120.2,
      "unit": "C",
-     "condition": "C81: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 120.1 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 54 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C81: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 120.2 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 54 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2140,8 +2140,8 @@
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "112.5 C <= 125.0 C (C81)",
-     "ratio": 0.9
+     "rule": "112.6 C <= 125.0 C (C81)",
+     "ratio": 0.9008
     },
     {
      "id": "temperature, c28 (temp-ratings 2026-10-15)",
@@ -2149,8 +2149,8 @@
      "stress": "Local temperature, c28_h10 @ 55 C",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "120.1 C <= 125.0 C (C81); an overrun is the airflow-route (c22/c28) owner gap",
-     "ratio": 0.9608
+     "rule": "120.2 C <= 125.0 C (C81); an overrun is the airflow-route (c22/c28) owner gap",
+     "ratio": 0.9616
     }
    ],
    "layout_guidance": [],
@@ -2200,7 +2200,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 74.4,
      "unit": "C",
-     "condition": "R14: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R14: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2209,7 +2209,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 76.7,
      "unit": "C",
-     "condition": "R14: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R14: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2255,10 +2255,11 @@
     "R136",
     "R138",
     "R140",
-    "R142"
+    "R142",
+    "R135"
    ],
    "class": "SIGNAL",
-   "function": "100 k 0603 pull; stage 48: R136 / R138 / R140 / R142 are the LDO EN divider tops (IN to EN)",
+   "function": "100 k 0603 pull; stage 48: R136 / R138 / R140 / R142 are the LDO EN divider tops (IN to EN); stage 50: R135 is U46.A's series resistor from PERMIT",
    "status": "PARTIAL",
    "datasheet": null,
    "ratings": [
@@ -2289,7 +2290,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 98.5,
      "unit": "C",
-     "condition": "R128: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 8 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R128: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 9 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2298,7 +2299,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 107.9,
      "unit": "C",
-     "condition": "R128: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 8 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R128: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 9 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2332,7 +2333,7 @@
     "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
    "finding": null,
-   "notes": null
+   "notes": "S50 (2026-10-16, 11-candidates/c50-permit-gate): R135 (hb.rgate) joins from 0603WAF1002T5E as U46.A's 100 k series resistor from PERMIT; 3.47 V / 100 k = 0.12 mW, temp-ratings R135 pad 65.1 / 60.0 / 61.4 C (c17.5 / c22 / c28, s48 board), inside this line's R128 rows."
   },
   "RT0603BRD0749K9L": {
    "mpn": "RT0603BRD0749K9L",
@@ -2373,7 +2374,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 74.6,
      "unit": "C",
-     "condition": "R17: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R17: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2382,7 +2383,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 77.1,
      "unit": "C",
-     "condition": "R17: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R17: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2444,7 +2445,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 95.8,
      "unit": "C",
-     "condition": "C15: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 95.8 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 4 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C15: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 95.8 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 4 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2453,7 +2454,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 121.7,
      "unit": "C",
-     "condition": "C15: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 121.7 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 4 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C15: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 121.7 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 4 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2517,7 +2518,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 96.5,
      "unit": "C",
-     "condition": "C148: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 96.5 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 6 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C148: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 96.5 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 6 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2526,7 +2527,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 125.4,
      "unit": "C",
-     "condition": "C148: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 125.4 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 6 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C148: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 125.4 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 6 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2587,7 +2588,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 95.7,
      "unit": "C",
-     "condition": "C18: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 95.7 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C18: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 95.7 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2596,7 +2597,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 120.1,
      "unit": "C",
-     "condition": "C18: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 120.1 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C18: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 120.1 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2663,7 +2664,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 101.7,
      "unit": "C",
-     "condition": "C64: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 101.7 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 9 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C64: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 101.7 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 9 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2672,7 +2673,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 136.0,
      "unit": "C",
-     "condition": "C59: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 136.0 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 9 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C59: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 136.0 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 9 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2747,7 +2748,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 99.3,
      "unit": "C",
-     "condition": "C122: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 99.3 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 16 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C122: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 99.3 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 16 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2756,7 +2757,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 135.5,
      "unit": "C",
-     "condition": "C122: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 135.5 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 16 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C122: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 135.5 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 16 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2833,7 +2834,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 102.1,
      "unit": "C",
-     "condition": "R55: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 4 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R55: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 4 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2842,7 +2843,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 138.8,
      "unit": "C",
-     "condition": "R56: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 4 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R56: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 4 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2904,7 +2905,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 100.2,
      "unit": "C",
-     "condition": "C129: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 100.2 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 4 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C129: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 100.2 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 4 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2913,7 +2914,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 138.6,
      "unit": "C",
-     "condition": "C129: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 138.6 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 4 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C129: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 138.6 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 4 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -2991,7 +2992,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 101.4,
      "unit": "C",
-     "condition": "R75: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 5 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R75: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 5 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -3000,7 +3001,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 140.3,
      "unit": "C",
-     "condition": "R75: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 5 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R75: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 5 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -3061,7 +3062,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 78.6,
      "unit": "C",
-     "condition": "U23: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 78.5 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U23: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 78.5 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -3071,7 +3072,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 83.9,
      "unit": "C",
-     "condition": "U23: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 83.9 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U23: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 83.9 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -3119,8 +3120,7 @@
     "R76",
     "R91",
     "R109",
-    "R124",
-    "R135"
+    "R124"
    ],
    "class": "SIGNAL",
    "function": "10 k 0603",
@@ -3154,7 +3154,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 120.6,
      "unit": "C",
-     "condition": "R11: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 10 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R11: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 9 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -3163,7 +3163,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 174.8,
      "unit": "C",
-     "condition": "R13: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 10 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R13: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 9 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -3240,7 +3240,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 91.5,
      "unit": "C",
-     "condition": "C33: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 91.5 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 18 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C33: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 91.5 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 18 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -3249,7 +3249,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 101.9,
      "unit": "C",
-     "condition": "C27: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 101.9 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 18 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C27: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 101.9 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 18 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -3311,7 +3311,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 113.1,
      "unit": "C",
-     "condition": "D7: pad + P x Rth(j-a); P = turn-off charge x VF x f; B3 hot-copper estimate (gate estimator, pad-copper probe 110.3 C + self-heat 2.78 K at 0.0139 W (turn-off charge 443.6 nC x 0.984 branch share x 60 kHz x VF 0.53 V)), c17.5_h10 still air at bay 61 C; worst of 4 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "D7: pad + P x Rth(j-a); P = turn-off charge x VF x f; B3 hot-copper estimate (gate estimator, pad-copper probe 110.3 C + self-heat 2.78 K at 0.0139 W (turn-off charge 443.6 nC x 0.984 branch share x 60 kHz x VF 0.53 V)), c17.5_h10 still air at bay 61 C; worst of 4 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -3321,7 +3321,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 159.3,
      "unit": "C",
-     "condition": "D7: pad + P x Rth(j-a); P = turn-off charge x VF x f; B3 hot-copper estimate (gate estimator, pad-copper probe 156.5 C + self-heat 2.78 K at 0.0139 W (turn-off charge 443.6 nC x 0.984 branch share x 60 kHz x VF 0.53 V)), c28_h10 still air at bay 55 C; worst of 4 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "D7: pad + P x Rth(j-a); P = turn-off charge x VF x f; B3 hot-copper estimate (gate estimator, pad-copper probe 156.5 C + self-heat 2.78 K at 0.0139 W (turn-off charge 443.6 nC x 0.984 branch share x 60 kHz x VF 0.53 V)), c28_h10 still air at bay 55 C; worst of 4 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -3406,7 +3406,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 117.3,
      "unit": "C",
-     "condition": "R58: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe; body element 118.9 C), c17.5_h10 still air at bay 61 C; worst of 4 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R58: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe; body element 118.9 C), c17.5_h10 still air at bay 61 C; worst of 4 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -3433,7 +3433,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 170.3,
      "unit": "C",
-     "condition": "R58: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe; body element 169.9 C), c28_h10 still air at bay 55 C; worst of 4 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R58: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe; body element 169.9 C), c28_h10 still air at bay 55 C; worst of 4 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -4960,7 +4960,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 69.9,
      "unit": "C",
-     "condition": "J3: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 69.9 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "J3: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 69.9 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -4969,7 +4969,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 66.1,
      "unit": "C",
-     "condition": "J3: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 66.1 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "J3: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 66.1 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -5571,7 +5571,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 94.0,
      "unit": "C",
-     "condition": "R30: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R30: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -5580,7 +5580,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 102.6,
      "unit": "C",
-     "condition": "R30: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R30: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -5758,7 +5758,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 88.4,
      "unit": "C",
-     "condition": "U4: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 82.1 C + self-heat 6.34 K at 0.0749 W (AMC1311 IDD1 max x 5.15 V + IDD2 max x 3.47 V)), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U4: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 82.1 C + self-heat 6.34 K at 0.0749 W (AMC1311 IDD1 max x 5.15 V + IDD2 max x 3.47 V)), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -5768,7 +5768,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 90.3,
      "unit": "C",
-     "condition": "U4: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 83.9 C + self-heat 6.34 K at 0.0749 W (AMC1311 IDD1 max x 5.15 V + IDD2 max x 3.47 V)), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U4: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 83.9 C + self-heat 6.34 K at 0.0749 W (AMC1311 IDD1 max x 5.15 V + IDD2 max x 3.47 V)), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -5919,7 +5919,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 95.5,
      "unit": "C",
-     "condition": "R31: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R31: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -5928,7 +5928,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 102.0,
      "unit": "C",
-     "condition": "R31: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R31: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -6212,7 +6212,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 92.8,
      "unit": "C",
-     "condition": "R50: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 18 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R50: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 18 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -6221,7 +6221,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 100.6,
      "unit": "C",
-     "condition": "R50: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 18 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R50: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 18 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -6281,7 +6281,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 87.2,
      "unit": "C",
-     "condition": "C30: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 87.2 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C30: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 87.2 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -6290,7 +6290,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 96.4,
      "unit": "C",
-     "condition": "C30: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 96.4 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C30: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 96.4 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -6595,7 +6595,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 89.1,
      "unit": "C",
-     "condition": "R145: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R145: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -6604,7 +6604,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 105.7,
      "unit": "C",
-     "condition": "R145: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R145: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -6667,7 +6667,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 90.1,
      "unit": "C",
-     "condition": "U7: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 90.0 C + self-heat 0.08 K at 0.000335 W (TLV3201 IQ max x 5.15 V)), c17.5_h10 still air at bay 61 C; worst of 5 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U7: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 90.0 C + self-heat 0.08 K at 0.000335 W (TLV3201 IQ max x 5.15 V)), c17.5_h10 still air at bay 61 C; worst of 5 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -6677,7 +6677,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 103.8,
      "unit": "C",
-     "condition": "U7: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 103.7 C + self-heat 0.08 K at 0.000335 W (TLV3201 IQ max x 5.15 V)), c28_h10 still air at bay 55 C; worst of 5 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U7: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 103.7 C + self-heat 0.08 K at 0.000335 W (TLV3201 IQ max x 5.15 V)), c28_h10 still air at bay 55 C; worst of 5 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -6751,7 +6751,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 94.1,
      "unit": "C",
-     "condition": "R37: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R37: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -6760,7 +6760,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 100.1,
      "unit": "C",
-     "condition": "R37: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R37: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -6819,7 +6819,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 90.3,
      "unit": "C",
-     "condition": "U8: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 90.3 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U8: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 90.3 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -6829,7 +6829,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 107.4,
      "unit": "C",
-     "condition": "U8: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 107.4 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U8: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 107.4 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -6889,7 +6889,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 61.8,
      "unit": "C",
-     "condition": "J4: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 61.8 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "J4: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 61.8 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -6898,7 +6898,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 56.3,
      "unit": "C",
-     "condition": "J4: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 56.3 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "J4: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 56.3 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -6971,7 +6971,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 62.3,
      "unit": "C",
-     "condition": "R38: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R38: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -6980,7 +6980,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 57.0,
      "unit": "C",
-     "condition": "R38: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R38: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -7117,7 +7117,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 71.5,
      "unit": "C",
-     "condition": "D3: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 71.4 C + self-heat 0.03 K at 0.000715 W (TVS standby: 143 V x IR 5 uA at VRWM (ledger stress basis))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "D3: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 71.4 C + self-heat 0.03 K at 0.000715 W (TVS standby: 143 V x IR 5 uA at VRWM (ledger stress basis))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -7127,7 +7127,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 71.7,
      "unit": "C",
-     "condition": "D3: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 71.7 C + self-heat 0.03 K at 0.000715 W (TVS standby: 143 V x IR 5 uA at VRWM (ledger stress basis))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "D3: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 71.7 C + self-heat 0.03 K at 0.000715 W (TVS standby: 143 V x IR 5 uA at VRWM (ledger stress basis))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -7277,7 +7277,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 62.9,
      "unit": "C",
-     "condition": "J6: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 62.9 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "J6: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 62.9 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -7286,7 +7286,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 59.2,
      "unit": "C",
-     "condition": "J6: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 59.2 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "J6: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 59.2 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -7560,7 +7560,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 69.3,
      "unit": "C",
-     "condition": "R39: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe; body element 70.3 C), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R39: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe; body element 70.3 C), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -7578,7 +7578,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 75.6,
      "unit": "C",
-     "condition": "R39: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe; body element 78.1 C), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R39: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe; body element 78.1 C), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -7701,7 +7701,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 63.0,
      "unit": "C",
-     "condition": "C42: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 63.0 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C42: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 63.0 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -7710,7 +7710,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 59.2,
      "unit": "C",
-     "condition": "C42: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 59.2 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C42: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 59.2 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -7784,7 +7784,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 62.6,
      "unit": "C",
-     "condition": "R41: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R41: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -7793,7 +7793,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 57.8,
      "unit": "C",
-     "condition": "R41: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R41: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -7866,7 +7866,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 65.2,
      "unit": "C",
-     "condition": "R42: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R42: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -7875,7 +7875,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 65.0,
      "unit": "C",
-     "condition": "R42: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R42: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -7935,7 +7935,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 63.9,
      "unit": "C",
-     "condition": "D5: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 63.9 C + self-heat 0.0 K at 1e-05 W (CT clamp: no conduction in operation (leakage only))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "D5: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 63.9 C + self-heat 0.0 K at 1e-05 W (CT clamp: no conduction in operation (leakage only))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -7945,7 +7945,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 61.5,
      "unit": "C",
-     "condition": "D5: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 61.5 C + self-heat 0.0 K at 1e-05 W (CT clamp: no conduction in operation (leakage only))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "D5: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 61.5 C + self-heat 0.0 K at 1e-05 W (CT clamp: no conduction in operation (leakage only))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -8020,7 +8020,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 62.1,
      "unit": "C",
-     "condition": "R43: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R43: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -8029,7 +8029,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 56.7,
      "unit": "C",
-     "condition": "R43: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R43: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -8088,7 +8088,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 62.5,
      "unit": "C",
-     "condition": "U13: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 62.5 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U13: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 62.5 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -8096,9 +8096,9 @@
     },
     {
      "parameter": "Local temperature, c28_h10 @ 55 C",
-     "worst_case_value": 57.3,
+     "worst_case_value": 57.4,
      "unit": "C",
-     "condition": "U13: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 57.3 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U13: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 57.3 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -8122,8 +8122,8 @@
      "stress": "Local temperature, c28_h10 @ 55 C",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "57.3 C <= 125.0 C (U13); an overrun is the airflow-route (c22/c28) owner gap",
-     "ratio": 0.4584
+     "rule": "57.4 C <= 125.0 C (U13); an overrun is the airflow-route (c22/c28) owner gap",
+     "ratio": 0.4592
     }
    ],
    "layout_guidance": [],
@@ -8173,7 +8173,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 62.2,
      "unit": "C",
-     "condition": "R47: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R47: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -8182,7 +8182,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 56.9,
      "unit": "C",
-     "condition": "R47: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R47: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -8241,7 +8241,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 89.5,
      "unit": "C",
-     "condition": "U14: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 89.5 C + self-heat 0.07 K at 0.000352 W (TPS3700 IDD max x supply)), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U14: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 89.5 C + self-heat 0.07 K at 0.000352 W (TPS3700 IDD max x supply)), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -8251,7 +8251,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 108.3,
      "unit": "C",
-     "condition": "U14: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 108.3 C + self-heat 0.07 K at 0.000352 W (TPS3700 IDD max x supply)), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U14: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 108.3 C + self-heat 0.07 K at 0.000352 W (TPS3700 IDD max x supply)), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -8325,7 +8325,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 93.8,
      "unit": "C",
-     "condition": "R48: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R48: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -8334,7 +8334,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 101.2,
      "unit": "C",
-     "condition": "R48: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R48: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -8395,7 +8395,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 89.1,
      "unit": "C",
-     "condition": "U15: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 89.1 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U15: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 89.1 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -8405,7 +8405,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 110.8,
      "unit": "C",
-     "condition": "U15: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 110.8 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U15: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 110.8 C + self-heat 0.04 K at 0.0001 W (LVC1G static ICC x VCC + output into CMOS/10 k loads (bound))), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -8465,7 +8465,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 120.7,
      "unit": "C",
-     "condition": "U26: B3 body-model junction (tj_c); B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U26: B3 body-model junction (tj_c); B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -8483,7 +8483,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 124.9,
      "unit": "C",
-     "condition": "U26: B3 body-model junction (tj_c); B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U26: B3 body-model junction (tj_c); B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -8553,7 +8553,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 101.1,
      "unit": "C",
-     "condition": "U16: pad + P x RthJA = the gated B3 row; B3 hot-copper estimate (gate estimator, pad-copper probe 99.8 C + self-heat 1.29 K at 0.00624 W (b3_ratings_gate MONITOR_SELF['tlvh431'])), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U16: pad + P x RthJA = the gated B3 row; B3 hot-copper estimate (gate estimator, pad-copper probe 99.8 C + self-heat 1.29 K at 0.00624 W (b3_ratings_gate MONITOR_SELF['tlvh431'])), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -8571,7 +8571,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 104.4,
      "unit": "C",
-     "condition": "U16: pad + P x RthJA = the gated B3 row; B3 hot-copper estimate (gate estimator, pad-copper probe 103.2 C + self-heat 1.29 K at 0.00624 W (b3_ratings_gate MONITOR_SELF['tlvh431'])), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U16: pad + P x RthJA = the gated B3 row; B3 hot-copper estimate (gate estimator, pad-copper probe 103.2 C + self-heat 1.29 K at 0.00624 W (b3_ratings_gate MONITOR_SELF['tlvh431'])), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -8655,7 +8655,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 83.9,
      "unit": "C",
-     "condition": "R77: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R77: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -8673,7 +8673,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 84.4,
      "unit": "C",
-     "condition": "R77: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R77: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -8911,7 +8911,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 87.6,
      "unit": "C",
-     "condition": "R59: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R59: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -8929,7 +8929,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 89.2,
      "unit": "C",
-     "condition": "R59: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R59: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -9013,7 +9013,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 85.1,
      "unit": "C",
-     "condition": "R79: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R79: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -9031,7 +9031,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 86.2,
      "unit": "C",
-     "condition": "R79: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R79: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -9164,7 +9164,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 83.7,
      "unit": "C",
-     "condition": "R81: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R81: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -9182,7 +9182,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 84.7,
      "unit": "C",
-     "condition": "R81: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R81: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -9347,7 +9347,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 83.5,
      "unit": "C",
-     "condition": "R83: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R83: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -9365,7 +9365,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 84.0,
      "unit": "C",
-     "condition": "R83: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R83: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -9530,7 +9530,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 84.7,
      "unit": "C",
-     "condition": "R85: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R85: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -9548,7 +9548,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 85.7,
      "unit": "C",
-     "condition": "R85: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R85: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -9713,7 +9713,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 83.1,
      "unit": "C",
-     "condition": "R87: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R87: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -9731,7 +9731,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 83.6,
      "unit": "C",
-     "condition": "R87: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R87: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -10079,7 +10079,7 @@
     },
     {
      "parameter": "Tj U42 c28",
-     "worst_case_value": 137.5,
+     "worst_case_value": 137.4,
      "unit": "C",
      "condition": "context: c28_h10 (28 A Kconfig ceiling), still air, bay 55 C",
      "evidence": [
@@ -10089,7 +10089,7 @@
         "case": "c28_h10",
         "item": "U42: Tj abs"
        },
-       "est_c": 137.5
+       "est_c": 137.4
       }
      ]
     }
@@ -10166,7 +10166,7 @@
      "max_ratio": 1.0,
      "severity": "gap",
      "rule": "context: 135.4 <= 150 C",
-     "ratio": 0.9167
+     "ratio": 0.916
     }
    ],
    "layout_guidance": [
@@ -10185,7 +10185,7 @@
     "bench: start-up (6-13 ms vs 16 ms timeout) and 11-16 MHz switching emissions (DECISIONS.md:442-448)."
    ],
    "finding": "Isolation claim resolved: elec/src/f6_parts.ato:354 ('reinforced 5 kVAC / 1.4 kVDC working') matches the current R24C2T25/R Rev. 1-2024 sheet (p.1; p.8: 1.4 kVp repetitive, 1000 Vrms TDDB, 1.4 kVDC). The 'preliminary 850 Vrms / 1.2 kVp functional' copy was the different non-/R R24C2T25 series. Barrier check now 520/1400 = 37 % (was 43 % against the wrong part).",
-   "notes": "2026-10-15 batch B: 'Tj converged 105 C' (DECISIONS.md:824, old model) replaced by B3's s41 body rows. The UL file E542996 (p.1 logo) could not be read (UL Product iQ 403); not relied on: the barrier is HOT-to-HOT functional. The 1.5x CMTI rule moved from violation to gap severity because the CMTI README scopes it to gate-command crossings; the absolute CMTI check stays violation severity and passes. Merged 2026-10-15 onto s42 (DECISIONS 55/56): CMTI re-cited to s42 (49.7 V/ns, 3.0x); Tj to the release case (133.7 C, 0.89 of 150 C). Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. U42 Tj 133.7 -> 133.6 C (release)."
+   "notes": "2026-10-15 batch B: 'Tj converged 105 C' (DECISIONS.md:824, old model) replaced by B3's s41 body rows. The UL file E542996 (p.1 logo) could not be read (UL Product iQ 403); not relied on: the barrier is HOT-to-HOT functional. The 1.5x CMTI rule moved from violation to gap severity because the CMTI README scopes it to gate-command crossings; the absolute CMTI check stays violation severity and passes. Merged 2026-10-15 onto s42 (DECISIONS 55/56): CMTI re-cited to s42 (49.7 V/ns, 3.0x); Tj to the release case (133.7 C, 0.89 of 150 C). Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. U42 Tj 133.7 -> 133.6 C (release). S50 (2026-10-16, 11-candidates/c50-permit-gate): B3 rows re-cited to the s50 margins.json."
   },
   "0603WAF2702T5E": {
    "mpn": "0603WAF2702T5E",
@@ -10229,7 +10229,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 98.8,
      "unit": "C",
-     "condition": "R137: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 6 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R137: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 6 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -10238,7 +10238,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 109.7,
      "unit": "C",
-     "condition": "R127: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 6 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R127: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 6 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -10301,7 +10301,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 104.9,
      "unit": "C",
-     "condition": "C105: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 104.9 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 5 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C105: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 104.9 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 5 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -10310,7 +10310,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 112.9,
      "unit": "C",
-     "condition": "C109: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 112.9 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 5 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C109: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 112.9 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 5 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -10385,7 +10385,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 92.7,
      "unit": "C",
-     "condition": "R92: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R92: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -10394,7 +10394,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 106.6,
      "unit": "C",
-     "condition": "R144: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R144: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -10475,7 +10475,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 96.8,
      "unit": "C",
-     "condition": "R35: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 9 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R35: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 9 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -10484,7 +10484,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 103.7,
      "unit": "C",
-     "condition": "R35: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 9 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R35: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 9 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -10567,7 +10567,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 86.9,
      "unit": "C",
-     "condition": "R69: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe; body element 88.9 C), c17.5_h10 still air at bay 61 C; worst of 4 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R69: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe; body element 88.9 C), c17.5_h10 still air at bay 61 C; worst of 4 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -10585,7 +10585,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 87.7,
      "unit": "C",
-     "condition": "R69: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe; body element 89.7 C), c28_h10 still air at bay 55 C; worst of 4 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R69: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe; body element 89.7 C), c28_h10 still air at bay 55 C; worst of 4 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       {
@@ -10798,7 +10798,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 77.1,
      "unit": "C",
-     "condition": "U36: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 77.1 C + self-heat 0.0 K at 0.00318 W (VOL628A LED: 2.1 mA RMS (140 V over 4 x 16.5 k) x VF max; transistor side negligible)), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U36: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 77.1 C + self-heat 0.0 K at 0.00318 W (VOL628A LED: 2.1 mA RMS (140 V over 4 x 16.5 k) x VF max; transistor side negligible)), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -10808,7 +10808,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 77.8,
      "unit": "C",
-     "condition": "U36: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 77.8 C + self-heat 0.0 K at 0.00318 W (VOL628A LED: 2.1 mA RMS (140 V over 4 x 16.5 k) x VF max; transistor side negligible)), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U36: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 77.8 C + self-heat 0.0 K at 0.00318 W (VOL628A LED: 2.1 mA RMS (140 V over 4 x 16.5 k) x VF max; transistor side negligible)), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -10945,7 +10945,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 62.6,
      "unit": "C",
-     "condition": "R125: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R125: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -10954,7 +10954,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 57.8,
      "unit": "C",
-     "condition": "R125: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R125: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -11076,7 +11076,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 104.5,
      "unit": "C",
-     "condition": "J1: pad + own contact rise; B3 hot-copper estimate (gate estimator, pad-copper probe 100.4 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation)) + 4.09 K (own rise at 13.5 A scaled I^2 from the p.6 curve (32 A flat to 82 C on 6 mm2 = 23 K rise))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "J1: pad + own contact rise; B3 hot-copper estimate (gate estimator, pad-copper probe 100.4 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation)) + 4.09 K (own rise at 13.5 A scaled I^2 from the p.6 curve (32 A flat to 82 C on 6 mm2 = 23 K rise))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -11085,7 +11085,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 98.4,
      "unit": "C",
-     "condition": "J1: pad + own contact rise; B3 hot-copper estimate (gate estimator, pad-copper probe 94.3 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation)) + 4.09 K (own rise at 13.5 A scaled I^2 from the p.6 curve (32 A flat to 82 C on 6 mm2 = 23 K rise))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "J1: pad + own contact rise; B3 hot-copper estimate (gate estimator, pad-copper probe 94.3 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation)) + 4.09 K (own rise at 13.5 A scaled I^2 from the p.6 curve (32 A flat to 82 C on 6 mm2 = 23 K rise))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -11246,7 +11246,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 65.8,
      "unit": "C",
-     "condition": "F2: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 65.8 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "F2: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 65.8 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -11255,7 +11255,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 62.6,
      "unit": "C",
-     "condition": "F2: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 62.6 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "F2: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 62.6 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -11401,7 +11401,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 64.8,
      "unit": "C",
-     "condition": "R130: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R130: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -11410,7 +11410,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 61.3,
      "unit": "C",
-     "condition": "R130: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R130: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -11579,7 +11579,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 102.1,
      "unit": "C",
-     "condition": "U2: pad + P x RthJA (P = the B3 heat row); body tj_c also reported; B3 hot-copper estimate (gate estimator, pad-copper probe 95.0 C + self-heat 7.08 K at 0.103 W (B3 heat row 0.1026 W (body tj_c 88.6 C))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U2: pad + P x RthJA (P = the B3 heat row); body tj_c also reported; B3 hot-copper estimate (gate estimator, pad-copper probe 95.0 C + self-heat 7.08 K at 0.103 W (B3 heat row 0.1026 W (body tj_c 88.6 C))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -11588,7 +11588,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 128.2,
      "unit": "C",
-     "condition": "U2: pad + P x RthJA (P = the B3 heat row); body tj_c also reported; B3 hot-copper estimate (gate estimator, pad-copper probe 121.2 C + self-heat 7.08 K at 0.103 W (B3 heat row 0.1026 W (body tj_c 100.7 C))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U2: pad + P x RthJA (P = the B3 heat row); body tj_c also reported; B3 hot-copper estimate (gate estimator, pad-copper probe 121.2 C + self-heat 7.08 K at 0.103 W (B3 heat row 0.1026 W (body tj_c 100.7 C))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -11791,7 +11791,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 113.7,
      "unit": "C",
-     "condition": "U43: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 109.9 C + self-heat 3.77 K at 0.0361 W (ISO6721 ICC1 + ICC2 max at 5.5 V (bound))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U43: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 109.9 C + self-heat 3.77 K at 0.0361 W (ISO6721 ICC1 + ICC2 max at 5.5 V (bound))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -11799,9 +11799,9 @@
     },
     {
      "parameter": "Local temperature, c28_h10 @ 55 C",
-     "worst_case_value": 122.3,
+     "worst_case_value": 122.2,
      "unit": "C",
-     "condition": "U44: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 118.5 C + self-heat 3.77 K at 0.0361 W (ISO6721 ICC1 + ICC2 max at 5.5 V (bound))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U44: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 118.5 C + self-heat 3.77 K at 0.0361 W (ISO6721 ICC1 + ICC2 max at 5.5 V (bound))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -11879,8 +11879,8 @@
      "stress": "Local temperature, c28_h10 @ 55 C",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "122.3 C <= 125.0 C (U44); an overrun is the airflow-route (c22/c28) owner gap",
-     "ratio": 0.9784
+     "rule": "122.2 C <= 125.0 C (U44); an overrun is the airflow-route (c22/c28) owner gap",
+     "ratio": 0.9776
     }
    ],
    "layout_guidance": [
@@ -11967,7 +11967,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 98.4,
      "unit": "C",
-     "condition": "D20: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 98.3 C + self-heat 0.12 K at 0.0002 W (LS good-node pull-down: <= 0.5 mA (10 k from 5 V) x 0.4 V)), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "D20: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 98.3 C + self-heat 0.12 K at 0.0002 W (LS good-node pull-down: <= 0.5 mA (10 k from 5 V) x 0.4 V)), c17.5_h10 still air at bay 61 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -11977,7 +11977,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 123.9,
      "unit": "C",
-     "condition": "D18: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 123.8 C + self-heat 0.12 K at 0.0002 W (LS good-node pull-down: <= 0.5 mA (10 k from 5 V) x 0.4 V)), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "D18: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 123.8 C + self-heat 0.12 K at 0.0002 W (LS good-node pull-down: <= 0.5 mA (10 k from 5 V) x 0.4 V)), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -12043,7 +12043,7 @@
     "U46"
    ],
    "class": "SIGNAL",
-   "function": "U45: gated Schmitt-NAND RC oscillator (heartbeat source, LS domain); U46: SELV Schmitt NAND, heartbeat gated by HS-B's ISO7710F verdict, driving the pump (3.3 V, inside the 5 V corner checked here)",
+   "function": "U45: gated Schmitt-NAND RC oscillator (heartbeat source, LS domain); U46: SELV Schmitt NAND, heartbeat (B, U46.2) gated by PERMIT through R135 100 k (A, U46.1 on hsb_good; stage 50, c50-permit-gate), driving the pump (3.3 V, inside the 5 V corner checked here)",
    "status": "PARTIAL",
    "datasheet": {
     "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g132.pdf",
@@ -12080,7 +12080,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 86.9,
      "unit": "C",
-     "condition": "U45: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 85.1 C + self-heat 1.79 K at 0.005 W (heartbeat oscillator / pump driver: Cpd V^2 f + the pump load (bound 5 mW))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U45: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 85.1 C + self-heat 1.79 K at 0.005 W (heartbeat oscillator / pump driver: Cpd V^2 f + the pump load (bound 5 mW))), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -12090,7 +12090,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 87.5,
      "unit": "C",
-     "condition": "U45: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 85.7 C + self-heat 1.79 K at 0.005 W (heartbeat oscillator / pump driver: Cpd V^2 f + the pump load (bound 5 mW))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U45: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 85.7 C + self-heat 1.79 K at 0.005 W (heartbeat oscillator / pump driver: Cpd V^2 f + the pump load (bound 5 mW))), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -12171,7 +12171,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 62.6,
      "unit": "C",
-     "condition": "R132: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R132: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -12180,7 +12180,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 57.9,
      "unit": "C",
-     "condition": "R132: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "R132: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -12345,7 +12345,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 86.0,
      "unit": "C",
-     "condition": "U9: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 83.2 C + self-heat 2.75 K at 0.033 W (CA-IS3720 IDD1 + IDD2 max x supply)), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U9: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 83.2 C + self-heat 2.75 K at 0.033 W (CA-IS3720 IDD1 + IDD2 max x supply)), c17.5_h10 still air at bay 61 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -12355,7 +12355,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 88.4,
      "unit": "C",
-     "condition": "U9: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 85.7 C + self-heat 2.75 K at 0.033 W (CA-IS3720 IDD1 + IDD2 max x supply)), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "U9: pad + P x Rth; B3 hot-copper estimate (gate estimator, pad-copper probe 85.7 C + self-heat 2.75 K at 0.033 W (CA-IS3720 IDD1 + IDD2 max x supply)), c28_h10 still air at bay 55 C; worst of 2 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py",
       "validation-results/11-candidates/c47-ref25-grade/results/monitor-sweep-s47.json"
@@ -12532,7 +12532,7 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 112.7,
      "unit": "C",
-     "condition": "C106: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 112.7 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 24 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C106: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 112.7 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c17.5_h10 still air at bay 61 C; worst of 24 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
@@ -12541,7 +12541,7 @@
      "parameter": "Local temperature, c28_h10 @ 55 C",
      "worst_case_value": 133.7,
      "unit": "C",
-     "condition": "C97: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 133.7 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 24 ref(s); board s49 d0471587 (S18 B3 model)",
+     "condition": "C97: pad (local-ambient proxy); B3 hot-copper estimate (gate estimator, pad-copper probe 133.7 C + self-heat 0.0 K at 0 W (negligible (no circuit dissipation))), c28_h10 still air at bay 55 C; worst of 24 ref(s); board s50 e842d9c8 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]

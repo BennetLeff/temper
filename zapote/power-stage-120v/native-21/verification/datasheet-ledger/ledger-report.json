@@ -191,7 +191,6 @@
     "R11",
     "R124",
     "R13",
-    "R135",
     "R19",
     "R21",
     "R73",
@@ -233,6 +232,7 @@
    "class": "SIGNAL",
    "designators": [
     "R128",
+    "R135",
     "R136",
     "R138",
     "R140",
@@ -242,7 +242,7 @@
     "R7"
    ],
    "finding": null,
-   "function": "100 k 0603 pull; stage 48: R136 / R138 / R140 / R142 are the LDO EN divider tops (IN to EN)",
+   "function": "100 k 0603 pull; stage 48: R136 / R138 / R140 / R142 are the LDO EN divider tops (IN to EN); stage 50: R135 is U46.A's series resistor from PERMIT",
    "gaps": [
     "Not audited (outside SAFETY/POWER).",
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
@@ -2059,7 +2059,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (operating (surface))",
-     "ratio": 0.9,
+     "ratio": 0.9008,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -2068,7 +2068,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (operating (surface))",
-     "ratio": 0.9608,
+     "ratio": 0.9616,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -3060,7 +3060,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TA)",
-     "ratio": 0.9784,
+     "ratio": 0.9776,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -3467,7 +3467,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Tj abs max",
-     "ratio": 0.9167,
+     "ratio": 0.916,
      "severity": "gap",
      "stress": "Tj U42 c28"
     }
@@ -4796,7 +4796,7 @@
     "U46"
    ],
    "finding": null,
-   "function": "U45: gated Schmitt-NAND RC oscillator (heartbeat source, LS domain); U46: SELV Schmitt NAND, heartbeat gated by HS-B's ISO7710F verdict, driving the pump (3.3 V, inside the 5 V corner checked here)",
+   "function": "U45: gated Schmitt-NAND RC oscillator (heartbeat source, LS domain); U46: SELV Schmitt NAND, heartbeat (B, U46.2) gated by PERMIT through R135 100 k (A, U46.1 on hsb_good; stage 50, c50-permit-gate), driving the pump (3.3 V, inside the 5 V corner checked here)",
    "gaps": [
     "The LS 5 V tolerance (TPS70950, UNAUDITED signal part) is taken as +/-5 %; the oscillator period range 0.42-2.09 us follows from the G132 threshold table at those corners.",
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
@@ -4857,7 +4857,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TA)",
-     "ratio": 0.4584,
+     "ratio": 0.4592,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
