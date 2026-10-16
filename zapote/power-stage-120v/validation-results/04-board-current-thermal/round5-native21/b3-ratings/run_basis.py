@@ -9,6 +9,8 @@
     python3 run_basis.py --film-lead-only ...   # C38-C41 without their body-to-air path (the model to 2026-10-15)
     python3 run_basis.py --copper-tcr 0 ...     # 20 C copper (the A4 fields as solved; a control, gated with
                                                 # --allow-cold-copper)
+    python3 run_basis.py --module-pins-only ... # PS2 without its body-to-air path (the model to OPEN-ITEMS S18; a
+                                                # control, gated with --allow-module-pins-only)
 
 Hot copper (OPEN-ITEMS S17): every case solves the hot-copper fixed point, q = q20 (1 + alpha (T - 20 C)) per A4 heat
 cell at its absolute temperature T = bay + rise (each case is solved at its own bay, so T is absolute), alpha
@@ -37,6 +39,10 @@ HF film caps C38-C41 (jet-2026-10-15): body-to-air path at the local h (thermal_
 thermal_body.FILM_HF_AIR_RISE_K (15 K, board-heated air; --film-air-rise overrides), with the weak 50 K/W lead tie in the
 solve; the gated Top row is the strong-tie bound (thermal_body.FILM_HF_STRONG). --film-lead-only
 reproduces the model before it (no body-to-air path).
+PS2 MEAN WELL MPM-20-24 (OPEN-ITEMS S18, s18-ps2-body): the body node carries the whole module loss, to the pads through
+its pins and from its p.2 52.4 x 27.2 x 24 mm case (top + sides) to air at bay + thermal_body.MODULE_AIR_RISE_K (the
+film caps' 15 K rule; --module-air-rise overrides); --module-gap-mm adds the bottom-face gap path and --module-r-pad sets the pin path (sensitivities);
+--module-pins-only reproduces the model before it. The gate rates PS2's local air against the p.3 derating curve.
 Uses the committed body-level model in place (../b3-convergence/thermal_body.py + body_runs.py, fill-fraction copper and
 datasheet package networks) on run_study.GEOM (the chain's current copper).
 Note: b3-convergence/inputs/part-bodies.json is the stage-19b extraction; it carries to the s32 board unchanged in
@@ -141,6 +147,15 @@ def main():
                     help="C38-C41 without their body-to-air path (the model to 2026-10-15; a control)")
     ap.add_argument("--film-air-rise", type=float,
                     help="C38-C41 body air over the bay, K (default thermal_body.FILM_HF_AIR_RISE_K; a sensitivity)")
+    ap.add_argument("--module-pins-only", action="store_true",
+                    help="PS2 without its body-to-air path, pins only at the heat row's board share (the model to "
+                         "OPEN-ITEMS S18; a control, gated with --allow-module-pins-only)")
+    ap.add_argument("--module-air-rise", type=float,
+                    help="PS2 case air over the bay, K (default thermal_body.MODULE_AIR_RISE_K; a sensitivity)")
+    ap.add_argument("--module-gap-mm", type=float,
+                    help="add PS2's bottom-face air-gap path to the board under it at this gap, mm (a sensitivity)")
+    ap.add_argument("--module-r-pad", type=float,
+                    help="PS2's pin path, K/W (default the class 15 K/W; a sensitivity)")
     ap.add_argument("--copper-tcr", type=float, default=tb.ALPHA_CU,
                     help=f"copper TCR, 1/K (default {tb.ALPHA_CU}, hot copper); 0 = the 20 C A4 fields (a control)")
     ap.add_argument("--jet-credit-refs", default="",
@@ -150,6 +165,14 @@ def main():
     sens = {"film_lead_only": True} if a.film_lead_only else {}
     if a.film_air_rise is not None:
         sens["film_air_rise"] = a.film_air_rise
+    if a.module_pins_only:
+        sens["module_pins_only"] = True
+    if a.module_air_rise is not None:
+        sens["module_air_rise"] = a.module_air_rise
+    if a.module_gap_mm is not None:
+        sens["module_gap_mm"] = a.module_gap_mm
+    if a.module_r_pad is not None:
+        sens["module_r_pad"] = a.module_r_pad
     credit = tuple(r for r in a.jet_credit_refs.split(",") if r)
     if a.cases and a.bay_c is not None:
         raise SystemExit("run_basis: give --cases (with @bay) or --bay-c, not both")
@@ -174,7 +197,8 @@ def main():
             print("  solved", n, flush=True)
     r = subprocess.run([sys.executable, str(HERE / "b3_ratings_gate.py"), "--runs", str(runs), "--out", a.out,
                         "--cases", ",".join(f"{c}@{b:g}" for c, b in cases.items())]
-                       + (["--allow-cold-copper"] if a.copper_tcr == 0 else []))
+                       + (["--allow-cold-copper"] if a.copper_tcr == 0 else [])
+                       + (["--allow-module-pins-only"] if a.module_pins_only else []))
     raise SystemExit(r.returncode)
 
 

@@ -260,6 +260,35 @@ def run_case(brd, op, h, pitch, copper="fraction", source="network", sens=None, 
                        body_air_w=float(np_.g_air * (riseJ[s] - np_.t_air)),
                        tcase_c=tb.TAMB_C + float(riseJ[s]) - float(np_.g_air * (riseJ[s] - np_.t_air)) * np_.r_top,
                        network_pad_area_mm2=np_.meta["pad_area_mm2"], sink_fraction=np_.meta["sink_fraction"])
+            if np_.meta.get("body_air_model") == "module_box":
+                # AC-DC module (OPEN-ITEMS S18): the split of its loss, its case, and the board around the body (the
+                # layer estimate of the air it sees: b3_ratings_gate MODULES rates the larger of that and the air rule)
+                flat = rise.ravel()
+                tj = float(riseJ[s])
+                q = {}
+                for gids, w, g, tag in np_.groups:
+                    k_ = "gap" if tag == "gap" else "pins"
+                    q[k_] = q.get(k_, 0.0) + g * (tj - float((flat[gids] * w).sum()))
+                g_tot = np_.g_air + sum(g for _, _, g, _ in np_.groups)
+                x0, y0, x1, y1 = np_.meta["body_box_mm"]
+                fz = T.CU_INDEX["F.Cu"]
+                live = interior if window else board
+                cx, cy = x[:, None], y[None, :]
+                inb = (cx >= x0) & (cx <= x1) & (cy >= y0) & (cy <= y1)
+                rr = tb.MODULE_RING_MM
+                inr = ((cx >= x0 - rr) & (cx <= x1 + rr) & (cy >= y0 - rr) & (cy <= y1 + rr)) & ~inb
+                row.update(watts_into_model=np_.watts,      # the whole module loss now enters the body node
+                           body_air_model="module_box", loss_w=np_.meta["loss_w"], case_c=tb.TAMB_C + tj,
+                           pins_w=q.get("pins", 0.0), gap_w=q.get("gap", 0.0), g_air_w_k=np_.g_air,
+                           g_pins_w_k=sum(g for _, _, g, t in np_.groups if t != "gap"),
+                           local_air_rule_c=tb.TAMB_C + np_.t_air, module_air_rise_k=np_.t_air,
+                           # the pin-pad environment of the case node: (g_air T_air + sum g T_pad) / g_tot - an upper
+                           # bound of the module's equivalent ambient (its pads carry PS2's own spreading rise)
+                           env_upper_c=tb.TAMB_C + tj - np_.watts / g_tot,
+                           board_under_body_c=tb.TAMB_C + float(rise[fz][inb & live].mean()),
+                           board_ring_c=tb.TAMB_C + float(rise[fz][inr & live].mean()), ring_mm=rr,
+                           body_box_mm=np_.meta["body_box_mm"], body_h_mm=np_.meta["body_h_mm"],
+                           layer_factor=tb.layer_factor(np_.meta["body_h_mm"]))
             if np_.spec_key == "film_hf" and np_.g_air > 0:
                 # the gated Top row at the strong-tie end (thermal_body.FILM_HF_STRONG): never below the node itself
                 bound = tb.film_top_bound_rise(st["max_pad_mean_k"], np_.watts, np_.g_air, np_.t_air)
