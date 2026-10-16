@@ -1,13 +1,13 @@
 # T1 — proposed element-parallel leak barrier
 
-Status: **proposed; not a qualified safety barrier**. Release requires supplier, fixture, seal and ageing evidence. The owner’s requirement is prevention of the first pan crossing above 300 °C for every leak whose untripped steady pan temperature would exceed that bar. This study reproduces a sampled model; it does not certify that universal requirement. [source: `production.release_status`, `hazard.criterion`, `hazard.continuous_status`]
+Status: **proposed; not a qualified safety barrier**. Release requires supplier, fixture, seal and ageing evidence. The owner’s requirement is prevention of the first pan crossing above 300 °C for every leak whose untripped pan temperature would exceed that bar at any time, transient overshoot included (owner, 2026-10-16; previously the steady temperature). This study reproduces a sampled model; it does not certify that universal requirement. [source: `production.release_status`, `hazard.criterion`, `hazard.continuous_status`]
 
 ## Construction and margins
 
 - Maintain insulation resistance ≥ 10 MΩ at 300 °C throughout the hot lead length, between otherwise isolated conductors, at the element terminations and across the element **as a parasitic path excluding the intended platinum resistance**. Include the bore exits, welds, seal contamination paths and hot-to-cold transition, not just the capillary body. [source: `insulation.minimum_ohm`, `insulation.test_C`]
 - Use separate inorganic bores/sleeves through the hot zone, with strain relief and clean, separated terminations; demonstrate the complete thermal profile keeps every organic insulator and seal inside its supplier rating. A capillary material figure does not bound surface contamination or a damaged assembly. [source: `insulation.candidate_status`, `production.release_status`]
-- The sampled worst hazardous resistance is 1732.1 Ω. The design minimum has 5773.34× resistance margin; a 100 MΩ part would have 57733.39×. These are model sensitivity ratios, not demonstrated lifetime or reliability factors. [source: `hazard.highest_sampled_hazardous_ohm`, `insulation.margin_to_sampled_hazard`]
-- Do not label the next sampled resistance, 2319.9 Ω, safe: its largest final-window mean is 299.8 °C, just 0.2 K below the bar, but its largest transient is 304.2 °C. There is no derived continuous hazardous cutoff. Using that next sample only as a sensitivity denominator reduces the minimum-insulation ratio to 4310.53×. [source: `hazard.next_sample_ohm`, `hazard.next_sample_max_steady_C`, `hazard.next_sample_steady_headroom_K`, `hazard.next_sample_max_transient_C`, `hazard.continuous_status`, `insulation.margin_to_next_sample_sensitivity_only`]
+- The sampled worst hazardous resistance is 2319.9 Ω (29 of 48 runs overshoot to as much as 304.2 °C while settling at ≤ 299.8 °C). The design minimum has 4310.53× resistance margin; a 100 MΩ part would have 43105.31× (5773× and 57733× against the steady rule's 1732.1 Ω). These are model sensitivity ratios, not demonstrated lifetime or reliability factors. [source: `hazard.highest_sampled_hazardous_ohm`, `insulation.margin_to_sampled_hazard`]
+- The next sampled resistance, 3107.2 Ω, is not hazardous on this grid: its largest transient is 290.8 °C and its largest final-window mean 286.2 °C. 2319.9 Ω, which the steady rule left 0.2 K short of the bar, is hazardous under the peak rule. There is no derived continuous hazardous cutoff between the two samples. Using the next sample only as a sensitivity denominator reduces the minimum-insulation ratio to 3218.33×. [source: `hazard.next_sample_ohm`, `hazard.next_sample_max_transient_C`, `hazard.next_sample_max_steady_C`, `hazard.highest_sampled_hazardous_runs_over_bar`, `hazard.continuous_status`, `insulation.margin_to_next_sample_sensitivity_only`]
 - Do not credit the proposed 4‑bore fused-silica value of approximately 100 MΩ at 350 °C as evidence until the supplier confirms geometry, atmosphere, voltage, cleanliness, lot variability and ageing. Alumina remains an unqualified alternative. [source: `insulation.candidate_bores`, `insulation.candidate_supplier_ohm`, `insulation.candidate_supplier_C`, `insulation.candidate_status`]
 
 ## Per-cartridge production tests
@@ -22,9 +22,9 @@ Status: **proposed; not a qualified safety barrier**. Release requires supplier,
 
 | Measured acceptance (±K) | Ideal boundary (kΩ) | Reference only (kΩ) | Full masking budget (kΩ) | Full-budget / sampled hazard | Key |
 |---:|---:|---:|---:|---:|---|
-| 0.25 | 504.746 | 360.467 | 100.763 | 58.17× | `accuracy_acceptance[0]` |
-| 0.5 | 252.257 | 210.175 | 83.931 | 48.46× | `accuracy_acceptance[1]` |
-| 1 | 126.012 | 114.535 | 62.890 | 36.31× | `accuracy_acceptance[2]` |
+| 0.25 | 504.746 | 360.467 | 100.763 | 43.43× | `accuracy_acceptance[0]` |
+| 0.5 | 252.257 | 210.175 | 83.931 | 36.18× | `accuracy_acceptance[1]` |
+| 1 | 126.012 | 114.535 | 62.890 | 27.11× | `accuracy_acceptance[2]` |
 
 - Detection means rejection of a parallel resistance **strictly below** the listed boundary under the stated masking bounds; equality may pass. The reference-only column assumes no other positive error. The full-budget column includes the element’s possible positive error as well as measurement allowances, stacked linearly. These are bounds, not an RSS or a statistical confidence claim. [source: `metrology`, `accuracy_acceptance`]
 - The assembled hot-accuracy test is a coarse shunt screen: it cannot certify the design IR limit across the connected element. That parasitic path is electrically inseparable from the platinum resistance. Preassembly IR, supplier process control and representative witness structures therefore carry the inaccessible insulation claim; their representativeness and assembly damage controls are release prerequisites. A passing accuracy reading cannot close that evidence gap. [source: `insulation.minimum_ohm`, `accuracy_acceptance`, `production.release_status`]

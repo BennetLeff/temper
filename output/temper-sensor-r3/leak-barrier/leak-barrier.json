@@ -2,34 +2,34 @@
   "accuracy_acceptance": [
     {
       "accepted_true_error_bound_K": 0.5,
-      "full_budget_margin_to_next_sample": 43.4343061568,
-      "full_budget_margin_to_sampled_hazard": 58.174035479,
+      "full_budget_margin_to_next_sample": 32.4289543168,
+      "full_budget_margin_to_sampled_hazard": 43.4343061568,
       "full_mask_budget_boundary_ohm": 100763.246853,
       "guaranteed_detection": "strictly below boundary, with all stated bounds valid; equality may pass",
       "ideal_boundary_ohm": 504746.29617,
-      "ideal_margin_to_sampled_hazard": 291.407133635,
+      "ideal_margin_to_sampled_hazard": 217.572436816,
       "measured_acceptance_K": 0.25,
       "reference_only_boundary_ohm": 360466.634847
     },
     {
       "accepted_true_error_bound_K": 0.75,
-      "full_budget_margin_to_next_sample": 36.1785510106,
-      "full_budget_margin_to_sampled_hazard": 48.4559901215,
+      "full_budget_margin_to_next_sample": 27.0116569546,
+      "full_budget_margin_to_sampled_hazard": 36.1785510106,
       "full_mask_budget_boundary_ohm": 83930.6204895,
       "guaranteed_detection": "strictly below boundary, with all stated bounds valid; equality may pass",
       "ideal_boundary_ohm": 252256.889103,
-      "ideal_margin_to_sampled_hazard": 145.636446569,
+      "ideal_margin_to_sampled_hazard": 108.736104618,
       "measured_acceptance_K": 0.5,
       "reference_only_boundary_ohm": 210175.321452
     },
     {
       "accepted_true_error_bound_K": 1.25,
-      "full_budget_margin_to_next_sample": 27.1088573458,
-      "full_budget_margin_to_sampled_hazard": 36.3084337836,
+      "full_budget_margin_to_next_sample": 20.240035452,
+      "full_budget_margin_to_sampled_hazard": 27.1088573458,
       "full_mask_budget_boundary_ohm": 62889.8381566,
       "guaranteed_detection": "strictly below boundary, with all stated bounds valid; equality may pass",
       "ideal_boundary_ohm": 126012.186814,
-      "ideal_margin_to_sampled_hazard": 72.7511037547,
+      "ideal_margin_to_sampled_hazard": 54.3179390549,
       "measured_acceptance_K": 1.0,
       "reference_only_boundary_ohm": 114535.395877
     }
@@ -39,17 +39,17 @@
       0.3,
       1.2
     ],
-    "accuracy_screen_only_example_equivalent_hours": 1578.07087282,
-    "accuracy_screen_only_log_budget": 1.57807087282,
+    "accuracy_screen_only_example_equivalent_hours": 1285.88133671,
+    "accuracy_screen_only_log_budget": 1.28588133671,
     "accuracy_screen_only_resistance_floor_ohm": 83930.6204895,
     "example_k300_per_hour": 0.001,
-    "example_max_equivalent_300C_hours": 6358.42073379,
+    "example_max_equivalent_300C_hours": 6066.23119768,
     "example_status": "illustrative, unmeasured; never a qualification pass",
     "initial_R300_ohm": 10000000.0,
     "initial_condition_status": "a hot-accuracy pass alone does not establish the assumed initial 10 Mohm across the connected element",
     "k_B_eV_per_K": 8.61733326214e-05,
     "law": "R300(t)=R300(0)*exp(-k300*sum(hours*exp(-Ea/kB*(1/T-1/T300))))",
-    "log_degradation_budget": 6.35842073379,
+    "log_degradation_budget": 6.06623119768,
     "material_interpretation": "sensitivity values for thermally activated ionic transport/contamination in glass or ceramic and seal/polymer degradation; no Ea is assigned to this silica, alumina, seal or enamel without supplier data; conduction Ea is not ageing Ea",
     "rows": [
       {
@@ -59,8 +59,8 @@
         "example_R300_after_ohm": 5714362.70079,
         "example_above_target": true,
         "hours": 1000,
-        "maximum_k300_per_hour": 0.0113623917538,
-        "minimum_tau300_hours": 88.0096393141,
+        "maximum_k300_per_hour": 0.0108402539283,
+        "minimum_tau300_hours": 92.2487615707,
         "rate_relative_to_300C": 0.559602315388,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -71,8 +71,8 @@
         "example_R300_after_ohm": 1865964.6292,
         "example_above_target": true,
         "hours": 3000,
-        "maximum_k300_per_hour": 0.00378746391794,
-        "minimum_tau300_hours": 264.028917942,
+        "maximum_k300_per_hour": 0.00361341797611,
+        "minimum_tau300_hours": 276.746284712,
         "rate_relative_to_300C": 0.559602315388,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -83,8 +83,8 @@
         "example_R300_after_ohm": 37125.9883169,
         "example_above_target": true,
         "hours": 10000,
-        "maximum_k300_per_hour": 0.00113623917538,
-        "minimum_tau300_hours": 880.096393141,
+        "maximum_k300_per_hour": 0.00108402539283,
+        "minimum_tau300_hours": 922.487615707,
         "rate_relative_to_300C": 0.559602315388,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -95,8 +95,8 @@
         "example_R300_after_ohm": 4685864.2338,
         "example_above_target": true,
         "hours": 1000,
-        "maximum_k300_per_hour": 0.00838803357582,
-        "minimum_tau300_hours": 119.217453168,
+        "maximum_k300_per_hour": 0.0080025769126,
+        "minimum_tau300_hours": 124.959748706,
         "rate_relative_to_300C": 0.758034726055,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -107,8 +107,8 @@
         "example_R300_after_ohm": 1028890.3741,
         "example_above_target": true,
         "hours": 3000,
-        "maximum_k300_per_hour": 0.00279601119194,
-        "minimum_tau300_hours": 357.652359505,
+        "maximum_k300_per_hour": 0.00266752563753,
+        "minimum_tau300_hours": 374.879246118,
         "rate_relative_to_300C": 0.758034726055,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -119,8 +119,8 @@
         "example_R300_after_ohm": 5103.83956024,
         "example_above_target": false,
         "hours": 10000,
-        "maximum_k300_per_hour": 0.000838803357582,
-        "minimum_tau300_hours": 1192.17453168,
+        "maximum_k300_per_hour": 0.00080025769126,
+        "minimum_tau300_hours": 1249.59748706,
         "rate_relative_to_300C": 0.758034726055,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -131,8 +131,8 @@
         "example_R300_after_ohm": 3678794.41171,
         "example_above_target": true,
         "hours": 1000,
-        "maximum_k300_per_hour": 0.00635842073379,
-        "minimum_tau300_hours": 157.271756914,
+        "maximum_k300_per_hour": 0.00606623119768,
+        "minimum_tau300_hours": 164.846997652,
         "rate_relative_to_300C": 1.0,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -143,8 +143,8 @@
         "example_R300_after_ohm": 497870.683679,
         "example_above_target": true,
         "hours": 3000,
-        "maximum_k300_per_hour": 0.00211947357793,
-        "minimum_tau300_hours": 471.815270741,
+        "maximum_k300_per_hour": 0.00202207706589,
+        "minimum_tau300_hours": 494.540992956,
         "rate_relative_to_300C": 1.0,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -155,8 +155,8 @@
         "example_R300_after_ohm": 453.999297625,
         "example_above_target": false,
         "hours": 10000,
-        "maximum_k300_per_hour": 0.000635842073379,
-        "minimum_tau300_hours": 1572.71756914,
+        "maximum_k300_per_hour": 0.000606623119768,
+        "minimum_tau300_hours": 1648.46997652,
         "rate_relative_to_300C": 1.0,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -167,8 +167,8 @@
         "example_R300_after_ohm": 7311367.59386,
         "example_above_target": true,
         "hours": 1000,
-        "maximum_k300_per_hour": 0.0203044044697,
-        "minimum_tau300_hours": 49.2503979366,
+        "maximum_k300_per_hour": 0.019371352888,
+        "minimum_tau300_hours": 51.6226205666,
         "rate_relative_to_300C": 0.313154751387,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -179,8 +179,8 @@
         "example_R300_after_ohm": 3908371.68665,
         "example_above_target": true,
         "hours": 3000,
-        "maximum_k300_per_hour": 0.00676813482324,
-        "minimum_tau300_hours": 147.75119381,
+        "maximum_k300_per_hour": 0.00645711762934,
+        "minimum_tau300_hours": 154.8678617,
         "rate_relative_to_300C": 0.313154751387,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -191,8 +191,8 @@
         "example_R300_after_ohm": 436501.956757,
         "example_above_target": true,
         "hours": 10000,
-        "maximum_k300_per_hour": 0.00203044044697,
-        "minimum_tau300_hours": 492.503979366,
+        "maximum_k300_per_hour": 0.0019371352888,
+        "minimum_tau300_hours": 516.226205666,
         "rate_relative_to_300C": 0.313154751387,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -203,8 +203,8 @@
         "example_R300_after_ohm": 5629206.25375,
         "example_above_target": true,
         "hours": 1000,
-        "maximum_k300_per_hour": 0.0110655004151,
-        "minimum_tau300_hours": 90.3709694535,
+        "maximum_k300_per_hour": 0.0105570056853,
+        "minimum_tau300_hours": 94.7238288783,
         "rate_relative_to_300C": 0.574616645905,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -215,8 +215,8 @@
         "example_R300_after_ohm": 1783780.79755,
         "example_above_target": true,
         "hours": 3000,
-        "maximum_k300_per_hour": 0.00368850013837,
-        "minimum_tau300_hours": 271.11290836,
+        "maximum_k300_per_hour": 0.00351900189509,
+        "minimum_tau300_hours": 284.171486635,
         "rate_relative_to_300C": 0.574616645905,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -227,8 +227,8 @@
         "example_R300_after_ohm": 31950.0553406,
         "example_above_target": true,
         "hours": 10000,
-        "maximum_k300_per_hour": 0.00110655004151,
-        "minimum_tau300_hours": 903.709694535,
+        "maximum_k300_per_hour": 0.00105570056853,
+        "minimum_tau300_hours": 947.238288783,
         "rate_relative_to_300C": 0.574616645905,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -239,8 +239,8 @@
         "example_R300_after_ohm": 3678794.41171,
         "example_above_target": true,
         "hours": 1000,
-        "maximum_k300_per_hour": 0.00635842073379,
-        "minimum_tau300_hours": 157.271756914,
+        "maximum_k300_per_hour": 0.00606623119768,
+        "minimum_tau300_hours": 164.846997652,
         "rate_relative_to_300C": 1.0,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -251,8 +251,8 @@
         "example_R300_after_ohm": 497870.683679,
         "example_above_target": true,
         "hours": 3000,
-        "maximum_k300_per_hour": 0.00211947357793,
-        "minimum_tau300_hours": 471.815270741,
+        "maximum_k300_per_hour": 0.00202207706589,
+        "minimum_tau300_hours": 494.540992956,
         "rate_relative_to_300C": 1.0,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -263,8 +263,8 @@
         "example_R300_after_ohm": 453.999297625,
         "example_above_target": false,
         "hours": 10000,
-        "maximum_k300_per_hour": 0.000635842073379,
-        "minimum_tau300_hours": 1572.71756914,
+        "maximum_k300_per_hour": 0.000606623119768,
+        "minimum_tau300_hours": 1648.46997652,
         "rate_relative_to_300C": 1.0,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -275,8 +275,8 @@
         "example_R300_after_ohm": 8392537.92723,
         "example_above_target": true,
         "hours": 1000,
-        "maximum_k300_per_hour": 0.0362836319854,
-        "minimum_tau300_hours": 27.5606367191,
+        "maximum_k300_per_hour": 0.0346162843779,
+        "minimum_tau300_hours": 28.8881379955,
         "rate_relative_to_300C": 0.175242123951,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -287,8 +287,8 @@
         "example_R300_after_ohm": 5911258.3122,
         "example_above_target": true,
         "hours": 3000,
-        "maximum_k300_per_hour": 0.0120945439951,
-        "minimum_tau300_hours": 82.6819101573,
+        "maximum_k300_per_hour": 0.0115387614593,
+        "minimum_tau300_hours": 86.6644139864,
         "rate_relative_to_300C": 0.175242123951,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -299,8 +299,8 @@
         "example_R300_after_ohm": 1733537.04068,
         "example_above_target": true,
         "hours": 10000,
-        "maximum_k300_per_hour": 0.00362836319854,
-        "minimum_tau300_hours": 275.606367191,
+        "maximum_k300_per_hour": 0.00346162843779,
+        "minimum_tau300_hours": 288.881379955,
         "rate_relative_to_300C": 0.175242123951,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -311,8 +311,8 @@
         "example_R300_after_ohm": 6468897.68818,
         "example_above_target": true,
         "hours": 1000,
-        "maximum_k300_per_hour": 0.0145976167513,
-        "minimum_tau300_hours": 68.504333073,
+        "maximum_k300_per_hour": 0.0139268101083,
+        "minimum_tau300_hours": 71.8039516747,
         "rate_relative_to_300C": 0.435579371766,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -323,8 +323,8 @@
         "example_R300_after_ohm": 2707016.15289,
         "example_above_target": true,
         "hours": 3000,
-        "maximum_k300_per_hour": 0.00486587225042,
-        "minimum_tau300_hours": 205.512999219,
+        "maximum_k300_per_hour": 0.00464227003611,
+        "minimum_tau300_hours": 215.411855024,
         "rate_relative_to_300C": 0.435579371766,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -335,8 +335,8 @@
         "example_R300_after_ohm": 128322.503574,
         "example_above_target": true,
         "hours": 10000,
-        "maximum_k300_per_hour": 0.00145976167513,
-        "minimum_tau300_hours": 685.04333073,
+        "maximum_k300_per_hour": 0.00139268101083,
+        "minimum_tau300_hours": 718.039516747,
         "rate_relative_to_300C": 0.435579371766,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -347,8 +347,8 @@
         "example_R300_after_ohm": 3678794.41171,
         "example_above_target": true,
         "hours": 1000,
-        "maximum_k300_per_hour": 0.00635842073379,
-        "minimum_tau300_hours": 157.271756914,
+        "maximum_k300_per_hour": 0.00606623119768,
+        "minimum_tau300_hours": 164.846997652,
         "rate_relative_to_300C": 1.0,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -359,8 +359,8 @@
         "example_R300_after_ohm": 497870.683679,
         "example_above_target": true,
         "hours": 3000,
-        "maximum_k300_per_hour": 0.00211947357793,
-        "minimum_tau300_hours": 471.815270741,
+        "maximum_k300_per_hour": 0.00202207706589,
+        "minimum_tau300_hours": 494.540992956,
         "rate_relative_to_300C": 1.0,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -371,8 +371,8 @@
         "example_R300_after_ohm": 453.999297625,
         "example_above_target": false,
         "hours": 10000,
-        "maximum_k300_per_hour": 0.000635842073379,
-        "minimum_tau300_hours": 1572.71756914,
+        "maximum_k300_per_hour": 0.000606623119768,
+        "minimum_tau300_hours": 1648.46997652,
         "rate_relative_to_300C": 1.0,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -383,8 +383,8 @@
         "example_R300_after_ohm": 9065891.59086,
         "example_above_target": true,
         "hours": 1000,
-        "maximum_k300_per_hour": 0.0648382449245,
-        "minimum_tau300_hours": 15.4229961216,
+        "maximum_k300_per_hour": 0.0618587225715,
+        "minimum_tau300_hours": 16.1658689095,
         "rate_relative_to_300C": 0.0980658983165,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -395,8 +395,8 @@
         "example_R300_after_ohm": 7451291.68608,
         "example_above_target": true,
         "hours": 3000,
-        "maximum_k300_per_hour": 0.0216127483082,
-        "minimum_tau300_hours": 46.2689883647,
+        "maximum_k300_per_hour": 0.0206195741905,
+        "minimum_tau300_hours": 48.4976067285,
         "rate_relative_to_300C": 0.0980658983165,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -407,8 +407,8 @@
         "example_R300_after_ohm": 3750638.56629,
         "example_above_target": true,
         "hours": 10000,
-        "maximum_k300_per_hour": 0.00648382449245,
-        "minimum_tau300_hours": 154.229961216,
+        "maximum_k300_per_hour": 0.00618587225715,
+        "minimum_tau300_hours": 161.658689095,
         "rate_relative_to_300C": 0.0980658983165,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -419,8 +419,8 @@
         "example_R300_after_ohm": 7187912.55363,
         "example_above_target": true,
         "hours": 1000,
-        "maximum_k300_per_hour": 0.0192571873682,
-        "minimum_tau300_hours": 51.9286633546,
+        "maximum_k300_per_hour": 0.0183722587233,
+        "minimum_tau300_hours": 54.4298888374,
         "rate_relative_to_300C": 0.330184289752,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -431,8 +431,8 @@
         "example_R300_after_ohm": 3713713.14472,
         "example_above_target": true,
         "hours": 3000,
-        "maximum_k300_per_hour": 0.00641906245607,
-        "minimum_tau300_hours": 155.785990064,
+        "maximum_k300_per_hour": 0.0061240862411,
+        "minimum_tau300_hours": 163.289666512,
         "rate_relative_to_300C": 0.330184289752,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -443,8 +443,8 @@
         "example_R300_after_ohm": 368152.580978,
         "example_above_target": true,
         "hours": 10000,
-        "maximum_k300_per_hour": 0.00192571873682,
-        "minimum_tau300_hours": 519.286633546,
+        "maximum_k300_per_hour": 0.00183722587233,
+        "minimum_tau300_hours": 544.298888374,
         "rate_relative_to_300C": 0.330184289752,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -455,8 +455,8 @@
         "example_R300_after_ohm": 3678794.41171,
         "example_above_target": true,
         "hours": 1000,
-        "maximum_k300_per_hour": 0.00635842073379,
-        "minimum_tau300_hours": 157.271756914,
+        "maximum_k300_per_hour": 0.00606623119768,
+        "minimum_tau300_hours": 164.846997652,
         "rate_relative_to_300C": 1.0,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -467,8 +467,8 @@
         "example_R300_after_ohm": 497870.683679,
         "example_above_target": true,
         "hours": 3000,
-        "maximum_k300_per_hour": 0.00211947357793,
-        "minimum_tau300_hours": 471.815270741,
+        "maximum_k300_per_hour": 0.00202207706589,
+        "minimum_tau300_hours": 494.540992956,
         "rate_relative_to_300C": 1.0,
         "verdict_from_production_test_alone": "undetermined"
       },
@@ -479,31 +479,31 @@
         "example_R300_after_ohm": 453.999297625,
         "example_above_target": false,
         "hours": 10000,
-        "maximum_k300_per_hour": 0.000635842073379,
-        "minimum_tau300_hours": 1572.71756914,
+        "maximum_k300_per_hour": 0.000606623119768,
+        "minimum_tau300_hours": 1648.46997652,
         "rate_relative_to_300C": 1.0,
         "verdict_from_production_test_alone": "undetermined"
       }
     ],
     "supplier_rate_or_life_anchor": null,
-    "target_R300_ohm": 17321.0,
+    "target_R300_ohm": 23199.0,
     "temperature_units": "kelvin in the exponent; resistance always evaluated at 300 C after ageing"
   },
   "all_pass": true,
   "claim_audit": {
     "D_LEAK_1": {
+      "highest_hazard_ohm": 2319.9,
       "quoted_0_001K_reproduced": 0.001,
       "quoted_0_013K_reproduced": 0.013,
-      "quoted_1_73kohm": 1732.1,
-      "quoted_5773_ratio_reproduced": 5773,
+      "ratio_10Mohm_to_hazard": 4311,
       "requirement_10Mohm_300C": "design input, not experimentally reproduced",
       "supplier_4_bore_100Mohm_350C": "not reproducible; pending supplier confirmation"
     },
     "D_LEAK_2": {
       "legacy_rounded_boundary_ohm": 252000.0,
-      "quoted_145_ratio_reproduced": 145,
       "quoted_acceptance_K": 0.5,
-      "status": "252 kohm and 145x reproduce only the ideal zero-uncertainty calculation; see acceptance for masked limits",
+      "ratio_legacy_boundary_to_hazard": 109,
+      "status": "252 kohm reproduces only the ideal zero-uncertainty calculation; see acceptance for masked limits",
       "unrounded_ideal_boundary_ohm": 252256.889103
     },
     "D_LEAK_3": {
@@ -516,7 +516,7 @@
     "adc_codes": 32768,
     "agreement_gate_K": 0.0001,
     "loading_correction": false,
-    "max_analog_C_vs_python_difference_K": 2.12794533923e-05,
+    "max_analog_C_vs_python_difference_K": 2.69293900033e-05,
     "meaning": "nominal ADC illustration, nearest-code rounding, no noise or analog tolerances; not a 10 Mohm measurement",
     "r_ref_ohm": 430.0,
     "self_heating_subtraction_K": 0.0610000006855
@@ -537,243 +537,262 @@
     "bead_tolerance_at_250C_K": 10.2,
     "continuous_hazardous_threshold_ohm": null,
     "continuous_status": "not identified by finite samples; no monotonicity or convergence certificate",
-    "criterion": "T_c_steady > bar_C; steady is the source's final-window mean, not a convergence proof",
+    "criterion": "the untripped T_c crosses bar_C at any time, transient overshoot included (leak_checks.hazardous; owner 2026-10-16, was T_c_steady > bar_C)",
     "glass_offsets_K": [
       12.0,
       46.0
     ],
-    "hazardous_runs": 235,
-    "highest_sampled_hazardous_max_steady_C": 318.9,
-    "highest_sampled_hazardous_ohm": 1732.1,
-    "latched_before_bar": 59,
-    "next_sample_max_abs_tail_drift_K": 11.11,
-    "next_sample_max_steady_C": 299.8,
-    "next_sample_max_transient_C": 304.2,
-    "next_sample_ohm": 2319.9,
-    "next_sample_runs_transient_over_bar": 27,
-    "next_sample_steady_headroom_K": 0.2,
+    "hazardous_runs": 277,
+    "highest_sampled_hazardous_max_steady_C": 299.8,
+    "highest_sampled_hazardous_max_transient_C": 304.2,
+    "highest_sampled_hazardous_ohm": 2319.9,
+    "highest_sampled_hazardous_runs_over_bar": 29,
+    "highest_sampled_runs": 48,
+    "latched_before_bar": 69,
+    "next_sample_max_abs_tail_drift_K": 0.27,
+    "next_sample_max_steady_C": 286.2,
+    "next_sample_max_transient_C": 290.8,
+    "next_sample_ohm": 3107.2,
+    "next_sample_runs_transient_over_bar": 0,
+    "next_sample_steady_headroom_K": 13.8,
     "per_pan_corner": [
       {
         "bead_corner": "cold",
         "glass_offset_K": 12.0,
-        "hazardous_count": 20,
+        "hazardous_count": 24,
         "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": 1732.1,
-          "ramp600": 1732.1,
-          "step": 1732.1
+          "ramp120": 2319.9,
+          "ramp600": 2319.9,
+          "step": 2319.9
         },
-        "highest_sampled_hazardous_ohm": 1732.1,
-        "next_sample_max_steady_C": 299.7,
+        "highest_sampled_hazardous_ohm": 2319.9,
+        "next_sample_max_steady_C": 286.2,
+        "next_sample_max_transient_C": 287.0,
         "pan": "carbon_steel_28",
         "sample_count": 39
       },
       {
         "bead_corner": "hot",
         "glass_offset_K": 12.0,
-        "hazardous_count": 18,
+        "hazardous_count": 22,
         "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": 1732.1,
+          "ramp120": 2319.9,
           "ramp600": 1732.1,
-          "step": 1732.1
+          "step": 2319.9
         },
-        "highest_sampled_hazardous_ohm": 1732.1,
-        "next_sample_max_steady_C": 299.4,
+        "highest_sampled_hazardous_ohm": 2319.9,
+        "next_sample_max_steady_C": 277.6,
+        "next_sample_max_transient_C": 287.2,
         "pan": "carbon_steel_28",
         "sample_count": 39
       },
       {
         "bead_corner": "cold",
         "glass_offset_K": 46.0,
-        "hazardous_count": 19,
-        "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": 1732.1,
-          "ramp600": 1732.1,
-          "step": 1732.1
-        },
-        "highest_sampled_hazardous_ohm": 1732.1,
-        "next_sample_max_steady_C": 299.5,
-        "pan": "carbon_steel_28",
-        "sample_count": 39
-      },
-      {
-        "bead_corner": "hot",
-        "glass_offset_K": 46.0,
-        "hazardous_count": 18,
-        "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": 1293.2,
-          "ramp600": 1732.1,
-          "step": 1732.1
-        },
-        "highest_sampled_hazardous_ohm": 1732.1,
-        "next_sample_max_steady_C": 299.8,
-        "pan": "carbon_steel_28",
-        "sample_count": 39
-      },
-      {
-        "bead_corner": "cold",
-        "glass_offset_K": 12.0,
-        "hazardous_count": 20,
-        "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": 1732.1,
-          "ramp600": 1732.1,
-          "step": 1732.1
-        },
-        "highest_sampled_hazardous_ohm": 1732.1,
-        "next_sample_max_steady_C": 296.1,
-        "pan": "cast_iron_26",
-        "sample_count": 39
-      },
-      {
-        "bead_corner": "hot",
-        "glass_offset_K": 12.0,
-        "hazardous_count": 20,
-        "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": 1732.1,
-          "ramp600": 1732.1,
-          "step": 1732.1
-        },
-        "highest_sampled_hazardous_ohm": 1732.1,
-        "next_sample_max_steady_C": 299.4,
-        "pan": "cast_iron_26",
-        "sample_count": 39
-      },
-      {
-        "bead_corner": "cold",
-        "glass_offset_K": 46.0,
-        "hazardous_count": 18,
-        "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": 1732.1,
-          "ramp600": 1732.1,
-          "step": 1732.1
-        },
-        "highest_sampled_hazardous_ohm": 1732.1,
-        "next_sample_max_steady_C": 299.5,
-        "pan": "cast_iron_26",
-        "sample_count": 39
-      },
-      {
-        "bead_corner": "hot",
-        "glass_offset_K": 46.0,
-        "hazardous_count": 18,
-        "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": 1732.1,
-          "ramp600": 1732.1,
-          "step": 1732.1
-        },
-        "highest_sampled_hazardous_ohm": 1732.1,
-        "next_sample_max_steady_C": 299.8,
-        "pan": "cast_iron_26",
-        "sample_count": 39
-      },
-      {
-        "bead_corner": "cold",
-        "glass_offset_K": 12.0,
-        "hazardous_count": 0,
-        "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": null,
-          "ramp600": null,
-          "step": null
-        },
-        "highest_sampled_hazardous_ohm": null,
-        "next_sample_max_steady_C": 115.6,
-        "pan": "disc_pot_water_1l5",
-        "sample_count": 39
-      },
-      {
-        "bead_corner": "hot",
-        "glass_offset_K": 12.0,
-        "hazardous_count": 0,
-        "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": null,
-          "ramp600": null,
-          "step": null
-        },
-        "highest_sampled_hazardous_ohm": null,
-        "next_sample_max_steady_C": 115.6,
-        "pan": "disc_pot_water_1l5",
-        "sample_count": 39
-      },
-      {
-        "bead_corner": "cold",
-        "glass_offset_K": 46.0,
-        "hazardous_count": 0,
-        "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": null,
-          "ramp600": null,
-          "step": null
-        },
-        "highest_sampled_hazardous_ohm": null,
-        "next_sample_max_steady_C": 115.3,
-        "pan": "disc_pot_water_1l5",
-        "sample_count": 39
-      },
-      {
-        "bead_corner": "hot",
-        "glass_offset_K": 46.0,
-        "hazardous_count": 0,
-        "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": null,
-          "ramp600": null,
-          "step": null
-        },
-        "highest_sampled_hazardous_ohm": null,
-        "next_sample_max_steady_C": 115.3,
-        "pan": "disc_pot_water_1l5",
-        "sample_count": 39
-      },
-      {
-        "bead_corner": "cold",
-        "glass_offset_K": 12.0,
         "hazardous_count": 21,
         "highest_sampled_hazardous_by_onset_ohm": {
           "ramp120": 1732.1,
-          "ramp600": 1732.1,
+          "ramp600": 2319.9,
           "step": 1732.1
         },
-        "highest_sampled_hazardous_ohm": 1732.1,
-        "next_sample_max_steady_C": 295.1,
+        "highest_sampled_hazardous_ohm": 2319.9,
+        "next_sample_max_steady_C": 285.9,
+        "next_sample_max_transient_C": 286.5,
+        "pan": "carbon_steel_28",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "hot",
+        "glass_offset_K": 46.0,
+        "hazardous_count": 24,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 2319.9,
+          "ramp600": 2319.9,
+          "step": 2319.9
+        },
+        "highest_sampled_hazardous_ohm": 2319.9,
+        "next_sample_max_steady_C": 286.1,
+        "next_sample_max_transient_C": 286.8,
+        "pan": "carbon_steel_28",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "cold",
+        "glass_offset_K": 12.0,
+        "hazardous_count": 24,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 2319.9,
+          "ramp600": 2319.9,
+          "step": 2319.9
+        },
+        "highest_sampled_hazardous_ohm": 2319.9,
+        "next_sample_max_steady_C": 286.2,
+        "next_sample_max_transient_C": 288.4,
+        "pan": "cast_iron_26",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "hot",
+        "glass_offset_K": 12.0,
+        "hazardous_count": 24,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 2319.9,
+          "ramp600": 2319.9,
+          "step": 2319.9
+        },
+        "highest_sampled_hazardous_ohm": 2319.9,
+        "next_sample_max_steady_C": 280.7,
+        "next_sample_max_transient_C": 288.7,
+        "pan": "cast_iron_26",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "cold",
+        "glass_offset_K": 46.0,
+        "hazardous_count": 22,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 2319.9,
+          "ramp600": 2319.9,
+          "step": 1732.1
+        },
+        "highest_sampled_hazardous_ohm": 2319.9,
+        "next_sample_max_steady_C": 285.9,
+        "next_sample_max_transient_C": 288.2,
+        "pan": "cast_iron_26",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "hot",
+        "glass_offset_K": 46.0,
+        "hazardous_count": 23,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 2319.9,
+          "ramp600": 2319.9,
+          "step": 2319.9
+        },
+        "highest_sampled_hazardous_ohm": 2319.9,
+        "next_sample_max_steady_C": 286.2,
+        "next_sample_max_transient_C": 288.3,
+        "pan": "cast_iron_26",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "cold",
+        "glass_offset_K": 12.0,
+        "hazardous_count": 0,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": null,
+          "ramp600": null,
+          "step": null
+        },
+        "highest_sampled_hazardous_ohm": null,
+        "next_sample_max_steady_C": 115.5,
+        "next_sample_max_transient_C": 115.5,
+        "pan": "disc_pot_water_1l5",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "hot",
+        "glass_offset_K": 12.0,
+        "hazardous_count": 0,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": null,
+          "ramp600": null,
+          "step": null
+        },
+        "highest_sampled_hazardous_ohm": null,
+        "next_sample_max_steady_C": 115.4,
+        "next_sample_max_transient_C": 115.6,
+        "pan": "disc_pot_water_1l5",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "cold",
+        "glass_offset_K": 46.0,
+        "hazardous_count": 0,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": null,
+          "ramp600": null,
+          "step": null
+        },
+        "highest_sampled_hazardous_ohm": null,
+        "next_sample_max_steady_C": 115.2,
+        "next_sample_max_transient_C": 115.3,
+        "pan": "disc_pot_water_1l5",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "hot",
+        "glass_offset_K": 46.0,
+        "hazardous_count": 0,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": null,
+          "ramp600": null,
+          "step": null
+        },
+        "highest_sampled_hazardous_ohm": null,
+        "next_sample_max_steady_C": 115.2,
+        "next_sample_max_transient_C": 115.3,
+        "pan": "disc_pot_water_1l5",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "cold",
+        "glass_offset_K": 12.0,
+        "hazardous_count": 24,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 2319.9,
+          "ramp600": 2319.9,
+          "step": 2319.9
+        },
+        "highest_sampled_hazardous_ohm": 2319.9,
+        "next_sample_max_steady_C": 286.2,
+        "next_sample_max_transient_C": 288.5,
         "pan": "triply_clad_24",
         "sample_count": 39
       },
       {
         "bead_corner": "hot",
         "glass_offset_K": 12.0,
-        "hazardous_count": 21,
+        "hazardous_count": 23,
         "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": 1732.1,
+          "ramp120": 2319.9,
           "ramp600": 1732.1,
-          "step": 1732.1
+          "step": 2319.9
         },
-        "highest_sampled_hazardous_ohm": 1732.1,
-        "next_sample_max_steady_C": 299.4,
+        "highest_sampled_hazardous_ohm": 2319.9,
+        "next_sample_max_steady_C": 282.5,
+        "next_sample_max_transient_C": 290.8,
         "pan": "triply_clad_24",
         "sample_count": 39
       },
       {
         "bead_corner": "cold",
         "glass_offset_K": 46.0,
-        "hazardous_count": 21,
+        "hazardous_count": 22,
         "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": 1732.1,
+          "ramp120": 2319.9,
           "ramp600": 1732.1,
           "step": 1732.1
         },
-        "highest_sampled_hazardous_ohm": 1732.1,
-        "next_sample_max_steady_C": 299.3,
+        "highest_sampled_hazardous_ohm": 2319.9,
+        "next_sample_max_steady_C": 285.7,
+        "next_sample_max_transient_C": 288.0,
         "pan": "triply_clad_24",
         "sample_count": 39
       },
       {
         "bead_corner": "hot",
         "glass_offset_K": 46.0,
-        "hazardous_count": 21,
+        "hazardous_count": 24,
         "highest_sampled_hazardous_by_onset_ohm": {
-          "ramp120": 1732.1,
-          "ramp600": 1732.1,
-          "step": 1732.1
+          "ramp120": 2319.9,
+          "ramp600": 2319.9,
+          "step": 2319.9
         },
-        "highest_sampled_hazardous_ohm": 1732.1,
-        "next_sample_max_steady_C": 299.6,
+        "highest_sampled_hazardous_ohm": 2319.9,
+        "next_sample_max_steady_C": 286.0,
+        "next_sample_max_transient_C": 288.2,
         "pan": "triply_clad_24",
         "sample_count": 39
       }
@@ -783,7 +802,7 @@
     "source_fry_setpoint_C": 250.0,
     "source_steady_rounding_K": 0.1,
     "source_tail_window_s": 100,
-    "unsampled_gap_ohm": 587.8
+    "unsampled_gap_ohm": 787.3
   },
   "insulation": {
     "candidate_bores": 4,
@@ -792,12 +811,12 @@
     "candidate_supplier_ohm": 100000000.0,
     "lifetime_hazard_multiplier": 10,
     "margin_to_next_sample_sensitivity_only": {
-      "10000000": 4310.53062632,
-      "100000000": 43105.3062632
+      "10000000": 3218.33161689,
+      "100000000": 32183.3161689
     },
     "margin_to_sampled_hazard": {
-      "10000000": 5773.33872178,
-      "100000000": 57733.3872178
+      "10000000": 4310.53062632,
+      "100000000": 43105.3062632
     },
     "minimum_ohm": 10000000.0,
     "test_C": 300.0
@@ -840,7 +859,7 @@
   },
   "provenance": {
     "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
-    "derivation_sha256": "f2f1714dedf3af74797a27c1c904c73f4529e8b1d16ec1a70055f11b316e9026",
+    "derivation_sha256": "28cc033568abd9017450c9070ddf98f92e90d31eb184f8a9869cc41c8ba3e109",
     "input_sha256": {
       "firmware/components/control/cascade_pid.c": "9918548d1df194a941d17a711e9f2d9bf53382e933ed801c46b5409dfe3114f9",
       "firmware/components/control/cascade_pid.h": "1935ab68a83440018037e6fde531ea8c5bee30adc8405327343ed50b0a9f53e6",
@@ -887,14 +906,14 @@
       "firmware/components/sensors/include/rtd_convert.h": "b0adb83e6d22d167621d81786afccac6e47f3c12495ca00cbf3bdab588fba46c",
       "firmware/components/sensors/rtd_convert.c": "cabe361f5715aab13ad97cdffc74fd96bef6ebc2a67869e6fd769995a1c5ecd5",
       "output/temper-sensor-r2/estimator_study.py": "b8b689db27c6f5bae6e928c3e2c885010f9c85427d7d3da031ce2a989dcb0895",
-      "output/temper-sensor-r3/firmware/DECISIONS.md": "4397f3a12790f77c273c3340dabc4cfa67b6527c839ccd6ffbdc594118bf5d62",
+      "output/temper-sensor-r3/firmware/DECISIONS.md": "96cfcaff37c02eb1ab8bd0e36c4ce2615e0e3c36c1681ad9c8da1354aaa04005",
       "output/temper-sensor-r3/firmware/build_lib.sh": "44b55f7147aec7811f95dfe187a8635262236ed075276e9ccb6f0f16a12d7cfd",
       "output/temper-sensor-r3/firmware/cosim.py": "026d0f655d0f4e75db710660fe4cb6da84e9af6a70a1a5047d115091d34fe588",
       "output/temper-sensor-r3/firmware/cosim_shim.c": "455e1abc0cb626bddf5cc8a23cf107b83eb8bdb8c20d21122f98637bfba74bea",
       "output/temper-sensor-r3/firmware/hs-ntc.json": "8b6141e3ea233d0292566a596b3b6d34597d12639f0220da5096690744fe1a36",
       "output/temper-sensor-r3/firmware/hs_ntc.py": "6e76391f2f18e62d741f3183e65b8c9e4d3a611cda949dd9c1f161790446cf7f",
-      "output/temper-sensor-r3/firmware/leak-checks.json": "62ec55e04562c5402f642e2ce72e411ef14d3e7c24c626183f59c186633b2b73",
-      "output/temper-sensor-r3/firmware/leak_checks.py": "3031573389890148af82d95bb04b9a5d9e2cea1c7bcd915ce61f11f21dab810f",
+      "output/temper-sensor-r3/firmware/leak-checks.json": "40bc8da17e1c5edacb906ae058baaf3b81725b0d1ff926924782bf2ee9e91020",
+      "output/temper-sensor-r3/firmware/leak_checks.py": "d3d372797b22275cda93997ecec35fe8a9550ceabb33a04b4cb78b24afd09429",
       "output/temper-sensor-r3/firmware/ref.py": "534ed3410630e26a75466746e0bf359727aac0c37c7d6dca84e5c675d755caee",
       "output/temper-sensor-r3/firmware/xcheck_cosim.py": "c2ace5b567ab333d27e78eba1798fd637b1a0e544c56f8aa556875aa020a9245",
       "output/temper-sensor-r3/pcb/DECISIONS.md": "7796dbde220b4a561c34d648ea596ed528c5481d973f282b5381ba8e55dfd60a",
@@ -947,19 +966,6 @@
   },
   "reading_errors": [
     {
-      "digital_incremental_low_K": 16.8032865524,
-      "element_ohm": 109.73465625,
-      "firmware_analog_C": 8.18936729431,
-      "firmware_intact_C": 24.9291496277,
-      "firmware_leaky_C": 8.12586307526,
-      "ideal_reading_C": 8.18936327133,
-      "ideal_reading_low_K": 16.8106367287,
-      "intact_adc_code": 8362,
-      "leaky_adc_code": 7864,
-      "parallel_ohm": 1732.1,
-      "true_C": 25.0
-    },
-    {
       "digital_incremental_low_K": 12.7282629013,
       "element_ohm": 109.73465625,
       "firmware_analog_C": 12.2486619949,
@@ -970,6 +976,19 @@
       "intact_adc_code": 8362,
       "leaky_adc_code": 7985,
       "parallel_ohm": 2319.9,
+      "true_C": 25.0
+    },
+    {
+      "digital_incremental_low_K": 9.62659740448,
+      "element_ohm": 109.73465625,
+      "firmware_analog_C": 15.3649244308,
+      "firmware_intact_C": 24.9291496277,
+      "firmware_leaky_C": 15.3025522232,
+      "ideal_reading_C": 15.3649149422,
+      "ideal_reading_low_K": 9.63508505779,
+      "intact_adc_code": 8362,
+      "leaky_adc_code": 8077,
+      "parallel_ohm": 3107.2,
       "true_C": 25.0
     },
     {
@@ -1012,19 +1031,6 @@
       "true_C": 25.0
     },
     {
-      "digital_incremental_low_K": 34.8752593994,
-      "element_ohm": 157.325125,
-      "firmware_analog_C": 115.115379333,
-      "firmware_intact_C": 149.94229126,
-      "firmware_leaky_C": 115.06703186,
-      "ideal_reading_C": 115.115388481,
-      "ideal_reading_low_K": 34.8846115191,
-      "intact_adc_code": 11989,
-      "leaky_adc_code": 10991,
-      "parallel_ohm": 1732.1,
-      "true_C": 150.0
-    },
-    {
       "digital_incremental_low_K": 26.6270370483,
       "element_ohm": 157.325125,
       "firmware_analog_C": 123.359069824,
@@ -1035,6 +1041,19 @@
       "intact_adc_code": 11989,
       "leaky_adc_code": 11228,
       "parallel_ohm": 2319.9,
+      "true_C": 150.0
+    },
+    {
+      "digital_incremental_low_K": 20.243850708,
+      "element_ohm": 157.325125,
+      "firmware_analog_C": 129.764068604,
+      "firmware_intact_C": 149.94229126,
+      "firmware_leaky_C": 129.698440552,
+      "ideal_reading_C": 129.764076273,
+      "ideal_reading_low_K": 20.235923727,
+      "intact_adc_code": 11989,
+      "leaky_adc_code": 11411,
+      "parallel_ohm": 3107.2,
       "true_C": 150.0
     },
     {
@@ -1077,19 +1096,6 @@
       "true_C": 150.0
     },
     {
-      "digital_incremental_low_K": 53.561630249,
-      "element_ohm": 194.098125,
-      "firmware_analog_C": 196.421539307,
-      "firmware_intact_C": 249.932479858,
-      "firmware_leaky_C": 196.370849609,
-      "ideal_reading_C": 196.421521761,
-      "ideal_reading_low_K": 53.5784782385,
-      "intact_adc_code": 14791,
-      "leaky_adc_code": 13301,
-      "parallel_ohm": 1732.1,
-      "true_C": 250.0
-    },
-    {
       "digital_incremental_low_K": 41.1328125,
       "element_ohm": 194.098125,
       "firmware_analog_C": 208.867752075,
@@ -1100,6 +1106,19 @@
       "intact_adc_code": 14791,
       "leaky_adc_code": 13649,
       "parallel_ohm": 2319.9,
+      "true_C": 250.0
+    },
+    {
+      "digital_incremental_low_K": 31.348449707,
+      "element_ohm": 194.098125,
+      "firmware_analog_C": 218.628494263,
+      "firmware_intact_C": 249.932479858,
+      "firmware_leaky_C": 218.584030151,
+      "ideal_reading_C": 218.628521192,
+      "ideal_reading_low_K": 31.3714788079,
+      "intact_adc_code": 14791,
+      "leaky_adc_code": 13922,
+      "parallel_ohm": 3107.2,
       "true_C": 250.0
     },
     {
@@ -1142,19 +1161,6 @@
       "true_C": 250.0
     },
     {
-      "digital_incremental_low_K": 64.2469787598,
-      "element_ohm": 212.0515,
-      "firmware_analog_C": 235.734024048,
-      "firmware_intact_C": 299.92755127,
-      "firmware_leaky_C": 235.68057251,
-      "ideal_reading_C": 235.734014504,
-      "ideal_reading_low_K": 64.2659854963,
-      "intact_adc_code": 16159,
-      "leaky_adc_code": 14397,
-      "parallel_ohm": 1732.1,
-      "true_C": 300.0
-    },
-    {
       "digital_incremental_low_K": 49.4512176514,
       "element_ohm": 212.0515,
       "firmware_analog_C": 250.536071777,
@@ -1165,6 +1171,19 @@
       "intact_adc_code": 16159,
       "leaky_adc_code": 14806,
       "parallel_ohm": 2319.9,
+      "true_C": 300.0
+    },
+    {
+      "digital_incremental_low_K": 37.7897644043,
+      "element_ohm": 212.0515,
+      "firmware_analog_C": 262.197601318,
+      "firmware_intact_C": 299.92755127,
+      "firmware_leaky_C": 262.137786865,
+      "ideal_reading_C": 262.19760922,
+      "ideal_reading_low_K": 37.8023907803,
+      "intact_adc_code": 16159,
+      "leaky_adc_code": 15127,
+      "parallel_ohm": 3107.2,
       "true_C": 300.0
     },
     {
