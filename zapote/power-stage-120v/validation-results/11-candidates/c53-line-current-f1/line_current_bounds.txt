@@ -1,0 +1,16 @@
+1. firmware defeated, tank peak held just below the CT trip low corner
+   CT peak 64.55 A  tank line-RMS 32.3 A  R_eq 1.58 ohm -> line 14.7 A
+   CT peak 64.55 A  tank line-RMS 32.3 A  R_eq 1.92 ohm -> line 17.9 A
+   CT peak 64.55 A  tank line-RMS 32.3 A  R_eq 2.50 ohm -> line 23.3 A
+   CT peak 64.55 A  tank line-RMS 32.3 A  R_eq 3.00 ohm -> line 28.0 A
+   CT peak 70.18 A  tank line-RMS 35.1 A  R_eq 1.58 ohm -> line 17.4 A
+   CT peak 70.18 A  tank line-RMS 35.1 A  R_eq 1.92 ohm -> line 21.2 A
+   CT peak 70.18 A  tank line-RMS 35.1 A  R_eq 2.50 ohm -> line 27.6 A
+   CT peak 70.18 A  tank line-RMS 35.1 A  R_eq 3.00 ohm -> line 33.1 A
+2. shipping ceiling 17.5 A: inlet hold binds only above R_eq
+   aux 0.260 A: I_ps hold 12.04 A, P_pan 1343 W, binds for R_eq > 4.39 ohm
+   aux 0.887 A: I_ps hold 11.47 A, P_pan 1280 W, binds for R_eq > 4.18 ohm
+3. hardware trip window on the power-stage share (R5 sees the bridge only; PS2/PS3 tap ahead of BR1)
+   aux 0.260 A: highest regulated true I_ps if e_est holds = 13.24 A; I_ps for 15.0 A total = 14.74 A
+   aux 0.887 A: highest regulated true I_ps if e_est holds = 12.61 A; I_ps for 15.0 A total = 14.11 A
+   mean-detector reading for a sinusoidal envelope = 2*sqrt(2)/pi = 0.9003 x RMS
