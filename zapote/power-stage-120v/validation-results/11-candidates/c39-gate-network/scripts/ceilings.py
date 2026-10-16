@@ -16,6 +16,12 @@ Rows:
   gate R_off        R53 / R54 / R57 / R58 (1 ohm 1206 turn-off resistors) terminal derating and element;
   all gated         every gated row.
 A row that fails with no tank current reads 0.0 (its margin is negative at I = 0).
+
+Hot copper (OPEN-ITEMS S17): with the copper TCR in the B3 basis, copper heat grows faster than I^2 (its loss rises with
+its own temperature), so each margin is concave in I_trip^2. Inside [c22, c28] the chord then lies below the curve and
+the zero crossing is conservative; outside it (a ceiling below 22 A or above 28 A) the extended chord lies ABOVE the
+curve and the ceiling is optimistic. On a hot-copper margins file every result says whether it is bracketed; an
+unbracketed ceiling must be confirmed by direct solves at the ceiling (run_basis.py --cases c<ceil>_h10@<bay>).
 """
 import json
 import sys
@@ -53,13 +59,19 @@ PICKS = (("laminate", lambda s: s.startswith("laminate")),
 def main():
     for f in sys.argv[1:]:
         d = json.load(open(f))
-        res = {}
+        hot = any("copper" in v for v in d.get("basis", {}).get("cases", {}).values())
+        res = {"copper": "hot-iterated (TCR): margins concave in I^2" if hot else "20 C copper (I^2 exact)"}
         for name, pick in PICKS:
             got = {k: ceiling(v["c22_h10"], v["c28_h10"]) for k, v in rows(d, pick).items() if len(v) == 2}
             got = {k: c for k, c in got.items() if c is not None}
             if got:
                 k = min(got, key=got.get)
                 res[name] = {"ceiling_A": got[k], "row": k}
+                if hot:
+                    inside = 22.0 <= got[k] <= 28.0
+                    res[name]["bracketed"] = inside
+                    if not inside:
+                        res[name]["warning"] = "extrapolated outside c22-c28 on hot copper: optimistic, solve directly"
             else:
                 res[name] = None
         print(f, json.dumps(res))

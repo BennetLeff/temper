@@ -62,6 +62,11 @@ use_stackup(os.environ.get("B3_STACKUP") or os.environ.get("NATIVE21_STACKUP") o
 K_CU = 390.0
 K_FR4 = 0.3
 TAMB_C = 50.0
+# Copper TCR (OPEN-ITEMS S17): the A4 fields are 20 C DC copper; --copper-tcr (default ALPHA_CU) puts every A4 heat cell
+# at q20 (1 + alpha (T - 20 C)), T = TAMB_C + rise, current paths fixed (b3-convergence/thermal_body.py does the same
+# for the ratings path). Value = sheet_solver.ALPHA_CU, asserted against its source.
+ALPHA_CU = 0.00393
+assert f"ALPHA_CU = {ALPHA_CU}" in (Path(__file__).resolve().parents[4] / "validation-plan/sim-kit/04-current/sheet_solver.py").read_text()
 
 
 
@@ -157,8 +162,11 @@ def add_edge(rows, cols, vals, diag, a, b, g):
 def solve_stack(board: np.ndarray, k: np.ndarray, thickness_m: np.ndarray,
                 heat_w: np.ndarray, h: float, pitch_m: float,
                 barrel_edges=(), dirichlet_x_ends=False,
-                dirichlet_bottom_face=False):
-    """Return rise and conservation receipt. Cell-centred layers, insulated sides."""
+                dirichlet_bottom_face=False, tcr=None):
+    """Return rise and conservation receipt. Cell-centred layers, insulated sides.
+    tcr: None, or (q20 array: the A4 copper part of heat_w at 20 C, alpha, t_abs0_c: absolute temperature of zero rise) -
+    the hot-copper fixed point q = q20 (1 + alpha (t_abs0 + rise - 20)): affine in T, so solved exactly with -alpha q20 on
+    the diagonal, then checked by Picard steps on the plain operator to max |dT| < 1e-3 K; failure is thermal runaway."""
     nz, nx, ny = k.shape
     area = pitch_m*pitch_m
     nxy = nx*ny
@@ -198,6 +206,15 @@ def solve_stack(board: np.ndarray, k: np.ndarray, thickness_m: np.ndarray,
                   2*k[-1][board]*area/thickness_m[-1])
     inactive = ~np.broadcast_to(board, (nz, nx, ny))
     diag[ids[inactive]] = 1.0
+    d_tcr = None
+    if tcr is not None:
+        q20_t, alpha, t_abs0 = tcr
+        q20f = np.where(np.broadcast_to(board, (nz, nx, ny)), q20_t, 0.0).ravel()
+        d_tcr = alpha*q20f
+        heat_w = heat_w + alpha*(t_abs0-20.0)*q20_t
+        diag = diag - d_tcr
+        if (diag <= 0).any():
+            raise RuntimeError("hot copper: dq/dT exceeds a cell's conductance (thermal runaway)")
     rr = np.concatenate(rows + [np.arange(nz*nxy)])
     cc = np.concatenate(cols + [np.arange(nz*nxy)])
     vv = np.concatenate(vals + [diag])
@@ -211,7 +228,34 @@ def solve_stack(board: np.ndarray, k: np.ndarray, thickness_m: np.ndarray,
     rise, info = cg(matrix, rhs, rtol=1e-9, atol=1e-12, M=pre,
                     maxiter=12000, callback=callback)
     if info != 0:
-        raise RuntimeError(f"thermal CG failed: {info}, iterations={iterations[0]}")
+        raise RuntimeError(f"thermal CG failed: {info}, iterations={iterations[0]}"
+                           + (" (hot copper: folded operator not SPD - thermal runaway)" if tcr is not None else ""))
+    tcr_rec = None
+    if tcr is not None:
+        m0 = matrix + coo_matrix((d_tcr, (np.arange(nz*nxy), np.arange(nz*nxy))), shape=matrix.shape).tocsr()
+        d0 = diag + d_tcr
+        pre0 = LinearOperator(m0.shape, matvec=lambda v: v/d0)
+        steps, dmax = 0, float("inf")
+        while steps < 50:
+            new, info = cg(m0, rhs + d_tcr*rise, x0=rise, rtol=1e-9, atol=1e-12, M=pre0, maxiter=12000)
+            if info != 0:
+                raise RuntimeError(f"hot-copper Picard check: CG failed {info}")
+            dmax = float(np.abs(new-rise).max())
+            rise, steps = new, steps+1
+            if dmax < 1e-3:
+                break
+        else:
+            raise RuntimeError(f"hot-copper fixed point did not settle (max |dT| {dmax:.3g} K): thermal runaway")
+        gain = float((d_tcr*rise**2).sum()/max(float(rise @ (m0 @ rise)), 1e-300))   # Rayleigh bound on the loop gain
+        if not gain < 1.0:
+            raise RuntimeError(f"hot copper: loop gain {gain:.3g} >= 1 (thermal runaway)")
+        q_hot = q20f*(1.0+alpha*(t_abs0-20.0+rise))
+        heat_w = (heat_w - alpha*(t_abs0-20.0)*q20_t) + (q_hot-q20f).reshape(nz, nx, ny)
+        tcr_rec = {"model": "hot-iterated", "alpha_per_k": alpha, "t_abs0_c": t_abs0, "picard_steps": steps,
+                   "max_dT_k": dmax, "loop_gain_rayleigh": gain, "loss_w_20c": float(q20f.sum()),
+                   "loss_w_hot": float(q_hot.sum()),
+                   "loss_multiplier": float(q_hot.sum()/q20f.sum()) if q20f.sum() > 0 else None,
+                   "max_heated_copper_c": float(t_abs0+rise[q20f > 0].max()) if (q20f > 0).any() else None}
     rise = rise.reshape(nz, nx, ny)
     conv_w = float(conv*(rise[0][board].sum()+rise[-1][board].sum()))
     boundary_w = 0.0
@@ -223,7 +267,8 @@ def solve_stack(board: np.ndarray, k: np.ndarray, thickness_m: np.ndarray,
     if dirichlet_bottom_face:
         bottom_w = float((2*k[-1][board]*area/thickness_m[-1]*rise[-1][board]).sum())
     source_w = float(heat_w[:, board].sum())
-    return rise, {"source_w": source_w, "convection_w": conv_w,
+    extra = {"copper_temp_model": tcr_rec} if tcr_rec else {}
+    return rise, {**extra, "source_w": source_w, "convection_w": conv_w,
                   "fixed_end_w": boundary_w, "fixed_bottom_w": bottom_w,
                   "balance_w": source_w-conv_w-boundary_w-bottom_w,
                   "cg_iterations": iterations[0],
@@ -403,19 +448,33 @@ def run(args):
     a4receipt = None
     cases = [] if args.case == "none" else args.case.split(",")
     a4metas, a4receipt = [], []
+    per_case = []                           # (case, flat ids, q20) for the hot-copper loss multiplier per A4 case
     for item in cases:                      # "case" or "case:scale" (scale = (I_operating / I_case)^2)
         case, _, sc = item.partition(":")
+        before = heat.copy() if args.copper_tcr else None
         m_, r_ = remap_a4(case, x, y, board, heat, float(sc) if sc else 1.0)
+        if before is not None:
+            d_ = (heat-before).ravel()
+            ids_ = np.flatnonzero(d_)
+            per_case.append((case, ids_, d_[ids_]))
         a4metas.append(m_)
         a4receipt.append({"case": case, **r_})
     a4meta = a4metas[0] if a4metas else None
+    q20 = heat.copy()                       # the A4 copper heat at 20 C (part heat is added below)
     part_rows, a6receipt = [], None
     if args.a6_heat:
         part_rows, a6receipt = add_part_heat(Path(args.a6_heat), args.a6_mode,
                                               x, y, board, pads, heat, copper)
     links = barrel_edges(barrels, x, y, board)
+    tcr = (q20, args.copper_tcr, TAMB_C) if args.copper_tcr else None
     rise, balance = solve_stack(board, k, THICK_MM*1e-3, heat,
-                                args.h, args.pitch_mm*1e-3, links)
+                                args.h, args.pitch_mm*1e-3, links, tcr=tcr)
+    if tcr is not None:                     # the heat actually injected (A4 copper at its hot-copper loss)
+        heat = heat + args.copper_tcr*(TAMB_C-20.0+rise)*q20
+        flat_ = rise.ravel()
+        balance["copper_temp_model"]["loss_multiplier_by_case"] = {
+            c_: round(float((q_*(1+args.copper_tcr*(TAMB_C+flat_[i_]-20.0))).sum()/q_.sum()), 5)
+            for c_, i_, q_ in per_case if q_.sum() > 0}
     local_copper = None
     for layer, z in CU_INDEX.items():
         adjacent = tuple(a for a in (z-1, z+1) if 0 <= a < nz)     # the dielectric sheet(s) beside it
@@ -478,6 +537,7 @@ def run(args):
                "script_sha256": sha(Path(__file__)), "case": args.case,
                "pitch_mm": args.pitch_mm, "h_w_m2k_each_face": args.h,
                "ambient_c": TAMB_C, "layer_names": LAYER_NAMES,
+               "copper_temp_model": balance.get("copper_temp_model") or {"model": "cold-20C", "alpha_per_k": 0.0},
                "layer_thickness_mm": THICK_MM.tolist(), "k_cu_w_mk": K_CU,
                "k_fr4_w_mk": K_FR4, "board_cells": int(board.sum()),
                "copper_cells_by_layer": {key: int(mask.sum()) for key, mask in copper.items()},
@@ -513,6 +573,8 @@ def main():
     ap.add_argument("--a6-heat")
     ap.add_argument("--a6-mode", choices=("nominal", "worst"), default="nominal")
     ap.add_argument("--output")
+    ap.add_argument("--copper-tcr", type=float, default=ALPHA_CU,
+                    help=f"copper TCR 1/K for the A4 heat (default {ALPHA_CU}: hot copper; 0 = the 20 C fields)")
     ap.add_argument("--stackup", help="stackup.json (default: $B3_STACKUP, $NATIVE21_STACKUP or native-21/stackup.json)")
     args = ap.parse_args()
     if args.stackup:

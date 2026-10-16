@@ -36,7 +36,8 @@ def mutate(run, fn):
 
 def gate_cli(runs, cases, bay):
     p = subprocess.run([sys.executable, str(HERE / "b3_ratings_gate.py"), "--runs", str(runs), "--cases", cases,
-                        "--bay-c", str(bay)], capture_output=True, text=True)
+                        "--bay-c", str(bay), "--allow-cold-copper"],   # controls on recorded 20 C copper runs (S17)
+                       capture_output=True, text=True)
     return p.returncode, p.stdout.strip()
 
 

@@ -31,31 +31,28 @@
  "consumers": [
   {
    "id": "CU-01",
-   "consumer": "B3 board-thermal model and ratings gate (release c18 margin, ratchet margins)",
+   "consumer": "B3 board-thermal model, ratings gate inputs and the R5 derating / via checks (hot copper, S17)",
    "files": [
     "validation-results/04-board-current-thermal/round5-native21/b3/thermal.py",
-    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/run_basis.py",
     "validation-results/04-board-current-thermal/round5-native21/b3-convergence/thermal_body.py",
     "validation-results/04-board-current-thermal/round5-native21/b3-convergence/body_runs.py",
-    "validation-results/04-board-current-thermal/round5-native21/b3-convergence/run_convergence.py",
-    "validation-results/04-board-current-thermal/round5-native21/b3-convergence/report_convergence.py"
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/run_basis.py",
+    "validation-results/04-board-current-thermal/round5-native21/stage17-r5/g6_r5_derating.py",
+    "validation-results/04-board-current-thermal/round5-native21/stage17-r5/r5_vias17.py"
    ],
    "kinds": [
-    "a4field"
+    "a4field",
+    "rho"
    ],
-   "basis_temp_c": 20,
-   "basis_how": "inherited from the A4 fields (default Net temp_c)",
+   "basis_temp_c": "solved",
+   "basis_how": "copper loss q = q20 (1 + 0.00393 (T - 20)) at each cell's solved absolute temperature (fixed-J, conservative by Thomson's principle); r5_vias17 barrel rho(T) at the via mid-wall; run files record copper_temp_model and b3_ratings_gate refuses cold runs",
    "direction": "hot is conservative",
-   "waiver": {
-    "id": "S17",
-    "reason": "OPEN-ITEMS S17: B3 scales the 20 C A4 fields by I^2 only; hot-copper iteration is in the B3 model lane. Remove when it lands and re-pin the basis.",
-    "expires": "2026-11-30"
-   },
-   "justification": "Heat = A4 loss x (I/I_ref)^2 with no TCR term. Tank copper runs 83-112 C (heat-weighted, c18/bay 61), x1.25-1.36 loss. 20 C is the NON-conservative side: release margin +1.2 K becomes about -4.9 K at C40 (heat-attribution results.json copper_tcr_first_order)."
+   "justification": "S17 closed by the B3 hot-copper lane (b3-ratings/hot-copper-2026-10-15/). --copper-tcr 0 reproduces the 20 C margins byte for byte (control).",
+   "pin": "0\\.00393|ALPHA|copper_tcr|copper_temp_model"
   },
   {
    "id": "CU-02",
-   "consumer": "B3 studies and diagnostics that read the A4 fields (convergence, line-hold, refine, stall, stage-15b snapshots)",
+   "consumer": "Dated B3 studies (audit, line-hold, refine, heat attribution) kept as records at 20 C copper",
    "files": [
     "validation-results/04-board-current-thermal/round5-native21/b3-ratings/audit-2026-10-15/scripts/body_cases.py",
     "validation-results/04-board-current-thermal/round5-native21/b3-ratings/line-hold-2026-10-15/scripts/line_hold.py",
@@ -64,45 +61,16 @@
     "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/plan.py",
     "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/solve.py",
     "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/superposition.py",
-    "validation-results/04-board-current-thermal/round5-native21/h10-stall/h10_stall.py",
-    "validation-results/04-board-current-thermal/round5-native21/stage15b/a4_cases.py",
-    "validation-results/04-board-current-thermal/round5-native21/stage15b/heatmap_cases.py",
-    "validation-results/04-board-current-thermal/round5-native21/stage15b/b3-model/thermal_lead.py",
-    "validation-results/04-board-current-thermal/round5-native21/stage15b/b3-model/thermal_snap.py",
-    "validation-results/04-board-current-thermal/round5-native21/heat-attribution-2026-10-15/solve_terms.py"
-   ],
-   "kinds": [
-    "a4field"
-   ],
-   "basis_temp_c": 20,
-   "basis_how": "inherited from the A4 fields",
-   "direction": "hot is conservative",
-   "waiver": {
-    "id": "S17",
-    "reason": "OPEN-ITEMS S17: B3 scales the 20 C A4 fields by I^2 only; hot-copper iteration is in the B3 model lane. Remove when it lands and re-pin the basis.",
-    "expires": "2026-11-30"
-   },
-   "justification": "Same 20 C loss as CU-01; each is a study or diagnostic whose absolute temperatures inherit the understatement. Superseded or re-pointed by the B3 hot-copper fix."
-  },
-  {
-   "id": "CU-03",
-   "consumer": "Heat-attribution analysis (gate rows at 20 C; copper TCR only as a first-order sensitivity)",
-   "files": [
+    "validation-results/04-board-current-thermal/round5-native21/heat-attribution-2026-10-15/solve_terms.py",
     "validation-results/04-board-current-thermal/round5-native21/heat-attribution-2026-10-15/analyze.py"
    ],
    "kinds": [
     "a4field"
    ],
    "basis_temp_c": 20,
-   "basis_how": "gate rows 20 C; ALPHA 0.00393 in the copper_tcr_first_order sensitivity only",
-   "direction": "hot is conservative",
-   "waiver": {
-    "id": "S17",
-    "reason": "OPEN-ITEMS S17: B3 scales the 20 C A4 fields by I^2 only; hot-copper iteration is in the B3 model lane. Remove when it lands and re-pin the basis.",
-    "expires": "2026-11-30"
-   },
-   "pin": "ALPHA = 0\\.00393",
-   "justification": "Documents the gap (S17) and quantifies it once; not a coupled solve (no feedback, one Picard step)."
+   "basis_how": "inherited from the A4 fields",
+   "direction": "not a claim (dated record)",
+   "justification": "Historical study records dated before S17 closed; they feed no gate. Their 20 C basis is stated in their READMEs; current numbers come from CU-01."
   },
   {
    "id": "CU-04",
@@ -118,21 +86,15 @@
    ],
    "basis_temp_c": 20,
    "basis_how": "default (solver.Net(...) without temp_c); run_board.py:312 lists '20 C copper'",
-   "direction": "hot is conservative",
-   "waiver": {
-    "id": "S17",
-    "reason": "OPEN-ITEMS S17: B3 scales the 20 C A4 fields by I^2 only; hot-copper iteration is in the B3 model lane. Remove when it lands and re-pin the basis.",
-    "expires": "2026-11-30"
-   },
-   "justification": "A4 is a DC resistive-spreading experiment at 20 C. Current SPLITS (via_currents.json) are ratios and do not move under uniform heating (first-order estimate: unchanged); the LOSS fields (heat npz, loss_w, r_ohm) scale by 1+alpha(T-20), and B3 consumes those."
+   "direction": "reference (corrected downstream)",
+   "justification": "The A4 fields are solved at 20 C as a reference; B3 (CU-01) applies the copper TCR at the solved temperature before any verdict.",
+   "corrected_by": "CU-01"
   },
   {
    "id": "CU-05",
-   "consumer": "R5 derating and R5-via checks (G6, r5_derating, r5_vias17): R5 pad temperature comes from B3; via barrel I2R at 20 C",
+   "consumer": "R5 derating (r5-derating/r5_derating.py), pre-G6 script on B3 pad temperatures at 20 C",
    "files": [
-    "validation-results/04-board-current-thermal/round5-native21/stage17-r5/g6_r5_derating.py",
-    "validation-results/04-board-current-thermal/round5-native21/r5-derating/r5_derating.py",
-    "validation-results/04-board-current-thermal/round5-native21/stage17-r5/r5_vias17.py"
+    "validation-results/04-board-current-thermal/round5-native21/r5-derating/r5_derating.py"
    ],
    "kinds": [
     "a4field",
@@ -306,6 +268,46 @@
    "basis_how": "default",
    "direction": "not a claim (self-test)",
    "justification": "Solver validation against analytic strips; resistance ratios, not a board claim."
+  },
+  {
+   "id": "CU-16",
+   "consumer": "Undated B3 diagnostics and convergence scripts still on 20 C copper (h10-stall, stage-15b snapshots, b3-convergence run / report)",
+   "files": [
+    "validation-results/04-board-current-thermal/round5-native21/h10-stall/h10_stall.py",
+    "validation-results/04-board-current-thermal/round5-native21/stage15b/a4_cases.py",
+    "validation-results/04-board-current-thermal/round5-native21/stage15b/heatmap_cases.py",
+    "validation-results/04-board-current-thermal/round5-native21/stage15b/b3-model/thermal_lead.py",
+    "validation-results/04-board-current-thermal/round5-native21/stage15b/b3-model/thermal_snap.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-convergence/run_convergence.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-convergence/report_convergence.py"
+   ],
+   "kinds": [
+    "a4field"
+   ],
+   "basis_temp_c": 20,
+   "basis_how": "inherited 20 C or pre-S17 run files",
+   "direction": "hot is conservative",
+   "waiver": {
+    "id": "S17",
+    "reason": "OPEN-ITEMS S17: B3 scales the 20 C A4 fields by I^2 only; hot-copper iteration is in the B3 model lane. Remove when it lands and re-pin the basis.",
+    "expires": "2026-11-30"
+   },
+   "justification": "Diagnostics, not gate inputs; re-run on hot copper or retire before the waiver expires."
+  },
+  {
+   "id": "CU-15",
+   "consumer": "B3 hot-copper and airflow tests (cold runs are the controls)",
+   "files": [
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/test_b3_airflow.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/test_b3_hot_copper.py"
+   ],
+   "kinds": [
+    "a4field"
+   ],
+   "basis_temp_c": 20,
+   "basis_how": "tests: --copper-tcr 0 controls and closed forms",
+   "direction": "not a claim (self-test)",
+   "justification": "Tests compare the hot model against cold controls and closed forms; no board claim."
   }
  ]
 }

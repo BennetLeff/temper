@@ -49,7 +49,13 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 UNIT = HERE.parents[2]                                    # zapote/power-stage-120v
-DIRECTIONS = ("hot is conservative", "cold is conservative", "both corners", "not a claim (self-test)")
+DIRECTIONS = ("hot is conservative", "cold is conservative", "both corners", "not a claim (self-test)",
+              "reference (corrected downstream)", "not a claim (dated record)")
+# basis_temp_c "solved": copper loss is evaluated at each cell's solved temperature (B3 hot copper, S17); the entry's
+# `pin` must match the TCR code in every file. "reference (corrected downstream)": a field solved at a reference
+# temperature that a "solved" entry (`corrected_by`) corrects before any verdict. "not a claim (dated record)": a dated
+# study folder (path contains -YYYY-MM-DD/) kept as a historical record; it feeds no gate.
+DATED = re.compile(r"-20\d\d-\d\d-\d\d/")
 RHO_VALUES = (1.68e-8, 1.72e-8, 1.724e-8, 1.7241e-8, 0.01724)
 ALPHA_VALUE = 0.00393
 RHO_NAME = re.compile(r"^(RHO_?CU\d*|RHO\d*|ALPHA_CU\w*)$", re.I)
@@ -220,7 +226,17 @@ def check(root, registry, today=None, fail_waived=False):
                 wok = True
                 if fail_waived:
                     errors.append(f"{rel}: waiver {w['id']} still open (--fail-waived)")
-        if dr == "hot is conservative":
+        if dr == "hot is conservative" and b == "solved":
+            if not e.get("pin"):
+                errors.append(f"{rel}: basis 'solved' needs a `pin` regex matching the TCR code")
+        elif dr == "reference (corrected downstream)":
+            cb = next((x for x in registry.get("consumers", []) if x.get("id") == e.get("corrected_by")), None)
+            if cb is None or cb.get("basis_temp_c") != "solved":
+                errors.append(f"{rel}: 'reference (corrected downstream)' needs `corrected_by` naming an entry with basis 'solved'")
+        elif dr == "not a claim (dated record)":
+            if not DATED.search(rel):
+                errors.append(f"{rel}: 'not a claim (dated record)' is only for files in a dated study folder (-YYYY-MM-DD/)")
+        elif dr == "hot is conservative":
             floor = e.get("hot_floor_c", hot_floor)
             if not isinstance(b, (int, float)):
                 errors.append(f"{rel}: 'hot is conservative' needs a numeric basis_temp_c")

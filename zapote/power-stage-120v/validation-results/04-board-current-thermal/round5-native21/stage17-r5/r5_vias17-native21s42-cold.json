@@ -1,0 +1,419 @@
+{
+ "criterion": {
+  "source": "validation-plan/04-board-current-thermal.md:114",
+  "text": "Report the maximum per-via current and the via temperature rise. Flag any via > 3 A (a flag, not a fail; there's no rated limit)",
+  "round5_reference": "round5-native21/README.md:37-47: stage 6 accepted 7.27 A worst (34 A coherent), ~7.7 A/mm of barrel circumference; native-17 5.5 A/mm"
+ },
+ "geometry": "native-21/verification/native21s42-all-copper.json.gz",
+ "board_sha256": "9e075b4b90320e1e19c7b9740278715a4dabe6c80779fe8082a5bb844083ef86",
+ "copper_temp_model": {
+  "model": "cold-20C",
+  "alpha_per_k": 0.0,
+  "barrel_rho": "RHO_CU 1.72e-08 x (1 + 0.0 (T_mid_wall - 20 C))"
+ },
+ "r5_pad_cell_max_c": 123.59,
+ "g6_terminal_bound_c": 148.39,
+ "vias": [
+  {
+   "xy_mm": [
+    35.75,
+    16.25
+   ],
+   "case_max_a": {
+    "hv_mixed_a-p00625-pl18": 9.17,
+    "hv_mixed_b-p00625-pl18": 9.14,
+    "hv_dc-p00625-pl18": 4.05
+   },
+   "coherent_case": "hv_mixed_a-p00625-pl18",
+   "worst_a": 9.17,
+   "coherent_34a_a": 9.17,
+   "a_per_mm_circumference": 5.84,
+   "over_3a_flag": true,
+   "c28_rms_a": 7.93,
+   "c28_barrel_w": 0.0192,
+   "c28_barrel_mid_rise_k": 0.11,
+   "b3_c28_cell_max_c": 118.16,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 118.27
+  },
+  {
+   "xy_mm": [
+    37.65,
+    13.95
+   ],
+   "case_max_a": {
+    "hv_mixed_a-p00625-pl18": 7.33,
+    "hv_mixed_b-p00625-pl18": 7.27,
+    "hv_dc-p00625-pl18": 3.24
+   },
+   "coherent_case": "hv_mixed_a-p00625-pl18",
+   "worst_a": 7.33,
+   "coherent_34a_a": 7.33,
+   "a_per_mm_circumference": 4.67,
+   "over_3a_flag": true,
+   "c28_rms_a": 6.34,
+   "c28_barrel_w": 0.0123,
+   "c28_barrel_mid_rise_k": 0.07,
+   "b3_c28_cell_max_c": 120.63,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 120.69
+  },
+  {
+   "xy_mm": [
+    36.75,
+    14.55
+   ],
+   "case_max_a": {
+    "hv_mixed_a-p00625-pl18": 6.07,
+    "hv_mixed_b-p00625-pl18": 6.03,
+    "hv_dc-p00625-pl18": 2.68
+   },
+   "coherent_case": "hv_mixed_a-p00625-pl18",
+   "worst_a": 6.07,
+   "coherent_34a_a": 6.07,
+   "a_per_mm_circumference": 3.86,
+   "over_3a_flag": true,
+   "c28_rms_a": 5.24,
+   "c28_barrel_w": 0.0084,
+   "c28_barrel_mid_rise_k": 0.05,
+   "b3_c28_cell_max_c": 120.4,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 120.44
+  },
+  {
+   "xy_mm": [
+    38.55,
+    9.95
+   ],
+   "case_max_a": {
+    "leg_a_34-p00625-pl18": 5.74,
+    "leg_a_18p7-p00625-pl18": 3.15
+   },
+   "coherent_case": "leg_a_34-p00625-pl18",
+   "worst_a": 5.74,
+   "coherent_34a_a": 5.74,
+   "a_per_mm_circumference": 6.09,
+   "over_3a_flag": true,
+   "c28_rms_a": 4.96,
+   "c28_barrel_w": 0.0127,
+   "c28_barrel_mid_rise_k": 0.12,
+   "b3_c28_cell_max_c": 120.17,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 120.29
+  },
+  {
+   "xy_mm": [
+    34.95,
+    14.6
+   ],
+   "case_max_a": {
+    "hv_mixed_a-p00625-pl18": 4.67,
+    "hv_mixed_b-p00625-pl18": 4.77,
+    "hv_dc-p00625-pl18": 2.06
+   },
+   "coherent_case": "hv_mixed_b-p00625-pl18",
+   "worst_a": 4.77,
+   "coherent_34a_a": 4.77,
+   "a_per_mm_circumference": 3.03,
+   "over_3a_flag": true,
+   "c28_rms_a": 4.12,
+   "c28_barrel_w": 0.0052,
+   "c28_barrel_mid_rise_k": 0.03,
+   "b3_c28_cell_max_c": 117.2,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 117.23
+  },
+  {
+   "xy_mm": [
+    35.8,
+    15.3
+   ],
+   "case_max_a": {
+    "hv_mixed_a-p00625-pl18": 3.54,
+    "hv_mixed_b-p00625-pl18": 3.55,
+    "hv_dc-p00625-pl18": 1.56
+   },
+   "coherent_case": "hv_mixed_b-p00625-pl18",
+   "worst_a": 3.55,
+   "coherent_34a_a": 3.55,
+   "a_per_mm_circumference": 3.76,
+   "over_3a_flag": true,
+   "c28_rms_a": 3.07,
+   "c28_barrel_w": 0.0048,
+   "c28_barrel_mid_rise_k": 0.05,
+   "b3_c28_cell_max_c": 117.93,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 117.97
+  },
+  {
+   "xy_mm": [
+    35.85,
+    13.95
+   ],
+   "case_max_a": {
+    "hv_mixed_a-p00625-pl18": 3.21,
+    "hv_mixed_b-p00625-pl18": 3.24,
+    "hv_dc-p00625-pl18": 1.42
+   },
+   "coherent_case": "hv_mixed_b-p00625-pl18",
+   "worst_a": 3.24,
+   "coherent_34a_a": 3.24,
+   "a_per_mm_circumference": 2.06,
+   "over_3a_flag": true,
+   "c28_rms_a": 2.8,
+   "c28_barrel_w": 0.0024,
+   "c28_barrel_mid_rise_k": 0.01,
+   "b3_c28_cell_max_c": 118.15,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 118.17
+  },
+  {
+   "xy_mm": [
+    39.75,
+    9.65
+   ],
+   "case_max_a": {
+    "leg_a_34-p00625-pl18": 3.15,
+    "leg_a_18p7-p00625-pl18": 1.73
+   },
+   "coherent_case": "leg_a_34-p00625-pl18",
+   "worst_a": 3.15,
+   "coherent_34a_a": 3.15,
+   "a_per_mm_circumference": 3.34,
+   "over_3a_flag": true,
+   "c28_rms_a": 2.72,
+   "c28_barrel_w": 0.0039,
+   "c28_barrel_mid_rise_k": 0.04,
+   "b3_c28_cell_max_c": 119.79,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 119.82
+  },
+  {
+   "xy_mm": [
+    39.3,
+    10.4
+   ],
+   "case_max_a": {
+    "leg_a_34-p00625-pl18": 2.98,
+    "leg_a_18p7-p00625-pl18": 1.64
+   },
+   "coherent_case": "leg_a_34-p00625-pl18",
+   "worst_a": 2.98,
+   "coherent_34a_a": 2.98,
+   "a_per_mm_circumference": 3.16,
+   "over_3a_flag": false,
+   "c28_rms_a": 2.57,
+   "c28_barrel_w": 0.0034,
+   "c28_barrel_mid_rise_k": 0.03,
+   "b3_c28_cell_max_c": 120.1,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 120.14
+  },
+  {
+   "xy_mm": [
+    40.9,
+    7.0
+   ],
+   "case_max_a": {
+    "leg_a_34-p00625-pl18": 2.96,
+    "leg_a_18p7-p00625-pl18": 1.62
+   },
+   "coherent_case": "leg_a_34-p00625-pl18",
+   "worst_a": 2.96,
+   "coherent_34a_a": 2.96,
+   "a_per_mm_circumference": 3.14,
+   "over_3a_flag": false,
+   "c28_rms_a": 2.56,
+   "c28_barrel_w": 0.0042,
+   "c28_barrel_mid_rise_k": 0.03,
+   "b3_c28_cell_max_c": 116.8,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 116.83
+  },
+  {
+   "xy_mm": [
+    39.0,
+    9.2
+   ],
+   "case_max_a": {
+    "leg_a_34-p00625-pl18": 2.59,
+    "leg_a_18p7-p00625-pl18": 1.43
+   },
+   "coherent_case": "leg_a_34-p00625-pl18",
+   "worst_a": 2.59,
+   "coherent_34a_a": 2.59,
+   "a_per_mm_circumference": 2.75,
+   "over_3a_flag": false,
+   "c28_rms_a": 2.24,
+   "c28_barrel_w": 0.0026,
+   "c28_barrel_mid_rise_k": 0.02,
+   "b3_c28_cell_max_c": 119.56,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 119.59
+  },
+  {
+   "xy_mm": [
+    39.3,
+    11.3
+   ],
+   "case_max_a": {
+    "leg_a_34-p00625-pl18": 2.47,
+    "leg_a_18p7-p00625-pl18": 1.36
+   },
+   "coherent_case": "leg_a_34-p00625-pl18",
+   "worst_a": 2.47,
+   "coherent_34a_a": 2.47,
+   "a_per_mm_circumference": 2.62,
+   "over_3a_flag": false,
+   "c28_rms_a": 2.14,
+   "c28_barrel_w": 0.0024,
+   "c28_barrel_mid_rise_k": 0.02,
+   "b3_c28_cell_max_c": 119.67,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 119.7
+  },
+  {
+   "xy_mm": [
+    37.8,
+    10.4
+   ],
+   "case_max_a": {
+    "leg_a_34-p00625-pl18": 2.05,
+    "leg_a_18p7-p00625-pl18": 1.13
+   },
+   "coherent_case": "leg_a_34-p00625-pl18",
+   "worst_a": 2.05,
+   "coherent_34a_a": 2.05,
+   "a_per_mm_circumference": 2.17,
+   "over_3a_flag": false,
+   "c28_rms_a": 1.77,
+   "c28_barrel_w": 0.0018,
+   "c28_barrel_mid_rise_k": 0.02,
+   "b3_c28_cell_max_c": 119.67,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 119.68
+  },
+  {
+   "xy_mm": [
+    37.8,
+    9.5
+   ],
+   "case_max_a": {
+    "leg_a_34-p00625-pl18": 1.99,
+    "leg_a_18p7-p00625-pl18": 1.09
+   },
+   "coherent_case": "leg_a_34-p00625-pl18",
+   "worst_a": 1.99,
+   "coherent_34a_a": 1.99,
+   "a_per_mm_circumference": 2.11,
+   "over_3a_flag": false,
+   "c28_rms_a": 1.72,
+   "c28_barrel_w": 0.0016,
+   "c28_barrel_mid_rise_k": 0.01,
+   "b3_c28_cell_max_c": 119.26,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 119.27
+  },
+  {
+   "xy_mm": [
+    40.9,
+    5.5
+   ],
+   "case_max_a": {
+    "leg_a_34-p00625-pl18": 1.92,
+    "leg_a_18p7-p00625-pl18": 1.05
+   },
+   "coherent_case": "leg_a_34-p00625-pl18",
+   "worst_a": 1.92,
+   "coherent_34a_a": 1.92,
+   "a_per_mm_circumference": 2.04,
+   "over_3a_flag": false,
+   "c28_rms_a": 1.66,
+   "c28_barrel_w": 0.0017,
+   "c28_barrel_mid_rise_k": 0.01,
+   "b3_c28_cell_max_c": 115.89,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 115.91
+  },
+  {
+   "xy_mm": [
+    38.25,
+    8.75
+   ],
+   "case_max_a": {
+    "leg_a_34-p00625-pl18": 1.86,
+    "leg_a_18p7-p00625-pl18": 1.02
+   },
+   "coherent_case": "leg_a_34-p00625-pl18",
+   "worst_a": 1.86,
+   "coherent_34a_a": 1.86,
+   "a_per_mm_circumference": 1.98,
+   "over_3a_flag": false,
+   "c28_rms_a": 1.61,
+   "c28_barrel_w": 0.0013,
+   "c28_barrel_mid_rise_k": 0.01,
+   "b3_c28_cell_max_c": 118.63,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 118.64
+  },
+  {
+   "xy_mm": [
+    37.65,
+    11.3
+   ],
+   "case_max_a": {
+    "leg_a_34-p00625-pl18": 1.46,
+    "leg_a_18p7-p00625-pl18": 0.8
+   },
+   "coherent_case": "leg_a_34-p00625-pl18",
+   "worst_a": 1.46,
+   "coherent_34a_a": 1.46,
+   "a_per_mm_circumference": 1.54,
+   "over_3a_flag": false,
+   "c28_rms_a": 1.26,
+   "c28_barrel_w": 0.0009,
+   "c28_barrel_mid_rise_k": 0.01,
+   "b3_c28_cell_max_c": 119.17,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 119.17
+  },
+  {
+   "xy_mm": [
+    37.05,
+    9.95
+   ],
+   "case_max_a": {
+    "leg_a_34-p00625-pl18": 1.41,
+    "leg_a_18p7-p00625-pl18": 0.78
+   },
+   "coherent_case": "leg_a_34-p00625-pl18",
+   "worst_a": 1.41,
+   "coherent_34a_a": 1.41,
+   "a_per_mm_circumference": 1.5,
+   "over_3a_flag": false,
+   "c28_rms_a": 1.22,
+   "c28_barrel_w": 0.0009,
+   "c28_barrel_mid_rise_k": 0.01,
+   "b3_c28_cell_max_c": 119.05,
+   "barrel_rho_ohm_m": 1.72e-08,
+   "via_wall_estimate_c": 119.06
+  }
+ ],
+ "n_vias": 18,
+ "n_over_3a": 8,
+ "worst": {
+  "xy_mm": [
+   35.75,
+   16.25
+  ],
+  "worst_a": 9.17,
+  "a_per_mm_circumference": 5.84,
+  "c28_rms_a": 7.93,
+  "c28_barrel_w": 0.0192,
+  "c28_barrel_mid_rise_k": 0.11,
+  "b3_c28_cell_max_c": 118.16,
+  "via_wall_estimate_c": 118.27
+ },
+ "max_via_wall_estimate_c": 120.69,
+ "verdict": "REPORTED (flag only, no rated limit); every via wall estimate <= the G6 terminal bound"
+}

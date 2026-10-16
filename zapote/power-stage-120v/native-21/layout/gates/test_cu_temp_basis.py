@@ -78,6 +78,33 @@ check(n_err(r, "[ipc]") == 1, "IPC-2221 formula without a registry entry fails",
 r = run({"a.py": "print(1)\n"})
 check(not r["errors"], "a file with no copper-temperature use passes", r["errors"])
 
+# ---- S17 closed: basis 'solved', reference fields, dated records
+A4 = "import thermal\n"
+r = run({"a.py": A4 + "ALPHA = 0.00393\n"}, [entry("a.py", kinds=["a4field"], basis_temp_c="solved", pin="ALPHA")])
+check(not r["errors"], "basis 'solved' with a matching TCR pin passes", r["errors"])
+r = run({"a.py": A4}, [entry("a.py", kinds=["a4field"], basis_temp_c="solved")])
+check(n_err(r, "needs a `pin`") == 1, "basis 'solved' without a pin fails", r["errors"])
+r = run({"a.py": A4}, [entry("a.py", kinds=["a4field"], basis_temp_c="solved", pin="ALPHA")])
+check(n_err(r, "no longer matches") == 1, "basis 'solved' whose pin no longer matches (TCR code removed) fails", r["errors"])
+sol = entry("s.py", id="T-S", kinds=["a4field"], basis_temp_c="solved", pin="ALPHA")
+r = run({"s.py": A4 + "ALPHA = 0.00393\n", "a.py": A4},
+        [sol, entry("a.py", id="T-R", kinds=["a4field"], basis_temp_c=20, direction="reference (corrected downstream)", corrected_by="T-S")])
+check(not r["errors"], "a reference field corrected by a 'solved' entry passes", r["errors"])
+r = run({"s.py": A4 + "ALPHA = 0.00393\n", "a.py": A4},
+        [dict(sol, basis_temp_c=125.0), entry("a.py", id="T-R", kinds=["a4field"], basis_temp_c=20,
+                                                direction="reference (corrected downstream)", corrected_by="T-S")])
+check(n_err(r, "corrected_by") == 1, "a reference field whose corrector is not 'solved' fails", r["errors"])
+with tempfile.TemporaryDirectory() as td:
+    (Path(td) / "st-2026-10-15").mkdir()
+    (Path(td) / "st-2026-10-15" / "a.py").write_text(A4)
+    (Path(td) / "b.py").write_text(A4)
+    reg = {"defaults": {}, "scan": {"include": ["*.py", "*/*.py"], "exclude": [], "a4_modules": ["thermal"]},
+           "consumers": [entry("st-2026-10-15/a.py", id="T-D", kinds=["a4field"], basis_temp_c=20, direction="not a claim (dated record)"),
+                         entry("b.py", id="T-E", kinds=["a4field"], basis_temp_c=20, direction="not a claim (dated record)")]}
+    r = g.check(td, reg, today=TODAY)
+check(n_err(r, "dated study folder") == 1 and not any("st-2026-10-15/a.py" in e for e in r["errors"]),
+      "'dated record' passes in a dated folder and fails outside one", r["errors"])
+
 # ---- registry rules
 code = SOLVER_HDR + "net = kit.Net(pitch_mm=0.25)\n"
 r = run({"a.py": code}, [entry("a.py", basis_temp_c=125.0)])
