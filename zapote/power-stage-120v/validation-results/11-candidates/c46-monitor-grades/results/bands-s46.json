@@ -1,0 +1,754 @@
+{
+ "controls": {
+  "R1": "s45 frozen values at 60 K reproduce c45 results/bands-s45.json to 1e-4",
+  "R2": "study s43 values at 100 K reproduce the study's sensitivity_dt['100K'] to 1e-4"
+ },
+ "frozen_mpns": {
+  "reference": "TL431BQDBZR",
+  "comparator": "LM2901BIDR"
+ },
+ "evaluated_mpns": {
+  "reference": "TL431BQDBZR",
+  "comparator": "LM2901BIDR"
+ },
+ "comparator_designators": {
+  "LS": "U29",
+  "HS-A": "U30",
+  "HS-B": "U31"
+ },
+ "comparator_footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+ "datasheet_rows": {
+  "reference": "SLVS543S Table 6.13 p.14 (TL431BQ; TA -40..125 C, 6.4 p.5)",
+  "comparator": "SLCS006Z 6.8 p.8, TA -40..125 C (6.4 p.6)"
+ },
+ "temperature_basis": {
+  "T_lo_C": -10.0,
+  "T_hi_C": 125.0,
+  "TCR_excursion_K": 100.0,
+  "b3_monitor_max_C": {
+   "c18_h10@61 ICs": 102.9,
+   "BASIS ICs (c28_h10@55, U29)": 106.0,
+   "dividers (R59 worst)": 87.0
+  },
+  "s45_basis": "-10..85 C, 60 K"
+ },
+ "values": {
+  "r79": 4420.0,
+  "r80": 10000.0,
+  "rref": 2200.0,
+  "taps": {
+   "neg UV": [
+    750.0,
+    10000.0
+   ],
+   "neg OV": [
+    2940.0,
+    10000.0
+   ],
+   "span UV": [
+    90900.0,
+    11000.0
+   ],
+   "span OV": [
+    104000.0,
+    11000.0
+   ]
+  }
+ },
+ "s45_85C": {
+  "thresholds": {
+   "neg UV": {
+    "nominal_V": 1.86,
+    "trip_wc_V": [
+     1.8146,
+     1.9044
+    ],
+    "trip_rss_V": [
+     1.8318,
+     1.8871
+    ],
+    "Q": {
+     "catch_side_V": 0.0603,
+     "rail_side_V": 0.061,
+     "lim_catch": 1.7543,
+     "lim_rail": 1.9654,
+     "target_V": 0.0093,
+     "verdict": "PASS"
+    },
+    "H": {
+     "catch_side_V": 0.309,
+     "rail_side_V": 0.061,
+     "lim_catch": 1.5056,
+     "lim_rail": 1.9654,
+     "target_V": 0.0093,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.0783,
+    "joint_rss": {
+     "margin_V": 0.1075,
+     "z_sigma": 10.1033,
+     "tail_ppm_per_rail_normal": 0.0
+    }
+   },
+   "neg OV": {
+    "nominal_V": 2.2389,
+    "trip_wc_V": [
+     2.1825,
+     2.2942
+    ],
+    "trip_rss_V": [
+     2.2049,
+     2.2715
+    ],
+    "Q": {
+     "catch_side_V": 0.1058,
+     "rail_side_V": 0.1068,
+     "lim_catch": 2.4,
+     "lim_rail": 2.0757,
+     "recovery_V": 0.1068,
+     "target_V": 0.0112,
+     "verdict": "PASS"
+    },
+    "H": {
+     "catch_side_V": 3.2058,
+     "rail_side_V": 0.1068,
+     "lim_catch": 5.5,
+     "lim_rail": 2.0757,
+     "recovery_V": 0.1068,
+     "target_V": 0.0112,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.1293,
+    "joint_rss": {
+     "margin_V": 0.1676,
+     "z_sigma": 13.0269,
+     "tail_ppm_per_rail_normal": 0.0
+    }
+   },
+   "span UV": {
+    "nominal_V": 16.0283,
+    "trip_wc_V": [
+     15.5689,
+     16.4788
+    ],
+    "trip_rss_V": [
+     15.7782,
+     16.2647
+    ],
+    "Q": {
+     "catch_side_V": 0.0689,
+     "rail_side_V": 0.0962,
+     "lim_catch": 15.5,
+     "lim_rail": 16.575,
+     "target_V": 0.0801,
+     "verdict": "MARGINAL"
+    },
+    "H": {
+     "catch_side_V": 3.2746,
+     "rail_side_V": 0.0962,
+     "lim_catch": 12.2942,
+     "lim_rail": 16.575,
+     "target_V": 0.0801,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.3103,
+    "joint_rss": {
+     "margin_V": 0.4888,
+     "z_sigma": 5.9947,
+     "tail_ppm_per_rail_normal": 0.001
+    }
+   },
+   "span OV": {
+    "nominal_V": 18.0888,
+    "trip_wc_V": [
+     17.5692,
+     18.5984
+    ],
+    "trip_rss_V": [
+     17.8065,
+     18.3558
+    ],
+    "Q": {
+     "catch_side_V": -0.5984,
+     "rail_side_V": 0.1442,
+     "lim_catch": 18.0,
+     "lim_rail": 17.425,
+     "recovery_V": 0.1442,
+     "target_V": 0.0904,
+     "verdict": "FAIL"
+    },
+    "H": {
+     "catch_side_V": 2.4016,
+     "rail_side_V": 0.1442,
+     "lim_catch": 21.0,
+     "lim_rail": 17.425,
+     "recovery_V": 0.1442,
+     "target_V": 0.0904,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.3815,
+    "joint_rss": {
+     "margin_V": 0.5751,
+     "z_sigma": 6.4094,
+     "tail_ppm_per_rail_normal": 0.0001
+    }
+   }
+  },
+  "allowed": {
+   "span UV": {
+    "lo_Q": 15.5,
+    "lo_H": 12.2942,
+    "hi": 16.575
+   },
+   "span OV": {
+    "lo": 17.425,
+    "hi_Q": 18.0,
+    "hi_H": 21.0
+   },
+   "neg UV": {
+    "lo_Q": 1.7543,
+    "lo_H": 1.5056,
+    "lo_corner_infeasible": 1.8846,
+    "hi": 1.9654
+   },
+   "neg OV": {
+    "lo": 2.0757,
+    "hi_Q": 2.4,
+    "hi_H": 5.5
+   }
+  },
+  "rails": {
+   "span union": [
+    16.575,
+    17.425
+   ],
+   "neg union": [
+    1.9654,
+    2.0757
+   ],
+   "LS span": [
+    16.575,
+    17.425
+   ],
+   "HS span": [
+    16.5767,
+    17.2471
+   ],
+   "LS neg": [
+    1.9654,
+    2.0757
+   ],
+   "HS neg": [
+    1.9654,
+    2.0594
+   ]
+  }
+ },
+ "s46_125C_A": {
+  "thresholds": {
+   "neg UV": {
+    "nominal_V": 1.86,
+    "trip_wc_V": [
+     1.8132,
+     1.9059
+    ],
+    "trip_rss_V": [
+     1.8318,
+     1.8871
+    ],
+    "Q": {
+     "catch_side_V": 0.0589,
+     "rail_side_V": 0.0595,
+     "lim_catch": 1.7543,
+     "lim_rail": 1.9654,
+     "target_V": 0.0093,
+     "verdict": "PASS"
+    },
+    "H": {
+     "catch_side_V": 0.3077,
+     "rail_side_V": 0.0595,
+     "lim_catch": 1.5056,
+     "lim_rail": 1.9654,
+     "target_V": 0.0093,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.0782,
+    "joint_rss": {
+     "margin_V": 0.1074,
+     "z_sigma": 10.0935,
+     "tail_ppm_per_rail_normal": 0.0
+    }
+   },
+   "neg OV": {
+    "nominal_V": 2.2389,
+    "trip_wc_V": [
+     2.1801,
+     2.2967
+    ],
+    "trip_rss_V": [
+     2.2048,
+     2.2716
+    ],
+    "Q": {
+     "catch_side_V": 0.1033,
+     "rail_side_V": 0.1045,
+     "lim_catch": 2.4,
+     "lim_rail": 2.0757,
+     "recovery_V": 0.1045,
+     "target_V": 0.0112,
+     "verdict": "PASS"
+    },
+    "H": {
+     "catch_side_V": 3.2033,
+     "rail_side_V": 0.1045,
+     "lim_catch": 5.5,
+     "lim_rail": 2.0757,
+     "recovery_V": 0.1045,
+     "target_V": 0.0112,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.1291,
+    "joint_rss": {
+     "margin_V": 0.1675,
+     "z_sigma": 13.004,
+     "tail_ppm_per_rail_normal": 0.0
+    }
+   },
+   "span UV": {
+    "nominal_V": 16.0283,
+    "trip_wc_V": [
+     15.5315,
+     16.5182
+    ],
+    "trip_rss_V": [
+     15.7726,
+     16.2703
+    ],
+    "Q": {
+     "catch_side_V": 0.0315,
+     "rail_side_V": 0.0568,
+     "lim_catch": 15.5,
+     "lim_rail": 16.575,
+     "target_V": 0.0801,
+     "verdict": "MARGINAL"
+    },
+    "H": {
+     "catch_side_V": 3.2348,
+     "rail_side_V": 0.0568,
+     "lim_catch": 12.2967,
+     "lim_rail": 16.575,
+     "target_V": 0.0801,
+     "verdict": "MARGINAL"
+    },
+    "rss_vs_wc_rail_V": 0.3047,
+    "joint_rss": {
+     "margin_V": 0.4861,
+     "z_sigma": 5.9609,
+     "tail_ppm_per_rail_normal": 0.0013
+    }
+   },
+   "span OV": {
+    "nominal_V": 18.0888,
+    "trip_wc_V": [
+     17.5266,
+     18.6434
+    ],
+    "trip_rss_V": [
+     17.8,
+     18.3622
+    ],
+    "Q": {
+     "catch_side_V": -0.6434,
+     "rail_side_V": 0.1016,
+     "lim_catch": 18.0,
+     "lim_rail": 17.425,
+     "recovery_V": 0.1016,
+     "target_V": 0.0904,
+     "verdict": "FAIL"
+    },
+    "H": {
+     "catch_side_V": 2.3566,
+     "rail_side_V": 0.1016,
+     "lim_catch": 21.0,
+     "lim_rail": 17.425,
+     "recovery_V": 0.1016,
+     "target_V": 0.0904,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.375,
+    "joint_rss": {
+     "margin_V": 0.5715,
+     "z_sigma": 6.3648,
+     "tail_ppm_per_rail_normal": 0.0001
+    }
+   }
+  },
+  "allowed": {
+   "span UV": {
+    "lo_Q": 15.5,
+    "lo_H": 12.2967,
+    "hi": 16.575
+   },
+   "span OV": {
+    "lo": 17.425,
+    "hi_Q": 18.0,
+    "hi_H": 21.0
+   },
+   "neg UV": {
+    "lo_Q": 1.7543,
+    "lo_H": 1.5056,
+    "lo_corner_infeasible": 1.8846,
+    "hi": 1.9654
+   },
+   "neg OV": {
+    "lo": 2.0757,
+    "hi_Q": 2.4,
+    "hi_H": 5.5
+   }
+  }
+ },
+ "s46_125C_B_rails_hot": {
+  "thresholds": {
+   "neg UV": {
+    "nominal_V": 1.86,
+    "trip_wc_V": [
+     1.8132,
+     1.9059
+    ],
+    "trip_rss_V": [
+     1.8318,
+     1.8871
+    ],
+    "Q": {
+     "catch_side_V": 0.0589,
+     "rail_side_V": 0.058,
+     "lim_catch": 1.7543,
+     "lim_rail": 1.9639,
+     "target_V": 0.0093,
+     "verdict": "PASS"
+    },
+    "H": {
+     "catch_side_V": 0.3077,
+     "rail_side_V": 0.058,
+     "lim_catch": 1.5056,
+     "lim_rail": 1.9639,
+     "target_V": 0.0093,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.0767,
+    "joint_rss": {
+     "margin_V": 0.1074,
+     "z_sigma": 10.0761,
+     "tail_ppm_per_rail_normal": 0.0
+    }
+   },
+   "neg OV": {
+    "nominal_V": 2.2389,
+    "trip_wc_V": [
+     2.1801,
+     2.2967
+    ],
+    "trip_rss_V": [
+     2.2048,
+     2.2716
+    ],
+    "Q": {
+     "catch_side_V": 0.1033,
+     "rail_side_V": 0.1029,
+     "lim_catch": 2.4,
+     "lim_rail": 2.0773,
+     "recovery_V": 0.1029,
+     "target_V": 0.0112,
+     "verdict": "PASS"
+    },
+    "H": {
+     "catch_side_V": 3.2033,
+     "rail_side_V": 0.1029,
+     "lim_catch": 5.5,
+     "lim_rail": 2.0773,
+     "recovery_V": 0.1029,
+     "target_V": 0.0112,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.1275,
+    "joint_rss": {
+     "margin_V": 0.1675,
+     "z_sigma": 12.9856,
+     "tail_ppm_per_rail_normal": 0.0
+    }
+   },
+   "span UV": {
+    "nominal_V": 16.0283,
+    "trip_wc_V": [
+     15.5315,
+     16.5182
+    ],
+    "trip_rss_V": [
+     15.7726,
+     16.2703
+    ],
+    "Q": {
+     "catch_side_V": 0.0315,
+     "rail_side_V": 0.0302,
+     "lim_catch": 15.5,
+     "lim_rail": 16.5485,
+     "target_V": 0.0801,
+     "verdict": "MARGINAL"
+    },
+    "H": {
+     "catch_side_V": 3.2348,
+     "rail_side_V": 0.0302,
+     "lim_catch": 12.2967,
+     "lim_rail": 16.5485,
+     "target_V": 0.0801,
+     "verdict": "MARGINAL"
+    },
+    "rss_vs_wc_rail_V": 0.2782,
+    "joint_rss": {
+     "margin_V": 0.4861,
+     "z_sigma": 5.9609,
+     "tail_ppm_per_rail_normal": 0.0013
+    }
+   },
+   "span OV": {
+    "nominal_V": 18.0888,
+    "trip_wc_V": [
+     17.5266,
+     18.6434
+    ],
+    "trip_rss_V": [
+     17.8,
+     18.3622
+    ],
+    "Q": {
+     "catch_side_V": -0.6434,
+     "rail_side_V": 0.1016,
+     "lim_catch": 18.0,
+     "lim_rail": 17.425,
+     "recovery_V": 0.1016,
+     "target_V": 0.0904,
+     "verdict": "FAIL"
+    },
+    "H": {
+     "catch_side_V": 2.3566,
+     "rail_side_V": 0.1016,
+     "lim_catch": 21.0,
+     "lim_rail": 17.425,
+     "recovery_V": 0.1016,
+     "target_V": 0.0904,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.375,
+    "joint_rss": {
+     "margin_V": 0.5715,
+     "z_sigma": 6.3648,
+     "tail_ppm_per_rail_normal": 0.0001
+    }
+   }
+  },
+  "allowed": {
+   "span UV": {
+    "lo_Q": 15.5,
+    "lo_H": 12.2967,
+    "hi": 16.5485
+   },
+   "span OV": {
+    "lo": 17.425,
+    "hi_Q": 18.0,
+    "hi_H": 21.0
+   },
+   "neg UV": {
+    "lo_Q": 1.7543,
+    "lo_H": 1.5056,
+    "lo_corner_infeasible": 1.8846,
+    "hi": 1.9639
+   },
+   "neg OV": {
+    "lo": 2.0773,
+    "hi_Q": 2.4,
+    "hi_H": 5.5
+   }
+  },
+  "rails": {
+   "span union": [
+    16.5485,
+    17.425
+   ],
+   "neg union": [
+    1.9639,
+    2.0773
+   ],
+   "LS span": [
+    16.575,
+    17.425
+   ],
+   "HS span": [
+    16.5485,
+    17.2764
+   ],
+   "LS neg": [
+    1.9639,
+    2.0773
+   ],
+   "HS neg": [
+    1.9639,
+    2.061
+   ]
+  }
+ },
+ "span_OV_19V": {
+  "s45_85C": 0.4016,
+  "s46_125C": 0.3566
+ },
+ "verdict": {
+  "neg UV": {
+   "rail_side_A_V": 0.0595,
+   "rail_side_B_V": 0.058,
+   "Q_A": "PASS",
+   "H_A": "PASS",
+   "clears_rails_and_H": true
+  },
+  "neg OV": {
+   "rail_side_A_V": 0.1045,
+   "rail_side_B_V": 0.1029,
+   "Q_A": "PASS",
+   "H_A": "PASS",
+   "clears_rails_and_H": true
+  },
+  "span UV": {
+   "rail_side_A_V": 0.0568,
+   "rail_side_B_V": 0.0302,
+   "Q_A": "MARGINAL",
+   "H_A": "MARGINAL",
+   "clears_rails_and_H": true
+  },
+  "span OV": {
+   "rail_side_A_V": 0.1016,
+   "rail_side_B_V": 0.1016,
+   "Q_A": "FAIL",
+   "H_A": "PASS",
+   "clears_rails_and_H": true
+  },
+  "span OV vs 19 V": true,
+  "all_clear": true
+ },
+ "stresses_125C": {
+  "basis": {
+   "span_op_max_V": 18.6434,
+   "span_op_min_V": 15.5315,
+   "neg_rail_max_V": 2.0773,
+   "span_fault_V": 24.0,
+   "span_fault_note": "V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own tolerance / OVP is not in the ledger, so this is a stated case, not a bound"
+  },
+  "TL431": {
+   "vka_max_V": 2.541,
+   "ik_min_mA": 5.612,
+   "ik_max_op_mA": 7.342,
+   "ik_max_fault_mA": 9.827,
+   "p_max_fault_mW": 24.97,
+   "self_heat_fault_K": 5.14
+  },
+  "resistors": {
+   "neg UV top 750": {
+    "operating": {
+     "V": 0.145,
+     "mW": 0.028
+    },
+    "fault": {
+     "V": 1.301,
+     "mW": 2.256
+    },
+    "fault_raw": {
+     "V": 1.674,
+     "mW": 3.738
+    }
+   },
+   "neg UV bottom 10000": {
+    "operating": {
+     "V": 1.932,
+     "mW": 0.373
+    },
+    "fault": {
+     "V": 17.343,
+     "mW": 30.077
+    },
+    "fault_raw": {
+     "V": 22.326,
+     "mW": 49.843
+    }
+   },
+   "neg OV top 2940": {
+    "operating": {
+     "V": 0.472,
+     "mW": 0.076
+    },
+    "fault": {
+     "V": 4.236,
+     "mW": 6.103
+    },
+    "fault_raw": {
+     "V": 5.453,
+     "mW": 10.113
+    }
+   },
+   "neg OV bottom 10000": {
+    "operating": {
+     "V": 1.605,
+     "mW": 0.258
+    },
+    "fault": {
+     "V": 14.408,
+     "mW": 20.758
+    },
+    "fault_raw": {
+     "V": 18.547,
+     "mW": 34.4
+    }
+   },
+   "span UV top 90900": {
+    "operating": {
+     "V": 16.631,
+     "mW": 3.043
+    },
+    "fault": {
+     "V": 21.409,
+     "mW": 5.042
+    }
+   },
+   "span UV bottom 11000": {
+    "operating": {
+     "V": 2.013,
+     "mW": 0.368
+    },
+    "fault": {
+     "V": 2.591,
+     "mW": 0.61
+    }
+   },
+   "span OV top 104000": {
+    "operating": {
+     "V": 16.86,
+     "mW": 2.733
+    },
+    "fault": {
+     "V": 21.704,
+     "mW": 4.53
+    }
+   },
+   "span OV bottom 11000": {
+    "operating": {
+     "V": 1.783,
+     "mW": 0.289
+    },
+    "fault": {
+     "V": 2.296,
+     "mW": 0.479
+    }
+   }
+  },
+  "2EDR8259X_VDD_at_span_OV_trip": {
+   "V": 18.6434,
+   "ratio_of_21V": 0.8878
+  }
+ }
+}
