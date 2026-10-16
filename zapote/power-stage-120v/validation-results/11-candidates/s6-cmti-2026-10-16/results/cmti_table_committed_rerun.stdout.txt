@@ -1,0 +1,57 @@
+== schematic enumeration (read from elec/src/*.ato) ==
+  drivers_in_leg       found 1  expected 1  ok
+  bridge_legs          found 2  expected 2  ok
+  rail_monitors        found 3  expected 3  ok
+  iso7710_bus_fault    found 1  expected 1  ok
+  heartbeats           found 1  expected 1  ok
+  iso7710_heartbeat    found 1  expected 1  ok
+  iso6721_links        found 2  expected 1  MISMATCH
+  iso7710f_verdicts    found 0  expected 1  MISMATCH
+  amc1311              found 1  expected 1  ok
+  line_opto            found 1  expected 1  ok
+  bias_modules         found 2  expected 2  ok
+  ct                   found 1  expected 1  ok
+  ps1                  found 0  expected 1  MISMATCH
+  ps2                  found 1  expected 1  ok
+  => 2EDR8259XXUMA1 x2, CA-IS3720HW x2 (heartbeat + bus fault), ISO6721FBDR x2 (HS-A verdict), CA-IS3720LW x0 (HS-B verdict), AMC1311 x1, VOL628A x1, R24C2T25 x2, CST3015 x1, IRM x2; BiasOpto (VO617A) defined but instantiated 0x
+  watch-listed MPNs defined in parts: AMC1311BDWVR, CA-IS3720HW, CA-IS3720LW, CST3015-200ED, IRM-05-15, ISO6721FBDR, R24C2T25/R-R, UCC21550BDWKR, VO617A-3X017T, VOL628A-2X001T
+
+== CMTI table (hard = 95 V/ns, ZVS = 10 V/ns, pass = CMTI >= 1.5x hard = 142.5 kV/us) ==
+ref   MPN                    class      CMTI  hard x  ZVS x  verdict reason
+U1    2EDR8259XXUMA1         GATE        150    1.58   15.0  PASS    150 >= 1.5x95=142.5
+U2    2EDR8259XXUMA1         GATE        150    1.58   15.0  PASS    150 >= 1.5x95=142.5
+U43   ISO6721FBDR            FILTERED    100    1.05   10.0  PASS    time-filtered, tau=49.9us>=10us (raw ratio 1.05x<1.5 is covered by the filter; valid only while an upset lasts < 0.42us - bench item)
+U44   CA-IS3720LW            FILTERED    100    1.05   10.0  PASS    time-filtered, tau=49.9us>=10us (raw ratio 1.05x<1.5 is covered by the filter; valid only while an upset lasts < 0.42us - bench item)
+U32   CA-IS3720HW            FILTERED    100    1.05   10.0  PASS    time-filtered, tau=49.9us>=10us (raw ratio 1.05x<1.5 is covered by the filter; valid only while an upset lasts < 0.42us - bench item)
+U9    CA-IS3720HW            OPEN        100    1.05   10.0  OPEN    consumer (controller) filter not in repo
+U4    AMC1311BDWVR           OPEN        100    1.05   10.0  OPEN    consumer (controller ADC/firmware) not in repo
+U36   VOL628A-2X001T         OPEN        n/a     n/a    n/a  OPEN    no datasheet CMTI number
+U41   R24C2T25/R-R           BIAS        150    1.58   15.0  PASS    150 >= 142.5
+U42   R24C2T25/R-R           BIAS        150    1.58   15.0  PASS    150 >= 142.5
+T1    CST3015-200ED          OPEN        n/a     n/a    n/a  OPEN    Cww not specified
+PS1   IRM-20-15              OPEN        n/a     n/a    n/a  OPEN    not on a switch node; no CMTI spec
+PS2   IRM-20-24              OPEN        n/a     n/a    n/a  OPEN    not on a switch node; no CMTI spec
+CTRL  HYPOTHETICAL-50kV/us   GATE         50    0.53    5.0  FAIL    50 < 1.5x95=142.5 (short by 92.5 kV/us)
+
+control row (50 kV/us on a gate path) -> FAIL (must be FAIL)
+
+== derived ==
+UCC21550 allowed dv/dt at 1.5x margin = 83.3 V/ns -> the modelled 95 V/ns hard edge must drop 12.3% (to <= 83.3) or be shown by bench measurement to be below it
+UCC21550 at ZVS: 12.5x (PASS); hard: 1.32x (FAIL, bare datasheet ratio > 1 so no upset is *predicted* - the rating is simply not demonstrated with margin)
+hard-edge duration for a 520 V swing at 95 V/ns = 5.47 ns; at 10 V/ns = 52 ns
+monitor-group filter (heartbeat hold): tau = 49.90 us; one dropped period >= 0.42 us rides through (SPICE design J); a 5.47 ns upset is 77x shorter
+injected current/charge across each barrier (Cio x 95 V/ns; Cio x 520 V), simple C*dv/dt:
+  U1   Cio 2 pF -> 190 mA peak, 1.04 nC
+  U2   Cio 2 pF -> 190 mA peak, 1.04 nC
+  U43  Cio 0.5 pF -> 48 mA peak, 0.26 nC
+  U44  Cio 0.5 pF -> 48 mA peak, 0.26 nC
+  U32  Cio 0.5 pF -> 48 mA peak, 0.26 nC
+  U9   Cio 0.5 pF -> 48 mA peak, 0.26 nC
+  U4   Cio 1.5 pF -> 142 mA peak, 0.78 nC
+  U41  Cio 3.5 pF -> 332 mA peak, 1.82 nC
+  U42  Cio 3.5 pF -> 332 mA peak, 1.82 nC
+CST3015: OCP trip-band min 64.55 A (power_stage_120v.ato comment) / 200 turns = 323 mA x burden 3 ohm = 0.968 V trip level; burden C 100 nF, burden RC = 300 ns (>> 5.5 ns edge, so the edge is charge-dominated)
+  each pF of unspecified Cww moves the burden node by 5.20 mV (Q = Cww x 520 V into the burden C); break-even Cww = 186 pF (datasheet gives no Cww; vendor query / bench item)
+
+SUMMARY: 7 PASS, 0 FAIL, 6 OPEN (control excluded); wrote /Users/bennet/.claude/jobs/fbfc46b4/tmp/s6-cmti/work/cmti.csv
+OVERALL: no FAIL rows

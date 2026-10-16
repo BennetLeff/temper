@@ -1,0 +1,409 @@
+{
+ "typical_chord": 49.7,
+ "typical_inst": 64.72294825299015,
+ "typical_companion": {
+  "n": 42,
+  "n_all": 42,
+  "chord": 49.698109087349444,
+  "inst": 64.72294825299015,
+  "inst_over_chord_top": [
+   0.0028013866953838385,
+   0.0030944410862626262,
+   0.009582416117287877,
+   0.009869394461611112,
+   0.010081126006613636,
+   0.010604673573719699,
+   1.2993170768585858,
+   1.3023221495053874,
+   1.3033288620437709,
+   2.033256147409091
+  ],
+  "inst_raw_max_rejected": 117.3977,
+  "difdt": 243.67690058479562,
+  "vds": 341.7111,
+  "worst": {
+   "drv": "strong",
+   "leg": "A",
+   "temp_C": 27,
+   "vbus": 198,
+   "dir": 0,
+   "esl_nH": 10
+  }
+ },
+ "maxqrr": {
+  "s4screen": {
+   "n": 56,
+   "n_all": 56,
+   "chord": 68.16040740449226,
+   "inst": 90.59766534073307,
+   "inst_over_chord_top": [
+    1.3203663743663094,
+    1.3263429692585715,
+    1.3291831547175001,
+    1.3298605405134523,
+    1.3324005939242853,
+    6.124240312425
+   ],
+   "inst_raw_max_rejected": 415.7433,
+   "difdt": 242.37760542898636,
+   "vds": 380.0394,
+   "worst": {
+    "drv": "strong",
+    "leg": "A",
+    "temp_C": 150,
+    "vbus": 280,
+    "dir": 0,
+    "esl_nH": 10
+   }
+  },
+  "s4b": {
+   "n": 42,
+   "n_all": 42,
+   "chord": 68.16040740449226,
+   "inst": 90.64383623255519,
+   "inst_over_chord_top": [
+    1.3203663743663094,
+    1.3263429692585715,
+    1.3291831547175001,
+    1.3298605405134523,
+    1.3324005939242853,
+    1.3491596872065659,
+    1.3553723630907408,
+    5.644039368456229,
+    6.124240312425
+   ],
+   "inst_raw_max_rejected": 989.1535,
+   "difdt": 243.67690058479562,
+   "vds": 383.8908,
+   "worst": {
+    "drv": "strong",
+    "leg": "A",
+    "temp_C": 150,
+    "vbus": 280,
+    "dir": 0,
+    "esl_nH": 10
+   }
+  },
+  "full": {
+   "n": 640,
+   "n_all": 640,
+   "chord": 68.16040740449226,
+   "inst": 90.64383623255519,
+   "inst_over_chord_top": [
+    1.3203663743663094,
+    1.3263429692585715,
+    1.3287515232236902,
+    1.3291831547175001,
+    1.3298605405134523,
+    1.3324005939242853,
+    1.3331220690744046,
+    1.3491596872065659,
+    1.3553723630907408,
+    5.644039368456229,
+    6.124240312425
+   ],
+   "inst_raw_max_rejected": 9315.155,
+   "difdt": 243.67690058479562,
+   "vds": 434.9831,
+   "worst": {
+    "drv": "strong",
+    "leg": "A",
+    "temp_C": 150,
+    "vbus": 280,
+    "dir": 0,
+    "esl_nH": 10
+   }
+  }
+ },
+ "control": {
+  "n": 56,
+  "n_all": 56,
+  "chord": 106.20576735247354,
+  "inst": 126.7107,
+  "inst_over_chord_top": [
+   1.190885717392857,
+   1.1910751418285714,
+   1.1930679769910715,
+   1.2015074848,
+   1.2056765740982143,
+   3.074391785057143,
+   3.160958560339286,
+   3.2221924961785717,
+   3.5623710238416666,
+   4.949059153725,
+   25.515124080357143,
+   82.6133183870893
+  ],
+  "inst_raw_max_rejected": 8537.841,
+  "difdt": 469.7275716298767,
+  "vds": 505.5255,
+  "worst": {
+   "drv": "nom",
+   "leg": "A",
+   "temp_C": 27,
+   "vbus": 280,
+   "dir": 0,
+   "esl_nH": 10
+  }
+ },
+ "channels": [
+  {
+   "ref": "U1, U2",
+   "mpn": "2EDR8259XXUMA1",
+   "cls": "GATE",
+   "nets": "VSSA = SW_x (HS) vs VSSI (SELV PWM)",
+   "cmti_min": 150,
+   "seen_typ": 49.7,
+   "seen_mq_chord": 68.16040740449226,
+   "seen_mq_inst": 90.64383623255519,
+   "r_typ": 3.0181086519114686,
+   "r_mq_chord": 2.2006910714285715,
+   "r_mq_inst": 1.6548284608692096,
+   "note": "switch-node edge (rides SW_x)",
+   "consequence": "false gate command",
+   "rule": "1.5x applies"
+  },
+  {
+   "ref": "U43, U44",
+   "mpn": "ISO6721FBDR",
+   "cls": "FILTERED",
+   "nets": "N_HA = SW_A / N_HB = SW_B vs N_LS",
+   "cmti_min": 100,
+   "seen_typ": 49.7,
+   "seen_mq_chord": 68.16040740449226,
+   "seen_mq_inst": 90.64383623255519,
+   "r_typ": 2.0120724346076457,
+   "r_mq_chord": 1.4671273809523808,
+   "r_mq_inst": 1.1032189739128064,
+   "note": "switch-node edge, by construction",
+   "consequence": "pauses / adds <= 2 heartbeat edges; availability only (c24 FMEA 6a)",
+   "rule": "pass on filter (tau 49.9 us >= 10 us); CMTI >= edge as a rating"
+  },
+  {
+   "ref": "U32",
+   "mpn": "CA-IS3720HW",
+   "cls": "FILTERED",
+   "nets": "N_LS / LEG_RET vs SELV_GND (= PE)",
+   "cmti_min": 100,
+   "seen_typ": 5.22474406056944,
+   "seen_mq_chord": 6.5910746571617995,
+   "seen_mq_inst": 9.899991264434334,
+   "r_typ": 19.139693512394,
+   "r_mq_chord": 15.172032665620158,
+   "r_mq_inst": 10.101019013951,
+   "note": "CM divider, nominal parasitics",
+   "consequence": "drops / adds one heartbeat edge",
+   "rule": "pass on filter (tau 49.9 us)",
+   "single_worst": [
+    22.6000195815976,
+    "block_coil100_allA"
+   ],
+   "single_worst_inst90": [
+    33.85625944114815,
+    "block_coil100_allA"
+   ],
+   "stacked": [
+    86.72102831093608,
+    "cond_STACKED_ALN"
+   ],
+   "stacked_inst90": [
+    130.46161135182325,
+    "cond_STACKED_ALN"
+   ]
+  },
+  {
+   "ref": "U9",
+   "mpn": "CA-IS3720HW",
+   "cls": "OPEN",
+   "nets": "OCP_KELVIN_P / LEG_RET vs SELV_GND",
+   "cmti_min": 100,
+   "seen_typ": 5.22474406056944,
+   "seen_mq_chord": 6.5910746571617995,
+   "seen_mq_inst": 9.899991264434334,
+   "r_typ": 19.139693512394,
+   "r_mq_chord": 15.172032665620158,
+   "r_mq_inst": 10.101019013951,
+   "note": "CM divider, nominal parasitics",
+   "consequence": "BUS_FAULT glitch; R134/C167 100 ns on board, controller debounce not in repo",
+   "rule": "no gate command; open on the consumer",
+   "single_worst": [
+    22.6000195815976,
+    "block_coil100_allA"
+   ],
+   "single_worst_inst90": [
+    33.85625944114815,
+    "block_coil100_allA"
+   ],
+   "stacked": [
+    86.72102831093608,
+    "cond_STACKED_ALN"
+   ],
+   "stacked_inst90": [
+    130.46161135182325,
+    "cond_STACKED_ALN"
+   ]
+  },
+  {
+   "ref": "U4",
+   "mpn": "AMC1311BDWVR",
+   "cls": "OPEN",
+   "nets": "HV_RET (VINN/GND1) vs SELV_GND",
+   "cmti_min": 100,
+   "seen_typ": 5.22474406056944,
+   "seen_mq_chord": 6.5910746571617995,
+   "seen_mq_inst": 9.899991264434334,
+   "r_typ": 19.139693512394,
+   "r_mq_chord": 15.172032665620158,
+   "r_mq_inst": 10.101019013951,
+   "note": "CM divider, nominal parasitics",
+   "consequence": "spurious VBUS sample",
+   "rule": "no gate command; open on the consumer",
+   "single_worst": [
+    22.6000195815976,
+    "block_coil100_allA"
+   ],
+   "single_worst_inst90": [
+    33.85625944114815,
+    "block_coil100_allA"
+   ],
+   "stacked": [
+    86.72102831093608,
+    "cond_STACKED_ALN"
+   ],
+   "stacked_inst90": [
+    130.46161135182325,
+    "cond_STACKED_ALN"
+   ]
+  }
+ ],
+ "u36": {
+  "nom": 0.6709723707858822,
+  "single": [
+   17.943419415251984,
+   "block_ly20"
+  ],
+  "stacked": [
+   86.70785327612806,
+   "cond_STACKED_ALN"
+  ]
+ },
+ "candidates": [
+  {
+   "slot": "U9/U32 (SOIC-16W, 2/0 on pins 4->13, default H)",
+   "mpn": "CA-IS3720HW (fitted)",
+   "jlc": {
+    "code": "C428883",
+    "mpn": "CA-IS3720HW",
+    "stock": 1640,
+    "p500": 0.5188,
+    "fetched": "2026-10-16T21:22:29Z"
+   },
+   "cmti_min": 100,
+   "viorm": 1414,
+   "viorm_ratio": 0.2034087694483734,
+   "ok": {
+    "cmti_150": false,
+    "open_state": true,
+    "stock20": true,
+    "stock500": true,
+    "viorm50": true,
+    "bom_only": true
+   },
+   "note": "Table 9-1: H on VDDA loss or open input"
+  },
+  {
+   "slot": "U9/U32",
+   "mpn": "NSI8220W1-DSWR",
+   "jlc": {
+    "code": "C5439825",
+    "mpn": "NSI8220W1-DSWR",
+    "stock": 91,
+    "p500": 0.7228,
+    "fetched": "2026-10-16T21:22:28Z"
+   },
+   "cmti_min": 200,
+   "viorm": 2121,
+   "viorm_ratio": 0.13560584629891562,
+   "ok": {
+    "cmti_150": true,
+    "open_state": false,
+    "stock20": true,
+    "stock500": false,
+    "viorm50": true,
+    "bom_only": true
+   },
+   "note": "pins 3/4/13/14 match; DS 1.5 Table 7.1 gives only VDD1-unready -> H; open input: 'Ipull 8-15 uA', no state; VDE 0884-11 (40052820), UL E500602"
+  },
+  {
+   "slot": "U43/U44 (SOIC-8, INB 3 -> OUTB 6, default L)",
+   "mpn": "ISO6721FBDR (fitted)",
+   "jlc": {
+    "code": "C5216431",
+    "mpn": "ISO6721FBDR",
+    "stock": 4900,
+    "p500": 0.4112,
+    "fetched": "2026-10-16T21:22:29Z"
+   },
+   "cmti_min": 100,
+   "viorm": 637,
+   "viorm_ratio": 0.45152276295133437,
+   "ok": {
+    "cmti_150": false,
+    "open_state": true,
+    "stock20": true,
+    "stock500": true,
+    "viorm50": true,
+    "bom_only": true
+   },
+   "note": "SLLSFJ0F: default LOW, both input states"
+  },
+  {
+   "slot": "U43/U44",
+   "mpn": "NSI8221N0-DSPR",
+   "jlc": {
+    "code": "C3029754",
+    "mpn": "NSI8221N0-DSPR",
+    "stock": 1540,
+    "p500": 0.5205,
+    "fetched": "2026-10-16T21:22:27Z"
+   },
+   "cmti_min": 200,
+   "viorm": 565,
+   "viorm_ratio": 0.5090619469026548,
+   "ok": {
+    "cmti_150": true,
+    "open_state": false,
+    "stock20": true,
+    "stock500": true,
+    "viorm50": false,
+    "bom_only": true
+   },
+   "note": "NSi8221N pin map = ISO6721 D (2 OUTA, 3 INB, 6 OUTB, 7 INA); open input undefined; VIORM 565 Vpk"
+  },
+  {
+   "slot": "U43/U44",
+   "mpn": "NSI8222N0-DSPR",
+   "jlc": {
+    "code": "C5439819",
+    "mpn": "NSI8222N0-DSPR",
+    "stock": 1304,
+    "p500": 0.5123,
+    "fetched": "2026-10-16T21:22:27Z"
+   },
+   "cmti_min": 200,
+   "viorm": 565,
+   "viorm_ratio": 0.5090619469026548,
+   "ok": {
+    "cmti_150": true,
+    "open_state": false,
+    "stock20": true,
+    "stock500": true,
+    "viorm50": false,
+    "bom_only": false
+   },
+   "note": "pin 3 = OUTB on side 1: output fights U43's driven INB net"
+  }
+ ],
+ "cm_source_sha": "6dbb0761ff8cb27b81acd0fa9aa0a2215113a92dceec1ef33e9c64b928190f11",
+ "cm_script_sha": "5db8c4c2b5af3437443b22ba9317cd204f14431ca7ce729884f3fd8bdb5dd3d8"
+}
