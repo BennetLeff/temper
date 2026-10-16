@@ -1,0 +1,1558 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 334,
+   "list": [
+    {
+     "componentId": 3771589,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Signal Switches, Multiplexers, Decoders",
+     "erpComponentName": "MPC4D",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/signal-switches-multiplexers-decoders_texas-instruments-mpc4d_C3208573.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.9026
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.9026
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 7.9026
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 3.059
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.9513
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.8991
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.7927
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.9467
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 7.6126
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.6126
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.843
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.6126
+      }
+     ],
+     "firstSortAccessId": "4df5ced1315c4bd285a97161ea2bc238",
+     "secondSortAccessId": "88d37f4c1d1641f1b2ae7887cefcebf2",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-MPC4D/C3208573",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 7.9026,
+     "componentCode": "C3208573",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "MPC4D",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2309211856_Texas-Instruments-MPC4D_C3208573.pdf",
+     "dataManualFileAccessId": "8590373749779566592",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TI MPC4D",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DIP-16",
+     "describe": "0\u2103~+75\u2103 Dual Supply Power-off protection\u3001Break-before-make function DIP-16 Signal Switches, Multiplexers, Decoders",
+     "attributes": [
+      {
+       "attribute_name_en": "Function",
+       "attribute_value_name": "Power-off protection\u3001Break-before-make function"
+      },
+      {
+       "attribute_name_en": "Propagation Delay",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of lines",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Current - Output High(IOH)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Supply Source",
+       "attribute_value_name": "Dual Supply"
+      },
+      {
+       "attribute_name_en": "Current - Output Low(IOL)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Operating temperature",
+       "attribute_value_name": "0\u2103~+75\u2103"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Signal Switches, Multiplexers, Decoders",
+     "secondSortName": "Logic",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "MP<span class='lucene_highlight_class'>C4D</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4160863,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Other industrial control products",
+     "erpComponentName": "1C4DL",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/other-industrial-control-products_altech-1c4dl_C3594145.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": -1,
+       "productPrice": 12.8361
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": -1,
+       "productPrice": 12.365
+      }
+     ],
+     "firstSortAccessId": "d7b956d50bdd4f949b0d388914ef8a2c",
+     "secondSortAccessId": "bb75cf199a0c4ef29c47f0527682d56b",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Altech-1C4DL/C3594145",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 12,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 12.8361,
+     "componentCode": "C3594145",
+     "componentBrandEn": "Altech",
+     "componentModelEn": "1C4DL",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Altech 1C4DL",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "- Other industrial control products ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Other industrial control products",
+     "secondSortName": "Industrial control electrical",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "1<span class='lucene_highlight_class'>C4D</span>L",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": true,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 19247438,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Comprehensive Electronic",
+     "erpComponentName": "PSC4D",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/cable-supports-and-fasteners_panduit-psc4d_C18107008.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": -1,
+       "productPrice": 0.3949
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": -1,
+       "productPrice": 0.3804
+      }
+     ],
+     "firstSortAccessId": "aea6426c7ea744c7b6596adce3a7637b",
+     "secondSortAccessId": "9465c927504d49dcacb4b01962ae0228",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Panduit-PSC4D/C18107008",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 23,
+     "minPurchaseNum": 23,
+     "initialPrice": 0.3949,
+     "componentCode": "C18107008",
+     "componentBrandEn": "Panduit",
+     "componentModelEn": "PSC4D",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Panduit PSC4D",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "- Comprehensive Electronic ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Comprehensive Electronic",
+     "secondSortName": "other",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "PS<span class='lucene_highlight_class'>C4D</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 5734106,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "SOJ-C4D",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "JLCPCBAssembly-SOJC4D/C9900026077",
+     "leastPatchNumber": 5,
+     "lossNumber": 1,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900026077",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "SOJ-C4D",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT SOJ-C4D",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD-4P",
+     "describe": "SMD-4P New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "SOJ-<span class='lucene_highlight_class'>C4D</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8581363,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "PC4D10S",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-PC4D10S/C9900055220",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900055220",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "PC4D10S",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT PC4D10S",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOP8",
+     "describe": "SOP8 New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "P<span class='lucene_highlight_class'>C4D</span>10S",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6234360,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "C4D02120",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "JLCPCBAssembly-C4D02120/C9900043026",
+     "leastPatchNumber": 5,
+     "lossNumber": 1,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900043026",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "C4D02120",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT C4D02120",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-252-2(DPAK)",
+     "describe": "TO-252-2(DPAK) New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>C4D</span>02120",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 23650564,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Circular Connectors & Cable Connectors",
+     "erpComponentName": "H4SFC4DM",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/circular-connectors-cable-connectors_amphenol-icc-h4sfc4dm_C22218617.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.8615
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.8615
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.8615
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.744
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 799,
+       "productPrice": 0.7179
+      },
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 0.7065
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 800,
+       "endNumber": -1,
+       "productPrice": 0.6805
+      },
+      {
+       "startNumber": 400,
+       "endNumber": 799,
+       "productPrice": 0.6915
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 399,
+       "productPrice": 0.7167
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.7932
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.7932
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.7932
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "cfe5d18884e14466b6dc90da79b8f4f9",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "AmphenolICC-H4SFC4DM/C22218617",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 400,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 5,
+     "initialPrice": 1.8615,
+     "componentCode": "C22218617",
+     "componentBrandEn": "Amphenol ICC",
+     "componentModelEn": "H4SFC4DM",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Amphenol H4SFC4DM",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "- Circular Connectors & Cable Connectors ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Circular Connectors & Cable Connectors",
+     "secondSortName": "Connectors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "H4SF<span class='lucene_highlight_class'>C4D</span>M",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 59682749,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "SMT",
+     "erpComponentName": "\u3010\u90ae\u5bc4\u4e13\u7528\u3011SEC4DIBI",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-SEC4DIBI/C9900309371",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900309371",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "SEC4DIBI",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT SEC4DIBI",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMA",
+     "describe": "SMA SMT ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "SMT",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "SE<span class='lucene_highlight_class'>C4D</span>IBI",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 5888490,
+     "componentLibraryType": "expand",
+     "stockCount": 1,
+     "componentTypeEn": "SiC Diodes",
+     "erpComponentName": "1200V \u78b3\u5316\u7845\u8096\u7279\u57fa\u4e8c\u6781\u7ba1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/sic-diodes_wolfspeed-c4d40120d_C5200733.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 19.4759
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 18.5607
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 16.975
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 15.5915
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 15.5915
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 15.5915
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 15.0194
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 15.0194
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 17.8796
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 15.0194
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 16.352
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 18.7612
+      }
+     ],
+     "firstSortAccessId": "8053b765d47f4d9b889260101cca4f2d",
+     "secondSortAccessId": "6d50967b6e324ac4a66753fe62d62890",
+     "canPresaleNumber": 1,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "CREELED-C4D40120D/C5200733",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 30,
+     "shopCostPrice": 82.5,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 19.4759,
+     "componentCode": "C5200733",
+     "componentBrandEn": "CREE LED",
+     "componentModelEn": "C4D40120D",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583697204179570688",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2305061752_Wolfspeed-C4D40120D_C5200733.pdf",
+     "dataManualFileAccessId": "8589835593363587072",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "CREE LED C4D40120D",
+     "minImage": "",
+     "minImageAccessId": "8583697205068763136",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-247-3",
+     "describe": "-55\u2103~+175\u2103 1.2kV 1.8V@20A 113A 130A 200uA@1200V TO-247-3 SiC Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.8V@20A"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "130A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1.2kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Pair Common Cathode"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "113A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "200uA@1200V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "SiC Diodes",
+     "secondSortName": "Silicon Carbide (SiC) Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>C4D</span>40120D",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 5920590,
+     "componentLibraryType": "expand",
+     "stockCount": 59,
+     "componentTypeEn": "SiC Diodes",
+     "erpComponentName": "\u78b3\u5316\u7845\u8096\u7279\u57fa\u4e8c\u6781\u7ba1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/sic-diodes_fuxinsemi-c4d15120d_C5221597.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.5565
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.1633
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 1.917
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 509,
+       "productPrice": 1.6657
+      },
+      {
+       "startNumber": 510,
+       "endNumber": 989,
+       "productPrice": 1.5515
+      },
+      {
+       "startNumber": 990,
+       "endNumber": -1,
+       "productPrice": 1.5026
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 90,
+       "endNumber": 509,
+       "productPrice": 1.6046
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 1.8466
+      },
+      {
+       "startNumber": 510,
+       "endNumber": 989,
+       "productPrice": 1.4946
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.4627
+      },
+      {
+       "startNumber": 990,
+       "endNumber": -1,
+       "productPrice": 1.4474
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.0839
+      }
+     ],
+     "firstSortAccessId": "8053b765d47f4d9b889260101cca4f2d",
+     "secondSortAccessId": "6d50967b6e324ac4a66753fe62d62890",
+     "canPresaleNumber": 59,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "FUXINSEMI-C4D15120D/C5221597",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 30,
+     "shopCostPrice": 8.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.5565,
+     "componentCode": "C5221597",
+     "componentBrandEn": "FUXINSEMI",
+     "componentModelEn": "C4D15120D",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585797651463462913",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2211091100_FUXINSEMI-C4D15120D_C5221597.pdf",
+     "dataManualFileAccessId": "8603098555851038720",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "FUXINSEMI C4D15120D",
+     "minImage": "",
+     "minImageAccessId": "8585797652366049280",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-247-3",
+     "describe": "1 Pair Common Cathode 1.2kV 1.5V@8A 24.5A 250uA@1200V TO-247-3 SiC Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.5V@8A"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "66A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1.2kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Pair Common Cathode"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "24.5A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "250uA@1200V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "SiC Diodes",
+     "secondSortName": "Silicon Carbide (SiC) Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>C4D</span>15120D",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6486476,
+     "componentLibraryType": "expand",
+     "stockCount": 365,
+     "componentTypeEn": "SiC Diodes",
+     "erpComponentName": "1200 V, 30 A \u78b3\u5316\u7845\u8096\u7279\u57fa\u4e8c\u6781\u7ba1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/sic-diodes_wolfspeed-c4d30120d_C5568109.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 9.4084
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 8.0919
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 7.2876
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 91,
+       "productPrice": 6.6155
+      },
+      {
+       "startNumber": 92,
+       "endNumber": 93,
+       "productPrice": 6.6155
+      },
+      {
+       "startNumber": 94,
+       "endNumber": -1,
+       "productPrice": 6.6155
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.7949
+      },
+      {
+       "startNumber": 92,
+       "endNumber": 93,
+       "productPrice": 6.3727
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 91,
+       "productPrice": 6.3727
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 7.0202
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 9.0632
+      },
+      {
+       "startNumber": 94,
+       "endNumber": -1,
+       "productPrice": 6.3727
+      }
+     ],
+     "firstSortAccessId": "8053b765d47f4d9b889260101cca4f2d",
+     "secondSortAccessId": "6d50967b6e324ac4a66753fe62d62890",
+     "canPresaleNumber": 365,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "CREELED-C4D30120D/C5568109",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 30,
+     "shopCostPrice": 35.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 9.4084,
+     "componentCode": "C5568109",
+     "componentBrandEn": "CREE LED",
+     "componentModelEn": "C4D30120D",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401161701_Wolfspeed-C4D30120D_C5568109.pdf",
+     "dataManualFileAccessId": "8600362134924636160",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "CREE LED C4D30120D",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-247-3",
+     "describe": "1 Pair Common Cathode 1.2kV 1.8V@15A 200uA@1200V 21.5A TO-247-3 SiC Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.8V@15A"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1.2kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Pair Common Cathode"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "21.5A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "200uA@1200V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "SiC Diodes",
+     "secondSortName": "Silicon Carbide (SiC) Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>C4D</span>30120D",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6529097,
+     "componentLibraryType": "expand",
+     "stockCount": 58,
+     "componentTypeEn": "SiC Diodes",
+     "erpComponentName": "C4D30120H",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/sic-diodes_wolfspeed-c4d30120h_C5610579.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 22.3652
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 21.3667
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 19.6374
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 91,
+       "productPrice": 18.1284
+      },
+      {
+       "startNumber": 92,
+       "endNumber": 93,
+       "productPrice": 18.1284
+      },
+      {
+       "startNumber": 94,
+       "endNumber": -1,
+       "productPrice": 18.1284
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 20.5826
+      },
+      {
+       "startNumber": 92,
+       "endNumber": 93,
+       "productPrice": 17.4631
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 91,
+       "productPrice": 17.4631
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 18.9168
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 21.5444
+      },
+      {
+       "startNumber": 94,
+       "endNumber": -1,
+       "productPrice": 17.4631
+      }
+     ],
+     "firstSortAccessId": "8053b765d47f4d9b889260101cca4f2d",
+     "secondSortAccessId": "6d50967b6e324ac4a66753fe62d62890",
+     "canPresaleNumber": 58,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Wolfspeed-C4D30120H/C5610579",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 30,
+     "shopCostPrice": 90.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 22.3652,
+     "componentCode": "C5610579",
+     "componentBrandEn": "Wolfspeed",
+     "componentModelEn": "C4D30120H",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311301156_Wolfspeed-C4D30120H_C5610579.pdf",
+     "dataManualFileAccessId": "8600693223124197376",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Wolfspeed C4D30120H",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-247-2",
+     "describe": "-55\u2103~+175\u2103 1.2kV 1.8V@30A 233A 250uA@1200V 94A TO-247-2 SiC Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "1.8V@30A"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "233A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "1.2kV"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "94A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "250uA@1200V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "SiC Diodes",
+     "secondSortName": "Silicon Carbide (SiC) Devices",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>C4D</span>30120H",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 28,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "C4D"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T18:27:16Z"
+}

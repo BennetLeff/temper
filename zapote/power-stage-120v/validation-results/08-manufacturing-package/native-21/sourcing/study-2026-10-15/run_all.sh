@@ -207,6 +207,31 @@ python3 -I scripts/build_snapshot.py snapshot/s50/bom-jlcpcb.s50.csv snapshot/s5
     snapshot/s50/SNAPSHOT-s50.csv snapshot/s50/SNAPSHOT-s50.json
 rm -f snapshot/s50/jlc-bom-plus-extra.json snapshot/s50/SNAPSHOT-s50.json
 python3 -I -c "import csv;a=list(csv.DictReader(open('snapshot/s50/SNAPSHOT-s50.csv')));m={r['mpn'] for r in a};o=list(csv.DictReader(open('../SNAPSHOT-2026-10-15.csv')));x=[r for r in o if r['mpn'] not in m];w=csv.DictWriter(open('../SNAPSHOT-2026-10-15.csv','w',newline=''),fieldnames=list(a[0]));w.writeheader();w.writerows(a+x)"
+# s51 BOM (stage 51, DECISIONS 73, c51-bank-source: bank C21-C23 / C151 / C152 on KNSCHA MMK104J3DF1KN208G2 = JLC C528962,
+# Extended THT, 4,952 in stock at the 2026-10-16T17:48Z read against 2,500 for 500 boards; the B32643B8104J000 line
+# (C3781430) leaves the BOM and stays the not-fitted 28 A alternate). Same method as s50; the C528962 detail record is the
+# c51-bank-source lane's read (scripts/jlc-raw/detail_C528962.json), no new vendor read. The committed
+# ../SNAPSHOT-2026-10-15.csv is snapshot/s51/SNAPSHOT-s51.csv plus every earlier row whose MPN the s51 BOM no longer has.
+python3 -I -c "import csv,json,sys;sys.path.insert(0,'scripts');import jlc_snapshot as S;d=json.load(open('snapshot/jlc-2026-10-15.json'));m={b['mpn'] for b in d['bom']};d['bom']+=[r for r in d['extra'] if r['mpn'] not in m]
+for code,mpn,des,q,ma in (('C6675337','MPM-20-24','PS2',1,'THT'),('C50371','25121WF680JT4E','R10,R12,R18,R20',4,'SMD'),('C85980','GRM1885C1H472JA01D','C55,C56,C62,C63',4,'SMD'),
+    ('C861551','RT0603BRD07750RL','R81,R99,R114',3,'SMD'),('C705761','RT0603BRD072K94L','R83,R101,R116',3,'SMD'),
+    ('C728600','RT0603BRD0790K9L','R85,R103,R118',3,'SMD'),('C861070','RT0603BRD07104KL','R87,R105,R120',3,'SMD'),
+    ('C190245','TL431BQDBZR','U17,U19,U21',3,'SMD'),('C22427890','LM2901BIDR','U29,U30,U31',3,'SMD'),
+    ('C2156518','LM4050AEM3-2.5/NOPB','U5',1,'SMD'),('C485909','TPS70950QDBVRQ1','U3,U37,U38,U39',4,'SMD'),
+    ('C528962','MMK104J3DF1KN208G2','C21,C22,C23,C151,C152',5,'THT'),('C728597','RT0603BRD077K5L','R33',1,'SMD'),
+    ('C326732','RT0603BRD0716KL','R34',1,'SMD')):
+    r=S.rec_from_detail(code);lad=r['jlc_ladder'];r.update(mpn=mpn,designators=des,qty=q,mount=ma,bom_assembly='JLC (Extended)',jlc_unit_5=S.unit_at(lad,5*q),jlc_unit_500=S.unit_at(lad,500*q));d['bom']=[b for b in d['bom'] if b['mpn']!=mpn]+[r]
+r=dict(next(b for b in d['bom'] if b['mpn']=='GRM31A5C3A102JW01D'));r.update(mpn='CC1206JKNPOCBN102',bom_assembly='JLC (Extended)');d['bom']=[b for b in d['bom'] if b['mpn']!='CC1206JKNPOCBN102']+[r]
+qty={r['Manufacturer Part Number']:len([x for x in r['Designator'].split(',') if x.strip()]) for r in csv.DictReader(open('snapshot/s51/bom-jlcpcb.s51.csv'))}
+for b in d['bom']:
+    if b['mpn'] in ('RT0603BRD0710KL','RT0603BRD0711KL','0603WAF1003T5E','0603WAF1002T5E','0603WAF2702T5E','RT0603BRD0763K4L','TNPW060311K7BEEA','RC1206FR-07220KL','CC0603KRX7R9BB104') and b.get('jlc_ladder'):
+        q=qty[b['mpn']];b.update(qty=q,jlc_unit_5=S.unit_at(b['jlc_ladder'],5*q),jlc_unit_500=S.unit_at(b['jlc_ladder'],500*q))
+json.dump(d,open('snapshot/s51/jlc-bom-plus-extra.json','w'))"
+python3 -I scripts/build_snapshot.py snapshot/s51/bom-jlcpcb.s51.csv snapshot/s51/jlc-bom-plus-extra.json snapshot/octopart-2026-10-15.json \
+    snapshot/digikey-2026-10-15.json "$VR/08-manufacturing-package/native-21/sourcing/STOCK-2026-10-13*.csv" \
+    snapshot/s51/SNAPSHOT-s51.csv snapshot/s51/SNAPSHOT-s51.json
+rm -f snapshot/s51/jlc-bom-plus-extra.json snapshot/s51/SNAPSHOT-s51.json
+python3 -I -c "import csv;a=list(csv.DictReader(open('snapshot/s51/SNAPSHOT-s51.csv')));m={r['mpn'] for r in a};o=list(csv.DictReader(open('../SNAPSHOT-2026-10-15.csv')));x=[r for r in o if r['mpn'] not in m];w=csv.DictWriter(open('../SNAPSHOT-2026-10-15.csv','w',newline=''),fieldnames=list(a[0]));w.writeheader();w.writerows(a+x)"
 python3 -I scripts/buildability.py --control
 python3 -I scripts/buildability.py snapshot/SNAPSHOT-2026-10-15.csv --json results/buildability-s32.json
 # needs TDK's B32674-678 PDF (June 2026; tdk-electronics.tdk.com) at downloads/tdk-b3267x/MKP_B32674_678.pdf, not committed:

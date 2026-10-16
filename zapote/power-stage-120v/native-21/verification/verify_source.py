@@ -15,8 +15,10 @@ def main() -> None:
         assert (root / 'frozen' / filename).read_bytes() == (root / 'native-21/frozen' / filename).read_bytes(), filename
     parts = {c['address'].split('::')[1]: c['attributes'] for c in resolved['components']}
     # stage 49 (DECISIONS 68, candidate 34): the bank is 5 x TDK B32643B8104J000 (2000 V DC, P22.5) on its own footprint
-    assert all(parts[f'c_res{i}']['mpn'] == 'B32643B8104J000' and
-               parts[f'c_res{i}']['footprint'] == 'temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial' for i in range(1, 6))
+    # stage 51 (DECISIONS 73): KNSCHA MMK104J3DF1KN208G2 fitted (JLC C528962) on the dual-pitch footprint, whose P22.5
+    # hole keeps TDK B32643B8104J000 as the 28 A drop-in alternate
+    assert all(parts[f'c_res{i}']['mpn'] == 'MMK104J3DF1KN208G2' and
+               parts[f'c_res{i}']['footprint'] == 'temper:Bank_Film_DualPitch_P22.5_P27.5_Radial' for i in range(1, 6))
     for leg in ('leg_a', 'leg_b'):
         assert parts[f'{leg}.r_dt']['mpn'] == 'RT0603BRD0749K9L'
         # stage 22 (DECISIONS 27): DIS = NAND(permit_gate, bias_good); the PERMIT FET and 330 ohm pull-up are gone

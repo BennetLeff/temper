@@ -492,6 +492,20 @@ component ResB32643B:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
+component ResMmkp82Bank:
+    """KNSCHA MMK104J3DF1KN208G2 (stage 51, DECISIONS 73): 0.10 uF +-5 % 2000 Vdc / 700 Vac MMKP82 double-side
+    metallised polypropylene, 27.5 mm radial. Spec KNS20200505002 (LCSC C528962): W 31.5 / H 19.5 / T 11 +-0.5 mm,
+    P 27.5 +-0.5, d 0.8 +-0.05 mm (p.3); 40/105/56, flammability B, 1.6 UR 5 s, tan d <= 0.1 % at 1 kHz (p.4). Family
+    current curve 6.2 A at 35 kHz for a 10 K internal rise, ambient <= 85 C (11-candidates/c51-bank-source). Five in
+    parallel keep the 0.50 uF bank. Replaces B32643B8104J000 (JLC 0, 28-week lead, MOQ 2080), which stays the 28 A
+    drop-in alternate on the same dual-pitch footprint (pad 2 at 22.5 mm for TDK, 27.5 mm for KNSCHA). JLC C528962."""
+    designator_prefix = "C"
+    mpn = "MMK104J3DF1KN208G2"
+    manufacturer = "KNSCHA"
+    footprint = "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component CST3015_200E:
     """Coilcraft CST3015-200ED 1:200 CT, 5 kVrms reinforced (series datasheet 1608-1). Stage 20 (DECISIONS 23):
     replaces the 1:100 -100ED with R39 doubled to 3.0 ohm, so volts per primary amp (0.015 V/A) and every CT

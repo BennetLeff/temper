@@ -57,8 +57,9 @@ def main():
            rc == (1 if KNOWN_VIOLATIONS else 0) and rep and rep["violations"] == KNOWN_VIOLATIONS,
            str(rep and (rc, rep["violations"], rep["failures"][:3])))
     expect("real ledger: the release-case re-evaluations are PARTIAL, not VIOLATION",
-           # stage 49: the bank is B32643B8104J000 (c34; PARTIAL on its airflow-route / sourcing gaps)
-           rep and all(m in rep["partial"] for m in ("25121WF680JT4E", "CSS2H-2512R-1L00F", "B32643B8104J000",
+           # stage 49: the bank was B32643B8104J000 (c34). Stage 51: KNSCHA MMK104J3DF1KN208G2 (PARTIAL on its bench
+           # rating-basis / ESR / derating / gap-flow / body gaps; the TDK part is a not-fitted alternate)
+           rep and all(m in rep["partial"] for m in ("25121WF680JT4E", "CSS2H-2512R-1L00F", "MMK104J3DF1KN208G2",
                                                      "ISO6721FBDR", "2EDR8259XXUMA1")),
            str(rep and rep["violations"]))
     expect("real ledger: no malformed entries", rep and not rep["errors"], str(rep and rep["errors"][:3]))

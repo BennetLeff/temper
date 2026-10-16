@@ -55,9 +55,15 @@ for p in T03["parts"]:
 # (MMKP_B32641B_B32643B.pdf 6/26, sha256 ab9fdca0..., not committed): p.11 ESR_typ 8 mOhm at 85 C / 100 kHz (IRMS,max
 # 8.3 A for dT <= 15 K); p.12 tan d upper limits 0.6e-3 at 10 kHz and 1.5e-3 at 100 kHz. Worst: those limits fitted the
 # same way, ESR = R_s + D / (2 pi f C): R_s 15.9 mOhm, D 5.00e-4. (B32654A1104: 19.3 mOhm typ; R_s 35.3 mOhm, D 7.77e-4.)
-C_RES, ESR_TYP = 0.1e-6, 8.0e-3
-R_S, D_LIM = 15.9e-3, 5.00e-4
-BANK_MPN = "B32643B8104J000"
+# Stage 51 (DECISIONS 73, 11-candidates/c51-bank-source): the bank is 5 x KNSCHA MMK104J3DF1KN208G2 (MMKP82). KNSCHA
+# publishes no ESR per part. Typical: the ESR its current rating implies, 10.7 mOhm at 35 kHz (6.2 A for a 10 K internal
+# rise; heat 10 K x G_vtest 0.41 W at the lo G_board bound; c51-bank-source README "Decision inputs" (3) item 2). Worst:
+# the only published loss limit, tan d <= 0.1 % at 1 kHz (spec KNS20200505002 p.4), held flat as the dielectric term
+# with R_s 0: 39.8 mOhm at 40 kHz, 3.7 x the rating-implied value and above c34's 35.8 mOhm. Both ASSUMED (bench item:
+# ESR / tan d at 35 and 40 kHz). (B32643B8104J000, the 28 A alternate: 8 mOhm typ; R_s 15.9 mOhm, D 5.00e-4.)
+C_RES, ESR_TYP = 0.1e-6, 10.7e-3
+R_S, D_LIM = 0.0, 1.0e-3
+BANK_MPN = "MMK104J3DF1KN208G2"
 SHARE = 6.55 / 28.0
 I_T = {"nominal": 21.47, "worst": 29.4, "c28": 29.4}      # run_study.py OPS tank RMS (worst: the 1.05 x 28 A trip)
 
@@ -78,8 +84,9 @@ for r in rows:
     if r["ref"] == "R39":
         r["watts_worst"] = (I_T["worst"] / 100) ** 2 * 1.5
 BANK = ("C21", "C22", "C23", "C151", "C152")
-# Board fraction 0.3 (estimate): a radial film part sheds most of its heat from its 14.5 x 29.5 x 26.5 mm body
-# (TDK rates I_RMS by the body's own rise, <= 15 K at 0.55 W typ, p.11); the leads carry the rest into the board.
+# Board fraction 0.3 (estimate): a radial film part sheds most of its heat from its body (stage 49: TDK 14.5 x 29.5 x
+# 26.5 mm, <= 15 K at 0.55 W typ, p.11; stage 51: KNSCHA 11 x 19.5 x 31.5 mm, 10 K at about 0.41 W); the leads carry the
+# rest into the board.
 # The bank's own acceptance is the bench hot-spot gate on TDK's curve (DECISIONS 2026-10-10), not B3.
 for ref in BANK:
     add(ref, (SHARE * I_T["nominal"]) ** 2 * ESR_TYP, (SHARE * I_T["worst"]) ** 2 * esr_worst(F_WORST), "estimate",

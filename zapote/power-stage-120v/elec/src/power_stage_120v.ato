@@ -26,7 +26,7 @@ from "parts.ato" import MainsTerminal2, PowerTerminalM4, PeBranchTerminal, Mains
 from "parts.ato" import CapX2_1u, CapY1_2n2, R100k1206, BridgeGbj2510, BusFilm2u7, LocalBus100n
 from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BDWK, Driver2EDR8259X
 from "parts.ato" import R3R9Gate, R8R2Gate, R68Gate2512, R49k9Dt, R10k0603, R100k0603, R100R0603
-from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, ResB32643B
+from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, ResMmkp82Bank
 from "parts.ato" import C100n0805, C1u0805
 from "parts.ato" import CST3015_200E, TcoLoopHeader, BranchFuseT3A15, BranchLimiter0R15, MainsTapHeader
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C4n7C0G0603, C100pC0G0603
@@ -416,19 +416,21 @@ module PowerStage120V:
     # 5 x 0.10 uF = 0.50 uF (stage 13, was 0.54 uF in 942C parts): ferrous-pan resonance ~31-33 kHz
     # with the assumed 70 uH coil, below the 35-60 kHz window (task 05 round 4).
     # Stage 49 (DECISIONS 68, candidate 34): TDK B32643B8104J000, 2000 Vdc, P22.5, rated dT 15 K (same 0.50 uF).
-    c_res1 = new ResB32643B
+    # Stage 51 (DECISIONS 73): KNSCHA MMK104J3DF1KN208G2 fitted (2000 Vdc, P27.5, JLC stock); TDK B32643B8104J000 is the
+    # 28 A drop-in alternate on the same dual-pitch footprint (Bank_Film_DualPitch_P22.5_P27.5_Radial).
+    c_res1 = new ResMmkp82Bank
     c_res1.p1 ~ RES_A
     c_res1.p2 ~ SW_B
-    c_res2 = new ResB32643B
+    c_res2 = new ResMmkp82Bank
     c_res2.p1 ~ RES_A
     c_res2.p2 ~ SW_B
-    c_res3 = new ResB32643B
+    c_res3 = new ResMmkp82Bank
     c_res3.p1 ~ RES_A
     c_res3.p2 ~ SW_B
-    c_res4 = new ResB32643B
+    c_res4 = new ResMmkp82Bank
     c_res4.p1 ~ RES_A
     c_res4.p2 ~ SW_B
-    c_res5 = new ResB32643B
+    c_res5 = new ResMmkp82Bank
     c_res5.p1 ~ RES_A
     c_res5.p2 ~ SW_B
     # Bleed: an OCP trip can leave C_res holding ~250 V with no discharge

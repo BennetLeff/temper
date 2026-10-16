@@ -287,12 +287,14 @@ const IDENTITY: &[(&str, &str)] = &[
     ("c_hf_a2", "B32652A0104K000"),
     ("c_hf_b1", "B32652A0104K000"),
     ("c_hf_b2", "B32652A0104K000"),
-    // stage 49 (DECISIONS 68, candidate 34): the resonant bank is 5 x TDK B32643B8104J000 (2000 V DC, P22.5, dT 15 K)
-    ("c_res1", "B32643B8104J000"),
-    ("c_res2", "B32643B8104J000"),
-    ("c_res3", "B32643B8104J000"),
-    ("c_res4", "B32643B8104J000"),
-    ("c_res5", "B32643B8104J000"),
+    // stage 49 (DECISIONS 68, candidate 34): the resonant bank was 5 x TDK B32643B8104J000 (2000 V DC, P22.5, dT 15 K).
+    // Stage 51 (DECISIONS 73, c51-bank-source): 5 x KNSCHA MMK104J3DF1KN208G2 (2000 V DC, P27.5, JLC C528962) fitted on
+    // the dual-pitch footprint; the TDK part is its 28 A drop-in alternate (stage51_checks)
+    ("c_res1", "MMK104J3DF1KN208G2"),
+    ("c_res2", "MMK104J3DF1KN208G2"),
+    ("c_res3", "MMK104J3DF1KN208G2"),
+    ("c_res4", "MMK104J3DF1KN208G2"),
+    ("c_res5", "MMK104J3DF1KN208G2"),
     ("cy1", "DE1E3RA222MA4BP01F"),
     ("cy2", "DE1E3RA222MA4BP01F"),
     ("cx1", "R463N410050N1K"),
@@ -784,7 +786,9 @@ fn s48_u5_open_min(wd_ohm: f64) -> f64 {
 // body); B3265*A (6/26) p.23 VR 1600 V DC for the former B32654A1104J000. F3, the third-fault bank peak, is 1683 V
 // (DECISIONS 23 / item 853); the ledger's peak-voltage rule is <= 0.85 of VR for that out-of-scope case (c34 README:
 // 0.84 x 2000 V), so the bank must be rated >= 1980 V.
-const S49_BANK_VR: &[(&str, f64)] = &[("B32643B8104J000", 2000.0), ("B32654A1104J000", 1600.0)];
+// Stage 51: KNSCHA MMK104J3DF1KN208G2, VR 2000 V DC (spec KNS20200505002 p.1 'MMKP82 104J2000V P=27.5', p.4 rated voltage).
+const S49_BANK_VR: &[(&str, f64)] =
+    &[("B32643B8104J000", 2000.0), ("MMK104J3DF1KN208G2", 2000.0), ("B32654A1104J000", 1600.0)];
 const S49_F3_V: f64 = 1683.0;
 const S49_F3_MAX_RATIO: f64 = 0.85;
 // OCP divider (S23, 11-candidates/s23-ocp-cm-2026-10-16): Yageo RT0603 B-D, +-0.1 %, +-25 ppm/K (resistor, ohm).
@@ -841,6 +845,28 @@ fn stage49_checks(m: &Model, e: &mut Vec<String>) {
             }
         }
         _ => e.push("stage49: r_ocp_ref / r_ocp_sense / r_th_top / r_th_bot have no resistor data (S49_OCP_RESISTORS)".into()),
+    }
+}
+
+// Stage 51 (DECISIONS 73, c51-bank-source): the bank sits on one dual-pitch footprint whose pad 1 (RES_A) is shared and
+// whose pad 2 (SW_B) has a hole at 22.5 mm (TDK B32643B8104J000, the 28 A alternate) and one at 27.5 mm (KNSCHA
+// MMK104J3DF1KN208G2, fitted). Either part fits the same board; any other footprint, or a bank part the footprint does not
+// carry, fails.
+const S51_BANK_FP: &str = "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial";
+const S51_BANK_PARTS: &[&str] = &["MMK104J3DF1KN208G2", "B32643B8104J000"];
+
+fn stage51_checks(m: &Model, e: &mut Vec<String>) {
+    for c in ["c_res1", "c_res2", "c_res3", "c_res4", "c_res5"] {
+        match m.reff(c).and_then(|r| m.comps.get(r)) {
+            Some(comp) if comp.footprint == S51_BANK_FP => {}
+            Some(comp) => e.push(format!("stage51: {c} footprint {} is not the dual-pitch bank footprint {S51_BANK_FP}",
+                                         comp.footprint)),
+            None => e.push(format!("stage51: {c} not found")),
+        }
+        let mpn = m.resolved.get(c).cloned().unwrap_or_default();
+        if !S51_BANK_PARTS.contains(&mpn.as_str()) {
+            e.push(format!("stage51: {c} ({mpn}) is not a part the dual-pitch bank footprint carries"));
+        }
     }
 }
 
@@ -1397,6 +1423,7 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "r_bias_good_j4", "1", "bias_good");
     stage48_checks(m, &mut e);
     stage49_checks(m, &mut e);
+    stage51_checks(m, &mut e);
 
     // 11. Tank CT: the secondary is terminated on this board, at the CT, and
     //     never reaches the connector (an open secondary spikes to hundreds of
@@ -2146,6 +2173,26 @@ mod tests {
         let mut m = built();
         m.rewire("j_selv", "1", "bias_good");
         fails(&m, "j_selv.1");
+    }
+
+    #[test]
+    fn stage51_dual_pitch_bank_holds() {
+        // c51-bank-source: KNSCHA fitted on the dual-pitch footprint passes; the TDK alternate on it fails only the
+        // identity row (it is the documented drop-in, not the fitted part); the stage-49 P22.5-only footprint fails
+        let m = built();
+        assert!(audit(&m).is_empty(), "{:#?}", audit(&m));
+        let mut m = built();
+        m.set_part("c_res2", "B32643B8104J000");
+        fails(&m, "c_res2 is B32643B8104J000");
+        assert!(!audit(&m).iter().any(|x| x.starts_with("stage51") || x.starts_with("stage49")), "{:#?}", audit(&m));
+        let mut m = built();
+        let r = m.reff("c_res3").unwrap().to_string();
+        m.comps.get_mut(&r).unwrap().footprint = "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial".into();
+        fails(&m, "stage51: c_res3 footprint");
+        let mut m = built();
+        m.set_part("c_res5", "R75UR31004030J");
+        fails(&m, "stage51: c_res5 (R75UR31004030J)");
+        fails(&m, "stage49: c_res5 (R75UR31004030J) has no bank voltage rating");
     }
 
     #[test]

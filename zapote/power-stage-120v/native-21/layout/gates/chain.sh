@@ -204,7 +204,9 @@ print('B3',[(r,round(d['runs'][r]['peak']['temperature_c'],1)) for r in ('nomina
   ( cd "$U" && python3 -I validation-results/11-candidates/bank28-air/scripts/bank_air_metric.py --ps "$U" --runs "$B/b3-bank-air" \
       --out validation-results/11-candidates/bank28-air/results/bank_air_metric.json --control '' > "$B/bank-air.log" 2>&1 ) \
     || { echo "BANK_AIR: bank_air_metric.py failed"; tail -3 "$B/bank-air.log"; exit 1; }
-  head -2 "$B/bank-air.log"
+  # stage 51: one line per MPN (fitted KNSCHA, the TDK alternate, the former B32654A) and the fitted bank's still-air release
+  # rows on this board's own release solve (b3-ratings/runs, written above; same board as the jetmix pads or a failure)
+  grep -v "^control" "$B/bank-air.log"
   else echo "scoped: B3 ratings reused from the benchmark (key in $SCOPED_PLAN)"; fi
 ) > "$B/blk-thermal.log" 2>&1 &
 P_TH=$!

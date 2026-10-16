@@ -126,6 +126,8 @@ def limit_for(ref, row):
                                   f"terminal; G6 rule (>= 20 % margin, pad <= 160 C) gives {min(t_g6, 160.0):.1f} C"), "pad_max_cell_c", True
     if k == "chip1206":
         return 155.0, "1206 chip resistor 155 C max (vendor-typical, NOT re-verified here)", "tj_c", False
+    if k == "film_mmkp82":
+        return 105.0, "MMKP82 film capacitor Top,max 105 C (KNSCHA KNS20200505002 p.4, 40/105/56)", "tj_c", False
     if k == "film_mmkp":
         return 125.0, "MMKP film capacitor Top,max 125 C case (TDK B3264*B June 2026 p.2, p.12)", "tj_c", False
     if k in ("film_radial", "film_hf", "film_4pin"):
@@ -139,7 +141,7 @@ def limit_for(ref, row):
 
 def bench_dependent(ref, row):
     k = row["spec"]
-    return (k in ("film_radial", "film_mmkp", "film_hf", "film_4pin", "meanwell", "choke")) or row.get("sink_fraction", 0) > 0
+    return (k in ("film_radial", "film_mmkp", "film_mmkp82", "film_hf", "film_4pin", "meanwell", "choke")) or row.get("sink_fraction", 0) > 0
 
 
 # ----------------------------------------------------------------------------------------------------- controls

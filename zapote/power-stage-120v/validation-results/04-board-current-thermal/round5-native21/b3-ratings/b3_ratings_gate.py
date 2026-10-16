@@ -102,7 +102,7 @@ R5_RATED_W = 5.0
 GATED = {"recom": ("Tj abs max (RECOM Rev.1-2024 p.2)", 150.0), "rgw": ("TJ max (TI SBVS204G p.4)", 125.0),
          "css2h": ("element max (Bourns CSS2H p.1)", 170.0)}
 ADVISORY = {"film_radial": ("MKP Top,max (TDK June 2026 p.35)", 110.0),
-            "film_mmkp": ("MMKP Top,max 125 C case (TDK B3264*B June 2026 p.2, p.12)", 125.0), "film_4pin": ("MKP Top,max 105 C case (TDK B3267* June 2026 p.13)", 105.0),
+            "film_mmkp": ("MMKP Top,max 125 C case (TDK B3264*B June 2026 p.2, p.12)", 125.0), "film_mmkp82": ("MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)", 105.0), "film_4pin": ("MKP Top,max 105 C case (TDK B3267* June 2026 p.13)", 105.0),
             "choke": ("B82726 climatic upper (TDK p.4)", 125.0), "chip1206": ("1206 thick film (unverified)", 155.0)}
 GATED_REFS = {r: ("MKP Top,max 110 C (TDK B3265* June 2026 p.35)", 110.0, None) for r in ("C38", "C39", "C40", "C41")}
 # gate resistors: (ref group, body-model package spec) -> (basis, element limit C, rated W at 70 C); 0 W at 155 C

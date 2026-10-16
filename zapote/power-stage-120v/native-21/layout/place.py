@@ -564,6 +564,12 @@ for _ref, (_path, _cx, _cy, _ang, _fp) in S48_MOVES.items():
 # pad 12.6 mm to the y 127.5 SELV run. The column spans x 161.0-187.5, y 45.95-120.45 (bodies).
 S49_BANK = {f"c_res{i}": (174.25, y, 0.0) for i, y in enumerate((53.2, 68.2, 83.2, 98.2, 113.2), 1)}
 POSE.update(S49_BANK)
+# Stage 51 (DECISIONS 73; c51-bank-source): the bank footprint becomes dual-pitch (Bank_Film_DualPitch_P22.5_P27.5_Radial):
+# pad 1 (RES_A) at x 163.0 as before and two SW_B holes, x 185.5 (P22.5, the TDK B32643B8104J000 alternate) and x 190.5
+# (P27.5, the fitted KNSCHA MMK104J3DF1KN208G2); same rows. The courtyard covers the union of both bodies (x -2.75 .. 30.25
+# from pin 1, +/-7.45), so its centre is x 163.0 + 13.75. Bodies: KNSCHA 160.75-192.75 (maximum), TDK 161.0-187.5.
+S51_BANK = {f"c_res{i}": (176.75, y, 0.0) for i, y in enumerate((53.2, 68.2, 83.2, 98.2, 113.2), 1)}
+POSE.update(S51_BANK)
 
 missing = sorted(set(PARTS) - set(POSE))
 if missing:

@@ -201,6 +201,21 @@
    "kicad_pad_is_datasheet_pin": true,
    "source": "TDK B3264*B 'Capacitors for Snubbering, Resonant Circuits, PFC - High frequency' (6/26), p.2: dimensional drawing KMK0834-G-E, two parallel wire leads, lead spacing e 22.5 +-0.4 mm and d1 0.8 +-0.05 mm for B32643B; 'Polypropylene (PP) dielectric ... wound capacitor', marking without a polarity mark (p.2 'Marking'); p.11 row B32643B8104+***, 100 nF, 14.5 x 29.5 x 26.5 mm. MMKP_B32641B_B32643B.pdf sha256 ab9fdca0b9676c8528b8bb5469d8ec4a60f0983520a65fa8f0517e4b4a58ab77, read 2026-10-16 (runs-native21/bank28/dl/b3264)",
    "kicad_check": "native-21 frozen netlist (stage 49): C21 / C22 / C23 / C151 / C152 pad 1 on res_a, pad 2 on sw_b; the footprint's two 1.2 mm drills sit 22.5 mm apart on X. A film capacitor has no polarity, so either lead in either hole is the same circuit; a 90 / 270 rotation cannot be inserted. JLC has no EasyEDA footprint offline for C3781430 (0 in stock, an owner pre-order line)."
+  },
+  "C528962": {
+   "part": "MMK104J3DF1KN208G2",
+   "package": "KNSCHA MMKP82 radial, 2 CP wire leads, P 27.5 mm (temper:Bank_Film_DualPitch_P22.5_P27.5_Radial: pad 1 and the pad-2 hole at 27.5 mm; the 22.5 mm pad-2 hole is the TDK alternate's and stays empty)",
+   "non_polar_tht": {
+    "lead_spacing_mm": 27.5,
+    "tolerance_mm": 0.5
+   },
+   "datasheet_pins": {
+    "1": "TERMINAL",
+    "2": "TERMINAL"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "KNSCHA specification for approval KNS20200505002 'MMKP82 104J2000V P=27.5', part number MMK104J3DF1KN208G2 (LCSC C528962), p.2 product structure (wound PP film core, sprayed metal ends, epoxy, CP wire leads, PBT case) and p.3 outline / dimension table: W 31.5, H 19.5, T 11, P 27.5 (each +-0.5), d 0.8 +-0.05, L 20 +-2 mm; marking '104J2000V' with no polarity mark. LCSC PDF 2005081108_KNSCHA-MMK104J3DF1KN208G2_C528962.pdf sha256 4621763054ad5e929df48528d35f6c3178f2fe0ed148c2020e3cc51edf3b87c8, read 2026-10-16 (11-candidates/c51-bank-source, dl/ not committed)",
+   "kicad_check": "native-21 frozen netlist (stage 51): C21 / C22 / C23 / C151 / C152 pad 1 on res_a, both pad-2 holes on sw_b; the 27.5 mm hole sits 27.5 mm from pad 1 on X. A film capacitor has no polarity, so either lead in either hole of the pair is the same circuit; a 90 / 270 rotation cannot be inserted. No EasyEDA footprint for C528962 in sources/easyeda-footprints.json (not fetched)."
   }
  }
 }

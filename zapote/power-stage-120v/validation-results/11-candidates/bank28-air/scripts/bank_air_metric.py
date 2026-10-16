@@ -26,6 +26,18 @@ Fields beside the metric: dT_col, T_A, T_op = T_A + dT_col against Top,max, and 
 bank_ratio_tdk_28A_35k (unchanged, informational).
 
 Control: --control reproduces bank_thermal.py's correlation-B design-point values (exit 1 on a mismatch > 0.002).
+
+Stage 51 (DECISIONS 73; 11-candidates/c51-bank-source): the fitted bank is 5 x KNSCHA MMK104J3DF1KN208G2 (MMKP82).
+Its rows are c51-bank-source/scripts/bank_air_cand.py's, ported here: part data from c51-bank-source/data/candidates.json
+(id knscha: body 11.5 x 20 x 32 mm at the datasheet maximum, I_allow 6.2 / 6.16 A at 35 / 40 kHz for a 10 K internal rise
+at ambient <= 85 C), r35 = 28 A x the J worst share (1.05 / (1.05 + 4 x 0.95)) / I35, and the KNSCHA rule dT_allowed =
+10 K x F^2, F^2 = (105 - T_A) / 20 above 85 C (ASSUMED linear to Top,max 105 C: the sheet gives no rule above 85 C), which
+is the TDK form with end 105 / span 20. The gate value is the strict one (no gap-flow credit, as for c34). Beside it, for
+the fitted MPN, `release`: the still-air release case on this board's own B3 release solve (b3-ratings/runs/
+c17.5_h10_p0p25 / p0p5 at bay 61 C, air at bay + 15 K) at 18.375 A (the 17.5 A ceiling's trip) and 17.5 A, natural
+convection with and without radiation (bank_air_cand.run_still; no pad-heat correction, because these pads are solved
+with the fitted bank's own B3 heat). --control-cand checks the port: on the s49 jetmix pads it must give
+bank_air_cand.py's 1.221 for KNSCHA.
 """
 import argparse
 import json
@@ -39,7 +51,12 @@ FAMILIES = {   # MPN prefix -> (parts json id, dT_lim, F_T end, F_T span, body h
                         top_max=110.0, h_box=24.5, bank_prefix="5 x B32654A1104{T}000"),
     "B32643B8104": dict(pid_by_tol={"J": "tdk_b8104j"}, dT_lim=15.0, ft_end=125.0, ft_span=40.0, top_max=125.0,
                         h_box=29.5, bank_prefix="5 x B32643B8104J (2000 V, 22.5 mm"),
+    # stage 51: KNSCHA MMKP82 (c51-bank-source/data/candidates.json id knscha; rule end 105 / span 20 ASSUMED above 85 C)
+    "MMK104J3DF1": dict(cand="knscha", dT_lim=10.0, ft_end=105.0, ft_span=20.0, top_max=105.0, h_box=20.0),
 }
+C51 = "validation-results/11-candidates/c51-bank-source"
+MPNS = ("B32654A1104J000", "B32643B8104J000", "MMK104J3DF1KN208G2")
+I_TANK, I_REL_TRIP, I_REL = 28.0, 18.375, 17.5
 # (label, bay C, enclosure base-h key giving the bank velocity and bulk rise, B3 run stem in RUNS/jetmix/bay<bay>/ for
 # the pads). The enclosure delivers a FLOW, not an h per air temperature: the design flow is the one that gives base h 20
 # (3.07 m/s over the corner + tank path), and it is the same flow at 55 C air. The 55 C point keeps the h15 B3 pads
@@ -115,8 +132,20 @@ def ft2(fam, ta):
     return 1.0 if ta <= 85.0 else max(0.0, (fam["ft_end"] - ta) / fam["ft_span"])
 
 
-def metric(ps: Path, runs: Path, mpn: str):
+def share(n=5, tol=0.05):
+    """the J worst-share part (bank_air_cand.share): (1 + t) / ((1 + t) + (n - 1)(1 - t))"""
+    return (1 + tol) / ((1 + tol) + (n - 1) * (1 - tol))
+
+
+def part_data(ps: Path, mpn: str):
+    """(family, part dict with w / l, r35, r40) for a bank MPN"""
     fam = next(v for k, v in FAMILIES.items() if mpn.startswith(k))
+    if "cand" in fam:
+        c = next(x for x in json.loads((ps / C51 / "data/candidates.json").read_text())["candidates"]
+                 if x["id"] == fam["cand"])
+        assert c["mpn"] == mpn and c["n"] == 5 and c["dT_v"] == fam["dT_lim"], (c["mpn"], c["n"], c["dT_v"])
+        s = share(c["n"], c["tol"])
+        return fam, c, I_TANK * s / c["I35"], I_TANK * s / c["I40"]
     tol = mpn[len(next(k for k in FAMILIES if mpn.startswith(k)))]
     c34 = ps / "validation-results/11-candidates/c34-bank-margin"
     parts = {}
@@ -126,7 +155,63 @@ def metric(ps: Path, runs: Path, mpn: str):
     p = parts[fam["pid_by_tol"][tol]]
     bm = json.loads((c34 / "results/bank_margin.json").read_text())
     pre = fam["bank_prefix"].format(T=tol)
-    r35 = next(r["ratio_35k"] for r in bm["banks"] if r.get("bank", "").startswith(pre))
+    row = next(r for r in bm["banks"] if r.get("bank", "").startswith(pre))
+    return fam, p, row["ratio_35k"], row.get("ratio_40k")
+
+
+def release(ps: Path, rel_runs: Path, mpn: str, bay=61.0):
+    """still-air release case on the board's own B3 release solve (bank_air_cand.run_still, no pad-heat correction)"""
+    fam, p, r35, _ = part_data(ps, mpn)
+    a = json.loads((rel_runs / "c17.5_h10_p0p25.json").read_text())
+    b = json.loads((rel_runs / "c17.5_h10_p0p5.json").read_text())
+    q25 = {x["ref"]: x["pad_max_padmean_c"] for x in a["parts"] if x["ref"] in BANK}
+    q05 = {x["ref"]: x["pad_max_padmean_c"] for x in b["parts"] if x["ref"] in BANK}
+    pads = {r: q25[r] + 3.0 * abs(q25[r] - q05[r]) + (bay - 50.0) for r in BANK}
+    t_air = bay + 15.0
+    out = {"board_sha256_of_release_runs": a.get("board_sha256"), "runs": [str(rel_runs / "c17.5_h10_p0p25.json"),
+           str(rel_runs / "c17.5_h10_p0p5.json")], "T_air_C": t_air, "pads_C": {r: round(v, 2) for r, v in pads.items()}}
+    for i_a in (I_REL_TRIP, I_REL):
+        r = r35 * i_a / I_TANK
+        res = {}
+        for rad in (True, False):
+            worst = None
+            for pos, refs in POS.items():
+                for bnd in ("lo", "hi"):
+                    gb = g_board(p, bnd)
+                    p_w = r ** 2 * fam["dT_lim"] * g_tdk(p, fam, gb)
+                    tpad = max(pads[x] for x in refs)
+                    fc = faces(p, fam["h_box"], pos)
+                    dt = 5.0
+                    for _ in range(300):
+                        ts = t_air + max(dt, 0.3)
+                        tf = (ts + t_air) / 2
+                        hv = h_vert(max(dt, 0.3), fam["h_box"] * 1e-3, tf)
+                        col_l = 5 * 15.0 * 1e-3
+                        hu = h_up(max(dt, 0.3), col_l * p["l"] * 1e-3 / (2 * (col_l + p["l"] * 1e-3)), tf)
+                        hr = h_rad(ts, t_air) if rad else 0.0
+                        ga = (hv + hr) * (fc["front"] + fc["rear"] + fc.get("side", 0.0)) + (hu + hr) * fc["top"]
+                        ta = (ga * t_air + gb * tpad) / (ga + gb)
+                        dtn = p_w / (ga + gb)
+                        s_air = ta + dtn - t_air
+                        if abs(s_air - dt) < 1e-5:
+                            break
+                        dt = 0.5 * dt + 0.5 * s_air
+                    allowed = fam["dT_lim"] * ft2(fam, ta)
+                    eff = math.sqrt(dtn / allowed) if allowed > 0 else float("inf")
+                    row = dict(position=pos, g_board_bound=bnd, P_W=round(p_w, 3), T_pad_C=round(tpad, 1), T_A_C=round(ta, 1),
+                               dT_K=round(dtn, 2), dT_allowed_K=round(allowed, 2), T_op_C=round(ta + dtn, 1),
+                               eff_ratio=round(eff, 4))
+                    if worst is None or row["eff_ratio"] > worst["eff_ratio"]:
+                        worst = row
+            res["with_radiation" if rad else "no_radiation"] = worst
+        out[f"{i_a:g} A"] = res
+    out["eff_trip_rad"] = out[f"{I_REL_TRIP:g} A"]["with_radiation"]["eff_ratio"]
+    out["eff_trip_norad"] = out[f"{I_REL_TRIP:g} A"]["no_radiation"]["eff_ratio"]
+    return out
+
+
+def metric(ps: Path, runs: Path, mpn: str):
+    fam, p, r35, r40 = part_data(ps, mpn)
     enc = json.loads((ps / "validation-results/11-candidates/airflow28-2026-10-16/results/enclosure.json").read_text())
     rows, worst = [], None
     for label, bay, hk, stem in DECLARED:
@@ -153,7 +238,8 @@ def metric(ps: Path, runs: Path, mpn: str):
                 if worst is None or eff > worst["eff_ratio"]:
                     worst = row
     hot = max(rows, key=lambda r: r["T_op_C"])
-    return dict(mpn=mpn, ratio_35k_vendor_curve=r35, bank_air_ratio_28A_35k=round(worst["eff_ratio"], 3), worst=worst,
+    return dict(mpn=mpn, ratio_35k_vendor_curve=round(r35, 3), ratio_40k_vendor_curve=r40 and round(r40, 3),
+                bank_air_ratio_28A_35k=round(worst["eff_ratio"], 3), worst=worst,
                 T_op_max_C=hot["T_op_C"], Top_max_C=fam["top_max"], T_op_margin_K=round(fam["top_max"] - hot["T_op_C"], 1),
                 rows=rows, board_sha256_of_pad_runs=r25.get("board_sha256"))
 
@@ -165,12 +251,31 @@ if __name__ == "__main__":
     ap.add_argument("--out", default=str(Path(__file__).resolve().parent.parent / "bank_air_metric.json"))
     ap.add_argument("--control", default=str(Path(__file__).resolve().parent.parent / "bank_thermal.json"))
     ap.add_argument("--declared", choices=sorted(DECLARED_SETS), default="flow")
+    ap.add_argument("--fitted", default=None, help="the fitted bank MPN (default: read from native-21/frozen/default.csv)")
+    ap.add_argument("--release-runs", default=None, help="B3 release solve dir (default: PS b3-ratings/runs)")
+    ap.add_argument("--control-cand", default=None,
+                    help="s49 jetmix runs dir: KNSCHA must reproduce c51-bank-source bank_air_cand.py (results/bank_air_cand.json)")
     a = ap.parse_args()
     DECLARED[:] = DECLARED_SETS[a.declared]
     if a.declared != "min":                       # the control runs on the bank_thermal.py design points
         DECLARED_SETS["flow"] = list(DECLARED)
     out = {"metric": "bank_air_ratio_28A_35k", "direction": "lower", "declared_air": DECLARED, "declared_set": a.declared,
-           "by_mpn": {m: metric(Path(a.ps), Path(a.runs), m) for m in ("B32654A1104J000", "B32643B8104J000")}}
+           "by_mpn": {m: metric(Path(a.ps), Path(a.runs), m) for m in MPNS}}
+    ps = Path(a.ps)
+    fitted = a.fitted
+    if fitted is None:
+        import csv
+        for r in csv.reader(open(ps / "native-21/frozen/default.csv")):
+            if len(r) > 1 and "C21" in [x.strip() for x in r[1].split(",")]:
+                fitted = r[0]
+    out["fitted_mpn"] = fitted
+    if fitted in out["by_mpn"]:
+        rr = Path(a.release_runs) if a.release_runs else \
+            ps / "validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs"
+        out["by_mpn"][fitted]["release"] = release(ps, rr, fitted)
+        if out["by_mpn"][fitted]["release"]["board_sha256_of_release_runs"] != out["by_mpn"][fitted]["board_sha256_of_pad_runs"]:
+            print("release runs and jetmix pad runs are on different boards", file=sys.stderr)
+            sys.exit(1)
     fails = []
     if a.declared != "min":
         keep = list(DECLARED)
@@ -189,6 +294,14 @@ if __name__ == "__main__":
             out.setdefault("control", {})[m] = {"bank_thermal_py": want, "this": got}
             if abs(want - got) > 0.002:
                 fails.append(f"{m}: {got} vs bank_thermal.py {want}")
+    if a.control_cand:
+        want = json.loads((ps / C51 / "results/bank_air_cand.json").read_text())["candidates"]["knscha"][
+            "bank_air_28A_35k_gate"]["eff"]
+        got = metric(ps, Path(a.control_cand), "MMK104J3DF1KN208G2")["bank_air_ratio_28A_35k"]
+        out.setdefault("control", {})["MMK104J3DF1KN208G2 on the s49 pads (bank_air_cand.py)"] = {"bank_air_cand_py": want,
+                                                                                                  "this": got}
+        if abs(want - got) > 0.002:
+            fails.append(f"MMK104J3DF1KN208G2: {got} vs bank_air_cand.py {want}")
     out["control_failed"] = fails
     Path(a.out).write_text(json.dumps(out, indent=1) + "\n")
     for m, r in out["by_mpn"].items():
@@ -196,5 +309,10 @@ if __name__ == "__main__":
         print(f"{m}: bank_air_ratio_28A_35k {r['bank_air_ratio_28A_35k']} (vendor curve {r['ratio_35k_vendor_curve']}); "
               f"worst {w['point']} {w['position']} {w['g_board_bound']}: dT {w['dT_col_K']} / {w['dT_allowed_K']} K, T_A {w['T_A_C']}, "
               f"T_op {w['T_op_C']} / {w['Top_max_C']}; hottest T_op {r['T_op_max_C']} (margin {r['T_op_margin_K']} K)")
+    f = out["by_mpn"].get(fitted, {}).get("release")
+    if f:
+        print(f"{fitted} release (still air, board {str(f['board_sha256_of_release_runs'])[:8]}): 18.375 A rad / no-rad "
+              f"{f['eff_trip_rad']} / {f['eff_trip_norad']}; 17.5 A {f['17.5 A']['with_radiation']['eff_ratio']} / "
+              f"{f['17.5 A']['no_radiation']['eff_ratio']}")
     print("control:", out.get("control"), "FAILED" if fails else "pass")
     sys.exit(1 if fails else 0)

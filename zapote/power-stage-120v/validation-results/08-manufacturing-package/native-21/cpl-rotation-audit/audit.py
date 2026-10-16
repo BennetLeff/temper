@@ -27,6 +27,8 @@ Classes:
   Stage 49: a two-lead THT non-polar part with no EasyEDA footprint (the B32643B bank) is settled by a pin-evidence
   entry with "non_polar_tht": the datasheet gives no polarity and its lead spacing equals the KiCad pad spacing, so the
   leads enter only pads 1 / 2 and rotations k and k + 180 place the same part: OK at the KiCad rotation.
+  Stage 51: on a dual-pitch footprint (two pad-2 holes, the bank's 22.5 / 27.5 mm) the pad-2 hole at the part's lead
+  spacing is the one compared.
 Lines JLC does not place (consigned / hand-assembled, no LCSC number) are listed as EXCLUDED, not classed.
 
 Tool controls are asserted at the end of every run (see CONTROLS and selftest()).
@@ -176,9 +178,14 @@ def evaluate(kfp, fpname, ee, rules, ref, kind_override=None, evidence=None):
         res["note"] = "no EasyEDA footprint for this LCSC number"
         npt = (evidence or {}).get("non_polar_tht")
         if npt:
-            # stage 49: two through-hole leads, no polarity (datasheet), lead spacing = KiCad pad spacing
-            k1, k2 = kpads.get("1"), kpads.get("2")
+            # stage 49: two through-hole leads, no polarity (datasheet), lead spacing = KiCad pad spacing.
+            # stage 51: a dual-pitch footprint carries more than one pad-2 hole (the bank: 22.5 mm and 27.5 mm); the
+            # part's two leads enter pad 1 and the pad-2 hole at its lead spacing, so that hole is the one compared
+            k1 = kpads.get("1")
+            h2 = [(q["x"], q["y"]) for q in kfp["pads"] if q.get("num") == "2"]
             tht = len(kpads) == 2 and all(q.get("type") == "thru_hole" for q in kfp["pads"] if q.get("num"))
+            k2 = min(h2, key=lambda q: abs(math.hypot(q[0] - k1[0], q[1] - k1[1]) - npt["lead_spacing_mm"])) \
+                if (k1 and h2) else None
             if tht and k1 and k2:
                 sep = math.hypot(k2[0] - k1[0], k2[1] - k1[1])
                 if abs(sep - npt["lead_spacing_mm"]) <= npt["tolerance_mm"]:
@@ -488,6 +495,15 @@ def selftest(rules):
     ev = evaluate({"pads": t2}, "X", None, rules, "C21",
                   evidence={"non_polar_tht": {"lead_spacing_mm": 27.5, "tolerance_mm": 0.4}, "source": "t"})
     assert ev["theta"] is None and decide(0, ev, "C", "X", False)[0] == "NEEDS-PREVIEW", ev
+    # stage 51: the dual-pitch bank footprint (pad 2 at 22.5 and 27.5 mm) settles on either part's lead spacing
+    t3 = t2 + [{"num": "2", "x": 27.5, "y": 0.0, "type": "thru_hole"}]
+    for sp in (22.5, 27.5):
+        ev = evaluate({"pads": t3}, "Bank_Film_DualPitch_P22.5_P27.5_Radial", None, rules, "C21",
+                      evidence={"non_polar_tht": {"lead_spacing_mm": sp, "tolerance_mm": 0.5}, "source": "t"})
+        assert ev["theta"] == [0, 180] and ev["rms"] == 0.0, ev
+    ev = evaluate({"pads": t3}, "X", None, rules, "C21",
+                  evidence={"non_polar_tht": {"lead_spacing_mm": 25.0, "tolerance_mm": 0.5}, "source": "t"})
+    assert ev["theta"] is None, ev
     smd = [dict(q, type="smd") for q in t2]
     ev = evaluate({"pads": smd}, "X", None, rules, "C21", evidence=npe)
     assert ev["theta"] is None, ev

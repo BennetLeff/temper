@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "c9b9ee46d780573f6b2705b2777fc49f7bbfdbbca7f14df9878a57502c917218",
+    "build/default.csv": "809aea1c05913f1629ae1fe37af53c31d8eaab9be6f129ad5e8dc80eefcb6c90",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "c209c1015e0a73fa9bb2d7a6798919313cdcc758f8b8c19ab84b3192c9709772",
+    "build/default.net": "c465b64943d3f8b2e11482f13f7c6d52710945e4c3968d625e533da4f508248b",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -1280,9 +1280,9 @@
       "attributes": {
         "designator": "C21",
         "designator_prefix": "C",
-        "footprint": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
-        "manufacturer": "TDK",
-        "mpn": "B32643B8104J000"
+        "footprint": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+        "manufacturer": "KNSCHA",
+        "mpn": "MMK104J3DF1KN208G2"
       }
     },
     {
@@ -1290,9 +1290,9 @@
       "attributes": {
         "designator": "C22",
         "designator_prefix": "C",
-        "footprint": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
-        "manufacturer": "TDK",
-        "mpn": "B32643B8104J000"
+        "footprint": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+        "manufacturer": "KNSCHA",
+        "mpn": "MMK104J3DF1KN208G2"
       }
     },
     {
@@ -1300,9 +1300,9 @@
       "attributes": {
         "designator": "C23",
         "designator_prefix": "C",
-        "footprint": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
-        "manufacturer": "TDK",
-        "mpn": "B32643B8104J000"
+        "footprint": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+        "manufacturer": "KNSCHA",
+        "mpn": "MMK104J3DF1KN208G2"
       }
     },
     {
@@ -1310,9 +1310,9 @@
       "attributes": {
         "designator": "C151",
         "designator_prefix": "C",
-        "footprint": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
-        "manufacturer": "TDK",
-        "mpn": "B32643B8104J000"
+        "footprint": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+        "manufacturer": "KNSCHA",
+        "mpn": "MMK104J3DF1KN208G2"
       }
     },
     {
@@ -1320,9 +1320,9 @@
       "attributes": {
         "designator": "C152",
         "designator_prefix": "C",
-        "footprint": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
-        "manufacturer": "TDK",
-        "mpn": "B32643B8104J000"
+        "footprint": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
+        "manufacturer": "KNSCHA",
+        "mpn": "MMK104J3DF1KN208G2"
       }
     },
     {
@@ -4015,8 +4015,8 @@
   "source_sha256": {
     "elec/src/f6_bias.ato": "8996f6daa5ec90f8c359e3effbe0af55dc646f20730e27dbefc74885b080960d",
     "elec/src/f6_parts.ato": "bcca99f9c3b6b33f16a36c900de9d187710624155801f8ba0ec62c797fd69b88",
-    "elec/src/parts.ato": "ec5f53118b498c9f2e5555b410093d476dd88facdcae4a23adbcd05485ce399b",
-    "elec/src/power_stage_120v.ato": "c49f819d68b256d92ba0908c6b9f1efdcd3b8dfd5f9333a8746dd478f75cf6ce",
+    "elec/src/parts.ato": "bf9db90947a2d8143464e6224be67153e354a365ac185480e1db4620ed5d99e4",
+    "elec/src/power_stage_120v.ato": "a8b8fe51921a11405a4328bec6c20964f05dfb3cd41e0e68aee98b03485a3635",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

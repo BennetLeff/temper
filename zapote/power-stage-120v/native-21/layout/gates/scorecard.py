@@ -285,7 +285,7 @@ def performance(b, tag):
     bo = jload(VR / "11-candidates/g04-g09-tank-detect/results/bank_options.json")
     bank_mpn = None
     for r in csv.DictReader(open(FAB / "bom-jlcpcb.csv")):
-        if r["Manufacturer Part Number"].startswith(("B32654A1104", "B32643B8104")) and "C21" in r["Designator"]:
+        if r["Manufacturer Part Number"].startswith(("B32654A1104", "B32643B8104", "MMK104J3DF1")) and "C21" in r["Designator"]:
             bank_mpn = r["Manufacturer Part Number"]
     if bo:
         grade = None
@@ -307,8 +307,16 @@ def performance(b, tag):
             m["bank_ratio_tdk_28A_40k"] = row["ratio_40k"]
             m["bank_ratio_tdk_28A_35k"] = row["ratio_35k"]
             src["bank"] = src["bank_35k"] = "11-candidates/c34-bank-margin/results/bank_margin.json banks '5 x B32643B8104J'"
-    # PROPOSED (bank28): physical check under the declared airflow, by the fitted MPN (producer bank_air_metric.py)
+    # stage 51 (DECISIONS 73): the fitted bank is KNSCHA MMK104J3DF1KN208G2. The two vendor-curve keys keep their names
+    # (bank_ratio_tdk_*) and take KNSCHA's own curve (6.2 / 6.16 A at 35 / 40 kHz, 10 K basis) from the producer below
     ba = jload(VR / "11-candidates/bank28-air/results/bank_air_metric.json")
+    if ba and bank_mpn and bank_mpn.startswith("MMK104J3DF1") and bank_mpn in ba["by_mpn"]:
+        r = ba["by_mpn"][bank_mpn]
+        m["bank_ratio_tdk_28A_35k"] = r["ratio_35k_vendor_curve"]
+        m["bank_ratio_tdk_28A_40k"] = r["ratio_40k_vendor_curve"]
+        src["bank"] = src["bank_35k"] = (f"11-candidates/bank28-air/results/bank_air_metric.json {bank_mpn} vendor curve "
+                                         "(KNSCHA MMKP82 6.2 / 6.16 A at 35 / 40 kHz, 10 K; c51-bank-source/data/candidates.json)")
+    # PROPOSED (bank28): physical check under the declared airflow, by the fitted MPN (producer bank_air_metric.py)
     if ba and bank_mpn and bank_mpn in ba["by_mpn"]:
         r = ba["by_mpn"][bank_mpn]
         m["bank_air_ratio_28A_35k"] = r["bank_air_ratio_28A_35k"]

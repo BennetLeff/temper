@@ -117,6 +117,10 @@ int main(int argc, char** argv) {
         // TDK B32643B8104J000 (resonant bank from stage 49): B3264*B p.11 maximum body 14.5 x 29.5 x 26.5, p.2 e 22.5, d1 0.8.
         film(directory, "TDK_B32643B8104J000.step", -2.0, -7.25,
              26.5, 14.5, 29.5, 22.5, 0, 0.8);
+        // KNSCHA MMK104J3DF1KN208G2 (resonant bank from stage 51): KNS20200505002 p.3 maximum body 32 x 11.5 x 20
+        // (31.5 / 11 / 19.5 +-0.5), P 27.5, d 0.8.
+        film(directory, "KNSCHA_MMK104J3DF1KN208G2.step", -2.25, -5.75,
+             32.0, 11.5, 20.0, 27.5, 0, 0.8);
         murata(directory);
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';

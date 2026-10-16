@@ -107,7 +107,12 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 "B32643B8104J000": "C3781430",
                 # stage 49 (OPEN-ITEMS S23, B'-1.02 V, s23-ocp-cm-2026-10-16): R33 7.5 k / R34 16 k, 0.1 % 25 ppm (JLC part API
                 # 2026-10-16: 20,378 / 17,962 in stock); R35 11 k joins the existing RT0603BRD0711KL line (C728581)
-                "RT0603BRD077K5L": "C728597", "RT0603BRD0716KL": "C326732"})
+                "RT0603BRD077K5L": "C728597", "RT0603BRD0716KL": "C326732",
+                # stage 51 (DECISIONS 73, c51-bank-source): the resonant bank on KNSCHA MMK104J3DF1KN208G2, JLC C528962
+                # (Extended THT; JLC part API 2026-10-16T17:48Z: 4,952 in stock against the 2,500 a 500-board lot needs,
+                # $0.3035 at 1000+; sourcing/study-2026-10-15/scripts/jlc-raw/detail_C528962.json). TDK B32643B8104J000
+                # (C3781430, above) is the not-fitted 28 A alternate on the same footprint.
+                "MMK104J3DF1KN208G2": "C528962"})
 ACCEPT_ALT = set()   # stage 43: the only accepted alternate (GRM31A5C3A102JW01D -> CC1206JKNPOCBN102) is now the source MPN
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))

@@ -53,7 +53,9 @@ DIVIDER = {"native21s13": (12.4e3, 11.7e3), "native21s13b": (12.4e3, 11.7e3), "n
            # stage 49 (S23 B'-1.02 V): R34 16 k / R35 11 k, and R32 10 k / R33 7.5 k (the offset leg is no longer 1:1)
            "native21s49": (16e3, 11e3, 10e3, 7.5e3),
            # stage 50 (c50-permit-gate): divider unchanged from s49
-           "native21s50": (16e3, 11e3, 10e3, 7.5e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
+           "native21s50": (16e3, 11e3, 10e3, 7.5e3),
+           # stage 51 (c51-bank-source): divider unchanged from s49
+           "native21s51": (16e3, 11e3, 10e3, 7.5e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
 PLATING_UM, PITCH, TEMP = 18.0, 0.1, 125.0
 
 

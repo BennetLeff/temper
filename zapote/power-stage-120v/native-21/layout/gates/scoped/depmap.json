@@ -304,7 +304,7 @@
    "wall_s": 565,
    "workers": 4,
    "policy": "keyed",
-   "cmd": "b3-ratings/run_basis.py --workers 4 (six body-level solves) + b3_ratings_gate.py; stage 49: run_basis.py c28_h20_jet100@61 + c28_h15_jet100@55 (jetmix pads, BUILD/b3-bank-air) -> bank28-air/scripts/bank_air_metric.py",
+   "cmd": "b3-ratings/run_basis.py --workers 4 (six body-level solves) + b3_ratings_gate.py; stage 49: run_basis.py c28_h20_jet100@61 + c28_h15_jet100@55 (jetmix pads, BUILD/b3-bank-air) -> bank28-air/scripts/bank_air_metric.py; stage 51: + the fitted bank's release rows on b3-ratings/runs (c51-bank-source/data/candidates.json for KNSCHA)",
    "card": [
     "gates.b3_ratings",
     "performance.b3_laminate_margin_K",
@@ -578,7 +578,8 @@
    "validation-results/11-candidates/c34-bank-margin/raw/parts_tdk.json",
    "validation-results/11-candidates/c34-bank-margin/raw/parts_tdk_b3264.json",
    "validation-results/11-candidates/c34-bank-margin/results/bank_margin.json",
-   "validation-results/11-candidates/airflow28-2026-10-16/results/enclosure.json"
+   "validation-results/11-candidates/airflow28-2026-10-16/results/enclosure.json",
+   "validation-results/11-candidates/c51-bank-source/data/candidates.json"
   ],
   "core_barrier": [
    "native-21/layout/barrier_gate21.py",
@@ -1381,6 +1382,13 @@
   },
   {
    "glob": "validation-results/11-candidates/c34-bank-margin/raw/parts_tdk{,_b3264}.json",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/11-candidates/c51-bank-source/data/candidates.json",
    "class": "input",
    "steps": [
     "b3_ratings"

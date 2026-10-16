@@ -115,6 +115,12 @@ SPECS = {
         cite="lead path as film_radial (ASSUMED 50 K/W: two 0.8 mm leads, TDK B3264*B June 2026 p.2 'B32643B lead "
              "diameter d1 0.8 +-0.05', 'parallel wire leads, lead-free tinned'; 3 mm free length, copper-clad steel k 60). "
              "Max. operating temperature 125 C (case) (p.2; Top,max +125 C, p.12). No body-to-air path, as film_radial"),
+    "film_mmkp82": dict(  # C21-23, C151, C152 from stage 51: KNSCHA MMK104J3DF1KN208G2 (MMKP82, 2000 V, P27.5)
+        label="KNSCHA MMKP82 radial film capacitor", r_pad=50.0, r_top=0.0, body_mm=None, standoff_mm=3.0,
+        pad_filter=None, tj_limit=105.0, body_air=False,
+        cite="lead path as film_mmkp (ASSUMED 50 K/W: two 0.8 mm leads, KNSCHA spec KNS20200505002 p.3 'd 0.8 +-0.05', "
+             "CP wire (copper-clad steel) leads, p.2 structure item 4; 3 mm free length, k 60). Climatic category "
+             "40/105/56 and operating range -40 .. +105 C (p.4): Top,max 105 C. No body-to-air path, as film_radial"),
     "film_hf": dict(  # C38-41 TDK B32652A0104K000 (HF bus film, gated): film_radial's lead path + a body-to-air path
         label="TDK B32652A0104K000 HF film capacitor", r_pad=50.0, r_top=0.0, body_mm=None, standoff_mm=3.0,
         pad_filter=None, tj_limit=110.0, body_air="film_fin",
@@ -385,6 +391,8 @@ def spec_for(ref: str, mpn: str, fp: str) -> str:
         return "chip2512"
     if mpn.startswith("B32652A0104"):     # C38-C41: body-to-air path since 2026-10-15 (jet-2026-10-15)
         return "film_hf"
+    if mpn.startswith("MMK104J3DF1"):    # stage 51: the KNSCHA MMKP82 bank (Top,max 105 C)
+        return "film_mmkp82"
     if mpn.startswith("B32643B"):        # stage 49: the c34 bank (B3264*B, Top,max 125 C case)
         return "film_mmkp"
     if mpn.startswith("B32654") or mpn.startswith("B32652"):
