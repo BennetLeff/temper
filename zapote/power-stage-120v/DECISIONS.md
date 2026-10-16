@@ -2187,3 +2187,44 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       score; the fix costs +$0.18 / board. The FMEA of this exact variant is DECISIONS 59 (V1). Cherry-picked with the
       card re-scored identical, audit.rs PASS, `cu_temp_basis` PASS, all tests pass on the s45 board. **Board of record
       and benchmark: s45.** FAB-NOTE moved to s45 (vias and drills as s44).
+
+61. **S17: B3 on hot copper becomes the thermal basis; the release tank ceiling drops 18 → 17.5 A (2026-10-15; adopted).
+    Board s45 unchanged (a1e6488f after the chain rebuild, geometry identical to 26ce9531 by `geom_diff45.py`).**
+    Records: `round5-native21/b3-ratings/hot-copper-2026-10-15/README.md` (method, control, s42 BASIS) and its
+    `s45-bay61/` direct solves; firmware 44cf184a7.
+    - **Model.** Every A4 copper cell carries q20·(1 + α(T − 20 °C)), α = 0.00393 /K, solved exactly at each case's own
+      bay with the current held at the 20 °C solution (an upper bound on loss by Thomson's principle). It is now the gate
+      default; cold-copper run files are refused except in named controls. The 20 °C control reproduces the old
+      `margins.json` byte for byte. Copper loss at the old release case rose ×1.31 (6.34 → 8.33 W).
+    - **Ceiling, from direct bay-61 solves on s45** (copper rows; R10 2512 terminal derating binds; `ceilings.py`'s I²
+      extrapolation is optimistic below 22 A and is not used):
+
+      | Tank ceiling (A) | 16.5 | 17 | 17.25 | 17.5 | 17.75 | 18 |
+      |---|---|---|---|---|---|---|
+      | R10 margin (K) | +4.1 | +2.6 | +1.8 | **+1.0** | +0.2 | −0.7 |
+
+      **Release case c18_h10 → c17.5_h10 @ 61 C, I_line 13.5 A.** 17.5 A is the highest step with positive margin on a
+      0.25 A grid; it is not rounded up.
+    - **Firmware (44cf184a7):** TANK_CEILING_DEFAULT_A 17.5, Kconfig 175 dA, COIL_SENSOR_FAULT_TANK_MAX_A 17.5; trips
+      scale with it (peak 40.975, RMS 18.375, crest 26.25 A). The COMMISSIONING ladder now starts at 17.5. Host tests
+      31 / 31 in this worktree.
+    - **Card (s45 re-scored, the benchmark):** release margin +1.2 → **−17.6 K**, bound only by the 85 °C monitor ICs
+      (est °C against 85 °C: U29 / U31 / U30 LM339B 102.6 / 101.3 / 96.5, U17 / U21 TL431B 92.4 / 85.3). Their B3 probe
+      rows are new; they fail at any tank current in still air at bay 61, so the board is **not releasable until stage
+      46** swaps them for 125 °C grades (TL431BQ, LM2901B, and U5's LM4040 Q-grade; BOM-only). At 125 °C the worst
+      monitor row would be +22.4 K, leaving R10 (+1.0 K) as the release limiter. Ratchet: laminate −30.2 → −51.1 K, rated parts
+      −32.3 → −51.3 K (c28, as before a capability-gap diagnostic, not a release claim). `cu_temp_basis` PASS.
+    - **Ledger:** 13 c18 citations re-keyed to c17.5 with the hot values; derived limits for R5 (CSS2H), R22 (RC1206) and
+      R10 / R12 (25121WF) recomputed from their derating curves; 34 ratios recomputed; gate PASS, no release row over
+      its limit.
+    - **G6 R5 derating** (c28 / h25, re-run on s42 hot copper by the B3 lane, hot-copper README) still passes:
+      `g6_margin_pct` 62.7 → **32.6**, R5 pad 123.6 → 144.3 °C against the 148.4 °C bound. Re-run on s45 (board
+      a1e6488f): the same 32.6 % (worst with tolerance and TCR 31.4 %; four-pad sensitivity 26.8 %), trip floor 67.5 A;
+      `stage17-r5/g6-native21s45-hot.json`.
+    - **Stale downstream:** the required jet h_top for the controller enclosure (45 / 59 W/m²K, temper-8d) was solved on
+      cold copper and will rise. It is superseded and must be re-solved on hot copper before it is cited.
+    - **Why not keep 18 A with a thermal candidate:** the heat-attribution levers (tank copper −20 % ≈ +1.75 A, bay 55
+      ≈ +1.6 A, film self-heat ≈ +1.03 A, sink −10 K ≈ +0.92 A) each need a layout or enclosure change. 0.5 A of tank
+      current is the cheapest correct answer now; a later candidate can buy it back and must show it on this basis.
+    - **Reverses if:** a coupled solve with redistributed current (not fixed J) or bench thermocouples at R10 / R12 at
+      17.5–18 A show ≥ 2 K more margin than this model; or a layout candidate raises the R10 row.
