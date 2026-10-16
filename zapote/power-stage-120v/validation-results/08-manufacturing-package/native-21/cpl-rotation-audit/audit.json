@@ -413,8 +413,8 @@
   },
   {
    "designator": "C21",
-   "footprint": "TDK_B32643B_P22.5_W14.5_L26.5_Radial",
-   "lcsc": "C3781430",
+   "footprint": "Bank_Film_DualPitch_P22.5_P27.5_Radial",
+   "lcsc": "C528962",
    "mount": "THT",
    "kicad_rot": 0,
    "proposed_jlc_rot": 0,
@@ -427,13 +427,13 @@
    "db_rot": "",
    "fit_method": "THT non-polar (datasheet)",
    "fit_rms_mm": 0.0,
-   "pin1_evidence": "KiCad pad 1 at (-11.25,+0.00) mm = left of centre at board rotation 0",
-   "reason": "two-lead THT, no polarity and no EasyEDA footprint: KiCad pad spacing 22.50 mm = datasheet lead spacing 22.5 +- 0.4 mm, no polarity; the leads fit only pads 1 / 2, so rot 0 and 180 are the same part (sources/pin-evidence.json: TDK B3264*B 'Capacitors for Snubbering, Resonant Circuits, PFC - High frequency'...)"
+   "pin1_evidence": "KiCad pad 1 at (-12.50,+0.00) mm = left of centre at board rotation 0",
+   "reason": "two-lead THT, no polarity and no EasyEDA footprint: KiCad pad spacing 27.50 mm = datasheet lead spacing 27.5 +- 0.5 mm, no polarity; the leads fit only pads 1 / 2, so rot 0 and 180 are the same part (sources/pin-evidence.json: KNSCHA specification for approval KNS20200505002 'MMKP82 104J2000V P=27.5', part...)"
   },
   {
    "designator": "C22",
-   "footprint": "TDK_B32643B_P22.5_W14.5_L26.5_Radial",
-   "lcsc": "C3781430",
+   "footprint": "Bank_Film_DualPitch_P22.5_P27.5_Radial",
+   "lcsc": "C528962",
    "mount": "THT",
    "kicad_rot": 0,
    "proposed_jlc_rot": 0,
@@ -446,13 +446,13 @@
    "db_rot": "",
    "fit_method": "THT non-polar (datasheet)",
    "fit_rms_mm": 0.0,
-   "pin1_evidence": "KiCad pad 1 at (-11.25,+0.00) mm = left of centre at board rotation 0",
-   "reason": "two-lead THT, no polarity and no EasyEDA footprint: KiCad pad spacing 22.50 mm = datasheet lead spacing 22.5 +- 0.4 mm, no polarity; the leads fit only pads 1 / 2, so rot 0 and 180 are the same part (sources/pin-evidence.json: TDK B3264*B 'Capacitors for Snubbering, Resonant Circuits, PFC - High frequency'...)"
+   "pin1_evidence": "KiCad pad 1 at (-12.50,+0.00) mm = left of centre at board rotation 0",
+   "reason": "two-lead THT, no polarity and no EasyEDA footprint: KiCad pad spacing 27.50 mm = datasheet lead spacing 27.5 +- 0.5 mm, no polarity; the leads fit only pads 1 / 2, so rot 0 and 180 are the same part (sources/pin-evidence.json: KNSCHA specification for approval KNS20200505002 'MMKP82 104J2000V P=27.5', part...)"
   },
   {
    "designator": "C23",
-   "footprint": "TDK_B32643B_P22.5_W14.5_L26.5_Radial",
-   "lcsc": "C3781430",
+   "footprint": "Bank_Film_DualPitch_P22.5_P27.5_Radial",
+   "lcsc": "C528962",
    "mount": "THT",
    "kicad_rot": 0,
    "proposed_jlc_rot": 0,
@@ -465,8 +465,8 @@
    "db_rot": "",
    "fit_method": "THT non-polar (datasheet)",
    "fit_rms_mm": 0.0,
-   "pin1_evidence": "KiCad pad 1 at (-11.25,+0.00) mm = left of centre at board rotation 0",
-   "reason": "two-lead THT, no polarity and no EasyEDA footprint: KiCad pad spacing 22.50 mm = datasheet lead spacing 22.5 +- 0.4 mm, no polarity; the leads fit only pads 1 / 2, so rot 0 and 180 are the same part (sources/pin-evidence.json: TDK B3264*B 'Capacitors for Snubbering, Resonant Circuits, PFC - High frequency'...)"
+   "pin1_evidence": "KiCad pad 1 at (-12.50,+0.00) mm = left of centre at board rotation 0",
+   "reason": "two-lead THT, no polarity and no EasyEDA footprint: KiCad pad spacing 27.50 mm = datasheet lead spacing 27.5 +- 0.5 mm, no polarity; the leads fit only pads 1 / 2, so rot 0 and 180 are the same part (sources/pin-evidence.json: KNSCHA specification for approval KNS20200505002 'MMKP82 104J2000V P=27.5', part...)"
   },
   {
    "designator": "C24",
@@ -2712,8 +2712,8 @@
   },
   {
    "designator": "C151",
-   "footprint": "TDK_B32643B_P22.5_W14.5_L26.5_Radial",
-   "lcsc": "C3781430",
+   "footprint": "Bank_Film_DualPitch_P22.5_P27.5_Radial",
+   "lcsc": "C528962",
    "mount": "THT",
    "kicad_rot": 0,
    "proposed_jlc_rot": 0,
@@ -2726,13 +2726,13 @@
    "db_rot": "",
    "fit_method": "THT non-polar (datasheet)",
    "fit_rms_mm": 0.0,
-   "pin1_evidence": "KiCad pad 1 at (-11.25,+0.00) mm = left of centre at board rotation 0",
-   "reason": "two-lead THT, no polarity and no EasyEDA footprint: KiCad pad spacing 22.50 mm = datasheet lead spacing 22.5 +- 0.4 mm, no polarity; the leads fit only pads 1 / 2, so rot 0 and 180 are the same part (sources/pin-evidence.json: TDK B3264*B 'Capacitors for Snubbering, Resonant Circuits, PFC - High frequency'...)"
+   "pin1_evidence": "KiCad pad 1 at (-12.50,+0.00) mm = left of centre at board rotation 0",
+   "reason": "two-lead THT, no polarity and no EasyEDA footprint: KiCad pad spacing 27.50 mm = datasheet lead spacing 27.5 +- 0.5 mm, no polarity; the leads fit only pads 1 / 2, so rot 0 and 180 are the same part (sources/pin-evidence.json: KNSCHA specification for approval KNS20200505002 'MMKP82 104J2000V P=27.5', part...)"
   },
   {
    "designator": "C152",
-   "footprint": "TDK_B32643B_P22.5_W14.5_L26.5_Radial",
-   "lcsc": "C3781430",
+   "footprint": "Bank_Film_DualPitch_P22.5_P27.5_Radial",
+   "lcsc": "C528962",
    "mount": "THT",
    "kicad_rot": 0,
    "proposed_jlc_rot": 0,
@@ -2745,8 +2745,8 @@
    "db_rot": "",
    "fit_method": "THT non-polar (datasheet)",
    "fit_rms_mm": 0.0,
-   "pin1_evidence": "KiCad pad 1 at (-11.25,+0.00) mm = left of centre at board rotation 0",
-   "reason": "two-lead THT, no polarity and no EasyEDA footprint: KiCad pad spacing 22.50 mm = datasheet lead spacing 22.5 +- 0.4 mm, no polarity; the leads fit only pads 1 / 2, so rot 0 and 180 are the same part (sources/pin-evidence.json: TDK B3264*B 'Capacitors for Snubbering, Resonant Circuits, PFC - High frequency'...)"
+   "pin1_evidence": "KiCad pad 1 at (-12.50,+0.00) mm = left of centre at board rotation 0",
+   "reason": "two-lead THT, no polarity and no EasyEDA footprint: KiCad pad spacing 27.50 mm = datasheet lead spacing 27.5 +- 0.5 mm, no polarity; the leads fit only pads 1 / 2, so rot 0 and 180 are the same part (sources/pin-evidence.json: KNSCHA specification for approval KNS20200505002 'MMKP82 104J2000V P=27.5', part...)"
   },
   {
    "designator": "C153",

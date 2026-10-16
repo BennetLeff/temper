@@ -1,5 +1,5 @@
 {
-  "board_sha256": "e842d9c8e04f7795f31f026706ab6a1bb74f2ae47d8ad46da1c2fb012b25d59f",
+  "board_sha256": "0b0ebcf737ec3e00037e02efb1b15ec7b44eb366f9086f288e34f8fb969b3c5a",
   "pitch_mm": 0.0625,
   "kit": "sheet_solver.py",
   "layers": {
@@ -81,7 +81,7 @@
       "grid_components_spanning_two_physical": 0
     },
     "bus_p/In2.Cu": {
-      "grid_nodes": 2389228,
+      "grid_nodes": 2387398,
       "grid_components": 1,
       "physical_components": 1,
       "dropped_edges": 3,
@@ -123,14 +123,14 @@
       "grid_components_spanning_two_physical": 0
     },
     "hv_ret/F.Cu": {
-      "grid_nodes": 149281,
+      "grid_nodes": 149280,
       "grid_components": 12,
       "physical_components": 12,
       "dropped_edges": 2,
       "grid_components_spanning_two_physical": 0
     },
     "hv_ret/In1.Cu": {
-      "grid_nodes": 2486948,
+      "grid_nodes": 2485118,
       "grid_components": 2,
       "physical_components": 2,
       "dropped_edges": 0,
@@ -207,7 +207,7 @@
       "grid_components_spanning_two_physical": 0
     },
     "leg_ret/F.Cu": {
-      "grid_nodes": 48950,
+      "grid_nodes": 48953,
       "grid_components": 11,
       "physical_components": 11,
       "dropped_edges": 8,
@@ -312,30 +312,30 @@
       "grid_components_spanning_two_physical": 0
     },
     "sw_b/B.Cu": {
-      "grid_nodes": 933753,
+      "grid_nodes": 932298,
       "grid_components": 10,
       "physical_components": 10,
       "dropped_edges": 1,
       "grid_components_spanning_two_physical": 0
     },
     "sw_b/F.Cu": {
-      "grid_nodes": 20670,
-      "grid_components": 16,
-      "physical_components": 16,
+      "grid_nodes": 24970,
+      "grid_components": 21,
+      "physical_components": 21,
       "dropped_edges": 7,
       "grid_components_spanning_two_physical": 0
     },
     "sw_b/In1.Cu": {
-      "grid_nodes": 9170,
-      "grid_components": 20,
-      "physical_components": 20,
+      "grid_nodes": 13470,
+      "grid_components": 25,
+      "physical_components": 25,
       "dropped_edges": 2,
       "grid_components_spanning_two_physical": 0
     },
     "sw_b/In2.Cu": {
-      "grid_nodes": 13253,
-      "grid_components": 15,
-      "physical_components": 15,
+      "grid_nodes": 17553,
+      "grid_components": 20,
+      "physical_components": 20,
       "dropped_edges": 4,
       "grid_components_spanning_two_physical": 0
     }

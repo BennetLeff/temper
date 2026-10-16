@@ -2053,7 +2053,7 @@
  },
  "C151": {
   "layer": "F.Cu",
-  "lib": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
+  "lib": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
   "pads": [
    {
     "ang": 0.0,
@@ -2081,6 +2081,20 @@
     "type": "thru_hole",
     "w": 2.4,
     "x": 22.5,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 2.4,
+    "layers": [
+     "*.Cu",
+     "*.Mask"
+    ],
+    "net": "sw_b",
+    "num": "2",
+    "type": "thru_hole",
+    "w": 2.4,
+    "x": 27.5,
     "y": 0.0
    }
   ],
@@ -2090,7 +2104,7 @@
  },
  "C152": {
   "layer": "F.Cu",
-  "lib": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
+  "lib": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
   "pads": [
    {
     "ang": 0.0,
@@ -2118,6 +2132,20 @@
     "type": "thru_hole",
     "w": 2.4,
     "x": 22.5,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 2.4,
+    "layers": [
+     "*.Cu",
+     "*.Mask"
+    ],
+    "net": "sw_b",
+    "num": "2",
+    "type": "thru_hole",
+    "w": 2.4,
+    "x": 27.5,
     "y": 0.0
    }
   ],
@@ -3373,7 +3401,7 @@
  },
  "C21": {
   "layer": "F.Cu",
-  "lib": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
+  "lib": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
   "pads": [
    {
     "ang": 0.0,
@@ -3401,6 +3429,20 @@
     "type": "thru_hole",
     "w": 2.4,
     "x": 22.5,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 2.4,
+    "layers": [
+     "*.Cu",
+     "*.Mask"
+    ],
+    "net": "sw_b",
+    "num": "2",
+    "type": "thru_hole",
+    "w": 2.4,
+    "x": 27.5,
     "y": 0.0
    }
   ],
@@ -3410,7 +3452,7 @@
  },
  "C22": {
   "layer": "F.Cu",
-  "lib": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
+  "lib": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
   "pads": [
    {
     "ang": 0.0,
@@ -3438,6 +3480,20 @@
     "type": "thru_hole",
     "w": 2.4,
     "x": 22.5,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 2.4,
+    "layers": [
+     "*.Cu",
+     "*.Mask"
+    ],
+    "net": "sw_b",
+    "num": "2",
+    "type": "thru_hole",
+    "w": 2.4,
+    "x": 27.5,
     "y": 0.0
    }
   ],
@@ -3447,7 +3503,7 @@
  },
  "C23": {
   "layer": "F.Cu",
-  "lib": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
+  "lib": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
   "pads": [
    {
     "ang": 0.0,
@@ -3475,6 +3531,20 @@
     "type": "thru_hole",
     "w": 2.4,
     "x": 22.5,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 2.4,
+    "layers": [
+     "*.Cu",
+     "*.Mask"
+    ],
+    "net": "sw_b",
+    "num": "2",
+    "type": "thru_hole",
+    "w": 2.4,
+    "x": 27.5,
     "y": 0.0
    }
   ],

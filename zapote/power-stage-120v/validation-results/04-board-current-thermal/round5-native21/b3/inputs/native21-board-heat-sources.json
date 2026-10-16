@@ -105,73 +105,73 @@
   },
   {
    "ref": "C21",
-   "watts_nominal": 0.20179974502295916,
-   "watts_worst": 1.6930738247456305,
+   "watts_nominal": 0.2699071589682079,
+   "watts_worst": 1.882007450741261,
    "board_fraction": 0.3,
    "sink_fraction": 0.7,
    "basis": "estimate",
-   "note": "B32643B8104J000: (worst-share 0.234 x I_t)^2 x ESR (typ 8.0 mOhm / tan d limit 35.8 mOhm at 40 kHz)",
-   "x_mm": 174.25,
+   "note": "MMK104J3DF1KN208G2: (worst-share 0.234 x I_t)^2 x ESR (typ 10.7 mOhm / tan d limit 39.8 mOhm at 40 kHz)",
+   "x_mm": 176.75,
    "y_mm": 53.2,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "B32643B8104J000"
+   "part": "MMK104J3DF1KN208G2"
   },
   {
    "ref": "C22",
-   "watts_nominal": 0.20179974502295916,
-   "watts_worst": 1.6930738247456305,
+   "watts_nominal": 0.2699071589682079,
+   "watts_worst": 1.882007450741261,
    "board_fraction": 0.3,
    "sink_fraction": 0.7,
    "basis": "estimate",
-   "note": "B32643B8104J000: (worst-share 0.234 x I_t)^2 x ESR (typ 8.0 mOhm / tan d limit 35.8 mOhm at 40 kHz)",
-   "x_mm": 174.25,
+   "note": "MMK104J3DF1KN208G2: (worst-share 0.234 x I_t)^2 x ESR (typ 10.7 mOhm / tan d limit 39.8 mOhm at 40 kHz)",
+   "x_mm": 176.75,
    "y_mm": 68.2,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "B32643B8104J000"
+   "part": "MMK104J3DF1KN208G2"
   },
   {
    "ref": "C23",
-   "watts_nominal": 0.20179974502295916,
-   "watts_worst": 1.6930738247456305,
+   "watts_nominal": 0.2699071589682079,
+   "watts_worst": 1.882007450741261,
    "board_fraction": 0.3,
    "sink_fraction": 0.7,
    "basis": "estimate",
-   "note": "B32643B8104J000: (worst-share 0.234 x I_t)^2 x ESR (typ 8.0 mOhm / tan d limit 35.8 mOhm at 40 kHz)",
-   "x_mm": 174.25,
+   "note": "MMK104J3DF1KN208G2: (worst-share 0.234 x I_t)^2 x ESR (typ 10.7 mOhm / tan d limit 39.8 mOhm at 40 kHz)",
+   "x_mm": 176.75,
    "y_mm": 83.2,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "B32643B8104J000"
+   "part": "MMK104J3DF1KN208G2"
   },
   {
    "ref": "C151",
-   "watts_nominal": 0.20179974502295916,
-   "watts_worst": 1.6930738247456305,
+   "watts_nominal": 0.2699071589682079,
+   "watts_worst": 1.882007450741261,
    "board_fraction": 0.3,
    "sink_fraction": 0.7,
    "basis": "estimate",
-   "note": "B32643B8104J000: (worst-share 0.234 x I_t)^2 x ESR (typ 8.0 mOhm / tan d limit 35.8 mOhm at 40 kHz)",
-   "x_mm": 174.25,
+   "note": "MMK104J3DF1KN208G2: (worst-share 0.234 x I_t)^2 x ESR (typ 10.7 mOhm / tan d limit 39.8 mOhm at 40 kHz)",
+   "x_mm": 176.75,
    "y_mm": 98.2,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "B32643B8104J000"
+   "part": "MMK104J3DF1KN208G2"
   },
   {
    "ref": "C152",
-   "watts_nominal": 0.20179974502295916,
-   "watts_worst": 1.6930738247456305,
+   "watts_nominal": 0.2699071589682079,
+   "watts_worst": 1.882007450741261,
    "board_fraction": 0.3,
    "sink_fraction": 0.7,
    "basis": "estimate",
-   "note": "B32643B8104J000: (worst-share 0.234 x I_t)^2 x ESR (typ 8.0 mOhm / tan d limit 35.8 mOhm at 40 kHz)",
-   "x_mm": 174.25,
+   "note": "MMK104J3DF1KN208G2: (worst-share 0.234 x I_t)^2 x ESR (typ 10.7 mOhm / tan d limit 39.8 mOhm at 40 kHz)",
+   "x_mm": 176.75,
    "y_mm": 113.2,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "B32643B8104J000"
+   "part": "MMK104J3DF1KN208G2"
   },
   {
    "ref": "U1",
@@ -573,7 +573,7 @@
   }
  ],
  "totals_W": {
-  "nominal": 8.771,
-  "worst": 16.47
+  "nominal": 8.873,
+  "worst": 16.754
  }
 }

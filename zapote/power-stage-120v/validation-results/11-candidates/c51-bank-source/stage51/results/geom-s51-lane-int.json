@@ -1,0 +1,21 @@
+{
+ "boards": [
+  "/Users/bennet/Desktop/temper/worktrees/runs-native21/s51/c51/section.kicad_pcb",
+  "/Users/bennet/Desktop/temper/worktrees/runs-native21/s51/c51int/section.kicad_pcb"
+ ],
+ "footprint_refs_equal": true,
+ "footprints_differing_in_geometry": [],
+ "tracks_vias": {
+  "a": 5162,
+  "b": 5162,
+  "equal": true
+ },
+ "zones": {
+  "a": 87,
+  "b": 87,
+  "outlines_equal": true
+ },
+ "edge_cuts_equal": true,
+ "field_changes": {},
+ "geometry_identical": true
+}
