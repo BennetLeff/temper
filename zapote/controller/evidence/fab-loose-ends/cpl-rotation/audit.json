@@ -1,13 +1,13 @@
 {
  "meta": {
   "cpl": "fab/cpl-jlcpcb.csv",
-  "cpl_lines": 283,
-  "cpl_lines_equal_to_proposed": 283,
+  "cpl_lines": 284,
+  "cpl_lines_equal_to_proposed": 284,
   "db_sha256": "fce26b890863fa56c6fc8d91a44241d9f3b420c78da28a10bc13204903542698",
   "db_rules": 59,
   "counts": {
    "NEEDS-PREVIEW": 44,
-   "OK": 223,
+   "OK": 224,
    "CORRECTED": 16
   },
   "controls": {
@@ -2291,8 +2291,8 @@
    "lcsc": "C14663",
    "kicad_footprint": "C_0603_1608Metric",
    "mount": "SMD",
-   "rot_in": 180.0,
-   "cpl_rot": 180.0,
+   "rot_in": 270.0,
+   "cpl_rot": 270.0,
    "db_pattern": null,
    "db_offset": null,
    "geom_offset": 0,
@@ -2306,10 +2306,10 @@
    "symmetric_nonpolar": true,
    "class": "OK",
    "applied_offset": 0,
-   "rot_proposed": 180.0,
+   "rot_proposed": 270.0,
    "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
    "candidate_rotations": [
-    180.0
+    270.0
    ],
    "notes": [],
    "kicad_pad_centroid_mm": [
@@ -5198,8 +5198,8 @@
    "lcsc": "C76892",
    "kicad_footprint": "L_0603_1608Metric",
    "mount": "SMD",
-   "rot_in": 90.0,
-   "cpl_rot": 90.0,
+   "rot_in": 0.0,
+   "cpl_rot": 0.0,
    "db_pattern": null,
    "db_offset": null,
    "geom_offset": 0,
@@ -5213,10 +5213,10 @@
    "symmetric_nonpolar": true,
    "class": "OK",
    "applied_offset": 0,
-   "rot_proposed": 90.0,
+   "rot_proposed": 0.0,
    "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
    "candidate_rotations": [
-    90.0
+    0.0
    ],
    "notes": [],
    "kicad_pad_centroid_mm": [
@@ -5262,38 +5262,6 @@
    "lcsc": "C190610",
    "kicad_footprint": "R_0603_1608Metric",
    "mount": "SMD",
-   "rot_in": 180.0,
-   "cpl_rot": 180.0,
-   "db_pattern": null,
-   "db_offset": null,
-   "geom_offset": 0,
-   "geom_rms_mm": {
-    "0": 0.072,
-    "90": 1.117,
-    "180": 1.578,
-    "270": 1.117
-   },
-   "geom_status": "ok",
-   "symmetric_nonpolar": true,
-   "class": "OK",
-   "applied_offset": 0,
-   "rot_proposed": 180.0,
-   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
-   "candidate_rotations": [
-    180.0
-   ],
-   "notes": [],
-   "kicad_pad_centroid_mm": [
-    0.0,
-    0.0
-   ]
-  },
-  {
-   "ref": "R49",
-   "mpn": "ERA-3AEB5901V",
-   "lcsc": "C491142",
-   "kicad_footprint": "R_0603_1608Metric",
-   "mount": "SMD",
    "rot_in": 270.0,
    "cpl_rot": 270.0,
    "db_pattern": null,
@@ -5313,6 +5281,38 @@
    "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
    "candidate_rotations": [
     270.0
+   ],
+   "notes": [],
+   "kicad_pad_centroid_mm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "ref": "R49",
+   "mpn": "ERA-3AEB5901V",
+   "lcsc": "C491142",
+   "kicad_footprint": "R_0603_1608Metric",
+   "mount": "SMD",
+   "rot_in": 180.0,
+   "cpl_rot": 180.0,
+   "db_pattern": null,
+   "db_offset": null,
+   "geom_offset": 0,
+   "geom_rms_mm": {
+    "0": 0.072,
+    "90": 1.117,
+    "180": 1.578,
+    "270": 1.117
+   },
+   "geom_status": "ok",
+   "symmetric_nonpolar": true,
+   "class": "OK",
+   "applied_offset": 0,
+   "rot_proposed": 180.0,
+   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
+   "candidate_rotations": [
+    180.0
    ],
    "notes": [],
    "kicad_pad_centroid_mm": [
@@ -6570,198 +6570,6 @@
   },
   {
    "ref": "R89",
-   "mpn": "RC0603FR-07100RL",
-   "lcsc": "C105588",
-   "kicad_footprint": "R_0603_1608Metric",
-   "mount": "SMD",
-   "rot_in": 0.0,
-   "cpl_rot": 0.0,
-   "db_pattern": null,
-   "db_offset": null,
-   "geom_offset": 0,
-   "geom_rms_mm": {
-    "0": 0.072,
-    "90": 1.117,
-    "180": 1.578,
-    "270": 1.117
-   },
-   "geom_status": "ok",
-   "symmetric_nonpolar": true,
-   "class": "OK",
-   "applied_offset": 0,
-   "rot_proposed": 0.0,
-   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
-   "candidate_rotations": [
-    0.0
-   ],
-   "notes": [],
-   "kicad_pad_centroid_mm": [
-    0.0,
-    0.0
-   ]
-  },
-  {
-   "ref": "R90",
-   "mpn": "RC0603FR-0710KL",
-   "lcsc": "C98220",
-   "kicad_footprint": "R_0603_1608Metric",
-   "mount": "SMD",
-   "rot_in": 0.0,
-   "cpl_rot": 0.0,
-   "db_pattern": null,
-   "db_offset": null,
-   "geom_offset": 0,
-   "geom_rms_mm": {
-    "0": 0.072,
-    "90": 1.117,
-    "180": 1.578,
-    "270": 1.117
-   },
-   "geom_status": "ok",
-   "symmetric_nonpolar": true,
-   "class": "OK",
-   "applied_offset": 0,
-   "rot_proposed": 0.0,
-   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
-   "candidate_rotations": [
-    0.0
-   ],
-   "notes": [],
-   "kicad_pad_centroid_mm": [
-    0.0,
-    0.0
-   ]
-  },
-  {
-   "ref": "R91",
-   "mpn": "RC0603FR-07100RL",
-   "lcsc": "C105588",
-   "kicad_footprint": "R_0603_1608Metric",
-   "mount": "SMD",
-   "rot_in": 0.0,
-   "cpl_rot": 0.0,
-   "db_pattern": null,
-   "db_offset": null,
-   "geom_offset": 0,
-   "geom_rms_mm": {
-    "0": 0.072,
-    "90": 1.117,
-    "180": 1.578,
-    "270": 1.117
-   },
-   "geom_status": "ok",
-   "symmetric_nonpolar": true,
-   "class": "OK",
-   "applied_offset": 0,
-   "rot_proposed": 0.0,
-   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
-   "candidate_rotations": [
-    0.0
-   ],
-   "notes": [],
-   "kicad_pad_centroid_mm": [
-    0.0,
-    0.0
-   ]
-  },
-  {
-   "ref": "R92",
-   "mpn": "RT0603BRD0710KL",
-   "lcsc": "C95204",
-   "kicad_footprint": "R_0603_1608Metric",
-   "mount": "SMD",
-   "rot_in": 90.0,
-   "cpl_rot": 90.0,
-   "db_pattern": null,
-   "db_offset": null,
-   "geom_offset": 0,
-   "geom_rms_mm": {
-    "0": 0.072,
-    "90": 1.117,
-    "180": 1.578,
-    "270": 1.117
-   },
-   "geom_status": "ok",
-   "symmetric_nonpolar": true,
-   "class": "OK",
-   "applied_offset": 0,
-   "rot_proposed": 90.0,
-   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
-   "candidate_rotations": [
-    90.0
-   ],
-   "notes": [],
-   "kicad_pad_centroid_mm": [
-    0.0,
-    0.0
-   ]
-  },
-  {
-   "ref": "R93",
-   "mpn": "RC0603FR-0710KL",
-   "lcsc": "C98220",
-   "kicad_footprint": "R_0603_1608Metric",
-   "mount": "SMD",
-   "rot_in": 270.0,
-   "cpl_rot": 270.0,
-   "db_pattern": null,
-   "db_offset": null,
-   "geom_offset": 0,
-   "geom_rms_mm": {
-    "0": 0.072,
-    "90": 1.117,
-    "180": 1.578,
-    "270": 1.117
-   },
-   "geom_status": "ok",
-   "symmetric_nonpolar": true,
-   "class": "OK",
-   "applied_offset": 0,
-   "rot_proposed": 270.0,
-   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
-   "candidate_rotations": [
-    270.0
-   ],
-   "notes": [],
-   "kicad_pad_centroid_mm": [
-    0.0,
-    0.0
-   ]
-  },
-  {
-   "ref": "R94",
-   "mpn": "RC0603FR-07100RL",
-   "lcsc": "C105588",
-   "kicad_footprint": "R_0603_1608Metric",
-   "mount": "SMD",
-   "rot_in": 90.0,
-   "cpl_rot": 90.0,
-   "db_pattern": null,
-   "db_offset": null,
-   "geom_offset": 0,
-   "geom_rms_mm": {
-    "0": 0.072,
-    "90": 1.117,
-    "180": 1.578,
-    "270": 1.117
-   },
-   "geom_status": "ok",
-   "symmetric_nonpolar": true,
-   "class": "OK",
-   "applied_offset": 0,
-   "rot_proposed": 90.0,
-   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
-   "candidate_rotations": [
-    90.0
-   ],
-   "notes": [],
-   "kicad_pad_centroid_mm": [
-    0.0,
-    0.0
-   ]
-  },
-  {
-   "ref": "R95",
    "mpn": "RT0603BRD071KL",
    "lcsc": "C110776",
    "kicad_footprint": "R_0603_1608Metric",
@@ -6793,7 +6601,39 @@
    ]
   },
   {
-   "ref": "R96",
+   "ref": "R90",
+   "mpn": "ERA-3AEB5901V",
+   "lcsc": "C491142",
+   "kicad_footprint": "R_0603_1608Metric",
+   "mount": "SMD",
+   "rot_in": 270.0,
+   "cpl_rot": 270.0,
+   "db_pattern": null,
+   "db_offset": null,
+   "geom_offset": 0,
+   "geom_rms_mm": {
+    "0": 0.072,
+    "90": 1.117,
+    "180": 1.578,
+    "270": 1.117
+   },
+   "geom_status": "ok",
+   "symmetric_nonpolar": true,
+   "class": "OK",
+   "applied_offset": 0,
+   "rot_proposed": 270.0,
+   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
+   "candidate_rotations": [
+    270.0
+   ],
+   "notes": [],
+   "kicad_pad_centroid_mm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "ref": "R91",
    "mpn": "RC0603FR-0710KL",
    "lcsc": "C98220",
    "kicad_footprint": "R_0603_1608Metric",
@@ -6825,7 +6665,103 @@
    ]
   },
   {
-   "ref": "R97",
+   "ref": "R92",
+   "mpn": "RC0603FR-07100RL",
+   "lcsc": "C105588",
+   "kicad_footprint": "R_0603_1608Metric",
+   "mount": "SMD",
+   "rot_in": 0.0,
+   "cpl_rot": 0.0,
+   "db_pattern": null,
+   "db_offset": null,
+   "geom_offset": 0,
+   "geom_rms_mm": {
+    "0": 0.072,
+    "90": 1.117,
+    "180": 1.578,
+    "270": 1.117
+   },
+   "geom_status": "ok",
+   "symmetric_nonpolar": true,
+   "class": "OK",
+   "applied_offset": 0,
+   "rot_proposed": 0.0,
+   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
+   "candidate_rotations": [
+    0.0
+   ],
+   "notes": [],
+   "kicad_pad_centroid_mm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "ref": "R93",
+   "mpn": "RT0603BRD0710KL",
+   "lcsc": "C95204",
+   "kicad_footprint": "R_0603_1608Metric",
+   "mount": "SMD",
+   "rot_in": 90.0,
+   "cpl_rot": 90.0,
+   "db_pattern": null,
+   "db_offset": null,
+   "geom_offset": 0,
+   "geom_rms_mm": {
+    "0": 0.072,
+    "90": 1.117,
+    "180": 1.578,
+    "270": 1.117
+   },
+   "geom_status": "ok",
+   "symmetric_nonpolar": true,
+   "class": "OK",
+   "applied_offset": 0,
+   "rot_proposed": 90.0,
+   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
+   "candidate_rotations": [
+    90.0
+   ],
+   "notes": [],
+   "kicad_pad_centroid_mm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "ref": "R94",
+   "mpn": "RC0603FR-0710KL",
+   "lcsc": "C98220",
+   "kicad_footprint": "R_0603_1608Metric",
+   "mount": "SMD",
+   "rot_in": 270.0,
+   "cpl_rot": 270.0,
+   "db_pattern": null,
+   "db_offset": null,
+   "geom_offset": 0,
+   "geom_rms_mm": {
+    "0": 0.072,
+    "90": 1.117,
+    "180": 1.578,
+    "270": 1.117
+   },
+   "geom_status": "ok",
+   "symmetric_nonpolar": true,
+   "class": "OK",
+   "applied_offset": 0,
+   "rot_proposed": 270.0,
+   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
+   "candidate_rotations": [
+    270.0
+   ],
+   "notes": [],
+   "kicad_pad_centroid_mm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "ref": "R95",
    "mpn": "RC0603FR-07100RL",
    "lcsc": "C105588",
    "kicad_footprint": "R_0603_1608Metric",
@@ -6857,7 +6793,103 @@
    ]
   },
   {
+   "ref": "R96",
+   "mpn": "RT0603BRD071KL",
+   "lcsc": "C110776",
+   "kicad_footprint": "R_0603_1608Metric",
+   "mount": "SMD",
+   "rot_in": 0.0,
+   "cpl_rot": 0.0,
+   "db_pattern": null,
+   "db_offset": null,
+   "geom_offset": 0,
+   "geom_rms_mm": {
+    "0": 0.072,
+    "90": 1.117,
+    "180": 1.578,
+    "270": 1.117
+   },
+   "geom_status": "ok",
+   "symmetric_nonpolar": true,
+   "class": "OK",
+   "applied_offset": 0,
+   "rot_proposed": 0.0,
+   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
+   "candidate_rotations": [
+    0.0
+   ],
+   "notes": [],
+   "kicad_pad_centroid_mm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "ref": "R97",
+   "mpn": "RC0603FR-0710KL",
+   "lcsc": "C98220",
+   "kicad_footprint": "R_0603_1608Metric",
+   "mount": "SMD",
+   "rot_in": 0.0,
+   "cpl_rot": 0.0,
+   "db_pattern": null,
+   "db_offset": null,
+   "geom_offset": 0,
+   "geom_rms_mm": {
+    "0": 0.072,
+    "90": 1.117,
+    "180": 1.578,
+    "270": 1.117
+   },
+   "geom_status": "ok",
+   "symmetric_nonpolar": true,
+   "class": "OK",
+   "applied_offset": 0,
+   "rot_proposed": 0.0,
+   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
+   "candidate_rotations": [
+    0.0
+   ],
+   "notes": [],
+   "kicad_pad_centroid_mm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
    "ref": "R98",
+   "mpn": "RC0603FR-07100RL",
+   "lcsc": "C105588",
+   "kicad_footprint": "R_0603_1608Metric",
+   "mount": "SMD",
+   "rot_in": 90.0,
+   "cpl_rot": 90.0,
+   "db_pattern": null,
+   "db_offset": null,
+   "geom_offset": 0,
+   "geom_rms_mm": {
+    "0": 0.072,
+    "90": 1.117,
+    "180": 1.578,
+    "270": 1.117
+   },
+   "geom_status": "ok",
+   "symmetric_nonpolar": true,
+   "class": "OK",
+   "applied_offset": 0,
+   "rot_proposed": 90.0,
+   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
+   "candidate_rotations": [
+    90.0
+   ],
+   "notes": [],
+   "kicad_pad_centroid_mm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "ref": "R99",
    "mpn": "RT0603BRD0786K6L",
    "lcsc": "C861580",
    "kicad_footprint": "R_0603_1608Metric",
@@ -6889,7 +6921,7 @@
    ]
   },
   {
-   "ref": "R99",
+   "ref": "R100",
    "mpn": "RT0603BRD0710KL",
    "lcsc": "C95204",
    "kicad_footprint": "R_0603_1608Metric",
@@ -6921,41 +6953,9 @@
    ]
   },
   {
-   "ref": "R100",
+   "ref": "R101",
    "mpn": "RC0603FR-0710ML",
    "lcsc": "C114606",
-   "kicad_footprint": "R_0603_1608Metric",
-   "mount": "SMD",
-   "rot_in": 270.0,
-   "cpl_rot": 270.0,
-   "db_pattern": null,
-   "db_offset": null,
-   "geom_offset": 0,
-   "geom_rms_mm": {
-    "0": 0.072,
-    "90": 1.117,
-    "180": 1.578,
-    "270": 1.117
-   },
-   "geom_status": "ok",
-   "symmetric_nonpolar": true,
-   "class": "OK",
-   "applied_offset": 0,
-   "rot_proposed": 270.0,
-   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
-   "candidate_rotations": [
-    270.0
-   ],
-   "notes": [],
-   "kicad_pad_centroid_mm": [
-    0.0,
-    0.0
-   ]
-  },
-  {
-   "ref": "R101",
-   "mpn": "RT0603BRD0730KL",
-   "lcsc": "C723585",
    "kicad_footprint": "R_0603_1608Metric",
    "mount": "SMD",
    "rot_in": 270.0,
@@ -7050,6 +7050,38 @@
   },
   {
    "ref": "R104",
+   "mpn": "RT0603BRD0730KL",
+   "lcsc": "C723585",
+   "kicad_footprint": "R_0603_1608Metric",
+   "mount": "SMD",
+   "rot_in": 270.0,
+   "cpl_rot": 270.0,
+   "db_pattern": null,
+   "db_offset": null,
+   "geom_offset": 0,
+   "geom_rms_mm": {
+    "0": 0.072,
+    "90": 1.117,
+    "180": 1.578,
+    "270": 1.117
+   },
+   "geom_status": "ok",
+   "symmetric_nonpolar": true,
+   "class": "OK",
+   "applied_offset": 0,
+   "rot_proposed": 270.0,
+   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
+   "candidate_rotations": [
+    270.0
+   ],
+   "notes": [],
+   "kicad_pad_centroid_mm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "ref": "R105",
    "mpn": "RT0603BRD0710KL",
    "lcsc": "C95204",
    "kicad_footprint": "R_0603_1608Metric",
@@ -7081,7 +7113,7 @@
    ]
   },
   {
-   "ref": "R105",
+   "ref": "R106",
    "mpn": "RC0603FR-071KL",
    "lcsc": "C22548",
    "kicad_footprint": "R_0603_1608Metric",
@@ -7113,7 +7145,7 @@
    ]
   },
   {
-   "ref": "R106",
+   "ref": "R107",
    "mpn": "RC0603FR-0733RL",
    "lcsc": "C108661",
    "kicad_footprint": "R_0603_1608Metric",
@@ -7145,7 +7177,7 @@
    ]
   },
   {
-   "ref": "R107",
+   "ref": "R108",
    "mpn": "RC0603FR-0710KL",
    "lcsc": "C98220",
    "kicad_footprint": "R_0603_1608Metric",
@@ -7177,7 +7209,7 @@
    ]
   },
   {
-   "ref": "R108",
+   "ref": "R109",
    "mpn": "RC0603FR-0710KL",
    "lcsc": "C98220",
    "kicad_footprint": "R_0603_1608Metric",
@@ -7209,41 +7241,9 @@
    ]
   },
   {
-   "ref": "R109",
+   "ref": "R110",
    "mpn": "RC0603FR-07100KL",
    "lcsc": "C14675",
-   "kicad_footprint": "R_0603_1608Metric",
-   "mount": "SMD",
-   "rot_in": 0.0,
-   "cpl_rot": 0.0,
-   "db_pattern": null,
-   "db_offset": null,
-   "geom_offset": 0,
-   "geom_rms_mm": {
-    "0": 0.072,
-    "90": 1.117,
-    "180": 1.578,
-    "270": 1.117
-   },
-   "geom_status": "ok",
-   "symmetric_nonpolar": true,
-   "class": "OK",
-   "applied_offset": 0,
-   "rot_proposed": 0.0,
-   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
-   "candidate_rotations": [
-    0.0
-   ],
-   "notes": [],
-   "kicad_pad_centroid_mm": [
-    0.0,
-    0.0
-   ]
-  },
-  {
-   "ref": "R110",
-   "mpn": "RC0603FR-074K7L",
-   "lcsc": "C99782",
    "kicad_footprint": "R_0603_1608Metric",
    "mount": "SMD",
    "rot_in": 0.0,
@@ -7278,6 +7278,38 @@
    "lcsc": "C99782",
    "kicad_footprint": "R_0603_1608Metric",
    "mount": "SMD",
+   "rot_in": 0.0,
+   "cpl_rot": 0.0,
+   "db_pattern": null,
+   "db_offset": null,
+   "geom_offset": 0,
+   "geom_rms_mm": {
+    "0": 0.072,
+    "90": 1.117,
+    "180": 1.578,
+    "270": 1.117
+   },
+   "geom_status": "ok",
+   "symmetric_nonpolar": true,
+   "class": "OK",
+   "applied_offset": 0,
+   "rot_proposed": 0.0,
+   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
+   "candidate_rotations": [
+    0.0
+   ],
+   "notes": [],
+   "kicad_pad_centroid_mm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "ref": "R112",
+   "mpn": "RC0603FR-074K7L",
+   "lcsc": "C99782",
+   "kicad_footprint": "R_0603_1608Metric",
+   "mount": "SMD",
    "rot_in": 90.0,
    "cpl_rot": 90.0,
    "db_pattern": null,
@@ -7305,7 +7337,7 @@
    ]
   },
   {
-   "ref": "R112",
+   "ref": "R113",
    "mpn": "RC0603FR-07100RL",
    "lcsc": "C105588",
    "kicad_footprint": "R_0603_1608Metric",
@@ -7329,38 +7361,6 @@
    "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
    "candidate_rotations": [
     270.0
-   ],
-   "notes": [],
-   "kicad_pad_centroid_mm": [
-    0.0,
-    0.0
-   ]
-  },
-  {
-   "ref": "R113",
-   "mpn": "RC0603FR-07100RL",
-   "lcsc": "C105588",
-   "kicad_footprint": "R_0603_1608Metric",
-   "mount": "SMD",
-   "rot_in": 180.0,
-   "cpl_rot": 180.0,
-   "db_pattern": null,
-   "db_offset": null,
-   "geom_offset": 0,
-   "geom_rms_mm": {
-    "0": 0.072,
-    "90": 1.117,
-    "180": 1.578,
-    "270": 1.117
-   },
-   "geom_status": "ok",
-   "symmetric_nonpolar": true,
-   "class": "OK",
-   "applied_offset": 0,
-   "rot_proposed": 180.0,
-   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
-   "candidate_rotations": [
-    180.0
    ],
    "notes": [],
    "kicad_pad_centroid_mm": [
@@ -7470,38 +7470,6 @@
    "lcsc": "C105588",
    "kicad_footprint": "R_0603_1608Metric",
    "mount": "SMD",
-   "rot_in": 90.0,
-   "cpl_rot": 90.0,
-   "db_pattern": null,
-   "db_offset": null,
-   "geom_offset": 0,
-   "geom_rms_mm": {
-    "0": 0.072,
-    "90": 1.117,
-    "180": 1.578,
-    "270": 1.117
-   },
-   "geom_status": "ok",
-   "symmetric_nonpolar": true,
-   "class": "OK",
-   "applied_offset": 0,
-   "rot_proposed": 90.0,
-   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
-   "candidate_rotations": [
-    90.0
-   ],
-   "notes": [],
-   "kicad_pad_centroid_mm": [
-    0.0,
-    0.0
-   ]
-  },
-  {
-   "ref": "R118",
-   "mpn": "RC0603FR-0710KL",
-   "lcsc": "C98220",
-   "kicad_footprint": "R_0603_1608Metric",
-   "mount": "SMD",
    "rot_in": 180.0,
    "cpl_rot": 180.0,
    "db_pattern": null,
@@ -7521,6 +7489,38 @@
    "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
    "candidate_rotations": [
     180.0
+   ],
+   "notes": [],
+   "kicad_pad_centroid_mm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "ref": "R118",
+   "mpn": "RC0603FR-07100RL",
+   "lcsc": "C105588",
+   "kicad_footprint": "R_0603_1608Metric",
+   "mount": "SMD",
+   "rot_in": 90.0,
+   "cpl_rot": 90.0,
+   "db_pattern": null,
+   "db_offset": null,
+   "geom_offset": 0,
+   "geom_rms_mm": {
+    "0": 0.072,
+    "90": 1.117,
+    "180": 1.578,
+    "270": 1.117
+   },
+   "geom_status": "ok",
+   "symmetric_nonpolar": true,
+   "class": "OK",
+   "applied_offset": 0,
+   "rot_proposed": 90.0,
+   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
+   "candidate_rotations": [
+    90.0
    ],
    "notes": [],
    "kicad_pad_centroid_mm": [
@@ -7562,6 +7562,38 @@
   },
   {
    "ref": "R120",
+   "mpn": "RC0603FR-0710KL",
+   "lcsc": "C98220",
+   "kicad_footprint": "R_0603_1608Metric",
+   "mount": "SMD",
+   "rot_in": 180.0,
+   "cpl_rot": 180.0,
+   "db_pattern": null,
+   "db_offset": null,
+   "geom_offset": 0,
+   "geom_rms_mm": {
+    "0": 0.072,
+    "90": 1.117,
+    "180": 1.578,
+    "270": 1.117
+   },
+   "geom_status": "ok",
+   "symmetric_nonpolar": true,
+   "class": "OK",
+   "applied_offset": 0,
+   "rot_proposed": 180.0,
+   "basis": "symmetric non-polar two-pad passive: a 180 deg error is harmless (geometry c=0, DB None)",
+   "candidate_rotations": [
+    180.0
+   ],
+   "notes": [],
+   "kicad_pad_centroid_mm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "ref": "R121",
    "mpn": "RC1206FR-07100RL",
    "lcsc": "C137392",
    "kicad_footprint": "R_1206_3216Metric",
@@ -7593,7 +7625,7 @@
    ]
   },
   {
-   "ref": "R121",
+   "ref": "R122",
    "mpn": "RC1206FR-07100RL",
    "lcsc": "C137392",
    "kicad_footprint": "R_1206_3216Metric",

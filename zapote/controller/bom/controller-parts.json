@@ -510,7 +510,9 @@
       "origin": "controller (L3 rim NTC pull-up, C31)",
       "basis": "Yageo RT 0.1 % 0603, 1.00 kOhm; jlcpcb.com/partdetail/C110776",
       "lcsc": "C110776",
-      "lcsc_stock_2026_10_10": null
+      "lcsc_stock_2026_10_10": null,
+      "jlc_stock_2026_10_15": 1815730,
+      "stock_basis": "evidence/c1-crs/new-parts-snapshot.json (JLC read 2026-10-15T17:47:57Z); also C37 filter and C45 r_hs_adc"
     },
     "B2P-VH(LF)(SN)": {
       "origin": "controller (stage 16 J13, PS3 blower feed, C33)",
