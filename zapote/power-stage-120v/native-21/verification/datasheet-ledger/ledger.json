@@ -1050,10 +1050,10 @@
     },
     {
      "parameter": "V reverse worst",
-     "worst_case_value": 451,
+     "worst_case_value": 451.6,
      "unit": "V",
-     "condition": "bus worst stacked corner, script",
-     "evidence": "validation-results/11-candidates/r2-cost/PROPOSALS.md:89"
+     "condition": "bus worst stacked corner, V0 = 287.62 V (closed form)",
+     "evidence": "validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
     },
     {
      "parameter": "I2t inrush",
@@ -1095,7 +1095,7 @@
      "max_ratio": 0.8,
      "severity": "violation",
      "rule": "<= 80 % VRRM",
-     "ratio": 0.451
+     "ratio": 0.4516
     },
     {
      "id": "Tj",
@@ -1144,7 +1144,7 @@
     "bench: the Tj bound rests on a typical RthJC (no maximum published) and the modelled 0.37 K/W gap pad; thermocouple on BR1's case pending (FINDINGS #3)."
    ],
    "finding": null,
-   "notes": "Batch A 2026-10-15: datasheet re-fetched (identical), UL E95060 read on p.1, Tj bound added (0.79)."
+   "notes": "Batch A 2026-10-15: datasheet re-fetched (identical), UL E95060 read on p.1, Tj bound added (0.79). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V start; stacked event 451.6 V)."
   },
   "B32676G1905K000": {
    "mpn": "B32676G1905K000",
@@ -1224,17 +1224,17 @@
    "stresses": [
     {
      "parameter": "Vbus static OVP",
-     "worst_case_value": 286,
+     "worst_case_value": 287.62,
      "unit": "V",
-     "condition": "static OVP corner",
-     "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:60"
+     "condition": "s47 OVP band top (static: the bus can sit just below the trip) (287.62 V: c28 solved network; release 287.45 V)",
+     "evidence": "validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
     },
     {
      "parameter": "Vbus worst no-clamp",
-     "worst_case_value": 451,
+     "worst_case_value": 451.6,
      "unit": "V",
-     "condition": "worst stacked corner (script)",
-     "evidence": "validation-results/11-candidates/r2-cost/PROPOSALS.md:89"
+     "condition": "worst stacked corner, V0 = 287.62 V (closed form)",
+     "evidence": "validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
     },
     {
      "parameter": "Inrush pulse current per part",
@@ -1323,8 +1323,8 @@
      "stress": "Vbus static OVP",
      "max_ratio": 0.8,
      "severity": "violation",
-     "rule": "<= 600 V",
-     "ratio": 0.3813
+     "rule": "287.62 <= 600 V",
+     "ratio": 0.3835
     },
     {
      "id": "Vbus worst",
@@ -1333,7 +1333,7 @@
      "max_ratio": 0.8,
      "severity": "violation",
      "rule": "<= 600 V transient",
-     "ratio": 0.6013
+     "ratio": 0.6021
     },
     {
      "id": "Vbus worst hot",
@@ -1341,8 +1341,8 @@
      "stress": "Vbus worst no-clamp",
      "max_ratio": 0.8,
      "severity": "violation",
-     "rule": "451 <= 456 V",
-     "ratio": 0.7912
+     "rule": "451.6 <= 456 V",
+     "ratio": 0.7923
     },
     {
      "id": "inrush pulse",
@@ -1424,7 +1424,7 @@
     "desk: the footprint is named TDK_B32656G0275J000 (stale name, geometry correct)."
    ],
    "finding": null,
-   "notes": "Batch A 2026-10-15: added the hot Vop, pulse, AC-component and case-temperature ratings (all pass); the 26 A row is dropped (the default ceiling is 22 A, DECISIONS.md:566). Merged 2026-10-15 onto s42 (DECISIONS 55/56): case re-cited to the release case (83.6 C, 0.80 of 105 C; c28 99.2 C); the B3 gate's advisory C5/C6 row now uses TDK's 105 C (b3_ratings_gate.py ADVISORY film_4pin), closing that gap; the 28 A ripple extrapolation is the airflow-route gap."
+   "notes": "Batch A 2026-10-15: added the hot Vop, pulse, AC-component and case-temperature ratings (all pass); the 26 A row is dropped (the default ceiling is 22 A, DECISIONS.md:566). Merged 2026-10-15 onto s42 (DECISIONS 55/56): case re-cited to the release case (83.6 C, 0.80 of 105 C; c28 99.2 C); the B3 gate's advisory C5/C6 row now uses TDK's 105 C (b3_ratings_gate.py ADVISORY film_4pin), closing that gap; the 28 A ripple extrapolation is the airflow-route gap. S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V)."
   },
   "RC1206FR-07220KL": {
    "mpn": "RC1206FR-07220KL",
@@ -1476,10 +1476,10 @@
    "stresses": [
     {
      "parameter": "V per resistor static",
-     "worst_case_value": 143,
+     "worst_case_value": 143.81,
      "unit": "V",
-     "condition": "286 V static OVP / 2 (R3/R4 in series BUS_P - BUSBLEED_MID - HV_RET)",
-     "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:60; elec/src/power_stage_120v.ato:351-358"
+     "condition": "287.62 V s47 OVP band top / 2 (R3/R4 in series BUS_P - BUSBLEED_MID - HV_RET)",
+     "evidence": "validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24; elec/src/power_stage_120v.ato:351-358"
     },
     {
      "parameter": "P per resistor static",
@@ -1490,10 +1490,10 @@
     },
     {
      "parameter": "V per resistor transient",
-     "worst_case_value": 225.5,
+     "worst_case_value": 225.8,
      "unit": "V",
-     "condition": "451 V worst stacked no-clamp corner / 2",
-     "evidence": "validation-results/11-candidates/r2-cost/PROPOSALS.md:89; elec/src/power_stage_120v.ato:351-358"
+     "condition": "451.6 V worst stacked no-clamp corner / 2",
+     "evidence": "validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24; elec/src/power_stage_120v.ato:351-358"
     }
    ],
    "derating_rule": "Working voltage <= 80 % of the maximum; transients <= the 5 s overload voltage; power <= 50 % of the rating at 70 C and at the assumed 85 C local ambient.",
@@ -1505,7 +1505,7 @@
      "max_ratio": 0.8,
      "severity": "violation",
      "rule": "72 %",
-     "ratio": 0.715
+     "ratio": 0.719
     },
     {
      "id": "V transient",
@@ -1513,8 +1513,8 @@
      "stress": "V per resistor transient",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "225.5 <= 400 V",
-     "ratio": 0.5637
+     "rule": "225.8 <= 400 V",
+     "ratio": 0.5645
     },
     {
      "id": "P",
@@ -1543,10 +1543,10 @@
    ],
    "gaps": [
     "bench: local air at R3/R4 is not evidenced (B3 has no R3/R4 row); 85 C is assumed as for R1/R2, and the 50 % power rule holds to 91.8 C.",
-    "certifier: with one resistor shorted the other carries the whole bus (286 V static > 200 V working, < 400 V overload); the abnormal-operation outcome (bleed lost if it opens) is a lab item."
+    "certifier: with one resistor shorted the other carries the whole bus (287.62 V static > 200 V working, < 400 V overload); the abnormal-operation outcome (bleed lost if it opens) is a lab item."
    ],
    "finding": null,
-   "notes": "Batch A 2026-10-15: current RC_L sheet read; values unchanged (200 / 400 V); transient check added."
+   "notes": "Batch A 2026-10-15: current RC_L sheet read; values unchanged (200 / 400 V); transient check added. S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V)."
   },
   "CSS2H-2512R-1L00F": {
    "mpn": "CSS2H-2512R-1L00F",
@@ -2622,17 +2622,17 @@
     },
     {
      "parameter": "Bus, worst stacked no-clamp case",
-     "worst_case_value": 451,
+     "worst_case_value": 451.6,
      "unit": "V",
-     "condition": "static-OVP start 286 V, 500 uH / 30 A line event, C -19 %, no D3 clamp credit",
-     "evidence": "validation-results/11-candidates/r2-cost/PROPOSALS.md:89"
+     "condition": "static-OVP start 287.62 V, 500 uH / 30 A line event, C -19 %, no D3 clamp credit",
+     "evidence": "validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
     },
     {
      "parameter": "Bus static OVP (continuous)",
-     "worst_case_value": 286,
+     "worst_case_value": 287.62,
      "unit": "V",
-     "condition": "DC bus at the OVP threshold",
-     "evidence": "validation-results/11-candidates/r2-cost/PROPOSALS.md:82"
+     "condition": "DC bus at the s47 OVP band top (287.62 V: c28 solved network; release 287.45 V)",
+     "evidence": "validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
     },
     {
      "parameter": "Edge charging current C dv/dt",
@@ -2707,8 +2707,8 @@
      "stress": "Bus, worst stacked no-clamp case",
      "max_ratio": 0.5,
      "severity": "violation",
-     "rule": "451 V <= 500 V",
-     "ratio": 0.451
+     "rule": "451.6 V <= 500 V",
+     "ratio": 0.4516
     },
     {
      "id": "bus static OVP",
@@ -2716,8 +2716,8 @@
      "stress": "Bus static OVP (continuous)",
      "max_ratio": 0.5,
      "severity": "violation",
-     "rule": "286 V <= 500 V",
-     "ratio": 0.286
+     "rule": "287.62 V <= 500 V",
+     "ratio": 0.2876
     },
     {
      "id": "temperature bound c17.5 (release)",
@@ -2754,7 +2754,7 @@
     "certifier: the 1.8 mm pad escape is below the 3.2 mm HOT rule by design; the part's own gap is 1.40 mm min (Yageo p.3), and surface creepage at up to 490 V (F6 matrix) over 1.8 mm is unqualified (pad_escapes.json:3)."
    ],
    "finding": null,
-   "notes": "Four caps: one across each MOSFET (power_stage_120v.ato:213-218). Batch A 2026-10-15: ratings now from the as-ordered Yageo part. Inputs reproduced by scripts/audit_bleed_snubber.py. Merged 2026-10-15 onto s42 (DECISIONS 55/56): S4 die VDS re-cited to s42 (347 V at typical Qrr; was 620 V as built s29-s41), so the 50 % rule passes; temperature bounded by the FET-row copper at the release case (123.0 C). Stage 43: re-keyed from GRM31A5C3A102JW01D (not a Murata part) to the source MPN CC1206JKNPOCBN102 (elec/src/parts.ato, frozen/default.csv); the source-MPN owner gap is closed. FET-row bound re-cited to s43: 123.0 -> 122.1 C (release), 133.6 -> 132.6 C (c22)."
+   "notes": "Four caps: one across each MOSFET (power_stage_120v.ato:213-218). Batch A 2026-10-15: ratings now from the as-ordered Yageo part. Inputs reproduced by scripts/audit_bleed_snubber.py. Merged 2026-10-15 onto s42 (DECISIONS 55/56): S4 die VDS re-cited to s42 (347 V at typical Qrr; was 620 V as built s29-s41), so the 50 % rule passes; temperature bounded by the FET-row copper at the release case (123.0 C). Stage 43: re-keyed from GRM31A5C3A102JW01D (not a Murata part) to the source MPN CC1206JKNPOCBN102 (elec/src/parts.ato, frozen/default.csv); the source-MPN owner gap is closed. FET-row bound re-cited to s43: 123.0 -> 122.1 C (release), 133.6 -> 132.6 C (c22). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V)."
   },
   "CST3015-200ED": {
    "mpn": "CST3015-200ED",
@@ -2825,11 +2825,11 @@
      "evidence": "validation-results/04-board-current-thermal/round5-native21/b3/run_study.py:43; DECISIONS.md:566"
     },
     {
-     "parameter": "Volt-time at 118.74 A",
-     "worst_case_value": 67.6,
+     "parameter": "Volt-time at the shunt-band top",
+     "worst_case_value": 67.8,
      "unit": "V-us",
-     "condition": "5.3 % of limit at the shunt-band top (0.053 x 1276)",
-     "evidence": "DECISIONS.md:851"
+     "condition": "secondary half-sine volt-time at the s47 shunt-band top 119.09 A, 25 kHz (5.3 % of 1276 V-us; release top 117.45 A)",
+     "evidence": "validation-results/11-candidates/g04-g09-tank-detect/scripts/ct_options.py:36-39; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
     },
     {
      "parameter": "Working voltage",
@@ -2862,11 +2862,11 @@
     {
      "id": "volt-time",
      "rating": "Volt-time secondary",
-     "stress": "Volt-time at 118.74 A",
+     "stress": "Volt-time at the shunt-band top",
      "max_ratio": 0.5,
      "severity": "violation",
      "rule": "0.053",
-     "ratio": 0.053
+     "ratio": 0.0531
     }
    ],
    "layout_guidance": [
@@ -2884,7 +2884,7 @@
     "bench: T1 ambient / body is not in B3 (limits 125 C ambient, 165 C part); the p.2 DC rise at 29.4 A (the 28 A ceiling) is about 5 K, HF proximity loss in the primary bar is not included."
    ],
    "finding": null,
-   "notes": "Batch A 2026-10-15: datasheet re-read (unchanged); stale DECISIONS.md:824 evidence replaced (run_study.py:34). Merged 2026-10-15 onto s42 (DECISIONS 55/56): primary current at the 18.9 A release trip (0.22 of the 40 K-rise current; 0.34 at 28 A); pad-map citation corrected to parts.ato:478-485."
+   "notes": "Batch A 2026-10-15: datasheet re-read (unchanged); stale DECISIONS.md:824 evidence replaced (run_study.py:34). Merged 2026-10-15 onto s42 (DECISIONS 55/56): primary current at the 18.9 A release trip (0.22 of the 40 K-rise current; 0.34 at 28 A); pad-map citation corrected to parts.ato:478-485. S20 (2026-10-16, ledger286.py): volt-time re-cited from the stage-15 118.74 A top to the s47 119.09 A top."
   },
   "7466004R": {
    "mpn": "7466004R",
@@ -3393,10 +3393,10 @@
     },
     {
      "parameter": "V per resistor, bus divider at static OVP",
-     "worst_case_value": 71.5,
+     "worst_case_value": 71.91,
      "unit": "V",
-     "condition": "286 V / 4 (R26-R29)",
-     "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:60; elec/src/power_stage_120v.ato:493"
+     "condition": "287.62 V s47 OVP band top / 4 (R26-R29)",
+     "evidence": "validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24; elec/src/power_stage_120v.ato:493"
     },
     {
      "parameter": "V per resistor, bus divider in a 2 kV DM surge",
@@ -3495,7 +3495,7 @@
      "max_ratio": 0.8,
      "severity": "violation",
      "rule": "<= 80 %",
-     "ratio": 0.3575
+     "ratio": 0.3595
     },
     {
      "id": "divider surge",
@@ -3560,10 +3560,10 @@
    ],
    "gaps": [
     "owner: F3's third-fault case (DECISIONS.md:853, 1,683 V across C_res) puts 421 V on each of R22-R25, 1.05x the 400 V / 5 s overload rating. The same case already exceeds C21-C23's 1,600 VDC and is accepted only as a third independent fault behind the 35 kHz floor; confirm it stays outside the design basis (a bleed resistor failing open there only loses the bleed).",
-    "bench: R26-R29 (divider) are not in the B3 thermal model; their dissipation is <= 11 mW each at 286 V, but the local board temperature is unmeasured (IR at first power)."
+    "bench: R26-R29 (divider) are not in the B3 thermal model; their dissipation is <= 11 mW each at 287.62 V, but the local board temperature is unmeasured (IR at first power)."
    ],
    "finding": null,
-   "notes": "2026-10-15 batch B: rated values re-read on the current RC_L V.12 sheet (unchanged from the 2004 V.2: 200 / 400 / 500 V, 1/4 W at 70 C, 155 C). B3's '1206 thick film (unverified) 155 C' rows for R22-R25 are now verified (p.6/p.7). The old 160 V stress (640 V / 4) is replaced by the 28 A grid bound 690.4 / 4 = 172.6 V peak; checked as rms (Yageo defines the rating as DC or AC rms). Approval basis: commodity thick-film resistor; no UL/CSA component recognition exists or is relied on (functional divider and bleed inside the HOT domain, no barrier). Merged 2026-10-15 onto s42 (DECISIONS 55/56): body re-cited to the release case (R22 83.9 C; 98.1 C at c28); power and temperature pass at both; source lines moved +2 (candidate 39)."
+   "notes": "2026-10-15 batch B: rated values re-read on the current RC_L V.12 sheet (unchanged from the 2004 V.2: 200 / 400 / 500 V, 1/4 W at 70 C, 155 C). B3's '1206 thick film (unverified) 155 C' rows for R22-R25 are now verified (p.6/p.7). The old 160 V stress (640 V / 4) is replaced by the 28 A grid bound 690.4 / 4 = 172.6 V peak; checked as rms (Yageo defines the rating as DC or AC rms). Approval basis: commodity thick-film resistor; no UL/CSA component recognition exists or is relied on (functional divider and bleed inside the HOT domain, no barrier). Merged 2026-10-15 onto s42 (DECISIONS 55/56): body re-cited to the release case (R22 83.9 C; 98.1 C at c28); power and temperature pass at both; source lines moved +2 (candidate 39). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V)."
   },
   "B2P3-VH(LF)(SN)": {
    "mpn": "B2P3-VH(LF)(SN)",
@@ -3969,10 +3969,10 @@
     },
     {
      "parameter": "Barrier peak",
-     "worst_case_value": 286,
+     "worst_case_value": 287.62,
      "unit": "V",
-     "condition": "bus static OVP corner (conservative: the HOT side rides HV_RET, which is within the line peak of PE)",
-     "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:60"
+     "condition": "bus at the s47 OVP band top (conservative: the HOT side rides HV_RET, which is within the line peak of PE) (287.62 V: c28 solved network; release 287.45 V)",
+     "evidence": "validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
     },
     {
      "parameter": "Line high corner",
@@ -3989,11 +3989,11 @@
      "evidence": "native-21/verification/datasheet-ledger/scripts/datasheet_gap_calcs.py:22"
     },
     {
-     "parameter": "VSENSE at 286 V OVP corner",
-     "worst_case_value": 2.3836,
+     "parameter": "VSENSE at the OVP band top",
+     "worst_case_value": 2.3971,
      "unit": "V",
-     "condition": "same divider at the static OVP corner",
-     "evidence": "native-21/verification/datasheet-ledger/scripts/datasheet_gap_calcs.py:23"
+     "condition": "nominal divider 15.8 k / 1,895.8 k at the s47 OVP band top 287.62 V",
+     "evidence": "validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24; elec/src/power_stage_120v.ato:491-516"
     },
     {
      "parameter": "Surge L-E across barrier",
@@ -4036,8 +4036,8 @@
      "stress": "Barrier peak",
      "max_ratio": 0.5,
      "severity": "violation",
-     "rule": "13 %",
-     "ratio": 0.1349
+     "rule": "14 %",
+     "ratio": 0.1357
     },
     {
      "id": "working",
@@ -4060,11 +4060,11 @@
     {
      "id": "input clip",
      "rating": "VClipping",
-     "stress": "VSENSE at 286 V OVP corner",
+     "stress": "VSENSE at the OVP band top",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "94.7 % of clipping at 286 V; above 240 V the input is outside the linear range",
-     "ratio": 0.9474
+     "rule": "95.3 % of clipping at 287.62 V; above 240 V the input is outside the linear range",
+     "ratio": 0.9527
     },
     {
      "id": "surge",
@@ -4096,7 +4096,7 @@
     "owner: bus readings above 240.0 V are outside the 2 V linear range (clipping at 301.9 V). Firmware flags VBUS over-range at 230.9 V (N21_VBUS_OVERRANGE_MV) and the hardware OVP is the TLV3201 on VSENSE_IN (elec/src/power_stage_120v.ato:614), so no protection relies on the nonlinear band; nothing gates that dependency."
    ],
    "finding": null,
-   "notes": "Merged 2026-10-15 onto s42 (DECISIONS 55/56): CMTI bound re-cited to s42 (49.7 V/ns, 2.0x; 1.5x met); source lines moved +2 (candidate 39)."
+   "notes": "Merged 2026-10-15 onto s42 (DECISIONS 55/56): CMTI bound re-cited to s42 (49.7 V/ns, 2.0x; 1.5x met); source lines moved +2 (candidate 39). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V)."
   },
   "0603WAF5601T5E": {
    "mpn": "0603WAF5601T5E",
@@ -4307,11 +4307,10 @@
    ],
    "gaps": [
     "the local temperature is the B3 body-model estimate (pad copper as the die / ambient proxy, hot copper, still air at the BASIS bays), not a measurement; the bands take REF25 at the full -40..125 C row (validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md)",
-    "long-term drift (120 ppm / 1000 h typical) and thermal hysteresis are typical-only and outside the band model",
-    "other entries' bus-OVP stresses quote 286 V (alt-circuits-2026-10-09 ALT-D3.md:60), below this band's upper corner (287.45 V at the s47 basis; 288.02 V for the A25I on the committed basis): pre-existing, not re-cited here"
+    "long-term drift (120 ppm / 1000 h typical) and thermal hysteresis are typical-only and outside the band model"
    ],
    "finding": null,
-   "notes": "JLC C2156518, extended, 50 in stock 2026-10-15 against 500 for 500 boards (LM4050QAEM3-2.5 C2157745 43, C2157326 3): the 500-board lot is an owner pre-order (>= 550 incl. attrition) consigned to JLC; $3.4228 at 500+. The JLC listing's -40..85 C is wrong for the E suffix (TI 5.3 p.5, addendum p.25). Replaces LM4040A25IDBZR (C9421) on the same DBZ pads: at the c17.5 @ 61 release case the A25I read 89.1 C against 85 C (-4.1 K). Bands: validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md."
+   "notes": "JLC C2156518, extended, 50 in stock 2026-10-15 against 500 for 500 boards (LM4050QAEM3-2.5 C2157745 43, C2157326 3): the 500-board lot is an owner pre-order (>= 550 incl. attrition) consigned to JLC; $3.4228 at 500+. The JLC listing's -40..85 C is wrong for the E suffix (TI 5.3 p.5, addendum p.25). Replaces LM4040A25IDBZR (C9421) on the same DBZ pads: at the c17.5 @ 61 release case the A25I read 89.1 C against 85 C (-4.1 K). Bands: validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md. S20 closed by ledger286.py: the bus-OVP rows now cite the s47 band top 287.62 V."
   },
   "RT0603BRD0710KL": {
    "mpn": "RT0603BRD0710KL",
@@ -4573,10 +4572,10 @@
    "stresses": [
     {
      "parameter": "Bus static OVP",
-     "worst_case_value": 286,
+     "worst_case_value": 287.62,
      "unit": "V",
-     "condition": "static OVP corner, standoff must exceed it",
-     "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:60"
+     "condition": "s47 OVP band top, standoff must exceed it (287.62 V: c28 solved network; release 287.45 V)",
+     "evidence": "validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
     },
     {
      "parameter": "Clamp current 1 kV DM",
@@ -4608,8 +4607,8 @@
      "stress": "Bus static OVP",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "286 V <= 300 V (95 %: no margin)",
-     "ratio": 0.9533
+     "rule": "287.62 V <= 300 V (95.9 %: no margin)",
+     "ratio": 0.9587
     },
     {
      "id": "IPP",
@@ -4655,7 +4654,7 @@
     "bench: P600 lead bend, hole centre 1.8 mm from the body end (FINDINGS #8): check a formed sample before ordering."
    ],
    "finding": null,
-   "notes": "2026-10-15 batch B: Good-Ark's own sheet obtained (closes 'no Good-Ark copy'); its p.3 row matches ALT-D3 / parts.ato (VBR min 167.6 V, so the string is 335.2 V). Approval basis: a TVS across the internal DC link after BR1 is not an SPD under UL 1449 and carries no UL recognition (UL 94 V-0 epoxy only); evaluated in the end product."
+   "notes": "2026-10-15 batch B: Good-Ark's own sheet obtained (closes 'no Good-Ark copy'); its p.3 row matches ALT-D3 / parts.ato (VBR min 167.6 V, so the string is 335.2 V). Approval basis: a TVS across the internal DC link after BR1 is not an SPD under UL 1449 and carries no UL recognition (UL 94 V-0 epoxy only); evaluated in the end product. S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V)."
   },
   "1704004": {
    "mpn": "1704004",
@@ -4779,10 +4778,10 @@
    "stresses": [
     {
      "parameter": "Vbus worst no-clamp",
-     "worst_case_value": 451,
+     "worst_case_value": 451.6,
      "unit": "V",
-     "condition": "worst stacked corner (static OVP / stacked)",
-     "evidence": "validation-results/11-candidates/r2-cost/PROPOSALS.md:89"
+     "condition": "worst stacked corner (V0 = 287.62 V static OVP top, stacked)",
+     "evidence": "validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
     },
     {
      "parameter": "Commutation spike bound",
@@ -4850,7 +4849,7 @@
      "max_ratio": 0.8,
      "severity": "violation",
      "rule": "45 %",
-     "ratio": 0.451
+     "ratio": 0.4516
     },
     {
      "id": "V hot",
@@ -4859,7 +4858,7 @@
      "max_ratio": 0.8,
      "severity": "violation",
      "rule": "66 % of the 110 C derated VR",
-     "ratio": 0.656
+     "ratio": 0.6569
     },
     {
      "id": "V spike",
@@ -4909,7 +4908,7 @@
     "bench: per-part RMS current share is unknown: B3 carries 0.05-0.2 W per part as an estimate (make_heat_sources.py:113, ~3.8 A at the 14 mOhm ESR if real); measure, and apply the p.64 FT derating above 85 C ambient."
    ],
    "finding": null,
-   "notes": "2026-10-15 batch B: IRMS 5.4 A now read on the TDK sheet (was the parts.ato docstring). Approval basis: DC-link decoupling after BR1, not an X capacitor across the mains; no UL/CSA recognition relied on (UL 94 V-0 case and resin only). Merged 2026-10-15 onto s42 (DECISIONS 55/56): Top re-cited to the release case (C40 108.9 C, 0.99 of 110 C); the spike bound is the F6 490 V (s42 grid 347 / 435 V). Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. C40 108.9 -> 108.8 C (release), 137.8 -> 137.7 C (c28)."
+   "notes": "2026-10-15 batch B: IRMS 5.4 A now read on the TDK sheet (was the parts.ato docstring). Approval basis: DC-link decoupling after BR1, not an X capacitor across the mains; no UL/CSA recognition relied on (UL 94 V-0 case and resin only). Merged 2026-10-15 onto s42 (DECISIONS 55/56): Top re-cited to the release case (C40 108.9 C, 0.99 of 110 C); the spike bound is the F6 490 V (s42 grid 347 / 435 V). Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. C40 108.9 -> 108.8 C (release), 137.8 -> 137.7 C (c28). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V start; stacked event 451.6 V)."
   },
   "RC1206FR-073RL": {
    "mpn": "RC1206FR-073RL",
@@ -6921,17 +6920,17 @@
     },
     {
      "parameter": "Barrier peak",
-     "worst_case_value": 451,
+     "worst_case_value": 451.6,
      "unit": "V",
-     "condition": "bus worst stacked corner (HOT-to-HOT functional here) (peak)",
-     "evidence": "validation-results/11-candidates/r2-cost/PROPOSALS.md:89"
+     "condition": "bus worst stacked corner, V0 = 287.62 V (HOT-to-HOT functional here) (peak)",
+     "evidence": "validation-results/11-candidates/r2-cost/scripts/bus_peak_no_clamp.py:17-22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
     },
     {
      "parameter": "Barrier rms",
-     "worst_case_value": 202.2,
+     "worst_case_value": 203.38,
      "unit": "Vrms",
-     "condition": "HS output side swings 0..286 V square against the input side: 286 / sqrt 2",
-     "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:60"
+     "condition": "HS output side swings 0..287.62 V (s47 OVP band top) square against the input side: 287.62 / sqrt 2",
+     "evidence": "validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
     },
     {
      "parameter": "CMTI edge, s42 typical Qrr",
@@ -6973,7 +6972,7 @@
      "max_ratio": 0.5,
      "severity": "violation",
      "rule": "<= 50 %",
-     "ratio": 0.2552
+     "ratio": 0.2556
     },
     {
      "id": "working",
@@ -6982,7 +6981,7 @@
      "max_ratio": 0.5,
      "severity": "violation",
      "rule": "16 %",
-     "ratio": 0.1618
+     "ratio": 0.1627
     },
     {
      "id": "CMTI",
@@ -7028,7 +7027,7 @@
     "owner: DIS has an internal pull-down (open = enabled): R73 / R76 alone hold an open DIS disabled.",
     "owner: single source (Infineon), 39-week lead time; bench: VDD start-up overshoot < 21 V and driver / Rg temperature."
    ],
-   "notes": "Replaces UCC21550BDWKR (stage 29): CMTI 1.32x -> 1.58x on the 95 V/ns model edge; no distributor stock gap (Digi-Key 1,043; LCSC C17455725). Approvals (p.1): UL 1577 E311313 (5700 Vrms), CSA via Component Acceptance Notice 5A, VDE/IEC 60747-17 40055138; the barrier is HOT-to-HOT functional here, so no approval is relied on for safety. 2026-10-15 batch B: CMTI stresses moved from the 95 V/ns model to the DECISIONS 54 as-built S4 rows. Merged 2026-10-15 onto s42 (DECISIONS 55/56): VIOLATION -> PARTIAL: CMTI re-evaluated at s42's S4 edge, 49.7 V/ns at typical Qrr: 150 / 49.7 = 3.0x, the 1.5x gate-command rule met. Batch B's finding was stated on the s29-s41 edge: CMTI derating (RESOLUTION-PLAN F6: >= 1.5x the hard edge for gate-command crossings) fails on the as-built board: at typical diode recovery charge the S4 switch-node edge is 109-112 V/ns (gate-network-2026-10-15 README:109, DECISIONS 54) against the 150 V/ns static CMTI, 1.34x. The edge is still under the rating itself (0.75); the 1.75x on the vendor-model 85.8 V/ns understated Qrr. Same root cause as IPW65R018CFD7's VIOLATION (S4 recovery snap). Fix: candidate 39 (R_on 68 ohm 2512 + Cgs 4.7 nF) gives 49.7 V/ns, 3.0x; confirm on the D-8 double-pulse bench.",
+   "notes": "Replaces UCC21550BDWKR (stage 29): CMTI 1.32x -> 1.58x on the 95 V/ns model edge; no distributor stock gap (Digi-Key 1,043; LCSC C17455725). Approvals (p.1): UL 1577 E311313 (5700 Vrms), CSA via Component Acceptance Notice 5A, VDE/IEC 60747-17 40055138; the barrier is HOT-to-HOT functional here, so no approval is relied on for safety. 2026-10-15 batch B: CMTI stresses moved from the 95 V/ns model to the DECISIONS 54 as-built S4 rows. Merged 2026-10-15 onto s42 (DECISIONS 55/56): VIOLATION -> PARTIAL: CMTI re-evaluated at s42's S4 edge, 49.7 V/ns at typical Qrr: 150 / 49.7 = 3.0x, the 1.5x gate-command rule met. Batch B's finding was stated on the s29-s41 edge: CMTI derating (RESOLUTION-PLAN F6: >= 1.5x the hard edge for gate-command crossings) fails on the as-built board: at typical diode recovery charge the S4 switch-node edge is 109-112 V/ns (gate-network-2026-10-15 README:109, DECISIONS 54) against the 150 V/ns static CMTI, 1.34x. The edge is still under the rating itself (0.75); the 1.75x on the vendor-model 85.8 V/ns understated Qrr. Same root cause as IPW65R018CFD7's VIOLATION (S4 recovery snap). Fix: candidate 39 (R_on 68 ohm 2512 + Cgs 4.7 nF) gives 49.7 V/ns, 3.0x; confirm on the D-8 double-pulse bench. S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V; 203.38 Vrms).",
    "finding": null
   },
   "ISO6721FBDR": {
@@ -7081,17 +7080,17 @@
    "stresses": [
     {
      "parameter": "Barrier peak",
-     "worst_case_value": 286,
+     "worst_case_value": 287.62,
      "unit": "V",
-     "condition": "bus static OVP corner: each HS island (SW_A for U43, SW_B for U44) swings 0..VBUS against N_LS",
-     "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:60"
+     "condition": "bus at the s47 OVP band top: each HS island (SW_A for U43, SW_B for U44) swings 0..VBUS against N_LS (287.62 V: c28 solved network; release 287.45 V)",
+     "evidence": "validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
     },
     {
      "parameter": "Barrier rms",
-     "worst_case_value": 202.2,
+     "worst_case_value": 203.38,
      "unit": "Vrms",
-     "condition": "same square wave, 286 / sqrt 2",
-     "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:60"
+     "condition": "same square wave, 287.62 / sqrt 2",
+     "evidence": "validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
     },
     {
      "parameter": "CMTI edge, s42 typical Qrr",
@@ -7131,7 +7130,7 @@
      "max_ratio": 0.5,
      "severity": "violation",
      "rule": "45 %",
-     "ratio": 0.449
+     "ratio": 0.4515
     },
     {
      "id": "working",
@@ -7140,7 +7139,7 @@
      "max_ratio": 0.5,
      "severity": "violation",
      "rule": "45 %",
-     "ratio": 0.4493
+     "ratio": 0.452
     },
     {
      "id": "CMTI",
@@ -7194,7 +7193,7 @@
     "certifier: basic insulation (UL 1577 single protection E181974, CSA 220991 basic) used as the functional HS-LS crossing; the certifier is asked whether its barrier short may be excluded (FMEA section 7 Q4)."
    ],
    "finding": null,
-   "notes": "Merged 2026-10-15 onto s42 (DECISIONS 55/56): VIOLATION -> PARTIAL: CMTI re-evaluated at s42's S4 edge, 49.7 V/ns at typical Qrr = 0.50 of the 100 V/ns minimum (2.0x; 1.5x rule met). Batch B's finding was stated on the s29-s41 edge: Stress over a rating: at typical diode recovery charge the as-built S4 edge on SW_A / SW_B is 109-112 V/ns (gate-network-2026-10-15 README:109, DECISIONS 54), above the ISO6721's 100 kV/us minimum CMTI (1.12x), so the datasheet no longer guarantees a correct OUTB during the edge. Consequence per the c24 FMEA: a ~5 ns upset pauses or adds at most one or two heartbeat edges and cannot sustain BIAS_GOOD (availability, not safety). Same root cause as IPW65R018CFD7 (S4 recovery snap); candidate 39 gives 49.7 V/ns (2.0x). The ledger's 95 V/ns edge had hidden it (0.95)."
+   "notes": "Merged 2026-10-15 onto s42 (DECISIONS 55/56): VIOLATION -> PARTIAL: CMTI re-evaluated at s42's S4 edge, 49.7 V/ns at typical Qrr = 0.50 of the 100 V/ns minimum (2.0x; 1.5x rule met). Batch B's finding was stated on the s29-s41 edge: Stress over a rating: at typical diode recovery charge the as-built S4 edge on SW_A / SW_B is 109-112 V/ns (gate-network-2026-10-15 README:109, DECISIONS 54), above the ISO6721's 100 kV/us minimum CMTI (1.12x), so the datasheet no longer guarantees a correct OUTB during the edge. Consequence per the c24 FMEA: a ~5 ns upset pauses or adds at most one or two heartbeat edges and cannot sustain BIAS_GOOD (availability, not safety). Same root cause as IPW65R018CFD7 (S4 recovery snap); candidate 39 gives 49.7 V/ns (2.0x). The ledger's 95 V/ns edge had hidden it (0.95). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V)."
   },
   "BAT54S-7-F": {
    "mpn": "BAT54S-7-F",
@@ -7436,10 +7435,10 @@
    "stresses": [
     {
      "parameter": "Barrier peak",
-     "worst_case_value": 286,
+     "worst_case_value": 287.62,
      "unit": "V",
-     "condition": "bus static OVP corner",
-     "evidence": "validation-results/08-manufacturing-package/native-21/sourcing/alt-circuits-2026-10-09/ALT-D3.md:60"
+     "condition": "bus at the s47 OVP band top (287.62 V: c28 solved network; release 287.45 V)",
+     "evidence": "validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
     },
     {
      "parameter": "CMTI edge",
@@ -7486,7 +7485,7 @@
      "max_ratio": 0.5,
      "severity": "violation",
      "rule": "20 %",
-     "ratio": 0.2023
+     "ratio": 0.2034
     },
     {
      "id": "CMTI",
@@ -7546,7 +7545,7 @@
     "bench: mixed-supply (5 V / 3.3 V) timing is not tabulated; the 3.3 V table is used for the SELV side. VOH at 3.3 V is specified at -2 mA; the loads are CMOS gate inputs and the 1 k R134."
    ],
    "finding": null,
-   "notes": "Stage 31 (DECISIONS 34) replaces TI ISO7710DWR on the same pads; evaluation and the rejected Novosense NSi822x (open-input default unspecified, NSi8220W1 91 pcs at JLC) in validation-results/11-candidates/c31-bom/README.md. Merged 2026-10-15 onto s42 (DECISIONS 55/56): CMTI bound re-cited to s42 (49.7 V/ns, 2.0x the 100 V/ns minimum; 1.5x met)."
+   "notes": "Stage 31 (DECISIONS 34) replaces TI ISO7710DWR on the same pads; evaluation and the rejected Novosense NSi822x (open-input default unspecified, NSi8220W1 91 pcs at JLC) in validation-results/11-candidates/c31-bom/README.md. Merged 2026-10-15 onto s42 (DECISIONS 55/56): CMTI bound re-cited to s42 (49.7 V/ns, 2.0x the 100 V/ns minimum; 1.5x met). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V)."
   },
   "CL32B106KBJNNNE": {
    "mpn": "CL32B106KBJNNNE",

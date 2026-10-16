@@ -474,7 +474,7 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "VIORM",
-     "ratio": 0.2552,
+     "ratio": 0.2556,
      "severity": "violation",
      "stress": "Barrier peak"
     },
@@ -483,7 +483,7 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "VIOWM",
-     "ratio": 0.1618,
+     "ratio": 0.1627,
      "severity": "violation",
      "stress": "Barrier rms"
     },
@@ -540,7 +540,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Standoff string",
-     "ratio": 0.9533,
+     "ratio": 0.9587,
      "severity": "violation",
      "stress": "Bus static OVP"
     },
@@ -772,7 +772,7 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "VIORM",
-     "ratio": 0.1349,
+     "ratio": 0.1357,
      "severity": "violation",
      "stress": "Barrier peak"
     },
@@ -799,9 +799,9 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "VClipping",
-     "ratio": 0.9474,
+     "ratio": 0.9527,
      "severity": "gap",
-     "stress": "VSENSE at 286 V OVP corner"
+     "stress": "VSENSE at the OVP band top"
     },
     {
      "id": "surge",
@@ -886,7 +886,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "VR DC",
-     "ratio": 0.451,
+     "ratio": 0.4516,
      "severity": "violation",
      "stress": "Vbus worst no-clamp"
     },
@@ -895,7 +895,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "VR DC derated at 110 C",
-     "ratio": 0.656,
+     "ratio": 0.6569,
      "severity": "violation",
      "stress": "Vbus worst no-clamp"
     },
@@ -1081,7 +1081,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "VR 85C DC",
-     "ratio": 0.3813,
+     "ratio": 0.3835,
      "severity": "violation",
      "stress": "Vbus static OVP"
     },
@@ -1090,7 +1090,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "VR 85C DC",
-     "ratio": 0.6013,
+     "ratio": 0.6021,
      "severity": "violation",
      "stress": "Vbus worst no-clamp"
     },
@@ -1099,7 +1099,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "Vop at 105 C case",
-     "ratio": 0.7912,
+     "ratio": 0.7923,
      "severity": "violation",
      "stress": "Vbus worst no-clamp"
     },
@@ -1376,7 +1376,7 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "VIORM",
-     "ratio": 0.2023,
+     "ratio": 0.2034,
      "severity": "violation",
      "stress": "Barrier peak"
     },
@@ -1539,7 +1539,7 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "Rated voltage DC",
-     "ratio": 0.451,
+     "ratio": 0.4516,
      "severity": "violation",
      "stress": "Bus, worst stacked no-clamp case"
     },
@@ -1548,7 +1548,7 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "Rated voltage DC",
-     "ratio": 0.286,
+     "ratio": 0.2876,
      "severity": "violation",
      "stress": "Bus static OVP (continuous)"
     },
@@ -1833,9 +1833,9 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "Volt-time secondary",
-     "ratio": 0.053,
+     "ratio": 0.0531,
      "severity": "violation",
-     "stress": "Volt-time at 118.74 A"
+     "stress": "Volt-time at the shunt-band top"
     }
    ],
    "class": "SAFETY",
@@ -1912,7 +1912,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "VRRM",
-     "ratio": 0.451,
+     "ratio": 0.4516,
      "severity": "violation",
      "stress": "V reverse worst"
     },
@@ -2153,7 +2153,7 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "VIORM",
-     "ratio": 0.449,
+     "ratio": 0.4515,
      "severity": "violation",
      "stress": "Barrier peak"
     },
@@ -2162,7 +2162,7 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "VIOWM",
-     "ratio": 0.4493,
+     "ratio": 0.452,
      "severity": "violation",
      "stress": "Barrier rms"
     },
@@ -2399,8 +2399,7 @@
    "function": "REF25, the 2.5 V shunt reference for the shunt-OCP threshold (R32-R35) and the bus OVP threshold (R36 / R37), fed by R31 5.6 k from HOT5; the extended-range LM4050AEM3 since stage 47 (S17 hot copper; LM4040A25IDBZR, -40..85 C, before)",
    "gaps": [
     "the local temperature is the B3 body-model estimate (pad copper as the die / ambient proxy, hot copper, still air at the BASIS bays), not a measurement; the bands take REF25 at the full -40..125 C row (validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md)",
-    "long-term drift (120 ppm / 1000 h typical) and thermal hysteresis are typical-only and outside the band model",
-    "other entries' bus-OVP stresses quote 286 V (alt-circuits-2026-10-09 ALT-D3.md:60), below this band's upper corner (287.45 V at the s47 basis; 288.02 V for the A25I on the committed basis): pre-existing, not re-cited here"
+    "long-term drift (120 ppm / 1000 h typical) and thermal hysteresis are typical-only and outside the band model"
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -2643,7 +2642,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "V working",
-     "ratio": 0.715,
+     "ratio": 0.719,
      "severity": "violation",
      "stress": "V per resistor static"
     },
@@ -2652,7 +2651,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "V overload",
-     "ratio": 0.5637,
+     "ratio": 0.5645,
      "severity": "violation",
      "stress": "V per resistor transient"
     },
@@ -2684,7 +2683,7 @@
    "function": "Bus bleed R3/R4 (two 220 k in series, midpoint to D3/D17)",
    "gaps": [
     "bench: local air at R3/R4 is not evidenced (B3 has no R3/R4 row); 85 C is assumed as for R1/R2, and the 50 % power rule holds to 91.8 C.",
-    "certifier: with one resistor shorted the other carries the whole bus (286 V static > 200 V working, < 400 V overload); the abnormal-operation outcome (bleed lost if it opens) is a lab item."
+    "certifier: with one resistor shorted the other carries the whole bus (287.62 V static > 200 V working, < 400 V overload); the abnormal-operation outcome (bleed lost if it opens) is a lab item."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -2744,7 +2743,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "V working",
-     "ratio": 0.3575,
+     "ratio": 0.3595,
      "severity": "violation",
      "stress": "V per resistor, bus divider at static OVP"
     },
@@ -2818,7 +2817,7 @@
    "function": "R22-R25: C_res bank bleed string (RES_A to SW_B, 4 x 470 k); R26-R29: bus-voltage divider top (BUS_P to VSENSE_IN, 4 x 470 k over 15.8 k)",
    "gaps": [
     "owner: F3's third-fault case (DECISIONS.md:853, 1,683 V across C_res) puts 421 V on each of R22-R25, 1.05x the 400 V / 5 s overload rating. The same case already exceeds C21-C23's 1,600 VDC and is accepted only as a third independent fault behind the 35 kHz floor; confirm it stays outside the design basis (a bleed resistor failing open there only loses the bleed).",
-    "bench: R26-R29 (divider) are not in the B3 thermal model; their dissipation is <= 11 mW each at 286 V, but the local board temperature is unmeasured (IR at first power)."
+    "bench: R26-R29 (divider) are not in the B3 thermal model; their dissipation is <= 11 mW each at 287.62 V, but the local board temperature is unmeasured (IR at first power)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
