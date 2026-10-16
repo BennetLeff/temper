@@ -1,0 +1,245 @@
+{
+ "controller": [
+  {
+   "event": "PS3 setup (AC on -> output starts)",
+   "min": 0.0,
+   "typ": null,
+   "max": 1000.0,
+   "cls": "G(max only)",
+   "src": "MPM-65-SPEC p.2 SETUP 1000 ms @115 VAC full load; no min"
+  },
+  {
+   "event": "PS3 rise 0 -> 15 V",
+   "min": 0.0,
+   "typ": null,
+   "max": 30.0,
+   "cls": "G(max only)",
+   "src": "MPM-65-SPEC p.2 RISE 30 ms"
+  },
+  {
+   "event": "PS3 output start -> buck EN (VIN 11.2 V typ, 12.1 V max)",
+   "min": 0.0,
+   "typ": 23.03424657534247,
+   "max": 24.80593092706758,
+   "cls": "E",
+   "src": "linear 30 ms ramp assumed; light load is faster"
+  },
+  {
+   "event": "buck EN -> v3v3 at 3.3 V (soft start)",
+   "min": 1.107692307692308,
+   "typ": 1.4545454545454546,
+   "max": 1.955555555555556,
+   "cls": "G+C",
+   "src": "SLUSEA4D Eq.6, ISS 4.5-6.5 uA, CSS 10 nF +/-10 %"
+  },
+  {
+   "event": "v3v3 -> CHIP_PU released (VIH 0.75 VDD)",
+   "min": 8.924235292350268,
+   "typ": 12.476649250079014,
+   "max": 17.71198990484828,
+   "cls": "C+E",
+   "src": "tau = R x C; t = tau ln 4; X5R derating is an estimate"
+  },
+  {
+   "event": "CHIP_PU -> first statement of app_main (sample)",
+   "min": 150.0,
+   "typ": 318.8,
+   "max": 470.0,
+   "cls": "T(typ)+E(range)",
+   "src": "Espressif techpedia 318.8 ms default S3; +/- for image size, flash, USJ, logs"
+  }
+ ],
+ "controller_after_v3v3_ms": [
+  158.9,
+  331.3,
+  487.7
+ ],
+ "ps3_to_v3v3_ms": [
+  1.11,
+  24.49,
+  26.76
+ ],
+ "selv_bias_good_after_v3v3": {
+  "event": "v3v3 >= 2.375 V -> GPIO35 >= VIH (HOT heartbeat already running)",
+  "min": 0.45883096683449864,
+  "typ": 0.49822747057174976,
+  "max": 0.5648408848716562,
+  "cls": "G+S+C",
+  "src": "CA-IS3720 tSU <= 40 us; pump J 10.5 us (SPICE); J4.1 RC final 0.810-0.816 x VDD"
+ },
+ "j41_final_fraction": {
+  "min": 0.8099,
+  "typ": 0.813,
+  "max": 0.816
+ },
+ "hot": [
+  {
+   "event": "PS2 setup (AC on -> output starts)",
+   "min": 0.0,
+   "typ": null,
+   "max": 1500.0,
+   "cls": "G(max only)",
+   "src": "MPM-20-SPEC 2024-10-30 p.2 SETUP 1500 ms @115 VAC full load; no min"
+  },
+  {
+   "event": "PS2 output start -> V15_LS in the LS window (TPS7A47, CNR 1 uF)",
+   "min": 40.0,
+   "typ": 65.0,
+   "max": 100.0,
+   "cls": "T(typ)+E(range)",
+   "src": "SBVS204G Fig 5-21 65 ms; no min/max published"
+  },
+  {
+   "event": "PS2 output start -> HS P-N up (UVLO 19-21 V on the 30 ms ramp + 3 ms)",
+   "min": 3.0,
+   "typ": 28.0,
+   "max": 29.25,
+   "cls": "G+E",
+   "src": "R24C2T25/R Rev.1-2024 p.4: UVLO 19/20/21 V, soft start 3 ms"
+  },
+  {
+   "event": "rail up -> its monitor 5 V and 'good' (TPS70950 tSTR + comparators)",
+   "min": 0.0,
+   "typ": 0.5,
+   "max": 1.5,
+   "cls": "G",
+   "src": "SBVS186H tSTR <= 1500 us"
+  }
+ ],
+ "ps2_to_hot_good_ms": [
+  40.0,
+  65.5,
+  101.5
+ ],
+ "D_required_ms": {
+  "min": 59.0,
+  "typ": 290.8,
+  "max": 475.0
+ },
+ "D_datasheet_range_ms": [
+  -1000.0,
+  1500.0
+ ],
+ "worst_case_margin_ms": {
+  "latest_sample": -487.15,
+  "typ": -330.78,
+  "earliest_sample": -158.47,
+  "zero_time_firmware": -1.29
+ },
+ "chip_pu_earliest_release_ms": 1.85,
+ "margin_typ_vs_D": [
+  [
+   -1000,
+   -330.8
+  ],
+  [
+   -300,
+   -330.8
+  ],
+  [
+   0,
+   -289.8
+  ],
+  [
+   100,
+   -189.8
+  ],
+  [
+   200,
+   -89.8
+  ],
+  [
+   300,
+   10.2
+  ],
+  [
+   500,
+   210.2
+  ],
+  [
+   1000,
+   710.2
+  ],
+  [
+   1500,
+   1210.2
+  ]
+ ],
+ "fix_tps3808g30": [
+  {
+   "option": "CT = VDD (no cap)",
+   "cap_line": "none (CT via 100 k to VDD, existing 0603WAF1003T5E)",
+   "td_min_s": 0.18,
+   "td_typ_s": 0.3,
+   "td_max_s": 0.42,
+   "margin_vs_app_main_sample_s": -0.308,
+   "margin_vs_bootloader_hook_s": 0.122,
+   "readiness_max_s": 0.45
+  },
+  {
+   "option": "CT 100 nF",
+   "cap_line": "CC0603KRX7R9BB104 (existing line)",
+   "td_min_s": 0.256,
+   "td_typ_s": 0.572,
+   "td_max_s": 1.012,
+   "margin_vs_app_main_sample_s": -0.232,
+   "margin_vs_bootloader_hook_s": 0.198,
+   "readiness_max_s": 1.04
+  },
+  {
+   "option": "CT 2 x 100 nF",
+   "cap_line": "CC0603KRX7R9BB104 x 2 (existing line)",
+   "td_min_s": 0.511,
+   "td_typ_s": 1.143,
+   "td_max_s": 2.024,
+   "margin_vs_app_main_sample_s": 0.023,
+   "margin_vs_bootloader_hook_s": 0.453,
+   "readiness_max_s": 2.05
+  },
+  {
+   "option": "CT 330 nF",
+   "cap_line": "CC0603KRX7R8BB334 C107070 (Extended, new line)",
+   "td_min_s": 0.843,
+   "td_typ_s": 1.886,
+   "td_max_s": 3.34,
+   "margin_vs_app_main_sample_s": 0.356,
+   "margin_vs_bootloader_hook_s": 0.786,
+   "readiness_max_s": 3.37
+  },
+  {
+   "option": "CT 470 nF",
+   "cap_line": "CL10B474KA8NNNC C1623 (Basic, new line)",
+   "td_min_s": 1.201,
+   "td_typ_s": 2.686,
+   "td_max_s": 4.756,
+   "margin_vs_app_main_sample_s": 0.714,
+   "margin_vs_bootloader_hook_s": 1.144,
+   "readiness_max_s": 4.78
+  },
+  {
+   "option": "CT 1 uF",
+   "cap_line": "GRM188R71E105KA12D (existing line)",
+   "td_min_s": 2.556,
+   "td_typ_s": 5.715,
+   "td_max_s": 10.12,
+   "margin_vs_app_main_sample_s": 2.068,
+   "margin_vs_bootloader_hook_s": 2.498,
+   "readiness_max_s": 10.15
+  }
+ ],
+ "fix_tps3808_vol_ok": true,
+ "fix_rc_existing_lines": [
+  {
+   "rc": "100 k / 10 uF",
+   "t_min_s": 0.493,
+   "t_max_s": 1.313,
+   "note": "excludes reset-diode reverse leakage (BAT54S at hot can be comparable to the charge current)"
+  },
+  {
+   "rc": "220 k / 10 uF",
+   "t_min_s": 1.036,
+   "t_max_s": 3.107,
+   "note": "excludes reset-diode reverse leakage (BAT54S at hot can be comparable to the charge current)"
+  }
+ ]
+}

@@ -95,3 +95,5 @@ driver UVLO still holds; please restate the line with the new part.
     - **Bring-up:** firmware `components/power/COMMISSIONING.md` step 2 item 6.
     - **Reverses if:** the controller cannot spare a pin. R146 then stays as a harmless load, and B13 H2 is lost
       (DECISIONS 67).
+
+**Hold (2026-10-16):** do not route J4.1 to GPIO35 yet. The power-on check would latch `FAULT_BIAS_GOOD_POST` on a unit-dependent share of power-ons on the s48 power board as built: BIAS_GOOD reaches VIH within 0.56 ms of v3v3, before the ESP32-S3 can leave reset (`../c49-bias-race/README.md`). The power-board fix comes first.

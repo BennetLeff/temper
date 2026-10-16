@@ -1,0 +1,1709 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 9,
+   "list": [
+    {
+     "componentId": 200619,
+     "componentLibraryType": "expand",
+     "stockCount": 2338,
+     "componentTypeEn": "Supervisor and Reset ICs",
+     "erpComponentName": "\u4f4e\u9759\u6001\u7535\u6d41\u3001\u53ef\u7f16\u7a0b\u5ef6\u8fdf\u76d1\u63a7\u7535\u8def",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/supervisor-and-reset-ics_texas-instruments-tps3808g30dbvr_C189211.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8484
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6901
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.6102
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4944
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4487
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4242
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4087
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.5878
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8173
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4322
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4762
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6648
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "4d62069647c14d0bbeda141254f61c77",
+     "canPresaleNumber": 2328,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-TPS3808G30DBVR/C189211",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 2.25406,
+     "preMinPurchaseNum": 14,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.8484,
+     "componentCode": "C189211",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TPS3808G30DBVR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583829355479388160",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303021230_Texas-Instruments-TPS3808G30DBVR_C189211.pdf",
+     "dataManualFileAccessId": "8590165217439997952",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tps3808",
+     "componentName": "TI TPS3808G30DBVR",
+     "minImage": "",
+     "minImageAccessId": "8583829356376834048",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+125\u2103@(TJ) 1 1.7V~6.5V 2.4uA 20ms 3.07V Active Low No Open Drain Voltage Monitor Yes SOT-23-6 Supervisor and Reset ICs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Function",
+       "attribute_value_name": "Manual reset input"
+      },
+      {
+       "attribute_name_en": "Number of Voltages Monitored",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "ChipType",
+       "attribute_value_name": "Voltage monitor"
+      },
+      {
+       "attribute_name_en": "Reset Timeout",
+       "attribute_value_name": "20ms"
+      },
+      {
+       "attribute_name_en": "Threshold Voltage",
+       "attribute_value_name": "3.07V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.7V~6.5V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Open-drain"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "2.4uA"
+      },
+      {
+       "attribute_name_en": "Reset Active Level",
+       "attribute_value_name": "Active Low"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Supervisor and Reset ICs",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS3808G30</span>DBVR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 737247,
+     "componentLibraryType": "expand",
+     "stockCount": 22,
+     "componentTypeEn": "Supervisor and Reset ICs",
+     "erpComponentName": "\u4f4e\u9759\u6001\u7535\u6d41\u3001\u53ef\u7f16\u7a0b\u5ef6\u8fdf\u76d1\u63a7\u7535\u8def",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/supervisor-and-reset-ics_texas-instruments-tps3808g30dbvt_C702171.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.2579
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.0572
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.9463
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.8207
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.7652
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7407
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.9115
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7135
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.7905
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.2117
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.7371
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.0184
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "4d62069647c14d0bbeda141254f61c77",
+     "canPresaleNumber": 8,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-TPS3808G30DBVT/C702171",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 3.42328,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.2579,
+     "componentCode": "C702171",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TPS3808G30DBVT",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583744628537905152",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303021030_Texas-Instruments-TPS3808G30DBVT_C702171.pdf",
+     "dataManualFileAccessId": "8589946930768867328",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tps3808",
+     "componentName": "TI TPS3808G30DBVT",
+     "minImage": "",
+     "minImageAccessId": "8583744629493260288",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+125\u2103@(Tj) 1 1.7V~6.5V 2.4uA 20ms 3.07V Active Low No Open Drain Voltage Monitor Yes SOT-23-6 Supervisor and Reset ICs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Function",
+       "attribute_value_name": "Manual reset input"
+      },
+      {
+       "attribute_name_en": "Number of Voltages Monitored",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "ChipType",
+       "attribute_value_name": "Voltage monitor"
+      },
+      {
+       "attribute_name_en": "Reset Timeout",
+       "attribute_value_name": "20ms"
+      },
+      {
+       "attribute_name_en": "Threshold Voltage",
+       "attribute_value_name": "3.07V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.7V~6.5V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Open-drain"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "2.4uA"
+      },
+      {
+       "attribute_name_en": "Reset Active Level",
+       "attribute_value_name": "Active Low"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Supervisor and Reset ICs",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS3808G30</span>DBVT",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 737248,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Supervisor and Reset ICs",
+     "erpComponentName": "\u4f4e\u9759\u6001\u7535\u6d41\u3001\u53ef\u7f16\u7a0b\u5ef6\u8fdf\u76d1\u63a7\u7535\u8def",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/supervisor-and-reset-ics_texas-instruments-tps3808g30drvr_C702172.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.6299
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.2433
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.0002
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.7522
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.6413
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.5923
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.5339
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.1609
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.581
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.9268
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.5334
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.6879
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "4d62069647c14d0bbeda141254f61c77",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-TPS3808G30DRVR/C702172",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 7.87158,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.6299,
+     "componentCode": "C702172",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TPS3808G30DRVR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583702217069105152",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2302221801_Texas-Instruments-TPS3808G30DRVR_C702172.pdf",
+     "dataManualFileAccessId": "8589836450772004864",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tps3808",
+     "componentName": "TI TPS3808G30DRVR",
+     "minImage": "",
+     "minImageAccessId": "8583702217937326080",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "WSON-6-EP(2x2)",
+     "describe": "-40\u2103~+125\u2103@(Tj) 1 1.7V~6.5V 2.4uA 20ms 3.07V Active Low No Open Drain Voltage Monitor Yes WSON-6-EP(2x2) Supervisor and Reset ICs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Function",
+       "attribute_value_name": "Manual reset input"
+      },
+      {
+       "attribute_name_en": "Number of Voltages Monitored",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "ChipType",
+       "attribute_value_name": "Voltage monitor"
+      },
+      {
+       "attribute_name_en": "Reset Timeout",
+       "attribute_value_name": "20ms"
+      },
+      {
+       "attribute_name_en": "Threshold Voltage",
+       "attribute_value_name": "3.07V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.7V~6.5V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Open-drain"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "2.4uA"
+      },
+      {
+       "attribute_name_en": "Reset Active Level",
+       "attribute_value_name": "Active Low"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Supervisor and Reset ICs",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS3808G30</span>DRVR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 737249,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Supervisor and Reset ICs",
+     "erpComponentName": "\u4f4e\u9759\u6001\u7535\u6d41\u3001\u53ef\u7f16\u7a0b\u5ef6\u8fdf\u76d1\u63a7\u7535\u8def",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/supervisor-and-reset-ics_texas-instruments-tps3808g30drvt_C702173.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.0507
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.0262
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.0115
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.9952
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.9952
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.9952
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.9587
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.9886
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.9587
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.0121
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.9587
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.9744
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "4d62069647c14d0bbeda141254f61c77",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-TPS3808G30DRVT/C702173",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 5.15,
+     "preMinPurchaseNum": 9,
+     "minPurchaseNum": 9,
+     "initialPrice": 1.0507,
+     "componentCode": "C702173",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TPS3808G30DRVT",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303021030_Texas-Instruments-TPS3808G30DRVT_C702173.pdf",
+     "dataManualFileAccessId": "8589836450750763008",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tps3808",
+     "componentName": "TI TPS3808G30DRVT",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "WSON-6-EP(2x2)",
+     "describe": "-40\u2103~+125\u2103@(Tj) 1 1.7V~6.5V 2.4uA 20ms 3.07V Active Low No Open Drain Voltage Monitor Yes WSON-6-EP(2x2) Supervisor and Reset ICs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "Number of Voltages Monitored",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "ChipType",
+       "attribute_value_name": "Voltage Monitor"
+      },
+      {
+       "attribute_name_en": "Reset Timeout",
+       "attribute_value_name": "20ms"
+      },
+      {
+       "attribute_name_en": "Watchdog",
+       "attribute_value_name": "No"
+      },
+      {
+       "attribute_name_en": "Threshold Voltage",
+       "attribute_value_name": "3.07V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.7V~6.5V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Open Drain"
+      },
+      {
+       "attribute_name_en": "Manual Reset",
+       "attribute_value_name": "Yes"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "2.4uA"
+      },
+      {
+       "attribute_name_en": "Reset Active Level",
+       "attribute_value_name": "Active Low"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Supervisor and Reset ICs",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS3808G30</span>DRVT",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 141501,
+     "componentLibraryType": "expand",
+     "stockCount": 1,
+     "componentTypeEn": "Supervisor and Reset ICs",
+     "erpComponentName": "\u4f4e\u9759\u6001\u7535\u6d41\u53ef\u7f16\u7a0b\u5ef6\u8fdf\u76d1\u63a7\u7535\u8def",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/supervisor-and-reset-ics_texas-instruments-tps3808g30qdbvrq1_C130214.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.891
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.2971
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.9448
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.5875
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.4227
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.3493
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.7482
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.1762
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 2.8367
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 2.4925
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.2631
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.3338
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "4d62069647c14d0bbeda141254f61c77",
+     "canPresaleNumber": 1,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TPS3808G30QDBVRQ1/C130214",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 13.57587,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.891,
+     "componentCode": "C130214",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TPS3808G30QDBVRQ1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8582999553272385536",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809051021_Texas-Instruments-TPS3808G30QDBVRQ1_C130214.pdf",
+     "dataManualFileAccessId": "8588881247477649408",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tps3808-q1",
+     "componentName": "TI TPS3808G30QDBVRQ1",
+     "minImage": "",
+     "minImageAccessId": "8582999554124099584",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+125\u2103@(Tj) 1 1.8V~6.5V 2.4uA 2.79V 20ms Active Low No Open Drain Voltage Monitor Yes SOT-23-6 Supervisor and Reset ICs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Tj)"
+      },
+      {
+       "attribute_name_en": "Number of Voltages Monitored",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "ChipType",
+       "attribute_value_name": "Voltage Monitor"
+      },
+      {
+       "attribute_name_en": "Reset Timeout",
+       "attribute_value_name": "20ms"
+      },
+      {
+       "attribute_name_en": "Watchdog",
+       "attribute_value_name": "No"
+      },
+      {
+       "attribute_name_en": "Threshold Voltage",
+       "attribute_value_name": "2.79V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.8V~6.5V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Open Drain"
+      },
+      {
+       "attribute_name_en": "Manual Reset",
+       "attribute_value_name": "Yes"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "2.4uA"
+      },
+      {
+       "attribute_name_en": "Reset Active Level",
+       "attribute_value_name": "Active Low"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Supervisor and Reset ICs",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS3808G30</span>QDBVRQ1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 55726307,
+     "componentLibraryType": "expand",
+     "stockCount": 2602,
+     "componentTypeEn": "Supervisor and Reset ICs",
+     "erpComponentName": "\u4f4e\u9759\u6001\u7535\u6d41\u53ef\u7f16\u7a0b\u5ef6\u8fdf\u76d1\u63a7\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2686
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2097
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1846
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1531
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.139
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1307
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1778
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.202
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2587
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1475
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1339
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1259
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 2574,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TECHPUBLIC-TPS3808G30DBVRTP/C52817293",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.715,
+     "preMinPurchaseNum": 34,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2686,
+     "componentCode": "C52817293",
+     "componentBrandEn": "TECH PUBLIC",
+     "componentModelEn": "TPS3808G30DBVR-TP",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8764308489894682624",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8757190970867888128",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TECH PUBLIC TPS3808G30DBVR-TP",
+     "minImage": "",
+     "minImageAccessId": "8764308491014291456",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "SOT-23-6 Supervisor and Reset ICs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Function",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Voltages Monitored",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "ChipType",
+       "attribute_value_name": "Voltage monitor"
+      },
+      {
+       "attribute_name_en": "Reset Timeout",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Threshold Voltage",
+       "attribute_value_name": "2.79V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.7V~6.5V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Open-drain"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "2.8uA"
+      },
+      {
+       "attribute_name_en": "Reset Active Level",
+       "attribute_value_name": "Active Low"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Supervisor and Reset ICs",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS3808G30</span>DBVR-TP",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 55726308,
+     "componentLibraryType": "expand",
+     "stockCount": 3085,
+     "componentTypeEn": "Supervisor and Reset ICs",
+     "erpComponentName": "\u4f4e\u9759\u6001\u7535\u6d41\u53ef\u7f16\u7a0b\u5ef6\u8fdf\u76d1\u63a7\u7535\u8def\uff0c\u9002\u7528\u4e8e\u5fae\u5904\u7406\u5668\u7cfb\u7edf\u7535\u538b\u76d1\u6d4b",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.3348
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2624
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.2314
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1927
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1755
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1651
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.2229
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2528
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.3225
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1591
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1691
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1857
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 3085,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TECHPUBLIC-TPS3808G30DRVRTP/C52817294",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.88,
+     "preMinPurchaseNum": 27,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.3348,
+     "componentCode": "C52817294",
+     "componentBrandEn": "TECH PUBLIC",
+     "componentModelEn": "TPS3808G30DRVR-TP",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8796158724648128512",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8757190986122706944",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TECH PUBLIC TPS3808G30DRVR-TP",
+     "minImage": "",
+     "minImageAccessId": "8796158725583458304",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DFN-6L(2x2)",
+     "describe": "-40\u2103~+125\u2103 1 1.7V~6.5V 2.79V 2.8uA Active Low Open-drain Voltage monitor DFN-6L(2x2) Supervisor and Reset ICs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Function",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Voltages Monitored",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "ChipType",
+       "attribute_value_name": "Voltage monitor"
+      },
+      {
+       "attribute_name_en": "Reset Timeout",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Threshold Voltage",
+       "attribute_value_name": "2.79V"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "1.7V~6.5V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Open-drain"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "2.8uA"
+      },
+      {
+       "attribute_name_en": "Reset Active Level",
+       "attribute_value_name": "Active Low"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Supervisor and Reset ICs",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS3808G30</span>DRVR-TP",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2161413,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Supervisor and Reset ICs",
+     "erpComponentName": "\u4f4e\u9759\u6001\u7535\u6d41\u3001\u53ef\u7f16\u7a0b\u5ef6\u8fdf\u76d1\u63a7\u7535\u8def",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/monitors & reset circuits_texas instruments_tps3808g30dbvrg4_C2069839.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.3965
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.3965
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.3965
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.5417
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.5221
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5123
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4935
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.5218
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.3453
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.3453
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.5029
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.3453
+      }
+     ],
+     "firstSortAccessId": "6dc5d27d4f8744478cf3224b04762038",
+     "secondSortAccessId": "aedc4a4b62f8469d8b3db14a4cec260a",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-TPS3808G30DBVRG4/C2069839",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 7,
+     "minPurchaseNum": 7,
+     "initialPrice": 1.3965,
+     "componentCode": "C2069839",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TPS3808G30DBVRG4",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2302221300_Texas-Instruments-TPS3808G30DBVRG4_C2069839.pdf",
+     "dataManualFileAccessId": "8589829748022284288",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tps3808",
+     "componentName": "TI TPS3808G30DBVRG4",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+125\u2103@(Tj) 1 2.79V 20ms Active Low No Open Drain Voltage Monitor Yes SOT-23-6 Supervisor and Reset ICs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Function",
+       "attribute_value_name": "Manual reset input"
+      },
+      {
+       "attribute_name_en": "Number of Voltages Monitored",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "ChipType",
+       "attribute_value_name": "Voltage monitor"
+      },
+      {
+       "attribute_name_en": "Reset Timeout",
+       "attribute_value_name": "20ms"
+      },
+      {
+       "attribute_name_en": "Threshold Voltage",
+       "attribute_value_name": "2.79V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Open-drain"
+      },
+      {
+       "attribute_name_en": "Reset Active Level",
+       "attribute_value_name": "Active Low"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Supervisor and Reset ICs",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS3808G30</span>DBVRG4",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18362041,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Supervisor and Reset ICs",
+     "erpComponentName": "TPS3808G30DBVTG4",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/supervisor-and-reset-ics_texas-instruments-tps3808g30dbvtg4_C17232935.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.0834
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 3.0834
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 249,
+       "productPrice": 3.0834
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 1.2318
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.1894
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.1698
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 249,
+       "productPrice": 2.9703
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.1269
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.9703
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 1.1866
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.9703
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.1457
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "4d62069647c14d0bbeda141254f61c77",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TPS3808G30DBVTG4/C17232935",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.0834,
+     "componentCode": "C17232935",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TPS3808G30DBVTG4",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8757868040858021888",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/lit/ds/symlink/tps3808.pdf",
+     "componentName": "TI TPS3808G30DBVTG4",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+125\u2103 1 2.79V Active Low Open-drain Simple Reset/Power-On Reset SOT-23-6 Supervisor and Reset ICs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Voltages Monitored",
+       "attribute_value_name": "1"
+      },
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "ChipType",
+       "attribute_value_name": "Simple Reset/Power-On Reset"
+      },
+      {
+       "attribute_name_en": "Threshold Voltage",
+       "attribute_value_name": "2.79V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Open-drain"
+      },
+      {
+       "attribute_name_en": "Reset Active Level",
+       "attribute_value_name": "Active Low"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Supervisor and Reset ICs",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TPS3808G30</span>DBVTG4",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "TPS3808G30"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T16:22:20Z"
+}
