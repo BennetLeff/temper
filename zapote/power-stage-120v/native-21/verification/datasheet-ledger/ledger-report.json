@@ -2816,7 +2816,7 @@
      "max_ratio": 0.8,
      "ok": false,
      "rating": "dv/dt reverse diode",
-     "ratio": 1.5173,
+     "ratio": 0.9737,
      "severity": "gap",
      "stress": "dv/dt diode commutation (S4), maximum Qrr"
     }
@@ -2831,7 +2831,7 @@
    "finding": "Stage 42 (candidate 39, DECISIONS 54) resolves the VIOLATION at typical recovery charge. History: the 2026-10-15 device study (DECISIONS 49) found the reverse-diode dv/dt (70 V/ns, Table 2 p.3) exceeded in the modelled S4 hard-commutation case, 85.8 V/ns as built (1.23x; 80 % rule 56 V/ns), and the gate-network study (DECISIONS 54) the diF/dt (2101 A/us against 1300, 1.62x), 109-112 V/ns at typical charge. The 68 ohm 2512 turn-on + Cgs 4.7 nF network gives 49.7 V/ns and 244 A/us at typical charge (640/640 full grid). Open: the maximum-Qrr basis (gap check), bench D-8.",
    "function": "Full-bridge switches Q2/Q3/Q5/Q6, 650 V CoolMOS CFD7, TO-247",
    "gaps": [
-    "Maximum-Qrr basis not closed: the S4 diode limits are met at typical recovery charge (49.7 V/ns, 244 A/us) but no tested network meets 56 V/ns at the 4.60 uC maximum; the D-8 double-pulse bench (S4 dv/dt and diF/dt, R_on x Cgs bracket, repeated-pulse run) decides (DECISIONS 54).",
+    "Maximum-Qrr basis not closed: at typical recovery charge the S4 diode limits are met (49.7 V/ns, 244 A/us); at the 4.60 uC maximum the adopted 68 ohm + 4.7 nF network reads 68.16 V/ns (S6 study, 640/640 grid), 0.97 of the 70 V/ns rating and over the 56 V/ns 80 % screen. The D-8 double-pulse bench (S4 dv/dt and diF/dt, R_on x Cgs bracket, repeated-pulse run) decides (DECISIONS 54).",
     "Switching loss, S4/S5 dv/dt and VDS are not measured (bench).",
     "Tj at 28 A / 50 kHz exceeds the 125 C design value on the K1 contingency sink (128.7 C); S8 baseline Tj not recorded.",
     "F7 loop re-extraction open (FINDINGS #1)."
