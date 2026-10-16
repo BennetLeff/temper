@@ -1,0 +1,1225 @@
+{
+  "accuracy_acceptance": [
+    {
+      "accepted_true_error_bound_K": 0.5,
+      "full_budget_margin_to_next_sample": 43.4343061568,
+      "full_budget_margin_to_sampled_hazard": 58.174035479,
+      "full_mask_budget_boundary_ohm": 100763.246853,
+      "guaranteed_detection": "strictly below boundary, with all stated bounds valid; equality may pass",
+      "ideal_boundary_ohm": 504746.29617,
+      "ideal_margin_to_sampled_hazard": 291.407133635,
+      "measured_acceptance_K": 0.25,
+      "reference_only_boundary_ohm": 360466.634847
+    },
+    {
+      "accepted_true_error_bound_K": 0.75,
+      "full_budget_margin_to_next_sample": 36.1785510106,
+      "full_budget_margin_to_sampled_hazard": 48.4559901215,
+      "full_mask_budget_boundary_ohm": 83930.6204895,
+      "guaranteed_detection": "strictly below boundary, with all stated bounds valid; equality may pass",
+      "ideal_boundary_ohm": 252256.889103,
+      "ideal_margin_to_sampled_hazard": 145.636446569,
+      "measured_acceptance_K": 0.5,
+      "reference_only_boundary_ohm": 210175.321452
+    },
+    {
+      "accepted_true_error_bound_K": 1.25,
+      "full_budget_margin_to_next_sample": 27.1088573458,
+      "full_budget_margin_to_sampled_hazard": 36.3084337836,
+      "full_mask_budget_boundary_ohm": 62889.8381566,
+      "guaranteed_detection": "strictly below boundary, with all stated bounds valid; equality may pass",
+      "ideal_boundary_ohm": 126012.186814,
+      "ideal_margin_to_sampled_hazard": 72.7511037547,
+      "measured_acceptance_K": 1.0,
+      "reference_only_boundary_ohm": 114535.395877
+    }
+  ],
+  "ageing": {
+    "Ea_scope_eV": [
+      0.3,
+      1.2
+    ],
+    "accuracy_screen_only_example_equivalent_hours": 1578.07087282,
+    "accuracy_screen_only_log_budget": 1.57807087282,
+    "accuracy_screen_only_resistance_floor_ohm": 83930.6204895,
+    "example_k300_per_hour": 0.001,
+    "example_max_equivalent_300C_hours": 6358.42073379,
+    "example_status": "illustrative, unmeasured; never a qualification pass",
+    "initial_R300_ohm": 10000000.0,
+    "initial_condition_status": "a hot-accuracy pass alone does not establish the assumed initial 10 Mohm across the connected element",
+    "k_B_eV_per_K": 8.61733326214e-05,
+    "law": "R300(t)=R300(0)*exp(-k300*sum(hours*exp(-Ea/kB*(1/T-1/T300))))",
+    "log_degradation_budget": 6.35842073379,
+    "material_interpretation": "sensitivity values for thermally activated ionic transport/contamination in glass or ceramic and seal/polymer degradation; no Ea is assigned to this silica, alumina, seal or enamel without supplier data; conduction Ea is not ageing Ea",
+    "rows": [
+      {
+        "Ea_eV": 0.3,
+        "ageing_C": 250.0,
+        "equivalent_300C_hours": 559.602315388,
+        "example_R300_after_ohm": 5714362.70079,
+        "example_above_target": true,
+        "hours": 1000,
+        "maximum_k300_per_hour": 0.0113623917538,
+        "minimum_tau300_hours": 88.0096393141,
+        "rate_relative_to_300C": 0.559602315388,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.3,
+        "ageing_C": 250.0,
+        "equivalent_300C_hours": 1678.80694616,
+        "example_R300_after_ohm": 1865964.6292,
+        "example_above_target": true,
+        "hours": 3000,
+        "maximum_k300_per_hour": 0.00378746391794,
+        "minimum_tau300_hours": 264.028917942,
+        "rate_relative_to_300C": 0.559602315388,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.3,
+        "ageing_C": 250.0,
+        "equivalent_300C_hours": 5596.02315388,
+        "example_R300_after_ohm": 37125.9883169,
+        "example_above_target": true,
+        "hours": 10000,
+        "maximum_k300_per_hour": 0.00113623917538,
+        "minimum_tau300_hours": 880.096393141,
+        "rate_relative_to_300C": 0.559602315388,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.3,
+        "ageing_C": 275.0,
+        "equivalent_300C_hours": 758.034726055,
+        "example_R300_after_ohm": 4685864.2338,
+        "example_above_target": true,
+        "hours": 1000,
+        "maximum_k300_per_hour": 0.00838803357582,
+        "minimum_tau300_hours": 119.217453168,
+        "rate_relative_to_300C": 0.758034726055,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.3,
+        "ageing_C": 275.0,
+        "equivalent_300C_hours": 2274.10417817,
+        "example_R300_after_ohm": 1028890.3741,
+        "example_above_target": true,
+        "hours": 3000,
+        "maximum_k300_per_hour": 0.00279601119194,
+        "minimum_tau300_hours": 357.652359505,
+        "rate_relative_to_300C": 0.758034726055,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.3,
+        "ageing_C": 275.0,
+        "equivalent_300C_hours": 7580.34726055,
+        "example_R300_after_ohm": 5103.83956024,
+        "example_above_target": false,
+        "hours": 10000,
+        "maximum_k300_per_hour": 0.000838803357582,
+        "minimum_tau300_hours": 1192.17453168,
+        "rate_relative_to_300C": 0.758034726055,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.3,
+        "ageing_C": 300.0,
+        "equivalent_300C_hours": 1000.0,
+        "example_R300_after_ohm": 3678794.41171,
+        "example_above_target": true,
+        "hours": 1000,
+        "maximum_k300_per_hour": 0.00635842073379,
+        "minimum_tau300_hours": 157.271756914,
+        "rate_relative_to_300C": 1.0,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.3,
+        "ageing_C": 300.0,
+        "equivalent_300C_hours": 3000.0,
+        "example_R300_after_ohm": 497870.683679,
+        "example_above_target": true,
+        "hours": 3000,
+        "maximum_k300_per_hour": 0.00211947357793,
+        "minimum_tau300_hours": 471.815270741,
+        "rate_relative_to_300C": 1.0,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.3,
+        "ageing_C": 300.0,
+        "equivalent_300C_hours": 10000.0,
+        "example_R300_after_ohm": 453.999297625,
+        "example_above_target": false,
+        "hours": 10000,
+        "maximum_k300_per_hour": 0.000635842073379,
+        "minimum_tau300_hours": 1572.71756914,
+        "rate_relative_to_300C": 1.0,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.6,
+        "ageing_C": 250.0,
+        "equivalent_300C_hours": 313.154751387,
+        "example_R300_after_ohm": 7311367.59386,
+        "example_above_target": true,
+        "hours": 1000,
+        "maximum_k300_per_hour": 0.0203044044697,
+        "minimum_tau300_hours": 49.2503979366,
+        "rate_relative_to_300C": 0.313154751387,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.6,
+        "ageing_C": 250.0,
+        "equivalent_300C_hours": 939.464254162,
+        "example_R300_after_ohm": 3908371.68665,
+        "example_above_target": true,
+        "hours": 3000,
+        "maximum_k300_per_hour": 0.00676813482324,
+        "minimum_tau300_hours": 147.75119381,
+        "rate_relative_to_300C": 0.313154751387,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.6,
+        "ageing_C": 250.0,
+        "equivalent_300C_hours": 3131.54751387,
+        "example_R300_after_ohm": 436501.956757,
+        "example_above_target": true,
+        "hours": 10000,
+        "maximum_k300_per_hour": 0.00203044044697,
+        "minimum_tau300_hours": 492.503979366,
+        "rate_relative_to_300C": 0.313154751387,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.6,
+        "ageing_C": 275.0,
+        "equivalent_300C_hours": 574.616645905,
+        "example_R300_after_ohm": 5629206.25375,
+        "example_above_target": true,
+        "hours": 1000,
+        "maximum_k300_per_hour": 0.0110655004151,
+        "minimum_tau300_hours": 90.3709694535,
+        "rate_relative_to_300C": 0.574616645905,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.6,
+        "ageing_C": 275.0,
+        "equivalent_300C_hours": 1723.84993772,
+        "example_R300_after_ohm": 1783780.79755,
+        "example_above_target": true,
+        "hours": 3000,
+        "maximum_k300_per_hour": 0.00368850013837,
+        "minimum_tau300_hours": 271.11290836,
+        "rate_relative_to_300C": 0.574616645905,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.6,
+        "ageing_C": 275.0,
+        "equivalent_300C_hours": 5746.16645905,
+        "example_R300_after_ohm": 31950.0553406,
+        "example_above_target": true,
+        "hours": 10000,
+        "maximum_k300_per_hour": 0.00110655004151,
+        "minimum_tau300_hours": 903.709694535,
+        "rate_relative_to_300C": 0.574616645905,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.6,
+        "ageing_C": 300.0,
+        "equivalent_300C_hours": 1000.0,
+        "example_R300_after_ohm": 3678794.41171,
+        "example_above_target": true,
+        "hours": 1000,
+        "maximum_k300_per_hour": 0.00635842073379,
+        "minimum_tau300_hours": 157.271756914,
+        "rate_relative_to_300C": 1.0,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.6,
+        "ageing_C": 300.0,
+        "equivalent_300C_hours": 3000.0,
+        "example_R300_after_ohm": 497870.683679,
+        "example_above_target": true,
+        "hours": 3000,
+        "maximum_k300_per_hour": 0.00211947357793,
+        "minimum_tau300_hours": 471.815270741,
+        "rate_relative_to_300C": 1.0,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.6,
+        "ageing_C": 300.0,
+        "equivalent_300C_hours": 10000.0,
+        "example_R300_after_ohm": 453.999297625,
+        "example_above_target": false,
+        "hours": 10000,
+        "maximum_k300_per_hour": 0.000635842073379,
+        "minimum_tau300_hours": 1572.71756914,
+        "rate_relative_to_300C": 1.0,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.9,
+        "ageing_C": 250.0,
+        "equivalent_300C_hours": 175.242123951,
+        "example_R300_after_ohm": 8392537.92723,
+        "example_above_target": true,
+        "hours": 1000,
+        "maximum_k300_per_hour": 0.0362836319854,
+        "minimum_tau300_hours": 27.5606367191,
+        "rate_relative_to_300C": 0.175242123951,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.9,
+        "ageing_C": 250.0,
+        "equivalent_300C_hours": 525.726371853,
+        "example_R300_after_ohm": 5911258.3122,
+        "example_above_target": true,
+        "hours": 3000,
+        "maximum_k300_per_hour": 0.0120945439951,
+        "minimum_tau300_hours": 82.6819101573,
+        "rate_relative_to_300C": 0.175242123951,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.9,
+        "ageing_C": 250.0,
+        "equivalent_300C_hours": 1752.42123951,
+        "example_R300_after_ohm": 1733537.04068,
+        "example_above_target": true,
+        "hours": 10000,
+        "maximum_k300_per_hour": 0.00362836319854,
+        "minimum_tau300_hours": 275.606367191,
+        "rate_relative_to_300C": 0.175242123951,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.9,
+        "ageing_C": 275.0,
+        "equivalent_300C_hours": 435.579371766,
+        "example_R300_after_ohm": 6468897.68818,
+        "example_above_target": true,
+        "hours": 1000,
+        "maximum_k300_per_hour": 0.0145976167513,
+        "minimum_tau300_hours": 68.504333073,
+        "rate_relative_to_300C": 0.435579371766,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.9,
+        "ageing_C": 275.0,
+        "equivalent_300C_hours": 1306.7381153,
+        "example_R300_after_ohm": 2707016.15289,
+        "example_above_target": true,
+        "hours": 3000,
+        "maximum_k300_per_hour": 0.00486587225042,
+        "minimum_tau300_hours": 205.512999219,
+        "rate_relative_to_300C": 0.435579371766,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.9,
+        "ageing_C": 275.0,
+        "equivalent_300C_hours": 4355.79371766,
+        "example_R300_after_ohm": 128322.503574,
+        "example_above_target": true,
+        "hours": 10000,
+        "maximum_k300_per_hour": 0.00145976167513,
+        "minimum_tau300_hours": 685.04333073,
+        "rate_relative_to_300C": 0.435579371766,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.9,
+        "ageing_C": 300.0,
+        "equivalent_300C_hours": 1000.0,
+        "example_R300_after_ohm": 3678794.41171,
+        "example_above_target": true,
+        "hours": 1000,
+        "maximum_k300_per_hour": 0.00635842073379,
+        "minimum_tau300_hours": 157.271756914,
+        "rate_relative_to_300C": 1.0,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.9,
+        "ageing_C": 300.0,
+        "equivalent_300C_hours": 3000.0,
+        "example_R300_after_ohm": 497870.683679,
+        "example_above_target": true,
+        "hours": 3000,
+        "maximum_k300_per_hour": 0.00211947357793,
+        "minimum_tau300_hours": 471.815270741,
+        "rate_relative_to_300C": 1.0,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 0.9,
+        "ageing_C": 300.0,
+        "equivalent_300C_hours": 10000.0,
+        "example_R300_after_ohm": 453.999297625,
+        "example_above_target": false,
+        "hours": 10000,
+        "maximum_k300_per_hour": 0.000635842073379,
+        "minimum_tau300_hours": 1572.71756914,
+        "rate_relative_to_300C": 1.0,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 1.2,
+        "ageing_C": 250.0,
+        "equivalent_300C_hours": 98.0658983165,
+        "example_R300_after_ohm": 9065891.59086,
+        "example_above_target": true,
+        "hours": 1000,
+        "maximum_k300_per_hour": 0.0648382449245,
+        "minimum_tau300_hours": 15.4229961216,
+        "rate_relative_to_300C": 0.0980658983165,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 1.2,
+        "ageing_C": 250.0,
+        "equivalent_300C_hours": 294.197694949,
+        "example_R300_after_ohm": 7451291.68608,
+        "example_above_target": true,
+        "hours": 3000,
+        "maximum_k300_per_hour": 0.0216127483082,
+        "minimum_tau300_hours": 46.2689883647,
+        "rate_relative_to_300C": 0.0980658983165,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 1.2,
+        "ageing_C": 250.0,
+        "equivalent_300C_hours": 980.658983165,
+        "example_R300_after_ohm": 3750638.56629,
+        "example_above_target": true,
+        "hours": 10000,
+        "maximum_k300_per_hour": 0.00648382449245,
+        "minimum_tau300_hours": 154.229961216,
+        "rate_relative_to_300C": 0.0980658983165,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 1.2,
+        "ageing_C": 275.0,
+        "equivalent_300C_hours": 330.184289752,
+        "example_R300_after_ohm": 7187912.55363,
+        "example_above_target": true,
+        "hours": 1000,
+        "maximum_k300_per_hour": 0.0192571873682,
+        "minimum_tau300_hours": 51.9286633546,
+        "rate_relative_to_300C": 0.330184289752,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 1.2,
+        "ageing_C": 275.0,
+        "equivalent_300C_hours": 990.552869255,
+        "example_R300_after_ohm": 3713713.14472,
+        "example_above_target": true,
+        "hours": 3000,
+        "maximum_k300_per_hour": 0.00641906245607,
+        "minimum_tau300_hours": 155.785990064,
+        "rate_relative_to_300C": 0.330184289752,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 1.2,
+        "ageing_C": 275.0,
+        "equivalent_300C_hours": 3301.84289752,
+        "example_R300_after_ohm": 368152.580978,
+        "example_above_target": true,
+        "hours": 10000,
+        "maximum_k300_per_hour": 0.00192571873682,
+        "minimum_tau300_hours": 519.286633546,
+        "rate_relative_to_300C": 0.330184289752,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 1.2,
+        "ageing_C": 300.0,
+        "equivalent_300C_hours": 1000.0,
+        "example_R300_after_ohm": 3678794.41171,
+        "example_above_target": true,
+        "hours": 1000,
+        "maximum_k300_per_hour": 0.00635842073379,
+        "minimum_tau300_hours": 157.271756914,
+        "rate_relative_to_300C": 1.0,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 1.2,
+        "ageing_C": 300.0,
+        "equivalent_300C_hours": 3000.0,
+        "example_R300_after_ohm": 497870.683679,
+        "example_above_target": true,
+        "hours": 3000,
+        "maximum_k300_per_hour": 0.00211947357793,
+        "minimum_tau300_hours": 471.815270741,
+        "rate_relative_to_300C": 1.0,
+        "verdict_from_production_test_alone": "undetermined"
+      },
+      {
+        "Ea_eV": 1.2,
+        "ageing_C": 300.0,
+        "equivalent_300C_hours": 10000.0,
+        "example_R300_after_ohm": 453.999297625,
+        "example_above_target": false,
+        "hours": 10000,
+        "maximum_k300_per_hour": 0.000635842073379,
+        "minimum_tau300_hours": 1572.71756914,
+        "rate_relative_to_300C": 1.0,
+        "verdict_from_production_test_alone": "undetermined"
+      }
+    ],
+    "supplier_rate_or_life_anchor": null,
+    "target_R300_ohm": 17321.0,
+    "temperature_units": "kelvin in the exponent; resistance always evaluated at 300 C after ageing"
+  },
+  "all_pass": true,
+  "claim_audit": {
+    "D_LEAK_1": {
+      "quoted_0_001K_reproduced": 0.001,
+      "quoted_0_013K_reproduced": 0.013,
+      "quoted_1_73kohm": 1732.1,
+      "quoted_5773_ratio_reproduced": 5773,
+      "requirement_10Mohm_300C": "design input, not experimentally reproduced",
+      "supplier_4_bore_100Mohm_350C": "not reproducible; pending supplier confirmation"
+    },
+    "D_LEAK_2": {
+      "legacy_rounded_boundary_ohm": 252000.0,
+      "quoted_145_ratio_reproduced": 145,
+      "quoted_acceptance_K": 0.5,
+      "status": "252 kohm and 145x reproduce only the ideal zero-uncertainty calculation; see acceptance for masked limits",
+      "unrounded_ideal_boundary_ohm": 252256.889103
+    },
+    "D_LEAK_3": {
+      "post_requirement_ohm": 10000000.0,
+      "post_temperature_C": 300.0,
+      "status": "requirement input; no seal qualification evidence in this study"
+    }
+  },
+  "conversion": {
+    "adc_codes": 32768,
+    "agreement_gate_K": 0.0001,
+    "loading_correction": false,
+    "max_analog_C_vs_python_difference_K": 2.12794533923e-05,
+    "meaning": "nominal ADC illustration, nearest-code rounding, no noise or analog tolerances; not a 10 Mohm measurement",
+    "r_ref_ohm": 430.0,
+    "self_heating_subtraction_K": 0.0610000006855
+  },
+  "gates": {
+    "ageing_example_retains_failure_cases": true,
+    "ageing_reference_rate_independent_of_Ea": true,
+    "analog_conversion_agrees_with_C": true,
+    "hazard_recomputed_matches_source": true,
+    "ideal_boundary_reproduces_legacy_kohm": true,
+    "production_IR_lower_bound_meets_design": true,
+    "source_inputs_clean": true,
+    "source_sweep_passed": true,
+    "uncertainty_reduces_detection": true
+  },
+  "hazard": {
+    "bar_C": 300.0,
+    "bead_tolerance_at_250C_K": 10.2,
+    "continuous_hazardous_threshold_ohm": null,
+    "continuous_status": "not identified by finite samples; no monotonicity or convergence certificate",
+    "criterion": "T_c_steady > bar_C; steady is the source's final-window mean, not a convergence proof",
+    "glass_offsets_K": [
+      12.0,
+      46.0
+    ],
+    "hazardous_runs": 235,
+    "highest_sampled_hazardous_max_steady_C": 318.9,
+    "highest_sampled_hazardous_ohm": 1732.1,
+    "latched_before_bar": 59,
+    "next_sample_max_abs_tail_drift_K": 11.11,
+    "next_sample_max_steady_C": 299.8,
+    "next_sample_max_transient_C": 304.2,
+    "next_sample_ohm": 2319.9,
+    "next_sample_runs_transient_over_bar": 27,
+    "next_sample_steady_headroom_K": 0.2,
+    "per_pan_corner": [
+      {
+        "bead_corner": "cold",
+        "glass_offset_K": 12.0,
+        "hazardous_count": 20,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 1732.1,
+          "ramp600": 1732.1,
+          "step": 1732.1
+        },
+        "highest_sampled_hazardous_ohm": 1732.1,
+        "next_sample_max_steady_C": 299.7,
+        "pan": "carbon_steel_28",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "hot",
+        "glass_offset_K": 12.0,
+        "hazardous_count": 18,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 1732.1,
+          "ramp600": 1732.1,
+          "step": 1732.1
+        },
+        "highest_sampled_hazardous_ohm": 1732.1,
+        "next_sample_max_steady_C": 299.4,
+        "pan": "carbon_steel_28",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "cold",
+        "glass_offset_K": 46.0,
+        "hazardous_count": 19,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 1732.1,
+          "ramp600": 1732.1,
+          "step": 1732.1
+        },
+        "highest_sampled_hazardous_ohm": 1732.1,
+        "next_sample_max_steady_C": 299.5,
+        "pan": "carbon_steel_28",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "hot",
+        "glass_offset_K": 46.0,
+        "hazardous_count": 18,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 1293.2,
+          "ramp600": 1732.1,
+          "step": 1732.1
+        },
+        "highest_sampled_hazardous_ohm": 1732.1,
+        "next_sample_max_steady_C": 299.8,
+        "pan": "carbon_steel_28",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "cold",
+        "glass_offset_K": 12.0,
+        "hazardous_count": 20,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 1732.1,
+          "ramp600": 1732.1,
+          "step": 1732.1
+        },
+        "highest_sampled_hazardous_ohm": 1732.1,
+        "next_sample_max_steady_C": 296.1,
+        "pan": "cast_iron_26",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "hot",
+        "glass_offset_K": 12.0,
+        "hazardous_count": 20,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 1732.1,
+          "ramp600": 1732.1,
+          "step": 1732.1
+        },
+        "highest_sampled_hazardous_ohm": 1732.1,
+        "next_sample_max_steady_C": 299.4,
+        "pan": "cast_iron_26",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "cold",
+        "glass_offset_K": 46.0,
+        "hazardous_count": 18,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 1732.1,
+          "ramp600": 1732.1,
+          "step": 1732.1
+        },
+        "highest_sampled_hazardous_ohm": 1732.1,
+        "next_sample_max_steady_C": 299.5,
+        "pan": "cast_iron_26",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "hot",
+        "glass_offset_K": 46.0,
+        "hazardous_count": 18,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 1732.1,
+          "ramp600": 1732.1,
+          "step": 1732.1
+        },
+        "highest_sampled_hazardous_ohm": 1732.1,
+        "next_sample_max_steady_C": 299.8,
+        "pan": "cast_iron_26",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "cold",
+        "glass_offset_K": 12.0,
+        "hazardous_count": 0,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": null,
+          "ramp600": null,
+          "step": null
+        },
+        "highest_sampled_hazardous_ohm": null,
+        "next_sample_max_steady_C": 115.6,
+        "pan": "disc_pot_water_1l5",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "hot",
+        "glass_offset_K": 12.0,
+        "hazardous_count": 0,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": null,
+          "ramp600": null,
+          "step": null
+        },
+        "highest_sampled_hazardous_ohm": null,
+        "next_sample_max_steady_C": 115.6,
+        "pan": "disc_pot_water_1l5",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "cold",
+        "glass_offset_K": 46.0,
+        "hazardous_count": 0,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": null,
+          "ramp600": null,
+          "step": null
+        },
+        "highest_sampled_hazardous_ohm": null,
+        "next_sample_max_steady_C": 115.3,
+        "pan": "disc_pot_water_1l5",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "hot",
+        "glass_offset_K": 46.0,
+        "hazardous_count": 0,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": null,
+          "ramp600": null,
+          "step": null
+        },
+        "highest_sampled_hazardous_ohm": null,
+        "next_sample_max_steady_C": 115.3,
+        "pan": "disc_pot_water_1l5",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "cold",
+        "glass_offset_K": 12.0,
+        "hazardous_count": 21,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 1732.1,
+          "ramp600": 1732.1,
+          "step": 1732.1
+        },
+        "highest_sampled_hazardous_ohm": 1732.1,
+        "next_sample_max_steady_C": 295.1,
+        "pan": "triply_clad_24",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "hot",
+        "glass_offset_K": 12.0,
+        "hazardous_count": 21,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 1732.1,
+          "ramp600": 1732.1,
+          "step": 1732.1
+        },
+        "highest_sampled_hazardous_ohm": 1732.1,
+        "next_sample_max_steady_C": 299.4,
+        "pan": "triply_clad_24",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "cold",
+        "glass_offset_K": 46.0,
+        "hazardous_count": 21,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 1732.1,
+          "ramp600": 1732.1,
+          "step": 1732.1
+        },
+        "highest_sampled_hazardous_ohm": 1732.1,
+        "next_sample_max_steady_C": 299.3,
+        "pan": "triply_clad_24",
+        "sample_count": 39
+      },
+      {
+        "bead_corner": "hot",
+        "glass_offset_K": 46.0,
+        "hazardous_count": 21,
+        "highest_sampled_hazardous_by_onset_ohm": {
+          "ramp120": 1732.1,
+          "ramp600": 1732.1,
+          "step": 1732.1
+        },
+        "highest_sampled_hazardous_ohm": 1732.1,
+        "next_sample_max_steady_C": 299.6,
+        "pan": "triply_clad_24",
+        "sample_count": 39
+      }
+    ],
+    "runs": 624,
+    "source_duration_s": 1800.0,
+    "source_fry_setpoint_C": 250.0,
+    "source_steady_rounding_K": 0.1,
+    "source_tail_window_s": 100,
+    "unsampled_gap_ohm": 587.8
+  },
+  "insulation": {
+    "candidate_bores": 4,
+    "candidate_status": "pending supplier confirmation; no material measurement available",
+    "candidate_supplier_C": 350,
+    "candidate_supplier_ohm": 100000000.0,
+    "lifetime_hazard_multiplier": 10,
+    "margin_to_next_sample_sensitivity_only": {
+      "10000000": 4310.53062632,
+      "100000000": 43105.3062632
+    },
+    "margin_to_sampled_hazard": {
+      "10000000": 5773.33872178,
+      "100000000": 57733.3872178
+    },
+    "minimum_ohm": 10000000.0,
+    "test_C": 300.0
+  },
+  "metrology": {
+    "fixture_gradient_bound_K": 0.1,
+    "measurement_bound_K": 0.25,
+    "positive_element_bound_K": 0.75,
+    "positive_mask_bound_K": 1.0,
+    "readout_bound_K": 0.05,
+    "reference_bound_K": 0.1,
+    "status": "proposed bounded allowances, not measured uncertainties; validate the fixture before release"
+  },
+  "production": {
+    "accuracy_other_points_status": "record all points and reject discontinuities; hot acceptance at 300 C is the quantified shunt screen",
+    "accuracy_stability_range_K": 0.05,
+    "accuracy_stability_window_min": 5,
+    "accuracy_temperatures_C": [
+      25,
+      150,
+      250,
+      300.0
+    ],
+    "coverage_percent": 100,
+    "hot_measured_acceptance_K": 0.5,
+    "ir_accept_rounding_ohm": 10000,
+    "ir_current_limit_mA": 1,
+    "ir_display_accept_min_ohm": 10530000,
+    "ir_dwell_s": 60,
+    "ir_relative_error_basis": "fraction of indicated resistance, including fixture and temperature effects",
+    "ir_relative_error_bound": 0.05,
+    "ir_temperatures_C": [
+      25,
+      300.0
+    ],
+    "ir_voltage_Vdc": 100,
+    "ir_voltage_status": "proposed; supplier must validate nondestructive stress for each insulation path; never across the connected Pt100",
+    "max_readout_current_mA": 1,
+    "release_status": "proposed specification, not qualified; complete metrology and supplier/lifetime evidence first"
+  },
+  "provenance": {
+    "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+    "derivation_sha256": "c546cd9e6aa51bc3410dac5660de4037ee49226b804e4db4538514806c3b786c",
+    "input_sha256": {
+      "firmware/components/control/cascade_pid.c": "9918548d1df194a941d17a711e9f2d9bf53382e933ed801c46b5409dfe3114f9",
+      "firmware/components/control/cascade_pid.h": "1935ab68a83440018037e6fde531ea8c5bee30adc8405327343ed50b0a9f53e6",
+      "firmware/components/control/contact_check.c": "89c745a803f457ff523d1fa219d10b2412f6a1cd052cdb7b478c827327299d29",
+      "firmware/components/control/contact_check.h": "7c694d89a06f6e89624edac5f1d9c6f11379d6d430770b706557c2fb5aca98e7",
+      "firmware/components/control/contact_shift.c": "61a87a341653265c4b5bc8c1343ff4928efae1919baf5b75975109edfcd05fb3",
+      "firmware/components/control/contact_shift.h": "d72d4d4d6d62569c83ab396d5bb390a123aecec767bbab77a89eb1fefe84cc31",
+      "firmware/components/control/current_sense_check.c": "89e5f1e508d6c81fd983ea90ee43a52e74107246a26d38de86dc3aa173b4a753",
+      "firmware/components/control/current_sense_check.h": "5e8c512d7770a8d5724cc6935ae6d5812808f59af3f21c9c6c39e974fef6c923",
+      "firmware/components/control/low_temp_control.c": "1bccb736d7dc4f081fafa3e12c3fa32e2bd53ae5594d01acc69dfd3db1ab1456",
+      "firmware/components/control/low_temp_control.h": "eadfa0d35da050173113d67a7eea3c9a27bdfc04f0e128a604aa333ab77062b1",
+      "firmware/components/control/pan_cold_soak.c": "5ed59bc2e2c2dabebb948d543b0df0c7f5fdfaf14e1d254714dca11b6a10991c",
+      "firmware/components/control/pan_cold_soak.h": "58005bd4664806349f9a54ced4cd9d7e21d5ca6b1310ad18aa365cb09c9bc477",
+      "firmware/components/control/pan_detect.c": "6f108a7b581abb937e67e49373ac45f30cff45010723a45b9e8fff0da25f728d",
+      "firmware/components/control/pan_detect.h": "873bb95f20ec04fb76d3aa975432c1fbaeb7831fecef3795f029fa09ca1f14b4",
+      "firmware/components/control/pan_leak_check.c": "2a6c23739057becf2975ed093eeec91e8668cb2a9e7d3ef78cfe149b2df64472",
+      "firmware/components/control/pan_leak_check.h": "93f22d91b9688a6e13ff08ee4f8a018fe0541b8c5819f437d984ae8b126c06f5",
+      "firmware/components/control/pan_rate_pid.c": "a8ab24b6e7ed16fbfcf8cab853f64020f59b5ec1de8995e04f6b30847df00e7b",
+      "firmware/components/control/pan_rate_pid.h": "7881737d103cbc8edc589a595dbb432697b53d40d68f6ddd54f81c9c15ad9c4d",
+      "firmware/components/control/pan_rim_limit.c": "c1bd882c1ec0fdfaa126b8dc0c08b57e4e6bed64a762fbf768df34dc4e713750",
+      "firmware/components/control/pan_rim_limit.h": "dc6effd676ab10764b192d9c10d418b602a85ae118af5a44435d75e425089f06",
+      "firmware/components/control/pan_sensor_guard.c": "979a6bd1f40936cd585954cbe399c69820d16b2a0158e88fb1792775d941c465",
+      "firmware/components/control/pan_sensor_guard.h": "d2acb5aac9902574dfb4b694138cad070e9d206bc804a0d2013730fedbd2689a",
+      "firmware/components/control/pan_soak_store.c": "640f77f47e95299e2d4aa07d4482639449f0d127b5b87cdb1e1b9136e664dd9d",
+      "firmware/components/control/pan_soak_store.h": "0f60836ee8e03c2ee35c37f8b08716c0b7eb38f7d7abc0a50dfaf4cb8e5497d4",
+      "firmware/components/control/pan_supervisor.c": "05dee46ba9fd74c78f4e0402dca90b8905ba9f22b7925cdc023eab7089bd5718",
+      "firmware/components/control/pan_supervisor.h": "cbf81c1db7dafc0379dee2077fda27261a6fed04b0fc11c285f39217770f8f47",
+      "firmware/components/control/pan_temp_estimator.c": "b44b359d265b00d69f3f374849b58dd17b793d688a3368dcc093103f875fe0cc",
+      "firmware/components/control/pan_temp_estimator.h": "7b5bcf448f5006674fdc79e22b3d9e9cf3025b377708db06bcad3af1367e3a9a",
+      "firmware/components/control/pan_temp_loop.c": "2af69218b8eb92abdaed9f2733f34ff7ecb5db75c0703bd9dd6375e54bb96351",
+      "firmware/components/control/pan_temp_loop.h": "28c5757de2cbdf66229cc77caf1887969baccfda6afbeb3d85f4b5c5ca8768b3",
+      "firmware/components/control/pid_control.c": "9b05f5029cd6a4ff4fe51d8ec937282c15422f6b56f5af7010f2c3303399ecd3",
+      "firmware/components/control/pid_control.h": "44497126fd828fcc34061f625ddaf9c96164f75b747e1c9c915eeea18aeb6d14",
+      "firmware/components/control/plant_gain.c": "2d62c25c5fa066411b7e480bbd439817518c3e731783b70a79fd69046a94a5f8",
+      "firmware/components/control/plant_gain.h": "35fa12553b7175782b0b5dd4861c3d98960323b5c8e3efad79439dd0ded8cb83",
+      "firmware/components/control/pll_control.c": "9992c71bfaaf8e25a2e38a72c8783dd033ced2baa8805fd8dee6980e3b831eb6",
+      "firmware/components/control/pll_control.h": "5daa74bacaf38627dce5e4a6d346fc058114e8d0c4eb8d8c041e89880199a999",
+      "firmware/components/control/profiles.c": "5e2d57d49626e640f835bb80d47618675c1e02e1b98128925f9aa6d1449a6787",
+      "firmware/components/control/profiles.h": "e32ae755dbcc6f66572e3f710eda3606e2b8d6dd5edd168cab92638f6d7b688b",
+      "firmware/components/control/thermal_mass.c": "700ee225f5bfeaefddc2f1e9b9592229a80a7096a51d99f89ed90d1628b3079d",
+      "firmware/components/control/thermal_mass.h": "87031e0120e24deb5de0ca3104928752cfb133cbb796fac60a63580b5fc04c3b",
+      "firmware/components/control/zvs_monitor.c": "448e379baea677e1e795c070aa936cd84badb263d90889b9b80afb1886407169",
+      "firmware/components/control/zvs_monitor.h": "d15ac85b24f4c53426658a20a67ecb4d2d24d9d52edf688aae3c06de566c16a2",
+      "firmware/components/sensors/include/rtd_convert.h": "b0adb83e6d22d167621d81786afccac6e47f3c12495ca00cbf3bdab588fba46c",
+      "firmware/components/sensors/rtd_convert.c": "cabe361f5715aab13ad97cdffc74fd96bef6ebc2a67869e6fd769995a1c5ecd5",
+      "output/temper-sensor-r2/estimator_study.py": "b8b689db27c6f5bae6e928c3e2c885010f9c85427d7d3da031ce2a989dcb0895",
+      "output/temper-sensor-r3/firmware/DECISIONS.md": "4397f3a12790f77c273c3340dabc4cfa67b6527c839ccd6ffbdc594118bf5d62",
+      "output/temper-sensor-r3/firmware/build_lib.sh": "44b55f7147aec7811f95dfe187a8635262236ed075276e9ccb6f0f16a12d7cfd",
+      "output/temper-sensor-r3/firmware/cosim.py": "026d0f655d0f4e75db710660fe4cb6da84e9af6a70a1a5047d115091d34fe588",
+      "output/temper-sensor-r3/firmware/cosim_shim.c": "455e1abc0cb626bddf5cc8a23cf107b83eb8bdb8c20d21122f98637bfba74bea",
+      "output/temper-sensor-r3/firmware/hs-ntc.json": "8b6141e3ea233d0292566a596b3b6d34597d12639f0220da5096690744fe1a36",
+      "output/temper-sensor-r3/firmware/hs_ntc.py": "6e76391f2f18e62d741f3183e65b8c9e4d3a611cda949dd9c1f161790446cf7f",
+      "output/temper-sensor-r3/firmware/leak-checks.json": "62ec55e04562c5402f642e2ce72e411ef14d3e7c24c626183f59c186633b2b73",
+      "output/temper-sensor-r3/firmware/leak_checks.py": "3031573389890148af82d95bb04b9a5d9e2cea1c7bcd915ce61f11f21dab810f",
+      "output/temper-sensor-r3/firmware/ref.py": "534ed3410630e26a75466746e0bf359727aac0c37c7d6dca84e5c675d755caee",
+      "output/temper-sensor-r3/firmware/xcheck_cosim.py": "c2ace5b567ab333d27e78eba1798fd637b1a0e544c56f8aa556875aa020a9245",
+      "output/temper-sensor-r3/pcb/DECISIONS.md": "7796dbde220b4a561c34d648ea596ed528c5481d973f282b5381ba8e55dfd60a",
+      "output/temper-sensor-r3/pcb/REQUIREMENTS.md": "a36b2a343b507575d0722cb03d9a70dd0350613624f33be61d652175423a6c46",
+      "output/temper-sensor-r3/screen.py": "1dbfcbf158f92af1d551bfb29a97a733c65aaf102165068e33e51b52c3dd5118"
+    },
+    "numpy_version": "2.5.4",
+    "python_version": "3.12.14",
+    "scope": "model/evidence derivation, no physical measurements",
+    "seed": "no random draws; reads the committed sweep including its deterministic seeds",
+    "source_inputs_dirty": false,
+    "study_base_revision": "87edb1b329a39ffff54c4cc13e6a2bbac7f0c0e4"
+  },
+  "qualification": {
+    "ageing_assemblies": 36,
+    "ageing_read_hours": [
+      1000,
+      3000,
+      10000
+    ],
+    "ageing_temperatures_C": [
+      250,
+      275,
+      300
+    ],
+    "allowed_failures": 0,
+    "confidence_level": 0.95,
+    "controls": 12,
+    "lots": 3,
+    "methods": [
+      "IEC 60068-2-78 damp heat, steady state",
+      "IEC 60068-2-14 change of temperature",
+      "IEC 60068-2-30 damp heat, cyclic",
+      "dishwasher/wash exposure",
+      "oil/fat soak at temperature",
+      "combined wash, thermal cycling and oil/fat exposure"
+    ],
+    "oil_hot_face_C_proposed": 250,
+    "oil_hours_proposed": 168,
+    "per_group_assemblies": 24,
+    "post_IR_C": 300.0,
+    "post_IR_ohm": 10000000.0,
+    "post_accuracy_acceptance_K": 0.5,
+    "standard_severities": "laboratory to select and approve from licensed method text and measured service profile; no compliance claim",
+    "standard_text_read": false,
+    "total_assemblies": 192,
+    "wash_cycles_proposed": 100,
+    "wash_water_max_C_proposed": 70,
+    "zero_failure_binomial_upper_failure_fraction": 0.117346156155
+  },
+  "reading_errors": [
+    {
+      "digital_incremental_low_K": 16.8032865524,
+      "element_ohm": 109.73465625,
+      "firmware_analog_C": 8.18936729431,
+      "firmware_intact_C": 24.9291496277,
+      "firmware_leaky_C": 8.12586307526,
+      "ideal_reading_C": 8.18936327133,
+      "ideal_reading_low_K": 16.8106367287,
+      "intact_adc_code": 8362,
+      "leaky_adc_code": 7864,
+      "parallel_ohm": 1732.1,
+      "true_C": 25.0
+    },
+    {
+      "digital_incremental_low_K": 12.7282629013,
+      "element_ohm": 109.73465625,
+      "firmware_analog_C": 12.2486619949,
+      "firmware_intact_C": 24.9291496277,
+      "firmware_leaky_C": 12.2008867264,
+      "ideal_reading_C": 12.2486640497,
+      "ideal_reading_low_K": 12.7513359503,
+      "intact_adc_code": 8362,
+      "leaky_adc_code": 7985,
+      "parallel_ohm": 2319.9,
+      "true_C": 25.0
+    },
+    {
+      "digital_incremental_low_K": 0.0338268280029,
+      "element_ohm": 109.73465625,
+      "firmware_analog_C": 24.9701499939,
+      "firmware_intact_C": 24.9291496277,
+      "firmware_leaky_C": 24.8953227997,
+      "ideal_reading_C": 24.9701572278,
+      "ideal_reading_low_K": 0.0298427722463,
+      "intact_adc_code": 8362,
+      "leaky_adc_code": 8361,
+      "parallel_ohm": 1040000.0,
+      "true_C": 25.0
+    },
+    {
+      "digital_incremental_low_K": 0.0,
+      "element_ohm": 109.73465625,
+      "firmware_analog_C": 24.9968948364,
+      "firmware_intact_C": 24.9291496277,
+      "firmware_leaky_C": 24.9291496277,
+      "ideal_reading_C": 24.9968960459,
+      "ideal_reading_low_K": 0.00310395408623,
+      "intact_adc_code": 8362,
+      "leaky_adc_code": 8362,
+      "parallel_ohm": 10000000.0,
+      "true_C": 25.0
+    },
+    {
+      "digital_incremental_low_K": 0.0,
+      "element_ohm": 109.73465625,
+      "firmware_analog_C": 24.9996871948,
+      "firmware_intact_C": 24.9291496277,
+      "firmware_leaky_C": 24.9291496277,
+      "ideal_reading_C": 24.9996896014,
+      "ideal_reading_low_K": 0.000310398603393,
+      "intact_adc_code": 8362,
+      "leaky_adc_code": 8362,
+      "parallel_ohm": 100000000.0,
+      "true_C": 25.0
+    },
+    {
+      "digital_incremental_low_K": 34.8752593994,
+      "element_ohm": 157.325125,
+      "firmware_analog_C": 115.115379333,
+      "firmware_intact_C": 149.94229126,
+      "firmware_leaky_C": 115.06703186,
+      "ideal_reading_C": 115.115388481,
+      "ideal_reading_low_K": 34.8846115191,
+      "intact_adc_code": 11989,
+      "leaky_adc_code": 10991,
+      "parallel_ohm": 1732.1,
+      "true_C": 150.0
+    },
+    {
+      "digital_incremental_low_K": 26.6270370483,
+      "element_ohm": 157.325125,
+      "firmware_analog_C": 123.359069824,
+      "firmware_intact_C": 149.94229126,
+      "firmware_leaky_C": 123.315254211,
+      "ideal_reading_C": 123.359091104,
+      "ideal_reading_low_K": 26.6409088963,
+      "intact_adc_code": 11989,
+      "leaky_adc_code": 11228,
+      "parallel_ohm": 2319.9,
+      "true_C": 150.0
+    },
+    {
+      "digital_incremental_low_K": 0.0702667236328,
+      "element_ohm": 157.325125,
+      "firmware_analog_C": 149.936294556,
+      "firmware_intact_C": 149.94229126,
+      "firmware_leaky_C": 149.872024536,
+      "ideal_reading_C": 149.936291638,
+      "ideal_reading_low_K": 0.0637083623059,
+      "intact_adc_code": 11989,
+      "leaky_adc_code": 11987,
+      "parallel_ohm": 1040000.0,
+      "true_C": 150.0
+    },
+    {
+      "digital_incremental_low_K": 0.0,
+      "element_ohm": 157.325125,
+      "firmware_analog_C": 149.993362427,
+      "firmware_intact_C": 149.94229126,
+      "firmware_leaky_C": 149.94229126,
+      "ideal_reading_C": 149.993373374,
+      "ideal_reading_low_K": 0.00662662620462,
+      "intact_adc_code": 11989,
+      "leaky_adc_code": 11989,
+      "parallel_ohm": 10000000.0,
+      "true_C": 150.0
+    },
+    {
+      "digital_incremental_low_K": 0.0,
+      "element_ohm": 157.325125,
+      "firmware_analog_C": 149.999328613,
+      "firmware_intact_C": 149.94229126,
+      "firmware_leaky_C": 149.94229126,
+      "ideal_reading_C": 149.999337327,
+      "ideal_reading_low_K": 0.000662672614311,
+      "intact_adc_code": 11989,
+      "leaky_adc_code": 11989,
+      "parallel_ohm": 100000000.0,
+      "true_C": 150.0
+    },
+    {
+      "digital_incremental_low_K": 53.561630249,
+      "element_ohm": 194.098125,
+      "firmware_analog_C": 196.421539307,
+      "firmware_intact_C": 249.932479858,
+      "firmware_leaky_C": 196.370849609,
+      "ideal_reading_C": 196.421521761,
+      "ideal_reading_low_K": 53.5784782385,
+      "intact_adc_code": 14791,
+      "leaky_adc_code": 13301,
+      "parallel_ohm": 1732.1,
+      "true_C": 250.0
+    },
+    {
+      "digital_incremental_low_K": 41.1328125,
+      "element_ohm": 194.098125,
+      "firmware_analog_C": 208.867752075,
+      "firmware_intact_C": 249.932479858,
+      "firmware_leaky_C": 208.799667358,
+      "ideal_reading_C": 208.867762388,
+      "ideal_reading_low_K": 41.1322376125,
+      "intact_adc_code": 14791,
+      "leaky_adc_code": 13649,
+      "parallel_ohm": 2319.9,
+      "true_C": 250.0
+    },
+    {
+      "digital_incremental_low_K": 0.108764648438,
+      "element_ohm": 194.098125,
+      "firmware_analog_C": 249.899932861,
+      "firmware_intact_C": 249.932479858,
+      "firmware_leaky_C": 249.82371521,
+      "ideal_reading_C": 249.899938552,
+      "ideal_reading_low_K": 0.100061447509,
+      "intact_adc_code": 14791,
+      "leaky_adc_code": 14788,
+      "parallel_ohm": 1040000.0,
+      "true_C": 250.0
+    },
+    {
+      "digital_incremental_low_K": 0.0,
+      "element_ohm": 194.098125,
+      "firmware_analog_C": 249.989593506,
+      "firmware_intact_C": 249.932479858,
+      "firmware_leaky_C": 249.932479858,
+      "ideal_reading_C": 249.98959172,
+      "ideal_reading_low_K": 0.0104082795747,
+      "intact_adc_code": 14791,
+      "leaky_adc_code": 14791,
+      "parallel_ohm": 10000000.0,
+      "true_C": 250.0
+    },
+    {
+      "digital_incremental_low_K": 0.0,
+      "element_ohm": 194.098125,
+      "firmware_analog_C": 249.998962402,
+      "firmware_intact_C": 249.932479858,
+      "firmware_leaky_C": 249.932479858,
+      "ideal_reading_C": 249.998959152,
+      "ideal_reading_low_K": 0.00104084769532,
+      "intact_adc_code": 14791,
+      "leaky_adc_code": 14791,
+      "parallel_ohm": 100000000.0,
+      "true_C": 250.0
+    },
+    {
+      "digital_incremental_low_K": 64.2469787598,
+      "element_ohm": 212.0515,
+      "firmware_analog_C": 235.734024048,
+      "firmware_intact_C": 299.92755127,
+      "firmware_leaky_C": 235.68057251,
+      "ideal_reading_C": 235.734014504,
+      "ideal_reading_low_K": 64.2659854963,
+      "intact_adc_code": 16159,
+      "leaky_adc_code": 14397,
+      "parallel_ohm": 1732.1,
+      "true_C": 300.0
+    },
+    {
+      "digital_incremental_low_K": 49.4512176514,
+      "element_ohm": 212.0515,
+      "firmware_analog_C": 250.536071777,
+      "firmware_intact_C": 299.92755127,
+      "firmware_leaky_C": 250.476333618,
+      "ideal_reading_C": 250.536065017,
+      "ideal_reading_low_K": 49.463934983,
+      "intact_adc_code": 16159,
+      "leaky_adc_code": 14806,
+      "parallel_ohm": 2319.9,
+      "true_C": 300.0
+    },
+    {
+      "digital_incremental_low_K": 0.110534667969,
+      "element_ohm": 212.0515,
+      "firmware_analog_C": 299.878631592,
+      "firmware_intact_C": 299.92755127,
+      "firmware_leaky_C": 299.817016602,
+      "ideal_reading_C": 299.878637995,
+      "ideal_reading_low_K": 0.121362004663,
+      "intact_adc_code": 16159,
+      "leaky_adc_code": 16156,
+      "parallel_ohm": 1040000.0,
+      "true_C": 300.0
+    },
+    {
+      "digital_incremental_low_K": 0.0,
+      "element_ohm": 212.0515,
+      "firmware_analog_C": 299.987365723,
+      "firmware_intact_C": 299.92755127,
+      "firmware_leaky_C": 299.92755127,
+      "ideal_reading_C": 299.987375823,
+      "ideal_reading_low_K": 0.0126241768572,
+      "intact_adc_code": 16159,
+      "leaky_adc_code": 16159,
+      "parallel_ohm": 10000000.0,
+      "true_C": 300.0
+    },
+    {
+      "digital_incremental_low_K": 0.0,
+      "element_ohm": 212.0515,
+      "firmware_analog_C": 299.998748779,
+      "firmware_intact_C": 299.92755127,
+      "firmware_leaky_C": 299.92755127,
+      "ideal_reading_C": 299.998737556,
+      "ideal_reading_low_K": 0.00126244410433,
+      "intact_adc_code": 16159,
+      "leaky_adc_code": 16159,
+      "parallel_ohm": 100000000.0,
+      "true_C": 300.0
+    }
+  ],
+  "residual_layers": {
+    "bead_stack_at_250C_K": 10.2,
+    "cold_soak_measured_rail_threshold_K": 16.9,
+    "cold_soak_unknown_rail_threshold_K": 19.4,
+    "coverage": "none of leak-chain, rim-limit, cold-soak or CR-5 guarantees the first-crossing bar for all faults",
+    "cr5_original_glass_trip_band_C": [
+      262.3,
+      288.1
+    ],
+    "glass_offset_K": [
+      12.0,
+      46.0
+    ]
+  },
+  "task": "T1"
+}
