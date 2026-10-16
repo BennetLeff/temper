@@ -98,6 +98,21 @@ def _shape_tile(shape, ti, tj, step=None):
         r0, r1 = max(b0 - tj * TILE, 0), min(b1 - tj * TILE + 1, TILE)
         if c0 >= c1 or r0 >= r1:
             t = False
+        elif (c1 - c0) * (r1 - r0) >= 1024:
+            block = TILE // 4
+            rects = _stable(("blocks", ti, tj, step), lambda: shapely.box(
+                xy[0][:, ::block], xy[1][::block, :],
+                xy[0][:, block - 1::block], xy[1][block - 1::block, :]))
+            # Boundary blocks still use the exact point predicate.
+            inside = shapely.contains_properly(shape, rects)
+            hits = shapely.intersects(shape, rects)
+            t = inside.repeat(block, axis=0).repeat(block, axis=1)
+            boundary = (hits & ~inside).repeat(block, axis=0).repeat(block, axis=1)
+            rows, cols = np.nonzero(boundary[r0:r1, c0:c1])
+            rows += r0
+            cols += c0
+            t[rows, cols] = shapely.contains_xy(shape, xy[0][0, cols], xy[1][rows, 0])
+            t = False if not t.any() else True if t.all() else t
         else:
             part = shapely.contains_xy(shape, xy[0][:, c0:c1], xy[1][r0:r1, :])
             if not part.any():
