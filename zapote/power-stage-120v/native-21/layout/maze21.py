@@ -30,6 +30,7 @@ _CIRC = 1 / math.cos(math.pi / (4 * _RES))
 # Grown obstacles repeat across calls (the same base copper around every connection): cached per (geometry, distance).
 # The geometry is kept in the value so its id cannot be reused by a new object while the entry lives.
 _GROWN = {}
+_BOUNDS = {}
 
 
 def _grow(g, d):
@@ -39,6 +40,13 @@ def _grow(g, d):
     grown = g.buffer(d * _CIRC, resolution=_RES)
     _GROWN[(id(g), d)] = (g, grown)
     return grown
+
+
+def _bounds(shape):
+    hit = _BOUNDS.get(id(shape))
+    if hit is None or hit[0] is not shape:
+        hit = _BOUNDS[id(shape)] = (shape, shape.bounds)
+    return hit[1]
 
 
 # Search grids sit on one board-wide lattice (x = i * STEP, y = j * STEP), the box snapped inward to it, so every
@@ -90,7 +98,7 @@ def _paint(mask, shape, i0, j0, nx, ny, add=False):
     """mask[j - j0, i - i0] |= lattice point (i, j) lies inside shape (strictly: contains_xy), tile by tile."""
     import numpy as np
     import shapely
-    bx0, by0, bx1, by1 = shape.bounds
+    bx0, by0, bx1, by1 = _bounds(shape)
     a0, a1 = max(math.ceil(bx0 / STEP - 1e-9), i0), min(math.floor(bx1 / STEP + 1e-9), i0 + nx - 1)
     b0, b1 = max(math.ceil(by0 / STEP - 1e-9), j0), min(math.floor(by1 / STEP + 1e-9), j0 + ny - 1)
     if a0 > a1 or b0 > b1:
@@ -220,7 +228,7 @@ def _sync(st, layer):
                 sh = grow_of(g, other)
                 if sh is None:
                     continue
-                bx0, by0, bx1, by1 = sh.bounds
+                bx0, by0, bx1, by1 = _bounds(sh)
                 for ti in range(math.floor(bx0 / step) // TILE, math.floor(bx1 / step) // TILE + 1):
                     for tj in range(math.floor(by0 / step) // TILE, math.floor(by1 / step) // TILE + 1):
                         old = tiles.get((ti, tj))
@@ -264,7 +272,7 @@ def _tile_shapes(geo, layer, ti, tj, grow_of, r=9):
         sh = grow_of(g, other)
         if sh is None:
             continue
-        b = sh.bounds
+        b = _bounds(sh)
         if b[2] >= x0 and b[0] <= x1 and b[3] >= y0 and b[1] <= y1:
             out.append(sh)
     return out
