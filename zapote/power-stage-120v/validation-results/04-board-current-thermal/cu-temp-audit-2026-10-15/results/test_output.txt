@@ -1,0 +1,43 @@
+ok   synthetic unregistered Net() with no temp_c fails
+ok   Net(temp_c=20.0) is not an explicit hot basis
+ok   Net(temp_c=100.0) is explicit and passes without an entry
+ok   Net(temp_c=<variable>) counts as explicit
+ok   I2R with a bare 1.68e-8 fails
+ok   RHO_CU constant without a TCR term fails
+ok   resistivity with a 0.00393 TCR term in the same statement is explicit
+ok   air / aluminium / heat-capacity densities are not copper resistivity
+ok   a reader of the A4 heat npz fails
+ok   an import of an A4-reading module fails
+ok   IPC-2221 formula without a registry entry fails
+ok   a file with no copper-temperature use passes
+ok   registered hot basis 125 C passes
+ok   'hot is conservative' at 20 C fails (the S17 class)
+ok   the same with an unexpired waiver passes and warns
+ok   an expired waiver fails
+ok   --fail-waived fails while a waiver is open
+ok   a hot-conservative entry without a numeric basis fails
+ok   'cold is conservative' at 20 C passes
+ok   'cold is conservative' at 105 C fails
+ok   an unknown direction fails
+ok   an entry without a justification fails
+ok   'both corners' that evaluates both passes
+ok   'both corners' that lost its cold evaluation fails
+ok   'both corners' with fewer than two markers fails
+ok   pin that matches passes
+ok   pin that no longer matches (basis drifted) fails
+ok   an entry whose finding disappeared is stale and fails
+ok   an entry for a missing file fails
+ok   an entry with a `files` list covers several files
+ok   two entries on one file fail
+ok   a derived consumer with a matching pin passes
+ok   a derived consumer whose pin is gone fails
+ok   a new finding kind in a registered file fails
+ok   real tree + real registry passes (101 files, 37 registered, 30 waived)
+ok   real tree fails after the waivers expire (2027-01-01)
+ok   real tree fails under --fail-waived while S17 is open
+ok   an injected Net() is flagged by the scanner the gate uses on the real tree
+ok   real tree minus the run_board.py entry fails on run_board.py
+ok   real f1_containment as 'both corners' fails when a corner marker is absent
+ok   real kelvin_plane pinned to the wrong basis (85 C) fails
+
+all controls passed

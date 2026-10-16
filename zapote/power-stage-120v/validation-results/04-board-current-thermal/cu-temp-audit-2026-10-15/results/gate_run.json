@@ -1,0 +1,410 @@
+{
+ "errors": [],
+ "warnings": [
+  "validation-results/02-protection-timing/stage15-28A/neck_fin.py: basis 95 C < 100.0 C, waiver S17-neck until 2026-11-30",
+  "validation-results/02-protection-timing/stage15-28A/sw_widths.py: basis 45 C < 100.0 C, waiver S17-ipc until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/a4_fields.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/b3/thermal.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/b3-convergence/body_runs.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/b3-convergence/report_convergence.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/b3-convergence/run_convergence.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/b3-convergence/thermal_body.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/b3-ratings/audit-2026-10-15/scripts/body_cases.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/b3-ratings/line-hold-2026-10-15/scripts/line_hold.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/a4_fields.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/controls.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/plan.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/solve.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/superposition.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/b3-ratings/run_basis.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/h10-stall/h10_stall.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/heat-attribution-2026-10-15/analyze.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/heat-attribution-2026-10-15/solve_terms.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/r5-derating/r5_derating.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/run_board.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/stage15b/a4_cases.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/stage15b/b3-model/thermal_lead.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/stage15b/b3-model/thermal_snap.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/stage15b/heatmap_cases.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/stage15b/ref/neck_fin.py: basis 95 C < 100.0 C, waiver S17-neck until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/stage15b/ref/sw_widths.py: basis 45 C < 100.0 C, waiver S17-ipc until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/stage17-r5/g6_r5_derating.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/stage17-r5/r5_vias17.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30",
+  "validation-results/04-board-current-thermal/round5-native21/summarize.py: basis 20 C < 100.0 C, waiver S17 until 2026-11-30"
+ ],
+ "rows": [
+  {
+   "file": "validation-plan/sim-kit/04-current/sheet_solver.py",
+   "id": "CU-13",
+   "kinds": [
+    "net",
+    "rho"
+   ],
+   "status": "registered",
+   "direction": "not a claim (self-test)",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/02-protection-timing/f2-coordination/f2_coord.py",
+   "id": "CU-07",
+   "kinds": [
+    "rho"
+   ],
+   "status": "registered",
+   "direction": "both corners",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/02-protection-timing/kelvin/kelvin_budget.py",
+   "id": "CU-09",
+   "kinds": [],
+   "status": "registered",
+   "direction": "both corners",
+   "basis_temp_c": 125
+  },
+  {
+   "file": "validation-results/02-protection-timing/kelvin/kelvin_plane.py",
+   "id": "CU-08",
+   "kinds": [
+    "net"
+   ],
+   "status": "registered",
+   "direction": "hot is conservative",
+   "basis_temp_c": 125
+  },
+  {
+   "file": "validation-results/02-protection-timing/kelvin/kelvin_track_bound.py",
+   "id": "CU-10",
+   "kinds": [
+    "rho"
+   ],
+   "status": "registered",
+   "direction": "hot is conservative",
+   "basis_temp_c": 120
+  },
+  {
+   "file": "validation-results/02-protection-timing/shoot-through-f1/f1_containment.py",
+   "id": "CU-06",
+   "kinds": [
+    "rho"
+   ],
+   "status": "registered",
+   "direction": "both corners",
+   "basis_temp_c": 105
+  },
+  {
+   "file": "validation-results/02-protection-timing/stage15-28A/neck_fin.py",
+   "id": "CU-11",
+   "kinds": [
+    "rho"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 95
+  },
+  {
+   "file": "validation-results/02-protection-timing/stage15-28A/sw_widths.py",
+   "id": "CU-12",
+   "kinds": [
+    "ipc"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 45
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/a4_fields.py",
+   "id": "CU-04",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/b3/thermal.py",
+   "id": "CU-01",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/b3-convergence/body_runs.py",
+   "id": "CU-01",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/b3-convergence/report_convergence.py",
+   "id": "CU-01",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/b3-convergence/run_convergence.py",
+   "id": "CU-01",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/b3-convergence/thermal_body.py",
+   "id": "CU-01",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/audit-2026-10-15/scripts/body_cases.py",
+   "id": "CU-02",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/line-hold-2026-10-15/scripts/line_hold.py",
+   "id": "CU-02",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/a4_fields.py",
+   "id": "CU-02",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/controls.py",
+   "id": "CU-02",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/plan.py",
+   "id": "CU-02",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/solve.py",
+   "id": "CU-02",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/superposition.py",
+   "id": "CU-02",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/run_basis.py",
+   "id": "CU-01",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/h10-stall/h10_stall.py",
+   "id": "CU-02",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/heat-attribution-2026-10-15/analyze.py",
+   "id": "CU-03",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/heat-attribution-2026-10-15/solve_terms.py",
+   "id": "CU-02",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/r5-derating/r5_derating.py",
+   "id": "CU-05",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/run_board.py",
+   "id": "CU-04",
+   "kinds": [
+    "a4field",
+    "net"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/stage15b/a4_cases.py",
+   "id": "CU-02",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/stage15b/b3-model/thermal_lead.py",
+   "id": "CU-02",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/stage15b/b3-model/thermal_snap.py",
+   "id": "CU-02",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/stage15b/heatmap_cases.py",
+   "id": "CU-02",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/stage15b/ref/neck_fin.py",
+   "id": "CU-11",
+   "kinds": [
+    "rho"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 95
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/stage15b/ref/sw_widths.py",
+   "id": "CU-12",
+   "kinds": [
+    "ipc"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 45
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/stage17-r5/g6_r5_derating.py",
+   "id": "CU-05",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/stage17-r5/r5_vias17.py",
+   "id": "CU-05",
+   "kinds": [
+    "rho"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/round5-native21/summarize.py",
+   "id": "CU-04",
+   "kinds": [
+    "a4field"
+   ],
+   "status": "waived",
+   "direction": "hot is conservative",
+   "basis_temp_c": 20
+  },
+  {
+   "file": "validation-results/04-board-current-thermal/scripts/audit_kit_solver.py",
+   "id": "CU-14",
+   "kinds": [
+    "net"
+   ],
+   "status": "registered",
+   "direction": "not a claim (self-test)",
+   "basis_temp_c": 20
+  }
+ ],
+ "n_files_scanned": 101,
+ "n_registered": 37,
+ "today": "2026-10-15"
+}

@@ -124,6 +124,10 @@ def gates(b, tag, audit):
     ra = jload(b / "res-a-creepage.json")
     if ra:
         g["res_a_creepage18"] = not ra["violations"]
+    ct = jload(b / "cu-temp-basis.json")           # gates/cu_temp_basis.py, written by chain.sh (S17); older builds lack it
+    if ct:
+        g["cu_temp_basis"] = not ct["errors"]
+        src["cu_temp_basis"] = str(b / "cu-temp-basis.json")
     d5 = jload(UNIT / "native-21/verification/d5-audit.json")
     if d5:
         g["d5"] = bool(d5["verdict_pcb"])

@@ -1,0 +1,509 @@
+{
+ "date": "2026-10-15",
+ "tree": "ps-integrate abd891e5c (codex/power-stage-integration)",
+ "alpha_per_K": 0.00393,
+ "scorecard_inputs_covered": [
+  "kelvin_band_low_A",
+  "b3_*_margin_K",
+  "fuse_copper_fusing_ratio",
+  "ocp_pickup_stack_pan60_A",
+  "ledger (no copper R)",
+  "bank ratios (no copper R)",
+  "emi/leakage/cmti (no copper R)"
+ ],
+ "firmware_board_derivations_yaml": "no copper resistance, loss or temperature entries (checked: grep copper|tcr|temp|mohm|shunt|ocp)",
+ "consumers": [
+  {
+   "rank": 1,
+   "id": "CU-01/02/04",
+   "consumer": "Task 04 A4 loss fields -> B3 board-thermal model -> b3_ratings gate (b3_release_margin_K, b3_laminate_margin_K, b3_rated_part_margin_K)",
+   "where": [
+    "validation-results/04-board-current-thermal/round5-native21/run_board.py:34 (Net without temp_c)",
+    "validation-results/04-board-current-thermal/round5-native21/run_board.py:312 ('20 C copper')",
+    "validation-results/04-board-current-thermal/round5-native21/b3/thermal.py:277-308,406 (A4 x I^2 scale only)",
+    "validation-plan/sim-kit/04-current/sheet_solver.py:102-105 (temp_c=20 default)",
+    "native-21/layout/gates/scorecard.py:185-196"
+   ],
+   "assumed_temp_c": 20,
+   "assumed_how": "default (solver.Net(pitch_mm, layer_z_mm) leaves temp_c=20); stated in outputs 'assumptions'",
+   "actual_c18_bay61_C": "heat-weighted 82.9-112.3 (sw_a 90-96, sw_b 96-98, res_a/coil_feed 83-86, bus_p 99-102, hv_ret 104-106, leg 109-112), rho x1.25-1.36",
+   "actual_c28_C": "ESTIMATE 108-160 (rho x1.35-1.55); B3 c28 copper peak 160.2 C at bay 55/h10",
+   "conservative_direction": "hot is conservative (loss and temperature); 20 C is the NON-conservative side",
+   "can_flip_verdict": true,
+   "flip": "c18 release: C40 margin +1.2 K -> -4.9 K; R10 +3.1 -> -3.4; laminate block +5.0 -> -2.2; C41 +3.8 -> -1.1; R20 +4.6 -> -0.8 (committed first-order step, no feedback). Ceiling at bay 61: 18.44 -> 16.42 A. R18 (5.3), U26 (5.9), R12 (6.6), FET-row (7.9) were not quantified by the heat-attribution run and could follow. c22/c28 ratchets already fail (-30.2 / -32.3 K) and get worse.",
+   "estimate": {
+    "C40 body": {
+     "margin_K_20C": 1.2,
+     "add_K": 6.13,
+     "margin_K_after": -4.93
+    },
+    "R10 terminal derating": {
+     "margin_K_20C": 3.1,
+     "add_K": 6.51,
+     "margin_K_after": -3.41
+    },
+    "laminate 1 mm block": {
+     "margin_K_20C": 5.0,
+     "add_K": 7.22,
+     "margin_K_after": -2.22
+    },
+    "C41 body": {
+     "margin_K_20C": 3.8,
+     "add_K": 4.95,
+     "margin_K_after": -1.15
+    },
+    "R20 terminal derating": {
+     "margin_K_20C": 4.6,
+     "add_K": 5.4,
+     "margin_K_after": -0.8
+    }
+   },
+   "status": "B3 hot-copper iteration in progress (other agent)"
+  },
+  {
+   "rank": 2,
+   "id": "CU-05",
+   "consumer": "R5 derating G6 (g6_r5_derating.py), r5_derating.py, r5_vias17.py: R5 pad temperature comes from B3; via barrel I2R uses RHO_CU 1.72e-8 with no TCR",
+   "where": [
+    "validation-results/04-board-current-thermal/round5-native21/stage17-r5/g6_r5_derating.py:165-171",
+    "validation-results/04-board-current-thermal/round5-native21/r5-derating/r5_derating.py:96,139",
+    "validation-results/04-board-current-thermal/round5-native21/stage17-r5/r5_vias17.py:42,102"
+   ],
+   "assumed_temp_c": 20,
+   "assumed_how": "inherited from A4 fields; r5_vias17.py default (constant at 20 C, no TCR term)",
+   "actual_c18_bay61_C": "R5 terminal row 118.3 C (margins.json c18); hv_ret copper 104-106",
+   "actual_c28_C": "R5 pad max 134.87 C (c28/h25, ambient 50, g6.json); 162.5 C at c28/h10/bay 55 (margins.json, already -14.1 K)",
+   "conservative_direction": "hot is conservative; 20 C basis is NON-conservative",
+   "can_flip_verdict": "possible",
+   "flip": "G6 headroom 148.39 - 134.87 = 13.52 K on a pad rise of 84.87 K. Flips if copper share of the rise x (rho factor - 1) >= 0.159: share >= 0.46 at x1.35, >= 0.29 at x1.55. Share unknown without a re-solve. Via barrel loss 0.0293 -> 0.0425 W, mid-wall rise 0.28 -> 0.41 K: negligible.",
+   "estimate": {
+    "E3": {
+     "pad_max_c": 134.87,
+     "bound_c": 148.39,
+     "headroom_K": 13.52,
+     "pad_rise_K": 84.87,
+     "copper_share_that_flips_at_rho_x1.55": 0.29,
+     "copper_share_that_flips_at_rho_x1.35": 0.46
+    },
+    "E9": {
+     "c28_barrel_w_20C": 0.0293,
+     "c28_barrel_w_at_135C": 0.0425,
+     "mid_rise_K_20C": 0.28,
+     "mid_rise_K_at_135C": 0.41
+    }
+   }
+  },
+  {
+   "rank": 3,
+   "id": "CU-06",
+   "consumer": "Fuse-copper fusing ratio (fuse_copper_fusing_ratio): Onderdonk neck I2t / F1 clearing I2t, s44 min_ratio_all 0.993",
+   "where": [
+    "validation-results/02-protection-timing/shoot-through-f1/f1_containment.py:49 (TA_HOT=105),50 (RHO_CU 1.724e-8, 20 C),53-57,287-308",
+    "validation-results/02-protection-timing/shoot-through-f1/s21_necks.py",
+    "native-21/layout/gates/scorecard.py:218-226"
+   ],
+   "assumed_temp_c": 105,
+   "assumed_how": "explicit TA_HOT = 105 (25 C also reported); cord/branch R at 20 C (cold, conservative for let-through)",
+   "actual_c18_bay61_C": "binding bus_p BR1+ -> Q2/Q5 drain: 99.1-102.1 heat-weighted; hv_ret 104.4-106.3; leg 109.2-112.3 (ratio 2.28 there)",
+   "actual_c28_C": "not computed (pre-fault copper is at the line current, not the 28 A tank case)",
+   "conservative_direction": "hot is conservative for fusing (lower I2t); cold is conservative for let-through current",
+   "can_flip_verdict": "no (as coded)",
+   "flip": "Ratio is already 0.993 (<1) at Ta 105. Per Onderdonk it is 1.004 at 100 C and crosses 1.0 at 101.7 C, so re-basing Ta to the c18 bus_p temperature (99-102 C) would move it to about 1.00 (up). A hotter neck than 105 C (leg_ret 109-112 C) lowers it by 1.5 % at 112 C (0.978) but that row has ratio 2.28. The metric's sign hinges on Ta within +-5 K.",
+   "estimate": {
+    "min_ratio_all_at_Ta105": 0.993,
+    "ratio_vs_Ta": {
+     "95": 1.0149,
+     "100": 1.0039,
+     "102": 0.9995,
+     "105": 0.993,
+     "112": 0.978
+    },
+    "ratio_crosses_1_at_Ta_C": 101.7,
+    "c18_heat_weighted_C": {
+     "bus_p": [
+      99.1,
+      102.1
+     ],
+     "hv_ret": [
+      104.4,
+      106.3
+     ],
+     "leg": [
+      109.2,
+      112.3
+     ]
+    },
+    "note": "the binding row is bus_p BR1+ -> Q2/Q5 drain (1697.7 A2s of 1710). Ta 105 is on the hot (conservative) side of 99-102"
+   }
+  },
+  {
+   "rank": 4,
+   "id": "CU-12",
+   "consumer": "IPC-2221 20 K tank-width screen (sw_widths.py), basis for the stage-15 9.77-9.82 mm tank copper (patches21.py:197)",
+   "where": [
+    "validation-results/02-protection-timing/stage15-28A/sw_widths.py:40,45-51",
+    "validation-results/04-board-current-thermal/round5-native21/stage15b/ref/sw_widths.py:40,45-51",
+    "native-21/layout/patches21.py:197"
+   ],
+   "assumed_temp_c": 45,
+   "assumed_how": "none stated: the IPC-2221 fit assumes copper near ambient + the 20 K rise (about 45 C)",
+   "actual_c18_bay61_C": "bay 61 + 20 K = 81 C if the screen were met; the B3 copper is 83-112 C",
+   "actual_c28_C": "ESTIMATE 108-160",
+   "conservative_direction": "hot is conservative; basis is NON-conservative",
+   "can_flip_verdict": "design margin only (B3 is the gate)",
+   "flip": "rho(81 C)/rho(45 C) = 1.129 -> width x1.087 -> 9.82 -> about 10.7 mm for a true 20 K at bay 61 (ESTIMATE). The 'no part move in stage 15' call (PLAN.md:179) leaned on the screen plus neck_fin.",
+   "estimate": {
+    "rho_ratio_81C_vs_45C": 1.1288,
+    "width_ratio": 1.0872,
+    "width_mm_from_9.82": 10.68,
+    "note": "ESTIMATE: IPC-2221 rise ~ P/(h A); P ~ rho I^2 so I_eq = I sqrt(m); width ~ I^(1/0.725)"
+   }
+  },
+  {
+   "rank": 5,
+   "id": "CU-11",
+   "consumer": "Tank-path neck fin estimate (neck_fin.py, 22/28 A local copper excess; docstring: estimate, not a bound, B3 is the gate)",
+   "where": [
+    "validation-results/02-protection-timing/stage15-28A/neck_fin.py:23",
+    "validation-results/04-board-current-thermal/round5-native21/stage15b/ref/neck_fin.py:23"
+   ],
+   "assumed_temp_c": 95,
+   "assumed_how": "explicit but mislabelled: 1.72e-8 x (1 + 0.00393 x 75) is 95 C; comment says 100 C",
+   "actual_c18_bay61_C": "83-112",
+   "actual_c28_C": "ESTIMATE 108-160",
+   "conservative_direction": "hot is conservative; basis is NON-conservative at c28",
+   "can_flip_verdict": "no gate depends on it",
+   "flip": "worst span excess at 28 A 30.4 K (SW_A F.Cu leg x139-148.6); at 130-160 C copper it scales to about 33.6-36.4 K (ESTIMATE, rho ratio only).",
+   "estimate": {
+    "coded_rho_factor": 1.2948,
+    "coded_equals_C": 95,
+    "worst_span": "SW_A F.Cu, leg x 139-148.6 to T1",
+    "excess_28A_K": 30.4,
+    "at_130C": 33.6,
+    "at_160C": 36.4
+   }
+  },
+  {
+   "rank": 6,
+   "id": "CU-08/09",
+   "consumer": "Kelvin plane + budget (kelvin_band_low_A): In1 Kelvin pour solved at explicit 125 C; census shift lowers the band low edge",
+   "where": [
+    "validation-results/02-protection-timing/kelvin/kelvin_plane.py:53 (TEMP=125.0),113 (kit.Net(temp_c=TEMP))",
+    "validation-results/02-protection-timing/kelvin/kelvin_budget.py:44-73",
+    "native-21/layout/gates/scorecard.py:180-184"
+   ],
+   "assumed_temp_c": 125,
+   "assumed_how": "explicit",
+   "actual_c18_bay61_C": "Kelvin pour carries milliamps, so it sits at the local board temperature: R5 row 118.3 C at c18",
+   "actual_c28_C": "R5 pad 134.87 C (h25) to 162.5 C (h10, bay 55)",
+   "conservative_direction": "hot is conservative for the trip low edge (positive e_th lowers the trip); the high edge takes zero shift (cold bound): both corners bounded",
+   "can_flip_verdict": false,
+   "flip": "band low 67.77 A at 125 C (floor 64.17, margin 3.60). At 134.9 C e_th x1.028 -> 67.71; at 162.5 C x1.104 -> 67.55. Margin stays above 3.3 A.",
+   "estimate": {
+    "band_low_A_at_125C": 67.77,
+    "floor_A": 64.17,
+    "margin_A": 3.6,
+    "hotter_local_copper": {
+     "R5 pad c28 h25 (g6.json)": {
+      "T_C": 134.87,
+      "e_th_scale": 1.0275,
+      "trip_shift_A": -2.181,
+      "band_low_A": 67.71
+     },
+     "R5 row c28 h10 bay 55 (margins.json)": {
+      "T_C": 162.5,
+      "e_th_scale": 1.1043,
+      "trip_shift_A": -2.344,
+      "band_low_A": 67.55
+     }
+    },
+    "colder_than_125C": {
+     "T_C": 85,
+     "e_th_scale": 0.889
+    }
+   }
+  },
+  {
+   "rank": 7,
+   "id": "CU-05b",
+   "consumer": "OCP band R5 alloy TCR with the B3 pad rise (thresholds.py:131 temp_c-25+shunt_rise; BAND_BEFORE in kelvin_budget.py uses the committed +50 K)",
+   "where": [
+    "validation-results/02-protection-timing/round3/thresholds.py:131,182",
+    "validation-results/04-board-current-thermal/round5-native21/stage17-r5/screen.py:153",
+    "validation-results/04-board-current-thermal/round5-native21/stage17-r5/ocp_band17.py"
+   ],
+   "assumed_temp_c": "R5 25 C + rise (committed +50 K; B3 84.87 K at c28/h25)",
+   "assumed_how": "explicit rise; B3 rise understates copper heat (TCR)",
+   "actual_c18_bay61_C": "n/a",
+   "actual_c28_C": "R5 pad 134.87",
+   "conservative_direction": "both signs of TCR are taken, so the magnitude of the rise matters (hot-conservative on rise)",
+   "can_flip_verdict": false,
+   "flip": "75 ppm/K x 69.71 A = 0.0052 A/K; a further 0-20 K of pad rise costs 0-0.10 A against a 3.31 A margin (67.48 vs 64.17).",
+   "estimate": {
+    "band_low_before_kelvin_A": 69.71,
+    "tcr_ppm": 75,
+    "A_per_K": 0.00523,
+    "extra_pad_rise_0_to_20K_A": [
+     0.0,
+     0.105
+    ],
+    "after_kelvin_low_A": 67.48,
+    "floor_A": 64.17,
+    "margin_A": 3.31
+   }
+  },
+  {
+   "rank": 8,
+   "id": "CU-07",
+   "consumer": "F2 coordination (let-through current through cord/branch/panel copper loop)",
+   "where": [
+    "validation-results/02-protection-timing/f2-coordination/f2_coord.py:39,72,83,166,197"
+   ],
+   "assumed_temp_c": 20,
+   "assumed_how": "explicit ('cold = max current'); Cu=0 variants as the stiffest bound",
+   "actual_c18_bay61_C": "n/a (wiring, not board)",
+   "actual_c28_C": "n/a",
+   "conservative_direction": "cold is conservative (lower R, higher prospective current)",
+   "can_flip_verdict": false,
+   "flip": "Direction is conservative; Cu=0 bound already evaluated. Not a scorecard metric (scorecard.py names F2 only in a comment).",
+   "estimate": null
+  },
+  {
+   "rank": 9,
+   "id": "CU-04b",
+   "consumer": "via_currents.json (per-via hop currents, > 3 A flag, A per mm of barrel circumference)",
+   "where": [
+    "validation-results/04-board-current-thermal/round5-native21/summarize.py:148",
+    "validation-results/04-board-current-thermal/round5-native21/run_board.py:186,302"
+   ],
+   "assumed_temp_c": 20,
+   "assumed_how": "default",
+   "actual_c18_bay61_C": "83-112",
+   "actual_c28_C": "108-160",
+   "conservative_direction": "current splits are ratios: uniform heating cancels",
+   "can_flip_verdict": false,
+   "flip": "With one rho for planes and plating, a uniform T leaves the split unchanged. Only a plane-to-barrel temperature gap would shift it (second order, not quantified).",
+   "estimate": null
+  },
+  {
+   "rank": 10,
+   "id": "CU-OCPPICKUP",
+   "consumer": "Coil-field pickup into the OCP Kelvin loops (ocp_pickup_stack_pan60_A, 4.17 A)",
+   "where": [
+    "validation-results/02-protection-timing/coil-pickup/s21b/run_ocp.py:108 (KEL=1.03 A/mV, nominal Rs)"
+   ],
+   "assumed_temp_c": "none (geometry/flux only; no copper resistance)",
+   "assumed_how": "none",
+   "actual_c18_bay61_C": "n/a",
+   "actual_c28_C": "n/a",
+   "conservative_direction": "cold (nominal) Rs is conservative: A = V/Rs",
+   "can_flip_verdict": false,
+   "flip": "Hot R5 (75 ppm, 135 C): Rs x1.0083, stack 4.173 -> 4.139 A. Copper resistance does not enter the induced volts.",
+   "estimate": {
+    "stack_A": 4.173,
+    "R5_hot_factor": 1.0083,
+    "stack_A_with_hot_R5": 4.139,
+    "note": "pickup volts come from loop flux (geometry only); A = V/Rs, so a hot Rs makes the pickup in amps smaller. Nominal Rs is the conservative side"
+   }
+  },
+  {
+   "rank": 11,
+   "id": "CU-10",
+   "consumer": "Kelvin track-only bound (kelvin_track_bound.py; not in the chain)",
+   "where": [
+    "validation-results/02-protection-timing/kelvin/kelvin_track_bound.py:31"
+   ],
+   "assumed_temp_c": 120,
+   "assumed_how": "explicit, comment says 125 C",
+   "actual_c18_bay61_C": "n/a",
+   "actual_c28_C": "n/a",
+   "conservative_direction": "hot is conservative",
+   "can_flip_verdict": false,
+   "flip": "Label error: 1.72e-8 x (1 + 0.00393 x 100) is 120 C (rho 2.396e-8 vs 2.430e-8 at 125 C: 1.4 %). Also uses 50 um copper, so still a bound.",
+   "estimate": {
+    "neck_fin": "1.72e-8 x (1 + 0.00393 x 75) = 2.2270e-08 is 95 C, comment says 100 C",
+    "kelvin_track_bound": "1.72e-8 x (1 + 0.00393 x 100) is 120 C, comment says 125 C; rho 125 C = 2.4298e-08 vs coded 2.3960e-08"
+   }
+  },
+  {
+   "rank": 12,
+   "id": "CU-13/14",
+   "consumer": "Kit sheet_solver.py library, its selftest and audit_kit_solver.py",
+   "where": [
+    "validation-plan/sim-kit/04-current/sheet_solver.py:56-57,102-105,315+",
+    "validation-results/04-board-current-thermal/scripts/audit_kit_solver.py:26-62"
+   ],
+   "assumed_temp_c": 20,
+   "assumed_how": "library default; closed-form checks at 20 C",
+   "actual_c18_bay61_C": "n/a",
+   "actual_c28_C": "n/a",
+   "conservative_direction": "not a claim (self-test)",
+   "can_flip_verdict": false,
+   "flip": "Reference temperature of the constants. round3/a4-copper and round4/reextract run_board.py copies also use Net() with no temp_c (older rounds, outside the chain).",
+   "estimate": null
+  }
+ ],
+ "off_chain_20C_or_unregistered": [
+  "validation-results/11-candidates/g02-g03-power-path/scripts/{pp_common,dcnet,bulk_path_l}.py (RHO20, 20 C DC path R)",
+  "validation-results/11-candidates/c36-tank-copper/scripts/{rank,whatif,adjoint,basis_variant}.py, c35-smt-terminals/scripts/terminal_{heat,sink}.py, r2-thermal/{b3_rerun.py,round5copy/**}, 13-coupling/scripts/b3_maps.py (A4 readers)",
+  "validation-results/08-manufacturing-package/native-21/stage16-blower-supply/budget16.py:34,98 (harness wire at 20 C: 39.9 mOhm loop for 0.6 m AWG20, x1.157 at 60 C)",
+  "validation-results/07-conducted-emi/flicker/burst_meter_sweep.py:25 (mains wiring 20 C, cold = more flicker current)",
+  "validation-results/05-resonant-tank-envelope/coil-litz/litz_rac.py, round6-full-power/scripts/board_side.py (coil R_ac at 100 C, explicit), coil_spec_28a_check.py (ALPHA_CU hot, explicit)",
+  "validation-results/11-candidates/r2-thermal/f12_l1_mot.py (L1 winding hot-iterated correctly)"
+ ],
+ "gate": {
+  "script": "native-21/layout/gates/cu_temp_basis.py",
+  "registry": "native-21/layout/gates/cu_temp_registry.json",
+  "tests": "native-21/layout/gates/test_cu_temp_basis.py",
+  "run": "101 files scanned, 37 registered, 30 waived, 0 failures -> PASS (0.9 s)",
+  "controls": "41 passed"
+ },
+ "estimates": {
+  "E1_b3_release_c18_bay61": {
+   "C40 body": {
+    "margin_K_20C": 1.2,
+    "add_K": 6.13,
+    "margin_K_after": -4.93
+   },
+   "R10 terminal derating": {
+    "margin_K_20C": 3.1,
+    "add_K": 6.51,
+    "margin_K_after": -3.41
+   },
+   "laminate 1 mm block": {
+    "margin_K_20C": 5.0,
+    "add_K": 7.22,
+    "margin_K_after": -2.22
+   },
+   "C41 body": {
+    "margin_K_20C": 3.8,
+    "add_K": 4.95,
+    "margin_K_after": -1.15
+   },
+   "R20 terminal derating": {
+    "margin_K_20C": 4.6,
+    "add_K": 5.4,
+    "margin_K_after": -0.8
+   }
+  },
+  "E1_ceiling_bay61": {
+   "ceiling_a": 16.42,
+   "gain_a": -2.02,
+   "binding_row": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)"
+  },
+  "E2_c28_copper_temperature": {
+   "c18_heat_weighted_C": [
+    82.9,
+    112.3
+   ],
+   "I2_scale_c28_over_c18": 2.42,
+   "naive_low_C": 108.0,
+   "upper_bound_C_b3_c28_copper_peak": 160.2,
+   "rho_factor_range": [
+    1.35,
+    1.55
+   ],
+   "note": "ESTIMATE: low = bay 55 + (29.4/18.9)^2 x (smallest c18 heat-weighted rise over bay 61); high = B3 c28 copper peak (margins.json), which no heat-weighted mean can exceed"
+  },
+  "E3_G6_R5_derating_c28_h25": {
+   "pad_max_c": 134.87,
+   "bound_c": 148.39,
+   "headroom_K": 13.52,
+   "pad_rise_K": 84.87,
+   "copper_share_that_flips_at_rho_x1.55": 0.29,
+   "copper_share_that_flips_at_rho_x1.35": 0.46
+  },
+  "E3_note": "ESTIMATE: pad rise x copper share x (rho factor - 1) >= headroom flips G6. The share is unknown without a re-solve; b3-ratings c18/c22/c28 R5 rows (57.3 / 75.9 / 107.5 K at bay 61/55/55) fit 20 K fixed + 0.1 K/A^2, so the I^2 part is most of the rise",
+  "E4_ocp_band": {
+   "band_low_before_kelvin_A": 69.71,
+   "tcr_ppm": 75,
+   "A_per_K": 0.00523,
+   "extra_pad_rise_0_to_20K_A": [
+    0.0,
+    0.105
+   ],
+   "after_kelvin_low_A": 67.48,
+   "floor_A": 64.17,
+   "margin_A": 3.31
+  },
+  "E5_kelvin_plane": {
+   "band_low_A_at_125C": 67.77,
+   "floor_A": 64.17,
+   "margin_A": 3.6,
+   "hotter_local_copper": {
+    "R5 pad c28 h25 (g6.json)": {
+     "T_C": 134.87,
+     "e_th_scale": 1.0275,
+     "trip_shift_A": -2.181,
+     "band_low_A": 67.71
+    },
+    "R5 row c28 h10 bay 55 (margins.json)": {
+     "T_C": 162.5,
+     "e_th_scale": 1.1043,
+     "trip_shift_A": -2.344,
+     "band_low_A": 67.55
+    }
+   },
+   "colder_than_125C": {
+    "T_C": 85,
+    "e_th_scale": 0.889
+   }
+  },
+  "E6_fuse_ratio": {
+   "min_ratio_all_at_Ta105": 0.993,
+   "ratio_vs_Ta": {
+    "95": 1.0149,
+    "100": 1.0039,
+    "102": 0.9995,
+    "105": 0.993,
+    "112": 0.978
+   },
+   "ratio_crosses_1_at_Ta_C": 101.7,
+   "c18_heat_weighted_C": {
+    "bus_p": [
+     99.1,
+     102.1
+    ],
+    "hv_ret": [
+     104.4,
+     106.3
+    ],
+    "leg": [
+     109.2,
+     112.3
+    ]
+   },
+   "note": "the binding row is bus_p BR1+ -> Q2/Q5 drain (1697.7 A2s of 1710). Ta 105 is on the hot (conservative) side of 99-102"
+  },
+  "E7_ipc2221": {
+   "rho_ratio_81C_vs_45C": 1.1288,
+   "width_ratio": 1.0872,
+   "width_mm_from_9.82": 10.68,
+   "note": "ESTIMATE: IPC-2221 rise ~ P/(h A); P ~ rho I^2 so I_eq = I sqrt(m); width ~ I^(1/0.725)"
+  },
+  "E8_neck_fin": {
+   "coded_rho_factor": 1.2948,
+   "coded_equals_C": 95,
+   "worst_span": "SW_A F.Cu, leg x 139-148.6 to T1",
+   "excess_28A_K": 30.4,
+   "at_130C": 33.6,
+   "at_160C": 36.4
+  },
+  "E9_r5_via_barrel": {
+   "c28_barrel_w_20C": 0.0293,
+   "c28_barrel_w_at_135C": 0.0425,
+   "mid_rise_K_20C": 0.28,
+   "mid_rise_K_at_135C": 0.41
+  },
+  "E10_pickup": {
+   "stack_A": 4.173,
+   "R5_hot_factor": 1.0083,
+   "stack_A_with_hot_R5": 4.139,
+   "note": "pickup volts come from loop flux (geometry only); A = V/Rs, so a hot Rs makes the pickup in amps smaller. Nominal Rs is the conservative side"
+  },
+  "E11_labels": {
+   "neck_fin": "1.72e-8 x (1 + 0.00393 x 75) = 2.2270e-08 is 95 C, comment says 100 C",
+   "kelvin_track_bound": "1.72e-8 x (1 + 0.00393 x 100) is 120 C, comment says 125 C; rho 125 C = 2.4298e-08 vs coded 2.3960e-08"
+  }
+ }
+}
