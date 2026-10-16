@@ -5,7 +5,7 @@ results land. The round folders are the lab notebook behind it
 ([ROUNDS.md](ROUNDS.md)); open findings and risks are in
 [FINDINGS.md](FINDINGS.md). Last updated 2026-10-05.
 
-Board: extraction on `native-17` copper; **native-18** (R9/R17 value only, identical copper) and **native-19** (R5 rework; leg A re-checked, no verdict change, FINDINGS M10) are covered; **native-20** (R34/R8/R16 values only, identical copper, both leg regions UNCHANGED) is covered too. **Native-21** (enclosure re-layout) is routed (2026-10-08). Its FEM setup is ready: new closures with the bias-cap gate returns, and coarse meshes of both legs pass every gate ([round17/native21-setup](round17/native21-setup/README.md)). The extraction campaign and decision reruns are pending remote-box access. Leg A (Q2 high / Q3 low, driver U1)
+Board: extraction on `native-17` copper; **native-18** (R9/R17 value only, identical copper) and **native-19** (R5 rework; leg A re-checked, no verdict change, FINDINGS M10) are covered; **native-20** (R34/R8/R16 values only, identical copper, both leg regions UNCHANGED) is covered too. **Native-21** (enclosure re-layout) is routed (2026-10-08). Its FEM setup is ready: new closures with the bias-cap gate returns, and coarse meshes of both legs pass every gate ([round17/native21-setup](round17/native21-setup/README.md)). Native-21 extraction ([round18-speedup](round18-speedup/README.md), scaling off): **leg B21 is done and closed** (`legB21-h0-best`; F6 bound 144/144, S5 108/108; FINDINGS M11). Leg A21's fine 0.45 mm run has ports 1–3 solved; port 4 restarts on the remote box after its 2026-10-10 power loss. Leg A (Q2 high / Q3 low, driver U1)
 is extracted and simulated; leg B has provisional decision cases (leg-A correction transfer; no verdict change), with its own corrections running. Evidence class: simulation and
 model-based throughout. **No physical qualification is claimed.**
 
@@ -75,6 +75,8 @@ Known limits, each tracked in [FINDINGS.md](FINDINGS.md):
 
 | Work | Where | State |
 | --- | --- | --- |
+| Round 18 solver speed-up | remote box | **done** ([round18-speedup](round18-speedup/README.md) §4.2): `Linear System Scaling = False` (Elmer's diagonal rescaling no longer mismatches the unscaled G/Pi handed to AMS) cuts GMRES iterations 1.5–2.0× on leg A and 1.8–3.3× on leg B ports (2.3× on the test mesh); battery 6 found no setting near 100 iterations. Used for all native-21 solves |
+| Native-21 legs (round 18) | remote box + Mac | **leg B21 done**: `legB21-h0-best` (fine h1 at 0.35 mm); unipolar 67/96 (S2 off-gate ≤ 1.67 V, inside 1.9 V); F6 bound −1.6 V 144/144 (S4 off-gate ≤ 1.15 V); S5 108/108 (`round17/d2/results/*legB21*`). **Leg A21 running**: fine h1 at 0.45 mm (56 GB guard), P1–P3 converged (43.20 / 45.07 / 59.42 nH), P4 restarts after the box's power loss; then compose + decision reruns |
 | Leg B matrix (native-19) | remote box | **done**: `legB-h0-best-n19` (own coarse closure set + own fine h1 + crop). Verdicts unchanged vs the corrected matrix; F6 bound 144/144 and S5 108/108 at 27/100/150 °C. Leg B closed on native-19/20 copper |
 | Leg B decision cases (provisional) | Mac | **done** (`round17/d2/results/legB-prov-n19/`, leg-A correction transferred): S1/S2 pass hot screen and ZVS, no verdict change vs leg A; S2 off-gate ≤ 1.29 V; S4 die VDS up to 537 V. Rerun on leg B's corrected matrix when it lands |
 | D-5, D-6, D-8, D-9, D-10 | delegated ([reports](round17/delegation/README.md)) | **done, merged** (#1629–#1633); D-9's six tooling findings fixed (FINDINGS S8–S13) |
