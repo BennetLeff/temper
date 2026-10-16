@@ -1,0 +1,1397 @@
+[
+ {
+  "pt": "RA_53.2",
+  "net": "res_a",
+  "x": 153.0,
+  "y": 53.2,
+  "edge": 52.0,
+  "near": [
+   [
+    0.737,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    1.5,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    1.5,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    2.0,
+    "B.Cu",
+    "sw_b",
+    "zone:sw_b leg B-C21..C23"
+   ],
+   [
+    8.787,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    9.99,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ],
+   [
+    11.659,
+    "F.Cu",
+    "crbleed_1",
+    "pad:R22.2"
+   ],
+   [
+    18.0,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    18.2,
+    "B.Cu",
+    "l_filt",
+    "TRACK"
+   ],
+   [
+    18.423,
+    "F.Cu",
+    "crbleed_2",
+    "pad:R23.2"
+   ],
+   [
+    22.213,
+    "HOLE",
+    "npth:H7",
+    ""
+   ],
+   [
+    22.215,
+    "B.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    22.215,
+    "F.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    22.215,
+    "In1.Cu",
+    "",
+    "pad:H7."
+   ]
+  ]
+ },
+ {
+  "pt": "SB_53.2",
+  "net": "sw_b",
+  "x": 190.5,
+  "y": 53.2,
+  "edge": 52.0,
+  "near": [
+   [
+    3.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    3.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    10.688,
+    "F.Cu",
+    "crbleed_3",
+    "pad:R25.1"
+   ],
+   [
+    11.8,
+    "B.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk bridge"
+   ],
+   [
+    11.8,
+    "F.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk bridge"
+   ],
+   [
+    13.232,
+    "In2.Cu",
+    "hv_ret",
+    "VIA"
+   ],
+   [
+    16.448,
+    "F.Cu",
+    "crbleed_2",
+    "pad:R24.1"
+   ],
+   [
+    16.574,
+    "B.Cu",
+    "bus_p",
+    "pad:C5.1"
+   ],
+   [
+    16.574,
+    "F.Cu",
+    "bus_p",
+    "pad:C5.1"
+   ],
+   [
+    16.574,
+    "In1.Cu",
+    "bus_p",
+    "pad:C5.1"
+   ],
+   [
+    18.0,
+    "B.Cu",
+    "l_filt",
+    "zone:l_filt BR1.2-L1"
+   ],
+   [
+    18.0,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    19.1,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    20.3,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ]
+  ]
+ },
+ {
+  "pt": "RA_68.2",
+  "net": "res_a",
+  "x": 153.0,
+  "y": 68.2,
+  "edge": 67.0,
+  "near": [
+   [
+    -0.6,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    2.887,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    4.114,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ],
+   [
+    16.5,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    16.5,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    17.0,
+    "B.Cu",
+    "sw_b",
+    "zone:sw_b leg B-C21..C23"
+   ],
+   [
+    17.326,
+    "HOLE",
+    "npth:J5",
+    ""
+   ],
+   [
+    17.33,
+    "B.Cu",
+    "",
+    "pad:J5."
+   ],
+   [
+    17.33,
+    "F.Cu",
+    "",
+    "pad:J5."
+   ],
+   [
+    17.33,
+    "In1.Cu",
+    "",
+    "pad:J5."
+   ],
+   [
+    17.33,
+    "In2.Cu",
+    "",
+    "pad:J5."
+   ],
+   [
+    19.596,
+    "B.Cu",
+    "coil_feed",
+    "zone:J2 stud land"
+   ],
+   [
+    19.596,
+    "F.Cu",
+    "coil_feed",
+    "zone:J2 stud land"
+   ],
+   [
+    19.819,
+    "In1.Cu",
+    "coil_feed",
+    "VIA"
+   ]
+  ]
+ },
+ {
+  "pt": "SB_68.2",
+  "net": "sw_b",
+  "x": 190.5,
+  "y": 68.2,
+  "edge": 67.0,
+  "near": [
+   [
+    5.4,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    6.3,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    6.3,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    6.4,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ],
+   [
+    11.909,
+    "B.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk bridge"
+   ],
+   [
+    11.909,
+    "F.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk bridge"
+   ],
+   [
+    12.406,
+    "B.Cu",
+    "bus_p",
+    "pad:C5.1"
+   ],
+   [
+    12.406,
+    "F.Cu",
+    "bus_p",
+    "pad:C5.1"
+   ],
+   [
+    12.406,
+    "In1.Cu",
+    "bus_p",
+    "pad:C5.1"
+   ],
+   [
+    13.728,
+    "In2.Cu",
+    "hv_ret",
+    "VIA"
+   ],
+   [
+    23.3,
+    "B.Cu",
+    "res_a",
+    "zone:res_a J5-C21..C23"
+   ],
+   [
+    25.104,
+    "F.Cu",
+    "res_a",
+    "pad:C22.1"
+   ],
+   [
+    25.104,
+    "In1.Cu",
+    "res_a",
+    "pad:C22.1"
+   ],
+   [
+    25.104,
+    "In2.Cu",
+    "res_a",
+    "pad:C22.1"
+   ]
+  ]
+ },
+ {
+  "pt": "RA_83.2",
+  "net": "res_a",
+  "x": 153.0,
+  "y": 83.2,
+  "edge": 55.6,
+  "near": [
+   [
+    -0.6,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    5.8,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ],
+   [
+    6.8,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    15.2,
+    "B.Cu",
+    "coil_feed",
+    "zone:J2 stud land"
+   ],
+   [
+    15.2,
+    "F.Cu",
+    "coil_feed",
+    "zone:J2 stud land"
+   ],
+   [
+    15.285,
+    "In1.Cu",
+    "coil_feed",
+    "VIA"
+   ],
+   [
+    15.285,
+    "In2.Cu",
+    "coil_feed",
+    "VIA"
+   ],
+   [
+    17.326,
+    "HOLE",
+    "npth:J2",
+    ""
+   ],
+   [
+    17.33,
+    "B.Cu",
+    "",
+    "pad:J2."
+   ],
+   [
+    17.33,
+    "F.Cu",
+    "",
+    "pad:J2."
+   ],
+   [
+    17.33,
+    "In1.Cu",
+    "",
+    "pad:J2."
+   ],
+   [
+    17.33,
+    "In2.Cu",
+    "",
+    "pad:J2."
+   ],
+   [
+    20.742,
+    "HOLE",
+    "npth:J5",
+    ""
+   ],
+   [
+    28.8,
+    "B.Cu",
+    "sw_b",
+    "zone:sw_b leg B-C21..C23"
+   ]
+  ]
+ },
+ {
+  "pt": "SB_83.2",
+  "net": "sw_b",
+  "x": 190.5,
+  "y": 83.2,
+  "edge": 55.6,
+  "near": [
+   [
+    5.8,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ],
+   [
+    6.3,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    6.3,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    6.8,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    12.372,
+    "B.Cu",
+    "bus_p",
+    "pad:C5.2"
+   ],
+   [
+    12.372,
+    "F.Cu",
+    "bus_p",
+    "pad:C5.2"
+   ],
+   [
+    12.372,
+    "In1.Cu",
+    "bus_p",
+    "pad:C5.2"
+   ],
+   [
+    14.218,
+    "B.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk bridge"
+   ],
+   [
+    14.218,
+    "F.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk bridge"
+   ],
+   [
+    16.451,
+    "In2.Cu",
+    "hv_ret",
+    "VIA"
+   ],
+   [
+    20.624,
+    "In2.Cu",
+    "selv_gnd",
+    "zone:selv_gnd SELV island"
+   ],
+   [
+    20.629,
+    "In1.Cu",
+    "v3v3",
+    "zone:v3v3 SELV island"
+   ],
+   [
+    23.3,
+    "B.Cu",
+    "res_a",
+    "zone:res_a J5-C21..C23"
+   ],
+   [
+    23.741,
+    "B.Cu",
+    "selv_gnd",
+    "VIA"
+   ]
+  ]
+ },
+ {
+  "pt": "RA_98.2",
+  "net": "res_a",
+  "x": 153.0,
+  "y": 98.2,
+  "edge": 40.6,
+  "near": [
+   [
+    -0.6,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    16.3,
+    "B.Cu",
+    "coil_feed",
+    "zone:coil_feed J2-T1.2"
+   ],
+   [
+    16.3,
+    "F.Cu",
+    "coil_feed",
+    "zone:coil_feed J2-T1.2"
+   ],
+   [
+    17.339,
+    "In1.Cu",
+    "coil_feed",
+    "VIA"
+   ],
+   [
+    17.339,
+    "In2.Cu",
+    "coil_feed",
+    "VIA"
+   ],
+   [
+    18.218,
+    "In1.Cu",
+    "v3v3",
+    "zone:v3v3 SELV island"
+   ],
+   [
+    18.218,
+    "In2.Cu",
+    "selv_gnd",
+    "zone:selv_gnd SELV island"
+   ],
+   [
+    20.742,
+    "HOLE",
+    "npth:J2",
+    ""
+   ],
+   [
+    20.744,
+    "B.Cu",
+    "",
+    "pad:J2."
+   ],
+   [
+    20.744,
+    "F.Cu",
+    "",
+    "pad:J2."
+   ],
+   [
+    20.744,
+    "In1.Cu",
+    "",
+    "pad:J2."
+   ],
+   [
+    20.744,
+    "In2.Cu",
+    "",
+    "pad:J2."
+   ],
+   [
+    20.8,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ],
+   [
+    21.021,
+    "HOLE",
+    "npth:H10",
+    ""
+   ]
+  ]
+ },
+ {
+  "pt": "SB_98.2",
+  "net": "sw_b",
+  "x": 190.5,
+  "y": 98.2,
+  "edge": 40.6,
+  "near": [
+   [
+    14.381,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    14.384,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    16.702,
+    "B.Cu",
+    "bus_p",
+    "pad:C5.2"
+   ],
+   [
+    16.702,
+    "F.Cu",
+    "bus_p",
+    "pad:C5.2"
+   ],
+   [
+    16.702,
+    "In1.Cu",
+    "bus_p",
+    "pad:C5.2"
+   ],
+   [
+    17.1,
+    "In1.Cu",
+    "v3v3",
+    "zone:v3v3 SELV island"
+   ],
+   [
+    17.1,
+    "In2.Cu",
+    "selv_gnd",
+    "zone:selv_gnd SELV island"
+   ],
+   [
+    17.556,
+    "B.Cu",
+    "line_zc_raw",
+    "VIA"
+   ],
+   [
+    17.556,
+    "F.Cu",
+    "line_zc_raw",
+    "VIA"
+   ],
+   [
+    17.556,
+    "In1.Cu",
+    "line_zc_raw",
+    "VIA"
+   ],
+   [
+    17.556,
+    "In2.Cu",
+    "line_zc_raw",
+    "VIA"
+   ],
+   [
+    18.803,
+    "B.Cu",
+    "selv_gnd",
+    "VIA"
+   ],
+   [
+    18.803,
+    "F.Cu",
+    "selv_gnd",
+    "VIA"
+   ],
+   [
+    18.803,
+    "In1.Cu",
+    "selv_gnd",
+    "VIA"
+   ]
+  ]
+ },
+ {
+  "pt": "RA_113.2",
+  "net": "res_a",
+  "x": 153.0,
+  "y": 113.2,
+  "edge": 25.6,
+  "near": [
+   [
+    6.057,
+    "HOLE",
+    "npth:H10",
+    ""
+   ],
+   [
+    6.058,
+    "B.Cu",
+    "",
+    "pad:H10."
+   ],
+   [
+    6.058,
+    "F.Cu",
+    "",
+    "pad:H10."
+   ],
+   [
+    6.058,
+    "In1.Cu",
+    "",
+    "pad:H10."
+   ],
+   [
+    6.058,
+    "In2.Cu",
+    "",
+    "pad:H10."
+   ],
+   [
+    7.85,
+    "In1.Cu",
+    "v3v3",
+    "zone:v3v3 SELV island"
+   ],
+   [
+    7.85,
+    "In2.Cu",
+    "selv_gnd",
+    "zone:selv_gnd SELV island"
+   ],
+   [
+    10.523,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    11.473,
+    "F.Cu",
+    "ct_s2",
+    "pad:T1.4"
+   ],
+   [
+    12.975,
+    "B.Cu",
+    "line_zc_raw",
+    "TRACK"
+   ],
+   [
+    18.936,
+    "B.Cu",
+    "pe",
+    "pad:J6.1"
+   ],
+   [
+    18.936,
+    "F.Cu",
+    "pe",
+    "pad:J6.1"
+   ],
+   [
+    18.936,
+    "In1.Cu",
+    "pe",
+    "pad:J6.1"
+   ],
+   [
+    18.936,
+    "In2.Cu",
+    "pe",
+    "pad:J6.1"
+   ]
+  ]
+ },
+ {
+  "pt": "SB_113.2",
+  "net": "sw_b",
+  "x": 190.5,
+  "y": 113.2,
+  "edge": 25.6,
+  "near": [
+   [
+    8.225,
+    "B.Cu",
+    "line_zc_raw",
+    "TRACK"
+   ],
+   [
+    14.361,
+    "HOLE",
+    "npth:H8",
+    ""
+   ],
+   [
+    14.362,
+    "B.Cu",
+    "",
+    "pad:H8."
+   ],
+   [
+    14.362,
+    "F.Cu",
+    "",
+    "pad:H8."
+   ],
+   [
+    14.362,
+    "In1.Cu",
+    "",
+    "pad:H8."
+   ],
+   [
+    14.362,
+    "In2.Cu",
+    "",
+    "pad:H8."
+   ],
+   [
+    14.8,
+    "In1.Cu",
+    "v3v3",
+    "zone:v3v3 SELV island"
+   ],
+   [
+    14.8,
+    "In2.Cu",
+    "selv_gnd",
+    "zone:selv_gnd SELV island"
+   ],
+   [
+    19.95,
+    "F.Cu",
+    "line_zc_raw",
+    "VIA"
+   ],
+   [
+    19.95,
+    "In1.Cu",
+    "line_zc_raw",
+    "VIA"
+   ],
+   [
+    19.95,
+    "In2.Cu",
+    "line_zc_raw",
+    "VIA"
+   ],
+   [
+    20.0,
+    "F.Cu",
+    "pe",
+    "TRACK"
+   ],
+   [
+    22.892,
+    "B.Cu",
+    "pe",
+    "pad:C4.2"
+   ],
+   [
+    22.892,
+    "In1.Cu",
+    "pe",
+    "pad:C4.2"
+   ]
+  ]
+ },
+ {
+  "pt": "RA_111.2",
+  "net": "res_a",
+  "x": 153.0,
+  "y": 111.2,
+  "edge": 27.6,
+  "near": [
+   [
+    8.046,
+    "B.Cu",
+    "",
+    "pad:H10."
+   ],
+   [
+    8.046,
+    "F.Cu",
+    "",
+    "pad:H10."
+   ],
+   [
+    8.046,
+    "HOLE",
+    "npth:H10",
+    ""
+   ],
+   [
+    8.046,
+    "In1.Cu",
+    "",
+    "pad:H10."
+   ],
+   [
+    8.046,
+    "In2.Cu",
+    "",
+    "pad:H10."
+   ],
+   [
+    8.528,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    9.841,
+    "In1.Cu",
+    "v3v3",
+    "zone:v3v3 SELV island"
+   ],
+   [
+    9.841,
+    "In2.Cu",
+    "selv_gnd",
+    "zone:selv_gnd SELV island"
+   ],
+   [
+    12.857,
+    "F.Cu",
+    "ct_s2",
+    "pad:T1.4"
+   ],
+   [
+    14.975,
+    "B.Cu",
+    "line_zc_raw",
+    "TRACK"
+   ],
+   [
+    19.11,
+    "B.Cu",
+    "coil_feed",
+    "zone:coil_feed J2-T1.2"
+   ],
+   [
+    19.11,
+    "F.Cu",
+    "coil_feed",
+    "zone:coil_feed J2-T1.2"
+   ],
+   [
+    20.579,
+    "F.Cu",
+    "ct_sense_mon",
+    "pad:R42.2"
+   ],
+   [
+    20.924,
+    "B.Cu",
+    "pe",
+    "pad:J6.1"
+   ]
+  ]
+ },
+ {
+  "pt": "SB_111.2",
+  "net": "sw_b",
+  "x": 190.5,
+  "y": 111.2,
+  "edge": 27.6,
+  "near": [
+   [
+    10.225,
+    "B.Cu",
+    "line_zc_raw",
+    "TRACK"
+   ],
+   [
+    15.74,
+    "In1.Cu",
+    "v3v3",
+    "zone:v3v3 SELV island"
+   ],
+   [
+    15.74,
+    "In2.Cu",
+    "selv_gnd",
+    "zone:selv_gnd SELV island"
+   ],
+   [
+    16.323,
+    "HOLE",
+    "npth:H8",
+    ""
+   ],
+   [
+    16.325,
+    "B.Cu",
+    "",
+    "pad:H8."
+   ],
+   [
+    16.325,
+    "F.Cu",
+    "",
+    "pad:H8."
+   ],
+   [
+    16.325,
+    "In1.Cu",
+    "",
+    "pad:H8."
+   ],
+   [
+    16.325,
+    "In2.Cu",
+    "",
+    "pad:H8."
+   ],
+   [
+    19.02,
+    "F.Cu",
+    "line_zc_raw",
+    "VIA"
+   ],
+   [
+    19.02,
+    "In1.Cu",
+    "line_zc_raw",
+    "VIA"
+   ],
+   [
+    19.02,
+    "In2.Cu",
+    "line_zc_raw",
+    "VIA"
+   ],
+   [
+    22.0,
+    "F.Cu",
+    "pe",
+    "TRACK"
+   ],
+   [
+    22.607,
+    "B.Cu",
+    "selv_gnd",
+    "VIA"
+   ],
+   [
+    22.607,
+    "F.Cu",
+    "selv_gnd",
+    "VIA"
+   ]
+  ]
+ },
+ {
+  "pt": "RAmid_53.2",
+  "net": "res_a",
+  "x": 158.0,
+  "y": 53.2,
+  "edge": 52.0,
+  "near": [
+   [
+    1.58,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    1.58,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    2.024,
+    "B.Cu",
+    "sw_b",
+    "zone:sw_b leg B-C21..C23"
+   ],
+   [
+    4.719,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    10.183,
+    "F.Cu",
+    "crbleed_1",
+    "pad:R22.2"
+   ],
+   [
+    12.979,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    14.147,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ],
+   [
+    14.622,
+    "F.Cu",
+    "crbleed_2",
+    "pad:R23.2"
+   ],
+   [
+    18.0,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    18.2,
+    "B.Cu",
+    "l_filt",
+    "TRACK"
+   ],
+   [
+    22.662,
+    "F.Cu",
+    "crbleed_3",
+    "pad:R24.2"
+   ],
+   [
+    25.104,
+    "F.Cu",
+    "sw_b",
+    "pad:C21.2"
+   ],
+   [
+    25.104,
+    "In1.Cu",
+    "sw_b",
+    "pad:C21.2"
+   ],
+   [
+    25.104,
+    "In2.Cu",
+    "sw_b",
+    "pad:C21.2"
+   ]
+  ]
+ },
+ {
+  "pt": "RAmid_83.2",
+  "net": "res_a",
+  "x": 158.0,
+  "y": 83.2,
+  "edge": 55.6,
+  "near": [
+   [
+    4.4,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    5.8,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ],
+   [
+    6.8,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    20.2,
+    "B.Cu",
+    "coil_feed",
+    "zone:J2 stud land"
+   ],
+   [
+    20.2,
+    "F.Cu",
+    "coil_feed",
+    "zone:J2 stud land"
+   ],
+   [
+    20.283,
+    "In1.Cu",
+    "coil_feed",
+    "VIA"
+   ],
+   [
+    20.283,
+    "In2.Cu",
+    "coil_feed",
+    "VIA"
+   ],
+   [
+    22.302,
+    "HOLE",
+    "npth:J2",
+    ""
+   ],
+   [
+    22.303,
+    "B.Cu",
+    "",
+    "pad:J2."
+   ],
+   [
+    22.303,
+    "F.Cu",
+    "",
+    "pad:J2."
+   ],
+   [
+    22.303,
+    "In1.Cu",
+    "",
+    "pad:J2."
+   ],
+   [
+    22.303,
+    "In2.Cu",
+    "",
+    "pad:J2."
+   ],
+   [
+    23.8,
+    "B.Cu",
+    "sw_b",
+    "zone:sw_b leg B-C21..C23"
+   ],
+   [
+    25.104,
+    "F.Cu",
+    "sw_b",
+    "pad:C23.2"
+   ]
+  ]
+ },
+ {
+  "pt": "RAmid_113.2",
+  "net": "res_a",
+  "x": 158.0,
+  "y": 113.2,
+  "edge": 25.6,
+  "near": [
+   [
+    7.8,
+    "In1.Cu",
+    "v3v3",
+    "zone:v3v3 SELV island"
+   ],
+   [
+    7.8,
+    "In2.Cu",
+    "selv_gnd",
+    "zone:selv_gnd SELV island"
+   ],
+   [
+    7.851,
+    "HOLE",
+    "npth:H10",
+    ""
+   ],
+   [
+    7.853,
+    "B.Cu",
+    "",
+    "pad:H10."
+   ],
+   [
+    7.853,
+    "F.Cu",
+    "",
+    "pad:H10."
+   ],
+   [
+    7.853,
+    "In1.Cu",
+    "",
+    "pad:H10."
+   ],
+   [
+    7.853,
+    "In2.Cu",
+    "",
+    "pad:H10."
+   ],
+   [
+    11.82,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    13.01,
+    "B.Cu",
+    "line_zc_raw",
+    "TRACK"
+   ],
+   [
+    15.587,
+    "F.Cu",
+    "ct_s2",
+    "pad:T1.4"
+   ],
+   [
+    19.8,
+    "F.Cu",
+    "pe",
+    "TRACK"
+   ],
+   [
+    20.051,
+    "B.Cu",
+    "pe",
+    "pad:J6.1"
+   ],
+   [
+    20.051,
+    "In1.Cu",
+    "pe",
+    "pad:J6.1"
+   ],
+   [
+    20.051,
+    "In2.Cu",
+    "pe",
+    "pad:J6.1"
+   ]
+  ]
+ }
+]

@@ -1,0 +1,209 @@
+{
+ "pdf_sha256": "69b56e62c56032229f60dd419c301ba16028da245fcbd56dc440abcf4f8ad663",
+ "irms_chart_100nF_A": {
+  "20k": 5.007,
+  "30k": 5.846,
+  "35k": 6.155,
+  "40k": 6.481,
+  "50k": 7.076,
+  "70k": 8.01,
+  "100k": 9.066
+ },
+ "vrms_chart_100nF_V": {
+  "35k": 280.1,
+  "40k": 257.6
+ },
+ "vrms_as_current_A": {
+  "35k": 6.16,
+  "40k": 6.474
+ },
+ "F_T": [
+  [
+   40.0,
+   1.221
+  ],
+  [
+   45.0,
+   1.221
+  ],
+  [
+   50.0,
+   1.221
+  ],
+  [
+   55.0,
+   1.221
+  ],
+  [
+   60.0,
+   1.22
+  ],
+  [
+   65.0,
+   1.182
+  ],
+  [
+   70.0,
+   1.138
+  ],
+  [
+   75.0,
+   1.094
+  ],
+  [
+   80.0,
+   1.049
+  ],
+  [
+   85.0,
+   0.999
+  ],
+  [
+   90.0,
+   0.939
+  ],
+  [
+   95.0,
+   0.866
+  ],
+  [
+   100.0,
+   0.791
+  ],
+  [
+   105.0,
+   0.707
+  ],
+  [
+   110.0,
+   0.609
+  ],
+  [
+   115.0,
+   0.495
+  ],
+  [
+   120.0,
+   0.356
+  ],
+  [
+   125.0,
+   0.0
+  ]
+ ],
+ "controls": {
+  "irms_100k_over_table_9.17": 0.989,
+  "F_T_85": 0.999,
+  "F_T_60_vs_table_ratio": [
+   1.22,
+   1.203
+  ],
+  "c34_gate": 0.967,
+  "failed": []
+ },
+ "V_allow_35k_Vrms": 279.9,
+ "share": 0.2165,
+ "I_part_28A_A": 6.062,
+ "vendor_ratio_85C_35k": 0.985,
+ "vendor_ratio_85C_40k": 0.935,
+ "vendor_ratio_FT_credited_at_air": {
+  "@61": 0.832,
+  "@55": 0.807
+ },
+ "vendor_ratio_FT_credited_at_bank_air_T_A": 0.849,
+ "tank_A_at_0.85_85C": 24.17,
+ "bank_air_28A_strict": {
+  "eff": 1.006,
+  "worst": {
+   "point": "@61 h20",
+   "position": "interior",
+   "g_board": "lo",
+   "P_W": 1.062,
+   "T_pad_C": 86.7,
+   "T_A_C": 67.5,
+   "dT_K": 27.24,
+   "dT_allowed_K": 26.9,
+   "T_op_C": 94.8,
+   "eff": 1.0061,
+   "gap_u_m_s": null
+  },
+  "T_op_max_C": 100.1,
+  "Top_margin_K": 24.9,
+  "passes": false
+ },
+ "bank_air_28A_gap": 0.977,
+ "steps": [
+  {
+   "I_tank_A": 18.0,
+   "vendor_85C": 0.633,
+   "gate": 0.647,
+   "gate_gap": 0.628,
+   "strict_ok": true,
+   "gap_ok": true
+  },
+  {
+   "I_tank_A": 20.0,
+   "vendor_85C": 0.703,
+   "gate": 0.719,
+   "gate_gap": 0.698,
+   "strict_ok": true,
+   "gap_ok": true
+  },
+  {
+   "I_tank_A": 22.0,
+   "vendor_85C": 0.774,
+   "gate": 0.79,
+   "gate_gap": 0.767,
+   "strict_ok": true,
+   "gap_ok": true
+  },
+  {
+   "I_tank_A": 24.0,
+   "vendor_85C": 0.844,
+   "gate": 0.862,
+   "gate_gap": 0.837,
+   "strict_ok": true,
+   "gap_ok": true
+  },
+  {
+   "I_tank_A": 26.0,
+   "vendor_85C": 0.915,
+   "gate": 0.934,
+   "gate_gap": 0.907,
+   "strict_ok": false,
+   "gap_ok": false
+  },
+  {
+   "I_tank_A": 28.0,
+   "vendor_85C": 0.985,
+   "gate": 1.006,
+   "gate_gap": 0.977,
+   "strict_ok": false,
+   "gap_ok": false
+  }
+ ],
+ "highest_step_strict": 24.0,
+ "highest_step_gap": 24.0,
+ "release": {
+  "18.375 A": {
+   "rad": 0.8708,
+   "norad": 1.1336,
+   "T_op_rad": 94.4
+  },
+  "17.5 A": {
+   "rad": 0.8334,
+   "norad": 1.0865,
+   "T_op_rad": 93.0
+  }
+ },
+ "release_pads_board": "9afc509b",
+ "voltage_rows": {
+  "V 28 A <= 0.8 VR": 0.354,
+  "no-pan <= 0.8 VC(125 C)": 0.646,
+  "Vrms <= 0.8 VRMS": 0.479,
+  "F3 R0/R1 <= 0.85 VR": 0.996,
+  "F3 any <= VR": 0.893,
+  "Z0 x top <= VR": 0.804,
+  "dV/dt": 0.091
+ }
+}

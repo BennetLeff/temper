@@ -29,6 +29,150 @@ the vendor rated-current row and the producer bank_air gate (0.967).
    - Ratios: vendor 0.818, gate 1.021, with gap credit 0.72, release 0.81 / 1.03.
    - Costs: yield 88.6 % -> 75.9 % (-12.7 pts), and about 1-2 mm more pin span at the R22/R25 end.
 
+## Alternates to B32643B (lead 1: B32643H from the vendor datasheet; scripts/b32643h.py -> results/b32643h.{json,md})
+
+### Lead 1: TDK B32643H8104J000
+
+**Verdict: no.** It fails the 28 A vendor row and, narrowly, the strict bank_air gate. It is a 24 A part on both checks.
+
+**Source:** the B3264*H datasheet (June 2026, 39 pp.) supplied by the owner, at dl/B32643H/mmkp_b32641h_b32643h.pdf,
+sha256 69b56e62c56032229f60dd419c301ba16028da245fcbd56dc440abcf4f8ad663. The charts are vector, rendered at 600 dpi:
+- the p.19 I_RMS-vs-f chart, 2000 V / 22.5 mm;
+- the p.21 V_RMS-vs-f chart;
+- the p.22 F_T(T_A) chart.
+
+**Datasheet values**
+- **Dimensions:** 14.5 x 29.5 x 26.5 mm, P22.5. This is the same body as B32643B, so it drops into the s51 dual-pitch
+  holes at x 163.0 / 185.5.
+- **Ripple current (p.13, 100 kHz):** I_RMS,max 9.17 A at T_A 85 C (self-heating <= 20 K), and 11.03 A at T_A 60 C
+  (<= 30 K).
+- **ESR:** 10.9 mOhm typical at 100 kHz. tan d <= 0.3e-3 at 1 kHz and <= 1.0e-3 at 100 kHz.
+- **Temperature limits:** rated temperature 105 C (full 2000 V DC / 700 V AC). VR derates 1.25 %/C from 105 to 125 C.
+  Top,max 125 C (case); upper category 110 C; climatic class 55/110/56.
+- **Pulse rating:** dV/dt 3800 V/us and k0 15e6 V^2/us, the same as B.
+- **Qualification:** AEC-Q200D and IEC 60384-16. It is a THB grade: 85 C / 85 % RH at VR,DC and at VR,AC for 1000 h
+  (p.24). Case UL 94 V-0.
+
+**Self-heating rule (p.18 / p.22)**
+- I_RMS(T_A) = I_RMS(85 C) x F_T(T_A). F_T is 1.22 at 60 C and below, 1.00 at 85 C, 0.79 at 100 C and 0 at 125 C, so the
+  allowed rise is 20 K x F_T^2.
+- **Unlike B32643B, H credits current below 85 C.** B's F_T stays at 1.0 below 85 C.
+- **The chart bases disagree, so the lower reading is used.** The p.21 V_RMS chart is printed as "dT <= 15 C", but in
+  current terms it matches the p.19 I_RMS chart, which is printed as T_A = 85 C, dT <= 20 C. So the 35 kHz value is the
+  same 6.16 A on either reading.
+
+**Digitised 100 nF curve** (lower line of the top band; the 120 nF curve overlaps it above about 10 kHz):
+
+| f (kHz) | 20 | 30 | 35 | 40 | 50 | 70 | 100 |
+|---|---|---|---|---|---|---|---|
+| I (A) | 5.01 | 5.85 | **6.16** | **6.48** | 7.08 | 8.01 | 9.07 |
+
+**Controls (all pass)**
+- The chart at 100 kHz is 0.989 of the 9.17 A table value.
+- The V_RMS chart, as current (I = V w C), gives 6.16 / 6.47 A, within 0.1 % of the I_RMS read.
+- F_T(85 C) = 0.999. F_T(60 C) = 1.22, against the table ratio 11.03 / 9.17 = 1.203.
+- The c34 gate (0.967) is reproduced through the same path.
+
+**Checks** (bank unchanged at 5 x 100 nF J, 0.50 uF, share 0.2165, 6.062 A per part at 28 A):
+
+| Check | Result |
+|---|---|
+| V_allow(35 kHz) | **280 V**, need >= 331 (B32643B is 331.7 V) |
+| Vendor ratio at 85 C | 35 kHz **0.985**, 40 kHz 0.935 (need <= 0.85). The tank reaches 0.85 at 24.2 A |
+| Vendor ratio with the vendor's F_T at the actual air (information only) | 0.832 at 61 + 3.7 C, 0.807 at 55 + 3.7 C. At bank_air's worst dummy T_A (67.5 C): 0.849 |
+| bank_air at 28 A, S24 flow, with the vendor's F_T rule | strict **1.006** (T_op max 100.1 C, interior part at 61 C); with gap credit 0.977 |
+| Highest step (vendor <= 0.85 and gate <= 1) | **24 A** strict, 24 A with gap credit. The gate alone passes 26 A strict (0.934) |
+| Release, 18.375 A still air | 0.871 with radiation / 1.134 without (17.5 A: 0.833 / 1.087). Pads from board 9afc509b |
+| Voltage rows (2000 V DC; VC(125 C) = 1500 V) | V 28 A 0.354; no-pan 0.646; Vrms 0.479; F3 R0/R1 0.996; F3 any 0.893; Z0 x top 0.804; dV/dt 0.091. All pass |
+| Stock | DigiKey 306 (28-week lead time; snapshots/digikey-2026-10-16.json). That covers the 20-board prototype (100 pcs), not 500 boards (2,500) |
+
+**Compared with B32643B:**
+- **At 35 kHz and 85 C, H allows less current: 6.16 A on a 20 K basis, against B's 7.29 A on a 15 K basis.** It peaks
+  at 100 kHz.
+- It is the humidity- and 105 C-rated variant (THB, AEC-Q200D).
+- It earns current back only when the ambient is below 85 C, through F_T. In the column that credit is not quite enough
+  (gate 1.006).
+
+### Lead 2: P37.5 2 kV 100 nF parts (scripts/lead2_p375.py -> results/lead2_p375.{json,md})
+
+**Verdict: no.**
+- Every P37.5 2 kV 100 nF part stocked at >= 100 units fails the 28 A vendor row.
+- None passes the strict gate above 20 A.
+- Moving the column left to RES_A x 153 breaks 12 clearance rules on the s51 copper.
+
+**Source:** TDK B3265*A/G/J/T, June 2026, dl/TDK_B32651_658/MKP_B32651_658.pdf, sha256 c32e3754... This is the same file
+round 6 / c34 cite; it was fetched with a normal WebFetch of tdk-electronics.tdk.com/inf/20/20/db/fc_2009/MKP_B32651_658.pdf.
+KEMET rows are from F3034_R76.
+
+**What the TDK sheet gives**
+- **Table (p.31):** B32656J2104 is 14.0 x 25.0 x 42.0 mm and B32656T2104 is 24.0 x 15.0 x 42.0 mm. Both are rated 7.4 A at
+  100 kHz / 85 C (dT <= 20 K), with ESR 25.4 mOhm typical.
+- **Temperature and losses (p.35):** rated 85 C, VDC derating 1.25 %/C above 85 C, Top,max 110 C, upper category 100 C.
+  tan d <= 3.0e-3 at 100 kHz. AEC-Q200; humidity 56 d at 60 C / 95 % RH.
+- **Pulse rating (p.36-37, 37.5 mm, 2 kV):** dV/dt 700 V/us and k0 2.8e6 V^2/us.
+- **Current chart (p.60, 37.5 mm, 2 kV):** plots 68 / 150 / 330 / 560 nF only. Those curves read 5.79 / 9.91 / 13.45 /
+  16.38 A at 100 kHz, against table values of 5.7 / 9.8 / 13.4 / 16.3 A (control passes).
+- **100 nF is not plotted**, so it is interpolated between the 68 and 150 nF curve shapes and scaled to the 7.4 A table
+  value (ESTIMATE): 6.06 A at 35 kHz, 6.32 A at 40 kHz.
+
+Checks (5 x 100 nF at 15 mm row pitch; S24 flow; s49 pads):
+
+| part | dims w x h x l mm | I 35 / 40 kHz A (basis) | V_allow 35 kHz | vendor 28 A | gate 28 A strict / gap | highest step strict / gap | release rad / no-rad | dV/dt | DigiKey stock |
+|---|---|---|---|---|---|---|---|---|---|
+| TDK B32656J2104J000 | 14.0 x 25.0 x 42.0 | 6.06 / 6.32 (ESTIMATE, chart interpolated) | 276 V | **1.000** | **1.370** / 1.151 (T_op 106 C) | 20 / 22 A | 1.02 / 1.32 | 0.49 | 413 |
+| TDK B32656T2104K000 | **24.0** x 15.0 x 42.0 | as J (same 7.4 A row) | 276 V | 1.000 (K: worse share) | does not fit (24 mm thick) | - | - | 0.49 | 759 |
+| TDK B32686A2104J000 (B3268x) | **20** x 32.5 x 42 (DigiKey) | not rated here | - | - | does not fit (20 mm thick: 5 need 82 mm of pin span) | - | - | - | 410 |
+| KEMET R76UW3100SE30J | 13.0 x 24.0 x 41.5 | 6.51 / 6.75 (ESTIMATE, ESR model x 0.973) | 296 V | **0.931** | **1.350** / 0.885 (T_op 103 C) | 20 / 24 A | 0.89 / 1.14 | 0.23 | 354 |
+| others >= 100 pcs | none | | | | | | | | PHE450SR6100 95, MKP1841 48 |
+
+- **The P37.5 TDK parts are rated lower at 35 kHz than the 27.5 mm B32654A2104** (10 A at 100 kHz, 358 V). The 42 mm
+  body is thinner and has higher ESR.
+- **Voltage rows pass for both rated parts:** F3 R0/R1 0.996, no-pan 0.705 (VC(110 C) 1375 V), Vrms 0.479. The F3 sine
+  k0 is 0.71 of the B32656 rating (information only).
+- **The strict gate is high (1.35-1.37) because of the KEMET / TDK temperature rules** at the s49 pads (~87 C) and the
+  42 mm bodies in the column. The gap credit helps R76UW (2 mm gaps) more than B32656J (1 mm).
+
+**Fit with the column moved left** (RES_A pins x 153, SW_B x 190.5, body x 150.75-192.75).
+
+Method: the s51 board runs-native21/s51/c51/section.kicad_pcb (9afc509b), read with KiCad python and nothing saved.
+scripts/fit37_query.py and the col2-feasibility dist.py wrote fit37/query.json and fit37/dist.json.
+
+12 clearance violations at the res_a pins, against 5.0 mm to non-tank HOT and 12.6 mm to SELV:
+
+| Copper | Layer | Rows | Distance |
+|---|---|---|---|
+| sw_a pour Q2.3-T1.1 | F.Cu | 68.2-98.2 | **inside the pour** (-0.6 mm) |
+| sw_a pour | F.Cu | 53.2 | 0.74 mm |
+| hv_ret / bus_p trunks | In1 / In2 | 53.2 | 1.5 mm |
+| n_ls / v24_raw | In1 | 68.2 | 2.9 / 4.1 mm |
+| v3v3 / selv_gnd SELV islands | In1 / In2 | 113.2 | **7.85 mm** against the 12.6 mm rule |
+| v3v3 / selv_gnd SELV islands | In1 / In2 | 111.2 (alternative row) | 9.84 mm |
+
+- The bottom body also overlaps the H10 nylon mounting-hole courtyard (x 148.5-155.5, y 118.5-125.5) unless the rows are
+  compressed to 14.5 mm pitch.
+- T1's courtyard ends at x 146.8.
+- **What it would take:**
+  - cut the sw_a power pour (the Q2 -> T1 path) back about 6 mm;
+  - reroute the hv_ret / bus_p inner trunks and the n_ls / v24_raw tracks;
+  - move the SELV islands about 5 mm, or drop the bottom row;
+  - clear H10.
+- That is a multi-stage re-cut, and it buys nothing because no P37.5 part passes the vendor row.
+
+### Ranking of every alternate to B32643B (passes 28 A strictly -> stock >= 100 now -> layout change -> cost)
+
+| rank | option | 28 A strict? | highest strict step | stock now | layout change | parts $/board |
+|---|---|---|---|---|---|---|
+| 1 | O6 / O1: 11 x R76UR24704030J (+ 1 x B32654A2333K000) | **yes** (vendor 0.65, gate 0.89) | 28 A | yes (5,000+ at DigiKey + Newark) | **second column needed; col2-feasibility found no place on the s51 floorplan** (4-6 stages of re-floorplan) | 13.2-13.6 |
+| 2 | **5 x TDK B32643H8104J000** | no (vendor 0.985, gate 1.006) | **24 A** (gate alone 0.934 at 26 A; vendor 0.915 at 26 A) | 306 at DigiKey: 20-board prototype yes, 500 boards no | **none**: P22.5 drop-in on the s51 dual-pitch holes | 5 x $1.73 = $8.67 at 100 pcs; $6.52 at the 2,600 tier |
+| 3 | 5 x KNSCHA MMK104J3DF1KN208G2 (s51 as built) | no (0.978 / 1.221) | 22 A (24 A with gap credit) | 4,952 at JLC | none | 1.52 |
+| 4 | 5 x KEMET R76UW3100SE30J (P37.5) | no (0.931 / 1.350) | 20 A (24 A with gap credit) | 354 | column left: 12 clearance violations, sw_a pour, trunks, SELV islands, H10 | ladder not read |
+| 5 | 5 x TDK B32656J2104J000 (P37.5) | no (1.000 / 1.370) | 20 A (22 A with gap credit) | 413 | as rank 4 | ladder not read |
+
+- **No in-stock part is a drop-in that carries 28 A.**
+- **The best drop-in is B32643H**, at 24 A strict, against 22 A for the KNSCHA as built. Its stock covers prototypes
+  only, and its lead time is 28 weeks.
+- **The only 28 A route from stock is the 11-body R76 bank (O6), and the s51 floorplan has no room for it.**
+
 ## 28 A options (in-stock parts, ~0.50 uF; scripts/options28.py -> results/options28.{json,md})
 
 **Answer.** No in-stock bank reaches 28 A on the vendor row (<= 0.85) inside today's column. One that does reach it
@@ -83,7 +227,7 @@ points.
 - **Faratronic C82 (C823D473J90C000, 1,000 at JLC).** Its datasheet (dl/C5121891, pp.1-5) gives no current rating, only
   tan d <= 10e-4 at 1 kHz and a rated temperature of 75 C for U_R(ac), so it cannot carry a margin claim.
 - **82 nF options (6 x 82 nF = 0.492 uF fails F3; 5 x 82 + 1 x 91).** No in-stock 2 kV 82 nF part with a rating reaches
-  331 V: R76 82 nF is 301-329 V, B32643B8823 is not stocked, and B32643H has no readable sheet. No 2 kV 91 nF part was
+  331 V: R76 82 nF is 301-329 V, B32643B8823 is not stocked, and the B32643H 82 / 68 nF curves (vendor sheet, p.19, read by curve order below the top band) give about 5.1 / 4.7 A at 35 kHz, i.e. 285 / 312 V. No 2 kV 91 nF part was
   found.
 
 ### Options (28 A, S24 flow; strict = producer method, gap 0.5 mm; per-part detail in results/options28.md)
@@ -237,7 +381,7 @@ of the limit (1.000 = at the limit). Prices are USD per unit at about 2,500 pcs 
 | r75 | R75UR31004030J | KEMET R75 | 100 nF / 2 kV, 700 VAC | 11 x 20.1 x 32, P27.5 | p.24 row | 5.84 / 6.23 A (Th <= 85 C, dT ~20 K; chart scaled to the 7.56 A table row) | UL94 V-0; AEC-Q200 only to P22.5 | DigiKey 1,294 (20 wk), Newark 209 + 301, Avnet 0, JLC n/a | 0.979 (DK) | 0.996 | 1.038 | **1.444** / n/a (Th rule fails, pads 87.5 C > 85 C) | 1.115 / 1.331 | yes |
 | r76 | R76UR3100SE30J | KEMET R76 | 100 nF / 2 kV, 700 VAC | P27.5 (c34 parts_kemet.json) | p.22 | dT 40 K to Th 60 C rule | UL94 V-0 | DigiKey: SE30J no listing; R76UR3100* all 0; JLC C3800216 / C3787563 0 | 0.62-0.84 (JLC, no stock) | 0.996 | 0.933 | **1.236** / n/a | 0.972 / 1.256 | yes |
 | wima | MKP1U031006D00JSSD | WIMA MKP 10 | 100 nF / 2 kV, 700 VAC | 13 x 24 x 31.5, P27.5 | sheet | ESTIMATE ~4.0 A (15 K "general guide") | sheet | **DigiKey 5,598** (26 wk), TME 0 | 1.252 (DK) | 0.996 | 1.515 | **1.894** / 2.284 | 2.68 / inf | yes |
-| b32643h | B32643H8104J000 | TDK B32643H | 100 nF / 2 kV | 14.5 x 29.5 x 26.5, P22.5 | datasheet not readable (403) | ESTIMATE from c34 (0.98) | AEC-Q200 | DigiKey 306 (28 wk), Newark (82 nF only: 738) | 1.304 (DK @2,600) | 0.996 | 0.98 (est.) | **1.141** / 1.092 | 0.93 / 1.21 | yes (P22.5 = c34 SW_B) |
+| b32643h | B32643H8104J000 | TDK B3264*H | 100 nF / 2 kV, 700 VAC | 14.5 x 29.5 x 26.5, P22.5 | ESR 10.9 mOhm typ 100 kHz; tan d <= 1.0e-3 100 kHz | 6.16 / 6.48 A (p.19 chart, T_A 85 C, dT <= 20 K; F_T credit below 85 C) | AEC-Q200D, THB 85/85, 105 C rated, UL94 V-0 | DigiKey 306 (28 wk) | 1.304 (DK @2,600) | 0.996 | 0.985 | **1.006** / 0.977 | 0.871 / 1.134 | yes (P22.5 = s51 dual-pitch x 185.5) |
 | knscha6 | 6 x MMK104J3DF1KN208G2 | KNSCHA | 0.60 uF | P27.5 at 13.08 mm pitch | | 6.2 A | as knscha | JLC 4,952 covers 3,000 | 0.3035 | 0.996 (F3 scales as 1 / C, so lower) | 0.818 | **1.021** / 0.72 | 0.81 / 1.03 | needs 1-2 mm more span; yield -12.7 pts |
 | fitted (ref.) | B32654A1104J000 | TDK B3265x | 100 nF / 1.6 kV | | | | | | | **1.245 FAIL** | 1.045 | 1.308 / 1.818 | 1.00 / 1.28 | reference only |
 
@@ -318,6 +462,8 @@ python3 -I scripts/digitize_r75.py                            # results/r75_curv
 python3 -I scripts/bank_air_cand.py                           # results/bank_air_cand.{json,md}; controls 0.967 / 1.308
 python3 -I scripts/voltage_rows.py                            # results/voltage_rows.{json,md}
 python3 -I scripts/decision_inputs.py                         # results/decision_inputs.{json,md}; control = bank_air_cand 1.221
+python3 -I scripts/b32643h.py                                # results/b32643h.{json,md}; controls: table 9.17 A, Vrms chart, F_T, c34 0.967
+python3 -I scripts/lead2_p375.py                             # results/lead2_p375.{json,md}; needs fit37/{query,dist}.json (KiCad python -I scripts/fit37_query.py BOARD fit37/query.json; col2-feasibility dist.py BOARD fit37/pts.json)
 python3 -I scripts/options28.py                               # results/options28.{json,md}; controls: knscha 1.221 via share override, ESR model within 3 %
 ```
 
@@ -328,7 +474,7 @@ python3 -I scripts/options28.py                               # results/options2
   were rewritten 2026-10-16 about 12:00 local, and 4876c42e was earlier identified as the s50 board.
 - PS `airflow28-2026-10-16/results/enclosure.json` and `bank28-air/results/bank_pads.json`.
 - data/bank-voltage-s49.json is a byte copy of s49 commit db60f2692.
-- data/candidates.json holds the per-part inputs. Rows marked ESTIMATE (wima, b32643h) are not datasheet values.
+- data/candidates.json holds the per-part inputs. Rows marked ESTIMATE (wima; the b32643h entry there is superseded by scripts/b32643h.py, which uses the vendor sheet) are not datasheet values.
 - The DigiKey reads are transcribed by hand in snapshots/digikey-2026-10-16.json (browser, about 18:05-18:35Z, no login).
   This is the one snapshot no script reproduces.
 
@@ -342,7 +488,7 @@ python3 -I scripts/options28.py                               # results/options2
 - **Pad heat (k_pad 80.6 K/W) is crude.** It gives "inf" for the KEMET Th rule and is not used as a gate.
 - **The release ratios (0.957 / 1.208 for KNSCHA) use pads from board 4876c42e (both p0p25 and p0p5), not the s49 board.**
   Re-run on an s49 release solve before quoting them as s49 numbers. The 28 A numbers use s49 board 73702f18.
-- **B32643H rows are estimates.** The datasheet was refused (403) and was not read.
+- **B32643H now uses the vendor datasheet** (owner-supplied, sha256 69b56e62...; scripts/b32643h.py). The earlier estimate (gate 1.141) is superseded by 1.006.
 - **Stock moves.** Every count is a 2026-10-16 read with the fetch time recorded in its snapshot.
 
 ## Datasheets (dl/SHA256SUMS, first 16 hex)

@@ -1,0 +1,294 @@
+{
+ "bank": {
+  "C23": {
+   "box": [
+    160.205,
+    75.705,
+    193.295,
+    90.695
+   ],
+   "pads": [
+    {
+     "n": "1",
+     "net": "res_a",
+     "x": 163.0,
+     "y": 83.2
+    },
+    {
+     "n": "2",
+     "net": "sw_b",
+     "x": 185.5,
+     "y": 83.2
+    },
+    {
+     "n": "2",
+     "net": "sw_b",
+     "x": 190.5,
+     "y": 83.2
+    }
+   ],
+   "lib": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial"
+  },
+  "C22": {
+   "box": [
+    160.205,
+    60.705,
+    193.295,
+    75.695
+   ],
+   "pads": [
+    {
+     "n": "1",
+     "net": "res_a",
+     "x": 163.0,
+     "y": 68.2
+    },
+    {
+     "n": "2",
+     "net": "sw_b",
+     "x": 185.5,
+     "y": 68.2
+    },
+    {
+     "n": "2",
+     "net": "sw_b",
+     "x": 190.5,
+     "y": 68.2
+    }
+   ],
+   "lib": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial"
+  },
+  "C21": {
+   "box": [
+    160.205,
+    45.705,
+    193.295,
+    60.695
+   ],
+   "pads": [
+    {
+     "n": "1",
+     "net": "res_a",
+     "x": 163.0,
+     "y": 53.2
+    },
+    {
+     "n": "2",
+     "net": "sw_b",
+     "x": 185.5,
+     "y": 53.2
+    },
+    {
+     "n": "2",
+     "net": "sw_b",
+     "x": 190.5,
+     "y": 53.2
+    }
+   ],
+   "lib": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial"
+  },
+  "C152": {
+   "box": [
+    160.205,
+    105.705,
+    193.295,
+    120.695
+   ],
+   "pads": [
+    {
+     "n": "1",
+     "net": "res_a",
+     "x": 163.0,
+     "y": 113.2
+    },
+    {
+     "n": "2",
+     "net": "sw_b",
+     "x": 185.5,
+     "y": 113.2
+    },
+    {
+     "n": "2",
+     "net": "sw_b",
+     "x": 190.5,
+     "y": 113.2
+    }
+   ],
+   "lib": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial"
+  },
+  "C151": {
+   "box": [
+    160.205,
+    90.705,
+    193.295,
+    105.695
+   ],
+   "pads": [
+    {
+     "n": "1",
+     "net": "res_a",
+     "x": 163.0,
+     "y": 98.2
+    },
+    {
+     "n": "2",
+     "net": "sw_b",
+     "x": 185.5,
+     "y": 98.2
+    },
+    {
+     "n": "2",
+     "net": "sw_b",
+     "x": 190.5,
+     "y": 98.2
+    }
+   ],
+   "lib": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial"
+  }
+ },
+ "fps_near": [
+  {
+   "ref": "R42",
+   "val": "1206W4F1001T5E",
+   "box": [
+    136.72,
+    129.0,
+    141.37,
+    131.35
+   ],
+   "layer": "F.Cu",
+   "nets": [
+    "ct_s1",
+    "ct_sense_mon"
+   ]
+  },
+  {
+   "ref": "R25",
+   "val": "RC1206FR-07470KL",
+   "box": [
+    185.675,
+    39.825,
+    190.325,
+    42.175
+   ],
+   "layer": "F.Cu",
+   "nets": [
+    "crbleed_3",
+    "sw_b"
+   ]
+  },
+  {
+   "ref": "R24",
+   "val": "RC1206FR-07470KL",
+   "box": [
+    175.675,
+    39.825,
+    180.325,
+    42.175
+   ],
+   "layer": "F.Cu",
+   "nets": [
+    "crbleed_2",
+    "crbleed_3"
+   ]
+  },
+  {
+   "ref": "H10",
+   "val": "M3 NYLON ONLY",
+   "box": [
+    148.508,
+    118.502,
+    155.495,
+    125.498
+   ],
+   "layer": "F.Cu",
+   "nets": [
+    ""
+   ]
+  },
+  {
+   "ref": "R22",
+   "val": "RC1206FR-07470KL",
+   "box": [
+    155.675,
+    39.825,
+    160.325,
+    42.175
+   ],
+   "layer": "F.Cu",
+   "nets": [
+    "crbleed_1",
+    "res_a"
+   ]
+  },
+  {
+   "ref": "H8",
+   "val": "M3 NYLON ONLY",
+   "box": [
+    190.508,
+    126.502,
+    197.495,
+    133.498
+   ],
+   "layer": "F.Cu",
+   "nets": [
+    ""
+   ]
+  },
+  {
+   "ref": "T1",
+   "val": "CST3015-200ED",
+   "box": [
+    123.205,
+    93.655,
+    146.795,
+    126.345
+   ],
+   "layer": "F.Cu",
+   "nets": [
+    "coil_feed",
+    "ct_s1",
+    "ct_s2",
+    "sw_a"
+   ]
+  },
+  {
+   "ref": "R23",
+   "val": "RC1206FR-07470KL",
+   "box": [
+    165.675,
+    39.825,
+    170.325,
+    42.175
+   ],
+   "layer": "F.Cu",
+   "nets": [
+    "crbleed_1",
+    "crbleed_2"
+   ]
+  }
+ ],
+ "copper_band": {
+  "F.Cu": [
+   "TRACK:crbleed_1",
+   "TRACK:res_a",
+   "zone:n_filt:n_filt BR1.3-L1-C2",
+   "zone:sw_a:sw_a Q2.3-T1.1"
+  ],
+  "B.Cu": [
+   "zone:l_filt:l_filt BR1.2-L1",
+   "zone:res_a:res_a J5-C21..C23",
+   "zone:sw_b:sw_b leg B-C21..C23"
+  ],
+  "In1.Cu": [
+   "TRACK:n_ls",
+   "TRACK:v24_raw",
+   "zone:hv_ret:hv_ret trunk",
+   "zone:v3v3:v3v3 SELV island"
+  ],
+  "In2.Cu": [
+   "zone:bus_p:bus_p trunk",
+   "zone:selv_gnd:selv_gnd SELV island"
+  ]
+ }
+}
