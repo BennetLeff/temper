@@ -1,0 +1,1862 @@
+[
+ {
+  "pt": "Arot_0_SB",
+  "net": "sw_b",
+  "x": 107.8,
+  "y": 16.75,
+  "edge": 15.55,
+  "near": [
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    -1.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    -0.95,
+    "B.Cu",
+    "l_filt",
+    "zone:l_filt BR1.2-L1"
+   ],
+   [
+    -0.445,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    1.25,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    9.0,
+    "B.Cu",
+    "hv_ret",
+    "pad:BR1.4"
+   ],
+   [
+    9.0,
+    "F.Cu",
+    "hv_ret",
+    "pad:BR1.4"
+   ],
+   [
+    9.0,
+    "In2.Cu",
+    "hv_ret",
+    "pad:BR1.4"
+   ],
+   [
+    11.686,
+    "B.Cu",
+    "n_filt",
+    "pad:BR1.3"
+   ],
+   [
+    11.686,
+    "In1.Cu",
+    "n_filt",
+    "pad:BR1.3"
+   ],
+   [
+    11.686,
+    "In2.Cu",
+    "n_filt",
+    "pad:BR1.3"
+   ],
+   [
+    16.239,
+    "B.Cu",
+    "n_ls",
+    "zone:n_ls LS-A bank"
+   ],
+   [
+    16.974,
+    "F.Cu",
+    "l_filt",
+    "pad:BR1.2"
+   ],
+   [
+    16.974,
+    "In1.Cu",
+    "l_filt",
+    "pad:BR1.2"
+   ]
+  ]
+ },
+ {
+  "pt": "Arot_0_RA",
+  "net": "res_a",
+  "x": 107.8,
+  "y": 44.25,
+  "edge": 43.05,
+  "near": [
+   [
+    -1.2,
+    "B.Cu",
+    "sw_b",
+    "zone:sw_b leg B-C21..C23"
+   ],
+   [
+    -1.2,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    -1.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    -1.15,
+    "In1.Cu",
+    "ocp_kelvin_p",
+    "TRACK"
+   ],
+   [
+    -0.2,
+    "In1.Cu",
+    "v15_ls",
+    "TRACK"
+   ],
+   [
+    -0.15,
+    "In1.Cu",
+    "ocp_kelvin_n",
+    "TRACK"
+   ],
+   [
+    0.351,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    0.8,
+    "In1.Cu",
+    "leg_ret",
+    "TRACK"
+   ],
+   [
+    3.65,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    4.992,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ],
+   [
+    6.445,
+    "F.Cu",
+    "hot5_uv_raw",
+    "pad:U14.1"
+   ],
+   [
+    6.56,
+    "F.Cu",
+    "n_ls",
+    "pad:C92.2"
+   ],
+   [
+    6.628,
+    "F.Cu",
+    "hot5",
+    "TRACK"
+   ],
+   [
+    7.249,
+    "F.Cu",
+    "ref25_wd",
+    "pad:R144.2"
+   ]
+  ]
+ },
+ {
+  "pt": "Arot_1_SB",
+  "net": "sw_b",
+  "x": 119.3,
+  "y": 16.75,
+  "edge": 15.55,
+  "near": [
+   [
+    -1.2,
+    "B.Cu",
+    "l_filt",
+    "zone:l_filt BR1.2-L1"
+   ],
+   [
+    -1.2,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    -1.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    8.448,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    14.306,
+    "B.Cu",
+    "hv_ret",
+    "pad:BR1.4"
+   ],
+   [
+    14.306,
+    "F.Cu",
+    "hv_ret",
+    "pad:BR1.4"
+   ],
+   [
+    14.306,
+    "In2.Cu",
+    "hv_ret",
+    "pad:BR1.4"
+   ],
+   [
+    20.289,
+    "B.Cu",
+    "n_filt",
+    "pad:BR1.3"
+   ],
+   [
+    20.289,
+    "In1.Cu",
+    "n_filt",
+    "pad:BR1.3"
+   ],
+   [
+    20.289,
+    "In2.Cu",
+    "n_filt",
+    "pad:BR1.3"
+   ],
+   [
+    21.05,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    23.236,
+    "HOLE",
+    "npth:H9",
+    ""
+   ],
+   [
+    23.237,
+    "B.Cu",
+    "",
+    "pad:H9."
+   ]
+  ]
+ },
+ {
+  "pt": "Arot_1_RA",
+  "net": "res_a",
+  "x": 119.3,
+  "y": 44.25,
+  "edge": 43.05,
+  "near": [
+   [
+    -1.2,
+    "B.Cu",
+    "sw_b",
+    "zone:sw_b leg B-C21..C23"
+   ],
+   [
+    -1.2,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    -1.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    0.3,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    0.9,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    5.55,
+    "In1.Cu",
+    "ocp_kelvin_p",
+    "zone:ocp_kelvin_p protection"
+   ],
+   [
+    5.835,
+    "F.Cu",
+    "hot5",
+    "TRACK"
+   ],
+   [
+    6.45,
+    "F.Cu",
+    "hot5_ok_hot",
+    "pad:U8.6"
+   ],
+   [
+    6.505,
+    "F.Cu",
+    "ocp_ok_hot",
+    "pad:U8.1"
+   ],
+   [
+    7.448,
+    "F.Cu",
+    "ocp_kelvin_p",
+    "pad:U8.2"
+   ],
+   [
+    7.846,
+    "F.Cu",
+    "ref25",
+    "TRACK"
+   ],
+   [
+    7.9,
+    "In1.Cu",
+    "leg_ret",
+    "TRACK"
+   ],
+   [
+    8.349,
+    "F.Cu",
+    "bus_fault_hot",
+    "pad:U8.4"
+   ],
+   [
+    8.393,
+    "F.Cu",
+    "ovp_ok_hot",
+    "pad:U8.3"
+   ]
+  ]
+ },
+ {
+  "pt": "Arot_2_SB",
+  "net": "sw_b",
+  "x": 130.8,
+  "y": 16.75,
+  "edge": 15.55,
+  "near": [
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    -1.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    7.4,
+    "B.Cu",
+    "l_filt",
+    "zone:l_filt BR1.2-L1"
+   ],
+   [
+    7.4,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    14.171,
+    "B.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    14.171,
+    "F.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    14.171,
+    "HOLE",
+    "npth:H9",
+    ""
+   ],
+   [
+    14.171,
+    "In1.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    14.171,
+    "In2.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    19.25,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    23.602,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    23.79,
+    "B.Cu",
+    "hv_ret",
+    "pad:BR1.4"
+   ],
+   [
+    23.79,
+    "F.Cu",
+    "hv_ret",
+    "pad:BR1.4"
+   ],
+   [
+    23.79,
+    "In2.Cu",
+    "hv_ret",
+    "pad:BR1.4"
+   ]
+  ]
+ },
+ {
+  "pt": "Arot_2_RA",
+  "net": "res_a",
+  "x": 130.8,
+  "y": 44.25,
+  "edge": 43.05,
+  "near": [
+   [
+    -1.2,
+    "B.Cu",
+    "sw_b",
+    "zone:sw_b leg B-C21..C23"
+   ],
+   [
+    -1.2,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    -1.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    7.344,
+    "HOLE",
+    "npth:H7",
+    ""
+   ],
+   [
+    7.346,
+    "B.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    7.346,
+    "F.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    7.346,
+    "In1.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    7.346,
+    "In2.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    8.4,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    9.05,
+    "B.Cu",
+    "l_filt",
+    "zone:l_filt BR1.2-L1"
+   ],
+   [
+    9.056,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    9.171,
+    "In1.Cu",
+    "ocp_kelvin_p",
+    "zone:ocp_kelvin_p protection"
+   ],
+   [
+    11.477,
+    "F.Cu",
+    "hot5_ok_hot",
+    "pad:U8.6"
+   ]
+  ]
+ },
+ {
+  "pt": "Arot_3_SB",
+  "net": "sw_b",
+  "x": 142.3,
+  "y": 16.75,
+  "edge": 15.55,
+  "near": [
+   [
+    3.033,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    3.05,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    9.25,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    9.954,
+    "HOLE",
+    "npth:H9",
+    ""
+   ],
+   [
+    9.956,
+    "B.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    9.956,
+    "F.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    9.956,
+    "In1.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    9.956,
+    "In2.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    11.15,
+    "B.Cu",
+    "l_filt",
+    "zone:l_filt BR1.2-L1"
+   ],
+   [
+    19.25,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    20.028,
+    "B.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    20.028,
+    "In1.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    20.028,
+    "In2.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    21.859,
+    "B.Cu",
+    "tco_l",
+    "pad:PS2.1"
+   ]
+  ]
+ },
+ {
+  "pt": "Arot_3_RA",
+  "net": "res_a",
+  "x": 142.3,
+  "y": 44.25,
+  "edge": 43.05,
+  "near": [
+   [
+    -1.2,
+    "B.Cu",
+    "sw_b",
+    "zone:sw_b leg B-C21..C23"
+   ],
+   [
+    -1.2,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    -1.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    9.05,
+    "B.Cu",
+    "l_filt",
+    "zone:l_filt BR1.2-L1"
+   ],
+   [
+    9.056,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    14.1,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    14.508,
+    "HOLE",
+    "npth:H7",
+    ""
+   ],
+   [
+    14.51,
+    "B.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    14.51,
+    "F.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    14.51,
+    "In1.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    14.51,
+    "In2.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    14.9,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ],
+   [
+    15.606,
+    "F.Cu",
+    "crbleed_1",
+    "pad:R22.2"
+   ]
+  ]
+ },
+ {
+  "pt": "Arot_4_SB",
+  "net": "sw_b",
+  "x": 153.8,
+  "y": 16.75,
+  "edge": 15.55,
+  "near": [
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    5.649,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    8.594,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    9.813,
+    "B.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    9.813,
+    "In1.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    9.813,
+    "In2.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    11.15,
+    "B.Cu",
+    "l_filt",
+    "zone:l_filt BR1.2-L1"
+   ],
+   [
+    13.163,
+    "B.Cu",
+    "tco_l",
+    "pad:PS2.1"
+   ],
+   [
+    13.163,
+    "F.Cu",
+    "tco_l",
+    "pad:PS2.1"
+   ],
+   [
+    13.163,
+    "In1.Cu",
+    "tco_l",
+    "pad:PS2.1"
+   ],
+   [
+    13.163,
+    "In2.Cu",
+    "tco_l",
+    "pad:PS2.1"
+   ],
+   [
+    14.572,
+    "HOLE",
+    "npth:H9",
+    ""
+   ],
+   [
+    14.574,
+    "B.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    14.574,
+    "F.Cu",
+    "",
+    "pad:H9."
+   ]
+  ]
+ },
+ {
+  "pt": "Arot_4_RA",
+  "net": "res_a",
+  "x": 153.8,
+  "y": 44.25,
+  "edge": 43.05,
+  "near": [
+   [
+    -1.2,
+    "B.Cu",
+    "sw_b",
+    "zone:sw_b leg B-C21..C23"
+   ],
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    -1.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    4.0,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    4.51,
+    "F.Cu",
+    "crbleed_1",
+    "pad:R22.2"
+   ],
+   [
+    9.05,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    9.25,
+    "B.Cu",
+    "l_filt",
+    "TRACK"
+   ],
+   [
+    14.126,
+    "F.Cu",
+    "crbleed_2",
+    "pad:R23.2"
+   ],
+   [
+    16.327,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    17.467,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ],
+   [
+    19.486,
+    "B.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    19.486,
+    "In1.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    19.486,
+    "In2.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    24.037,
+    "F.Cu",
+    "crbleed_3",
+    "pad:R24.2"
+   ]
+  ]
+ },
+ {
+  "pt": "Astd_0_SB",
+  "net": "sw_b",
+  "x": 129.75,
+  "y": 13.6,
+  "edge": 12.4,
+  "near": [
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    -1.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    6.35,
+    "B.Cu",
+    "l_filt",
+    "zone:l_filt BR1.2-L1"
+   ],
+   [
+    6.35,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    12.763,
+    "HOLE",
+    "npth:H9",
+    ""
+   ],
+   [
+    12.765,
+    "B.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    12.765,
+    "F.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    12.765,
+    "In1.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    12.765,
+    "In2.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    19.361,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    21.547,
+    "B.Cu",
+    "hv_ret",
+    "pad:BR1.4"
+   ],
+   [
+    21.547,
+    "F.Cu",
+    "hv_ret",
+    "pad:BR1.4"
+   ],
+   [
+    21.547,
+    "In2.Cu",
+    "hv_ret",
+    "pad:BR1.4"
+   ],
+   [
+    26.069,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ]
+  ]
+ },
+ {
+  "pt": "Astd_0_RA",
+  "net": "res_a",
+  "x": 157.25,
+  "y": 13.6,
+  "edge": 12.4,
+  "near": [
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    8.502,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    8.636,
+    "B.Cu",
+    "tco_l",
+    "pad:PS2.1"
+   ],
+   [
+    8.636,
+    "F.Cu",
+    "tco_l",
+    "pad:PS2.1"
+   ],
+   [
+    8.636,
+    "In1.Cu",
+    "tco_l",
+    "pad:PS2.1"
+   ],
+   [
+    8.636,
+    "In2.Cu",
+    "tco_l",
+    "pad:PS2.1"
+   ],
+   [
+    9.88,
+    "B.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    9.88,
+    "In1.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    9.88,
+    "In2.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    10.315,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    14.3,
+    "B.Cu",
+    "l_filt",
+    "zone:l_filt BR1.2-L1"
+   ],
+   [
+    15.22,
+    "B.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    15.22,
+    "F.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    15.22,
+    "HOLE",
+    "npth:H9",
+    ""
+   ]
+  ]
+ },
+ {
+  "pt": "Astd_1_SB",
+  "net": "sw_b",
+  "x": 129.75,
+  "y": 25.1,
+  "edge": 23.9,
+  "near": [
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    -1.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    0.9,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    2.8,
+    "B.Cu",
+    "l_filt",
+    "zone:l_filt BR1.2-L1"
+   ],
+   [
+    10.9,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    15.857,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    21.598,
+    "HOLE",
+    "npth:H9",
+    ""
+   ],
+   [
+    21.599,
+    "B.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    21.599,
+    "F.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    21.599,
+    "In1.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    21.599,
+    "In2.Cu",
+    "",
+    "pad:H9."
+   ],
+   [
+    23.34,
+    "In1.Cu",
+    "leg_ret",
+    "TRACK"
+   ],
+   [
+    24.621,
+    "In1.Cu",
+    "v15_ls",
+    "TRACK"
+   ],
+   [
+    25.597,
+    "In1.Cu",
+    "ocp_kelvin_p",
+    "zone:ocp_kelvin_p protection"
+   ]
+  ]
+ },
+ {
+  "pt": "Astd_1_RA",
+  "net": "res_a",
+  "x": 157.25,
+  "y": 25.1,
+  "edge": 23.9,
+  "near": [
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    0.9,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    0.9,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    2.8,
+    "B.Cu",
+    "l_filt",
+    "zone:l_filt BR1.2-L1"
+   ],
+   [
+    3.789,
+    "B.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    3.789,
+    "In1.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    3.789,
+    "In2.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    10.7,
+    "B.Cu",
+    "sw_b",
+    "zone:sw_b leg B-C21..C23"
+   ],
+   [
+    13.732,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    13.945,
+    "F.Cu",
+    "crbleed_1",
+    "pad:R22.2"
+   ],
+   [
+    17.915,
+    "F.Cu",
+    "crbleed_2",
+    "pad:R23.2"
+   ],
+   [
+    19.403,
+    "B.Cu",
+    "tco_l",
+    "pad:PS2.1"
+   ],
+   [
+    19.403,
+    "F.Cu",
+    "tco_l",
+    "pad:PS2.1"
+   ],
+   [
+    19.403,
+    "In1.Cu",
+    "tco_l",
+    "pad:PS2.1"
+   ]
+  ]
+ },
+ {
+  "pt": "Astd_2_SB",
+  "net": "sw_b",
+  "x": 129.75,
+  "y": 36.6,
+  "edge": 35.4,
+  "near": [
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    -1.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    -0.6,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    1.4,
+    "B.Cu",
+    "l_filt",
+    "zone:l_filt BR1.2-L1"
+   ],
+   [
+    1.406,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    8.143,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    14.688,
+    "B.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    14.688,
+    "F.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    14.688,
+    "HOLE",
+    "npth:H7",
+    ""
+   ],
+   [
+    14.688,
+    "In1.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    14.688,
+    "In2.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    14.751,
+    "In1.Cu",
+    "ocp_kelvin_p",
+    "zone:ocp_kelvin_p protection"
+   ],
+   [
+    16.596,
+    "F.Cu",
+    "hot5_ok_hot",
+    "pad:U8.6"
+   ],
+   [
+    17.18,
+    "F.Cu",
+    "hot5",
+    "TRACK"
+   ]
+  ]
+ },
+ {
+  "pt": "Astd_2_RA",
+  "net": "res_a",
+  "x": 157.25,
+  "y": 36.6,
+  "edge": 35.4,
+  "near": [
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    -1.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    -0.799,
+    "B.Cu",
+    "sw_b",
+    "zone:sw_b leg B-C21..C23"
+   ],
+   [
+    1.4,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    1.6,
+    "B.Cu",
+    "l_filt",
+    "TRACK"
+   ],
+   [
+    2.777,
+    "F.Cu",
+    "crbleed_1",
+    "pad:R22.2"
+   ],
+   [
+    7.481,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    11.035,
+    "F.Cu",
+    "crbleed_2",
+    "pad:R23.2"
+   ],
+   [
+    11.103,
+    "B.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    11.103,
+    "In1.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    11.103,
+    "In2.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    20.777,
+    "F.Cu",
+    "crbleed_3",
+    "pad:R24.2"
+   ],
+   [
+    24.7,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    25.828,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ]
+  ]
+ },
+ {
+  "pt": "Astd_3_SB",
+  "net": "sw_b",
+  "x": 129.75,
+  "y": 48.1,
+  "edge": 46.9,
+  "near": [
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    -1.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    -1.1,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    3.354,
+    "HOLE",
+    "npth:H7",
+    ""
+   ],
+   [
+    3.357,
+    "B.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    3.357,
+    "F.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    3.357,
+    "In1.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    3.357,
+    "In2.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    6.192,
+    "In1.Cu",
+    "ocp_kelvin_p",
+    "zone:ocp_kelvin_p protection"
+   ],
+   [
+    7.35,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    8.326,
+    "F.Cu",
+    "hot5_ok_hot",
+    "TRACK"
+   ],
+   [
+    8.371,
+    "B.Cu",
+    "hot5_ok_hot",
+    "VIA"
+   ],
+   [
+    8.371,
+    "In1.Cu",
+    "hot5_ok_hot",
+    "VIA"
+   ],
+   [
+    8.371,
+    "In2.Cu",
+    "hot5_ok_hot",
+    "VIA"
+   ]
+  ]
+ },
+ {
+  "pt": "Astd_3_RA",
+  "net": "res_a",
+  "x": 157.25,
+  "y": 48.1,
+  "edge": 46.9,
+  "near": [
+   [
+    -1.2,
+    "B.Cu",
+    "sw_b",
+    "zone:sw_b leg B-C21..C23"
+   ],
+   [
+    -1.2,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    -1.2,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    5.3,
+    "F.Cu",
+    "crbleed_1",
+    "pad:R22.2"
+   ],
+   [
+    7.292,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    12.099,
+    "F.Cu",
+    "crbleed_2",
+    "pad:R23.2"
+   ],
+   [
+    12.9,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ],
+   [
+    13.1,
+    "B.Cu",
+    "l_filt",
+    "TRACK"
+   ],
+   [
+    15.364,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    16.567,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ],
+   [
+    21.389,
+    "F.Cu",
+    "crbleed_3",
+    "pad:R24.2"
+   ],
+   [
+    21.863,
+    "B.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    21.863,
+    "In1.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ],
+   [
+    21.863,
+    "In2.Cu",
+    "n_filt",
+    "pad:PS2.2"
+   ]
+  ]
+ },
+ {
+  "pt": "Astd_4_SB",
+  "net": "sw_b",
+  "x": 129.75,
+  "y": 59.6,
+  "edge": 58.4,
+  "near": [
+   [
+    -1.2,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    -0.45,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ],
+   [
+    3.067,
+    "HOLE",
+    "npth:H7",
+    ""
+   ],
+   [
+    3.072,
+    "B.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    3.072,
+    "F.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    3.072,
+    "In1.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    3.072,
+    "In2.Cu",
+    "",
+    "pad:H7."
+   ],
+   [
+    3.2,
+    "B.Cu",
+    "res_a",
+    "zone:res_a J5-C21..C23"
+   ],
+   [
+    5.1,
+    "F.Cu",
+    "res_a",
+    "zone:J5 stud land"
+   ],
+   [
+    5.191,
+    "In1.Cu",
+    "res_a",
+    "VIA"
+   ],
+   [
+    5.191,
+    "In2.Cu",
+    "res_a",
+    "VIA"
+   ],
+   [
+    5.561,
+    "In1.Cu",
+    "ocp_kelvin_p",
+    "zone:ocp_kelvin_p protection"
+   ],
+   [
+    6.449,
+    "B.Cu",
+    "ocp_kelvin_p",
+    "VIA"
+   ],
+   [
+    6.449,
+    "F.Cu",
+    "ocp_kelvin_p",
+    "VIA"
+   ]
+  ]
+ },
+ {
+  "pt": "Astd_4_RA",
+  "net": "res_a",
+  "x": 157.25,
+  "y": 59.6,
+  "edge": 58.4,
+  "near": [
+   [
+    3.65,
+    "F.Cu",
+    "sw_a",
+    "zone:sw_a Q2.3-T1.1"
+   ],
+   [
+    7.9,
+    "In1.Cu",
+    "hv_ret",
+    "zone:hv_ret trunk"
+   ],
+   [
+    7.9,
+    "In2.Cu",
+    "bus_p",
+    "zone:bus_p trunk"
+   ],
+   [
+    8.4,
+    "B.Cu",
+    "sw_b",
+    "zone:sw_b leg B-C21..C23"
+   ],
+   [
+    9.916,
+    "In1.Cu",
+    "n_ls",
+    "TRACK"
+   ],
+   [
+    11.078,
+    "In1.Cu",
+    "v24_raw",
+    "TRACK"
+   ],
+   [
+    16.627,
+    "F.Cu",
+    "crbleed_1",
+    "pad:R22.2"
+   ],
+   [
+    20.112,
+    "F.Cu",
+    "crbleed_2",
+    "pad:R23.2"
+   ],
+   [
+    23.702,
+    "HOLE",
+    "npth:J5",
+    ""
+   ],
+   [
+    23.703,
+    "B.Cu",
+    "",
+    "pad:J5."
+   ],
+   [
+    23.703,
+    "F.Cu",
+    "",
+    "pad:J5."
+   ],
+   [
+    23.703,
+    "In1.Cu",
+    "",
+    "pad:J5."
+   ],
+   [
+    23.703,
+    "In2.Cu",
+    "",
+    "pad:J5."
+   ],
+   [
+    24.4,
+    "F.Cu",
+    "n_filt",
+    "zone:n_filt BR1.3-L1-C2"
+   ]
+  ]
+ }
+]
