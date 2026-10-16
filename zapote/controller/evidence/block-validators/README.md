@@ -2,9 +2,10 @@
 
 ## C44 / C45 rerun (current results)
 
-`results/`, `mappings/`, `summary.json` and the `*.sha256` files are from the **C45 board** (CR-8 heatsink
-ADC divider; `pcb/controller.kicad_pcb` sha256 `c773469c98f33c366c2ce0e4395ce196445a05930f91a05d18dcbec5c2e6fb72`).
-Its counts are identical to the C44 board's (sha256 `969936fbeedb9f313ee00c5eb2869b513591b93fa7b641dd5d702cbffeb04874`):
+`results/`, `mappings/`, `summary.json` and the `*.sha256` files are from the **committed board, C47
+convergence run 3** (C1 + CR-8; `pcb/controller.kicad_pcb` sha256
+`77ed3751d0f430d07b774af649e3defea2f1aa25154bb6ddfe88e444f462e097`). Runs 1 and 2 (`BOARD=<runI board>`,
+not committed) and the single-run C45 board (`c773469c…`) gave the same verdict counts. They are identical to the C44 board's (sha256 `969936fbeedb9f313ee00c5eb2869b513591b93fa7b641dd5d702cbffeb04874`):
 the divider sits outside the thermal block (thermal mapping: 70 pads, 0 on another net, 0 extra). Both runs used the
 same binaries, exporters, filter and profiles as C34. One change to the binder: `--deviations
 rtd-deviations-c37.json` declares the C37 RTD parts, MPNs and pad-net moves so that its census / MPN / pad gates

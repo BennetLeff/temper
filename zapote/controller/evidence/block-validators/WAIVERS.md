@@ -14,7 +14,7 @@ Counts: `summary.json` (this rerun) against `summary-before-C34.json` (the C30 r
 | Thermal-sense | 86 / 14 / 7 | 88 / 9 / 7 | 9 | W1 (4), W2 (5) |
 | RTD | 5 / 165 / 6 | 5 / 18 / 5 | 18 | W1 (16), W3 (2) |
 
-**C44 rerun, repeated on the C45 board (current `results/`, `summary.json`; sha256 `c773469c…`, identical counts to the C44 board `969936fb…`):** interlock **69 / 6 / 5**
+**C44 rerun, repeated on the C45 board and the three C47 convergence boards (current `results/`, `summary.json`: convergence run 3, sha256 `77ed3751…`; identical counts on all, and on the C44 board `969936fb…`):** interlock **69 / 6 / 5**
 (+1: `aggregate` exact MPN, W6), thermal-sense **88 / 9 / 7** (unchanged), RTD **5 / 33 / 5** (+15: the C37
 sense filter and J3 protection, W7). Fails: interlock W1 (5) + W6 (1); thermal W1 (4) + W2 (5); RTD W1 (16) +
 W3 (2) + W7 (15). Indeterminates unchanged. The RTD binder now takes `--deviations rtd-deviations-c37.json`
@@ -164,5 +164,5 @@ What still holds: no new FAIL or INDETERMINATE in any other RTD rule; the analog
 (`DRC.RTD.NATIVE_GEOMETRY`) passes on every trace of the unit's analog nets. The four new `_ext` / `_mid`
 nets are not unit nets, so the validator does not check them; the router applies the same rule to them
 (`RTD_ANALOG_NETS` in `layout/floorplan.py`: F.Cu / In2.Cu only, a ground via within 2.5 mm of each via).
-Informative layer-roles run: 76 clock-return trace findings on the RTD SPI nets (87 on the C44 board, 74 on C34's; W4,
+Informative layer-roles run: 61 clock-return trace findings on the RTD SPI nets of the committed board (69 / 91 / 61 on the three C47 convergence boards, 87 on the C44 board, 74 on C34's; W4,
 routing differs per run), no analog finding.
