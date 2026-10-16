@@ -194,7 +194,7 @@ real_reg = json.loads((HERE / "cu_temp_registry.json").read_text())
 r = g.check(ROOT, real_reg, today=TODAY)
 check(not r["errors"] and r["n_files_scanned"] > 50,
       f"real tree + real registry passes ({r['n_files_scanned']} files, {r['n_registered']} registered, {len(r['warnings'])} waived)", r["errors"][:3])
-# S17 waivers retired (DECISIONS 61 / 63): no waiver is left to expire, and the chain runs --fail-waived
+# S17 waivers retired after the hot-copper basis (DECISIONS 61): no waiver is left to expire, and the chain runs --fail-waived
 check(not any(e.get("waiver") for e in real_reg["consumers"]), "real registry carries no waivers")
 r = g.check(ROOT, real_reg, today="2027-01-01", fail_waived=True)
 check(not r["errors"] and not r["warnings"], "real tree passes under --fail-waived, also after 2027-01-01", r["errors"][:3])
