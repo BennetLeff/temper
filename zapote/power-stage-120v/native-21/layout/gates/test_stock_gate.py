@@ -8,7 +8,8 @@ Why: stage 49 was ACCEPTed against stage 48 ("cheaper parts_usd_at_500_v2, jlc_a
 resonant-bank part, TDK B32643B8104J000 (5 per board), had JLC stock 0, no distributor stock, 28-week lead and MOQ 2080
 (flag OWNER_PREORDER_CONSIGN); and its $1.37 saving per part compared a DigiKey price for the old part with a JLC catalogue
 price (0 stock) for the new one. Synthetic cases check the rule; real-data cases run the committed s48 snapshot / BOM, and
-the s49 swap built from the verbatim s49 snapshot row. PS_ROOT (env) overrides the unit root.
+the s49 swap built from the verbatim s49 snapshot row; dated stock reads (STOCK-2026-10-16.csv, newer wins for its MPN)
+are checked synthetically and on the s51 BOM. PS_ROOT (env) overrides the unit root.
 """
 import copy
 import csv
@@ -202,6 +203,73 @@ with tempfile.TemporaryDirectory() as td:
     keep = card(g48, old["cost"]["price_lines_500"], "keep")
     ok4, r4, _, _ = sc.compare(keep, old, [])
     check("compare: same short lines as the benchmark -> stock ratchet silent", not any("short" in r or "unbuildable" in r for r in r4), r4)
+
+# ---- dated stock reads (STOCK-2026-10-16.csv and later): the newer read wins for its MPN in the stock gate
+RCOLS = ["line", "qty_per_board", "mpn", "lcsc", "jlc_stock", "jlc_lib", "jlc_read_utc", "best_auth_moq_le_need", "octopart_read_utc"]
+with tempfile.TemporaryDirectory() as td:
+    td = Path(td)
+
+    def wr(rows, name, cols):
+        with open(td / name, "w", newline="") as f:
+            w = csv.DictWriter(f, cols, extrasaction="ignore")
+            w.writeheader()
+            w.writerows(rows)
+        return str(td / name)
+
+    bom = wr([{"Designator": "C3,C4", "Manufacturer Part Number": "CAP"}, {"Designator": "D6,D7,D8,D9", "Manufacturer Part Number": "DIO"},
+              {"Designator": "L1", "Manufacturer Part Number": "IND"}, {"Designator": "R1", "Manufacturer Part Number": "OLD"}],
+             "bom.csv", ["Designator", "Manufacturer Part Number"])
+    T15 = "2026-10-15T06:40:41Z"
+    snap = wr([{"mpn": "CAP", **srow(jlc=6), "fetched_utc": T15}, {"mpn": "DIO", **srow(jlc=7), "fetched_utc": T15},
+               {"mpn": "IND", **srow(lib="listed_no_stock"), "fetched_utc": T15}, {"mpn": "OLD", **srow(jlc=5), "fetched_utc": "2026-10-17T00:00:00Z"}],
+              "snap.csv", ["mpn", "jlc_stock", "jlc_library", "auth_best_stock", "auth_total_stock", "unauth_max_stock", "fetched_utc"])
+    survey = wr([{"board": "power-19b", "mpn": "CAP", "flags": "", "unit_usd_at_5boards": "0.1", "unit_usd_at_500boards": "0.1"}],
+                "STOCK-2026-10-13.csv", ["board", "mpn", "flags", "unit_usd_at_5boards", "unit_usd_at_500boards"])
+    T16 = "2026-10-16T17:00:00Z"
+    r1 = wr([{"mpn": "CAP", "jlc_stock": "6", "jlc_lib": "expand", "jlc_read_utc": T16, "best_auth_moq_le_need": "Mouser 773", "octopart_read_utc": T16},
+             {"mpn": "DIO", "jlc_stock": "50", "jlc_lib": "expand", "jlc_read_utc": T16, "best_auth_moq_le_need": "", "octopart_read_utc": T16},
+             {"mpn": "IND", "jlc_stock": "0", "jlc_lib": "expand", "jlc_read_utc": T16, "best_auth_moq_le_need": "", "octopart_read_utc": T16},
+             {"mpn": "OLD", "jlc_stock": "100", "jlc_lib": "base", "jlc_read_utc": T16, "best_auth_moq_le_need": "", "octopart_read_utc": T16}],
+            "STOCK-2026-10-16.csv", RCOLS)
+    r2 = wr([{"mpn": "DIO", "jlc_stock": "9298", "jlc_lib": "expand", "jlc_read_utc": "2026-10-16T18:00:00Z",
+              "best_auth_moq_le_need": "", "octopart_read_utc": ""}], "STOCK-2026-10-18.csv", RCOLS)
+    base = {l["mpn"] for l in sc.stock_gate(bom, snap, survey)["bom_short_lines_proto"]}
+    check("dated reads: without them CAP (6 < 40), DIO (7 < 80), IND (0) and OLD (5 < 20) are short", base == {"CAP", "DIO", "IND", "OLD"}, base)
+    g = sc.stock_gate(bom, snap, ",".join([survey, r1, r2]))
+    sp = {l["mpn"]: l for l in g["bom_short_lines_proto"]}
+    check("dated reads: authorised 'Mouser 773' (MOQ within need) clears CAP; the later read's JLC 9298 clears DIO; IND stays short",
+          set(sp) == {"IND", "OLD"} and g["bom_lines_short_proto"] == 2, sorted(sp))
+    check("dated reads: the override is recorded with its file and read time",
+          sp["IND"].get("stock_read") == f"STOCK-2026-10-16.csv {T16}"
+          and g["bom_stock_read_overrides"].get("DIO") == "STOCK-2026-10-18.csv 2026-10-16T18:00:00Z", (sp["IND"], g["bom_stock_read_overrides"]))
+    check("dated reads: a snapshot row newer than the read keeps the snapshot (OLD 5 < 20 stays short, not the read's 100)",
+          "OLD" not in g["bom_stock_read_overrides"] and sp["OLD"]["buildable"] == 5)
+    check("dated reads: only the earlier read -> DIO 50 < 80 still short", {l["mpn"] for l in sc.stock_gate(bom, snap, ",".join([survey, r1]))
+                                                                            ["bom_short_lines_proto"]} == {"DIO", "IND", "OLD"})
+    rd = sc._stock_reads(",".join([survey, r1]))
+    check("dated reads: jlc_lib expand -> extended, base -> basic; the survey file is not a read",
+          rd["CAP"]["jlc_library"] == "extended" and rd["OLD"]["jlc_library"] == "basic" and rd["CAP"]["auth_best_stock"] == "773"
+          and set(rd) == {"CAP", "DIO", "IND", "OLD"}, rd)
+    check("dated reads: flags and legacy prices skip the read files (no board column)",
+          sc._stock_flags(",".join([survey, r1])) == {"CAP": ""})
+
+# ---- real data: the scorecard's default --stock list and the 2026-10-16 read on the s51 BOM
+DEF = sorted(SRC.glob("STOCK-2026-10-13*.csv"))
+DEF = ",".join(str(p) for p in DEF + sorted(set(SRC.glob("STOCK-*.csv")) - set(DEF)))
+BOM51 = SRC / "study-2026-10-15/snapshot/s51/bom-jlcpcb.s51.csv"
+SNAPD = SRC / "SNAPSHOT-2026-10-15.csv"
+if (SRC / "STOCK-2026-10-16.csv").exists() and BOM51.exists():
+    dl = [Path(x).name for x in DEF.split(",")]
+    check("default --stock: every 2026-10-13 survey file first (their own order), the dated read last",
+          dl[-1] == "STOCK-2026-10-16.csv" and all(n.startswith("STOCK-2026-10-13") for n in dl[:-1])
+          and [str(SRC / n) for n in dl[:-1]] == STOCKS.split(","), dl)
+    g51 = sc.stock_gate(BOM51, SNAPD, DEF)
+    m51 = {l["mpn"] for l in g51["bom_short_lines_proto"]}
+    check("s51 with the 2026-10-16 read: C3/C4 (Mouser 773) and D6-D9 (JLC 9298) clear; L1 B82726S2203A020 is the one short line",
+          m51 == {"B82726S2203A020"}, sorted(m51))
+    check("s51 without it: L1, C3/C4, D6-D9 short (the 2026-10-15 snapshot)",
+          {l["mpn"] for l in sc.stock_gate(BOM51, SNAPD, STOCKS)["bom_short_lines_proto"]}
+          == {"B82726S2203A020", "DE1E3RA222MA4BP01F", "PMEG6030EP,115"})
 
 print("PASS" if not fails else f"{fails} FAILED")
 sys.exit(1 if fails else 0)

@@ -1202,7 +1202,7 @@
   "build_lead_wk_500": 29.0,
   "short_lead_unknown_500": 7,
   "bom_proto_boards": 20,
-  "bom_lines_short_proto": 3,
+  "bom_lines_short_proto": 1,
   "bom_short_lines_proto": [
    {
     "mpn": "B82726S2203A020",
@@ -1213,32 +1213,11 @@
     "jlc_stock": "0",
     "auth_best_stock": "0",
     "flags": "ZERO_STOCK_ALL_CHECKED_SOURCES;ZERO_JLC_LCSC_STOCK;LEAD_29wk;SINGLE_SOURCE",
-    "why": "no in-stock JLC or authorised source"
-   },
-   {
-    "mpn": "DE1E3RA222MA4BP01F",
-    "designators": "C3,C4",
-    "qty_per_board": 2,
-    "need": 40,
-    "buildable": 6,
-    "jlc_stock": "6",
-    "auth_best_stock": "0",
-    "flags": "LCSC_STOCK<10x_5board_need;LOW_JLC_STOCK(<10x 5-board need)",
-    "why": "JLC library stock"
-   },
-   {
-    "mpn": "PMEG6030EP,115",
-    "designators": "D6,D7,D8,D9",
-    "qty_per_board": 4,
-    "need": 80,
-    "buildable": 7,
-    "jlc_stock": "7",
-    "auth_best_stock": "0",
-    "flags": "",
-    "why": "JLC library stock"
+    "why": "no in-stock JLC or authorised source",
+    "stock_read": "STOCK-2026-10-16.csv 2026-10-16T19:12:02Z"
    }
   ],
-  "bom_lines_short_at_500": 14,
+  "bom_lines_short_at_500": 13,
   "bom_short_lines_500": [
    {
     "mpn": "KLDR025.TXP",
@@ -1271,18 +1250,20 @@
     "jlc_stock": "0",
     "auth_best_stock": "0",
     "flags": "ZERO_STOCK_ALL_CHECKED_SOURCES;ZERO_JLC_LCSC_STOCK;LEAD_29wk;SINGLE_SOURCE",
-    "why": "no in-stock JLC or authorised source"
+    "why": "no in-stock JLC or authorised source",
+    "stock_read": "STOCK-2026-10-16.csv 2026-10-16T19:12:02Z"
    },
    {
     "mpn": "DE1E3RA222MA4BP01F",
     "designators": "C3,C4",
     "qty_per_board": 2,
     "need": 1000,
-    "buildable": 6,
+    "buildable": 773,
     "jlc_stock": "6",
-    "auth_best_stock": "0",
+    "auth_best_stock": "773",
     "flags": "LCSC_STOCK<10x_5board_need;LOW_JLC_STOCK(<10x 5-board need)",
-    "why": "JLC library stock"
+    "why": "authorised distributor stock (global sourcing)",
+    "stock_read": "STOCK-2026-10-16.csv 2026-10-16T19:12:35Z"
    },
    {
     "mpn": "B32676G1905K000",
@@ -1302,17 +1283,6 @@
     "need": 2000,
     "buildable": 845,
     "jlc_stock": "845",
-    "auth_best_stock": "0",
-    "flags": "",
-    "why": "JLC library stock"
-   },
-   {
-    "mpn": "PMEG6030EP,115",
-    "designators": "D6,D7,D8,D9",
-    "qty_per_board": 4,
-    "need": 2000,
-    "buildable": 7,
-    "jlc_stock": "7",
     "auth_best_stock": "0",
     "flags": "",
     "why": "JLC library stock"
@@ -1394,7 +1364,12 @@
     "flags": "",
     "why": "JLC library stock"
    }
-  ]
+  ],
+  "bom_stock_read_overrides": {
+   "B82726S2203A020": "STOCK-2026-10-16.csv 2026-10-16T19:12:02Z",
+   "DE1E3RA222MA4BP01F": "STOCK-2026-10-16.csv 2026-10-16T19:12:35Z",
+   "PMEG6030EP,115": "STOCK-2026-10-16.csv 2026-10-16T19:13:18Z"
+  }
  },
  "sources": {
   "d5": "native-21/verification/d5-audit.json",
@@ -1411,6 +1386,7 @@
   "ledger": "native-21/verification/datasheet-ledger: {'PARTIAL': 92, 'UNAUDITED': 0, 'VERIFIED': 3, 'VIOLATION': 0}",
   "track_geometry": "gates/track_geometry.py on BUILDDIR/native21-all-copper.json.gz",
   "bom_pricing": "gates/bom_pricing.py bom_pricing-v1 over the 2026-10-15 JLC / DigiKey / Octopart snapshots and the STOCK-2026-10-13*.csv survey reads (sourcing/)",
-  "buildability": "validation-results/08-manufacturing-package/native-21/sourcing/SNAPSHOT-2026-10-15.csv"
+  "buildability": "validation-results/08-manufacturing-package/native-21/sourcing/SNAPSHOT-2026-10-15.csv",
+  "stock_gate": "scorecard.py stock_gate over validation-results/08-manufacturing-package/native-21/sourcing/SNAPSHOT-2026-10-15.csv, BOM bom-jlcpcb.s51.csv, newer dated reads for 3 MPN(s) (STOCK-2026-10-16.csv); restamped validation-results/10-benchmark/scorecard-native21s51.json"
  }
 }

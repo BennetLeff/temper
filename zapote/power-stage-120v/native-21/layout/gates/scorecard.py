@@ -382,7 +382,7 @@ def cost(b, bom_path, stock_path):
         st = {}
         for sp in paths:                  # later files (addenda for new MPNs) override earlier rows
             for r in csv.DictReader(open(sp)):
-                if r["board"].startswith("power"):
+                if (r.get("board") or "").startswith("power"):     # dated stock reads (_stock_reads) carry no board
                     st[r["mpn"].strip()] = r
         c5 = c500 = 0.0
         unpriced, zero, single = [], [], []
@@ -469,9 +469,46 @@ def _stock_flags(stock_path):
     for sp in [Path(x) for x in str(stock_path).split(",") if x.strip()]:
         if sp.exists():
             for r in csv.DictReader(open(sp)):
-                if r["board"].startswith("power"):
+                if (r.get("board") or "").startswith("power"):
                     st[r["mpn"].strip()] = r.get("flags", "")
     return st
+
+
+READ_COLS = {"mpn", "jlc_stock", "jlc_lib", "jlc_read_utc", "best_auth_moq_le_need", "octopart_read_utc"}
+_JLC_LIB = {"expand": "extended", "extended": "extended", "base": "basic", "basic": "basic"}
+
+
+def _read_utc(v):
+    """The ISO timestamps in a field (a snapshot's fetched_utc may hold several); '' when there is none."""
+    ts = [t for t in str(v or "").split() if len(t) >= 10 and t[:4].isdigit() and t[4] == "-"]
+    return max(ts) if ts else ""
+
+
+def _stock_reads(stock_path):
+    """{mpn: row} from the dated stock reads in the --stock list (STOCK-2026-10-16.csv and later: build_stock_snapshot.py
+    of 11-candidates/b15-proto-alternates, one row per MPN with JLC stock / library / read time and the best authorised
+    in-stock seller whose MOQ is within the need). Files without those columns (the 2026-10-13 survey and its addenda) are
+    skipped here; later files win for the same MPN. Each row gives jlc_stock, jlc_library, auth_best_stock, read_utc."""
+    out = {}
+    for sp in [Path(x) for x in str(stock_path).split(",") if x.strip()]:
+        if not sp.exists():
+            continue
+        rd = csv.DictReader(open(sp))
+        if not READ_COLS <= set(rd.fieldnames or ()):
+            continue
+        for r in rd:
+            mpn = (r.get("mpn") or "").strip()
+            if not mpn:
+                continue
+            tok = (r.get("best_auth_moq_le_need") or "").split()
+            auth = float(tok[-1]) if tok and tok[-1].replace(".", "", 1).isdigit() else 0.0
+            js = r.get("jlc_stock") or "0"
+            out[mpn] = {"jlc_stock": js if js.replace(".", "", 1).isdigit() else "0",
+                        "jlc_library": _JLC_LIB.get((r.get("jlc_lib") or "").strip().lower(), "listed_no_stock"),
+                        "auth_best_stock": str(int(auth)),
+                        "read_utc": max(_read_utc(r.get("jlc_read_utc")), _read_utc(r.get("octopart_read_utc"))),
+                        "read_file": sp.name}
+    return out
 
 
 def buildable_stock(s, flags="", ignore_flags=False):
@@ -501,7 +538,15 @@ def stock_gate(bom_path, snap_path, stock_path="", proto_boards=None):
     pb = PROTO_BOARDS if proto_boards is None else int(proto_boards)
     snap = {r["mpn"].strip(): r for r in csv.DictReader(open(snap_path))}
     flags = _stock_flags(stock_path)
-    out = {"bom_proto_boards": pb}
+    newer = {}
+    for mpn, rd in _stock_reads(stock_path).items():      # a dated read newer than the snapshot row wins for that MPN
+        s0 = snap.get(mpn)
+        if rd["read_utc"] and (s0 is None or rd["read_utc"] > _read_utc(s0.get("fetched_utc"))):
+            snap[mpn] = {**(s0 or {"mpn": mpn, "auth_total_stock": "0", "unauth_max_stock": "0"}),
+                         "jlc_stock": rd["jlc_stock"], "jlc_library": rd["jlc_library"], "auth_best_stock": rd["auth_best_stock"]}
+            newer[mpn] = f"{rd['read_file']} {rd['read_utc']}"
+    bm = {r["Manufacturer Part Number"].strip() for r in csv.DictReader(open(bom_path))}
+    out = {"bom_proto_boards": pb, "bom_stock_read_overrides": {m: v for m, v in newer.items() if m in bm}}   # BOM lines only
     for key, n, ign in ((f"proto", pb, True), (f"at_{BUILD_BOARDS}", BUILD_BOARDS, False)):
         short = []
         for r in csv.DictReader(open(bom_path)):
@@ -513,7 +558,7 @@ def stock_gate(bom_path, snap_path, stock_path="", proto_boards=None):
                 sr = snap.get(mpn) or {}
                 short.append({"mpn": mpn, "designators": r["Designator"], "qty_per_board": q, "need": need, "buildable": int(have),
                               "jlc_stock": sr.get("jlc_stock", ""), "auth_best_stock": sr.get("auth_best_stock", ""),
-                              "flags": flags.get(mpn, ""), "why": why})
+                              "flags": flags.get(mpn, ""), "why": why, **({"stock_read": newer[mpn]} if mpn in newer else {})})
         out[f"bom_lines_short_{key}"] = len(short)
         out[f"bom_short_lines_{'proto' if ign else BUILD_BOARDS}"] = short
     return out
@@ -665,7 +710,11 @@ def restamp(a):
     card["gates"]["bom_buildable_proto"] = sg["bom_lines_short_proto"] == 0
     sp = Path(a.snapshot).resolve()
     card.setdefault("sources", {})["stock_gate"] = (f"scorecard.py stock_gate over {sp.relative_to(UNIT) if sp.is_relative_to(UNIT) else sp}, "
-                                                    f"BOM {bom.name}; restamped {a.restamp}")
+                                                    f"BOM {bom.name}"
+                                                    + (f", newer dated reads for {len(sg['bom_stock_read_overrides'])} MPN(s) "
+                                                       f"({', '.join(sorted({v.split()[0] for v in sg['bom_stock_read_overrides'].values()}))})"
+                                                       if sg.get("bom_stock_read_overrides") else "")
+                                                    + f"; restamped {a.restamp}")
     Path(a.restamp).write_text(json.dumps(card, indent=1))
     for key, n in (("proto", sg["bom_proto_boards"]), (BUILD_BOARDS, BUILD_BOARDS)):
         lst = sg[f"bom_short_lines_{key}"]
@@ -680,8 +729,12 @@ def main():
     ap.add_argument("build", nargs="?")
     ap.add_argument("--card", help="a saved scorecard to compare instead of computing one")
     ap.add_argument("--bom", default=str(FAB / "bom-jlcpcb.csv"))
-    ap.add_argument("--stock", default=",".join(str(p) for p in sorted((VR / "08-manufacturing-package/native-21/sourcing").glob("STOCK-2026-10-13*.csv"))),
-                    help="comma-separated stock CSVs; addenda (STOCK-2026-10-13-addendum-*.csv) add rows for new MPNs")
+    _src = VR / "08-manufacturing-package/native-21/sourcing"
+    _s13 = sorted(_src.glob("STOCK-2026-10-13*.csv"))
+    ap.add_argument("--stock", default=",".join(str(p) for p in _s13 + sorted(set(_src.glob("STOCK-*.csv")) - set(_s13))),
+                    help="comma-separated stock CSVs; addenda (STOCK-2026-10-13-addendum-*.csv) add rows for new MPNs; the "
+                         "dated reads after them (STOCK-2026-10-16.csv, ...) override the snapshot's stock for their MPNs "
+                         "in the stock gate when newer")
     snaps = sorted((VR / "08-manufacturing-package/native-21/sourcing").glob("SNAPSHOT-*.csv"))
     ap.add_argument("--snapshot", default=str(snaps[-1]) if snaps else "",
                     help="dated stock snapshot (build_snapshot.py) for the buildability metrics; latest by name")
@@ -724,7 +777,8 @@ def main():
     if "bom_lines_short_proto" in card["cost"]:
         card["gates"]["bom_buildable_proto"] = card["cost"]["bom_lines_short_proto"] == 0
     card["sources"]["bom_pricing"] = ("gates/bom_pricing.py " + card["cost"]["price_basis"] + " over the 2026-10-15 JLC / DigiKey / "
-                                      "Octopart snapshots and the STOCK-2026-10-13*.csv survey reads (sourcing/)")
+                                      "Octopart snapshots and the STOCK-2026-10-13*.csv survey reads (sourcing/); the stock gate "
+                                      "takes a dated read (STOCK-2026-10-16.csv, ...) over the snapshot row when newer")
     if a.snapshot:
         sp = Path(a.snapshot).resolve()
         card["sources"]["buildability"] = str(sp.relative_to(UNIT)) if sp.is_relative_to(UNIT) else str(sp)
