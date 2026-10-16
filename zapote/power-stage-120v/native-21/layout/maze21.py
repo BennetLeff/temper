@@ -53,7 +53,7 @@ def _bounds(shape):
 # grown obstacle is rasterised once per lattice tile and reused by every later search (2026-10-15: rebuilding the
 # union of all grown obstacles for every search was most of incr21's time, and it grew with the box area).
 TILE = 32
-_TILES = {}      # (id(shape), STEP) -> (shape, {(ti, tj): bool array | True | False})
+_TILES = {}      # (id(shape), STEP) -> (shape, {(ti, tj): bool array | True | False}, lattice bounds)
 _STABLE = {}     # derived outline shapes, kept so their ids (and tiles) stay valid
 _TILE_XY = {}    # (ti, tj, step) -> shared lattice coordinates, independent of the obstacle
 
@@ -80,7 +80,12 @@ def _shape_tile(shape, ti, tj, step=None):
     ent = _TILES.get((id(shape), step))
     if ent is None or ent[0] is not shape:
         shapely.prepare(shape)
-        ent = _TILES[(id(shape), step)] = (shape, {})
+        bx0, by0, bx1, by1 = _bounds(shape)
+        # Keep a cell beyond the bounds so division rounding cannot discard an interior point.
+        bounds = (0, 0, -1, -1) if math.isnan(bx0) else (
+            math.floor(bx0 / step) - 1, math.floor(by0 / step) - 1,
+            math.ceil(bx1 / step) + 1, math.ceil(by1 / step) + 1)
+        ent = _TILES[(id(shape), step)] = (shape, {}, bounds)
     t = ent[1].get((ti, tj))
     if t is None:
         xy = _TILE_XY.get((ti, tj, step))
@@ -88,8 +93,20 @@ def _shape_tile(shape, ti, tj, step=None):
             xy = _TILE_XY[(ti, tj, step)] = np.meshgrid(
                 np.arange(ti * TILE, ti * TILE + TILE) * step,
                 np.arange(tj * TILE, tj * TILE + TILE) * step, sparse=True)
-        t = shapely.contains_xy(shape, *xy)
-        t = False if not t.any() else True if t.all() else t
+        a0, b0, a1, b1 = ent[2]
+        c0, c1 = max(a0 - ti * TILE, 0), min(a1 - ti * TILE + 1, TILE)
+        r0, r1 = max(b0 - tj * TILE, 0), min(b1 - tj * TILE + 1, TILE)
+        if c0 >= c1 or r0 >= r1:
+            t = False
+        else:
+            part = shapely.contains_xy(shape, xy[0][:, c0:c1], xy[1][r0:r1, :])
+            if not part.any():
+                t = False
+            elif c0 == r0 == 0 and c1 == r1 == TILE:
+                t = True if part.all() else part
+            else:
+                t = np.zeros((TILE, TILE), dtype=bool)
+                t[r0:r1, c0:c1] = part
         ent[1][(ti, tj)] = t
     return t
 
