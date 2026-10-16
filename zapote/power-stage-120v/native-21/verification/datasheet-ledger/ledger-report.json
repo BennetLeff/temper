@@ -1,5 +1,5 @@
 {
- "bom_lines": 93,
+ "bom_lines": 94,
  "counts_by_class": {
   "POWER": {
    "PARTIAL": 10,
@@ -14,13 +14,13 @@
    "VIOLATION": 0
   },
   "SIGNAL": {
-   "PARTIAL": 3,
-   "UNAUDITED": 58,
+   "PARTIAL": 8,
+   "UNAUDITED": 54,
    "VERIFIED": 1,
    "VIOLATION": 0
   }
  },
- "entries": 93,
+ "entries": 94,
  "entries_detail": {
   "0430451612": {
    "checks": [],
@@ -465,7 +465,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "VDD operating max",
-     "ratio": 0.8495,
+     "ratio": 0.8857,
      "severity": "violation",
      "stress": "VDD at the span OV trip"
     },
@@ -833,22 +833,6 @@
     "owner: bus readings above 240.0 V are outside the 2 V linear range (clipping at 301.9 V). Firmware flags VBUS over-range at 230.9 V (N21_VBUS_OVERRANGE_MV) and the hardware OVP is the TLV3201 on VSENSE_IN (elec/src/power_stage_120v.ato:614), so no protection relies on the nonlinear band; nothing gates that dependency."
    ],
    "status": "PARTIAL",
-   "unchecked_layout": []
-  },
-  "ARG03BTC1333": {
-   "checks": [],
-   "class": "SIGNAL",
-   "designators": [
-    "R105",
-    "R120",
-    "R87"
-   ],
-   "finding": null,
-   "function": "133 k",
-   "gaps": [
-    "Not audited (outside SAFETY/POWER)."
-   ],
-   "status": "UNAUDITED",
    "unchecked_layout": []
   },
   "B2P3-VH(LF)(SN)": {
@@ -2760,6 +2744,53 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
+  "RT0603BRD07104KL": {
+   "checks": [
+    {
+     "id": "voltage operating",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.2243,
+     "severity": "violation",
+     "stress": "Voltage, operating"
+    },
+    {
+     "id": "voltage fault",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.2894,
+     "severity": "violation",
+     "stress": "Voltage, fault"
+    },
+    {
+     "id": "power fault",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Power at 85 C",
+     "ratio": 0.055,
+     "severity": "violation",
+     "stress": "Power, fault"
+    }
+   ],
+   "class": "SIGNAL",
+   "designators": [
+    "R105",
+    "R120",
+    "R87"
+   ],
+   "finding": null,
+   "function": "104000 ohm 0.1 % 25 ppm 0603: rail-monitor span-OV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
+   "gaps": [
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "same 0603 pads as the s44 part it replaces (BOM-only stage)"
+   ]
+  },
   "RT0603BRD07105KL": {
    "checks": [],
    "class": "SIGNAL",
@@ -2780,15 +2811,10 @@
    "designators": [
     "R100",
     "R102",
-    "R104",
-    "R106",
     "R111",
-    "R112",
     "R113",
     "R115",
     "R117",
-    "R119",
-    "R121",
     "R32",
     "R33",
     "R36",
@@ -2797,14 +2823,10 @@
     "R49",
     "R50",
     "R78",
-    "R79",
     "R80",
     "R82",
     "R84",
-    "R86",
-    "R88",
     "R96",
-    "R97",
     "R98"
    ],
    "finding": null,
@@ -2819,27 +2841,17 @@
    "checks": [],
    "class": "SIGNAL",
    "designators": [
+    "R104",
+    "R106",
+    "R119",
+    "R121",
     "R61",
+    "R86",
+    "R88",
     "R93"
    ],
    "finding": null,
-   "function": "11 k",
-   "gaps": [
-    "Not audited (outside SAFETY/POWER)."
-   ],
-   "status": "UNAUDITED",
-   "unchecked_layout": []
-  },
-  "RT0603BRD07120KL": {
-   "checks": [],
-   "class": "SIGNAL",
-   "designators": [
-    "R103",
-    "R118",
-    "R85"
-   ],
-   "finding": null,
-   "function": "120 k",
+   "function": "11 k 0.1 %: HS module feedback bottoms (R61 / R93) and, since stage 45, the rail-monitor span-UV / span-OV tap bottoms (S16 option 1c-4420)",
    "gaps": [
     "Not audited (outside SAFETY/POWER)."
    ],
@@ -2918,6 +2930,53 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
+  "RT0603BRD072K94L": {
+   "checks": [
+    {
+     "id": "voltage operating",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.0275,
+     "severity": "violation",
+     "stress": "Voltage, operating"
+    },
+    {
+     "id": "voltage fault",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.318,
+     "severity": "violation",
+     "stress": "Voltage, fault"
+    },
+    {
+     "id": "power fault",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Power at 85 C",
+     "ratio": 0.1227,
+     "severity": "violation",
+     "stress": "Power, fault"
+    }
+   ],
+   "class": "SIGNAL",
+   "designators": [
+    "R101",
+    "R116",
+    "R83"
+   ],
+   "finding": null,
+   "function": "2940 ohm 0.1 % 25 ppm 0603: rail-monitor neg-OV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
+   "gaps": [
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "same 0603 pads as the s44 part it replaces (BOM-only stage)"
+   ]
+  },
   "RT0603BRD0749K9L": {
    "checks": [],
    "class": "SIGNAL",
@@ -2938,12 +2997,12 @@
    "checks": [],
    "class": "SIGNAL",
    "designators": [
-    "R114",
-    "R81",
-    "R99"
+    "R112",
+    "R79",
+    "R97"
    ],
    "finding": null,
-   "function": "4.42 k",
+   "function": "4.42 k 0.1 %: rail-monitor halfref top (stage 45, S16 option 1c-4420; was the neg-UV tap top)",
    "gaps": [
     "Not audited (outside SAFETY/POWER)."
    ],
@@ -2981,21 +3040,99 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
-  "RT0603BRD077K68L": {
-   "checks": [],
+  "RT0603BRD07750RL": {
+   "checks": [
+    {
+     "id": "voltage operating",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.0167,
+     "severity": "violation",
+     "stress": "Voltage, operating"
+    },
+    {
+     "id": "voltage fault",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.1933,
+     "severity": "violation",
+     "stress": "Voltage, fault"
+    },
+    {
+     "id": "power fault",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Power at 85 C",
+     "ratio": 0.0454,
+     "severity": "violation",
+     "stress": "Power, fault"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
-    "R101",
-    "R116",
-    "R83"
+    "R114",
+    "R81",
+    "R99"
    ],
    "finding": null,
-   "function": "7.68 k",
+   "function": "750 ohm 0.1 % 25 ppm 0603: rail-monitor neg-UV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
    ],
-   "status": "UNAUDITED",
-   "unchecked_layout": []
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "same 0603 pads as the s44 part it replaces (BOM-only stage)"
+   ]
+  },
+  "RT0603BRD0790K9L": {
+   "checks": [
+    {
+     "id": "voltage operating",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.2212,
+     "severity": "violation",
+     "stress": "Voltage, operating"
+    },
+    {
+     "id": "voltage fault",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.2855,
+     "severity": "violation",
+     "stress": "Voltage, fault"
+    },
+    {
+     "id": "power fault",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Power at 85 C",
+     "ratio": 0.0612,
+     "severity": "violation",
+     "stress": "Power, fault"
+    }
+   ],
+   "class": "SIGNAL",
+   "designators": [
+    "R103",
+    "R118",
+    "R85"
+   ],
+   "finding": null,
+   "function": "90900 ohm 0.1 % 25 ppm 0603: rail-monitor span-UV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
+   "gaps": [
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "same 0603 pads as the s44 part it replaces (BOM-only stage)"
+   ]
   },
   "SN74LVC1G00DBVR": {
    "checks": [],
@@ -3081,8 +3218,45 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
-  "TL431AIDBZR": {
-   "checks": [],
+  "TL431BIDBZR": {
+   "checks": [
+    {
+     "id": "VKA",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Cathode voltage, recommended max",
+     "ratio": 0.0706,
+     "severity": "violation",
+     "stress": "Cathode voltage"
+    },
+    {
+     "id": "IKA operating",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Cathode current, recommended max",
+     "ratio": 0.0729,
+     "severity": "violation",
+     "stress": "Cathode current, operating max"
+    },
+    {
+     "id": "IKA fault",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Cathode current, recommended max",
+     "ratio": 0.0979,
+     "severity": "violation",
+     "stress": "Cathode current, fault case"
+    },
+    {
+     "id": "temperature (estimate)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Free-air temperature max",
+     "ratio": 0.7565,
+     "severity": "gap",
+     "stress": "Local temperature, expected"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "U17",
@@ -3090,11 +3264,13 @@
     "U21"
    ],
    "finding": null,
-   "function": "adjustable shunt",
+   "function": "Rail-monitor reference (REF tied to K, fed by rref 2.2 k), LS / HS-A / HS-B; B grade since stage 45 (S16 option 1c-4420, DECISIONS 59)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger",
+    "Vref long-term (load-life) drift is not specified (only VI(dev) over temperature); covered only by the 0.5 % margin target of the band analysis"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "TLV3201AIDBVR": {
@@ -3351,15 +3527,20 @@
   "R463N410050N1K",
   "RC1206FR-07220KL",
   "RC1206FR-07470KL",
+  "RT0603BRD07104KL",
+  "RT0603BRD072K94L",
+  "RT0603BRD07750RL",
+  "RT0603BRD0790K9L",
   "SN74LVC1G132DBVR",
+  "TL431BIDBZR",
   "TMOV20RP175E",
   "VOL628A-2X001T"
  ],
  "result": "PASS",
  "strict": false,
  "totals": {
-  "PARTIAL": 32,
-  "UNAUDITED": 58,
+  "PARTIAL": 37,
+  "UNAUDITED": 54,
   "VERIFIED": 3,
   "VIOLATION": 0
  },
@@ -3378,7 +3559,6 @@
   "1206W4F1001T5E",
   "1206W4F100KT5E",
   "6SVPC220MV",
-  "ARG03BTC1333",
   "BAS116H,115",
   "C0603C102J5GACTU",
   "CC0603KRX7R9BB104",
@@ -3400,7 +3580,6 @@
   "RT0603BRD07105KL",
   "RT0603BRD0710KL",
   "RT0603BRD0711KL",
-  "RT0603BRD07120KL",
   "RT0603BRD0712K6L",
   "RT0603BRD07140KL",
   "RT0603BRD0715K8L",
@@ -3410,12 +3589,10 @@
   "RT0603BRD074K42L",
   "RT0603BRD0763K4L",
   "RT0603BRD076K2L",
-  "RT0603BRD077K68L",
   "SN74LVC1G00DBVR",
   "SN74LVC1G10DBVR",
   "SN74LVC1G17DBVR",
   "SN74LVC1G332DBVR",
-  "TL431AIDBZR",
   "TLV3201AIDBVR",
   "TLVH431BQDBZR",
   "TNPW060311K7BEEA",
@@ -3424,9 +3601,9 @@
   "TPS7A4700RGWR"
  ],
  "unaudited_safety_power": [],
- "unchecked_layout_items": 11,
+ "unchecked_layout_items": 15,
  "violations": [],
  "warnings": [
-  "58 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
+  "54 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
  ]
 }

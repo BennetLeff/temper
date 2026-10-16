@@ -69,6 +69,27 @@ python3 -I scripts/build_snapshot.py snapshot/s44/bom-jlcpcb.s44.csv snapshot/s4
     snapshot/s44/SNAPSHOT-s44.csv snapshot/s44/SNAPSHOT-s44.json
 rm -f snapshot/s44/jlc-bom-plus-extra.json snapshot/s44/SNAPSHOT-s44.json
 python3 -I -c "import csv;a=list(csv.DictReader(open('snapshot/s44/SNAPSHOT-s44.csv')));m={r['mpn'] for r in a};o=list(csv.DictReader(open('../SNAPSHOT-2026-10-15.csv')));x=[r for r in o if r['mpn'] not in m];w=csv.DictWriter(open('../SNAPSHOT-2026-10-15.csv','w',newline=''),fieldnames=list(a[0]));w.writeheader();w.writerows(a+x)"
+# s45 BOM (stage 45, S16 option 1c-4420, DECISIONS 59: TL431BIDBZR = JLC C41283 and the tap tops RT0603BRD07750RL /
+# 072K94L / 0790K9L / 07104KL = C861551 / C705761 / C728600 / C861070, read 2026-10-15 by the S16 study's jlc.py and copied
+# into scripts/jlc-raw; the STOCK-2026-10-13-addendum-s45 rows carry them). RT0603BRD0710KL (28 -> 19 per board) and
+# RT0603BRD0711KL (2 -> 8) are re-priced on their own ladders at the new quantity. The committed ../SNAPSHOT-2026-10-15.csv is
+# snapshot/s45/SNAPSHOT-s45.csv plus every earlier row whose MPN the s45 BOM no longer has (TL431AIDBZR, RT0603BRD077K68L,
+# RT0603BRD07120KL, ARG03BTC1333 and the earlier ones).
+python3 -I -c "import json,sys;sys.path.insert(0,'scripts');import jlc_snapshot as S;d=json.load(open('snapshot/jlc-2026-10-15.json'));m={b['mpn'] for b in d['bom']};d['bom']+=[r for r in d['extra'] if r['mpn'] not in m]
+for code,mpn,des,q,ma in (('C6675337','MPM-20-24','PS2',1,'THT'),('C50371','25121WF680JT4E','R10,R12,R18,R20',4,'SMD'),('C85980','GRM1885C1H472JA01D','C55,C56,C62,C63',4,'SMD'),
+    ('C41283','TL431BIDBZR','U17,U19,U21',3,'SMD'),('C861551','RT0603BRD07750RL','R81,R99,R114',3,'SMD'),('C705761','RT0603BRD072K94L','R83,R101,R116',3,'SMD'),
+    ('C728600','RT0603BRD0790K9L','R85,R103,R118',3,'SMD'),('C861070','RT0603BRD07104KL','R87,R105,R120',3,'SMD')):
+    r=S.rec_from_detail(code);lad=r['jlc_ladder'];r.update(mpn=mpn,designators=des,qty=q,mount=ma,bom_assembly='JLC (Extended)',jlc_unit_5=S.unit_at(lad,5*q),jlc_unit_500=S.unit_at(lad,500*q));d['bom']=[b for b in d['bom'] if b['mpn']!=mpn]+[r]
+r=dict(next(b for b in d['bom'] if b['mpn']=='GRM31A5C3A102JW01D'));r.update(mpn='CC1206JKNPOCBN102',bom_assembly='JLC (Extended)');d['bom']=[b for b in d['bom'] if b['mpn']!='CC1206JKNPOCBN102']+[r]
+for b in d['bom']:
+    if b['mpn'] in ('RT0603BRD0710KL','RT0603BRD0711KL') and b.get('jlc_ladder'):
+        q={'RT0603BRD0710KL':19,'RT0603BRD0711KL':8}[b['mpn']];b.update(qty=q,jlc_unit_5=S.unit_at(b['jlc_ladder'],5*q),jlc_unit_500=S.unit_at(b['jlc_ladder'],500*q))
+json.dump(d,open('snapshot/s45/jlc-bom-plus-extra.json','w'))"
+python3 -I scripts/build_snapshot.py snapshot/s45/bom-jlcpcb.s45.csv snapshot/s45/jlc-bom-plus-extra.json snapshot/octopart-2026-10-15.json \
+    snapshot/digikey-2026-10-15.json "$VR/08-manufacturing-package/native-21/sourcing/STOCK-2026-10-13*.csv" \
+    snapshot/s45/SNAPSHOT-s45.csv snapshot/s45/SNAPSHOT-s45.json
+rm -f snapshot/s45/jlc-bom-plus-extra.json snapshot/s45/SNAPSHOT-s45.json
+python3 -I -c "import csv;a=list(csv.DictReader(open('snapshot/s45/SNAPSHOT-s45.csv')));m={r['mpn'] for r in a};o=list(csv.DictReader(open('../SNAPSHOT-2026-10-15.csv')));x=[r for r in o if r['mpn'] not in m];w=csv.DictWriter(open('../SNAPSHOT-2026-10-15.csv','w',newline=''),fieldnames=list(a[0]));w.writeheader();w.writerows(a+x)"
 python3 -I scripts/buildability.py --control
 python3 -I scripts/buildability.py snapshot/SNAPSHOT-2026-10-15.csv --json results/buildability-s32.json
 # needs TDK's B32674-678 PDF (June 2026; tdk-electronics.tdk.com) at downloads/tdk-b3267x/MKP_B32674_678.pdf, not committed:

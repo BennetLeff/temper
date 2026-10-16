@@ -1,8 +1,8 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "passive-two-terminal": 227,
-  "native19-reviewed": 96,
+  "passive-two-terminal": 236,
+  "native19-reviewed": 87,
   "passive-untyped": 22,
   "eco-pin-table": 13
  },
@@ -2694,9 +2694,9 @@
    }
   },
   "R79": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD074K42L",
    "source_instance": "monitor_ls.rhalf_top",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2724,7 +2724,7 @@
    }
   },
   "R81": {
-   "mpn": "RT0603BRD074K42L",
+   "mpn": "RT0603BRD07750RL",
    "source_instance": "monitor_ls.ruv_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2754,7 +2754,7 @@
    }
   },
   "R83": {
-   "mpn": "RT0603BRD077K68L",
+   "mpn": "RT0603BRD072K94L",
    "source_instance": "monitor_ls.rov_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2784,7 +2784,7 @@
    }
   },
   "R85": {
-   "mpn": "RT0603BRD07120KL",
+   "mpn": "RT0603BRD0790K9L",
    "source_instance": "monitor_ls.rspanuv_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2799,9 +2799,9 @@
    }
   },
   "R86": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "monitor_ls.rspanuv_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2814,7 +2814,7 @@
    }
   },
   "R87": {
-   "mpn": "ARG03BTC1333",
+   "mpn": "RT0603BRD07104KL",
    "source_instance": "monitor_ls.rspanov_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2829,9 +2829,9 @@
    }
   },
   "R88": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "monitor_ls.rspanov_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2949,9 +2949,9 @@
    }
   },
   "R97": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD074K42L",
    "source_instance": "bias_ha.monitor.rhalf_top",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2979,7 +2979,7 @@
    }
   },
   "R99": {
-   "mpn": "RT0603BRD074K42L",
+   "mpn": "RT0603BRD07750RL",
    "source_instance": "bias_ha.monitor.ruv_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3009,7 +3009,7 @@
    }
   },
   "R101": {
-   "mpn": "RT0603BRD077K68L",
+   "mpn": "RT0603BRD072K94L",
    "source_instance": "bias_ha.monitor.rov_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3039,7 +3039,7 @@
    }
   },
   "R103": {
-   "mpn": "RT0603BRD07120KL",
+   "mpn": "RT0603BRD0790K9L",
    "source_instance": "bias_ha.monitor.rspanuv_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3054,9 +3054,9 @@
    }
   },
   "R104": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "bias_ha.monitor.rspanuv_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3069,7 +3069,7 @@
    }
   },
   "R105": {
-   "mpn": "ARG03BTC1333",
+   "mpn": "RT0603BRD07104KL",
    "source_instance": "bias_ha.monitor.rspanov_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3084,9 +3084,9 @@
    }
   },
   "R106": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "bias_ha.monitor.rspanov_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3204,9 +3204,9 @@
    }
   },
   "R112": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD074K42L",
    "source_instance": "bias_hb.monitor.rhalf_top",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3234,7 +3234,7 @@
    }
   },
   "R114": {
-   "mpn": "RT0603BRD074K42L",
+   "mpn": "RT0603BRD07750RL",
    "source_instance": "bias_hb.monitor.ruv_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3264,7 +3264,7 @@
    }
   },
   "R116": {
-   "mpn": "RT0603BRD077K68L",
+   "mpn": "RT0603BRD072K94L",
    "source_instance": "bias_hb.monitor.rov_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3294,7 +3294,7 @@
    }
   },
   "R118": {
-   "mpn": "RT0603BRD07120KL",
+   "mpn": "RT0603BRD0790K9L",
    "source_instance": "bias_hb.monitor.rspanuv_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3309,9 +3309,9 @@
    }
   },
   "R119": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "bias_hb.monitor.rspanuv_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -3324,7 +3324,7 @@
    }
   },
   "R120": {
-   "mpn": "ARG03BTC1333",
+   "mpn": "RT0603BRD07104KL",
    "source_instance": "bias_hb.monitor.rspanov_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -3339,9 +3339,9 @@
    }
   },
   "R121": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "bias_hb.monitor.rspanov_bot",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -5282,7 +5282,7 @@
    }
   },
   "U17": {
-   "mpn": "TL431AIDBZR",
+   "mpn": "TL431BIDBZR",
    "source_instance": "monitor_ls.reference",
    "basis": "eco-pin-table",
    "pins": {
@@ -5320,7 +5320,7 @@
    }
   },
   "U19": {
-   "mpn": "TL431AIDBZR",
+   "mpn": "TL431BIDBZR",
    "source_instance": "bias_ha.monitor.reference",
    "basis": "eco-pin-table",
    "pins": {
@@ -5358,7 +5358,7 @@
    }
   },
   "U21": {
-   "mpn": "TL431AIDBZR",
+   "mpn": "TL431BIDBZR",
    "source_instance": "bias_hb.monitor.reference",
    "basis": "eco-pin-table",
    "pins": {

@@ -459,18 +459,18 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_ls.shunt", "TLVH431BQDBZR"),
     ("bias_ls.rtop", "RT0603BRD076K2L"),
     ("bias_ls.rbot", "RT0603BRD0710KL"),
-    ("monitor_ls.reference", "TL431AIDBZR"),
+    ("monitor_ls.reference", "TL431BIDBZR"),   // stage 45 (S16, DECISIONS 59, option 1c-4420): TL431B, halfref 4.42 k / 10 k, re-centred taps
     ("monitor_ls.rref", "RC1206FR-072K2L"),
-    ("monitor_ls.rhalf_top", "RT0603BRD0710KL"),
+    ("monitor_ls.rhalf_top", "RT0603BRD074K42L"),
     ("monitor_ls.rhalf_bot", "RT0603BRD0710KL"),
-    ("monitor_ls.ruv_top", "RT0603BRD074K42L"),
+    ("monitor_ls.ruv_top", "RT0603BRD07750RL"),
     ("monitor_ls.ruv_bot", "RT0603BRD0710KL"),
-    ("monitor_ls.rov_top", "RT0603BRD077K68L"),
+    ("monitor_ls.rov_top", "RT0603BRD072K94L"),
     ("monitor_ls.rov_bot", "RT0603BRD0710KL"),
-    ("monitor_ls.rspanuv_top", "RT0603BRD07120KL"),
-    ("monitor_ls.rspanuv_bot", "RT0603BRD0710KL"),
-    ("monitor_ls.rspanov_top", "ARG03BTC1333"),
-    ("monitor_ls.rspanov_bot", "RT0603BRD0710KL"),
+    ("monitor_ls.rspanuv_top", "RT0603BRD0790K9L"),
+    ("monitor_ls.rspanuv_bot", "RT0603BRD0711KL"),
+    ("monitor_ls.rspanov_top", "RT0603BRD07104KL"),
+    ("monitor_ls.rspanov_bot", "RT0603BRD0711KL"),
     ("monitor_ls.monitor", "LM339BIDR"),
     ("monitor_ls.rpull", "0603WAF1002T5E"),
     ("u_bias_flt", "SN74LVC1G17DBVR"),
@@ -512,18 +512,18 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_ha.split.shunt", "TLVH431BQDBZR"),
     ("bias_ha.split.rtop", "RT0603BRD076K2L"),
     ("bias_ha.split.rbot", "RT0603BRD0710KL"),
-    ("bias_ha.monitor.reference", "TL431AIDBZR"),
+    ("bias_ha.monitor.reference", "TL431BIDBZR"),
     ("bias_ha.monitor.rref", "RC1206FR-072K2L"),
-    ("bias_ha.monitor.rhalf_top", "RT0603BRD0710KL"),
+    ("bias_ha.monitor.rhalf_top", "RT0603BRD074K42L"),
     ("bias_ha.monitor.rhalf_bot", "RT0603BRD0710KL"),
-    ("bias_ha.monitor.ruv_top", "RT0603BRD074K42L"),
+    ("bias_ha.monitor.ruv_top", "RT0603BRD07750RL"),
     ("bias_ha.monitor.ruv_bot", "RT0603BRD0710KL"),
-    ("bias_ha.monitor.rov_top", "RT0603BRD077K68L"),
+    ("bias_ha.monitor.rov_top", "RT0603BRD072K94L"),
     ("bias_ha.monitor.rov_bot", "RT0603BRD0710KL"),
-    ("bias_ha.monitor.rspanuv_top", "RT0603BRD07120KL"),
-    ("bias_ha.monitor.rspanuv_bot", "RT0603BRD0710KL"),
-    ("bias_ha.monitor.rspanov_top", "ARG03BTC1333"),
-    ("bias_ha.monitor.rspanov_bot", "RT0603BRD0710KL"),
+    ("bias_ha.monitor.rspanuv_top", "RT0603BRD0790K9L"),
+    ("bias_ha.monitor.rspanuv_bot", "RT0603BRD0711KL"),
+    ("bias_ha.monitor.rspanov_top", "RT0603BRD07104KL"),
+    ("bias_ha.monitor.rspanov_bot", "RT0603BRD0711KL"),
     ("bias_ha.monitor.monitor", "LM339BIDR"),
     ("bias_ha.monitor.rpull", "0603WAF1002T5E"),
     ("bias_ha.monitor.ldo5", "TPS70950DBVR"),
@@ -545,18 +545,18 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_hb.split.shunt", "TLVH431BQDBZR"),
     ("bias_hb.split.rtop", "RT0603BRD076K2L"),
     ("bias_hb.split.rbot", "RT0603BRD0710KL"),
-    ("bias_hb.monitor.reference", "TL431AIDBZR"),
+    ("bias_hb.monitor.reference", "TL431BIDBZR"),
     ("bias_hb.monitor.rref", "RC1206FR-072K2L"),
-    ("bias_hb.monitor.rhalf_top", "RT0603BRD0710KL"),
+    ("bias_hb.monitor.rhalf_top", "RT0603BRD074K42L"),
     ("bias_hb.monitor.rhalf_bot", "RT0603BRD0710KL"),
-    ("bias_hb.monitor.ruv_top", "RT0603BRD074K42L"),
+    ("bias_hb.monitor.ruv_top", "RT0603BRD07750RL"),
     ("bias_hb.monitor.ruv_bot", "RT0603BRD0710KL"),
-    ("bias_hb.monitor.rov_top", "RT0603BRD077K68L"),
+    ("bias_hb.monitor.rov_top", "RT0603BRD072K94L"),
     ("bias_hb.monitor.rov_bot", "RT0603BRD0710KL"),
-    ("bias_hb.monitor.rspanuv_top", "RT0603BRD07120KL"),
-    ("bias_hb.monitor.rspanuv_bot", "RT0603BRD0710KL"),
-    ("bias_hb.monitor.rspanov_top", "ARG03BTC1333"),
-    ("bias_hb.monitor.rspanov_bot", "RT0603BRD0710KL"),
+    ("bias_hb.monitor.rspanuv_top", "RT0603BRD0790K9L"),
+    ("bias_hb.monitor.rspanuv_bot", "RT0603BRD0711KL"),
+    ("bias_hb.monitor.rspanov_top", "RT0603BRD07104KL"),
+    ("bias_hb.monitor.rspanov_bot", "RT0603BRD0711KL"),
     ("bias_hb.monitor.monitor", "LM339BIDR"),
     ("bias_hb.monitor.rpull", "0603WAF1002T5E"),
     ("bias_hb.monitor.ldo5", "TPS70950DBVR"),
@@ -1786,6 +1786,30 @@ mod tests {
         let mut m = built();
         m.set_part("c_ref_xfer_6", "CL10A106KP8NNNC");
         fails(&m, "c_ref_xfer_6 is CL10A106KP8NNNC");
+    }
+
+    #[test]
+    fn stage45_rail_monitor_values_hold() {
+        // S16 (DECISIONS 59, option 1c-4420): the TL431A reference, the 10 k halfref top or any pre-stage-45 tap value
+        // back on a rail monitor must fail (the windows overlap the rails' worst-case tolerance with those values)
+        let mut m = built();
+        m.set_part("bias_ha.monitor.reference", "TL431AIDBZR");
+        fails(&m, "bias_ha.monitor.reference is TL431AIDBZR");
+        let mut m = built();
+        m.set_part("monitor_ls.rhalf_top", "RT0603BRD0710KL");
+        fails(&m, "monitor_ls.rhalf_top is RT0603BRD0710KL");
+        let mut m = built();
+        m.set_part("bias_hb.monitor.rspanov_top", "ARG03BTC1333");
+        fails(&m, "bias_hb.monitor.rspanov_top is ARG03BTC1333");
+        let mut m = built();
+        m.set_part("monitor_ls.rspanuv_bot", "RT0603BRD0710KL");
+        fails(&m, "monitor_ls.rspanuv_bot is RT0603BRD0710KL");
+        let mut m = built();
+        m.set_part("bias_ha.monitor.ruv_top", "RT0603BRD074K42L");
+        fails(&m, "bias_ha.monitor.ruv_top is RT0603BRD074K42L");
+        let mut m = built();
+        m.set_part("bias_hb.monitor.rov_top", "RT0603BRD077K68L");
+        fails(&m, "bias_hb.monitor.rov_top is RT0603BRD077K68L");
     }
 
     #[test]

@@ -1,4 +1,4 @@
-from "f6_parts.ato" import Bias10u, BiasComparator, BiasReference, BiasOpto, BiasNpn, BiasSilicon, GateDischarge, Bias4k42, Bias7k68, Bias120k, Bias133k, Bias2k2, Bias2k7, Gate1R, Bias6k2, Bias4k99, Bias18k, Bias30k, BiasDamping, Bias680, Line16k5, Line33k, Bias1u, Bias100n, Bias220u, Bias4u7, HotSupply24, NegativeShunt, SpanRegulator, HotLdo, DisOr, LineOpto, IsoBiasModule, BiasFb63k4, BiasFb11k, C330pC0G0603, Bias27k
+from "f6_parts.ato" import Bias10u, BiasComparator, BiasReference, BiasOpto, BiasNpn, BiasSilicon, GateDischarge, Bias4k42, Bias750R, Bias2k94, Bias90k9, Bias104k, Bias2k2, Bias2k7, Gate1R, Bias6k2, Bias4k99, Bias18k, Bias30k, BiasDamping, Bias680, Line16k5, Line33k, Bias1u, Bias100n, Bias220u, Bias4u7, HotSupply24, NegativeShunt, SpanRegulator, HotLdo, DisOr, LineOpto, IsoBiasModule, BiasFb63k4, BiasFb11k, C330pC0G0603, Bias27k
 from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, IsoReinfH, C10u1210, R100k0603
 from "parts.ato" import Iso6721Fb, SchottkyPairSeries, SchmittNand132, SchmittBuf17, R220R0603, R49k9Dt
 
@@ -112,7 +112,10 @@ module RegulatedSplit:
 module RailMonitor:
     """Window monitor of one bias rail. Stage 30 (DECISIONS 33, candidate 24): the notice stage and the per-rail
     reinforced crossing are gone. The LM339B wired-AND 'good' node is pulled to the local 5 V by rpull and is the
-    module's output (high = every window in range); the crossing is done by the caller (HighBias link, Heartbeat)."""
+    module's output (high = every window in range); the crossing is done by the caller (HighBias link, Heartbeat).
+    Stage 45 (OPEN-ITEMS S16, DECISIONS 59, option 1c-4420): TL431B reference, halfref 4.42 k / 10 k, and the taps
+    re-centred so every window clears the rails' worst-case tolerance (11-candidates/s16-monitor-2026-10-15,
+    11-candidates/c45-s16-monitor)."""
     signal src
     signal p
     signal n
@@ -132,44 +135,44 @@ module RailMonitor:
     rref.value = 2.2kohm
     rref.p1 ~ p
     rref.p2 ~ ref
-    rhalf_top = new R10kThin
-    rhalf_top.value = 10kohm
+    rhalf_top = new Bias4k42
+    rhalf_top.value = 4.42kohm
     rhalf_top.p1 ~ ref
     rhalf_top.p2 ~ halfref
     rhalf_bot = new R10kThin
     rhalf_bot.value = 10kohm
     rhalf_bot.p1 ~ halfref
     rhalf_bot.p2 ~ n
-    ruv_top = new Bias4k42
-    ruv_top.value = 4.42kohm
+    ruv_top = new Bias750R
+    ruv_top.value = 750ohm
     ruv_top.p1 ~ src
     ruv_top.p2 ~ uv
     ruv_bot = new R10kThin
     ruv_bot.value = 10kohm
     ruv_bot.p1 ~ uv
     ruv_bot.p2 ~ n
-    rov_top = new Bias7k68
-    rov_top.value = 7.68kohm
+    rov_top = new Bias2k94
+    rov_top.value = 2.94kohm
     rov_top.p1 ~ src
     rov_top.p2 ~ ov
     rov_bot = new R10kThin
     rov_bot.value = 10kohm
     rov_bot.p1 ~ ov
     rov_bot.p2 ~ n
-    rspanuv_top = new Bias120k
-    rspanuv_top.value = 120kohm
+    rspanuv_top = new Bias90k9
+    rspanuv_top.value = 90.9kohm
     rspanuv_top.p1 ~ p
     rspanuv_top.p2 ~ spanuv
-    rspanuv_bot = new R10kThin
-    rspanuv_bot.value = 10kohm
+    rspanuv_bot = new BiasFb11k
+    rspanuv_bot.value = 11kohm
     rspanuv_bot.p1 ~ spanuv
     rspanuv_bot.p2 ~ n
-    rspanov_top = new Bias133k
-    rspanov_top.value = 133kohm
+    rspanov_top = new Bias104k
+    rspanov_top.value = 104kohm
     rspanov_top.p1 ~ p
     rspanov_top.p2 ~ spanov
-    rspanov_bot = new R10kThin
-    rspanov_bot.value = 10kohm
+    rspanov_bot = new BiasFb11k
+    rspanov_bot.value = 11kohm
     rspanov_bot.p1 ~ spanov
     rspanov_bot.p2 ~ n
     monitor = new BiasComparator

@@ -516,8 +516,8 @@
     "item": "C152: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
-    "est_c": 90.3,
-    "margin_k": 19.7
+    "est_c": 90.4,
+    "margin_k": 19.6
    },
    {
     "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
@@ -544,8 +544,8 @@
     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
     "gated": true,
     "limit_c": 150.0,
-    "est_c": 124.8,
-    "margin_k": 25.2
+    "est_c": 124.7,
+    "margin_k": 25.3
    },
    {
     "item": "R5: terminal derating at 0.534 W (20 % margin)",
@@ -810,8 +810,8 @@
     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 158.4,
-    "margin_k": -3.4
+    "est_c": 158.5,
+    "margin_k": -3.5
    },
    {
     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
@@ -977,9 +977,9 @@
   ]
  },
  "board_sha256": {
-  "c18_h10": "2a84051f251e03a3206e99fdef4bb48e7862c233bcbdf344e61b09952e423136",
-  "c22_h10": "2a84051f251e03a3206e99fdef4bb48e7862c233bcbdf344e61b09952e423136",
-  "c28_h10": "2a84051f251e03a3206e99fdef4bb48e7862c233bcbdf344e61b09952e423136"
+  "c18_h10": "26ce953166f87f0538ee008a019406cef5f637461f6f0b415769f39b36f32b87",
+  "c22_h10": "26ce953166f87f0538ee008a019406cef5f637461f6f0b415769f39b36f32b87",
+  "c28_h10": "26ce953166f87f0538ee008a019406cef5f637461f6f0b415769f39b36f32b87"
  },
  "metrics": {
   "b3_laminate_margin_K": -30.2,

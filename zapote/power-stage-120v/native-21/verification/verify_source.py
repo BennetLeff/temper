@@ -68,6 +68,20 @@ def main() -> None:
     assert 'bias_or' not in parts and 'r_bias_flt' not in parts and 'c_bias_flt' not in parts
     assert sum(part.get('mpn') == 'CL32B106KBJNNNE' for part in parts.values()) == 24 and not any(part.get('mpn') == 'UMK325AB7106KM-T' for part in parts.values())
     assert parts['r_bf']['mpn'] == '0603WAF1001T5E' and parts['c_bf']['mpn'] == 'CL10C101JB8NNNC'
+    # stage 45 (OPEN-ITEMS S16, DECISIONS 59, option 1c-4420): TL431B reference, halfref 4.42 k / 10 k, re-centred taps
+    # (validation-results/11-candidates/c45-s16-monitor; bands re-derived there from these exports)
+    s45 = {'reference': ('TL431BIDBZR', None), 'rref': ('RC1206FR-072K2L', '2.2kohm'),
+           'rhalf_top': ('RT0603BRD074K42L', '4.42kohm'), 'rhalf_bot': ('RT0603BRD0710KL', '10kohm'),
+           'ruv_top': ('RT0603BRD07750RL', '750ohm'), 'ruv_bot': ('RT0603BRD0710KL', '10kohm'),
+           'rov_top': ('RT0603BRD072K94L', '2.94kohm'), 'rov_bot': ('RT0603BRD0710KL', '10kohm'),
+           'rspanuv_top': ('RT0603BRD0790K9L', '90.9kohm'), 'rspanuv_bot': ('RT0603BRD0711KL', '11kohm'),
+           'rspanov_top': ('RT0603BRD07104KL', '104kohm'), 'rspanov_bot': ('RT0603BRD0711KL', '11kohm')}
+    for base in ('monitor_ls', 'bias_ha.monitor', 'bias_hb.monitor'):
+        for key, (mpn, value) in s45.items():
+            part = parts[f'{base}.{key}']
+            assert part['mpn'] == mpn and part.get('value') == value, (base, key, part)
+            assert part['footprint'] == ('Package_TO_SOT_SMD:SOT-23' if key == 'reference' else
+                                         'Resistor_SMD:R_1206_3216Metric' if key == 'rref' else 'Resistor_SMD:R_0603_1608Metric')
     for base in ('monitor_ls', 'bias_ha', 'bias_hb', 'hb'):
         assert not any(path.startswith(base + '.') and part.get('mpn') == 'VO617A-3X017T' for path, part in parts.items())
     result = {'components': len(parts), 'source_hashes_match': True,

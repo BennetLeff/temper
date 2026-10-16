@@ -4148,26 +4148,17 @@
     "R49",
     "R50",
     "R78",
-    "R79",
     "R80",
     "R82",
     "R84",
-    "R86",
-    "R88",
     "R96",
-    "R97",
     "R98",
     "R100",
     "R102",
-    "R104",
-    "R106",
     "R111",
-    "R112",
     "R113",
     "R115",
-    "R117",
-    "R119",
-    "R121"
+    "R117"
    ],
    "class": "SIGNAL",
    "function": "10 k 0.1 %",
@@ -5035,27 +5026,143 @@
    "finding": null,
    "notes": null
   },
-  "TL431AIDBZR": {
-   "mpn": "TL431AIDBZR",
+  "TL431BIDBZR": {
+   "mpn": "TL431BIDBZR",
    "designators": [
     "U17",
     "U19",
     "U21"
    ],
    "class": "SIGNAL",
-   "function": "adjustable shunt",
-   "status": "UNAUDITED",
-   "datasheet": null,
-   "ratings": [],
-   "stresses": [],
-   "derating_rule": "",
-   "checks": [],
-   "layout_guidance": [],
+   "function": "Rail-monitor reference (REF tied to K, fed by rref 2.2 k), LS / HS-A / HS-B; B grade since stage 45 (S16 option 1c-4420, DECISIONS 59)",
+   "status": "PARTIAL",
+   "datasheet": {
+    "url": "https://www.ti.com/lit/ds/symlink/tl431.pdf",
+    "revision": "TI SLVS543S, Aug 2004, revised May 2024",
+    "fetched": "2026-10-15",
+    "repo_copy": null,
+    "note": "S16 study download (datasheet-manifest.json); not committed. Table 6.12 p.13 (TL431BI): Vref 2483 / 2495 / 2507 mV at 25 C, VKA = Vref, IKA 10 mA; VI(dev) 14 typ / 34 max mV (max - min over the rated temperature range, note 1); |ZKA| 0.5 ohm max; Imin 0.7 mA max. Table 6.1 p.5 abs max VKA 37 V, IKA -100..150 mA, TJ 150 C; Table 6.4 p.5 recommended VKA Vref..36 V, IKA 1..100 mA, TL43xxI TA -40..85 C; Table 6.3 p.5 DBZ RthJA 206 C/W; Table 5-1 p.4 DBZ pins 1 = cathode, 2 = REF, 3 = anode (same as the A grade)",
+    "sha256_prefix16": "ed2e90697de4e2c5"
+   },
+   "ratings": [
+    {
+     "parameter": "Cathode voltage, recommended max",
+     "datasheet_limit": 36,
+     "unit": "V",
+     "basis": "recommended operating conditions",
+     "source": "Table 6.4 p.5"
+    },
+    {
+     "parameter": "Cathode current, recommended max",
+     "datasheet_limit": 100,
+     "unit": "mA",
+     "basis": "recommended operating conditions (minimum 1 mA)",
+     "source": "Table 6.4 p.5"
+    },
+    {
+     "parameter": "Free-air temperature max",
+     "datasheet_limit": 85,
+     "unit": "C",
+     "basis": "TL43xxI operating range -40..85 C",
+     "source": "Table 6.4 p.5"
+    },
+    {
+     "parameter": "Vref at 25 C, B grade",
+     "datasheet_limit": 2.507,
+     "unit": "V",
+     "basis": "2.483-2.507 V (A grade 2.470-2.520 V, Table 6.9 p.10); the S16 band model takes this range +- VI(dev)",
+     "source": "Table 6.12 p.13"
+    },
+    {
+     "parameter": "VI(dev) max",
+     "datasheet_limit": 0.034,
+     "unit": "V",
+     "basis": "deviation over the full rated temperature range, max - min (not a TC)",
+     "source": "Table 6.12 p.13"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "Cathode voltage",
+     "worst_case_value": 2.541,
+     "unit": "V",
+     "condition": "REF tied to K: VKA = Vref <= 2.507 + 0.034 V",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:45"
+    },
+    {
+     "parameter": "Cathode current, operating max",
+     "worst_case_value": 7.291,
+     "unit": "mA",
+     "condition": "span at the span-OV worst-case upper corner, rref -1.6 %, Vref low, halfref divider high (minimum 5.652 mA at the span-UV lower corner, >= 1 mA)",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:45"
+    },
+    {
+     "parameter": "Cathode current, fault case",
+     "worst_case_value": 9.786,
+     "unit": "mA",
+     "condition": "span at V24_RAW 24 V (LS LDO pass short; stated case, not a bound); 24.87 mW, 5.12 K self-heat at 206 C/W",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:45"
+    },
+    {
+     "parameter": "Local temperature, expected",
+     "worst_case_value": 64.3,
+     "unit": "C",
+     "condition": "S16 fallback estimate (no B3 row): bay 61 C + self-heat; not solved",
+     "evidence": "validation-results/11-candidates/s16-monitor-2026-10-15/README.md:73"
+    }
+   ],
+   "derating_rule": "VKA and IKA inside the recommended operating conditions (IKA >= 1 mA); ambient <= 85 C (I grade).",
+   "checks": [
+    {
+     "id": "VKA",
+     "rating": "Cathode voltage, recommended max",
+     "stress": "Cathode voltage",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "2.541 V <= 36 V",
+     "ratio": 0.0706
+    },
+    {
+     "id": "IKA operating",
+     "rating": "Cathode current, recommended max",
+     "stress": "Cathode current, operating max",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "7.291 mA <= 100 mA",
+     "ratio": 0.0729
+    },
+    {
+     "id": "IKA fault",
+     "rating": "Cathode current, recommended max",
+     "stress": "Cathode current, fault case",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "9.786 mA <= 100 mA",
+     "ratio": 0.0979
+    },
+    {
+     "id": "temperature (estimate)",
+     "rating": "Free-air temperature max",
+     "stress": "Local temperature, expected",
+     "max_ratio": 1.0,
+     "severity": "gap",
+     "rule": "64.3 C estimate <= 85 C; not a solved temperature",
+     "ratio": 0.7565
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "REF tied to K on the 'ref' net; anode on the rail's n",
+     "enforced_by": "audit_f6.rs"
+    }
+   ],
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger",
+    "Vref long-term (load-life) drift is not specified (only VI(dev) over temperature); covered only by the 0.5 % margin target of the band analysis"
    ],
    "finding": null,
-   "notes": null
+   "notes": "JLC C41283, extended, 182,901 in stock 2026-10-15; $0.0467 at 500+ (1,500 pcs). Replaces TL431AIDBZR (C23892) on the same DBZ pads: the A grade's 25 C tolerance (+-25 mV) and VI(dev) dominated the s43 / s44 window widths (S16 rss_contrib). Bands: validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md."
   },
   "RC1206FR-072K2L": {
    "mpn": "RC1206FR-072K2L",
@@ -5082,12 +5189,12 @@
   "RT0603BRD074K42L": {
    "mpn": "RT0603BRD074K42L",
    "designators": [
-    "R81",
-    "R99",
-    "R114"
+    "R79",
+    "R97",
+    "R112"
    ],
    "class": "SIGNAL",
-   "function": "4.42 k",
+   "function": "4.42 k 0.1 %: rail-monitor halfref top (stage 45, S16 option 1c-4420; was the neg-UV tap top)",
    "status": "UNAUDITED",
    "datasheet": null,
    "ratings": [],
@@ -5101,71 +5208,433 @@
    "finding": null,
    "notes": null
   },
-  "RT0603BRD077K68L": {
-   "mpn": "RT0603BRD077K68L",
+  "RT0603BRD07750RL": {
+   "mpn": "RT0603BRD07750RL",
+   "designators": [
+    "R81",
+    "R99",
+    "R114"
+   ],
+   "class": "SIGNAL",
+   "function": "750 ohm 0.1 % 25 ppm 0603: rail-monitor neg-UV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
+   "status": "PARTIAL",
+   "datasheet": {
+    "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+    "revision": "Yageo RT series product specification V.16, May 06 2025 (LCSC copy for C95204)",
+    "fetched": "2026-10-15",
+    "repo_copy": null,
+    "note": "S16 study download (11-candidates/s16-monitor-2026-10-15/results/datasheet-manifest.json); not committed. Table 2 p.5: RT0603 1/10 W, max working 75 V, overload 150 V, -55..+155 C, 0.1 % / 25 ppm range 1 R-1 M; p.6: rated power at 70 C, Fig. 6 linear derating to 0 at 155 C, rated voltage = sqrt(P x R) or 75 V",
+    "sha256_prefix16": "0a729d144519a702"
+   },
+   "ratings": [
+    {
+     "parameter": "Rated working voltage",
+     "datasheet_limit": 8.66,
+     "unit": "V",
+     "basis": "min(sqrt(0.1 W x 750 ohm), 75 V max working)",
+     "source": "Table 2 p.5; p.6 RATED VOLTAGE"
+    },
+    {
+     "parameter": "Power at 85 C",
+     "datasheet_limit": 0.0824,
+     "unit": "W",
+     "basis": "1/10 W at 70 C, linear derating to 0 at 155 C (Fig. 6) taken at the 85 C monitor bound",
+     "source": "Table 2 p.5; p.6 Fig. 6"
+    },
+    {
+     "parameter": "Tolerance / TCR",
+     "datasheet_limit": 25,
+     "unit": "ppm/C",
+     "basis": "B = +-0.1 %, D = +-25 ppm/C; value inside the RT0603 0.1 % / 25 ppm range 1 R-1 M",
+     "source": "p.2 ordering code; Table 2 p.5"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "Voltage, operating",
+     "worst_case_value": 0.145,
+     "unit": "V",
+     "condition": "s45 values at the operating ceiling (span at the span-OV worst-case upper corner, neg rail at its worst-case maximum)",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:50"
+    },
+    {
+     "parameter": "Voltage, fault",
+     "worst_case_value": 1.674,
+     "unit": "V",
+     "condition": "src floating to the span or V24_RAW (R77 / TLVH431 open; an upper bound, the 4.99 k bleed holds src below P); stated case, not a bound",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:52"
+    },
+    {
+     "parameter": "Power, fault",
+     "worst_case_value": 0.003738,
+     "unit": "W",
+     "condition": "same fault case",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:52"
+    }
+   ],
+   "derating_rule": "Voltage <= the rated working voltage; power <= 50 % of the 85 C derated rating.",
+   "checks": [
+    {
+     "id": "voltage operating",
+     "rating": "Rated working voltage",
+     "stress": "Voltage, operating",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "0.145 V <= 8.66 V",
+     "ratio": 0.0167
+    },
+    {
+     "id": "voltage fault",
+     "rating": "Rated working voltage",
+     "stress": "Voltage, fault",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "1.674 V <= 8.66 V",
+     "ratio": 0.1933
+    },
+    {
+     "id": "power fault",
+     "rating": "Power at 85 C",
+     "stress": "Power, fault",
+     "max_ratio": 0.5,
+     "severity": "violation",
+     "rule": "3.738 mW <= 50 % of 82.4 mW",
+     "ratio": 0.0454
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "same 0603 pads as the s44 part it replaces (BOM-only stage)",
+     "enforced_by": "UNCHECKED (placement and copper unchanged from s44; c45 README)"
+    }
+   ],
+   "gaps": [
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
+   ],
+   "finding": null,
+   "notes": "JLC C861551, extended, 2,661 in stock 2026-10-15; $0.0271 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4)."
+  },
+  "RT0603BRD072K94L": {
+   "mpn": "RT0603BRD072K94L",
    "designators": [
     "R83",
     "R101",
     "R116"
    ],
    "class": "SIGNAL",
-   "function": "7.68 k",
-   "status": "UNAUDITED",
-   "datasheet": null,
-   "ratings": [],
-   "stresses": [],
-   "derating_rule": "",
-   "checks": [],
-   "layout_guidance": [],
+   "function": "2940 ohm 0.1 % 25 ppm 0603: rail-monitor neg-OV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
+   "status": "PARTIAL",
+   "datasheet": {
+    "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+    "revision": "Yageo RT series product specification V.16, May 06 2025 (LCSC copy for C95204)",
+    "fetched": "2026-10-15",
+    "repo_copy": null,
+    "note": "S16 study download (11-candidates/s16-monitor-2026-10-15/results/datasheet-manifest.json); not committed. Table 2 p.5: RT0603 1/10 W, max working 75 V, overload 150 V, -55..+155 C, 0.1 % / 25 ppm range 1 R-1 M; p.6: rated power at 70 C, Fig. 6 linear derating to 0 at 155 C, rated voltage = sqrt(P x R) or 75 V",
+    "sha256_prefix16": "0a729d144519a702"
+   },
+   "ratings": [
+    {
+     "parameter": "Rated working voltage",
+     "datasheet_limit": 17.146,
+     "unit": "V",
+     "basis": "min(sqrt(0.1 W x 2940 ohm), 75 V max working)",
+     "source": "Table 2 p.5; p.6 RATED VOLTAGE"
+    },
+    {
+     "parameter": "Power at 85 C",
+     "datasheet_limit": 0.0824,
+     "unit": "W",
+     "basis": "1/10 W at 70 C, linear derating to 0 at 155 C (Fig. 6) taken at the 85 C monitor bound",
+     "source": "Table 2 p.5; p.6 Fig. 6"
+    },
+    {
+     "parameter": "Tolerance / TCR",
+     "datasheet_limit": 25,
+     "unit": "ppm/C",
+     "basis": "B = +-0.1 %, D = +-25 ppm/C; value inside the RT0603 0.1 % / 25 ppm range 1 R-1 M",
+     "source": "p.2 ordering code; Table 2 p.5"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "Voltage, operating",
+     "worst_case_value": 0.472,
+     "unit": "V",
+     "condition": "s45 values at the operating ceiling (span at the span-OV worst-case upper corner, neg rail at its worst-case maximum)",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:56"
+    },
+    {
+     "parameter": "Voltage, fault",
+     "worst_case_value": 5.453,
+     "unit": "V",
+     "condition": "src floating to the span or V24_RAW (R77 / TLVH431 open; an upper bound, the 4.99 k bleed holds src below P); stated case, not a bound",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:58"
+    },
+    {
+     "parameter": "Power, fault",
+     "worst_case_value": 0.010113,
+     "unit": "W",
+     "condition": "same fault case",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:58"
+    }
+   ],
+   "derating_rule": "Voltage <= the rated working voltage; power <= 50 % of the 85 C derated rating.",
+   "checks": [
+    {
+     "id": "voltage operating",
+     "rating": "Rated working voltage",
+     "stress": "Voltage, operating",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "0.472 V <= 17.146 V",
+     "ratio": 0.0275
+    },
+    {
+     "id": "voltage fault",
+     "rating": "Rated working voltage",
+     "stress": "Voltage, fault",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "5.453 V <= 17.146 V",
+     "ratio": 0.318
+    },
+    {
+     "id": "power fault",
+     "rating": "Power at 85 C",
+     "stress": "Power, fault",
+     "max_ratio": 0.5,
+     "severity": "violation",
+     "rule": "10.113 mW <= 50 % of 82.4 mW",
+     "ratio": 0.1227
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "same 0603 pads as the s44 part it replaces (BOM-only stage)",
+     "enforced_by": "UNCHECKED (placement and copper unchanged from s44; c45 README)"
+    }
+   ],
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
    ],
    "finding": null,
-   "notes": null
+   "notes": "JLC C705761, extended, 8,015 in stock 2026-10-15; $0.0441 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4)."
   },
-  "RT0603BRD07120KL": {
-   "mpn": "RT0603BRD07120KL",
+  "RT0603BRD0790K9L": {
+   "mpn": "RT0603BRD0790K9L",
    "designators": [
     "R85",
     "R103",
     "R118"
    ],
    "class": "SIGNAL",
-   "function": "120 k",
-   "status": "UNAUDITED",
-   "datasheet": null,
-   "ratings": [],
-   "stresses": [],
-   "derating_rule": "",
-   "checks": [],
-   "layout_guidance": [],
+   "function": "90900 ohm 0.1 % 25 ppm 0603: rail-monitor span-UV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
+   "status": "PARTIAL",
+   "datasheet": {
+    "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+    "revision": "Yageo RT series product specification V.16, May 06 2025 (LCSC copy for C95204)",
+    "fetched": "2026-10-15",
+    "repo_copy": null,
+    "note": "S16 study download (11-candidates/s16-monitor-2026-10-15/results/datasheet-manifest.json); not committed. Table 2 p.5: RT0603 1/10 W, max working 75 V, overload 150 V, -55..+155 C, 0.1 % / 25 ppm range 1 R-1 M; p.6: rated power at 70 C, Fig. 6 linear derating to 0 at 155 C, rated voltage = sqrt(P x R) or 75 V",
+    "sha256_prefix16": "0a729d144519a702"
+   },
+   "ratings": [
+    {
+     "parameter": "Rated working voltage",
+     "datasheet_limit": 75.0,
+     "unit": "V",
+     "basis": "min(sqrt(0.1 W x 90900 ohm), 75 V max working)",
+     "source": "Table 2 p.5; p.6 RATED VOLTAGE"
+    },
+    {
+     "parameter": "Power at 85 C",
+     "datasheet_limit": 0.0824,
+     "unit": "W",
+     "basis": "1/10 W at 70 C, linear derating to 0 at 155 C (Fig. 6) taken at the 85 C monitor bound",
+     "source": "Table 2 p.5; p.6 Fig. 6"
+    },
+    {
+     "parameter": "Tolerance / TCR",
+     "datasheet_limit": 25,
+     "unit": "ppm/C",
+     "basis": "B = +-0.1 %, D = +-25 ppm/C; value inside the RT0603 0.1 % / 25 ppm range 1 R-1 M",
+     "source": "p.2 ordering code; Table 2 p.5"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "Voltage, operating",
+     "worst_case_value": 16.591,
+     "unit": "V",
+     "condition": "s45 values at the operating ceiling (span at the span-OV worst-case upper corner, neg rail at its worst-case maximum)",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:62"
+    },
+    {
+     "parameter": "Voltage, fault",
+     "worst_case_value": 21.409,
+     "unit": "V",
+     "condition": "span at V24_RAW 24 V (LDO pass short); stated case, not a bound",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:63"
+    },
+    {
+     "parameter": "Power, fault",
+     "worst_case_value": 0.005042,
+     "unit": "W",
+     "condition": "same fault case",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:63"
+    }
+   ],
+   "derating_rule": "Voltage <= the rated working voltage; power <= 50 % of the 85 C derated rating.",
+   "checks": [
+    {
+     "id": "voltage operating",
+     "rating": "Rated working voltage",
+     "stress": "Voltage, operating",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "16.591 V <= 75.0 V",
+     "ratio": 0.2212
+    },
+    {
+     "id": "voltage fault",
+     "rating": "Rated working voltage",
+     "stress": "Voltage, fault",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "21.409 V <= 75.0 V",
+     "ratio": 0.2855
+    },
+    {
+     "id": "power fault",
+     "rating": "Power at 85 C",
+     "stress": "Power, fault",
+     "max_ratio": 0.5,
+     "severity": "violation",
+     "rule": "5.042 mW <= 50 % of 82.4 mW",
+     "ratio": 0.0612
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "same 0603 pads as the s44 part it replaces (BOM-only stage)",
+     "enforced_by": "UNCHECKED (placement and copper unchanged from s44; c45 README)"
+    }
+   ],
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
    ],
    "finding": null,
-   "notes": null
+   "notes": "JLC C728600, extended, 18,027 in stock 2026-10-15; $0.0331 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4)."
   },
-  "ARG03BTC1333": {
-   "mpn": "ARG03BTC1333",
+  "RT0603BRD07104KL": {
+   "mpn": "RT0603BRD07104KL",
    "designators": [
     "R87",
     "R105",
     "R120"
    ],
    "class": "SIGNAL",
-   "function": "133 k",
-   "status": "UNAUDITED",
-   "datasheet": null,
-   "ratings": [],
-   "stresses": [],
-   "derating_rule": "",
-   "checks": [],
-   "layout_guidance": [],
+   "function": "104000 ohm 0.1 % 25 ppm 0603: rail-monitor span-OV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
+   "status": "PARTIAL",
+   "datasheet": {
+    "url": "https://datasheet.lcsc.com/datasheet/pdf/46d7760c582640714d605308a25a220a.pdf?productCode=C95204",
+    "revision": "Yageo RT series product specification V.16, May 06 2025 (LCSC copy for C95204)",
+    "fetched": "2026-10-15",
+    "repo_copy": null,
+    "note": "S16 study download (11-candidates/s16-monitor-2026-10-15/results/datasheet-manifest.json); not committed. Table 2 p.5: RT0603 1/10 W, max working 75 V, overload 150 V, -55..+155 C, 0.1 % / 25 ppm range 1 R-1 M; p.6: rated power at 70 C, Fig. 6 linear derating to 0 at 155 C, rated voltage = sqrt(P x R) or 75 V",
+    "sha256_prefix16": "0a729d144519a702"
+   },
+   "ratings": [
+    {
+     "parameter": "Rated working voltage",
+     "datasheet_limit": 75.0,
+     "unit": "V",
+     "basis": "min(sqrt(0.1 W x 104000 ohm), 75 V max working)",
+     "source": "Table 2 p.5; p.6 RATED VOLTAGE"
+    },
+    {
+     "parameter": "Power at 85 C",
+     "datasheet_limit": 0.0824,
+     "unit": "W",
+     "basis": "1/10 W at 70 C, linear derating to 0 at 155 C (Fig. 6) taken at the 85 C monitor bound",
+     "source": "Table 2 p.5; p.6 Fig. 6"
+    },
+    {
+     "parameter": "Tolerance / TCR",
+     "datasheet_limit": 25,
+     "unit": "ppm/C",
+     "basis": "B = +-0.1 %, D = +-25 ppm/C; value inside the RT0603 0.1 % / 25 ppm range 1 R-1 M",
+     "source": "p.2 ordering code; Table 2 p.5"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "Voltage, operating",
+     "worst_case_value": 16.819,
+     "unit": "V",
+     "condition": "s45 values at the operating ceiling (span at the span-OV worst-case upper corner, neg rail at its worst-case maximum)",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:66"
+    },
+    {
+     "parameter": "Voltage, fault",
+     "worst_case_value": 21.704,
+     "unit": "V",
+     "condition": "span at V24_RAW 24 V (LDO pass short); stated case, not a bound",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:67"
+    },
+    {
+     "parameter": "Power, fault",
+     "worst_case_value": 0.00453,
+     "unit": "W",
+     "condition": "same fault case",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:67"
+    }
+   ],
+   "derating_rule": "Voltage <= the rated working voltage; power <= 50 % of the 85 C derated rating.",
+   "checks": [
+    {
+     "id": "voltage operating",
+     "rating": "Rated working voltage",
+     "stress": "Voltage, operating",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "16.819 V <= 75.0 V",
+     "ratio": 0.2243
+    },
+    {
+     "id": "voltage fault",
+     "rating": "Rated working voltage",
+     "stress": "Voltage, fault",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "21.704 V <= 75.0 V",
+     "ratio": 0.2894
+    },
+    {
+     "id": "power fault",
+     "rating": "Power at 85 C",
+     "stress": "Power, fault",
+     "max_ratio": 0.5,
+     "severity": "violation",
+     "rule": "4.53 mW <= 50 % of 82.4 mW",
+     "ratio": 0.055
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "same 0603 pads as the s44 part it replaces (BOM-only stage)",
+     "enforced_by": "UNCHECKED (placement and copper unchanged from s44; c45 README)"
+    }
+   ],
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
    ],
    "finding": null,
-   "notes": null
+   "notes": "JLC C861070, extended, 8,450 in stock 2026-10-15; $0.0212 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4)."
   },
   "LM339BIDR": {
    "mpn": "LM339BIDR",
@@ -5484,10 +5953,16 @@
    "mpn": "RT0603BRD0711KL",
    "designators": [
     "R61",
-    "R93"
+    "R93",
+    "R86",
+    "R88",
+    "R104",
+    "R106",
+    "R119",
+    "R121"
    ],
    "class": "SIGNAL",
-   "function": "11 k",
+   "function": "11 k 0.1 %: HS module feedback bottoms (R61 / R93) and, since stage 45, the rail-monitor span-UV / span-OV tap bottoms (S16 option 1c-4420)",
    "status": "UNAUDITED",
    "datasheet": null,
    "ratings": [],
@@ -6115,10 +6590,10 @@
    "stresses": [
     {
      "parameter": "VDD at the span OV trip",
-     "worst_case_value": 17.84,
+     "worst_case_value": 18.6,
      "unit": "V",
-     "condition": "rails 17.0 V; the span monitor trips DIS at 17.84 V",
-     "evidence": "validation-results/11-candidates/c25-driver/README.md:102"
+     "condition": "s45 (S16 option 1c-4420): the span-OV worst-case upper corner (nominal 18.09 V); the stage runs up to this span before the monitor disables DIS (was 17.84 V, the c25-driver nominal trip at the old values)",
+     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:44"
     },
     {
      "parameter": "Barrier peak",
@@ -6164,8 +6639,8 @@
      "stress": "VDD at the span OV trip",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "<= 21 V operating",
-     "ratio": 0.8495
+     "rule": "<= 21 V operating (18.6 V worst-case upper corner, 0.886)",
+     "ratio": 0.8857
     },
     {
      "id": "barrier",

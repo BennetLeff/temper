@@ -83,7 +83,12 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 "25121WF680JT4E": "C50371", "GRM1885C1H472JA01D": "C85980",
                 # stage 43: C12 / C13 / C19 / C20 source MPN is the ordered part, YAGEO CC1206JKNPOCBN102 (JLC part API
                 # 2026-10-15, sourcing/study-2026-10-15/scripts/jlc-raw/detail_C113872.json); no substitute line any more
-                "CC1206JKNPOCBN102": "C113872"})
+                "CC1206JKNPOCBN102": "C113872",
+                # stage 45 (OPEN-ITEMS S16, DECISIONS 59, option 1c-4420): TL431B monitor reference and the four new tap
+                # tops, 0.1 % 25 ppm 0603 (JLC part API 2026-10-15, 11-candidates/s16-monitor-2026-10-15 jlc-raw, copied
+                # to sourcing/study-2026-10-15/scripts/jlc-raw)
+                "TL431BIDBZR": "C41283", "RT0603BRD07750RL": "C861551", "RT0603BRD072K94L": "C705761",
+                "RT0603BRD0790K9L": "C728600", "RT0603BRD07104KL": "C861070"})
 ACCEPT_ALT = set()   # stage 43: the only accepted alternate (GRM31A5C3A102JW01D -> CC1206JKNPOCBN102) is now the source MPN
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))
