@@ -49,7 +49,9 @@ from ref import es, screen  # noqa: E402
 
 K_B_EV = 8.617333e-5
 A_PRIOR = {"a0": 1.8e-3, "a_min": 5e-5, "a_max": 5e-3}   # plant_gain.c defaults, K/J
-R_HAZ = 1732.1     # leak-checks.json: the largest hazardous leak (highest R), ohm
+# the largest hazardous leak (highest R) under the bar's peak rule (owner, 2026-10-16;
+# leak_checks.hazardous), read from leak-checks.json so the two cannot drift; ohm
+R_HAZ = json.loads((HERE / "leak-checks.json").read_text())["summary"]["requirements"]["highest_hazardous_r_leak_ohm"]
 # Reference error budget: the heatsink NTC (NTCALUG01A104GA, GPIO6 / ADC1_CH5,
 # 10 k pull-up), hs_ntc.py -> hs-ntc.json cold_soak_budget.
 HS_NTC_BUDGET = json.loads((HERE / "hs-ntc.json").read_text(encoding="utf-8"))["cold_soak_budget"]

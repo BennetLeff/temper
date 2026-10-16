@@ -45,17 +45,17 @@ def derive(repo):
     soak_budget = json.loads((fw / "hs-ntc.json").read_text())
     rows = evidence["leak_rows"]
     bar = LC.T_BAR
-    hazardous = [r for r in rows if r["T_c_steady"] > bar]
+    hazardous = [r for r in rows if LC.hazardous(r)]
     worst = max(r["r_leak_ohm"] for r in hazardous)
     next_r = min(r for r in evidence["r_leak_ohm"] if r > worst)
     next_rows = [r for r in rows if r["r_leak_ohm"] == next_r]
-    assert not any(r["T_c_steady"] > bar for r in next_rows)
+    assert not any(LC.hazardous(r) for r in next_rows)
     grouped = defaultdict(list)
     for r in rows:
         grouped[(r["pan"], r["delta"], r["corner"])].append(r)
     per_corner = []
     for (pan, delta, corner), rr in sorted(grouped.items()):
-        hh = [r for r in rr if r["T_c_steady"] > bar]
+        hh = [r for r in rr if LC.hazardous(r)]
         per_corner.append({
             "pan": pan, "glass_offset_K": delta, "bead_corner": corner,
             "sample_count": len(rr), "hazardous_count": len(hh),
@@ -64,13 +64,18 @@ def derive(repo):
                 onset: max((r["r_leak_ohm"] for r in hh if r["onset"] == onset), default=None)
                 for onset in LC.ONSETS},
             "next_sample_max_steady_C": max(r["T_c_steady"] for r in rr if r["r_leak_ohm"] == next_r),
+            "next_sample_max_transient_C": max(r["T_c_max"] for r in rr if r["r_leak_ohm"] == next_r),
         })
     hazard = {
-        "criterion": "T_c_steady > bar_C; steady is the source's final-window mean, not a convergence proof",
+        "criterion": ("the untripped T_c crosses bar_C at any time, transient overshoot included "
+                      "(leak_checks.hazardous; owner 2026-10-16, was T_c_steady > bar_C)"),
         "bar_C": bar, "runs": len(rows), "hazardous_runs": len(hazardous),
         "latched_before_bar": sum(r["latched_before_300"] for r in hazardous),
         "highest_sampled_hazardous_ohm": worst,
         "highest_sampled_hazardous_max_steady_C": max(r["T_c_steady"] for r in rows if r["r_leak_ohm"] == worst),
+        "highest_sampled_hazardous_max_transient_C": max(r["T_c_max"] for r in rows if r["r_leak_ohm"] == worst),
+        "highest_sampled_hazardous_runs_over_bar": sum(LC.hazardous(r) for r in rows if r["r_leak_ohm"] == worst),
+        "highest_sampled_runs": sum(r["r_leak_ohm"] == worst for r in rows),
         "continuous_hazardous_threshold_ohm": None,
         "continuous_status": "not identified by finite samples; no monotonicity or convergence certificate",
         "next_sample_ohm": next_r, "unsampled_gap_ohm": next_r - worst,
@@ -248,14 +253,14 @@ def derive(repo):
     audit = {
         "D_LEAK_1": {"requirement_10Mohm_300C": "design input, not experimentally reproduced",
                      "supplier_4_bore_100Mohm_350C": "not reproducible; pending supplier confirmation",
-                     "quoted_1_73kohm": worst, "quoted_5773_ratio_reproduced": round(r0 / worst),
+                     "highest_hazard_ohm": worst, "ratio_10Mohm_to_hazard": round(r0 / worst),
                      "quoted_0_013K_reproduced": round(error(bar, 10e6), 3),
                      "quoted_0_001K_reproduced": round(error(bar, 100e6), 3)},
         "D_LEAK_2": {"quoted_acceptance_K": 0.5,
                      "legacy_rounded_boundary_ohm": original["hot_check_detects_parallel_r_below_ohm"],
                      "unrounded_ideal_boundary_ohm": half["ideal_boundary_ohm"],
-                     "quoted_145_ratio_reproduced": round(original["hot_check_detects_parallel_r_below_ohm"] / worst),
-                     "status": "252 kohm and 145x reproduce only the ideal zero-uncertainty calculation; see acceptance for masked limits"},
+                     "ratio_legacy_boundary_to_hazard": round(original["hot_check_detects_parallel_r_below_ohm"] / worst),
+                     "status": "252 kohm reproduces only the ideal zero-uncertainty calculation; see acceptance for masked limits"},
         "D_LEAK_3": {"post_requirement_ohm": r0, "post_temperature_C": bar,
                      "status": "requirement input; no seal qualification evidence in this study"},
     }

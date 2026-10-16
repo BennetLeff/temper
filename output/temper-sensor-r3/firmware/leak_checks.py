@@ -34,15 +34,21 @@ The onset changes what the loop and D1 see on the way, not the steady state.
 Each onset runs 4 pans x glass delta {12, 46} K x bead corner {hot, cold}.
 The frying pans' final setpoint is 250 degC (the highest a user can set), the
 water pot keeps its own (100 degC). 1800 s runs; steady T_c = the mean of the
-last 100 s.
+last 100 s (reported for information).
 
-The bar (owner, D-LEAK): every leak whose untripped steady T_c exceeds
-300 degC must latch (the leak check or any existing latch) before T_c first
-exceeds 300 degC. The script evaluates it and records the result; it is not
+The bar (owner, D-LEAK): every leak whose untripped T_c exceeds 300 degC at
+any time must latch (the leak check or any existing latch) before T_c first
+exceeds 300 degC. Hazardous (`hazardous()`) = the untripped trajectory crosses
+300 degC at all, transient overshoot included (owner, 2026-10-16; until then
+it was the steady T_c > 300 degC, 235 runs, 59 latched before 300 and none
+never; the peak rule adds runs that overshoot and settle below 300 degC, at
+300-2320 ohm). The crossing is the unrounded T_c (`t_T_c_over_300_s`), not
+the 0.1 K-rounded `T_c_max`. The script evaluates it and records the result; it is not
 met (D-LEAK gives the numbers and the physical reason) and the gate holds the
 recorded status, so a change either way fails the run until DECISIONS.md is
 updated (EXPECTED_BAR); the coverage with the rim limit may not fall below the
-recorded EXPECTED_BEFORE_300_MIN, nor any hazardous leak go unlatched.
+recorded EXPECTED_BEFORE_300_MIN, nor the never-latched hazardous runs rise
+above EXPECTED_NEVER_MAX (both re-recorded on 2026-10-16 for the peak rule).
 
 Benign (gated: 0 leak latches, and no other latch or D1 lost):
 xcheck_cosim.py's 28 benign runs, and
@@ -93,8 +99,10 @@ BATCH_GAPS_S = (120.0, 240.0)
 EXPECTED_BAR = "not_met"
 # D-RIMLIM: the recorded coverage with the setpoint-relative rim limit in the
 # loop. A drop fails the run; a gain is reported (update DECISIONS.md).
-EXPECTED_BEFORE_300_MIN = 59
-EXPECTED_NEVER_MAX = 0
+# Re-recorded 2026-10-16 for the peak hazard rule (was 59 / 0 under the steady
+# rule); a stricter definition, the same ratchet.
+EXPECTED_BEFORE_300_MIN = 69
+EXPECTED_NEVER_MAX = 4
 # production hot calibration point (D-LEAK requirement 2): acceptance, K
 HOT_CHECK_K = 0.5
 
@@ -282,6 +290,17 @@ def benign_cases(n_seeds):
 LATCHES = ("leak", "rim_limit", "rim_fault", "guard", "R1", "R2a", "R2b")
 
 
+def hazardous(x):
+    """The bar's hazard (owner, 2026-10-16): the untripped T_c crosses T_BAR at any time.
+
+    x is a leak_row (t_T_c_over_300_s) or a run_case result (first["T_c_over_300"]);
+    both record the first unrounded crossing, so a run peaking at 300.04 degC counts.
+    """
+    if "t_T_c_over_300_s" in x:
+        return x["t_T_c_over_300_s"] is not None
+    return "T_c_over_300" in x["first"]
+
+
 def leak_row(r):
     ts = [(r["first"][k]["t_s"], k) for k in LATCHES if k in r["first"]]
     fl = min(ts) if ts else None
@@ -302,19 +321,20 @@ def leak_row(r):
 
 
 def leak_summary(rows):
-    haz_rows = [x for x in rows if x["T_c_steady"] > T_BAR]
+    haz_rows = [x for x in rows if hazardous(x)]
     missed = [x for x in haz_rows if not x["latched_before_300"]]
     never = [x for x in haz_rows if x["first_latch"] is None]
     by_r = {}
     for x in rows:
         d = by_r.setdefault(str(x["r_leak_ohm"]), {"runs": 0, "T_c_steady_min": 1e9, "T_c_steady_max": -1e9,
-                                                   "hazardous": 0, "latched_before_300": 0, "leak_latched": 0,
+                                                   "T_c_max_max": -1e9, "hazardous": 0, "latched_before_300": 0, "leak_latched": 0,
                                                    "any_latch": 0, "runs_with_suspect": 0, "d1_lost": 0})
         d["runs"] += 1
         d["T_c_steady_min"] = min(d["T_c_steady_min"], x["T_c_steady"])
         d["T_c_steady_max"] = max(d["T_c_steady_max"], x["T_c_steady"])
-        d["hazardous"] += x["T_c_steady"] > T_BAR
-        d["latched_before_300"] += x["latched_before_300"] and x["T_c_steady"] > T_BAR
+        d["T_c_max_max"] = max(d["T_c_max_max"], x["T_c_max"])
+        d["hazardous"] += hazardous(x)
+        d["latched_before_300"] += x["latched_before_300"] and hazardous(x)
         d["leak_latched"] += x["leak_latch"] is not None
         d["any_latch"] += x["first_latch"] is not None
         d["runs_with_suspect"] += x["suspects"] > 0
@@ -354,6 +374,8 @@ def leak_summary(rows):
             "late_first_latch_s_after_300_range": rng(round(x["first_latch"]["t_s"] - x["t_T_c_over_300_s"], 1)
                                                       for x in late),
             "hazardous_steady_T_c_max": max((x["T_c_steady"] for x in haz_rows), default=None),
+            "hazardous_peak_T_c_max": max((x["T_c_max"] for x in haz_rows), default=None),
+            "hazardous_steady_T_c_min": min((x["T_c_steady"] for x in haz_rows), default=None),
             "lowest_r_hazardous_ohm": min((x["r_leak_ohm"] for x in haz_rows), default=None),
             "highest_r_hazardous_ohm": max((x["r_leak_ohm"] for x in haz_rows), default=None),
             "hazardous_never_latched_rows": never,
@@ -408,7 +430,8 @@ def summarise(leak, benign):
     return {
         "leak": {"all_onsets": every, "by_onset": by_onset},
         "requirements": requirements(every),
-        "bar": {"rule": "every leak with untripped steady T_c > 300 degC latches before T_c first exceeds 300 degC",
+        "bar": {"rule": "every leak whose untripped T_c exceeds 300 degC at any time (transient overshoot "
+                        "included; owner 2026-10-16) latches before T_c first exceeds 300 degC",
                 "met": bar_met, "status": "met" if bar_met else "not_met", "expected": EXPECTED_BAR,
                 "failing_runs": missed, "of_hazardous": every["hazardous_runs"]},
         "benign": {"runs": len(benign), "leak_latches": len(benign_latch), "latch_examples": benign_latch[:10],
@@ -447,10 +470,11 @@ def main():
                            | {"first": b["first"]} for b in benign]}
     Path(args.out).write_text(json.dumps(res, indent=1, default=float) + "\n")
     for onset, L in summ["leak"]["by_onset"].items():
-        print(f"onset {onset}: by R (ohm): runs, steady T_c min..max, hazardous, latched before 300, "
+        print(f"onset {onset}: by R (ohm): runs, steady T_c min..max, peak T_c, hazardous, latched before 300, "
               "leak-check latched, any latch, runs with a suspect, D1 lost")
         for r, d in L["by_r_leak"].items():
             print(f"   {float(r):8.0f}: {d['runs']:2d} {d['T_c_steady_min']:6.1f}..{d['T_c_steady_max']:6.1f} "
+                  f"{d['T_c_max_max']:6.1f} "
                   f"haz {d['hazardous']:2d} before300 {d['latched_before_300']:2d} leak {d['leak_latched']:2d} "
                   f"any {d['any_latch']:2d} suspect {d['runs_with_suspect']:2d} lost {d['d1_lost']:2d}")
         print(f"   hazardous {L['hazardous_runs']}: latched before 300 {L['hazardous_latched_before_300']}, "
@@ -464,7 +488,8 @@ def main():
     print("hazardous:", A["hazardous_runs"], "latched before 300:", A["hazardous_latched_before_300"],
           "after:", A["hazardous_latched_after_300"], "never:", A["hazardous_never_latched"],
           "; R_leak", A["lowest_r_hazardous_ohm"], "..", A["highest_r_hazardous_ohm"], "ohm")
-    print("never latched:", [(x["onset"], x["pan"], x["delta"], x["corner"], x["r_leak_ohm"], x["T_c_steady"])
+    print("never latched:", [(x["onset"], x["pan"], x["delta"], x["corner"], x["r_leak_ohm"], x["T_c_max"],
+                              x["T_c_steady"])
                              for x in A["hazardous_never_latched_rows"]])
     print("requirements:", summ["requirements"])
     print("BAR", summ["bar"])

@@ -52,6 +52,9 @@ is, and a rim above that is a pan hotter than the loop thinks.
    whose glass reaches the band top - X before T_c passes 300, against the
    benign glass maximum (sets above) and the band low edge - X.
 
+Hazardous = leak_checks.hazardous(): the untripped T_c crosses 300 degC at any
+time, transient overshoot included (owner, 2026-10-16; was steady T_c > 300).
+
 Writes rim-limit.json. Run: python3 rim_limit.py [--lib path]
 """
 from __future__ import annotations
@@ -304,7 +307,7 @@ def first_existing(r):
 
 def score(leak, benign_sets, latches):
     """latches: {id(row): t or None} for the rule; leak rows; benign rows by set."""
-    haz = [r for r in leak if r["T_c_steady"] > LC.T_BAR]
+    haz = [r for r in leak if LC.hazardous(r)]
     before = after = never = 0
     rule_first = 0
     missed = []
@@ -318,7 +321,8 @@ def score(leak, benign_sets, latches):
             before += 1
             rule_first += tr_ is not None and (te is None or tr_ < te)
         else:
-            missed.append((r["r_leak"], r["T_c_steady"], r["pan"], r.get("delta"), r.get("corner"), r["onset"]))
+            missed.append((r["r_leak"], r["T_c_steady"], r["pan"], r.get("delta"), r.get("corner"), r["onset"],
+                           r["T_c_max"]))
             if fl is None:
                 never += 1
             else:
@@ -327,7 +331,7 @@ def score(leak, benign_sets, latches):
     out = {"hazardous": len(haz), "latched_before_300": before, "latched_after_300": after, "never": never,
            "rule_first_before_300": rule_first,
            "largest_not_latched_before_300": None if worst is None else
-           {"r_leak_ohm": round(worst[0], 1), "T_c_steady": worst[1], "pan": worst[2], "delta": worst[3],
+           {"r_leak_ohm": round(worst[0], 1), "T_c_steady": worst[1], "T_c_max": worst[6], "pan": worst[2], "delta": worst[3],
             "corner": worst[4], "onset": worst[5]},
            "false_latch_before_leak": sum(latches[r["_i"]] is not None and latches[r["_i"]] < LC.LEAK_AT
                                           for r in leak)}
@@ -339,8 +343,8 @@ def score(leak, benign_sets, latches):
 def never_latched(leak, latches):
     res = []
     for r in leak:
-        if r["T_c_steady"] > LC.T_BAR and first_existing(r) is None and latches[r["_i"]] is None:
-            res.append((round(r["r_leak"], 1), r["T_c_steady"]))
+        if LC.hazardous(r) and first_existing(r) is None and latches[r["_i"]] is None:
+            res.append((round(r["r_leak"], 1), r["T_c_max"], r["T_c_steady"]))
     return sorted(res)
 
 
@@ -348,7 +352,7 @@ def cr5_study(leak, benign_rows):
     """Hardware rim trip lowered by X K, on the true glass."""
     out = []
     g_benign = max(float(np.max(r["trace"][:, 7])) for r in benign_rows)
-    haz = [r for r in leak if r["T_c_steady"] > LC.T_BAR]
+    haz = [r for r in leak if LC.hazardous(r)]
     for x in (0.0, 4.0, 8.0, 12.0, 16.0):
         top = CR5_BAND[1] - x
         n = 0

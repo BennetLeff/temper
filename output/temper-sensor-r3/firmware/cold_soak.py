@@ -64,8 +64,9 @@ this file's output at 75e512eab (variant as_built there).
    large pot of cold water (tau 20000 s); a pot of frozen food whose melting
    plateau holds the glass at ~2 degC for hours; a unit run in a 0 or -5 degC
    room (below the 5 degC the threshold is budgeted for; rated 10 degC).
-3. Hazardous leaks (leak-checks.json, the 235 runs whose untripped steady T_c
-   exceeds 300 degC; 7 leak values 300-1732 ohm) at a cold start, soaked steady at
+3. Hazardous leaks (leak-checks.json, the 277 runs whose untripped T_c exceeds
+   300 degC at any time, `leak_checks.hazardous`, owner 2026-10-16; 8 leak values
+   300-2320 ohm) at a cold start, soaked steady at
    5-40 degC: caught before heating by the cold-soak check (FAULT_PROBE_LEAKAGE)
    or the existing C1 window (the leaky element below 84.27 ohm,
    FAULT_PROBE_SHORT), for a temperature-independent leak and an Arrhenius family
@@ -98,6 +99,7 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import hs_ntc as H  # noqa: E402
+import leak_checks as LC  # noqa: E402  (the bar's hazard predicate)
 
 LIB_PATH = str(HERE / "build" / "libpantemp.so")
 VERDICTS = {0: "none", 1: "pass", 2: "leak", 3: "skip_not_soaked", 4: "skip_history", 5: "skip_hs_invalid",
@@ -465,7 +467,7 @@ def main() -> int:
                                          for e in existing.values())
 
     # 3. hazardous
-    haz = [r for r in lc["leak_rows"] if r["T_c_steady"] > 300.0]
+    haz = [r for r in lc["leak_rows"] if LC.hazardous(r)]
     by_r = Counter(r["r_leak_ohm"] for r in haz)
     fams = ("independent",) + tuple(str(e) for e in EA_EV)
     hjobs = [(v, c, f, a, rr, use_thr[v]) for v in VARIANTS for c in ("nominal", "miss") for f in fams
