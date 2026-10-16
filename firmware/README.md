@@ -180,7 +180,7 @@ The firmware implements multiple layers of safety:
 1. **Hardware Watchdog (TPS3823-33)**: External WDT fed every update cycle, 1.6s timeout
 2. **Software Watchdog**: State-specific timeouts (1-10s depending on state)
 3. **Over-Current Protection**: DC bus current >40A triggers immediate shutdown
-4. **Over-Temperature Protection**: Heatsink >80°C triggers fault
+4. **Over-Temperature Protection**: Heatsink >95°C triggers fault (`OVER_TEMP_THRESHOLD`; the hardware comparator backs it at 98.3–104.6°C, zapote C32)
 5. **Fan Failure Detection**: Tachometer monitoring during operation
 6. **RTD Probe Monitoring**: Open circuit (>10kΩ) and short circuit (<10Ω) detection
 7. **Thermal Runaway Detection**: Pan temp exceeding target by >10°C
