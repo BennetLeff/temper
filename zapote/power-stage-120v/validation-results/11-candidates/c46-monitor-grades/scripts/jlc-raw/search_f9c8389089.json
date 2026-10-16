@@ -1,0 +1,538 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 3,
+   "list": [
+    {
+     "componentId": 4248697,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "LM4040AEM3-2.5",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_analog-devices-inc-maxim-integrated-lm4040aem3-2-5_C3680894.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1796
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.1796
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 1.1796
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.4568
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4405
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4324
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4165
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.4401
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 1.1363
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1363
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4244
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.1363
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "4248697-LM4040AEM3_25/C3680894",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 8,
+     "initialPrice": 1.1796,
+     "componentCode": "C3680894",
+     "componentBrandEn": "Analog Devices Inc./Maxim Integrated",
+     "componentModelEn": "LM4040AEM3-2.5",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2403081720_Analog-Devices-Inc--Maxim-Integrated-LM4040AEM3-2-5_C3680894.pdf",
+     "dataManualFileAccessId": "8590399584359903232",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MAXIM LM4040AEM3-2.5",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-3",
+     "describe": "-40\u2103~+125\u2103@(Ta) 100ppm/\u2103 15mA 2.5V Fixed Parallel \u00b10.1% SOT-23-3 Voltage Reference",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Fixed"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "15mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "100ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>LM4040AEM3-2.5</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1666318,
+     "componentLibraryType": "expand",
+     "stockCount": 5,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "\u5e76\u8054 100ppm/\u2103",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_analog-devices-inc-maxim-integrated-lm4040aem3-2-5-t_C1575504.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.1717
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 6.0151
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.909
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.8046
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.8046
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.8046
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 5.5916
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 5.5916
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.7944
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.9452
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 5.5916
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.6922
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 5,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "1666318-LM4040AEM3_2_5T/C1575504",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 33.56,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 6.1717,
+     "componentCode": "C1575504",
+     "componentBrandEn": "Analog Devices Inc./Maxim Integrated",
+     "componentModelEn": "LM4040AEM3-2.5+T",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2310091019_Analog-Devices-Inc--Maxim-Integrated-LM4040AEM3-2-5-T_C1575504.pdf",
+     "dataManualFileAccessId": "8589039084286693376",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MAXIM LM4040AEM3-2.5+T",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-3L",
+     "describe": "-40\u2103~+125\u2103@(Ta) 100ppm/\u2103 15mA 2.5V 35uVrms Fixed Parallel \u00b10.1% SOT-23-3L Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Fixed"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "15mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Minimum Cathode Current for Regulation",
+       "attribute_value_name": "65uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "100ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "35uVrms"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>LM4040AEM3-2.5</span>+T",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 4247422,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "LM4040AEM3-2.5-T",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_analog-devices-inc-maxim-integrated-lm4040aem3-2-5-t_C3679619.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.0083
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.0083
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 2.0083
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.7782
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.7505
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7375
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7104
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.7497
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.9346
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 1.9346
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.9346
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.723
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "4247422-LM4040AEM3_2_5T/C3679619",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 5,
+     "initialPrice": 2.0083,
+     "componentCode": "C3679619",
+     "componentBrandEn": "Analog Devices Inc./Maxim Integrated",
+     "componentModelEn": "LM4040AEM3-2.5-T",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2403070850_Analog-Devices-Inc--Maxim-Integrated-LM4040AEM3-2-5-T_C3679619.pdf",
+     "dataManualFileAccessId": "8590271355368206336",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "MAXIM LM4040AEM3-2.5-T",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-3",
+     "describe": "-40\u2103~+125\u2103@(Ta) 100ppm/\u2103 15mA 2.5V 35uVrms Fixed Parallel \u00b10.1% SOT-23-3 Voltage Reference",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Fixed"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "15mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.1%"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "100ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "35uVrms"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>LM4040AEM3-2.5</span>-T",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 0,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 15,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "LM4040AEM3-2.5"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T01:33:51Z"
+}

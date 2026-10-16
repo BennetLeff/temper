@@ -1,0 +1,2376 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 12,
+   "list": [
+    {
+     "componentId": 5771930,
+     "componentLibraryType": "expand",
+     "stockCount": 3499,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "TL431",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_hxy-mosfet-tl431_C5148693.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0361
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0284
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 2999,
+       "productPrice": 0.024
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0204
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 8999,
+       "productPrice": 0.0183
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": -1,
+       "productPrice": 0.017
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0348
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 2999,
+       "productPrice": 0.0232
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": -1,
+       "productPrice": 0.0164
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0274
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0197
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 8999,
+       "productPrice": 0.0177
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 3491,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HXYMOSFET-TL431/C5148693",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.088,
+     "preMinPurchaseNum": 376,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0361,
+     "componentCode": "C5148693",
+     "componentBrandEn": "HXY MOSFET",
+     "componentModelEn": "TL431",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585125456504479744",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2209061730_HXY-MOSFET-TL431_C5148693.pdf",
+     "dataManualFileAccessId": "8590397263769346048",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "HXY MOSFET TL431",
+     "minImage": "",
+     "minImageAccessId": "8585125457419513856",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23",
+     "describe": "-25\u2103~+85\u2103@(Ta) 100mA 2.5V~36V 50ppm/\u2103 Adjustable \u00b11% SOT-23 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-25\u2103~+85\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "Noise - 1/10Hz to 10Hz",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "100mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b11%"
+      },
+      {
+       "attribute_name_en": "Minimum Cathode Current for Regulation",
+       "attribute_value_name": "450uA"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Temperature compensation control"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "50ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V~36V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TL431</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 106470,
+     "componentLibraryType": "expand",
+     "stockCount": 26065,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "2.5V~36V \u5e76\u8054",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_texas-instruments-tl431aqdbzr_C105255.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0839
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0658
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0567
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.05
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0444
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0417
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0428
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0634
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0401
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.0481
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0808
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0546
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 26004,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TL431AQDBZR/C105255",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.21761,
+     "preMinPurchaseNum": 138,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0839,
+     "componentCode": "C105255",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TL431AQDBZR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8582977222290649088",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809111515_Texas-Instruments-TL431AQDBZR_C105255.pdf",
+     "dataManualFileAccessId": "8586180356622471168",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tl431",
+     "componentName": "TI TL431AQDBZR",
+     "minImage": "",
+     "minImageAccessId": "8582977223208931328",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-3",
+     "describe": "-40\u2103~+125\u2103 100mA 2.5V~36V 2.5V~36V 700uA Adjustable Parallel \u00b11% SOT-23-3 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "2.5V~36V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "100mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b11%"
+      },
+      {
+       "attribute_name_en": "Minimum Cathode Current for Regulation",
+       "attribute_value_name": "700uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V~36V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TL431AQDBZR</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2248618,
+     "componentLibraryType": "expand",
+     "stockCount": 514,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "2.5V~36V \u5e76\u8054",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_texas-instruments-atl431aqdbzr_C2156569.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5857
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4683
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.4177
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.3557
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3263
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.31
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.3426
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5642
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4511
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3144
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.4024
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2986
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 511,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-ATL431AQDBZR/C2156569",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 1.42664,
+     "preMinPurchaseNum": 20,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.5857,
+     "componentCode": "C2156569",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "ATL431AQDBZR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583728154574008320",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303011830_Texas-Instruments-ATL431AQDBZR_C2156569.pdf",
+     "dataManualFileAccessId": "8589900803780739072",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/atl431",
+     "componentName": "TI ATL431AQDBZR",
+     "minImage": "",
+     "minImageAccessId": "8583728155492831232",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23",
+     "describe": "-40\u2103~+125\u2103@(Ta) 100mA 2.5V~36V 2.5V~36V Adjustable Parallel \u00b11% SOT-23 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "Noise - 1/10Hz to 10Hz",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "2.5V~36V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "100mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b11%"
+      },
+      {
+       "attribute_name_en": "Minimum Cathode Current for Regulation",
+       "attribute_value_name": "20uA"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V~36V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "A<span class='lucene_highlight_class'>TL431AQDBZR</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 44359468,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "\u505c\u4ea7 \u5e76\u8054 50ppm/\u2103",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_hxy-mosfet-htl431aqdbzr_C42402124.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0376
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0368
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 999,
+       "productPrice": 0.0361
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 1019,
+       "productPrice": 0.0356
+      },
+      {
+       "startNumber": 1020,
+       "endNumber": 1039,
+       "productPrice": 0.0356
+      },
+      {
+       "startNumber": 1040,
+       "endNumber": -1,
+       "productPrice": 0.0356
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": 1019,
+       "productPrice": 0.0343
+      },
+      {
+       "startNumber": 1020,
+       "endNumber": 1039,
+       "productPrice": 0.0343
+      },
+      {
+       "startNumber": 1040,
+       "endNumber": -1,
+       "productPrice": 0.0343
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0362
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 999,
+       "productPrice": 0.0348
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0354
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HXYMOSFET-HTL431AQDBZR/C42402124",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.1789,
+     "preMinPurchaseNum": 246,
+     "minPurchaseNum": 246,
+     "initialPrice": 0.0368,
+     "componentCode": "C42402124",
+     "componentBrandEn": "HXY MOSFET",
+     "componentModelEn": "HTL431AQDBZR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585923607462105088",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8604438728975011840",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "HXY MOSFET HTL431AQDBZR",
+     "minImage": "",
+     "minImageAccessId": "8585923608400547840",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23",
+     "describe": "-25\u2103~+85\u2103 450uA 50ppm/\u2103 Adjustable Parallel SOT-23 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-25\u2103~+85\u2103"
+      },
+      {
+       "attribute_name_en": "Noise - 1/10Hz to 10Hz",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b11%"
+      },
+      {
+       "attribute_name_en": "Minimum Cathode Current for Regulation",
+       "attribute_value_name": "450uA"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "50ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "H<span class='lucene_highlight_class'>TL431AQDBZR</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 98949,
+     "componentLibraryType": "expand",
+     "stockCount": 6626,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "2.5V~36V \u5e76\u8054",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_texas-instruments-tl431aqdbzrq1_C97741.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2536
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2002
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1774
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.149
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1363
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1286
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1435
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1929
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2443
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1709
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1313
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1239
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 6608,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TL431AQDBZRQ1/C97741",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.72338,
+     "preMinPurchaseNum": 36,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2536,
+     "componentCode": "C97741",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TL431AQDBZRQ1",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8582987794381332480",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Texas-Instruments-TL431AQDBZRQ1_C97741.pdf",
+     "dataManualFileAccessId": "8588880660635799552",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tl431-q1",
+     "componentName": "TI TL431AQDBZRQ1",
+     "minImage": "",
+     "minImageAccessId": "8582987795292442624",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-3",
+     "describe": "-40\u2103~+125\u2103 100mA 2.495V~36V 2.5V~36V 700uA Adjustable Parallel \u00b11% SOT-23-3 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Noise - 1/10Hz to 10Hz",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "2.5V~36V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "100mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b11%"
+      },
+      {
+       "attribute_name_en": "Minimum Cathode Current for Regulation",
+       "attribute_value_name": "700uA"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.495V~36V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TL431AQDBZR</span>Q1",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 574848,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "\u5e76\u8054",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage references_nexperia_tl431aqdbzrvl_C553841.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.0857
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.0679
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.0591
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.0524
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0472
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0444
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0455
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.0569
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.0826
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.0505
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.0654
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.0428
+      }
+     ],
+     "firstSortAccessId": "6dc5d27d4f8744478cf3224b04762038",
+     "secondSortAccessId": "e3870a83656f44b495b9a0f6f08e49c1",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-TL431AQDBZRVL/C553841",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 10000,
+     "shopCostPrice": 0.58458,
+     "preMinPurchaseNum": 173,
+     "minPurchaseNum": 173,
+     "initialPrice": 0.0524,
+     "componentCode": "C553841",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "TL431AQDBZRVL",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2006101839_Nexperia-TL431AQDBZRVL_C553841.pdf",
+     "dataManualFileAccessId": "8588914455451480064",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia TL431AQDBZRVL",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "TO-236AB",
+     "describe": "-40\u2103~+125\u2103 100mA 2.495V~36V 400uA Adjustable Parallel \u00b11% TO-236AB Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Noise - 1/10Hz to 10Hz",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "100mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b11%"
+      },
+      {
+       "attribute_name_en": "Minimum Cathode Current for Regulation",
+       "attribute_value_name": "400uA"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.495V~36V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TL431AQDBZR</span>VL",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2248785,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "\u5e76\u8054",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1218
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0965
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0839
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0744
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0669
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0632
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.0717
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0609
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1173
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.0645
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0929
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0808
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TexasInstruments-TL431AQDBZRG4/C2156736",
+     "leastPatchNumber": 5,
+     "lossNumber": 5,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 94,
+     "minPurchaseNum": 94,
+     "initialPrice": 0.0965,
+     "componentCode": "C2156736",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TL431AQDBZRG4",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8590911087309647872",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tl431",
+     "componentName": "TI TL431AQDBZRG4",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-3",
+     "describe": "-40\u2103~+125\u2103@(Ta) 100mA 2.495V~36V Adjustable Parallel \u00b11% SOT-23-3 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "Noise - 1/10Hz to 10Hz",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "100mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b11%"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.495V~36V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TL431AQDBZR</span>G4",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 44431757,
+     "componentLibraryType": "expand",
+     "stockCount": 6010,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "\u5e76\u8054 50ppm/\u2103",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_chipnobo-tl431aqdbzr-cn_C42419991.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0591
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0467
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 2999,
+       "productPrice": 0.0405
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0359
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 8999,
+       "productPrice": 0.0322
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": -1,
+       "productPrice": 0.0304
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.045
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": -1,
+       "productPrice": 0.0293
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0569
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0346
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 8999,
+       "productPrice": 0.031
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 2999,
+       "productPrice": 0.039
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 6010,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "ChipNobo-TL431AQDBZRCN/C42419991",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.1578,
+     "preMinPurchaseNum": 194,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0591,
+     "componentCode": "C42419991",
+     "componentBrandEn": "ChipNobo",
+     "componentModelEn": "TL431AQDBZR-CN",
+     "componentImageUrl": "https://assets.lcsc.com/images/lcsc/900x900/20250109_ChipNobo-TL431AQDBZR-CN_C42419991_front.jpg",
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2501081645_ChipNobo-TL431AQDBZR-CN_C42419991.pdf",
+     "dataManualFileAccessId": "8756305231318011904",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ChipNobo TL431AQDBZR-CN",
+     "minImage": "https://assets.lcsc.com/images/lcsc/96x96/20250109_ChipNobo-TL431AQDBZR-CN_C42419991_front.jpg",
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": "https://assets.lcsc.com/images/lcsc/96x96/20250109_ChipNobo-TL431AQDBZR-CN_C42419991_front.jpg",
+       "productImageAccessId": null,
+       "productBigImage": "https://assets.lcsc.com/images/lcsc/900x900/20250109_ChipNobo-TL431AQDBZR-CN_C42419991_front.jpg",
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": "https://assets.lcsc.com/images/lcsc/96x96/20250109_ChipNobo-TL431AQDBZR-CN_C42419991_back.jpg",
+       "productImageAccessId": null,
+       "productBigImage": "https://assets.lcsc.com/images/lcsc/900x900/20250109_ChipNobo-TL431AQDBZR-CN_C42419991_back.jpg",
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": "https://assets.lcsc.com/images/lcsc/96x96/20250109_ChipNobo-TL431AQDBZR-CN_C42419991_blank.jpg",
+       "productImageAccessId": null,
+       "productBigImage": "https://assets.lcsc.com/images/lcsc/900x900/20250109_ChipNobo-TL431AQDBZR-CN_C42419991_blank.jpg",
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23",
+     "describe": "-25\u2103~+85\u2103 150mA 1mA 2.5V~36V 50ppm/\u2103 Adjustable Parallel \u00b11% SOT-23 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-25\u2103~+85\u2103"
+      },
+      {
+       "attribute_name_en": "Noise - 1/10Hz to 10Hz",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "150mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b11%"
+      },
+      {
+       "attribute_name_en": "Minimum Cathode Current for Regulation",
+       "attribute_value_name": "1mA"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "Temperature compensation control"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "50ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V~36V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TL431AQDBZR</span>-CN",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 28188593,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Lack of specifications",
+     "erpComponentName": "TL431AQDBZR-QR",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3334
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.3334
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.3334
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.133
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1286
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1265
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1281
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1218
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.3212
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.3212
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3212
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1239
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-TL431AQDBZRQR/C26451970",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 28,
+     "minPurchaseNum": 28,
+     "initialPrice": 0.3334,
+     "componentCode": "C26451970",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "TL431AQDBZR-QR",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia TL431AQDBZR-QR",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-3",
+     "describe": "SOT-23-3 Lack of specifications ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Lack of specifications",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TL431AQDBZR</span>-QR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 80950,
+     "componentLibraryType": "expand",
+     "stockCount": 5247,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "2.495V~36V \u5e76\u8054",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_nexperia-tl431aqdbzr-215_C79807.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4568
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.359
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3165
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2643
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2399
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2252
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3049
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3458
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2169
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4401
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2546
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2311
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 5235,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-TL431AQDBZR215/C79807",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 1.2,
+     "preMinPurchaseNum": 26,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4568,
+     "componentCode": "C79807",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "TL431AQDBZR,215",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8553712771867815936",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2407241045_Nexperia-TL431AQDBZR-215_C79807.pdf",
+     "dataManualFileAccessId": "8586176517542465536",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia TL431AQDBZR,215",
+     "minImage": "",
+     "minImageAccessId": "8553712772442841088",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23",
+     "describe": "-40\u2103~+125\u2103 100mA 2.495V~36V 2.495V~36V 400uA Adjustable Parallel \u00b11% SOT-23 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Noise - 1/10Hz to 10Hz",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "2.495V~36V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "100mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b11%"
+      },
+      {
+       "attribute_name_en": "Minimum Cathode Current for Regulation",
+       "attribute_value_name": "400uA"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.495V~36V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TL431AQDBZR</span>,215",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 56090840,
+     "componentLibraryType": "expand",
+     "stockCount": 2658,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "\u53ef\u8c03\u7cbe\u5bc6\u7a33\u538b\u5668\uff0c\u53ef\u66ff\u4ee3\u7a33\u538b\u4e8c\u6781\u7ba1\uff0c\u4f4e\u8f93\u51fa\u566a\u58f0\uff0c\u53ef\u8c03\u8f93\u51fa\u7535\u538b",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0405
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0324
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 2999,
+       "productPrice": 0.0281
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.025
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 8999,
+       "productPrice": 0.0226
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": -1,
+       "productPrice": 0.0214
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 300,
+       "endNumber": 2999,
+       "productPrice": 0.0271
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 8999,
+       "productPrice": 0.0217
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0241
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.039
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": -1,
+       "productPrice": 0.0206
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0312
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 2658,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JSMSEMI-TL431AQDBZRJSM/C53113853",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.10512,
+     "preMinPurchaseNum": 279,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0405,
+     "componentCode": "C53113853",
+     "componentBrandEn": "JSMSEMI",
+     "componentModelEn": "TL431AQDBZR-JSM",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8765409996958257152",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JSMSEMI TL431AQDBZR-JSM",
+     "minImage": "",
+     "minImageAccessId": "8765409998212218880",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23",
+     "describe": "-40\u2103~+125\u2103 100mA 2.495V~36V 2.5V~36V 400uA Adjustable Parallel \u00b10.5% SOT-23 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Noise - 1/10Hz to 10Hz",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "2.495V~36V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "100mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.5%"
+      },
+      {
+       "attribute_name_en": "Minimum Cathode Current for Regulation",
+       "attribute_value_name": "400uA"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V~36V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TL431AQDBZR</span>-JSM",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 56091018,
+     "componentLibraryType": "expand",
+     "stockCount": 1,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "\u53ef\u8c03\u7cbe\u5bc6\u7a33\u538b\u5668\uff0c\u53ef\u66ff\u4ee3\u7a33\u538b\u4e8c\u6781\u7ba1\uff0c\u9002\u7528\u4e8e\u8fd0\u653e\u7535\u8def\u3001\u53ef\u8c03\u8282\u7535\u6e90\u548c\u5f00\u5173\u7535\u6e90",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0405
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0324
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 2999,
+       "productPrice": 0.0281
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.025
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 8999,
+       "productPrice": 0.0226
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": -1,
+       "productPrice": 0.0214
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 300,
+       "endNumber": 2999,
+       "productPrice": 0.0271
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 8999,
+       "productPrice": 0.0217
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0241
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.039
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": -1,
+       "productPrice": 0.0206
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0312
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": -1,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JSMSEMI-TL431AQDBZR_215JSM/C53114030",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.10512,
+     "preMinPurchaseNum": 279,
+     "minPurchaseNum": 279,
+     "initialPrice": 0.0324,
+     "componentCode": "C53114030",
+     "componentBrandEn": "JSMSEMI",
+     "componentModelEn": "TL431AQDBZR,215-JSM",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8765434795671064576",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JSMSEMI TL431AQDBZR,215-JSM",
+     "minImage": "",
+     "minImageAccessId": "8765434796774166528",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23",
+     "describe": "-40\u2103~+85\u2103 100mA 2.495V~36V 2.5V~36V 400uA Adjustable Parallel \u00b10.5% SOT-23 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+85\u2103"
+      },
+      {
+       "attribute_name_en": "Noise - 1/10Hz to 10Hz",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "2.495V~36V"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Adjustable"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "100mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.5%"
+      },
+      {
+       "attribute_name_en": "Minimum Cathode Current for Regulation",
+       "attribute_value_name": "400uA"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V~36V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TL431AQDBZR</span>,215-JSM",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 15,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "TL431AQDBZR"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T01:33:51Z"
+}

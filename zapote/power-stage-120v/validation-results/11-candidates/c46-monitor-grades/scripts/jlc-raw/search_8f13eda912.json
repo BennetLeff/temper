@@ -1,0 +1,412 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 2,
+   "list": [
+    {
+     "componentId": 2248703,
+     "componentLibraryType": "expand",
+     "stockCount": 29,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "\u5e76\u8054 45uA 100ppm/\u2103",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_texas-instruments-lm4040c25qdbzt_C2156654.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.315
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.0931
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.9707
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.8321
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.7701
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.744
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.053
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 0.9351
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7167
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.8015
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.2667
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.7418
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 28,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-LM4040C25QDBZT/C2156654",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 3.78984,
+     "preMinPurchaseNum": 7,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.315,
+     "componentCode": "C2156654",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "LM4040C25QDBZT",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583736528761991168",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2302221201_Texas-Instruments-LM4040C25QDBZT_C2156654.pdf",
+     "dataManualFileAccessId": "8589925678486216704",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/lm4040",
+     "componentName": "TI LM4040C25QDBZT",
+     "minImage": "",
+     "minImageAccessId": "8583736529672155136",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23",
+     "describe": "-40\u2103~+125\u2103 100ppm/\u2103 15mA 2.5V 35uVrms 45uA 45uA Fixed Parallel \u00b10.5% SOT-23 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Fixed"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "15mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.5%"
+      },
+      {
+       "attribute_name_en": "Minimum Cathode Current for Regulation",
+       "attribute_value_name": "45uA"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "45uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "100ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Output Voltage",
+       "attribute_value_name": "2.5V"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "35uVrms"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>LM4040C25QDBZT</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 2249523,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Voltage Reference",
+     "erpComponentName": "\u5e76\u8054 100ppm/\u2103",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-reference_texas-instruments-lm4040c25qdbztg4_C2157473.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.3084
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.3084
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 249,
+       "productPrice": 1.3084
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.5074
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4895
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4797
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 249,
+       "productPrice": 1.2604
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4621
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 1.2604
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 0.4888
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.2604
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4715
+      }
+     ],
+     "firstSortAccessId": "a7ca7be1124b46818df6480f00698e25",
+     "secondSortAccessId": "eaa496f7af944d398d6a720d8d683d42",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-LM4040C25QDBZTG4/C2157473",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 7,
+     "minPurchaseNum": 7,
+     "initialPrice": 1.3084,
+     "componentCode": "C2157473",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "LM4040C25QDBZTG4",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2303011800_Texas-Instruments-LM4040C25QDBZTG4_C2157473.pdf",
+     "dataManualFileAccessId": "8589903254168498176",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/lm4040",
+     "componentName": "TI LM4040C25QDBZTG4",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23",
+     "describe": "-40\u2103~+125\u2103@(Ta) 100ppm/\u2103 15mA 35uVrms Fixed Parallel \u00b10.5% SOT-23 Voltage Reference ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103@(Ta)"
+      },
+      {
+       "attribute_name_en": "Noise - 1/10Hz to 10Hz",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Fixed"
+      },
+      {
+       "attribute_name_en": "Voltage - Supply",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Output Current",
+       "attribute_value_name": "15mA"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b10.5%"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Temperature Coefficient",
+       "attribute_value_name": "100ppm/\u2103"
+      },
+      {
+       "attribute_name_en": "Reference Type",
+       "attribute_value_name": "Parallel"
+      },
+      {
+       "attribute_name_en": "Noise - 10Hz to 10kHz",
+       "attribute_value_name": "35uVrms"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Voltage Reference",
+     "secondSortName": "Power Management (PMIC)",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>LM4040C25QDBZT</span>G4",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 15,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "LM4040C25QDBZT"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T01:33:52Z"
+}
