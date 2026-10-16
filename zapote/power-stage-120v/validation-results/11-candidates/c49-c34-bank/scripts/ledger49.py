@@ -185,7 +185,7 @@ def bank_entry():
                     "test 1.6 VR 2 s terminal to terminal, 2000 V AC 60 s to case, VC = VR x (165 - Top) / 80 above "
                     "85 C, Vop 1.25 VC for 1000 h. p.13: dV/dt 3800 V/us and k0 15e6 V^2/us at 22.5 mm, 2000 V / "
                     "500 V AC. Not a safety capacitor; a HOT-side tank part (no UL / CSA file needed). LCSC C3781430 "
-                    "(JLC 0 stock: owner pre-order, consigned)."},
+                    "(JLC 0 stock; ruled out by the owner 2026-10-16, interim part, DECISIONS 70)."},
         "ratings": ratings, "stresses": stresses,
         "derating_rule": "Peak voltage <= 80 % of VR (of VC at Top,max for the no-pan fault); AC voltage <= 80 % of VRMS; "
                          "tank RMS current <= 85 % of the worst-share TDK curve at the release trip and at 28 A; F3 <= 85 % "
@@ -205,8 +205,9 @@ def bank_entry():
             f"{aw['dT_col_K']} K against {aw['dT_allowed_K']} K (bank_air_ratio_28A_35k {air['bank_air_ratio_28A_35k']}, "
             f"conservative correlation, this board's pads); in still air the c28 bodies reach {t28} C. The pre-lot bench gate "
             f"(S25: C151 hot spot + unpowered dummy, TDK Fig. 26) confirms the model.",
-            "owner: sourcing. JLC C3781430 shows 0 stock; untaped MOQ 2080 (p.11), 28-week lead (DECISIONS 37 / 68): an owner "
-            "pre-order, consigned to JLC.",
+            "owner: sourcing. JLC C3781430 shows 0 stock; untaped MOQ 2080 (p.11), 28-week lead (DECISIONS 37 / 68). The owner "
+            "ruled it out on 2026-10-16 (it cannot be sourced; DECISIONS 70): this is the interim bank part of s49, not on the "
+            "pre-order list. A later stage replaces it with an in-stock part that passes the same F3 / bank_air checks.",
             "desk: the TDK current curve and the F_T derating are the repo's digitisations (c34 / bank28-air), and B3's bank "
             "rows are advisory (board fraction 0.3 assumed)."],
         "finding": None,
@@ -274,7 +275,8 @@ def rt_entry(mpn):
             "layout_guidance": [],
             "gaps": ["Not audited (outside SAFETY/POWER).",
                      "the local temperature is the B3 body-model pad estimate (hot copper, still air at the BASIS bays), not a "
-                     "measurement; the S21 temp-ratings re-base on s49 (integration) replaces this row"],
+                     "measurement; it is the S21 estimator on this board's run files (results/bands-s49.json), so the s49 "
+                     "re-base (temps_snap49.py) counts this line as rated and leaves it"],
             "finding": None, "notes": f"S49 (2026-10-16, {CARD}): S23 B'-1.02 V divider (U6 VCM 1.0185 V, nominal 92.593 A)."}
 
 
@@ -283,6 +285,9 @@ MOVE = {"RT0603BRD0710KL": ("R33", None, "stage 49: R33 moves to RT0603BRD077K5L
         "RT0603BRD0711KL": (None, "R35", "stage 49: R35 is the OCP threshold bottom (ocp_thresh to OCP_KELVIN_P, S23 B'-1.02 V)")}
 GAP49 = ("[stage 49] the temperature rows were computed before the S23 divider change ({}); the S21 temp-ratings re-base "
          "on s49 (integration) recounts them")
+# GAP49 was the lane's gap text. On ps-integrate the S21 temperature pipeline is re-based on the s49 chain and BOM
+# (temps_snap49.py; temp_ratings.py --rebase --stage s49; ledger_temps.py --board-tag s49), which recounts these lines on
+# their s49 designators, so the gap no longer holds: it is removed where present and not added (as ledger48's GAP48).
 
 
 def main():
@@ -307,8 +312,7 @@ def main():
         if note not in e["function"]:
             e["function"] = f"{e['function']}; {note}"
         g = GAP49.format(f"{drop or add} moved")
-        if g not in e["gaps"]:
-            e["gaps"].append(g)
+        e["gaps"] = [x for x in e["gaps"] if x != g]
     led["entries"] = out
     LEDGER.write_text(json.dumps(led, indent=1) + "\n")
     print("ledger: entries", len(out))

@@ -48,14 +48,17 @@ def resistor_powers():
     put(["R91", "R109", "R124"], r_w(V5, 10e3), "good pull-up, 5.15 V over 10 k (fault state)")
     put(["R30"], 1e-6, "Kelvin sense series into the comparator input: uA")
     put(["R31"], r_w(V5 - 2.4838, 5600 * 0.99), "REF25 bias: (5.15 - 2.484) V over 5.54 k")
-    i_ocp = 2.5162 / 20e3
-    put(["R32", "R33"], i_ocp ** 2 * 10e3, "OCP divider: 2.516 V over 20 k")
+    # stage 49 (S23 B'-1.02 V, c49-c34-bank): R32 10 k + R33 7.5 k from REF25 to ocp_kelvin_n (bounded at -0.2 V, the
+    # ledger49.py shunt bound), R34 16 k + R35 11 k from REF25; was 10 k + 10 k and 12.6 k + 11.7 k
+    i_ocp = (2.5162 + 0.2) / 17.5e3
+    put(["R32"], i_ocp ** 2 * 10e3, "OCP divider 10 k + 7.5 k: (REF25 2.5162 V + 0.2 V shunt bound) over 17.5 k")
+    put(["R33"], i_ocp ** 2 * 7.5e3, "OCP divider 10 k + 7.5 k: (REF25 2.5162 V + 0.2 V shunt bound) over 17.5 k")
     i_ovp = 2.5162 / 150e3
     put(["R36"], i_ovp ** 2 * 10e3, "OVP divider 10 k + 140 k from REF25")
     put(["R37"], i_ovp ** 2 * 140e3, "OVP divider 10 k + 140 k from REF25")
-    i_th = 2.5162 / 24.3e3
-    put(["R34"], i_th ** 2 * 12.6e3, "OCP threshold 12.6 k + 11.7 k from REF25")
-    put(["R35"], i_th ** 2 * 11.7e3, "OCP threshold 12.6 k + 11.7 k from REF25")
+    i_th = 2.5162 / 27e3
+    put(["R34"], i_th ** 2 * 16e3, "OCP threshold 16 k + 11 k from REF25 2.5162 V max")
+    put(["R35"], i_th ** 2 * 11e3, "OCP threshold 16 k + 11 k from REF25 2.5162 V max")
     i_ct = V33 / 12.21e3
     put(["R44", "R45"], i_ct ** 2 * 10e3, "CT reference 2.21 k + 10 k across 3.47 V")
     put(["R43", "R46"], i_ct ** 2 * 2.21e3, "CT reference 2.21 k + 10 k across 3.47 V")
