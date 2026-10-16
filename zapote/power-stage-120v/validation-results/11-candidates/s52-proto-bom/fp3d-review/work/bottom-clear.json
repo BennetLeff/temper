@@ -1,0 +1,690 @@
+{
+ "b_side_footprints": [
+  "TP43",
+  "TP35",
+  "TP27",
+  "TP52",
+  "TP38",
+  "TP28",
+  "TP57",
+  "TP53",
+  "TP45",
+  "TP50",
+  "TP14",
+  "TP12",
+  "TP40",
+  "TP18",
+  "TP24",
+  "TP13",
+  "TP58",
+  "TP20",
+  "TP2",
+  "TP44",
+  "TP32",
+  "TP19",
+  "TP1",
+  "TP55",
+  "TP34",
+  "TP41",
+  "TP56",
+  "TP46",
+  "TP31",
+  "TP7",
+  "TP42",
+  "TP5",
+  "TP11",
+  "TP6",
+  "TP21",
+  "TP26",
+  "TP51",
+  "TP33",
+  "TP54",
+  "TP47",
+  "TP22",
+  "TP29",
+  "TP23",
+  "TP10",
+  "TP39",
+  "TP4",
+  "TP48"
+ ],
+ "parts": {
+  "C21": [
+   {
+    "pad": "1",
+    "x": 163.0,
+    "y": 53.2,
+    "nearest": [
+     [
+      45.078,
+      "TP52",
+      "B-side courtyard"
+     ],
+     [
+      47.575,
+      "TP27",
+      "B-side courtyard"
+     ],
+     [
+      47.778,
+      "TP5",
+      "B-side courtyard"
+     ],
+     [
+      49.51,
+      "TP4",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "2",
+    "x": 185.5,
+    "y": 53.2,
+    "nearest": [
+     [
+      67.554,
+      "TP52",
+      "B-side courtyard"
+     ],
+     [
+      68.787,
+      "TP27",
+      "B-side courtyard"
+     ],
+     [
+      69.269,
+      "TP5",
+      "B-side courtyard"
+     ],
+     [
+      69.714,
+      "TP4",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "2",
+    "x": 190.5,
+    "y": 53.2,
+    "nearest": [
+     [
+      72.551,
+      "TP52",
+      "B-side courtyard"
+     ],
+     [
+      73.603,
+      "TP27",
+      "B-side courtyard"
+     ],
+     [
+      74.125,
+      "TP5",
+      "B-side courtyard"
+     ],
+     [
+      74.38,
+      "TP4",
+      "B-side courtyard"
+     ]
+    ]
+   }
+  ],
+  "C22": [
+   {
+    "pad": "1",
+    "x": 163.0,
+    "y": 68.2,
+    "nearest": [
+     [
+      43.604,
+      "TP4",
+      "B-side courtyard"
+     ],
+     [
+      43.751,
+      "TP27",
+      "B-side courtyard"
+     ],
+     [
+      44.656,
+      "TP5",
+      "B-side courtyard"
+     ],
+     [
+      45.859,
+      "TP26",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "2",
+    "x": 185.5,
+    "y": 68.2,
+    "nearest": [
+     [
+      65.618,
+      "TP4",
+      "B-side courtyard"
+     ],
+     [
+      66.177,
+      "TP27",
+      "B-side courtyard"
+     ],
+     [
+      67.136,
+      "TP5",
+      "B-side courtyard"
+     ],
+     [
+      67.871,
+      "TP26",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "2",
+    "x": 190.5,
+    "y": 68.2,
+    "nearest": [
+     [
+      70.551,
+      "TP4",
+      "B-side courtyard"
+     ],
+     [
+      71.167,
+      "TP27",
+      "B-side courtyard"
+     ],
+     [
+      72.133,
+      "TP5",
+      "B-side courtyard"
+     ],
+     [
+      72.802,
+      "TP26",
+      "B-side courtyard"
+     ]
+    ]
+   }
+  ],
+  "C23": [
+   {
+    "pad": "1",
+    "x": 163.0,
+    "y": 83.2,
+    "nearest": [
+     [
+      42.185,
+      "TP4",
+      "B-side courtyard"
+     ],
+     [
+      44.323,
+      "TP27",
+      "B-side courtyard"
+     ],
+     [
+      44.368,
+      "TP26",
+      "B-side courtyard"
+     ],
+     [
+      45.399,
+      "TP24",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "2",
+    "x": 185.5,
+    "y": 83.2,
+    "nearest": [
+     [
+      64.675,
+      "TP4",
+      "B-side courtyard"
+     ],
+     [
+      66.56,
+      "TP27",
+      "B-side courtyard"
+     ],
+     [
+      66.864,
+      "TP26",
+      "B-side courtyard"
+     ],
+     [
+      67.847,
+      "TP24",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "2",
+    "x": 190.5,
+    "y": 83.2,
+    "nearest": [
+     [
+      69.673,
+      "TP4",
+      "B-side courtyard"
+     ],
+     [
+      71.524,
+      "TP27",
+      "B-side courtyard"
+     ],
+     [
+      71.863,
+      "TP26",
+      "B-side courtyard"
+     ],
+     [
+      72.84,
+      "TP24",
+      "B-side courtyard"
+     ]
+    ]
+   }
+  ],
+  "C151": [
+   {
+    "pad": "1",
+    "x": 163.0,
+    "y": 98.2,
+    "nearest": [
+     [
+      42.8,
+      "TP55",
+      "B-side courtyard"
+     ],
+     [
+      45.18,
+      "TP43",
+      "B-side courtyard"
+     ],
+     [
+      45.226,
+      "TP4",
+      "B-side courtyard"
+     ],
+     [
+      46.115,
+      "TP24",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "2",
+    "x": 185.5,
+    "y": 98.2,
+    "nearest": [
+     [
+      64.886,
+      "TP55",
+      "B-side courtyard"
+     ],
+     [
+      66.716,
+      "TP4",
+      "B-side courtyard"
+     ],
+     [
+      67.238,
+      "TP43",
+      "B-side courtyard"
+     ],
+     [
+      68.333,
+      "TP24",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "2",
+    "x": 190.5,
+    "y": 98.2,
+    "nearest": [
+     [
+      69.829,
+      "TP55",
+      "B-side courtyard"
+     ],
+     [
+      71.574,
+      "TP4",
+      "B-side courtyard"
+     ],
+     [
+      72.176,
+      "TP43",
+      "B-side courtyard"
+     ],
+     [
+      73.293,
+      "TP24",
+      "B-side courtyard"
+     ]
+    ]
+   }
+  ],
+  "C152": [
+   {
+    "pad": "1",
+    "x": 163.0,
+    "y": 113.2,
+    "nearest": [
+     [
+      41.66,
+      "TP55",
+      "B-side courtyard"
+     ],
+     [
+      43.865,
+      "TP43",
+      "B-side courtyard"
+     ],
+     [
+      51.102,
+      "TP24",
+      "B-side courtyard"
+     ],
+     [
+      52.263,
+      "TP2",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "2",
+    "x": 185.5,
+    "y": 113.2,
+    "nearest": [
+     [
+      64.133,
+      "TP55",
+      "B-side courtyard"
+     ],
+     [
+      66.353,
+      "TP43",
+      "B-side courtyard"
+     ],
+     [
+      71.817,
+      "TP24",
+      "B-side courtyard"
+     ],
+     [
+      71.846,
+      "TP4",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "2",
+    "x": 190.5,
+    "y": 113.2,
+    "nearest": [
+     [
+      69.129,
+      "TP55",
+      "B-side courtyard"
+     ],
+     [
+      71.351,
+      "TP43",
+      "B-side courtyard"
+     ],
+     [
+      76.384,
+      "TP4",
+      "B-side courtyard"
+     ],
+     [
+      76.556,
+      "TP24",
+      "B-side courtyard"
+     ]
+    ]
+   }
+  ],
+  "L1": [
+   {
+    "pad": "1",
+    "x": 232.0,
+    "y": 31.0,
+    "nearest": [
+     [
+      5.551,
+      "R2.2",
+      "F.Cu SMD pad"
+     ],
+     [
+      115.845,
+      "TP52",
+      "B-side courtyard"
+     ],
+     [
+      119.116,
+      "TP27",
+      "B-side courtyard"
+     ],
+     [
+      119.423,
+      "TP5",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "2",
+    "x": 242.0,
+    "y": 31.0,
+    "nearest": [
+     [
+      125.638,
+      "TP52",
+      "B-side courtyard"
+     ],
+     [
+      128.552,
+      "TP27",
+      "B-side courtyard"
+     ],
+     [
+      128.918,
+      "TP5",
+      "B-side courtyard"
+     ],
+     [
+      129.618,
+      "TP4",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "3",
+    "x": 242.0,
+    "y": 56.0,
+    "nearest": [
+     [
+      122.592,
+      "TP4",
+      "B-side courtyard"
+     ],
+     [
+      122.845,
+      "TP27",
+      "B-side courtyard"
+     ],
+     [
+      123.205,
+      "TP52",
+      "B-side courtyard"
+     ],
+     [
+      123.643,
+      "TP5",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "4",
+    "x": 232.0,
+    "y": 56.0,
+    "nearest": [
+     [
+      112.787,
+      "TP4",
+      "B-side courtyard"
+     ],
+     [
+      112.942,
+      "TP27",
+      "B-side courtyard"
+     ],
+     [
+      113.205,
+      "TP52",
+      "B-side courtyard"
+     ],
+     [
+      113.716,
+      "TP5",
+      "B-side courtyard"
+     ]
+    ]
+   }
+  ],
+  "C3": [
+   {
+    "pad": "1",
+    "x": 225.0,
+    "y": 102.8,
+    "nearest": [
+     [
+      4.8,
+      "C4.1",
+      "THT pad"
+     ],
+     [
+      5.041,
+      "R68.2",
+      "F.Cu SMD pad"
+     ],
+     [
+      5.135,
+      "U36.1",
+      "F.Cu SMD pad"
+     ],
+     [
+      104.184,
+      "TP55",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "2",
+    "x": 215.0,
+    "y": 102.8,
+    "nearest": [
+     [
+      4.8,
+      "C4.2",
+      "THT pad"
+     ],
+     [
+      5.135,
+      "U36.4",
+      "F.Cu SMD pad"
+     ],
+     [
+      94.201,
+      "TP55",
+      "B-side courtyard"
+     ],
+     [
+      96.497,
+      "TP43",
+      "B-side courtyard"
+     ]
+    ]
+   }
+  ],
+  "C4": [
+   {
+    "pad": "1",
+    "x": 225.0,
+    "y": 109.1,
+    "nearest": [
+     [
+      4.8,
+      "C3.1",
+      "THT pad"
+     ],
+     [
+      104.03,
+      "TP55",
+      "B-side courtyard"
+     ],
+     [
+      106.279,
+      "TP43",
+      "B-side courtyard"
+     ],
+     [
+      108.136,
+      "TP4",
+      "B-side courtyard"
+     ]
+    ]
+   },
+   {
+    "pad": "2",
+    "x": 215.0,
+    "y": 109.1,
+    "nearest": [
+     [
+      4.8,
+      "C3.2",
+      "THT pad"
+     ],
+     [
+      94.03,
+      "TP55",
+      "B-side courtyard"
+     ],
+     [
+      96.279,
+      "TP43",
+      "B-side courtyard"
+     ],
+     [
+      98.492,
+      "TP4",
+      "B-side courtyard"
+     ]
+    ]
+   }
+  ]
+ }
+}
