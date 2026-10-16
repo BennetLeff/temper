@@ -93,6 +93,34 @@
    "kicad_pad_is_datasheet_pin": true,
    "source": "TI SCES489E (Sep 2003, rev. Dec 2013), p.1 'DBV PACKAGE (TOP VIEW)': 1 A, 2 GND, 3 B, 4 Y, 5 VCC, 6 C (no separate pin table in this datasheet; the pinout is the figure on p.1). https://www.ti.com/lit/ds/symlink/sn74lvc1g332.pdf sha256 5ecad3180cb93664b358a9cb6a724e012fc9b124e6ae0d1004c9ae6600549f21, read 2026-10-15",
    "kicad_check": "native-21 frozen netlist (stage 45): U13 pad 5 (VCC) on v3v3, pad 2 (GND) on selv_gnd; inputs A / B / C = pads 1 / 3 / 6 on bus_fault_flt, ct_oc_pos, ct_oc_neg; pad 4 (Y) on bus_fault (3-input OR of the fault flags, function table p.2): KiCad pad n = datasheet pin n"
+  },
+  "C7826": {
+   "part": "SN74LVC1G00DBVR",
+   "package": "DBV (SOT-23-5)",
+   "datasheet_pins": {
+    "1": "A",
+    "2": "B",
+    "3": "GND",
+    "4": "Y",
+    "5": "VCC"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SCES212AC (Apr 1999, rev. Aug 2026), p.3 section 4 'Pin Configuration and Functions' DBV Package top view and Pin Functions table: 1 A, 2 B, 3 GND, 4 Y, 5 VCC. https://www.ti.com/lit/ds/symlink/sn74lvc1g00.pdf sha256 1264f79853e6119b66d60fe54f1f6e87995c12c00138bd820981fe68febb1063, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 45): U22 / U23 pad 5 (VCC) on v3v3, pad 3 (GND) on selv_gnd, pad 4 (Y) on leg_a-driver_dis / leg_b-driver_dis, pad 1 (A) on leg_a-permit_gate / leg_b-permit_gate, pad 2 (B) on bias_good: KiCad pad n = datasheet pin n"
+  },
+  "C403723": {
+   "part": "SN74LVC1G132DBVR",
+   "package": "DBV (SOT-23-5)",
+   "datasheet_pins": {
+    "1": "A",
+    "2": "B",
+    "3": "GND",
+    "4": "Y",
+    "5": "VCC"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SCES546E (Feb 2004, rev. Aug 2026), p.3 Fig. 4-1 'DBV Package 5-Pin SOT-23 Top View' and Pin Functions table: 1 A, 2 B, 3 GND, 4 Y, 5 VCC. https://www.ti.com/lit/ds/symlink/sn74lvc1g132.pdf sha256 fae33d78fe46834ab99230aaa1106f58321f23cf06c65be9cf08ea9c0dbcb623, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 45): U45 pad 5 (VCC) on ls_v5, pad 3 (GND) on n_ls, pad 4 (Y) on hb_tx, inputs pad 1 / 2 on monitor_ls-good / hb_rc; U46 pad 5 on v3v3, pad 3 on selv_gnd, pad 4 (Y) on hb_bufo, inputs on hsb_good / hb_rx: KiCad pad n = datasheet pin n"
   }
  }
 }

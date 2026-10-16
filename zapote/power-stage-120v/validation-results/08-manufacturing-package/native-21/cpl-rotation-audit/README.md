@@ -11,8 +11,8 @@ has an LCSC number); the other 11 are consigned or hand-assembled and are listed
 | Class | Lines | Meaning |
 |---|---|---|
 | OK | 284 | KiCad rotation is what JLC needs |
-| CORRECTED | 28 | non-zero offset, two independent sources agree, or a unique EasyEDA fit with datasheet-confirmed pin numbering (`sources/pin-evidence.json`); applied in `cpl-jlcpcb.corrected.csv` |
-| NEEDS-PREVIEW | 35 | sources disagree, a source is missing, or polarity cannot be settled offline; not changed |
+| CORRECTED | 32 | non-zero offset, two independent sources agree, or a unique EasyEDA fit with datasheet-confirmed pin numbering (`sources/pin-evidence.json`); applied in `cpl-jlcpcb.corrected.csv` |
+| NEEDS-PREVIEW | 31 | sources disagree, a source is missing, or polarity cannot be settled offline; not changed |
 
 ## Datasheet pin evidence (2026-10-15): U17 / U19 / U21 settled at 180
 
@@ -48,8 +48,13 @@ A TL432-numbered part (1 REF, 2 CATHODE) does not settle, and the selftest check
     opposite on the two pad columns: the KiCad and LCSC land patterns use different column spacing. The y match is
     exact and pad overlap is 91 %.
   - **Every other angle** misses by ≥ 0.96 mm and puts pins on the wrong function.
-  - **Not settled offline**, because they have no EasyEDA footprint in `sources/`: C83574 BAT54S (D18–D20), C7826
-    SN74LVC1G00 (U22, U23), C403723 SN74LVC1G132 (U45, U46).
+  - **Second round (EasyEDA footprints fetched read-only for the last three):**
+    - C7826 SN74LVC1G00DBVR (U22, U23) → 180 (DB 270). TI SCES212AC p.3. The fit has the same x-only column-spacing
+      residual (0.163 mm).
+    - C403723 SN74LVC1G132DBVR (U45 → 0, U46 → 90). TI SCES546E p.3. The fit and the DB already agree.
+    - **C83574 BAT54S-7-F (D18–D20) stays NEEDS-PREVIEW.** Diodes DS11005 prints no pin numbers, and the EasyEDA
+      symbol pins are bare numbers, so nothing can be cited. The nets fit the JEDEC numbering (1 = D1 anode, 2 = D2
+      cathode, 3 = common). In the preview, the EasyEDA fit gives D18 / D20 → 90 and D19 → 180; the DB gives 180 / 270.
 
 ## Stage 31 isolators (2026-10-14)
 
@@ -86,7 +91,6 @@ at that KiCad rotation (0) is wrong or right together. If 180 is wrong try 270.
 |---|---|---|
 | C20917 AO3400A | SOT-23 | Q1, Q4 |
 | C20526 MMBT3904 | SOT-23 | Q7, Q8, Q9 |
-| C10096 SN74LVC1G32 | SOT-23-5 | U22, U23 |
 
 (Note C43368's LCSC footprint is +180 while the other two SOT-23-6 parts, C33002 and C403721, are +270.
 Different LCSC parts carry different footprint orientations, so a per-footprint-name rule cannot be trusted here.)
