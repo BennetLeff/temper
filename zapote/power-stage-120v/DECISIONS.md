@@ -2864,3 +2864,9 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - TDK B32643B8104J000 (or another part qualified for 28 A on P22.5 / P27.5) becomes stocked at a usable lead and MOQ:
       fit it on the same footprint, with no re-layout;
     - the product needs 28 A commissioned before a second part is found: the TDK pre-order is back on the list.
+
+    **Addendum (2026-10-16 stock read).** `sourcing/STOCK-2026-10-16.csv` (from `11-candidates/b15-proto-alternates/`) is
+    now a scorecard stock input: the stock gate takes a dated read over the 2026-10-15 snapshot row for the same MPN when
+    the read is newer (`test_stock_gate.py`). Restamped: s51 `bom_short_lines_proto` = L1 only (C3 / C4 Mouser 773,
+    D6–D9 JLC 9,298 clear; 3 → 1, 500-board 14 → 13); s50 = L1 + the interim bank (4 → 2). `--compare` s50 and s48 give
+    the same verdicts as above. `bom_buildable_proto` still fails on L1 (OPEN-ITEMS B15).
