@@ -115,6 +115,13 @@ SPECS = {
         cite="lead path as film_radial (ASSUMED 50 K/W: two 0.8 mm leads, TDK B3264*B June 2026 p.2 'B32643B lead "
              "diameter d1 0.8 +-0.05', 'parallel wire leads, lead-free tinned'; 3 mm free length, copper-clad steel k 60). "
              "Max. operating temperature 125 C (case) (p.2; Top,max +125 C, p.12). No body-to-air path, as film_radial"),
+    "film_mmkp_h": dict(  # C21-23, C151, C152 from stage 52: TDK B32643H8104J000 (B3264*H MMKP, 2000 V, P22.5)
+        label="TDK MMKP (B3264*H) radial film capacitor", r_pad=50.0, r_top=0.0, body_mm=None, standoff_mm=3.0,
+        pad_filter=None, tj_limit=125.0, body_air=False,
+        cite="lead path as film_mmkp (ASSUMED 50 K/W: two 0.8 mm leads, TDK B3264*H June 2026 p.3 'B32643H lead diameter "
+             "d1 0.8 +-0.05', p.2 'parallel wire leads, lead-free tinned'; 3 mm free length, copper-clad steel k 60). Max. "
+             "operating temperature 125 C (case) (p.2; Top,max +125 C as operating Top = ambient + self-heating, p.15). "
+             "No body-to-air path, as film_radial"),
     "film_mmkp82": dict(  # C21-23, C151, C152 from stage 51: KNSCHA MMK104J3DF1KN208G2 (MMKP82, 2000 V, P27.5)
         label="KNSCHA MMKP82 radial film capacitor", r_pad=50.0, r_top=0.0, body_mm=None, standoff_mm=3.0,
         pad_filter=None, tj_limit=105.0, body_air=False,
@@ -142,8 +149,8 @@ SPECS = {
              "tj_limit 85 = p.2 'WORKING TEMP. -35 ~ +85 C (Refer to \"Derating Curve\")', an AMBIENT rating (p.3 "
              "x-axis 'AMBIENT TEMPERATURE'), not a case or pin rating: the gate rates the local air "
              "(b3_ratings_gate.MODULES), never this node"),
-    "choke": dict(  # L1 TDK B82726S2203A020
-        label="TDK B82726S2203A020 choke", r_pad=5.0, r_top=0.0, body_mm=None, standoff_mm=2.0,
+    "choke": dict(  # L1 TDK B82726S2203A020; stage 52: B82726S2243A020 (same sheet and drawing)
+        label="TDK B82726S22*3A020 choke", r_pad=5.0, r_top=0.0, body_mm=None, standoff_mm=2.0,
         pad_filter=None, tj_limit=125.0, body_air=True,
         cite="ASSUMED: winding to pin through the wire (k_Cu, 4 mm, 4 x 1.2 mm^2 section) ~ 5 K/W lumped; TDK datasheet "
              "not retrievable (403): no rating retrieved, 125 C is the typical class-II ferrite/choke limit (UNVERIFIED)"),
@@ -393,6 +400,8 @@ def spec_for(ref: str, mpn: str, fp: str) -> str:
         return "film_hf"
     if mpn.startswith("MMK104J3DF1"):    # stage 51: the KNSCHA MMKP82 bank (Top,max 105 C)
         return "film_mmkp82"
+    if mpn.startswith("B32643H"):        # stage 52: the prototype-lot bank (B3264*H, Top,max 125 C case)
+        return "film_mmkp_h"
     if mpn.startswith("B32643B"):        # stage 49: the c34 bank (B3264*B, Top,max 125 C case)
         return "film_mmkp"
     if mpn.startswith("B32654") or mpn.startswith("B32652"):

@@ -112,7 +112,12 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 # (Extended THT; JLC part API 2026-10-16T17:48Z: 4,952 in stock against the 2,500 a 500-board lot needs,
                 # $0.3035 at 1000+; sourcing/study-2026-10-15/scripts/jlc-raw/detail_C528962.json). TDK B32643B8104J000
                 # (C3781430, above) is the not-fitted 28 A alternate on the same footprint.
-                "MMK104J3DF1KN208G2": "C528962"})
+                "MMK104J3DF1KN208G2": "C528962",
+                # stage 52 (DECISIONS 74, prototype lot; 11-candidates/b15-proto-alternates, JLC part API 2026-10-16):
+                # L1 TDK B82726S2243A020 = C7084710 (Extended, 0 at JLC; Mouser 62 / DigiKey 29 cover the lot through
+                # global sourcing) and C3 / C4 Murata DE1E3RA222MJ4BH01F = C7170908 (Extended, 104 in stock). The bank
+                # B32643H8104J000 has no JLC / LCSC listing: it stays a consigned line (no LCSC number).
+                "B82726S2243A020": "C7084710", "DE1E3RA222MJ4BH01F": "C7170908"})
 ACCEPT_ALT = set()   # stage 43: the only accepted alternate (GRM31A5C3A102JW01D -> CC1206JKNPOCBN102) is now the source MPN
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))

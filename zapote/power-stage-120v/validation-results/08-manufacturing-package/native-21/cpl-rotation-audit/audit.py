@@ -28,7 +28,9 @@ Classes:
   entry with "non_polar_tht": the datasheet gives no polarity and its lead spacing equals the KiCad pad spacing, so the
   leads enter only pads 1 / 2 and rotations k and k + 180 place the same part: OK at the KiCad rotation.
   Stage 51: on a dual-pitch footprint (two pad-2 holes, the bank's 22.5 / 27.5 mm) the pad-2 hole at the part's lead
-  spacing is the one compared.
+  spacing is the one compared. Stage 52: the CPL centre check uses the same hole: pad 1 plus the pad-2 hole at the BOM
+  MPN's lead spacing, from bom_cpl_jlc.py's DUAL_PITCH table (read from its source, the one copy). At s51 the fitted
+  27.5 mm part's centre equalled the all-pads box by coincidence; the 22.5 mm part's does not.
 Lines JLC does not place (consigned / hand-assembled, no LCSC number) are listed as EXCLUDED, not classed.
 
 Tool controls are asserted at the end of every run (see CONTROLS and selftest()).
@@ -36,6 +38,7 @@ Tool controls are asserted at the end of every run (see CONTROLS and selftest())
 from __future__ import annotations
 
 import argparse
+import ast
 import csv
 import json
 import math
@@ -328,11 +331,33 @@ def expand_bom(path):
     return out
 
 
-def pad_bbox_centre(kfp):
+def dual_pitch_table():
+    """bom_cpl_jlc.py's DUAL_PITCH {footprint: {mpn: lead spacing mm}}, read from its source (it imports pcbnew)."""
+    tree = ast.parse((HERE.parent / "scripts/bom_cpl_jlc.py").read_text())
+    for n in tree.body:
+        if isinstance(n, ast.Assign) and any(getattr(t, "id", None) == "DUAL_PITCH" for t in n.targets):
+            return ast.literal_eval(n.value)
+    raise KeyError("DUAL_PITCH not in bom_cpl_jlc.py")
+
+
+DUAL_PITCH = dual_pitch_table()
+
+
+def pad_bbox_centre(kfp, mpn=None):
     """Same centre the CPL generator used (pad bounding boxes, KiCad centroid, review M9)."""
     th = kfp["rot"]
     xs, ys = [], []
     pads = kfp["pads"]
+    # stage 52: a dual-pitch footprint is centred on pad 1 and the pad-2 hole at the fitted part's lead spacing
+    # (bom_cpl_jlc.py centroid; KeyError for a part the footprint does not carry)
+    fpn = kfp["lib"].split(":")[-1]
+    if fpn in DUAL_PITCH:
+        sp = DUAL_PITCH[fpn][mpn]
+        p1 = next(p for p in pads if p["num"] == "1")
+        dist = lambda p: math.hypot(p["x"] - p1["x"], p["y"] - p1["y"])
+        p2 = min((p for p in pads if p["num"] == "2"), key=lambda p: abs(dist(p) - sp))
+        assert abs(dist(p2) - sp) < 0.05, (fpn, mpn, dist(p2), sp)
+        pads = [p1, p2]
     # bom_cpl_jlc.py centroid (stage 17): an all-SMD part with paste-free pads is centred on its pasted pads (R5's CSS2H
     # Kelvin fingers). Stage 35: extract_kicad.py stores a custom pad's true copper box, so the rule is needed here too.
     pasted = [p for p in pads if {"F.Paste", "B.Paste"} & set(p.get("layers", []))]
@@ -501,6 +526,16 @@ def selftest(rules):
         ev = evaluate({"pads": t3}, "Bank_Film_DualPitch_P22.5_P27.5_Radial", None, rules, "C21",
                       evidence={"non_polar_tht": {"lead_spacing_mm": sp, "tolerance_mm": 0.5}, "source": "t"})
         assert ev["theta"] == [0, 180] and ev["rms"] == 0.0, ev
+    # stage 52: the CPL centre on the dual-pitch footprint follows the fitted part's hole (22.5 mm: 11.25; 27.5: 13.75)
+    k3 = {"lib": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial", "rot": 0.0, "x": 0.0, "y": 0.0,
+          "pads": [dict(q, w=2.4, h=2.4) for q in t3]}
+    assert abs(pad_bbox_centre(k3, "B32643H8104J000")[0] - 11.25) < 1e-9, pad_bbox_centre(k3, "B32643H8104J000")
+    assert abs(pad_bbox_centre(k3, "MMK104J3DF1KN208G2")[0] - 13.75) < 1e-9
+    try:
+        pad_bbox_centre(k3, "UNKNOWN")
+        raise AssertionError("an MPN the dual-pitch footprint does not carry must raise")
+    except KeyError:
+        pass
     ev = evaluate({"pads": t3}, "X", None, rules, "C21",
                   evidence={"non_polar_tht": {"lead_spacing_mm": 25.0, "tolerance_mm": 0.5}, "source": "t"})
     assert ev["theta"] is None, ev
@@ -551,7 +586,7 @@ def main():
         kfp = kfps[ref]
         b = bom[ref]
         # the board dump must be the board the CPL was written from
-        cx, cy = pad_bbox_centre(kfp)
+        cx, cy = pad_bbox_centre(kfp, b.get("Manufacturer Part Number"))
         centre_err = max(centre_err, abs(cx - num(line["Mid X"])), abs(cy - num(line["Mid Y"])))
         assert abs(kfp["rot"] - float(line["Rotation"])) < 1e-6, ref
         k = norm(float(line["Rotation"]))

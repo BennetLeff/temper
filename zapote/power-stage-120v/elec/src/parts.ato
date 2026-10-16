@@ -120,6 +120,24 @@ component Cmc20A:
     signal b_in ~ pin 2
     signal b_out ~ pin 3
 
+component Cmc24A:
+    """TDK B82726S2243A020 current-compensated choke, 24 A, 0.75 mH (-30/+50 %), Lstray 8 uH typ, 3.2 mOhm per winding
+    (stage 52, DECISIONS 74, prototype lot). TDK B82726S22*3A020 data sheet (5/26, sha256 e8002bfe...) p.4 ordering
+    table: same sheet, same dimensional drawing and pin configuration as Cmc20A (windings 1-4 and 2-3, no polarity; 10 mm
+    within a row, 25 mm between rows, 2 mm pins), so it drops into temper:B82726S2_ReviewOnly. IR 24 A at TR 60 C, VR
+    250 V AC, 40/125/56. Fitted for the 10-20 board prototype lot (Mouser 62 / DigiKey 29 on 2026-10-16;
+    11-candidates/b15-proto-alternates); the production part stays B82726S2203A020 (Cmc20A, owner pre-order). Its lower
+    stray inductance moves the 70 kHz DM line: full EMI margin needs the inlet module's DM inductors >= 100 uH per line
+    at 21 A (MODULE-REQUEST.md); with today's 2 x 41 uH the model is INCONCLUSIVE (prototype EMI deviation)."""
+    designator_prefix = "L"
+    mpn = "B82726S2243A020"
+    manufacturer = "TDK"
+    footprint = "temper:B82726S2_ReviewOnly"
+    signal a_in ~ pin 1
+    signal a_out ~ pin 4
+    signal b_in ~ pin 2
+    signal b_out ~ pin 3
+
 component CapX2_1u:
     """KEMET R463N410050N1K X2 1 uF +/-10 % 310 VAC, 22.5 mm pitch, R46 N1 body 26.5 x 11.0 x 20.0 mm
     (KEMET R46 datasheet p.10 row R463N4100(1)N1(2); p.3 maximum body 26.8 x 11.2 x 20.1 mm).
@@ -137,6 +155,22 @@ component CapY1_2n2:
     """Murata DE1E3RA222MA4BP01F X1/Y1 2.2 nF disc, 10 mm pitch."""
     designator_prefix = "C"
     mpn = "DE1E3RA222MA4BP01F"
+    manufacturer = "Murata"
+    footprint = "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component CapY1_2n2H:
+    """Murata DE1E3RA222MJ4BH01F X1/Y1 2.2 nF +-20 % disc, Type RA, H01F (stage 52, DECISIONS 74). Murata reference
+    specification Type RA (Jun. 2023, EGD08G; LCSC copy sha256 c959488a...; PDF pages, the printed n/17 footer is one
+    less): p.6 approvals UL/cUL UL60384-14 / CSA E60384-14 E37921, ENEC (VDE) EN60384-14 40043033, CQC IEC60384-14
+    CQC16001138225; ratings X1 440 V AC, Y1 400 V AC, DC 1 kV, -40 .. 125 C; p.9 J4 drawing and part list D 9.0 / T 4.0
+    / F 10.0 / d 0.6 mm, lead style J4 (vertical crimp short type: 3.5 +1.0/-0.5 mm below the crimp, crimp <= 3.0 mm
+    below the disc, F +-0.8). Same body, pitch, lead and certificates
+    as DE1E3RA222MA4BP01F (CapY1_2n2, P01F: Y1 300 V; A4 long crimped leads), so the footprint is unchanged. JLC
+    C7170908 (104 on 2026-10-16), Mouser 6,002 (11-candidates/b15-proto-alternates)."""
+    designator_prefix = "C"
+    mpn = "DE1E3RA222MJ4BH01F"
     manufacturer = "Murata"
     footprint = "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly"
     signal p1 ~ pin 1
@@ -502,6 +536,23 @@ component ResMmkp82Bank:
     designator_prefix = "C"
     mpn = "MMK104J3DF1KN208G2"
     manufacturer = "KNSCHA"
+    footprint = "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component ResB32643HBank:
+    """TDK B32643H8104J000 (stage 52, DECISIONS 74, prototype lot): 0.10 uF +-5 % 2000 Vdc / 700 Vac MMKP, 22.5 mm
+    radial, B3264*H data sheet (June 2026, owner-supplied, sha256 69b56e62...): p.3 e 22.5 +-0.4 mm, d1 0.8 +-0.05 mm;
+    p.14 maximum body w x h x l 14.5 x 29.5 x 26.5 mm (the B32643B body), IRMS,max 100 kHz 11.03 A at TA 60 C
+    (self-heating <= 30 K) / 9.17 A at 85 C (<= 20 K), ESRtyp 10.9 mOhm; p.15 TR 105 C, Top,max 125 C (case), tan d <=
+    0.3e-3 at 1 kHz / 1.0e-3 at 100 kHz, AEC-Q200D, IEC 60384-16; p.16 dV/dt 3800 V/us; p.2 case UL 94 V-0. Fitted in
+    the dual-pitch footprint's 22.5 mm hole (pad 2 at x 22.5); the 27.5 mm hole stays empty. Rated 24 A strict on this
+    board (11-candidates/c51-bank-source, 'Alternates to B32643B'). DigiKey 306 on 2026-10-16 (no JLC listing):
+    consigned / global-sourcing line for the 10-20 board prototype lot. KNSCHA MMK104J3DF1KN208G2 (ResMmkp82Bank) stays
+    the in-stock fallback (22 A strict) and TDK B32643B8104J000 (ResB32643B) the 28 A part, both on the same footprint."""
+    designator_prefix = "C"
+    mpn = "B32643H8104J000"
+    manufacturer = "TDK"
     footprint = "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial"
     signal p1 ~ pin 1
     signal p2 ~ pin 2

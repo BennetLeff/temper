@@ -22,11 +22,11 @@
 # current-sense board) are provisional for the 70 uH / 32 kHz nominal coil
 # until the coil and pan measurements in COIL-MC.md are taken.
 
-from "parts.ato" import MainsTerminal2, PowerTerminalM4, PeBranchTerminal, MainsFuse25A, Tmov175, Cmc20A
-from "parts.ato" import CapX2_1u, CapY1_2n2, R100k1206, BridgeGbj2510, BusFilm2u7, LocalBus100n
+from "parts.ato" import MainsTerminal2, PowerTerminalM4, PeBranchTerminal, MainsFuse25A, Tmov175, Cmc24A
+from "parts.ato" import CapX2_1u, CapY1_2n2H, R100k1206, BridgeGbj2510, BusFilm2u7, LocalBus100n
 from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BDWK, Driver2EDR8259X
 from "parts.ato" import R3R9Gate, R8R2Gate, R68Gate2512, R49k9Dt, R10k0603, R100k0603, R100R0603
-from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, ResMmkp82Bank
+from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, ResB32643HBank
 from "parts.ato" import C100n0805, C1u0805
 from "parts.ato" import CST3015_200E, TcoLoopHeader, BranchFuseT3A15, BranchLimiter0R15, MainsTapHeader
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C4n7C0G0603, C100pC0G0603
@@ -321,7 +321,8 @@ module PowerStage120V:
     rb1b.value = 100kohm
     rb1b.p1 ~ XBLEED_MID
     rb1b.p2 ~ AC_N_IN
-    l1 = new Cmc20A
+    # Stage 52 (DECISIONS 74, prototype lot): TDK B82726S2243A020 (24 A, same drawing); production stays B82726S2203A020
+    l1 = new Cmc24A
     l1.a_in ~ L_F
     l1.a_out ~ L_FILT
     l1.b_in ~ AC_N_IN
@@ -329,10 +330,11 @@ module PowerStage120V:
     cx2 = new CapX2_1u
     cx2.p1 ~ L_FILT
     cx2.p2 ~ N_FILT
-    cy1 = new CapY1_2n2
+    # Stage 52 (DECISIONS 74): Murata DE1E3RA222MJ4BH01F (Y1 400 V, same body / certificates as DE1E3RA222MA4BP01F)
+    cy1 = new CapY1_2n2H
     cy1.p1 ~ L_FILT
     cy1.p2 ~ PE
-    cy2 = new CapY1_2n2
+    cy2 = new CapY1_2n2H
     cy2.p1 ~ N_FILT
     cy2.p2 ~ PE
 
@@ -418,19 +420,21 @@ module PowerStage120V:
     # Stage 49 (DECISIONS 68, candidate 34): TDK B32643B8104J000, 2000 Vdc, P22.5, rated dT 15 K (same 0.50 uF).
     # Stage 51 (DECISIONS 73): KNSCHA MMK104J3DF1KN208G2 fitted (2000 Vdc, P27.5, JLC stock); TDK B32643B8104J000 is the
     # 28 A drop-in alternate on the same dual-pitch footprint (Bank_Film_DualPitch_P22.5_P27.5_Radial).
-    c_res1 = new ResMmkp82Bank
+    # Stage 52 (DECISIONS 74, prototype lot): TDK B32643H8104J000 fitted in the 22.5 mm hole (24 A strict, DigiKey stock);
+    # KNSCHA stays the in-stock fallback (27.5 mm hole) and B32643B8104J000 the 28 A part (22.5 mm hole).
+    c_res1 = new ResB32643HBank
     c_res1.p1 ~ RES_A
     c_res1.p2 ~ SW_B
-    c_res2 = new ResMmkp82Bank
+    c_res2 = new ResB32643HBank
     c_res2.p1 ~ RES_A
     c_res2.p2 ~ SW_B
-    c_res3 = new ResMmkp82Bank
+    c_res3 = new ResB32643HBank
     c_res3.p1 ~ RES_A
     c_res3.p2 ~ SW_B
-    c_res4 = new ResMmkp82Bank
+    c_res4 = new ResB32643HBank
     c_res4.p1 ~ RES_A
     c_res4.p2 ~ SW_B
-    c_res5 = new ResMmkp82Bank
+    c_res5 = new ResB32643HBank
     c_res5.p1 ~ RES_A
     c_res5.p2 ~ SW_B
     # Bleed: an OCP trip can leave C_res holding ~250 V with no discharge

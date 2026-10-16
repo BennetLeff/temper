@@ -61,9 +61,19 @@ for p in T03["parts"]:
 # the only published loss limit, tan d <= 0.1 % at 1 kHz (spec KNS20200505002 p.4), held flat as the dielectric term
 # with R_s 0: 39.8 mOhm at 40 kHz, 3.7 x the rating-implied value and above c34's 35.8 mOhm. Both ASSUMED (bench item:
 # ESR / tan d at 35 and 40 kHz). (B32643B8104J000, the 28 A alternate: 8 mOhm typ; R_s 15.9 mOhm, D 5.00e-4.)
-C_RES, ESR_TYP = 0.1e-6, 10.7e-3
-R_S, D_LIM = 0.0, 1.0e-3
-BANK_MPN = "MMK104J3DF1KN208G2"
+# Stage 52 (DECISIONS 74, prototype lot): the bank is 5 x TDK B32643H8104J000 (B3264*H, June 2026, owner-supplied,
+# sha256 69b56e62..., not committed). p.14: ESRtyp 10.9 mOhm at 100 kHz (IRMS,max 9.17 A at 85 C for dT <= 20 K), held
+# flat below 100 kHz as the typical row (as the B32654A rows above). p.15: tan d upper limits 0.3e-3 at 1 kHz and
+# 1.0e-3 at 100 kHz (C <= 0.1 uF). Worst: those two limits fitted as ESR = R_s + D / (2 pi f C): R_s 11.26 mOhm,
+# D 2.93e-4, i.e. 22.9 mOhm at 40 kHz. (KNSCHA MMK104J3DF1KN208G2, the s51 part and now the in-stock fallback: 10.7 mOhm
+# typ / R_s 0, D 1.0e-3, 39.8 mOhm at 40 kHz.)
+C_RES, ESR_TYP = 0.1e-6, 10.9e-3
+_W1, _W100 = 2 * math.pi * 1e3 * C_RES, 2 * math.pi * 100e3 * C_RES
+R_S = (1.0e-3 - 0.3e-3) / (_W100 - _W1)                 # tan d = D + R_s w C at both points
+D_LIM = 0.3e-3 - R_S * _W1
+BANK_MPN = "B32643H8104J000"
+FROZEN_CSV = (UNIT / "native-21/frozen/default.csv").read_text()
+assert f"{BANK_MPN},\"C21," in FROZEN_CSV, "the heat rows' bank MPN is not the frozen BOM's"
 SHARE = 6.55 / 28.0
 I_T = {"nominal": 21.47, "worst": 29.4, "c28": 29.4}      # run_study.py OPS tank RMS (worst: the 1.05 x 28 A trip)
 
@@ -71,6 +81,17 @@ I_T = {"nominal": 21.47, "worst": 29.4, "c28": 29.4}      # run_study.py OPS tan
 def esr_worst(f):
     return R_S + D_LIM / (2 * math.pi * f * C_RES)
 
+
+# Stage 52 (DECISIONS 74, prototype lot): L1 is TDK B82726S2243A020. Its copper loss replaces task 03's B82726S2203A020
+# row: 2 windings x R_typ x 15 A^2 (the owner's 15 A inlet cap, the same current task 03 used: 2 x 4.5 mOhm x 15^2 =
+# 2.025 W). R_typ per winding at 20 C: 4.5 mOhm (2203) / 3.2 mOhm (2243), TDK B82726S22*3A020 (5/26) p.4 ordering table.
+L1_RTYP = {"B82726S2203A020": 4.5e-3, "B82726S2243A020": 3.2e-3}
+L1_MPN = next(m for m in L1_RTYP if f"{m},L1," in FROZEN_CSV)
+for r in rows:
+    if r["ref"] == "L1":
+        w = 2 * L1_RTYP[L1_MPN] * 15.0 ** 2
+        r.update(watts_nominal=w, watts_worst=w,
+                 note=f"{L1_MPN}, 2 x {L1_RTYP[L1_MPN] * 1e3:.1f} mOhm (TDK p.4, typ at 20 C) x 15 A^2 (task 03 basis)")
 
 # Stage 15: the firmware RMS trip (1.05 x ceiling <= 29.4 A) bounds the sustained tank current, so the worst
 # column moves from round 3's 44.7 A grid extreme to 29.4 A: R5 / R39's task-03 worst rows are re-scaled.

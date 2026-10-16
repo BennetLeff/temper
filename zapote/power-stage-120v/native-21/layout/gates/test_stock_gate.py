@@ -260,9 +260,11 @@ BOM51 = SRC / "study-2026-10-15/snapshot/s51/bom-jlcpcb.s51.csv"
 SNAPD = SRC / "SNAPSHOT-2026-10-15.csv"
 if (SRC / "STOCK-2026-10-16.csv").exists() and BOM51.exists():
     dl = [Path(x).name for x in DEF.split(",")]
-    check("default --stock: every 2026-10-13 survey file first (their own order), the dated read last",
-          dl[-1] == "STOCK-2026-10-16.csv" and all(n.startswith("STOCK-2026-10-13") for n in dl[:-1])
-          and [str(SRC / n) for n in dl[:-1]] == STOCKS.split(","), dl)
+    nsv = sum(n.startswith("STOCK-2026-10-13") for n in dl)
+    check("default --stock: every 2026-10-13 survey file first (their own order), then the dated reads in name order "
+          "(stage 52 adds STOCK-2026-10-16-bank-s52.csv)",
+          "STOCK-2026-10-16.csv" in dl[nsv:] and all(n.startswith("STOCK-2026-10-13") for n in dl[:nsv])
+          and dl[nsv:] == sorted(dl[nsv:]) and [str(SRC / n) for n in dl[:nsv]] == STOCKS.split(","), dl)
     g51 = sc.stock_gate(BOM51, SNAPD, DEF)
     m51 = {l["mpn"] for l in g51["bom_short_lines_proto"]}
     check("s51 with the 2026-10-16 read: C3/C4 (Mouser 773) and D6-D9 (JLC 9298) clear; L1 B82726S2203A020 is the one short line",
@@ -270,6 +272,17 @@ if (SRC / "STOCK-2026-10-16.csv").exists() and BOM51.exists():
     check("s51 without it: L1, C3/C4, D6-D9 short (the 2026-10-15 snapshot)",
           {l["mpn"] for l in sc.stock_gate(BOM51, SNAPD, STOCKS)["bom_short_lines_proto"]}
           == {"B82726S2203A020", "DE1E3RA222MA4BP01F", "PMEG6030EP,115"})
+
+# ---- stage 52 (prototype BOM, DECISIONS-DRAFT 74): L1 B82726S2243A020, C3/C4 DE1E3RA222MJ4BH01F, bank B32643H8104J000
+BOM52 = SRC / "study-2026-10-15/snapshot/s52/bom-jlcpcb.s52.csv"
+if (SRC / "STOCK-2026-10-16-bank-s52.csv").exists() and BOM52.exists():
+    g52 = sc.stock_gate(BOM52, SNAPD, DEF)
+    m52 = {l["mpn"] for l in g52["bom_short_lines_proto"]}
+    check("s52 with the default --stock list: no line short at 20 boards (bank DigiKey 306 dated read, L1 Mouser 62 / "
+          "DigiKey 29, C3/C4 JLC 104)", m52 == set() and g52["bom_lines_short_proto"] == 0, sorted(m52))
+    check("s52: the bank's dated read is the one in STOCK-2026-10-16-bank-s52.csv",
+          str(g52["bom_stock_read_overrides"].get("B32643H8104J000", "")).startswith("STOCK-2026-10-16-bank-s52.csv"),
+          g52["bom_stock_read_overrides"])
 
 print("PASS" if not fails else f"{fails} FAILED")
 sys.exit(1 if fails else 0)

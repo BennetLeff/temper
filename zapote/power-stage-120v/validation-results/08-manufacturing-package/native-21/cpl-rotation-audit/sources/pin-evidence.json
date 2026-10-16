@@ -216,6 +216,21 @@
    "kicad_pad_is_datasheet_pin": true,
    "source": "KNSCHA specification for approval KNS20200505002 'MMKP82 104J2000V P=27.5', part number MMK104J3DF1KN208G2 (LCSC C528962), p.2 product structure (wound PP film core, sprayed metal ends, epoxy, CP wire leads, PBT case) and p.3 outline / dimension table: W 31.5, H 19.5, T 11, P 27.5 (each +-0.5), d 0.8 +-0.05, L 20 +-2 mm; marking '104J2000V' with no polarity mark. LCSC PDF 2005081108_KNSCHA-MMK104J3DF1KN208G2_C528962.pdf sha256 4621763054ad5e929df48528d35f6c3178f2fe0ed148c2020e3cc51edf3b87c8, read 2026-10-16 (11-candidates/c51-bank-source, dl/ not committed)",
    "kicad_check": "native-21 frozen netlist (stage 51): C21 / C22 / C23 / C151 / C152 pad 1 on res_a, both pad-2 holes on sw_b; the 27.5 mm hole sits 27.5 mm from pad 1 on X. A film capacitor has no polarity, so either lead in either hole of the pair is the same circuit; a 90 / 270 rotation cannot be inserted. No EasyEDA footprint for C528962 in sources/easyeda-footprints.json (not fetched)."
+  },
+  "C7170908": {
+   "part": "DE1E3RA222MJ4BH01F",
+   "package": "Murata Type RA disc, 2 crimped leads, F 10.0 mm (temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly: pads 1 / 2 at 10.0 mm)",
+   "non_polar_tht": {
+    "lead_spacing_mm": 10.0,
+    "tolerance_mm": 0.8
+   },
+   "datasheet_pins": {
+    "1": "TERMINAL",
+    "2": "TERMINAL"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "Murata reference specification Type RA (Jun. 2023, EGD08G), LCSC copy sha256 c959488a2523ac21a1890fd684377a6e93cb7a5928811e63756dd034662089e7, read 2026-10-16 (11-candidates/b15-proto-alternates, sources/ not committed; PDF pages, the printed n/17 footer is one less): p.9 lead style J4 'Vertical crimp short type' drawing and part list, F +-0.8, d +-0.05, 3.5 +1.0/-0.5 mm below the crimp; part list row DE1E3RA222MJ4BH01F D 9.0 / T 4.0 / F 10.0 / d 0.6 mm; ceramic disc capacitor, no polarity (p.7 marking shows none)",
+   "kicad_check": "native-21 frozen netlist (stage 52): C3 pad 1 l_filt / pad 2 pe, C4 pad 1 n_filt / pad 2 pe; pads 10.0 mm apart on X. A ceramic disc capacitor has no polarity, so rotations k and k + 180 place the same part; 90 / 270 cannot be inserted. No EasyEDA footprint for C7170908 in sources/easyeda-footprints.json (not fetched)."
   }
  }
 }

@@ -17,8 +17,14 @@ def main() -> None:
     # stage 49 (DECISIONS 68, candidate 34): the bank is 5 x TDK B32643B8104J000 (2000 V DC, P22.5) on its own footprint
     # stage 51 (DECISIONS 73): KNSCHA MMK104J3DF1KN208G2 fitted (JLC C528962) on the dual-pitch footprint, whose P22.5
     # hole keeps TDK B32643B8104J000 as the 28 A drop-in alternate
-    assert all(parts[f'c_res{i}']['mpn'] == 'MMK104J3DF1KN208G2' and
+    # stage 52 (DECISIONS 74, prototype lot): TDK B32643H8104J000 fitted in the 22.5 mm hole of the same footprint
+    assert all(parts[f'c_res{i}']['mpn'] == 'B32643H8104J000' and
                parts[f'c_res{i}']['footprint'] == 'temper:Bank_Film_DualPitch_P22.5_P27.5_Radial' for i in range(1, 6))
+    # stage 52: L1 TDK B82726S2243A020 (24 A, same drawing / footprint as the production B82726S2203A020) and C3 / C4
+    # Murata DE1E3RA222MJ4BH01F (Y1 400 V, same body / certificates as DE1E3RA222MA4BP01F) on unchanged footprints
+    assert parts['l1']['mpn'] == 'B82726S2243A020' and parts['l1']['footprint'] == 'temper:B82726S2_ReviewOnly'
+    assert all(parts[c]['mpn'] == 'DE1E3RA222MJ4BH01F' and
+               parts[c]['footprint'] == 'temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly' for c in ('cy1', 'cy2'))
     for leg in ('leg_a', 'leg_b'):
         assert parts[f'{leg}.r_dt']['mpn'] == 'RT0603BRD0749K9L'
         # stage 22 (DECISIONS 27): DIS = NAND(permit_gate, bias_good); the PERMIT FET and 330 ohm pull-up are gone

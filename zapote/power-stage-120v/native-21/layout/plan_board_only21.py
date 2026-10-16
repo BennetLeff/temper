@@ -340,6 +340,48 @@ if pe:
     at = text_spot(["PE"], 1.5, (sum(q["x"] for q in pe) / len(pe), sum(q["y"] for q in pe) / len(pe) - 6))
     if at:
         silk.append({"kind": "text", "lines": ["PE"], "size": 1.5, "at": at})
+# Stage 52 (DECISIONS 74, owner-approved): bank-variant fit mark. The dual-pitch bank footprint (C21-C23, C151, C152) takes
+# TDK B32643H8104J000 (H, 24 A strict: the prototype lot) or B32643B8104J000 (B, 28 A) in its 22.5 mm hole; the assembler
+# or bench tech ticks one box by hand. A board marked H, or with no mark, is never commissioned above 24 A (COMMISSIONING
+# record; OPEN-ITEMS S28). Text at the board's legend size 1.0 mm with JLC's minimum 0.15 mm stroke (board_only21.py), two
+# 2.0 mm tick boxes. Placed as one block at the legal spot nearest the foot of the bank column (on s52: right of C152's
+# courtyard, x 194-224, y 114-121), where the 29.5 mm bodies do not hide it from above: clear of courtyards (so of the bank's), pads, test pads, holes and
+# fiducials by 0.5 mm (so off every mask opening: KiCad's silk_over_copper is silk clipped by a pad's mask), inside the 1.5 mm
+# edge inset. Silk over tented copper (tracks, pours) is allowed, as for the other legends.
+BANK_FIT_ROWS = (("BANK FIT, TICK ONE:", False), ("H  B32643H8104J000  24 A MAX", True), ("B  B32643B8104J000  28 A", True))
+BANK_FIT_TEXT, BANK_FIT_PITCH, BANK_FIT_BOX, BANK_FIT_GAP = 1.0, 2.6, 2.0, 0.8
+
+
+def bank_fit_mark(target):
+    tw = max(len(t) for t, _ in BANK_FIT_ROWS) * BANK_FIT_TEXT * 1.0          # stroke font: <= 1 x size per glyph
+    w = BANK_FIT_BOX + BANK_FIT_GAP + tw
+    hh = len(BANK_FIT_ROWS) * BANK_FIT_PITCH
+    inner = outline.buffer(-1.5)
+    obst = taken + [b for _, b in padbox]
+    tree = STRtree(obst)
+    cand = sorted((math.dist((i / 2, j / 2), target), i / 2, j / 2) for i in range(2 * 120, 2 * 240) for j in range(2 * 20, 2 * 150))
+    for dd, x0, y0 in cand:                 # (x0, y0) = the block's upper-left corner, on a 0.5 mm grid
+        bx = box(x0, y0, x0 + w, y0 + hh)
+        if not inner.contains(bx):
+            continue
+        bb = bx.buffer(0.5)
+        if any(obst[k].intersects(bb) for k in tree.query(bb)):
+            continue
+        taken.append(bx)
+        out = []
+        for k, (t, has_box) in enumerate(BANK_FIT_ROWS):
+            yc = y0 + (k + 0.5) * BANK_FIT_PITCH
+            xt = x0 + (BANK_FIT_BOX + BANK_FIT_GAP if has_box else 0.0)
+            out.append({"kind": "text", "lines": [t], "size": BANK_FIT_TEXT,
+                        "at": [round(xt + len(t) * BANK_FIT_TEXT * 1.0 / 2, 2), round(yc, 2)], "mark": "bank_fit"})
+            if has_box:
+                out.append({"kind": "rect", "box": [x0, round(yc - BANK_FIT_BOX / 2, 2), x0 + BANK_FIT_BOX,
+                                                    round(yc + BANK_FIT_BOX / 2, 2)], "mark": "bank_fit"})
+        return out
+    raise SystemExit("bank-fit mark: no legal spot near the bank column")
+
+
+silk += bank_fit_mark((163.0, 122.0))
 for h in holes:
     if h["kind"] == "nylon":
         silk.append({"kind": "ring", "at": h["at"], "r": 3.6})

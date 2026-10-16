@@ -81,10 +81,14 @@ BAND_BEFORE = {"native21s13": (49.53, 97.77), "native21s13b": (49.53, 97.77), "n
                "native21s50": (71.59, 114.58),
                # s51 (c51-bank-source, the bank part and its footprint only): the s50 band; c51-bank-source/stage51/
                # scripts/bands51.py --check confirms it on this board's own release solve
-               "native21s51": (71.59, 114.58)}   # 12.6 k / 11.7 k (stage 15; scratchpad stage15/ocp_bands.py -> task 02); s17: R5 CSS2H 75 ppm (round5-native21/stage17-r5/ocp_band17.py)
+               "native21s51": (71.59, 114.58),
+               # s52 (prototype BOM: bank part, L1, C3 / C4; no OCP part or copper change): this board's own release solve,
+               # s52-proto-bom/scripts/bands52.py --check (results/bands-s52.json band_basis_s52). The top moves 114.58 ->
+               # 114.57 A: the B32643H bank and the 2243 L1 put less heat into the board, so the band network sits cooler
+               "native21s52": (71.59, 114.57)}   # 12.6 k / 11.7 k (stage 15; scratchpad stage15/ocp_bands.py -> task 02); s17: R5 CSS2H 75 ppm (round5-native21/stage17-r5/ocp_band17.py)
 # Low-corner floor after the shift. 44 A until stage 14; stage 15 (28 A ceiling): 59.17 A envelope peak + 3.0 A
 # coil-pickup stack (DECISIONS item 9) + 2 A margin = 64.17 A (round 6 rule; basis A of the stage-15 plan).
-FLOOR = {"native21s15": 64.17, "native21s15b": 64.17, "native21s16": 64.17, "native21s17": 64.17, "native21s17b": 64.17, "native21s18": 64.17, "native21s19": 64.17, "native21s19b": 64.17, "native21s19c": 64.17, "native21s20": 64.17, "native21s21": 64.17, "native21s21b": 64.17, "native21s22": 64.17, "native21s26": 64.17, "native21s27": 64.17, "native21s28": 64.17, "native21s29": 64.17, "native21s30": 64.17, "native21s31": 64.17, "native21s32": 64.17, "native21s33": 64.17, "native21s35": 64.17, "native21s38": 64.17, "native21s40": 64.17, "native21s41": 64.17, "native21s42": 64.17, "native21s43": 64.17, "native21s44": 64.17, "native21s45": 64.17, "native21s46": 64.17, "native21s47": 64.17, "native21s48": 64.17, "native21s49": 64.17, "native21s50": 64.17, "native21s51": 64.17}
+FLOOR = {"native21s15": 64.17, "native21s15b": 64.17, "native21s16": 64.17, "native21s17": 64.17, "native21s17b": 64.17, "native21s18": 64.17, "native21s19": 64.17, "native21s19b": 64.17, "native21s19c": 64.17, "native21s20": 64.17, "native21s21": 64.17, "native21s21b": 64.17, "native21s22": 64.17, "native21s26": 64.17, "native21s27": 64.17, "native21s28": 64.17, "native21s29": 64.17, "native21s30": 64.17, "native21s31": 64.17, "native21s32": 64.17, "native21s33": 64.17, "native21s35": 64.17, "native21s38": 64.17, "native21s40": 64.17, "native21s41": 64.17, "native21s42": 64.17, "native21s43": 64.17, "native21s44": 64.17, "native21s45": 64.17, "native21s46": 64.17, "native21s47": 64.17, "native21s48": 64.17, "native21s49": 64.17, "native21s50": 64.17, "native21s51": 64.17, "native21s52": 64.17}
 
 
 def main():

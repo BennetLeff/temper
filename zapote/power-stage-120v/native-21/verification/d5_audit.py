@@ -46,6 +46,9 @@ PKG = {
     # C3 / C4 Y-capacitors: the safety basis is the component approval (IEC 60384-14 Y1 / UL 60384-14), not a tabulated
     # package distance; the board land gap is still measured against the floor
     "DE1E3RA222MA4BP01F": {"clr": None, "cpg": None, "src": "Murata DE1 Y1 safety capacitor: component approval basis, no package distance table", "rating": "Y1 component approval (certificates in the datasheet ledger)"},
+    # stage 52 (DECISIONS 74): the H01F variant (Y1 400 V) of the same Type RA disc; same certificates E37921 / 40043033 /
+    # CQC16001138225 (Murata Type RA reference specification Jun. 2023 p.5), same body and 10 mm pitch
+    "DE1E3RA222MJ4BH01F": {"clr": None, "cpg": None, "src": "Murata DE1 Type RA H01F Y1 (AC400 V) safety capacitor: component approval basis, no package distance table", "rating": "Y1 component approval (certificates in the datasheet ledger)"},
     "IRM-20-15": {"clr": None, "cpg": None, "src": "Mean Well IRM-20 (input/output pin span only)", "rating": "module approval; PCB pin span checked here"},
 }
 

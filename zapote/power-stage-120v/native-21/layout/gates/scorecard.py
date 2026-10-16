@@ -247,6 +247,18 @@ def performance(b, tag):
                              + (f"; release worst {br['metrics']['release_worst_gated']}"
                                 if br["metrics"].get("release_worst_gated") else ""))
     emi = jload(VR / "07-conducted-emi/s19b/results.json")
+    emi_src = "07-conducted-emi/s19b/results.json scenarios.nominal (min margin_dB)"
+    # stage 52 (DECISIONS 74): the model of record is s19b with board L1 = B82726S2203A020. With the prototype-lot L1
+    # B82726S2243A020 fitted the card reads the same model with that L1 at the design point MODULE-REQUEST.md now specifies
+    # (inlet-module DM inductance >= 100 uH per line at 21 A): 11-candidates/b15-proto-alternates run_emi_l1.py. With
+    # today's 2 x 41 uH module the same model is INCONCLUSIVE (6.03 dB nominal): the recorded prototype EMI deviation.
+    l1_mpn = next((r["Manufacturer Part Number"] for r in csv.DictReader(open(FAB / "bom-jlcpcb.csv"))
+                   if r["Designator"].strip() == "L1"), None)
+    if l1_mpn == "B82726S2243A020":
+        emi = jload(VR / "11-candidates/b15-proto-alternates/results/emi-B82726S2243A020_moduleDM100u/results.json")
+        emi_src = ("11-candidates/b15-proto-alternates/results/emi-B82726S2243A020_moduleDM100u/results.json scenarios.nominal "
+                   "(min margin_dB; s19b model, L1 B82726S2243A020, module DM 100 uH per line = the MODULE-REQUEST.md "
+                   "requirement; with the 41 uH module 6.03 dB, INCONCLUSIVE: prototype EMI deviation, DECISIONS 74)")
     if emi:
         def margins(o):
             if isinstance(o, dict):
@@ -258,7 +270,7 @@ def performance(b, tag):
         ms = list(margins(emi.get("scenarios", {}).get("nominal", {})))
         if ms:
             m["emi_min_margin_dB"] = round(min(ms), 1)
-            src["emi"] = "07-conducted-emi/s19b/results.json scenarios.nominal (min margin_dB)"
+            src["emi"] = emi_src
     lk = jload(VR / "07-conducted-emi/leakage/result.json")
     if lk:
         d = [r for r in lk.get("results", []) if r.get("label", "").startswith("DESIGN")]
@@ -285,7 +297,7 @@ def performance(b, tag):
     bo = jload(VR / "11-candidates/g04-g09-tank-detect/results/bank_options.json")
     bank_mpn = None
     for r in csv.DictReader(open(FAB / "bom-jlcpcb.csv")):
-        if r["Manufacturer Part Number"].startswith(("B32654A1104", "B32643B8104", "MMK104J3DF1")) and "C21" in r["Designator"]:
+        if r["Manufacturer Part Number"].startswith(("B32654A1104", "B32643B8104", "MMK104J3DF1", "B32643H8104")) and "C21" in r["Designator"]:
             bank_mpn = r["Manufacturer Part Number"]
     if bo:
         grade = None
@@ -316,6 +328,15 @@ def performance(b, tag):
         m["bank_ratio_tdk_28A_40k"] = r["ratio_40k_vendor_curve"]
         src["bank"] = src["bank_35k"] = (f"11-candidates/bank28-air/results/bank_air_metric.json {bank_mpn} vendor curve "
                                          "(KNSCHA MMKP82 6.2 / 6.16 A at 35 / 40 kHz, 10 K; c51-bank-source/data/candidates.json)")
+    # stage 52 (DECISIONS 74): the fitted bank is TDK B32643H8104J000; the same two keys take its p.19 curve (6.155 / 6.481 A
+    # at 35 / 40 kHz, T_A 85 C, dT <= 20 K) from the producer
+    if ba and bank_mpn and bank_mpn.startswith("B32643H8104") and bank_mpn in ba["by_mpn"]:
+        r = ba["by_mpn"][bank_mpn]
+        m["bank_ratio_tdk_28A_35k"] = r["ratio_35k_vendor_curve"]
+        m["bank_ratio_tdk_28A_40k"] = r["ratio_40k_vendor_curve"]
+        src["bank"] = src["bank_35k"] = (f"11-candidates/bank28-air/results/bank_air_metric.json {bank_mpn} vendor curve "
+                                         "(TDK B3264*H p.19 6.155 / 6.481 A at 35 / 40 kHz, 85 C, 20 K; "
+                                         "c51-bank-source/results/b32643h.json)")
     # PROPOSED (bank28): physical check under the declared airflow, by the fitted MPN (producer bank_air_metric.py)
     if ba and bank_mpn and bank_mpn in ba["by_mpn"]:
         r = ba["by_mpn"][bank_mpn]

@@ -38,6 +38,14 @@ c17.5_h10_p0p25 / p0p5 at bay 61 C, air at bay + 15 K) at 18.375 A (the 17.5 A c
 convection with and without radiation (bank_air_cand.run_still; no pad-heat correction, because these pads are solved
 with the fitted bank's own B3 heat). --control-cand checks the port: on the s49 jetmix pads it must give
 bank_air_cand.py's 1.221 for KNSCHA.
+
+Stage 52 (DECISIONS 74; c51-bank-source README 'Alternates to B32643B', scripts/b32643h.py): the fitted bank is 5 x TDK
+B32643H8104J000 (B3264*H, June 2026, owner-supplied, sha256 69b56e62...). Part data from c51-bank-source/results/b32643h.json:
+body 14.5 x 29.5 x 26.5 mm (p.14), the 100 nF p.19 IRMS curve 6.155 / 6.481 A at 35 / 40 kHz for T_A 85 C, dT <= 20 K, and
+the vendor's own self-heating rule (p.18 / p.22): I_RMS(T_A) = I_RMS(85 C) x F_T(T_A), i.e. dT_allowed = 20 K x F_T(T_A)^2,
+with F_T the digitised p.22 curve (1.22 at <= 60 C, 1.00 at 85 C, 0.79 at 100 C, 0 at 125 C), Top,max 125 C (case). Unlike
+the B / KNSCHA rules this one credits current below 85 C. The gate value is the strict one. --control-cand also checks the
+port for B32643H: on the s49 jetmix pads it must give b32643h.py's 1.006.
 """
 import argparse
 import json
@@ -53,9 +61,12 @@ FAMILIES = {   # MPN prefix -> (parts json id, dT_lim, F_T end, F_T span, body h
                         h_box=29.5, bank_prefix="5 x B32643B8104J (2000 V, 22.5 mm"),
     # stage 51: KNSCHA MMKP82 (c51-bank-source/data/candidates.json id knscha; rule end 105 / span 20 ASSUMED above 85 C)
     "MMK104J3DF1": dict(cand="knscha", dT_lim=10.0, ft_end=105.0, ft_span=20.0, top_max=105.0, h_box=20.0),
+    # stage 52: TDK B32643H (c51-bank-source/results/b32643h.json; the vendor's F_T(T_A) curve, p.22)
+    "B32643H8104": dict(h_json="results/b32643h.json", dT_lim=20.0, top_max=125.0, h_box=29.5,
+                        part=dict(w=14.5, h=29.5, l=26.5, n=5, tol=0.05)),
 }
 C51 = "validation-results/11-candidates/c51-bank-source"
-MPNS = ("B32654A1104J000", "B32643B8104J000", "MMK104J3DF1KN208G2")
+MPNS = ("B32654A1104J000", "B32643B8104J000", "MMK104J3DF1KN208G2", "B32643H8104J000")
 I_TANK, I_REL_TRIP, I_REL = 28.0, 18.375, 17.5
 # (label, bay C, enclosure base-h key giving the bank velocity and bulk rise, B3 run stem in RUNS/jetmix/bay<bay>/ for
 # the pads). The enclosure delivers a FLOW, not an h per air temperature: the design flow is the one that gives base h 20
@@ -129,6 +140,14 @@ def g_col(p, fam, pos, v, t_air):
 
 
 def ft2(fam, ta):
+    if "ft_table" in fam:                 # stage 52: the vendor's digitised F_T(T_A) curve, squared (flat below its first point)
+        pts = fam["ft_table"]
+        if ta <= pts[0][0]:
+            return pts[0][1] ** 2
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            if ta <= x1:
+                return (y0 + (y1 - y0) * (ta - x0) / (x1 - x0)) ** 2
+        return 0.0
     return 1.0 if ta <= 85.0 else max(0.0, (fam["ft_end"] - ta) / fam["ft_span"])
 
 
@@ -140,6 +159,12 @@ def share(n=5, tol=0.05):
 def part_data(ps: Path, mpn: str):
     """(family, part dict with w / l, r35, r40) for a bank MPN"""
     fam = next(v for k, v in FAMILIES.items() if mpn.startswith(k))
+    if "h_json" in fam:
+        h = json.loads((ps / C51 / fam["h_json"]).read_text())
+        p = dict(fam["part"], mpn=mpn, I35=h["irms_chart_100nF_A"]["35k"], I40=h["irms_chart_100nF_A"]["40k"])
+        fam.setdefault("ft_table", [tuple(x) for x in h["F_T"]])
+        s = share(p["n"], p["tol"])
+        return fam, p, I_TANK * s / p["I35"], I_TANK * s / p["I40"]
     if "cand" in fam:
         c = next(x for x in json.loads((ps / C51 / "data/candidates.json").read_text())["candidates"]
                  if x["id"] == fam["cand"])
@@ -302,6 +327,12 @@ if __name__ == "__main__":
                                                                                                   "this": got}
         if abs(want - got) > 0.002:
             fails.append(f"MMK104J3DF1KN208G2: {got} vs bank_air_cand.py {want}")
+        # stage 52: B32643H on the same s49 pads must reproduce c51-bank-source/scripts/b32643h.py (results/b32643h.json)
+        want = json.loads((ps / C51 / "results/b32643h.json").read_text())["bank_air_28A_strict"]["eff"]
+        got = metric(ps, Path(a.control_cand), "B32643H8104J000")["bank_air_ratio_28A_35k"]
+        out["control"]["B32643H8104J000 on the s49 pads (b32643h.py)"] = {"b32643h_py": want, "this": got}
+        if abs(want - got) > 0.002:
+            fails.append(f"B32643H8104J000: {got} vs b32643h.py {want}")
     out["control_failed"] = fails
     Path(a.out).write_text(json.dumps(out, indent=1) + "\n")
     for m, r in out["by_mpn"].items():

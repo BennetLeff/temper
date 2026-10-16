@@ -232,6 +232,32 @@ python3 -I scripts/build_snapshot.py snapshot/s51/bom-jlcpcb.s51.csv snapshot/s5
     snapshot/s51/SNAPSHOT-s51.csv snapshot/s51/SNAPSHOT-s51.json
 rm -f snapshot/s51/jlc-bom-plus-extra.json snapshot/s51/SNAPSHOT-s51.json
 python3 -I -c "import csv;a=list(csv.DictReader(open('snapshot/s51/SNAPSHOT-s51.csv')));m={r['mpn'] for r in a};o=list(csv.DictReader(open('../SNAPSHOT-2026-10-15.csv')));x=[r for r in o if r['mpn'] not in m];w=csv.DictWriter(open('../SNAPSHOT-2026-10-15.csv','w',newline=''),fieldnames=list(a[0]));w.writeheader();w.writerows(a+x)"
+# s52 BOM (stage 52, DECISIONS 74, prototype lot: bank C21-C23 / C151 / C152 on TDK B32643H8104J000, no JLC / LCSC listing,
+# DigiKey 306 on 2026-10-16 (the STOCK-2026-10-13-addendum-s52 row; the dated read STOCK-2026-10-16-bank-s52.csv feeds the
+# stock gate); L1 B82726S2243A020 = JLC C7084710 (0 at JLC; Mouser 62 / DigiKey 29) and C3 / C4 DE1E3RA222MJ4BH01F = JLC
+# C7170908 (104), both read by the b15-proto-alternates lane (scripts/jlc-raw/detail_C7084710.json / detail_C7170908.json),
+# no new vendor read. The KNSCHA C528962 line leaves the BOM (the in-stock fallback). Same method as s51. The committed
+# ../SNAPSHOT-2026-10-15.csv is snapshot/s52/SNAPSHOT-s52.csv plus every earlier row whose MPN the s52 BOM no longer has.
+python3 -I -c "import csv,json,sys;sys.path.insert(0,'scripts');import jlc_snapshot as S;d=json.load(open('snapshot/jlc-2026-10-15.json'));m={b['mpn'] for b in d['bom']};d['bom']+=[r for r in d['extra'] if r['mpn'] not in m]
+for code,mpn,des,q,ma in (('C6675337','MPM-20-24','PS2',1,'THT'),('C50371','25121WF680JT4E','R10,R12,R18,R20',4,'SMD'),('C85980','GRM1885C1H472JA01D','C55,C56,C62,C63',4,'SMD'),
+    ('C861551','RT0603BRD07750RL','R81,R99,R114',3,'SMD'),('C705761','RT0603BRD072K94L','R83,R101,R116',3,'SMD'),
+    ('C728600','RT0603BRD0790K9L','R85,R103,R118',3,'SMD'),('C861070','RT0603BRD07104KL','R87,R105,R120',3,'SMD'),
+    ('C190245','TL431BQDBZR','U17,U19,U21',3,'SMD'),('C22427890','LM2901BIDR','U29,U30,U31',3,'SMD'),
+    ('C2156518','LM4050AEM3-2.5/NOPB','U5',1,'SMD'),('C485909','TPS70950QDBVRQ1','U3,U37,U38,U39',4,'SMD'),
+    ('C7084710','B82726S2243A020','L1',1,'THT'),('C7170908','DE1E3RA222MJ4BH01F','C3,C4',2,'THT'),('C728597','RT0603BRD077K5L','R33',1,'SMD'),
+    ('C326732','RT0603BRD0716KL','R34',1,'SMD')):
+    r=S.rec_from_detail(code);lad=r['jlc_ladder'];r.update(mpn=mpn,designators=des,qty=q,mount=ma,bom_assembly='JLC (Extended)',jlc_unit_5=S.unit_at(lad,5*q),jlc_unit_500=S.unit_at(lad,500*q));d['bom']=[b for b in d['bom'] if b['mpn']!=mpn]+[r]
+r=dict(next(b for b in d['bom'] if b['mpn']=='GRM31A5C3A102JW01D'));r.update(mpn='CC1206JKNPOCBN102',bom_assembly='JLC (Extended)');d['bom']=[b for b in d['bom'] if b['mpn']!='CC1206JKNPOCBN102']+[r]
+qty={r['Manufacturer Part Number']:len([x for x in r['Designator'].split(',') if x.strip()]) for r in csv.DictReader(open('snapshot/s52/bom-jlcpcb.s52.csv'))}
+for b in d['bom']:
+    if b['mpn'] in ('RT0603BRD0710KL','RT0603BRD0711KL','0603WAF1003T5E','0603WAF1002T5E','0603WAF2702T5E','RT0603BRD0763K4L','TNPW060311K7BEEA','RC1206FR-07220KL','CC0603KRX7R9BB104') and b.get('jlc_ladder'):
+        q=qty[b['mpn']];b.update(qty=q,jlc_unit_5=S.unit_at(b['jlc_ladder'],5*q),jlc_unit_500=S.unit_at(b['jlc_ladder'],500*q))
+json.dump(d,open('snapshot/s52/jlc-bom-plus-extra.json','w'))"
+python3 -I scripts/build_snapshot.py snapshot/s52/bom-jlcpcb.s52.csv snapshot/s52/jlc-bom-plus-extra.json snapshot/octopart-2026-10-15.json \
+    snapshot/digikey-2026-10-15.json "$VR/08-manufacturing-package/native-21/sourcing/STOCK-2026-10-13*.csv" \
+    snapshot/s52/SNAPSHOT-s52.csv snapshot/s52/SNAPSHOT-s52.json
+rm -f snapshot/s52/jlc-bom-plus-extra.json snapshot/s52/SNAPSHOT-s52.json
+python3 -I -c "import csv;a=list(csv.DictReader(open('snapshot/s52/SNAPSHOT-s52.csv')));m={r['mpn'] for r in a};o=list(csv.DictReader(open('../SNAPSHOT-2026-10-15.csv')));x=[r for r in o if r['mpn'] not in m];w=csv.DictWriter(open('../SNAPSHOT-2026-10-15.csv','w',newline=''),fieldnames=list(a[0]));w.writeheader();w.writerows(a+x)"
 python3 -I scripts/buildability.py --control
 python3 -I scripts/buildability.py snapshot/SNAPSHOT-2026-10-15.csv --json results/buildability-s32.json
 # needs TDK's B32674-678 PDF (June 2026; tdk-electronics.tdk.com) at downloads/tdk-b3267x/MKP_B32674_678.pdf, not committed:

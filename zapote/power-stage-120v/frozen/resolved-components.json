@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "809aea1c05913f1629ae1fe37af53c31d8eaab9be6f129ad5e8dc80eefcb6c90",
+    "build/default.csv": "520b76f00bbc34b90deac33dc1a922d713cd8765f455173f87eee79d85e5474a",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "c465b64943d3f8b2e11482f13f7c6d52710945e4c3968d625e533da4f508248b",
+    "build/default.net": "4938c8bc0945f1ca1906523df9edd88b855345faa801b27ee7c6c737cf2ff23e",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -76,7 +76,7 @@
         "designator_prefix": "L",
         "footprint": "temper:B82726S2_ReviewOnly",
         "manufacturer": "TDK",
-        "mpn": "B82726S2203A020"
+        "mpn": "B82726S2243A020"
       }
     },
     {
@@ -96,7 +96,7 @@
         "designator_prefix": "C",
         "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
         "manufacturer": "Murata",
-        "mpn": "DE1E3RA222MA4BP01F"
+        "mpn": "DE1E3RA222MJ4BH01F"
       }
     },
     {
@@ -106,7 +106,7 @@
         "designator_prefix": "C",
         "footprint": "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
         "manufacturer": "Murata",
-        "mpn": "DE1E3RA222MA4BP01F"
+        "mpn": "DE1E3RA222MJ4BH01F"
       }
     },
     {
@@ -1281,8 +1281,8 @@
         "designator": "C21",
         "designator_prefix": "C",
         "footprint": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
-        "manufacturer": "KNSCHA",
-        "mpn": "MMK104J3DF1KN208G2"
+        "manufacturer": "TDK",
+        "mpn": "B32643H8104J000"
       }
     },
     {
@@ -1291,8 +1291,8 @@
         "designator": "C22",
         "designator_prefix": "C",
         "footprint": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
-        "manufacturer": "KNSCHA",
-        "mpn": "MMK104J3DF1KN208G2"
+        "manufacturer": "TDK",
+        "mpn": "B32643H8104J000"
       }
     },
     {
@@ -1301,8 +1301,8 @@
         "designator": "C23",
         "designator_prefix": "C",
         "footprint": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
-        "manufacturer": "KNSCHA",
-        "mpn": "MMK104J3DF1KN208G2"
+        "manufacturer": "TDK",
+        "mpn": "B32643H8104J000"
       }
     },
     {
@@ -1311,8 +1311,8 @@
         "designator": "C151",
         "designator_prefix": "C",
         "footprint": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
-        "manufacturer": "KNSCHA",
-        "mpn": "MMK104J3DF1KN208G2"
+        "manufacturer": "TDK",
+        "mpn": "B32643H8104J000"
       }
     },
     {
@@ -1321,8 +1321,8 @@
         "designator": "C152",
         "designator_prefix": "C",
         "footprint": "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial",
-        "manufacturer": "KNSCHA",
-        "mpn": "MMK104J3DF1KN208G2"
+        "manufacturer": "TDK",
+        "mpn": "B32643H8104J000"
       }
     },
     {
@@ -4015,8 +4015,8 @@
   "source_sha256": {
     "elec/src/f6_bias.ato": "8996f6daa5ec90f8c359e3effbe0af55dc646f20730e27dbefc74885b080960d",
     "elec/src/f6_parts.ato": "bcca99f9c3b6b33f16a36c900de9d187710624155801f8ba0ec62c797fd69b88",
-    "elec/src/parts.ato": "bf9db90947a2d8143464e6224be67153e354a365ac185480e1db4620ed5d99e4",
-    "elec/src/power_stage_120v.ato": "a8b8fe51921a11405a4328bec6c20964f05dfb3cd41e0e68aee98b03485a3635",
+    "elec/src/parts.ato": "197a2de797d1ef0fd5bca27fd89622f0140d83711a6da2776e6627770e624884",
+    "elec/src/power_stage_120v.ato": "66b5d4e945c098c2418ca7dd4e12ecb95bf664ad0c275c725f0bb1362dbe8283",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

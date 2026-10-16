@@ -290,13 +290,18 @@ const IDENTITY: &[(&str, &str)] = &[
     // stage 49 (DECISIONS 68, candidate 34): the resonant bank was 5 x TDK B32643B8104J000 (2000 V DC, P22.5, dT 15 K).
     // Stage 51 (DECISIONS 73, c51-bank-source): 5 x KNSCHA MMK104J3DF1KN208G2 (2000 V DC, P27.5, JLC C528962) fitted on
     // the dual-pitch footprint; the TDK part is its 28 A drop-in alternate (stage51_checks)
-    ("c_res1", "MMK104J3DF1KN208G2"),
-    ("c_res2", "MMK104J3DF1KN208G2"),
-    ("c_res3", "MMK104J3DF1KN208G2"),
-    ("c_res4", "MMK104J3DF1KN208G2"),
-    ("c_res5", "MMK104J3DF1KN208G2"),
-    ("cy1", "DE1E3RA222MA4BP01F"),
-    ("cy2", "DE1E3RA222MA4BP01F"),
+    // Stage 52 (DECISIONS 74, prototype lot): 5 x TDK B32643H8104J000 (2000 V DC, P22.5, 24 A strict) in the dual-pitch
+    // footprint's 22.5 mm hole; KNSCHA (in-stock fallback) and B32643B8104J000 (28 A) stay carried parts (stage51_checks)
+    ("c_res1", "B32643H8104J000"),
+    ("c_res2", "B32643H8104J000"),
+    ("c_res3", "B32643H8104J000"),
+    ("c_res4", "B32643H8104J000"),
+    ("c_res5", "B32643H8104J000"),
+    // Stage 52: Y1 400 V H01F variant of the same Murata Type RA disc (same body and certificates; stage52_checks)
+    ("cy1", "DE1E3RA222MJ4BH01F"),
+    ("cy2", "DE1E3RA222MJ4BH01F"),
+    // Stage 52: L1 is the 24 A B82726S2243A020 for the prototype lot (production B82726S2203A020; stage52_checks)
+    ("l1", "B82726S2243A020"),
     ("cx1", "R463N410050N1K"),
     ("cx2", "R463N410050N1K"),
     ("f1", "KLDR025.TXP"),
@@ -787,8 +792,9 @@ fn s48_u5_open_min(wd_ohm: f64) -> f64 {
 // (DECISIONS 23 / item 853); the ledger's peak-voltage rule is <= 0.85 of VR for that out-of-scope case (c34 README:
 // 0.84 x 2000 V), so the bank must be rated >= 1980 V.
 // Stage 51: KNSCHA MMK104J3DF1KN208G2, VR 2000 V DC (spec KNS20200505002 p.1 'MMKP82 104J2000V P=27.5', p.4 rated voltage).
-const S49_BANK_VR: &[(&str, f64)] =
-    &[("B32643B8104J000", 2000.0), ("MMK104J3DF1KN208G2", 2000.0), ("B32654A1104J000", 1600.0)];
+// Stage 52: TDK B32643H8104J000, VR 2000 V DC at 105 C (B3264*H June 2026 p.14 row 'VR, DC = 2000 V DC', p.15).
+const S49_BANK_VR: &[(&str, f64)] = &[("B32643B8104J000", 2000.0), ("MMK104J3DF1KN208G2", 2000.0),
+                                       ("B32643H8104J000", 2000.0), ("B32654A1104J000", 1600.0)];
 const S49_F3_V: f64 = 1683.0;
 const S49_F3_MAX_RATIO: f64 = 0.85;
 // OCP divider (S23, 11-candidates/s23-ocp-cm-2026-10-16): Yageo RT0603 B-D, +-0.1 %, +-25 ppm/K (resistor, ohm).
@@ -853,7 +859,8 @@ fn stage49_checks(m: &Model, e: &mut Vec<String>) {
 // MMK104J3DF1KN208G2, fitted). Either part fits the same board; any other footprint, or a bank part the footprint does not
 // carry, fails.
 const S51_BANK_FP: &str = "temper:Bank_Film_DualPitch_P22.5_P27.5_Radial";
-const S51_BANK_PARTS: &[&str] = &["MMK104J3DF1KN208G2", "B32643B8104J000"];
+// stage 52: + TDK B32643H8104J000 (the prototype-lot part, 22.5 mm hole; same body and leads as B32643B)
+const S51_BANK_PARTS: &[&str] = &["MMK104J3DF1KN208G2", "B32643B8104J000", "B32643H8104J000"];
 
 fn stage51_checks(m: &Model, e: &mut Vec<String>) {
     for c in ["c_res1", "c_res2", "c_res3", "c_res4", "c_res5"] {
@@ -866,6 +873,30 @@ fn stage51_checks(m: &Model, e: &mut Vec<String>) {
         let mpn = m.resolved.get(c).cloned().unwrap_or_default();
         if !S51_BANK_PARTS.contains(&mpn.as_str()) {
             e.push(format!("stage51: {c} ({mpn}) is not a part the dual-pitch bank footprint carries"));
+        }
+    }
+}
+
+// Stage 52 (DECISIONS 74; 11-candidates/b15-proto-alternates): BOM-only prototype swaps on unchanged footprints. L1 must be
+// a part of TDK's B82726S22*3A020 sheet (same drawing IND2421-G-E, 10 x 25 mm pins): the fitted 24 A 2243 or the 20 A
+// production 2203. C3 / C4 must be a Murata Type RA 2.2 nF disc of the fitted body (D 9.0, T 4.0, F 10, d 0.6) with the
+// E37921 / 40043033 / CQC16001138225 certificates: the fitted H01F (Y1 400 V) or the former P01F (Y1 300 V). Any other
+// choke or Y capacitor, or another footprint, fails (the S1 touch-current and EMI records assume these parts).
+const S52_L1_FP: &str = "temper:B82726S2_ReviewOnly";
+const S52_L1_PARTS: &[&str] = &["B82726S2243A020", "B82726S2203A020"];
+const S52_CY_FP: &str = "temper:Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly";
+const S52_CY_PARTS: &[&str] = &["DE1E3RA222MJ4BH01F", "DE1E3RA222MA4BP01F"];
+
+fn stage52_checks(m: &Model, e: &mut Vec<String>) {
+    for (c, fp, parts) in [("l1", S52_L1_FP, S52_L1_PARTS), ("cy1", S52_CY_FP, S52_CY_PARTS), ("cy2", S52_CY_FP, S52_CY_PARTS)] {
+        match m.reff(c).and_then(|r| m.comps.get(r)) {
+            Some(comp) if comp.footprint == fp => {}
+            Some(comp) => e.push(format!("stage52: {c} footprint {} is not {fp}", comp.footprint)),
+            None => e.push(format!("stage52: {c} not found")),
+        }
+        let mpn = m.resolved.get(c).cloned().unwrap_or_default();
+        if !parts.contains(&mpn.as_str()) {
+            e.push(format!("stage52: {c} ({mpn}) is not a qualified part for its footprint ({})", parts.join(" / ")));
         }
     }
 }
@@ -1424,6 +1455,7 @@ fn audit(m: &Model) -> Vec<String> {
     stage48_checks(m, &mut e);
     stage49_checks(m, &mut e);
     stage51_checks(m, &mut e);
+    stage52_checks(m, &mut e);
 
     // 11. Tank CT: the secondary is terminated on this board, at the CT, and
     //     never reaches the connector (an open secondary spikes to hundreds of
@@ -2193,6 +2225,36 @@ mod tests {
         m.set_part("c_res5", "R75UR31004030J");
         fails(&m, "stage51: c_res5 (R75UR31004030J)");
         fails(&m, "stage49: c_res5 (R75UR31004030J) has no bank voltage rating");
+    }
+
+    #[test]
+    fn stage52_proto_bom_holds() {
+        // b15-proto-alternates / c51-bank-source: the prototype BOM passes; each documented alternate on the same footprint
+        // (production L1 2203, P01F Y caps, KNSCHA / B32643B bank) fails only its identity row; an unqualified part fails
+        // the stage-52 / stage-51 whitelist
+        let m = built();
+        assert!(audit(&m).is_empty(), "{:#?}", audit(&m));
+        for (path, alt) in [("l1", "B82726S2203A020"), ("cy1", "DE1E3RA222MA4BP01F"), ("c_res4", "MMK104J3DF1KN208G2"),
+                            ("c_res1", "B32643B8104J000")] {
+            let mut m = built();
+            m.set_part(path, alt);
+            fails(&m, &format!("{path} is {alt}"));
+            assert!(!audit(&m).iter().any(|x| x.starts_with("stage5") || x.starts_with("stage49")), "{path}: {:#?}", audit(&m));
+        }
+        let mut m = built();
+        m.set_part("l1", "B82726S2183N020");
+        fails(&m, "stage52: l1 (B82726S2183N020)");
+        let mut m = built();
+        m.set_part("cy2", "DE1E3RA222MA4BQ01F");
+        fails(&m, "stage52: cy2 (DE1E3RA222MA4BQ01F)");
+        let mut m = built();
+        let r = m.reff("cy1").unwrap().to_string();
+        m.comps.get_mut(&r).unwrap().footprint = "temper:C_Disc_D12.0mm_P10.00mm".into();
+        fails(&m, "stage52: cy1 footprint");
+        let mut m = built();
+        m.set_part("c_res3", "B32643H8823J000");
+        fails(&m, "stage51: c_res3 (B32643H8823J000)");
+        fails(&m, "stage49: c_res3 (B32643H8823J000) has no bank voltage rating");
     }
 
     #[test]
