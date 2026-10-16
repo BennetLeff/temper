@@ -1,8 +1,8 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "passive-two-terminal": 249,
-  "native19-reviewed": 87,
+  "passive-two-terminal": 250,
+  "native19-reviewed": 86,
   "passive-untyped": 22,
   "eco-pin-table": 14
  },
@@ -2499,9 +2499,9 @@
    }
   },
   "R33": {
-   "mpn": "RT0603BRD0710KL",
+   "mpn": "RT0603BRD077K5L",
    "source_instance": "r_ocp_sense",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -2514,7 +2514,7 @@
    }
   },
   "R34": {
-   "mpn": "RT0603BRD0712K6L",
+   "mpn": "RT0603BRD0716KL",
    "source_instance": "r_th_top",
    "basis": "passive-two-terminal",
    "pins": {
@@ -2529,7 +2529,7 @@
    }
   },
   "R35": {
-   "mpn": "TNPW060311K7BEEA",
+   "mpn": "RT0603BRD0711KL",
    "source_instance": "r_th_bot",
    "basis": "passive-two-terminal",
    "pins": {
@@ -5257,7 +5257,7 @@
    }
   },
   "C21": {
-   "mpn": "B32654A1104J000",
+   "mpn": "B32643B8104J000",
    "source_instance": "c_res1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -5272,7 +5272,7 @@
    }
   },
   "C22": {
-   "mpn": "B32654A1104J000",
+   "mpn": "B32643B8104J000",
    "source_instance": "c_res2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -5287,7 +5287,7 @@
    }
   },
   "C23": {
-   "mpn": "B32654A1104J000",
+   "mpn": "B32643B8104J000",
    "source_instance": "c_res3",
    "basis": "passive-two-terminal",
    "pins": {
@@ -5302,7 +5302,7 @@
    }
   },
   "C151": {
-   "mpn": "B32654A1104J000",
+   "mpn": "B32643B8104J000",
    "source_instance": "c_res4",
    "basis": "passive-two-terminal",
    "pins": {
@@ -5317,7 +5317,7 @@
    }
   },
   "C152": {
-   "mpn": "B32654A1104J000",
+   "mpn": "B32643B8104J000",
    "source_instance": "c_res5",
    "basis": "passive-two-terminal",
    "pins": {

@@ -51,8 +51,13 @@ for p in T03["parts"]:
 # fitted as ESR = R_s + D / (2 pi f C) (R_s 35.3 mOhm, D 7.77e-4) at F_WORST. Nominal: ESR_typ held flat
 # below 100 kHz (estimate: a polypropylene film's dielectric term adds a few mOhm at 33-40 kHz). Part current:
 # round 6's worst-share part, 6.55 A of 28 A tank RMS (board_side.py), scaled with the tank current.
-C_RES, ESR_TYP = 0.1e-6, 19.3e-3
-R_S, D_LIM = 35.3e-3, 7.77e-4
+# Stage 49 (DECISIONS 68, candidate 34): the bank is 5 x TDK B32643B8104J000. TDK B3264*B data sheet
+# (MMKP_B32641B_B32643B.pdf 6/26, sha256 ab9fdca0..., not committed): p.11 ESR_typ 8 mOhm at 85 C / 100 kHz (IRMS,max
+# 8.3 A for dT <= 15 K); p.12 tan d upper limits 0.6e-3 at 10 kHz and 1.5e-3 at 100 kHz. Worst: those limits fitted the
+# same way, ESR = R_s + D / (2 pi f C): R_s 15.9 mOhm, D 5.00e-4. (B32654A1104: 19.3 mOhm typ; R_s 35.3 mOhm, D 7.77e-4.)
+C_RES, ESR_TYP = 0.1e-6, 8.0e-3
+R_S, D_LIM = 15.9e-3, 5.00e-4
+BANK_MPN = "B32643B8104J000"
 SHARE = 6.55 / 28.0
 I_T = {"nominal": 21.47, "worst": 29.4, "c28": 29.4}      # run_study.py OPS tank RMS (worst: the 1.05 x 28 A trip)
 
@@ -73,12 +78,12 @@ for r in rows:
     if r["ref"] == "R39":
         r["watts_worst"] = (I_T["worst"] / 100) ** 2 * 1.5
 BANK = ("C21", "C22", "C23", "C151", "C152")
-# Board fraction 0.3 (estimate): a radial film part sheds most of its heat from its 14 x 24.5 x 31.5 mm body
-# (TDK rates I_RMS by the body's own rise, <= 20 K at 1.0 W typ); the leads carry the rest into the board.
+# Board fraction 0.3 (estimate): a radial film part sheds most of its heat from its 14.5 x 29.5 x 26.5 mm body
+# (TDK rates I_RMS by the body's own rise, <= 15 K at 0.55 W typ, p.11); the leads carry the rest into the board.
 # The bank's own acceptance is the bench hot-spot gate on TDK's curve (DECISIONS 2026-10-10), not B3.
 for ref in BANK:
     add(ref, (SHARE * I_T["nominal"]) ** 2 * ESR_TYP, (SHARE * I_T["worst"]) ** 2 * esr_worst(F_WORST), "estimate",
-        f"B32654A1104K000: (worst-share {SHARE:.3f} x I_t)^2 x ESR (typ 19.3 mOhm / tan d limit {esr_worst(F_WORST) * 1e3:.1f} mOhm at 40 kHz)",
+        f"{BANK_MPN}: (worst-share {SHARE:.3f} x I_t)^2 x ESR (typ {ESR_TYP * 1e3:.1f} mOhm / tan d limit {esr_worst(F_WORST) * 1e3:.1f} mOhm at 40 kHz)",
         board=0.3)
 
 # gate drive: two FETs per driver (UCC21550 U1 leg A, U2 leg B), plus 0.1 W quiescent each (estimate)

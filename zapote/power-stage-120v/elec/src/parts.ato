@@ -478,6 +478,20 @@ component ResB32654:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
+component ResB32643B:
+    """TDK B32643B8104J000 (stage 49, candidate 34 / DECISIONS 68): 0.10 uF +-5 % 2000 Vdc / 500 Vac MMKP
+    "High frequency", 22.5 mm radial, AEC-Q200D. B3264*B data sheet (6/26): e 22.5 +-0.4 mm, d1 0.8 +-0.05 mm (p.2);
+    maximum body w x h x l 14.5 x 29.5 x 26.5 mm, IRMS,max 8.3 A at 85 C / 100 kHz for dT <= 15 C, ESR_typ 8 mOhm,
+    ESL_typ 11 nH, untaped MOQ 2080 (p.11); Top,max 125 C case (p.2, p.12); dV/dt 3800 V/us (p.13). Five in parallel
+    keep the 0.50 uF bank; replaces B32654A1104J000 (1600 Vdc, P27.5), which sits at TDK's self-heating limit in the
+    0.5 mm column (bank28-air). Not stocked at JLC: an owner pre-order / consigned line (28 weeks, MOQ 2080)."""
+    designator_prefix = "C"
+    mpn = "B32643B8104J000"
+    manufacturer = "TDK"
+    footprint = "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component CST3015_200E:
     """Coilcraft CST3015-200ED 1:200 CT, 5 kVrms reinforced (series datasheet 1608-1). Stage 20 (DECISIONS 23):
     replaces the 1:100 -100ED with R39 doubled to 3.0 ohm, so volts per primary amp (0.015 V/A) and every CT
@@ -649,6 +663,37 @@ component R11k7Thin:
     designator_prefix = "R"
     mpn = "TNPW060311K7BEEA"
     manufacturer = "Vishay Dale"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R7k5Thin:
+    """0.1 % 25 ppm thin film, OCP offset sense leg R33 (stage 49, S23 B'-1.02 V: LCSC C728597)."""
+    designator_prefix = "R"
+    mpn = "RT0603BRD077K5L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R16kThin:
+    """0.1 % 25 ppm thin film, OCP threshold top leg R34 (stage 49, S23 B'-1.02 V: LCSC C326732)."""
+    designator_prefix = "R"
+    mpn = "RT0603BRD0716KL"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component R11kThin:
+    """0.1 % 25 ppm thin film, OCP threshold bottom leg R35 (stage 49, S23 B'-1.02 V: LCSC C728581, the BOM line of
+    f6_parts BiasFb11k)."""
+    designator_prefix = "R"
+    mpn = "RT0603BRD0711KL"
+    manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1

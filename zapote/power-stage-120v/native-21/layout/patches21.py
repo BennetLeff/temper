@@ -854,6 +854,67 @@ def edit_base48(base):
     return len(S48_TRACKS)
 
 
+# Stage 49 (candidate 34, DECISIONS 68; c49-c34-bank): the resonant bank becomes 5 x TDK B32643B8104J000 (P22.5, 14.5 x
+# 29.5 x 26.5 mm). RES_A pins stay at x 163.0; SW_B pins move 190.5 -> 185.5; rows y 53.2 / 68.2 / 83.2 / 98.2 / 113.2
+# (place.py). The bank is joined by its B.Cu strips only (the R22.1 -> C21.1 res_a tap is pad to pad and C21.1 does not
+# move), so the edit is outline-only plus one SELV run:
+#  - sw_b strip: left edge x 188.0 -> 183.0 (1.3 mm left of the new pads, as before at 190.5), bottom y 112.9 -> 114.4 at
+#    x 183-192 (the row-5 pad edge); x 192-200.6 keeps y 113.0 (line_zc_raw's corner at (203.87, 120.67) is 7.1 mm off a
+#    y 114.4 corner there). KiCad's refill keeps the 8 mm HOT-SELV rule either way;
+#  - res_a strip: bottom y 112.9 -> 114.6 at x 163-166 (0.2 mm past the row-5 pad, as before); x 161-163 keeps y 112.9,
+#    the notch that holds the plan-view 8 mm to the In1 / In2 SELV planes' corner at (160.0, 122.2) (8.17 mm from
+#    (163.0, 114.6); pass 1 with the whole x 161-166 at 114.6 read 7.71 mm). RES_A outer 12.6 mm to the y 127.5
+#    line_zc_raw run holds (127.375 - 114.6 = 12.78 mm);
+#  - line_zc_raw (SELV, B.Cu): the x 184.0-203.3 run moves from y 121.27 to y 122.75 (c34's slot study: >= 122.55), so
+#    the row-5 SW_B pad keeps 8.225 mm (122.625 - 114.4). Its 45 deg legs stay on the same lines: (203.87, 120.67) ->
+#    (201.79, 122.75) and (182.52, 122.75) -> (177.77, 127.5). No other copper on any layer within x 176-206, y 121-127
+#    on s48 (nearest: the H8 NPTH, 5.5 mm). The run is outside the SELV-spine region (x 30-110, y 130-180).
+S49_SWB_OLD = [[188.0, 50.0], [188.0, 112.9], [192.0, 112.9], [192.0, 113.0], [200.6, 113.0]]
+S49_SWB_NEW = [[183.0, 50.0], [183.0, 114.4], [192.0, 114.4], [192.0, 113.0], [200.6, 113.0]]
+S49_RESA_OLD = [[161.0, 114.0], [161.0, 112.9], [166.0, 112.9]]
+S49_RESA_NEW = [[161.0, 114.0], [161.0, 112.9], [163.0, 112.9], [163.0, 114.6], [166.0, 114.6]]
+S49_LZC_OLD = [(203.87, 120.67), (203.27, 121.27), (184.0, 121.27), (177.77, 127.5), (141.23, 127.5)]
+# y 122.75, not c34's 122.55: the run sits 8.225 mm (edge to edge) below the SW_B column's last pad (C152.2, bottom
+# y 114.4) instead of 8.025, so the HOT-SELV minimum stays s48's 8.047 mm (D5 must not fall); nearest other copper the
+# H8 NPTH (5.5 mm)
+# The y 127.5 run (x 141.2-177.8) dips to y 128.2 over x 157.7-171.3 (45 deg legs): the row-5 RES_A strip corner
+# (163.0-166.0, 114.6) keeps 13.475 mm to it on B.Cu (was 12.775 on pass p3), so RES_A's outer minimum stays s48's
+# 13.375 mm (the strip's y 114.0 edge west of x 161 to the y 127.5 run, unchanged). Nothing else on B.Cu within 3.7 mm
+# of the dip; J6's PE pads (y 133.2) come to 4.88 mm (5.58 before), SELV to PE.
+S49_LZC_NEW = [(203.87, 120.67), (201.79, 122.75), (182.52, 122.75), (177.77, 127.5), (172.0, 127.5), (171.3, 128.2),
+               (157.7, 128.2), (157.0, 127.5), (141.23, 127.5)]
+
+
+def edit_base49(base):
+    """Stage 49 edit of a frozen base copper dict (in place); a no-op on a base that already carries it."""
+    r3 = lambda q: q if isinstance(q, str) else (round(q[0], 3), round(q[1], 3))
+
+    def splice(seq, old, new, what):
+        pts = [r3(q) for q in seq]
+        old_t = [r3(q) for q in old]
+        hits = [i for i in range(len(pts) - len(old_t) + 1) if pts[i:i + len(old_t)] == old_t]
+        if len(hits) != 1:
+            raise SystemExit(f"stage 49: {what} not found once ({len(hits)})")
+        i = hits[0]
+        return seq[:i] + [list(q) for q in new] + seq[i + len(old_t):]
+    zs = [z for z in base["zones"] if z["net"] == "sw_b" and z["layer"] == "B.Cu" and z.get("name") == "sw_b leg B-C21..C23"]
+    za = [z for z in base["zones"] if z["net"] == "res_a" and z["layer"] == "B.Cu" and z.get("name") == "res_a J5-C21..C23"]
+    if len(zs) != 1 or len(za) != 1:
+        raise SystemExit(f"stage 49: bank strip zones not found once ({len(zs)}, {len(za)})")
+    if any(r3(q) == (183.0, 114.4) for q in zs[0]["outline"]):
+        return 0
+    zs[0]["outline"] = splice(zs[0]["outline"], S49_SWB_OLD, S49_SWB_NEW, "sw_b strip outline")
+    za[0]["outline"] = splice(za[0]["outline"], S49_RESA_OLD, S49_RESA_NEW, "res_a strip outline")
+    t = [t for t in base["tracks"] if t["net"] == "line_zc_raw" and t["layer"] == "B.Cu"
+         and (184.0, 121.27) in [r3(q) for q in t["points"]]]
+    if len(t) != 1:
+        raise SystemExit(f"stage 49: line_zc_raw B.Cu run at y 121.27 not found once ({len(t)})")
+    t[0]["points"] = splice(t[0]["points"], S49_LZC_OLD, S49_LZC_NEW, "line_zc_raw y 121.27 run")
+    print("stage 49: sw_b / res_a bank strips re-cut for the P22.5 bank (SW_B column x 185.5, rows to y 113.2); "
+          "line_zc_raw x 182.5-201.8 run y 121.27 -> 122.75, x 157.7-171.3 y 127.5 -> 128.2")
+    return 3
+
+
 def add_stage33(g):
     """Six-layer phase A additions (no-op without image_planes): image pours, then their stitching vias."""
     if not IMAGE_PLANES:

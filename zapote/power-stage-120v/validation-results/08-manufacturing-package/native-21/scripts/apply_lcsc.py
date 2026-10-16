@@ -99,7 +99,15 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 # stage 48 (OPEN-ITEMS S19, c48-ldo-en-ref-watch): U3 / U37 / U38 / U39 on the TPS709-Q1 grade (was
                 # TPS70950DBVR C96028): JLC part API 2026-10-16, Extended, 11,607 in stock, $0.7048 at 500
                 # (sourcing/study-2026-10-15/scripts/jlc-raw/detail_C485909.json)
-                "TPS70950QDBVRQ1": "C485909"})
+                "TPS70950QDBVRQ1": "C485909",
+                # stage 49 (DECISIONS 68, candidate 34, c49-c34-bank): the resonant bank on TDK B32643B8104J000. JLC lists it
+                # (C3781430, Extended THT) with 0 in stock (JLC part API 2026-10-15, 11-candidates/c34-bank-margin/scripts/
+                # jlc-raw/detail_C3781430.json): an OWNER PRE-ORDER consigned to JLC under this code, untaped MOQ 2,080
+                # (B3264*B p.11), 28-week manufacturer lead (DigiKey 2026-10-14, DECISIONS 37); STOCK addendum s49.
+                "B32643B8104J000": "C3781430",
+                # stage 49 (OPEN-ITEMS S23, B'-1.02 V, s23-ocp-cm-2026-10-16): R33 7.5 k / R34 16 k, 0.1 % 25 ppm (JLC part API
+                # 2026-10-16: 20,378 / 17,962 in stock); R35 11 k joins the existing RT0603BRD0711KL line (C728581)
+                "RT0603BRD077K5L": "C728597", "RT0603BRD0716KL": "C326732"})
 ACCEPT_ALT = set()   # stage 43: the only accepted alternate (GRM31A5C3A102JW01D -> CC1206JKNPOCBN102) is now the source MPN
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))

@@ -24,6 +24,9 @@ Classes:
   A disagreement is settled for an LCSC number listed in sources/pin-evidence.json: the datasheet confirms that the
   EasyEDA pin numbering is the datasheet's and that KiCad pad n is datasheet pin n, so a unique EasyEDA pad-number
   fit is the part JLC places, and the DB rule (a per-footprint-name heuristic) is overridden: CORRECTED.
+  Stage 49: a two-lead THT non-polar part with no EasyEDA footprint (the B32643B bank) is settled by a pin-evidence
+  entry with "non_polar_tht": the datasheet gives no polarity and its lead spacing equals the KiCad pad spacing, so the
+  leads enter only pads 1 / 2 and rotations k and k + 180 place the same part: OK at the KiCad rotation.
 Lines JLC does not place (consigned / hand-assembled, no LCSC number) are listed as EXCLUDED, not classed.
 
 Tool controls are asserted at the end of every run (see CONTROLS and selftest()).
@@ -171,6 +174,22 @@ def evaluate(kfp, fpname, ee, rules, ref, kind_override=None, evidence=None):
     res = {"db": db_lookup(rules, fpname), "theta": None, "rms": None, "method": None, "note": ""}
     if ee is None or "error" in ee or not ee.get("pads"):
         res["note"] = "no EasyEDA footprint for this LCSC number"
+        npt = (evidence or {}).get("non_polar_tht")
+        if npt:
+            # stage 49: two through-hole leads, no polarity (datasheet), lead spacing = KiCad pad spacing
+            k1, k2 = kpads.get("1"), kpads.get("2")
+            tht = len(kpads) == 2 and all(q.get("type") == "thru_hole" for q in kfp["pads"] if q.get("num"))
+            if tht and k1 and k2:
+                sep = math.hypot(k2[0] - k1[0], k2[1] - k1[1])
+                if abs(sep - npt["lead_spacing_mm"]) <= npt["tolerance_mm"]:
+                    res.update(method="THT non-polar (datasheet)", theta=[0, 180], rms=round(abs(sep - npt["lead_spacing_mm"]), 3),
+                               pin_evidence=evidence["source"],
+                               note=f"KiCad pad spacing {sep:.2f} mm = datasheet lead spacing {npt['lead_spacing_mm']} "
+                                    f"+- {npt['tolerance_mm']} mm, no polarity")
+                    return res
+                res["note"] += f"; non-polar evidence does not match (pad spacing {sep:.2f} mm)"
+            else:
+                res["note"] += "; non-polar evidence needs two through-hole pads 1 / 2"
         return res
     epads = by_num(ee["pads"])
     res["ee_package"] = ee.get("package")
@@ -260,6 +279,10 @@ def decide(k, ev, kind, fpname, passive_std):
                     f"only the JLC rotation DB speaks (rule {db[0]!r} offset {dboff:+d}); {ev['note']}")
         return "NEEDS-PREVIEW", k, f"no DB rule and {ev['note'] or 'no usable EasyEDA fit'}"
     P = {(k + t) % 360 for t in th}
+    if ev.get("method") == "THT non-polar (datasheet)":
+        return ("OK", k, f"two-lead THT, no polarity and no EasyEDA footprint: {ev['note']}; the leads fit only pads 1 / 2, "
+                         f"so rot {k} and {(k + 180) % 360} are the same part (sources/pin-evidence.json: "
+                         f"{ev['pin_evidence'][:80]}...)")
     if ev.get("spacing_mismatch"):
         return "NEEDS-PREVIEW", k, f"EasyEDA pad spacing differs from the KiCad footprint ({ev['note']})"
     if k in P:
@@ -457,6 +480,17 @@ def selftest(rules):
     ev = evaluate({"pads": k3}, "SOT-23", {"pads": e3, "pins": pins_ab}, rules, "U1",     # alias swapped: must not settle
                   evidence=dict(ds_full, ee_name_alias={"C": "ANODE", "A": "CATHODE"}))
     assert not ev.get("pin_evidence"), ev
+    # stage 49: a two-lead THT non-polar part without an EasyEDA footprint settles only on matching lead spacing
+    t2 = [{"num": "1", "x": 0.0, "y": 0.0, "type": "thru_hole"}, {"num": "2", "x": 22.5, "y": 0.0, "type": "thru_hole"}]
+    npe = {"non_polar_tht": {"lead_spacing_mm": 22.5, "tolerance_mm": 0.4}, "source": "t"}
+    ev = evaluate({"pads": t2}, "TDK_B32643B_P22.5_W14.5_L26.5_Radial", None, rules, "C21", evidence=npe)
+    assert ev["theta"] == [0, 180] and decide(0, ev, "C", "TDK_B32643B", False)[:2] == ("OK", 0), ev
+    ev = evaluate({"pads": t2}, "X", None, rules, "C21",
+                  evidence={"non_polar_tht": {"lead_spacing_mm": 27.5, "tolerance_mm": 0.4}, "source": "t"})
+    assert ev["theta"] is None and decide(0, ev, "C", "X", False)[0] == "NEEDS-PREVIEW", ev
+    smd = [dict(q, type="smd") for q in t2]
+    ev = evaluate({"pads": smd}, "X", None, rules, "C21", evidence=npe)
+    assert ev["theta"] is None, ev
     print("selftest: ok")
 
 

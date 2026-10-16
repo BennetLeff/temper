@@ -188,6 +188,23 @@ print('B3',[(r,round(d['runs'][r]['peak']['temperature_c'],1)) for r in ('nomina
   ( cd ../b3-ratings && python3 run_basis.py --workers 4 > "$B/b3-ratings.log" 2>&1 ) || true; tail -1 "$B/b3-ratings.log"
   python3 -c "import json,sys;m=json.load(open('../b3-ratings/margins.json'));sys.exit(set(m['board_sha256'].values())!={'$H'})" \
     || { echo "B3_RATINGS: margins.json not solved on board $H"; tail -5 "$B/b3-ratings.log"; exit 1; }
+  # bank self-heating under the declared airflow (stage 49, DECISIONS 68; 11-candidates/bank28-air): the card metric
+  # bank_air_ratio_28A_35k takes the bank pad temperatures from two B3 jetmix cases (jets + base h 20 @ 61 C, jets + base
+  # h 15 @ 55 C) solved on this board. The cases' own gate verdicts are not the release gate (status not used, as above);
+  # run files on another board are a failure. The producer's control (bank_thermal.py on the s47 airflow28 runs) is
+  # not board-following, so it is not rerun here (--control '').
+  mkdir -p "$B/b3-bank-air"
+  for cb in c28_h20_jet100@61 c28_h15_jet100@55; do
+    ( cd ../b3-ratings && python3 run_basis.py --workers 2 --cases "$cb" --runs "$B/b3-bank-air/jetmix/bay${cb#*@}" \
+        --out "$B/b3-bank-air/margins-${cb#*@}.json" > "$B/b3-bank-air/run-${cb#*@}.log" 2>&1 ) || true &
+  done
+  wait
+  python3 -c "import json,sys;B=sys.argv[1];sys.exit(any(json.load(open(f'{B}/b3-bank-air/jetmix/bay{b}/{c}_{p}.json'))['board_sha256']!='$H' for c,b in (('c28_h20_jet100',61),('c28_h15_jet100',55)) for p in ('p0p25','p0p5')))" "$B" \
+    || { echo "BANK_AIR: jetmix pad runs not solved on board $H"; tail -3 "$B"/b3-bank-air/run-*.log; exit 1; }
+  ( cd "$U" && python3 -I validation-results/11-candidates/bank28-air/scripts/bank_air_metric.py --ps "$U" --runs "$B/b3-bank-air" \
+      --out validation-results/11-candidates/bank28-air/results/bank_air_metric.json --control '' > "$B/bank-air.log" 2>&1 ) \
+    || { echo "BANK_AIR: bank_air_metric.py failed"; tail -3 "$B/bank-air.log"; exit 1; }
+  head -2 "$B/bank-air.log"
   else echo "scoped: B3 ratings reused from the benchmark (key in $SCOPED_PLAN)"; fi
 ) > "$B/blk-thermal.log" 2>&1 &
 P_TH=$!

@@ -57,7 +57,8 @@ def main():
            rc == (1 if KNOWN_VIOLATIONS else 0) and rep and rep["violations"] == KNOWN_VIOLATIONS,
            str(rep and (rc, rep["violations"], rep["failures"][:3])))
     expect("real ledger: the release-case re-evaluations are PARTIAL, not VIOLATION",
-           rep and all(m in rep["partial"] for m in ("25121WF680JT4E", "CSS2H-2512R-1L00F", "B32654A1104J000",
+           # stage 49: the bank is B32643B8104J000 (c34; PARTIAL on its airflow-route / sourcing gaps)
+           rep and all(m in rep["partial"] for m in ("25121WF680JT4E", "CSS2H-2512R-1L00F", "B32643B8104J000",
                                                      "ISO6721FBDR", "2EDR8259XXUMA1")),
            str(rep and rep["violations"]))
     expect("real ledger: no malformed entries", rep and not rep["errors"], str(rep and rep["errors"][:3]))

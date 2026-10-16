@@ -82,8 +82,10 @@ def validate_inputs(overrides: dict | None = None) -> dict:
     """Fail if the BOM identity or source net endpoints differ from the model.
 
     overrides: ref -> MPN for parts a later stage changed (the round-3 defaults below are the round-3 BOM; R5, R34,
-    R35, R39, R43 and R46 have changed since stages 15-19, so a current-board caller passes their MPNs, e.g.
-    11-candidates/c47-ref25-grade/scripts/bands47.py). U5 is the current REF25 part."""
+    R35, R39, R43 and R46 have changed since stages 15-19, and R33 / R34 / R35 again at stage 49 (S23 B'-1.02 V:
+    RT0603BRD077K5L / RT0603BRD0716KL / RT0603BRD0711KL), so a current-board caller passes their MPNs, e.g.
+    11-candidates/c47-ref25-grade/scripts/bands47.py, 11-candidates/c49-c34-bank/scripts/bands49.py). The defaults stay
+    the round-3 BOM because the committed round-3 records import them. U5 is the current REF25 part."""
     bom = {}
     with (UNIT / "frozen/default.csv").open(newline="") as stream:
         for row in csv.DictReader(stream):

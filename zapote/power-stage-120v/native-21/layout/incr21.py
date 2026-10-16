@@ -495,6 +495,9 @@ def load(base_path, patches=True, prune=False):
     # stage 48 (candidate 48): LDO EN dividers, the REF25 watchdog on U14 channel B, U3 / C48 moved, BIAS_GOOD to J4.1
     if hasattr(patches21, "edit_base48"):
         patches21.edit_base48(base)
+    # stage 49 (candidate 34): the P22.5 resonant bank's B.Cu strips re-cut and line_zc_raw's y 121.27 run moved to 122.75
+    if hasattr(patches21, "edit_base49"):
+        patches21.edit_base49(base)
     # nets renamed in the source since the base was frozen keep their base copper (patches21.RENAME_NETS)
     ren = getattr(patches21, "RENAME_NETS", {}) if patches else {}
     for kind in ("zones", "tracks", "vias"):

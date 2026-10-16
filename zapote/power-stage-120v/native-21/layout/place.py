@@ -206,6 +206,7 @@ put("j_mains", 283.5, 7.2)
 # no pin within 5 mm + pad of the In1 n_ls / v24_raw runs at y 74.8-76.2, and the last pad >= 8 mm from
 # the SELV line_zc_raw run (B.Cu, y 121.1). Courtyards are +/-7.2 (0.2 beyond the maximum body), pitch >= 14.5.
 # Coil terminals beside T1: J5 (RES_A) over J2 (COIL_FEED), 15 mm apart.
+# (stage 49 re-poses the bank at the end of this file, after the stage-29 restore: S49_BANK)
 for i, y in enumerate((53.2, 67.7, 82.5, 97.0, 111.5), 1):
     put(f"c_res{i}", 176.75, y)
 put("t_ct", 135.0, 110.0)                      # primary sw_a -> coil_feed; secondary on the SELV band
@@ -554,6 +555,14 @@ for _ref, (path, cx, cy, ang, _v1, _v2) in S44_CAPS.items():
 from patches21 import S48_MOVES  # noqa: E402
 for _ref, (_path, _cx, _cy, _ang, _fp) in S48_MOVES.items():
     POSE[_path] = (_cx, _cy, _ang)
+
+# Stage 49 (candidate 34, DECISIONS 68; c49-c34-bank): the resonant bank becomes 5 x TDK B32643B8104J000 (P22.5, 14.5 x
+# 29.5 x 26.5 mm), re-posed here after every restore so no other part moves. RES_A pins stay at x 163.0, SW_B pins move to
+# x 185.5; rows y 53.2 / 68.2 / 83.2 / 98.2 / 113.2 (15.0 mm pitch, 0.5 mm body gaps, courtyards +/-7.45, courtyard centre
+# x 163.0 + 11.25). Row 5's SW_B pad keeps 8 mm to line_zc_raw, moved to y 122.75 (patches21.edit_base49; 8.225 mm), and its RES_A
+# pad 12.6 mm to the y 127.5 SELV run. The column spans x 161.0-187.5, y 45.95-120.45 (bodies).
+S49_BANK = {f"c_res{i}": (174.25, y, 0.0) for i, y in enumerate((53.2, 68.2, 83.2, 98.2, 113.2), 1)}
+POSE.update(S49_BANK)
 
 missing = sorted(set(PARTS) - set(POSE))
 if missing:

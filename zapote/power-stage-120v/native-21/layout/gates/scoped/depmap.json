@@ -304,16 +304,18 @@
    "wall_s": 565,
    "workers": 4,
    "policy": "keyed",
-   "cmd": "b3-ratings/run_basis.py --workers 4 (six body-level solves) + b3_ratings_gate.py",
+   "cmd": "b3-ratings/run_basis.py --workers 4 (six body-level solves) + b3_ratings_gate.py; stage 49: run_basis.py c28_h20_jet100@61 + c28_h15_jet100@55 (jetmix pads, BUILD/b3-bank-air) -> bank28-air/scripts/bank_air_metric.py",
    "card": [
     "gates.b3_ratings",
     "performance.b3_laminate_margin_K",
     "performance.b3_rated_part_margin_K",
-    "performance.b3_release_margin_K"
+    "performance.b3_release_margin_K",
+    "performance.bank_air_ratio_28A_35k"
    ],
    "writes": [
     "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
-    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs/**"
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs/**",
+    "validation-results/11-candidates/bank28-air/results/bank_air_metric.json"
    ],
    "key": "ratings|copper_key|files(b3_ratings)|key(task04)",
    "reads": {
@@ -571,7 +573,12 @@
    "validation-results/05-resonant-tank-envelope/round6-full-power/scripts/board_side.py",
    "@repo/firmware/components/control/thermal_mgmt.h",
    "native-21/stackup.json",
-   "native-21/layout/layers21.py"
+   "native-21/layout/layers21.py",
+   "validation-results/11-candidates/bank28-air/scripts/bank_air_metric.py",
+   "validation-results/11-candidates/c34-bank-margin/raw/parts_tdk.json",
+   "validation-results/11-candidates/c34-bank-margin/raw/parts_tdk_b3264.json",
+   "validation-results/11-candidates/c34-bank-margin/results/bank_margin.json",
+   "validation-results/11-candidates/airflow28-2026-10-16/results/enclosure.json"
   ],
   "core_barrier": [
    "native-21/layout/barrier_gate21.py",
@@ -1359,10 +1366,39 @@
    ]
   },
   {
+   "glob": "validation-results/11-candidates/bank28-air/results/bank_air_metric.json",
+   "class": "output",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/11-candidates/bank28-air/scripts/bank_air_metric.py",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/11-candidates/c34-bank-margin/raw/parts_tdk{,_b3264}.json",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
+   "glob": "validation-results/11-candidates/airflow28-2026-10-16/results/enclosure.json",
+   "class": "input",
+   "steps": [
+    "b3_ratings"
+   ]
+  },
+  {
    "glob": "validation-results/11-candidates/c34-bank-margin/results/bank_margin.json",
    "class": "input",
    "steps": [
-    "card"
+    "card",
+    "b3_ratings"
    ]
   },
   {
@@ -1473,6 +1509,10 @@
   "performance.ledger_unaudited_safety_power": [
    "card",
    "build"
+  ],
+  "performance.bank_air_ratio_28A_35k": [
+   "b3_ratings",
+   "card"
   ]
  },
  "manual_tag_files": {

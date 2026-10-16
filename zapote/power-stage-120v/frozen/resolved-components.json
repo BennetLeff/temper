@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "e092da7688668dd51e7255edde2c55cd5358c2659782a6c1fe3db92cb02fd45b",
+    "build/default.csv": "b79c6789a67b873b61e808731e92d0c2a8c7835dcee54dfa6ef969d0f82f4a6f",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "6f9f53a599887789c52f50085e695c395703a0e4847132471244c25c5442e8e1",
+    "build/default.net": "72776e70dfbf0d3ac9c26451a14a32732658c88772af3c7ca1389423ec24e575",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -1280,9 +1280,9 @@
       "attributes": {
         "designator": "C21",
         "designator_prefix": "C",
-        "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+        "footprint": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
         "manufacturer": "TDK",
-        "mpn": "B32654A1104J000"
+        "mpn": "B32643B8104J000"
       }
     },
     {
@@ -1290,9 +1290,9 @@
       "attributes": {
         "designator": "C22",
         "designator_prefix": "C",
-        "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+        "footprint": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
         "manufacturer": "TDK",
-        "mpn": "B32654A1104J000"
+        "mpn": "B32643B8104J000"
       }
     },
     {
@@ -1300,9 +1300,9 @@
       "attributes": {
         "designator": "C23",
         "designator_prefix": "C",
-        "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+        "footprint": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
         "manufacturer": "TDK",
-        "mpn": "B32654A1104J000"
+        "mpn": "B32643B8104J000"
       }
     },
     {
@@ -1310,9 +1310,9 @@
       "attributes": {
         "designator": "C151",
         "designator_prefix": "C",
-        "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+        "footprint": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
         "manufacturer": "TDK",
-        "mpn": "B32654A1104J000"
+        "mpn": "B32643B8104J000"
       }
     },
     {
@@ -1320,9 +1320,9 @@
       "attributes": {
         "designator": "C152",
         "designator_prefix": "C",
-        "footprint": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+        "footprint": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
         "manufacturer": "TDK",
-        "mpn": "B32654A1104J000"
+        "mpn": "B32643B8104J000"
       }
     },
     {
@@ -1643,8 +1643,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0710KL",
-        "value": "10kohm"
+        "mpn": "RT0603BRD077K5L",
+        "value": "7.5kohm"
       }
     },
     {
@@ -1665,8 +1665,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0712K6L",
-        "value": "12.6kohm"
+        "mpn": "RT0603BRD0716KL",
+        "value": "16kohm"
       }
     },
     {
@@ -1675,9 +1675,9 @@
         "designator": "R35",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Vishay Dale",
-        "mpn": "TNPW060311K7BEEA",
-        "value": "11.7kohm"
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD0711KL",
+        "value": "11kohm"
       }
     },
     {
@@ -4015,8 +4015,8 @@
   "source_sha256": {
     "elec/src/f6_bias.ato": "2005b776b02862baa4731cab15d3658c108983a06562fbbe36fb0a4282c22a85",
     "elec/src/f6_parts.ato": "bcca99f9c3b6b33f16a36c900de9d187710624155801f8ba0ec62c797fd69b88",
-    "elec/src/parts.ato": "a0fdb34875d915cd6a8a1e9150c2e73d7eb2837c3b444be3e34cb13052c317e1",
-    "elec/src/power_stage_120v.ato": "54532b5ddba5cd87af17bcf423bf2b868fdd3bf412b20f2817aa8a5e2ebb2fbe",
+    "elec/src/parts.ato": "ec5f53118b498c9f2e5555b410093d476dd88facdcae4a23adbcd05485ce399b",
+    "elec/src/power_stage_120v.ato": "96f239e952b6068038af30c78aa460a918a5a88a04283d6a8e7c18a8250a298d",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

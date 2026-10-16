@@ -287,6 +287,12 @@ const IDENTITY: &[(&str, &str)] = &[
     ("c_hf_a2", "B32652A0104K000"),
     ("c_hf_b1", "B32652A0104K000"),
     ("c_hf_b2", "B32652A0104K000"),
+    // stage 49 (DECISIONS 68, candidate 34): the resonant bank is 5 x TDK B32643B8104J000 (2000 V DC, P22.5, dT 15 K)
+    ("c_res1", "B32643B8104J000"),
+    ("c_res2", "B32643B8104J000"),
+    ("c_res3", "B32643B8104J000"),
+    ("c_res4", "B32643B8104J000"),
+    ("c_res5", "B32643B8104J000"),
     ("cy1", "DE1E3RA222MA4BP01F"),
     ("cy2", "DE1E3RA222MA4BP01F"),
     ("cx1", "R463N410050N1K"),
@@ -367,11 +373,12 @@ const IDENTITY: &[(&str, &str)] = &[
     ("r_bias_good_j4", "RC1206FR-07220KL"),
     ("r_ref_bias", "0603WAF5601T5E"),
     ("r_ocp_ref", "RT0603BRD0710KL"),
-    ("r_ocp_sense", "RT0603BRD0710KL"),
-    // Trip thresholds: ~93 A OCP (12.6 k / 11.7 k, stage 15 28 A hardware; band 68.58-118.74 A,
-    // 66.30 A after the Kelvin shift) and ~280 V OVP (10 k / 140 k).
-    ("r_th_top", "RT0603BRD0712K6L"),
-    ("r_th_bot", "TNPW060311K7BEEA"),
+    // Trip thresholds: ~93 A OCP and ~280 V OVP (10 k / 140 k). Stage 49 (OPEN-ITEMS S23, B'-1.02 V): R33 7.5 k,
+    // R34 16 k, R35 11 k (was 10 k / 12.6 k / 11.7 k) hold the 92.593 A nominal with U6's trip VCM at 1.0185 V
+    // (stage49_checks).
+    ("r_ocp_sense", "RT0603BRD077K5L"),
+    ("r_th_top", "RT0603BRD0716KL"),
+    ("r_th_bot", "RT0603BRD0711KL"),
     ("r_ovp_top", "RT0603BRD0710KL"),
     ("r_ovp_bot", "RT0603BRD07140KL"),
     ("r_div1", "RC1206FR-07470KL"),
@@ -640,9 +647,10 @@ fn min_reference_cathode_current_ua(bias_ohm: f64, ref_max: f64) -> f64 {
     // -0.15 V at OCP_KELVIN_N corresponds to 150 A through the 1 mΩ
     // shunt. This bounds loading beyond the nominal 51–71 A trip spread;
     // it does not assert that the power path survives a 150 A fault.
-    let ocp_offset_load = (ref_max + 0.15) / (20_000.0 * 0.999);
-    // R34 + R35 = 12.6 k + 11.7 k (stage 15, 2026-10-10; was 12.4 k + 11.7 k, and 10.6 k + 10 k before 2026-10-09).
-    let ocp_threshold_load = ref_max / (24_300.0 * 0.999);
+    // R32 + R33 = 10 k + 7.5 k (stage 49, S23 B'-1.02 V; 10 k + 10 k before).
+    let ocp_offset_load = (ref_max + 0.15) / (17_500.0 * 0.999);
+    // R34 + R35 = 16 k + 11 k (stage 49; 12.6 k + 11.7 k from stage 15, 12.4 k + 11.7 k, and 10.6 k + 10 k before 2026-10-09).
+    let ocp_threshold_load = ref_max / (27_000.0 * 0.999);
     let ovp_threshold_load = ref_max / (150_000.0 * 0.999);
     // stage 48 (B13 H1): the REF25 watchdog divider R144 + R145 = 63.4 k + 11.7 k into U14 INB-
     let watchdog_load = ref_max / (75_100.0 * 0.999);
@@ -764,12 +772,76 @@ fn s48_trip_window(top: (f64, f64, f64), bot: (f64, f64, f64)) -> (f64, f64) {
     ((S48_VIT.0 - S48_IINB_A * rth) / hi, (S48_VIT.1 + S48_IINB_A * rth) / lo)
 }
 
-/// REF25 with U5 open, at its lowest: HOT5 4.632 V over R31 (+1 %) into the loads (OCP 20 k, threshold 24.3 k, OVP
-/// 150 k, watchdog top + bottom, each +0.1 %).
+/// REF25 with U5 open, at its lowest: HOT5 4.632 V over R31 (+1 %) into the loads (OCP 17.5 k, threshold 27 k from
+/// stage 49; 20 k / 24.3 k before; OVP 150 k, watchdog top + bottom, each +0.1 %).
 fn s48_u5_open_min(wd_ohm: f64) -> f64 {
-    let g: f64 = [20_000.0, 24_300.0, 150_000.0, wd_ohm].iter().map(|r| 1.0 / (r * 1.001)).sum();
+    let g: f64 = [17_500.0, 27_000.0, 150_000.0, wd_ohm].iter().map(|r| 1.0 / (r * 1.001)).sum();
     let rl = 1.0 / g;
     4.632 * rl / (rl + 5_600.0 * 1.01)
+}
+
+// Stage 49 (c49-c34-bank). Bank: TDK B3264*B (6/26) p.11, VR 2000 V DC for B32643B8104J000 (p.2 / p.11 footprint and
+// body); B3265*A (6/26) p.23 VR 1600 V DC for the former B32654A1104J000. F3, the third-fault bank peak, is 1683 V
+// (DECISIONS 23 / item 853); the ledger's peak-voltage rule is <= 0.85 of VR for that out-of-scope case (c34 README:
+// 0.84 x 2000 V), so the bank must be rated >= 1980 V.
+const S49_BANK_VR: &[(&str, f64)] = &[("B32643B8104J000", 2000.0), ("B32654A1104J000", 1600.0)];
+const S49_F3_V: f64 = 1683.0;
+const S49_F3_MAX_RATIO: f64 = 0.85;
+// OCP divider (S23, 11-candidates/s23-ocp-cm-2026-10-16): Yageo RT0603 B-D, +-0.1 %, +-25 ppm/K (resistor, ohm).
+const S49_OCP_RESISTORS: &[(&str, f64)] = &[
+    ("RT0603BRD0710KL", 10_000.0), ("RT0603BRD077K5L", 7_500.0), ("RT0603BRD0716KL", 16_000.0),
+    ("RT0603BRD0711KL", 11_000.0), ("RT0603BRD0712K6L", 12_600.0), ("TNPW060311K7BEEA", 11_700.0),
+];
+/// Nominal OCP trip (A) and U6 trip common mode (V) at REF 2.5 V and R5 1 mOhm: ocp_node = k' REF - w I R5 meets
+/// ocp_thresh = k REF, k' = R33 / (R32 + R33), w = 1 - k', k = R35 / (R34 + R35) (s23_optb.py nominal()).
+fn s49_ocp_nominal(r32: f64, r33: f64, r34: f64, r35: f64) -> (f64, f64) {
+    let (k, kp) = (r35 / (r34 + r35), r33 / (r32 + r33));
+    (2.5 * (kp - k) / (1.0 - kp) / 1e-3, 2.5 * k)
+}
+/// The as-built nominal trip (stage 15 / s48, 92.593 A); B' holds it within 0.25 A.
+const S49_TRIP_NOM_A: f64 = 92.593;
+/// U6 trip VCM window for B': below the as-built 1.20 V (offset sensitivity 2.0 -> 1.75 A/mV) and above the TLV3201
+/// input-pair transition tail (~0.3-0.9 V, SBOS561C Fig 6-5 p.7, typical units).
+const S49_VCM: (f64, f64) = (0.95, 1.10);
+/// C30 (c_ocp_node): Samsung CL10C101JB8NNNC, 100 pF C0G (farad); and the OCP front-end RC the timing budget assumes
+/// (R32 || R33 = 5 k x 100 pF = 500 ns as built to s48; B' gives 4.29 k x 100 pF = 429 ns).
+const S49_C30: &[(&str, f64)] = &[("CL10C101JB8NNNC", 100e-12)];
+const S49_TAU_MAX_NS: f64 = 500.0;
+
+fn stage49_checks(m: &Model, e: &mut Vec<String>) {
+    for c in ["c_res1", "c_res2", "c_res3", "c_res4", "c_res5"] {
+        let mpn = m.resolved.get(c).cloned().unwrap_or_default();
+        match S49_BANK_VR.iter().find(|(p, _)| *p == mpn) {
+            Some((_, vr)) if S49_F3_V <= S49_F3_MAX_RATIO * vr => {}
+            Some((_, vr)) => e.push(format!(
+                "stage49: {c} ({mpn}) VR {vr} V: F3 {S49_F3_V} V is {:.3} of VR, above {S49_F3_MAX_RATIO}", S49_F3_V / vr)),
+            None => e.push(format!("stage49: {c} ({mpn}) has no bank voltage rating (S49_BANK_VR)")),
+        }
+    }
+    let r = |p: &str| m.resolved.get(p).and_then(|mpn| S49_OCP_RESISTORS.iter().find(|(q, _)| q == mpn)).map(|x| x.1);
+    match (r("r_ocp_ref"), r("r_ocp_sense"), r("r_th_top"), r("r_th_bot")) {
+        (Some(a), Some(b), Some(c), Some(d)) => {
+            let (i, vcm) = s49_ocp_nominal(a, b, c, d);
+            if (i - S49_TRIP_NOM_A).abs() > 0.25 {
+                e.push(format!("stage49: OCP nominal trip {i:.3} A, not {S49_TRIP_NOM_A} +- 0.25 A"));
+            }
+            if vcm < S49_VCM.0 || vcm > S49_VCM.1 {
+                e.push(format!("stage49: U6 trip common mode {vcm:.4} V outside {:.2}-{:.2} V (S23 B')", S49_VCM.0, S49_VCM.1));
+            }
+            // C30 (ocp_node to OCP_KELVIN_P) filters the source R32 || R33: its time constant must not exceed the 500 ns
+            // front-end RC the 555 ns OCP front-end budget is built on (stage15-28A fault_check.py)
+            match m.resolved.get("c_ocp_node").and_then(|p| S49_C30.iter().find(|(q, _)| q == p)).map(|x| x.1) {
+                Some(c) => {
+                    let tau_ns = a * b / (a + b) * c * 1e9;
+                    if tau_ns > S49_TAU_MAX_NS {
+                        e.push(format!("stage49: C30 x (R32 || R33) = {tau_ns:.0} ns, above the {S49_TAU_MAX_NS} ns front-end RC"));
+                    }
+                }
+                None => e.push("stage49: c_ocp_node has no capacitance data (S49_C30)".into()),
+            }
+        }
+        _ => e.push("stage49: r_ocp_ref / r_ocp_sense / r_th_top / r_th_bot have no resistor data (S49_OCP_RESISTORS)".into()),
+    }
 }
 
 fn stage48_checks(m: &Model, e: &mut Vec<String>) {
@@ -1324,6 +1396,7 @@ fn audit(m: &Model) -> Vec<String> {
     }
     expect(&mut e, m, "r_bias_good_j4", "1", "bias_good");
     stage48_checks(m, &mut e);
+    stage49_checks(m, &mut e);
 
     // 11. Tank CT: the secondary is terminated on this board, at the CT, and
     //     never reaches the connector (an open secondary spikes to hundreds of
@@ -2073,6 +2146,43 @@ mod tests {
         let mut m = built();
         m.rewire("j_selv", "1", "bias_good");
         fails(&m, "j_selv.1");
+    }
+
+    #[test]
+    fn stage49_bank_and_ocp_divider_hold() {
+        let m = built();
+        assert!(audit(&m).is_empty(), "{:#?}", audit(&m));
+        // B': the chosen divider holds 92.593 A at a 1.0185 V trip common mode; the as-built one sat at 1.204 V
+        let (i, vcm) = s49_ocp_nominal(10_000.0, 7_500.0, 16_000.0, 11_000.0);
+        assert!((i - 92.593).abs() < 0.05 && (vcm - 1.0185).abs() < 0.001, "{i} {vcm}");
+        let (i0, vcm0) = s49_ocp_nominal(10_000.0, 10_000.0, 12_600.0, 11_700.0);
+        assert!((i0 - 92.593).abs() < 0.05 && vcm0 > 1.2, "{i0} {vcm0}");
+        // the former bank part fails identity and its 1600 V rating fails F3 (1683 V = 1.05 x VR)
+        let mut m = built();
+        m.set_part("c_res4", "B32654A1104J000");
+        fails(&m, "c_res4 is B32654A1104J000");
+        fails(&m, "stage49: c_res4 (B32654A1104J000) VR 1600 V");
+        // R33 back to 10 k with R34 / R35 new: the trip moves to ~138 A
+        let mut m = built();
+        m.set_part("r_ocp_sense", "RT0603BRD0710KL");
+        fails(&m, "stage49: OCP nominal trip");
+        // R34 / R35 swapped: the VCM leaves the window
+        let mut m = built();
+        m.set_part("r_th_top", "RT0603BRD0711KL");
+        m.set_part("r_th_bot", "RT0603BRD0716KL");
+        fails(&m, "stage49: U6 trip common mode");
+        // the REF25 minimum current with the new loads and the watchdog together stays above IRMIN 65 uA
+        let iz = min_reference_cathode_current_ua(5_600.0, 2.5162);
+        assert!(iz > 65.0 && (iz - 98.8).abs() < 0.1, "{iz}");
+        let open = s48_u5_open_min(75_100.0);
+        let (_, wd_hi) = s48_trip_window((63_400.0, 0.001, 25.0), (11_700.0, 0.001, 25.0));
+        assert!(open > 2.80 && wd_hi < open, "{open} {wd_hi}");
+        // C30 x (R32 || R33): 429 ns with B' (500 ns as built); a C30 the table does not know fails
+        let tau: f64 = 10_000.0 * 7_500.0 / 17_500.0 * 100e-12 * 1e9;
+        assert!((tau - 428.6).abs() < 0.1 && tau <= S49_TAU_MAX_NS);
+        let mut m = built();
+        m.set_part("c_ocp_node", "CL10C151JB8NNNC");
+        fails(&m, "stage49: c_ocp_node has no capacitance data");
     }
 
     #[test]

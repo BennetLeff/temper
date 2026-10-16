@@ -114,6 +114,9 @@ int main(int argc, char** argv) {
         // TDK B32654A1104K000 (resonant bank from stage 13): p.22 maximum body 14 x 24.5 x 31.5, e 27.5, d1 0.8.
         film(directory, "TDK_B32654A1104K000.step", -2.0, -7.0,
              31.5, 14, 24.5, 27.5, 0, 0.8);
+        // TDK B32643B8104J000 (resonant bank from stage 49): B3264*B p.11 maximum body 14.5 x 29.5 x 26.5, p.2 e 22.5, d1 0.8.
+        film(directory, "TDK_B32643B8104J000.step", -2.0, -7.25,
+             26.5, 14.5, 29.5, 22.5, 0, 0.8);
         murata(directory);
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';

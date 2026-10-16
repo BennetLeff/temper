@@ -14,7 +14,9 @@ def main() -> None:
                      'default.layouts.json', 'manifest.json'):
         assert (root / 'frozen' / filename).read_bytes() == (root / 'native-21/frozen' / filename).read_bytes(), filename
     parts = {c['address'].split('::')[1]: c['attributes'] for c in resolved['components']}
-    assert all(parts[f'c_res{i}']['mpn'] == 'B32654A1104J000' for i in range(1, 6))
+    # stage 49 (DECISIONS 68, candidate 34): the bank is 5 x TDK B32643B8104J000 (2000 V DC, P22.5) on its own footprint
+    assert all(parts[f'c_res{i}']['mpn'] == 'B32643B8104J000' and
+               parts[f'c_res{i}']['footprint'] == 'temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial' for i in range(1, 6))
     for leg in ('leg_a', 'leg_b'):
         assert parts[f'{leg}.r_dt']['mpn'] == 'RT0603BRD0749K9L'
         # stage 22 (DECISIONS 27): DIS = NAND(permit_gate, bias_good); the PERMIT FET and 330 ohm pull-up are gone
@@ -27,7 +29,9 @@ def main() -> None:
                for p in ('j_coil', 'j_coil_return'))
     for leg in ('leg_a', 'leg_b'):   # stage 26 (DECISIONS 28): low-ESR SVPC variant, same can
         assert parts[f'{leg}.bias_h.cbulk']['mpn'] == parts[f'{leg}.bias_l.cbulk']['mpn'] == '6SVPC220MV'
-    assert parts['r_th_top']['mpn'] == 'RT0603BRD0712K6L'   # stage 15, 28 A hardware
+    # stage 49 (OPEN-ITEMS S23, B'-1.02 V): R33 7.5 k, R34 16 k, R35 11 k (stage 15: 10 k / 12.6 k / 11.7 k)
+    assert (parts['r_ocp_ref']['mpn'], parts['r_ocp_sense']['mpn'], parts['r_th_top']['mpn'], parts['r_th_bot']['mpn']) == \
+        ('RT0603BRD0710KL', 'RT0603BRD077K5L', 'RT0603BRD0716KL', 'RT0603BRD0711KL')
     # stage 38 (candidate 23, DECISIONS 47): PS1 deleted (the controller logic runs from PS3 over its J13); PS2 is the
     # MEAN WELL MPM-20-24 (touch current < 80 uA / 264 VAC) on the unchanged IRM-20 / Case 219A footprint
     assert 'ps_selv' not in parts and not any(part.get('mpn', '').startswith('IRM-') for part in parts.values())

@@ -86,6 +86,10 @@ def main() -> None:
     # e = 27.5 mm, d1 = 0.8 mm (p.3), centred on the pitch.
     film_box(31.5, 14.0, 24.5, 13.75, 0, [(0, 0), (27.5, 0)], 0.8,
              "TDK_B32654A1104K000.wrl")
+    # TDK B32643B8104J000 (resonant bank from stage 49, DECISIONS 68): B3264*B p.11 maximum body w x h x l
+    # 14.5 x 29.5 x 26.5, e = 22.5 mm, d1 = 0.8 mm (p.2), centred on the pitch.
+    film_box(26.5, 14.5, 29.5, 11.25, 0, [(0, 0), (22.5, 0)], 0.8,
+             "TDK_B32643B8104J000.wrl")
     murata()
 
 

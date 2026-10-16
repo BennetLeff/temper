@@ -186,6 +186,21 @@
    "kicad_pad_is_datasheet_pin": true,
    "source": "TI SLVSCE6D (Dec 2013, rev. Aug 2025), p.3 Figure 4-1 'DBV Package, SOT-23-5 (Top View)' and Table 4-1 Pin Functions (DBV column): IN 1, GND 2, EN 3, NC 4, OUT 5 - the same DBV pinout as TPS70950DBVR (C96028, SBVS186H p.3). https://www.ti.com/lit/ds/symlink/tps709-q1.pdf sha256 bd01fad0eb2defdd3cbe3d07d0d1d8579c8f110dd5420e41df19dc350474eb5f, read 2026-10-16",
    "kicad_check": "native-21 frozen netlist (stage 48): U3 / U37 / U38 / U39 pad 1 (IN) on v15_ls, v15_ls, p_ha, p_hb; pad 3 (EN) on its own divider tap (hot5_en, monitor_ls-ldo_en, bias_ha.monitor-ldo_en, bias_hb.monitor-ldo_en; audit.rs stage48); pad 2 (GND) on the return (ocp_kelvin_p, n_ls, n_ha, n_hb); pad 4 (NC) on a single-pad *-nc net; pad 5 (OUT) on the 5 V net (hot5, ls_v5, bias_ha.monitor-v5, bias_hb.monitor-v5): KiCad pad n = datasheet pin n. EasyEDA symbol C485909: 1 IN, 2 GND, 3 EN, 4 NC, 5 OUT"
+  },
+  "C3781430": {
+   "part": "B32643B8104J000",
+   "package": "TDK B3264*B radial, 2 parallel wire leads, lead spacing 22.5 mm (temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial)",
+   "non_polar_tht": {
+    "lead_spacing_mm": 22.5,
+    "tolerance_mm": 0.4
+   },
+   "datasheet_pins": {
+    "1": "TERMINAL",
+    "2": "TERMINAL"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TDK B3264*B 'Capacitors for Snubbering, Resonant Circuits, PFC - High frequency' (6/26), p.2: dimensional drawing KMK0834-G-E, two parallel wire leads, lead spacing e 22.5 +-0.4 mm and d1 0.8 +-0.05 mm for B32643B; 'Polypropylene (PP) dielectric ... wound capacitor', marking without a polarity mark (p.2 'Marking'); p.11 row B32643B8104+***, 100 nF, 14.5 x 29.5 x 26.5 mm. MMKP_B32641B_B32643B.pdf sha256 ab9fdca0b9676c8528b8bb5469d8ec4a60f0983520a65fa8f0517e4b4a58ab77, read 2026-10-16 (runs-native21/bank28/dl/b3264)",
+   "kicad_check": "native-21 frozen netlist (stage 49): C21 / C22 / C23 / C151 / C152 pad 1 on res_a, pad 2 on sw_b; the footprint's two 1.2 mm drills sit 22.5 mm apart on X. A film capacitor has no polarity, so either lead in either hole is the same circuit; a 90 / 270 rotation cannot be inserted. JLC has no EasyEDA footprint offline for C3781430 (0 in stock, an owner pre-order line)."
   }
  }
 }

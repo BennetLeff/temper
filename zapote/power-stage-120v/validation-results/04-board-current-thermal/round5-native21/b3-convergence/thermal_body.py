@@ -109,6 +109,12 @@ SPECS = {
         cite="ASSUMED class value: two 0.8 mm leads (cap doc components/B32652A0104K000), 3 mm free length, copper-clad "
              "steel k = 60 W/mK  => 2 x 99 K/W in parallel = 50 K/W. TDK datasheet was not retrievable (403): the 105 C "
              "upper category temperature and the 85 C ripple curve are the values recorded in round6-full-power/README.md"),
+    "film_mmkp": dict(  # C21-23, C151, C152 from stage 49: TDK B32643B8104J000 (B3264*B MMKP, 2000 V, P22.5)
+        label="TDK MMKP radial film capacitor", r_pad=50.0, r_top=0.0, body_mm=None, standoff_mm=3.0,
+        pad_filter=None, tj_limit=125.0, body_air=False,
+        cite="lead path as film_radial (ASSUMED 50 K/W: two 0.8 mm leads, TDK B3264*B June 2026 p.2 'B32643B lead "
+             "diameter d1 0.8 +-0.05', 'parallel wire leads, lead-free tinned'; 3 mm free length, copper-clad steel k 60). "
+             "Max. operating temperature 125 C (case) (p.2; Top,max +125 C, p.12). No body-to-air path, as film_radial"),
     "film_hf": dict(  # C38-41 TDK B32652A0104K000 (HF bus film, gated): film_radial's lead path + a body-to-air path
         label="TDK B32652A0104K000 HF film capacitor", r_pad=50.0, r_top=0.0, body_mm=None, standoff_mm=3.0,
         pad_filter=None, tj_limit=110.0, body_air="film_fin",
@@ -379,6 +385,8 @@ def spec_for(ref: str, mpn: str, fp: str) -> str:
         return "chip2512"
     if mpn.startswith("B32652A0104"):     # C38-C41: body-to-air path since 2026-10-15 (jet-2026-10-15)
         return "film_hf"
+    if mpn.startswith("B32643B"):        # stage 49: the c34 bank (B3264*B, Top,max 125 C case)
+        return "film_mmkp"
     if mpn.startswith("B32654") or mpn.startswith("B32652"):
         return "film_radial"
     if mpn.startswith("B32676") or mpn.startswith("B32656"):

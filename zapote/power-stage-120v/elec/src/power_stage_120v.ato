@@ -26,11 +26,11 @@ from "parts.ato" import MainsTerminal2, PowerTerminalM4, PeBranchTerminal, Mains
 from "parts.ato" import CapX2_1u, CapY1_2n2, R100k1206, BridgeGbj2510, BusFilm2u7, LocalBus100n
 from "parts.ato" import R220k1206, Shunt1m, MosfetCfd7, Snubber1n1kV, UCC21550BDWK, Driver2EDR8259X
 from "parts.ato" import R3R9Gate, R8R2Gate, R68Gate2512, R49k9Dt, R10k0603, R100k0603, R100R0603
-from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, ResB32654
+from "parts.ato" import R1k0603, R330R0603, C100n0603, C10u1210, C10u0805, ResB32643B
 from "parts.ato" import C100n0805, C1u0805
 from "parts.ato" import CST3015_200E, TcoLoopHeader, BranchFuseT3A15, BranchLimiter0R15, MainsTapHeader
 from "parts.ato" import Amc1311, R470k1206, R15k8Thin, C1nC0G0603, C4n7C0G0603, C100pC0G0603
-from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R12k6Thin, R11k7Thin, R140kThin, R5k6Bias
+from "parts.ato" import Tlv3201, Ref2V5, R10kThin, R11k7Thin, R7k5Thin, R16kThin, R11kThin, R140kThin, R5k6Bias
 from "parts.ato" import IsoReinfH, SelvHeader16, Nand3Lvc1g10, FunctionalEarthLink, SchmittBuf17
 from "parts.ato" import Hot5Supervisor, Hot5SchmittBuffer, R105kThin
 from "parts.ato" import BusTvs30kpa150
@@ -415,19 +415,20 @@ module PowerStage120V:
     j_coil.p1 ~ COIL_FEED
     # 5 x 0.10 uF = 0.50 uF (stage 13, was 0.54 uF in 942C parts): ferrous-pan resonance ~31-33 kHz
     # with the assumed 70 uH coil, below the 35-60 kHz window (task 05 round 4).
-    c_res1 = new ResB32654
+    # Stage 49 (DECISIONS 68, candidate 34): TDK B32643B8104J000, 2000 Vdc, P22.5, rated dT 15 K (same 0.50 uF).
+    c_res1 = new ResB32643B
     c_res1.p1 ~ RES_A
     c_res1.p2 ~ SW_B
-    c_res2 = new ResB32654
+    c_res2 = new ResB32643B
     c_res2.p1 ~ RES_A
     c_res2.p2 ~ SW_B
-    c_res3 = new ResB32654
+    c_res3 = new ResB32643B
     c_res3.p1 ~ RES_A
     c_res3.p2 ~ SW_B
-    c_res4 = new ResB32654
+    c_res4 = new ResB32643B
     c_res4.p1 ~ RES_A
     c_res4.p2 ~ SW_B
-    c_res5 = new ResB32654
+    c_res5 = new ResB32643B
     c_res5.p1 ~ RES_A
     c_res5.p2 ~ SW_B
     # Bleed: an OCP trip can leave C_res holding ~250 V with no discharge
@@ -579,20 +580,22 @@ module PowerStage120V:
     r_ocp_ref.value = 10kohm
     r_ocp_ref.p1 ~ REF25
     r_ocp_ref.p2 ~ OCP_NODE
-    r_ocp_sense = new R10kThin
-    r_ocp_sense.value = 10kohm
+    # Stage 49 (OPEN-ITEMS S23, B'-1.02 V): R33 7.5 k / R34 16 k / R35 11 k move U6's trip common mode from ~1.20 V to
+    # 1.0185 V (offset sensitivity 2.0 -> 1.75 A/mV) at the same 92.593 A nominal trip (11-candidates/s23-ocp-cm-2026-10-16).
+    r_ocp_sense = new R7k5Thin
+    r_ocp_sense.value = 7.5kohm
     r_ocp_sense.p1 ~ OCP_NODE
     r_ocp_sense.p2 ~ OCP_KELVIN_N
     c_ocp_node = new C100pC0G0603
     c_ocp_node.value = 100pF
     c_ocp_node.p1 ~ OCP_NODE
     c_ocp_node.p2 ~ OCP_KELVIN_P
-    r_th_top = new R12k6Thin
-    r_th_top.value = 12.6kohm
+    r_th_top = new R16kThin
+    r_th_top.value = 16kohm
     r_th_top.p1 ~ REF25
     r_th_top.p2 ~ OCP_THRESH
-    r_th_bot = new R11k7Thin
-    r_th_bot.value = 11.7kohm
+    r_th_bot = new R11kThin
+    r_th_bot.value = 11kohm
     r_th_bot.p1 ~ OCP_THRESH
     r_th_bot.p2 ~ OCP_KELVIN_P
     c_th = new C1nC0G0603
