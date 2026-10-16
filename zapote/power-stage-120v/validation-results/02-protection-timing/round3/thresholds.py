@@ -78,8 +78,12 @@ def input_bias_v(p: dict, index: int) -> float:
     return 5e-9 * source
 
 
-def validate_inputs() -> dict:
-    """Fail if the BOM identity or source net endpoints differ from the model."""
+def validate_inputs(overrides: dict | None = None) -> dict:
+    """Fail if the BOM identity or source net endpoints differ from the model.
+
+    overrides: ref -> MPN for parts a later stage changed (the round-3 defaults below are the round-3 BOM; R5, R34,
+    R35, R39, R43 and R46 have changed since stages 15-19, so a current-board caller passes their MPNs, e.g.
+    11-candidates/c47-ref25-grade/scripts/bands47.py). U5 is the current REF25 part."""
     bom = {}
     with (UNIT / "frozen/default.csv").open(newline="") as stream:
         for row in csv.DictReader(stream):
@@ -87,7 +91,9 @@ def validate_inputs() -> dict:
                 bom[ref] = row["Comment"]
     expected_mpn = {
         "R5": "WSK2512R0010FEA", "R30": "RT0603BRD0715K8L",
-        "R39": "RC1206FR-071R5L", "U5": "LM4040A25IDBZR",
+        # U5: stage 47 (S17 hot copper, c47-ref25-grade) LM4050AEM3-2.5/NOPB, TA -40..125 C (TI SNOS455H 5.3 p.5), the
+        # 2.5 V +-15 mV / 1.2 mV full-range row on p.7; was LM4040A25IDBZR (+-19 mV, -40..85 C)
+        "R39": "RC1206FR-071R5L", "U5": "LM4050AEM3-2.5/NOPB",
         "U6": "TLV3201AIDBVR", "U7": "TLV3201AIDBVR",
         "U10": "TLV3201AIDBVR", "U11": "TLV3201AIDBVR",
     }
@@ -96,6 +102,7 @@ def validate_inputs() -> dict:
     expected_mpn.update({"R34": "RT0603BRD0710K5L", "R37": "RT0603BRD07140KL",
                          "R40": "RT0603BRD071KL", "R41": "RT0603BRD071KL",
                          "R43": "RT0603BRD073K32L", "R46": "RT0603BRD073K32L"})
+    expected_mpn.update(overrides or {})
     for ref, mpn in expected_mpn.items():
         if bom.get(ref) != mpn:
             raise ValueError(f"BOM MPN changed: {ref}: {bom.get(ref)} != {mpn}")

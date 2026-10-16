@@ -156,6 +156,18 @@
    "kicad_pad_is_datasheet_pin": true,
    "source": "TI SLCS006Z (Oct 1979, rev. May 2025), p.4 Figure 5-1 'D, DB, N, NS, PW Packages 14-Pin SOIC ... Top View' and Table 5-1 Pin Functions (one table for LM339B and LM2901B): 1 OUT1, 2 OUT2, 3 VCC, 4 IN2-, 5 IN2+, 6 IN1-, 7 IN1+, 8 IN3-, 9 IN3+, 10 IN4-, 11 IN4+, 12 GND, 13 OUT4, 14 OUT3 (footnote 1: channels 1 and 2 may be named transposed; the pinout is identical). Orderable LM2901BIDR, SOIC (D) 14, -40 to 125 C. https://www.ti.com/lit/ds/symlink/lm339b.pdf sha256 406e7bd1ab1f2fb15b46bff397bde497ba714b00ed4455a556d84e1113546f6a, read 2026-10-15. The EasyEDA symbol carries no pin names, so this entry cannot settle a fit on its own; the line is settled by the EasyEDA fit and the DB rule '^SOIC-' agreeing (270), as for C22416291 LM339BIDR",
    "kicad_check": "native-21 frozen netlist (stage 46): U29 / U30 / U31 pad 3 (VCC) on the span top (v15_ls / p_ha / p_hb), pad 12 (GND) on the island ground n_ls / n_ha / n_hb, pads 1 / 2 / 13 / 14 (outputs) on <rail>.monitor-good, pads 5 / 6 / 8 / 11 on <rail>.monitor-halfref, pads 4 / 7 / 9 / 10 on ov / uv / spanuv / spanov: KiCad pad n = datasheet pin n (pin_functions21.py checks the supply / output pins against these nets)"
+  },
+  "C2156518": {
+   "part": "LM4050AEM3-2.5/NOPB",
+   "package": "DBZ (SOT-23-3)",
+   "datasheet_pins": {
+    "1": "CATHODE",
+    "2": "ANODE",
+    "3": "NC"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SNOS455H (May 2000, rev. Mar 2025), p.3 section 4 Figure 4-1 'DBZ Package 3-Pin SOT-23 Top View' and Table 4-1 Pin Functions: 1 Cathode, 2 Anode, 3 NC 'No internal connection' (figure note: '*This pin must be left floating or connected to pin 2'; Table 4-1 note 1: tie it to the anode in high-EMI applications) - the LM4040A25IDBZR (C9421) DBZ pinout. Orderable LM4050AEM3-2.5/NOPB, SOT-23 (DBZ) 3, -40 to 125 C, marking RCA (Package Option Addendum p.25). https://www.ti.com/lit/ds/symlink/lm4050-n.pdf sha256 950d04912ac6cdab64523f3fb8633382a528afdd18239d864ffeaf556ded5aa1, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 47): U5 pad 1 (CATHODE) on ref25 (bias R31, loads R32 / R34 / R36), pad 2 (ANODE) on ocp_kelvin_p, pad 3 (NC) alone on u_ref-nc (floating, which p.3 allows; audit.rs checks it): KiCad pad n = datasheet pin n; same pads and nets as C9421 (LM4040A25IDBZR) at stage 46. EasyEDA symbol C2156518: 1 C, 2 A, 3 NC"
   }
  }
 }

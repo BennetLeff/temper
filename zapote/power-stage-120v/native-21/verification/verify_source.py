@@ -84,6 +84,9 @@ def main() -> None:
             assert part['footprint'] == ('Package_TO_SOT_SMD:SOT-23' if key == 'reference' else
                                          'Package_SO:SOIC-14_3.9x8.7mm_P1.27mm' if key == 'monitor' else
                                          'Resistor_SMD:R_1206_3216Metric' if key == 'rref' else 'Resistor_SMD:R_0603_1608Metric')
+    # stage 47 (S17 hot copper; c47-ref25-grade): REF25 on the extended-range LM4050AEM3-2.5 (TA -40..125 C, SNOS455H
+    # 5.3 p.5), the LM4040A25I's DBZ pinout (1 K, 2 A, 3 no connection) on the same SOT-23 pads
+    assert parts['u_ref']['mpn'] == 'LM4050AEM3-2.5/NOPB' and parts['u_ref']['footprint'] == 'Package_TO_SOT_SMD:SOT-23'
     for base in ('monitor_ls', 'bias_ha', 'bias_hb', 'hb'):
         assert not any(path.startswith(base + '.') and part.get('mpn') == 'VO617A-3X017T' for path, part in parts.items())
     result = {'components': len(parts), 'source_hashes_match': True,

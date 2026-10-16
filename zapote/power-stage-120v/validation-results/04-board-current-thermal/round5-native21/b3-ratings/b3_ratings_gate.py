@@ -59,8 +59,10 @@ Limits (sources re-read 2026-10-15; see the audit's ratings.py for page-level qu
                    gated TA rows, pad-copper max + P x RthJA as the die / local-ambient proxy, limit = the T_A grade
                    of the MPN the frozen BOM places there (MONITOR_GRADES): U17 / U19 / U21 TL431xI 85 C, TL431BQ
                    125 C from stage 46 (SLVS543S 6.4 p.5); U29 / U30 / U31 LM339BIDR 85 C, LM2901BIDR 125 C from
-                   stage 46 (SLCS006Z 6.4 p.6); U16 / U18 / U20 TLVH431BQ 125 C (SLVS555N 5.3 p.5); the monitor and
-                   split dividers advisory (terminal derating line)
+                   stage 46 (SLCS006Z 6.4 p.6); U16 / U18 / U20 TLVH431BQ 125 C (SLVS555N 5.3 p.5); U5 (REF25,
+                   the OCP / OVP threshold reference) from stage 47: LM4040A25IDBZR 85 C (SLOS456Q 6.3 p.5, xxxI),
+                   LM4050AEM3-2.5/NOPB 125 C (SNOS455H 5.3 p.5, extended range); the monitor and split dividers
+                   advisory (terminal derating line)
   advisory (limit known, package path assumed): bank MKP 110 C (board share only), DC-link C5/C6 TDK B32676G1905K000
                    Top,max 105 C case (B3267* June 2026 p.13; 110 C until 2026-10-15), B82726 125 C (p.4), other
                    1206 (MPNs not re-read)
@@ -119,13 +121,24 @@ MONITOR_SELF = {
     # LM339B: IQ <= 1.6 mA (SLCS006Z 6.7 p.7, VS 36 V, -40..85 C) at V_PN, plus four outputs sinking the 10 k pull-up
     # from 5 V at VOL <= 0.4 V (fault state)
     "lm339b": 1.6e-3 * V_PN + 0.4 * 5.0 / 10000.0,
+    # REF25 shunt U5 (stage 47): the most cathode current it carries in operation, at the reference's maximum voltage.
+    # Bias R31 0603WAF5601T5E 5.6 k -1 % from HOT5 5.15 V (TPS70950 +1 % + 10 mV line + 50 mV load, SBVS186H 6.5 p.5,
+    # rounded up) at the reference minimum 2.4838 V, less the three 0.1 % load strings +0.1 % (R32 + R33 20 k to
+    # OCP_KELVIN_N at 0 V, R34 + R35 24.3 k, R36 + R37 150 k): 0.238 mA (audit.rs: 65 uA floor, 0.48 mA no-load
+    # ceiling); x 2.5162 V (2.5 V + 15 mV + 1.2 mV, SNOS455H 5.6 p.7) = 0.60 mW
+    "ref25": ((5.15 - 2.4838) / (5600.0 * 0.99)
+              - 2.4838 / (20000.0 * 1.001) - 2.4838 / (24300.0 * 1.001) - 2.4838 / (150000.0 * 1.001)) * 2.5162,
 }
 RTHJA = {"tl431": (206.0, "SLVS543S 6.3 p.5 DBZ"), "tlvh431": (206.0, "SLVS555N 5.4 p.5 DBZ"),
-         "lm339b": (111.2, "SLCS006Z 6.6 p.6 D (SOIC)")}
+         "lm339b": (111.2, "SLCS006Z 6.6 p.6 D (SOIC)"),
+         # the larger of the LM4050's two DBZ figures (5.4 p.5 287 K/W; p.11 note 1 326 K/W board mounted, typical);
+         # the LM4040's DBZ is 206 K/W (SLOS456Q 6.4 p.5), so this over-states its self-heat
+         "ref25": (326.0, "SNOS455H p.11 note 1 DBZ (5.4 p.5: 287)")}
 MONITORS = {   # ref -> (kind, net pattern the ref must carry: refs that move stop the gate)
     **{r: ("tl431", r"monitor(_ls)?-ref$") for r in ("U17", "U19", "U21")},
     **{r: ("lm339b", r"monitor(_ls)?-good$") for r in ("U29", "U30", "U31")},
     **{r: ("tlvh431", r"(split|bias_ls)-fb$") for r in ("U16", "U18", "U20")},
+    "U5": ("ref25", r"^ref25$"),     # stage 47: the REF25 shunt (OCP and OVP thresholds); a report-only sweep row before
 }
 # The row limit is the T_A grade of the MPN the BOM places at the ref (stage 46: the 125 C grades of the same pinouts).
 # MPN -> (kind, row basis, T_A max C). A monitor ref whose MPN is not here, or is of another kind, stops the gate.
@@ -137,6 +150,9 @@ MONITOR_GRADES = {
     "LM339BIDR": ("lm339b", "LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)", 85.0),
     "LM2901BIDR": ("lm339b", "LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)", 125.0),
     "TLVH431BQDBZR": ("tlvh431", "TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)", 125.0),
+    "LM4040A25IDBZR": ("ref25", "LM4040A25IDBZR TA max 85 C (TI SLOS456Q 6.3 p.5, LM4040xxxI)", 85.0),
+    "LM4050AEM3-2.5/NOPB": ("ref25", "LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; "
+                            "addendum p.25)", 125.0),
 }
 BOM_CSV = Path(__file__).resolve().parents[4] / "native-21/frozen/default.csv"   # the BOM the chain builds the board from
 

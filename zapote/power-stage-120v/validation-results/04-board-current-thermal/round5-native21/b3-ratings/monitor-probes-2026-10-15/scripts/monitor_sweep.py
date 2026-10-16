@@ -38,7 +38,7 @@ VERIFIED = {   # MPN -> (TA max C, source); read 2026-10-15 from the datasheet t
     "LM4040A25IDBZR": (85.0, "TI SLOS456Q 6.3 p.5, LM4040xxxI TA -40..85"),
     "2EDR8259XXUMA1": (125.0, "Infineon 2EDRx259X Rev 1.7 TA -40..125"),
 }
-GRADE125 = {"tl431": ("TL431BQDBZR", 125.0), "lm339b": ("LM2901BIDR", 125.0), "tlvh431": ("TLVH431BQDBZR (as built)", 125.0)}
+GRADE125 = {"tl431": ("TL431BQDBZR", 125.0), "lm339b": ("LM2901BIDR", 125.0), "tlvh431": ("TLVH431BQDBZR (as built)", 125.0), "ref25": ("LM4050AEM3-2.5/NOPB (stage 47)", 125.0)}   # U5 joined the gate rows at stage 47
 SEMI = re.compile(r"^(U|Q|D|BR|PS)\d+$")
 TEMP = re.compile(r"(^T[_ ]?[JA]\b|^Tj|^TJ|T working|ambient|junction|operating temp)", re.I)
 

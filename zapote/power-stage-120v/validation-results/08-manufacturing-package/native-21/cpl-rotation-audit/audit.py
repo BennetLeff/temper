@@ -457,6 +457,9 @@ CONTROLS = {
     # SOT-23-3 (TL431BQDBZR C190245 since stage 46; TL431BIDBZR C41283 before): EasyEDA fit 180, DB "^SOT-23" -90;
     # settled by the TI SLVS543S p.4 pinout
     "U17": {"class": "CORRECTED", "delta": -180},
+    # SOT-23-3 (LM4050AEM3-2.5/NOPB C2156518 since stage 47; LM4040A25IDBZR C9421 before, the same DBZ pinout and
+    # EasyEDA pad arrangement): EasyEDA fit 180, DB "^SOT-23" -90; settled by the TI SNOS455H p.3 pinout
+    "U5": {"class": "CORRECTED", "delta": -180},
 }
 
 

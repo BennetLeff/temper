@@ -50,6 +50,9 @@ TABLES = {
                   "6": ("IN2-", IN), "7": ("IN2+", IN), "8": ("IN3-", IN), "9": ("IN3+", IN), "10": ("IN4-", IN),
                   "11": ("IN4+", IN), "12": ("GND", PI), "13": ("OUT4", OC), "14": ("OUT3", OC)},
 }
+# stage 47 (S17 hot copper; c47-ref25-grade): REF25 on the LM4050AEM3-2.5, SNOS455H Figure 4-1 / Table 4-1 p.3 DBZ:
+# 1 cathode, 2 anode, 3 no internal connection (float or tie to pin 2) - the reviewed LM4040A25I U5 annotation
+TABLES["LM4050AEM3-2.5/NOPB"] = {"1": ("K", P), "2": ("A", P), "3": ("NC", P)}
 # stage 46 (S17 hot copper): LM2901B SOIC-14 (D) uses the LM339B's pin table (SLCS006Z Table 5-1 p.4 covers both)
 TABLES["LM2901BIDR"] = TABLES["LM339BIDR"]
 QUAD_COMPARATORS = ("LM339BIDR", "LM2901BIDR")

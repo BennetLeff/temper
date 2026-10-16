@@ -349,7 +349,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("r_hot5_uv_bot", "RT0603BRD0710KL"),
     ("r_hot5_uv_pull", "RT0603BRD0710KL"),
     ("r_fe", "0603WAF0000T5E"),
-    ("u_ref", "LM4040A25IDBZR"),
+    ("u_ref", "LM4050AEM3-2.5/NOPB"),   // stage 47 (S17 hot copper; c47-ref25-grade): TA -40..125 C (SNOS455H 5.3 p.5); was LM4040A25IDBZR (85 C)
     ("u_ldo", "TPS70950DBVR"),
     ("r_ref_bias", "0603WAF5601T5E"),
     ("r_ocp_ref", "RT0603BRD0710KL"),
@@ -596,14 +596,26 @@ fn members(m: &Model, net: &str) -> BTreeSet<(String, String)> {
         .unwrap_or_default()
 }
 
-/// Minimum LM4040 cathode current with the selected three REF25 loads. This
+/// REF25 shunt data for the bias-window checks: (V max with the full-range tolerance and the current-regulation
+/// shift, V min likewise, full-range minimum cathode current in uA, top of the current-regulation window in uA).
+fn reference_spec(mpn: &str) -> Option<(f64, f64, f64, f64)> {
+    match mpn {
+        // TI SLOS456Q 6.8 p.9 (A25I, TA -40..85 C): 2.5 V +-19 mV at 100 uA, +-1 mV for IZ,min < IZ < 1 mA,
+        // IZ,min 80 uA over the full range
+        "LM4040A25IDBZR" => Some((2.520, 2.480, 80.0, 1000.0)),
+        // stage 47: TI SNOS455H 5.6 p.7 (LM4050AEM3, TA = TJ -40..125 C): 2.5 V +-15 mV over the extended range
+        // (note 5 p.11: +-0.1 % +- 50 ppm/C x 100 K), +-1.2 mV for IRMIN <= IR <= 1 mA over temperature, IRMIN 65 uA
+        "LM4050AEM3-2.5/NOPB" => Some((2.5162, 2.4838, 65.0, 1000.0)),
+        _ => None,
+    }
+}
+
+/// Minimum REF25 cathode current with the selected three REF25 loads. This
 /// checks the reference's DC bias, not comparator response or trip timing.
-fn min_reference_cathode_current_ua(bias_ohm: f64) -> f64 {
-    // Source: MC78L05AC min 4.75 V, LM4040A25I 2.519 V maximum at
-    // 100 uA plus 1 mV current-regulation shift, and 80 uA minimum cathode
-    // current over its rated temperature range. The 1% bias resistor is
-    // high; all three 0.1% thin-film load strings are low.
-    let ref_max = 2.520;
+fn min_reference_cathode_current_ua(bias_ohm: f64, ref_max: f64) -> f64 {
+    // Source: HOT5 min 4.75 V (U3 TPS70950, SBVS186H 6.5 p.5: +-1 % for VOUT >= 3.3 V; 4.75 V is the older
+    // MC78L05AC bound, kept as the conservative floor), the reference at its maximum (reference_spec). The 1 %
+    // bias resistor is high; all three 0.1 % thin-film load strings are low.
     let bias_current = (4.75 - ref_max) / (bias_ohm * 1.01);
     // -0.15 V at OCP_KELVIN_N corresponds to 150 A through the 1 mΩ
     // shunt. This bounds loading beyond the nominal 51–71 A trip spread;
@@ -613,6 +625,13 @@ fn min_reference_cathode_current_ua(bias_ohm: f64) -> f64 {
     let ocp_threshold_load = ref_max / (24_300.0 * 0.999);
     let ovp_threshold_load = ref_max / (150_000.0 * 0.999);
     (bias_current - ocp_offset_load - ocp_threshold_load - ovp_threshold_load) * 1e6
+}
+
+/// Stage 47: the most REF25 cathode current can be, the whole bias-resistor current with every load open (the
+/// ceiling), at HOT5 5.15 V (TPS70950 +1 % + 10 mV line + 50 mV load, SBVS186H 6.5 p.5, rounded up) and the
+/// reference at its minimum. It must stay inside the current-regulation window the reference error assumes.
+fn max_reference_cathode_current_ua(bias_ohm: f64, ref_min: f64) -> f64 {
+    (5.15 - ref_min) / (bias_ohm * 0.99) * 1e6
 }
 
 // Dead-time window. Stage 29 (DECISIONS 31; 11-candidates/c25-driver/results/dtband): on the as-built F6
@@ -975,10 +994,15 @@ fn audit(m: &Model) -> Vec<String> {
         Some("RC0603FR-076K8L") => Some(6_800.0),
         _ => None, // The identity check reports unknown resistor selections.
     };
-    if let Some(bias_ohm) = bias_ohm {
-        let cathode_ua = min_reference_cathode_current_ua(bias_ohm);
-        if cathode_ua < 80.0 {
-            e.push(format!("reference cathode current {cathode_ua:.1} uA is below the 80 uA full-temperature minimum"));
+    let ref_spec = m.resolved.get("u_ref").and_then(|p| reference_spec(p)); // unknown parts: the identity check
+    if let (Some(bias_ohm), Some((ref_max, ref_min, iz_min, iz_win))) = (bias_ohm, ref_spec) {
+        let cathode_ua = min_reference_cathode_current_ua(bias_ohm, ref_max);
+        if cathode_ua < iz_min {
+            e.push(format!("reference cathode current {cathode_ua:.1} uA is below the {iz_min:.0} uA full-temperature minimum"));
+        }
+        let ceiling_ua = max_reference_cathode_current_ua(bias_ohm, ref_min);
+        if ceiling_ua > iz_win {
+            e.push(format!("reference cathode current ceiling {ceiling_ua:.1} uA is above the {iz_win:.0} uA current-regulation window"));
         }
     }
     expect(&mut e, m, "r_ocp_sense", "2", "ocp_kelvin_n");
@@ -1073,6 +1097,13 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "u_iso", "3", "hot5");
     expect(&mut e, m, "u_ref", "1", "ref25");
     expect(&mut e, m, "u_ref", "2", "ocp_kelvin_p");
+    // stage 47: pin 3 has no internal connection and must float or tie to pin 2 (SNOS455H 4 p.3; SLOS456Q p.4 the
+    // same); here it floats on its own single-pad net
+    expect(&mut e, m, "u_ref", "3", "u_ref-nc");
+    let want: BTreeSet<(String, String)> = [("u_ref", "3")].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if members(m, "u_ref-nc") != want {
+        e.push(format!("u_ref-nc has unexpected members: {:?}", members(m, "u_ref-nc")));
+    }
 
     // 8. Tank: SW_A -> CT primary -> coil terminal -> C_res bank -> SW_B.
     //    The CT primary must sit on the switch node, not the resonant node.
@@ -1617,7 +1648,9 @@ mod tests {
 
     #[test]
     fn old_reference_bias_fails_full_temperature_corner() {
+        // the 6.8 k bias on the LM4040A25I (80 uA IZ,min) is the regression this guards
         let mut m = built();
+        m.set_part("u_ref", "LM4040A25IDBZR");
         m.set_part("r_ref_bias", "RC0603FR-076K8L");
         fails(&m, "reference cathode current");
     }
@@ -1832,6 +1865,25 @@ mod tests {
     }
 
     #[test]
+    fn stage47_ref25_grade_holds() {
+        // S17 hot copper (c47-ref25-grade): U5 reads 88.9 C at the c17.5 @ 61 release case (s46 B3 probes), over the
+        // LM4040A25I's 85 C; the 85 C grade back at REF25 must fail, and so must a pin 3 that is not left floating
+        let mut m = built();
+        m.set_part("u_ref", "LM4040A25IDBZR");
+        fails(&m, "u_ref is LM4040A25IDBZR");
+        let mut m = built();
+        m.set_part("u_ref", "LM4050AIM3-2.5/NOPB");   // the industrial (85 C) range of the same die
+        fails(&m, "u_ref is LM4050AIM3-2.5/NOPB");
+        let mut m = built();
+        let r = m.reff("u_ref").unwrap().to_string();
+        m.nets.get_mut("u_ref-nc").unwrap().remove(&(r.clone(), "3".into()));
+        m.nets.get_mut("hot5").unwrap().insert((r, "3".into()));
+        fails(&m, "u_ref.3 on hot5");
+        // a weaker bias that starves the LM4050 below its 65 uA IRMIN at the full-range corner must fail
+        assert!(min_reference_cathode_current_ua(6_800.0 * 1.15, 2.5162) < 65.0);
+    }
+
+    #[test]
     fn stage38_supply_topology_holds() {
         // PS2 back to the IRM-20-24 (0.25 mA leakage) must fail, by identity and by the IRM rule
         let mut m = built();
@@ -1862,7 +1914,11 @@ mod tests {
 
     #[test]
     fn selected_reference_bias_covers_shunt_loading_corner() {
-        assert!(min_reference_cathode_current_ua(5_600.0) >= 80.0);
+        let (vmax, vmin, izmin, izwin) = reference_spec("LM4050AEM3-2.5/NOPB").unwrap();
+        assert!(min_reference_cathode_current_ua(5_600.0, vmax) >= izmin);
+        assert!(max_reference_cathode_current_ua(5_600.0, vmin) <= izwin);
+        let (vmax, _, izmin, _) = reference_spec("LM4040A25IDBZR").unwrap();
+        assert!(min_reference_cathode_current_ua(5_600.0, vmax) >= izmin);
     }
 
     #[test]

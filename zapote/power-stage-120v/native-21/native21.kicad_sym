@@ -3335,7 +3335,7 @@
 ))
 (symbol "Part_U5" (pin_names (offset 0.508)) (in_bom yes) (on_board yes)
 (property "Reference" "U" (at 0 7.6200 0) (effects (font (size 1.27 1.27))))
-(property "Value" "LM4040A25IDBZR" (at 0 -7.6200 0) (effects (font (size 1.27 1.27))))
+(property "Value" "LM4050AEM3-2.5/NOPB" (at 0 -7.6200 0) (effects (font (size 1.27 1.27))))
 (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
 (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
 (symbol "Part_U5_0_1" (rectangle (start -12.7 -5.0800) (end 12.7 5.0800) (stroke (width 0.254) (type default)) (fill (type background))))
