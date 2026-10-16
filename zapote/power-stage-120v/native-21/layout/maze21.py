@@ -11,6 +11,7 @@ from __future__ import annotations
 import heapq
 import itertools
 import math
+from functools import lru_cache
 
 _TIE = itertools.count()
 
@@ -34,11 +35,14 @@ _BOUNDS = {}
 
 
 def _grow(g, d):
-    hit = _GROWN.get((id(g), d))
-    if hit is not None and hit[0] is g:
-        return hit[1]
-    grown = g.buffer(d * _CIRC, resolution=_RES)
-    _GROWN[(id(g), d)] = (g, grown)
+    import shapely
+    gid = id(g)
+    ent = _GROWN.get(gid)
+    if ent is None or ent[0] is not g:
+        ent = _GROWN[gid] = (g, {})
+    grown = ent[1].get(d)
+    if grown is None:
+        grown = ent[1][d] = shapely.buffer(g, d * _CIRC, quad_segs=_RES)
     return grown
 
 
@@ -177,11 +181,13 @@ def _goal_distance(goal_cells, nx, ny):
 _CLS = {}        # geo key -> {"seen": {layer: (id(list), len, id(last))}, "own": {layer: {net: [i]}}, "rasters": {...}}
 
 
+@lru_cache(None)
 def _cls(net):
     import rules21
     return (rules21.domain(net), net in rules21.TANK, rules21.GROUP.get(net), net in rules21.RES_A_NETS)
 
 
+@lru_cache(None)
 def _clr(c, other, layer):
     """rules21.clearance_on(a, other, layer) for a net a of class c, a != other (checked against rules21 by
     _check_cls). The layer matters for RES_A against SELV / PE: 12.6 mm on the outer layers (stage 18)."""
@@ -373,13 +379,25 @@ def _copper_grid(geo, net, layer, i0, j0, nx, ny, width, via):
     c = _cls(net)
     perm = geo.via_permeable
 
-    def grow_of(g, other):
-        if via and id(g) in perm:
-            return None
-        return _grow(g, _clr(c, other, layer) + width / 2 + 0.03)
     key = ("via" if via else "trk", layer, c, width, STEP)
+    grow_of = st["grow"].get(key)
+    if grow_of is None:
+        grown, distances = {}, {}
+        half = width / 2
+
+        def grow_of(g, other):
+            gid = id(g)
+            if via and gid in perm:
+                return None
+            sh = grown.get(gid)
+            if sh is None:
+                d = distances.get(other)
+                if d is None:
+                    d = distances[other] = _clr(c, other, layer) + half + 0.03
+                sh = grown[gid] = _grow(g, d)
+            return sh
+        st["grow"][key] = grow_of
     reach = _reach(c, layer, width)
-    st["grow"][key] = grow_of
     count = _raster_window(st, key, i0, j0, nx, ny,
                            lambda ti, tj: _cover(_tile_shapes(st, key, ti, tj, grow_of, reach), ti, tj, True), np.int16)
     own = st["own"][layer].get(net, ())
@@ -405,12 +423,24 @@ def _barrier_grid(geo, net, i0, j0, nx, ny, width):
     st = _state(geo)
     _sync(st, "PLAN")
 
-    def grow_of(g, other):
-        if other in ("<npth>", net) or not rules21.barrier(net, other):
-            return None
-        return _grow(g, rules21.BARRIER + width / 2 + 0.03)
     key = ("bar", "PLAN", side, width, STEP)
-    st["grow"][key] = grow_of
+    grow_of = st["grow"].get(key)
+    if grow_of is None:
+        grown, barriers = {}, {}
+        d = rules21.BARRIER + width / 2 + 0.03
+
+        def grow_of(g, other):
+            blocked = barriers.get(other)
+            if blocked is None:
+                blocked = barriers[other] = other not in ("<npth>", net) and rules21.barrier(net, other)
+            if not blocked:
+                return None
+            gid = id(g)
+            sh = grown.get(gid)
+            if sh is None:
+                sh = grown[gid] = _grow(g, d)
+            return sh
+        st["grow"][key] = grow_of
     return _raster_window(st, key, i0, j0, nx, ny,
                           lambda ti, tj: _cover(_tile_shapes(st, key, ti, tj, grow_of), ti, tj, False), bool)
 
