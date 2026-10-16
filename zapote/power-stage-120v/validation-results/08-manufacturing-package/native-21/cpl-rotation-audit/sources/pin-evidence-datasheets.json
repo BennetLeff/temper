@@ -1,0 +1,53 @@
+{
+ "about": "Datasheets fetched 2026-10-15 from public TI pages (curl GET, no login). Untrusted data; read with pdftotext only.",
+ "files": [
+  {
+   "part": "TPS709 (TPS70950DBVR)",
+   "revision": "SBVS186H Rev. H Jul 2021",
+   "url": "https://www.ti.com/lit/ds/symlink/tps709.pdf",
+   "path": "dl/tps709/tps709.pdf",
+   "sha256": "8c14e3efae738a27b857b789aa87369de9037a8ef3616a9f71a423587cdc6949",
+   "bytes": 2271988
+  },
+  {
+   "part": "LM4040A25IDBZR",
+   "revision": "SLOS456Q Rev. Q Apr 2026",
+   "url": "https://www.ti.com/lit/ds/symlink/lm4040.pdf",
+   "path": "dl/lm4040/lm4040.pdf",
+   "sha256": "f43b6b6d3ecd51c8c90b70a7c4630c7e3140822b0073953ed2459df81b251c1c",
+   "bytes": 1882717
+  },
+  {
+   "part": "TLV3201AIDBVR",
+   "revision": "SBOS561C Rev. C May 2024",
+   "url": "https://www.ti.com/lit/ds/symlink/tlv3201.pdf",
+   "path": "dl/tlv3201/tlv3201.pdf",
+   "sha256": "1777bba814c74772bb54c6f1f56702985039043ce2fb2affaf996a83eaf1076e",
+   "bytes": 1756192
+  },
+  {
+   "part": "SN74LVC1G332DBVR",
+   "revision": "SCES489E Rev. E Dec 2013",
+   "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g332.pdf",
+   "path": "dl/sn74lvc1g332/sn74lvc1g332.pdf",
+   "sha256": "5ecad3180cb93664b358a9cb6a724e012fc9b124e6ae0d1004c9ae6600549f21",
+   "bytes": 2022586
+  },
+  {
+   "part": "SN74LVC1G17DBVR",
+   "revision": "SCES351Y Rev. Y Oct 2025",
+   "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf",
+   "path": "dl/sn74lvc1g17/sn74lvc1g17.pdf",
+   "sha256": "c76fa723fac4502423967a1aa087dd669106b52b8de620c024b26e56f5d59309",
+   "bytes": 3015318
+  },
+  {
+   "part": "TLVH431BQDBZR",
+   "revision": "SLVS555N Rev. N Jun 2024",
+   "url": "https://www.ti.com/lit/ds/symlink/tlvh431.pdf",
+   "path": "dl/tlvh431b/tlvh431b.pdf",
+   "sha256": "e30d628cb6475d48e9ae87336ee0f0065eb5faea33f0465188dc4c43b56e6217",
+   "bytes": 2148710
+  }
+ ]
+}

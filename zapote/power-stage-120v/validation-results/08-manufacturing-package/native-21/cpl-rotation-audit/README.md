@@ -11,8 +11,8 @@ has an LCSC number); the other 11 are consigned or hand-assembled and are listed
 | Class | Lines | Meaning |
 |---|---|---|
 | OK | 284 | KiCad rotation is what JLC needs |
-| CORRECTED | 11 | non-zero offset, two independent sources agree, or a unique EasyEDA fit with datasheet-confirmed pin numbering (`sources/pin-evidence.json`); applied in `cpl-jlcpcb.corrected.csv` |
-| NEEDS-PREVIEW | 52 | sources disagree, a source is missing, or polarity cannot be settled offline; not changed |
+| CORRECTED | 28 | non-zero offset, two independent sources agree, or a unique EasyEDA fit with datasheet-confirmed pin numbering (`sources/pin-evidence.json`); applied in `cpl-jlcpcb.corrected.csv` |
+| NEEDS-PREVIEW | 35 | sources disagree, a source is missing, or polarity cannot be settled offline; not changed |
 
 ## Datasheet pin evidence (2026-10-15): U17 / U19 / U21 settled at 180
 
@@ -32,7 +32,24 @@ A TL432-numbered part (1 REF, 2 CATHODE) does not settle, and the selftest check
     misses by 0.95 mm.
   - **Before this, the corrected CPL carried 0 for these three lines:** the part would have been placed on the wrong
     pads unless the preview caught it.
-- **The other SOT-23-family groups below can be settled the same way** once their datasheet pinouts are entered.
+- **Six more SOT-23-family groups settled the same day** (TI datasheets; evidence and landing checks in
+  `sources/pin-evidence.json`, datasheet hashes in `sources/pin-evidence-datasheets.json`):
+
+  | LCSC / MPN | Designators | JLC rot (DB would give) | Datasheet |
+|---|---|---|---|
+  | C545172 TLVH431BQDBZR | U16, U18, U20 | 180 (270) | SLVS555N p.3–4: 1 REF, 2 CATHODE, 3 ANODE; pad 1 is the 6.2 k / 10 k divider midpoint |
+  | C96028 TPS70950DBVR | U3, U37, U38, U39 | 180 (270) | SBVS186H p.3 (plain TPS709 pinout, not 709A / B) |
+  | C9421 LM4040A25IDBZR | U5 | 180 (270) | SLOS456Q p.4 (pin 3 '*' entered as NC; the board pad floats) |
+  | C105188 TLV3201AIDBVR | U6, U7, U10, U11, U12 | 180 (270) | SBOS561C p.3 |
+  | C7836 SN74LVC1G17DBVR | U15, U24 → 180; U40 (KiCad 180) → 0 | (270 / 90) | SCES351Y p.3 |
+  | C43368 SN74LVC1G332DBVR | U13 | 180 (270) | SCES489E p.1 |
+
+  - **Fit quality:** these five TI SOT-23-5 / -6 fits miss by 0.16–0.30 mm. The miss is a pure x offset, equal and
+    opposite on the two pad columns: the KiCad and LCSC land patterns use different column spacing. The y match is
+    exact and pad overlap is 91 %.
+  - **Every other angle** misses by ≥ 0.96 mm and puts pins on the wrong function.
+  - **Not settled offline**, because they have no EasyEDA footprint in `sources/`: C83574 BAT54S (D18–D20), C7826
+    SN74LVC1G00 (U22, U23), C403723 SN74LVC1G132 (U45, U46).
 
 ## Stage 31 isolators (2026-10-14)
 
@@ -69,13 +86,7 @@ at that KiCad rotation (0) is wrong or right together. If 180 is wrong try 270.
 |---|---|---|
 | C20917 AO3400A | SOT-23 | Q1, Q4 |
 | C20526 MMBT3904 | SOT-23 | Q7, Q8, Q9 |
-| C9421 LM4040 | SOT-23 | U5 |
-| C545172 TLVH431B | SOT-23 | U16, U18, U20 |
 | C10096 SN74LVC1G32 | SOT-23-5 | U22, U23 |
-| C105188 TLV3201 | SOT-23-5 | U6, U7, U10, U11, U12 |
-| C7836 SN74LVC1G17 | SOT-23-5 | U15, U24, U40 |
-| C96028 TPS70950 | SOT-23-5 | U3, U37, U38, U39 |
-| C43368 SN74LVC1G332 | SOT-23-6 | U13, U25 |
 
 (Note C43368's LCSC footprint is +180 while the other two SOT-23-6 parts, C33002 and C403721, are +270.
 Different LCSC parts carry different footprint orientations, so a per-footprint-name rule cannot be trusted here.)
