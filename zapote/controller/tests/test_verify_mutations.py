@@ -68,7 +68,8 @@ class Mutations(unittest.TestCase):
                    lambda: vc.check_trip(rep, nl, CALCS), lambda: vc.check_misc(rep, nl),
                    lambda: vc.check_ct_rms(rep, nl, CALCS), lambda: vc.check_ui_bus(rep, nl, CALCS), lambda: vc.check_blower(rep, nl, CALCS),
                    lambda: vc.check_v3v3(rep, nl, self.n21, CALCS), lambda: vc.check_blwin(rep, nl, CALCS),
-                   lambda: vc.check_sensor_io(rep, nl), lambda: vc.check_capmode(rep, nl, CALCS)):
+                   lambda: vc.check_sensor_io(rep, nl), lambda: vc.check_capmode(rep, nl, CALCS),
+                   lambda: vc.check_hs_adc(rep, nl)):
             fn()
         return rep.failed
 
@@ -289,6 +290,23 @@ class Mutations(unittest.TestCase):
         t = move_node(self.base, r, "2", "v3v3")
         self.assertIn("misc.gpio46_reads_0_at_reset", self.run_checks(t))
 
+
+    # ---- CR-8 heatsink ADC divider (DECISIONS C45)
+    def test_hs_adc_gain_too_high_fails(self):
+        nl = self.load(self.base)
+        nl.value[nl.ref_of("r_hs_adc_bot")] = "10kohm +/- 0.1%"          # gain 0.909: 3.06 V at -40 C
+        rep = vc.Report()
+        vc.check_hs_adc(rep, nl)
+        self.assertIn("hs_adc.adc_max_below_2v9_minus_40_to_150C", rep.failed)
+
+    def test_hs_adc_divider_on_hs_sense_fails(self):
+        t = move_node(self.base, self.ref("r_hs_adc_bot"), "1", "HS_SENSE")
+        failed = self.run_checks(t)
+        self.assertIn("hs_adc.hs_sense_passives_unchanged_no_divider_part", failed)
+
+    def test_hs_adc_bottom_missing_fails(self):
+        t = drop_node(self.base, self.ref("r_hs_adc_bot"), "2")
+        self.assertIn("hs_adc.one_top_from_tlv9062_follower_one_bottom_to_gnd", self.run_checks(t))
 
     # ---- L3 thermal ladder (DECISIONS C32): restoring the old 120 C coil reference must fail
     def test_coil_trip_below_firmware_trip_fails(self):

@@ -462,6 +462,8 @@ Source: the C30 re-run of the interlock, thermal-sense and RTD validators (`evid
 18. **Firmware (C37, C39, C42):** threshold word 35542 (not CR-7's 35544); manual MAX31865 fault cycle; bursts start at or above resonance; RUN_EN raised only with PWM idle; WDI only from the supervisor task.
 19. **Enclosure (C40, C41):** the J12 harness gets a third (drain) contact; J11 is a flush TC2050 land (no header height).
 20. **Routing robustness (C44):** run `layout/convergence.py --runs 3` on the C1 board before release. One clean-start run passed; the two earlier placements failed (LAYOUT.md Results).
+21. **Rim trip resistor (C38, coordinator 2026-10-15):** `r_rim_th_top` stays **86.6 k**. The leak study's 76.8 k is on hold until the bench measures the glass temperature beside the rim NTC under a 250 °C hold. ≤ 244.5 °C means 76.8 k (rerun `rim_trip()`); otherwise 86.6 k stays. Same bench session as item 16.
+22. **Firmware (C45):** `adc_gain` = 0.85507 for HS_ADC (5.90 k / 6.90 k), not the 0.849 of the CR-8 example values. Plausibility: with the divider's bottom open, HS_ADC exceeds 2.9 V whenever the sink is below about 32 °C, so a cold-start reading at the top of the range flags it.
 
 ## Layout inputs from the enclosure (R27, 2026-10-08)
 
@@ -621,3 +623,39 @@ No copper, pins or parts are reserved now.
   - The RTD binder aborted on the C37 census, and would already have aborted on C36's `r_avdd_top` swap. It now takes a declared-deviation file (`evidence/block-validators/rtd-deviations-c37.json`): 16 extra parts, 4 MPNs, 6 pad-net moves. It relaxes only the binder's own gates; a stale entry aborts, and Rust gets the unmodified export.
   - Result: interlock 69 / 6 / 5 (+ the HC30 MPN, W6), thermal 88 / 9 / 7, RTD 5 / 33 / 5 (+15, W7).
   - Making the RTD unit's contract accept the C37 filter is a change request to `zapote/rtd`.
+
+## C45. Heatsink ADC divider after the follower (sensor-r3 CR-8; owner-approved 2026-10-15)
+Source: `sensor-c1-impulse-mining:output/temper-sensor-r3/firmware/DECISIONS.md` D-HSNTC "CR-8", with `hs_ntc.py` / `cold_soak.py`.
+
+**Problem:** as built, HS_ADC was the U6B follower of HS_SENSE through 100 Ω / 100 nF. That node is above the ESP32-S3's calibrated 2900 mV (ATTEN3) whenever the sink is below about 32 °C with nominal parts (`hs_adc_divider()` `as_built_node_over_2v9_below_C`; sensor-r3 gives 28.6–35.7 °C over tolerances). So firmware cannot read room temperature, and the cold-soak Pt100 leakage check (D-SOAK) cannot run in a normal kitchen.
+
+**Change:**
+- `r_hs_adc` (follower to HS_ADC) is now **1.00 k 0.1 %, RT0603BRD071KL**, replacing the 100 Ω.
+- New **`r_hs_adc_bot` 5.90 k 0.1 %, ERA-3AEB5901V**, from HS_ADC to selv_gnd.
+- `c_hs_adc` 100 nF stays at HS_ADC.
+- Both MPNs were already on the BOM: C37's filter resistor and the RTD window's `r_high_top`.
+- The divider replaces the old RC rather than sitting in front of it. The 1.00 k isolates the op-amp from the 100 nF better than the 100 Ω did, and a divider before the RC would only have added a part.
+
+**Gain, for firmware `adc_gain`:**
+- Nominal **0.855072** (5.90 / 6.90).
+- Band from 0.1 % tolerance: 0.854824–0.855320.
+- With ±25 ppm/K over the board's −40…85 °C (65 K): **0.854421–0.855722**.
+
+**Checks (`controller_calcs.py hs_adc_divider()`; `verify_controller.py` section `hs_adc`, 9/9; 3 mutation tests):**
+- ADC maximum at −40 °C: **2.877 V < 2.900 V**. Corner: rail 3.367 V, NTC R25 +2 % and β +1.5 %, hs_fixed −1 %, TLV9062 Vos +1.6 mV, gain high corner.
+- ADC at 150 °C ≥ 0.386 V.
+- Source to the SAR: Thevenin 855 Ω with 100 nF, τ 85.5 µs. The continuous ADC1 pattern samples HS at 8.9 ksps (every 112.5 µs); the driver's 8 samples per 100 ms is far slower.
+- Sampling error: worst case 0.44 mV DC + 0.16 mV residual kick = **0.028 K at 95 °C** (21.1 mV/K). This assumes a 20 pF sample capacitor (Espressif does not publish it) and a 2.9 V swing from the previous channel. The old 100 Ω had less source error, but it read out of range below 32 °C.
+- Follower load 0.49 mA.
+- HS_SENSE net check: its passives are exactly hs_fixed, the thermal block's node filter cap and r_hs_filt, plus the hot comparator IN− (TLV3201) and the open comparator IN+ (TLV9031). **The C32 ladder is unchanged:** 95 °C firmware < 101.4 °C hardware, band 98.3–104.6 °C; `thermal` 11/11 is unchanged.
+
+**Single faults:**
+- **Bottom open, or top shorted:** the gain becomes 1.
+  - At a true 95 °C, firmware reads **86.1 °C (−8.9 K)**, and its 95 °C trip fires at a true 103.3 °C.
+  - The hardware hot comparator is on HS_SENSE, upstream of the follower and divider and independent of both. It trips at 98.3–104.6 °C, and at the 104.6 °C corner Tj ≈ 132.4 °C ≤ 135 °C (C32). **The fault is covered.**
+  - It is also visible: with gain 1, HS_ADC exceeds 2.9 V whenever the sink is below about 32 °C, so it shows at a cold start (open item 22).
+- **Top open, or bottom shorted:** HS_ADC reads 0 V, which firmware takes as hot (above 150 °C), so it fails safe as a nuisance trip.
+
+**Placement:** `r_hs_adc_bot` is anchored at the module's HS_ADC pad beside `r_hs_adc` (`floorplan.py` ANCHOR).
+
+**Not changed (coordinator):** the CR-5 rim-trip resistor stays 86.6 k (open item 21).

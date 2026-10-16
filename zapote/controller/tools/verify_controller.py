@@ -858,6 +858,55 @@ def check_thermal(rep: Report, nl: Netlist) -> None:
     rep.data("thermal", "tj_at_hs_trip_high_corner_C", res["tj_at_hs_trip_high_corner_C"])
 
 
+RES_TCR = {"RT0603BRD": 25e-6, "ERA-3AEB": 25e-6, "RC0603FR": 100e-6}   # Yageo RT / Panasonic ERA-3AEB / Yageo RC
+
+
+def _tcr(mpn: str) -> float:
+    return next((v for k, v in RES_TCR.items() if mpn.startswith(k)), 200e-6)
+
+
+def check_hs_adc(rep: Report, nl: Netlist) -> None:
+    """CR-8 (DECISIONS C45): HS_ADC is the U6B follower divided by r_hs_adc / r_hs_adc_bot. The gain from
+    the netlist values keeps the ADC below the ESP32-S3's calibrated 2.9 V from -40 to 150 C at the
+    3.367 V rail; HS_SENSE (the thermal comparators' node) carries no part of the divider."""
+    sys.path.insert(0, str(UNIT / "tools"))
+    from controller_calcs import hs_adc_divider  # noqa: E402
+    S = "hs_adc"
+    pn = nl.pin_net()
+    other = lambda r, p: pn.get((r, "2" if p == "1" else "1"), OPEN)  # noqa: E731
+    rs = [(r, p) for r, p in nl.nets.get("HS_ADC", []) if r.startswith("R")]
+    tops = [(r, other(r, p)) for r, p in rs if other(r, p) not in (GND, V3)]
+    bots = [r for r, p in rs if other(r, p) == GND]
+    caps = [r for r, p in nl.nets.get("HS_ADC", []) if r.startswith("C") and other(r, p) == GND]
+    driven = bool(tops) and any(nl.mpn[r2] == "TLV9062IDR" and pin_role(nl, r2, p2) == "out"
+                                for r2, p2 in nl.nets.get(tops[0][1], []))
+    rep.check(S, "one_top_from_tlv9062_follower_one_bottom_to_gnd",
+              len(tops) == 1 and len(bots) == 1 and driven, {"top": tops, "bottom": bots})
+    rep.check(S, "reservoir_cap_on_hs_adc", len(caps) >= 1, caps)
+    # the divider sits downstream of the follower: HS_SENSE holds exactly the thermal block's node parts
+    # (probe, hs_fixed, its filter cap, the hot comparator IN-, the open comparator IN+) and r_hs_filt
+    sense = nl.nets.get("HS_SENSE", [])
+    hot = [(r, p) for r, p in sense if nl.mpn.get(r) == "TLV3201AIDBVR" and p == "4"]
+    opn = [(r, p) for r, p in sense if nl.mpn.get(r) == "TLV9031DBVR" and p == "3"]
+    expect = {nl.ref_of("thermal.hs_fixed"), nl.ref_of("thermal.hs_filter"), nl.ref_of("r_hs_filt")}
+    passives = {r for r, _ in sense if r[0] in "RC"}
+    rep.check(S, "hs_sense_feeds_hot_and_open_comparators", len(hot) == 1 and len(opn) == 1, {"hot": hot, "open": opn})
+    rep.check(S, "hs_sense_passives_unchanged_no_divider_part", passives == expect, sorted(passives))
+    if not (len(tops) == 1 and len(bots) == 1):
+        return
+    rt, rb = tops[0][0], bots[0]
+    vt, tt = parse_value(nl.value[rt])
+    vb, tb = parse_value(nl.value[rb])
+    vf, tf = parse_value(nl.value[nl.ref_of("thermal.hs_fixed")])
+    cv = sum(parse_value(nl.value[c])[0] for c in caps)
+    res = hs_adc_divider(rtop=(vt, tt or 0.05, _tcr(nl.mpn[rt])), rbot=(vb, tb or 0.05, _tcr(nl.mpn[rb])),
+                         rfix=(vf, tf or 0.05), c_adc=cv)
+    for k, ok in res["checks"].items():
+        rep.check(S, k, ok)
+    rep.data(S, "values", {"top": [rt, nl.mpn[rt], vt, tt], "bottom": [rb, nl.mpn[rb], vb, tb], "C_F": cv})
+    rep.data(S, "result", {k: v for k, v in res.items() if k != "checks"})
+
+
 def check_blower(rep: Report, nl: Netlist, calcs: dict) -> None:
     """L3 blower supply (DECISIONS C28): J10 = +V_BLOWER / GND / FG; FG reaches GPIO3 through a
     series R with a pull-up and TVS at the connector; speed is a filtered GPIO46 PWM injected
@@ -1253,6 +1302,7 @@ def main() -> int:
     check_blower(rep, nl, calcs)
     check_blwin(rep, nl, calcs)
     check_thermal(rep, nl)
+    check_hs_adc(rep, nl)
     check_sensor_io(rep, nl)
     check_capmode(rep, nl, calcs)
     check_bom(rep, nl)

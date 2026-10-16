@@ -624,6 +624,54 @@
       "8.0 m": 3.2077318859529367
     }
   },
+  "hs_adc_divider": {
+    "adc_max_V_at_-40C_rail_max": 2.877351507066762,
+    "adc_min_V_at_150C": 0.38596743642620407,
+    "adc_slope_95C_mV_per_K": 21.08020830391781,
+    "as_built_node_over_2v9_below_C": 31.982372297002,
+    "checks": {
+      "adc_max_below_2v9_minus_40_to_150C": true,
+      "adc_min_above_0V_at_150C": true,
+      "bottom_open_hw_trip_tj_le_135C": true,
+      "follower_load_le_1mA": true,
+      "sampling_error_le_0p1K_at_95C": true
+    },
+    "faults": {
+      "bottom_open_or_top_short": {
+        "adc_V": 1.3485734879311129,
+        "adc_over_2v9_below_C": 31.982372297002,
+        "firmware_95C_trip_at_actual_C": 103.33673424214007,
+        "firmware_reads_C": 86.12494068907094
+      },
+      "top_open_or_bottom_short": {
+        "adc_V": 0.0,
+        "firmware_reads": "0 V = above 150 C: reads hot (fail-safe)"
+      }
+    },
+    "follower_load_mA": 0.48797101449275365,
+    "gain_band": [
+      0.8544206500886616,
+      0.8557218518377879
+    ],
+    "gain_band_tolerance_only": [
+      0.8548244405447347,
+      0.8553201349766109
+    ],
+    "gain_nominal": 0.855072463768116,
+    "hs_hw_trip_band_C": [
+      98.34470879885524,
+      104.57500599505991
+    ],
+    "hs_rate_sps": 8888.888888888889,
+    "kick_residual_at_next_sample_mV": 0.15557845800097175,
+    "node_max_V": 3.3624845513612027,
+    "sampling_dc_error_mV": 0.44083735909822863,
+    "sampling_error_95C_K": 0.028292690873854172,
+    "sampling_kick_mV": 0.5798840231953609,
+    "source": "CR-8 (sensor-r3 firmware DECISIONS D-HSNTC); NTCALUG01A104GA contract model; rail_3v3() 3.367 V; TLV9062 Vos 1.6 mV; resistor 0.1 % + 25 ppm/K over 65 K; ESP32-S3 ATTEN3 calibrated 0-2900 mV; sample capacitor 20 pF assumed (unpublished)",
+    "tau_us": 85.5072463768116,
+    "thevenin_ohm": 855.072463768116
+  },
   "landings": {
     "conflicts_orientation_blind": [],
     "note": "informational (enclosure-owned geometry): the circle bound assumes the worst orientation; layout/check_layout.py checks the placed bodies",

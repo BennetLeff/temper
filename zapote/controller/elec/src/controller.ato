@@ -944,11 +944,19 @@ module SelvController:
     c_buf1.mpn = "CC0603KRX7R9BB104"
     c_buf1.p1 ~ v3v3
     c_buf1.p2 ~ selv_gnd
+    # CR-8 (DECISIONS C45): divider after the follower only, gain 5.90 / 6.90 = 0.8551, so the whole
+    # -40..150 C node (up to the 3.367 V rail) stays below the ESP32-S3's calibrated 2.9 V (ATTEN3).
+    # The 1.00 k top replaces the 100 ohm series R; HS_SENSE and the thermal comparators are untouched.
     r_hs_adc = new Resistor
-    r_hs_adc.value = 100ohm +/- 1%
-    r_hs_adc.mpn = "RC0603FR-07100RL"
+    r_hs_adc.value = 1kohm +/- 0.1%
+    r_hs_adc.mpn = "RT0603BRD071KL"
     r_hs_adc.p1 ~ hs_buf_out
     r_hs_adc.p2 ~ hs_adc
+    r_hs_adc_bot = new Resistor
+    r_hs_adc_bot.value = 5.9kohm +/- 0.1%
+    r_hs_adc_bot.mpn = "ERA-3AEB5901V"
+    r_hs_adc_bot.p1 ~ hs_adc
+    r_hs_adc_bot.p2 ~ selv_gnd
     c_hs_adc = new Capacitor
     c_hs_adc.value = 100nF +/- 10%
     c_hs_adc.mpn = "CC0603KRX7R9BB104"

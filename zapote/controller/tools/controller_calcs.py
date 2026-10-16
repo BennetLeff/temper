@@ -722,6 +722,92 @@ def thermal_trips(values=None) -> dict:
                        "open_detect_margin_coil": om_coil["open_margin_V"] >= om_coil["comparator_error_V"]}}
 
 
+# ---- CR-8 heatsink ADC divider (DECISIONS C45; sensor-r3 firmware DECISIONS D-HSNTC)
+HS_ADC_FULL_SCALE_V = 2.900     # ESP32-S3 ADC1 ATTEN3 calibrated range (ESP-IDF adc_cali, 0-2900 mV)
+HS_ADC_RAIL_MAX_V = 3.367       # rail_3v3() regulator high corner; hs_fixed and the follower run from it
+HS_ADC_VOS_V = 1.6e-3           # TLV9062 input offset, max over temperature (SBOS839)
+HS_ADC_BOARD_DT_K = 65.0        # board -40..85 C: largest excursion from the 25 C tolerance point
+
+
+def hs_adc_divider(rtop=(1.00e3, 0.001, 25e-6), rbot=(5.90e3, 0.001, 25e-6), rfix=(10e3, 0.01),
+                   c_adc=100e-9, t_range=(-40.0, 150.0)) -> dict:
+    """HS_ADC = gain x follower(HS_SENSE). Gain band (tolerance + TCR over the board range), the
+    largest ADC voltage over the NTC's -40..150 C at the 3.367 V rail (NTC r25 / beta at the corner
+    that raises the node, hs_fixed low, +Vos), the source the SAR sees, and the single faults."""
+    sp = SENSORS["vishay_ntcalug01a104ga"]
+
+    def gain(st, sb):
+        rt = rtop[0] * (1 + st * (rtop[1] + rtop[2] * HS_ADC_BOARD_DT_K))
+        rb = rbot[0] * (1 + sb * (rbot[1] + rbot[2] * HS_ADC_BOARD_DT_K))
+        return rb / (rb + rt)
+    g_nom = rbot[0] / (rbot[0] + rtop[0])
+    g_lo, g_hi = gain(1, -1), gain(-1, 1)
+    g_tol_lo = rbot[0] * (1 - rbot[1]) / (rbot[0] * (1 - rbot[1]) + rtop[0] * (1 + rtop[1]))
+    g_tol_hi = rbot[0] * (1 + rbot[1]) / (rbot[0] * (1 + rbot[1]) + rtop[0] * (1 - rtop[1]))
+
+    def node(t, vcc, rs=1.0, bs=1.0, rf=rfix[0]):
+        r = ntc_r("vishay_ntcalug01a104ga", t, rs, bs)
+        return vcc * r / (r + rf)
+    # the node rises as the NTC cools: its maximum is at the cold end with R25 and beta high, hs_fixed low
+    v_node_max = node(t_range[0], HS_ADC_RAIL_MAX_V, 1 + sp["r25_tol"], 1 + sp["beta_tol"], rfix[0] * (1 - rfix[1]))
+    v_node_max = min(v_node_max + HS_ADC_VOS_V, HS_ADC_RAIL_MAX_V)
+    v_adc_max = g_hi * v_node_max
+    v_node_min = node(t_range[1], 3.242, 1 - sp["r25_tol"], 1 - sp["beta_tol"], rfix[0] * (1 + rfix[1]))
+    v_adc_min = g_lo * max(v_node_min - HS_ADC_VOS_V, 0.0)
+    # as built (no divider): the temperature above which the nominal node is below 2.9 V
+    t_old = _temp_at("vishay_ntcalug01a104ga", rfix[0] * HS_ADC_FULL_SCALE_V / (3.3 - HS_ADC_FULL_SCALE_V),
+                     1.0, 1.0, -40.0, 150.0)
+    # source seen by the SAR: Thevenin of the divider, the 100 nF reservoir, and the ADC1 pattern
+    r_th = rtop[0] * rbot[0] / (rtop[0] + rbot[0])
+    tau = r_th * c_adc
+    # continuous DMA pattern (adc_pattern(): HS once every 9 slots at 80 ksps) is the worst case for
+    # sampling load; Espressif does not publish the sample capacitor, 20 pF is an assumed upper bound
+    f_hs = adc_pattern()["rates_sps"]["HS"]
+    c_s = 20e-12
+    dc_err_v = c_s * HS_ADC_FULL_SCALE_V * f_hs * r_th
+    kick_v = HS_ADC_FULL_SCALE_V * c_s / (c_adc + c_s)
+    residual_v = kick_v * math.exp(-(1 / f_hs) / tau)
+
+    # single faults at the firmware's 95 C trip (nominal parts, 3.3 V): what firmware then reads
+    def fw_temp(v_adc, g_assumed=g_nom, vcc=3.3):
+        v = v_adc / g_assumed
+        if v >= vcc:
+            return -273.15
+        return _temp_at("vishay_ntcalug01a104ga", rfix[0] * v / (vcc - v), 1.0, 1.0, -60.0, 200.0)
+    v95 = node(95.0, 3.3)
+    slope95 = g_nom * (node(94.5, 3.3) - node(95.5, 3.3))          # V/K at the ADC, at the 95 C trip
+    err_k = (dc_err_v + residual_v) / slope95
+    faults = {"bottom_open_or_top_short": {"adc_V": v95, "firmware_reads_C": fw_temp(v95)},
+              "top_open_or_bottom_short": {"adc_V": 0.0, "firmware_reads": "0 V = above 150 C: reads hot (fail-safe)"}}
+    # actual sink temperature at which a firmware with the bottom open reaches its 95 C trip
+    t_fw_late = _temp_at("vishay_ntcalug01a104ga", rfix[0] * (g_nom * v95) / (3.3 - g_nom * v95), 1.0, 1.0, 0.0, 200.0)
+    faults["bottom_open_or_top_short"]["firmware_95C_trip_at_actual_C"] = t_fw_late
+    # with gain 1 the node exceeds 2.9 V at room temperature: firmware sees it out of range when cold
+    faults["bottom_open_or_top_short"]["adc_over_2v9_below_C"] = t_old
+    hs_band = thermal_trips()["hs"]["trip_band_C"]
+    return {"source": "CR-8 (sensor-r3 firmware DECISIONS D-HSNTC); NTCALUG01A104GA contract model; "
+                      "rail_3v3() 3.367 V; TLV9062 Vos 1.6 mV; resistor 0.1 % + 25 ppm/K over 65 K; "
+                      "ESP32-S3 ATTEN3 calibrated 0-2900 mV; sample capacitor 20 pF assumed (unpublished)",
+            "gain_nominal": g_nom, "gain_band_tolerance_only": [g_tol_lo, g_tol_hi], "gain_band": [g_lo, g_hi],
+            "adc_max_V_at_-40C_rail_max": v_adc_max, "node_max_V": v_node_max, "adc_min_V_at_150C": v_adc_min,
+            "as_built_node_over_2v9_below_C": t_old,
+            "thevenin_ohm": r_th, "tau_us": tau * 1e6, "hs_rate_sps": f_hs,
+            "sampling_dc_error_mV": dc_err_v * 1e3, "sampling_kick_mV": kick_v * 1e3,
+            "kick_residual_at_next_sample_mV": residual_v * 1e3,
+            "adc_slope_95C_mV_per_K": slope95 * 1e3, "sampling_error_95C_K": err_k,
+            "follower_load_mA": HS_ADC_RAIL_MAX_V / (rtop[0] + rbot[0]) * 1e3,
+            "faults": faults, "hs_hw_trip_band_C": hs_band,
+            "checks": {"adc_max_below_2v9_minus_40_to_150C": v_adc_max < HS_ADC_FULL_SCALE_V,
+                       "adc_min_above_0V_at_150C": v_adc_min > 0.0,
+                       # worst case: every HS sample starts from a 2.9 V different channel, 20 pF
+                       "sampling_error_le_0p1K_at_95C": err_k <= 0.1,
+                       "follower_load_le_1mA": HS_ADC_RAIL_MAX_V / (rtop[0] + rbot[0]) <= 1e-3,
+                       # bottom-open single fault: firmware trips late; the hardware hot comparator (on
+                       # HS_SENSE, before the divider; verify_controller.py checks the wiring) trips by its
+                       # high corner, where Tj stays within the C32 135 C limit
+                       "bottom_open_hw_trip_tj_le_135C": hs_band[1] + 27.8 <= 135.0}}
+
+
 # ---- capacitive-mode detector timing (DECISIONS C39; native-21 OPEN-ITEMS S14)
 # Maximum propagation delays at VCC = 3.3 V +/- 0.3 V, -40..85 C, CL 30/50 pF unless noted.
 CM_TPD_NS = {
@@ -917,6 +1003,7 @@ def main() -> int:
         "blw_pg": blw_pg(),
         "rim_ntc": rim_ntc(),
         "thermal_trips": thermal_trips(),
+        "hs_adc_divider": hs_adc_divider(),
         "rim_trip": rim_trip(),
         "capmode": capmode(),
         "harness_sensitivity": harness_sensitivity(),

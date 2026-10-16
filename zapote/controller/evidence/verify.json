@@ -3,7 +3,7 @@
   "inputs": {
     "native21_commit": "7c55c9ab81260b396be266861a0f0e8a42f96a5f",
     "netlist": "frozen/default.net",
-    "netlist_sha256": "a65fafb34c75cedf5e8a5a945d9254ad135a72fb97df8de3ee5dd34f3d6d8b18"
+    "netlist_sha256": "c0808194d2fe1e6ca7691d168d68eeb228e1307b16c5f315fb82f1c058186546"
   },
   "schema": "temper.controller.verify.v1",
   "sections": {
@@ -20,7 +20,7 @@
             "C": [
               "C68"
             ],
-            "R": "R90",
+            "R": "R91",
             "buffer_out": [
               "coil_buf_out"
             ],
@@ -49,7 +49,8 @@
         },
         "HS_ADC_driven_by_TLV9062IDR_buffer": {
           "detail": [
-            "hs_buf_out"
+            "hs_buf_out",
+            "selv_gnd"
           ],
           "ok": true
         },
@@ -60,7 +61,8 @@
             ],
             "R": "R88",
             "buffer_out": [
-              "hs_buf_out"
+              "hs_buf_out",
+              "selv_gnd"
             ],
             "f_Hz": 159.2,
             "input": "hs_filt"
@@ -84,7 +86,7 @@
             "C": [
               "C72"
             ],
-            "R": "R93",
+            "R": "R94",
             "buffer_out": [
               "m12_buf_out"
             ],
@@ -110,7 +112,7 @@
             "C": [
               "C74"
             ],
-            "R": "R96",
+            "R": "R97",
             "buffer_out": [
               "rim_buf_out"
             ],
@@ -510,7 +512,7 @@
       },
       "data": {
         "count": {
-          "components": 284,
+          "components": 285,
           "distinct_mpns": 88
         },
         "unverified": [
@@ -845,7 +847,7 @@
         },
         "rms_output_reaches_adc_ch0_through_series_r": {
           "detail": [
-            "R105"
+            "R106"
           ],
           "ok": true
         },
@@ -858,6 +860,133 @@
       },
       "data": {
         "adc_V_at_22A_rms": 1.32
+      }
+    },
+    "hs_adc": {
+      "checks": {
+        "adc_max_below_2v9_minus_40_to_150C": {
+          "detail": null,
+          "ok": true
+        },
+        "adc_min_above_0V_at_150C": {
+          "detail": null,
+          "ok": true
+        },
+        "bottom_open_hw_trip_tj_le_135C": {
+          "detail": null,
+          "ok": true
+        },
+        "follower_load_le_1mA": {
+          "detail": null,
+          "ok": true
+        },
+        "hs_sense_feeds_hot_and_open_comparators": {
+          "detail": {
+            "hot": [
+              [
+                "U17",
+                "4"
+              ]
+            ],
+            "open": [
+              [
+                "U19",
+                "3"
+              ]
+            ]
+          },
+          "ok": true
+        },
+        "hs_sense_passives_unchanged_no_divider_part": {
+          "detail": [
+            "C21",
+            "R29",
+            "R88"
+          ],
+          "ok": true
+        },
+        "one_top_from_tlv9062_follower_one_bottom_to_gnd": {
+          "detail": {
+            "bottom": [
+              "R90"
+            ],
+            "top": [
+              [
+                "R89",
+                "hs_buf_out"
+              ]
+            ]
+          },
+          "ok": true
+        },
+        "reservoir_cap_on_hs_adc": {
+          "detail": [
+            "C67"
+          ],
+          "ok": true
+        },
+        "sampling_error_le_0p1K_at_95C": {
+          "detail": null,
+          "ok": true
+        }
+      },
+      "data": {
+        "result": {
+          "adc_max_V_at_-40C_rail_max": 2.877351507066762,
+          "adc_min_V_at_150C": 0.38596743642620407,
+          "adc_slope_95C_mV_per_K": 21.08020830391781,
+          "as_built_node_over_2v9_below_C": 31.982372297002,
+          "faults": {
+            "bottom_open_or_top_short": {
+              "adc_V": 1.3485734879311129,
+              "adc_over_2v9_below_C": 31.982372297002,
+              "firmware_95C_trip_at_actual_C": 103.33673424214007,
+              "firmware_reads_C": 86.12494068907094
+            },
+            "top_open_or_bottom_short": {
+              "adc_V": 0.0,
+              "firmware_reads": "0 V = above 150 C: reads hot (fail-safe)"
+            }
+          },
+          "follower_load_mA": 0.48797101449275365,
+          "gain_band": [
+            0.8544206500886616,
+            0.8557218518377879
+          ],
+          "gain_band_tolerance_only": [
+            0.8548244405447347,
+            0.8553201349766109
+          ],
+          "gain_nominal": 0.855072463768116,
+          "hs_hw_trip_band_C": [
+            98.34470879885524,
+            104.57500599505991
+          ],
+          "hs_rate_sps": 8888.888888888889,
+          "kick_residual_at_next_sample_mV": 0.15557845800097175,
+          "node_max_V": 3.3624845513612027,
+          "sampling_dc_error_mV": 0.44083735909822863,
+          "sampling_error_95C_K": 0.028292690873854172,
+          "sampling_kick_mV": 0.5798840231953608,
+          "source": "CR-8 (sensor-r3 firmware DECISIONS D-HSNTC); NTCALUG01A104GA contract model; rail_3v3() 3.367 V; TLV9062 Vos 1.6 mV; resistor 0.1 % + 25 ppm/K over 65 K; ESP32-S3 ATTEN3 calibrated 0-2900 mV; sample capacitor 20 pF assumed (unpublished)",
+          "tau_us": 85.50724637681161,
+          "thevenin_ohm": 855.072463768116
+        },
+        "values": {
+          "C_F": 1.0000000000000001e-07,
+          "bottom": [
+            "R90",
+            "ERA-3AEB5901V",
+            5900.0,
+            0.001
+          ],
+          "top": [
+            "R89",
+            "RT0603BRD071KL",
+            1000.0,
+            0.001
+          ]
+        }
       }
     },
     "j4": {
@@ -2038,7 +2167,7 @@
       "checks": {
         "J7_CS_EXP_N_deselected_at_reset_pullup": {
           "detail": [
-            "R119"
+            "R120"
           ],
           "ok": true
         },
@@ -2054,7 +2183,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R116",
+                "R117",
                 "2"
               ]
             ]
@@ -2063,7 +2192,7 @@
         },
         "J7_CS_OLED_N_deselected_at_reset_pullup": {
           "detail": [
-            "R118"
+            "R119"
           ],
           "ok": true
         },
@@ -2079,7 +2208,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R115",
+                "R116",
                 "2"
               ]
             ]
@@ -2098,7 +2227,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R117",
+                "R118",
                 "2"
               ]
             ]
@@ -2117,7 +2246,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R114",
+                "R115",
                 "2"
               ]
             ]
@@ -2136,7 +2265,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R113",
+                "R114",
                 "2"
               ]
             ]
@@ -2155,7 +2284,7 @@
             "ohm": 100.0,
             "series": [
               [
-                "R112",
+                "R113",
                 "2"
               ]
             ]
@@ -2259,30 +2388,30 @@
         "native21_rail_inside_3135_3465": {
           "detail": [
             3.236896130065459,
-            3.3743664210100817
+            3.3743709759551654
           ],
           "ok": true
         },
         "ps1_within_21W_at_full_blower": {
-          "detail": 4.831993686969178,
+          "detail": 4.834390146240015,
           "ok": true
         },
         "within_inductor_irms_2p45A": {
-          "detail": 1050.9349863416455,
+          "detail": 1051.5228623532503,
           "ok": true
         },
         "within_tps62933_3A": {
-          "detail": 1050.9349863416455,
+          "detail": 1051.5228623532503,
           "ok": true
         }
       },
       "data": {
-        "controller_mA": 541.5896273526971,
+        "controller_mA": 542.177503364302,
         "native21_on_J4_3_mA": 49.34535898894846,
         "native21_rail_V": {
           "harness": {
             "allocation": "J4 harness <= 1.0 m, AWG22, Micro-Fit 43030 terminals (DEFAULT; harness not yet specified)",
-            "ground_shift_max_V": 0.007812472399176966,
+            "ground_shift_max_V": 0.007817027344260681,
             "ground_shift_min_V": -0.0013716878145361526,
             "length_m": 1.0,
             "r_conductor_ohm": 0.08339312,
@@ -2293,14 +2422,14 @@
             ],
             "v3v3_drop_V": 0.004115063443608458
           },
-          "max": 3.3743664210100817,
+          "max": 3.3743709759551654,
           "min": 3.236896130065459
         },
         "oled_off_board_mA": {
           "basis": "Newhaven NHD-3.12-25664UCW2 rev: IDD 340 mA max, 3.3 V, 100 % on, factory jumper (via J7.2, R33)",
           "mA": 340.0
         },
-        "peak_mA": 1050.9349863416455,
+        "peak_mA": 1051.5228623532503,
         "ps1": {
           "basis": "efficiency 85 % (3.3 V) is an allocation from the TPS62933 typical curves; IRM-20-15 21 W rated; blower on PS3 (check_blwin)",
           "blower_input_W_now_on_ps3": {
@@ -2308,8 +2437,8 @@
             "full_typ": 18.933333333333334,
             "r32_cap": 10.0
           },
-          "p_3v3_rail_W": 4.284105561969178,
-          "p_total_W": 4.831993686969178,
+          "p_3v3_rail_W": 4.286502021240015,
+          "p_total_W": 4.834390146240015,
           "p_v15_direct_W": 0.547888125,
           "rating_W": 21.0
         },
@@ -2389,7 +2518,7 @@
             "board": "controller",
             "mA": 3.468468468468468,
             "path": "r_rim_pu",
-            "ref": "R95"
+            "ref": "R96"
           },
           {
             "basis": "TLV9062IDR: SBOS839N 7.x: IQ 0.8 mA/amp max (5.5 V, -40..125 C)",
@@ -2459,14 +2588,14 @@
             "board": "controller",
             "mA": 0.7446808510638298,
             "path": "r_scl_pu",
-            "ref": "R110"
+            "ref": "R111"
           },
           {
             "basis": "4.7kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.7446808510638298,
             "path": "r_sda_pu",
-            "ref": "R111"
+            "ref": "R112"
           },
           {
             "basis": "4.7kohm +/- 1% pull-down driven high by U4",
@@ -2481,6 +2610,13 @@
             "mA": 0.7446808510638298,
             "path": "r_blw_pg_bot",
             "ref": "R16"
+          },
+          {
+            "basis": "5.9kohm +/- 0.1% pull-down driven high by U4",
+            "board": "controller",
+            "mA": 0.5878760116048252,
+            "path": "r_hs_adc_bot",
+            "ref": "R90"
           },
           {
             "basis": "MCP3202-CI/SN: DS21034F: IDD 550 uA max (5 V, worst case used at 3.3 V)",
@@ -2613,28 +2749,28 @@
             "board": "controller",
             "mA": 0.35,
             "path": "r_adc_cs_pu",
-            "ref": "R107"
-          },
-          {
-            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
-            "board": "controller",
-            "mA": 0.35,
-            "path": "r_en",
             "ref": "R108"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
+            "path": "r_en",
+            "ref": "R109"
+          },
+          {
+            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.35,
             "path": "r_cs_oled_pu",
-            "ref": "R118"
+            "ref": "R119"
           },
           {
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
             "path": "r_cs_exp_pu",
-            "ref": "R119"
+            "ref": "R120"
           },
           {
             "basis": "10kohm +/- 1% pull-down driven high by U37",
@@ -2669,7 +2805,7 @@
             "board": "controller",
             "mA": 0.3468468468468468,
             "path": "r_m12_pu",
-            "ref": "R92"
+            "ref": "R93"
           },
           {
             "basis": "3.32kohm R + 9500 ohm to gnd",
@@ -2837,7 +2973,7 @@
             "board": "controller",
             "mA": 0.03590547068807938,
             "path": "r_rim_th_top",
-            "ref": "R98"
+            "ref": "R99"
           },
           {
             "basis": "90.9kohm +/- 0.1% R + 6714 ohm to gnd",
@@ -2886,7 +3022,7 @@
             "board": "controller",
             "mA": 0.034999999999999996,
             "path": "r_dc_pd",
-            "ref": "R109"
+            "ref": "R110"
           },
           {
             "basis": "1.21kohm +/- 1% R + 99000 ohm to gnd",
@@ -3113,7 +3249,7 @@
             "ref": "D4"
           }
         ],
-        "total_mA": 590.9349863416455,
+        "total_mA": 591.5228623532504,
         "ui_board_allocation_mA": {
           "basis": "[UNVERIFIED] J7.2 allocation for the R33 UI board: 30 mA logic + 3.3 V encoder option (MCP23S08, TMP122) and 90 mA for the self-oscillating buzzer; parts not yet chosen",
           "mA": 120.0

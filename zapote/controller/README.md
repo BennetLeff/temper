@@ -33,7 +33,7 @@ It draws power from native-21's J4 header and supplies native-21's 3.3 V logic b
 | `inputs/native-21/` | Frozen native-21 netlist, BOM and resolved export (the J4 and v3v3 counterpart) |
 | `tools/verify_controller.py` | The verification (below); writes `evidence/verify.json` |
 | `tools/controller_calcs.py` | Every numeric claim in these docs; writes `evidence/controller_calcs.json` |
-| `tests/test_verify_mutations.py` | 47 tests. They miswire the frozen netlist and require the owning check to fail |
+| `tests/test_verify_mutations.py` | 50 tests. They miswire the frozen netlist and require the owning check to fail |
 | `layout/` | Board build, router, enclosure/layout check, DFM gate and fab export; `python3 layout/make.py` runs the gates (see [LAYOUT.md](LAYOUT.md)) |
 | `pcb/` | `controller.kicad_pcb` (routed board), `.kicad_pro`, the parity schematic, vendored footprints |
 | `fab/` | Gerbers, drill, BOM/CPL with LCSC codes, assembly drawing, `fab-notes.md` (candidate, not released) |
@@ -62,7 +62,7 @@ python3 tools/snapshot_native21.py # re-derive inputs/native-21 from git (read-o
 - **Warnings:** the build emits only atopile's "Implicit Declaration" deprecation warnings for `override_net_name`, the same as the thermal-sense build.
 - **Part identity:** it comes from `resolved-components.json` or the CSV, never from the netlist's `libsource` field. Atopile 0.2.69 aliases parts by footprint there; see the power-stage README.
 
-**Current result** (frozen netlist sha256 `a65fafb3…`; 284 components, C37–C41): `VERIFY: PASS` (224 checks), and 47/47 mutation tests pass.
+**Current result** (frozen netlist sha256 `c0808194…`; 285 components, C37–C41, C45): `VERIFY: PASS` (233 checks), and 50/50 mutation tests pass.
 
 | Section | Checks | What is asserted |
 |---|---|---|
@@ -76,6 +76,7 @@ python3 tools/snapshot_native21.py # re-derive inputs/native-21 from git (read-o
 | blower | 13/13 | J10 = V_BLOWER / GND / FG; FG pull-up, TVS and series R into GPIO3; GPIO46 PWM filtered into the blower buck's FB with full speed at reset; switch-off from expander P15 with the blower running at power-up; the `blower_supply()` sizing checks (C28) |
 | blwin | 16/16 | Stage 16 (C33): J13 = V15_BLW / selv_gnd on a B2P-VH; U2's VIN, EN-divider top and input caps on V15_BLW; no part joins V15_BLW to v15_selv; 100 µF bulk on V15_BLW; BLW_PG 20 k / 4.7 k into expander P16; the `ps3_budget()` and `blw_pg()` checks (PS3 39.7 W of 60 W) |
 | thermal | 11/11 | The thermal-sense comparator trips from the netlist resistor values, 64 corners (a port of the zapote-erc method): heatsink 101.4 °C (98.3–104.6) above the 95 °C firmware trip and with Tj ≤ 135 °C; coil 175.7 °C (169.7–182.0) above the 165 °C firmware trip; open/short margins (C32) |
+| hs_adc | 9/9 | CR-8 (C45): HS_ADC = follower × r_hs_adc_bot / (r_hs_adc + r_hs_adc_bot) from the netlist values. The gain band (0.1 % + 25 ppm/K over 65 K) keeps the ADC below the calibrated 2.9 V from −40 to 150 °C at the 3.367 V rail (worst 2.877 V). Also checked: source and sampling error ≤ 0.1 K at 95 °C, follower load ≤ 1 mA. HS_SENSE carries exactly the thermal block's parts and r_hs_filt, so the hot and open comparators are untouched |
 | ct_rms | 20/20 | The tank-RMS channel: ct_mon buffer → AC coupling → AD8436 (unity input buffer, AC-coupled core, single supply on v15, C0G CAVG) → gain-4 output buffer → 1 kΩ + BAT54S clamp → MCP3202 CH0. CH1 reads the LM4040 2.5 V reference. The ADC sits on the RTD SPI bus with its own pulled-up CS GPIO; the raw ct_mon ADC1 path is kept |
 | ui | 25/25 | J7 (R33 UI bus, DECISIONS C26): exact 12-pin map with a GND beside every signal; each signal reaches its GPIO through one 33–100 Ω series resistor with nothing active on the connector side, and has an SRV05-4 clamp; the UI bus GPIOs (40/41/44/47/48/45) are disjoint from the RTD / MCP3202 SPI bus, which never reaches a connector; both chip selects pulled up; +5 V from the TLV76050 within its budget |
 | bom | 2/2 | Every resolved MPN is in `bom/controller-parts.json` with a basis |
