@@ -144,7 +144,8 @@ def main():
                    f"x the power; the honest 250 degC hold power already spans {max(p250) / min(p250):.2f}x over "
                    "three modelled pans (real pan sizes spread it further) and the firmware has only commanded "
                    "power with eta unknown (0.82-0.92). The rim follows the pan with a weight of 0.65-0.96, a "
-                   "wider spread than the compression of the leaks that matter (0.77 at 1.73 kohm).",
+                   "wider spread than the compression of the leaks that matter "
+                   f"({comp[str(R_HAZ)]['reading_250']['dReading_dT']:.2f} at {R_HAZ / 1e3:.2f} kohm).",
     }
     # ---- C ---------------------------------------------------------------
     cold = {}

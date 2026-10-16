@@ -944,17 +944,42 @@ the C library is driven passively on every run):
 
 ## D-LEAK. Element-parallel Pt100 leakage: a latch, and why firmware cannot meet the 300 °C bar
 
-*Superseded in part by D-RIMLIM:* the setpoint-relative rim limit now latches
-59 of the 235 hazardous runs before 300 °C (7 here) and every hazardous run
-eventually (9 never latched here). The bar is still not met. The numbers below
-are this rule's alone, as first recorded.
+**The bar's hazard definition (owner, 2026-10-16).** A leak run is
+hazardous when its untripped pan temperature exceeds 300 °C *at any time*,
+transient overshoot included (`leak_checks.hazardous()`: the unrounded first
+crossing, `t_T_c_over_300_s`). It was the steady T_c (mean of the last
+100 s) above 300 °C. The peak rule adds 42 runs that overshoot and settle
+below 300 °C: 300 Ω 1, 721 Ω 7, 966 Ω 3, 1.29 kΩ 1, 1.73 kΩ 1 and 29 of the
+36 runs at 2.32 kΩ (peak up to 304.2 °C, steady ≤ 299.8 °C; two peak at
+300.0x °C, which the 0.1 K-rounded `T_c_max` hides). With the rim limit in
+the loop (`leak-checks.json`):
+
+| | Steady rule (to 2026-10-15) | Peak rule (from 2026-10-16) |
+|---|---|---|
+| Hazardous runs | 235, 300 Ω–1.73 kΩ | **277**, 300 Ω–2.32 kΩ |
+| Latched before T_c passes 300 °C | 59 | **69** |
+| Latched after | 176 | 204 |
+| Never latched | 0 | **4** (2.32 kΩ, Δ 46 K, cold bead, ramp onsets; peak 300.3–302.2 °C) |
+| Largest hazardous leak; 10 MΩ margin | 1.73 kΩ; 5773× | **2.32 kΩ; 4311×** |
+| Next sample (not hazardous) | 2.32 kΩ | 3.11 kΩ (peak 290.8, steady 286.2 °C) |
+
+The gate's recorded status moved with it (EXPECTED_BEFORE_300_MIN 59 → 69,
+EXPECTED_NEVER_MAX 0 → 4; cold_soak.py EXPECTED_INDEP_NOMINAL likewise): a
+stricter definition re-recorded, the same ratchet. D-RIMLIM, D-SOAK, open
+items 10–11 and `../leak-barrier/` carry the peak-rule numbers.
+
+*Superseded in part by D-RIMLIM:* the setpoint-relative rim limit latches 69
+of the 277 hazardous runs before 300 °C (peak rule). The bar is still not
+met. The numbers below are this rule's alone, as first recorded under the
+steady rule, and are not regenerated.
 
 **The hazard.** A leak in parallel with the element reads low and is an
 ordinary in-range resistance to the MAX31865 (`../pcb/DECISIONS.md` D6). The
 loop holds the reading at the setpoint and the pan runs hot.
 
-**The bar (owner).** Every leak whose untripped steady pan temperature would
-exceed 300 °C must latch before the pan first exceeds 300 °C.
+**The bar (owner).** Every leak whose untripped pan temperature would
+exceed 300 °C (at any time, from 2026-10-16; steady before) must latch
+before the pan first exceeds 300 °C.
 
 **Rule.** `components/control/pan_leak_check.{c,h}`, run by
 `main/pan_control.c`, latches FAULT_PROBE_LEAKAGE (new code, label "PROBE
@@ -1049,14 +1074,15 @@ Results:
 1. **Hot-zone insulation ≥ 10 MΩ at 300 °C** between leads and across the
    element (`../pcb/REQUIREMENTS.md` R3.3). CAD's fused-silica 4-bore
    capillary gives about 100 MΩ at 350 °C, pending supplier confirmation
-   (`../pcb/DECISIONS.md`, orchestrator rulings). 10 MΩ is 5773× the
-   highest hazardous leak (1.73 kΩ), and reads 0.013 K low at 300 °C
-   (100 MΩ: 0.001 K).
+   (`../pcb/DECISIONS.md`, orchestrator rulings). 10 MΩ is 4311× the
+   highest hazardous leak (2.32 kΩ, peak rule; 5773× the steady rule's
+   1.73 kΩ), and reads 0.013 K low at 300 °C (100 MΩ: 0.001 K).
 2. **A production hot insulation test on every cartridge:** ≥ 10 MΩ at
    300 °C, as R3.3. Leakage *across* the element cannot be measured with the
    element in circuit. A hot accuracy check covers it: at 300 °C with a
-   ±0.5 K acceptance, it catches any parallel path below 252 kΩ, 145× the
-   hazard.
+   ±0.5 K acceptance, it catches any parallel path below 252 kΩ, 109× the
+   hazard, with zero measurement uncertainty; `../leak-barrier/` (T1) gives
+   84 kΩ under its full masking budget.
 3. **Seal-ingress qualification.** Moisture or fat entering the cartridge is
    the credible way a hot-zone leak forms. Qualify the seal with steam/damp
    heat, thermal cycling and wash exposure. Afterwards the cartridge must
@@ -1137,21 +1163,24 @@ the C loop, every latch passive):
 
 **Trade-off curve** (offline on 0.5 s traces of the same runs; τ_dec 300 s,
 "not falling" on; the counts are hazardous runs latched before T_c first
-exceeds 300 °C, of 235):
+exceeds 300 °C, of 277 under the peak rule, `rim-limit.json` `curve`):
 
 | Margin (K) | Tolerance table | Constant 19.1 K | Never latched (table) | False latches, 548 benign | False, 132 stress |
 |---|---|---|---|---|---|
-| −10 | 95 | 71 | 0 | 0 | 56 |
-| −5 | 74 | 58 | 0 | 0 | 55 |
-| −2.5 | 66 | 46 | 0 | 0 | 42 |
-| −1 | 65 | 46 | 0 | 0 | 28 |
-| **0 (chosen)** | **60** | 43 | **0** | **0** | **0** |
-| +1 | 57 | 40 | 0 | 0 | 0 |
-| +2.5 | 55 | 35 | 9 | 0 | 0 |
-| +5 | 44 | 29 | 9 | 0 | 0 |
-| +10 | 31 | 23 | 9 | 0 | 0 |
+| −10 | 115 | 89 | 4 | 0 | 56 |
+| −5 | 91 | 69 | 4 | 0 | 55 |
+| −2.5 | 78 | 55 | 4 | 0 | 42 |
+| −1 | 76 | 55 | 4 | 0 | 28 |
+| **0 (chosen)** | **70** | 51 | **4** | **0** | **0** |
+| +1 | 67 | 48 | 4 | 0 | 0 |
+| +2.5 | 64 | 43 | 22 | 0 | 0 |
+| +5 | 52 | 37 | 22 | 0 | 0 |
+| +10 | 39 | 26 | 22 | 0 | 0 |
 
-- **The constant stack** never latches 9 runs at margin 0 (the D-LEAK nine).
+(Steady rule, first recorded: 60 of 235 at the chosen variant, 0 never.)
+- **The constant stack** never latches 22 runs at margin 0. The four the
+  chosen variant never latches are 2.32 kΩ at Δ 46 K with a cold bead,
+  peaking 300.3–302.2 °C: no margin within the benign envelope reaches them.
 - **"Not falling" is necessary.** Without it, margin 0 false-latches 30 of
   the 548 benign runs (the cold pan on 200 °C glass) and 24 of the stress
   runs.
@@ -1164,28 +1193,30 @@ exceeds 300 °C, of 235):
 
 **C in the loop** (`leak_checks.py` → `leak-checks.json`, step 3d, gated):
 
-| | Before (D-LEAK) | After (D-RIMLIM) |
-|---|---|---|
-| Hazardous runs latched before T_c passes 300 °C | 7 / 235 | **59 / 235** |
-| — step / 120 s ramp / 600 s ramp | 0/84, 3/80, 4/71 | 27/84, 18/80, 14/71 |
-| Latched after 300 °C | 219 (T_c ≤ 474.2 °C, 30.8–367.3 s after) | 176 (T_c ≤ 431.1 °C, 0.0–329.0 s after) |
-| Never latched | 9 | **0** |
-| Largest never-latched leak | 1.73 kΩ, steady 318.9 °C | none |
-| First latch, hazardous runs | rim over-range 188, leak chain 38 | rim limit 234, leak chain 1 |
-| False latches, 548 benign | 0 | 0 |
+| | Before (D-LEAK, steady rule) | After (D-RIMLIM, steady rule) | After (D-RIMLIM, peak rule) |
+|---|---|---|---|
+| Hazardous runs latched before T_c passes 300 °C | 7 / 235 | 59 / 235 | **69 / 277** |
+| — step / 120 s ramp / 600 s ramp | 0/84, 3/80, 4/71 | 27/84, 18/80, 14/71 | 31/93, 18/92, 20/92 |
+| Latched after 300 °C | 219 (T_c ≤ 474.2 °C, 30.8–367.3 s after) | 176 (T_c ≤ 431.1 °C, 0.0–329.0 s after) | 204 (T_c ≤ 431.1 °C, 0.0–329.0 s after) |
+| Never latched | 9 | 0 | **4** |
+| Largest never-latched leak | 1.73 kΩ, steady 318.9 °C | none | 2.32 kΩ, peak 302.2 °C, steady 299.5 °C |
+| First latch, hazardous runs | rim over-range 188, leak chain 38 | rim limit 234, leak chain 1 | rim limit 272, leak chain 1 |
+| False latches, 548 benign | 0 | 0 | 0 |
 
-- **The gate.** `leak_checks.py` holds coverage at ≥ 59 and never-latched at
-  0 (EXPECTED_BEFORE_300_MIN, EXPECTED_NEVER_MAX). The bar status stays
-  `not_met`.
-- **By glass offset.** Δ 12 K: 56 of 120 before 300 °C. Δ 46 K: 3 of 115.
-- **By leak** (latched before 300 °C / hazardous): 300 Ω 7/35, 402 Ω 5/36,
-  538 Ω 6/36, 721 Ω 7/29, 966 Ω 11/33, 1.29 kΩ 11/31, 1.73 kΩ 12/35.
+- **The gate.** `leak_checks.py` holds coverage at ≥ 69 and never-latched at
+  ≤ 4 (EXPECTED_BEFORE_300_MIN, EXPECTED_NEVER_MAX; 59 / 0 under the steady
+  rule). The bar status stays `not_met`.
+- **By glass offset.** Δ 12 K: 66 of 141 before 300 °C. Δ 46 K: 3 of 136.
+- **By leak** (latched before 300 °C / hazardous): 300 Ω 7/36, 402 Ω 5/36,
+  538 Ω 6/36, 721 Ω 7/36, 966 Ω 13/36, 1.29 kΩ 11/32, 1.73 kΩ 12/36,
+  2.32 kΩ 8/29.
 - **The largest leak that is not always caught before 300 °C** is the
   largest in the sweep, 300 Ω: a step to a steady 819.5 °C. It passes
   300 °C before the glass, with its 18–106 s lag, can follow.
 - **At the leak envelope** (stress_leak: warped pan, cool eye, cold stack,
-  τ_g 106 s), nothing latches before 300 °C: 0/116. 22 of 116 never latch
-  on the existing rules, and 18 still do not with the rim limit.
+  τ_g 106 s), 3 of 137 latch before 300 °C (0/116 under the steady rule).
+  25 of 137 never latch on the existing rules, and 21 still do not with the
+  rim limit (22 and 18 of 116 under the steady rule).
 
 **Why the bar is still out of reach.** At a 250 °C setpoint the benign glass
 can reach 245.1 °C, and the rim can read 16 K above that. A leak that takes
@@ -1225,28 +1256,31 @@ the pan to 300 °C under a warped pan and a cool eye leaves the glass at
 
 | Lowered by | Band (°C) | Hazardous trip at band top before 300 °C | Benign margin to band low |
 |---|---|---|---|
-| 0 | 262.3–288.1 | 0 / 235 | 15.8 K |
+| 0 | 262.3–288.1 | 0 / 277 | 15.8 K |
 | 4 K | 258.3–284.1 | 0 | 11.8 K |
-| 8 K | 254.3–280.1 | 6 | 7.8 K |
-| 12 K | 250.3–276.1 | 7 | 3.8 K |
-| 16 K | 246.3–272.1 | 11 | −0.2 K |
+| 8 K | 254.3–280.1 | 9 | 7.8 K |
+| 12 K | 250.3–276.1 | 11 | 3.8 K |
+| 16 K | 246.3–272.1 | 16 | −0.2 K |
+
+(Peak rule; under the steady rule 0 / 0 / 6 / 7 / 11 of 235.)
 
 **Recommendation: lower the trip by about 8 K.** Change the divider's 86.6 k
 to 76.8 k (E96). The nominal moves from 275.6 to 267.8 °C, and the band to
 about 254.5–280.3 °C.
-- **Gain.** Small: 6 of 235 hazardous runs, all low-Δ ramps, trip before
-  300 °C instead of none. The trip stays independent of firmware, and leaves
+- **Gain.** Small: 9 of 277 hazardous runs (peak rule; 6 of 235 steady)
+  trip before 300 °C instead of none. The trip stays independent of firmware, and leaves
   7.8 K over the benign envelope.
 - **Condition.** pcb D6's bench condition must tighten with it. Bench T3's
   rim log under a 250 °C hold must stay ≤ 244.5 °C (the new band low − 10 K)
   instead of ≤ 252 °C.
-- **Don't go further.** Lowering by 12 K leaves 3.8 K and buys one more run;
+- **Don't go further.** Lowering by 12 K leaves 3.8 K and buys two more runs;
   16 K overlaps the benign envelope.
 
 ### B. Energy plausibility: does not separate (`leak_alternatives.py` → `leak-alternatives.json`)
 
-- **Compression.** A leak compresses dReading/dT_true at a 250 °C reading to
-  0.08 (300 Ω) – 0.77 (1.73 kΩ); 0.70 at 1.29 kΩ.
+- **Compression.** A hazardous leak (peak rule) compresses dReading/dT_true
+  at a 250 °C reading to 0.08 (300 Ω) – 0.83 (2.32 kΩ); 0.77 at 1.73 kΩ,
+  0.70 at 1.29 kΩ.
 - **The plant gain a = η/C** spans 6.8× over the three modelled frying pans
   with η 0.82–0.92 and a food load alone. The firmware prior bounds span
   100×. A leak looks like a heavier pan: the modelled food load alone moves
@@ -1258,7 +1292,7 @@ about 254.5–280.3 °C.
   further. The firmware has only commanded power, with η unknown.
 - **The rim's rise per joule against the Pt100's.** The rim follows the pan
   with w 0.65–0.96, a wider spread than the compression of the leaks that
-  matter (0.77 at 1.73 kΩ).
+  matter (0.83 at 2.32 kΩ).
 - **Verdict.** Nothing observable separates a leak from a heavier or less
   efficient pan without a per-pan reference. A within-session drop of the
   identified a when a leak forms mid-cook is real, but adding food does the
@@ -1273,13 +1307,14 @@ threshold, 19.4 K since the CR-8 divider (zapote C45), the benign sets and
 the coverage, through the C).
 `leak_alternatives.py` keeps the closed-form view at 35 °C against the
 `hs-ntc.json` threshold:
-- **A temperature-independent leak** reads low by 16.8 K at 1.73 kΩ at
-  25 °C (14.5 K at 5 °C, 18.7 K at 40 °C), more at every lower resistance.
+- **A temperature-independent leak** reads low by 12.8 K at 2.32 kΩ, the
+  largest hazardous leak under the peak rule, at 25 °C (11.0 K at 5 °C,
+  14.2 K at 40 °C), and by 16.8 K at 1.73 kΩ; more at every lower resistance.
 - **An Arrhenius leak** R(T) = R_300·exp(Ea/k·(1/T − 1/573 K)), equal to
-  the hazardous 1.73 kΩ at 300 °C: at 35 °C it reads 18.0 K low even
-  temperature-independent, under the 19.4 K threshold, so the closed form
-  misses it at any Ea (rail-measured, 14.5 K: missed above **Ea 0.013 eV**).
-  The largest leak caught at 35 °C is 1.60 kΩ (2.18 kΩ rail-measured).
+  the hazardous 2.32 kΩ at 300 °C: at 35 °C it reads 13.7 K low even
+  temperature-independent, under both the 19.4 K threshold and the
+  rail-measured 16.9 K, so the closed form misses it at any Ea. The largest
+  leak caught at 35 °C is 1.60 kΩ (1.86 kΩ rail-measured).
   Pre-C45 these were Ea 0.020 / 0.043 eV and 2.47 / 3.67 kΩ against the
   12.9 / 8.8 K thresholds, which held only in a warm room. Conduction that
   only conducts hot is invisible to C.
@@ -1310,10 +1345,12 @@ the coverage, through the C).
   430. At 1 % repeatability with a 2× detection margin (2 %), that is
   caught before 300 °C on carbon steel, and only on the most sensitive
   cast iron or 430. At steady state every hazardous leak holds the pan
-  ≥ 68 K over the reading (1.73 kΩ: 318.4 °C at a 250 °C reading,
-  `leak-alternatives.json`), ≥ 2.3 % even at cast iron's low end. So D
-  could close the never-latched gap on its own, but not the before-300 °C
-  gap on cast iron and clad.
+  ≥ 68 K over the reading under the steady rule (1.73 kΩ: 318.4 °C at a
+  250 °C reading), ≥ 2.3 % even at cast iron's low end. Under the peak rule
+  the 2.32 kΩ leak settles at 285.1–299.8 °C (`leak-checks.json`), 35–50 K
+  over the reading: 1.1–1.5 % on cast iron's low end, under the 2 % margin.
+  So D could close the never-latched gap on carbon steel, but not on cast
+  iron and clad, nor the before-300 °C gap there.
 - **Recommendation.** Once the power stage reports P and I per period
   (needed by D-ISENSE anyway), log R_eq = P/I² against the Pt100 reading on
   the bench. Adopt it only if a per-pan baseline, learned in the first
@@ -1802,39 +1839,42 @@ C45); the `hot_glass` kind is the warm restart at idle 0.
   precondition for trusting the measured-rail threshold. The frozen pot
   (22/36) and the −5 °C room (1/6) latch in both variants.
 
-**Hazardous leaks caught before heating** (`cold-soak.json`): the 235 runs
-of `leak-checks.json` whose untripped steady T_c exceeds 300 °C (7 leak
-values, 300 Ω–1.73 kΩ), with the same leak present at a cold start (a leak
+**Hazardous leaks caught before heating** (`cold-soak.json`): the 277 runs
+of `leak-checks.json` whose untripped T_c exceeds 300 °C at any time (the
+peak rule, D-LEAK 2026-10-16; 8 leak values, 300 Ω–2.32 kΩ; 235 runs and
+7 values under the steady rule), with the same leak present at a cold start (a leak
 there before the cook, or the next cook after one developed), soaked at each
 ambient. Caught = cold-soak LEAK, or the leaky element below the C1 window's
 84.27 Ω (FAULT_PROBE_SHORT in any state, the baseline). As built (CR-8,
-threshold 19.4 K), recorded as they came out:
+threshold 19.4 K), of 277, peak rule (steady-rule counts, of 235, were
+71 / 169 / 200 on the first three rows):
 
 | As built | 5 °C | 15 °C | 25 °C | 30 °C | 35 °C | 40 °C |
 |---|---|---|---|---|---|---|
-| 84.27 Ω window alone | 71 | 71 | 35 | 35 | 35 | 35 |
-| temperature-independent, nominal | **169** | **200** | **200** | **200** | **200** | **200** |
-| temperature-independent, miss corner | 71 | 35 | 107 | 136 | 136 | 136 |
-| Arrhenius Ea 0.01 eV, nominal | 169 | 169 | 169 | 169 | 200 | 200 |
-| Arrhenius Ea 0.02 eV, nominal | 136 | 136 | 169 | 169 | 169 | 169 |
-| Arrhenius Ea 0.05 eV, nominal | 71 | 71 | 107 | 107 | 107 | 107 |
-| Arrhenius Ea 0.1 eV, nominal | 0 | 0 | 0 | 0 | 0 | 35 |
+| 84.27 Ω window alone | 72 | 72 | 36 | 36 | 36 | 36 |
+| temperature-independent, nominal | **180** | **212** | **212** | **212** | **212** | **212** |
+| temperature-independent, miss corner | 72 | 36 | 108 | 144 | 144 | 144 |
+| Arrhenius Ea 0.01 eV, nominal | 180 | 180 | 180 | 180 | 212 | 212 |
+| Arrhenius Ea 0.02 eV, nominal | 144 | 144 | 180 | 180 | 180 | 180 |
+| Arrhenius Ea 0.05 eV, nominal | 72 | 72 | 108 | 108 | 108 | 108 |
+| Arrhenius Ea 0.1 eV, nominal | 0 | 0 | 0 | 0 | 0 | 36 |
 | Arrhenius Ea 0.2 eV, nominal | 0 | 0 | 0 | 0 | 0 | 0 |
-| Arrhenius Ea 0.01 / 0.02 / 0.05 eV, miss | 35 / 0 / 0 | 35 / 0 / 0 | 107 / 71 / 0 | 107 / 107 / 35 | 107 / 107 / 35 | 136 / 107 / 35 |
+| Arrhenius Ea 0.01 / 0.02 / 0.05 eV, miss | 36 / 0 / 0 | 36 / 0 / 0 | 108 / 72 / 0 | 108 / 108 / 36 | 108 / 108 / 36 | 144 / 108 / 36 |
 
 So the check now adds coverage in an ordinary room: with nominal parts it
 catches every temperature-independent hazardous leak up to 1.29 kΩ from
-15 °C up (200/235; the 1.73 kΩ leak, 16.6 K low at 25 °C, is under the
-threshold), and up to 0.97 kΩ at 5 °C (169; the 1.29 kΩ leak gives 18.6 K
-there). Before C45 it added nothing below ~32 °C. At the miss corner the
+15 °C up (212/277; the 1.73 kΩ leak, 16.6 K low at 25 °C, and the 2.32 kΩ
+leak, 12.8 K low, are under the threshold), and up to 0.97 kΩ at 5 °C (180;
+the 1.29 kΩ leak gives 18.6 K there). Before C45 it added nothing below ~32 °C. At the miss corner the
 heatsink reads 13.8 K low at 25 °C and below the table under ~7 °C, so the
 check skips or misses there; 107–136 from 25 °C up. With the rail measured
 (threshold 16.9 K, gated `hazardous_indep_nominal_as_recorded_rail_measured`)
-the temperature-independent nominal count is 200 / 200 / 200 / 235 / 235 / 235
-at 5 / 15 / 25 / 30 / 35 / 40 °C (the 1.73 kΩ leak is caught from 30 °C up)
-and the miss corner 71 / 35 / 136 / 136 / 169 / 169; Ea 0.1 eV gains 35 at
-35–40 °C. The CR-8 study's "235 at every ambient" rested on the ±0.2 % rail
-and does not hold. Leaks that conduct mostly hot are still missed
+the temperature-independent nominal count is 212 / 212 / 212 / 248 / 248 / 248
+of 277 at 5 / 15 / 25 / 30 / 35 / 40 °C (the 1.73 kΩ leak is caught from
+30 °C up; the 2.32 kΩ leak at no ambient) and the miss corner 72 / 36 / 144 /
+144 / 180 / 180; Ea 0.1 eV gains 36 at 35–40 °C (steady rule, of 235:
+200 / 200 / 200 / 235 / 235 / 235). The CR-8 study's "235 at every ambient"
+rested on the ±0.2 % rail and does not hold. Leaks that conduct mostly hot are still missed
 (Ea ≥ 0.1 eV). The 300 °C bar stays not met (open item 10).
 
 **SIL** (D-SIL; `trace_c1_cold_soak_preheat.csv`, manifest fields
@@ -2439,13 +2479,19 @@ power-cycle scenario in D-SOAK.
 10. **Element-parallel leakage: two firmware latches now exist (D-LEAK,
     D-RIMLIM), and the 300 °C bar is still not met.** With the
     setpoint-relative rim limit in the loop (`leak-checks.json`):
-    - 59 of 235 hazardous leak runs latch before the pan passes 300 °C
-      (7 before D-RIMLIM): 27/84 step, 18/80 120 s ramp, 14/71 600 s ramp;
-    - 176 latch after it, at T_c ≤ 431.1 °C (was ≤ 474.2 °C);
-    - none never latches (was 9: 1.73 kΩ, 318.9 °C steady);
+    - hazardous counts transient overshoot from 2026-10-16 (D-LEAK): 277
+      runs, 300 Ω–2.32 kΩ (235 and 1.73 kΩ under the steady rule);
+    - 69 of 277 latch before the pan passes 300 °C (7 of 235 before
+      D-RIMLIM, 59 of 235 steady rule): 31/93 step, 18/92 120 s ramp,
+      20/92 600 s ramp;
+    - 204 latch after it, at T_c ≤ 431.1 °C (was ≤ 474.2 °C);
+    - **4 never latch**: 2.32 kΩ, Δ 46 K, cold bead, ramp onsets, peaking
+      300.3–302.2 °C and settling at 299.3–299.5 °C (none under the steady
+      rule, which did not count them; 9 before D-RIMLIM);
     - 0 false latches on the 548 benign runs and on 132 worst-case stress
       runs;
-    - ≥ 4.16 kΩ is still invisible (steady T_c ≤ 276.8 °C, not a hazard).
+    - ≥ 3.11 kΩ is not a hazard (peak T_c ≤ 290.8 °C) and ≥ 4.16 kΩ is
+      invisible (steady T_c ≤ 276.8 °C).
 
     It cannot be met from the rim. At a 250 °C setpoint the benign and
     leaking glass ranges overlap by about 46 K, and the glass lags the pan
@@ -2453,11 +2499,11 @@ power-cycle scenario in D-SOAK.
     - **C, the cold-soak check, is implemented (D-HSNTC, D-SOAK) and does
       not meet the bar either.** With the CR-8 divider (zapote C45) the
       heatsink channel is VALID from −40 °C, so the check runs in an ordinary
-      room: with nominal parts it catches 200/235 temperature-independent
-      hazardous leaks before heating at 15–40 °C and 169 at 5 °C
-      (threshold 19.4 K; the 1.73 kΩ leak is under it); at the worst corner
-      107–136 from 25 °C up and only the 84.27 Ω window below. It misses
-      leaks that conduct mostly hot (Arrhenius Ea ≥ 0.1 eV: 0–35). 0 false
+      room: with nominal parts it catches 212/277 temperature-independent
+      hazardous leaks before heating at 15–40 °C and 180 at 5 °C
+      (threshold 19.4 K; the 1.73 and 2.32 kΩ leaks are under it); at the
+      worst corner 108–144 from 25 °C up and only the 84.27 Ω window below.
+      It misses leaks that conduct mostly hot (Arrhenius Ea ≥ 0.1 eV: 0–36). 0 false
       latches on 828 gated benign cold-start trajectories (margin 1.52 K);
       a frozen pot latches (clearable).
     - **D, coil impedance, waits for measured P and I.**
@@ -2492,8 +2538,9 @@ power-cycle scenario in D-SOAK.
     bus, sampled from the RTD service's own tick (one bus owner). The real
     error budget (LM4040A25 + MCP3202, 0.93 % over the soak band) gives a
     measured-rail cold-soak threshold of **16.9 K**, not the 14.5 K the
-    ±0.2 % assumption gave, and 200–235 of 235 temperature-independent
-    hazardous leaks at nominal parts (not 235 everywhere). The firmware
+    ±0.2 % assumption gave, and 212–248 of 277 temperature-independent
+    hazardous leaks at nominal parts (peak rule; 200–235 of 235 under the
+    steady rule; not all everywhere). The firmware
     switches at run time; the rail unknown is the 3.300 V fallback, not a
     fault. Still open (bench): the MCP3202's offset and gain at 3.3 V (its
     limits are specified at 5.5 V), v3v3 ripple at U15 (±5 mV assumed), the

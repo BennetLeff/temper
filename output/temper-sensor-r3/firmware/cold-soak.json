@@ -1,5 +1,5 @@
 {
- "scope": "DECISIONS.md D-SOAK: the cold-soak Pt100 leakage check through the firmware's C sources.\n\nThe check (components/control/pan_cold_soak.c, evaluated by main/pan_control.c at\nPREHEAT entry, before the first power): after the coil has been off >= 30 min,\nwith 15 min of flat history, the heatsink NTC VALID and <= 45 degC and the rim NTC\nsaturated, latch FAULT_PROBE_LEAKAGE when the heatsink exceeds the Pt100 by more\nthan PCS_THRESHOLD_K (19.4 K, hs-ntc.json cold_soak_budget) through the window and\nnow (PCS_THRESHOLD_MEASURED_K, 16.9 K, when the heatsink reading used a measured\nrail at every note through the window and now; D-RAIL). Here the heatsink driver\n(components/sensors/hs_ntc.c), the Pt100 conversion\n(components/sensors/rtd_convert.c) and the check run in C through the cosim shim\n(soak_run: one sample per second, the check evaluated every EVAL_EVERY_S as a\nPREHEAT entry then would), fed by a thermal model of an idle unit:\n\n  heatsink  the NTC lug on the heatsink: ambient + standby offset, relaxing with\n            tau_h from its start value (88.6 degC after a full-power cook, the\n            airflow-r1 sink setpoint; the arrival temperature after transport);\n  glass     under the probe: relaxing with tau_g (408-816 s estimated, 1800 s the\n            bound the flatness tests are sized for), or following a placed pan;\n  Pt100     slaved to the glass through the cartridge's off-pan lag (73 s,\n            screen-results.json tau_off); a leak in parallel with the element;\n  rim       SATURATED while the glass is below 87.05 degC (rim-ntc.json, the\n            lowest saturation temperature over the v3v3 contract).\nThe channel is the board as built since zapote C45: the CR-8 divider after the\nfollower, gain 0.855072 (the driver's HS_NTC_ADC_GAIN), so the heatsink is VALID\nfrom -40 degC up. The channel errors are set per corner as hs_ntc.py budgets them,\nbut applied physically (resistances, rail, ADC error at the attenuation the driver\npicks):\n  false     the heatsink reads high and the Pt100 low: NTC R25 -2 % and B column,\n            pull-up +1.2 %, divider gain 0.854421 (C45 low corner), ADC -50 / -10\n            / -5 mV and the SAR sampling bound -3.19 mV at the pin, buffer -2 mV,\n            v3v3 3.242 V read as 3.300 V, standby offset +1 K; Pt100 class -,\n            Rref +0.15 %, converter -3 LSB, no off-pan self-heating;\n  nominal   every term zero;\n  miss      the other way (gain 0.855722), with the Pt100's off-pan self-heating\n            (2.7 K at 30 degC, hs_ntc.py pt_off_pan_self_heating) and v3v3 3.367 V.\nADC noise (3 mV rms per one-shot sample) runs in every corner.\nTwo variants, both gated, each with the threshold the firmware itself picks:\n  rail_fallback  no rail reading (rail_adc.c \"rail unknown\"): the driver divides by\n                 3.300 V, the true rail at the contract corner (3.242 / 3.367 V);\n                 the check uses PCS_THRESHOLD_K;\n  rail_measured  the MCP3202 CH1 reading (rail_adc.c), off by rail_adc.py's\n                 soak-band error (0.93 %: LM4040A25 tolerance, tempco, current,\n                 typical drift and hysteresis, MCP3202 offset/gain/INL, half an\n                 LSB, ripple) in the corner's direction; the check uses\n                 PCS_THRESHOLD_MEASURED_K.\nThe pre-C45 network (100 R, no divider, gain 1) is no longer run: its results are\nthis file's output at 75e512eab (variant as_built there).\n\n1. Threshold cross-check: the C path's steady false-corner gap over the band plus\n   the soak residuals (hs-ntc.json) must not exceed PCS_THRESHOLD_K (gated).\n2. Benign cold starts (gated, both variants, every corner): 0 latches at any evaluation\n   time. Sets: ambient 5-40 degC from power-up; warm restart after a 250 degC cook\n   (glass from 250 degC, heatsink from 88.6 degC, tau_g 408/816/1800 s x tau_h\n   450/900/1800 s, evaluated every 10 s for 4 h, which includes idle 0, 10, 20,\n   30, 45, 60, 90, 120 min); a hot pan (100/200 degC) placed on a soaked unit; a\n   cold pan (4 / -18 degC, warming with tau 900/1800 s) placed on a soaked unit;\n   transport (a unit at -20 (the storage minimum, docs/ENVIRONMENTAL_SPEC.md), 5,\n   50 or 60 degC carried into a 5-40 degC room and powered up on arrival, tau_h\n   450/900/1800 s, tau_g 408/816 s); and the\n   existing sets' cold starts (every leak-checks.json benign kind starts from a\n   unit at 25 degC, hot_glass from glass at 200 degC just after use).\n   Reported, not gated (outside the assumptions, D-SOAK limits): tau_h 3600 s; a\n   large pot of cold water (tau 20000 s); a pot of frozen food whose melting\n   plateau holds the glass at ~2 degC for hours; a unit run in a 0 or -5 degC\n   room (below the 5 degC the threshold is budgeted for; rated 10 degC).\n3. Hazardous leaks (leak-checks.json, the 235 runs whose untripped steady T_c\n   exceeds 300 degC; 7 leak values 300-1732 ohm) at a cold start, soaked steady at\n   5-40 degC: caught before heating by the cold-soak check (FAULT_PROBE_LEAKAGE)\n   or the existing C1 window (the leaky element below 84.27 ohm,\n   FAULT_PROBE_SHORT), for a temperature-independent leak and an Arrhenius family\n   R(T) = R_300 exp(Ea/k (1/T - 1/573.15 K)) equal to the sweep's value at 300 degC\n   (Ea 0.01-0.2 eV). The sweep's leaks start mid-cook (t = 250 s); this is the\n   same leak present at a cold start: a leak that was there before the cook, or\n   the next cook after one developed. The miss corner adds the soak residuals\n   (heatsink still 1.54 K below the room, Pt100 0.39 K above). The as-built\n   nominal coverage of the temperature-independent family is gated, per variant,\n   against the recorded EXPECTED_INDEP_NOMINAL (a change either way fails until\n   DECISIONS.md is updated).\n\nWrites cold-soak.json. Run: python3 cold_soak.py [--lib path]",
+ "scope": "DECISIONS.md D-SOAK: the cold-soak Pt100 leakage check through the firmware's C sources.\n\nThe check (components/control/pan_cold_soak.c, evaluated by main/pan_control.c at\nPREHEAT entry, before the first power): after the coil has been off >= 30 min,\nwith 15 min of flat history, the heatsink NTC VALID and <= 45 degC and the rim NTC\nsaturated, latch FAULT_PROBE_LEAKAGE when the heatsink exceeds the Pt100 by more\nthan PCS_THRESHOLD_K (19.4 K, hs-ntc.json cold_soak_budget) through the window and\nnow (PCS_THRESHOLD_MEASURED_K, 16.9 K, when the heatsink reading used a measured\nrail at every note through the window and now; D-RAIL). Here the heatsink driver\n(components/sensors/hs_ntc.c), the Pt100 conversion\n(components/sensors/rtd_convert.c) and the check run in C through the cosim shim\n(soak_run: one sample per second, the check evaluated every EVAL_EVERY_S as a\nPREHEAT entry then would), fed by a thermal model of an idle unit:\n\n  heatsink  the NTC lug on the heatsink: ambient + standby offset, relaxing with\n            tau_h from its start value (88.6 degC after a full-power cook, the\n            airflow-r1 sink setpoint; the arrival temperature after transport);\n  glass     under the probe: relaxing with tau_g (408-816 s estimated, 1800 s the\n            bound the flatness tests are sized for), or following a placed pan;\n  Pt100     slaved to the glass through the cartridge's off-pan lag (73 s,\n            screen-results.json tau_off); a leak in parallel with the element;\n  rim       SATURATED while the glass is below 87.05 degC (rim-ntc.json, the\n            lowest saturation temperature over the v3v3 contract).\nThe channel is the board as built since zapote C45: the CR-8 divider after the\nfollower, gain 0.855072 (the driver's HS_NTC_ADC_GAIN), so the heatsink is VALID\nfrom -40 degC up. The channel errors are set per corner as hs_ntc.py budgets them,\nbut applied physically (resistances, rail, ADC error at the attenuation the driver\npicks):\n  false     the heatsink reads high and the Pt100 low: NTC R25 -2 % and B column,\n            pull-up +1.2 %, divider gain 0.854421 (C45 low corner), ADC -50 / -10\n            / -5 mV and the SAR sampling bound -3.19 mV at the pin, buffer -2 mV,\n            v3v3 3.242 V read as 3.300 V, standby offset +1 K; Pt100 class -,\n            Rref +0.15 %, converter -3 LSB, no off-pan self-heating;\n  nominal   every term zero;\n  miss      the other way (gain 0.855722), with the Pt100's off-pan self-heating\n            (2.7 K at 30 degC, hs_ntc.py pt_off_pan_self_heating) and v3v3 3.367 V.\nADC noise (3 mV rms per one-shot sample) runs in every corner.\nTwo variants, both gated, each with the threshold the firmware itself picks:\n  rail_fallback  no rail reading (rail_adc.c \"rail unknown\"): the driver divides by\n                 3.300 V, the true rail at the contract corner (3.242 / 3.367 V);\n                 the check uses PCS_THRESHOLD_K;\n  rail_measured  the MCP3202 CH1 reading (rail_adc.c), off by rail_adc.py's\n                 soak-band error (0.93 %: LM4040A25 tolerance, tempco, current,\n                 typical drift and hysteresis, MCP3202 offset/gain/INL, half an\n                 LSB, ripple) in the corner's direction; the check uses\n                 PCS_THRESHOLD_MEASURED_K.\nThe pre-C45 network (100 R, no divider, gain 1) is no longer run: its results are\nthis file's output at 75e512eab (variant as_built there).\n\n1. Threshold cross-check: the C path's steady false-corner gap over the band plus\n   the soak residuals (hs-ntc.json) must not exceed PCS_THRESHOLD_K (gated).\n2. Benign cold starts (gated, both variants, every corner): 0 latches at any evaluation\n   time. Sets: ambient 5-40 degC from power-up; warm restart after a 250 degC cook\n   (glass from 250 degC, heatsink from 88.6 degC, tau_g 408/816/1800 s x tau_h\n   450/900/1800 s, evaluated every 10 s for 4 h, which includes idle 0, 10, 20,\n   30, 45, 60, 90, 120 min); a hot pan (100/200 degC) placed on a soaked unit; a\n   cold pan (4 / -18 degC, warming with tau 900/1800 s) placed on a soaked unit;\n   transport (a unit at -20 (the storage minimum, docs/ENVIRONMENTAL_SPEC.md), 5,\n   50 or 60 degC carried into a 5-40 degC room and powered up on arrival, tau_h\n   450/900/1800 s, tau_g 408/816 s); and the\n   existing sets' cold starts (every leak-checks.json benign kind starts from a\n   unit at 25 degC, hot_glass from glass at 200 degC just after use).\n   Reported, not gated (outside the assumptions, D-SOAK limits): tau_h 3600 s; a\n   large pot of cold water (tau 20000 s); a pot of frozen food whose melting\n   plateau holds the glass at ~2 degC for hours; a unit run in a 0 or -5 degC\n   room (below the 5 degC the threshold is budgeted for; rated 10 degC).\n3. Hazardous leaks (leak-checks.json, the 277 runs whose untripped T_c exceeds\n   300 degC at any time, `leak_checks.hazardous`, owner 2026-10-16; 8 leak values\n   300-2320 ohm) at a cold start, soaked steady at\n   5-40 degC: caught before heating by the cold-soak check (FAULT_PROBE_LEAKAGE)\n   or the existing C1 window (the leaky element below 84.27 ohm,\n   FAULT_PROBE_SHORT), for a temperature-independent leak and an Arrhenius family\n   R(T) = R_300 exp(Ea/k (1/T - 1/573.15 K)) equal to the sweep's value at 300 degC\n   (Ea 0.01-0.2 eV). The sweep's leaks start mid-cook (t = 250 s); this is the\n   same leak present at a cold start: a leak that was there before the cook, or\n   the next cook after one developed. The miss corner adds the soak residuals\n   (heatsink still 1.54 K below the room, Pt100 0.39 K above). The as-built\n   nominal coverage of the temperature-independent family is gated, per variant,\n   against the recorded EXPECTED_INDEP_NOMINAL (a change either way fails until\n   DECISIONS.md is updated).\n\nWrites cold-soak.json. Run: python3 cold_soak.py [--lib path]",
  "firmware_params": {
   "threshold_k": 19.399999618530273,
   "soak_n_s": 1800.0,
@@ -2672,360 +2672,361 @@
   }
  },
  "hazardous": {
-  "runs": 235,
+  "runs": 277,
   "by_r_leak_ohm": {
-   "300.0": 35,
+   "300.0": 36,
    "401.8": 36,
    "538.2": 36,
-   "720.8": 29,
-   "965.5": 33,
-   "1293.2": 31,
-   "1732.1": 35
+   "720.8": 36,
+   "965.5": 36,
+   "1293.2": 32,
+   "1732.1": 36,
+   "2319.9": 29
   },
   "baseline_window_84.27_only_by_ambient": {
-   "5.0": 71,
-   "15.0": 71,
-   "25.0": 35,
-   "30.0": 35,
-   "35.0": 35,
-   "40.0": 35
+   "5.0": 72,
+   "15.0": 72,
+   "25.0": 36,
+   "30.0": 36,
+   "35.0": 36,
+   "40.0": 36
   },
   "coverage": {
    "rail_fallback": {
     "nominal": {
      "independent": {
       "5.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 98,
-       "window_84.27_only": 71,
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 108,
+       "window_84.27_only": 72,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 3
+       }
+      },
+      "15.0": {
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 140,
+       "window_84.27_only": 72,
        "not_caught_verdicts_by_leak_value": {
         "pass": 2
        }
       },
-      "15.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 129,
-       "window_84.27_only": 71,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 1
-       }
-      },
       "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 165,
-       "window_84.27_only": 35,
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 176,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 1
+        "pass": 2
        }
       },
       "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 165,
-       "window_84.27_only": 35,
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 176,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 1
+        "pass": 2
        }
       },
       "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 165,
-       "window_84.27_only": 35,
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 176,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 1
+        "pass": 2
        }
       },
       "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 165,
-       "window_84.27_only": 35,
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 176,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 1
+        "pass": 2
        }
       }
      },
      "0.01": {
       "5.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 134,
-       "window_84.27_only": 35,
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 144,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 2
+        "pass": 3
        }
       },
       "15.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 134,
-       "window_84.27_only": 35,
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 144,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 2
+        "pass": 3
        }
       },
       "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 134,
-       "window_84.27_only": 35,
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 144,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 2
+        "pass": 3
        }
       },
       "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 169,
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 180,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 3
+       }
+      },
+      "35.0": {
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 212,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
         "pass": 2
        }
       },
-      "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 200,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 1
-       }
-      },
       "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 200,
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 212,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 1
+        "pass": 2
        }
       }
      },
      "0.02": {
       "5.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 101,
-       "window_84.27_only": 35,
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 108,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 3
+        "pass": 4
        }
       },
       "15.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 136,
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 144,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 4
+       }
+      },
+      "25.0": {
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 180,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
         "pass": 3
        }
       },
-      "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 169,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 2
-       }
-      },
       "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 169,
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 180,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 2
+        "pass": 3
        }
       },
       "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 169,
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 180,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 2
+        "pass": 3
        }
       },
       "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 169,
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 180,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 2
+        "pass": 3
        }
       }
      },
      "0.05": {
       "5.0": {
-       "hazardous": 235,
-       "caught_before_heating": 71,
-       "cold_soak": 71,
+       "hazardous": 277,
+       "caught_before_heating": 72,
+       "cold_soak": 72,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 5
+        "pass": 6
        }
       },
       "15.0": {
-       "hazardous": 235,
-       "caught_before_heating": 71,
-       "cold_soak": 71,
+       "hazardous": 277,
+       "caught_before_heating": 72,
+       "cold_soak": 72,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 6
+       }
+      },
+      "25.0": {
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
         "pass": 5
        }
       },
-      "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 4
-       }
-      },
       "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 4
+        "pass": 5
        }
       },
       "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 4
+        "pass": 5
        }
       },
       "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 4
+        "pass": 5
        }
       }
      },
      "0.1": {
       "5.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "15.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "25.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "30.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "35.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 35,
-       "cold_soak": 35,
+       "hazardous": 277,
+       "caught_before_heating": 36,
+       "cold_soak": 36,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 6
+        "pass": 7
        }
       }
      },
      "0.2": {
       "5.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "15.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "25.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "30.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "35.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "40.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       }
      }
@@ -3033,337 +3034,337 @@
     "miss": {
      "independent": {
       "5.0": {
-       "hazardous": 235,
-       "caught_before_heating": 71,
+       "hazardous": 277,
+       "caught_before_heating": 72,
        "cold_soak": 0,
-       "window_84.27_only": 71,
-       "not_caught_verdicts_by_leak_value": {
-        "skip_hs_invalid": 5
-       }
-      },
-      "15.0": {
-       "hazardous": 235,
-       "caught_before_heating": 35,
-       "cold_soak": 0,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {
-        "skip_hs_drift": 6
-       }
-      },
-      "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 72,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 4
-       }
-      },
-      "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 101,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 3
-       }
-      },
-      "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 101,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 3
-       }
-      },
-      "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 101,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 3
-       }
-      }
-     },
-     "0.01": {
-      "5.0": {
-       "hazardous": 235,
-       "caught_before_heating": 35,
-       "cold_soak": 0,
-       "window_84.27_only": 35,
+       "window_84.27_only": 72,
        "not_caught_verdicts_by_leak_value": {
         "skip_hs_invalid": 6
        }
       },
       "15.0": {
-       "hazardous": 235,
-       "caught_before_heating": 35,
+       "hazardous": 277,
+       "caught_before_heating": 36,
        "cold_soak": 0,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {
-        "skip_hs_drift": 6
-       }
-      },
-      "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 4
-       }
-      },
-      "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 4
-       }
-      },
-      "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 4
-       }
-      },
-      "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 136,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 3
-       }
-      }
-     },
-     "0.02": {
-      "5.0": {
-       "hazardous": 235,
-       "caught_before_heating": 0,
-       "cold_soak": 0,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "skip_hs_invalid": 7
-       }
-      },
-      "15.0": {
-       "hazardous": 235,
-       "caught_before_heating": 0,
-       "cold_soak": 0,
-       "window_84.27_only": 0,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
         "skip_hs_drift": 7
        }
       },
       "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 71,
-       "cold_soak": 71,
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 72,
+       "window_84.27_only": 36,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 5
+       }
+      },
+      "30.0": {
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 108,
+       "window_84.27_only": 36,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 4
+       }
+      },
+      "35.0": {
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 108,
+       "window_84.27_only": 36,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 4
+       }
+      },
+      "40.0": {
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 108,
+       "window_84.27_only": 36,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 4
+       }
+      }
+     },
+     "0.01": {
+      "5.0": {
+       "hazardous": 277,
+       "caught_before_heating": 36,
+       "cold_soak": 0,
+       "window_84.27_only": 36,
+       "not_caught_verdicts_by_leak_value": {
+        "skip_hs_invalid": 7
+       }
+      },
+      "15.0": {
+       "hazardous": 277,
+       "caught_before_heating": 36,
+       "cold_soak": 0,
+       "window_84.27_only": 36,
+       "not_caught_verdicts_by_leak_value": {
+        "skip_hs_drift": 7
+       }
+      },
+      "25.0": {
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
         "pass": 5
        }
       },
       "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 4
+        "pass": 5
        }
       },
       "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 5
+       }
+      },
+      "40.0": {
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 144,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
         "pass": 4
        }
-      },
-      "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
+      }
+     },
+     "0.02": {
+      "5.0": {
+       "hazardous": 277,
+       "caught_before_heating": 0,
+       "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 4
+        "skip_hs_invalid": 8
+       }
+      },
+      "15.0": {
+       "hazardous": 277,
+       "caught_before_heating": 0,
+       "cold_soak": 0,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "skip_hs_drift": 8
+       }
+      },
+      "25.0": {
+       "hazardous": 277,
+       "caught_before_heating": 72,
+       "cold_soak": 72,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 6
+       }
+      },
+      "30.0": {
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 5
+       }
+      },
+      "35.0": {
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 5
+       }
+      },
+      "40.0": {
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 5
        }
       }
      },
      "0.05": {
       "5.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_invalid": 7
+        "skip_hs_invalid": 8
        }
       },
       "15.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_drift": 7
+        "skip_hs_drift": 8
        }
       },
       "25.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 8
+       }
+      },
+      "30.0": {
+       "hazardous": 277,
+       "caught_before_heating": 36,
+       "cold_soak": 36,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
         "pass": 7
        }
       },
-      "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 35,
-       "cold_soak": 35,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 6
-       }
-      },
       "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 35,
-       "cold_soak": 35,
+       "hazardous": 277,
+       "caught_before_heating": 36,
+       "cold_soak": 36,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 6
+        "pass": 7
        }
       },
       "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 35,
-       "cold_soak": 35,
+       "hazardous": 277,
+       "caught_before_heating": 36,
+       "cold_soak": 36,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 6
+        "pass": 7
        }
       }
      },
      "0.1": {
       "5.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_invalid": 7
+        "skip_hs_invalid": 8
        }
       },
       "15.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_drift": 7
+        "skip_hs_drift": 8
        }
       },
       "25.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "30.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "35.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "40.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       }
      },
      "0.2": {
       "5.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_invalid": 7
+        "skip_hs_invalid": 8
        }
       },
       "15.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_drift": 7
+        "skip_hs_drift": 8
        }
       },
       "25.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "30.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "35.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "40.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       }
      }
@@ -3373,331 +3374,337 @@
     "nominal": {
      "independent": {
       "5.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 129,
-       "window_84.27_only": 71,
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 140,
+       "window_84.27_only": 72,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 1
+        "pass": 2
        }
       },
       "15.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 129,
-       "window_84.27_only": 71,
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 140,
+       "window_84.27_only": 72,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 1
+        "pass": 2
        }
       },
       "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 165,
-       "window_84.27_only": 35,
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 176,
+       "window_84.27_only": 36,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 2
+       }
+      },
+      "30.0": {
+       "hazardous": 277,
+       "caught_before_heating": 248,
+       "cold_soak": 212,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
         "pass": 1
        }
       },
-      "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 235,
-       "cold_soak": 200,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {}
-      },
       "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 235,
-       "cold_soak": 200,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {}
+       "hazardous": 277,
+       "caught_before_heating": 248,
+       "cold_soak": 212,
+       "window_84.27_only": 36,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 1
+       }
       },
       "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 235,
-       "cold_soak": 200,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {}
+       "hazardous": 277,
+       "caught_before_heating": 248,
+       "cold_soak": 212,
+       "window_84.27_only": 36,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 1
+       }
       }
      },
      "0.01": {
       "5.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 134,
-       "window_84.27_only": 35,
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 144,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 2
+        "pass": 3
        }
       },
       "15.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 134,
-       "window_84.27_only": 35,
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 144,
+       "window_84.27_only": 36,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 3
+       }
+      },
+      "25.0": {
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 176,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
         "pass": 2
        }
       },
-      "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 165,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 1
-       }
-      },
       "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 200,
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 212,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 1
+        "pass": 2
        }
       },
       "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 200,
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 212,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 1
+        "pass": 2
        }
       },
       "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 200,
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 212,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 1
+        "pass": 2
        }
       }
      },
      "0.02": {
       "5.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 101,
-       "window_84.27_only": 35,
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 108,
+       "window_84.27_only": 36,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 4
+       }
+      },
+      "15.0": {
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 180,
+       "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
         "pass": 3
        }
       },
-      "15.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 169,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 2
-       }
-      },
       "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 169,
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 180,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 2
+        "pass": 3
        }
       },
       "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 169,
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 180,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 3
+       }
+      },
+      "35.0": {
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 212,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
         "pass": 2
        }
       },
-      "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 200,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 1
-       }
-      },
       "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 200,
-       "cold_soak": 200,
+       "hazardous": 277,
+       "caught_before_heating": 212,
+       "cold_soak": 212,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 1
+        "pass": 2
        }
       }
      },
      "0.05": {
       "5.0": {
-       "hazardous": 235,
-       "caught_before_heating": 71,
-       "cold_soak": 71,
+       "hazardous": 277,
+       "caught_before_heating": 72,
+       "cold_soak": 72,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 6
+       }
+      },
+      "15.0": {
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
         "pass": 5
        }
       },
-      "15.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 4
-       }
-      },
       "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 4
+        "pass": 5
        }
       },
       "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 5
+       }
+      },
+      "35.0": {
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 144,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
         "pass": 4
        }
       },
-      "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 136,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 3
-       }
-      },
       "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 136,
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 144,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 3
+        "pass": 4
        }
       }
      },
      "0.1": {
       "5.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "15.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "25.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "30.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 8
+       }
+      },
+      "35.0": {
+       "hazardous": 277,
+       "caught_before_heating": 36,
+       "cold_soak": 36,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
         "pass": 7
        }
       },
-      "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 35,
-       "cold_soak": 35,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 6
-       }
-      },
       "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 35,
-       "cold_soak": 35,
+       "hazardous": 277,
+       "caught_before_heating": 36,
+       "cold_soak": 36,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 6
+        "pass": 7
        }
       }
      },
      "0.2": {
       "5.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "15.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "25.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "30.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "35.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "40.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       }
      }
@@ -3705,337 +3712,337 @@
     "miss": {
      "independent": {
       "5.0": {
-       "hazardous": 235,
-       "caught_before_heating": 71,
+       "hazardous": 277,
+       "caught_before_heating": 72,
        "cold_soak": 0,
-       "window_84.27_only": 71,
-       "not_caught_verdicts_by_leak_value": {
-        "skip_hs_invalid": 5
-       }
-      },
-      "15.0": {
-       "hazardous": 235,
-       "caught_before_heating": 35,
-       "cold_soak": 0,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {
-        "skip_hs_drift": 6
-       }
-      },
-      "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 101,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 3
-       }
-      },
-      "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 101,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 3
-       }
-      },
-      "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 134,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 2
-       }
-      },
-      "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 169,
-       "cold_soak": 134,
-       "window_84.27_only": 35,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 2
-       }
-      }
-     },
-     "0.01": {
-      "5.0": {
-       "hazardous": 235,
-       "caught_before_heating": 35,
-       "cold_soak": 0,
-       "window_84.27_only": 35,
+       "window_84.27_only": 72,
        "not_caught_verdicts_by_leak_value": {
         "skip_hs_invalid": 6
        }
       },
       "15.0": {
-       "hazardous": 235,
-       "caught_before_heating": 35,
+       "hazardous": 277,
+       "caught_before_heating": 36,
        "cold_soak": 0,
-       "window_84.27_only": 35,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_drift": 6
+        "skip_hs_drift": 7
        }
       },
       "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
-       "window_84.27_only": 0,
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 108,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
         "pass": 4
        }
       },
       "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 136,
-       "window_84.27_only": 0,
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 108,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 3
+        "pass": 4
        }
       },
       "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 136,
-       "window_84.27_only": 0,
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 144,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
         "pass": 3
        }
       },
       "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 136,
-       "window_84.27_only": 0,
+       "hazardous": 277,
+       "caught_before_heating": 180,
+       "cold_soak": 144,
+       "window_84.27_only": 36,
        "not_caught_verdicts_by_leak_value": {
         "pass": 3
+       }
+      }
+     },
+     "0.01": {
+      "5.0": {
+       "hazardous": 277,
+       "caught_before_heating": 36,
+       "cold_soak": 0,
+       "window_84.27_only": 36,
+       "not_caught_verdicts_by_leak_value": {
+        "skip_hs_invalid": 7
+       }
+      },
+      "15.0": {
+       "hazardous": 277,
+       "caught_before_heating": 36,
+       "cold_soak": 0,
+       "window_84.27_only": 36,
+       "not_caught_verdicts_by_leak_value": {
+        "skip_hs_drift": 7
+       }
+      },
+      "25.0": {
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 5
+       }
+      },
+      "30.0": {
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 144,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 4
+       }
+      },
+      "35.0": {
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 144,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 4
+       }
+      },
+      "40.0": {
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 144,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 4
        }
       }
      },
      "0.02": {
       "5.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_invalid": 7
+        "skip_hs_invalid": 8
        }
       },
       "15.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_drift": 7
+        "skip_hs_drift": 8
        }
       },
       "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 4
+        "pass": 5
        }
       },
       "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 107,
-       "cold_soak": 107,
+       "hazardous": 277,
+       "caught_before_heating": 108,
+       "cold_soak": 108,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 5
+       }
+      },
+      "35.0": {
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 144,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
         "pass": 4
        }
       },
-      "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 136,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 3
-       }
-      },
       "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 136,
-       "cold_soak": 136,
+       "hazardous": 277,
+       "caught_before_heating": 144,
+       "cold_soak": 144,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 3
+        "pass": 4
        }
       }
      },
      "0.05": {
       "5.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_invalid": 7
+        "skip_hs_invalid": 8
        }
       },
       "15.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_drift": 7
+        "skip_hs_drift": 8
        }
       },
       "25.0": {
-       "hazardous": 235,
-       "caught_before_heating": 35,
-       "cold_soak": 35,
+       "hazardous": 277,
+       "caught_before_heating": 36,
+       "cold_soak": 36,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 6
+        "pass": 7
        }
       },
       "30.0": {
-       "hazardous": 235,
-       "caught_before_heating": 35,
-       "cold_soak": 35,
+       "hazardous": 277,
+       "caught_before_heating": 36,
+       "cold_soak": 36,
+       "window_84.27_only": 0,
+       "not_caught_verdicts_by_leak_value": {
+        "pass": 7
+       }
+      },
+      "35.0": {
+       "hazardous": 277,
+       "caught_before_heating": 72,
+       "cold_soak": 72,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
         "pass": 6
        }
       },
-      "35.0": {
-       "hazardous": 235,
-       "caught_before_heating": 71,
-       "cold_soak": 71,
-       "window_84.27_only": 0,
-       "not_caught_verdicts_by_leak_value": {
-        "pass": 5
-       }
-      },
       "40.0": {
-       "hazardous": 235,
-       "caught_before_heating": 71,
-       "cold_soak": 71,
+       "hazardous": 277,
+       "caught_before_heating": 72,
+       "cold_soak": 72,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 5
+        "pass": 6
        }
       }
      },
      "0.1": {
       "5.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_invalid": 7
+        "skip_hs_invalid": 8
        }
       },
       "15.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_drift": 7
+        "skip_hs_drift": 8
        }
       },
       "25.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "30.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "35.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "40.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       }
      },
      "0.2": {
       "5.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_invalid": 7
+        "skip_hs_invalid": 8
        }
       },
       "15.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "skip_hs_drift": 7
+        "skip_hs_drift": 8
        }
       },
       "25.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "30.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "35.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       },
       "40.0": {
-       "hazardous": 235,
+       "hazardous": 277,
        "caught_before_heating": 0,
        "cold_soak": 0,
        "window_84.27_only": 0,
        "not_caught_verdicts_by_leak_value": {
-        "pass": 7
+        "pass": 8
        }
       }
      }
@@ -4106,6 +4113,15 @@
     "pt_C": -9.565,
     "caught_by": null
    },
+   "rail_fallback/nominal/independent/5.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 10.58,
+    "hs_state": "valid",
+    "hs_C": 4.714,
+    "pt_C": -6.048,
+    "caught_by": null
+   },
    "rail_fallback/nominal/independent/15.0/300.0": {
     "R_at_ambient_ohm": 300.0,
     "verdict": "skip_pt_invalid",
@@ -4167,6 +4183,15 @@
     "hs_state": "valid",
     "hs_C": 14.809,
     "pt_C": -0.715,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/independent/15.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 11.618,
+    "hs_state": "valid",
+    "hs_C": 14.809,
+    "pt_C": 3.081,
     "caught_by": null
    },
    "rail_fallback/nominal/independent/25.0/300.0": {
@@ -4232,6 +4257,15 @@
     "pt_C": 8.126,
     "caught_by": null
    },
+   "rail_fallback/nominal/independent/25.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 12.566,
+    "hs_state": "valid",
+    "hs_C": 24.873,
+    "pt_C": 12.167,
+    "caught_by": null
+   },
    "rail_fallback/nominal/independent/30.0/300.0": {
     "R_at_ambient_ohm": 300.0,
     "verdict": "skip_pt_invalid",
@@ -4293,6 +4327,15 @@
     "hs_state": "valid",
     "hs_C": 29.895,
     "pt_C": 12.504,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/independent/30.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 13.081,
+    "hs_state": "valid",
+    "hs_C": 29.895,
+    "pt_C": 16.719,
     "caught_by": null
    },
    "rail_fallback/nominal/independent/35.0/300.0": {
@@ -4358,6 +4401,15 @@
     "pt_C": 16.888,
     "caught_by": null
    },
+   "rail_fallback/nominal/independent/35.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 13.59,
+    "hs_state": "valid",
+    "hs_C": 34.91,
+    "pt_C": 21.244,
+    "caught_by": null
+   },
    "rail_fallback/nominal/independent/40.0/300.0": {
     "R_at_ambient_ohm": 300.0,
     "verdict": "skip_pt_invalid",
@@ -4419,6 +4471,15 @@
     "hs_state": "valid",
     "hs_C": 39.921,
     "pt_C": 21.278,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/independent/40.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 14.072,
+    "hs_state": "valid",
+    "hs_C": 39.921,
+    "pt_C": 25.775,
     "caught_by": null
    },
    "rail_fallback/nominal/0.01/5.0/300.0": {
@@ -4484,6 +4545,15 @@
     "pt_C": -6.886,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.01/5.0/2319.9": {
+    "R_at_ambient_ohm": 2875.6,
+    "verdict": "pass",
+    "gap_K": 8.535,
+    "hs_state": "valid",
+    "hs_C": 4.714,
+    "pt_C": -4.003,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.01/15.0/300.0": {
     "R_at_ambient_ohm": 366.5,
     "verdict": "skip_pt_invalid",
@@ -4545,6 +4615,15 @@
     "hs_state": "valid",
     "hs_C": 14.809,
     "pt_C": 2.006,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.01/15.0/2319.9": {
+    "R_at_ambient_ohm": 2834.3,
+    "verdict": "pass",
+    "gap_K": 9.534,
+    "hs_state": "valid",
+    "hs_C": 14.809,
+    "pt_C": 5.132,
     "caught_by": null
    },
    "rail_fallback/nominal/0.01/25.0/300.0": {
@@ -4610,6 +4689,15 @@
     "pt_C": 10.82,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.01/25.0/2319.9": {
+    "R_at_ambient_ohm": 2796.2,
+    "verdict": "pass",
+    "gap_K": 10.476,
+    "hs_state": "valid",
+    "hs_C": 24.873,
+    "pt_C": 14.257,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.01/30.0/300.0": {
     "R_at_ambient_ohm": 359.3,
     "verdict": "leak",
@@ -4671,6 +4759,15 @@
     "hs_state": "valid",
     "hs_C": 29.895,
     "pt_C": 15.235,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.01/30.0/2319.9": {
+    "R_at_ambient_ohm": 2778.3,
+    "verdict": "pass",
+    "gap_K": 10.988,
+    "hs_state": "valid",
+    "hs_C": 29.895,
+    "pt_C": 18.812,
     "caught_by": null
    },
    "rail_fallback/nominal/0.01/35.0/300.0": {
@@ -4736,6 +4833,15 @@
     "pt_C": 19.623,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.01/35.0/2319.9": {
+    "R_at_ambient_ohm": 2761.1,
+    "verdict": "pass",
+    "gap_K": 11.495,
+    "hs_state": "valid",
+    "hs_C": 34.91,
+    "pt_C": 23.34,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.01/40.0/300.0": {
     "R_at_ambient_ohm": 354.9,
     "verdict": "leak",
@@ -4797,6 +4903,15 @@
     "hs_state": "valid",
     "hs_C": 39.921,
     "pt_C": 23.982,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.01/40.0/2319.9": {
+    "R_at_ambient_ohm": 2744.6,
+    "verdict": "pass",
+    "gap_K": 11.974,
+    "hs_state": "valid",
+    "hs_C": 39.921,
+    "pt_C": 27.873,
     "caught_by": null
    },
    "rail_fallback/nominal/0.02/5.0/300.0": {
@@ -4862,6 +4977,15 @@
     "pt_C": -4.707,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.02/5.0/2319.9": {
+    "R_at_ambient_ohm": 3564.4,
+    "verdict": "pass",
+    "gap_K": 6.857,
+    "hs_state": "valid",
+    "hs_C": 4.714,
+    "pt_C": -2.325,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.02/15.0/300.0": {
     "R_at_ambient_ohm": 447.8,
     "verdict": "leak",
@@ -4923,6 +5047,15 @@
     "hs_state": "valid",
     "hs_C": 14.809,
     "pt_C": 4.257,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.02/15.0/2319.9": {
+    "R_at_ambient_ohm": 3462.7,
+    "verdict": "pass",
+    "gap_K": 7.819,
+    "hs_state": "valid",
+    "hs_C": 14.809,
+    "pt_C": 6.881,
     "caught_by": null
    },
    "rail_fallback/nominal/0.02/25.0/300.0": {
@@ -4988,6 +5121,15 @@
     "pt_C": 13.111,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.02/25.0/2319.9": {
+    "R_at_ambient_ohm": 3370.4,
+    "verdict": "pass",
+    "gap_K": 8.722,
+    "hs_state": "valid",
+    "hs_C": 24.873,
+    "pt_C": 16.011,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.02/30.0/300.0": {
     "R_at_ambient_ohm": 430.3,
     "verdict": "leak",
@@ -5049,6 +5191,15 @@
     "hs_state": "valid",
     "hs_C": 29.895,
     "pt_C": 17.563,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.02/30.0/2319.9": {
+    "R_at_ambient_ohm": 3327.4,
+    "verdict": "pass",
+    "gap_K": 9.198,
+    "hs_state": "valid",
+    "hs_C": 29.895,
+    "pt_C": 20.568,
     "caught_by": null
    },
    "rail_fallback/nominal/0.02/35.0/300.0": {
@@ -5114,6 +5265,15 @@
     "pt_C": 21.954,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.02/35.0/2319.9": {
+    "R_at_ambient_ohm": 3286.3,
+    "verdict": "pass",
+    "gap_K": 9.702,
+    "hs_state": "valid",
+    "hs_C": 34.91,
+    "pt_C": 25.132,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.02/40.0/300.0": {
     "R_at_ambient_ohm": 419.9,
     "verdict": "leak",
@@ -5175,6 +5335,15 @@
     "hs_state": "valid",
     "hs_C": 39.921,
     "pt_C": 26.35,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.02/40.0/2319.9": {
+    "R_at_ambient_ohm": 3247.0,
+    "verdict": "pass",
+    "gap_K": 10.179,
+    "hs_state": "valid",
+    "hs_C": 39.921,
+    "pt_C": 29.668,
     "caught_by": null
    },
    "rail_fallback/nominal/0.05/5.0/300.0": {
@@ -5240,6 +5409,15 @@
     "pt_C": -0.211,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.05/5.0/2319.9": {
+    "R_at_ambient_ohm": 6788.3,
+    "verdict": "pass",
+    "gap_K": 3.467,
+    "hs_state": "valid",
+    "hs_C": 4.714,
+    "pt_C": 1.065,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.05/15.0/300.0": {
     "R_at_ambient_ohm": 816.5,
     "verdict": "leak",
@@ -5301,6 +5479,15 @@
     "hs_state": "valid",
     "hs_C": 14.809,
     "pt_C": 8.967,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.05/15.0/2319.9": {
+    "R_at_ambient_ohm": 6314.2,
+    "verdict": "pass",
+    "gap_K": 4.25,
+    "hs_state": "valid",
+    "hs_C": 14.809,
+    "pt_C": 10.449,
     "caught_by": null
    },
    "rail_fallback/nominal/0.05/25.0/300.0": {
@@ -5366,6 +5553,15 @@
     "pt_C": 18.069,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.05/25.0/2319.9": {
+    "R_at_ambient_ohm": 5901.8,
+    "verdict": "pass",
+    "gap_K": 4.975,
+    "hs_state": "valid",
+    "hs_C": 24.873,
+    "pt_C": 19.758,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.05/30.0/300.0": {
     "R_at_ambient_ohm": 739.1,
     "verdict": "leak",
@@ -5427,6 +5623,15 @@
     "hs_state": "valid",
     "hs_C": 29.895,
     "pt_C": 22.596,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.05/30.0/2319.9": {
+    "R_at_ambient_ohm": 5715.4,
+    "verdict": "pass",
+    "gap_K": 5.378,
+    "hs_state": "valid",
+    "hs_C": 29.895,
+    "pt_C": 24.422,
     "caught_by": null
    },
    "rail_fallback/nominal/0.05/35.0/300.0": {
@@ -5492,6 +5697,15 @@
     "pt_C": 27.095,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.05/35.0/2319.9": {
+    "R_at_ambient_ohm": 5540.6,
+    "verdict": "pass",
+    "gap_K": 5.776,
+    "hs_state": "valid",
+    "hs_C": 34.91,
+    "pt_C": 29.025,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.05/40.0/300.0": {
     "R_at_ambient_ohm": 695.3,
     "verdict": "leak",
@@ -5553,6 +5767,15 @@
     "hs_state": "valid",
     "hs_C": 39.921,
     "pt_C": 31.566,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.05/40.0/2319.9": {
+    "R_at_ambient_ohm": 5376.6,
+    "verdict": "pass",
+    "gap_K": 6.18,
+    "hs_state": "valid",
+    "hs_C": 39.921,
+    "pt_C": 33.634,
     "caught_by": null
    },
    "rail_fallback/nominal/0.1/5.0/300.0": {
@@ -5618,6 +5841,15 @@
     "pt_C": 3.148,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.1/5.0/2319.9": {
+    "R_at_ambient_ohm": 19863.2,
+    "verdict": "pass",
+    "gap_K": 0.913,
+    "hs_state": "valid",
+    "hs_C": 4.714,
+    "pt_C": 3.585,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.1/15.0/300.0": {
     "R_at_ambient_ohm": 2222.4,
     "verdict": "pass",
@@ -5679,6 +5911,15 @@
     "hs_state": "valid",
     "hs_C": 14.809,
     "pt_C": 12.706,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.1/15.0/2319.9": {
+    "R_at_ambient_ohm": 17185.8,
+    "verdict": "pass",
+    "gap_K": 1.42,
+    "hs_state": "valid",
+    "hs_C": 14.809,
+    "pt_C": 13.246,
     "caught_by": null
    },
    "rail_fallback/nominal/0.1/25.0/300.0": {
@@ -5744,6 +5985,15 @@
     "pt_C": 22.19,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.1/25.0/2319.9": {
+    "R_at_ambient_ohm": 15014.4,
+    "verdict": "pass",
+    "gap_K": 1.866,
+    "hs_state": "valid",
+    "hs_C": 24.873,
+    "pt_C": 22.866,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.1/30.0/300.0": {
     "R_at_ambient_ohm": 1820.9,
     "verdict": "pass",
@@ -5805,6 +6055,15 @@
     "hs_state": "valid",
     "hs_C": 29.895,
     "pt_C": 26.892,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.1/30.0/2319.9": {
+    "R_at_ambient_ohm": 14080.8,
+    "verdict": "pass",
+    "gap_K": 2.13,
+    "hs_state": "valid",
+    "hs_C": 29.895,
+    "pt_C": 27.67,
     "caught_by": null
    },
    "rail_fallback/nominal/0.1/35.0/300.0": {
@@ -5870,6 +6129,15 @@
     "pt_C": 31.599,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.1/35.0/2319.9": {
+    "R_at_ambient_ohm": 13232.8,
+    "verdict": "pass",
+    "gap_K": 2.387,
+    "hs_state": "valid",
+    "hs_C": 34.91,
+    "pt_C": 32.413,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.1/40.0/300.0": {
     "R_at_ambient_ohm": 1611.4,
     "verdict": "leak",
@@ -5931,6 +6199,15 @@
     "hs_state": "valid",
     "hs_C": 39.921,
     "pt_C": 36.246,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.1/40.0/2319.9": {
+    "R_at_ambient_ohm": 12460.6,
+    "verdict": "pass",
+    "gap_K": 2.651,
+    "hs_state": "valid",
+    "hs_C": 39.921,
+    "pt_C": 37.163,
     "caught_by": null
    },
    "rail_fallback/nominal/0.2/5.0/300.0": {
@@ -5996,6 +6273,15 @@
     "pt_C": 4.728,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.2/5.0/2319.9": {
+    "R_at_ambient_ohm": 170070.6,
+    "verdict": "pass",
+    "gap_K": -0.264,
+    "hs_state": "valid",
+    "hs_C": 4.714,
+    "pt_C": 4.762,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.2/15.0/300.0": {
     "R_at_ambient_ohm": 16463.5,
     "verdict": "pass",
@@ -6057,6 +6343,15 @@
     "hs_state": "valid",
     "hs_C": 14.809,
     "pt_C": 14.628,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.2/15.0/2319.9": {
+    "R_at_ambient_ohm": 127311.9,
+    "verdict": "pass",
+    "gap_K": -0.03,
+    "hs_state": "valid",
+    "hs_C": 14.809,
+    "pt_C": 14.695,
     "caught_by": null
    },
    "rail_fallback/nominal/0.2/25.0/300.0": {
@@ -6122,6 +6417,15 @@
     "pt_C": 24.489,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.2/25.0/2319.9": {
+    "R_at_ambient_ohm": 97172.8,
+    "verdict": "pass",
+    "gap_K": 0.142,
+    "hs_state": "valid",
+    "hs_C": 24.873,
+    "pt_C": 24.591,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.2/30.0/300.0": {
     "R_at_ambient_ohm": 11051.9,
     "verdict": "pass",
@@ -6183,6 +6487,15 @@
     "hs_state": "valid",
     "hs_C": 29.895,
     "pt_C": 29.431,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.2/30.0/2319.9": {
+    "R_at_ambient_ohm": 85464.4,
+    "verdict": "pass",
+    "gap_K": 0.234,
+    "hs_state": "valid",
+    "hs_C": 29.895,
+    "pt_C": 29.567,
     "caught_by": null
    },
    "rail_fallback/nominal/0.2/35.0/300.0": {
@@ -6248,6 +6561,15 @@
     "pt_C": 34.346,
     "caught_by": null
    },
+   "rail_fallback/nominal/0.2/35.0/2319.9": {
+    "R_at_ambient_ohm": 75480.5,
+    "verdict": "pass",
+    "gap_K": 0.352,
+    "hs_state": "valid",
+    "hs_C": 34.91,
+    "pt_C": 34.482,
+    "caught_by": null
+   },
    "rail_fallback/nominal/0.2/40.0/300.0": {
     "R_at_ambient_ohm": 8654.9,
     "verdict": "pass",
@@ -6309,6 +6631,15 @@
     "hs_state": "valid",
     "hs_C": 39.921,
     "pt_C": 39.234,
+    "caught_by": null
+   },
+   "rail_fallback/nominal/0.2/40.0/2319.9": {
+    "R_at_ambient_ohm": 66928.0,
+    "verdict": "pass",
+    "gap_K": 0.409,
+    "hs_state": "valid",
+    "hs_C": 39.921,
+    "pt_C": 39.404,
     "caught_by": null
    },
    "rail_fallback/miss/independent/5.0/300.0": {
@@ -6374,6 +6705,15 @@
     "pt_C": -6.282,
     "caught_by": null
    },
+   "rail_fallback/miss/independent/5.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "skip_hs_invalid",
+    "gap_K": null,
+    "hs_state": "saturated",
+    "hs_C": 1.789,
+    "pt_C": -2.695,
+    "caught_by": null
+   },
    "rail_fallback/miss/independent/15.0/300.0": {
     "R_at_ambient_ohm": 300.0,
     "verdict": "skip_pt_invalid",
@@ -6435,6 +6775,15 @@
     "hs_state": "valid",
     "hs_C": -14.698,
     "pt_C": 2.644,
+    "caught_by": null
+   },
+   "rail_fallback/miss/independent/15.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "skip_hs_drift",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -14.698,
+    "pt_C": 6.511,
     "caught_by": null
    },
    "rail_fallback/miss/independent/25.0/300.0": {
@@ -6500,6 +6849,15 @@
     "pt_C": 11.527,
     "caught_by": null
    },
+   "rail_fallback/miss/independent/25.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": -7.346,
+    "hs_state": "valid",
+    "hs_C": 8.502,
+    "pt_C": 15.707,
+    "caught_by": null
+   },
    "rail_fallback/miss/independent/30.0/300.0": {
     "R_at_ambient_ohm": 300.0,
     "verdict": "skip_pt_invalid",
@@ -6561,6 +6919,15 @@
     "hs_state": "valid",
     "hs_C": 16.405,
     "pt_C": 15.977,
+    "caught_by": null
+   },
+   "rail_fallback/miss/independent/30.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": -3.987,
+    "hs_state": "valid",
+    "hs_C": 16.405,
+    "pt_C": 20.264,
     "caught_by": null
    },
    "rail_fallback/miss/independent/35.0/300.0": {
@@ -6626,6 +6993,15 @@
     "pt_C": 20.366,
     "caught_by": null
    },
+   "rail_fallback/miss/independent/35.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": -1.613,
+    "hs_state": "valid",
+    "hs_C": 23.362,
+    "pt_C": 24.828,
+    "caught_by": null
+   },
    "rail_fallback/miss/independent/40.0/300.0": {
     "R_at_ambient_ohm": 300.0,
     "verdict": "skip_pt_invalid",
@@ -6687,6 +7063,15 @@
     "hs_state": "valid",
     "hs_C": 29.733,
     "pt_C": 24.794,
+    "caught_by": null
+   },
+   "rail_fallback/miss/independent/40.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 0.242,
+    "hs_state": "valid",
+    "hs_C": 29.733,
+    "pt_C": 29.397,
     "caught_by": null
    },
    "rail_fallback/miss/0.01/5.0/300.0": {
@@ -6752,6 +7137,15 @@
     "pt_C": -3.567,
     "caught_by": null
    },
+   "rail_fallback/miss/0.01/5.0/2319.9": {
+    "R_at_ambient_ohm": 2875.6,
+    "verdict": "skip_hs_invalid",
+    "gap_K": null,
+    "hs_state": "saturated",
+    "hs_C": 1.789,
+    "pt_C": -0.58,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.01/15.0/300.0": {
     "R_at_ambient_ohm": 366.5,
     "verdict": "skip_pt_invalid",
@@ -6813,6 +7207,15 @@
     "hs_state": "valid",
     "hs_C": -14.698,
     "pt_C": 5.401,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.01/15.0/2319.9": {
+    "R_at_ambient_ohm": 2834.3,
+    "verdict": "skip_hs_drift",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -14.698,
+    "pt_C": 8.631,
     "caught_by": null
    },
    "rail_fallback/miss/0.01/25.0/300.0": {
@@ -6878,6 +7281,15 @@
     "pt_C": 14.325,
     "caught_by": null
    },
+   "rail_fallback/miss/0.01/25.0/2319.9": {
+    "R_at_ambient_ohm": 2796.2,
+    "verdict": "pass",
+    "gap_K": -9.472,
+    "hs_state": "valid",
+    "hs_C": 8.502,
+    "pt_C": 17.833,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.01/30.0/300.0": {
     "R_at_ambient_ohm": 359.3,
     "verdict": "leak",
@@ -6939,6 +7351,15 @@
     "hs_state": "valid",
     "hs_C": 16.405,
     "pt_C": 18.745,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.01/30.0/2319.9": {
+    "R_at_ambient_ohm": 2778.3,
+    "verdict": "pass",
+    "gap_K": -6.15,
+    "hs_state": "valid",
+    "hs_C": 16.405,
+    "pt_C": 22.427,
     "caught_by": null
    },
    "rail_fallback/miss/0.01/35.0/300.0": {
@@ -7004,6 +7425,15 @@
     "pt_C": 23.171,
     "caught_by": null
    },
+   "rail_fallback/miss/0.01/35.0/2319.9": {
+    "R_at_ambient_ohm": 2761.1,
+    "verdict": "pass",
+    "gap_K": -3.744,
+    "hs_state": "valid",
+    "hs_C": 23.362,
+    "pt_C": 26.993,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.01/40.0/300.0": {
     "R_at_ambient_ohm": 354.9,
     "verdict": "leak",
@@ -7065,6 +7495,15 @@
     "hs_state": "valid",
     "hs_C": 29.733,
     "pt_C": 27.569,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.01/40.0/2319.9": {
+    "R_at_ambient_ohm": 2744.6,
+    "verdict": "pass",
+    "gap_K": -1.927,
+    "hs_state": "valid",
+    "hs_C": 29.733,
+    "pt_C": 31.532,
     "caught_by": null
    },
    "rail_fallback/miss/0.02/5.0/300.0": {
@@ -7130,6 +7569,15 @@
     "pt_C": -1.285,
     "caught_by": null
    },
+   "rail_fallback/miss/0.02/5.0/2319.9": {
+    "R_at_ambient_ohm": 3564.4,
+    "verdict": "skip_hs_invalid",
+    "gap_K": null,
+    "hs_state": "saturated",
+    "hs_C": 1.789,
+    "pt_C": 1.132,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.02/15.0/300.0": {
     "R_at_ambient_ohm": 447.8,
     "verdict": "skip_hs_drift",
@@ -7191,6 +7639,15 @@
     "hs_state": "valid",
     "hs_C": -14.698,
     "pt_C": 7.722,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.02/15.0/2319.9": {
+    "R_at_ambient_ohm": 3462.7,
+    "verdict": "skip_hs_drift",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -14.698,
+    "pt_C": 10.415,
     "caught_by": null
    },
    "rail_fallback/miss/0.02/25.0/300.0": {
@@ -7256,6 +7713,15 @@
     "pt_C": 16.652,
     "caught_by": null
    },
+   "rail_fallback/miss/0.02/25.0/2319.9": {
+    "R_at_ambient_ohm": 3370.4,
+    "verdict": "pass",
+    "gap_K": -11.296,
+    "hs_state": "valid",
+    "hs_C": 8.502,
+    "pt_C": 19.623,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.02/30.0/300.0": {
     "R_at_ambient_ohm": 430.3,
     "verdict": "leak",
@@ -7317,6 +7783,15 @@
     "hs_state": "valid",
     "hs_C": 16.405,
     "pt_C": 21.109,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.02/30.0/2319.9": {
+    "R_at_ambient_ohm": 3327.4,
+    "verdict": "pass",
+    "gap_K": -7.975,
+    "hs_state": "valid",
+    "hs_C": 16.405,
+    "pt_C": 24.219,
     "caught_by": null
    },
    "rail_fallback/miss/0.02/35.0/300.0": {
@@ -7382,6 +7857,15 @@
     "pt_C": 25.572,
     "caught_by": null
    },
+   "rail_fallback/miss/0.02/35.0/2319.9": {
+    "R_at_ambient_ohm": 3286.3,
+    "verdict": "pass",
+    "gap_K": -5.573,
+    "hs_state": "valid",
+    "hs_C": 23.362,
+    "pt_C": 28.821,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.02/40.0/300.0": {
     "R_at_ambient_ohm": 419.9,
     "verdict": "leak",
@@ -7443,6 +7927,15 @@
     "hs_state": "valid",
     "hs_C": 29.733,
     "pt_C": 29.973,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.02/40.0/2319.9": {
+    "R_at_ambient_ohm": 3247.0,
+    "verdict": "pass",
+    "gap_K": -3.758,
+    "hs_state": "valid",
+    "hs_C": 29.733,
+    "pt_C": 33.396,
     "caught_by": null
    },
    "rail_fallback/miss/0.05/5.0/300.0": {
@@ -7508,6 +8001,15 @@
     "pt_C": 3.283,
     "caught_by": null
    },
+   "rail_fallback/miss/0.05/5.0/2319.9": {
+    "R_at_ambient_ohm": 6788.3,
+    "verdict": "skip_hs_invalid",
+    "gap_K": null,
+    "hs_state": "saturated",
+    "hs_C": 1.789,
+    "pt_C": 4.627,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.05/15.0/300.0": {
     "R_at_ambient_ohm": 816.5,
     "verdict": "skip_hs_drift",
@@ -7569,6 +8071,15 @@
     "hs_state": "valid",
     "hs_C": -14.698,
     "pt_C": 12.538,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.05/15.0/2319.9": {
+    "R_at_ambient_ohm": 6314.2,
+    "verdict": "skip_hs_drift",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -14.698,
+    "pt_C": 14.089,
     "caught_by": null
    },
    "rail_fallback/miss/0.05/25.0/300.0": {
@@ -7634,6 +8145,15 @@
     "pt_C": 21.717,
     "caught_by": null
    },
+   "rail_fallback/miss/0.05/25.0/2319.9": {
+    "R_at_ambient_ohm": 5901.8,
+    "verdict": "pass",
+    "gap_K": -15.114,
+    "hs_state": "valid",
+    "hs_C": 8.502,
+    "pt_C": 23.475,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.05/30.0/300.0": {
     "R_at_ambient_ohm": 739.1,
     "verdict": "leak",
@@ -7695,6 +8215,15 @@
     "hs_state": "valid",
     "hs_C": 16.405,
     "pt_C": 26.282,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.05/30.0/2319.9": {
+    "R_at_ambient_ohm": 5715.4,
+    "verdict": "pass",
+    "gap_K": -11.901,
+    "hs_state": "valid",
+    "hs_C": 16.405,
+    "pt_C": 28.144,
     "caught_by": null
    },
    "rail_fallback/miss/0.05/35.0/300.0": {
@@ -7760,6 +8289,15 @@
     "pt_C": 30.82,
     "caught_by": null
    },
+   "rail_fallback/miss/0.05/35.0/2319.9": {
+    "R_at_ambient_ohm": 5540.6,
+    "verdict": "pass",
+    "gap_K": -9.571,
+    "hs_state": "valid",
+    "hs_C": 23.362,
+    "pt_C": 32.82,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.05/40.0/300.0": {
     "R_at_ambient_ohm": 695.3,
     "verdict": "leak",
@@ -7821,6 +8359,15 @@
     "hs_state": "valid",
     "hs_C": 29.733,
     "pt_C": 35.33,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.05/40.0/2319.9": {
+    "R_at_ambient_ohm": 5376.6,
+    "verdict": "pass",
+    "gap_K": -7.829,
+    "hs_state": "valid",
+    "hs_C": 29.733,
+    "pt_C": 37.468,
     "caught_by": null
    },
    "rail_fallback/miss/0.1/5.0/300.0": {
@@ -7886,6 +8433,15 @@
     "pt_C": 6.746,
     "caught_by": null
    },
+   "rail_fallback/miss/0.1/5.0/2319.9": {
+    "R_at_ambient_ohm": 19863.2,
+    "verdict": "skip_hs_invalid",
+    "gap_K": null,
+    "hs_state": "saturated",
+    "hs_C": 1.789,
+    "pt_C": 7.217,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.1/15.0/300.0": {
     "R_at_ambient_ohm": 2222.4,
     "verdict": "skip_hs_drift",
@@ -7947,6 +8503,15 @@
     "hs_state": "valid",
     "hs_C": -14.698,
     "pt_C": 16.382,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.1/15.0/2319.9": {
+    "R_at_ambient_ohm": 17185.8,
+    "verdict": "skip_hs_drift",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -14.698,
+    "pt_C": 16.956,
     "caught_by": null
    },
    "rail_fallback/miss/0.1/25.0/300.0": {
@@ -8012,6 +8577,15 @@
     "pt_C": 25.944,
     "caught_by": null
    },
+   "rail_fallback/miss/0.1/25.0/2319.9": {
+    "R_at_ambient_ohm": 15014.4,
+    "verdict": "pass",
+    "gap_K": -18.328,
+    "hs_state": "valid",
+    "hs_C": 8.502,
+    "pt_C": 26.655,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.1/30.0/300.0": {
     "R_at_ambient_ohm": 1820.9,
     "verdict": "pass",
@@ -8073,6 +8647,15 @@
     "hs_state": "valid",
     "hs_C": 16.405,
     "pt_C": 30.718,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.1/30.0/2319.9": {
+    "R_at_ambient_ohm": 14080.8,
+    "verdict": "pass",
+    "gap_K": -15.221,
+    "hs_state": "valid",
+    "hs_C": 16.405,
+    "pt_C": 31.498,
     "caught_by": null
    },
    "rail_fallback/miss/0.1/35.0/300.0": {
@@ -8138,6 +8721,15 @@
     "pt_C": 35.432,
     "caught_by": null
    },
+   "rail_fallback/miss/0.1/35.0/2319.9": {
+    "R_at_ambient_ohm": 13232.8,
+    "verdict": "pass",
+    "gap_K": -13.065,
+    "hs_state": "valid",
+    "hs_C": 23.362,
+    "pt_C": 36.314,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.1/40.0/300.0": {
     "R_at_ambient_ohm": 1611.4,
     "verdict": "pass",
@@ -8199,6 +8791,15 @@
     "hs_state": "valid",
     "hs_C": 29.733,
     "pt_C": 40.151,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.1/40.0/2319.9": {
+    "R_at_ambient_ohm": 12460.6,
+    "verdict": "pass",
+    "gap_K": -11.464,
+    "hs_state": "valid",
+    "hs_C": 29.733,
+    "pt_C": 41.103,
     "caught_by": null
    },
    "rail_fallback/miss/0.2/5.0/300.0": {
@@ -8264,6 +8865,15 @@
     "pt_C": 8.361,
     "caught_by": null
    },
+   "rail_fallback/miss/0.2/5.0/2319.9": {
+    "R_at_ambient_ohm": 170070.6,
+    "verdict": "skip_hs_invalid",
+    "gap_K": null,
+    "hs_state": "saturated",
+    "hs_C": 1.789,
+    "pt_C": 8.429,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.2/15.0/300.0": {
     "R_at_ambient_ohm": 16463.5,
     "verdict": "skip_hs_drift",
@@ -8325,6 +8935,15 @@
     "hs_state": "valid",
     "hs_C": -14.698,
     "pt_C": 18.373,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.2/15.0/2319.9": {
+    "R_at_ambient_ohm": 127311.9,
+    "verdict": "skip_hs_drift",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -14.698,
+    "pt_C": 18.441,
     "caught_by": null
    },
    "rail_fallback/miss/0.2/25.0/300.0": {
@@ -8390,6 +9009,15 @@
     "pt_C": 28.347,
     "caught_by": null
    },
+   "rail_fallback/miss/0.2/25.0/2319.9": {
+    "R_at_ambient_ohm": 97172.8,
+    "verdict": "pass",
+    "gap_K": -20.088,
+    "hs_state": "valid",
+    "hs_C": 8.502,
+    "pt_C": 28.449,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.2/30.0/300.0": {
     "R_at_ambient_ohm": 11051.9,
     "verdict": "pass",
@@ -8451,6 +9079,15 @@
     "hs_state": "valid",
     "hs_C": 16.405,
     "pt_C": 33.295,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.2/30.0/2319.9": {
+    "R_at_ambient_ohm": 85464.4,
+    "verdict": "pass",
+    "gap_K": -17.153,
+    "hs_state": "valid",
+    "hs_C": 16.405,
+    "pt_C": 33.43,
     "caught_by": null
    },
    "rail_fallback/miss/0.2/35.0/300.0": {
@@ -8516,6 +9153,15 @@
     "pt_C": 38.249,
     "caught_by": null
    },
+   "rail_fallback/miss/0.2/35.0/2319.9": {
+    "R_at_ambient_ohm": 75480.5,
+    "verdict": "pass",
+    "gap_K": -15.17,
+    "hs_state": "valid",
+    "hs_C": 23.362,
+    "pt_C": 38.419,
+    "caught_by": null
+   },
    "rail_fallback/miss/0.2/40.0/300.0": {
     "R_at_ambient_ohm": 8654.9,
     "verdict": "pass",
@@ -8577,6 +9223,15 @@
     "hs_state": "valid",
     "hs_C": 29.733,
     "pt_C": 43.211,
+    "caught_by": null
+   },
+   "rail_fallback/miss/0.2/40.0/2319.9": {
+    "R_at_ambient_ohm": 66928.0,
+    "verdict": "pass",
+    "gap_K": -13.742,
+    "hs_state": "valid",
+    "hs_C": 29.733,
+    "pt_C": 43.381,
     "caught_by": null
    },
    "rail_measured/nominal/independent/5.0/300.0": {
@@ -8642,6 +9297,15 @@
     "pt_C": -9.565,
     "caught_by": null
    },
+   "rail_measured/nominal/independent/5.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 10.58,
+    "hs_state": "valid",
+    "hs_C": 4.714,
+    "pt_C": -6.048,
+    "caught_by": null
+   },
    "rail_measured/nominal/independent/15.0/300.0": {
     "R_at_ambient_ohm": 300.0,
     "verdict": "skip_pt_invalid",
@@ -8703,6 +9367,15 @@
     "hs_state": "valid",
     "hs_C": 14.809,
     "pt_C": -0.715,
+    "caught_by": null
+   },
+   "rail_measured/nominal/independent/15.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 11.618,
+    "hs_state": "valid",
+    "hs_C": 14.809,
+    "pt_C": 3.081,
     "caught_by": null
    },
    "rail_measured/nominal/independent/25.0/300.0": {
@@ -8768,6 +9441,15 @@
     "pt_C": 8.126,
     "caught_by": null
    },
+   "rail_measured/nominal/independent/25.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 12.566,
+    "hs_state": "valid",
+    "hs_C": 24.873,
+    "pt_C": 12.167,
+    "caught_by": null
+   },
    "rail_measured/nominal/independent/30.0/300.0": {
     "R_at_ambient_ohm": 300.0,
     "verdict": "skip_pt_invalid",
@@ -8830,6 +9512,15 @@
     "hs_C": 29.895,
     "pt_C": 12.504,
     "caught_by": "cold_soak"
+   },
+   "rail_measured/nominal/independent/30.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 13.081,
+    "hs_state": "valid",
+    "hs_C": 29.895,
+    "pt_C": 16.719,
+    "caught_by": null
    },
    "rail_measured/nominal/independent/35.0/300.0": {
     "R_at_ambient_ohm": 300.0,
@@ -8894,6 +9585,15 @@
     "pt_C": 16.888,
     "caught_by": "cold_soak"
    },
+   "rail_measured/nominal/independent/35.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 13.59,
+    "hs_state": "valid",
+    "hs_C": 34.91,
+    "pt_C": 21.244,
+    "caught_by": null
+   },
    "rail_measured/nominal/independent/40.0/300.0": {
     "R_at_ambient_ohm": 300.0,
     "verdict": "skip_pt_invalid",
@@ -8957,6 +9657,15 @@
     "pt_C": 21.278,
     "caught_by": "cold_soak"
    },
+   "rail_measured/nominal/independent/40.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 14.072,
+    "hs_state": "valid",
+    "hs_C": 39.921,
+    "pt_C": 25.775,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.01/5.0/300.0": {
     "R_at_ambient_ohm": 371.9,
     "verdict": "skip_pt_invalid",
@@ -9018,6 +9727,15 @@
     "hs_state": "valid",
     "hs_C": 4.714,
     "pt_C": -6.886,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.01/5.0/2319.9": {
+    "R_at_ambient_ohm": 2875.6,
+    "verdict": "pass",
+    "gap_K": 8.535,
+    "hs_state": "valid",
+    "hs_C": 4.714,
+    "pt_C": -4.003,
     "caught_by": null
    },
    "rail_measured/nominal/0.01/15.0/300.0": {
@@ -9083,6 +9801,15 @@
     "pt_C": 2.006,
     "caught_by": null
    },
+   "rail_measured/nominal/0.01/15.0/2319.9": {
+    "R_at_ambient_ohm": 2834.3,
+    "verdict": "pass",
+    "gap_K": 9.534,
+    "hs_state": "valid",
+    "hs_C": 14.809,
+    "pt_C": 5.132,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.01/25.0/300.0": {
     "R_at_ambient_ohm": 361.6,
     "verdict": "skip_pt_invalid",
@@ -9144,6 +9871,15 @@
     "hs_state": "valid",
     "hs_C": 24.873,
     "pt_C": 10.82,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.01/25.0/2319.9": {
+    "R_at_ambient_ohm": 2796.2,
+    "verdict": "pass",
+    "gap_K": 10.476,
+    "hs_state": "valid",
+    "hs_C": 24.873,
+    "pt_C": 14.257,
     "caught_by": null
    },
    "rail_measured/nominal/0.01/30.0/300.0": {
@@ -9209,6 +9945,15 @@
     "pt_C": 15.235,
     "caught_by": null
    },
+   "rail_measured/nominal/0.01/30.0/2319.9": {
+    "R_at_ambient_ohm": 2778.3,
+    "verdict": "pass",
+    "gap_K": 10.988,
+    "hs_state": "valid",
+    "hs_C": 29.895,
+    "pt_C": 18.812,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.01/35.0/300.0": {
     "R_at_ambient_ohm": 357.1,
     "verdict": "leak",
@@ -9270,6 +10015,15 @@
     "hs_state": "valid",
     "hs_C": 34.91,
     "pt_C": 19.623,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.01/35.0/2319.9": {
+    "R_at_ambient_ohm": 2761.1,
+    "verdict": "pass",
+    "gap_K": 11.495,
+    "hs_state": "valid",
+    "hs_C": 34.91,
+    "pt_C": 23.34,
     "caught_by": null
    },
    "rail_measured/nominal/0.01/40.0/300.0": {
@@ -9335,6 +10089,15 @@
     "pt_C": 23.982,
     "caught_by": null
    },
+   "rail_measured/nominal/0.01/40.0/2319.9": {
+    "R_at_ambient_ohm": 2744.6,
+    "verdict": "pass",
+    "gap_K": 11.974,
+    "hs_state": "valid",
+    "hs_C": 39.921,
+    "pt_C": 27.873,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.02/5.0/300.0": {
     "R_at_ambient_ohm": 460.9,
     "verdict": "skip_pt_invalid",
@@ -9396,6 +10159,15 @@
     "hs_state": "valid",
     "hs_C": 4.714,
     "pt_C": -4.707,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.02/5.0/2319.9": {
+    "R_at_ambient_ohm": 3564.4,
+    "verdict": "pass",
+    "gap_K": 6.857,
+    "hs_state": "valid",
+    "hs_C": 4.714,
+    "pt_C": -2.325,
     "caught_by": null
    },
    "rail_measured/nominal/0.02/15.0/300.0": {
@@ -9461,6 +10233,15 @@
     "pt_C": 4.257,
     "caught_by": null
    },
+   "rail_measured/nominal/0.02/15.0/2319.9": {
+    "R_at_ambient_ohm": 3462.7,
+    "verdict": "pass",
+    "gap_K": 7.819,
+    "hs_state": "valid",
+    "hs_C": 14.809,
+    "pt_C": 6.881,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.02/25.0/300.0": {
     "R_at_ambient_ohm": 435.8,
     "verdict": "leak",
@@ -9522,6 +10303,15 @@
     "hs_state": "valid",
     "hs_C": 24.873,
     "pt_C": 13.111,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.02/25.0/2319.9": {
+    "R_at_ambient_ohm": 3370.4,
+    "verdict": "pass",
+    "gap_K": 8.722,
+    "hs_state": "valid",
+    "hs_C": 24.873,
+    "pt_C": 16.011,
     "caught_by": null
    },
    "rail_measured/nominal/0.02/30.0/300.0": {
@@ -9587,6 +10377,15 @@
     "pt_C": 17.563,
     "caught_by": null
    },
+   "rail_measured/nominal/0.02/30.0/2319.9": {
+    "R_at_ambient_ohm": 3327.4,
+    "verdict": "pass",
+    "gap_K": 9.198,
+    "hs_state": "valid",
+    "hs_C": 29.895,
+    "pt_C": 20.568,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.02/35.0/300.0": {
     "R_at_ambient_ohm": 425.0,
     "verdict": "leak",
@@ -9648,6 +10447,15 @@
     "hs_state": "valid",
     "hs_C": 34.91,
     "pt_C": 21.954,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.02/35.0/2319.9": {
+    "R_at_ambient_ohm": 3286.3,
+    "verdict": "pass",
+    "gap_K": 9.702,
+    "hs_state": "valid",
+    "hs_C": 34.91,
+    "pt_C": 25.132,
     "caught_by": null
    },
    "rail_measured/nominal/0.02/40.0/300.0": {
@@ -9713,6 +10521,15 @@
     "pt_C": 26.35,
     "caught_by": null
    },
+   "rail_measured/nominal/0.02/40.0/2319.9": {
+    "R_at_ambient_ohm": 3247.0,
+    "verdict": "pass",
+    "gap_K": 10.179,
+    "hs_state": "valid",
+    "hs_C": 39.921,
+    "pt_C": 29.668,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.05/5.0/300.0": {
     "R_at_ambient_ohm": 877.8,
     "verdict": "leak",
@@ -9774,6 +10591,15 @@
     "hs_state": "valid",
     "hs_C": 4.714,
     "pt_C": -0.211,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.05/5.0/2319.9": {
+    "R_at_ambient_ohm": 6788.3,
+    "verdict": "pass",
+    "gap_K": 3.467,
+    "hs_state": "valid",
+    "hs_C": 4.714,
+    "pt_C": 1.065,
     "caught_by": null
    },
    "rail_measured/nominal/0.05/15.0/300.0": {
@@ -9839,6 +10665,15 @@
     "pt_C": 8.967,
     "caught_by": null
    },
+   "rail_measured/nominal/0.05/15.0/2319.9": {
+    "R_at_ambient_ohm": 6314.2,
+    "verdict": "pass",
+    "gap_K": 4.25,
+    "hs_state": "valid",
+    "hs_C": 14.809,
+    "pt_C": 10.449,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.05/25.0/300.0": {
     "R_at_ambient_ohm": 763.2,
     "verdict": "leak",
@@ -9900,6 +10735,15 @@
     "hs_state": "valid",
     "hs_C": 24.873,
     "pt_C": 18.069,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.05/25.0/2319.9": {
+    "R_at_ambient_ohm": 5901.8,
+    "verdict": "pass",
+    "gap_K": 4.975,
+    "hs_state": "valid",
+    "hs_C": 24.873,
+    "pt_C": 19.758,
     "caught_by": null
    },
    "rail_measured/nominal/0.05/30.0/300.0": {
@@ -9965,6 +10809,15 @@
     "pt_C": 22.596,
     "caught_by": null
    },
+   "rail_measured/nominal/0.05/30.0/2319.9": {
+    "R_at_ambient_ohm": 5715.4,
+    "verdict": "pass",
+    "gap_K": 5.378,
+    "hs_state": "valid",
+    "hs_C": 29.895,
+    "pt_C": 24.422,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.05/35.0/300.0": {
     "R_at_ambient_ohm": 716.5,
     "verdict": "leak",
@@ -10026,6 +10879,15 @@
     "hs_state": "valid",
     "hs_C": 34.91,
     "pt_C": 27.095,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.05/35.0/2319.9": {
+    "R_at_ambient_ohm": 5540.6,
+    "verdict": "pass",
+    "gap_K": 5.776,
+    "hs_state": "valid",
+    "hs_C": 34.91,
+    "pt_C": 29.025,
     "caught_by": null
    },
    "rail_measured/nominal/0.05/40.0/300.0": {
@@ -10091,6 +10953,15 @@
     "pt_C": 31.566,
     "caught_by": null
    },
+   "rail_measured/nominal/0.05/40.0/2319.9": {
+    "R_at_ambient_ohm": 5376.6,
+    "verdict": "pass",
+    "gap_K": 6.18,
+    "hs_state": "valid",
+    "hs_C": 39.921,
+    "pt_C": 33.634,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.1/5.0/300.0": {
     "R_at_ambient_ohm": 2568.6,
     "verdict": "pass",
@@ -10152,6 +11023,15 @@
     "hs_state": "valid",
     "hs_C": 4.714,
     "pt_C": 3.148,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.1/5.0/2319.9": {
+    "R_at_ambient_ohm": 19863.2,
+    "verdict": "pass",
+    "gap_K": 0.913,
+    "hs_state": "valid",
+    "hs_C": 4.714,
+    "pt_C": 3.585,
     "caught_by": null
    },
    "rail_measured/nominal/0.1/15.0/300.0": {
@@ -10217,6 +11097,15 @@
     "pt_C": 12.706,
     "caught_by": null
    },
+   "rail_measured/nominal/0.1/15.0/2319.9": {
+    "R_at_ambient_ohm": 17185.8,
+    "verdict": "pass",
+    "gap_K": 1.42,
+    "hs_state": "valid",
+    "hs_C": 14.809,
+    "pt_C": 13.246,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.1/25.0/300.0": {
     "R_at_ambient_ohm": 1941.6,
     "verdict": "pass",
@@ -10278,6 +11167,15 @@
     "hs_state": "valid",
     "hs_C": 24.873,
     "pt_C": 22.19,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.1/25.0/2319.9": {
+    "R_at_ambient_ohm": 15014.4,
+    "verdict": "pass",
+    "gap_K": 1.866,
+    "hs_state": "valid",
+    "hs_C": 24.873,
+    "pt_C": 22.866,
     "caught_by": null
    },
    "rail_measured/nominal/0.1/30.0/300.0": {
@@ -10343,6 +11241,15 @@
     "pt_C": 26.892,
     "caught_by": null
    },
+   "rail_measured/nominal/0.1/30.0/2319.9": {
+    "R_at_ambient_ohm": 14080.8,
+    "verdict": "pass",
+    "gap_K": 2.13,
+    "hs_state": "valid",
+    "hs_C": 29.895,
+    "pt_C": 27.67,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.1/35.0/300.0": {
     "R_at_ambient_ohm": 1711.2,
     "verdict": "leak",
@@ -10404,6 +11311,15 @@
     "hs_state": "valid",
     "hs_C": 34.91,
     "pt_C": 31.599,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.1/35.0/2319.9": {
+    "R_at_ambient_ohm": 13232.8,
+    "verdict": "pass",
+    "gap_K": 2.387,
+    "hs_state": "valid",
+    "hs_C": 34.91,
+    "pt_C": 32.413,
     "caught_by": null
    },
    "rail_measured/nominal/0.1/40.0/300.0": {
@@ -10469,6 +11385,15 @@
     "pt_C": 36.246,
     "caught_by": null
    },
+   "rail_measured/nominal/0.1/40.0/2319.9": {
+    "R_at_ambient_ohm": 12460.6,
+    "verdict": "pass",
+    "gap_K": 2.651,
+    "hs_state": "valid",
+    "hs_C": 39.921,
+    "pt_C": 37.163,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.2/5.0/300.0": {
     "R_at_ambient_ohm": 21992.8,
     "verdict": "pass",
@@ -10530,6 +11455,15 @@
     "hs_state": "valid",
     "hs_C": 4.714,
     "pt_C": 4.728,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.2/5.0/2319.9": {
+    "R_at_ambient_ohm": 170070.6,
+    "verdict": "pass",
+    "gap_K": -0.264,
+    "hs_state": "valid",
+    "hs_C": 4.714,
+    "pt_C": 4.762,
     "caught_by": null
    },
    "rail_measured/nominal/0.2/15.0/300.0": {
@@ -10595,6 +11529,15 @@
     "pt_C": 14.628,
     "caught_by": null
    },
+   "rail_measured/nominal/0.2/15.0/2319.9": {
+    "R_at_ambient_ohm": 127311.9,
+    "verdict": "pass",
+    "gap_K": -0.03,
+    "hs_state": "valid",
+    "hs_C": 14.809,
+    "pt_C": 14.695,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.2/25.0/300.0": {
     "R_at_ambient_ohm": 12566.0,
     "verdict": "pass",
@@ -10656,6 +11599,15 @@
     "hs_state": "valid",
     "hs_C": 24.873,
     "pt_C": 24.489,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.2/25.0/2319.9": {
+    "R_at_ambient_ohm": 97172.8,
+    "verdict": "pass",
+    "gap_K": 0.142,
+    "hs_state": "valid",
+    "hs_C": 24.873,
+    "pt_C": 24.591,
     "caught_by": null
    },
    "rail_measured/nominal/0.2/30.0/300.0": {
@@ -10721,6 +11673,15 @@
     "pt_C": 29.431,
     "caught_by": null
    },
+   "rail_measured/nominal/0.2/30.0/2319.9": {
+    "R_at_ambient_ohm": 85464.4,
+    "verdict": "pass",
+    "gap_K": 0.234,
+    "hs_state": "valid",
+    "hs_C": 29.895,
+    "pt_C": 29.567,
+    "caught_by": null
+   },
    "rail_measured/nominal/0.2/35.0/300.0": {
     "R_at_ambient_ohm": 9760.8,
     "verdict": "pass",
@@ -10782,6 +11743,15 @@
     "hs_state": "valid",
     "hs_C": 34.91,
     "pt_C": 34.346,
+    "caught_by": null
+   },
+   "rail_measured/nominal/0.2/35.0/2319.9": {
+    "R_at_ambient_ohm": 75480.5,
+    "verdict": "pass",
+    "gap_K": 0.352,
+    "hs_state": "valid",
+    "hs_C": 34.91,
+    "pt_C": 34.482,
     "caught_by": null
    },
    "rail_measured/nominal/0.2/40.0/300.0": {
@@ -10847,6 +11817,15 @@
     "pt_C": 39.234,
     "caught_by": null
    },
+   "rail_measured/nominal/0.2/40.0/2319.9": {
+    "R_at_ambient_ohm": 66928.0,
+    "verdict": "pass",
+    "gap_K": 0.409,
+    "hs_state": "valid",
+    "hs_C": 39.921,
+    "pt_C": 39.404,
+    "caught_by": null
+   },
    "rail_measured/miss/independent/5.0/300.0": {
     "R_at_ambient_ohm": 300.0,
     "verdict": "skip_pt_invalid",
@@ -10908,6 +11887,15 @@
     "hs_state": "valid",
     "hs_C": -39.563,
     "pt_C": -6.282,
+    "caught_by": null
+   },
+   "rail_measured/miss/independent/5.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "skip_hs_invalid",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -39.563,
+    "pt_C": -2.695,
     "caught_by": null
    },
    "rail_measured/miss/independent/15.0/300.0": {
@@ -10973,6 +11961,15 @@
     "pt_C": 2.644,
     "caught_by": null
    },
+   "rail_measured/miss/independent/15.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "skip_hs_drift",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -3.77,
+    "pt_C": 6.511,
+    "caught_by": null
+   },
    "rail_measured/miss/independent/25.0/300.0": {
     "R_at_ambient_ohm": 300.0,
     "verdict": "skip_pt_invalid",
@@ -11034,6 +12031,15 @@
     "hs_state": "valid",
     "hs_C": 12.98,
     "pt_C": 11.527,
+    "caught_by": null
+   },
+   "rail_measured/miss/independent/25.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": -2.85,
+    "hs_state": "valid",
+    "hs_C": 12.98,
+    "pt_C": 15.707,
     "caught_by": null
    },
    "rail_measured/miss/independent/30.0/300.0": {
@@ -11099,6 +12105,15 @@
     "pt_C": 15.977,
     "caught_by": null
    },
+   "rail_measured/miss/independent/30.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": -0.631,
+    "hs_state": "valid",
+    "hs_C": 19.75,
+    "pt_C": 20.264,
+    "caught_by": null
+   },
    "rail_measured/miss/independent/35.0/300.0": {
     "R_at_ambient_ohm": 300.0,
     "verdict": "skip_pt_invalid",
@@ -11160,6 +12175,15 @@
     "hs_state": "valid",
     "hs_C": 25.972,
     "pt_C": 20.366,
+    "caught_by": null
+   },
+   "rail_measured/miss/independent/35.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 1.005,
+    "hs_state": "valid",
+    "hs_C": 25.972,
+    "pt_C": 24.828,
     "caught_by": null
    },
    "rail_measured/miss/independent/40.0/300.0": {
@@ -11225,6 +12249,15 @@
     "pt_C": 24.794,
     "caught_by": null
    },
+   "rail_measured/miss/independent/40.0/2319.9": {
+    "R_at_ambient_ohm": 2319.9,
+    "verdict": "pass",
+    "gap_K": 2.35,
+    "hs_state": "valid",
+    "hs_C": 31.837,
+    "pt_C": 29.397,
+    "caught_by": null
+   },
    "rail_measured/miss/0.01/5.0/300.0": {
     "R_at_ambient_ohm": 371.9,
     "verdict": "skip_pt_invalid",
@@ -11286,6 +12319,15 @@
     "hs_state": "valid",
     "hs_C": -39.563,
     "pt_C": -3.567,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.01/5.0/2319.9": {
+    "R_at_ambient_ohm": 2875.6,
+    "verdict": "skip_hs_invalid",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -39.563,
+    "pt_C": -0.58,
     "caught_by": null
    },
    "rail_measured/miss/0.01/15.0/300.0": {
@@ -11351,6 +12393,15 @@
     "pt_C": 5.401,
     "caught_by": null
    },
+   "rail_measured/miss/0.01/15.0/2319.9": {
+    "R_at_ambient_ohm": 2834.3,
+    "verdict": "skip_hs_drift",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -3.77,
+    "pt_C": 8.631,
+    "caught_by": null
+   },
    "rail_measured/miss/0.01/25.0/300.0": {
     "R_at_ambient_ohm": 361.6,
     "verdict": "leak",
@@ -11412,6 +12463,15 @@
     "hs_state": "valid",
     "hs_C": 12.98,
     "pt_C": 14.325,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.01/25.0/2319.9": {
+    "R_at_ambient_ohm": 2796.2,
+    "verdict": "pass",
+    "gap_K": -4.976,
+    "hs_state": "valid",
+    "hs_C": 12.98,
+    "pt_C": 17.833,
     "caught_by": null
    },
    "rail_measured/miss/0.01/30.0/300.0": {
@@ -11477,6 +12537,15 @@
     "pt_C": 18.745,
     "caught_by": null
    },
+   "rail_measured/miss/0.01/30.0/2319.9": {
+    "R_at_ambient_ohm": 2778.3,
+    "verdict": "pass",
+    "gap_K": -2.793,
+    "hs_state": "valid",
+    "hs_C": 19.75,
+    "pt_C": 22.427,
+    "caught_by": null
+   },
    "rail_measured/miss/0.01/35.0/300.0": {
     "R_at_ambient_ohm": 357.1,
     "verdict": "leak",
@@ -11538,6 +12607,15 @@
     "hs_state": "valid",
     "hs_C": 25.972,
     "pt_C": 23.171,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.01/35.0/2319.9": {
+    "R_at_ambient_ohm": 2761.1,
+    "verdict": "pass",
+    "gap_K": -1.127,
+    "hs_state": "valid",
+    "hs_C": 25.972,
+    "pt_C": 26.993,
     "caught_by": null
    },
    "rail_measured/miss/0.01/40.0/300.0": {
@@ -11603,6 +12681,15 @@
     "pt_C": 27.569,
     "caught_by": null
    },
+   "rail_measured/miss/0.01/40.0/2319.9": {
+    "R_at_ambient_ohm": 2744.6,
+    "verdict": "pass",
+    "gap_K": 0.182,
+    "hs_state": "valid",
+    "hs_C": 31.837,
+    "pt_C": 31.532,
+    "caught_by": null
+   },
    "rail_measured/miss/0.02/5.0/300.0": {
     "R_at_ambient_ohm": 460.9,
     "verdict": "skip_hs_invalid",
@@ -11664,6 +12751,15 @@
     "hs_state": "valid",
     "hs_C": -39.563,
     "pt_C": -1.285,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.02/5.0/2319.9": {
+    "R_at_ambient_ohm": 3564.4,
+    "verdict": "skip_hs_invalid",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -39.563,
+    "pt_C": 1.132,
     "caught_by": null
    },
    "rail_measured/miss/0.02/15.0/300.0": {
@@ -11729,6 +12825,15 @@
     "pt_C": 7.722,
     "caught_by": null
    },
+   "rail_measured/miss/0.02/15.0/2319.9": {
+    "R_at_ambient_ohm": 3462.7,
+    "verdict": "skip_hs_drift",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -3.77,
+    "pt_C": 10.415,
+    "caught_by": null
+   },
    "rail_measured/miss/0.02/25.0/300.0": {
     "R_at_ambient_ohm": 435.8,
     "verdict": "leak",
@@ -11790,6 +12895,15 @@
     "hs_state": "valid",
     "hs_C": 12.98,
     "pt_C": 16.652,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.02/25.0/2319.9": {
+    "R_at_ambient_ohm": 3370.4,
+    "verdict": "pass",
+    "gap_K": -6.799,
+    "hs_state": "valid",
+    "hs_C": 12.98,
+    "pt_C": 19.623,
     "caught_by": null
    },
    "rail_measured/miss/0.02/30.0/300.0": {
@@ -11855,6 +12969,15 @@
     "pt_C": 21.109,
     "caught_by": null
    },
+   "rail_measured/miss/0.02/30.0/2319.9": {
+    "R_at_ambient_ohm": 3327.4,
+    "verdict": "pass",
+    "gap_K": -4.619,
+    "hs_state": "valid",
+    "hs_C": 19.75,
+    "pt_C": 24.219,
+    "caught_by": null
+   },
    "rail_measured/miss/0.02/35.0/300.0": {
     "R_at_ambient_ohm": 425.0,
     "verdict": "leak",
@@ -11916,6 +13039,15 @@
     "hs_state": "valid",
     "hs_C": 25.972,
     "pt_C": 25.572,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.02/35.0/2319.9": {
+    "R_at_ambient_ohm": 3286.3,
+    "verdict": "pass",
+    "gap_K": -2.955,
+    "hs_state": "valid",
+    "hs_C": 25.972,
+    "pt_C": 28.821,
     "caught_by": null
    },
    "rail_measured/miss/0.02/40.0/300.0": {
@@ -11981,6 +13113,15 @@
     "pt_C": 29.973,
     "caught_by": null
    },
+   "rail_measured/miss/0.02/40.0/2319.9": {
+    "R_at_ambient_ohm": 3247.0,
+    "verdict": "pass",
+    "gap_K": -1.649,
+    "hs_state": "valid",
+    "hs_C": 31.837,
+    "pt_C": 33.396,
+    "caught_by": null
+   },
    "rail_measured/miss/0.05/5.0/300.0": {
     "R_at_ambient_ohm": 877.8,
     "verdict": "skip_hs_invalid",
@@ -12042,6 +13183,15 @@
     "hs_state": "valid",
     "hs_C": -39.563,
     "pt_C": 3.283,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.05/5.0/2319.9": {
+    "R_at_ambient_ohm": 6788.3,
+    "verdict": "skip_hs_invalid",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -39.563,
+    "pt_C": 4.627,
     "caught_by": null
    },
    "rail_measured/miss/0.05/15.0/300.0": {
@@ -12107,6 +13257,15 @@
     "pt_C": 12.538,
     "caught_by": null
    },
+   "rail_measured/miss/0.05/15.0/2319.9": {
+    "R_at_ambient_ohm": 6314.2,
+    "verdict": "skip_hs_drift",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -3.77,
+    "pt_C": 14.089,
+    "caught_by": null
+   },
    "rail_measured/miss/0.05/25.0/300.0": {
     "R_at_ambient_ohm": 763.2,
     "verdict": "leak",
@@ -12168,6 +13327,15 @@
     "hs_state": "valid",
     "hs_C": 12.98,
     "pt_C": 21.717,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.05/25.0/2319.9": {
+    "R_at_ambient_ohm": 5901.8,
+    "verdict": "pass",
+    "gap_K": -10.618,
+    "hs_state": "valid",
+    "hs_C": 12.98,
+    "pt_C": 23.475,
     "caught_by": null
    },
    "rail_measured/miss/0.05/30.0/300.0": {
@@ -12233,6 +13401,15 @@
     "pt_C": 26.282,
     "caught_by": null
    },
+   "rail_measured/miss/0.05/30.0/2319.9": {
+    "R_at_ambient_ohm": 5715.4,
+    "verdict": "pass",
+    "gap_K": -8.544,
+    "hs_state": "valid",
+    "hs_C": 19.75,
+    "pt_C": 28.144,
+    "caught_by": null
+   },
    "rail_measured/miss/0.05/35.0/300.0": {
     "R_at_ambient_ohm": 716.5,
     "verdict": "leak",
@@ -12294,6 +13471,15 @@
     "hs_state": "valid",
     "hs_C": 25.972,
     "pt_C": 30.82,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.05/35.0/2319.9": {
+    "R_at_ambient_ohm": 5540.6,
+    "verdict": "pass",
+    "gap_K": -6.954,
+    "hs_state": "valid",
+    "hs_C": 25.972,
+    "pt_C": 32.82,
     "caught_by": null
    },
    "rail_measured/miss/0.05/40.0/300.0": {
@@ -12359,6 +13545,15 @@
     "pt_C": 35.33,
     "caught_by": null
    },
+   "rail_measured/miss/0.05/40.0/2319.9": {
+    "R_at_ambient_ohm": 5376.6,
+    "verdict": "pass",
+    "gap_K": -5.721,
+    "hs_state": "valid",
+    "hs_C": 31.837,
+    "pt_C": 37.468,
+    "caught_by": null
+   },
    "rail_measured/miss/0.1/5.0/300.0": {
     "R_at_ambient_ohm": 2568.6,
     "verdict": "skip_hs_invalid",
@@ -12420,6 +13615,15 @@
     "hs_state": "valid",
     "hs_C": -39.563,
     "pt_C": 6.746,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.1/5.0/2319.9": {
+    "R_at_ambient_ohm": 19863.2,
+    "verdict": "skip_hs_invalid",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -39.563,
+    "pt_C": 7.217,
     "caught_by": null
    },
    "rail_measured/miss/0.1/15.0/300.0": {
@@ -12485,6 +13689,15 @@
     "pt_C": 16.382,
     "caught_by": null
    },
+   "rail_measured/miss/0.1/15.0/2319.9": {
+    "R_at_ambient_ohm": 17185.8,
+    "verdict": "skip_hs_drift",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -3.77,
+    "pt_C": 16.956,
+    "caught_by": null
+   },
    "rail_measured/miss/0.1/25.0/300.0": {
     "R_at_ambient_ohm": 1941.6,
     "verdict": "pass",
@@ -12546,6 +13759,15 @@
     "hs_state": "valid",
     "hs_C": 12.98,
     "pt_C": 25.944,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.1/25.0/2319.9": {
+    "R_at_ambient_ohm": 15014.4,
+    "verdict": "pass",
+    "gap_K": -13.831,
+    "hs_state": "valid",
+    "hs_C": 12.98,
+    "pt_C": 26.655,
     "caught_by": null
    },
    "rail_measured/miss/0.1/30.0/300.0": {
@@ -12611,6 +13833,15 @@
     "pt_C": 30.718,
     "caught_by": null
    },
+   "rail_measured/miss/0.1/30.0/2319.9": {
+    "R_at_ambient_ohm": 14080.8,
+    "verdict": "pass",
+    "gap_K": -11.864,
+    "hs_state": "valid",
+    "hs_C": 19.75,
+    "pt_C": 31.498,
+    "caught_by": null
+   },
    "rail_measured/miss/0.1/35.0/300.0": {
     "R_at_ambient_ohm": 1711.2,
     "verdict": "pass",
@@ -12672,6 +13903,15 @@
     "hs_state": "valid",
     "hs_C": 25.972,
     "pt_C": 35.432,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.1/35.0/2319.9": {
+    "R_at_ambient_ohm": 13232.8,
+    "verdict": "pass",
+    "gap_K": -10.448,
+    "hs_state": "valid",
+    "hs_C": 25.972,
+    "pt_C": 36.314,
     "caught_by": null
    },
    "rail_measured/miss/0.1/40.0/300.0": {
@@ -12737,6 +13977,15 @@
     "pt_C": 40.151,
     "caught_by": null
    },
+   "rail_measured/miss/0.1/40.0/2319.9": {
+    "R_at_ambient_ohm": 12460.6,
+    "verdict": "pass",
+    "gap_K": -9.356,
+    "hs_state": "valid",
+    "hs_C": 31.837,
+    "pt_C": 41.103,
+    "caught_by": null
+   },
    "rail_measured/miss/0.2/5.0/300.0": {
     "R_at_ambient_ohm": 21992.8,
     "verdict": "skip_hs_invalid",
@@ -12798,6 +14047,15 @@
     "hs_state": "valid",
     "hs_C": -39.563,
     "pt_C": 8.361,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.2/5.0/2319.9": {
+    "R_at_ambient_ohm": 170070.6,
+    "verdict": "skip_hs_invalid",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -39.563,
+    "pt_C": 8.429,
     "caught_by": null
    },
    "rail_measured/miss/0.2/15.0/300.0": {
@@ -12863,6 +14121,15 @@
     "pt_C": 18.373,
     "caught_by": null
    },
+   "rail_measured/miss/0.2/15.0/2319.9": {
+    "R_at_ambient_ohm": 127311.9,
+    "verdict": "skip_hs_drift",
+    "gap_K": null,
+    "hs_state": "valid",
+    "hs_C": -3.77,
+    "pt_C": 18.441,
+    "caught_by": null
+   },
    "rail_measured/miss/0.2/25.0/300.0": {
     "R_at_ambient_ohm": 12566.0,
     "verdict": "pass",
@@ -12924,6 +14191,15 @@
     "hs_state": "valid",
     "hs_C": 12.98,
     "pt_C": 28.347,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.2/25.0/2319.9": {
+    "R_at_ambient_ohm": 97172.8,
+    "verdict": "pass",
+    "gap_K": -15.592,
+    "hs_state": "valid",
+    "hs_C": 12.98,
+    "pt_C": 28.449,
     "caught_by": null
    },
    "rail_measured/miss/0.2/30.0/300.0": {
@@ -12989,6 +14265,15 @@
     "pt_C": 33.295,
     "caught_by": null
    },
+   "rail_measured/miss/0.2/30.0/2319.9": {
+    "R_at_ambient_ohm": 85464.4,
+    "verdict": "pass",
+    "gap_K": -13.797,
+    "hs_state": "valid",
+    "hs_C": 19.75,
+    "pt_C": 33.43,
+    "caught_by": null
+   },
    "rail_measured/miss/0.2/35.0/300.0": {
     "R_at_ambient_ohm": 9760.8,
     "verdict": "pass",
@@ -13050,6 +14335,15 @@
     "hs_state": "valid",
     "hs_C": 25.972,
     "pt_C": 38.249,
+    "caught_by": null
+   },
+   "rail_measured/miss/0.2/35.0/2319.9": {
+    "R_at_ambient_ohm": 75480.5,
+    "verdict": "pass",
+    "gap_K": -12.553,
+    "hs_state": "valid",
+    "hs_C": 25.972,
+    "pt_C": 38.419,
     "caught_by": null
    },
    "rail_measured/miss/0.2/40.0/300.0": {
@@ -13114,6 +14408,15 @@
     "hs_C": 31.837,
     "pt_C": 43.211,
     "caught_by": null
+   },
+   "rail_measured/miss/0.2/40.0/2319.9": {
+    "R_at_ambient_ohm": 66928.0,
+    "verdict": "pass",
+    "gap_K": -11.634,
+    "hs_state": "valid",
+    "hs_C": 31.837,
+    "pt_C": 43.381,
+    "caught_by": null
    }
   }
  },
@@ -13125,8 +14428,8 @@
   "benign_rail_fallback_no_latch": true,
   "benign_rail_measured_no_latch": true,
   "existing_sets_no_latch": true,
-  "hazardous_indep_nominal_as_recorded_rail_fallback": true,
-  "hazardous_indep_nominal_as_recorded_rail_measured": true
+  "hazardous_indep_nominal_as_recorded_rail_fallback": false,
+  "hazardous_indep_nominal_as_recorded_rail_measured": false
  },
- "all_pass": true
+ "all_pass": false
 }

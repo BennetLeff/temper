@@ -125,9 +125,11 @@ VARIANTS = {"rail_fallback": {"gain": H.ADC_GAIN, "rail": False},
             "rail_measured": {"gain": H.ADC_GAIN, "rail": True}}
 # As built (CR-8, C45), nominal corner, temperature-independent leaks: hazardous runs
 # caught before heating (cold soak or the 84.27 ohm window) per ambient. Recorded.
+# Re-recorded 2026-10-16 for the peak hazard rule (277 runs; was 169/200 and
+# 200/235 of the 235 steady-rule runs): the added 2320 ohm runs are caught at no ambient.
 EXPECTED_INDEP_NOMINAL = {
-    "rail_fallback": {"5.0": 169, "15.0": 200, "25.0": 200, "30.0": 200, "35.0": 200, "40.0": 200},
-    "rail_measured": {"5.0": 200, "15.0": 200, "25.0": 200, "30.0": 235, "35.0": 235, "40.0": 235},
+    "rail_fallback": {"5.0": 180, "15.0": 212, "25.0": 212, "30.0": 212, "35.0": 212, "40.0": 212},
+    "rail_measured": {"5.0": 212, "15.0": 212, "25.0": 212, "30.0": 248, "35.0": 248, "40.0": 248},
 }
 IDLE_MIN = (0, 10, 20, 30, 45, 60, 90, 120)
 

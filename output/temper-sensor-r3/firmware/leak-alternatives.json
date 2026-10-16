@@ -204,7 +204,7 @@
    0.6457,
    0.9554
   ],
-  "verdict": "does not separate. The hazardous leaks compress dReading/dT_true to 0.08-0.77 at a 250 degC reading; the identified a spans 6.8x over the three modelled frying pans with eta and food alone (the prior bounds 100x), so a leak looks like a heavier pan. Holding a pan at 300 instead of 250 degC costs 1.21-1.41x the power; the honest 250 degC hold power already spans 1.67x over three modelled pans (real pan sizes spread it further) and the firmware has only commanded power with eta unknown (0.82-0.92). The rim follows the pan with a weight of 0.65-0.96, a wider spread than the compression of the leaks that matter (0.77 at 1.73 kohm)."
+  "verdict": "does not separate. The hazardous leaks compress dReading/dT_true to 0.08-0.83 at a 250 degC reading; the identified a spans 6.8x over the three modelled frying pans with eta and food alone (the prior bounds 100x), so a leak looks like a heavier pan. Holding a pan at 300 instead of 250 degC costs 1.21-1.41x the power; the honest 250 degC hold power already spans 1.67x over three modelled pans (real pan sizes spread it further) and the firmware has only commanded power with eta unknown (0.82-0.92). The rim follows the pan with a weight of 0.65-0.96, a wider spread than the compression of the leaks that matter (0.83 at 2.32 kohm)."
  },
  "C": {
   "reading_low_K_temperature_independent_leak": {
@@ -287,75 +287,75 @@
   "threshold_rail_corrected_K": 16.9,
   "largest_r_caught_at_35C_ohm": 1600.0,
   "largest_r_caught_at_35C_rail_corrected_ohm": 1860.0,
-  "hazardous_r_leak_reading_low_at_25C_K": 16.81,
-  "hazardous_r_leak_reading_low_at_35C_K": 18.03,
+  "hazardous_r_leak_reading_low_at_25C_K": 12.75,
+  "hazardous_r_leak_reading_low_at_35C_K": 13.68,
   "arrhenius_equal_to_hazardous_at_300C": [
    {
     "Ea_eV": 0.0,
-    "R_at_300C_ohm": 1732.1,
-    "R_at_35C_ohm": 1732.0,
-    "reading_low_at_35C_K": 18.031,
+    "R_at_300C_ohm": 2319.9,
+    "R_at_35C_ohm": 2320.0,
+    "reading_low_at_35C_K": 13.684,
     "caught_at_threshold": false,
-    "caught_rail_corrected": true
+    "caught_rail_corrected": false
    },
    {
     "Ea_eV": 0.05,
-    "R_at_300C_ohm": 1732.1,
-    "R_at_35C_ohm": 4137.0,
-    "reading_low_at_35C_K": 7.842,
+    "R_at_300C_ohm": 2319.9,
+    "R_at_35C_ohm": 5541.0,
+    "reading_low_at_35C_K": 5.896,
     "caught_at_threshold": false,
     "caught_rail_corrected": false
    },
    {
     "Ea_eV": 0.1,
-    "R_at_300C_ohm": 1732.1,
-    "R_at_35C_ohm": 9880.0,
-    "reading_low_at_35C_K": 3.337,
+    "R_at_300C_ohm": 2319.9,
+    "R_at_35C_ohm": 13233.0,
+    "reading_low_at_35C_K": 2.499,
     "caught_at_threshold": false,
     "caught_rail_corrected": false
    },
    {
     "Ea_eV": 0.2,
-    "R_at_300C_ohm": 1732.1,
-    "R_at_35C_ohm": 56356.0,
-    "reading_low_at_35C_K": 0.591,
+    "R_at_300C_ohm": 2319.9,
+    "R_at_35C_ohm": 75481.0,
+    "reading_low_at_35C_K": 0.441,
     "caught_at_threshold": false,
     "caught_rail_corrected": false
    },
    {
     "Ea_eV": 0.3,
-    "R_at_300C_ohm": 1732.1,
-    "R_at_35C_ohm": 321456.0,
-    "reading_low_at_35C_K": 0.104,
+    "R_at_300C_ohm": 2319.9,
+    "R_at_35C_ohm": 430544.0,
+    "reading_low_at_35C_K": 0.077,
     "caught_at_threshold": false,
     "caught_rail_corrected": false
    },
    {
     "Ea_eV": 0.5,
-    "R_at_300C_ohm": 1732.1,
-    "R_at_35C_ohm": 10458933.0,
-    "reading_low_at_35C_K": 0.003,
+    "R_at_300C_ohm": 2319.9,
+    "R_at_35C_ohm": 14008243.0,
+    "reading_low_at_35C_K": 0.002,
     "caught_at_threshold": false,
     "caught_rail_corrected": false
    },
    {
     "Ea_eV": 0.8,
-    "R_at_300C_ohm": 1732.1,
-    "R_at_35C_ohm": 1941046778.0,
+    "R_at_300C_ohm": 2319.9,
+    "R_at_35C_ohm": 2599754298.0,
     "reading_low_at_35C_K": 0.0,
     "caught_at_threshold": false,
     "caught_rail_corrected": false
    },
    {
     "Ea_eV": 1.0,
-    "R_at_300C_ohm": 1732.1,
-    "R_at_35C_ohm": 63154130707.0,
+    "R_at_300C_ohm": 2319.9,
+    "R_at_35C_ohm": 84585917573.0,
     "reading_low_at_35C_K": 0.0,
     "caught_at_threshold": false,
     "caught_rail_corrected": false
    }
   ],
   "arrhenius_Ea_max_caught_eV": 0.0,
-  "arrhenius_Ea_max_caught_rail_corrected_eV": 0.004
+  "arrhenius_Ea_max_caught_rail_corrected_eV": 0.0
  }
 }
