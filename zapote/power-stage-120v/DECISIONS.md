@@ -2542,3 +2542,40 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
         DRV package with its thermal pad (RθJA 82.5 against 176.5 K/W, 5.4 p.4);
       - the TPS70950QDBVRQ1 cannot be bought for 500 boards (11,607 in stock today): fall back to the plain part with the
         same dividers, which fixes S19 but keeps U3's ±1 % specified only to 85 °C.
+
+68. **The resonant bank on the 28 A route: fit the c34 bank (5 × B32643B8104J000) and require ≥ 3 m/s across the bank
+    column; the bank metric becomes a physical self-heating check under the declared airflow (2026-10-16; adopted).**
+    Records: `11-candidates/bank28-air/README.md` (analysis lane, reviewed).
+    - **What TDK limits.** The "85 °C curve" is a self-heating limit: hot-spot case rise over the air ΔT ≤ 20 K for
+      B3265x (p.57, p.23 note 2) and 15 K for B3264*B (p.24, p.11 note 8). Air is measured on an unpowered dummy cap of
+      the same type about 50 mm away (TDK general technical information, p.30 Fig. 26). The case limit is 110 °C
+      (B3265x) or 125 °C (B3264*B). The card's 1.045 is a ΔT of 21.8 K on TDK's test. "Bench ΔT ≤ 14.5 K" was c34's
+      0.85 current margin restated (0.85² × 20 K), a project margin and not a TDK number.
+    - **Physical check** in the 0.5–0.8 mm-gap column. Interior caps lose their two large faces to equally hot
+      neighbours. Two correlations bracket the result; the model reproduces TDK's rating to 1.04×. At 28 A / 35 kHz,
+      under the design flow (jets + base h 20 @ 61 °C, 3.07 m/s at the bank), the effective ratio is **1.06 / 1.31
+      for the fitted bank** and **0.81 / 0.97 for c34**. Airflow alone cannot take the fitted bank to 28 A: it needs
+      4.6–8.3 m/s at the bank to meet TDK's limit.
+    - **c34 bank:** 22.5 mm pitch, 14.5 × 29.5 × 26.5 mm.
+      - It fits the slot on s48 copper with c34's layout changes: rows y 53.2–113.2, SW_B column at x 185.5, res_a /
+        sw_b strips re-cut, line_zc_raw B.Cu moved to y ≥ 122.55 (DRC must re-check).
+      - Same 0.50 µF, so the 35 kHz floor and the 28 A yield (88.6 %) are unchanged.
+      - It is rated 2000 V (closes F3 at 0.84×), and bank loss falls from about 5.6 W to 1.9 W.
+      - Cost −$1.37 per board at 500 (one line for one).
+      - **Stock is the blocker:** JLC 0, DigiKey not stocked, 28-week lead, MOQ 2080: an owner pre-order.
+    - **Airflow requirement addition (S24):** ≥ 3.0 m/s along x across the bank column (x 161–193, y 46–119, 0–30 mm
+      above the board). The h 20 design flow meets it at both air temperatures; the h 15 flow at 55 °C does not.
+    - **Without c34:** the commissioned ceiling holds at about 21.4–26.3 A under the design flow, and about 18 A in still
+      air.
+    - **Release (17.5 A, still air): the fitted bank is at TDK's limit.** Interior caps read 0.99× at 18 A / 61 °C with
+      radiation credited, and 1.26× without. DECISIONS 37's "22 A inside the 0.85 margin" was an isolated-part reading
+      that the column geometry does not support. The open bench item becomes a **pre-lot gate (OPEN-ITEMS S25)**:
+      thermocouple the hottest surface of interior cap C151 plus a same-type unpowered dummy (TDK Fig. 26), first at
+      17.5–18 A in still air. Pass is ΔT ≤ 20 K and T_A + ΔT ≤ 110 °C.
+    - **Scorecard:** new performance metric `bank_air_ratio_28A_35k`, lower is better, go ≤ 1.00. It is the worst
+      effective ratio over the declared design flow at 61 and 55 °C air, on the conservative correlation. s48 reads
+      1.308 (benchmark re-scored; nothing else moved). The two vendor-curve ratios stay as information. To follow the
+      board, the chain should gain B3 cases `c28_h20_jet100@61` and `c28_h15_jet100@55`; today the pads come from the
+      airflow28 runs on board 83355da5.
+    - **Reverses if:** the bench C151 hot spot under the design flow is ≥ 15 % below the conservative bracket for the
+      fitted bank, or c34 cannot be sourced at all. In that case, re-plan the ceiling ladder around the fitted bank.

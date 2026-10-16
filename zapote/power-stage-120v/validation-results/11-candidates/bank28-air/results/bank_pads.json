@@ -1,0 +1,902 @@
+[
+ {
+  "case": "still air h10 @61",
+  "mode": "uniform",
+  "bay_c": 61,
+  "h": 10,
+  "i_t_a": 29.4,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c28_h10_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c28_h10_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 123.44,
+    "pad_mean_c": 120.52,
+    "b3_body_c": 132.57,
+    "b3_watts_into_model": 0.2739
+   },
+   "C22": {
+    "pad_max_c": 123.27,
+    "pad_mean_c": 118.09,
+    "b3_body_c": 129.99,
+    "b3_watts_into_model": 0.2739
+   },
+   "C23": {
+    "pad_max_c": 121.24,
+    "pad_mean_c": 115.94,
+    "b3_body_c": 127.71,
+    "b3_watts_into_model": 0.2739
+   },
+   "C151": {
+    "pad_max_c": 117.48,
+    "pad_mean_c": 113.08,
+    "b3_body_c": 124.84,
+    "b3_watts_into_model": 0.2739
+   },
+   "C152": {
+    "pad_max_c": 114.85,
+    "pad_mean_c": 111.36,
+    "b3_body_c": 123.18,
+    "b3_watts_into_model": 0.2739
+   }
+  },
+  "pad_max_over_bank_c": 123.44,
+  "b3_body_max_c": 132.57
+ },
+ {
+  "case": "still air h10 @55",
+  "mode": "uniform",
+  "bay_c": 55,
+  "h": 10,
+  "i_t_a": 29.4,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c28_h10_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c28_h10_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 116.79,
+    "pad_mean_c": 113.91,
+    "b3_body_c": 125.96,
+    "b3_watts_into_model": 0.2739
+   },
+   "C22": {
+    "pad_max_c": 116.6,
+    "pad_mean_c": 111.52,
+    "b3_body_c": 123.42,
+    "b3_watts_into_model": 0.2739
+   },
+   "C23": {
+    "pad_max_c": 114.62,
+    "pad_mean_c": 109.42,
+    "b3_body_c": 121.19,
+    "b3_watts_into_model": 0.2739
+   },
+   "C151": {
+    "pad_max_c": 110.94,
+    "pad_mean_c": 106.62,
+    "b3_body_c": 118.38,
+    "b3_watts_into_model": 0.2739
+   },
+   "C152": {
+    "pad_max_c": 108.38,
+    "pad_mean_c": 104.95,
+    "b3_body_c": 116.77,
+    "b3_watts_into_model": 0.2739
+   }
+  },
+  "pad_max_over_bank_c": 116.79,
+  "b3_body_max_c": 125.96
+ },
+ {
+  "case": "no-jet h31 @61 (min)",
+  "mode": "uniform",
+  "bay_c": 61,
+  "h": 31,
+  "i_t_a": 29.4,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c28_h31_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c28_h31_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 88.13,
+    "pad_mean_c": 87.69,
+    "b3_body_c": 99.84,
+    "b3_watts_into_model": 0.2739
+   },
+   "C22": {
+    "pad_max_c": 88.0,
+    "pad_mean_c": 86.11,
+    "b3_body_c": 98.03,
+    "b3_watts_into_model": 0.2739
+   },
+   "C23": {
+    "pad_max_c": 87.41,
+    "pad_mean_c": 85.3,
+    "b3_body_c": 97.06,
+    "b3_watts_into_model": 0.2739
+   },
+   "C151": {
+    "pad_max_c": 85.7,
+    "pad_mean_c": 83.96,
+    "b3_body_c": 95.72,
+    "b3_watts_into_model": 0.2739
+   },
+   "C152": {
+    "pad_max_c": 85.24,
+    "pad_mean_c": 83.87,
+    "b3_body_c": 95.68,
+    "b3_watts_into_model": 0.2739
+   }
+  },
+  "pad_max_over_bank_c": 88.13,
+  "b3_body_max_c": 99.84
+ },
+ {
+  "case": "no-jet h37 @61 (x1.2)",
+  "mode": "uniform",
+  "bay_c": 61,
+  "h": 37,
+  "i_t_a": 29.4,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c28_h37_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c28_h37_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 85.28,
+    "pad_mean_c": 85.07,
+    "b3_body_c": 97.23,
+    "b3_watts_into_model": 0.2739
+   },
+   "C22": {
+    "pad_max_c": 85.11,
+    "pad_mean_c": 83.52,
+    "b3_body_c": 95.45,
+    "b3_watts_into_model": 0.2739
+   },
+   "C23": {
+    "pad_max_c": 84.66,
+    "pad_mean_c": 82.83,
+    "b3_body_c": 94.6,
+    "b3_watts_into_model": 0.2739
+   },
+   "C151": {
+    "pad_max_c": 83.15,
+    "pad_mean_c": 81.63,
+    "b3_body_c": 93.4,
+    "b3_watts_into_model": 0.2739
+   },
+   "C152": {
+    "pad_max_c": 82.9,
+    "pad_mean_c": 81.69,
+    "b3_body_c": 93.5,
+    "b3_watts_into_model": 0.2739
+   }
+  },
+  "pad_max_over_bank_c": 85.28,
+  "b3_body_max_c": 97.23
+ },
+ {
+  "case": "no-jet h27 @55 (min)",
+  "mode": "uniform",
+  "bay_c": 55,
+  "h": 27,
+  "i_t_a": 29.4,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c28_h27_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c28_h27_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 84.42,
+    "pad_mean_c": 83.77,
+    "b3_body_c": 95.91,
+    "b3_watts_into_model": 0.2739
+   },
+   "C22": {
+    "pad_max_c": 84.31,
+    "pad_mean_c": 82.19,
+    "b3_body_c": 94.11,
+    "b3_watts_into_model": 0.2739
+   },
+   "C23": {
+    "pad_max_c": 83.64,
+    "pad_mean_c": 81.31,
+    "b3_body_c": 93.08,
+    "b3_watts_into_model": 0.2739
+   },
+   "C151": {
+    "pad_max_c": 81.81,
+    "pad_mean_c": 79.89,
+    "b3_body_c": 91.65,
+    "b3_watts_into_model": 0.2739
+   },
+   "C152": {
+    "pad_max_c": 81.21,
+    "pad_mean_c": 79.7,
+    "b3_body_c": 91.51,
+    "b3_watts_into_model": 0.2739
+   }
+  },
+  "pad_max_over_bank_c": 84.42,
+  "b3_body_max_c": 95.91
+ },
+ {
+  "case": "no-jet h33 @55 (x1.2)",
+  "mode": "uniform",
+  "bay_c": 55,
+  "h": 33,
+  "i_t_a": 29.4,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c28_h33_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c28_h33_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 80.83,
+    "pad_mean_c": 80.47,
+    "b3_body_c": 92.62,
+    "b3_watts_into_model": 0.2739
+   },
+   "C22": {
+    "pad_max_c": 80.69,
+    "pad_mean_c": 78.94,
+    "b3_body_c": 90.86,
+    "b3_watts_into_model": 0.2739
+   },
+   "C23": {
+    "pad_max_c": 80.18,
+    "pad_mean_c": 78.21,
+    "b3_body_c": 89.98,
+    "b3_watts_into_model": 0.2739
+   },
+   "C151": {
+    "pad_max_c": 78.59,
+    "pad_mean_c": 76.95,
+    "b3_body_c": 88.72,
+    "b3_watts_into_model": 0.2739
+   },
+   "C152": {
+    "pad_max_c": 78.24,
+    "pad_mean_c": 76.95,
+    "b3_body_c": 88.76,
+    "b3_watts_into_model": 0.2739
+   }
+  },
+  "pad_max_over_bank_c": 80.83,
+  "b3_body_max_c": 92.62
+ },
+ {
+  "case": "jet100 + base h16 @61 (min)",
+  "mode": "jetmix",
+  "bay_c": 61,
+  "h": 16,
+  "i_t_a": 29.4,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/jetmix/bay61/c28_h16_jet100_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/jetmix/bay61/c28_h16_jet100_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 103.13,
+    "pad_mean_c": 101.55,
+    "b3_body_c": 113.68,
+    "b3_watts_into_model": 0.2739
+   },
+   "C22": {
+    "pad_max_c": 103.39,
+    "pad_mean_c": 99.98,
+    "b3_body_c": 111.88,
+    "b3_watts_into_model": 0.2739
+   },
+   "C23": {
+    "pad_max_c": 102.29,
+    "pad_mean_c": 98.72,
+    "b3_body_c": 110.48,
+    "b3_watts_into_model": 0.2739
+   },
+   "C151": {
+    "pad_max_c": 99.72,
+    "pad_mean_c": 96.77,
+    "b3_body_c": 108.53,
+    "b3_watts_into_model": 0.2739
+   },
+   "C152": {
+    "pad_max_c": 98.29,
+    "pad_mean_c": 95.97,
+    "b3_body_c": 107.77,
+    "b3_watts_into_model": 0.2739
+   }
+  },
+  "pad_max_over_bank_c": 103.39,
+  "b3_body_max_c": 113.68
+ },
+ {
+  "case": "jet100 + base h20 @61 (x1.25)",
+  "mode": "jetmix",
+  "bay_c": 61,
+  "h": 20,
+  "i_t_a": 29.4,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/jetmix/bay61/c28_h20_jet100_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/jetmix/bay61/c28_h20_jet100_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 97.04,
+    "pad_mean_c": 95.9,
+    "b3_body_c": 108.04,
+    "b3_watts_into_model": 0.2739
+   },
+   "C22": {
+    "pad_max_c": 97.16,
+    "pad_mean_c": 94.35,
+    "b3_body_c": 106.25,
+    "b3_watts_into_model": 0.2739
+   },
+   "C23": {
+    "pad_max_c": 96.26,
+    "pad_mean_c": 93.27,
+    "b3_body_c": 105.02,
+    "b3_watts_into_model": 0.2739
+   },
+   "C151": {
+    "pad_max_c": 94.02,
+    "pad_mean_c": 91.55,
+    "b3_body_c": 103.31,
+    "b3_watts_into_model": 0.2739
+   },
+   "C152": {
+    "pad_max_c": 92.96,
+    "pad_mean_c": 91.03,
+    "b3_body_c": 102.83,
+    "b3_watts_into_model": 0.2739
+   }
+  },
+  "pad_max_over_bank_c": 97.16,
+  "b3_body_max_c": 108.04
+ },
+ {
+  "case": "jet100 + base h12 @55 (min)",
+  "mode": "jetmix",
+  "bay_c": 55,
+  "h": 12,
+  "i_t_a": 29.4,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/jetmix/bay55/c28_h12_jet100_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/jetmix/bay55/c28_h12_jet100_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 106.34,
+    "pad_mean_c": 104.11,
+    "b3_body_c": 116.25,
+    "b3_watts_into_model": 0.2739
+   },
+   "C22": {
+    "pad_max_c": 106.81,
+    "pad_mean_c": 102.57,
+    "b3_body_c": 114.47,
+    "b3_watts_into_model": 0.2739
+   },
+   "C23": {
+    "pad_max_c": 105.48,
+    "pad_mean_c": 101.12,
+    "b3_body_c": 112.88,
+    "b3_watts_into_model": 0.2739
+   },
+   "C151": {
+    "pad_max_c": 102.52,
+    "pad_mean_c": 98.89,
+    "b3_body_c": 110.65,
+    "b3_watts_into_model": 0.2739
+   },
+   "C152": {
+    "pad_max_c": 100.58,
+    "pad_mean_c": 97.7,
+    "b3_body_c": 109.51,
+    "b3_watts_into_model": 0.2739
+   }
+  },
+  "pad_max_over_bank_c": 106.81,
+  "b3_body_max_c": 116.25
+ },
+ {
+  "case": "jet100 + base h15 @55 (x1.25)",
+  "mode": "jetmix",
+  "bay_c": 55,
+  "h": 15,
+  "i_t_a": 29.4,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/jetmix/bay55/c28_h15_jet100_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/jetmix/bay55/c28_h15_jet100_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 98.65,
+    "pad_mean_c": 96.94,
+    "b3_body_c": 109.08,
+    "b3_watts_into_model": 0.2739
+   },
+   "C22": {
+    "pad_max_c": 98.95,
+    "pad_mean_c": 95.41,
+    "b3_body_c": 107.31,
+    "b3_watts_into_model": 0.2739
+   },
+   "C23": {
+    "pad_max_c": 97.83,
+    "pad_mean_c": 94.15,
+    "b3_body_c": 105.91,
+    "b3_watts_into_model": 0.2739
+   },
+   "C151": {
+    "pad_max_c": 95.23,
+    "pad_mean_c": 92.18,
+    "b3_body_c": 103.94,
+    "b3_watts_into_model": 0.2739
+   },
+   "C152": {
+    "pad_max_c": 93.73,
+    "pad_mean_c": 91.33,
+    "b3_body_c": 103.13,
+    "b3_watts_into_model": 0.2739
+   }
+  },
+  "pad_max_over_bank_c": 98.95,
+  "b3_body_max_c": 109.08
+ },
+ {
+  "case": "still air c18 h10 @61",
+  "mode": "uniform",
+  "bay_c": 61,
+  "h": 10,
+  "i_t_a": 18.900000000000002,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c18_h10_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c18_h10_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 87.53,
+    "pad_mean_c": 86.87,
+    "b3_body_c": 91.82,
+    "b3_watts_into_model": 0.1132
+   },
+   "C22": {
+    "pad_max_c": 86.93,
+    "pad_mean_c": 85.39,
+    "b3_body_c": 90.31,
+    "b3_watts_into_model": 0.1132
+   },
+   "C23": {
+    "pad_max_c": 85.89,
+    "pad_mean_c": 84.17,
+    "b3_body_c": 89.04,
+    "b3_watts_into_model": 0.1132
+   },
+   "C151": {
+    "pad_max_c": 84.23,
+    "pad_mean_c": 82.73,
+    "b3_body_c": 87.59,
+    "b3_watts_into_model": 0.1132
+   },
+   "C152": {
+    "pad_max_c": 83.15,
+    "pad_mean_c": 81.93,
+    "b3_body_c": 86.82,
+    "b3_watts_into_model": 0.1132
+   }
+  },
+  "pad_max_over_bank_c": 87.53,
+  "b3_body_max_c": 91.82
+ },
+ {
+  "case": "still air c20 h10 @61",
+  "mode": "uniform",
+  "bay_c": 61,
+  "h": 10,
+  "i_t_a": 21.0,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c20_h10_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c20_h10_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 93.11,
+    "pad_mean_c": 92.1,
+    "b3_body_c": 98.23,
+    "b3_watts_into_model": 0.1397
+   },
+   "C22": {
+    "pad_max_c": 92.59,
+    "pad_mean_c": 90.5,
+    "b3_body_c": 96.57,
+    "b3_watts_into_model": 0.1397
+   },
+   "C23": {
+    "pad_max_c": 91.4,
+    "pad_mean_c": 89.16,
+    "b3_body_c": 95.16,
+    "b3_watts_into_model": 0.1397
+   },
+   "C151": {
+    "pad_max_c": 89.45,
+    "pad_mean_c": 87.51,
+    "b3_body_c": 93.51,
+    "b3_watts_into_model": 0.1397
+   },
+   "C152": {
+    "pad_max_c": 88.14,
+    "pad_mean_c": 86.59,
+    "b3_body_c": 92.62,
+    "b3_watts_into_model": 0.1397
+   }
+  },
+  "pad_max_over_bank_c": 93.11,
+  "b3_body_max_c": 98.23
+ },
+ {
+  "case": "still air c22 h10 @61",
+  "mode": "uniform",
+  "bay_c": 61,
+  "h": 10,
+  "i_t_a": 23.1,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c22_h10_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c22_h10_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 99.42,
+    "pad_mean_c": 98.03,
+    "b3_body_c": 105.46,
+    "b3_watts_into_model": 0.1691
+   },
+   "C22": {
+    "pad_max_c": 98.98,
+    "pad_mean_c": 96.27,
+    "b3_body_c": 103.62,
+    "b3_watts_into_model": 0.1691
+   },
+   "C23": {
+    "pad_max_c": 97.64,
+    "pad_mean_c": 94.78,
+    "b3_body_c": 102.04,
+    "b3_watts_into_model": 0.1691
+   },
+   "C151": {
+    "pad_max_c": 95.33,
+    "pad_mean_c": 92.89,
+    "b3_body_c": 100.16,
+    "b3_watts_into_model": 0.1691
+   },
+   "C152": {
+    "pad_max_c": 93.77,
+    "pad_mean_c": 91.82,
+    "b3_body_c": 99.12,
+    "b3_watts_into_model": 0.1691
+   }
+  },
+  "pad_max_over_bank_c": 99.42,
+  "b3_body_max_c": 105.46
+ },
+ {
+  "case": "still air c24 h10 @61",
+  "mode": "uniform",
+  "bay_c": 61,
+  "h": 10,
+  "i_t_a": 25.200000000000003,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c24_h10_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c24_h10_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 106.54,
+    "pad_mean_c": 104.7,
+    "b3_body_c": 113.55,
+    "b3_watts_into_model": 0.2012
+   },
+   "C22": {
+    "pad_max_c": 106.18,
+    "pad_mean_c": 102.75,
+    "b3_body_c": 111.5,
+    "b3_watts_into_model": 0.2012
+   },
+   "C23": {
+    "pad_max_c": 104.65,
+    "pad_mean_c": 101.08,
+    "b3_body_c": 109.73,
+    "b3_watts_into_model": 0.2012
+   },
+   "C151": {
+    "pad_max_c": 101.93,
+    "pad_mean_c": 98.92,
+    "b3_body_c": 107.56,
+    "b3_watts_into_model": 0.2012
+   },
+   "C152": {
+    "pad_max_c": 100.07,
+    "pad_mean_c": 97.67,
+    "b3_body_c": 106.35,
+    "b3_watts_into_model": 0.2012
+   }
+  },
+  "pad_max_over_bank_c": 106.54,
+  "b3_body_max_c": 113.55
+ },
+ {
+  "case": "still air c26 h10 @61",
+  "mode": "uniform",
+  "bay_c": 61,
+  "h": 10,
+  "i_t_a": 27.3,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c26_h10_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay61/c26_h10_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 114.52,
+    "pad_mean_c": 112.17,
+    "b3_body_c": 122.56,
+    "b3_watts_into_model": 0.2361
+   },
+   "C22": {
+    "pad_max_c": 114.25,
+    "pad_mean_c": 110.0,
+    "b3_body_c": 120.26,
+    "b3_watts_into_model": 0.2361
+   },
+   "C23": {
+    "pad_max_c": 112.49,
+    "pad_mean_c": 108.12,
+    "b3_body_c": 118.26,
+    "b3_watts_into_model": 0.2361
+   },
+   "C151": {
+    "pad_max_c": 109.29,
+    "pad_mean_c": 105.63,
+    "b3_body_c": 115.77,
+    "b3_watts_into_model": 0.2361
+   },
+   "C152": {
+    "pad_max_c": 107.08,
+    "pad_mean_c": 104.17,
+    "b3_body_c": 114.36,
+    "b3_watts_into_model": 0.2361
+   }
+  },
+  "pad_max_over_bank_c": 114.52,
+  "b3_body_max_c": 122.56
+ },
+ {
+  "case": "still air c18 h10 @55",
+  "mode": "uniform",
+  "bay_c": 55,
+  "h": 10,
+  "i_t_a": 18.900000000000002,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c18_h10_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c18_h10_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 81.31,
+    "pad_mean_c": 80.66,
+    "b3_body_c": 85.62,
+    "b3_watts_into_model": 0.1132
+   },
+   "C22": {
+    "pad_max_c": 80.71,
+    "pad_mean_c": 79.19,
+    "b3_body_c": 84.11,
+    "b3_watts_into_model": 0.1132
+   },
+   "C23": {
+    "pad_max_c": 79.67,
+    "pad_mean_c": 77.99,
+    "b3_body_c": 82.86,
+    "b3_watts_into_model": 0.1132
+   },
+   "C151": {
+    "pad_max_c": 78.04,
+    "pad_mean_c": 76.57,
+    "b3_body_c": 81.43,
+    "b3_watts_into_model": 0.1132
+   },
+   "C152": {
+    "pad_max_c": 76.98,
+    "pad_mean_c": 75.78,
+    "b3_body_c": 80.67,
+    "b3_watts_into_model": 0.1132
+   }
+  },
+  "pad_max_over_bank_c": 81.31,
+  "b3_body_max_c": 85.62
+ },
+ {
+  "case": "still air c20 h10 @55",
+  "mode": "uniform",
+  "bay_c": 55,
+  "h": 10,
+  "i_t_a": 21.0,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c20_h10_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c20_h10_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 86.83,
+    "pad_mean_c": 85.84,
+    "b3_body_c": 91.97,
+    "b3_watts_into_model": 0.1397
+   },
+   "C22": {
+    "pad_max_c": 86.29,
+    "pad_mean_c": 84.24,
+    "b3_body_c": 90.31,
+    "b3_watts_into_model": 0.1397
+   },
+   "C23": {
+    "pad_max_c": 85.13,
+    "pad_mean_c": 82.92,
+    "b3_body_c": 88.93,
+    "b3_watts_into_model": 0.1397
+   },
+   "C151": {
+    "pad_max_c": 83.2,
+    "pad_mean_c": 81.3,
+    "b3_body_c": 87.3,
+    "b3_watts_into_model": 0.1397
+   },
+   "C152": {
+    "pad_max_c": 81.93,
+    "pad_mean_c": 80.4,
+    "b3_body_c": 86.43,
+    "b3_watts_into_model": 0.1397
+   }
+  },
+  "pad_max_over_bank_c": 86.83,
+  "b3_body_max_c": 91.97
+ },
+ {
+  "case": "still air c22 h10 @55",
+  "mode": "uniform",
+  "bay_c": 55,
+  "h": 10,
+  "i_t_a": 23.1,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c22_h10_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c22_h10_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 93.07,
+    "pad_mean_c": 91.69,
+    "b3_body_c": 99.12,
+    "b3_watts_into_model": 0.1691
+   },
+   "C22": {
+    "pad_max_c": 92.61,
+    "pad_mean_c": 89.95,
+    "b3_body_c": 97.3,
+    "b3_watts_into_model": 0.1691
+   },
+   "C23": {
+    "pad_max_c": 91.29,
+    "pad_mean_c": 88.48,
+    "b3_body_c": 95.75,
+    "b3_watts_into_model": 0.1691
+   },
+   "C151": {
+    "pad_max_c": 89.03,
+    "pad_mean_c": 86.63,
+    "b3_body_c": 93.9,
+    "b3_watts_into_model": 0.1691
+   },
+   "C152": {
+    "pad_max_c": 87.5,
+    "pad_mean_c": 85.59,
+    "b3_body_c": 92.89,
+    "b3_watts_into_model": 0.1691
+   }
+  },
+  "pad_max_over_bank_c": 93.07,
+  "b3_body_max_c": 99.12
+ },
+ {
+  "case": "still air c24 h10 @55",
+  "mode": "uniform",
+  "bay_c": 55,
+  "h": 10,
+  "i_t_a": 25.200000000000003,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c24_h10_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c24_h10_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 100.09,
+    "pad_mean_c": 98.28,
+    "b3_body_c": 107.13,
+    "b3_watts_into_model": 0.2012
+   },
+   "C22": {
+    "pad_max_c": 99.73,
+    "pad_mean_c": 96.36,
+    "b3_body_c": 105.1,
+    "b3_watts_into_model": 0.2012
+   },
+   "C23": {
+    "pad_max_c": 98.22,
+    "pad_mean_c": 94.72,
+    "b3_body_c": 103.37,
+    "b3_watts_into_model": 0.2012
+   },
+   "C151": {
+    "pad_max_c": 95.55,
+    "pad_mean_c": 92.6,
+    "b3_body_c": 101.24,
+    "b3_watts_into_model": 0.2012
+   },
+   "C152": {
+    "pad_max_c": 93.74,
+    "pad_mean_c": 91.38,
+    "b3_body_c": 100.07,
+    "b3_watts_into_model": 0.2012
+   }
+  },
+  "pad_max_over_bank_c": 100.09,
+  "b3_body_max_c": 107.13
+ },
+ {
+  "case": "still air c26 h10 @55",
+  "mode": "uniform",
+  "bay_c": 55,
+  "h": 10,
+  "i_t_a": 27.3,
+  "files": [
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c26_h10_p0p25.json",
+   "/Users/bennet/Desktop/temper/worktrees/runs-native21/airflow28/runs/uniform/bay55/c26_h10_p0p5.json"
+  ],
+  "bank": {
+   "C21": {
+    "pad_max_c": 107.97,
+    "pad_mean_c": 105.66,
+    "b3_body_c": 116.05,
+    "b3_watts_into_model": 0.2361
+   },
+   "C22": {
+    "pad_max_c": 107.7,
+    "pad_mean_c": 103.52,
+    "b3_body_c": 113.79,
+    "b3_watts_into_model": 0.2361
+   },
+   "C23": {
+    "pad_max_c": 105.97,
+    "pad_mean_c": 101.68,
+    "b3_body_c": 111.83,
+    "b3_watts_into_model": 0.2361
+   },
+   "C151": {
+    "pad_max_c": 102.84,
+    "pad_mean_c": 99.24,
+    "b3_body_c": 109.39,
+    "b3_watts_into_model": 0.2361
+   },
+   "C152": {
+    "pad_max_c": 100.68,
+    "pad_mean_c": 97.82,
+    "b3_body_c": 108.01,
+    "b3_watts_into_model": 0.2361
+   }
+  },
+  "pad_max_over_bank_c": 107.97,
+  "b3_body_max_c": 116.05
+ }
+]

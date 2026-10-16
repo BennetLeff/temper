@@ -1,0 +1,306 @@
+{
+ "metric": "bank_air_ratio_28A_35k",
+ "direction": "lower",
+ "declared_air": [
+  [
+   "design flow (base h20) @61",
+   61,
+   "h20",
+   "c28_h20_jet100"
+  ],
+  [
+   "design flow (base h20) @55, h15 pads",
+   55,
+   "h20",
+   "c28_h15_jet100"
+  ]
+ ],
+ "declared_set": "flow",
+ "by_mpn": {
+  "B32654A1104J000": {
+   "mpn": "B32654A1104J000",
+   "ratio_35k_vendor_curve": 1.045,
+   "bank_air_ratio_28A_35k": 1.308,
+   "worst": {
+    "point": "design flow (base h20) @61",
+    "position": "interior",
+    "g_board_bound": "lo",
+    "v_bank_m_s": 3.07,
+    "T_air_C": 64.7,
+    "T_pad_C": 97.2,
+    "T_A_C": 69.45,
+    "dT_col_K": 34.22,
+    "dT_allowed_K": 20.0,
+    "T_op_C": 103.7,
+    "Top_max_C": 110.0,
+    "eff_ratio": 1.3081
+   },
+   "T_op_max_C": 111.7,
+   "Top_max_C": 110.0,
+   "T_op_margin_K": -1.7,
+   "rows": [
+    {
+     "point": "design flow (base h20) @61",
+     "position": "interior",
+     "g_board_bound": "lo",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 64.7,
+     "T_pad_C": 97.2,
+     "T_A_C": 69.45,
+     "dT_col_K": 34.22,
+     "dT_allowed_K": 20.0,
+     "T_op_C": 103.7,
+     "Top_max_C": 110.0,
+     "eff_ratio": 1.3081
+    },
+    {
+     "point": "design flow (base h20) @61",
+     "position": "interior",
+     "g_board_bound": "hi",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 64.7,
+     "T_pad_C": 97.2,
+     "T_A_C": 84.02,
+     "dT_col_K": 27.71,
+     "dT_allowed_K": 20.0,
+     "T_op_C": 111.7,
+     "Top_max_C": 110.0,
+     "eff_ratio": 1.1771
+    },
+    {
+     "point": "design flow (base h20) @61",
+     "position": "end",
+     "g_board_bound": "lo",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 64.7,
+     "T_pad_C": 97.0,
+     "T_A_C": 67.68,
+     "dT_col_K": 21.6,
+     "dT_allowed_K": 20.0,
+     "T_op_C": 89.3,
+     "Top_max_C": 110.0,
+     "eff_ratio": 1.0391
+    },
+    {
+     "point": "design flow (base h20) @61",
+     "position": "end",
+     "g_board_bound": "hi",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 64.7,
+     "T_pad_C": 97.0,
+     "T_A_C": 79.77,
+     "dT_col_K": 21.7,
+     "dT_allowed_K": 20.0,
+     "T_op_C": 101.5,
+     "Top_max_C": 110.0,
+     "eff_ratio": 1.0416
+    },
+    {
+     "point": "design flow (base h20) @55, h15 pads",
+     "position": "interior",
+     "g_board_bound": "lo",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 58.7,
+     "T_pad_C": 98.9,
+     "T_A_C": 64.55,
+     "dT_col_K": 34.05,
+     "dT_allowed_K": 20.0,
+     "T_op_C": 98.6,
+     "Top_max_C": 110.0,
+     "eff_ratio": 1.3047
+    },
+    {
+     "point": "design flow (base h20) @55, h15 pads",
+     "position": "interior",
+     "g_board_bound": "hi",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 58.7,
+     "T_pad_C": 98.9,
+     "T_A_C": 82.6,
+     "dT_col_K": 27.64,
+     "dT_allowed_K": 20.0,
+     "T_op_C": 110.2,
+     "Top_max_C": 110.0,
+     "eff_ratio": 1.1756
+    },
+    {
+     "point": "design flow (base h20) @55, h15 pads",
+     "position": "end",
+     "g_board_bound": "lo",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 58.7,
+     "T_pad_C": 98.7,
+     "T_A_C": 62.37,
+     "dT_col_K": 21.48,
+     "dT_allowed_K": 20.0,
+     "T_op_C": 83.8,
+     "Top_max_C": 110.0,
+     "eff_ratio": 1.0363
+    },
+    {
+     "point": "design flow (base h20) @55, h15 pads",
+     "position": "end",
+     "g_board_bound": "hi",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 58.7,
+     "T_pad_C": 98.7,
+     "T_A_C": 77.26,
+     "dT_col_K": 21.63,
+     "dT_allowed_K": 20.0,
+     "T_op_C": 98.9,
+     "Top_max_C": 110.0,
+     "eff_ratio": 1.0399
+    }
+   ],
+   "board_sha256_of_pad_runs": "83355da593ae895967b0a72f0b6d30c4cc9855333a18e107d098e3d6e29bd779"
+  },
+  "B32643B8104J000": {
+   "mpn": "B32643B8104J000",
+   "ratio_35k_vendor_curve": 0.831,
+   "bank_air_ratio_28A_35k": 0.967,
+   "worst": {
+    "point": "design flow (base h20) @61",
+    "position": "interior",
+    "g_board_bound": "lo",
+    "v_bank_m_s": 3.07,
+    "T_air_C": 64.7,
+    "T_pad_C": 97.2,
+    "T_A_C": 68.86,
+    "dT_col_K": 14.04,
+    "dT_allowed_K": 15.0,
+    "T_op_C": 82.9,
+    "Top_max_C": 125.0,
+    "eff_ratio": 0.9673
+   },
+   "T_op_max_C": 94.5,
+   "Top_max_C": 125.0,
+   "T_op_margin_K": 30.5,
+   "rows": [
+    {
+     "point": "design flow (base h20) @61",
+     "position": "interior",
+     "g_board_bound": "lo",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 64.7,
+     "T_pad_C": 97.2,
+     "T_A_C": 68.86,
+     "dT_col_K": 14.04,
+     "dT_allowed_K": 15.0,
+     "T_op_C": 82.9,
+     "Top_max_C": 125.0,
+     "eff_ratio": 0.9673
+    },
+    {
+     "point": "design flow (base h20) @61",
+     "position": "interior",
+     "g_board_bound": "hi",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 64.7,
+     "T_pad_C": 97.2,
+     "T_A_C": 82.25,
+     "dT_col_K": 12.3,
+     "dT_allowed_K": 15.0,
+     "T_op_C": 94.5,
+     "Top_max_C": 125.0,
+     "eff_ratio": 0.9054
+    },
+    {
+     "point": "design flow (base h20) @61",
+     "position": "end",
+     "g_board_bound": "lo",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 64.7,
+     "T_pad_C": 97.0,
+     "T_A_C": 67.38,
+     "dT_col_K": 9.06,
+     "dT_allowed_K": 15.0,
+     "T_op_C": 76.4,
+     "Top_max_C": 125.0,
+     "eff_ratio": 0.7771
+    },
+    {
+     "point": "design flow (base h20) @61",
+     "position": "end",
+     "g_board_bound": "hi",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 64.7,
+     "T_pad_C": 97.0,
+     "T_A_C": 78.26,
+     "dT_col_K": 9.53,
+     "dT_allowed_K": 15.0,
+     "T_op_C": 87.8,
+     "Top_max_C": 125.0,
+     "eff_ratio": 0.7973
+    },
+    {
+     "point": "design flow (base h20) @55, h15 pads",
+     "position": "interior",
+     "g_board_bound": "lo",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 58.7,
+     "T_pad_C": 98.9,
+     "T_A_C": 63.84,
+     "dT_col_K": 13.96,
+     "dT_allowed_K": 15.0,
+     "T_op_C": 77.8,
+     "Top_max_C": 125.0,
+     "eff_ratio": 0.9648
+    },
+    {
+     "point": "design flow (base h20) @55, h15 pads",
+     "position": "interior",
+     "g_board_bound": "hi",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 58.7,
+     "T_pad_C": 98.9,
+     "T_A_C": 80.4,
+     "dT_col_K": 12.26,
+     "dT_allowed_K": 15.0,
+     "T_op_C": 92.7,
+     "Top_max_C": 125.0,
+     "eff_ratio": 0.9041
+    },
+    {
+     "point": "design flow (base h20) @55, h15 pads",
+     "position": "end",
+     "g_board_bound": "lo",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 58.7,
+     "T_pad_C": 98.7,
+     "T_A_C": 61.99,
+     "dT_col_K": 9.01,
+     "dT_allowed_K": 15.0,
+     "T_op_C": 71.0,
+     "Top_max_C": 125.0,
+     "eff_ratio": 0.7749
+    },
+    {
+     "point": "design flow (base h20) @55, h15 pads",
+     "position": "end",
+     "g_board_bound": "hi",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 58.7,
+     "T_pad_C": 98.7,
+     "T_A_C": 75.39,
+     "dT_col_K": 9.5,
+     "dT_allowed_K": 15.0,
+     "T_op_C": 84.9,
+     "Top_max_C": 125.0,
+     "eff_ratio": 0.7959
+    }
+   ],
+   "board_sha256_of_pad_runs": "83355da593ae895967b0a72f0b6d30c4cc9855333a18e107d098e3d6e29bd779"
+  }
+ },
+ "control": {
+  "B32654A1104J000": {
+   "bank_thermal_py": 1.446,
+   "this": 1.446
+  },
+  "B32643B8104J000": {
+   "bank_thermal_py": 1.072,
+   "this": 1.072
+  }
+ },
+ "control_failed": []
+}
