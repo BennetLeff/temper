@@ -14,8 +14,8 @@
    "VIOLATION": 0
   },
   "SIGNAL": {
-   "PARTIAL": 9,
-   "UNAUDITED": 53,
+   "PARTIAL": 10,
+   "UNAUDITED": 52,
    "VERIFIED": 1,
    "VIOLATION": 0
   }
@@ -2343,18 +2343,66 @@
    "status": "PARTIAL",
    "unchecked_layout": []
   },
-  "LM4040A25IDBZR": {
-   "checks": [],
+  "LM4050AEM3-2.5/NOPB": {
+   "checks": [
+    {
+     "id": "IR abs max",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Reverse current, abs max",
+     "ratio": 0.024,
+     "severity": "violation",
+     "stress": "Cathode current, ceiling (all loads open)"
+    },
+    {
+     "id": "IR regulation window",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Cathode current, top of the 1.2 mV regulation window",
+     "ratio": 0.4809,
+     "severity": "violation",
+     "stress": "Cathode current, ceiling (all loads open)"
+    },
+    {
+     "id": "PD",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Power dissipation, derated at the BASIS max local temperature",
+     "ratio": 0.0087,
+     "severity": "violation",
+     "stress": "Power dissipation, ceiling"
+    },
+    {
+     "id": "temperature, release case",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Free-air / junction temperature max",
+     "ratio": 0.7128,
+     "severity": "violation",
+     "stress": "Local temperature, release case"
+    },
+    {
+     "id": "temperature, BASIS max",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Free-air / junction temperature max",
+     "ratio": 0.8376,
+     "severity": "violation",
+     "stress": "Local temperature, BASIS max"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "U5"
    ],
    "finding": null,
-   "function": "2.5 V reference",
+   "function": "REF25, the 2.5 V shunt reference for the shunt-OCP threshold (R32-R35) and the bus OVP threshold (R36 / R37), fed by R31 5.6 k from HOT5; the extended-range LM4050AEM3 since stage 47 (S17 hot copper; LM4040A25IDBZR, -40..85 C, before)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "the local temperature is the B3 body-model estimate (pad copper as the die / ambient proxy, hot copper, still air at the BASIS bays), not a measurement; the bands take REF25 at the full -40..125 C row (validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md)",
+    "long-term drift (120 ppm / 1000 h typical) and thermal hysteresis are typical-only and outside the band model",
+    "other entries' bus-OVP stresses quote 286 V (alt-circuits-2026-10-09 ALT-D3.md:60), below this band's upper corner (287.45 V at the s47 basis; 288.02 V for the A25I on the committed basis): pre-existing, not re-cited here"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "MPM-20-24": {
@@ -3580,6 +3628,7 @@
   "ISO6721FBDR",
   "KLDR025.TXP",
   "LM2901BIDR",
+  "LM4050AEM3-2.5/NOPB",
   "MPM-20-24",
   "R24C2T25/R-R",
   "R463N410050N1K",
@@ -3597,8 +3646,8 @@
  "result": "PASS",
  "strict": false,
  "totals": {
-  "PARTIAL": 38,
-  "UNAUDITED": 53,
+  "PARTIAL": 39,
+  "UNAUDITED": 52,
   "VERIFIED": 3,
   "VIOLATION": 0
  },
@@ -3628,7 +3677,6 @@
   "GRM188R71E105KA12D",
   "GRM21BZ71E106KE15L",
   "GRM31C5C1H104JA01L",
-  "LM4040A25IDBZR",
   "PMEG6030EP,115",
   "RC1206FR-0716K5L",
   "RC1206FR-072K2L",
@@ -3661,6 +3709,6 @@
  "unchecked_layout_items": 15,
  "violations": [],
  "warnings": [
-  "53 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
+  "52 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
  ]
 }

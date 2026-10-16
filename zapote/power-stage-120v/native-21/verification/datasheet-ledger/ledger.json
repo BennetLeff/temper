@@ -4118,25 +4118,200 @@
    "finding": null,
    "notes": null
   },
-  "LM4040A25IDBZR": {
-   "mpn": "LM4040A25IDBZR",
+  "LM4050AEM3-2.5/NOPB": {
+   "mpn": "LM4050AEM3-2.5/NOPB",
    "designators": [
     "U5"
    ],
    "class": "SIGNAL",
-   "function": "2.5 V reference",
-   "status": "UNAUDITED",
-   "datasheet": null,
-   "ratings": [],
-   "stresses": [],
-   "derating_rule": "",
-   "checks": [],
-   "layout_guidance": [],
+   "function": "REF25, the 2.5 V shunt reference for the shunt-OCP threshold (R32-R35) and the bus OVP threshold (R36 / R37), fed by R31 5.6 k from HOT5; the extended-range LM4050AEM3 since stage 47 (S17 hot copper; LM4040A25IDBZR, -40..85 C, before)",
+   "status": "PARTIAL",
+   "datasheet": {
+    "url": "https://www.ti.com/lit/ds/symlink/lm4050-n.pdf",
+    "revision": "TI SNOS455H, May 2000, revised March 2025",
+    "fetched": "2026-10-15",
+    "repo_copy": null,
+    "note": "u5-ref search download, copied to runs-native21/s47/dl; not committed. 5.1 p.4 abs max reverse current 20 mA, forward 10 mA, PD 280 mW at TA 25 C, TJ 150 C; 5.3 p.5 extended range TA = TJ -40..125 C; 5.4 p.5 DBZ RthJA 287 C/W (p.11 note 1: 326 C/W board mounted, PDmax = (TJmax - TA) / RthJA); 5.6 p.7 (2.5 V, LM4050AEM3): VR 2.500 V +-2.5 mV at 25 C, +-15 mV over the extended range (note 5 p.11: +-0.1 % +- 50 ppm/C x 100 K x VR), IRMIN 60 uA at 25 C / 65 uA over temperature, dVR/dIR 1.2 mV for IRMIN..1 mA and 8 mV for 1..15 mA over temperature, long-term 120 ppm / 1000 h typ, VHYST typical only; 4 p.3 DBZ 1 cathode, 2 anode, 3 no internal connection (float or tie to pin 2); addendum p.25 LM4050AEM3-2.5/NOPB SOT-23 (DBZ) -40 to 125 C, marking RCA",
+    "sha256_prefix16": "950d04912ac6cdab"
+   },
+   "ratings": [
+    {
+     "parameter": "Reverse current, abs max",
+     "datasheet_limit": 20,
+     "unit": "mA",
+     "basis": "absolute maximum",
+     "source": "5.1 p.4"
+    },
+    {
+     "parameter": "Cathode current, top of the 1.2 mV regulation window",
+     "datasheet_limit": 1.0,
+     "unit": "mA",
+     "basis": "dVR/dIR <= 1.2 mV for IRMIN <= IR <= 1 mA over temperature: the band analysis assumes this window (IRMIN 65 uA over temperature is the floor, enforced by audit.rs)",
+     "source": "5.6 p.7"
+    },
+    {
+     "parameter": "Power dissipation, derated at the BASIS max local temperature",
+     "datasheet_limit": 139.0,
+     "unit": "mW",
+     "basis": "PDmax = (150 C - 104.7 C) / 326 C/W (abs max 280 mW at 25 C)",
+     "source": "5.1 p.4; p.11 note 1"
+    },
+    {
+     "parameter": "Free-air / junction temperature max",
+     "datasheet_limit": 125,
+     "unit": "C",
+     "basis": "extended temperature range, TA = TJ -40..125 C (industrial LM4050AIM3: 85 C)",
+     "source": "5.3 p.5"
+    },
+    {
+     "parameter": "Reverse breakdown voltage tolerance, extended range",
+     "datasheet_limit": 0.015,
+     "unit": "V",
+     "basis": "+-15 mV over -40..125 C at IR 100 uA; the bands add the 1.2 mV current regulation (+-16.2 mV)",
+     "source": "5.6 p.7; note 5 p.11"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "Cathode current, operating minimum",
+     "worst_case_value": 0.1411,
+     "unit": "mA",
+     "condition": "HOT5 4.75 V, R31 +1 %, the three load strings -0.1 % with OCP_KELVIN_N at -0.15 V, VR at its maximum 2.5162 V: >= the 0.065 mA IRMIN (5.6 p.7)",
+     "evidence": "audit.rs"
+    },
+    {
+     "parameter": "Cathode current, operating maximum",
+     "worst_case_value": 0.2382,
+     "unit": "mA",
+     "condition": "HOT5 5.15 V, R31 -1 %, loads +0.1 % at OCP_KELVIN_N 0 V, VR at its minimum 2.4838 V",
+     "evidence": "audit.rs; validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py"
+    },
+    {
+     "parameter": "Cathode current, ceiling (all loads open)",
+     "worst_case_value": 0.4809,
+     "unit": "mA",
+     "condition": "the whole R31 current at HOT5 5.15 V, R31 -1 %, VR minimum",
+     "evidence": "audit.rs"
+    },
+    {
+     "parameter": "Power dissipation, ceiling",
+     "worst_case_value": 1.21,
+     "unit": "mW",
+     "condition": "ceiling current x 2.5162 V (operating maximum 0.5994 mW, 0.2 K at 326 C/W)",
+     "evidence": "audit.rs"
+    },
+    {
+     "parameter": "Local temperature, release case",
+     "worst_case_value": 89.1,
+     "unit": "C",
+     "condition": "B3 hot-copper gated row (pad-copper max + P x RthJA), c17.5_h10 at bay 61 C; board 4139c87b",
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c17.5_h10",
+        "item": "U5: LM4050AEM3-2.5/NOPB TA"
+       },
+       "est_c": 89.1
+      }
+     ]
+    },
+    {
+     "parameter": "Local temperature, BASIS max",
+     "worst_case_value": 104.7,
+     "unit": "C",
+     "condition": "same row, worst over the BASIS cases (c28_h10)",
+     "evidence": [
+      {
+       "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
+       "b3_row": {
+        "case": "c28_h10",
+        "item": "U5: LM4050AEM3-2.5/NOPB TA"
+       },
+       "est_c": 104.7
+      }
+     ]
+    },
+    {
+     "parameter": "Bus OVP band set by REF25 (informational)",
+     "worst_case_value": 287.45,
+     "unit": "V",
+     "condition": "upper corner, band [272.64, 287.45] V with the R26-R37 network at its solved c17.5_h10 temperatures (the s47 band basis), against the 288.02 V must-not-rise rule; c28 solved [272.47, 287.62] V",
+     "evidence": "validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:22; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24"
+    },
+    {
+     "parameter": "Shunt OCP low corner after the Kelvin shift (informational)",
+     "worst_case_value": 66.75,
+     "unit": "A",
+     "condition": "band before the shift [68.87, 117.45] A at the s47 basis, +2.58 A over the 64.17 A floor (c28 solved 65.45 A, +1.28 A)",
+     "evidence": "validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:22; validation-results/02-protection-timing/kelvin/kelvin_budget.py"
+    }
+   ],
+   "derating_rule": "Cathode current inside IRMIN..1 mA (the 1.2 mV regulation window the bands assume) and under the 20 mA abs max; dissipation under the derated PDmax; local temperature <= 125 C.",
+   "checks": [
+    {
+     "id": "IR abs max",
+     "rating": "Reverse current, abs max",
+     "stress": "Cathode current, ceiling (all loads open)",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "0.4809 mA <= 20 mA",
+     "ratio": 0.024
+    },
+    {
+     "id": "IR regulation window",
+     "rating": "Cathode current, top of the 1.2 mV regulation window",
+     "stress": "Cathode current, ceiling (all loads open)",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "0.4809 mA <= 1 mA",
+     "ratio": 0.4809
+    },
+    {
+     "id": "PD",
+     "rating": "Power dissipation, derated at the BASIS max local temperature",
+     "stress": "Power dissipation, ceiling",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "1.21 mW <= 139.0 mW",
+     "ratio": 0.0087
+    },
+    {
+     "id": "temperature, release case",
+     "rating": "Free-air / junction temperature max",
+     "stress": "Local temperature, release case",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "89.1 C <= 125 C (B3 gate row)",
+     "ratio": 0.7128
+    },
+    {
+     "id": "temperature, BASIS max",
+     "rating": "Free-air / junction temperature max",
+     "stress": "Local temperature, BASIS max",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "104.7 C <= 125 C",
+     "ratio": 0.8376
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "pin 3 (no internal connection) floats on its own net u_ref-nc (allowed by p.3; tying it to pin 2 is TI's high-EMI recommendation, table note 1, a copper change not made here)",
+     "enforced_by": "audit.rs"
+    },
+    {
+     "item": "same SOT-23 pads and nets as the LM4040A25IDBZR (BOM-only stage)",
+     "enforced_by": "audit.rs (IDENTITY) and validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/audit.py"
+    }
+   ],
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "the local temperature is the B3 body-model estimate (pad copper as the die / ambient proxy, hot copper, still air at the BASIS bays), not a measurement; the bands take REF25 at the full -40..125 C row (validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md)",
+    "long-term drift (120 ppm / 1000 h typical) and thermal hysteresis are typical-only and outside the band model",
+    "other entries' bus-OVP stresses quote 286 V (alt-circuits-2026-10-09 ALT-D3.md:60), below this band's upper corner (287.45 V at the s47 basis; 288.02 V for the A25I on the committed basis): pre-existing, not re-cited here"
    ],
    "finding": null,
-   "notes": null
+   "notes": "JLC C2156518, extended, 50 in stock 2026-10-15 against 500 for 500 boards (LM4050QAEM3-2.5 C2157745 43, C2157326 3): the 500-board lot is an owner pre-order (>= 550 incl. attrition) consigned to JLC; $3.4228 at 500+. The JLC listing's -40..85 C is wrong for the E suffix (TI 5.3 p.5, addendum p.25). Replaces LM4040A25IDBZR (C9421) on the same DBZ pads: at the c17.5 @ 61 release case the A25I read 89.1 C against 85 C (-4.1 K). Bands: validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md."
   },
   "RT0603BRD0710KL": {
    "mpn": "RT0603BRD0710KL",

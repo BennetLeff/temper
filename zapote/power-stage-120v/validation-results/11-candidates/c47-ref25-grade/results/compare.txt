@@ -1,0 +1,1 @@
+REJECT native21s47 vs validation-results/10-benchmark/scorecard-native21s46.json: cheaper [], better []; kelvin_band_low_A worse: 66.75 vs benchmark 67.77 (tolerance 0.5); costlier on ['parts_usd_at_500_v2', 'lines_short_for_500', 'jlc_assemblable_share_500'] with no performance gain; neither cheaper/simpler nor better than the benchmark
