@@ -1,0 +1,227 @@
+{
+ "pk_over_rms_fit": {
+  "slope_per_A": -0.00929,
+  "at_17p5": 2.2112
+ },
+ "envelope_peak_17p5_A": 38.7,
+ "firmware_peak_trip_17p5_A": 40.975,
+ "floors_A": {
+  "28 A (committed, 64.17 A)": {
+   "A (DECISIONS 9 as written)": 64.17,
+   "B (FEM phase, scaled)": 65.16,
+   "C (any phase, scaled)": 70.48
+  },
+  "17.5 A, envelope extrapolated": {
+   "A (DECISIONS 9 as written)": 43.7,
+   "B (FEM phase, scaled)": 44.69,
+   "C (any phase, scaled)": 50.01
+  },
+  "17.5 A, firmware peak trip 40.975 A": {
+   "A (DECISIONS 9 as written)": 45.98,
+   "B (FEM phase, scaled)": 46.97,
+   "C (any phase, scaled)": 52.29
+  }
+ },
+ "ocp_low_after_census_kelvin_A": {
+  "c17.5_h10 R0": 66.48,
+  "c17.5_h10 R0 +PSRR": 66.35,
+  "c17.5_h10 R1 +PSRR": 63.7,
+  "c17.5_h10 R2 +PSRR": 62.44,
+  "c17.5_h10 R3 +PSRR": 65.84,
+  "c17.5_h10 R4 +PSRR": 55.77,
+  "c28_h10 R0": 65.18,
+  "c28_h10 R0 +PSRR": 65.06,
+  "c28_h10 R1 +PSRR": 62.42,
+  "c28_h10 R2 +PSRR": 59.61,
+  "c28_h10 R3 +PSRR": 64.55,
+  "c28_h10 R4 +PSRR": 54.53
+ },
+ "margins_A": {
+  "28 A (committed, 64.17 A)": {
+   "c17.5_h10 R0": {
+    "A (DECISIONS 9 as written)": 2.31,
+    "B (FEM phase, scaled)": 1.32,
+    "C (any phase, scaled)": -4.0
+   },
+   "c17.5_h10 R0 +PSRR": {
+    "A (DECISIONS 9 as written)": 2.18,
+    "B (FEM phase, scaled)": 1.19,
+    "C (any phase, scaled)": -4.13
+   },
+   "c17.5_h10 R1 +PSRR": {
+    "A (DECISIONS 9 as written)": -0.47,
+    "B (FEM phase, scaled)": -1.46,
+    "C (any phase, scaled)": -6.78
+   },
+   "c17.5_h10 R2 +PSRR": {
+    "A (DECISIONS 9 as written)": -1.73,
+    "B (FEM phase, scaled)": -2.72,
+    "C (any phase, scaled)": -8.04
+   },
+   "c17.5_h10 R3 +PSRR": {
+    "A (DECISIONS 9 as written)": 1.67,
+    "B (FEM phase, scaled)": 0.68,
+    "C (any phase, scaled)": -4.64
+   },
+   "c17.5_h10 R4 +PSRR": {
+    "A (DECISIONS 9 as written)": -8.4,
+    "B (FEM phase, scaled)": -9.39,
+    "C (any phase, scaled)": -14.71
+   },
+   "c28_h10 R0": {
+    "A (DECISIONS 9 as written)": 1.01,
+    "B (FEM phase, scaled)": 0.02,
+    "C (any phase, scaled)": -5.3
+   },
+   "c28_h10 R0 +PSRR": {
+    "A (DECISIONS 9 as written)": 0.89,
+    "B (FEM phase, scaled)": -0.1,
+    "C (any phase, scaled)": -5.42
+   },
+   "c28_h10 R1 +PSRR": {
+    "A (DECISIONS 9 as written)": -1.75,
+    "B (FEM phase, scaled)": -2.74,
+    "C (any phase, scaled)": -8.06
+   },
+   "c28_h10 R2 +PSRR": {
+    "A (DECISIONS 9 as written)": -4.56,
+    "B (FEM phase, scaled)": -5.55,
+    "C (any phase, scaled)": -10.87
+   },
+   "c28_h10 R3 +PSRR": {
+    "A (DECISIONS 9 as written)": 0.38,
+    "B (FEM phase, scaled)": -0.61,
+    "C (any phase, scaled)": -5.93
+   },
+   "c28_h10 R4 +PSRR": {
+    "A (DECISIONS 9 as written)": -9.64,
+    "B (FEM phase, scaled)": -10.63,
+    "C (any phase, scaled)": -15.95
+   }
+  },
+  "17.5 A, envelope extrapolated": {
+   "c17.5_h10 R0": {
+    "A (DECISIONS 9 as written)": 22.78,
+    "B (FEM phase, scaled)": 21.79,
+    "C (any phase, scaled)": 16.47
+   },
+   "c17.5_h10 R0 +PSRR": {
+    "A (DECISIONS 9 as written)": 22.65,
+    "B (FEM phase, scaled)": 21.66,
+    "C (any phase, scaled)": 16.34
+   },
+   "c17.5_h10 R1 +PSRR": {
+    "A (DECISIONS 9 as written)": 20.0,
+    "B (FEM phase, scaled)": 19.01,
+    "C (any phase, scaled)": 13.69
+   },
+   "c17.5_h10 R2 +PSRR": {
+    "A (DECISIONS 9 as written)": 18.74,
+    "B (FEM phase, scaled)": 17.75,
+    "C (any phase, scaled)": 12.43
+   },
+   "c17.5_h10 R3 +PSRR": {
+    "A (DECISIONS 9 as written)": 22.14,
+    "B (FEM phase, scaled)": 21.15,
+    "C (any phase, scaled)": 15.83
+   },
+   "c17.5_h10 R4 +PSRR": {
+    "A (DECISIONS 9 as written)": 12.07,
+    "B (FEM phase, scaled)": 11.08,
+    "C (any phase, scaled)": 5.76
+   },
+   "c28_h10 R0": {
+    "A (DECISIONS 9 as written)": 21.48,
+    "B (FEM phase, scaled)": 20.49,
+    "C (any phase, scaled)": 15.17
+   },
+   "c28_h10 R0 +PSRR": {
+    "A (DECISIONS 9 as written)": 21.36,
+    "B (FEM phase, scaled)": 20.37,
+    "C (any phase, scaled)": 15.05
+   },
+   "c28_h10 R1 +PSRR": {
+    "A (DECISIONS 9 as written)": 18.72,
+    "B (FEM phase, scaled)": 17.73,
+    "C (any phase, scaled)": 12.41
+   },
+   "c28_h10 R2 +PSRR": {
+    "A (DECISIONS 9 as written)": 15.91,
+    "B (FEM phase, scaled)": 14.92,
+    "C (any phase, scaled)": 9.6
+   },
+   "c28_h10 R3 +PSRR": {
+    "A (DECISIONS 9 as written)": 20.85,
+    "B (FEM phase, scaled)": 19.86,
+    "C (any phase, scaled)": 14.54
+   },
+   "c28_h10 R4 +PSRR": {
+    "A (DECISIONS 9 as written)": 10.83,
+    "B (FEM phase, scaled)": 9.84,
+    "C (any phase, scaled)": 4.52
+   }
+  },
+  "17.5 A, firmware peak trip 40.975 A": {
+   "c17.5_h10 R0": {
+    "A (DECISIONS 9 as written)": 20.5,
+    "B (FEM phase, scaled)": 19.51,
+    "C (any phase, scaled)": 14.19
+   },
+   "c17.5_h10 R0 +PSRR": {
+    "A (DECISIONS 9 as written)": 20.37,
+    "B (FEM phase, scaled)": 19.38,
+    "C (any phase, scaled)": 14.06
+   },
+   "c17.5_h10 R1 +PSRR": {
+    "A (DECISIONS 9 as written)": 17.72,
+    "B (FEM phase, scaled)": 16.73,
+    "C (any phase, scaled)": 11.41
+   },
+   "c17.5_h10 R2 +PSRR": {
+    "A (DECISIONS 9 as written)": 16.46,
+    "B (FEM phase, scaled)": 15.47,
+    "C (any phase, scaled)": 10.15
+   },
+   "c17.5_h10 R3 +PSRR": {
+    "A (DECISIONS 9 as written)": 19.86,
+    "B (FEM phase, scaled)": 18.87,
+    "C (any phase, scaled)": 13.55
+   },
+   "c17.5_h10 R4 +PSRR": {
+    "A (DECISIONS 9 as written)": 9.79,
+    "B (FEM phase, scaled)": 8.8,
+    "C (any phase, scaled)": 3.48
+   },
+   "c28_h10 R0": {
+    "A (DECISIONS 9 as written)": 19.2,
+    "B (FEM phase, scaled)": 18.21,
+    "C (any phase, scaled)": 12.89
+   },
+   "c28_h10 R0 +PSRR": {
+    "A (DECISIONS 9 as written)": 19.08,
+    "B (FEM phase, scaled)": 18.09,
+    "C (any phase, scaled)": 12.77
+   },
+   "c28_h10 R1 +PSRR": {
+    "A (DECISIONS 9 as written)": 16.44,
+    "B (FEM phase, scaled)": 15.45,
+    "C (any phase, scaled)": 10.13
+   },
+   "c28_h10 R2 +PSRR": {
+    "A (DECISIONS 9 as written)": 13.63,
+    "B (FEM phase, scaled)": 12.64,
+    "C (any phase, scaled)": 7.32
+   },
+   "c28_h10 R3 +PSRR": {
+    "A (DECISIONS 9 as written)": 18.57,
+    "B (FEM phase, scaled)": 17.58,
+    "C (any phase, scaled)": 12.26
+   },
+   "c28_h10 R4 +PSRR": {
+    "A (DECISIONS 9 as written)": 8.55,
+    "B (FEM phase, scaled)": 7.56,
+    "C (any phase, scaled)": 2.24
+   }
+  }
+ }
+}

@@ -824,7 +824,7 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "VIORM",
-     "ratio": 0.2556,
+     "ratio": 0.29,
      "severity": "violation",
      "stress": "Barrier peak"
     },
@@ -958,6 +958,15 @@
      "ratio": 0.4867,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
+    },
+    {
+     "id": "pulse power, gate-off event",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "PPP at 49 us rectangular",
+     "ratio": 0.8141,
+     "severity": "violation",
+     "stress": "Pulse power, gate-off event (per device)"
     }
    ],
    "class": "SAFETY",
@@ -1372,7 +1381,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "VR DC",
-     "ratio": 0.4516,
+     "ratio": 0.5124,
      "severity": "violation",
      "stress": "Vbus worst no-clamp"
     },
@@ -1381,7 +1390,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "VR DC derated at 110 C",
-     "ratio": 0.6569,
+     "ratio": 0.7453,
      "severity": "violation",
      "stress": "Vbus worst no-clamp"
     },
@@ -1576,17 +1585,17 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "VR 85C DC",
-     "ratio": 0.6021,
+     "ratio": 0.6832,
      "severity": "violation",
      "stress": "Vbus worst no-clamp"
     },
     {
      "id": "Vbus worst hot",
      "max_ratio": 0.8,
-     "ok": true,
+     "ok": false,
      "rating": "Vop at 105 C case",
-     "ratio": 0.7923,
-     "severity": "violation",
+     "ratio": 0.8989,
+     "severity": "gap",
      "stress": "Vbus worst no-clamp"
     },
     {
@@ -1651,6 +1660,15 @@
      "ratio": 1.296,
      "severity": "gap",
      "stress": "ripple dT use at 28 A (scaled)"
+    },
+    {
+     "id": "Vbus event vs transient rating",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Transient overvoltage at 105 C (1.5 x Vop, 30 ms, 1000 per life)",
+     "ratio": 0.5993,
+     "severity": "violation",
+     "stress": "Vbus worst no-clamp"
     }
    ],
    "class": "POWER",
@@ -1663,7 +1681,8 @@
    "gaps": [
     "owner: airflow route (c22/c28): ripple self-heating at the 28 A Kconfig ceiling is only this ledger's I^2 extrapolation (1.30 of the allowance at an assumed 85 C cap ambient), and B3's C5 heat is an estimate (make_heat_sources.py:111), not ripple.py's figure. Before the ceiling rises above 22 A (DECISIONS 56: a passing B3 basis first), rerun ALT-C5C6's ripple.py (not committed) at the new ceiling and feed it to B3; bench: case thermocouple at first power (DECISIONS.md:457).",
     "certifier: no UL / CSA component recognition is listed for B3267* (UL 94 V-0 materials only); C5/C6 sit on the rectified mains bus, so the end-product evaluation covers them.",
-    "desk: the footprint is named TDK_B32656G0275J000 (stale name, geometry correct)."
+    "desk: the footprint is named TDK_B32656G0275J000 (stale name, geometry correct).",
+    "bench: the stacked gate-off event (512.4 V no clamp) exceeds 80 % of the 105 C continuous Vop (456 V); it is held against TDK's 30 ms transient allowance (p.14 NOTE 1). The number of such events over life (<= 1000) is a firmware / FMEA count; D3's clamp at the event current (ALT-D3 s5 T1) would bring the bus under 456 V (438.43 V on the hot straight-line model)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -2144,10 +2163,10 @@
     {
      "id": "bus no-clamp worst",
      "max_ratio": 0.5,
-     "ok": true,
+     "ok": false,
      "rating": "Rated voltage DC",
-     "ratio": 0.4516,
-     "severity": "violation",
+     "ratio": 0.5124,
+     "severity": "gap",
      "stress": "Bus, worst stacked no-clamp case"
     },
     {
@@ -2176,6 +2195,15 @@
      "ratio": 1.1224,
      "severity": "gap",
      "stress": "Board temperature bound at the cap, c22"
+    },
+    {
+     "id": "bus worst with D3",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Rated voltage DC",
+     "ratio": 0.4892,
+     "severity": "violation",
+     "stress": "Bus, worst stacked case with the D3 clamp"
     }
    ],
    "class": "POWER",
@@ -2190,7 +2218,8 @@
    "gaps": [
     "bench: maximum-Qrr S4 basis (DECISIONS 54, D-8 bench): s42's 347 V die VDS is at typical recovery charge; the 4.60 uC maximum was not run on the adopted network.",
     "bench: no ripple, pulse-current or dV/dt rating is published (Yageo or Murata); the 95 A modelled edge (49.7 A at s42's S4) and the 1.81 A RMS bound are uncompared; the cap's own temperature is not modelled (bounded by the FET-row copper, 123.0 C at the release case).",
-    "certifier: the 1.8 mm pad escape is below the 3.2 mm HOT rule by design; the part's own gap is 1.40 mm min (Yageo p.3), and surface creepage at up to 490 V (F6 matrix) over 1.8 mm is unqualified (pad_escapes.json:3)."
+    "certifier: the 1.8 mm pad escape is below the 3.2 mm HOT rule by design; the part's own gap is 1.40 mm min (Yageo p.3), and surface creepage at up to 490 V (F6 matrix) over 1.8 mm is unqualified (pad_escapes.json:3).",
+    "bench: without the D3 / D17 clamp the stacked gate-off event reaches 512.4 V (0.512 of 1 kV, over the 50 % rule); the 50 % rule holds only with D3 credit (489.2 V). ALT-D3 s5 T1 measures it."
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -2625,7 +2654,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "VRRM",
-     "ratio": 0.4516,
+     "ratio": 0.5124,
      "severity": "violation",
      "stress": "V reverse worst"
     },
@@ -3527,7 +3556,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "V overload",
-     "ratio": 0.5645,
+     "ratio": 0.6405,
      "severity": "violation",
      "stress": "V per resistor transient"
     },

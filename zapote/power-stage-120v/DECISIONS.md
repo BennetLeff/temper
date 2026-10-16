@@ -2304,3 +2304,41 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       (rotation settled at 180°, but the EasyEDA land is the narrower SOT-23); U5 pin 3 to anode, TI's high-EMI
       recommendation (a layout stage); the CST3015 "Volt-time at 118.74 A" ledger row still quotes the stage-15 top.
       New open items: U3 TPS70950 temperature and the ledger's 286 V bus-OVP rows (OPEN-ITEMS S19, S20).
+
+64. **S20 follow-up: the stacked bus event re-based on the current tank state, and two ledger rule calls (2026-10-15;
+    adopted). OCP floor CMRR term recorded; the release ceiling is not affected.** Records:
+    `11-candidates/band-terms-2026-10-15/README.md` (analysis lane, reviewed); ledger patch `scripts/ledger_event.py
+    --variant reformed`.
+    - **Event.** The worst case is CT failed (firmware trips blind too), with only the shunt OCP left: trip ≤ 119.09 A,
+      turn-off ≤ 155.7 A, tank energy at gate-off 0.897 J (the bank-ov grid reproduces its committed 155.4 A). With the
+      OVP filter delay (τ ≤ 16.47 µs + 2.27 µs chain) on the coherent 500 µH / 30 A line ring, the no-clamp bus peak is
+      **512.4 V** (was 451.6 V on the stage-13b 0.475 J; the control reproduces it). Shoot-through is prevented, not
+      detected (no desat), and returns no tank energy.
+    - **Call 1, C12 / C13 / C19 / C20 (50 % of 1 kV): credit the fitted D3 / D17 clamp.** A clamp's V–I curve is
+      monotonic, so at the 62–74 A it carries (under its 129.8 A rating) the string is bounded by Good-Ark's published
+      VC max, 2 × 233.4 V at 129.8 A (p.3). Taken to 73 °C at 0.1 %/K (Littelfuse's row for the same part, pp.1–2)
+      that is 489.2 V, ratio 0.489. It holds for a D3 tempco up to 0.148 %/K. The no-clamp 0.512 stays as a gap.
+    - **Call 2, C5 / C6 hot row: the event is held against TDK's transient overvoltage allowance**, 1.5 × Vop for
+      30 ms, 1000 times per life (B3267x p.14 note 1), at the 105 °C Vop 570 V: 855 V, ratio 0.599. The continuous-Vop
+      0.8 rule is the wrong basis for a < 0.3 ms fault transient. It stays as a gap (0.899 no clamp, 0.858 at the
+      published clamp); the ALT-D3 §5 T1 bench test closes it. At the 83.6 °C release-case temperature the 750 V
+      continuous rating applies anyway (0.683).
+    - **D3's own ratings:** ≤ 0.67 J per device; pulse power 0.81 of 34 kW (near-ideal-clamp bound), now a ledger row.
+      **Open:** the BOM's LCSC code C19111562 lists Littelfuse, while the ledger cites Good-Ark (TJ 150 vs 175 °C; the
+      ledger keeps 150). Pin the maker before the lot.
+    - **Ledger:** 7 entries re-based (451.6 → 512.4 V; R3 / R4 225.8 → 256.2 V), D3 event row added; PASS 3 / 91 / 0 /
+      0, test_gate 0 failures. Under the strict rules the gate would fail on two VIOLATIONs; both calls are
+      datasheet-basis corrections, not loosened margins.
+    - **OCP floor and comparator common mode (OPEN-ITEMS S23).** U6 (TLV3201) trips at VCM about 1.2 V, up to 1.36 V
+      from VCC/2, where its 4 mV VIO is specified. CMRR is 60 dB min at 25 °C only (SBOS561C p.5), and the band model
+      has no VCM term. On a 60 dB-hot reading, with the corrected Kelvin census (U9 CA-IS3720HW 4.1 mA, not the
+      ISO7710's 2.4 mA: shift −2.391 A), the OCP low corner is 63.70 A at the release network and 62.42 A at c28. That
+      is −0.47 / −1.75 A against the **64.17 A floor of the 28 A hardware rule**, which is unproven on any guaranteed
+      basis. The failure direction is a nuisance trip, which latches safe. **The shipping 17.5 A ceiling is not
+      affected:** its floor is 43.7–52.3 A, with ≥ 10 A margin on realistic readings and ≥ 3.5 A spec-literal.
+      Before commissioning above about 27 A, U6 needs one of: a bench measurement of VIO at VCM 1.2 V hot, a
+      comparator specified over its common-mode range and temperature, or the trip common mode re-centred toward
+      VCC/2. Raising R34 is not an option, because it breaks the bank's 1600 V limit in the CT-failed double fault.
+      OVP (U7) is unaffected except on the spec-literal reading (288.11 V).
+    - **Reverses if:** D3's tempco or clamp curve, measured or published, puts the string above 500 V at 73 °C; or TDK's
+      transient note is read as excluding repetitive fault events.

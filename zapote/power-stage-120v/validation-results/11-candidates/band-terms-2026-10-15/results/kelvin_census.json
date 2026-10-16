@@ -1,0 +1,247 @@
+{
+ "plane": {
+  "board_sha256": "63aba33faa9ac2cfe30b333e56dfbe9a2408cdaf0fddf084663f5d199e82af69",
+  "sink": "R5.2",
+  "probe": "R35.2",
+  "A_per_mV": -1.037,
+  "max_transfer_mohm": 152.9021
+ },
+ "netlist_members": {
+  "ocp_kelvin_p": [
+   "C149.2",
+   "C25.2",
+   "C26.2",
+   "C27.2",
+   "C28.2",
+   "C30.2",
+   "C31.2",
+   "C32.2",
+   "C33.2",
+   "C34.2",
+   "C35.2",
+   "C36.2",
+   "C48.2",
+   "C49.2",
+   "R30.2",
+   "R35.2",
+   "R37.2",
+   "R49.2",
+   "R5.2",
+   "U14.2",
+   "U14.4",
+   "U15.3",
+   "U3.2",
+   "U4.3",
+   "U4.4",
+   "U5.2",
+   "U6.2",
+   "U7.2",
+   "U8.2",
+   "U9.1",
+   "U9.7"
+  ],
+  "hot5": [
+   "C149.1",
+   "C26.1",
+   "C28.1",
+   "C32.1",
+   "C34.1",
+   "C35.1",
+   "C36.1",
+   "C49.1",
+   "R31.1",
+   "R48.1",
+   "R50.1",
+   "U15.5",
+   "U3.5",
+   "U4.1",
+   "U6.5",
+   "U7.5",
+   "U8.5",
+   "U9.3"
+  ]
+ },
+ "committed": {
+  "total_mA": 13.648,
+  "e_th_mV": 2.0469,
+  "trip_shift_A": -2.123,
+  "bound": {
+   "e_th_mV": 2.0869,
+   "trip_shift_A": -2.164
+  }
+ },
+ "rows": [
+  {
+   "pad": "U3.2",
+   "mA": 0.1,
+   "transfer_mohm": 148.7469,
+   "mV_at_R35_2": 0.0149,
+   "what": "TPS70950 ground-pin current; over-bound kept from the committed census",
+   "source": "SBVS186H 6.5 p.5: IGND 2.25 uA max at IOUT 0; 350 uA typ (no max) at 150 mA, so ~35 uA typ at the ~15 mA load"
+  },
+  {
+   "pad": "U4.4",
+   "mA": 9.7,
+   "transfer_mohm": 150.0045,
+   "mV_at_R35_2": 1.455,
+   "what": "AMC1311B IDD1 (GND1 return; SHTDN pin U4.3 tied to GND1, its <= 70 uA pull current is inside IDD1)",
+   "source": "SBAS786C 6.10 p.11: IDD1 9.7 mA max, 4.5 V < VDD1 < 5.5 V, SHTDN low; SHTDN IIN -70..1 uA (same table)"
+  },
+  {
+   "pad": "U9.1",
+   "mA": 4.1,
+   "transfer_mohm": 150.0045,
+   "mV_at_R35_2": 0.615,
+   "what": "CA-IS3720HW IDDA (GNDA pins U9.1 / U9.7), healthy state: INA = bus_fault_hot low (VIN = 0 V, H version); unused INB floats to its default-high (low-current) state",
+   "source": "Chipanalog CA-IS372x v1.05 7.9.1 p.11 (EN v1.02 p.11 same table): IDDA 4.1 max, 'VIN = 0V (CA-IS3720H)', VDDA = VDDB = 5 V +-10 %, TA -40..125 C. Fault state (VIN = VDDA) 1.3 mA max"
+  },
+  {
+   "pad": "U6.2",
+   "mA": 0.065,
+   "transfer_mohm": 148.8623,
+   "mV_at_R35_2": 0.0097,
+   "what": "TLV3201 IQ (OCP comparator)",
+   "source": "SBOS561C 6.5 p.5: IQ 65 uA max, TA -40..125 C, VCC 5 V"
+  },
+  {
+   "pad": "U7.2",
+   "mA": 0.065,
+   "transfer_mohm": 148.8074,
+   "mV_at_R35_2": 0.0097,
+   "what": "TLV3201 IQ (OVP comparator)",
+   "source": "SBOS561C 6.5 p.5"
+  },
+  {
+   "pad": "U8.2",
+   "mA": 0.01,
+   "transfer_mohm": 150.7169,
+   "mV_at_R35_2": 0.0015,
+   "what": "SN74LVC1G10 ICC",
+   "source": "SCES486E p.4: ICC 10 uA max, VI = 5.5 V or GND"
+  },
+  {
+   "pad": "U8.2",
+   "mA": 0.015,
+   "transfer_mohm": 150.7169,
+   "mV_at_R35_2": 0.0023,
+   "what": "SN74LVC1G10 input leakage, 3 inputs driven from HOT5-powered outputs (U6, U7, U15)",
+   "source": "SCES486E p.4: II +-5 uA max each"
+  },
+  {
+   "pad": "U15.3",
+   "mA": 0.01,
+   "transfer_mohm": 148.8623,
+   "mV_at_R35_2": 0.0015,
+   "what": "SN74LVC1G17 ICC",
+   "source": "SCES351Y p.6: ICC 10 uA max"
+  },
+  {
+   "pad": "U15.3",
+   "mA": 0.005,
+   "transfer_mohm": 148.8623,
+   "mV_at_R35_2": 0.0007,
+   "what": "SN74LVC1G17 input leakage (A from hot5_uv_raw)",
+   "source": "SCES351Y p.6: II +-5 uA"
+  },
+  {
+   "pad": "U14.2",
+   "mA": 0.013,
+   "transfer_mohm": 148.7469,
+   "mV_at_R35_2": 0.0019,
+   "what": "TPS3700 IDD (supplied from V15_LS, returned on ocp_kelvin_p)",
+   "source": "SBVS187G 6.5 p.6: IDD 13 uA max at VDD 18 V"
+  },
+  {
+   "pad": "U14.2",
+   "mA": 0.5303,
+   "transfer_mohm": 148.7469,
+   "mV_at_R35_2": 0.0789,
+   "what": "R50 10 k pull-up into OUTA, only while OUTA asserts (HOT5 UV); 0 in normal running (OUTA open-drain released). Kept at its asserted value, as committed",
+   "source": "R50 10 k 1 %; SBVS187G Table 1 p.10 (INA+ > VIT+ -> OUTA high, released)"
+  },
+  {
+   "pad": "U5.2",
+   "mA": 0.3785,
+   "transfer_mohm": 150.7157,
+   "mV_at_R35_2": 0.057,
+   "what": "R31 current less the two threshold strings: U5 cathode current plus the R32/R33 string. The R32/R33 share (~0.133 mA) actually returns via ocp_kelvin_n into R5.3 and never crosses the plane: kept here (conservative)",
+   "source": "R31 5.6 k 1 %; LM4050AEM3 VR min 2.4838 V (SNOS455H 5.6 p.7)"
+  },
+  {
+   "pad": "R35.2",
+   "mA": 0.1037,
+   "transfer_mohm": 152.9021,
+   "mV_at_R35_2": 0.0158,
+   "what": "R34/R35 OCP-threshold string, returned at R35.2 (the probe pad)",
+   "source": "R34 12.6 k + R35 11.7 k, 0.1 %; VR max 2.5162 V"
+  },
+  {
+   "pad": "R37.2",
+   "mA": 0.0168,
+   "transfer_mohm": 150.0087,
+   "mV_at_R35_2": 0.0025,
+   "what": "R36/R37 OVP-threshold string, returned at R37.2",
+   "source": "R36 10 k + R37 140 k, 0.1 %; VR max 2.5162 V"
+  },
+  {
+   "pad": "R49.2",
+   "mA": 0.0461,
+   "transfer_mohm": 149.9438,
+   "mV_at_R35_2": 0.0069,
+   "what": "HOT5 UV divider R48 105 k + R49 10 k",
+   "source": "power_stage_120v.ato; as committed"
+  },
+  {
+   "pad": "R30.2",
+   "mA": 0.2131,
+   "transfer_mohm": 150.7551,
+   "mV_at_R35_2": 0.0321,
+   "what": "bus divider at 400 V (above the 287.62 V OVP top; kept as committed). U4 VIN input bias (+-15 nA, SBAS786C p.10) is inside this",
+   "source": "power_stage_120v.ato r_div_top x4 / r_div_bot"
+  }
+ ],
+ "no_dc_return": {
+  "C25 C26 C27 C28 C30 C31 C32 C33 C34 C35 C36 C48 C49 C149": "decoupling / filter capacitors: MLCC insulation-resistance leakage is nA-class (e.g. 5.5 V / 10 GOhm = 0.55 nA); not counted",
+  "U6/U7 inputs (ocp_node, ocp_thresh, ovp_thresh, vsense_in)": "TLV3201 IIB <= 5 nA (SBOS561C 6.5 p.5); inside the divider strings above",
+  "U14.4 (INB-)": "TPS3700 I(INB-) <= 15 nA (SBVS187G p.6); OUTB unloaded (net outb has only U14.6)",
+  "U9.4 (INA)": "CA-IS372x IIL <= 20 uA (7.8.1 p.10): flows out of U9.4 into U8.Y and returns at U8.2; it is part of the 4.1 mA IDDA test at VIN = 0 V, so it is not added again (U8.2 transfer 150.72 vs U9.1 150.00 mOhm: < 0.02 uV)"
+ },
+ "total_mA": 15.371,
+ "e_th_mV": 2.3056,
+ "trip_shift_A": -2.391,
+ "bound_all_at_max_transfer": {
+  "e_th_mV": 2.3503,
+  "trip_shift_A": -2.437
+ },
+ "delta_vs_committed": {
+  "mA": 1.723,
+  "mV": 0.2587,
+  "A": -0.268
+ },
+ "u9_iso7710_to_ca_is3720_only": {
+  "mA": 1.7,
+  "mV": 0.255,
+  "A": -0.264
+ },
+ "band_after": {
+  "release c17.5 (68.87 before)": {
+   "census": 66.48,
+   "margin_census": 2.31,
+   "bound": 66.43,
+   "margin_bound": 2.26
+  },
+  "c28 (67.57 before)": {
+   "census": 65.18,
+   "margin_census": 1.01,
+   "bound": 65.13,
+   "margin_bound": 0.96
+  }
+ },
+ "normal_running_credit": {
+  "R50 not asserted": 0.082
+ },
+ "sensitivity_hot5_5p5V": {
+  "e_th_mV": 2.3164,
+  "trip_shift_A": -2.402
+ }
+}
