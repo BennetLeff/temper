@@ -658,4 +658,9 @@ Source: `sensor-c1-impulse-mining:output/temper-sensor-r3/firmware/DECISIONS.md`
 
 **Placement:** `r_hs_adc_bot` is anchored at the module's HS_ADC pad beside `r_hs_adc` (`floorplan.py` ANCHOR).
 
+**Board (one clean-start make.py run, ALL GATES PASS):**
+- DRC 0 errors / 0 unconnected / parity 0, 35 warnings; JLC DFM PASS; 13/13 layout checks (partition 10.5 mm); gerbv PASS.
+- CPL audit: R89 / R90 are OK (two-pad passives), 284 lines.
+- Block validators unchanged from C44: interlock 69 / 6 / 5, thermal 88 / 9 / 7, RTD 5 / 33 / 5. No new waiver: the divider is outside the thermal block, and its mapping shows 70 pads, 0 moved.
+
 **Not changed (coordinator):** the CR-5 rim-trip resistor stays 86.6 k (open item 21).

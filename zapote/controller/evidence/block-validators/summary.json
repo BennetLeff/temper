@@ -235,11 +235,11 @@
   },
   "informative-controller-rtd-layer-roles": {
     "exit_code": 1,
-    "fail": 120,
+    "fail": 109,
     "indeterminate": 3,
     "non_pass_by_rule": {
       "fail DRC.RTD.NATIVE_GEOMETRY": {
-        "clock_return signal trace <uuid> exits the filled return corridor or crosses a zone hole": 87
+        "clock_return signal trace <uuid> exits the filled return corridor or crosses a zone hole": 76
       },
       "fail DRC.RTD.UNIT_PAD_GEOMETRY": {
         "native component census does not exactly match compiled source components": 1,
