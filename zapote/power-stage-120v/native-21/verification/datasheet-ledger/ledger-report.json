@@ -14,8 +14,8 @@
    "VIOLATION": 0
   },
   "SIGNAL": {
-   "PARTIAL": 10,
-   "UNAUDITED": 52,
+   "PARTIAL": 62,
+   "UNAUDITED": 0,
    "VERIFIED": 1,
    "VIOLATION": 0
   }
@@ -23,7 +23,26 @@
  "entries": 94,
  "entries_detail": {
   "0430451612": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating incl. 30 K rise at rated current)",
+     "ratio": 0.5886,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating incl. 30 K rise at rated current)",
+     "ratio": 0.5362,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "J4"
@@ -31,13 +50,34 @@
    "finding": null,
    "function": "Molex Micro-Fit controller connector J4 (low-voltage SELV signals)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "0603WAF0000T5E": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R38",
+     "ratio": 0.4019,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R38",
+     "ratio": 0.3677,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R38"
@@ -45,13 +85,34 @@
    "finding": null,
    "function": "0 R link R38 (PE to SELV GND, functional)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "0603WAF1000T5E": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R14",
+     "ratio": 0.48,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R14",
+     "ratio": 0.4955,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R14",
@@ -60,13 +121,34 @@
    "finding": null,
    "function": "100 R 0603 permit/gate series",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "0603WAF1001T5E": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R47",
+     "ratio": 0.4057,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R47",
+     "ratio": 0.3712,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R134",
@@ -75,13 +157,34 @@
    "finding": null,
    "function": "1 k 0603",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "0603WAF1002T5E": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R11",
+     "ratio": 0.8514,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R13",
+     "ratio": 1.2331,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R109",
@@ -98,13 +201,35 @@
    "finding": null,
    "function": "10 k 0603",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) R13 is 175.1 C against 142.0 C (-33.1 K); the firmware ships 17.5 A (DECISIONS 61), where it is 120.9 C (+21.1 K)",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "0603WAF1003T5E": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R128",
+     "ratio": 0.6538,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R128",
+     "ratio": 0.7162,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R128",
@@ -115,13 +240,34 @@
    "finding": null,
    "function": "100 k 0603 pull",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "0603WAF2200T5E": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R132",
+     "ratio": 0.5,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R132",
+     "ratio": 0.4625,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R132"
@@ -129,13 +275,34 @@
    "finding": null,
    "function": "R132: heartbeat pump series resistor 220 ohm (buffer peak <= 11.2 mA)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "0603WAF2702T5E": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R129",
+     "ratio": 0.6361,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R127",
+     "ratio": 0.7147,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R127",
@@ -144,13 +311,34 @@
    "finding": null,
    "function": "27 k",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "0603WAF3302T5E": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R125",
+     "ratio": 0.4049,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R125",
+     "ratio": 0.3745,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R125"
@@ -158,13 +346,34 @@
    "finding": null,
    "function": "33 k",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "0603WAF4991T5E": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R75",
+     "ratio": 0.9778,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R75",
+     "ratio": 1.3555,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R131",
@@ -176,13 +385,35 @@
    "finding": null,
    "function": "4.99 k 0603",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) R75 is 140.7 C against 103.8 C (-36.9 K); the firmware ships 17.5 A (DECISIONS 61), where it is 101.5 C (+2.3 K)",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "0603WAF5601T5E": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R31",
+     "ratio": 0.612,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R31",
+     "ratio": 0.6582,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R31"
@@ -190,13 +421,34 @@
    "finding": null,
    "function": "passive/IC, role per schematic",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "1206W4F1001T5E": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R42",
+     "ratio": 0.4232,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R42",
+     "ratio": 0.4226,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R42"
@@ -204,9 +456,11 @@
    "finding": null,
    "function": "1 k 1206",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "1206W4F1003T5E": {
@@ -255,6 +509,24 @@
      "ratio": 0.854,
      "severity": "violation",
      "stress": "X-cap discharge time 198 V to 34 V"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R2",
+     "ratio": 0.6231,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R2",
+     "ratio": 0.603,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SAFETY",
@@ -268,7 +540,8 @@
     "certifier: UniOhm publishes no pulse or surge rating (only the 5 s overload voltage and a 500 V withstand); the surge check compares an impulse with the overload voltage as the nearest published number.",
     "desk: the pair voltage at 245-750 A through RV1 (ALT-D3.md:119) is not in the repo; only Vc 455 V at 100 A is. The check holds while Vc < 790 V. RV1's Figure 4 (Rev 10/01/19 p.3) is too dense to read the 175 V curve at 750 A reliably; a surge-lab capture of RV1 voltage would settle it (bench).",
     "bench: local ambient at R1/R2 is an assumed 85 C bound with no thermal result (the power ratio stays under 0.5 to about 121 C).",
-    "certifier: the 34 V / 1 s discharge criterion's clause is not re-read; 0.854 s uses +20 % X caps and R +1 %."
+    "certifier: the 34 V / 1 s discharge criterion's clause is not re-read; 0.854 s uses +20 % X caps and R +1 %.",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -276,7 +549,44 @@
    ]
   },
   "1206W4F100KT5E": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R58",
+     "ratio": 0.9158,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R58",
+     "ratio": 1.3307,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    },
+    {
+     "id": "element, c17.5_h10 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (element)",
+     "ratio": 0.7677,
+     "severity": "violation",
+     "stress": "Element temperature, c17.5_h10"
+    },
+    {
+     "id": "element, c28_h10 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Temperature rating (element)",
+     "ratio": 1.0981,
+     "severity": "gap",
+     "stress": "Element temperature, c28_h10"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R53",
@@ -287,9 +597,12 @@
    "finding": null,
    "function": "100 k 1206",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) R58 is 170.6 C against 128.2 C (-42.4 K); the firmware ships 17.5 A (DECISIONS 61), where it is 117.4 C (+10.8 K)",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "1704004": {
@@ -302,6 +615,24 @@
      "ratio": 0.0001,
      "severity": "violation",
      "stress": "I PE branch (leakage)"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (ambient)",
+     "ratio": 0.63,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (ambient)",
+     "ratio": 0.594,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SAFETY",
@@ -360,6 +691,24 @@
      "ratio": 0.8333,
      "severity": "gap",
      "stress": "I F1 non-interrupting ceiling"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (upper limiting temperature (ambient + own rise))",
+     "ratio": 0.9962,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (upper limiting temperature (ambient + own rise))",
+     "ratio": 0.94,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SAFETY",
@@ -370,7 +719,8 @@
    "function": "Mains inlet terminal (L/N), Phoenix MKDS 5/2-9,5 (stage 27, DECISIONS 29)",
    "gaps": [
     "certifier: ratings are from Phoenix catalog extracts (2017 LCSC copy; the 2010 copy agrees on 30 A UL/cUL/CSA but prints 600 V for UL/cUL); UL Product iQ (E60425, XCFR2), database.ul.com and phoenixcontact.com all returned 403 on 2026-10-13 and again 2026-10-15: confirm 1714971 on UL E60425 and CSA 13631 before the certification submission.",
-    "owner: no 3D model in temper.pretty; the enclosure fit uses a 22 mm courtyard envelope (native21-envelopes.json)."
+    "owner: no 3D model in temper.pretty; the enclosure fit uses a 22 mm courtyard envelope (native21-envelopes.json).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement; the p.6 derating curve is for 6 mm2 conductors only; the 14 AWG (2.1 mm2) inlet wire cools the terminal less, so the rise is larger than the scaled 4.1 K; no UL temperature (UL 1059 rise / RTI) found (Product iQ blocked)"
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -513,6 +863,24 @@
      "ratio": 0.7081,
      "severity": "gap",
      "stress": "CMTI edge, maximum Qrr (open)"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.8176,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Temperature rating (TA)",
+     "ratio": 1.028,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SAFETY",
@@ -526,7 +894,9 @@
     "bench: CMTI is a characterisation figure (not production tested). s42's S4 edge at typical Qrr is 49.7 V/ns (3.0x); the maximum-Qrr basis is open (nearest tested network 106 V/ns, 1.41x): the D-8 double-pulse bench measures S4/S5 dv/dt (DECISIONS 54).",
     "bench: no DIS-to-output delay is specified (Table 21 p.16 has none; Fig. 6 p.21 only defines it): the protection budget assumed TI's 80 ns; measure. No channel-to-channel voltage rating (Table 25: 3.3 mm creepage only).",
     "owner: DIS has an internal pull-down (open = enabled): R73 / R76 alone hold an open DIS disabled.",
-    "owner: single source (Infineon), 39-week lead time; bench: VDD start-up overshoot < 21 V and driver / Rg temperature."
+    "owner: single source (Infineon), 39-week lead time; bench: VDD start-up overshoot < 21 V and driver / Rg temperature.",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) U2 is 128.5 C against 125.0 C (-3.5 K); the firmware ships 17.5 A (DECISIONS 61), where it is 102.2 C (+22.8 K)"
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -570,6 +940,24 @@
      "ratio": 1.1456,
      "severity": "gap",
      "stress": "Plug-in overshoot"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TJ)",
+     "ratio": 0.48,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TJ)",
+     "ratio": 0.4867,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SAFETY",
@@ -582,7 +970,8 @@
    "gaps": [
     "bench: hot clamp. Good-Ark publishes no VBR / VC temperature coefficient (ALT-D3:134); the 466.8 V clamp is at 25 C. ALT-D3 section 5 pulse qualification is open; until it passes the bench bus stays <= 150 V DC (DECISIONS.md:462).",
     "bench: plug-in at the line crest (362-384 V) exceeds the string's 335 V VBR min, so D3/D17 conduct ~0.4 J at each crest plug-in; single-event energy is inside the rating, the repetition (every plug-in) is not rated.",
-    "bench: P600 lead bend, hole centre 1.8 mm from the body end (FINDINGS #8): check a formed sample before ordering."
+    "bench: P600 lead bend, hole centre 1.8 mm from the body end (FINDINGS #8): check a formed sample before ordering.",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement; maker ambiguity: ledger Good-Ark (150 C) vs LCSC C19111562 Littelfuse (175 C); the lower is used"
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -617,6 +1006,24 @@
      "ratio": 0.5043,
      "severity": "violation",
      "stress": "Line voltage"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (ambient)",
+     "ratio": 0.5288,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (ambient)",
+     "ratio": 0.5056,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SAFETY",
@@ -630,7 +1037,26 @@
    "unchecked_layout": []
   },
   "6SVPC220MV": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (category (ambient / case))",
+     "ratio": 0.9552,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Temperature rating (category (ambient / case))",
+     "ratio": 1.3238,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "C126",
@@ -641,9 +1067,12 @@
    "finding": null,
    "function": "220 uF polymer reservoir",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement; life: 2000 h at 105 C; at the release-case estimate the 10-degree rule gives only a few thousand hours, a life item outside this temperature check",
+    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) C129 is 139.0 C against 105.0 C (-34.0 K); the firmware ships 17.5 A (DECISIONS 61), where it is 100.3 C (+4.7 K)",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "7466004R": {
@@ -732,6 +1161,24 @@
      "ratio": 0.936,
      "severity": "gap",
      "stress": "Fault pulse, 3x melting"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R130",
+     "ratio": 0.2777,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R130",
+     "ratio": 0.264,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SAFETY",
@@ -742,7 +1189,8 @@
    "function": "J11 fault-current limiter in series after F2 (stage 28, DECISIONS 30)",
    "gaps": [
     "bench: F2's clearing I2t is unpublished, so the pulse stress is an estimate (0.54 of capacity on the current-limiting clearing estimate, 0.94 on 3x melting); with the chart's +/-25 % reading tolerance the 3x-melting case could reach 1.25x. A bench short at J11 with R130 fitted (record i(t), integrate) settles it.",
-    "certifier: the AC05 is not UL-recognised and its overload / fail-open behaviour is not stated; Vishay's UL-approved fusible variant is the AC05-CS (p.4). The certifier judges R130 in the end-product abnormal test (an open only lowers the fault current)."
+    "certifier: the AC05 is not UL-recognised and its overload / fail-open behaviour is not stated; Vishay's UL-approved fusible variant is the AC05-CS (p.4). The certifier judges R130 in the end-product abnormal test (an open only lowers the fault current).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement; no surface / hot-spot maximum published; not UL recognised (ledger)"
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -820,6 +1268,24 @@
      "ratio": 0.7395,
      "severity": "violation",
      "stress": "VSENSE in a 2 kV DM surge"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.704,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.7216,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SAFETY",
@@ -830,7 +1296,8 @@
    "function": "Isolated bus-voltage amplifier U4 (reinforced)",
    "gaps": [
     "bench: CMTI. U4 straddles OCP_KELVIN_P, not a switch node; the bound (s42's S4 at typical Qrr, 49.7 V/ns) is 2.0x the 100 V/ns minimum; maximum Qrr is open (nearest tested network 106 V/ns). An upset is a spurious VBUS sample, no gate command (validation-results/06-controller-interface/cmti/README.md:21). Probe HV_RET-to-SELV dv/dt at hard S4/S5 edges (D-8).",
-    "owner: bus readings above 240.0 V are outside the 2 V linear range (clipping at 301.9 V). Firmware flags VBUS over-range at 230.9 V (N21_VBUS_OVERRANGE_MV) and the hardware OVP is the TLV3201 on VSENSE_IN (elec/src/power_stage_120v.ato:614), so no protection relies on the nonlinear band; nothing gates that dependency."
+    "owner: bus readings above 240.0 V are outside the 2 V linear range (clipping at 301.9 V). Firmware flags VBUS over-range at 230.9 V (N21_VBUS_OVERRANGE_MV) and the hardware OVP is the TLV3201 on VSENSE_IN (elec/src/power_stage_120v.ato:614), so no protection relies on the nonlinear band; nothing gates that dependency.",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -863,6 +1330,24 @@
      "ratio": 0.5588,
      "severity": "violation",
      "stress": "V line high"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (connector incl. temperature rise)",
+     "ratio": 0.6867,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (connector incl. temperature rise)",
+     "ratio": 0.6657,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SAFETY",
@@ -874,7 +1359,8 @@
    "function": "Mains tap headers J3 (PS2 TCO loop) and J11 (blower tap), JST VH",
    "gaps": [
     "certifier: UL E60389 / CSA LR20812 are named in JST's catalogue, but the recognised current, voltage and wire range of B2P3-VH in those files were not read (UL Product iQ / database.ul.com 403 on 2026-10-15; the current eVH.pdf defers approvals to JST's website list). Confirm the file ratings cover 250 V / 3.15 A with 18 AWG.",
-    "bench: housing temperature at J3 / J11 against the 105 C rating (including self-heating) is not in the B3 model; IR at first power."
+    "bench: housing temperature at J3 / J11 against the 105 C rating (including self-heating) is not in the B3 model; IR at first power.",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement; the current sheet points UL/CSA terms to JST's 'List of Registered Overseas Standards' (not obtained); at 1.3-1.42 A of 10 A the own rise is small and not added"
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1282,7 +1768,26 @@
    "unchecked_layout": []
   },
   "BAS116H,115": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TJ)",
+     "ratio": 0.426,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TJ)",
+     "ratio": 0.4107,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "D4",
@@ -1291,9 +1796,11 @@
    "finding": null,
    "function": "low-leakage diode",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "BAT54S-7-F": {
@@ -1324,6 +1831,24 @@
      "ratio": 0.175,
      "severity": "violation",
      "stress": "Reverse (D18)"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TJ)",
+     "ratio": 0.6567,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TJ)",
+     "ratio": 0.8287,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SIGNAL",
@@ -1339,7 +1864,26 @@
    "unchecked_layout": []
   },
   "C0603C102J5GACTU": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.7208,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.8104,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "C164",
@@ -1364,9 +1908,11 @@
    "finding": null,
    "function": "1 nF C0G 0603",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "CA-IS3720HW": {
@@ -1415,6 +1961,24 @@
      "ratio": 0.2829,
      "severity": "violation",
      "stress": "Surge L-E across barrier"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.6848,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.7072,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SAFETY",
@@ -1428,13 +1992,33 @@
     "bench: CMTI. Neither crossing is on a switch node; the bound (s42's S4 at typical Qrr, 49.7 V/ns) is 2.0x the 100 V/ns minimum. Maximum Qrr is open (nearest tested network 106 V/ns would be 1.06x over): U9 has R134 / C167 (1 k / 100 pF, tau 100 ns) before U13.A against a ns upset; U32 is a heartbeat carrier, an upset drops or adds an edge but cannot sustain a wave (FMEA 6a). Probe BUS_FAULT_FLT and the heartbeat at hard S4/S5 edges (D-8).",
     "certifier: no CSA certificate is listed (UL 1577 E511334, VDE 40057278, TUV CB JPTUV-111116); UL Product iQ 403. Confirm E511334 covers CA-IS3720HW (SOIC16-WB, 5000 Vrms) and whether UL 1577 alone serves Canada.",
     "owner: single source (Chipanalog). JLC 1,640 at 2026-10-14 (C428883), two per board.",
-    "bench: mixed-supply (5 V / 3.3 V) timing is not tabulated; the 3.3 V table is used for the SELV side. VOH at 3.3 V is specified at -2 mA; the loads are CMOS gate inputs and the 1 k R134."
+    "bench: mixed-supply (5 V / 3.3 V) timing is not tabulated; the 3.3 V table is used for the SELV side. VOH at 3.3 V is specified at -2 mA; the loads are CMOS gate inputs and the 1 k R134.",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
   },
   "CC0603KRX7R9BB104": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.9008,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.9616,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "C131",
@@ -1492,13 +2076,34 @@
    "finding": null,
    "function": "100 nF X7R 0603 decoupling/filter",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "CC0805KRX7R9BB104": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.7672,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.9752,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "C10",
@@ -1509,9 +2114,11 @@
    "finding": null,
    "function": "100 nF 0805 driver VDD decoupling",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "CC1206JKNPOCBN102": {
@@ -1591,7 +2198,26 @@
    ]
   },
   "CL05B104KB54PNC": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.796,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 1.088,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "C110",
@@ -1614,13 +2240,35 @@
    "finding": null,
    "function": "100 nF 0402 bypass",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) C122 is 136.0 C against 125.0 C (-11.0 K); the firmware ships 17.5 A (DECISIONS 61), where it is 99.5 C (+25.5 K)",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "CL10C101JB8NNNC": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.688,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.776,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "C167",
@@ -1629,13 +2277,34 @@
    "finding": null,
    "function": "100 pF 0603",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "CL10C331JB8NNNC": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.84,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.904,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "C105",
@@ -1647,13 +2316,34 @@
    "finding": null,
    "function": "330 pF",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "CL21B105KBFNNNE": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.7728,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 1.0056,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "C145",
@@ -1666,9 +2356,12 @@
    "finding": null,
    "function": "1 uF 0805 driver straddle cap",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) C148 is 125.7 C against 125.0 C (-0.7 K); the firmware ships 17.5 A (DECISIONS 61), where it is 96.6 C (+28.4 K)",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "CL32B106KBJNNNE": {
@@ -1690,6 +2383,24 @@
      "ratio": 0.612,
      "severity": "violation",
      "stress": "Required effective C, driver VSS pair"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.9016,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 1.0728,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SIGNAL",
@@ -1723,7 +2434,9 @@
    "function": "10 uF 50 V X7R 1210 reservoirs (driver VSS pairs, LS 15 V, module span, V24_RAW, 5 V rails)",
    "gaps": [
     "s19b BP-04 (>= 70 % of design C per rail) is met at 2 V and 5 V but not at 15 / 17 / 24 V (57 / 53 / 39 % of nominal at 100 C with tolerance; the stage-30 Taiyo part gave 37 / 32 / 22 %). No rail has a stated minimum there; the P-N start-up bound holds (mlcc_bias.py).",
-    "X7R ageing and the AC test level of the bias curve are not included."
+    "X7R ageing and the AC test level of the bias curve are not included.",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) C97 is 134.1 C against 125.0 C (-9.1 K); the firmware ships 17.5 A (DECISIONS 61), where it is 112.7 C (+12.3 K)"
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -2009,7 +2722,26 @@
    ]
   },
   "GRM188R71E105KA12D": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.808,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 1.0912,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "C50",
@@ -2025,13 +2757,35 @@
    "finding": null,
    "function": "1 uF 0603 bypass",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) C59 is 136.4 C against 125.0 C (-11.4 K); the firmware ships 17.5 A (DECISIONS 61), where it is 101.0 C (+24.0 K)",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "GRM21BZ71E106KE15L": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.7656,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.9624,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "C11",
@@ -2040,13 +2794,34 @@
    "finding": null,
    "function": "10 uF 0805 bias reservoir",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "GRM31C5C1H104JA01L": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.5048,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (operating (surface))",
+     "ratio": 0.4752,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "C42",
@@ -2055,9 +2830,11 @@
    "finding": null,
    "function": "100 nF C0G 1206",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "IPW65R018CFD7": {
@@ -2201,6 +2978,24 @@
      "ratio": 0.8,
      "severity": "violation",
      "stress": "Functional gap needed"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.9096,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.9784,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SAFETY",
@@ -2212,7 +3007,8 @@
    "function": "U43 / U44: HS-A / HS-B rail verdicts into the LS domain (functional HS-LS crossings in the bias-monitor PEC); default output LOW = not good. Stage 40 (candidate 30a): U44 replaces the HS-B -> SELV verdict isolator (CA-IS3720LW) in U42's n_ls pocket, as M1b drew it; both verdicts meet on the LS vote (D18 / D20)",
    "gaps": [
     "bench: maximum-Qrr basis (DECISIONS 54): s42's S4 edge at typical recovery charge is 49.7 V/ns (2.0x the 100 V/ns minimum); the 4.60 uC maximum was not run on the adopted network, and the nearest tested network reads 106 V/ns (1.06x over). The D-8 double-pulse bench measures S4/S5 dv/dt and probes OUTB of U43/U44 for upsets at hard edges (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json); an upset is availability, not safety (c24 FMEA).",
-    "certifier: basic insulation (UL 1577 single protection E181974, CSA 220991 basic) used as the functional HS-LS crossing; the certifier is asked whether its barrier short may be excluded (FMEA section 7 Q4)."
+    "certifier: basic insulation (UL 1577 single protection E181974, CSA 220991 basic) used as the functional HS-LS crossing; the certifier is asked whether its barrier short may be excluded (FMEA section 7 Q4).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -2263,6 +3059,24 @@
      "ratio": 0.0383,
      "severity": "violation",
      "stress": "Prospective fault"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (ambient at the fuse (implied: end of the rerating curve))",
+     "ratio": 0.6216,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (ambient at the fuse (implied: end of the rerating curve))",
+     "ratio": 0.5912,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SAFETY",
@@ -2274,7 +3088,8 @@
    "gaps": [
     "bench: F1 / clip local air is not evidenced; 16.0 A assumes the 61 C release bay of the B3 basis (DECISIONS.md:2033-2037; 16.5 A at the 55 C expected bay), and the rerating value is read off the p.6 plot (+/-2 %).",
     "certifier: 01250003H open clips: UL Recognized E14721 per the maker's sheet (merged 105/125 cell), 30 A, but no voltage rating and no CSA file printed; acceptance of a Class CC fuse in non-rejection PCB clips and the fuse+clip temperature rise at 15 A are certifier items (CERTIFIER-PACKET row 6).",
-    "certifier: F1 does not interrupt 15-25 A overloads (a UL 248 fuse carries its rating); J1 is now the 30 A UL/CSA MKDS 5/2-9,5, so F1 protects J1, but the 15 A plug and cord rest on firmware and the branch breaker (FINDINGS #11). No NMX/NOM mark is printed (UL / CSA only); UL Product iQ returned 403, so the files are as printed by the maker."
+    "certifier: F1 does not interrupt 15-25 A overloads (a UL 248 fuse carries its rating); J1 is now the 30 A UL/CSA MKDS 5/2-9,5, so F1 protects J1, but the 15 A plug and cord rest on firmware and the branch breaker (FINDINGS #11). No NMX/NOM mark is printed (UL / CSA only); UL Product iQ returned 403, so the files are as printed by the maker.",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement; no published maximum temperature for the fuse or its 01250003H clips (UL E14721 not reachable); 125 C is the end of the rerating curve, not a rating; the fuse's own I^2R heat is not in B3"
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -2468,7 +3283,26 @@
    "unchecked_layout": []
   },
   "PMEG6030EP,115": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TJ)",
+     "ratio": 0.7547,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Temperature rating (TJ)",
+     "ratio": 1.064,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "D6",
@@ -2479,9 +3313,12 @@
    "finding": null,
    "function": "Schottky D6-D9 (negative gate bias)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement; VF is the 25 C table maximum at 3 A (p.5); the turn-off peak is several A, beyond the table, and no hot-Tj VF or IR maximum is published (Fig. 5 typical ~10 mA at 25-30 V, Tj 125 C): reverse leakage during the turn-on transient (VR up to 15.5 V for ~1 us of each 16.7 us) is not in the self-heat",
+    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) D7 is 159.6 C against 150.0 C (-9.6 K); the firmware ships 17.5 A (DECISIONS 61), where it is 113.2 C (+36.8 K)",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "R24C2T25/R-R": {
@@ -2619,7 +3456,44 @@
    "unchecked_layout": []
   },
   "RC1206FR-0716K5L": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R69",
+     "ratio": 0.7101,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R69",
+     "ratio": 0.7239,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    },
+    {
+     "id": "element, c17.5_h10 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (element)",
+     "ratio": 0.5787,
+     "severity": "violation",
+     "stress": "Element temperature, c17.5_h10"
+    },
+    {
+     "id": "element, c28_h10 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (element)",
+     "ratio": 0.5903,
+     "severity": "gap",
+     "stress": "Element temperature, c28_h10"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R67",
@@ -2630,9 +3504,11 @@
    "finding": null,
    "function": "16.5 k 1206",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RC1206FR-07220KL": {
@@ -2672,6 +3548,24 @@
      "ratio": 0.4517,
      "severity": "violation",
      "stress": "P per resistor static"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R3",
+     "ratio": 0.6329,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R3",
+     "ratio": 0.6424,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SAFETY",
@@ -2683,13 +3577,33 @@
    "function": "Bus bleed R3/R4 (two 220 k in series, midpoint to D3/D17)",
    "gaps": [
     "bench: local air at R3/R4 is not evidenced (B3 has no R3/R4 row); 85 C is assumed as for R1/R2, and the 50 % power rule holds to 91.8 C.",
-    "certifier: with one resistor shorted the other carries the whole bus (287.62 V static > 200 V working, < 400 V overload); the abnormal-operation outcome (bleed lost if it opens) is a lab item."
+    "certifier: with one resistor shorted the other carries the whole bus (287.62 V static > 200 V working, < 400 V overload); the abnormal-operation outcome (bleed lost if it opens) is a lab item.",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RC1206FR-072K2L": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R59",
+     "ratio": 0.7819,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R59",
+     "ratio": 0.7998,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R59",
@@ -2699,13 +3613,52 @@
    "finding": null,
    "function": "2.2 k 1206",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RC1206FR-073RL": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R39",
+     "ratio": 0.5191,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R39",
+     "ratio": 0.7588,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    },
+    {
+     "id": "element, c17.5_h10 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (element)",
+     "ratio": 0.4535,
+     "severity": "violation",
+     "stress": "Element temperature, c17.5_h10"
+    },
+    {
+     "id": "element, c28_h10 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (element)",
+     "ratio": 0.5052,
+     "severity": "gap",
+     "stress": "Element temperature, c28_h10"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R39"
@@ -2713,9 +3666,11 @@
    "finding": null,
    "function": "3.0 R CT burden",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RC1206FR-07470KL": {
@@ -2823,7 +3778,26 @@
    "unchecked_layout": []
   },
   "RL1206FR-070R68L": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R55",
+     "ratio": 0.6715,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R56",
+     "ratio": 0.9146,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R51",
@@ -2834,9 +3808,11 @@
    "finding": null,
    "function": "0.68 R 1206 rail reservoir resistors",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RT0603BRD07104KL": {
@@ -2867,6 +3843,24 @@
      "ratio": 0.055,
      "severity": "violation",
      "stress": "Power, fault"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R87",
+     "ratio": 0.542,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R87",
+     "ratio": 0.5466,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SIGNAL",
@@ -2879,7 +3873,8 @@
    "function": "104000 ohm 0.1 % 25 ppm 0603: rail-monitor span-OV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
    "gaps": [
     "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
-    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -2887,7 +3882,26 @@
    ]
   },
   "RT0603BRD07105KL": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R48",
+     "ratio": 0.5956,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R48",
+     "ratio": 0.6479,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R48"
@@ -2895,13 +3909,34 @@
    "finding": null,
    "function": "105 k 0.1 %",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RT0603BRD0710KL": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R33",
+     "ratio": 0.6118,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R50",
+     "ratio": 0.6564,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R100",
@@ -2927,13 +3962,34 @@
    "finding": null,
    "function": "10 k 0.1 %",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RT0603BRD0711KL": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R61",
+     "ratio": 0.6185,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R61",
+     "ratio": 0.6269,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R104",
@@ -2948,13 +4004,34 @@
    "finding": null,
    "function": "11 k 0.1 %: HS module feedback bottoms (R61 / R93) and, since stage 45, the rail-monitor span-UV / span-OV tap bottoms (S16 option 1c-4420)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RT0603BRD0712K6L": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R34",
+     "ratio": 0.6185,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R34",
+     "ratio": 0.6643,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R34"
@@ -2962,13 +4039,34 @@
    "finding": null,
    "function": "12.6 k 0.1 % OCP threshold",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RT0603BRD07140KL": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R37",
+     "ratio": 0.5987,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R37",
+     "ratio": 0.6406,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R37"
@@ -2976,13 +4074,34 @@
    "finding": null,
    "function": "140 k 0.1 % OVP",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RT0603BRD0715K8L": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R30",
+     "ratio": 0.5916,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R30",
+     "ratio": 0.6523,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R30"
@@ -2990,13 +4109,34 @@
    "finding": null,
    "function": "15.8 k 0.1 % bus divider bottom",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RT0603BRD071KL": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R41",
+     "ratio": 0.4124,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R41",
+     "ratio": 0.3808,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R40",
@@ -3005,13 +4145,34 @@
    "finding": null,
    "function": "1 k 0.1 %",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RT0603BRD072K21L": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R43",
+     "ratio": 0.4012,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R43",
+     "ratio": 0.3663,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R43",
@@ -3020,9 +4181,11 @@
    "finding": null,
    "function": "2.21 k",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RT0603BRD072K94L": {
@@ -3053,6 +4216,24 @@
      "ratio": 0.1227,
      "severity": "violation",
      "stress": "Power, fault"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R83",
+     "ratio": 0.5352,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R83",
+     "ratio": 0.541,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SIGNAL",
@@ -3065,7 +4246,8 @@
    "function": "2940 ohm 0.1 % 25 ppm 0603: rail-monitor neg-OV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
    "gaps": [
     "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
-    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -3073,7 +4255,26 @@
    ]
   },
   "RT0603BRD0749K9L": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R17",
+     "ratio": 0.4822,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R17",
+     "ratio": 0.499,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R133",
@@ -3083,13 +4284,34 @@
    "finding": null,
    "function": "49.9 k dead-time resistor R9/R17",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RT0603BRD074K42L": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R79",
+     "ratio": 0.5462,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R79",
+     "ratio": 0.5558,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R112",
@@ -3099,13 +4321,34 @@
    "finding": null,
    "function": "4.42 k 0.1 %: rail-monitor halfref top (stage 45, S16 option 1c-4420; was the neg-UV tap top)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RT0603BRD0763K4L": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R92",
+     "ratio": 0.6134,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R94",
+     "ratio": 0.6213,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R92",
@@ -3114,13 +4357,34 @@
    "finding": null,
    "function": "63.4 k",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RT0603BRD076K2L": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R77",
+     "ratio": 0.5378,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R77",
+     "ratio": 0.5429,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R110",
@@ -3130,9 +4394,11 @@
    "finding": null,
    "function": "6.2 k",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "RT0603BRD07750RL": {
@@ -3163,6 +4429,24 @@
      "ratio": 0.0454,
      "severity": "violation",
      "stress": "Power, fault"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R81",
+     "ratio": 0.5374,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R81",
+     "ratio": 0.5458,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SIGNAL",
@@ -3175,7 +4459,8 @@
    "function": "750 ohm 0.1 % 25 ppm 0603: rail-monitor neg-UV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
    "gaps": [
     "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
-    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -3210,6 +4495,24 @@
      "ratio": 0.0612,
      "severity": "violation",
      "stress": "Power, fault"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R85",
+     "ratio": 0.5529,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R85",
+     "ratio": 0.5615,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SIGNAL",
@@ -3222,7 +4525,8 @@
    "function": "90900 ohm 0.1 % 25 ppm 0603: rail-monitor span-UV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
    "gaps": [
     "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
-    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -3230,7 +4534,26 @@
    ]
   },
   "SN74LVC1G00DBVR": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.6288,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.672,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "U22",
@@ -3239,13 +4562,34 @@
    "finding": null,
    "function": "NAND, DIS = NAND(PERMIT, BIAS_GOOD)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "SN74LVC1G10DBVR": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.7448,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.8896,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "U8"
@@ -3253,9 +4597,11 @@
    "finding": null,
    "function": "3-input NAND",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "SN74LVC1G132DBVR": {
@@ -3268,6 +4614,24 @@
      "ratio": 0.9545,
      "severity": "violation",
      "stress": "VCC"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.6888,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.6992,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SIGNAL",
@@ -3278,13 +4642,33 @@
    "finding": null,
    "function": "U45: gated Schmitt-NAND RC oscillator (heartbeat source, LS domain); U46: SELV Schmitt NAND, heartbeat gated by HS-B's ISO7710F verdict, driving the pump (3.3 V, inside the 5 V corner checked here)",
    "gaps": [
-    "The LS 5 V tolerance (TPS70950, UNAUDITED signal part) is taken as +/-5 %; the oscillator period range 0.42-2.09 us follows from the G132 threshold table at those corners."
+    "The LS 5 V tolerance (TPS70950, UNAUDITED signal part) is taken as +/-5 %; the oscillator period range 0.42-2.09 us follows from the G132 threshold table at those corners.",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
   },
   "SN74LVC1G17DBVR": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.7104,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.8976,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "U15",
@@ -3294,13 +4678,34 @@
    "finding": null,
    "function": "Schmitt buffer",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "SN74LVC1G332DBVR": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.5,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.4592,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "U13"
@@ -3308,9 +4713,11 @@
    "finding": null,
    "function": "OR gate",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "TL431BQDBZR": {
@@ -3378,7 +4785,26 @@
    "unchecked_layout": []
   },
   "TLV3201AIDBVR": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.7184,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.8384,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "U10",
@@ -3390,13 +4816,34 @@
    "finding": null,
    "function": "40 ns comparators",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "TLVH431BQDBZR": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.8072,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.8384,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "U16",
@@ -3406,9 +4853,11 @@
    "finding": null,
    "function": "adjustable shunt",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "TMOV20RP175E": {
@@ -3467,7 +4916,26 @@
    ]
   },
   "TNPW060311K7BEEA": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R35",
+     "ratio": 0.7622,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R35",
+     "ratio": 0.8231,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "R35"
@@ -3475,13 +4943,34 @@
    "finding": null,
    "function": "11.7 k 0.1 % OCP threshold",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "TPS3700DDCR": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TJ)",
+     "ratio": 0.8016,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TJ)",
+     "ratio": 0.932,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "U14"
@@ -3489,13 +4978,34 @@
    "finding": null,
    "function": "HOT5 window supervisor",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "TPS70950DBVR": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TJ)",
+     "ratio": 0.84,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TJ)",
+     "ratio": 0.9792,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "U3",
@@ -3506,13 +5016,34 @@
    "finding": null,
    "function": "5 V LDO (HOT5)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "TPS7A4700RGWR": {
-   "checks": [],
+   "checks": [
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TJ)",
+     "ratio": 0.9592,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TJ)",
+     "ratio": 0.9976,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "U26"
@@ -3520,9 +5051,11 @@
    "finding": null,
    "function": "low-noise LDO U26 (V15_LS), Tj 89 C, 36 K margin (DECISIONS.md:825)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "Not audited (outside SAFETY/POWER).",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "VOL628A-2X001T": {
@@ -3580,6 +5113,24 @@
      "ratio": 0.2747,
      "severity": "violation",
      "stress": "Surge L-E across barrier"
+    },
+    {
+     "id": "temperature, release case (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.7082,
+     "severity": "violation",
+     "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
+    },
+    {
+     "id": "temperature, c28 (temp-ratings 2026-10-15)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Temperature rating (TA)",
+     "ratio": 0.7236,
+     "severity": "gap",
+     "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SAFETY",
@@ -3590,7 +5141,8 @@
    "function": "Line zero-cross optocoupler U36 (mains L/N to SELV), LSOP-4 long creepage",
    "gaps": [
     "bench: Vishay publishes no CMTI (p.1 'high common mode transient immunity' only). U36 straddles mains L/N to SELV, so EFT / surge fronts, not switch nodes, set its dv/dt; a false zero-cross edge is handled by the firmware window (UNCHECKED). Bench: EFT 1 kV / surge at the inlet with LINE_ZC on a scope.",
-    "certifier: UL 1577 file E76222 is quoted from Rev. 1.8 (2018); Rev. 1.9 drops the number and UL Product iQ returned 403. Confirm VOL628A on E76222 (and cUL) in the submission."
+    "certifier: UL 1577 file E76222 is quoted from Rev. 1.8 (2018); Rev. 1.9 drops the number and UL Product iQ returned 403. Confirm VOL628A on E76222 (and cUL) in the submission.",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement; no Rth published: the 3 mW LED self-heat is not added (< 1 K at any plausible Rth)"
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -3602,55 +5154,6 @@
  "failures": [],
  "missing_from_ledger": [],
  "partial": [
-  "1206W4F1003T5E",
-  "1714971",
-  "25121WF680JT4E",
-  "2EDR8259XXUMA1",
-  "30KPA150CA",
-  "7466004R",
-  "AC05000001507JAC00",
-  "AMC1311BDWVR",
-  "B2P3-VH(LF)(SN)",
-  "B32652A0104K000",
-  "B32654A1104J000",
-  "B32676G1905K000",
-  "B82726S2203A020",
-  "CA-IS3720HW",
-  "CC1206JKNPOCBN102",
-  "CL32B106KBJNNNE",
-  "CSS2H-2512R-1L00F",
-  "CST3015-200ED",
-  "DE1E3RA222MA4BP01F",
-  "GBJ2510-F",
-  "GRM1885C1H472JA01D",
-  "IPW65R018CFD7",
-  "ISO6721FBDR",
-  "KLDR025.TXP",
-  "LM2901BIDR",
-  "LM4050AEM3-2.5/NOPB",
-  "MPM-20-24",
-  "R24C2T25/R-R",
-  "R463N410050N1K",
-  "RC1206FR-07220KL",
-  "RC1206FR-07470KL",
-  "RT0603BRD07104KL",
-  "RT0603BRD072K94L",
-  "RT0603BRD07750RL",
-  "RT0603BRD0790K9L",
-  "SN74LVC1G132DBVR",
-  "TL431BQDBZR",
-  "TMOV20RP175E",
-  "VOL628A-2X001T"
- ],
- "result": "PASS",
- "strict": false,
- "totals": {
-  "PARTIAL": 39,
-  "UNAUDITED": 52,
-  "VERIFIED": 3,
-  "VIOLATION": 0
- },
- "unaudited_other": [
   "0430451612",
   "0603WAF0000T5E",
   "0603WAF1000T5E",
@@ -3663,24 +5166,56 @@
   "0603WAF4991T5E",
   "0603WAF5601T5E",
   "1206W4F1001T5E",
+  "1206W4F1003T5E",
   "1206W4F100KT5E",
+  "1714971",
+  "25121WF680JT4E",
+  "2EDR8259XXUMA1",
+  "30KPA150CA",
   "6SVPC220MV",
+  "7466004R",
+  "AC05000001507JAC00",
+  "AMC1311BDWVR",
+  "B2P3-VH(LF)(SN)",
+  "B32652A0104K000",
+  "B32654A1104J000",
+  "B32676G1905K000",
+  "B82726S2203A020",
   "BAS116H,115",
   "C0603C102J5GACTU",
+  "CA-IS3720HW",
   "CC0603KRX7R9BB104",
   "CC0805KRX7R9BB104",
+  "CC1206JKNPOCBN102",
   "CL05B104KB54PNC",
   "CL10C101JB8NNNC",
   "CL10C331JB8NNNC",
   "CL21B105KBFNNNE",
+  "CL32B106KBJNNNE",
+  "CSS2H-2512R-1L00F",
+  "CST3015-200ED",
+  "DE1E3RA222MA4BP01F",
+  "GBJ2510-F",
+  "GRM1885C1H472JA01D",
   "GRM188R71E105KA12D",
   "GRM21BZ71E106KE15L",
   "GRM31C5C1H104JA01L",
+  "IPW65R018CFD7",
+  "ISO6721FBDR",
+  "KLDR025.TXP",
+  "LM2901BIDR",
+  "LM4050AEM3-2.5/NOPB",
+  "MPM-20-24",
   "PMEG6030EP,115",
+  "R24C2T25/R-R",
+  "R463N410050N1K",
   "RC1206FR-0716K5L",
+  "RC1206FR-07220KL",
   "RC1206FR-072K2L",
   "RC1206FR-073RL",
+  "RC1206FR-07470KL",
   "RL1206FR-070R68L",
+  "RT0603BRD07104KL",
   "RT0603BRD07105KL",
   "RT0603BRD0710KL",
   "RT0603BRD0711KL",
@@ -3689,25 +5224,39 @@
   "RT0603BRD0715K8L",
   "RT0603BRD071KL",
   "RT0603BRD072K21L",
+  "RT0603BRD072K94L",
   "RT0603BRD0749K9L",
   "RT0603BRD074K42L",
   "RT0603BRD0763K4L",
   "RT0603BRD076K2L",
+  "RT0603BRD07750RL",
+  "RT0603BRD0790K9L",
   "SN74LVC1G00DBVR",
   "SN74LVC1G10DBVR",
+  "SN74LVC1G132DBVR",
   "SN74LVC1G17DBVR",
   "SN74LVC1G332DBVR",
+  "TL431BQDBZR",
   "TLV3201AIDBVR",
   "TLVH431BQDBZR",
+  "TMOV20RP175E",
   "TNPW060311K7BEEA",
   "TPS3700DDCR",
   "TPS70950DBVR",
-  "TPS7A4700RGWR"
+  "TPS7A4700RGWR",
+  "VOL628A-2X001T"
  ],
+ "result": "PASS",
+ "strict": false,
+ "totals": {
+  "PARTIAL": 91,
+  "UNAUDITED": 0,
+  "VERIFIED": 3,
+  "VIOLATION": 0
+ },
+ "unaudited_other": [],
  "unaudited_safety_power": [],
  "unchecked_layout_items": 15,
  "violations": [],
- "warnings": [
-  "52 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
- ]
+ "warnings": []
 }
