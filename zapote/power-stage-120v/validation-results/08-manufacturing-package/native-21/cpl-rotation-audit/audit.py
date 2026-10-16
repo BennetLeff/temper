@@ -451,9 +451,11 @@ CONTROLS = {
     "R7": {"class": "OK", "delta": 0},
     # SOT-23-6 (TPS3700, C33002): DB "^SOT-23" -90 and the LCSC footprint fit both give -90
     "U14": {"class": "CORRECTED", "delta": -90},
-    # SOIC-14 (LM339B, C22416291): DB "^SOIC-" 270 and the LCSC footprint fit both give 270
+    # SOIC-14 (LM2901BIDR C22427890 since stage 46; LM339BIDR C22416291 before, the same EasyEDA pads): DB "^SOIC-"
+    # 270 and the LCSC footprint fit both give 270
     "U29": {"class": "CORRECTED", "delta": -90},
-    # SOT-23-3 (TL431BIDBZR, C41283): EasyEDA fit 180, DB "^SOT-23" -90; settled by the TI SLVS543S p.4 pinout
+    # SOT-23-3 (TL431BQDBZR C190245 since stage 46; TL431BIDBZR C41283 before): EasyEDA fit 180, DB "^SOT-23" -90;
+    # settled by the TI SLVS543S p.4 pinout
     "U17": {"class": "CORRECTED", "delta": -180},
 }
 

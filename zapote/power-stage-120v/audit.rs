@@ -459,7 +459,8 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_ls.shunt", "TLVH431BQDBZR"),
     ("bias_ls.rtop", "RT0603BRD076K2L"),
     ("bias_ls.rbot", "RT0603BRD0710KL"),
-    ("monitor_ls.reference", "TL431BIDBZR"),   // stage 45 (S16, DECISIONS 59, option 1c-4420): TL431B, halfref 4.42 k / 10 k, re-centred taps
+    ("monitor_ls.reference", "TL431BQDBZR"),   // stage 45 (S16, DECISIONS 59, option 1c-4420): TL431B, halfref 4.42 k / 10 k, re-centred taps;
+                                               // stage 46 (S17 hot copper): the 125 C grades TL431BQDBZR / LM2901BIDR
     ("monitor_ls.rref", "RC1206FR-072K2L"),
     ("monitor_ls.rhalf_top", "RT0603BRD074K42L"),
     ("monitor_ls.rhalf_bot", "RT0603BRD0710KL"),
@@ -471,7 +472,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("monitor_ls.rspanuv_bot", "RT0603BRD0711KL"),
     ("monitor_ls.rspanov_top", "RT0603BRD07104KL"),
     ("monitor_ls.rspanov_bot", "RT0603BRD0711KL"),
-    ("monitor_ls.monitor", "LM339BIDR"),
+    ("monitor_ls.monitor", "LM2901BIDR"),
     ("monitor_ls.rpull", "0603WAF1002T5E"),
     ("u_bias_flt", "SN74LVC1G17DBVR"),
     // stage 30 (DECISIONS 33): HS links and the heartbeat
@@ -512,7 +513,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_ha.split.shunt", "TLVH431BQDBZR"),
     ("bias_ha.split.rtop", "RT0603BRD076K2L"),
     ("bias_ha.split.rbot", "RT0603BRD0710KL"),
-    ("bias_ha.monitor.reference", "TL431BIDBZR"),
+    ("bias_ha.monitor.reference", "TL431BQDBZR"),
     ("bias_ha.monitor.rref", "RC1206FR-072K2L"),
     ("bias_ha.monitor.rhalf_top", "RT0603BRD074K42L"),
     ("bias_ha.monitor.rhalf_bot", "RT0603BRD0710KL"),
@@ -524,7 +525,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_ha.monitor.rspanuv_bot", "RT0603BRD0711KL"),
     ("bias_ha.monitor.rspanov_top", "RT0603BRD07104KL"),
     ("bias_ha.monitor.rspanov_bot", "RT0603BRD0711KL"),
-    ("bias_ha.monitor.monitor", "LM339BIDR"),
+    ("bias_ha.monitor.monitor", "LM2901BIDR"),
     ("bias_ha.monitor.rpull", "0603WAF1002T5E"),
     ("bias_ha.monitor.ldo5", "TPS70950DBVR"),
     ("bias_ha.monitor.cuv", "C0603C102J5GACTU"),
@@ -545,7 +546,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_hb.split.shunt", "TLVH431BQDBZR"),
     ("bias_hb.split.rtop", "RT0603BRD076K2L"),
     ("bias_hb.split.rbot", "RT0603BRD0710KL"),
-    ("bias_hb.monitor.reference", "TL431BIDBZR"),
+    ("bias_hb.monitor.reference", "TL431BQDBZR"),
     ("bias_hb.monitor.rref", "RC1206FR-072K2L"),
     ("bias_hb.monitor.rhalf_top", "RT0603BRD074K42L"),
     ("bias_hb.monitor.rhalf_bot", "RT0603BRD0710KL"),
@@ -557,7 +558,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_hb.monitor.rspanuv_bot", "RT0603BRD0711KL"),
     ("bias_hb.monitor.rspanov_top", "RT0603BRD07104KL"),
     ("bias_hb.monitor.rspanov_bot", "RT0603BRD0711KL"),
-    ("bias_hb.monitor.monitor", "LM339BIDR"),
+    ("bias_hb.monitor.monitor", "LM2901BIDR"),
     ("bias_hb.monitor.rpull", "0603WAF1002T5E"),
     ("bias_hb.monitor.ldo5", "TPS70950DBVR"),
     ("bias_hb.monitor.cuv", "C0603C102J5GACTU"),
@@ -1810,6 +1811,24 @@ mod tests {
         let mut m = built();
         m.set_part("bias_hb.monitor.rov_top", "RT0603BRD077K68L");
         fails(&m, "bias_hb.monitor.rov_top is RT0603BRD077K68L");
+    }
+
+    #[test]
+    fn stage46_monitor_grades_hold() {
+        // S17 hot copper (b3-ratings monitor-probes-2026-10-15): the 85 C grades back on any rail monitor must fail;
+        // at the c18 @ 61 release case the LM339B rows read -11.6..-17.9 K and the TL431BI rows up to -7.7 K
+        let mut m = built();
+        m.set_part("monitor_ls.reference", "TL431BIDBZR");
+        fails(&m, "monitor_ls.reference is TL431BIDBZR");
+        let mut m = built();
+        m.set_part("bias_hb.monitor.reference", "TL431BIDBZR");
+        fails(&m, "bias_hb.monitor.reference is TL431BIDBZR");
+        let mut m = built();
+        m.set_part("monitor_ls.monitor", "LM339BIDR");
+        fails(&m, "monitor_ls.monitor is LM339BIDR");
+        let mut m = built();
+        m.set_part("bias_ha.monitor.monitor", "LM339BIDR");
+        fails(&m, "bias_ha.monitor.monitor is LM339BIDR");
     }
 
     #[test]

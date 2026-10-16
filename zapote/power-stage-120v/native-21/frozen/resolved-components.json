@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "94242344490ebd4bc11a1ebd88991421ccc61632a423c204a12201e87b1e5450",
+    "build/default.csv": "d8d4f0759506c175b9ef5f731470e65c1b01122a752f7c1f604ea5614ff836e8",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "5fd47c48b431ddff4274f0fb7c750b1a5dec2e3e69f77ecd4e9ef32953ba8774",
+    "build/default.net": "c80736038c31a2343bd42d5789f4f8b4ff53e61f1720bbd99f9d6187bc310234",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -2456,7 +2456,7 @@
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23",
         "manufacturer": "Texas Instruments",
-        "mpn": "TL431BIDBZR"
+        "mpn": "TL431BQDBZR"
       }
     },
     {
@@ -2587,7 +2587,7 @@
         "designator_prefix": "U",
         "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
         "manufacturer": "Texas Instruments",
-        "mpn": "LM339BIDR"
+        "mpn": "LM2901BIDR"
       }
     },
     {
@@ -2858,7 +2858,7 @@
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23",
         "manufacturer": "Texas Instruments",
-        "mpn": "TL431BIDBZR"
+        "mpn": "TL431BQDBZR"
       }
     },
     {
@@ -2989,7 +2989,7 @@
         "designator_prefix": "U",
         "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
         "manufacturer": "Texas Instruments",
-        "mpn": "LM339BIDR"
+        "mpn": "LM2901BIDR"
       }
     },
     {
@@ -3292,7 +3292,7 @@
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23",
         "manufacturer": "Texas Instruments",
-        "mpn": "TL431BIDBZR"
+        "mpn": "TL431BQDBZR"
       }
     },
     {
@@ -3423,7 +3423,7 @@
         "designator_prefix": "U",
         "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
         "manufacturer": "Texas Instruments",
-        "mpn": "LM339BIDR"
+        "mpn": "LM2901BIDR"
       }
     },
     {
@@ -3860,7 +3860,7 @@
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
     "elec/src/f6_bias.ato": "e63a787631b5a5b42d657638afacc8808c6fcac84b83ec0736b349d6acb61c2a",
-    "elec/src/f6_parts.ato": "a8a83f87bb3d46bc249f788f2a5ea1a25a119b8a38033f6d75b16c3833a6851f",
+    "elec/src/f6_parts.ato": "246a8b9d604a1e60aed43c2250244929e6d7c1da136b475e7b79d2673df4a946",
     "elec/src/parts.ato": "498892092ab146d387a3a79a2ed39da0073ad1072dc511d004888bf87563cfda",
     "elec/src/power_stage_120v.ato": "5107cb8e60408efc497a2e964d8b00290aa4b7c92818b14fa46aeb2664e975b3",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"

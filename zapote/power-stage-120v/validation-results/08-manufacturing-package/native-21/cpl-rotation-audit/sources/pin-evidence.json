@@ -121,6 +121,41 @@
    "kicad_pad_is_datasheet_pin": true,
    "source": "TI SCES546E (Feb 2004, rev. Aug 2026), p.3 Fig. 4-1 'DBV Package 5-Pin SOT-23 Top View' and Pin Functions table: 1 A, 2 B, 3 GND, 4 Y, 5 VCC. https://www.ti.com/lit/ds/symlink/sn74lvc1g132.pdf sha256 fae33d78fe46834ab99230aaa1106f58321f23cf06c65be9cf08ea9c0dbcb623, read 2026-10-15",
    "kicad_check": "native-21 frozen netlist (stage 45): U45 pad 5 (VCC) on ls_v5, pad 3 (GND) on n_ls, pad 4 (Y) on hb_tx, inputs pad 1 / 2 on monitor_ls-good / hb_rc; U46 pad 5 on v3v3, pad 3 on selv_gnd, pad 4 (Y) on hb_bufo, inputs on hsb_good / hb_rx: KiCad pad n = datasheet pin n"
+  },
+  "C190245": {
+   "part": "TL431BQDBZR",
+   "package": "DBZ (SOT-23-3)",
+   "datasheet_pins": {
+    "1": "CATHODE",
+    "2": "REF",
+    "3": "ANODE"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SLVS543S (Aug 2004, rev. May 2024), p.4 'Pin Configuration and Functions', TL431, TL431A, TL431B DBZ (SOT-23-3) package, top view: 1 CATHODE, 2 REF, 3 ANODE - one DBZ figure for every temperature grade (the Q grade is TL431BQDBZR in the orderable addendum, -40 to 125 C; the TL432 DBZ differs: 1 REF, 2 CATHODE). https://www.ti.com/lit/ds/symlink/tl431.pdf sha256 ed2e90697de4e2c553195514adf1ee59cda42863716b6ef702b8304a5b921d22, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 46): U17 / U19 / U21 pads 1 and 2 on <rail>.monitor-ref (cathode tied to ref, the 2.5 V shunt connection), pad 3 on the island ground n_ls / n_ha / n_hb (anode): KiCad pad n = datasheet pin n; same nets and pads as C41283 (TL431BIDBZR) at stage 45"
+  },
+  "C22427890": {
+   "part": "LM2901BIDR",
+   "package": "D (SOIC-14)",
+   "datasheet_pins": {
+    "1": "OUT1",
+    "2": "OUT2",
+    "3": "VCC",
+    "4": "IN2-",
+    "5": "IN2+",
+    "6": "IN1-",
+    "7": "IN1+",
+    "8": "IN3-",
+    "9": "IN3+",
+    "10": "IN4-",
+    "11": "IN4+",
+    "12": "GND",
+    "13": "OUT4",
+    "14": "OUT3"
+   },
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SLCS006Z (Oct 1979, rev. May 2025), p.4 Figure 5-1 'D, DB, N, NS, PW Packages 14-Pin SOIC ... Top View' and Table 5-1 Pin Functions (one table for LM339B and LM2901B): 1 OUT1, 2 OUT2, 3 VCC, 4 IN2-, 5 IN2+, 6 IN1-, 7 IN1+, 8 IN3-, 9 IN3+, 10 IN4-, 11 IN4+, 12 GND, 13 OUT4, 14 OUT3 (footnote 1: channels 1 and 2 may be named transposed; the pinout is identical). Orderable LM2901BIDR, SOIC (D) 14, -40 to 125 C. https://www.ti.com/lit/ds/symlink/lm339b.pdf sha256 406e7bd1ab1f2fb15b46bff397bde497ba714b00ed4455a556d84e1113546f6a, read 2026-10-15. The EasyEDA symbol carries no pin names, so this entry cannot settle a fit on its own; the line is settled by the EasyEDA fit and the DB rule '^SOIC-' agreeing (270), as for C22416291 LM339BIDR",
+   "kicad_check": "native-21 frozen netlist (stage 46): U29 / U30 / U31 pad 3 (VCC) on the span top (v15_ls / p_ha / p_hb), pad 12 (GND) on the island ground n_ls / n_ha / n_hb, pads 1 / 2 / 13 / 14 (outputs) on <rail>.monitor-good, pads 5 / 6 / 8 / 11 on <rail>.monitor-halfref, pads 4 / 7 / 9 / 10 on ov / uv / spanuv / spanov: KiCad pad n = datasheet pin n (pin_functions21.py checks the supply / output pins against these nets)"
   }
  }
 }

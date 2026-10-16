@@ -75,7 +75,9 @@ window is nominally **−2.239 to −1.860 V**; the total-span window is nominal
 (approximately +13.79 to +16.23 V at nominal thresholds). Stage 45 (OPEN-ITEMS S16,
 DECISIONS 59, option 1c-4420: TL431B, halfref 4.42 k / 10 k, re-centred taps; was
 −2.198 to −1.799 V and 16.218 to 17.839 V; nominal at Vref 2.495 V); worst-case bands in
-`validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md`. It does not claim a
+`validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md`. Stage 46 (S17 hot copper): the
+same values on the 125 °C grades, TL431BQDBZR and LM2901BIDR (same pinouts); bands at −10..125 °C in
+`validation-results/11-candidates/c46-monitor-grades/results/bands-s46.md`. It does not claim a
 precise +15 V window independent of negative-rail voltage. Divider/reference
 and comparator errors must be included when measuring enable thresholds.
 
@@ -188,7 +190,7 @@ ambient; validate all part temperatures in the enclosure.
 - [WE74404064101, rev002.003](https://www.we-online.com/components/products/datasheet/74404064101.pdf): 100 µH ±20%, DCR/current ratings and land pattern.
 - [Mean Well IRM-20](https://www.meanwell.com/Upload/PDF/IRM-20/IRM-20-SPEC.PDF): IRM-20-24 output/ripple/derating and **ACL1, ACN2, VN3, VP4**. These AC pins differ from the removed IRM-05.
 - [Panasonic 6SVPC220M](https://industrial.panasonic.com/ww/products/pt/os-con/models/6SVPC220M): 220 µF, 6.3 V, 27 mΩ ESR, 300 µA leakage, 105°C.
-- [TI LM339B](https://www.ti.com/lit/ds/symlink/lm339b.pdf), [TL431 SLVS543S](https://www.ti.com/lit/ds/symlink/tl431.pdf): comparator pin table and TL431 DBZ **K1/REF2/A3**, which differs from TLVH431.
+- [TI LM339B / LM2901B](https://www.ti.com/lit/ds/symlink/lm339b.pdf), [TL431 SLVS543S](https://www.ti.com/lit/ds/symlink/tl431.pdf): comparator pin table and TL431 DBZ **K1/REF2/A3**, which differs from TLVH431.
 - [TI TPS709](https://www.ti.com/lit/ds/symlink/tps709.pdf): DBV IN1/GND2/EN3/NC4/OUT5, voltage and quiescent current.
 - [TI SN74LVC1G32](https://www.ti.com/lit/ds/symlink/sn74lvc1g32.pdf), [SN74LVC1G332](https://www.ti.com/lit/ds/symlink/sn74lvc1g332.pdf), [SN74LVC1G17](https://www.ti.com/lit/ds/symlink/sn74lvc1g17.pdf): exact DBV pin tables and supply requirements.
 - [Vishay VOL628A, rev1.9](https://www.vishay.com/docs/82401/vol628a.pdf): AC input1/2, emitter3/collector4, CTR bin/option1 certification and LSOP4 isolation dimensions. [VO617A](https://www.vishay.com/docs/83430/vo617a.pdf): A1/K2/E3/C4 and selected isolation option.

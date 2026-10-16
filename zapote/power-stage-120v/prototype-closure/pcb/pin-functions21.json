@@ -5282,7 +5282,7 @@
    }
   },
   "U17": {
-   "mpn": "TL431BIDBZR",
+   "mpn": "TL431BQDBZR",
    "source_instance": "monitor_ls.reference",
    "basis": "eco-pin-table",
    "pins": {
@@ -5320,7 +5320,7 @@
    }
   },
   "U19": {
-   "mpn": "TL431BIDBZR",
+   "mpn": "TL431BQDBZR",
    "source_instance": "bias_ha.monitor.reference",
    "basis": "eco-pin-table",
    "pins": {
@@ -5358,7 +5358,7 @@
    }
   },
   "U21": {
-   "mpn": "TL431BIDBZR",
+   "mpn": "TL431BQDBZR",
    "source_instance": "bias_hb.monitor.reference",
    "basis": "eco-pin-table",
    "pins": {
@@ -5966,7 +5966,7 @@
    }
   },
   "U29": {
-   "mpn": "LM339BIDR",
+   "mpn": "LM2901BIDR",
    "source_instance": "monitor_ls.monitor",
    "basis": "eco-pin-table",
    "pins": {
@@ -6029,7 +6029,7 @@
    }
   },
   "U30": {
-   "mpn": "LM339BIDR",
+   "mpn": "LM2901BIDR",
    "source_instance": "bias_ha.monitor.monitor",
    "basis": "eco-pin-table",
    "pins": {
@@ -6092,7 +6092,7 @@
    }
   },
   "U31": {
-   "mpn": "LM339BIDR",
+   "mpn": "LM2901BIDR",
    "source_instance": "bias_hb.monitor.monitor",
    "basis": "eco-pin-table",
    "pins": {

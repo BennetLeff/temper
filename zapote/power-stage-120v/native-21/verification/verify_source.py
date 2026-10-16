@@ -70,7 +70,8 @@ def main() -> None:
     assert parts['r_bf']['mpn'] == '0603WAF1001T5E' and parts['c_bf']['mpn'] == 'CL10C101JB8NNNC'
     # stage 45 (OPEN-ITEMS S16, DECISIONS 59, option 1c-4420): TL431B reference, halfref 4.42 k / 10 k, re-centred taps
     # (validation-results/11-candidates/c45-s16-monitor; bands re-derived there from these exports)
-    s45 = {'reference': ('TL431BIDBZR', None), 'rref': ('RC1206FR-072K2L', '2.2kohm'),
+    # stage 46 (S17 hot copper; c46-monitor-grades): the 125 C grades of the same pinouts, TL431BQDBZR and LM2901BIDR
+    s45 = {'reference': ('TL431BQDBZR', None), 'monitor': ('LM2901BIDR', None), 'rref': ('RC1206FR-072K2L', '2.2kohm'),
            'rhalf_top': ('RT0603BRD074K42L', '4.42kohm'), 'rhalf_bot': ('RT0603BRD0710KL', '10kohm'),
            'ruv_top': ('RT0603BRD07750RL', '750ohm'), 'ruv_bot': ('RT0603BRD0710KL', '10kohm'),
            'rov_top': ('RT0603BRD072K94L', '2.94kohm'), 'rov_bot': ('RT0603BRD0710KL', '10kohm'),
@@ -81,6 +82,7 @@ def main() -> None:
             part = parts[f'{base}.{key}']
             assert part['mpn'] == mpn and part.get('value') == value, (base, key, part)
             assert part['footprint'] == ('Package_TO_SOT_SMD:SOT-23' if key == 'reference' else
+                                         'Package_SO:SOIC-14_3.9x8.7mm_P1.27mm' if key == 'monitor' else
                                          'Resistor_SMD:R_1206_3216Metric' if key == 'rref' else 'Resistor_SMD:R_0603_1608Metric')
     for base in ('monitor_ls', 'bias_ha', 'bias_hb', 'hb'):
         assert not any(path.startswith(base + '.') and part.get('mpn') == 'VO617A-3X017T' for path, part in parts.items())

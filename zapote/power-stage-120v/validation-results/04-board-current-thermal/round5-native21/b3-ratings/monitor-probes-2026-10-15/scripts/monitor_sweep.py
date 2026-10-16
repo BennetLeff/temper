@@ -67,7 +67,9 @@ def main():
 
     # ---- 1. monitor rows
     mon = []
-    for ref, (kind, basis, lim, _) in gate.MONITORS.items():
+    bom_now = gate.bom_mpns()      # stage 46: the gate's row limit is the grade of the MPN the frozen BOM places
+    for ref, (kind, _) in gate.MONITORS.items():
+        _, basis, lim = gate.MONITOR_GRADES[bom_now[ref]]
         sh = gate.MONITOR_SELF[kind] * gate.RTHJA[kind][0]
         g_mpn, g_lim = GRADE125[kind]
         row = {"ref": ref, "row": basis, "limit_c": lim, "self_heat_w": round(gate.MONITOR_SELF[kind], 5),

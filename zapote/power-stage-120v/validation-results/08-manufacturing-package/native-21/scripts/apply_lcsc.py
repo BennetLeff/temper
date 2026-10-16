@@ -88,7 +88,10 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 # tops, 0.1 % 25 ppm 0603 (JLC part API 2026-10-15, 11-candidates/s16-monitor-2026-10-15 jlc-raw, copied
                 # to sourcing/study-2026-10-15/scripts/jlc-raw)
                 "TL431BIDBZR": "C41283", "RT0603BRD07750RL": "C861551", "RT0603BRD072K94L": "C705761",
-                "RT0603BRD0790K9L": "C728600", "RT0603BRD07104KL": "C861070"})
+                "RT0603BRD0790K9L": "C728600", "RT0603BRD07104KL": "C861070",
+                # stage 46 (S17 hot copper, c46-monitor-grades): the 125 C grades of the monitor reference and comparator
+                # (JLC part API 2026-10-15, copied to sourcing/study-2026-10-15/scripts/jlc-raw: 17,789 / 1,966 in stock)
+                "TL431BQDBZR": "C190245", "LM2901BIDR": "C22427890"})
 ACCEPT_ALT = set()   # stage 43: the only accepted alternate (GRM31A5C3A102JW01D -> CC1206JKNPOCBN102) is now the source MPN
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))

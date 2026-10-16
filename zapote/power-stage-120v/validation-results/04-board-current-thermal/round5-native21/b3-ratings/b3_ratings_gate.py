@@ -56,9 +56,11 @@ Limits (sources re-read 2026-10-15; see the audit's ratings.py for page-level qu
                    at 155 C). Gated on the element (155 C) and on the derating line at the terminal with the R5 20 %
                    power margin; a gate resistor in any other package stops the gate
   rail monitors    (OPEN-ITEMS S16, monitor-probes-2026-10-15; hot-copper runs only, from the run files' probes):
-                   gated TA rows, pad-copper max + P x RthJA as the die / local-ambient proxy: U17 / U19 / U21 TL431xI
-                   85 C (SLVS543S 6.4 p.5), U29 / U30 / U31 LM339BIDR 85 C (SLCS006Z 6.4 p.6), U16 / U18 / U20
-                   TLVH431BQ 125 C (SLVS555N 5.3 p.5); the monitor and split dividers advisory (terminal derating line)
+                   gated TA rows, pad-copper max + P x RthJA as the die / local-ambient proxy, limit = the T_A grade
+                   of the MPN the frozen BOM places there (MONITOR_GRADES): U17 / U19 / U21 TL431xI 85 C, TL431BQ
+                   125 C from stage 46 (SLVS543S 6.4 p.5); U29 / U30 / U31 LM339BIDR 85 C, LM2901BIDR 125 C from
+                   stage 46 (SLCS006Z 6.4 p.6); U16 / U18 / U20 TLVH431BQ 125 C (SLVS555N 5.3 p.5); the monitor and
+                   split dividers advisory (terminal derating line)
   advisory (limit known, package path assumed): bank MKP 110 C (board share only), DC-link C5/C6 TDK B32676G1905K000
                    Top,max 105 C case (B3267* June 2026 p.13; 110 C until 2026-10-15), B82726 125 C (p.4), other
                    1206 (MPNs not re-read)
@@ -120,14 +122,34 @@ MONITOR_SELF = {
 }
 RTHJA = {"tl431": (206.0, "SLVS543S 6.3 p.5 DBZ"), "tlvh431": (206.0, "SLVS555N 5.4 p.5 DBZ"),
          "lm339b": (111.2, "SLCS006Z 6.6 p.6 D (SOIC)")}
-MONITORS = {   # ref -> (kind, row basis, T_A max C, net pattern the ref must carry: refs that move stop the gate)
-    **{r: ("tl431", "TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)", 85.0, r"monitor(_ls)?-ref$")
-       for r in ("U17", "U19", "U21")},
-    **{r: ("lm339b", "LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)", 85.0, r"monitor(_ls)?-good$")
-       for r in ("U29", "U30", "U31")},
-    **{r: ("tlvh431", "TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)", 125.0, r"(split|bias_ls)-fb$")
-       for r in ("U16", "U18", "U20")},
+MONITORS = {   # ref -> (kind, net pattern the ref must carry: refs that move stop the gate)
+    **{r: ("tl431", r"monitor(_ls)?-ref$") for r in ("U17", "U19", "U21")},
+    **{r: ("lm339b", r"monitor(_ls)?-good$") for r in ("U29", "U30", "U31")},
+    **{r: ("tlvh431", r"(split|bias_ls)-fb$") for r in ("U16", "U18", "U20")},
 }
+# The row limit is the T_A grade of the MPN the BOM places at the ref (stage 46: the 125 C grades of the same pinouts).
+# MPN -> (kind, row basis, T_A max C). A monitor ref whose MPN is not here, or is of another kind, stops the gate.
+# The LM2901B's self-heat inputs equal the LM339B's: IQ <= 1.6 mA at 36 V over -40..125 C (SLCS006Z 6.8 p.8).
+MONITOR_GRADES = {
+    "TL431AIDBZR": ("tl431", "TL431AIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)", 85.0),
+    "TL431BIDBZR": ("tl431", "TL431BIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)", 85.0),
+    "TL431BQDBZR": ("tl431", "TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)", 125.0),
+    "LM339BIDR": ("lm339b", "LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)", 85.0),
+    "LM2901BIDR": ("lm339b", "LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)", 125.0),
+    "TLVH431BQDBZR": ("tlvh431", "TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)", 125.0),
+}
+BOM_CSV = Path(__file__).resolve().parents[4] / "native-21/frozen/default.csv"   # the BOM the chain builds the board from
+
+
+def bom_mpns(path=BOM_CSV):
+    """designator -> MPN (the 'Comment' column) of the frozen native-21 BOM."""
+    import csv
+    out = {}
+    with open(path, newline="") as f:
+        for r in csv.DictReader(f):
+            for d in r["Designator"].split(","):
+                out[d.strip()] = r["Comment"]
+    return out
 # divider / reference resistors on the monitor and split nets (advisory): node role from the net name, voltage over n at
 # V_PN; (role pair) -> (ohm, rated W at 70 C, basis). Terminal row: 155 - 85 P / (0.8 P_rated) (linear to 0 W at 155 C,
 # the gate-resistor 20 % rule). A role pair not in the table stops the gate (the monitor topology changed).
@@ -163,17 +185,25 @@ def mon_volts():
             "v5": 5.0, "good": 0.0}          # good low = fault state: the whole 5 V over the pull-up
 
 
-def probe_rows(c, r25, r05, bay):
-    """Gated monitor-IC rows and advisory divider-resistor rows from the run files' probes (hot-copper runs only)."""
+def probe_rows(c, r25, r05, bay, mpns=None):
+    """Gated monitor-IC rows and advisory divider-resistor rows from the run files' probes (hot-copper runs only).
+    mpns: designator -> MPN (default: the frozen native-21 BOM, bom_mpns()); each monitor row takes its limit from the
+    MPN's grade (MONITOR_GRADES)."""
     if "probes" not in r25 or "probes" not in r05:
         raise SystemExit(f"b3_ratings_gate: {c} run files carry no probes (re-solve with run_basis.py: body_runs probes)")
     p25, p05 = r25["probes"], r05["probes"]
+    mpns = bom_mpns() if mpns is None else mpns
     rows = []
-    for ref, (kind, basis, lim, pat) in MONITORS.items():
+    for ref, (kind, pat) in MONITORS.items():
         if ref not in p25 or ref not in p05:
             raise SystemExit(f"b3_ratings_gate: monitor {ref} not on the board")
         if not any(re.search(pat, n) for n in p25[ref]["nets"]):
             raise SystemExit(f"b3_ratings_gate: monitor {ref} does not carry a {pat} net ({p25[ref]['nets']}): ref moved")
+        grade = MONITOR_GRADES.get(mpns.get(ref))
+        if grade is None or grade[0] != kind:
+            raise SystemExit(f"b3_ratings_gate: monitor {ref} is {mpns.get(ref)!r}, not a known {kind} grade "
+                             f"(MONITOR_GRADES): add its datasheet T_A row")
+        basis, lim = grade[1], grade[2]
         sh = MONITOR_SELF[kind] * RTHJA[kind][0]
         rows.append(dict(item=f"{ref}: {basis}", gated=True, limit_c=lim,
                          est_c=est(p25[ref]["pad_max_cell_c"], p05[ref]["pad_max_cell_c"], bay) + sh,
