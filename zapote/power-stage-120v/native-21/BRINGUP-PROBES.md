@@ -30,7 +30,7 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 | TP16 | pwm_lb | F | 36.2, 125.7 | TP36 | selv_gnd | PWM B low |
 | TP17 | permit | F | 33.1, 113.3 | TP37 | selv_gnd | PERMIT |
 | TP18 | leg_b-driver_dis | B | 34.0, 65.0 | TP38 | selv_gnd | leg B DIS |
-| TP19 | bias_good | B | 62.9, 138.5 | TP34 | selv_gnd | BIAS_GOOD (rail monitors, stage 22) |
+| TP19 | bias_good | B | 62.9, 138.5 | TP34 | selv_gnd | BIAS_GOOD = bias_ok AND PERMIT (stage 50): reads low while PERMIT is low; drive J4.9 high with PWM idle to check bias health |
 | TP20 | bus_fault | B | 35.8, 173.0 | TP39 | selv_gnd | OCP fault, SELV side |
 | TP21 | ct_zc | B | 30.1, 133.2 | TP40 | selv_gnd | tank CT zero cross |
 | TP22 | ct_mon | B | 23.8, 134.6 | TP40 | selv_gnd | tank CT monitor |

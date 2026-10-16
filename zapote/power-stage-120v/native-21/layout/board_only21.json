@@ -282,7 +282,7 @@
     62.5,
     140.86
    ],
-   "purpose": "BIAS_GOOD (rail monitors, stage 22)",
+   "purpose": "BIAS_GOOD = bias_ok AND PERMIT (stage 50): reads low while PERMIT is low; drive J4.9 high with PWM idle to check bias health",
    "ref": "TP19"
   },
   {

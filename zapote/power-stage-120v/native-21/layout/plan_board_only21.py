@@ -54,7 +54,7 @@ SIGNALS = [  # (net, reference net, purpose)
     ("pwm_ha", "selv_gnd", "PWM A high"), ("pwm_la", "selv_gnd", "PWM A low"),
     ("pwm_hb", "selv_gnd", "PWM B high"), ("pwm_lb", "selv_gnd", "PWM B low"),
     ("permit", "selv_gnd", "PERMIT"), ("leg_a-driver_dis", "selv_gnd", "leg A DIS"), ("leg_b-driver_dis", "selv_gnd", "leg B DIS"),
-    ("bias_good", "selv_gnd", "BIAS_GOOD (rail monitors, stage 22)"), ("bus_fault", "selv_gnd", "OCP fault, SELV side"),
+    ("bias_good", "selv_gnd", "BIAS_GOOD = bias_ok AND PERMIT (stage 50): reads low while PERMIT is low; drive J4.9 high with PWM idle to check bias health"), ("bus_fault", "selv_gnd", "OCP fault, SELV side"),
     ("line_zc", "selv_gnd", "LINE_ZC"), ("ct_zc", "selv_gnd", "tank CT zero cross"), ("ct_mon", "selv_gnd", "tank CT monitor"),
 ]
 # Stage 48 (B13 H3-H5, end-of-line hooks): the rail monitors' 12 window taps, the TPS7A4700's open 3P2V pin (U26.6:
