@@ -3100,6 +3100,123 @@
   "x": 33.0,
   "y": 73.1
  },
+ "C176": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "v3v3",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 66.06,
+  "y": 133.4
+ },
+ "C177": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "v3v3",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 90.0,
+  "x": 61.7,
+  "y": 141.94
+ },
+ "C178": {
+  "layer": "F.Cu",
+  "lib": "Capacitor_SMD:C_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "v3v3",
+    "num": "1",
+    "type": "smd",
+    "w": 0.9,
+    "x": -0.775,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "selv_gnd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.9,
+    "x": 0.775,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 44.3,
+  "y": 152.14
+ },
  "C18": {
   "layer": "F.Cu",
   "lib": "Capacitor_SMD:C_0805_2012Metric",
@@ -4379,7 +4496,7 @@
      "F.Mask",
      "F.Paste"
     ],
-    "net": "v15_ls",
+    "net": "hot5",
     "num": "1",
     "type": "smd",
     "w": 0.9,
@@ -4402,9 +4519,9 @@
     "y": 0.0
    }
   ],
-  "rot": 0.0,
-  "x": 116.615,
-  "y": 61.355
+  "rot": -90.0,
+  "x": 121.3,
+  "y": 61.9
  },
  "C49": {
   "layer": "F.Cu",
@@ -7676,7 +7793,7 @@
      "*.Cu",
      "*.Mask"
     ],
-    "net": "j4_nc1",
+    "net": "bias_good_j4",
     "num": "1",
     "type": "thru_hole",
     "w": 1.6,
@@ -9760,6 +9877,162 @@
   "x": 31.7,
   "y": 108.3
  },
+ "R136": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "v15_ls",
+    "num": "1",
+    "type": "smd",
+    "w": 0.8,
+    "x": -0.825,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "hot5_en",
+    "num": "2",
+    "type": "smd",
+    "w": 0.8,
+    "x": 0.825,
+    "y": 0.0
+   }
+  ],
+  "rot": -90.0,
+  "x": 113.3,
+  "y": 63.1
+ },
+ "R137": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "hot5_en",
+    "num": "1",
+    "type": "smd",
+    "w": 0.8,
+    "x": -0.825,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "ocp_kelvin_p",
+    "num": "2",
+    "type": "smd",
+    "w": 0.8,
+    "x": 0.825,
+    "y": 0.0
+   }
+  ],
+  "rot": 90.0,
+  "x": 115.0,
+  "y": 63.1
+ },
+ "R138": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "v15_ls",
+    "num": "1",
+    "type": "smd",
+    "w": 0.8,
+    "x": -0.825,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "monitor_ls-ldo_en",
+    "num": "2",
+    "type": "smd",
+    "w": 0.8,
+    "x": 0.825,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 108.158,
+  "y": 89.845
+ },
+ "R139": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "monitor_ls-ldo_en",
+    "num": "1",
+    "type": "smd",
+    "w": 0.8,
+    "x": -0.825,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "n_ls",
+    "num": "2",
+    "type": "smd",
+    "w": 0.8,
+    "x": 0.825,
+    "y": 0.0
+   }
+  ],
+  "rot": 180.0,
+  "x": 108.921,
+  "y": 91.895
+ },
  "R14": {
   "layer": "F.Cu",
   "lib": "Resistor_SMD:R_0603_1608Metric",
@@ -9798,6 +10071,279 @@
   "rot": 0.0,
   "x": 33.174999,
   "y": 68.165
+ },
+ "R140": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "p_ha",
+    "num": "1",
+    "type": "smd",
+    "w": 0.8,
+    "x": -0.825,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "bias_ha.monitor-ldo_en",
+    "num": "2",
+    "type": "smd",
+    "w": 0.8,
+    "x": 0.825,
+    "y": 0.0
+   }
+  ],
+  "rot": -90.0,
+  "x": 57.958,
+  "y": 100.545
+ },
+ "R141": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "bias_ha.monitor-ldo_en",
+    "num": "1",
+    "type": "smd",
+    "w": 0.8,
+    "x": -0.825,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "n_ha",
+    "num": "2",
+    "type": "smd",
+    "w": 0.8,
+    "x": 0.825,
+    "y": 0.0
+   }
+  ],
+  "rot": 90.0,
+  "x": 56.25,
+  "y": 100.807
+ },
+ "R142": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "p_hb",
+    "num": "1",
+    "type": "smd",
+    "w": 0.8,
+    "x": -0.825,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "bias_hb.monitor-ldo_en",
+    "num": "2",
+    "type": "smd",
+    "w": 0.8,
+    "x": 0.825,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 14.958,
+  "y": 94.195
+ },
+ "R143": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "bias_hb.monitor-ldo_en",
+    "num": "1",
+    "type": "smd",
+    "w": 0.8,
+    "x": -0.825,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "n_hb",
+    "num": "2",
+    "type": "smd",
+    "w": 0.8,
+    "x": 0.825,
+    "y": 0.0
+   }
+  ],
+  "rot": 180.0,
+  "x": 15.07,
+  "y": 92.445
+ },
+ "R144": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "ref25",
+    "num": "1",
+    "type": "smd",
+    "w": 0.8,
+    "x": -0.825,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "ref25_wd",
+    "num": "2",
+    "type": "smd",
+    "w": 0.8,
+    "x": 0.825,
+    "y": 0.0
+   }
+  ],
+  "rot": 180.0,
+  "x": 112.4,
+  "y": 52.4
+ },
+ "R145": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_0603_1608Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "ref25_wd",
+    "num": "1",
+    "type": "smd",
+    "w": 0.8,
+    "x": -0.825,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 0.95,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "ocp_kelvin_p",
+    "num": "2",
+    "type": "smd",
+    "w": 0.8,
+    "x": 0.825,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 112.4,
+  "y": 54.1
+ },
+ "R146": {
+  "layer": "F.Cu",
+  "lib": "Resistor_SMD:R_1206_3216Metric",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.75,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "bias_good",
+    "num": "1",
+    "type": "smd",
+    "w": 1.125,
+    "x": -1.4625,
+    "y": 0.0
+   },
+   {
+    "ang": 0.0,
+    "h": 1.75,
+    "layers": [
+     "F.Cu",
+     "F.Mask",
+     "F.Paste"
+    ],
+    "net": "bias_good_j4",
+    "num": "2",
+    "type": "smd",
+    "w": 1.125,
+    "x": 1.4625,
+    "y": 0.0
+   }
+  ],
+  "rot": -90.0,
+  "x": 33.0,
+  "y": 173.5
  },
  "R15": {
   "layer": "F.Cu",
@@ -13399,8 +13945,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 71.411,
-  "y": 127.964
+  "x": 64.5,
+  "y": 142.075
  },
  "TP14": {
   "layer": "B.Cu",
@@ -13537,8 +14083,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 33.2,
-  "y": 70.4
+  "x": 62.897,
+  "y": 138.541
  },
  "TP2": {
   "layer": "B.Cu",
@@ -13722,7 +14268,7 @@
   ],
   "rot": 0.0,
   "x": 116.4,
-  "y": 81.05
+  "y": 80.05
  },
  "TP27": {
   "layer": "B.Cu",
@@ -13748,15 +14294,15 @@
   "y": 73.695
  },
  "TP28": {
-  "layer": "F.Cu",
+  "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
    {
     "ang": 0.0,
     "h": 1.0,
     "layers": [
-     "F.Cu",
-     "F.Mask"
+     "B.Cu",
+     "B.Mask"
     ],
     "net": "ocp_kelvin_p",
     "num": "1",
@@ -13767,8 +14313,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 119.274,
-  "y": 60.395
+  "x": 111.2,
+  "y": 55.4
  },
  "TP29": {
   "layer": "B.Cu",
@@ -13928,8 +14474,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 69.175,
-  "y": 128.8
+  "x": 62.5,
+  "y": 140.86
  },
  "TP35": {
   "layer": "B.Cu",
@@ -14092,6 +14638,213 @@
   "x": 27.675,
   "y": 132.865
  },
+ "TP41": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "monitor_ls-uv",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 105.75,
+  "y": 107.835
+ },
+ "TP42": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "monitor_ls-spanuv",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 106.846,
+  "y": 84.319
+ },
+ "TP43": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "monitor_ls-spanov",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 116.926,
+  "y": 110.361
+ },
+ "TP44": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "bias_ha.monitor-uv",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 52.3,
+  "y": 111.085
+ },
+ "TP45": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "bias_ha.monitor-ov",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 52.154,
+  "y": 115.289
+ },
+ "TP46": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "bias_ha.monitor-spanuv",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 47.2,
+  "y": 109.265
+ },
+ "TP47": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "bias_ha.monitor-spanov",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 51.174,
+  "y": 79.196
+ },
+ "TP48": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "bias_hb.monitor-uv",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 9.2,
+  "y": 104.535
+ },
+ "TP49": {
+  "layer": "F.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "F.Cu",
+     "F.Mask"
+    ],
+    "net": "bias_hb.monitor-ov",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 8.196,
+  "y": 98.796
+ },
  "TP5": {
   "layer": "B.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
@@ -14115,7 +14868,214 @@
   "x": 116.16,
   "y": 71.615
  },
- "TP6": {
+ "TP50": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "bias_hb.monitor-spanuv",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 5.4,
+  "y": 105.365
+ },
+ "TP51": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "bias_hb.monitor-spanov",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 7.354,
+  "y": 110.149
+ },
+ "TP52": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "ref25",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 115.75,
+  "y": 56.85
+ },
+ "TP53": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "n_ls",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 107.526,
+  "y": 105.923
+ },
+ "TP54": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "n_ls",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 105.125,
+  "y": 82.395
+ },
+ "TP55": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "n_ls",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 119.175,
+  "y": 109.535
+ },
+ "TP56": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "n_ha",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 53.637,
+  "y": 108.822
+ },
+ "TP57": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "n_ha",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 50.735,
+  "y": 76.474
+ },
+ "TP58": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
+    "net": "n_hb",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 8.337,
+  "y": 108.172
+ },
+ "TP59": {
   "layer": "F.Cu",
   "lib": "TestPoint_Pad_D1.0mm",
   "pads": [
@@ -14126,6 +15086,29 @@
      "F.Cu",
      "F.Mask"
     ],
+    "net": "n_hb",
+    "num": "1",
+    "type": "smd",
+    "w": 1.0,
+    "x": 0.0,
+    "y": 0.0
+   }
+  ],
+  "rot": 0.0,
+  "x": 11.879,
+  "y": 94.774
+ },
+ "TP6": {
+  "layer": "B.Cu",
+  "lib": "TestPoint_Pad_D1.0mm",
+  "pads": [
+   {
+    "ang": 0.0,
+    "h": 1.0,
+    "layers": [
+     "B.Cu",
+     "B.Mask"
+    ],
     "net": "hot5",
     "num": "1",
     "type": "smd",
@@ -14135,8 +15118,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 116.05,
-  "y": 64.745
+  "x": 110.465,
+  "y": 57.632
  },
  "TP7": {
   "layer": "B.Cu",
@@ -14834,7 +15817,7 @@
      "F.Mask",
      "F.Paste"
     ],
-    "net": "ocp_kelvin_p",
+    "net": "ref25_wd",
     "num": "4",
     "type": "smd",
     "w": 1.325,
@@ -14849,7 +15832,7 @@
      "F.Mask",
      "F.Paste"
     ],
-    "net": "v15_ls",
+    "net": "hot5",
     "num": "5",
     "type": "smd",
     "w": 1.325,
@@ -14864,7 +15847,7 @@
      "F.Mask",
      "F.Paste"
     ],
-    "net": "outb",
+    "net": "hot5_uv_raw",
     "num": "6",
     "type": "smd",
     "w": 1.325,
@@ -16391,7 +17374,7 @@
      "F.Mask",
      "F.Paste"
     ],
-    "net": "v15_ls",
+    "net": "hot5_en",
     "num": "3",
     "type": "smd",
     "w": 1.325,
@@ -16430,8 +17413,8 @@
    }
   ],
   "rot": 0.0,
-  "x": 113.675,
-  "y": 53.145
+  "x": 118.3,
+  "y": 61.75
  },
  "U30": {
   "layer": "F.Cu",
@@ -17231,7 +18214,7 @@
      "F.Mask",
      "F.Paste"
     ],
-    "net": "v15_ls",
+    "net": "monitor_ls-ldo_en",
     "num": "3",
     "type": "smd",
     "w": 1.325,
@@ -17315,7 +18298,7 @@
      "F.Mask",
      "F.Paste"
     ],
-    "net": "p_ha",
+    "net": "bias_ha.monitor-ldo_en",
     "num": "3",
     "type": "smd",
     "w": 1.325,
@@ -17399,7 +18382,7 @@
      "F.Mask",
      "F.Paste"
     ],
-    "net": "p_hb",
+    "net": "bias_hb.monitor-ldo_en",
     "num": "3",
     "type": "smd",
     "w": 1.325,

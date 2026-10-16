@@ -455,17 +455,23 @@
   },
   {
    "ref": "U3",
-   "watts_nominal": 0.1,
+   "watts_nominal": 0.16,
    "watts_worst": 0.26,
    "board_fraction": 1.0,
    "sink_fraction": 0.0,
    "basis": "estimate",
-   "note": "TPS70950 HOT5: \u2264 19 V drop \u00d7 13.6 mA (Kelvin census)",
-   "x_mm": 113.675,
-   "y_mm": 53.145,
+   "note": "TPS70950QDBVRQ1 HOT5: 10.57 V drop (IN 15.46 V max - OUT 4.89 V min) x 15.1 mA (Kelvin census); heat on pads 1 / 2 / 3 / 5 (pin 4 NC: 'No internal connection', SLVSCE6D Table 4-1 p.3)",
+   "pad_numbers": [
+    "1",
+    "2",
+    "3",
+    "5"
+   ],
+   "x_mm": 118.3,
+   "y_mm": 61.75,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "TPS70950 HOT5"
+   "part": "TPS70950QDBVRQ1 HOT5"
   },
   {
    "ref": "U37",
@@ -567,7 +573,7 @@
   }
  ],
  "totals_W": {
-  "nominal": 9.138,
+  "nominal": 9.198,
   "worst": 18.629
  }
 }

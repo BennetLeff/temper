@@ -55,7 +55,7 @@
    "ref_net": "n_ls",
    "ref_at": [
     116.4,
-    81.05
+    80.05
    ],
    "purpose": "24 V HOT supply",
    "ref": "TP4"
@@ -78,14 +78,14 @@
   {
    "net": "hot5",
    "at": [
-    116.05,
-    64.745
+    110.465,
+    57.632
    ],
-   "side": "F",
+   "side": "B",
    "ref_net": "ocp_kelvin_p",
    "ref_at": [
-    119.274,
-    60.395
+    111.2,
+    55.4
    ],
    "purpose": "HOT5 protection rail",
    "ref": "TP6"
@@ -183,14 +183,14 @@
   {
    "net": "pwm_ha",
    "at": [
-    71.411,
-    127.964
+    64.5,
+    142.075
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    69.175,
-    128.8
+    62.5,
+    140.86
    ],
    "purpose": "PWM A high",
    "ref": "TP13"
@@ -273,14 +273,14 @@
   {
    "net": "bias_good",
    "at": [
-    33.2,
-    70.4
+    62.897,
+    138.541
    ],
    "side": "B",
    "ref_net": "selv_gnd",
    "ref_at": [
-    30.35,
-    69.665
+    62.5,
+    140.86
    ],
    "purpose": "BIAS_GOOD (rail monitors, stage 22)",
    "ref": "TP19"
@@ -331,6 +331,186 @@
    "ref": "TP22"
   },
   {
+   "net": "monitor_ls-uv",
+   "at": [
+    105.75,
+    107.835
+   ],
+   "side": "B",
+   "ref_net": "n_ls",
+   "ref_at": [
+    107.526,
+    105.923
+   ],
+   "purpose": "LS monitor UV tap",
+   "ref": "TP41"
+  },
+  {
+   "net": "monitor_ls-spanuv",
+   "at": [
+    106.846,
+    84.319
+   ],
+   "side": "B",
+   "ref_net": "n_ls",
+   "ref_at": [
+    105.125,
+    82.395
+   ],
+   "purpose": "LS monitor SPANUV tap",
+   "ref": "TP42"
+  },
+  {
+   "net": "monitor_ls-spanov",
+   "at": [
+    116.926,
+    110.361
+   ],
+   "side": "B",
+   "ref_net": "n_ls",
+   "ref_at": [
+    119.175,
+    109.535
+   ],
+   "purpose": "LS monitor SPANOV tap",
+   "ref": "TP43"
+  },
+  {
+   "net": "bias_ha.monitor-uv",
+   "at": [
+    52.3,
+    111.085
+   ],
+   "side": "B",
+   "ref_net": "n_ha",
+   "ref_at": [
+    53.637,
+    108.822
+   ],
+   "purpose": "HS-A monitor UV tap",
+   "ref": "TP44"
+  },
+  {
+   "net": "bias_ha.monitor-ov",
+   "at": [
+    52.154,
+    115.289
+   ],
+   "side": "B",
+   "ref_net": "n_ha",
+   "ref_at": [
+    53.637,
+    108.822
+   ],
+   "purpose": "HS-A monitor OV tap",
+   "ref": "TP45"
+  },
+  {
+   "net": "bias_ha.monitor-spanuv",
+   "at": [
+    47.2,
+    109.265
+   ],
+   "side": "B",
+   "ref_net": "n_ha",
+   "ref_at": [
+    53.637,
+    108.822
+   ],
+   "purpose": "HS-A monitor SPANUV tap",
+   "ref": "TP46"
+  },
+  {
+   "net": "bias_ha.monitor-spanov",
+   "at": [
+    51.174,
+    79.196
+   ],
+   "side": "B",
+   "ref_net": "n_ha",
+   "ref_at": [
+    50.735,
+    76.474
+   ],
+   "purpose": "HS-A monitor SPANOV tap",
+   "ref": "TP47"
+  },
+  {
+   "net": "bias_hb.monitor-uv",
+   "at": [
+    9.2,
+    104.535
+   ],
+   "side": "B",
+   "ref_net": "n_hb",
+   "ref_at": [
+    8.337,
+    108.172
+   ],
+   "purpose": "HS-B monitor UV tap",
+   "ref": "TP48"
+  },
+  {
+   "net": "bias_hb.monitor-ov",
+   "at": [
+    8.196,
+    98.796
+   ],
+   "side": "F",
+   "ref_net": "n_hb",
+   "ref_at": [
+    11.879,
+    94.774
+   ],
+   "purpose": "HS-B monitor OV tap",
+   "ref": "TP49"
+  },
+  {
+   "net": "bias_hb.monitor-spanuv",
+   "at": [
+    5.4,
+    105.365
+   ],
+   "side": "B",
+   "ref_net": "n_hb",
+   "ref_at": [
+    8.337,
+    108.172
+   ],
+   "purpose": "HS-B monitor SPANUV tap",
+   "ref": "TP50"
+  },
+  {
+   "net": "bias_hb.monitor-spanov",
+   "at": [
+    7.354,
+    110.149
+   ],
+   "side": "B",
+   "ref_net": "n_hb",
+   "ref_at": [
+    8.337,
+    108.172
+   ],
+   "purpose": "HS-B monitor SPANOV tap",
+   "ref": "TP51"
+  },
+  {
+   "net": "ref25",
+   "at": [
+    115.75,
+    56.85
+   ],
+   "side": "B",
+   "ref_net": "ocp_kelvin_p",
+   "ref_at": [
+    111.2,
+    55.4
+   ],
+   "purpose": "REF25 (U5), the OCP / OVP / watchdog reference",
+   "ref": "TP52"
+  },
+  {
    "net": "n_ls",
    "at": [
     86.708,
@@ -364,7 +544,7 @@
    "net": "n_ls",
    "at": [
     116.4,
-    81.05
+    80.05
    ],
    "side": "B",
    "ref": "TP26",
@@ -383,10 +563,10 @@
   {
    "net": "ocp_kelvin_p",
    "at": [
-    119.274,
-    60.395
+    111.2,
+    55.4
    ],
-   "side": "F",
+   "side": "B",
    "ref": "TP28",
    "purpose": "ocp_kelvin_p reference"
   },
@@ -443,8 +623,8 @@
   {
    "net": "selv_gnd",
    "at": [
-    69.175,
-    128.8
+    62.5,
+    140.86
    ],
    "side": "B",
    "ref": "TP34",
@@ -509,6 +689,76 @@
    "side": "B",
    "ref": "TP40",
    "purpose": "selv_gnd reference"
+  },
+  {
+   "net": "n_ls",
+   "at": [
+    107.526,
+    105.923
+   ],
+   "side": "B",
+   "ref": "TP53",
+   "purpose": "n_ls reference"
+  },
+  {
+   "net": "n_ls",
+   "at": [
+    105.125,
+    82.395
+   ],
+   "side": "B",
+   "ref": "TP54",
+   "purpose": "n_ls reference"
+  },
+  {
+   "net": "n_ls",
+   "at": [
+    119.175,
+    109.535
+   ],
+   "side": "B",
+   "ref": "TP55",
+   "purpose": "n_ls reference"
+  },
+  {
+   "net": "n_ha",
+   "at": [
+    53.637,
+    108.822
+   ],
+   "side": "B",
+   "ref": "TP56",
+   "purpose": "n_ha reference"
+  },
+  {
+   "net": "n_ha",
+   "at": [
+    50.735,
+    76.474
+   ],
+   "side": "B",
+   "ref": "TP57",
+   "purpose": "n_ha reference"
+  },
+  {
+   "net": "n_hb",
+   "at": [
+    8.337,
+    108.172
+   ],
+   "side": "B",
+   "ref": "TP58",
+   "purpose": "n_hb reference"
+  },
+  {
+   "net": "n_hb",
+   "at": [
+    11.879,
+    94.774
+   ],
+   "side": "F",
+   "ref": "TP59",
+   "purpose": "n_hb reference"
   }
  ],
  "missing_test_points": [
@@ -541,6 +791,18 @@
    "ref": "selv_gnd",
    "why": "no legal via pair within 10 mm",
    "probe": "J4.16 (bottom), ground J4.2 / J4.4 / J4.15"
+  },
+  {
+   "net": "monitor_ls-ov",
+   "ref": "n_ls",
+   "why": "no legal via pair within 10 mm",
+   "probe": "C67.1 (0603, the tap capacitor; H3 forcing pad) / R83.2 / R84.1 / U29.4; ground n_ls at C67.2"
+  },
+  {
+   "net": "p6",
+   "ref": "n_ls",
+   "why": "no legal via pair within 10 mm",
+   "probe": "U26.6 pad toe (0.87 mm outside the VQFN body; H4: ground it to U26.5 / U26.7 to raise the LS span by 3.2 V); no copper on the open pin, and a pad needs a 4 mm stub under U26.7-U26.10 (stage 48 record)"
   }
  ],
  "silk": [
@@ -577,7 +839,7 @@
    "size": 1.0,
    "at": [
     60,
-    150
+    148
    ]
   },
   {

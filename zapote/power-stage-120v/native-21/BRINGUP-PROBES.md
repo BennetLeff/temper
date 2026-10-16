@@ -17,23 +17,35 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 | TP3 | v15_ls | F | 114.0, 98.6 | TP25 | leg_ret | LS +15 V rail |
 | TP4 | v24_raw | B | 118.6, 80.5 | TP26 | n_ls | 24 V HOT supply |
 | TP5 | ocp_node | B | 116.2, 71.6 | TP27 | ocp_kelvin_p | OCP comparator input (D4 condition 2) |
-| TP6 | hot5 | F | 116.0, 64.7 | TP28 | ocp_kelvin_p | HOT5 protection rail |
+| TP6 | hot5 | B | 110.5, 57.6 | TP28 | ocp_kelvin_p | HOT5 protection rail |
 | TP7 | bus_fault_hot | B | 101.1, 74.9 | TP29 | ocp_kelvin_p | OCP fault, HOT side |
 | TP8 | n_ha | F | 64.8, 50.0 | TP30 | sw_a | HS-A -2 V rail vs switch node (F6 rail at the edge) |
 | TP9 | p_ha | F | 71.6, 47.0 | TP30 | sw_a | HS-A +15 V rail |
 | TP10 | n_hb | B | 4.3, 115.8 | TP31 | sw_b | HS-B -2 V rail vs switch node |
 | TP11 | p_hb | B | 11.7, 116.7 | TP32 | sw_b | HS-B +15 V rail |
 | TP12 | v3v3 | B | 11.2, 128.3 | TP33 | selv_gnd | SELV 3.3 V |
-| TP13 | pwm_ha | B | 71.4, 128.0 | TP34 | selv_gnd | PWM A high |
+| TP13 | pwm_ha | B | 64.5, 142.1 | TP34 | selv_gnd | PWM A high |
 | TP14 | pwm_la | B | 79.8, 60.8 | TP35 | selv_gnd | PWM A low |
 | TP15 | pwm_hb | F | 34.4, 124.2 | TP36 | selv_gnd | PWM B high |
 | TP16 | pwm_lb | F | 36.2, 125.7 | TP36 | selv_gnd | PWM B low |
 | TP17 | permit | F | 33.1, 113.3 | TP37 | selv_gnd | PERMIT |
 | TP18 | leg_b-driver_dis | B | 34.0, 65.0 | TP38 | selv_gnd | leg B DIS |
-| TP19 | bias_good | B | 33.2, 70.4 | TP38 | selv_gnd | BIAS_GOOD (rail monitors, stage 22) |
+| TP19 | bias_good | B | 62.9, 138.5 | TP34 | selv_gnd | BIAS_GOOD (rail monitors, stage 22) |
 | TP20 | bus_fault | B | 35.8, 173.0 | TP39 | selv_gnd | OCP fault, SELV side |
 | TP21 | ct_zc | B | 30.1, 133.2 | TP40 | selv_gnd | tank CT zero cross |
 | TP22 | ct_mon | B | 23.8, 134.6 | TP40 | selv_gnd | tank CT monitor |
+| TP41 | monitor_ls-uv | B | 105.8, 107.8 | TP53 | n_ls | LS monitor UV tap |
+| TP42 | monitor_ls-spanuv | B | 106.8, 84.3 | TP54 | n_ls | LS monitor SPANUV tap |
+| TP43 | monitor_ls-spanov | B | 116.9, 110.4 | TP55 | n_ls | LS monitor SPANOV tap |
+| TP44 | bias_ha.monitor-uv | B | 52.3, 111.1 | TP56 | n_ha | HS-A monitor UV tap |
+| TP45 | bias_ha.monitor-ov | B | 52.2, 115.3 | TP56 | n_ha | HS-A monitor OV tap |
+| TP46 | bias_ha.monitor-spanuv | B | 47.2, 109.3 | TP56 | n_ha | HS-A monitor SPANUV tap |
+| TP47 | bias_ha.monitor-spanov | B | 51.2, 79.2 | TP57 | n_ha | HS-A monitor SPANOV tap |
+| TP48 | bias_hb.monitor-uv | B | 9.2, 104.5 | TP58 | n_hb | HS-B monitor UV tap |
+| TP49 | bias_hb.monitor-ov | F | 8.2, 98.8 | TP59 | n_hb | HS-B monitor OV tap |
+| TP50 | bias_hb.monitor-spanuv | B | 5.4, 105.4 | TP58 | n_hb | HS-B monitor SPANUV tap |
+| TP51 | bias_hb.monitor-spanov | B | 7.4, 110.1 | TP58 | n_hb | HS-B monitor SPANOV tap |
+| TP52 | ref25 | B | 115.8, 56.9 | TP28 | ocp_kelvin_p | REF25 (U5), the OCP / OVP / watchdog reference |
 
 ## Probed elsewhere (no legal test-pad spot)
 
@@ -44,6 +56,8 @@ differential or isolated probes (D-8 equipment table), never a grounded scope gr
 | leg_b-out_h | component pad R18.1 / R57.2 / U2.15 (no legal test-pad spot) |
 | leg_a-driver_dis | component pad R73.2 / U1.5 / U22.4 (no legal test-pad spot) |
 | line_zc | J4.16 (bottom), ground J4.2 / J4.4 / J4.15 |
+| monitor_ls-ov | C67.1 (0603, the tap capacitor; H3 forcing pad) / R83.2 / R84.1 / U29.4; ground n_ls at C67.2 |
+| p6 | U26.6 pad toe (0.87 mm outside the VQFN body; H4: ground it to U26.5 / U26.7 to raise the LS span by 3.2 V); no copper on the open pin, and a pad needs a 4 mm stub under U26.7-U26.10 (stage 48 record) |
 
 FET gate/drain/source (VGS, VDS): at the TO-247 package leads with rigid insulated adapters, per
 D-8 (`validation-results/01-switching-parasitics/round17/delegation/out-D8/README.md`).
