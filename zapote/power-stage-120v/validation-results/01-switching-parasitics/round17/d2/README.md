@@ -520,5 +520,32 @@ inductance only in L_P3/L_P4, so the rail path is counted once.
 
 **Leg B is closed on native-21 copper** with F6 at the −1.6 V bound. With F6,
 the larger gate loop helps S4's off-gate (−0.5 V of margin gained) and costs
-S2 about 50 V of die VDS, within limits. Leg A21 waits on its 0.45 mm fine
-port P4 (remote `campA21`; the box lost power on 2026-10-10 during P4).
+S2 about 50 V of die VDS, within limits.
+
+## Native-21 leg A (`legA21-h0-best`, `compose_leg_best.py --leg A21`)
+
+Same recipe as leg B, except that the fine h1 run uses **0.45 mm edges**: the 0.35 mm mesh
+(11.3 M tets, 68.9 GB estimated) exceeds the box's 56 GB guard (round 18 README §5,
+option 2). Fine matrix `legA21-h1-e0p45-n21` (8.0 M tets, ports 8221 / 7325 / 8414 /
+8838 GMRES iterations, scaling off): symmetric, positive definite, B-field vs energy
+≤ 1.2e-7. Composed min eigenvalue 8.16 nH. Self-inductance is not mesh-converged
+(M1, +1.2–1.7 % per refinement), so the 0.45 mm fine step leaves L slightly low compared
+with 0.35 mm. This is an estimate of ~1 %, not measured.
+
+Versus `legA-h0-best-n19`, **leg A's power loop grew**: L11 +48 %, L22 +62 %,
+M12 +92 % (24.3 / 23.5 / 15.0 → 36.0 / 38.0 / 28.8 nH). The gate loops roughly double
+(L33 +122 %, L44 +100 %; −2 V-rail return, as on leg B). The coarse h1 matrices show
+the same jump (L11 31.5 → 42.0 nH, M12 19.0 → 31.9 nH), so it is geometry, not
+mesh: native-21 moved the film caps C38/C39 6.2 mm lower and further right
+(`../native21-setup/README.md`). Leg B's bus loops went down 6–15 %.
+
+| Run | Result |
+| --- | --- |
+| Unipolar decision cases (`results/legA21-best/`, 96; baseline `results/legA-best-n19/`, same 96 cases) | 72/96 (n19 60/96); 12 S4 dir-1 cases flip to pass (off-gate Δ −1.05…−0.42 V), none flip to fail; 60/96 at the 1.9 V screen for both; ZVS 12/12. **New: 16 S4 dir-0 cases exceed the 520 V die-VDS limit** (≤ 550 V; n19 S4 dir-0 max 511 V); these already failed on off-gate in n19. S2 die VDS +39…+82 V (≤ 418 V); S2 off-gate ≤ 1.57 V; `compare-vs-n19.json` |
+| F6 bound −1.6 V, PMEG, 27/100/150 °C (`results/f6-vneg-m1p6-legA21-best/`, 144) | **144/144**; S4 off-gate ≤ 0.89 V (n19 1.74 V); S4 die VDS ≤ 471 V (n19 486 V); S2 die VDS ≤ 451 V (n19 389 V; 585 V limit) |
+| S5 burst start, F6 bound (`results/f6-vneg-m1p6-legA21-best-startup/`, 108) | **108/108**; ≤ 0.49 V (n19 0.16 V); die VDS ≤ 440 V |
+
+**Leg A is closed on native-21 copper with F6 at the −1.6 V bound.** Without F6, leg A now
+also fails S4 on die VDS, so F6 (or an equivalent turn-on slow-down) is required on two counts.
+The F6 margins improve on off-gate and cost about 60 V of S2 die VDS. Both native-21 legs
+are closed.
