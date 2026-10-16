@@ -461,6 +461,7 @@ Source: the C30 re-run of the interlock, thermal-sense and RTD validators (`evid
 17. **Procurement (C37):** RG2012V-431-W-T1 (Rref) has stock 0 at JLC/LCSC: consign it. SN74LVC74APWR has 1,588.
 18. **Firmware (C37, C39, C42):** threshold word 35542 (not CR-7's 35544); manual MAX31865 fault cycle; bursts start at or above resonance; RUN_EN raised only with PWM idle; WDI only from the supervisor task.
 19. **Enclosure (C40, C41):** the J12 harness gets a third (drain) contact; J11 is a flush TC2050 land (no header height).
+20. **Routing robustness (C44):** run `layout/convergence.py --runs 3` on the C1 board before release. One clean-start run passed; the two earlier placements failed (LAYOUT.md Results).
 
 ## Layout inputs from the enclosure (R27, 2026-10-08)
 
@@ -608,3 +609,15 @@ temper-8d / coil-driver-r1 asked for an AMC1301 on native-21's R5 shunt, with 2 
 - one MCU budget line is added.
 
 No copper, pins or parts are reserved now.
+
+## C44. C1 layout, block validators and fab package (2026-10-15)
+- **Placement:**
+  - The capacitive-mode detector (U42–U46, R1/R2 follow) moved out of the MCU-to-J4 signal bus to the free front-edge field right of the X65 hole (X 76–90 / Y 21–27); the board text moved from X98 to X115. In the bus (first placement) the board routed once, but the next run left UI_CS_OLED_N open after all repairs, and a gridroute `--eco` plus `route.py --continue` then left EXT_ADC_CS_N open.
+  - The runaway divider and six RTD resistors are pinned at their C36 poses (U41 in the column had pushed r_runaway_top to 7.8 mm from L2, under the 10 mm partition gate).
+  - The 499 k pull-ups sit outside the hole keep-out's shadow: run 1's `rtd_sense_p_ext` route along the right edge gave 10 copper-to-edge errors.
+- **Board:** make.py ALL GATES PASS on one clean-start run: DRC 0 / 0 / parity 0, 36 warnings; DFM PASS; 13/13 layout checks; gerbv PASS. Routing robustness for C1 is **not** re-proved: the three-run convergence (2–3 h per run on this board) was not run (open item 20).
+- **CPL:** the audit was rerun with the 7 new LCSC codes. U42 SN74LVC74APWR is CORRECTED +270° (geometry and DB agree) and folded into `CPL_ROTATION_OFFSET`. U43 SN74LVC1G86 (geometry 180 vs DB 270) and D7 ESD5Z5.0 are NEEDS-PREVIEW, with the other SOT-23-5 logic. Rref (C4260028) has no EasyEDA footprint; it is a symmetric 0805 passive, OK.
+- **Block validators:**
+  - The RTD binder aborted on the C37 census, and would already have aborted on C36's `r_avdd_top` swap. It now takes a declared-deviation file (`evidence/block-validators/rtd-deviations-c37.json`): 16 extra parts, 4 MPNs, 6 pad-net moves. It relaxes only the binder's own gates; a stale entry aborts, and Rust gets the unmodified export.
+  - Result: interlock 69 / 6 / 5 (+ the HC30 MPN, W6), thermal 88 / 9 / 7, RTD 5 / 33 / 5 (+15, W7).
+  - Making the RTD unit's contract accept the C37 filter is a change request to `zapote/rtd`.
