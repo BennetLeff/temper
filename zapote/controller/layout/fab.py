@@ -55,6 +55,7 @@ CPL_ROTATION_OFFSET = {
     "C133541": 270,   # SN74LVC14ADR, SOIC-14
     "C89608": 270,    # MAX31865AAP+, SSOP-20
     "C2836319": 270,  # SRV05-4, SOT-23-6
+    "C350561": 270,   # SN74LVC74APWR, TSSOP-14 (C44 audit: geometry and DB agree)
 }
 
 
@@ -91,9 +92,14 @@ def main():
     lines = defaultdict(list)
     cpl = []
     rotated = []
+    board_only = []
     for fp in sorted(b.GetFootprints(), key=lambda f: natural(f.GetReference())):
         ref = fp.GetReference()
         mpn = fp.GetFieldText("MPN") if fp.HasField("MPN") else fp.GetValue()
+        # C41: copper-only lands (the TC2050 debug pads) are neither bought nor placed
+        if fp.IsExcludedFromBOM() or fp.IsExcludedFromPosFiles() or (parts.get(mpn) or {}).get("board_only"):
+            board_only.append(ref)
+            continue
         pads = list(fp.Pads())
         tht = any(p.GetAttribute() == pcbnew.PAD_ATTRIB_PTH for p in pads)
         lib = fp.GetFPID().GetLibItemName().wx_str()
@@ -110,18 +116,22 @@ def main():
                     f"{(fp.GetOrientationDegrees() + off) % 360:g}", "THT" if tht else "SMD"])
     def stock(mpn):
         rec = parts.get(mpn, {})
-        return rec.get("jlc_stock_2026_10_12", rec.get("jlc_stock_2026_10_08", rec.get("lcsc_stock_2026_10_10")))
+        for k in ("jlc_stock_2026_10_15", "jlc_stock_2026_10_12", "jlc_stock_2026_10_08", "lcsc_stock_2026_10_10"):
+            if k in rec:
+                return rec[k]
+        return None
     missing = []
     with (FAB / "bom-jlcpcb.csv").open("w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #", "Manufacturer Part Number", "Mount",
-                    "JLC stock 2026-10-08"])
+                    "JLC stock (latest check)"])
         for (mpn, lib, mount), refs in sorted(lines.items(), key=lambda kv: natural(kv[1][0])):
             p = parts.get(mpn)
             if p is None or not p.get("lcsc"):
                 missing.append(mpn)
+            s = stock(mpn)
             w.writerow([mpn, ",".join(sorted(refs, key=natural)), lib, (p or {}).get("lcsc", ""), mpn, mount,
-                        (parts.get(mpn) or {}).get("jlc_stock_2026_10_12", (parts.get(mpn) or {}).get("jlc_stock_2026_10_08", ""))])
+                        "" if s is None else s])
     with (FAB / "cpl-jlcpcb.csv").open("w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation", "Mount"])
@@ -165,16 +175,18 @@ def main():
   is enough, the rest of the code follows; the CPL carries KiCad's rotation for them):**
 {preview}
 - **LCSC numbers:** from bom/controller-parts.json; missing: {missing or 'none'}.
-- **Consign / stock:** nothing is consigned for the 2-board prototype lot after the C35/C36 swaps. Stock 0
-  (JLC 2026-10-08, swapped parts 2026-10-12): {zero_stock or 'none'}; stock below 10x the quantity:
-  {low_stock or 'none'} (DECISIONS open item 7).
+- **Consign / stock:** stock 0 (latest JLC check per part: 2026-10-08, C35 swaps 2026-10-12, C37-C41 parts
+  2026-10-15): {zero_stock or 'none'} -- consign these or use JLC global sourcing; stock below 10x the
+  quantity: {low_stock or 'none'} (DECISIONS open item 7). RG2012V-431-W-T1 (Rref) is consigned by decision
+  C37: the sensor-r3 CR-2 accuracy budget needs its 0.05 % / 5 ppm/K.
 - **Sourcing swaps (DECISIONS C35/C36):** R53 RT0603BRD0716K5L (C728584), U22 74HC30PW,118 (C546857),
-  R31 RT0603BRD078K06L (C861587), J13 code C160315 (same MPN), R39 RT0805BRD07430RL (C865488, 0.1 % instead
-  of 0.05 %), U14 AD8436ARQZ-R7 (C495329).
+  R31 RT0603BRD078K06L (C861587), J13 code C160315 (same MPN), U14 AD8436ARQZ-R7 (C495329). The C35 Rref
+  swap (RT0805BRD07430RL) is reverted by C37.
+- **Board-only lands (not on the BOM or CPL):** {', '.join(board_only) or 'none'} (J11: Tag-Connect TC2050-IDC-NL
+  debug/programming pads, DECISIONS C41; nothing is fitted).
 - **U14 is the AD8436 A grade (ARQZ), not the B grade:** its larger initial gain error is removed by the
   COMMISSIONING step-1 trim; the converter's worst case is -1.5 to +0.8 %, inside the +/-3 % criterion.
   Production direction (DECISIONS C35): delete U14, U15 and the buffers and compute tank RMS from the CT_MON ADC1 path.
-- **J11** (debug header) may be left unfitted in production.
 - **U4** is the ESP32-S3-WROOM-1U-N8 (enclosure R33): the 150 mm U.FL coax and the chip-antenna board are
   separate items, not on this board's BOM.
 """
