@@ -1,5 +1,5 @@
 #!/bin/sh
-# Rerun every sensor-r3 C1 firmware result (about 5 min on the Mac):
+# Rerun every sensor-r3 C1 firmware result (about 7 min on the Mac):
 #   1. regenerate the golden vectors (firmware/test/*_vectors.h, vectors-summary.json)
 #   2. build + run the seven C1 host test targets (firmware/test/CMakeLists.txt):
 #      loop modules, D1, the contact-lost event, and the C1 runtime
@@ -8,6 +8,10 @@
 #   3. build the C1 sources as a host library and run the C-in-the-loop co-sim
 #      (cosim-results.json, gates bars B1-B5 in three gain modes, with the
 #      runtime runaway supervisor in the loop)
+#   3b. h_c steps (64 gated) and oil / water / crud cases through the same C
+#      loop (../robustness/hc_cosim.py --after-only: hc-cosim.json, gates
+#      robustness/DECISIONS.md R-HS / R-CT; the "before" baseline rows are
+#      kept from the last full run)
 #   4. D1 seed-to-seed Monte Carlo (b5-montecarlo.json, gates safety only)
 #   5. runaway checks: legacy vs C1 rules on false-trip and fault scenarios
 #      (runaway-checks.json, gates the C1 rules; DECISIONS.md D-RUN)
@@ -37,6 +41,11 @@ lib=$("$here/build_lib.sh" "$tmp/lib")
 "$py" "$here/cosim.py" --lib "$lib" --out "$here/cosim-results.json" > "$tmp/cosim.log" \
     || { cat "$tmp/cosim.log"; exit 1; }
 tail -1 "$tmp/cosim.log"
+
+echo "== 3b. h_c steps and contaminated contact"
+"$py" "$here/../robustness/hc_cosim.py" --lib "$lib" --after-only > "$tmp/hc.log" \
+    || { grep -E '^(BARS|FAIL)' "$tmp/hc.log"; exit 1; }
+tail -1 "$tmp/hc.log"
 
 echo "== 4. D1 Monte Carlo"
 "$py" "$here/b5_montecarlo.py" --lib "$lib" --out "$here/b5-montecarlo.json" > "$tmp/mc.log" \

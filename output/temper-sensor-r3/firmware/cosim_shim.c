@@ -19,6 +19,7 @@ typedef struct {
     cc_t cc;
     psup_params_t sp;
     psup_t sup;
+    ptl_output_t last;
 } sim_t;
 
 void *sim_new(void)
@@ -77,6 +78,12 @@ int sim_set(void *h, const char *key, double v)
     F("pg_later_max_rel_step", p->pg.later_max_rel_step)
     F("pg_later_max_rel_down", p->pg.later_max_rel_down)
     F("pg_later_cov_floor", p->pg.later_cov_floor_rel)
+    U("csw", p->csw.enable = (v != 0.0))
+    U("csw_up", p->csw.up_enable = (v != 0.0))
+    F("csw_dv_trig", p->csw.dv_trig_k_per_s)
+    F("csw_h_floor", p->csw.h_floor_w_per_m2k)
+    U("lpg", p->pid.lpg_enable = (v != 0.0))
+    U("lpg_budget", p->pid.lpg_budget = (v != 0.0))
     {
         psup_params_t *q = &((sim_t *)h)->sp;
         F("sup_margin", q->margin_k)
@@ -116,6 +123,7 @@ void sim_step(void *h, double y, double rim, double sp, double p_applied, int sr
     };
     ptl_output_t o;
     ptl_step(&s->loop, &in, &o);
+    s->last = o;
     out[0] = o.t_hat_c;
     out[1] = o.p_cmd_w;
     out[2] = o.p_pid_w;
@@ -132,6 +140,23 @@ void sim_step(void *h, double y, double rim, double sp, double p_applied, int sr
     out[13] = s->loop.cc.last_d_exp;
     out[14] = s->loop.cc.last_decay_rms;
     out[15] = s->loop.cc.last_decay_change;
+}
+
+/* Contact-shift window / latent-plateau guard after the last sim_step:
+ * out = event, window open, h_model (W/m2K), lpg active, allow, steady,
+ * windows, accepts, escalations. */
+void sim_cs_stats(void *h, double *out)
+{
+    const sim_t *s = (const sim_t *)h;
+    out[0] = (double)s->last.cs_event;
+    out[1] = s->last.cs_window;
+    out[2] = s->last.h_model_w_per_m2k;
+    out[3] = s->last.lpg_active;
+    out[4] = s->loop.cs_allow_last;
+    out[5] = s->loop.cs_steady_last;
+    out[6] = (double)s->loop.csw.windows;
+    out[7] = (double)s->loop.csw.accepts;
+    out[8] = (double)s->loop.csw.escalations;
 }
 
 /* Ask D1 for a probe now (co-sim "probe on intact contact" cases). */
