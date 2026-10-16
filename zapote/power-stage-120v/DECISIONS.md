@@ -2342,3 +2342,91 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       OVP (U7) is unaffected except on the spec-literal reading (288.11 V).
     - **Reverses if:** D3's tempco or clamp curve, measured or published, puts the string above 500 V at 73 °C; or TDK's
       transient note is read as excluding repetitive fault events.
+
+65. **OPEN-ITEMS S18: PS2 (MEAN WELL MPM-20-24) gets a body-to-air path in B3 and a gated row on the quantity its
+    datasheet rates, its local air (2026-10-16; adopted). Thermal model and gate only: no BOM or copper change. The
+    tag stays native21s47.** Records: `11-candidates/s18-ps2-body/README.md` (lane `claude/native21-s18-ps2-body`,
+    reviewed; runs in `runs-native21/s18-ps2/`); integration chain `runs-native21/s18-ps2/c47int-s18`.
+    - **Rating basis, read verbatim (MPM-20-SPEC 2024-10-30, sha256 `24d3a6bb…`).**
+      - p.2: "WORKING TEMP. -35 ~ +85℃ (Refer to "Derating Curve")".
+      - p.3: the Derating Curve's x-axis is "AMBIENT TEMPERATURE (℃)", "(HORIZONTAL)". For 12–24 V models: 100 % to
+        55 °C, 70 % at 60 °C, 50 % at 70 °C, 30 % at 85 °C, then nothing.
+      - There is no case, Tc or pin limit on p.1–p.4 or in the PCB-type installation manual. **So the 85 °C rates the air
+        around the module. B3 now rates that air and never the pad.**
+    - **Adopted: the `module_box` model** (`thermal_body.py`, the film caps' pattern from jet-2026-10-15).
+      - **Loss.** The body node carries the whole module loss, 1.348 W (P_out 7.08 W, η 0.84).
+      - **Paths.** The pins take the class 15 K/W to the pads. The case loses h·A to air on the p.2 52.4 × 27.2 × 24 mm
+        body (top and sides, 5246 mm²).
+      - **Air.** The air is bay + 15 K, the same constant as the film caps (`MODULE_AIR_RISE_K` = `FILM_HF_AIR_RISE_K`).
+      - **Control.** `--module-pins-only` is the pre-S18 model (pins only, half the loss, the other half dropped). It
+        reproduces the s47 run files and `margins.json` byte for byte.
+    - **Adopted: the gated local-air row** (`b3_ratings_gate.MODULES`, hot-copper basis only).
+      - **Estimate.** est = bay + max(15 K, layer_factor(24 mm) × the excess of the 10 mm ring around the body).
+      - **Limit.** The p.3 ambient at the as-built load under the ledger's 90 % rule: 80.2 °C at 7.08 W (32.8 %). The
+        curve alone gives 82.9 °C.
+      - **Refusals.** The row refuses pins-only or old runs, pins that carry heat into the module, a load over the rule,
+        another MPN at PS2, and meshes that disagree.
+    - **Numbers on the integration board** (chain CHAIN_DONE; board 83355da5, a zone-fill re-hash of 63aba33f with the
+      same copper key 387b3e2d48c8). `margins.json` equals the lane's `margins-s18.json` row for row.
+
+      | Case | PS2 local air | Limit (90 % / curve) | Margin | Case node | Pad max | Pins / air (W) |
+      |---|---|---|---|---|---|---|
+      | c17.5 @ 61 (release) | 76.0 °C | 80.2 / 82.9 °C | **+4.2 K** (+6.9) | 95.5 °C | 91.5 °C | 0.34 / 1.01 |
+      | c22 @ 55 | 70.0 °C | 80.2 / 82.9 °C | +10.2 K | 90.8 °C | 87.5 °C | 0.27 / 1.08 |
+      | c28 @ 55 | 70.0 °C | 80.2 / 82.9 °C | +10.2 K | 93.2 °C | 97.6 °C | 0.14 / 1.20 |
+
+      - The 15 K rule sets the air in every case; PS2's own layer estimate is 3.0–5.8 K.
+      - PS2 does not bind. The old −26.5 K compared an ambient rating with a pad temperature, in a model that forced the
+        loss through the pins. It was not a rating margin.
+    - **Release margin +1.0 → +1.2 K, still R10.** At release 0.34 W instead of 0.674 W enters the board, so every common
+      row moves cooler, by 0 to +3.1 K (the most at R22–R25, 27–39 mm from PS2).
+      - The other card metrics: laminate −51.1 → −51.0 K, rated parts −51.3 → −51.2 K, `b3_ratings` PASS.
+      - On the lane's pin-tie corners the release margin is +1.1 to +1.2 K. That includes a strong-tie corner that puts
+        more heat into the board (0.78 W) than the old model did.
+      - **Card:** ACCEPT against the s47 card, better on `b3_laminate_margin_K`, `b3_rated_part_margin_K` and
+        `b3_release_margin_K`. `10-benchmark/scorecard-native21s47.json` is re-scored on the S18 model. The other changes
+        are `pin_absmax` None → False (that gate is report-only and was added since) and the ledger totals.
+    - **Ledger.**
+      - `ledger_s18.py` re-cites every keyed B3 citation, S21's included (22 entries).
+      - S21's 73 temperature lines are re-computed on the S18 run files (`temp_ratings.py --rebase`): 55 move, all toward
+        margin, with no verdict change.
+      - MPM-20-24 gains the B3 local-air check, 76.0 / 80.2 °C (0.9476).
+      - `gate.py` PASS: 91 PARTIAL, 3 VERIFIED, 0 VIOLATION. 131 check ratios move, all toward margin, and none crosses
+        its limit.
+    - **Constraints found.**
+      - **The ledger's 9.59 W PS2 sizing allocation fails at the release-case air; the as-built 7.08 W passes.**
+        - At 9.59 W (44.4 % of 21.6 W, the 740 nC / 80 kHz allocation) the limit is 70.5 °C under the 90 % rule (74.2 °C
+          on the curve). Against 76.0 °C air that is −5.5 K (−1.8 K).
+        - The ledger's own "P at 61 C bay" check passes only because it reads the curve at bay air.
+        - **So the firmware's 60 kHz window top is now a PS2 rating constraint:** it is what holds PS2 at 7.08 W. Raising
+          the window top, or adding PS2 load, needs this row re-run.
+      - **The 78 °C stacked-bay case puts PS2's air at 93 °C,** above the 85 °C working maximum at any load. It fails
+        outright. This is an existing ledger gap: it comes from the bay, not from this model.
+      - **The S18 study's +17.8 K is not reproduced.** That study (`b3-ratings/ps2-thermal-2026-10-15`) assumed an
+        equivalent ambient of 61–64 °C air (65.1 °C at c18 @ 61). The gate rates bay + 15 K, the film caps'
+        board-heated-air rule, so it reads +4.2 K. The rule is conservative here, since PS2's own layer estimate is 3.0 K.
+        The study's "pessimistic bound" (+2.9 K) also used bay + 15 K, but it took the hottest pad as the surroundings.
+      - **Clearance from heat sources.** MEAN WELL's PCB-type installation manual (`PCB_EN.pdf` p.1 (4)) asks for
+        10–15 cm from an adjacent heat source. PS2 sits 27–39 mm from R22–R25, on a board that carries 13.5 A. This is a
+        certifier / owner reading, not a rating. It is recorded and not acted on.
+    - **Assumed, not sourced:**
+      - the 15 K/W pin path (corners 5–40 K/W);
+      - η at 120 VAC and 33 % load (0.84 is used; the datasheet's 87 % typ is at 230 VAC and full load);
+      - the bottom-face gap;
+      - where MEAN WELL measures "ambient".
+
+      The legacy point model (`b3/thermal.py`) keeps the old 0.674 W pin deposit for its peak metrics.
+    - **Bench check (S2 soak, the lane README §6).** PS2 is at hazardous voltage on every pin, so use insulated fine-wire
+      K thermocouples on an isolated logger, or IR through a port. Run at the c17.5-equivalent point and log PS2's output.
+      - **TC2, the rated quantity:** a shielded bead in free air 5 mm off PS2's long side face, at 12 mm height, on the
+        side away from J3. It must read TC2 − TC3 ≤ +15 K. It refutes the model at > +19.2 K (the 80.2 °C limit at bay 61).
+      - **TC3:** bay air, at least 50 mm from any board part.
+      - **TC1:** the case top centre. Expect TC1 − TC2 ≈ +19.5 K (+11 … +21 K); ≥ +27 K means the air path is weaker
+        than h·A at h 10.
+      - **TC4:** the pin 1 or pin 4 pad. Expect TC4 − TC3 ≈ +30 K; +44 … +48 K means the pins really carry the loss.
+      - **Load:** PS2's output must be ≤ 7.1 W. Above 9.6 W the margin falls to −5.5 K.
+      - **Ledger criterion:** (TC2 − TC3) + 61 °C ≤ the p.3 limit at the measured load under the 90 % rule.
+    - **Reverses if:**
+      - the bench reads PS2's local air above bay + 19.2 K at the release point, or PS2's output above about 7.1 W;
+      - MEAN WELL or the CB report (Tma) defines the rating at a case or internal point;
+      - the firmware's window top or PS2's load rises without this row being re-run.
