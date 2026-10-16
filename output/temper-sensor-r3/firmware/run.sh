@@ -1,5 +1,5 @@
 #!/bin/sh
-# Rerun every sensor-r3 C1 firmware result (about 12 min on the Mac):
+# Rerun every sensor-r3 C1 firmware result (about 20 min on the Mac):
 #   0. rim NTC table and channel numbers (rim_ntc.py -> rim-ntc.json and
 #      firmware/components/sensors/rim_ntc_table.h) and the CR-7 threshold
 #      words (cr7_thresholds.py -> cr7-thresholds.json); both gate
@@ -20,9 +20,14 @@
 #      loop (../robustness/hc_cosim.py --after-only: hc-cosim.json, gates
 #      robustness/DECISIONS.md R-HS / R-CT; the "before" baseline rows are
 #      kept from the last full run)
-#   3d. element-parallel Pt100 leakage against the leak check (leak-checks.json,
-#      gates benign runs and the recorded status of the 300 degC bar;
-#      DECISIONS.md D-LEAK)
+#   3d. element-parallel Pt100 leakage against the leak check and the
+#      setpoint-relative rim limit (leak-checks.json, gates benign runs and the
+#      recorded status of the 300 degC bar; DECISIONS.md D-LEAK, D-RIMLIM)
+#   3e. the rim limit's glass envelope, tolerance table and trade-off curve
+#      (rim-limit.json: margin vs coverage vs false latches, the CR-5 band;
+#      gates the firmware constants and the chosen variant's 0 false latches;
+#      DECISIONS.md D-RIMLIM), and candidates B/C (leak-alternatives.json,
+#      reported only)
 #   4. D1 seed-to-seed Monte Carlo (b5-montecarlo.json, gates safety only)
 #   5. runaway checks: legacy vs C1 rules on false-trip and fault scenarios,
 #      with the current-sense checks (runaway-checks.json, gates the C1 rules;
@@ -80,6 +85,12 @@ echo "== 3d. Pt100 leakage"
 "$py" "$here/leak_checks.py" --lib "$lib" --out "$here/leak-checks.json" > "$tmp/leak.log" \
     || { cat "$tmp/leak.log"; exit 1; }
 grep -E '^(   hazardous|hazardous|never|requirements|BAR|benign|LEAK)' "$tmp/leak.log"
+
+echo "== 3e. rim limit study; energy and cold-soak alternatives"
+"$py" "$here/rim_limit.py" --lib "$lib" --out "$here/rim-limit.json" > "$tmp/rl.log" \
+    || { grep -vE '^m ' "$tmp/rl.log"; exit 1; }
+grep -E '^(baseline|chosen|GATE|RIM LIMIT)' "$tmp/rl.log"
+"$py" "$here/leak_alternatives.py" > /dev/null
 
 echo "== 4. D1 Monte Carlo"
 "$py" "$here/b5_montecarlo.py" --lib "$lib" --out "$here/b5-montecarlo.json" > "$tmp/mc.log" \

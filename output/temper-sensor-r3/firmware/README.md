@@ -4,7 +4,7 @@ HANDOFF section C. The C1 algorithms are host-tested C in
 `firmware/components/control/`. The same C runs closed-loop against the r3
 Python truth plant here. Decisions and open items are in `DECISIONS.md`.
 
-**Rerun everything:** `./run.sh`. It takes about 12 min and exits non-zero on any
+**Rerun everything:** `./run.sh`. It takes about 20 min and exits non-zero on any
 failure. It includes both SIL configurations and their coverage gate. The
 contact-change and contaminated-contact study is in `../robustness/`
 (DECISIONS D-CSW, D-LPG; `../robustness/DECISIONS.md`).
@@ -28,6 +28,7 @@ MAX31865 service, the rim NTC driver and the power stage.
 | `pan_supervisor.{c,h}` | Runaway supervision that replaces the legacy 15 K/s and target + 10 K latches in C1 builds: R1 sustained rise, and R2 stages 1/2a/2b (DECISIONS D-RUN). |
 | `current_sense_check.{c,h}` | Bus-current sense plausibility: (a) ≥ 300 W commanded with no current, (b) the start-up pulse at PREHEAT entry, (c) input vs bus current when the input sense is fitted. Latches FAULT_CURRENT_SENSE (DECISIONS D-ISENSE). |
 | `pan_leak_check.{c,h}` | Element-parallel Pt100 leakage: two chained cross-check suspect → probe-passed cycles latch FAULT_PROBE_LEAKAGE (DECISIONS D-LEAK). |
+| `pan_rim_limit.{c,h}` | Setpoint-relative rim limit: a rim above the glass envelope of max(setpoint, t_hat) plus the rim's hot tolerance stack, not falling, for 5 s, latches FAULT_PROBE_LEAKAGE (DECISIONS D-RIMLIM). |
 
 The C1 MAX31865 path is in `firmware/components/sensors/`:
 - `rtd_convert.{c,h}` converts code → Ω → °C, with the CR-7 self-heating and
@@ -58,12 +59,12 @@ The rim NTC (Semitec 104GT-2 on GPIO9 / ADC1_CH8) is also in
 | `test_contact_check_only` | 11 tests. Replays loss on 4 pans, food on 3 and nominal runs, in screen mode and firmware mode, plus synthetic cases. |
 | `test_pan_temp_loop_only` | 24 tests. Guard, plant gain (including the later-step updates), PID, the latent-plateau guard, the contact-shift window and power authority. |
 | `test_pan_contact_sm_only` | 2 tests. EVENT_CONTACT_LOST in the state machine. |
-| `test_c1_units_only` | 35 tests. Supervisor R1/R2, code-to-temperature conversion and the sensor-failure classes (D-OPEN), the current-sense checks (D-ISENSE) and the leak check (D-LEAK). |
+| `test_c1_units_only` | 41 tests. Supervisor R1/R2, code-to-temperature conversion and the sensor-failure classes (D-OPEN), the current-sense checks (D-ISENSE), the leak check (D-LEAK) and the rim limit (D-RIMLIM). |
 | `test_c1_runtime_only` | 20 tests. The C1 state machine and `pan_control`: hot pan, h_c drop, lowered target, power stage disobeying, rising with power off, absolute 300 °C, intensity, C1 RTD window. Rim: cross-check on a low flat Pt100, no cross-check on a rising quench or a saturated rim, rim short/open/ADC failure → FAULT_PROBE_SHORT/OPEN. Current sense: dead while heating, failed start-up pulse, a low-power hold without a latch (D-ISENSE). |
 | `test_c1_runtime_isense_only` | 23 tests. `test_c1_runtime_only` built with `TEMPER_INPUT_CURRENT_SENSE=1`, plus the input-vs-bus current cross-check (D-ISENSE (c)). |
 | `test_c1_rtd_service_only` | 8 tests. The C1 MAX31865 sequence through the SPI mock: thresholds (35544 / 12844), fault cycle, conversion, fault flag, stale, frozen, and the 07h clear before a reset (D-OPEN). |
 | `test_c1_rim_ntc_only` | 13 tests. The rim driver through a mock HAL. Datasheet points 25–250 °C, chain accuracy at 100–250 °C (worst 0.073 K) and the CR-7 attenuation, hysteresis and clip re-read. Saturation, rail fallback, short, glitch, over-range, open (600 s), ADC failure, filter τ, trimmed mean, and the board binding over the `hal_adc` mock. |
-| `test_sil_fault_injection` / `test_sil_fault_injection_c1` | The SIL fault-injection suite, built twice from one runner and `traces/manifest.json` (D-SIL). Legacy runs 31 scenarios. C1 runs 44: it uses the real MAX31865 service through a register-level converter model at the firmware's 10 ms cadence, and the bus current follows the command. |
+| `test_sil_fault_injection` / `test_sil_fault_injection_c1` | The SIL fault-injection suite, built twice from one runner and `traces/manifest.json` (D-SIL). Legacy runs 31 scenarios. C1 runs 46: it uses the real MAX31865 service through a register-level converter model at the firmware's 10 ms cadence, and the bus current follows the command. |
 
 ## SIL fault injection in both configurations (D-SIL)
 
@@ -73,14 +74,15 @@ coverage. CI runs it as `scripts/check_sil_coverage.py`.
 | Mode | Scenarios | (fault class, origin) pairs | C1 mechanism × origin |
 |---|---|---|---|
 | legacy | 31 | 20/20 | n/a |
-| C1 | 44 | 26/26, a superset of legacy's (adds IDLE, FAULT_CURRENT_SENSE and FAULT_PROBE_LEAKAGE) | 20/20 |
+| C1 | 46 | 27/27, a superset of legacy's (adds IDLE, FAULT_CURRENT_SENSE and FAULT_PROBE_LEAKAGE) | 22/22 |
 
 The C1 mechanisms are:
 - R1 and the absolute 300 °C check;
 - R2 stages 1, 2a and 2b;
 - register 07h, DRDY stale and frozen code;
 - the current-sense checks (a) and (b) (D-ISENSE);
-- the Pt100 leak check (D-LEAK).
+- the Pt100 leak check (D-LEAK);
+- the setpoint-relative rim limit (D-RIMLIM), from HEATING and PREHEAT.
 
 Four legacy scenarios are legacy-only, and each names its C1 replacement:
 - **Thermal Runaway (target + 10 K latch).** Replaced by stage 1 (no latch,
@@ -100,8 +102,11 @@ C1 results (`sil_fault_tests_c1` output):
 - **Open Pt100:** held as FAULT_PROBE_OPEN (no longer RUNAWAY); a reset is
   accepted once the element is back. A flagged 380 °C reading still latches
   RUNAWAY (D-OPEN).
-- **Pt100 leakage** (pan 140 °C, reading 100 °C): FAULT_PROBE_LEAKAGE in 972
-  rows (bound 1250, D-LEAK).
+- **Pt100 leakage, the chain** (rim 105 °C over a reading sagging to 75 °C):
+  FAULT_PROBE_LEAKAGE in 901 rows (bound 1250, D-LEAK).
+- **Pt100 leakage, the rim limit** (rim 140 °C over a 100 °C reading;
+  150 °C over 85 °C in PREHEAT): 166 and 267 rows (bounds 300 and 400,
+  D-RIMLIM).
 - **20 K/s sensor rise:** R1 latches in 62 rows (6.2 s), before the reading
   passes 216 °C.
 - **Frozen code:** 50 rows from the freeze onset in IDLE, PREHEAT and
@@ -120,7 +125,7 @@ The C1 run found two defects, both fixed in `main/state_machine.c`:
 |---|---|
 | `ref.py` | Python references: the KF (checked equal to r2 `KFNoPower`), the D1 replay, and the truth plant with a hot pan. |
 | `export_vectors.py` | Writes `firmware/test/{pan_temp_estimator,contact_check}_vectors.h` and `vectors-summary.json`. Deterministic. |
-| `cosim_shim.c`, `build_lib.sh` | The eleven C sources (the seven loop modules, the supervisor, the current-sense and leak checks, and the rim NTC driver) and the ctypes shim, built as a host `.so` with plain `cc`. |
+| `cosim_shim.c`, `build_lib.sh` | The twelve C sources (the seven loop modules, the supervisor, the current-sense and leak checks, the rim limit, and the rim NTC driver) and the ctypes shim, built as a host `.so` with plain `cc`. |
 | `cosim.py` | Copy of screen.py `run()` with the C loop in it. Runs the cases below and writes `cosim-results.json`; gates the bars. The shadow is `../robustness/shift_kf.py` (KF plus window). |
 | `../robustness/hc_cosim.py` | The 64 gated h_c steps and 100 oil / water / crud cases through the same C loop, before vs after. Writes `../robustness/hc-cosim.json`; gates R-HS / R-CT. |
 | `b5_montecarlo.py` | D1 over 20 seeds and 3 rule sets. Writes `b5-montecarlo.json`; gates safety. |
@@ -130,7 +135,9 @@ The C1 run found two defects, both fixed in `main/state_machine.c`:
 | `rim_ntc.py` | The 104GT-2 R-T table, transcribed from the Semitec GT-2 datasheet (`--verify-pdf` re-extracts it). Writes `rim_ntc_table.h` and `rim-ntc.json`: interpolation error, K/mV, saturation and short temperatures, self-heating, and the rail error without the MCP3202. Gates. |
 | `cr7_thresholds.py` | Recomputes the MAX31865 C1 threshold words from the CR-7 inputs (R(−40 °C), R(360 °C)) using the firmware's derivation rule. Writes `cr7-thresholds.json`; gates `config.yaml` (DECISIONS D-THRESH). |
 | `xcheck_cosim.py` | The rim NTC in the loop. The plant gets a glass node at T_c − Δ, and the NTC runs at its tolerance corners through the C driver. Covers benign runs and Pt100 leakage. Writes `xcheck-cosim.json`; gates benign runs (DECISIONS D-RIM). |
-| `leak_checks.py` | The leak sweep (13 leaks 300 Ω–10 kΩ × 4 pans × Δ × bead corner) and 548 benign runs through the same glass and rim model, against the leak check. Writes `leak-checks.json`; gates 0 benign latches and the recorded status of the 300 °C bar (DECISIONS D-LEAK). |
+| `leak_checks.py` | The leak sweep (13 leaks 300 Ω–10 kΩ × 4 pans × Δ × bead corner) and 548 benign runs through the same glass and rim model, against the leak check and the rim limit. Writes `leak-checks.json`; gates 0 benign latches, the recorded status of the 300 °C bar and the recorded rim-limit coverage (DECISIONS D-LEAK, D-RIMLIM). |
+| `rim_limit.py` | The rim limit's glass envelope (from `../cad/thermal-axisym.json` and study 08), its tolerance table, and the trade-off curve (margin × τ_dec × "not falling" × constant/table stack against coverage and false latches) over the sweep, the benign runs and worst-case stress sets; the CR-5 band study. Writes `rim-limit.json`; gates the firmware constants and the chosen variant's 0 false latches (DECISIONS D-RIMLIM). |
+| `leak_alternatives.py` | Candidates B (energy plausibility) and C (cold soak, temperature-independent vs Arrhenius leaks). Writes `leak-alternatives.json`; reported only (DECISIONS D-RIMLIM). |
 
 The co-sim cases are:
 - 16 design cases;
@@ -223,4 +230,5 @@ From `rim-ntc.json`, `cr7-thresholds.json` and `xcheck-cosim.json`
 | Threshold words | 12844 / 35544. Recomputed from R(−40 °C) / R(360 °C), matching CR-7. The firmware was fixed from 35542. |
 | Cross-check co-sim, benign (28 runs) | 0 D1 lost, 0 guard / rim / supervisor faults. 2 cross-check suspects (cast iron food). |
 | Cross-check co-sim, Pt100 leakage (16 runs) | 1 kΩ: suspect in 5 of 8, 233–292 s after the leak, but the probe confirms contact and T_c reaches SP + 121.9 K; two meet the rim over-range fault first. 3 kΩ: no suspect, SP + 35.8 K. |
-| Leak check (`leak-checks.json`, 624 leak runs, 548 benign) | Hazardous (steady T_c > 300 °C at a 250 °C setpoint): 300 Ω–1.73 kΩ, 235 runs. Latched before T_c passes 300 °C: 7. After: 219 (T_c ≤ 474.2 °C). Never: 9 (1.73 kΩ, Δ 46 K, cold corner, 318.9 °C). The 300 °C bar is not met; insulation, a hot production test and seal qualification carry it (DECISIONS D-LEAK, open item 10). ≥ 4.16 kΩ is invisible. Benign: 0 latches. |
+| Leak checks (`leak-checks.json`, 624 leak runs, 548 benign) | Hazardous (steady T_c > 300 °C at a 250 °C setpoint): 300 Ω–1.73 kΩ, 235 runs. With the rim limit (D-RIMLIM), latched before T_c passes 300 °C: 59 (7 with the D-LEAK chain alone). After: 176 (T_c ≤ 431.1 °C; was ≤ 474.2 °C). Never: 0 (was 9: 1.73 kΩ, Δ 46 K, cold corner, 318.9 °C). The 300 °C bar is not met: at 250 °C the benign and leaking glass overlap by ~46 K. Insulation, a hot production test and seal qualification carry it (DECISIONS D-LEAK, D-RIMLIM, open item 10). ≥ 4.16 kΩ is invisible. Benign: 0 latches. |
+| Rim limit (`rim-limit.json`) | Limit 125.1 / 210.4 / 260.8 °C at a 100 / 200 / 250 °C reference. Trade-off: margin −1 K → 65/235 but 28 false latches on 132 stress runs; 0 K → 60/235, 0 false; +2.5 K → 55/235 and 9 never latched. At the leak envelope (warped pan, cool eye, cold stack) 0/116 before 300 °C. CR-5: lowering by 8 K (86.6 k → 76.8 k) adds 6/235, 7.8 K over the benign glass. |

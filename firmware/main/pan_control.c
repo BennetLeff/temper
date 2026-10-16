@@ -10,6 +10,7 @@
 
 #include "current_sense_check.h"
 #include "pan_leak_check.h"
+#include "pan_rim_limit.h"
 #include "pan_supervisor.h"
 #include "pan_temp_loop.h"
 #include "rim_ntc.h"
@@ -43,6 +44,7 @@ static rim_ntc_reading_t s_rim_rd;
 static uint32_t s_xcheck_suspects;
 static csc_t s_csc;                 /* bus-current sense plausibility (D-ISENSE) */
 static plc_t s_plc;                 /* element-parallel Pt100 leakage (D-LEAK) */
+static prl_t s_prl;                 /* setpoint-relative rim limit (D-RIMLIM) */
 
 static void ensure_init(void)
 {
@@ -58,6 +60,9 @@ static void ensure_init(void)
     plc_params_t lp;
     plc_default_params(&lp);
     (void)plc_init(&s_plc, &lp);
+    prl_params_t rl;
+    prl_default_params(&rl);
+    (void)prl_init(&s_prl, &rl);
     ptl_default_params(&s_params);
     rim_ntc_params_t rp;
     rim_ntc_default_params(&rp);
@@ -174,6 +179,11 @@ bool pan_control_leak_latched(void)
     return s_inited && s_plc.latched;
 }
 
+bool pan_control_rim_limit_latched(void)
+{
+    return s_inited && s_prl.latched;
+}
+
 bool pan_control_rate_sample(float reading_c, uint32_t now_ms)
 {
     ensure_init();
@@ -201,6 +211,10 @@ void pan_control_begin(void)
         csc_pulse_begin(&s_csc);
         const plc_params_t lp = s_plc.p;
         s_running = plc_init(&s_plc, &lp) && s_running;
+        /* D-RIMLIM: the reference restarts with the session; a glass still
+         * hot from the last one is falling, which the rule ignores. */
+        const prl_params_t rl = s_prl.p;
+        s_running = prl_init(&s_prl, &rl) && s_running;
     }
     /* Fresh rim detection per heating session, as ptl_init clears the guard;
      * a persisting rim fault latches again within short_persist periods. */
@@ -273,8 +287,11 @@ pan_control_status_t pan_control_step(float setpoint_c, uint8_t intensity_level)
         s_xcheck_suspects++;
     }
     /* D-LEAK: repeated cross-check suspects on intact contact. */
-    const bool leak_fault = plc_step(&s_plc, out.xcheck_suspect, (int)out.cc_event, in.t_pt100_c,
-                                     s_rim_rd.state == RIM_NTC_VALID ? s_rim_rd.t_c : NAN);
+    bool leak_fault = plc_step(&s_plc, out.xcheck_suspect, (int)out.cc_event, in.t_pt100_c,
+                               s_rim_rd.state == RIM_NTC_VALID ? s_rim_rd.t_c : NAN);
+    /* D-RIMLIM: a rim hotter than any pan at the loop's temperature can make it. */
+    leak_fault = prl_step(&s_prl, setpoint_c, out.t_hat_c, s_rim_rd.state == RIM_NTC_VALID, s_rim_rd.t_c) ||
+                 leak_fault;
 
     float p_cmd = out.p_cmd_w;
     /* D-ISENSE (b): the start-up pulse replaces the loop's command until it

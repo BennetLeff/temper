@@ -293,7 +293,9 @@ void state_machine_report_rtd_frozen(void);
  * TEMPER_PAN_CONTROL_C1 supervision faults that latch FAULT directly through
  * the hardware cut (main/pan_control.c): FAULT_CURRENT_SENSE (the bus-current
  * sense reads no current while the stage is commanded, DECISIONS.md
- * D-ISENSE) and FAULT_PROBE_LEAKAGE (element-parallel Pt100 leakage, D-LEAK).
+ * D-ISENSE) and FAULT_PROBE_LEAKAGE (element-parallel Pt100 leakage: the
+ * chained cross-check cycles, D-LEAK, or the setpoint-relative rim limit,
+ * D-RIMLIM).
  * Same latch rule as the RTD sinks (D-LATCH): a report while a fault is
  * already latched only re-asserts the cut. Neither fault is software-
  * clearable (fault_cleared(): a power cycle re-runs the checks).

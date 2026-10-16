@@ -64,18 +64,27 @@ A, B = 3.9083e-3, -5.775e-7
 
 
 class GlassTruth(ref.HotTruth):
-    """The plant with a glass node under the rim NTC; the cartridge leaks to it."""
+    """The plant with a glass node under the rim NTC; the cartridge leaks to it.
 
-    def __init__(self, *a, delta, tau_g=TAU_G, **k):
+    The glass lags toward T_c - delta. With glass_w set it lags instead toward
+    glass_w * T_c + (1 - glass_w) * t_eye: the glass under the bead as a
+    weighted mean of the pan and the coil-eye air (rim_limit.py derives the
+    weights from cad/thermal-axisym.json and study 08)."""
+
+    def __init__(self, *a, delta, tau_g=TAU_G, glass_w=None, t_eye=None, **k):
         super().__init__(*a, **k)
         self.delta, self.tau_g, self.Tg = delta, tau_g, es.T_AMB
+        self.glass_w, self.t_eye = glass_w, t_eye
 
     def sink(self):
         return self.Tg
 
     def step(self, P_in, h_c):
         super().step(P_in, h_c)
-        target = max(es.T_AMB, self.T_c() - self.delta)
+        if self.glass_w is None:
+            target = max(es.T_AMB, self.T_c() - self.delta)
+        else:
+            target = self.glass_w * self.T_c() + (1.0 - self.glass_w) * self.t_eye
         self.Tg += es.DT_SIM * (target - self.Tg) / self.tau_g
 
 
@@ -95,11 +104,21 @@ def r_ntc(t):
     return rim_ntc.r_table(_T_TOP) * math.exp(_B_TOP * (1 / (t + 273.15) - 1 / (_T_TOP + 273.15)))
 
 
+# Whole-stack corners (rim_limit.py): the bead corner, the true v3v3 while the
+# driver assumes 3300 mV (no MCP3202 CH1 driver yet; TPS62933 3242-3367 mV),
+# and the bead's still-air self-heating (D-RIM: at most 4.53 K) on the hot side.
+STACKS = {"hot_stack": ("hot", 3242.0, 4.53), "cold_stack": ("cold", 3367.0, 0.0)}
+
+
 def node_mv(t_rim, corner):
+    rail, sh = 3300.0, 0.0
+    if corner in STACKS:
+        corner, rail, sh = STACKS[corner]
+        t_rim = t_rim + sh
     rs, bs = CORNERS[corner]
     r = r_ntc(t_rim) * rs
     r *= math.exp(rim_ntc.B25_85_K * (bs - 1) * (1 / (t_rim + 273.15) - 1 / 298.15))
-    return 3300.0 * r / (r + 1000.0)
+    return rail * r / (r + 1000.0)
 
 
 def pt100_read(t_el, r_leak):

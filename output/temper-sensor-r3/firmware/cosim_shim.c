@@ -13,6 +13,7 @@
 
 #include "current_sense_check.h"
 #include "pan_leak_check.h"
+#include "pan_rim_limit.h"
 #include "pan_supervisor.h"
 #include "pan_temp_loop.h"
 #include "rim_ntc.h"
@@ -28,6 +29,8 @@ typedef struct {
     csc_t csc;            /* current-sense plausibility (current_sense_check.c) */
     plc_params_t lp;
     plc_t plc;            /* element-parallel Pt100 leakage (pan_leak_check.c) */
+    prl_params_t rlp;
+    prl_t prl;            /* setpoint-relative rim limit (pan_rim_limit.c) */
     rim_ntc_t rim;        /* rim NTC driver (components/sensors/rim_ntc.c) */
     float rim_node_mv;    /* node voltage the mock ADC returns this period */
     int last_xcheck;      /* ptl_output_t.xcheck_suspect of the last sim_step */
@@ -42,6 +45,7 @@ void *sim_new(void)
         psup_default_params(&s->sp);
         csc_default_params(&s->cp);
         plc_default_params(&s->lp);
+        prl_default_params(&s->rlp);
     }
     return s;
 }
@@ -123,6 +127,13 @@ int sim_set(void *h, const char *key, double v)
         F("leak_gap", q->gap_s)
         F("leak_rim_fall", q->rim_fall_k)
         F("leak_pt_rise", q->pt_rise_k)
+    }
+    {
+        prl_params_t *q = &((sim_t *)h)->rlp;
+        F("rl_margin", q->margin_k)
+        F("rl_tau_dec", q->tau_dec_s)
+        F("rl_tol", q->tol_k)
+        U("rl_tol_table", q->tol_table = v != 0.0)
     }
     return -1;
 }
@@ -338,4 +349,19 @@ int plc_run(void *h, int suspect, int cc_event, double t_pt100, double t_rim)
 {
     sim_t *s = (sim_t *)h;
     return plc_step(&s->plc, suspect != 0, cc_event, (float)t_pt100, (float)t_rim) ? 1 : 0;
+}
+
+/* ---- setpoint-relative rim limit (components/control/pan_rim_limit.c) ---- */
+int prl_start(void *h)
+{
+    sim_t *s = (sim_t *)h;
+    return prl_init(&s->prl, &s->rlp) ? 0 : -1;
+}
+
+/* One control period, as main/pan_control.c feeds it: the setpoint, the
+ * loop's t_hat of the last sim_step, the rim driver's VALID flag and reading. */
+int prl_run(void *h, double sp, double t_hat, int rim_valid, double t_rim)
+{
+    sim_t *s = (sim_t *)h;
+    return prl_step(&s->prl, (float)sp, (float)t_hat, rim_valid != 0, (float)t_rim) ? 1 : 0;
 }

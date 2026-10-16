@@ -1362,10 +1362,17 @@ static bool assert_c1_mechanism(const manifest_entry_t *entry, float reading_at_
         }
         printf("  [C1] current-sense latch %s\n", m);
     } else if (!strcmp(m, "xchk-leak")) {
-        if (!pan_control_leak_latched()) {
-            return sil_fail("C1 mechanism xchk-leak expected: the Pt100 leak check has not latched");
+        if (!pan_control_leak_latched() || pan_control_rim_limit_latched()) {
+            return sil_fail("C1 mechanism xchk-leak expected: the Pt100 leak check has not latched "
+                            "(or the rim limit latched instead)");
         }
         printf("  [C1] Pt100 leak check latched after %u cross-check suspects\n",
+               (unsigned)pan_control_xcheck_suspects());
+    } else if (!strcmp(m, "rim-limit")) {
+        if (!pan_control_rim_limit_latched()) {
+            return sil_fail("C1 mechanism rim-limit expected: the setpoint-relative rim limit has not latched");
+        }
+        printf("  [C1] setpoint-relative rim limit latched (%u cross-check suspects before it)\n",
                (unsigned)pan_control_xcheck_suspects());
     } else if (!strcmp(m, "R1")) {
         if (!(reading_at_trip < g_config.runaway.max_absolute_temp_c)) {

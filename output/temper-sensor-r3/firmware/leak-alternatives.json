@@ -1,0 +1,366 @@
+{
+ "scope": "DECISIONS.md D-RIMLIM, candidates B and C: what energy and a cold soak can say about Pt100 leakage.\n\nB. Energy plausibility. A leak compresses the reading's response to the pan:\n   dReading/dT_true < 1 at the operating point. Can anything the controller\n   observes separate that from a heavier or less efficient pan?\n   - the compression factor per leak, where the reading is 250 (and 200) degC;\n   - the identified plant gain a = eta / C against its spread over the\n     modelled pan classes, eta 0.82-0.92 and a food load (screen.Truth\n     food_C), and against the firmware prior bounds (plant_gain.c);\n   - the hold power: the steady truth-plant power that holds each pan at\n     250 and at 300 degC (GlassTruth, glass delta 12 and 46 K), i.e. what a\n     leak that holds a 300 degC pan at a 250 degC reading would draw,\n     against what another pan draws at an honest 250 degC;\n   - the rim's rise against the Pt100's: the glass follows the pan with a\n     weight w of 0.646-0.955 (rim_limit.py envelope).\nC. Cold-soak plausibility. After an idle soak every part is at ambient. A\n   leak that conducts at room temperature reads low there:\n   - the reading error at 5 / 25 / 40 degC for the sweep's leaks;\n   - the check threshold from the reference's error budget (the heatsink\n     NTC, the only on-board candidate; its driver is a stub today);\n   - an Arrhenius leak R(T) = R_300 exp(Ea/k (1/T - 1/573.15)), equal to a\n     hazardous value at 300 degC: its room-temperature resistance and\n     reading error, and the activation energy above which C misses it.\n\nWrites leak-alternatives.json. Run: python3 leak_alternatives.py",
+ "B": {
+  "compression_dReading_dT_by_r_leak": {
+   "300.0": {
+    "reading_200": {
+     "T_true_C": 970.7,
+     "dReading_dT": 0.13
+    },
+    "reading_250": {
+     "T_true_C": 1470.5,
+     "dReading_dT": 0.076
+    }
+   },
+   "401.8": {
+    "reading_200": {
+     "T_true_C": 596.9,
+     "dReading_dT": 0.277
+    },
+    "reading_250": {
+     "T_true_C": 799.2,
+     "dReading_dT": 0.22
+    }
+   },
+   "538.2": {
+    "reading_200": {
+     "T_true_C": 441.2,
+     "dReading_dT": 0.419
+    },
+    "reading_250": {
+     "T_true_C": 568.7,
+     "dReading_dT": 0.367
+    }
+   },
+   "720.8": {
+    "reading_200": {
+     "T_true_C": 358.2,
+     "dReading_dT": 0.543
+    },
+    "reading_250": {
+     "T_true_C": 454.3,
+     "dReading_dT": 0.499
+    }
+   },
+   "965.5": {
+    "reading_200": {
+     "T_true_C": 308.3,
+     "dReading_dT": 0.646
+    },
+    "reading_250": {
+     "T_true_C": 388.0,
+     "dReading_dT": 0.61
+    }
+   },
+   "1293.2": {
+    "reading_200": {
+     "T_true_C": 276.2,
+     "dReading_dT": 0.729
+    },
+    "reading_250": {
+     "T_true_C": 346.2,
+     "dReading_dT": 0.7
+    }
+   },
+   "1732.1": {
+    "reading_200": {
+     "T_true_C": 254.5,
+     "dReading_dT": 0.793
+    },
+    "reading_250": {
+     "T_true_C": 318.4,
+     "dReading_dT": 0.771
+    }
+   },
+   "2319.9": {
+    "reading_200": {
+     "T_true_C": 239.5,
+     "dReading_dT": 0.844
+    },
+    "reading_250": {
+     "T_true_C": 299.4,
+     "dReading_dT": 0.826
+    }
+   },
+   "3107.2": {
+    "reading_200": {
+     "T_true_C": 228.8,
+     "dReading_dT": 0.882
+    },
+    "reading_250": {
+     "T_true_C": 285.9,
+     "dReading_dT": 0.869
+    }
+   },
+   "4161.8": {
+    "reading_200": {
+     "T_true_C": 221.2,
+     "dReading_dT": 0.911
+    },
+    "reading_250": {
+     "T_true_C": 276.3,
+     "dReading_dT": 0.901
+    }
+   },
+   "5574.3": {
+    "reading_200": {
+     "T_true_C": 215.6,
+     "dReading_dT": 0.933
+    },
+    "reading_250": {
+     "T_true_C": 269.4,
+     "dReading_dT": 0.926
+    }
+   },
+   "7466.1": {
+    "reading_200": {
+     "T_true_C": 211.6,
+     "dReading_dT": 0.95
+    },
+    "reading_250": {
+     "T_true_C": 264.3,
+     "dReading_dT": 0.944
+    }
+   },
+   "10000.0": {
+    "reading_200": {
+     "T_true_C": 208.6,
+     "dReading_dT": 0.963
+    },
+    "reading_250": {
+     "T_true_C": 260.6,
+     "dReading_dT": 0.958
+    }
+   }
+  },
+  "plant_gain_by_class": {
+   "cast_iron_26": {
+    "C_J_per_K": 1065.0,
+    "a_eta082": 0.0007698032438248257,
+    "a_eta092": 0.0008636816881937069,
+    "a_eta082_food": 0.00029127518005511927
+   },
+   "carbon_steel_28": {
+    "C_J_per_K": 464.0,
+    "a_eta082": 0.0017686279080546712,
+    "a_eta092": 0.001984314238305241,
+    "a_eta082_food": 0.0003704312315496537
+   },
+   "triply_clad_24": {
+    "C_J_per_K": 468.0,
+    "a_eta082": 0.001750794902918023,
+    "a_eta092": 0.0019643064764446115,
+    "a_eta082_food": 0.0003696426575261727
+   },
+   "disc_pot_water_1l5": {
+    "C_J_per_K": 6716.0,
+    "a_eta082": 0.0001221018218388213,
+    "a_eta092": 0.00013699228791672635,
+    "a_eta082_food": 9.686137818235917e-05
+   }
+  },
+  "a_spread_frying_ratio_max_min": 6.81,
+  "a_spread_all_ratio_max_min": 20.49,
+  "a_prior_bounds_ratio": 100.0,
+  "hold_power_W_eta1": {
+   "cast_iron_26 delta 12": {
+    "250": 405.9,
+    "300": 551.2
+   },
+   "cast_iron_26 delta 46": {
+    "250": 412.8,
+    "300": 581.5
+   },
+   "carbon_steel_28 delta 12": {
+    "250": 350.7,
+    "300": 425.4
+   },
+   "carbon_steel_28 delta 46": {
+    "250": 372.6,
+    "300": 449.5
+   },
+   "triply_clad_24 delta 12": {
+    "250": 247.0,
+    "300": 304.8
+   },
+   "triply_clad_24 delta 46": {
+    "250": 259.4,
+    "300": 318.2
+   }
+  },
+  "hold_power_250_range_W": [
+   247.0,
+   412.8
+  ],
+  "hold_power_300_range_W": [
+   304.8,
+   581.5
+  ],
+  "hold_power_300_over_250_same_pan": [
+   1.206,
+   1.409
+  ],
+  "rim_weight_w_range": [
+   0.6457,
+   0.9554
+  ],
+  "verdict": "does not separate. The hazardous leaks compress dReading/dT_true to 0.08-0.77 at a 250 degC reading; the identified a spans 6.8x over the three modelled frying pans with eta and food alone (the prior bounds 100x), so a leak looks like a heavier pan. Holding a pan at 300 instead of 250 degC costs 1.21-1.41x the power; the honest 250 degC hold power already spans 1.67x over three modelled pans (real pan sizes spread it further) and the firmware has only commanded power with eta unknown (0.82-0.92). The rim follows the pan with a weight of 0.65-0.96, a wider spread than the compression of the leaks that matter (0.77 at 1.73 kohm)."
+ },
+ "C": {
+  "reading_low_K_temperature_independent_leak": {
+   "300.0": {
+    "5": 65.63,
+    "25": 74.92,
+    "40": 82.17
+   },
+   "401.8": {
+    "5": 52.46,
+    "25": 60.14,
+    "40": 66.16
+   },
+   "538.2": {
+    "5": 41.35,
+    "25": 47.57,
+    "40": 52.46
+   },
+   "720.8": {
+    "5": 32.22,
+    "25": 37.17,
+    "40": 41.08
+   },
+   "965.5": {
+    "5": 24.86,
+    "25": 28.75,
+    "40": 31.82
+   },
+   "1293.2": {
+    "5": 19.04,
+    "25": 22.05,
+    "40": 24.45
+   },
+   "1732.1": {
+    "5": 14.49,
+    "25": 16.81,
+    "40": 18.66
+   },
+   "2319.9": {
+    "5": 10.98,
+    "25": 12.75,
+    "40": 14.16
+   },
+   "3107.2": {
+    "5": 8.29,
+    "25": 9.63,
+    "40": 10.71
+   },
+   "4161.8": {
+    "5": 6.24,
+    "25": 7.26,
+    "40": 8.07
+   },
+   "5574.3": {
+    "5": 4.69,
+    "25": 5.46,
+    "40": 6.07
+   },
+   "7466.1": {
+    "5": 3.52,
+    "25": 4.09,
+    "40": 4.56
+   },
+   "10000.0": {
+    "5": 2.64,
+    "25": 3.07,
+    "40": 3.42
+   }
+  },
+  "reference": "heatsink NTC (NTCALUG01A104GA, GPIO3/ADC1_CH2); read_heatsink_temperature() is a TODO stub returning +INF (firmware/main/board_peripherals.c), so C cannot run today",
+  "threshold_budget_K": {
+   "pt100_class_at_25C": 0.2,
+   "ntc_R25_2pct": 0.45,
+   "adc_atten3_50mV_at_12.8mV_per_K": 3.9,
+   "rail_2pct_uncorrected": 4.7,
+   "soak_gradient_allowance": 3.0
+  },
+  "threshold_K": 12.2,
+  "threshold_budget_rail_corrected_K": {
+   "pt100_class_at_25C": 0.2,
+   "ntc_R25_2pct": 0.45,
+   "adc_atten3_50mV_at_12.8mV_per_K": 3.9,
+   "rail_2pct_uncorrected": 0.0,
+   "soak_gradient_allowance": 3.0
+  },
+  "threshold_rail_corrected_K": 7.5,
+  "largest_r_caught_at_25C_ohm": 2430.0,
+  "largest_r_caught_at_25C_rail_corrected_ohm": 4020.0,
+  "hazardous_r_leak_reading_low_at_25C_K": 16.81,
+  "arrhenius_equal_to_hazardous_at_300C": [
+   {
+    "Ea_eV": 0.0,
+    "R_at_300C_ohm": 1732.1,
+    "R_at_25C_ohm": 1732.0,
+    "reading_low_at_25C_K": 16.811,
+    "caught_at_threshold": true,
+    "caught_rail_corrected": true
+   },
+   {
+    "Ea_eV": 0.05,
+    "R_at_300C_ohm": 1732.1,
+    "R_at_25C_ohm": 4406.0,
+    "reading_low_at_25C_K": 6.866,
+    "caught_at_threshold": false,
+    "caught_rail_corrected": false
+   },
+   {
+    "Ea_eV": 0.1,
+    "R_at_300C_ohm": 1732.1,
+    "R_at_25C_ohm": 11210.0,
+    "reading_low_at_25C_K": 2.741,
+    "caught_at_threshold": false,
+    "caught_rail_corrected": false
+   },
+   {
+    "Ea_eV": 0.2,
+    "R_at_300C_ohm": 1732.1,
+    "R_at_25C_ohm": 72552.0,
+    "reading_low_at_25C_K": 0.427,
+    "caught_at_threshold": false,
+    "caught_rail_corrected": false
+   },
+   {
+    "Ea_eV": 0.3,
+    "R_at_300C_ohm": 1732.1,
+    "R_at_25C_ohm": 469554.0,
+    "reading_low_at_25C_K": 0.066,
+    "caught_at_threshold": false,
+    "caught_rail_corrected": false
+   },
+   {
+    "Ea_eV": 0.5,
+    "R_at_300C_ohm": 1732.1,
+    "R_at_25C_ohm": 19668047.0,
+    "reading_low_at_25C_K": 0.002,
+    "caught_at_threshold": false,
+    "caught_rail_corrected": false
+   },
+   {
+    "Ea_eV": 0.8,
+    "R_at_300C_ohm": 1732.1,
+    "R_at_25C_ohm": 5331804459.0,
+    "reading_low_at_25C_K": 0.0,
+    "caught_at_threshold": false,
+    "caught_rail_corrected": false
+   },
+   {
+    "Ea_eV": 1.0,
+    "R_at_300C_ohm": 1732.1,
+    "R_at_25C_ohm": 223331265321.0,
+    "reading_low_at_25C_K": 0.0,
+    "caught_at_threshold": false,
+    "caught_rail_corrected": false
+   }
+  ],
+  "arrhenius_Ea_max_caught_eV": 0.0181,
+  "arrhenius_Ea_max_caught_rail_corrected_eV": 0.0451
+ }
+}

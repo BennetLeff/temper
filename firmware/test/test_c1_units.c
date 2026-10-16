@@ -2,8 +2,9 @@
  * @file test_c1_units.c
  * @brief sensor-r3 C1 runtime units: runaway supervisor (pan_supervisor.c),
  *        MAX31865 code conversion (rtd_convert.c), current-sense plausibility
- *        (current_sense_check.c, D-ISENSE) and the Pt100 leak check
- *        (pan_leak_check.c, D-LEAK).
+ *        (current_sense_check.c, D-ISENSE), the Pt100 leak check
+ *        (pan_leak_check.c, D-LEAK) and the setpoint-relative rim limit
+ *        (pan_rim_limit.c, D-RIMLIM).
  *
  * Scenario values mirror output/temper-sensor-r3/firmware/runaway_checks.py
  * (DECISIONS.md D-RUN): a preheated pan placed on the disc, an h_c drop, a
@@ -16,6 +17,7 @@
 #include "../components/control/contact_check.h"
 #include "../components/control/current_sense_check.h"
 #include "../components/control/pan_leak_check.h"
+#include "../components/control/pan_rim_limit.h"
 #include "../components/control/pan_supervisor.h"
 #include "../components/sensors/include/rtd_convert.h"
 
@@ -543,6 +545,108 @@ static void test_leak_a_probe_not_started_by_the_suspect_does_not_count(void)
     TEST_ASSERT_TRUE(plc_step(&plc, false, CC_EVT_PROBE_PASSED, 245.0f, 286.0f));
 }
 
+/* ---- setpoint-relative rim limit (D-RIMLIM) ------------------------------- */
+
+static prl_t prl;
+static prl_params_t rlp;
+
+static void prl_new(void)
+{
+    prl_default_params(&rlp);
+    TEST_ASSERT_TRUE(prl_init(&prl, &rlp));
+}
+
+/* n periods at setpoint sp, t_hat th, rim rim0 + slope * t (VALID); returns
+ * the first latch time in s from the start of this call, or -1. */
+static float prl_run_ramp(int n, float sp, float th, float rim0, float slope)
+{
+    for (int k = 0; k < n; k++) {
+        if (prl_step(&prl, sp, th, true, rim0 + slope * 0.1f * (float)k)) {
+            return 0.1f * (float)k;
+        }
+    }
+    return -1.0f;
+}
+
+static void test_rimlim_limit_is_the_glass_envelope_plus_the_hot_stack(void)
+{
+    prl_default_params(&rlp);
+    /* flat pan, hottest eye: 0.9554 * 250 + 0.0446 * 139.7 = 245.08 degC of
+     * glass, plus the rim hot stack there (15.71 K, between the 200 and
+     * 250 degC knots of PRL_TOL_K) */
+    TEST_ASSERT_FLOAT_WITHIN(0.02f, 260.79f, prl_limit_c(&rlp, 250.0f));
+    TEST_ASSERT_FLOAT_WITHIN(0.02f, 210.41f, prl_limit_c(&rlp, 200.0f));
+    /* below the eye air the glass can be hotter than the pan (0.5 mm gap) */
+    TEST_ASSERT_FLOAT_WITHIN(0.02f, 125.09f, prl_limit_c(&rlp, 100.0f));
+    /* D-RIM's constant 19.1 K stack */
+    rlp.tol_table = false;
+    TEST_ASSERT_FLOAT_WITHIN(0.02f, 264.18f, prl_limit_c(&rlp, 250.0f));
+}
+
+static void test_rimlim_a_rising_rim_above_the_limit_latches_after_sustain(void)
+{
+    prl_new();
+    /* a leak at a 200 degC setpoint: the reading (t_hat) stays at 200 while
+     * the glass climbs 0.2 K/s through the 210.4 degC limit (at 52.1 s) */
+    const float t = prl_run_ramp(3000, 200.0f, 200.0f, 200.0f, 0.2f);
+    TEST_ASSERT_FLOAT_WITHIN(0.25f, 57.1f, t);
+    TEST_ASSERT_TRUE(prl_step(&prl, 200.0f, 200.0f, false, NAN));   /* sticky */
+}
+
+static void test_rimlim_a_steady_rim_just_under_the_limit_never_latches(void)
+{
+    prl_new();
+    TEST_ASSERT_EQUAL_FLOAT(-1.0f, prl_run_ramp(36000, 250.0f, 250.0f, 260.5f, 0.0f));
+}
+
+static void test_rimlim_a_falling_glass_above_the_limit_never_latches(void)
+{
+    prl_new();
+    /* a cold pan on glass left at 260 degC, setpoint 100: the glass cools
+     * toward the envelope for a 100 degC pan (114 degC) */
+    for (int k = 0; k < 6000; k++) {
+        const float g = 114.0f + 146.0f * expf(-0.1f * (float)k / 106.0f);
+        TEST_ASSERT_FALSE(prl_step(&prl, 100.0f, 25.0f + 0.01f * (float)k, true, g));
+    }
+    /* the setpoint lowered 250 -> 150 under a hot glass, decaying with the
+     * slowest study-08 lag: the reference decays slower still */
+    prl_new();
+    TEST_ASSERT_EQUAL_FLOAT(-1.0f, prl_run_ramp(600, 250.0f, 250.0f, 245.0f, 0.0f));
+    for (int k = 0; k < 6000; k++) {
+        const float g = 140.0f + 105.0f * expf(-0.1f * (float)k / 106.0f);
+        TEST_ASSERT_FALSE(prl_step(&prl, 150.0f, 150.0f, true, g));
+    }
+}
+
+static void test_rimlim_needs_a_full_fall_window_and_the_full_sustain(void)
+{
+    prl_new();
+    /* far above the limit but the rim drops out every 25 s: never 30 s of history */
+    for (int i = 0; i < 20; i++) {
+        TEST_ASSERT_EQUAL_FLOAT(-1.0f, prl_run_ramp(250, 200.0f, 200.0f, 260.0f, 0.0f));
+        TEST_ASSERT_FALSE(prl_step(&prl, 200.0f, 200.0f, false, NAN));
+    }
+    prl_new();
+    TEST_ASSERT_EQUAL_FLOAT(-1.0f, prl_run_ramp(310, 200.0f, 200.0f, 210.0f, 0.0f));   /* history */
+    for (int i = 0; i < 10; i++) {   /* 4.9 s over, then 0.1 s under: never 5 s */
+        TEST_ASSERT_EQUAL_FLOAT(-1.0f, prl_run_ramp(49, 200.0f, 200.0f, 230.0f, 0.0f));
+        TEST_ASSERT_EQUAL_FLOAT(-1.0f, prl_run_ramp(1, 200.0f, 200.0f, 210.0f, 0.0f));
+    }
+}
+
+static void test_rimlim_rejects_bad_parameters(void)
+{
+    prl_default_params(&rlp);
+    rlp.fall_window_s = 100.0f;
+    TEST_ASSERT_FALSE(prl_init(&prl, &rlp));
+    prl_default_params(&rlp);
+    rlp.w_lo = 0.99f;
+    TEST_ASSERT_FALSE(prl_init(&prl, &rlp));
+    prl_default_params(&rlp);
+    rlp.tau_dec_s = 0.0f;
+    TEST_ASSERT_FALSE(prl_init(&prl, &rlp));
+}
+
 void run_c1_units_tests(void)
 {
     RUN_TEST(test_r1_ignores_hot_pan_placement_that_the_10ms_check_trips);
@@ -580,4 +684,10 @@ void run_c1_units_tests(void)
     RUN_TEST(test_leak_a_resolving_disturbance_breaks_the_chain);
     RUN_TEST(test_leak_contact_doubt_or_no_rim_restarts_the_count);
     RUN_TEST(test_leak_a_probe_not_started_by_the_suspect_does_not_count);
+    RUN_TEST(test_rimlim_limit_is_the_glass_envelope_plus_the_hot_stack);
+    RUN_TEST(test_rimlim_a_rising_rim_above_the_limit_latches_after_sustain);
+    RUN_TEST(test_rimlim_a_steady_rim_just_under_the_limit_never_latches);
+    RUN_TEST(test_rimlim_a_falling_glass_above_the_limit_never_latches);
+    RUN_TEST(test_rimlim_needs_a_full_fall_window_and_the_full_sustain);
+    RUN_TEST(test_rimlim_rejects_bad_parameters);
 }

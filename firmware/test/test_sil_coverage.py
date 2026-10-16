@@ -118,6 +118,8 @@ _C1_ISENSE = ("pan_control_step() current-sense checks (components/control/curre
               "DECISIONS D-ISENSE) -> state_machine_report_latched_fault(), PREHEAT/HEATING")
 _C1_LEAK = ("pan_control_step() Pt100 leak check (components/control/pan_leak_check.c, DECISIONS "
             "D-LEAK) -> state_machine_report_latched_fault(); needs a hot pan, HEATING")
+_C1_RIMLIM = ("pan_control_step() setpoint-relative rim limit (components/control/pan_rim_limit.c, "
+              "DECISIONS D-RIMLIM) -> state_machine_report_latched_fault(); a VALID rim, PREHEAT/HEATING")
 C1_SUPPLEMENTAL_PAIRS = {
     ("FAULT_PROBE_OPEN", "IDLE"): _C1_SERVICE,
     ("FAULT_PROBE_SHORT", "IDLE"): _C1_SERVICE,
@@ -125,6 +127,7 @@ C1_SUPPLEMENTAL_PAIRS = {
     ("FAULT_CURRENT_SENSE", "PREHEAT"): _C1_ISENSE,
     ("FAULT_CURRENT_SENSE", "HEATING"): _C1_ISENSE,
     ("FAULT_PROBE_LEAKAGE", "HEATING"): _C1_LEAK,
+    ("FAULT_PROBE_LEAKAGE", "PREHEAT"): _C1_RIMLIM,
 }
 
 # C1 rules x the origins each must be injected from.
@@ -148,6 +151,9 @@ C1_MECHANISMS = {
     "isense-pulse": (("PREHEAT",), "current-sense check (b): the start-up pulse shows no current"),
     "xchk-leak": (("HEATING",),
                   "Pt100 leak check: two chained cross-check suspect -> probe-passed cycles"),
+    "rim-limit": (("HEATING", "PREHEAT"),
+                  "setpoint-relative rim limit: rim over the glass envelope of max(setpoint, t_hat) "
+                  "+ 19.1 K, not falling, for 5 s"),
 }
 
 # Fault classes with NO manifest path at all (no transition_table.yaml row,

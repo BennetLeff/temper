@@ -561,6 +561,7 @@ set(C1_RUNTIME_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_supervisor.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/current_sense_check.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_leak_check.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_rim_limit.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/pan_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
@@ -577,6 +578,7 @@ add_executable(test_c1_units_only
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_supervisor.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/current_sense_check.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_leak_check.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_rim_limit.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_units.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_units.c

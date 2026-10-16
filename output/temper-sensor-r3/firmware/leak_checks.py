@@ -1,4 +1,4 @@
-"""DECISIONS.md D-LEAK: element-parallel Pt100 leakage against the firmware's leak check.
+"""DECISIONS.md D-LEAK, D-RIMLIM: element-parallel Pt100 leakage against the firmware's leak checks.
 
 A leakage resistance R_leak in parallel with the Pt100 element reads low and is
 electrically invisible to the MAX31865 (pcb/DECISIONS.md D6). The loop then
@@ -7,7 +7,11 @@ holds the reading at the setpoint and the pan runs hot. The C1 leak check
 FAULT_PROBE_LEAKAGE after `cycles` (2) consecutive cross-check suspect ->
 PROBE_PASSED cycles, each suspect within gap_s (120 s) of the previous, with
 the rim reading not more than rim_fall_k (5 K) lower and the Pt100 reading
-not more than pt_rise_k (2 K) higher than at the previous suspect.
+not more than pt_rise_k (2 K) higher than at the previous suspect. The
+setpoint-relative rim limit (components/control/pan_rim_limit.c, D-RIMLIM)
+latches the same fault when the rim is above the glass envelope of
+max(setpoint, t_hat) plus the rim's hot tolerance stack, not falling, for 5 s;
+it runs passively here too ("rim_limit").
 
 The plant and loop are xcheck_cosim.py's (GlassTruth: glass under the rim NTC
 a 60 s lag toward T_c - delta; the rim NTC through the firmware driver at a
@@ -37,7 +41,8 @@ The bar (owner, D-LEAK): every leak whose untripped steady T_c exceeds
 exceeds 300 degC. The script evaluates it and records the result; it is not
 met (D-LEAK gives the numbers and the physical reason) and the gate holds the
 recorded status, so a change either way fails the run until DECISIONS.md is
-updated (EXPECTED_BAR).
+updated (EXPECTED_BAR); the coverage with the rim limit may not fall below the
+recorded EXPECTED_BEFORE_300_MIN, nor any hazardous leak go unlatched.
 
 Benign (gated: 0 leak latches, and no other latch or D1 lost):
 xcheck_cosim.py's 28 benign runs, and
@@ -86,6 +91,10 @@ N_SEEDS = 5
 # the benign case closest to a leak's repeated cross-check cycles.
 BATCH_GAPS_S = (120.0, 240.0)
 EXPECTED_BAR = "not_met"
+# D-RIMLIM: the recorded coverage with the setpoint-relative rim limit in the
+# loop. A drop fails the run; a gain is reported (update DECISIONS.md).
+EXPECTED_BEFORE_300_MIN = 59
+EXPECTED_NEVER_MAX = 0
 # production hot calibration point (D-LEAK requirement 2): acceptance, K
 HOT_CHECK_K = 0.5
 
@@ -97,6 +106,10 @@ def lib():
         L.plc_start.restype = ctypes.c_int
         L.plc_run.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_double, ctypes.c_double]
         L.plc_run.restype = ctypes.c_int
+        L.prl_start.argtypes = [ctypes.c_void_p]
+        L.prl_start.restype = ctypes.c_int
+        L.prl_run.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_int, ctypes.c_double]
+        L.prl_run.restype = ctypes.c_int
         L._plc_ready = True
     return L
 
@@ -105,7 +118,9 @@ def run_case(case):
     L_ = lib()
     screen.apply(ref.C1)
     pan = es.PANS[case["pan"]]
-    tr = X.GlassTruth(pan, case["h"], 0.82, case["seed"], food_at=case.get("food_at"), delta=case["delta"])
+    tr = X.GlassTruth(pan, case["h"], 0.82, case["seed"], food_at=case.get("food_at"), delta=case["delta"],
+                      tau_g=case.get("tau_g", X.TAU_G), glass_w=case.get("glass_w"), t_eye=case.get("t_eye"),
+                      T_hot=case.get("t_hot"))
     if case.get("glass0") is not None:
         tr.Tg = case["glass0"]
     rng = np.random.default_rng(case["seed"] + 1)
@@ -121,6 +136,7 @@ def run_case(case):
     assert L_.sup_start(h) == 0
     assert L_.rim_start(h) == 0
     assert L_.plc_start(h) == 0
+    assert L_.prl_start(h) == 0
     out = (ctypes.c_double * len(cosim.OUT))()
     rout = (ctypes.c_double * 3)()
     sup_out = (ctypes.c_double * 3)()
@@ -139,6 +155,9 @@ def run_case(case):
             first[rule] = {"t_s": round(t, 1), "T_c": round(float(tr.T_c()), 1), "glass": round(float(tr.Tg), 1)}
 
     batches = list(case.get("food_batches_at", ()))
+    # rim_limit.py: a decimated trace for offline rule studies
+    trace_every = int(round(case["trace_dt"] / es.DT_CTRL)) if case.get("trace_dt") else 0
+    trace = []
     for k in range(n):
         t = k * es.DT_CTRL
         p_applied = P_cmd   # the command in force over this period
@@ -156,7 +175,10 @@ def run_case(case):
             ramp = case.get("ramp_s", 0.0)
             leak = case["r_leak"] / (min(1.0, (t - LEAK_AT + es.DT_CTRL) / ramp) if ramp > 0 else 1.0)
         y = X.pt100_read(tr.Tel, leak) + screen.NOISE * rng.standard_normal()
-        if case.get("sp_down_at") is not None and t >= case["sp_down_at"]:
+        if case.get("sp_profile"):
+            # [(t_from_s, setpoint)], in time order (rim_limit.py stress set)
+            sp = [v for t0, v in case["sp_profile"] if t + es.DT_CTRL >= t0][-1]
+        elif case.get("sp_down_at") is not None and t >= case["sp_down_at"]:
             sp = sp1 - case["sp_down_k"]
         else:
             sp = sp1 if t + es.DT_CTRL < es.SP_STEP_T else sp2
@@ -175,6 +197,9 @@ def run_case(case):
             suspects.append(round(t, 1))
         if L_.plc_run(h, xs, int(o["cc_event"]), y, t_rim if st == X.RIM_VALID else math.nan):
             mark("leak", t)
+        # D-RIMLIM: main/pan_control.c feeds the setpoint, t_hat and the rim
+        if L_.prl_run(h, sp, o["t_hat"], int(st == X.RIM_VALID), t_rim):
+            mark("rim_limit", t)
         if o["cc_event"] == cosim.CC_EVT_LOST:
             mark("d1_lost", t)
         if o["fault"]:
@@ -201,8 +226,11 @@ def run_case(case):
             mark("glass_cr5_top", t)
         if k >= tail_from:
             tc_tail.append(tc)
+        if trace_every and k % trace_every == 0:
+            trace.append((t, sp, y, t_hat, st, t_rim, tc, tr.Tg))
     L_.sim_free(h)
-    return {**case, "first": first, "suspects": len(suspects), "suspect_times_s": suspects[:12],
+    extra = {"trace": np.asarray(trace, dtype=np.float32)} if trace_every else {}
+    return {**case, **extra, "first": first, "suspects": len(suspects), "suspect_times_s": suspects[:12],
             "T_c_steady": round(float(np.mean(tc_tail)), 1),
             "T_c_drift_last_100s": round(tc_tail[-1] - tc_tail[0], 2), "T_c_max": round(tc_max, 1)}
 
@@ -251,7 +279,7 @@ def benign_cases(n_seeds):
     return out
 
 
-LATCHES = ("leak", "rim_fault", "guard", "R1", "R2a", "R2b")
+LATCHES = ("leak", "rim_limit", "rim_fault", "guard", "R1", "R2a", "R2b")
 
 
 def leak_row(r):
@@ -264,7 +292,8 @@ def leak_row(r):
             "T_c_max": r["T_c_max"], "t_T_c_over_300_s": t300,
             "suspects": r["suspects"],
             "first_suspect_s": r["suspect_times_s"][0] if r["suspect_times_s"] else None,
-            "leak_latch": r["first"].get("leak"), "rim_fault": r["first"].get("rim_fault"),
+            "leak_latch": r["first"].get("leak"), "rim_limit": r["first"].get("rim_limit"),
+            "rim_fault": r["first"].get("rim_fault"),
             "d1_lost": r["first"].get("d1_lost"),
             "glass_cr5_low": r["first"].get("glass_cr5_low"),
             "glass_cr5_top": r["first"].get("glass_cr5_top"),
@@ -314,6 +343,9 @@ def leak_summary(rows):
                                               for x in haz_rows),
             "hazardous_rim_fault_first": sum(x["first_latch"] is not None and x["first_latch"]["rule"] == "rim_fault"
                                              for x in haz_rows),
+            "hazardous_rim_limit_first": sum(x["first_latch"] is not None and x["first_latch"]["rule"] == "rim_limit"
+                                             for x in haz_rows),
+            "hazardous_rim_limit_before_300": sum(before_300(x, "rim_limit") for x in haz_rows),
             "leak_check_latch_T_c_range": rng(x["leak_latch"]["T_c"] for x in leak_lat),
             "hazardous_with_suspect_before_300": len(sus_before),
             "hazardous_cr5_band_low_edge_before_300": sum(before_300(x, "glass_cr5_low") for x in haz_rows),
@@ -358,8 +390,9 @@ def summarise(leak, benign):
     by_onset = {o: leak_summary([x for x in rows if x["onset"] == o]) for o in ONSETS}
     missed = every["hazardous_runs"] - every["hazardous_latched_before_300"]
     bar_met = missed == 0
-    benign_latch = [(b["set"], b["kind"], b["pan"], b["delta"], b["corner"], b["seed"], b["first"]["leak"])
-                    for b in benign if "leak" in b["first"]]
+    benign_latch = [(b["set"], b["kind"], b["pan"], b["delta"], b["corner"], b["seed"],
+                     b["first"].get("leak") or b["first"].get("rim_limit"))
+                    for b in benign if "leak" in b["first"] or "rim_limit" in b["first"]]
     by_kind = {}
     for b in benign:
         d = by_kind.setdefault(b["set"] + "/" + b["kind"], {"runs": 0, "runs_with_suspect": 0, "suspects": 0,
@@ -369,7 +402,7 @@ def summarise(leak, benign):
         d["runs_with_suspect"] += b["suspects"] > 0
         d["suspects"] += b["suspects"]
         d["max_suspects"] = max(d["max_suspects"], b["suspects"])
-        d["leak_latches"] += "leak" in b["first"]
+        d["leak_latches"] += "leak" in b["first"] or "rim_limit" in b["first"]
         d["d1_lost"] += "d1_lost" in b["first"]
         d["other_latches"] += any(k in b["first"] for k in ("rim_fault", "guard", "R1", "R2a", "R2b"))
     return {
@@ -403,7 +436,10 @@ def main():
     gate = {"benign_no_leak_latch": summ["benign"]["leak_latches"] == 0,
             "bar_status_as_recorded": summ["bar"]["status"] == EXPECTED_BAR,
             "benign_no_other_latch_or_d1_lost": summ["benign"]["other_latches"] == 0 and summ["benign"]["d1_lost"] == 0,
-            "leak_check_latches_some_hazardous_leak": summ["leak"]["all_onsets"]["hazardous_leak_check_latched"] > 0}
+            "leak_check_latches_some_hazardous_leak": summ["leak"]["all_onsets"]["hazardous_leak_check_latched"] > 0,
+            "rim_limit_coverage_as_recorded":
+                summ["leak"]["all_onsets"]["hazardous_latched_before_300"] >= EXPECTED_BEFORE_300_MIN
+                and summ["leak"]["all_onsets"]["hazardous_never_latched"] <= EXPECTED_NEVER_MAX}
     res = {"scope": __doc__.strip(), "r_leak_ohm": [round(r, 1) for r in R_LEAKS], "leak_at_s": LEAK_AT,
            "t_end_s": T_END_LEAK, "sp_fry_C": SP_FRY, "seeds": args.seeds, "summary": summ, "gate": gate,
            "all_pass": all(gate.values()), "leak_rows": rows_out,

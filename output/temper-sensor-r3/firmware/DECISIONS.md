@@ -500,28 +500,31 @@ entry past the 24th. It now runs every entry by name.
 | Mode | Scenarios | Designed (fault class, origin) pairs covered |
 |---|---|---|
 | legacy | 31 | 20/20 |
-| C1 | 44 | 26/26 |
+| C1 | 46 | 27/27 |
 
-(36 and 23/23 when D-SIL landed; D-OPEN, D-ISENSE and D-LEAK added the
-rest.)
+(36 and 23/23 when D-SIL landed; D-OPEN, D-ISENSE, D-LEAK and D-RIMLIM added
+the rest.)
 
 C1's pairs are a superset of legacy's. It adds IDLE for `FAULT_PROBE_OPEN`,
 `FAULT_PROBE_SHORT` and `FAULT_ADC_STUCK`: the converter service reports from
 every state, while legacy's RTD checks run only in PREHEAT/HEATING. It also
-adds FAULT_CURRENT_SENSE (PREHEAT, HEATING) and FAULT_PROBE_LEAKAGE (HEATING).
+adds FAULT_CURRENT_SENSE (PREHEAT, HEATING) and FAULT_PROBE_LEAKAGE (HEATING,
+and PREHEAT for the rim limit).
 
-A second matrix, C1 mechanism × origin, covers 20/20 cells (16/16 at D-SIL):
+A second matrix, C1 mechanism × origin, covers 22/22 cells (16/16 at D-SIL):
 - R1 and the absolute 300 °C check;
 - R2 stages 1, 2a and 2b;
 - register 07h, DRDY stale and frozen code;
 - the current-sense checks (a) and (b) (D-ISENSE);
-- the Pt100 leak check (D-LEAK).
+- the Pt100 leak check (D-LEAK);
+- the setpoint-relative rim limit, from HEATING and PREHEAT (D-RIMLIM).
 
 The C1 runner checks each attribution where the firmware exposes it:
 - the supervisor latch, through the new read-only
   `pan_control_supervisor_latch()`, and likewise the current-sense latch
-  (`pan_control_current_sense_latch()`) and the leak latch
-  (`pan_control_leak_latched()`);
+  (`pan_control_current_sense_latch()`), the leak latch
+  (`pan_control_leak_latched()`) and the rim limit
+  (`pan_control_rim_limit_latched()`);
 - the reading at the trip;
 - register 07h;
 - whether the service has stopped.
@@ -910,6 +913,11 @@ the C library is driven passively on every run):
 
 ## D-LEAK. Element-parallel Pt100 leakage: a latch, and why firmware cannot meet the 300 °C bar
 
+*Superseded in part by D-RIMLIM:* the setpoint-relative rim limit now latches
+59 of the 235 hazardous runs before 300 °C (7 here) and every hazardous run
+eventually (9 never latched here). The bar is still not met. The numbers below
+are this rule's alone, as first recorded.
+
 **The hazard.** A leak in parallel with the element reads low and is an
 ordinary in-range resistance to the MAX31865 (`../pcb/DECISIONS.md` D6). The
 loop holds the reading at the setpoint and the pan runs hot.
@@ -1022,6 +1030,293 @@ Results:
    the credible way a hot-zone leak forms. Qualify the seal with steam/damp
    heat, thermal cycling and wash exposure. Afterwards the cartridge must
    still pass the 10 MΩ at 300 °C test.
+
+## D-RIMLIM. A setpoint-relative rim limit, and what energy, a cold soak and the coil can add
+
+**Why.** D-LEAK's rule needs a cross-check suspect: the reading 25 K below a
+rim that itself reads glass 12–46 K below the pan. With the reading held at
+250 °C that is a pan up to ~331 °C. A leak holds the *reading* at the
+setpoint; the glass under the rim NTC follows the *pan*. So the rim has a
+ceiling set by the temperature the loop believes the pan is at, and a rim
+above it is a pan hotter than the loop believes. Four candidates were
+evaluated (A–D below). A is implemented; B and D do not separate a leak on
+today's signals; C does, for one leak type, but needs a reference driver
+that does not exist yet.
+
+### A. The rule (`components/control/pan_rim_limit.{c,h}`)
+
+`main/pan_control.c` runs it every control period and latches
+FAULT_PROBE_LEAKAGE (the D-LEAK code and sink: hardware cut, not
+software-clearable). `pan_control_rim_limit_latched()` tells it from the
+D-LEAK chain.
+- **Reference.** T_ref is a decaying maximum of max(setpoint, t_hat): it
+  rises at once and decays toward the present value with τ_dec = 300 s. A
+  lowered setpoint, a food quench or a pan lift does not pull the limit
+  down under a glass that is still hot (the glass's own t63 is 18–106 s,
+  study 08). It restarts with each heating session.
+- **Glass envelope.** The glass under the bead is a weighted mean of the
+  pan and the coil-eye air, Tg = w·T_pan + (1 − w)·T_eye. This fits both
+  sources to 0.01 in w (`rim_limit.py` `envelope`, `rim-limit.json`):
+  - `../cad/thermal-axisym.json` (G8, 260 °C pan, glass underside at the
+    NTC radius r14.5): flat pan w = 0.955, 0.5 mm warp w = 0.830, for both
+    eye states (air 130.0 and 139.7 °C);
+  - study 08 (`output/temper-r33-studies/08-undrilled-glass-sensor`,
+    `undrilled-thermal.json` `steady_offsets_B`; not in this tree, the six
+    rows used are copied verbatim into `rim_limit.py`): w = 0.646–0.830, eye
+    air 45 (low hold) to 139.7 °C (fry hold).
+
+  The hottest benign glass for a pan at T is
+  Tg_max(T) = max(0.9554·T + 0.0446·139.7, 0.6457·T + 0.3543·139.7): below
+  the eye air the glass can be hotter than the pan. Tg_max is 114.1 / 149.5
+  / 197.3 / 245.1 °C at 100 / 150 / 200 / 250 °C.
+- **Tolerance.** The rim channel's hot stack at the comparison temperature,
+  tabulated by `rim_limit.py` (`PRL_TOL_K`, gated against the header):
+  the bead's hot corner scaled to pcb D5's 10.2 K at 250 °C, the rail read
+  as 3300 mV when it is 3242 mV (no MCP3202 CH1 driver), and 4.53 K
+  still-air self-heating. That is 11.0 / 11.2 / 13.2 / 16.0 / 19.3 K at
+  100 / 150 / 200 / 250 / 300 °C. D-RIM's constant 19.1 K adds the rail's
+  worst (4.37 K, near the saturation end) to the bead's worst (at 250 °C);
+  at 250 °C the rail costs 1.25 K. The constant is kept as `tol_table =
+  false`.
+- **Limit** = Tg_max(T_ref) + tol(Tg_max(T_ref)) + margin (0 K):
+  125.1 / 160.7 / 210.4 / 240.6 / 260.8 °C for T_ref 100 / 150 / 200 / 230
+  / 250 °C.
+- **Latch.** The rim VALID, above the limit and not falling (now ≥ the
+  reading 30 s ago − 1 K) for 5 s. A rim that is not VALID restarts the
+  count and the 30 s window. "Not falling" is what keeps a cooling glass
+  from tripping, whatever its level: a cold pan on hot glass, a setpoint
+  lowered after a long hold. A leak heats the glass.
+
+### A. Evidence
+
+**The sets** (`rim_limit.py` → `rim-limit.json`, run.sh step 3e; all through
+the C loop, every latch passive):
+- the 624-run leak sweep and the 548 benign runs of D-LEAK;
+- **stress_benign, 132 runs:** the hot side of every model input:
+  - glass at the benign envelope: w 0.955 and 0.646, eye at 139.7 °C;
+  - the rim's hot stack: bead hot, v3v3 3242 mV, +4.53 K self-heating;
+  - τ_g 18 / 60 / 106 s;
+  - kinds: an 1800 s hold at 250 °C, the setpoint lowered 250 → 150 °C at
+    900 s, a cold pan on glass at 245.1 °C, a preheated 250 °C pan on cold
+    glass, food, and food batches; 4 pans;
+- **stress_leak, 234 runs:** the leak sweep's frying pans at the cold side:
+  - glass at the leak envelope (w 0.708, eye 45 °C), and flat (w 0.955)
+    with a 45 °C eye;
+  - the cold stack (bead cold, 3367 mV), τ_g 106 s.
+
+**Trade-off curve** (offline on 0.5 s traces of the same runs; τ_dec 300 s,
+"not falling" on; the counts are hazardous runs latched before T_c first
+exceeds 300 °C, of 235):
+
+| Margin (K) | Tolerance table | Constant 19.1 K | Never latched (table) | False latches, 548 benign | False, 132 stress |
+|---|---|---|---|---|---|
+| −10 | 95 | 71 | 0 | 0 | 56 |
+| −5 | 74 | 58 | 0 | 0 | 55 |
+| −2.5 | 66 | 46 | 0 | 0 | 42 |
+| −1 | 65 | 46 | 0 | 0 | 28 |
+| **0 (chosen)** | **60** | 43 | **0** | **0** | **0** |
+| +1 | 57 | 40 | 0 | 0 | 0 |
+| +2.5 | 55 | 35 | 9 | 0 | 0 |
+| +5 | 44 | 29 | 9 | 0 | 0 |
+| +10 | 31 | 23 | 9 | 0 | 0 |
+
+- **The constant stack** never latches 9 runs at margin 0 (the D-LEAK nine).
+- **"Not falling" is necessary.** Without it, margin 0 false-latches 30 of
+  the 548 benign runs (the cold pan on 200 °C glass) and 24 of the stress
+  runs.
+- **τ_dec.** 60 s false-latches 3 stress runs at margin 0 (the lowered
+  setpoint with τ_g 106 s); 120 and 300 s none.
+- **Closest approach.** At the chosen variant the stress set comes within
+  0.54 K of the limit, sustained and not falling. The benign 548 come no
+  closer than 16.9 K below it. The envelope is the worst case by
+  construction, so the stress set sits on the limit; −1 K already trips 28.
+
+**C in the loop** (`leak_checks.py` → `leak-checks.json`, step 3d, gated):
+
+| | Before (D-LEAK) | After (D-RIMLIM) |
+|---|---|---|
+| Hazardous runs latched before T_c passes 300 °C | 7 / 235 | **59 / 235** |
+| — step / 120 s ramp / 600 s ramp | 0/84, 3/80, 4/71 | 27/84, 18/80, 14/71 |
+| Latched after 300 °C | 219 (T_c ≤ 474.2 °C, 30.8–367.3 s after) | 176 (T_c ≤ 431.1 °C, 0.0–329.0 s after) |
+| Never latched | 9 | **0** |
+| Largest never-latched leak | 1.73 kΩ, steady 318.9 °C | none |
+| First latch, hazardous runs | rim over-range 188, leak chain 38 | rim limit 234, leak chain 1 |
+| False latches, 548 benign | 0 | 0 |
+
+- **The gate.** `leak_checks.py` holds coverage at ≥ 59 and never-latched at
+  0 (EXPECTED_BEFORE_300_MIN, EXPECTED_NEVER_MAX). The bar status stays
+  `not_met`.
+- **By glass offset.** Δ 12 K: 56 of 120 before 300 °C. Δ 46 K: 3 of 115.
+- **By leak** (latched before 300 °C / hazardous): 300 Ω 7/35, 402 Ω 5/36,
+  538 Ω 6/36, 721 Ω 7/29, 966 Ω 11/33, 1.29 kΩ 11/31, 1.73 kΩ 12/35.
+- **The largest leak that is not always caught before 300 °C** is the
+  largest in the sweep, 300 Ω: a step to a steady 819.5 °C. It passes
+  300 °C before the glass, with its 18–106 s lag, can follow.
+- **At the leak envelope** (stress_leak: warped pan, cool eye, cold stack,
+  τ_g 106 s), nothing latches before 300 °C: 0/116. 22 of 116 never latch
+  on the existing rules, and 18 still do not with the rim limit.
+
+**Why the bar is still out of reach.** At a 250 °C setpoint the benign glass
+can reach 245.1 °C, and the rim can read 16 K above that. A leak that takes
+the pan to 300 °C under a warped pan and a cool eye leaves the glass at
+225.4 °C (0.708·300 + 0.292·45), and the rim can read 9–11 K below it.
+- The two ranges overlap by about 46 K.
+- The glass also lags the pan by 18–106 s, which a fast leak outruns.
+- No rim threshold separates them at 250 °C. The rule is strongest at the
+  lower setpoints a leak passes through first.
+- Benign runs no closer than −0.54 K to the limit show that margin cannot be
+  traded for coverage without false latches.
+
+**Firmware tests.**
+- `test_c1_units_only`: 6 new tests (41 in all). They cover the limit
+  values, the latch after the sustain, a steady rim 0.3 K under the limit
+  for an hour, a falling glass above the limit (a cold pan on 260 °C glass,
+  a setpoint lowered under a hot glass), the fall-window and sustain
+  requirements, and parameter rejection.
+- **SIL C1**, 2 new scenarios with mechanism `rim-limit`:
+  - *C1 Rim Above the Setpoint Envelope (HEATING)*: pan and rim 140 °C over
+    a 100 °C reading. 166 rows (bound 300).
+  - *(PREHEAT)*: pan 150 °C over an 85 °C reading, the machine still in
+    PREHEAT. 267 rows (bound 400).
+  - The coverage gate is now 27/27 C1 pairs (adds FAULT_PROBE_LEAKAGE from
+    PREHEAT) and 22/22 mechanism cells.
+  - **The D-LEAK chain scenario changed.** Its 140 °C rim over a 100 °C
+    reading is now the rim limit's case, which latches first. The chain's
+    trace now holds the rim at 105 °C over a reading sagging to 75 °C
+    (-0.43 K/s, under D1's trigger). That is 30 K for the cross-check and
+    under the 125.1 °C limit. 901 rows (bound 1250). The mechanism check
+    now also fails if the rim limit latched instead.
+
+### A. CR-5: the hardware rim trip (a PCB change request, written up only)
+
+`rim-limit.json` `cr5`: the benign glass maximum over all the sets above is
+246.5 °C. The band's low edge, 262.3 °C, is 15.8 K above it.
+
+| Lowered by | Band (°C) | Hazardous trip at band top before 300 °C | Benign margin to band low |
+|---|---|---|---|
+| 0 | 262.3–288.1 | 0 / 235 | 15.8 K |
+| 4 K | 258.3–284.1 | 0 | 11.8 K |
+| 8 K | 254.3–280.1 | 6 | 7.8 K |
+| 12 K | 250.3–276.1 | 7 | 3.8 K |
+| 16 K | 246.3–272.1 | 11 | −0.2 K |
+
+**Recommendation: lower the trip by about 8 K.** Change the divider's 86.6 k
+to 76.8 k (E96). The nominal moves from 275.6 to 267.8 °C, and the band to
+about 254.5–280.3 °C.
+- **Gain.** Small: 6 of 235 hazardous runs, all low-Δ ramps, trip before
+  300 °C instead of none. The trip stays independent of firmware, and leaves
+  7.8 K over the benign envelope.
+- **Condition.** pcb D6's bench condition must tighten with it. Bench T3's
+  rim log under a 250 °C hold must stay ≤ 244.5 °C (the new band low − 10 K)
+  instead of ≤ 252 °C.
+- **Don't go further.** Lowering by 12 K leaves 3.8 K and buys one more run;
+  16 K overlaps the benign envelope.
+
+### B. Energy plausibility: does not separate (`leak_alternatives.py` → `leak-alternatives.json`)
+
+- **Compression.** A leak compresses dReading/dT_true at a 250 °C reading to
+  0.08 (300 Ω) – 0.77 (1.73 kΩ); 0.70 at 1.29 kΩ.
+- **The plant gain a = η/C** spans 6.8× over the three modelled frying pans
+  with η 0.82–0.92 and a food load alone. The firmware prior bounds span
+  100×. A leak looks like a heavier pan: the modelled food load alone moves
+  a frying pan's a to 0.21–0.38× of the bare pan, as far as the
+  compression of every leak down to about 540 Ω (0.37).
+- **Hold power.** Holding the same pan at 300 instead of 250 °C costs
+  1.21–1.41× the power. The honest 250 °C hold already spans 1.67× over
+  three modelled pans (247–413 W at η 1), and real pan sizes spread it
+  further. The firmware has only commanded power, with η unknown.
+- **The rim's rise per joule against the Pt100's.** The rim follows the pan
+  with w 0.65–0.96, a wider spread than the compression of the leaks that
+  matter (0.77 at 1.73 kΩ).
+- **Verdict.** Nothing observable separates a leak from a heavier or less
+  efficient pan without a per-pan reference. A within-session drop of the
+  identified a when a leak forms mid-cook is real, but adding food does the
+  same.
+
+### C. Cold-soak plausibility: separates temperature-independent leaks; no reference is readable today
+
+- **The reference.** After an idle soak every part is at ambient. The rim
+  NTC saturates below about 92 °C and cannot serve. The only on-board
+  candidate is the heatsink NTC: NTCALUG01A104GA, 100 k, B 4190, a 10 k
+  pull-up on GPIO3 / ADC1_CH2 (legacy `elec/src`, BOM). Its firmware read,
+  `read_heatsink_temperature()`, is a TODO stub returning +INF
+  (`main/board_peripherals.c`). MCP3202 CH1 is the rail reference, and CH0
+  is undocumented here. The ESP32-S3 die sensor is unused and self-heated.
+  So C cannot run on this board's firmware today.
+- **Threshold budget**, Pt100 against the heatsink NTC: Pt100 0.2 K, NTC
+  R25 0.45 K, ADC at ATTEN3 3.9 K, the uncorrected rail 4.7 K, and 3 K of
+  soak gradient. That is **12.2 K**, or 7.5 K with the MCP3202 CH1 rail
+  correction.
+- **A temperature-independent leak** (moisture, a conductive film) reads
+  low at room temperature by 16.8 K at 1.73 kΩ (14.5 K at 5 °C, 18.7 K at
+  40 °C), and by more at every lower resistance. At the 12.2 K threshold
+  the check catches every leak ≤ 2.43 kΩ (≤ 4.02 kΩ rail-corrected): all
+  235 hazardous sweep runs, before heating ever starts.
+- **An Arrhenius leak** R(T) = R_300·exp(Ea/k·(1/T − 1/573 K)), equal to
+  the hazardous 1.73 kΩ at 300 °C, is 4.4 kΩ at 25 °C for Ea 0.05 eV (reads
+  6.9 K low) and 72.6 kΩ for 0.2 eV (0.43 K low). C misses it above
+  **Ea 0.018 eV** (0.045 eV rail-corrected). Ionic or contamination
+  conduction that only conducts hot is invisible to it.
+- **Spec for when the reference exists** (not implemented):
+  - in IDLE, with the coil off ≥ 30 min and the heatsink NTC within 3 K of
+    its own reading 10 min earlier;
+  - Pt100 < heatsink − 12.2 K for 10 min, with the reading flat (±0.5 K):
+    refuse to start heating with FAULT_PROBE_LEAKAGE;
+  - a frozen item on the hob also reads cold, and the flatness and IDLE
+    conditions do not exclude a thawing block at 0 °C, so the fault must
+    clear when the reading returns within the threshold.
+
+  The heatsink NTC needs a driver: its scaling is not specified in
+  `config.yaml`. The zapote capture must confirm it still exists there.
+
+### D. Coil-impedance pan temperature: feasibility only, no signal today
+
+- **Today's measurements.** `firmware/components/power/` (`tank_freq.c`,
+  `n21_binding.c`) is not in this tree; it lives on the power-stage
+  branches. In this tree nothing on the target measures tank frequency,
+  current or R_eq. Bus current is a stub (+INF). `pll_control.c` never
+  registers its capture callbacks, and resonance is a constant 37580 Hz.
+  `pan_detect` is never initialised. The control loop uses commanded power.
+- **Sensitivity** (`../../temper-mining-r3/impedance-sensitivity.json`,
+  FINDINGS §3; an upper bound, because μ(T) opposes ρ(T)):
+  - carbon steel: dR_eq/R 0.09–0.24 %/K, so 4–11 K resolution at 1 %
+    repeatability;
+  - cast iron and 430-clad: 0.03–0.09 %/K, so 11–30 K.
+
+  R_eq is weighted over the heated annulus, which can sit up to 29 K from
+  the C1 contact point (sensor-r2). The literature's R/L estimation is good
+  to 7.1 % / 2.9 % (Energies 15:1294), far worse than the 1 % this needs.
+- **Detectable leaks.** The pan reaches 300 °C at 50 K over a 250 °C
+  reading: 4.5–12 % of R_eq on carbon steel, 1.7–4.7 % on cast iron and
+  430. At 1 % repeatability with a 2× detection margin (2 %), that is
+  caught before 300 °C on carbon steel, and only on the most sensitive
+  cast iron or 430. At steady state every hazardous leak holds the pan
+  ≥ 68 K over the reading (1.73 kΩ: 318.4 °C at a 250 °C reading,
+  `leak-alternatives.json`), ≥ 2.3 % even at cast iron's low end. So D
+  could close the never-latched gap on its own, but not the before-300 °C
+  gap on cast iron and clad.
+- **Recommendation.** Once the power stage reports P and I per period
+  (needed by D-ISENSE anyway), log R_eq = P/I² against the Pt100 reading on
+  the bench. Adopt it only if a per-pan baseline, learned in the first
+  minute, repeats to ≤ 1 % across a hold. Mind E.G.O. US10085303B2 and
+  Whirlpool US8530805B2 (mining-r3 RECOMMENDATIONS). Not built here.
+
+### Bench measurements this needs (`../bench/`)
+
+1. **The glass envelope and lag** under the rim NTC: a thermocouple bonded to
+   the glass underside beside the bead, and the rim channel, logged against
+   the pan. Cover a flat and a 0.5 mm-warped pan, holds at 100 / 200 /
+   250 °C at low and full coil current, and a 100 → 250 °C step.
+   - This measures w, T_eye and t63, which replace the 0.955 / 0.646 /
+     139.7 °C envelope and the 60 s τ_g assumption.
+   - The logger and rig exist (`bench/logger.py`, `RIG.md`; bench T3 already
+     logs the rim under a 250 °C hold). It needs a second thermocouple
+     channel on the glass.
+2. **The bead's dissipation constant on the glass** (D-RIM, open item 2).
+   The 4.53 K still-air self-heating is in the tolerance table; bearing on
+   the glass it is smaller, and the measured value would lower the limit.
+3. **The heatsink NTC against ambient after a soak** (for C), at 10 min
+   intervals over an hour after a 250 °C cook and after an overnight idle.
 
 ## D-CSW. Contact-shift window: re-estimate the contact after an abrupt change
 
@@ -1235,13 +1530,29 @@ stress and probe-on-intact runs are unchanged by the guard.
    `../robustness/DECISIONS.md` R-C: gradual contact loss (warp, a stuck post
    with pan bow) is not observable by the window or D1, and needs the rim
    cross-check or the mechanical margin.
-10. **Element-parallel leakage: a firmware latch now exists (D-LEAK), and the
-    300 °C bar is not met.** Firmware cannot meet it on these signals:
-    - 7 of 235 hazardous leak runs latch before the pan passes 300 °C;
-    - the leak check and the rim over-range fault latch most of the rest
-      after it (T_c ≤ 474.2 °C);
-    - 1.73 kΩ at Δ 46 K on the cold corner never latches (318.9 °C steady);
-    - ≥ 4.16 kΩ is invisible.
+10. **Element-parallel leakage: two firmware latches now exist (D-LEAK,
+    D-RIMLIM), and the 300 °C bar is still not met.** With the
+    setpoint-relative rim limit in the loop (`leak-checks.json`):
+    - 59 of 235 hazardous leak runs latch before the pan passes 300 °C
+      (7 before D-RIMLIM): 27/84 step, 18/80 120 s ramp, 14/71 600 s ramp;
+    - 176 latch after it, at T_c ≤ 431.1 °C (was ≤ 474.2 °C);
+    - none never latches (was 9: 1.73 kΩ, 318.9 °C steady);
+    - 0 false latches on the 548 benign runs and on 132 worst-case stress
+      runs;
+    - ≥ 4.16 kΩ is still invisible (steady T_c ≤ 276.8 °C, not a hazard).
+
+    It cannot be met from the rim. At a 250 °C setpoint the benign and
+    leaking glass ranges overlap by about 46 K, and the glass lags the pan
+    by 18–106 s (D-RIMLIM). What remains:
+    - **C, the cold-soak check, waits for a heatsink NTC driver.** It would
+      catch every temperature-independent hazardous leak before heating
+      (≤ 2.43 kΩ at a 12.2 K threshold), but not a leak that conducts only
+      hot (Ea > 0.018 eV).
+    - **D, coil impedance, waits for measured P and I.**
+    - **The bench must measure the glass envelope and lag** (D-RIMLIM bench
+      items 1–3).
+    - **CR-5 should come down about 8 K** (86.6 k → 76.8 k), with bench T3's
+      criterion tightened to ≤ 244.5 °C.
 
     The protection that meets the bar is the insulation: ≥ 10 MΩ at 300 °C,
     the production hot test and seal-ingress qualification (D-LEAK

@@ -125,11 +125,17 @@ bool pan_control_rim_reading(rim_ntc_reading_t *out);
 /** Pt100-vs-rim cross-check suspects (D-XCHK) since pan_control_begin(). */
 uint32_t pan_control_xcheck_suspects(void);
 /**
- * Element-parallel Pt100 leakage latch since pan_control_begin()
- * (components/control/pan_leak_check.h, DECISIONS.md D-LEAK). Read-only
- * diagnostics for the SIL.
+ * Element-parallel Pt100 leakage latch since pan_control_begin(): the chained
+ * cross-check cycles (components/control/pan_leak_check.h, DECISIONS.md
+ * D-LEAK). Read-only diagnostics for the SIL.
  */
 bool pan_control_leak_latched(void);
+/**
+ * The setpoint-relative rim limit (components/control/pan_rim_limit.h,
+ * DECISIONS.md D-RIMLIM) since pan_control_begin(). It reports the same
+ * FAULT_PROBE_LEAKAGE. Read-only diagnostics for the SIL.
+ */
+bool pan_control_rim_limit_latched(void);
 
 /** R1: feed one 10 ms reading; true when the sustained-rise latch trips. */
 bool pan_control_rate_sample(float reading_c, uint32_t now_ms);

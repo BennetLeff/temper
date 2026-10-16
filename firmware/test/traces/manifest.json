@@ -995,7 +995,7 @@
   },
   {
     "name": "SIL: C1 Pt100 Element-Parallel Leakage (HEATING)",
-    "description": "A leak develops in parallel with the Pt100 element from tick 85 while the pan heats: over 10 s the pan, and the rim NTC under it, climb from 92 to 140 degC while the leaky Pt100 reads only up to 100 degC (the target), then all hold. The MAX31865 sees an ordinary in-range resistance. The rim cross-check finds the reading 40 K below the rim for 30 s, D1's probe finds contact intact (PROBE_PASSED), and the cross-check fires again with the rim not falling and the reading not rising: the second chained cycle latches FAULT_PROBE_LEAKAGE.",
+    "description": "A leak develops in parallel with the Pt100 element from tick 85 while the pan heats: over 40 s the pan, and the rim NTC under it, climb from 92 to 105 degC while the leaky Pt100's reading sags to 75 degC (-0.43 K/s, under D1's -0.8 K/s trigger), then all hold. The MAX31865 sees an ordinary in-range resistance. The rim cross-check finds the reading 30 K below the rim for 30 s, D1's probe finds contact intact (PROBE_PASSED), and the cross-check fires again with the rim not falling and the reading not rising: the second chained cycle latches FAULT_PROBE_LEAKAGE. The rim stays under the setpoint-relative rim limit for the 100 degC target (125.1 degC, D-RIMLIM), so the chain is what latches. (Before D-RIMLIM this trace held the pan at 140 degC over a 100 degC reading; that is now the rim limit's scenario, which latches first.)",
     "trace_file": "trace_c1_probe_leakage_heating.csv",
     "origin_state": "HEATING",
     "initial_conditions": {
@@ -1006,11 +1006,11 @@
       "sensors": [
         {
           "name": "rtd_resistance",
-          "over_ticks": 100
+          "over_ticks": 400
         },
         {
           "name": "pan_temp",
-          "over_ticks": 100
+          "over_ticks": 400
         }
       ]
     },
@@ -1032,7 +1032,89 @@
     ],
     "c1_mechanism": "xchk-leak",
     "c1_only_reason": "A C1 runtime check (main/pan_control.c, components/control/pan_leak_check.c; DECISIONS D-LEAK) on the C1 rim cross-check and D1 probe: the legacy loop has neither.",
-    "latency_bound_note": "Latency counts from the end of the perturbation (tick 184). The reading falls 25 K below the rim at tick ~147; each leak cycle is the 30 s cross-check hold plus the 18 s probe (D1's 30 s hold-off runs under the next hold), and a hold restarts whenever the command drops to 0: two cycles plus one restarted hold, 2 x 48 s + 30 s = 126 s from tick 147, is tick 1407, 1223 rows after 184; 1250 rows. Observed 972."
+    "latency_bound_note": "Latency counts from the end of the perturbation (tick 484). The reading falls 25 K below the rim at tick ~418 (30 K x f >= 25 K, f = 0.83); each leak cycle is the 30 s cross-check hold plus the 18 s probe (D1's 30 s hold-off runs under the next hold), and a hold restarts whenever the command drops to 0: two cycles plus one restarted hold, 2 x 48 s + 30 s = 126 s from tick 418, is tick 1678, 1194 rows after 484; 1250 rows. Observed 901."
+  },
+  {
+    "name": "SIL: C1 Rim Above the Setpoint Envelope (HEATING)",
+    "description": "DECISIONS D-RIMLIM. A leak develops in parallel with the Pt100 element from tick 85: over 10 s the pan, and the rim NTC under it, climb from 92 to 140 degC while the leaky Pt100 reads only up to 100 degC (the target). No pan held at 100 degC can make the glass hotter than 114.1 degC (the glass envelope: w 0.646-0.955 of the pan, the rest coil-eye air at up to 139.7 degC); with the rim channel's hot tolerance stack there (11.0 K: bead corner, rail, self-heating) the limit is 125.1 degC. The rim crosses it rising and stays over it, not falling, for 5 s: FAULT_PROBE_LEAKAGE, before the cross-check chain could complete.",
+    "trace_file": "trace_c1_rim_limit_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 100
+        },
+        {
+          "name": "pan_temp",
+          "over_ticks": 100
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_LEAKAGE",
+      "max_latency_ticks": 300,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_LEAKAGE"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "rim-limit",
+    "c1_only_reason": "A C1 runtime check (main/pan_control.c, components/control/pan_rim_limit.c; DECISIONS D-RIMLIM) on the C1 rim NTC and the loop's setpoint and estimate: the legacy loop has neither.",
+    "latency_bound_note": "Latency counts from the end of the perturbation (tick 184). At the trace's 92 degC start the rim node sits at the driver's saturation bound (2900 mV at ATTEN3, ~92 degC), so take the rim VALID only from the leak's start (tick 85). The rule needs 31 s of VALID history (the 30 s fall window, 1 s slots) and then 5 s over the 125.1 degC limit, which the rim passes at tick ~154 plus the driver's 1 s filter: at the latest tick 85 + 310 + 50 + 10 = 455, 271 rows; 300 rows. Observed 166."
+  },
+  {
+    "name": "SIL: C1 Rim Above the Setpoint Envelope (PREHEAT)",
+    "description": "DECISIONS D-RIMLIM, from PREHEAT. A leak develops from tick 85 while the pan heats from 80 degC: over 10 s the pan and the rim climb to 150 degC while the leaky Pt100 reads only up to 85 degC, so the estimate stays under target - 10 K and the machine stays in PREHEAT. The rim becomes VALID above ~92 degC (tick ~102), and the limit for a 100 degC target is 125.1 degC: once 30 s of VALID rim history exist and the rim is not falling, 5 s over the limit latch FAULT_PROBE_LEAKAGE.",
+    "trace_file": "trace_c1_rim_limit_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 100
+        },
+        {
+          "name": "pan_temp",
+          "over_ticks": 100
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_LEAKAGE",
+      "max_latency_ticks": 400,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_LEAKAGE"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "rim-limit",
+    "c1_only_reason": "A C1 runtime check (main/pan_control.c, components/control/pan_rim_limit.c; DECISIONS D-RIMLIM) on the C1 rim NTC and the loop's setpoint and estimate: the legacy loop has neither.",
+    "latency_bound_note": "Latency counts from the end of the perturbation (tick 184). The rim turns VALID at ~92 degC, tick ~102; the fall window needs 31 s of VALID history (tick ~412), then 5 s over the limit plus the 1 s filter: tick ~472, 288 rows; 400 rows. Observed 267."
   },
   {
     "name": "SIL: C1 Current-Sense Start-Up Pulse Fails (PREHEAT)",

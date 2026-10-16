@@ -115,25 +115,32 @@ def pt100_ohm(t_c: float) -> float:
 
 
 # DECISIONS D-LEAK: an element-parallel leak developing while the pan heats.
-# Over 100 rows the pan (and the rim NTC, which the C1 SIL reads at the pan
-# temperature) climbs from 92 to 140 degC while the leaky Pt100's reading
-# climbs only to 100 degC (the loop's target); then both hold. At the end the
-# leak is LEAK_OHM in parallel with the element. The resistance column
+# Over ramp_rows rows the pan (and the rim NTC, which the C1 SIL reads at the
+# pan temperature) climbs from start_c to pan_c while the leaky Pt100's
+# reading climbs only to read_c; then both hold. At the end the leak is
+# leak_ohm(pan_c, read_c) in parallel with the element. The resistance column
 # carries +0.1 ohm every 5th row (a live converter: no frozen code).
-LEAK_PAN_C = 140.0
-LEAK_READ_C = 100.0
-LEAK_OHM = 1.0 / (1.0 / pt100_ohm(LEAK_READ_C) - 1.0 / pt100_ohm(LEAK_PAN_C))
+#   - the chained cross-check cycles (D-LEAK): over 40 s the pan climbs to
+#     105 degC while the reading sags to 75 degC (-0.43 K/s, under D1's
+#     -0.8 K/s trigger). 30 K over the reading fires the cross-check; the
+#     rim stays under the D-RIMLIM limit for the 100 degC target
+#     (125.1 degC), so the chain, not the rim limit, latches;
+#   - the setpoint-relative rim limit (D-RIMLIM): pan 140 over a 100 degC
+#     reading in HEATING; pan 150 over an 85 degC reading in PREHEAT (the
+#     estimate stays under target - 10 K, so PREHEAT holds).
+def leak_ohm(pan_c: float, read_c: float) -> float:
+    return 1.0 / (1.0 / pt100_ohm(read_c) - 1.0 / pt100_ohm(pan_c))
 
 
-def leak(n_rows, start_c, at, ramp_rows):
+def leak(n_rows, start_c, at, ramp_rows, pan_c, read_c):
     out = []
     for t in range(n_rows):
         if t < at:
             out.append(row(t, start_c + noise(t)))
             continue
         f = min(1.0, (t - at + 1) / ramp_rows)
-        pan = start_c + (LEAK_PAN_C - start_c) * f
-        reading = start_c + (LEAK_READ_C - start_c) * f
+        pan = start_c + (pan_c - start_c) * f
+        reading = start_c + (read_c - start_c) * f
         out.append(row(t, pan + noise(t), rtd=round(pt100_ohm(reading), 1) + noise(t)))
     return out
 
@@ -159,7 +166,9 @@ TRACES = {
         row(t, 92.0 + noise(t)) if t < 85 else
         row(t, 112.0 + STUCK_RAMP_K_PER_ROW * (t - 85) + noise(t), cur=0.0) for t in range(500)],
     "trace_c1_current_sense_dead_preheat.csv": lambda: ramp(151, 80.0, 85, 0.0, 0.0),
-    "trace_c1_probe_leakage_heating.csv": lambda: leak(1800, 92.0, 85, 100),
+    "trace_c1_probe_leakage_heating.csv": lambda: leak(1800, 92.0, 85, 400, 105.0, 75.0),
+    "trace_c1_rim_limit_heating.csv": lambda: leak(600, 92.0, 85, 100, 140.0, 100.0),
+    "trace_c1_rim_limit_preheat.csv": lambda: leak(600, 80.0, 85, 100, 150.0, 85.0),
     "trace_c1_pulse_sense_dead_preheat.csv": lambda: ramp(60, 80.0, 60, 0.0),
     # Sensor-path rise at 20 K/s: legacy 15 K/s per-read check, C1 R1.
     "trace_sustained_rise_heating.csv": lambda: ramp(200, 92.0, 85, SENSOR_RAMP_K_PER_ROW),
