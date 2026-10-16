@@ -1,0 +1,127 @@
+{
+ "rows": [
+  {
+   "mpn": "ARG03BTC1333",
+   "qty_s44": 3,
+   "qty_s45": 0,
+   "card_unit_500": 0.008,
+   "card_basis": "ESTIMATE (class default, not fetched)",
+   "card_delta": -0.024,
+   "jlc_unit_500_s44": 0.0168,
+   "jlc_unit_500_s45": 0.0,
+   "jlc_delta": -0.0504
+  },
+  {
+   "mpn": "RT0603BRD07104KL",
+   "qty_s44": 0,
+   "qty_s45": 3,
+   "card_unit_500": 0.0212,
+   "card_basis": "JLC part API 2026-10-15 ladder (1+ $0.0294 at 5 boards = 15 pcs; 600+ $0.0212 at 500 boards = 1500 pcs)",
+   "card_delta": 0.0636,
+   "jlc_unit_500_s44": 0.0,
+   "jlc_unit_500_s45": 0.0212,
+   "jlc_delta": 0.0636
+  },
+  {
+   "mpn": "RT0603BRD0710KL",
+   "qty_s44": 28,
+   "qty_s45": 19,
+   "card_unit_500": 0.008,
+   "card_basis": "ESTIMATE (class default, not fetched)",
+   "card_delta": -0.072,
+   "jlc_unit_500_s44": 0.0232,
+   "jlc_unit_500_s45": 0.0239,
+   "jlc_delta": -0.1955
+  },
+  {
+   "mpn": "RT0603BRD0711KL",
+   "qty_s44": 2,
+   "qty_s45": 8,
+   "card_unit_500": 0.008,
+   "card_basis": "ESTIMATE (class default, not fetched)",
+   "card_delta": 0.048,
+   "jlc_unit_500_s44": 0.038,
+   "jlc_unit_500_s45": 0.038,
+   "jlc_delta": 0.228
+  },
+  {
+   "mpn": "RT0603BRD07120KL",
+   "qty_s44": 3,
+   "qty_s45": 0,
+   "card_unit_500": 0.008,
+   "card_basis": "ESTIMATE (class default, not fetched)",
+   "card_delta": -0.024,
+   "jlc_unit_500_s44": 0.0301,
+   "jlc_unit_500_s45": 0.0,
+   "jlc_delta": -0.0903
+  },
+  {
+   "mpn": "RT0603BRD072K94L",
+   "qty_s44": 0,
+   "qty_s45": 3,
+   "card_unit_500": 0.0441,
+   "card_basis": "JLC part API 2026-10-15 ladder (1+ $0.0591 at 5 boards = 15 pcs; 1000+ $0.0441 at 500 boards = 1500 pcs)",
+   "card_delta": 0.1323,
+   "jlc_unit_500_s44": 0.0,
+   "jlc_unit_500_s45": 0.0441,
+   "jlc_delta": 0.1323
+  },
+  {
+   "mpn": "RT0603BRD07750RL",
+   "qty_s44": 0,
+   "qty_s45": 3,
+   "card_unit_500": 0.0271,
+   "card_basis": "JLC part API 2026-10-15 ladder (1+ $0.0348 at 5 boards = 15 pcs; 600+ $0.0271 at 500 boards = 1500 pcs)",
+   "card_delta": 0.0813,
+   "jlc_unit_500_s44": 0.0,
+   "jlc_unit_500_s45": 0.0271,
+   "jlc_delta": 0.0813
+  },
+  {
+   "mpn": "RT0603BRD077K68L",
+   "qty_s44": 3,
+   "qty_s45": 0,
+   "card_unit_500": 0.008,
+   "card_basis": "ESTIMATE (class default, not fetched)",
+   "card_delta": -0.024,
+   "jlc_unit_500_s44": 0.0273,
+   "jlc_unit_500_s45": 0.0,
+   "jlc_delta": -0.0819
+  },
+  {
+   "mpn": "RT0603BRD0790K9L",
+   "qty_s44": 0,
+   "qty_s45": 3,
+   "card_unit_500": 0.0331,
+   "card_basis": "JLC part API 2026-10-15 ladder (1+ $0.0431 at 5 boards = 15 pcs; 600+ $0.0331 at 500 boards = 1500 pcs)",
+   "card_delta": 0.0993,
+   "jlc_unit_500_s44": 0.0,
+   "jlc_unit_500_s45": 0.0331,
+   "jlc_delta": 0.0993
+  },
+  {
+   "mpn": "TL431AIDBZR",
+   "qty_s44": 3,
+   "qty_s45": 0,
+   "card_unit_500": 0.4,
+   "card_basis": "ESTIMATE (class default, not fetched)",
+   "card_delta": -1.2,
+   "jlc_unit_500_s44": 0.0486,
+   "jlc_unit_500_s45": 0.0,
+   "jlc_delta": -0.1458
+  },
+  {
+   "mpn": "TL431BIDBZR",
+   "qty_s44": 0,
+   "qty_s45": 3,
+   "card_unit_500": 0.0467,
+   "card_basis": "JLC part API 2026-10-15 ladder (1+ $0.0778 at 5 boards = 15 pcs; 500+ $0.0467 at 500 boards = 1500 pcs)",
+   "card_delta": 0.1401,
+   "jlc_unit_500_s44": 0.0,
+   "jlc_unit_500_s45": 0.0467,
+   "jlc_delta": 0.1401
+  }
+ ],
+ "card_delta_usd_per_board": -0.7794,
+ "jlc_delta_usd_per_board": 0.1807
+}
