@@ -70,7 +70,7 @@ return-wire faults and complete shutdown timing remain unqualified; see
 
 | Pin | Net | Direction / meaning |
 | ---: | --- | --- |
-| 1 | V15_SELV | Out: IRM-20-15 output for the controller, fan and sensor boards |
+| 1 | BIAS_GOOD_J4 | Out: BIAS_GOOD (U40) through R146 220 k, high while the bias monitors are good and the heartbeat runs (stage 48, OPEN-ITEMS B13 H2). The controller must read it high-Z (≥ 1 MΩ pull-down). Was V15_SELV (PS1) until stage 38; the controller is powered through its J13 |
 | 2, 4, 15, 16 | SELV_GND | Return |
 | 3 | V3V3 | In: controller 3.135–3.465 V rail matching the interlock contract; powers the SELV sides of U1, U2, U4, U9 |
 | 5 / 6 | PWM_HA / PWM_LA | In: leg A high / low gate commands |

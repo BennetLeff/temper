@@ -56,3 +56,42 @@ driver UVLO still holds; please restate the line with the new part.
 10. **PS3 = MPM-65-15ST (item 6) is part of the leakage pass.** The stage-38 touch current (0.2412 mA against the
     0.25 mA budget, margin 8.8 uA) counts PS3 at the MPM-65 maximum (100 uA at 264 VAC). With an IRM-60-15ST in PS3 the
     system fails the budget (0.324 mA: 0.2412 - 0.0600 + 0.1430). Please confirm the PS3 MPN when it is chosen.
+
+## Addendum 3, 2026-10-16: stage 48 puts BIAS_GOOD on J4.1 (power-stage DECISIONS 67, OPEN-ITEMS B13 H2)
+
+11. **J4 pin 1 is now an output of the power board:** BIAS_GOOD (U40, SN74LVC1G17 on V3V3) through R146 220 k at the
+    connector. It reads high only while the LS / HS-A / HS-B bias monitors are good and the heartbeat runs. Items 1–2
+    (J13 merge, no 15 V on J4.1) are therefore still required, and are now also the precondition for item 12. On every
+    controller branch checked on 2026-10-16 (`controller-layout`, `controller-l4`, `controller-release`,
+    `fab/controller`, `controller-c1-crs` at C47), J4.1 is still `v15_selv`, the input of the 3.3 V buck. A stage-38+
+    board does not power that controller at all (benign). With an s48 board and a bench 15 V on J4.1, R146 limits the
+    current into U40's output to ≤ 68 µA.
+12. **Asked: route J4.1 to GPIO35 as a high-Z input.** All 36 WROOM-1-N8 GPIOs are allocated, so free GPIO35 by
+    moving RAIL_OK_RB (U9 Y1_4, push-pull) to the spare TCA9555 **P02**. C27 did the same for SUP_RUN_OK (P14) to free
+    GPIO14 for RUN_EN.
+    - **Why GPIO35:**
+      - input-capable, and not a strap (0, 3, 45, 46);
+      - no ADC function, so no ADC2 / Wi-Fi conflict;
+      - not used by flash or PSRAM on the N8 module (only octal-PSRAM R8 parts take 35–37);
+      - beside PERMIT_RB (GPIO36), the other J4 read-back.
+    - **Cost of the move:** RAIL_OK is latched in hardware (RAIL_FAULT). The binding already reads SUP_RUN_OK from
+      the expander snapshot with a freshness check, so moving RAIL_OK there costs no protection.
+    - **Why not an expander bit for BIAS_GOOD:** the TCA9555's 100 k pull-up against R146 220 k holds a BIAS_GOOD low
+      near 2.2 V, so a low would read high.
+    - **Parts at the controller:**
+      - net `bias_good_rb`: J4.1 → 10 k series → GPIO35;
+      - 1 MΩ 1 % to selv_gnd and 1 nF C0G to selv_gnd at the pin;
+      - the same ESD treatment as the other J4 inputs.
+    - **Figures (1 % parts):**
+      - high reads ≥ 0.81 × V3V3, against the ESP32-S3's VIH of 0.75 × VDD;
+      - an open U40 output reads ≤ 50 mV (50 nA × 1 MΩ);
+      - τ ≈ 190 µs, which filters harness transients and still reaches VIH within 0.5 ms;
+      - the 10 k lets U37 hold PERMIT if a GPIO misconfigured as an output meets a J4.1–J4.9 harness short, so a
+        GPIO still cannot drive PERMIT;
+      - no internal pull: 45 k would hold the input at ≤ 0.6 V.
+    - **Firmware side** (branch `claude/fw-bias-good-check`): done. The check runs as soon as `controller_pins.h` defines
+      `CTRL_GPIO_BIAS_GOOD_RB`, which the pin-map cross-check allows only once the ato carries the net. Until then it
+      reads "not fitted" and claims nothing.
+    - **Bring-up:** firmware `components/power/COMMISSIONING.md` step 2 item 6.
+    - **Reverses if:** the controller cannot spare a pin. R146 then stays as a harmless load, and B13 H2 is lost
+      (DECISIONS 67).

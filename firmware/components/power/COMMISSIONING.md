@@ -51,6 +51,7 @@ The three conditions for `commissioned=true`:
 ## Step 1: controller alone (no native-21)
 
 Setup: a bench 15 V, current-limited to 1 A, into J4.1/J4.2. J4 goes to a breakout with 10 kΩ loads on the PWM lines.
+**Controller revision.** This is the controller as captured today, where J4.1 is its 15 V input (`v15_selv`). A stage-38+ power board leaves J4.1 unpowered, and on s48 it is the BIAS_GOOD read-back, so such a board needs the controller's J13 merge (`c23-supply-topology/CONTROLLER-REQUEST.md`, items 1–2 and addendum 3). On that controller the bench 15 V goes into J13 and **J4.1 must never see 15 V**: it is GPIO35's input (10 k series, 1 MΩ to ground).
 
 1. **Rails:**
    - v3v3 is 3.242–3.367 V.
@@ -83,7 +84,7 @@ Setup: a bench 15 V, current-limited to 1 A, into J4.1/J4.2. J4 goes to a breako
 Setup:
 - Native-21 SELV and HOT logic and gate supplies powered: V15_LS and the F6 bias come from isolated bench supplies; the DC bus is at 0 V and shorted through 10 kΩ.
 - **FET gates disconnected:** gate resistors not fitted, or the driver outputs lifted, and each driver output loaded with 10 nF to its source return.
-- The controller is powered from J4.1 as in step 1, with the real J4 harness.
+- The controller is powered as in step 1 (through J13 on a controller with the J13 merge; see the step 1 note), with the real J4 harness.
 - Mode BENCH, `TEMPER_POWER_F_MAX_HZ=50000` (a test value, as in round 5; bench sessions run at F_MAX, the loop runs only in COMMISSIONED).
 
 1. **Interlock:**
@@ -110,6 +111,20 @@ Setup:
 5. **Reset and brown-out:**
    - Reset the MCU mid-session: pads low within the reset assertion, drivers low (D-25).
    - Brown out v3v3 slowly: RAIL_OK trips before the TPS3823 and the UCC21550 VCCI UVLO (FMEA order). Record the order.
+
+6. **BIAS_GOOD read-back (power board s48, OPEN-ITEMS B13 H2; firmware/README.md "BIAS_GOOD read-back").**
+   Applies when `controller_pins.h` defines `CTRL_GPIO_BIAS_GOOD_RB` (J4.1 on GPIO35). Otherwise the boot log reads `BIAS_GOOD boot sample: not fitted`: record N/A, and B13 H2 stays open. Scope J4.1 at the controller (GPIO35 side of the 10 k), BIAS_GOOD at TP19 on the power board, RUN_EN (GPIO14) and one driver's DIS.
+   - **Levels.** Bias supplies off: GPIO35 ≤ 0.25 × v3v3. Bias on (heartbeat running): GPIO35 ≥ 0.81 × v3v3. Record both. Open J4.1 at the breakout with the bias on: GPIO35 reads low (the 1 MΩ pull-down: the stand-in for an open U40 output).
+   - **Check 1, low before the heartbeat.** Bias off, power-cycle the controller: the log shows `low … power-on reset` and the state machine reaches IDLE. Bias on, power-cycle the controller again: the sample is high on a power-on reset, which is what a stuck-high U40 looks like, so expect `BIAS GOOD POST` (FAULT). BACK must not clear it. A software or watchdog reset with the bias on is a warm reset: the log shows `high … warm reset` and the controller reaches IDLE.
+   - **Check 2, high before PERMIT.** Bias off, press START: "NO POWER BIAS", back to IDLE, no fault. RUN_EN must not rise and the pads stay low. Bias on: the same START enters PAN_DET.
+   - **Check 3, high throughout.** Bias on, binding INHIBITED (no power reaches the bridge), START into PAN_DET. Remove V15_LS. Record:
+     - BIAS_GOOD fall to DIS high (the hold-node bleed, ≤ 90 µs expected; 123 µs with one pump cap shorted);
+     - J4.1 below VIL to `BIAS GOOD LOST` (FAULT) and RUN_EN low (20–30 ms expected: `BIAS_GOOD_DROP_DEBOUNCE_MS` = 20 at the 10 ms control loop).
+     The fault must survive BACK and clear only at a power cycle.
+   - **Glitch filter.** Bias on, in PAN_DET, pull J4.1 low through 1 kΩ at the breakout with single pulses: 5 ms pulses never latch (20 tries); 40 ms pulses always latch.
+   - **Sequencing (do at step 5, on mains).** Check 1 holds only if the boot sample comes before the heartbeat starts after mains-on (the FMEA's "sequencing to confirm at bring-up": chain coverage 37 % with it, 14 % without). With PS2 and PS3 on mains through the inlet, switch on at the inlet 10 times cold and 10 times hot. Scope v3v3 and J4.1, and log the boot-sample timestamp. Record the margin from the sample to the BIAS_GOOD rise each time.
+     - Pass: the sample comes first on every power-on.
+     - Otherwise every power-on ends in `BIAS GOOD POST`. Do not relax the check on the bench. Record the margins in power-stage OPEN-ITEMS B13 and take the choice to DECISIONS: either delay the HOT-side bias start, or accept 14 % coverage with a reviewed firmware change that treats every boot as warm.
 
 ## Step 3: over-current and over-voltage trip calibration
 

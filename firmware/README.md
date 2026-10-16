@@ -42,7 +42,8 @@ The firmware targets the integrated SELV controller. Its single pin map is
 `tools/check_controller_pinmap.py` checks both against the controller ato
 (snapshot in `test/fixtures/controller-layout/`, or `--git-ref controller-layout`),
 and `test/test_controller_pins.c` pins the rules below. Every module GPIO is
-used; there is no spare pin.
+used; there is no spare pin (see "BIAS_GOOD read-back" for the one proposed
+re-allocation, GPIO35).
 
 - **RUN_EN = GPIO14** (DECISIONS C23). PERMIT = interlock latch AND RUN_EN
   (U37). 4.7 k pull-down, no internal pull-up; preset low before the pad
@@ -102,6 +103,60 @@ used; there is no spare pin.
     that alone.
   - The PS3 inlet allowance never drops on BLW_PG 0: PS3's AC side may still
     draw with a failed output (`blower_aux.h`).
+
+## BIAS_GOOD read-back (power board s48, J4.1; power-stage OPEN-ITEMS B13 H2)
+
+Stage 48 (power-stage DECISIONS 67) routes the power board's BIAS_GOOD (U40, the
+heartbeat hold node: high only while the LS / HS-A / HS-B bias monitors are all
+good and the heartbeat runs) to J4 pin 1 through R146 220 k. The power board
+already holds both drivers' DIS high while it is low. The firmware adds the
+three checks the FMEA counts (`fmea-s47-2026-10-15` §4 H2: chain coverage 14 %,
+37 % with the boot-sample check):
+
+| Check | When | Pass | Fail |
+|---|---|---|---|
+| 1. POST | INIT, on the sample `app_main` takes before anything else | low; or high after a warm reset (watchdog, panic, brown-out, software), when the heartbeat may already run | high after a **power-on** reset (U40 stuck high / Y–VCC) or unreadable → `FAULT_BIAS_GOOD_POST` (`EVENT_BIAS_GOOD_POST_FAIL`), cleared only by a power cycle |
+| 2. Start | PAN_DET entry, the one entry of every start path, before any power (and so before PERMIT) is requested | high | low or unreadable → no power, "NO POWER BIAS", back to IDLE (`EVENT_BIAS_GOOD_LOW_AT_START`); not a fault |
+| 3. Run | every control tick in PAN_DET, PREHEAT and HEATING | high | low or unreadable for ≥ `BIAS_GOOD_DROP_DEBOUNCE_MS` (20 ms, three 10 ms samples) → `FAULT_BIAS_GOOD_LOST` (`EVENT_BIAS_GOOD_LOST`) through `enter_hardware_latched_fault()` (RUN_EN kill + shutdown), cleared only by a power cycle |
+
+- The decisions and the debounce are `platform_bias_*` in
+  `components/platform/platform_logic.c` (host tests in
+  `test/test_platform_logic.c`); the state machine reads the verdicts
+  `power_bias_post_ok()` / `power_bias_start_permitted()` / `power_bias_lost()`
+  (`main/platform/platform_esp32.c`, host doubles in
+  `test/state_machine_stubs.c`). The debounce has no safety-time role: the
+  power board cuts the drivers within the hold-node bleed (≤ 90 µs, 123 µs with
+  one pump cap shorted). Its basis is in `config.yaml`.
+- Bus fault keeps priority: a bias collapse that also raises BUS_FAULT (HOT5
+  UV, an open TCO loop) latches `FAULT_IGBT_SHORT`.
+- **Not fitted yet.** No controller branch routes J4.1 to the MCU: on every one
+  (up to `controller-c1-crs`, C47) J4.1 is still the controller's **15 V input**
+  `v15_selv`, and all 36 module GPIOs are used. Until `controller_pins.h`
+  defines `CTRL_GPIO_BIAS_GOOD_RB`, `platform_esp32.c` reads NOT_FITTED and all
+  three checks pass (nothing is claimed). The controller change is an owner
+  item: `zapote/power-stage-120v/validation-results/11-candidates/c23-supply-topology/CONTROLLER-REQUEST.md`
+  addendum 3.
+- **Proposed pin: GPIO35**, freed by moving RAIL_OK_RB (U9 Y1_4, push-pull) to
+  the spare TCA9555 **P02**, as C27 moved SUP_RUN_OK to P14. GPIO35 is
+  input-capable, not a strap (0, 3, 45, 46), has no ADC (so no ADC2 / Wi-Fi
+  conflict) and is free of flash / PSRAM on the WROOM-1-N8 (only the octal-PSRAM
+  R8 parts take 35–37); 35–37 are already plain inputs on this board. RAIL_OK
+  is hardware-latched (RAIL_FAULT), and the binding already reads SUP_RUN_OK
+  from the expander cache with a freshness check, so the move costs no
+  protection. A direct GPIO meets the high-Z requirement; a TCA9555 bit would
+  not (its 100 k pull-up against R146 220 k holds a BIAS_GOOD low near 2.2 V, far above its VIL).
+  Board parts: J4.1 → 10 k series → GPIO35, 1 MΩ 1 % to selv_gnd and 1 nF C0G at
+  the pin. High reads ≥ 0.81 × V3V3 at 1 % corners (VIH 0.75 × VDD); U40 open reads
+  ≤ 50 mV (50 nA leakage × 1 MΩ); τ ≈ 190 µs filters harness transients; the 10 k
+  lets U37 win if a GPIO misconfigured as an output meets a J4.1–J4.9 short.
+  Never an internal pull (45 k would hold 220 k at ≤ 0.6 V).
+- **When the controller lands it:** `CTRL_GPIO_BIAS_GOOD_RB 35` and
+  `CTRL_EXP_RAIL_OK_RB 2` in `controller_pins.h`, the GPIO35 row in
+  `controller_board.c` (input, no internal pull, external pull DOWN), RAIL_OK
+  from the expander cache in `n21_hw_esp32.c` `hw_read_status()`, the fixture
+  refresh, then COMMISSIONING.md H2. The `#ifdef CTRL_GPIO_BIAS_GOOD_RB` block in
+  `platform_esp32.c` has only been compile-checked outside the build (with the
+  define forced), never linked into an image.
 
 ## Thermal trip ladder (L3, DECISIONS C32)
 
@@ -243,6 +298,9 @@ The firmware implements multiple layers of safety:
 6. **RTD Probe Monitoring**: Open circuit (>10kΩ) and short circuit (<10Ω) detection
 7. **Thermal Runaway Detection**: Pan temp exceeding target by >10°C
 8. **Pan Detection**: Impedance-based detection with confidence threshold
+9. **Power-board bias read-back (B13 H2)**: BIAS_GOOD on J4.1 low at the power-on
+   boot sample, high before a start, high throughout power; see "BIAS_GOOD read-back"
+   (inert until the controller routes J4.1 to GPIO35)
 
 ## Configuration
 
