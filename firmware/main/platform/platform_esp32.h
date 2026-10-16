@@ -17,13 +17,6 @@
  * thermal_blower_tick() (thermal_io.c) and applied on top of the fan law (never below it). */
 bool platform_fan_full_speed_requested(void);
 
-/* BIAS_GOOD read-back on J4.1 (power board s48, OPEN-ITEMS B13 H2). Takes the boot sample the
- * power-on self-test judges (power_bias_post_ok()): call it first thing in app_main, before
- * anything slow. After a power-on reset it must precede the HOT-side heartbeat's start, which
- * bring-up confirms (COMMISSIONING.md H2). Idempotent (only the first call samples). No J4.1 input
- * on this controller: records NOT_FITTED. */
-void platform_bias_good_capture_boot_sample(void);
-
 /* UI board (ui_esp32.c). platform_ui_init(): SPI3 devices, MCP23S08 configuration and presence
  * check, SSD1322 init, UI I/O task; idempotent. platform_ui_present(): the MCP23S08 answered its
  * last configuration read-back. */

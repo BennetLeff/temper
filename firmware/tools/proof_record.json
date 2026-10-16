@@ -3,7 +3,7 @@
   "manifest_source": "firmware/transition_table.yaml",
   "invariants_source": "firmware/tools/invariants.yaml",
   "model_state_count": 9,
-  "model_edge_count": 55,
+  "model_edge_count": 63,
   "invariant_count": 5,
   "all_passed": true,
   "invariants": [
@@ -21,7 +21,7 @@
       "kind": "edge",
       "description": "Sensor faults block heating: every sensor-fault event (the manifest-derived set shared with U2's P2 check, via transition_model.derived_sensor_fault_events -- never hardcoded independently, so the two consumers cannot drift) originating in a power-active state (STATE_PREHEAT, STATE_HEATING) targets a faulted state, never a power-active or benign state.\n",
       "passed": true,
-      "evidence_count": 14,
+      "evidence_count": 16,
       "base_case_holds": null,
       "violations": []
     },

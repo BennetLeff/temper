@@ -135,33 +135,212 @@ static void test_power_tank_trip(void)
 }
 
 /* ---------------------------------------------------------------- BIAS_GOOD read-back (B13 H2) */
-static void test_bias_post_low_before_heartbeat_passes(void)
+/* Option P (power-stage c50-permit-gate): BIAS_GOOD = bias_ok AND PERMIT. The control loop
+ * samples PERMIT_RB and J4.1 every 10 ms. */
+#define FALL_US (BIAS_GOOD_PERMIT_FALL_MS * 1000u)
+#define RISE_US (BIAS_GOOD_PERMIT_RISE_MS * 1000u)
+#define TRIP BIAS_GOOD_IDLE_TRIP_SAMPLES
+#define WIN BIAS_GOOD_IDLE_WINDOW_SAMPLES
+
+static void test_bias_config_values(void)
 {
-    /* Cold power-on: the heartbeat has not started, J4.1 reads low. */
-    assert(platform_bias_post_ok(PLATFORM_BIAS_LOW, true));
-    assert(platform_bias_post_ok(PLATFORM_BIAS_LOW, false));
+    /* The basis in config.yaml: 5.6 x the 0.36 ms fall, 3.8 x the 0.53 ms rise, 3 of 8. */
+    assert(BIAS_GOOD_PERMIT_FALL_MS == 2u && BIAS_GOOD_PERMIT_RISE_MS == 2u);
+    assert(TRIP == 3u && WIN == 8u && BIAS_GOOD_DROP_DEBOUNCE_MS == 20u);
+    assert(FALL_US >= 5u * 360u && RISE_US >= 3u * 530u);
 }
 
-static void test_bias_post_high_before_heartbeat_fails(void)
+static void test_permit_level_timing(void)
 {
-    /* Cold power-on and already high: U40 stuck high or Y shorted to VCC. */
-    assert(!platform_bias_post_ok(PLATFORM_BIAS_HIGH, true));
-    /* After a warm reset (watchdog, panic, brown-out, software) the heartbeat may already run:
-     * high passes, and stuck-high is simply not excluded on this boot. */
-    assert(platform_bias_post_ok(PLATFORM_BIAS_HIGH, false));
-    /* Unreadable: fail closed, either way. */
-    assert(!platform_bias_post_ok(PLATFORM_BIAS_UNKNOWN, true));
-    assert(!platform_bias_post_ok(PLATFORM_BIAS_UNKNOWN, false));
-    /* No J4.1 input on this controller: nothing to check. */
-    assert(platform_bias_post_ok(PLATFORM_BIAS_NOT_FITTED, true));
+    platform_permit_t p;
+    memset(&p, 0, sizeof p);
+    /* First sample: nothing known before it. */
+    assert(platform_permit_step(&p, false, 1000000, 0) == 0);
+    assert(platform_permit_step(&p, false, 1010000, 0) == 10000);
+    /* A change with no RUN_EN edge (a latch trip) is dated at the sample that sees it. */
+    assert(platform_permit_step(&p, true, 1020000, 0) == 0);
+    assert(platform_permit_step(&p, true, 1030000, 0) == 10000);
+    /* A change at a RUN_EN edge between the samples is dated at the edge. */
+    assert(platform_permit_step(&p, false, 1040000, 1033000) == 7000);
+    /* Same level at both samples with an edge between: a pulse, dated at its end. */
+    assert(platform_permit_step(&p, false, 1050000, 1048500) == 1500);
+    assert(platform_permit_step(&p, false, 1060000, 1048500) == 11500); /* old edge: no effect */
+    /* An edge at or before the previous sample, or in the future, does not count. */
+    assert(platform_permit_step(&p, false, 1070000, 1060000) == 21500);
+    assert(platform_permit_step(&p, false, 1080000, 1090000) == 31500);
+    /* Rise at an edge. */
+    assert(platform_permit_step(&p, true, 1090000, 1085000) == 5000);
 }
 
-static void test_bias_low_before_permit_refuses(void)
+/* Drive check 1 over n ticks of 10 ms with PERMIT low throughout (low since t0 - 10 ms). */
+static int idle_trip_tick(platform_bias_idle_t *s, platform_permit_t *p, uint64_t t0, int n,
+                          platform_bias_level_t (*level)(int k))
 {
-    assert(platform_bias_start_permitted(PLATFORM_BIAS_HIGH));
-    assert(!platform_bias_start_permitted(PLATFORM_BIAS_LOW));
-    assert(!platform_bias_start_permitted(PLATFORM_BIAS_UNKNOWN));
-    assert(platform_bias_start_permitted(PLATFORM_BIAS_NOT_FITTED));
+    for (int k = 0; k < n; k++) {
+        uint64_t now = t0 + (uint64_t)k * 10000u;
+        uint64_t at = platform_permit_step(p, false, now, 0);
+        if (platform_bias_idle_step(s, level(k), false, at, FALL_US, TRIP, WIN)) return k;
+    }
+    return -1;
+}
+static platform_bias_level_t lvl_low(int k) { (void)k; return PLATFORM_BIAS_LOW; }
+static platform_bias_level_t lvl_high(int k) { (void)k; return PLATFORM_BIAS_HIGH; }
+static platform_bias_level_t lvl_unknown(int k) { (void)k; return PLATFORM_BIAS_UNKNOWN; }
+static platform_bias_level_t lvl_not_fitted(int k) { (void)k; return PLATFORM_BIAS_NOT_FITTED; }
+static platform_bias_level_t lvl_every_4th(int k) { return k % 4 == 1 ? PLATFORM_BIAS_HIGH : PLATFORM_BIAS_LOW; }
+static platform_bias_level_t lvl_pair(int k) { return k == 3 || k == 4 ? PLATFORM_BIAS_HIGH : PLATFORM_BIAS_LOW; }
+
+static void test_bias_low_with_permit_low_passes(void)
+{
+    /* Healthy board: BIAS_GOOD low whenever PERMIT is low. Never trips. */
+    platform_bias_idle_t s;
+    platform_permit_t p;
+    platform_bias_idle_reset(&s);
+    memset(&p, 0, sizeof p);
+    assert(idle_trip_tick(&s, &p, 1000000, 10000, lvl_low) < 0);
+    /* No J4.1 input: nothing judged, nothing claimed. */
+    platform_bias_idle_reset(&s);
+    memset(&p, 0, sizeof p);
+    assert(idle_trip_tick(&s, &p, 1000000, 1000, lvl_not_fitted) < 0);
+    /* Not judged within FALL_US of a PERMIT fall: high 1.9 ms after the edge (the J4.1 RC still
+     * discharging, <= 0.36 ms on a healthy board) is not a failure. */
+    platform_bias_idle_reset(&s);
+    memset(&p, 0, sizeof p);
+    (void)platform_permit_step(&p, true, 1000000, 0);
+    for (int k = 0; k < 10; k++) {
+        uint64_t edge = 1000000 + (uint64_t)k * 10000u + 8100u;   /* gate drops 1.9 ms before */
+        (void)platform_permit_step(&p, true, edge - 100u, 0);      /* PERMIT high again ... */
+        uint64_t at = platform_permit_step(&p, false, edge + 1900u, edge);
+        assert(at == 1900u);
+        assert(!platform_bias_idle_step(&s, PLATFORM_BIAS_HIGH, false, at, FALL_US, TRIP, WIN));
+    }
+    /* Not judged while PERMIT is high, whatever BIAS_GOOD reads. */
+    for (int k = 0; k < 100; k++)
+        assert(!platform_bias_idle_step(&s, PLATFORM_BIAS_HIGH, true, 1000000, FALL_US, TRIP, WIN));
+}
+
+static void test_bias_high_with_permit_low_trips(void)
+{
+    /* Static fault (U40 stuck high, Y-VCC): tick 0 dates the low level (not judged), ticks 1-3
+     * are judged, tripped on the third: 20 ms after the first judged sample. */
+    platform_bias_idle_t s;
+    platform_permit_t p;
+    platform_bias_idle_reset(&s);
+    memset(&p, 0, sizeof p);
+    assert(idle_trip_tick(&s, &p, 1000000, 100, lvl_high) == 3);
+    /* Latched: low readings, PERMIT high, anything afterwards keep it tripped. */
+    assert(platform_bias_idle_step(&s, PLATFORM_BIAS_LOW, false, 50000, FALL_US, TRIP, WIN));
+    assert(platform_bias_idle_step(&s, PLATFORM_BIAS_HIGH, true, 50000, FALL_US, TRIP, WIN));
+    assert(platform_bias_idle_step(&s, PLATFORM_BIAS_NOT_FITTED, false, 50000, FALL_US, TRIP, WIN));
+    /* Unreadable fails the same way (fail closed). */
+    platform_bias_idle_reset(&s);
+    memset(&p, 0, sizeof p);
+    assert(idle_trip_tick(&s, &p, 1000000, 100, lvl_unknown) == 3);
+    /* PERMIT low at boot: RUN_EN is low through every reset, so the first samples after power-on
+     * are already valid (no boot-sample race, no reset-reason exemption). */
+}
+
+static void test_bias_idle_glitch_filter(void)
+{
+    platform_bias_idle_t s;
+    platform_permit_t p;
+    /* Two high samples, even back to back, never trip. */
+    platform_bias_idle_reset(&s);
+    memset(&p, 0, sizeof p);
+    assert(idle_trip_tick(&s, &p, 1000000, 1000, lvl_pair) < 0);
+    /* Two in every eight (one in four) never trip. */
+    platform_bias_idle_reset(&s);
+    memset(&p, 0, sizeof p);
+    assert(idle_trip_tick(&s, &p, 1000000, 10000, lvl_every_4th) < 0);
+    /* A PERMIT-high period clears the window: two fails, a start, two fails: no trip. */
+    platform_bias_idle_reset(&s);
+    assert(!platform_bias_idle_step(&s, PLATFORM_BIAS_HIGH, false, 5000, FALL_US, TRIP, WIN));
+    assert(!platform_bias_idle_step(&s, PLATFORM_BIAS_HIGH, false, 15000, FALL_US, TRIP, WIN));
+    assert(!platform_bias_idle_step(&s, PLATFORM_BIAS_HIGH, true, 5000, FALL_US, TRIP, WIN));
+    assert(!platform_bias_idle_step(&s, PLATFORM_BIAS_HIGH, false, 5000, FALL_US, TRIP, WIN));
+    assert(!platform_bias_idle_step(&s, PLATFORM_BIAS_HIGH, false, 15000, FALL_US, TRIP, WIN));
+    assert(platform_bias_idle_step(&s, PLATFORM_BIAS_HIGH, false, 25000, FALL_US, TRIP, WIN));
+}
+
+static void test_bias_idle_line_frequency_intermittent(void)
+{
+    /* hsb_good shorted to the line_zc_raw via (c50 section 3): U46.A toggles at the line frequency
+     * while PERMIT is low, so J4.1 reads high for a share of each line period. 100 Hz sampling
+     * never shows three consecutive highs of a 60 Hz 50 % wave; three of eight it always finds,
+     * within the first eight samples, at every phase, for 59.5-60.5 Hz and duties of 42-60 % (at
+     * 50 Hz, which aliases to two sample phases, for a 50 % duty). */
+    const double freqs[] = {59.5, 60.0, 60.5, 50.0};
+    const double duties[] = {0.42, 0.50, 0.60};
+    for (unsigned fi = 0; fi < 4; fi++)
+        for (unsigned di = 0; di < 3; di++)
+            for (int ph = 0; ph < 200; ph++) {
+                if (freqs[fi] == 50.0 && duties[di] != 0.50) continue; /* exact doubles */
+                platform_bias_idle_t s;
+                platform_bias_idle_reset(&s);
+                int tripped_at = -1, run = 0, max_run = 0;
+                for (int k = 0; k < 40 && tripped_at < 0; k++) {
+                    double cyc = ph / 200.0 + freqs[fi] * 0.010 * k;
+                    bool high = cyc - floor(cyc) < duties[di];
+                    run = high ? run + 1 : 0;
+                    if (run > max_run) max_run = run;
+                    if (platform_bias_idle_step(&s, high ? PLATFORM_BIAS_HIGH : PLATFORM_BIAS_LOW,
+                                                false, 10000u + 10000u * (unsigned)k, FALL_US, TRIP, WIN))
+                        tripped_at = k;
+                }
+                assert(tripped_at >= 0 && tripped_at < (int)WIN);
+                if (fi == 1 && di == 1) assert(max_run < 3); /* consecutive-3 would miss it */
+            }
+}
+
+static void test_bias_idle_refused_start_pulse(void)
+{
+    /* A refused start raises RUN_EN for 2 ms inside one control tick. PERMIT_RB reads low at both
+     * neighbouring samples; the pulse is dated from the binding's edge, so the next sample is
+     * judged only if it lies FALL_US after the pulse ended. */
+    platform_permit_t p;
+    platform_bias_idle_t s;
+    memset(&p, 0, sizeof p);
+    platform_bias_idle_reset(&s);
+    (void)platform_permit_step(&p, false, 1000000, 0);
+    uint64_t at = platform_permit_step(&p, false, 1010000, 0);
+    assert(at == 10000);
+    /* Pulse 1 002 000..1 004 000 (well before the next sample at 1 020 000): judged. */
+    at = platform_permit_step(&p, false, 1020000, 1014000);
+    assert(at == 6000 && at >= FALL_US);
+    /* A tick that overran: the next sample 0.5 ms after the pulse end is not judged. */
+    at = platform_permit_step(&p, false, 1030500, 1030000);
+    assert(at == 500 && at < FALL_US);
+    assert(!platform_bias_idle_step(&s, PLATFORM_BIAS_HIGH, false, at, FALL_US, TRIP, WIN));
+}
+
+static void test_bias_lost_keyed_to_permit(void)
+{
+    const uint32_t d = BIAS_GOOD_DROP_DEBOUNCE_MS;
+    platform_bias_run_t r;
+    platform_bias_run_reset(&r);
+    /* PERMIT low: BIAS_GOOD is low by construction (option P); never judged. */
+    for (uint32_t t = 0; t <= 1000; t += 10)
+        assert(!platform_bias_lost_step(&r, PLATFORM_BIAS_LOW, false, 1000000, RISE_US, t, d));
+    /* PERMIT high but < RISE_US since its rise (J4.1 still charging): not judged, run restarts. */
+    assert(!platform_bias_lost_step(&r, PLATFORM_BIAS_LOW, true, 1999, RISE_US, 1010, d));
+    /* PERMIT high >= RISE_US: a steady low trips on the third sample, 20 ms after the first. */
+    assert(!platform_bias_lost_step(&r, PLATFORM_BIAS_LOW, true, 2000, RISE_US, 1020, d));
+    assert(!platform_bias_lost_step(&r, PLATFORM_BIAS_LOW, true, 12000, RISE_US, 1030, d));
+    assert(platform_bias_lost_step(&r, PLATFORM_BIAS_LOW, true, 22000, RISE_US, 1040, d));
+    /* A PERMIT drop (a stop, or a latch trip) ends the run; a new rise starts a new one. */
+    platform_bias_run_reset(&r);
+    assert(!platform_bias_lost_step(&r, PLATFORM_BIAS_LOW, true, 5000, RISE_US, 0, d));
+    assert(!platform_bias_lost_step(&r, PLATFORM_BIAS_LOW, true, 15000, RISE_US, 10, d));
+    assert(!platform_bias_lost_step(&r, PLATFORM_BIAS_LOW, false, 0, RISE_US, 20, d));
+    assert(!platform_bias_lost_step(&r, PLATFORM_BIAS_LOW, true, 8000, RISE_US, 30, d));
+    assert(!platform_bias_lost_step(&r, PLATFORM_BIAS_LOW, true, 18000, RISE_US, 40, d));
+    assert(platform_bias_lost_step(&r, PLATFORM_BIAS_LOW, true, 28000, RISE_US, 50, d));
+    /* Healthy high and not fitted never trip. */
+    platform_bias_run_reset(&r);
+    for (uint32_t t = 0; t <= 1000; t += 10) {
+        assert(!platform_bias_lost_step(&r, PLATFORM_BIAS_HIGH, true, 100000, RISE_US, t, d));
+        assert(!platform_bias_lost_step(&r, PLATFORM_BIAS_NOT_FITTED, true, 100000, RISE_US, t, d));
+    }
 }
 
 static void test_bias_drop_during_run_trips(void)
@@ -212,7 +391,7 @@ static void test_bias_glitch_filter(void)
      * separate runs, so one isolated low per 25 ms never trips. */
     platform_bias_run_reset(&r);
     for (uint32_t t = 0; t <= 1000; t += 25) assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, t, d));
-    /* reset() forgets a run in progress (a new power request). */
+    /* reset() forgets a run in progress (a PERMIT rise). */
     platform_bias_run_reset(&r);
     assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 0, d));
     assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 10, d));
@@ -516,9 +695,14 @@ int main(void)
     TEST(test_pan_and_rtd_sentinels);
     TEST(test_power_bus_trip);
     TEST(test_power_tank_trip);
-    TEST(test_bias_post_low_before_heartbeat_passes);
-    TEST(test_bias_post_high_before_heartbeat_fails);
-    TEST(test_bias_low_before_permit_refuses);
+    TEST(test_bias_config_values);
+    TEST(test_permit_level_timing);
+    TEST(test_bias_low_with_permit_low_passes);
+    TEST(test_bias_high_with_permit_low_trips);
+    TEST(test_bias_idle_glitch_filter);
+    TEST(test_bias_idle_line_frequency_intermittent);
+    TEST(test_bias_idle_refused_start_pulse);
+    TEST(test_bias_lost_keyed_to_permit);
     TEST(test_bias_drop_during_run_trips);
     TEST(test_bias_glitch_filter);
     TEST(test_blower_floor_never_lowers_speed);

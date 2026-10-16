@@ -134,10 +134,10 @@ class TestGenTransitionTable:
     # Expected values derived from transition_table.yaml and state_machine.h:
     #   9 states (STATE_INIT..STATE_RUNAWAY_FAULT)
     #  26 events (EVENT_SELFTEST_PASS..EVENT_BIAS_GOOD_LOST)
-    #  37 declared transitions in the YAML
+    #  45 declared transitions in the YAML
     STATE_COUNT = 9
     EVENT_COUNT = 26
-    TRANSITION_COUNT = 37
+    TRANSITION_COUNT = 45
 
     def test_runs_without_error(self):
         """gen_transition_table.py exits 0 and produces output file."""
@@ -202,7 +202,7 @@ class TestGenTransitionTable:
             "EVENT_PAN_REPLACED_SAME", "EVENT_PAN_REPLACED_DIFFERENT",
             "EVENT_NO_PAN_TIMEOUT", "EVENT_COOLED_DOWN",
             "EVENT_COOLDOWN_OVERHEAT", "EVENT_FAULT_RESET_CLEARED",
-            "EVENT_FAULT_RESET_PERSISTS", "EVENT_BIAS_GOOD_POST_FAIL",
+            "EVENT_FAULT_RESET_PERSISTS", "EVENT_BIAS_GOOD_STUCK",
             "EVENT_BIAS_GOOD_LOW_AT_START", "EVENT_BIAS_GOOD_LOST",
         ]
         for event in events:

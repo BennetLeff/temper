@@ -24,6 +24,8 @@ n21_config_t n21_config_default(void)
         /* 0.05 A per half = 6 A/s: a 0.4 A blower-tick step lands over 8 halves, and the
          * frequency loop (one retreat per half) follows the bound up. 5 blower ticks of age. */
         .aux_slew_a = 0.05f, .aux_max_age_us = 500000u,
+        /* config.yaml BIAS_GOOD_PERMIT_RISE_MS (test_n21_binding.c pins the two together). */
+        .start_check_us = 2000u,
     };
     (void)n21_config_set_tank_ceiling(&c, TANK_CEILING_DEFAULT_A);
     return c;
@@ -52,15 +54,27 @@ static void latch(n21_binding_t *b, n21_fault_t f)
     if (b->fault == N21_FAULT_NONE) b->fault = f;
 }
 
+/* RUN_EN. Every change is timestamped (telemetry gate_edge_us): the platform's BIAS_GOOD checks
+ * date PERMIT_RB's level from it. */
+static bool gate_set(n21_binding_t *b, bool on)
+{
+    bool ok = b->ops.run_gate(b->ops.ctx, on);
+    bool level = ok && on; /* a failed "on" is treated as off; a failed "off" too (the caller latches) */
+    if (level != b->gate_on) b->gate_edge_us = now_us(b);
+    b->gate_on = level;
+    return ok;
+}
+
 /* Gate first, then pads (adapter contract: deassert request BEFORE forcing PWM low). Both are
  * attempted whatever the first returns. */
 static void pads_off(n21_binding_t *b)
 {
     bool ok = true;
-    if (b->ops.run_gate && !b->ops.run_gate(b->ops.ctx, false)) ok = false;
+    if (b->ops.run_gate && !gate_set(b, false)) ok = false;
     b->gate_on = false;
     if (!b->ops.pwm_outputs(b->ops.ctx, false)) ok = false;
     b->pads_live = false;
+    b->bias_refused = false;
     if (!ok) latch(b, N21_FAULT_HW);
 }
 
@@ -98,7 +112,8 @@ static bool config_ok(const n21_config_t *c)
            c->capture_age_us && c->capture_age_us <= 1000u &&
            c->bench_max_ms && c->bench_max_ms <= 600000u &&
            isfinite(c->aux_slew_a) && c->aux_slew_a > 0 && c->aux_slew_a <= 0.2f &&
-           c->aux_max_age_us >= 100000u && c->aux_max_age_us <= 2000000u;
+           c->aux_max_age_us >= 100000u && c->aux_max_age_us <= 2000000u &&
+           c->start_check_us >= 500u && c->start_check_us <= 10000u;
 }
 
 static int32_t ns_to_ticks(int32_t ns, uint32_t hz)
@@ -120,15 +135,18 @@ static bool status(n21_binding_t *b, n21_status_rb_t *s)
     memset(s, 0, sizeof *s);
     if (!b->ops.read_status(b->ops.ctx, s)) {
         /* Unknown is treated as faulted. */
-        *s = (n21_status_rb_t){.permit = false, .bus_fault = true, .rail_ok = false, .sup_run_ok = false};
+        *s = (n21_status_rb_t){.latch_ok = false, .bus_fault = true, .rail_ok = false,
+                               .sup_run_ok = false, .permit_rb = false};
         return false;
     }
     return true;
 }
 
-static bool interlock_healthy(const n21_status_rb_t *s)
+/* Every source healthy, the latch granted, and PERMIT_RB following the run gate (C23: PERMIT =
+ * latch AND RUN_EN, so it is low while the gate is off). */
+static bool interlock_healthy(const n21_binding_t *b, const n21_status_rb_t *s)
 {
-    return s->permit && !s->bus_fault && s->rail_ok && s->sup_run_ok;
+    return s->latch_ok && !s->bus_fault && s->rail_ok && s->sup_run_ok && s->permit_rb == b->gate_on;
 }
 
 /* ------------------------------------------------------------------ acquisition context */
@@ -338,6 +356,9 @@ static bool sample(void *ctx, uint32_t *now32, bridge_feedback_t *f, bool *line,
     *now32 = (uint32_t)now;
     n21_status_rb_t s;
     if (!status(b, &s)) latch(b, N21_FAULT_HW);
+    /* PERMIT high with RUN_EN low: the firmware gate can no longer remove permission (U37 output
+     * stuck high, PERMIT shorted high). Latched before the bridge can arm or start. */
+    else if (!b->gate_on && s.permit_rb) latch(b, N21_FAULT_HW);
     lock(b);
     bool ok = true;
     if (b->fault != N21_FAULT_NONE) {
@@ -345,7 +366,7 @@ static bool sample(void *ctx, uint32_t *now32, bridge_feedback_t *f, bool *line,
     } else if (!b->armed_line) {
         /* Pre-arm: the adapter has no line record, so power_service never reaches apply and the
          * pads stay low. Readback and invalid-sample conditions only delay arming here. */
-        if (!b->invalid && sample_fresh(b, now) && interlock_healthy(&s) && line_ready(b, now)) {
+        if (!b->invalid && sample_fresh(b, now) && interlock_healthy(b, &s) && line_ready(b, now)) {
             if (!b->pads_live) {
                 /* With the run gate low the drivers stay disabled (hardware gap H1 otherwise,
                  * where init has already refused to bind). */
@@ -358,7 +379,7 @@ static bool sample(void *ctx, uint32_t *now32, bridge_feedback_t *f, bool *line,
             }
             if (ok && report(b, now, line, v, a, w)) b->armed_line = true;
         }
-    } else if (b->invalid || !sample_fresh(b, now) || !interlock_healthy(&s)) {
+    } else if (b->invalid || !sample_fresh(b, now) || !interlock_healthy(b, &s)) {
         ok = false;
     } else if (now - b->last_report_us >= REPORT_MIN_US) {
         if (!line_ready(b, now) || !report(b, now, line, v, a, w)) ok = false; /* LINE_ZC lost */
@@ -410,21 +431,69 @@ static bool apply_cycle(void *ctx, const bridge_cycle_t *c)
     return ok;
 }
 
+/* At least us since t0 on the binding's clock, yielding through ops.delay_us. False if the clock
+ * does not advance (the wait cannot be proven). */
+static bool wait_since(n21_binding_t *b, uint64_t t0, uint32_t us)
+{
+    for (unsigned k = 0; k < 8u; k++) {
+        uint64_t el = now_us(b) - t0;
+        if (el >= us) return true;
+        b->ops.delay_us(b->ops.ctx, (uint32_t)(us - el));
+    }
+    return now_us(b) - t0 >= us;
+}
+
+/* Gate rise (header "Start sequence"). Entered with the gate off, the pads live (armed idle) and
+ * the interlock healthy. true: running, or refused (gate off, pads back to idle, bias_refused).
+ * false: a hardware or interlock fault, after which the adapter trips. */
+static bool start_sequence(n21_binding_t *b)
+{
+    b->gate_rises++;
+    /* 1. Pads forced low: no turn-off command reaches the CM detector while RUN_EN rises. */
+    if (!b->ops.pwm_outputs(b->ops.ctx, false)) { pads_off(b); latch(b, N21_FAULT_HW); return false; }
+    b->pads_live = false;
+    /* 2. RUN_EN. */
+    if (!gate_set(b, true)) { pads_off(b); latch(b, N21_FAULT_HW); return false; }
+    /* 3. PERMIT up, the drivers enabled, BIAS_GOOD at J4.1. */
+    if (!wait_since(b, b->gate_edge_us, b->cfg.start_check_us)) {
+        pads_off(b);
+        latch(b, N21_FAULT_HW);
+        return false;
+    }
+    /* 4. The interlock still healthy with the gate on: PERMIT_RB high now. */
+    n21_status_rb_t s;
+    if (!status(b, &s) || !interlock_healthy(b, &s)) { pads_off(b); return false; }
+    /* 5. B13 H2 check 2: BIAS_GOOD high (no input fitted: nothing to check). */
+    bool high = true;
+    if (b->ops.read_bias_good && !b->ops.read_bias_good(b->ops.ctx, &high)) high = false;
+    if (!high) {
+        /* Refused: RUN_EN down first, then the pads back to idle qualification. */
+        if (!gate_set(b, false)) { pads_off(b); latch(b, N21_FAULT_HW); return false; }
+        b->bias_refused = true;
+    }
+    /* 6. Pads released: only now (C39). */
+    if (!b->ops.pwm_outputs(b->ops.ctx, true)) { pads_off(b); latch(b, N21_FAULT_HW); return false; }
+    b->pads_live = true;
+    return true;
+}
+
 static bool set_request(void *ctx, bool on)
 {
     n21_binding_t *b = ctx;
     if (!on) {
-        bool ok = !b->ops.run_gate || b->ops.run_gate(b->ops.ctx, false);
+        bool ok = !b->ops.run_gate || gate_set(b, false);
         b->gate_on = false;
+        b->bias_refused = false; /* the request is withdrawn: the next one is a new start */
         return ok;
     }
     n21_status_rb_t s;
     if (b->mode != N21_MODE_COMMISSIONED || !b->ops.run_gate || !b->pads_live || !b->armed_line ||
-        b->fault != N21_FAULT_NONE || !status(b, &s) || !interlock_healthy(&s))
+        b->fault != N21_FAULT_NONE || !status(b, &s) || !interlock_healthy(b, &s))
         return false;
-    if (!b->ops.run_gate(b->ops.ctx, true)) return false;
-    b->gate_on = true;
-    return true;
+    /* Refused start: RUN_EN stays low until the request is withdrawn (no retry per tick). */
+    if (b->bias_refused) return true;
+    if (b->gate_on) return gate_set(b, true);
+    return start_sequence(b);
 }
 
 static void inhibit(void *ctx)
@@ -460,6 +529,7 @@ n21_init_t n21_binding_init(n21_binding_t *b, const n21_config_t *c, const n21_h
         return b->initialized ? N21_INIT_INHIBITED : N21_INIT_ERROR;
     }
     if (c->mode != N21_MODE_BENCH && c->mode != N21_MODE_COMMISSIONED) return N21_INIT_ERROR;
+    if (!ops->delay_us) return N21_INIT_ERROR; /* the start sequence waits */
     if (!config_ok(c) || !bridge_plan_cycle(c->timer_hz, c->freq.f_max_hz, c->input_deadtime_ns, 1.0f, &b->cycle))
         return N21_INIT_ERROR;
     b->cycle_hz = b->freq_cmd_hz = c->freq.f_max_hz;
@@ -533,7 +603,7 @@ bool n21_request_interlock_reset(n21_binding_t *b, bool confirmed)
         b->fault != N21_FAULT_NONE)
         return false;
     n21_status_rb_t s;
-    if (!status(b, &s) || s.permit || s.bus_fault || !s.rail_ok || !s.sup_run_ok) return false;
+    if (!status(b, &s) || s.latch_ok || s.bus_fault || !s.rail_ok || !s.sup_run_ok) return false;
     uint64_t now = now_us(b);
     if (b->have_reset && now - b->last_reset_us < RESET_MIN_INTERVAL_US) return false;
     b->have_reset = true;
@@ -551,6 +621,9 @@ void n21_telemetry(n21_binding_t *b, n21_telemetry_t *t)
     t->gate_on = b->gate_on;
     t->armed_line = b->armed_line;
     t->bench_active = b->bench_active;
+    t->bias_refused = b->bias_refused;
+    t->gate_edge_us = b->gate_edge_us;
+    t->gate_rises = b->gate_rises;
     t->freq_hz = b->cycle_hz;
     t->freq_target_hz = b->tf.f_hz;
     t->floor_hz = b->tf.floor_hz;
@@ -569,14 +642,20 @@ bool n21_bench_start(n21_binding_t *b, uint32_t ms, bool confirmed)
         return false;
     n21_status_rb_t s;
     if (!status(b, &s)) return false;
-    /* PERMIT high with a faulted source means the interlock itself is suspect. */
-    if (s.permit && (s.bus_fault || !s.rail_ok || !s.sup_run_ok)) return false;
+    /* The latch granted with a faulted source means the interlock itself is suspect. */
+    if (s.latch_ok && (s.bus_fault || !s.rail_ok || !s.sup_run_ok)) return false;
+    /* PERMIT high with RUN_EN low: the gate cannot remove permission. */
+    if (!b->gate_on && s.permit_rb) { latch(b, N21_FAULT_HW); return false; }
+    /* C39 order, as in the adapter's start sequence: RUN_EN with the pads low, the wait, then the
+     * pads. No BIAS_GOOD check here: bench sessions also run with PERMIT low on purpose. */
+    if (b->ops.run_gate) {
+        if (!gate_set(b, true)) { pads_off(b); latch(b, N21_FAULT_HW); return false; }
+        if (!wait_since(b, b->gate_edge_us, b->cfg.start_check_us)) {
+            pads_off(b); latch(b, N21_FAULT_HW); return false;
+        }
+    }
     if (!b->ops.pwm_outputs(b->ops.ctx, true)) { pads_off(b); latch(b, N21_FAULT_HW); return false; }
     b->pads_live = true;
-    if (b->ops.run_gate) {
-        if (!b->ops.run_gate(b->ops.ctx, true)) { pads_off(b); latch(b, N21_FAULT_HW); return false; }
-        b->gate_on = true;
-    }
     b->bench_until_us = now_us(b) + (uint64_t)ms * 1000u;
     b->bench_active = true;
     return true;
@@ -599,7 +678,7 @@ bool n21_bench_poll(n21_binding_t *b)
     capture(b, now, &s, &f);
     if (!ok) latch(b, N21_FAULT_HW);
     else if (!n21_capture_matches(&b->cycle, &f)) latch(b, N21_FAULT_PWM);
-    bool fault = b->fault != N21_FAULT_NONE || (s.permit && s.bus_fault) || !sample_fresh(b, now);
+    bool fault = b->fault != N21_FAULT_NONE || (s.latch_ok && s.bus_fault) || !sample_fresh(b, now);
     if (fault || now >= b->bench_until_us) {
         n21_bench_stop(b);
         return false;

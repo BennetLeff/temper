@@ -50,6 +50,7 @@ sm_context_t *sm_get_context(void) {
 
 /* Forward declaration - not in state_handlers.h */
 static void check_runaway_boundary(void);
+static bool check_bias_good(void);
 
 /* External function stubs - implement in peripherals module */
 extern uint32_t get_time_ms(void);
@@ -85,11 +86,14 @@ extern float read_coil_temperature(void);
  * Both return true whenever the status cannot be read (fail closed). */
 extern bool power_bus_fault_tripped(void);
 extern bool power_tank_overcurrent_tripped(void);
-/* Power board s48 BIAS_GOOD read-back on J4.1 (OPEN-ITEMS B13 H2, DECISIONS 67). The platform
- * decodes the input and debounces it (platform_logic.c platform_bias_*); with no J4.1 input on
- * the controller every check passes. power_bias_lost(): low for >= BIAS_GOOD_DROP_DEBOUNCE_MS
- * while power is requested -> FAULT_BIAS_GOOD_LOST. Unreadable counts as low. */
-extern bool power_bias_lost(void);
+/* Power board BIAS_GOOD read-back on J4.1 (OPEN-ITEMS B13 H2, DECISIONS 67), option P
+ * (c50-permit-gate: BIAS_GOOD = bias_ok AND PERMIT). One call per control tick; the platform reads
+ * PERMIT_RB and J4.1 and debounces both checks (platform_logic.c platform_bias_*). *stuck, check 1
+ * (latched by the platform): BIAS_GOOD not low while PERMIT_RB has been low >= 2 ms ->
+ * FAULT_BIAS_GOOD_STUCK. *lost, check 3: BIAS_GOOD low for >= BIAS_GOOD_DROP_DEBOUNCE_MS while
+ * PERMIT_RB has been high >= 2 ms -> FAULT_BIAS_GOOD_LOST. Unreadable fails both. With no J4.1
+ * input on the controller both stay false. Check 2 is the binding's start sequence. */
+extern void power_bias_step(bool *stuck, bool *lost);
 extern float read_rtd_resistance(void);
 extern bool is_fan_running(void);
 extern void delay_ms(uint32_t ms);
@@ -206,7 +210,6 @@ void state_machine_init(void) {
     
     /* Reset runaway interlock latch */
     sm_ctx.runaway_latched = false;
-    sm_ctx.bias_start_refused = false;
     /* Discard the previous sample when restarting the state machine.  The
      * runaway-rate guard must never compare a new boot/test epoch against a
      * timestamp and temperature from the prior epoch. */
@@ -245,7 +248,10 @@ void state_machine_update(void) {
      * This fires even during message display to ensure safety-critical
      * events preempt all normal operation. */
     check_runaway_boundary();
-    
+
+    /* BIAS_GOOD checks 1 and 3 (B13 H2): every tick, every state, keyed to PERMIT_RB. */
+    if (check_bias_good()) return;
+
     /* Handle non-blocking message display */
     if (sm_ctx.message_pending) {
         if ((now - sm_ctx.message_start_time) >= MESSAGE_DISPLAY_TIME_MS) {
@@ -432,14 +438,6 @@ bool check_safety_interlocks(void) {
         return true;
     }
 
-    /* BIAS_GOOD (J4.1) must stay high while power is requested (B13 H2). The power board has
-     * already disabled both drivers (DIS = NAND(PERMIT_GATE, BIAS_GOOD)); this latches it. After
-     * the bus fault so a bias collapse that also raises BUS_FAULT (HOT5 UV, TCO) keeps its code. */
-    if (power_bias_lost()) {
-        enter_hardware_latched_fault(FAULT_BIAS_GOOD_LOST);
-        return true;
-    }
-
     /* Fan failure check */
     if (!is_fan_running()) {
         enter_hardware_latched_fault(FAULT_FAN_FAILURE);
@@ -481,6 +479,25 @@ bool check_safety_interlocks(void) {
     }
 
     return false;
+}
+
+/* B13 H2 checks 1 and 3 (option P, c50-permit-gate). Both debouncers advance on every tick, in
+ * every state, so a fault can never be judged on a stale run. In FAULT / RUNAWAY_FAULT nothing is
+ * entered: the power is already off, the platform keeps check 1 latched, and a fault that clears
+ * to INIT meets it again on the next tick. A pending message (show_message_then_transition) is
+ * cancelled so it cannot later move the machine out of FAULT. Check 1 and check 3 cannot both
+ * hold (PERMIT_RB low vs high). A bias collapse that also trips BUS_FAULT (HOT5 UV, an open TCO
+ * loop) drops PERMIT at once, so check 3 is never judged and the bus fault keeps its code. */
+static bool check_bias_good(void) {
+    bool stuck = false, lost = false;
+    power_bias_step(&stuck, &lost);
+    if (sm_ctx.current_state == STATE_FAULT || sm_ctx.current_state == STATE_RUNAWAY_FAULT) {
+        return false;
+    }
+    if (!stuck && !lost) return false;
+    sm_ctx.message_pending = false;
+    enter_hardware_latched_fault(stuck ? FAULT_BIAS_GOOD_STUCK : FAULT_BIAS_GOOD_LOST);
+    return true;
 }
 
 static void check_runaway_boundary(void) {
@@ -573,8 +590,9 @@ bool fault_cleared(void) {
         case FAULT_RUNAWAY_BOUNDARY:
             return false;  /* Never clearable by software */
 
-        case FAULT_BIAS_GOOD_POST:
-            /* The boot sample does not change until the next power-on: power cycle. */
+        case FAULT_BIAS_GOOD_STUCK:
+            /* U40 / the heartbeat chain cannot go low (check 1): the platform's verdict is
+             * latched until the next power-on. Power cycle. */
             return false;
 
         case FAULT_BIAS_GOOD_LOST:

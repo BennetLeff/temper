@@ -678,13 +678,13 @@
     }
   },
   {
-    "name": "SIL: Bias Good POST Fault (INIT)",
-    "description": "Power board s48 BIAS_GOOD (J4.1, OPEN-ITEMS B13 H2) reads high at the boot sample of a power-on reset, before the heartbeat can have started (U40 stuck high / Y-VCC): INIT -> FAULT_BIAS_GOOD_POST before the power stage is ever enabled",
+    "name": "SIL: Bias Good Stuck Fault (INIT)",
+    "description": "Power board BIAS_GOOD (J4.1, OPEN-ITEMS B13 H2), option P (BIAS_GOOD = bias_ok AND PERMIT): check 1, BIAS_GOOD not low while PERMIT_RB has been low >= 2 ms (U40 stuck high / Y-VCC), debounced by the platform; check_bias_good() runs it every tick in every state and latches FAULT_BIAS_GOOD_STUCK through the hardware-latched path. INIT: the verdict holds from the first update, before the power stage is ever enabled (RUN_EN is low through every reset, so PERMIT is low at every boot and the old boot-sample race is gone)",
     "trace_file": "trace_fault_self_test_failed.csv",
     "origin_state": "INIT",
     "initial_conditions": {
       "self_test_pass": true,
-      "bias_good_post_ok": false
+      "bias_stuck": true
     },
     "perturbation": {
       "at_tick": 0,
@@ -692,21 +692,207 @@
     },
     "expected": {
       "final_state": "FAULT",
-      "fault_code": "FAULT_BIAS_GOOD_POST",
+      "fault_code": "FAULT_BIAS_GOOD_STUCK",
       "max_latency_ticks": 1,
       "hard_assertions": [
         {
           "power_off": true
         },
         {
-          "eeprom_logged": "FAULT_BIAS_GOOD_POST"
+          "eeprom_logged": "FAULT_BIAS_GOOD_STUCK"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Bias Good Stuck Fault (IDLE)",
+    "description": "Power board BIAS_GOOD (J4.1, OPEN-ITEMS B13 H2), option P (BIAS_GOOD = bias_ok AND PERMIT): check 1, BIAS_GOOD not low while PERMIT_RB has been low >= 2 ms (U40 stuck high / Y-VCC), debounced by the platform; check_bias_good() runs it every tick in every state and latches FAULT_BIAS_GOOD_STUCK through the hardware-latched path. IDLE: no request, RUN_EN and PERMIT low.",
+    "trace_file": "trace_fault_bias_good_stuck_idle.csv",
+    "origin_state": "IDLE",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 5,
+      "sensors": [
+        {
+          "name": "bias_stuck",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_BIAS_GOOD_STUCK",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_BIAS_GOOD_STUCK"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Bias Good Stuck Fault (PAN_DET)",
+    "description": "Power board BIAS_GOOD (J4.1, OPEN-ITEMS B13 H2), option P (BIAS_GOOD = bias_ok AND PERMIT): check 1, BIAS_GOOD not low while PERMIT_RB has been low >= 2 ms (U40 stuck high / Y-VCC), debounced by the platform; check_bias_good() runs it every tick in every state and latches FAULT_BIAS_GOOD_STUCK through the hardware-latched path. PAN_DET: judged while PERMIT is still low (the binding raises RUN_EN only after a line report) or after a refused start.",
+    "trace_file": "trace_fault_bias_good_stuck_pan_det.csv",
+    "origin_state": "PAN_DET",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 5,
+      "sensors": [
+        {
+          "name": "bias_stuck",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_BIAS_GOOD_STUCK",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_BIAS_GOOD_STUCK"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Bias Good Stuck Fault (PREHEAT)",
+    "description": "Power board BIAS_GOOD (J4.1, OPEN-ITEMS B13 H2), option P (BIAS_GOOD = bias_ok AND PERMIT): check 1, BIAS_GOOD not low while PERMIT_RB has been low >= 2 ms (U40 stuck high / Y-VCC), debounced by the platform; check_bias_good() runs it every tick in every state and latches FAULT_BIAS_GOOD_STUCK through the hardware-latched path. PREHEAT: judged whenever the request is zero (thermal caps) and PERMIT low.",
+    "trace_file": "trace_fault_bias_good_stuck_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "bias_stuck",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_BIAS_GOOD_STUCK",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_BIAS_GOOD_STUCK"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Bias Good Stuck Fault (HEATING)",
+    "description": "Power board BIAS_GOOD (J4.1, OPEN-ITEMS B13 H2), option P (BIAS_GOOD = bias_ok AND PERMIT): check 1, BIAS_GOOD not low while PERMIT_RB has been low >= 2 ms (U40 stuck high / Y-VCC), debounced by the platform; check_bias_good() runs it every tick in every state and latches FAULT_BIAS_GOOD_STUCK through the hardware-latched path. HEATING: judged whenever the request is zero (the PID at target) and PERMIT low.",
+    "trace_file": "trace_fault_bias_good_stuck_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "bias_stuck",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_BIAS_GOOD_STUCK",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_BIAS_GOOD_STUCK"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Bias Good Stuck Fault (NO_PAN)",
+    "description": "Power board BIAS_GOOD (J4.1, OPEN-ITEMS B13 H2), option P (BIAS_GOOD = bias_ok AND PERMIT): check 1, BIAS_GOOD not low while PERMIT_RB has been low >= 2 ms (U40 stuck high / Y-VCC), debounced by the platform; check_bias_good() runs it every tick in every state and latches FAULT_BIAS_GOOD_STUCK through the hardware-latched path. NO_PAN: the request is withdrawn on entry, PERMIT low.",
+    "trace_file": "trace_fault_bias_good_stuck_no_pan.csv",
+    "origin_state": "NO_PAN",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 65,
+      "sensors": [
+        {
+          "name": "bias_stuck",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_BIAS_GOOD_STUCK",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_BIAS_GOOD_STUCK"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SIL: Bias Good Stuck Fault (COOLDOWN)",
+    "description": "Power board BIAS_GOOD (J4.1, OPEN-ITEMS B13 H2), option P (BIAS_GOOD = bias_ok AND PERMIT): check 1, BIAS_GOOD not low while PERMIT_RB has been low >= 2 ms (U40 stuck high / Y-VCC), debounced by the platform; check_bias_good() runs it every tick in every state and latches FAULT_BIAS_GOOD_STUCK through the hardware-latched path. COOLDOWN: no request, PERMIT low (heatsink held at 60 C so COOLDOWN persists).",
+    "trace_file": "trace_fault_bias_good_stuck_cooldown.csv",
+    "origin_state": "COOLDOWN",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 90,
+      "sensors": [
+        {
+          "name": "bias_stuck",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_BIAS_GOOD_STUCK",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_BIAS_GOOD_STUCK"
         }
       ]
     }
   },
   {
     "name": "SIL: Bias Good Lost Fault (PAN_DET)",
-    "description": "BIAS_GOOD (J4.1) drops (bias_good = 0) while PAN_DET has detection power requested: FAULT_BIAS_GOOD_LOST through the hardware-latched path (RUN_EN kill). The first PAN_DET fault row: unlike the fan / over-current interlocks (see the DEMONSTRATED GAP scenario), the bias check runs in state_pan_det_update()",
+    "description": "Power board BIAS_GOOD (J4.1, OPEN-ITEMS B13 H2), option P. The bias chain drops (bias_good = 0) while PAN_DET holds the 5 % detection request and PERMIT is up: check 3 (keyed to PERMIT_RB high >= 2 ms, not to the state) latches FAULT_BIAS_GOOD_LOST through the hardware-latched path (RUN_EN kill). check_bias_good() runs it in every state at the top of the tick, unlike the fan / over-current interlocks (see the DEMONSTRATED GAP scenario)",
     "trace_file": "trace_fault_bias_good_lost_pan_det.csv",
     "origin_state": "PAN_DET",
     "initial_conditions": {
@@ -737,7 +923,7 @@
   },
   {
     "name": "SIL: Bias Good Lost Fault (PREHEAT)",
-    "description": "BIAS_GOOD (J4.1) drops (bias_good = 0) during PREHEAT: check_safety_interlocks() latches FAULT_BIAS_GOOD_LOST",
+    "description": "Power board BIAS_GOOD (J4.1, OPEN-ITEMS B13 H2), option P. The bias chain drops (bias_good = 0) during PREHEAT with PERMIT up: check 3 latches FAULT_BIAS_GOOD_LOST",
     "trace_file": "trace_fault_bias_good_lost_preheat.csv",
     "origin_state": "PREHEAT",
     "initial_conditions": {
@@ -768,7 +954,7 @@
   },
   {
     "name": "SIL: Bias Good Lost Fault (HEATING)",
-    "description": "BIAS_GOOD (J4.1) drops (bias_good = 0) during HEATING: check_safety_interlocks() latches FAULT_BIAS_GOOD_LOST",
+    "description": "Power board BIAS_GOOD (J4.1, OPEN-ITEMS B13 H2), option P. The bias chain drops (bias_good = 0) during HEATING with PERMIT up: check 3 latches FAULT_BIAS_GOOD_LOST",
     "trace_file": "trace_fault_bias_good_lost.csv",
     "origin_state": "HEATING",
     "initial_conditions": {

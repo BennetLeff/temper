@@ -43,7 +43,7 @@ void test_fault_adc_stuck_exists(void)
 
 void test_fault_count_expected(void)
 {
-    /* 13 manifest-derived + 3 supplemental = 16 total (B13 H2 added FAULT_BIAS_GOOD_POST and
+    /* 13 manifest-derived + 3 supplemental = 16 total (B13 H2 added FAULT_BIAS_GOOD_STUCK and
      * FAULT_BIAS_GOOD_LOST) */
     TEST_ASSERT_EQUAL(16, FAULT_COUNT);
 }

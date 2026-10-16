@@ -14,7 +14,6 @@
 
 #include "driver/gpio.h"
 #include "esp_err.h"
-#include "esp_system.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
@@ -126,64 +125,79 @@ bool power_tank_overcurrent_tripped(void)
 }
 
 /* ---------------------------------------------------------------- BIAS_GOOD read-back (B13 H2) */
-/* Power board s48: BIAS_GOOD (U40) -> R146 220 k -> J4.1 (DECISIONS 67). The controller input is
- * high-Z: no internal pull (a 45 k internal pull-down would hold 220 k at <= 0.6 V); the board
- * fits >= 1 M to ground so an open U40 output reads low. The GPIO is CTRL_GPIO_BIAS_GOOD_RB, which
- * controller_pins.h defines only once the controller ato routes J4.1 to an MCU pin (proposed:
- * GPIO35, firmware/README.md "BIAS_GOOD read-back"). Until then every check reads NOT_FITTED and
- * passes. Decisions: platform_bias_* (components/platform/platform_logic.c). */
-static platform_bias_level_t s_bias_boot = PLATFORM_BIAS_NOT_FITTED;
-static bool s_bias_boot_taken, s_bias_cold_boot;
+/* Power board BIAS_GOOD (U40) -> R146 220 k -> J4.1 (DECISIONS 67); under option P (c50) it is
+ * bias_ok AND PERMIT. The controller input is high-Z: no internal pull (a 45 k internal pull-down
+ * would hold 220 k at <= 0.6 V); the board fits >= 1 M to ground so an open U40 output reads low.
+ * The GPIO is CTRL_GPIO_BIAS_GOOD_RB, which controller_pins.h defines only once the controller ato
+ * routes J4.1 to an MCU pin (proposed: GPIO35, firmware/README.md "BIAS_GOOD read-back"). Until
+ * then every check reads NOT_FITTED and passes. Checks 1 and 3 run here (platform_bias_*,
+ * components/platform/platform_logic.c); check 2 is the binding's start sequence. */
+static platform_permit_t s_permit;
+static platform_bias_idle_t s_bias_idle;
 static platform_bias_run_t s_bias_run;
 
-static platform_bias_level_t bias_read(void)
-{
 #ifdef CTRL_GPIO_BIAS_GOOD_RB
+/* J4.1 and PERMIT_RB (GPIO36, the final PERMIT after U37). The binding configures both as inputs
+ * when it starts; without the binding they are configured here (same settings, idempotent). */
+static bool bias_inputs_configured(void)
+{
     static bool configured;
-    if (!configured) {
-        gpio_config_t in = {.pin_bit_mask = 1ULL << CTRL_GPIO_BIAS_GOOD_RB, .mode = GPIO_MODE_INPUT,
-                            .pull_up_en = GPIO_PULLUP_DISABLE, .pull_down_en = GPIO_PULLDOWN_DISABLE,
-                            .intr_type = GPIO_INTR_DISABLE};
-        if (gpio_config(&in) != ESP_OK) return PLATFORM_BIAS_UNKNOWN;
-        configured = true;
+    if (configured) return true;
+    gpio_config_t in = {.pin_bit_mask = (1ULL << CTRL_GPIO_BIAS_GOOD_RB) | (1ULL << CTRL_GPIO_PERMIT_RB),
+                        .mode = GPIO_MODE_INPUT, .pull_up_en = GPIO_PULLUP_DISABLE,
+                        .pull_down_en = GPIO_PULLDOWN_DISABLE, .intr_type = GPIO_INTR_DISABLE};
+    configured = gpio_config(&in) == ESP_OK;
+    return configured;
+}
+#endif
+
+void power_bias_step(bool *stuck, bool *lost)
+{
+    *stuck = false;
+    *lost = false;
+#ifdef CTRL_GPIO_BIAS_GOOD_RB
+    platform_bias_level_t level = PLATFORM_BIAS_UNKNOWN;
+    bool permit = false;
+    if (bias_inputs_configured()) {
+        /* PERMIT first: a BIAS_GOOD read after it can only lag a PERMIT change, never lead it. */
+        permit = gpio_get_level((gpio_num_t)CTRL_GPIO_PERMIT_RB) == 1;
+        level = gpio_get_level((gpio_num_t)CTRL_GPIO_BIAS_GOOD_RB) ? PLATFORM_BIAS_HIGH : PLATFORM_BIAS_LOW;
     }
-    return gpio_get_level((gpio_num_t)CTRL_GPIO_BIAS_GOOD_RB) ? PLATFORM_BIAS_HIGH : PLATFORM_BIAS_LOW;
+    uint64_t now = (uint64_t)esp_timer_get_time();
+    uint64_t edge = 0;
+#if CONFIG_TEMPER_POWER_HW_BINDING
+    n21_binding_t *b = n21_hw_binding();
+    if (b != NULL) {
+        n21_telemetry_t t;
+        n21_telemetry(b, &t);
+        edge = t.gate_edge_us;
+    }
+#endif
+    uint64_t at_level = platform_permit_step(&s_permit, permit, now, edge);
+    *stuck = platform_bias_idle_step(&s_bias_idle, level, permit, at_level,
+                                     BIAS_GOOD_PERMIT_FALL_MS * 1000u, BIAS_GOOD_IDLE_TRIP_SAMPLES,
+                                     BIAS_GOOD_IDLE_WINDOW_SAMPLES);
+    *lost = platform_bias_lost_step(&s_bias_run, level, permit, at_level,
+                                    BIAS_GOOD_PERMIT_RISE_MS * 1000u, (uint32_t)(now / 1000u),
+                                    BIAS_GOOD_DROP_DEBOUNCE_MS);
 #else
-    return PLATFORM_BIAS_NOT_FITTED;
+    (void)s_permit;
+    (void)s_bias_idle;
+    (void)s_bias_run;
 #endif
 }
 
-void platform_bias_good_capture_boot_sample(void)
+bool power_bias_start_refused(void)
 {
-    if (s_bias_boot_taken) return;
-    s_bias_boot_taken = true;
-    s_bias_cold_boot = esp_reset_reason() == ESP_RST_POWERON;
-    s_bias_boot = bias_read();
-    static const char *const names[] = {"not fitted", "unknown", "low", "high"};
-    /* The bring-up record (COMMISSIONING.md): this time against the scoped BIAS_GOOD rise. */
-    ESP_LOGI(TAG, "BIAS_GOOD boot sample: %s at %lld us, %s reset", names[s_bias_boot],
-             (long long)esp_timer_get_time(), s_bias_cold_boot ? "power-on" : "warm");
-}
-
-bool power_bias_post_ok(void)
-{
-    platform_bias_good_capture_boot_sample(); /* never judged without a sample */
-    return platform_bias_post_ok(s_bias_boot, s_bias_cold_boot);
-}
-
-bool power_bias_start_permitted(void)
-{
-    return platform_bias_start_permitted(bias_read());
-}
-
-bool power_bias_lost(void)
-{
-    return platform_bias_run_step(&s_bias_run, bias_read(), get_time_ms(), BIAS_GOOD_DROP_DEBOUNCE_MS);
-}
-
-void power_bias_run_reset(void)
-{
-    platform_bias_run_reset(&s_bias_run);
+#if CONFIG_TEMPER_POWER_HW_BINDING
+    n21_binding_t *b = n21_hw_binding();
+    if (b == NULL) return false;
+    n21_telemetry_t t;
+    n21_telemetry(b, &t);
+    return t.bias_refused;
+#else
+    return false;
+#endif
 }
 
 /* ---------------------------------------------------------------- blower request (C28) */

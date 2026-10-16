@@ -57,16 +57,21 @@ bool platform_power_bus_trip(bool status_known, bool bus_fault, bool permit, boo
 bool platform_power_tank_trip(bool known, int n21_fault);
 
 /* ---------------------------------------------------------------- BIAS_GOOD read-back (B13 H2) */
-/* Power board s48 (zapote/power-stage-120v DECISIONS 67): BIAS_GOOD (U40, the heartbeat hold node)
- * reaches J4.1 through R146 220 k. It is high only while the LS / HS-A / HS-B bias monitors are all
- * good and the heartbeat runs; the power board already holds both drivers' DIS high while it is low
- * (DIS = NAND(PERMIT_GATE, BIAS_GOOD)). The firmware check adds the coverage the FMEA counts
- * (fmea-s47-2026-10-15 section 4, H2; c48-ldo-en-ref-watch README section 3):
- *   1. power-on self-test: low before the heartbeat starts (U40 stuck high / Y-VCC);
- *   2. start: high before PERMIT is requested (U40 Y open, bias not up);
- *   3. run: high throughout; a low is a latched fault.
+/* Power board BIAS_GOOD (U40, the heartbeat hold node) reaches J4.1 through R146 220 k (stage 48,
+ * DECISIONS 67). Under option P (power-stage validation-results/11-candidates/c50-permit-gate) the
+ * heartbeat NAND's A input U46.A is driven from PERMIT through R135 100 k, so
+ * BIAS_GOOD = bias_ok AND PERMIT: high only while PERMIT is high and the LS / HS-A / HS-B bias
+ * monitors are all good. The power board already holds both drivers' DIS high while it is low
+ * (DIS = NOT(PERMIT AND bias_ok)). The firmware checks (config.yaml BIAS_GOOD_*):
+ *   1. low with PERMIT low: whenever PERMIT_RB has been low >= BIAS_GOOD_PERMIT_FALL_MS, BIAS_GOOD
+ *      must read low (U40 stuck high / Y-VCC, U46.A or hsb_good shorts). Every control tick, every
+ *      state. platform_bias_idle_step().
+ *   2. high after PERMIT: the binding's start sequence (n21_binding.c), not here.
+ *   3. high throughout: while PERMIT_RB has been high >= BIAS_GOOD_PERMIT_RISE_MS, a low lasting
+ *      BIAS_GOOD_DROP_DEBOUNCE_MS latches. platform_bias_lost_step().
  * NOT_FITTED: the controller has no J4.1 input (no CTRL_GPIO_BIAS_GOOD_RB in controller_pins.h):
- * every check passes and nothing is claimed. UNKNOWN: the input could not be read (fail closed). */
+ * every check passes and nothing is claimed. UNKNOWN: the input could not be read (fail closed:
+ * it counts against checks 1 and 3). */
 typedef enum {
     PLATFORM_BIAS_NOT_FITTED = 0,
     PLATFORM_BIAS_UNKNOWN,
@@ -74,20 +79,38 @@ typedef enum {
     PLATFORM_BIAS_HIGH,
 } platform_bias_level_t;
 
-/* Check 1 on the sample taken at the earliest point of boot. cold_boot: a power-on reset. BIAS_GOOD
- * cannot be high before the controller's 3.3 V (U32's SELV side and U40 run from it), and the
- * check assumes the boot sample also precedes the heartbeat's start after mains-on (the FMEA's
- * "sequencing to confirm at bring-up": COMMISSIONING.md H2). After any other reset the heartbeat
- * may already run: high then passes without excluding a stuck-high U40. Low always passes; unknown
- * fails. */
-bool platform_bias_post_ok(platform_bias_level_t boot_sample, bool cold_boot);
-/* Check 2: true only for high (or not fitted). */
-bool platform_bias_start_permitted(platform_bias_level_t level);
+/* The PERMIT read-back's level history, one sample per control tick. edge_us: the binding's last
+ * RUN_EN change (n21 telemetry gate_edge_us; 0 = none or no binding). PERMIT = latch AND RUN_EN
+ * (controller C23), and while RUN_EN is high the latch cannot be re-granted (the binding refuses
+ * the reset request then), so between two samples PERMIT can only change at a RUN_EN edge or by a
+ * latch trip. An edge between the samples dates the level exactly (it ended a refused start's
+ * RUN_EN pulse, or it is the rise or fall itself); a change with no edge (a latch trip) is dated
+ * at the sample that sees it, which can only shorten the time claimed. Returns how long PERMIT_RB
+ * has been at its present level, in us (0 on the first sample). Wrap-free: 64-bit time. */
+typedef struct {
+    bool known, high;
+    uint64_t since_us, last_us;
+} platform_permit_t;
+uint64_t platform_permit_step(platform_permit_t *p, bool permit_high, uint64_t now_us,
+                              uint64_t edge_us);
 
-/* Check 3, one call per control tick while power is requested. Tripped once the input has read
- * anything but high on consecutive samples spanning at least debounce_ms; a sample more than
- * debounce_ms after the previous one starts a new run (the samples were not continuous). A single
- * sample can never trip. reset() before each power request. */
+/* Check 1, one call per control tick. A sample is judged only while PERMIT_RB reads low and has
+ * been low >= fall_us; any other sample clears the window (a new PERMIT-low period starts a new
+ * judgement). A judged sample fails unless BIAS_GOOD reads low (high and unknown fail). Tripped
+ * once trip of the last window judged samples failed; then it stays tripped (the caller's fault
+ * is cleared only by a power cycle). window <= 8. NOT_FITTED never fails. */
+typedef struct {
+    uint8_t history; /* bit 0 = latest judged sample, set = failed */
+    bool tripped;
+} platform_bias_idle_t;
+void platform_bias_idle_reset(platform_bias_idle_t *s);
+bool platform_bias_idle_step(platform_bias_idle_t *s, platform_bias_level_t level, bool permit_high,
+                             uint64_t permit_us, uint32_t fall_us, unsigned trip, unsigned window);
+
+/* Check 3's low run, one call per judged sample. Tripped once the input has read anything but
+ * high on consecutive samples spanning at least debounce_ms; a sample more than debounce_ms after
+ * the previous one starts a new run (the samples were not continuous). A single sample can never
+ * trip. reset() starts a new run. */
 typedef struct {
     bool in_low;
     uint32_t first_low_ms;
@@ -96,6 +119,11 @@ typedef struct {
 void platform_bias_run_reset(platform_bias_run_t *r);
 bool platform_bias_run_step(platform_bias_run_t *r, platform_bias_level_t level, uint32_t now_ms,
                             uint32_t debounce_ms);
+/* Check 3, one call per control tick: judged only while PERMIT_RB reads high and has been high
+ * >= rise_us (the J4.1 RC needs <= 0.53 ms after each PERMIT rise); otherwise the run restarts. */
+bool platform_bias_lost_step(platform_bias_run_t *r, platform_bias_level_t level, bool permit_high,
+                             uint64_t permit_us, uint32_t rise_us, uint32_t now_ms,
+                             uint32_t debounce_ms);
 
 /* ---------------------------------------------------------------- blower request (C28) */
 /* The state machine's fan_set_speed()/fan_set_auto_mode() requests. The fan law in thermal_mgmt.c

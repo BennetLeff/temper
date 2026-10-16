@@ -40,6 +40,7 @@
 #include "n21_hw.h"
 #include "rms_shadow.h"
 #include "controller_board.h"
+#include "config.h" /* BIAS_GOOD_PERMIT_RISE_MS (firmware/config.yaml) */
 #include "driver/gpio.h"
 #include "driver/mcpwm_prelude.h"
 #include "driver/spi_master.h"
@@ -607,17 +608,40 @@ static size_t hw_line_zc_edges(void *ctx, uint64_t *t, bool *lv, size_t max)
 static bool hw_read_status(void *ctx, n21_status_rb_t *s)
 {
     (void)ctx;
-    s->permit = gpio_get_level(N21_GPIO_PERMIT_RB) == 1;
+    /* GPIO36 is the final PERMIT (after U37) = latch AND RUN_EN (C23): low whenever RUN_EN is. */
+    s->permit_rb = gpio_get_level(N21_GPIO_PERMIT_RB) == 1;
     s->bus_fault = gpio_get_level(N21_GPIO_BUS_FAULT_RB) == 1;
     s->rail_ok = gpio_get_level(N21_GPIO_RAIL_OK_RB) == 1;
-    /* SUP_RUN_OK is expander P14 (C27). A stale or failed snapshot is a failed read, which the
-     * binding treats as an input fault. */
+    /* SUP_RUN_OK is expander P14 (C27) and the latch state P10 LATCHED_FAULT_RB (interlock QBAR),
+     * the only read-back of the latch alone once RUN_EN gates PERMIT. A stale or failed snapshot
+     * is a failed read, which the binding treats as an input fault. */
     ctrl_exp_cache_t c;
     (void)ctrl_board_expander(&c);
     bool fresh = ctrl_exp_fresh(&c, (uint64_t)esp_timer_get_time(), CTRL_EXP_MAX_AGE_US);
-    s->sup_run_ok = fresh && ctrl_exp_decode(c.raw).sup_run_ok;
+    ctrl_exp_inputs_t in = ctrl_exp_decode(c.raw);
+    s->sup_run_ok = fresh && in.sup_run_ok;
+    s->latch_ok = fresh && !in.latched_fault;
     return fresh;
 }
+
+/* Start-sequence wait (n21_binding.c): yields, so the acquisition task (core 1, priority 19,
+ * below the control task) keeps sampling. One extra tick: vTaskDelay(n) can return up to one
+ * tick early; the binding re-checks the elapsed time on its own clock. */
+static void hw_delay_us(void *ctx, uint32_t us)
+{
+    (void)ctx;
+    vTaskDelay(pdMS_TO_TICKS((us + 999u) / 1000u) + 1);
+}
+
+#ifdef CTRL_GPIO_BIAS_GOOD_RB
+/* Power board BIAS_GOOD on J4.1 (B13 H2; configured in gpio_create(): input, no internal pull). */
+static bool hw_read_bias_good(void *ctx, bool *high)
+{
+    (void)ctx;
+    *high = gpio_get_level((gpio_num_t)CTRL_GPIO_BIAS_GOOD_RB) == 1;
+    return true;
+}
+#endif
 
 /* RUN_EN (GPIO14, C23): ANDed with the interlock latch by U37, so it only removes permission.
  * Preset low and made an output by ctrl_board_init(); this only changes its level. */
@@ -644,6 +668,13 @@ static bool gpio_create(void)
                         .mode = GPIO_MODE_INPUT};
     gpio_config_t zc = {.pin_bit_mask = 1ULL << N21_GPIO_LINE_ZC, .mode = GPIO_MODE_INPUT,
                         .intr_type = GPIO_INTR_ANYEDGE};
+#ifdef CTRL_GPIO_BIAS_GOOD_RB
+    /* High-Z: a 45 k internal pull-down would hold R146 220 k at <= 0.6 V (firmware/README.md). */
+    gpio_config_t bias = {.pin_bit_mask = 1ULL << CTRL_GPIO_BIAS_GOOD_RB, .mode = GPIO_MODE_INPUT,
+                          .pull_up_en = GPIO_PULLUP_DISABLE, .pull_down_en = GPIO_PULLDOWN_DISABLE,
+                          .intr_type = GPIO_INTR_DISABLE};
+    if (gpio_config(&bias) != ESP_OK) return false;
+#endif
     /* Preload high so configuring the output is not itself a falling edge. */
     gpio_config_t rst = {.pin_bit_mask = 1ULL << N21_GPIO_IL_RESET_N, .mode = GPIO_MODE_OUTPUT};
     if (gpio_set_level(N21_GPIO_IL_RESET_N, 1) != ESP_OK || gpio_config(&rst) != ESP_OK ||
@@ -711,6 +742,7 @@ static n21_config_t config_from_kconfig(void)
     c.analog.vbus_gain_trim = CONFIG_TEMPER_POWER_VBUS_GAIN_PPM * 1e-6f;
     c.analog.ct_mon_zero_mv = (float)CONFIG_TEMPER_POWER_CT_MON_ZERO_MV;
     c.analog.rms_gain_trim = CONFIG_TEMPER_POWER_RMS_GAIN_PPM * 1e-6f;
+    c.start_check_us = BIAS_GOOD_PERMIT_RISE_MS * 1000u;
     return c;
 }
 
@@ -736,6 +768,10 @@ n21_init_t n21_hw_start(void)
         .pwm_program = hw_pwm_program, .pwm_update = hw_pwm_update, .pwm_outputs = hw_pwm_outputs,
         .pwm_capture = hw_pwm_capture,
         .run_gate = hw_run_gate, /* RUN_EN, GPIO14 (L2, C23; closes the hardware side of H1) */
+        .delay_us = hw_delay_us,
+#ifdef CTRL_GPIO_BIAS_GOOD_RB
+        .read_bias_good = hw_read_bias_good, /* J4.1, B13 H2 check 2 */
+#endif
         .read_status = hw_read_status, .interlock_reset_pulse = hw_interlock_reset_pulse,
         .read_adc1 = hw_read_adc1, .read_ext_adc = hw_read_ext_adc, .read_ct_zc = hw_read_ct_zc,
         .line_zc_edges = hw_line_zc_edges,

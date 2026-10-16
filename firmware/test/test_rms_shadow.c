@@ -150,7 +150,8 @@ static bool k_prog(void *c, const bridge_cycle_t *y) { (void)c; (void)y; return 
 static bool k_out(void *c, bool live) { (void)c; K.pads = live; return true; }
 static bool k_cap(void *c, n21_pwm_capture_t *y) { (void)c; memset(y, 0, sizeof *y); return true; }
 static bool k_gate(void *c, bool on) { (void)c; K.gate = on; return true; }
-static bool k_stat(void *c, n21_status_rb_t *s) { (void)c; *s = (n21_status_rb_t){true, false, true, true}; return true; }
+static bool k_stat(void *c, n21_status_rb_t *s) { (void)c; *s = (n21_status_rb_t){true, false, true, true, K.gate}; return true; }
+static void k_delay(void *c, uint32_t us) { (void)c; K.now += us; }
 static bool k_rst(void *c) { (void)c; return true; }
 static bool k_adc1(void *c, float *v, float *ct)
 {
@@ -202,6 +203,7 @@ static void run_shadow_binding(bool with_shadow, float value, n21_telemetry_t *t
     c.mode = N21_MODE_BENCH;
     n21_hw_ops_t o = {
         .now_us = k_now, .pwm_program = k_prog, .pwm_outputs = k_out, .pwm_capture = k_cap, .run_gate = k_gate,
+        .delay_us = k_delay,
         .read_status = k_stat, .interlock_reset_pulse = k_rst, .read_adc1 = k_adc1, .read_ext_adc = k_ext,
         .read_ct_zc = k_zc, .line_zc_edges = k_edges, .shadow_half = with_shadow ? k_shadow : NULL,
     };

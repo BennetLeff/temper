@@ -349,7 +349,7 @@ def derived_sensor_fault_events(model: "TransitionModel", faulted_states: Frozen
     code. On the current manifest this yields exactly: EVENT_SELFTEST_FAIL,
     EVENT_PREHEAT_TIMEOUT, EVENT_OVER_TEMP, EVENT_OVER_CURRENT,
     EVENT_FAN_FAILURE, EVENT_PROBE_OPEN, EVENT_PROBE_SHORT,
-    EVENT_THERMAL_RUNAWAY, EVENT_COOLDOWN_OVERHEAT, EVENT_BIAS_GOOD_POST_FAIL,
+    EVENT_THERMAL_RUNAWAY, EVENT_COOLDOWN_OVERHEAT, EVENT_BIAS_GOOD_STUCK,
     EVENT_BIAS_GOOD_LOST -- and excludes
     EVENT_FAULT_RESET_PERSISTS, whose self-loop row carries FAULT_NONE (see
     the module docstring's self-loop scoping note).

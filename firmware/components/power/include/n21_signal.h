@@ -144,7 +144,10 @@ bool n21_line_report(const n21_line_agg_t *, float pan_model_w, float startup_bu
  * this output's rise minus its complement's fall (A_H<->A_L, B_H<->B_L), modulo the period. */
 typedef struct { uint32_t rise, high, period; bool valid; } n21_edge_t;
 typedef struct { uint64_t t_us; n21_edge_t out[4]; } n21_pwm_capture_t;
-typedef struct { bool permit, bus_fault, rail_ok, sup_run_ok; } n21_status_rb_t;
+/* Interlock read-backs. latch_ok: the interlock latch grants PERMIT (its Q; TCA9555 P10
+ * LATCHED_FAULT_RB low). permit_rb: the final PERMIT on J4.9 (GPIO36 through U9) = latch AND RUN_EN
+ * (U37, controller DECISIONS C23), so it is low whenever the run gate is off. */
+typedef struct { bool latch_ok, bus_fault, rail_ok, sup_run_ok, permit_rb; } n21_status_rb_t;
 void n21_feedback_from_capture(const n21_pwm_capture_t *, const n21_status_rb_t *,
                                uint32_t serial, bridge_feedback_t *);
 /* The adapter's own acceptance window (fullbridge_apply), for the bench PWM session, which runs

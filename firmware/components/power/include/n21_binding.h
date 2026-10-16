@@ -40,6 +40,23 @@
  * U37 (DECISIONS C23), so the gate can only remove permission. With run_gate == NULL (an earlier
  * capture without U37) the binding refuses N21_MODE_COMMISSIONED; bench bring-up uses the bounded
  * bench session instead.
+ *
+ * Interlock read-backs (n21_status_rb_t): the latch (latch_ok) qualifies arming and idle as
+ * before; the final PERMIT read-back must follow the gate: high while it is on, low while it is
+ * off. PERMIT_RB high with RUN_EN low means the gate can no longer remove permission (U37 or a
+ * PERMIT short): N21_FAULT_HW.
+ *
+ * Start sequence (controller DECISIONS C39; power-stage option P, c50-permit-gate; OPEN-ITEMS B13
+ * H2 check 2). Idle keeps the pads live with the gate off (capture qualification). The gate rises
+ * only with the pads forced low: RUN_EN rising re-arms the controller's capacitive-mode detector,
+ * and under option P the power board's BIAS_GOOD = bias_ok AND PERMIT starts only then. After
+ * cfg.start_check_us (config.yaml BIAS_GOOD_PERMIT_RISE_MS) PERMIT_RB must read high and BIAS_GOOD
+ * (ops.read_bias_good) must read high; only then are the pads released. If BIAS_GOOD is low or
+ * unreadable, RUN_EN drops again, the pads return to idle qualification and the request is held
+ * refused (telemetry bias_refused, "NO POWER BIAS") until it is withdrawn: no fault, and no retry
+ * per tick. The sequence runs at every gate rise (a start, or a restart after the request went to
+ * zero); with read_bias_good == NULL (no J4.1 input) the same order and wait apply without the
+ * check.
  */
 #include "power_service.h"
 #include "line_zc.h"
@@ -78,6 +95,9 @@ typedef struct {
      * older than aux_max_age_us, or outside [aux_min_a, aux_max_a], means the worst case. */
     float aux_slew_a;
     uint32_t aux_max_age_us;
+    /* Start sequence wait between RUN_EN rising (pads forced low) and the BIAS_GOOD check / pad
+     * release: config.yaml BIAS_GOOD_PERMIT_RISE_MS (2 ms). 500..10000 us. */
+    uint32_t start_check_us;
 } n21_config_t;
 
 typedef struct {
@@ -95,6 +115,12 @@ typedef struct {
     bool (*pwm_capture)(void *, n21_pwm_capture_t *);
     /* Firmware driver enable ANDed into PERMIT. NULL on the controller as captured (gap H1). */
     bool (*run_gate)(void *, bool on);
+    /* Control-context wait inside the start sequence: at least us, yielding so the acquisition
+     * context keeps sampling. Required for BENCH and COMMISSIONED. */
+    void (*delay_us)(void *, uint32_t us);
+    /* Power board BIAS_GOOD on J4.1 (B13 H2). false: unreadable. NULL: the controller has no J4.1
+     * input (CTRL_GPIO_BIAS_GOOD_RB undefined): no check, nothing claimed. */
+    bool (*read_bias_good)(void *, bool *high);
     bool (*read_status)(void *, n21_status_rb_t *);
     /* IL_RESET_N falling edge. The latch grants PERMIT only with every source healthy. */
     bool (*interlock_reset_pulse)(void *);
@@ -130,6 +156,10 @@ typedef struct {
     n21_half_result_t last_half;
     uint32_t halves_ok, halves_bad;
     bool have_half, zc_locked, pads_live, gate_on, armed_line, bench_active, sample_invalid;
+    /* Start sequence: the current request was refused (BIAS_GOOD not high after the gate rose). */
+    bool bias_refused;
+    uint64_t gate_edge_us;     /* last RUN_EN change (0 = none yet) */
+    uint32_t gate_rises;       /* start sequences run */
     n21_fault_t fault;
     /* frequency loop */
     uint32_t freq_hz, freq_target_hz, floor_hz;
@@ -171,6 +201,9 @@ typedef struct {
     float aux_now_a;            /* allowance in force, ramped per half */
     bool initialized, programmed, pads_live, gate_on, armed_line, invalid, have_sample;
     bool have_reset, bench_active;
+    bool bias_refused;          /* start sequence refused this request (set_request(false) clears) */
+    uint64_t gate_edge_us;      /* last RUN_EN change */
+    uint32_t gate_rises;
     bool half_live;             /* pads live at every sample of the open half */
     uint32_t rms_implaus_n;     /* consecutive stuck-low halves (tank_rms_implausible) */
 } n21_binding_t;

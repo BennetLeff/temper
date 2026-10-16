@@ -14,21 +14,30 @@ transitions:
   # INIT
   - { from: STATE_INIT, event: EVENT_SELFTEST_PASS,       to: STATE_IDLE }
   - { from: STATE_INIT, event: EVENT_SELFTEST_FAIL,       to: STATE_FAULT, fault: FAULT_SELF_TEST_FAILED }
-  # B13 H2 (power board s48, J4.1 BIAS_GOOD): high at the boot sample of a power-on reset, before
-  # the heartbeat can have started, or unreadable (power_bias_post_ok, platform_logic.c).
-  - { from: STATE_INIT, event: EVENT_BIAS_GOOD_POST_FAIL, to: STATE_FAULT, fault: FAULT_BIAS_GOOD_POST }
+  # B13 H2 check 1 (power board J4.1 BIAS_GOOD, option P: BIAS_GOOD = bias_ok AND PERMIT): not low
+  # while PERMIT_RB has been low >= BIAS_GOOD_PERMIT_FALL_MS (U40 stuck high / Y-VCC, U46.A or
+  # hsb_good shorts), debounced 3 of 8 samples (platform_bias_idle_step, platform_logic.c). Runs
+  # every tick in every state (check_bias_good, state_machine.c), so every non-fault state has the
+  # row; PERMIT is low in each of them at some time (PAN_DET before the first gate rise, PREHEAT /
+  # HEATING whenever the request is zero).
+  - { from: STATE_INIT, event: EVENT_BIAS_GOOD_STUCK,     to: STATE_FAULT, fault: FAULT_BIAS_GOOD_STUCK }
 
   # IDLE
   - { from: STATE_IDLE, event: EVENT_START_BUTTON,        to: STATE_PAN_DET }
+  - { from: STATE_IDLE, event: EVENT_BIAS_GOOD_STUCK,     to: STATE_FAULT, fault: FAULT_BIAS_GOOD_STUCK }
 
   # PAN_DET
   - { from: STATE_PAN_DET, event: EVENT_PAN_DETECTED,     to: STATE_PREHEAT }
   - { from: STATE_PAN_DET, event: EVENT_PAN_TIMEOUT,      to: STATE_IDLE }
-  # B13 H2: BIAS_GOOD not high when power is about to be requested -> refuse the start (no fault:
-  # the bias may still be coming up, or the TCO loop is open).
+  # B13 H2 check 2: the binding raised RUN_EN with the pads forced low and BIAS_GOOD was not high
+  # BIAS_GOOD_PERMIT_RISE_MS later -> RUN_EN dropped, the start is refused (no fault: the bias may
+  # still be coming up, or the TCO loop is open).
   - { from: STATE_PAN_DET, event: EVENT_BIAS_GOOD_LOW_AT_START, to: STATE_IDLE }
-  # B13 H2: BIAS_GOOD low (debounced, BIAS_GOOD_DROP_DEBOUNCE_MS) while power is requested.
+  # B13 H2 check 3: BIAS_GOOD low (debounced, BIAS_GOOD_DROP_DEBOUNCE_MS) while PERMIT_RB has been
+  # high >= BIAS_GOOD_PERMIT_RISE_MS. Keyed to PERMIT, so it has rows in the three states that
+  # raise it; PERMIT high anywhere else is itself a binding fault (PERMIT_RB high with RUN_EN low).
   - { from: STATE_PAN_DET, event: EVENT_BIAS_GOOD_LOST,   to: STATE_FAULT, fault: FAULT_BIAS_GOOD_LOST }
+  - { from: STATE_PAN_DET, event: EVENT_BIAS_GOOD_STUCK,  to: STATE_FAULT, fault: FAULT_BIAS_GOOD_STUCK }
 
   # PREHEAT
   - { from: STATE_PREHEAT, event: EVENT_NEAR_TARGET,      to: STATE_HEATING }
@@ -39,6 +48,9 @@ transitions:
   - { from: STATE_PREHEAT, event: EVENT_PROBE_OPEN,       to: STATE_FAULT, fault: FAULT_PROBE_OPEN }
   - { from: STATE_PREHEAT, event: EVENT_PROBE_SHORT,      to: STATE_FAULT, fault: FAULT_PROBE_SHORT }
   - { from: STATE_PREHEAT, event: EVENT_BIAS_GOOD_LOST,   to: STATE_FAULT, fault: FAULT_BIAS_GOOD_LOST }
+  - { from: STATE_PREHEAT, event: EVENT_BIAS_GOOD_STUCK,  to: STATE_FAULT, fault: FAULT_BIAS_GOOD_STUCK }
+  # B13 H2 check 2 at a restart (the request went to zero and back): refused -> COOLDOWN, no fault.
+  - { from: STATE_PREHEAT, event: EVENT_BIAS_GOOD_LOW_AT_START, to: STATE_COOLDOWN }
   - { from: STATE_PREHEAT, event: EVENT_PAN_REMOVED,      to: STATE_NO_PAN }
   - { from: STATE_PREHEAT, event: EVENT_STOP_BUTTON,      to: STATE_COOLDOWN }
 
@@ -51,6 +63,8 @@ transitions:
   - { from: STATE_HEATING, event: EVENT_PROBE_SHORT,      to: STATE_FAULT, fault: FAULT_PROBE_SHORT }
   - { from: STATE_HEATING, event: EVENT_THERMAL_RUNAWAY,  to: STATE_FAULT, fault: FAULT_THERMAL_RUNAWAY }
   - { from: STATE_HEATING, event: EVENT_BIAS_GOOD_LOST,   to: STATE_FAULT, fault: FAULT_BIAS_GOOD_LOST }
+  - { from: STATE_HEATING, event: EVENT_BIAS_GOOD_STUCK,  to: STATE_FAULT, fault: FAULT_BIAS_GOOD_STUCK }
+  - { from: STATE_HEATING, event: EVENT_BIAS_GOOD_LOW_AT_START, to: STATE_COOLDOWN }
   - { from: STATE_HEATING, event: EVENT_PAN_REMOVED,      to: STATE_NO_PAN }
   - { from: STATE_HEATING, event: EVENT_STOP_BUTTON,      to: STATE_COOLDOWN }
   - { from: STATE_HEATING, event: EVENT_TIMER_EXPIRED,    to: STATE_COOLDOWN }
@@ -59,10 +73,12 @@ transitions:
   - { from: STATE_NO_PAN, event: EVENT_PAN_REPLACED_SAME,        to: STATE_PREHEAT }
   - { from: STATE_NO_PAN, event: EVENT_PAN_REPLACED_DIFFERENT,   to: STATE_COOLDOWN }
   - { from: STATE_NO_PAN, event: EVENT_NO_PAN_TIMEOUT,           to: STATE_COOLDOWN }
+  - { from: STATE_NO_PAN, event: EVENT_BIAS_GOOD_STUCK,          to: STATE_FAULT, fault: FAULT_BIAS_GOOD_STUCK }
 
   # COOLDOWN
   - { from: STATE_COOLDOWN, event: EVENT_COOLED_DOWN,            to: STATE_IDLE }
   - { from: STATE_COOLDOWN, event: EVENT_COOLDOWN_OVERHEAT,      to: STATE_FAULT, fault: FAULT_COOLDOWN_OVERHEAT }
+  - { from: STATE_COOLDOWN, event: EVENT_BIAS_GOOD_STUCK,        to: STATE_FAULT, fault: FAULT_BIAS_GOOD_STUCK }
 
   # FAULT
   - { from: STATE_FAULT, event: EVENT_FAULT_RESET_CLEARED,       to: STATE_INIT }

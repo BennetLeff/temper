@@ -59,22 +59,47 @@ bool platform_power_tank_trip(bool known, int n21_fault)
 }
 
 /* ---------------------------------------------------------------- BIAS_GOOD read-back (B13 H2) */
-bool platform_bias_post_ok(platform_bias_level_t boot_sample, bool cold_boot)
+uint64_t platform_permit_step(platform_permit_t *p, bool permit_high, uint64_t now_us,
+                              uint64_t edge_us)
 {
-    switch (boot_sample) {
-    case PLATFORM_BIAS_NOT_FITTED:
-    case PLATFORM_BIAS_LOW:
-        return true;
-    case PLATFORM_BIAS_HIGH:
-        return !cold_boot;
-    default:
-        return false;
-    }
+    /* A RUN_EN edge after the previous sample and not in the future. */
+    bool edge = p->known && edge_us != 0 && edge_us > p->last_us && edge_us <= now_us;
+    if (!p->known || permit_high != p->high)
+        p->since_us = edge ? edge_us : now_us;
+    else if (edge)
+        p->since_us = edge_us; /* same level at both samples: a pulse ended at the edge */
+    p->known = true;
+    p->high = permit_high;
+    p->last_us = now_us;
+    return now_us - p->since_us;
 }
 
-bool platform_bias_start_permitted(platform_bias_level_t level)
+void platform_bias_idle_reset(platform_bias_idle_t *s)
 {
-    return level == PLATFORM_BIAS_NOT_FITTED || level == PLATFORM_BIAS_HIGH;
+    memset(s, 0, sizeof *s);
+}
+
+static unsigned bits_set(uint8_t v)
+{
+    unsigned n = 0;
+    for (; v; v &= (uint8_t)(v - 1u)) n++;
+    return n;
+}
+
+bool platform_bias_idle_step(platform_bias_idle_t *s, platform_bias_level_t level, bool permit_high,
+                             uint64_t permit_us, uint32_t fall_us, unsigned trip, unsigned window)
+{
+    if (s->tripped) return true;
+    if (level == PLATFORM_BIAS_NOT_FITTED || permit_high || permit_us < fall_us) {
+        s->history = 0;
+        return false;
+    }
+    if (window == 0 || window > 8) window = 8;
+    uint8_t mask = (uint8_t)((1u << window) - 1u);
+    bool failed = level != PLATFORM_BIAS_LOW;
+    s->history = (uint8_t)(((unsigned)s->history << 1 | (failed ? 1u : 0u)) & mask);
+    s->tripped = trip > 0 && bits_set(s->history) >= trip;
+    return s->tripped;
 }
 
 void platform_bias_run_reset(platform_bias_run_t *r)
@@ -98,6 +123,17 @@ bool platform_bias_run_step(platform_bias_run_t *r, platform_bias_level_t level,
     }
     r->last_ms = now_ms;
     return now_ms - r->first_low_ms >= debounce_ms;
+}
+
+bool platform_bias_lost_step(platform_bias_run_t *r, platform_bias_level_t level, bool permit_high,
+                             uint64_t permit_us, uint32_t rise_us, uint32_t now_ms,
+                             uint32_t debounce_ms)
+{
+    if (!permit_high || permit_us < rise_us) {
+        platform_bias_run_reset(r);
+        return false;
+    }
+    return platform_bias_run_step(r, level, now_ms, debounce_ms);
 }
 
 /* ---------------------------------------------------------------- blower request */

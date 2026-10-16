@@ -189,7 +189,7 @@ void n21_feedback_from_capture(const n21_pwm_capture_t *c, const n21_status_rb_t
     f->serial = serial;
     f->rails_ok = s->rail_ok;
     f->sup_run_ok = s->sup_run_ok;
-    f->interlock_ok = s->permit;
+    f->interlock_ok = s->latch_ok;
     f->bus_fault = s->bus_fault;
     for (unsigned n = 0; n < 4; n++) {
         const n21_edge_t *e = &c->out[n], *q = &c->out[n ^ 1u]; /* complement in the same leg */

@@ -1,6 +1,7 @@
 /* Native-21 binding: pure signal layer and the binding driven through power_service with a fake
  * HAL. Assertions are the oracle (built with -UNDEBUG). */
 #include "n21_binding.h"
+#include "../config.h" /* BIAS_GOOD_PERMIT_RISE_MS */
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -34,9 +35,23 @@ typedef struct {
     float ct_scale, rms_gain;
     unsigned burst_period, burst_on;
     int pending; /* 0: next edge rise, 1: next edge fall */
+    /* Interlock: permit = the latch (latch_ok). PERMIT_RB = latch AND RUN_EN (C23) unless U37 /
+     * PERMIT is stuck. */
+    bool permit_stuck_high, permit_stuck_low;
+    /* Power board BIAS_GOOD on J4.1, option P: bias_ok AND PERMIT, reaching VIH at GPIO35
+     * bias_rise_us after RUN_EN rises (0.53 ms worst case, c50). */
+    bool bias_fitted, bias_ok, bias_stuck_high, bias_read_fail, bias_read_since_rise;
+    bool bench; /* bench sessions wait but never read BIAS_GOOD (PERMIT may be low on purpose) */
+    uint32_t bias_rise_us;
+    uint64_t gate_rise_us;
+    unsigned bias_reads, delays;
 } fake_t;
 static fake_t F;
 static n21_binding_t B;
+/* Start-order breaches seen by the fake HAL, over the whole run (main() asserts zero):
+ * RUN_EN rising while the pads are live (controller DECISIONS C39), and pads released with RUN_EN
+ * up before the start check (start_check_us after the rise, and BIAS_GOOD read if fitted). */
+static unsigned c39_gate_rise_with_pads_live, c39_pads_released_early;
 
 static uint64_t f_now(void *c) { (void)c; return F.now; }
 static bool f_program(void *c, const bridge_cycle_t *k) { (void)c; F.programs++; F.programmed = *k; return !F.program_fail; }
@@ -63,11 +78,41 @@ static double model_z(double *lag_deg)
 static bool f_outputs(void *c, bool live)
 {
     (void)c;
+    if (live && !F.pads_live && F.gate &&
+        (F.now - F.gate_rise_us < BIAS_GOOD_PERMIT_RISE_MS * 1000u || (F.bias_fitted && !F.bench && !F.bias_read_since_rise)))
+        c39_pads_released_early++;
     if (live) { F.outputs_on++; if (F.outputs_fail) return false; F.pads_live = true; }
     else { F.outputs_off++; F.pads_live = false; } /* low even if reporting failure */
     return !F.outputs_fail;
 }
-static bool f_gate(void *c, bool on) { (void)c; if (on) F.gate_on_calls++; F.gate = on; return true; }
+static bool f_gate(void *c, bool on)
+{
+    (void)c;
+    if (on) F.gate_on_calls++;
+    if (on && !F.gate) {
+        if (F.pads_live) c39_gate_rise_with_pads_live++;
+        F.gate_rise_us = F.now;
+        F.bias_read_since_rise = false;
+    }
+    F.gate = on;
+    return true;
+}
+static bool permit_rb(void)
+{
+    if (F.permit_stuck_high) return true;
+    if (F.permit_stuck_low) return false;
+    return F.permit && F.gate;
+}
+static bool f_bias(void *c, bool *high)
+{
+    (void)c;
+    F.bias_reads++;
+    if (F.gate) F.bias_read_since_rise = true;
+    *high = F.bias_stuck_high ||
+            (F.bias_ok && permit_rb() && F.gate && F.now - F.gate_rise_us >= F.bias_rise_us);
+    return !F.bias_read_fail;
+}
+static void f_delay(void *c, uint32_t us);
 static bool f_capture(void *c, n21_pwm_capture_t *cap)
 {
     (void)c;
@@ -82,7 +127,7 @@ static bool f_capture(void *c, n21_pwm_capture_t *cap)
 static bool f_status(void *c, n21_status_rb_t *s)
 {
     (void)c;
-    *s = (n21_status_rb_t){F.permit, F.bus_fault, F.rail_ok, F.sup_run_ok};
+    *s = (n21_status_rb_t){F.permit, F.bus_fault, F.rail_ok, F.sup_run_ok, permit_rb()};
     return !F.status_fail;
 }
 static bool f_reset(void *c)
@@ -172,6 +217,7 @@ static const n21_hw_ops_t OPS = {
     .now_us = f_now, .pwm_program = f_program, .pwm_update = f_update, .pwm_outputs = f_outputs,
     .pwm_capture = f_capture, .run_gate = f_gate, .read_status = f_status, .interlock_reset_pulse = f_reset,
     .read_adc1 = f_adc1, .read_ext_adc = f_ext, .read_ct_zc = f_ct_zc, .line_zc_edges = f_edges,
+    .delay_us = f_delay, .read_bias_good = f_bias,
 };
 
 /* Blower-schedule allowance handed to the binding every 100 ms by run_ms() (thermal_io.c does it
@@ -194,11 +240,14 @@ static void fake_reset(bool with_gate)
     F.lag_deg = 30.0f;
     F.ref_v3v3 = 3.30f;
     F.ct_scale = F.rms_gain = 1.0f;
+    F.bias_fitted = F.bias_ok = true;
+    F.bias_rise_us = 530;
 }
 static n21_hw_ops_t ops(void)
 {
     n21_hw_ops_t o = OPS;
     if (!F.has_gate) o.run_gate = NULL;
+    if (!F.bias_fitted) o.read_bias_good = NULL;
     return o;
 }
 static n21_config_t commissioned_cfg(void)
@@ -218,6 +267,18 @@ static void run_ms(unsigned ms)
         if (isfinite(G_aux) && F.now % 100000 == 0) (void)n21_set_aux_allowance(&B, G_aux);
         if (F.acquiring && F.now % 625 == 0) n21_acquire_step(&B);
         if (F.now % 10000 == 0) power_service_tick();
+    }
+}
+/* The start sequence's wait: time runs on, and so does the acquisition context (the control task
+ * yields), but no control tick. */
+static void f_delay(void *c, uint32_t us)
+{
+    (void)c;
+    F.delays++;
+    uint64_t end = F.now + us;
+    while (F.now < end) {
+        F.now += 125;
+        if (F.acquiring && F.now % 625 == 0) n21_acquire_step(&B);
     }
 }
 static bool bind_commissioned(n21_config_t c)
@@ -406,7 +467,8 @@ static void test_feedback(void)
     assert(bridge_plan_cycle(80000000, 50000, 200, 1.0f, &c) && c.period == 1600 && c.dead_ticks == 16);
     n21_pwm_capture_t cap = {.t_us = 1234};
     for (unsigned n = 0; n < 4; n++) cap.out[n] = (n21_edge_t){c.pulse[n].rise, c.pulse[n].width, c.period, true};
-    n21_status_rb_t s = {.permit = true, .bus_fault = false, .rail_ok = true, .sup_run_ok = true};
+    n21_status_rb_t s = {.latch_ok = true, .bus_fault = false, .rail_ok = true, .sup_run_ok = true,
+                         .permit_rb = false};
     bridge_feedback_t f;
     n21_feedback_from_capture(&cap, &s, 7, &f);
     assert(f.sampled_us == 1234 && f.serial == 7 && f.interlock_ok && f.rails_ok && !f.bus_fault);
@@ -1122,6 +1184,232 @@ static void test_rms_plausibility(void)
     tests++;
 }
 
+/* ============================================================ start sequence (C39, B13 H2 check 2) */
+static n21_telemetry_t tele(void)
+{
+    n21_telemetry_t t;
+    n21_telemetry(&B, &t);
+    return t;
+}
+
+static void test_start_check_default_matches_config(void)
+{
+    n21_config_t c = n21_config_default();
+    assert(c.start_check_us == BIAS_GOOD_PERMIT_RISE_MS * 1000u);
+    /* Bounded: a missing or absurd wait is a refused configuration. */
+    fake_reset(true);
+    n21_hw_ops_t o = ops();
+    power_binding_t pb;
+    c = commissioned_cfg();
+    c.start_check_us = 0;
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
+    c.start_check_us = 20000;
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR);
+    /* The wait needs a delay op (COMMISSIONED and BENCH). */
+    c = commissioned_cfg();
+    o.delay_us = NULL;
+    assert(n21_binding_init(&B, &c, &o, &pb) == N21_INIT_ERROR && inhibited());
+    tests++;
+}
+
+/* RUN_EN rises only with the pads forced low; BIAS_GOOD is read start_check_us later and only
+ * then are the pads released (DECISIONS C39). Once per start: the per-tick set_request(true)
+ * does not run the sequence again. */
+static void test_start_order_c39(void)
+{
+    fake_reset(true);
+    unsigned rise0 = c39_gate_rise_with_pads_live, early0 = c39_pads_released_early;
+    assert(bind_commissioned(commissioned_cfg()));
+    run_ms(100);
+    assert(F.pads_live && !F.gate && !permit_rb() && test_pwm_generation()); /* armed idle */
+    unsigned reads0 = F.bias_reads;
+    power_set_level(50);
+    run_ms(200);
+    n21_telemetry_t t = tele();
+    assert(F.gate && F.pads_live && test_pwm_generation() && t.gate_on && !t.bias_refused);
+    assert(t.gate_rises == 1 && F.bias_reads == reads0 + 1 && F.delays >= 1);
+    assert(t.gate_edge_us == F.gate_rise_us);
+    assert(c39_gate_rise_with_pads_live == rise0 && c39_pads_released_early == early0);
+    /* Running on: no new start, no new read, RUN_EN stays up. */
+    unsigned on_calls = F.gate_on_calls;
+    run_ms(1000);
+    t = tele();
+    assert(t.gate_rises == 1 && F.bias_reads == reads0 + 1 && F.gate && F.gate_on_calls > on_calls);
+    assert(t.gate_edge_us == F.gate_rise_us);
+    /* A stop and a new request is a new start (under P, BIAS_GOOD fell with PERMIT). */
+    power_set_level(0);
+    run_ms(50);
+    t = tele();
+    assert(!F.gate && F.pads_live && !t.gate_on && t.gate_edge_us > F.gate_rise_us);
+    power_set_level(30);
+    run_ms(100);
+    t = tele();
+    assert(F.gate && t.gate_rises == 2 && F.bias_reads == reads0 + 2 && test_pwm_generation());
+    assert(c39_gate_rise_with_pads_live == rise0 && c39_pads_released_early == early0);
+    tests++;
+}
+
+/* BIAS_GOOD not high start_check_us after RUN_EN: RUN_EN drops again, the pads go back to idle
+ * qualification, the request is held refused (no retry per tick), no fault; withdrawing the
+ * request clears it, and a later start with the bias up runs. */
+static void test_start_refused_bias_low(void)
+{
+    fake_reset(true);
+    F.bias_ok = false;
+    assert(bind_commissioned(commissioned_cfg()));
+    run_ms(100);
+    power_set_level(50);
+    run_ms(300);
+    n21_telemetry_t t = tele();
+    assert(t.bias_refused && !t.gate_on && !F.gate && F.pads_live && t.fault == N21_FAULT_NONE);
+    assert(test_pwm_generation());           /* not tripped: a refusal is not a fault */
+    assert(t.gate_rises == 1 && F.gate_on_calls == 1); /* one 2 ms RUN_EN pulse, then held low */
+    assert(t.gate_edge_us > F.gate_rise_us && t.gate_edge_us - F.gate_rise_us >= 2000u);
+    run_ms(500);
+    t = tele();
+    assert(t.bias_refused && t.gate_rises == 1 && F.gate_on_calls == 1 && test_pwm_generation());
+    /* The state machine withdraws the request ("NO POWER BIAS"): refusal cleared. */
+    power_set_level(0);
+    run_ms(30);
+    t = tele();
+    assert(!t.bias_refused && !F.gate && test_pwm_generation());
+    /* Bias up: the next start runs. */
+    F.bias_ok = true;
+    power_set_level(50);
+    run_ms(200);
+    t = tele();
+    assert(!t.bias_refused && F.gate && t.gate_rises == 2 && test_pwm_generation());
+    assert(c39_gate_rise_with_pads_live == 0 && c39_pads_released_early == 0);
+    tests++;
+}
+
+/* The wait is the check's margin: a board whose J4.1 rises later than start_check_us is refused,
+ * one inside it starts; an unreadable input is refused; a stuck-high BIAS_GOOD passes check 2
+ * (check 1, in the platform, is the one that sees it). */
+static void test_start_check_timing_and_read_failure(void)
+{
+    const uint32_t rise[] = {530, 1999, 2001, 5000};
+    const bool ok[] = {true, true, false, false};
+    for (unsigned k = 0; k < 4; k++) {
+        fake_reset(true);
+        F.bias_rise_us = rise[k];
+        assert(bind_commissioned(commissioned_cfg()));
+        run_ms(100);
+        power_set_level(50);
+        run_ms(200);
+        n21_telemetry_t t = tele();
+        assert(t.bias_refused == !ok[k] && F.gate == ok[k] && test_pwm_generation());
+    }
+    fake_reset(true);
+    F.bias_read_fail = true;
+    assert(bind_commissioned(commissioned_cfg()));
+    run_ms(100);
+    power_set_level(50);
+    run_ms(200);
+    assert(tele().bias_refused && !F.gate && test_pwm_generation());
+    fake_reset(true);
+    F.bias_ok = false;
+    F.bias_stuck_high = true;
+    assert(bind_commissioned(commissioned_cfg()));
+    run_ms(100);
+    power_set_level(50);
+    run_ms(200);
+    assert(!tele().bias_refused && F.gate);
+    tests++;
+}
+
+/* No J4.1 input on this controller: the same order and wait, nothing read, nothing refused. */
+static void test_start_not_fitted(void)
+{
+    fake_reset(true);
+    F.bias_fitted = false;
+    F.bias_ok = false;                       /* would refuse if it were read */
+    assert(bind_commissioned(commissioned_cfg()));
+    run_ms(100);
+    power_set_level(50);
+    run_ms(200);
+    n21_telemetry_t t = tele();
+    assert(F.gate && !t.bias_refused && F.bias_reads == 0 && F.delays >= 1 && t.gate_rises == 1);
+    assert(c39_gate_rise_with_pads_live == 0 && c39_pads_released_early == 0);
+    tests++;
+}
+
+/* PERMIT_RB must follow RUN_EN (C23). High with RUN_EN low: the gate can no longer remove
+ * permission -> N21_FAULT_HW before arming. Low after RUN_EN rose with the latch granted (U37
+ * output stuck low): the start fails, the adapter trips, pads and gate low. */
+static void test_permit_rb_follows_gate(void)
+{
+    fake_reset(true);
+    F.permit_stuck_high = true;
+    assert(bind_commissioned(commissioned_cfg()));
+    power_set_level(50);
+    run_ms(300);
+    assert(B.fault == N21_FAULT_HW && inhibited() && !test_pwm_generation() && F.gate_on_calls == 0);
+
+    fake_reset(true);
+    F.permit_stuck_low = true;
+    assert(bind_commissioned(commissioned_cfg()));
+    run_ms(100);
+    assert(F.pads_live && !F.gate && test_pwm_generation()); /* idle: low is the expected level */
+    power_set_level(50);
+    run_ms(100);
+    assert(inhibited() && !test_pwm_generation() && F.gate_on_calls == 1 && F.bias_reads == 0);
+    /* Running, then U37 sticks high while the gate is off again. */
+    fake_reset(true);
+    assert(bind_commissioned(commissioned_cfg()));
+    power_set_level(50);
+    run_ms(300);
+    power_set_level(0);
+    run_ms(30);
+    assert(!F.gate && test_pwm_generation());
+    F.permit_stuck_high = true;
+    run_ms(30);
+    assert(B.fault == N21_FAULT_HW && inhibited() && !test_pwm_generation());
+    tests++;
+}
+
+/* A latch trip inside the start wait: PERMIT_RB does not come up, the start fails (a fault, not a
+ * refusal). */
+static void test_latch_trip_during_start(void)
+{
+    fake_reset(true);
+    assert(bind_commissioned(commissioned_cfg()));
+    run_ms(100);
+    F.permit = false;                        /* tripped between the idle sample and the start */
+    power_set_level(50);
+    run_ms(100);
+    assert(inhibited() && !test_pwm_generation() && !tele().bias_refused);
+    tests++;
+}
+
+/* Bench sessions follow the same order (gate, wait, pads) with a run gate, and never read
+ * BIAS_GOOD (they also run with PERMIT low on purpose). */
+static void test_bench_start_order(void)
+{
+    fake_reset(true);
+    F.bench = true;
+    n21_config_t c = n21_config_default();
+    c.mode = N21_MODE_BENCH;
+    c.freq.f_max_hz = 50000;
+    n21_hw_ops_t o = ops();
+    assert(n21_binding_init(&B, &c, &o, NULL) == N21_INIT_BENCH);
+    for (int k = 0; k < 4; k++) { F.now += 625; n21_acquire_step(&B); }
+    uint64_t t0 = F.now;
+    assert(n21_bench_start(&B, 50, true) && F.pads_live && F.gate);
+    assert(F.now - t0 >= BIAS_GOOD_PERMIT_RISE_MS * 1000u && F.bias_reads == 0);
+    n21_bench_stop(&B);
+    assert(inhibited());
+    /* PERMIT_RB high with the gate off: refused, latched. */
+    fake_reset(true);
+    F.bench = true;
+    o = ops();
+    assert(n21_binding_init(&B, &c, &o, NULL) == N21_INIT_BENCH);
+    for (int k = 0; k < 4; k++) { F.now += 625; n21_acquire_step(&B); }
+    F.permit_stuck_high = true;
+    assert(!n21_bench_start(&B, 50, true) && B.fault == N21_FAULT_HW && inhibited());
+    tests++;
+}
+
 int main(void)
 {
     test_scaling();
@@ -1145,6 +1433,17 @@ int main(void)
     test_power_level_live();
     test_aux_allowance_live();
     test_rms_plausibility();
+    test_start_check_default_matches_config();
+    test_start_order_c39();
+    test_start_refused_bias_low();
+    test_start_check_timing_and_read_failure();
+    test_start_not_fitted();
+    test_permit_rb_follows_gate();
+    test_latch_trip_during_start();
+    test_bench_start_order();
+    /* Over every test above: RUN_EN never rose with the pads live, and the pads were never
+     * released with RUN_EN up before the start check. */
+    assert(c39_gate_rise_with_pads_live == 0 && c39_pads_released_early == 0);
     printf("n21 binding: %u tests passed\n", tests);
     return 0;
 }

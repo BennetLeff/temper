@@ -34,8 +34,8 @@ extern void  mock_sm_set_pan_temperature(float temp_c);
 extern void  mock_sm_set_heatsink_temperature(float temp_c);
 extern void  mock_sm_set_power_bus_fault(bool tripped);
 extern void  mock_sm_set_power_tank_trip(bool tripped);
-extern void  mock_sm_set_bias_post_ok(bool ok);
 extern void  mock_sm_set_bias_good(bool high);
+extern void  mock_sm_set_bias_stuck(bool stuck);
 extern void  mock_sm_set_rtd_resistance(float ohms);
 extern void  mock_sm_set_pan_status(int status);
 extern void  mock_sm_set_fan_running(bool running);
@@ -62,7 +62,7 @@ extern uint32_t     mock_sm_get_power_level(void);
 #define PAN_ABSENT_THRESHOLD  3.0f
 #define PAN_CONFIDENCE_NEEDED 3
 #define DT_MS                 100    /* 100 ms per tick (matches plant model dt) */
-#define MAX_MANIFEST_ENTRIES  64
+#define MAX_MANIFEST_ENTRIES  64   /* DECLARE_SIL_TEST(0..63) below */
 #define MAX_CSV_LINE_LEN      512
 #define MANIFEST_PATH         "traces/manifest.json"
 
@@ -100,7 +100,7 @@ static fault_code_t parse_fault_code(const char *str) {
     if (!strcmp(str, "FAULT_SELF_TEST_FAILED"))        return FAULT_SELF_TEST_FAILED;
     if (!strcmp(str, "FAULT_WATCHDOG_RESET"))          return FAULT_WATCHDOG_RESET;
     if (!strcmp(str, "FAULT_PAN_DETECT_HW"))           return FAULT_PAN_DETECT_HW;
-    if (!strcmp(str, "FAULT_BIAS_GOOD_POST"))          return FAULT_BIAS_GOOD_POST;
+    if (!strcmp(str, "FAULT_BIAS_GOOD_STUCK"))         return FAULT_BIAS_GOOD_STUCK;
     if (!strcmp(str, "FAULT_BIAS_GOOD_LOST"))          return FAULT_BIAS_GOOD_LOST;
     return FAULT_NONE;
 }
@@ -210,8 +210,8 @@ typedef struct {
                                   demonstrated-gap scenarios that are not
                                   expected to reach a safe state */
     bool self_test_pass;     /* initial_conditions */
-    bool bias_post_ok;       /* initial_conditions.bias_good_post_ok (default true): the B13 H2
-                                boot-sample verdict the INIT self-test reads */
+    bool bias_stuck;         /* initial_conditions.bias_stuck (default false): the B13 H2 check 1
+                                verdict from the first update (INIT), before any trace row */
     system_state_t origin_state; /* state the manifest defines this fault
                                      path from (INIT/PAN_DET/PREHEAT/HEATING/
                                      COOLDOWN); defaults to HEATING */
@@ -266,7 +266,7 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
         manifest_entry_t *e = &entries[count];
         memset(e, 0, sizeof(*e));
         e->self_test_pass = true; /* default */
-        e->bias_post_ok = true;   /* default */
+        e->bias_stuck = false;    /* default */
         e->origin_state = STATE_HEATING; /* default: matches the legacy
                                              single-trajectory scenarios */
         e->expected_state = STATE_INIT;
@@ -312,10 +312,10 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
                             p = skip_ws(p);
                             if (!strncmp(p, "true", 4)) { e->self_test_pass = true; p += 4; }
                             else if (!strncmp(p, "false", 5)) { e->self_test_pass = false; p += 5; }
-                        } else if (!strcmp(ik, "bias_good_post_ok")) {
+                        } else if (!strcmp(ik, "bias_stuck")) {
                             p = skip_ws(p);
-                            if (!strncmp(p, "true", 4)) { e->bias_post_ok = true; p += 4; }
-                            else if (!strncmp(p, "false", 5)) { e->bias_post_ok = false; p += 5; }
+                            if (!strncmp(p, "true", 4)) { e->bias_stuck = true; p += 4; }
+                            else if (!strncmp(p, "false", 5)) { e->bias_stuck = false; p += 5; }
                         } else {
                             skip_value(&p);
                         }
@@ -495,10 +495,13 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
  * CSV parsing
  * --------------------------------------------------------------------------- */
 
-typedef float csvrow_t[8]; /* 0=tick, 1=hs_temp, 2=pan_temp, 3=power_trip,
-                              4=rtd, 5=pan_imp, 6=fan_run, 7=bias_good */
-/* bias_good (optional 8th column, default 1): the power board's BIAS_GOOD read-back on J4.1
- * (s48, OPEN-ITEMS B13 H2). 0 = low: power_bias_lost() true and the start is not permitted. */
+typedef float csvrow_t[9]; /* 0=tick, 1=hs_temp, 2=pan_temp, 3=power_trip,
+                              4=rtd, 5=pan_imp, 6=fan_run, 7=bias_good, 8=bias_stuck */
+/* bias_good (optional 8th column, default 1): the power board's bias chain (OPEN-ITEMS B13 H2,
+ * option P: the J4.1 read-back is bias_ok AND PERMIT). 0 = bias lost: FAULT_BIAS_GOOD_LOST while
+ * PERMIT is up (check 3), a refused start at the next RUN_EN rise (check 2).
+ * bias_stuck (optional 9th column, default 0): 1 = check 1's verdict (BIAS_GOOD not low with
+ * PERMIT low: U40 stuck high, Y-VCC) -> FAULT_BIAS_GOOD_STUCK. */
 /* power_trip (native-21 over-current sources, design lead decision 2026-10-12): 0 = healthy,
  * 1 = n21 binding CT peak / RMS trip (FAULT_OVER_CURRENT), 2 = BUS_FAULT read-back or PERMIT drop
  * while running (FAULT_IGBT_SHORT). Replaces the legacy dc_current column (> 40 A -> 1,
@@ -526,14 +529,15 @@ static int load_csv(const char *path, csvrow_t *rows, int max_rows) {
         }
 
         int parsed = sscanf(line,
-            "%f,%f,%f,%f,%f,%f,%f,%f",
+            "%f,%f,%f,%f,%f,%f,%f,%f,%f",
             &rows[count][0], &rows[count][1], &rows[count][2],
             &rows[count][3], &rows[count][4], &rows[count][5],
-            &rows[count][6], &rows[count][7]);
+            &rows[count][6], &rows[count][7], &rows[count][8]);
 
         if (parsed >= 6) {
             if (parsed < 7) rows[count][6] = 1.0f; /* fan running unless the trace says otherwise */
-            if (parsed < 8) rows[count][7] = 1.0f; /* BIAS_GOOD high unless the trace says otherwise */
+            if (parsed < 8) rows[count][7] = 1.0f; /* bias ok unless the trace says otherwise */
+            if (parsed < 9) rows[count][8] = 0.0f; /* BIAS_GOOD not stuck unless the trace says so */
             count++;
         }
     }
@@ -561,7 +565,7 @@ static void sm_boilerplate_to_origin(system_state_t origin, bool self_test_pass)
 
     /* Self-test failure short-circuits every origin: already in FAULT. */
     if (state_machine_get_state() == STATE_FAULT) return;
-    if (origin == STATE_INIT) return;
+    if (origin == STATE_INIT || origin == STATE_IDLE) return;
 
     /* IDLE -> PAN_DET */
     state_machine_set_target_temp(100.0f);
@@ -618,6 +622,7 @@ static int check_trace_invariants(const csvrow_t *rows, int row_count,
         float rtd  = rows[t][4];
         bool  fan  = (rows[t][6] > 0.5f);
         bool  bias = (rows[t][7] > 0.5f);
+        bool  stuck = (rows[t][8] > 0.5f);
 
         /* Base case 1: absolute temperature */
         if (pan > INV_MAX_ABSOLUTE_TEMP_C) {
@@ -675,9 +680,15 @@ static int check_trace_invariants(const csvrow_t *rows, int row_count,
             violations++;
         }
 
-        /* Base case 7: BIAS_GOOD read-back low (B13 H2) */
+        /* Base case 7: bias chain lost (B13 H2 check 3 / check 2) */
         if (!bias) {
             printf("  [INV] tick %d: bias_good low\n", t);
+            violations++;
+        }
+
+        /* Base case 8: BIAS_GOOD stuck (B13 H2 check 1) */
+        if (stuck) {
+            printf("  [INV] tick %d: bias_stuck\n", t);
             violations++;
         }
     }
@@ -766,7 +777,7 @@ static void run_sil_timing_test(const manifest_entry_t *entry) {
     state_machine_init();
     uint32_t pwm_disable_baseline = mock_sm_get_pwm_disable_count();
 
-    mock_sm_set_bias_post_ok(entry->bias_post_ok);
+    mock_sm_set_bias_stuck(entry->bias_stuck);
     sm_boilerplate_to_origin(entry->origin_state, entry->self_test_pass);
 
     if (!entry->self_test_pass) {
@@ -864,7 +875,7 @@ static void run_sil_test(const manifest_entry_t *entry) {
 
     /* Boilerplate: get to the scenario's designed origin state (or FAULT if
      * self-test fails) */
-    mock_sm_set_bias_post_ok(entry->bias_post_ok);
+    mock_sm_set_bias_stuck(entry->bias_stuck);
     sm_boilerplate_to_origin(entry->origin_state, entry->self_test_pass);
 
     /* If self-test was set to fail, we should already be in FAULT */
@@ -930,8 +941,10 @@ static void run_sil_test(const manifest_entry_t *entry) {
         bool fan = (rows[t][6] > 0.5f);
         mock_sm_set_fan_running(fan);
 
-        /* BIAS_GOOD read-back (B13 H2) */
+        /* BIAS_GOOD read-back (B13 H2): the bias chain, and check 1's verdict (an initial-condition
+         * stuck verdict stays: the platform latches it) */
         mock_sm_set_bias_good(rows[t][7] > 0.5f);
+        mock_sm_set_bias_stuck(entry->bias_stuck || rows[t][8] > 0.5f);
 
         /* Advance time */
         mock_sm_advance_time(DT_MS);
@@ -1033,6 +1046,38 @@ DECLARE_SIL_TEST(28)
 DECLARE_SIL_TEST(29)
 DECLARE_SIL_TEST(30)
 DECLARE_SIL_TEST(31)
+DECLARE_SIL_TEST(32)
+DECLARE_SIL_TEST(33)
+DECLARE_SIL_TEST(34)
+DECLARE_SIL_TEST(35)
+DECLARE_SIL_TEST(36)
+DECLARE_SIL_TEST(37)
+DECLARE_SIL_TEST(38)
+DECLARE_SIL_TEST(39)
+DECLARE_SIL_TEST(40)
+DECLARE_SIL_TEST(41)
+DECLARE_SIL_TEST(42)
+DECLARE_SIL_TEST(43)
+DECLARE_SIL_TEST(44)
+DECLARE_SIL_TEST(45)
+DECLARE_SIL_TEST(46)
+DECLARE_SIL_TEST(47)
+DECLARE_SIL_TEST(48)
+DECLARE_SIL_TEST(49)
+DECLARE_SIL_TEST(50)
+DECLARE_SIL_TEST(51)
+DECLARE_SIL_TEST(52)
+DECLARE_SIL_TEST(53)
+DECLARE_SIL_TEST(54)
+DECLARE_SIL_TEST(55)
+DECLARE_SIL_TEST(56)
+DECLARE_SIL_TEST(57)
+DECLARE_SIL_TEST(58)
+DECLARE_SIL_TEST(59)
+DECLARE_SIL_TEST(60)
+DECLARE_SIL_TEST(61)
+DECLARE_SIL_TEST(62)
+DECLARE_SIL_TEST(63)
 
 int main(void) {
     g_entry_count = parse_manifest(g_entries, MAX_MANIFEST_ENTRIES);
@@ -1081,6 +1126,38 @@ int main(void) {
             case 29: RUN_TEST(test_sil_29); break;
             case 30: RUN_TEST(test_sil_30); break;
             case 31: RUN_TEST(test_sil_31); break;
+            case 32: RUN_TEST(test_sil_32); break;
+            case 33: RUN_TEST(test_sil_33); break;
+            case 34: RUN_TEST(test_sil_34); break;
+            case 35: RUN_TEST(test_sil_35); break;
+            case 36: RUN_TEST(test_sil_36); break;
+            case 37: RUN_TEST(test_sil_37); break;
+            case 38: RUN_TEST(test_sil_38); break;
+            case 39: RUN_TEST(test_sil_39); break;
+            case 40: RUN_TEST(test_sil_40); break;
+            case 41: RUN_TEST(test_sil_41); break;
+            case 42: RUN_TEST(test_sil_42); break;
+            case 43: RUN_TEST(test_sil_43); break;
+            case 44: RUN_TEST(test_sil_44); break;
+            case 45: RUN_TEST(test_sil_45); break;
+            case 46: RUN_TEST(test_sil_46); break;
+            case 47: RUN_TEST(test_sil_47); break;
+            case 48: RUN_TEST(test_sil_48); break;
+            case 49: RUN_TEST(test_sil_49); break;
+            case 50: RUN_TEST(test_sil_50); break;
+            case 51: RUN_TEST(test_sil_51); break;
+            case 52: RUN_TEST(test_sil_52); break;
+            case 53: RUN_TEST(test_sil_53); break;
+            case 54: RUN_TEST(test_sil_54); break;
+            case 55: RUN_TEST(test_sil_55); break;
+            case 56: RUN_TEST(test_sil_56); break;
+            case 57: RUN_TEST(test_sil_57); break;
+            case 58: RUN_TEST(test_sil_58); break;
+            case 59: RUN_TEST(test_sil_59); break;
+            case 60: RUN_TEST(test_sil_60); break;
+            case 61: RUN_TEST(test_sil_61); break;
+            case 62: RUN_TEST(test_sil_62); break;
+            case 63: RUN_TEST(test_sil_63); break;
             default: break;
         }
     }

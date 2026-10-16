@@ -18,8 +18,10 @@ extern void mock_sm_set_pan_temperature(float temp_c);
 extern void mock_sm_set_heatsink_temperature(float temp_c);
 extern void mock_sm_set_power_bus_fault(bool tripped);
 extern void mock_sm_set_power_tank_trip(bool tripped);
-extern void mock_sm_set_bias_post_ok(bool ok);
 extern void mock_sm_set_bias_good(bool high);
+extern void mock_sm_set_bias_stuck(bool stuck);
+extern void mock_sm_set_bias_start_refused(bool refused);
+extern void power_set_level(uint8_t level);
 extern void mock_sm_set_rtd_resistance(float ohms);
 extern void mock_sm_set_pan_status(int status);
 extern void mock_sm_set_pan_impedance(float impedance);
@@ -43,12 +45,14 @@ typedef struct {
 static const transition_row_t transition_table[] = {
     { STATE_INIT, "SELFTEST_PASS", STATE_IDLE, FAULT_NONE, false },
     { STATE_INIT, "SELFTEST_FAIL", STATE_FAULT, FAULT_SELF_TEST_FAILED, true },
-    { STATE_INIT, "BIAS_GOOD_POST_FAIL", STATE_FAULT, FAULT_BIAS_GOOD_POST, true },
+    { STATE_INIT, "BIAS_GOOD_STUCK", STATE_FAULT, FAULT_BIAS_GOOD_STUCK, true },
     { STATE_IDLE, "START_BUTTON", STATE_PAN_DET, FAULT_NONE, false },
+    { STATE_IDLE, "BIAS_GOOD_STUCK", STATE_FAULT, FAULT_BIAS_GOOD_STUCK, true },
     { STATE_PAN_DET, "PAN_DETECTED", STATE_PREHEAT, FAULT_NONE, false },
     { STATE_PAN_DET, "PAN_TIMEOUT", STATE_IDLE, FAULT_NONE, false },
     { STATE_PAN_DET, "BIAS_GOOD_LOW_AT_START", STATE_IDLE, FAULT_NONE, false },
     { STATE_PAN_DET, "BIAS_GOOD_LOST", STATE_FAULT, FAULT_BIAS_GOOD_LOST, true },
+    { STATE_PAN_DET, "BIAS_GOOD_STUCK", STATE_FAULT, FAULT_BIAS_GOOD_STUCK, true },
     { STATE_PREHEAT, "NEAR_TARGET", STATE_HEATING, FAULT_NONE, false },
     { STATE_PREHEAT, "PREHEAT_TIMEOUT", STATE_FAULT, FAULT_THERMAL_RUNAWAY, true },
     { STATE_PREHEAT, "OVER_TEMP", STATE_FAULT, FAULT_OVER_TEMP, true },
@@ -57,6 +61,8 @@ static const transition_row_t transition_table[] = {
     { STATE_PREHEAT, "PROBE_OPEN", STATE_FAULT, FAULT_PROBE_OPEN, true },
     { STATE_PREHEAT, "PROBE_SHORT", STATE_FAULT, FAULT_PROBE_SHORT, true },
     { STATE_PREHEAT, "BIAS_GOOD_LOST", STATE_FAULT, FAULT_BIAS_GOOD_LOST, true },
+    { STATE_PREHEAT, "BIAS_GOOD_STUCK", STATE_FAULT, FAULT_BIAS_GOOD_STUCK, true },
+    { STATE_PREHEAT, "BIAS_GOOD_LOW_AT_START", STATE_COOLDOWN, FAULT_NONE, false },
     { STATE_PREHEAT, "PAN_REMOVED", STATE_NO_PAN, FAULT_NONE, false },
     { STATE_PREHEAT, "STOP_BUTTON", STATE_COOLDOWN, FAULT_NONE, false },
     { STATE_HEATING, "NEAR_TARGET", STATE_HEATING, FAULT_NONE, false },  /* self-loop (PID control continues) */
@@ -67,14 +73,18 @@ static const transition_row_t transition_table[] = {
     { STATE_HEATING, "PROBE_SHORT", STATE_FAULT, FAULT_PROBE_SHORT, true },
     { STATE_HEATING, "THERMAL_RUNAWAY", STATE_FAULT, FAULT_THERMAL_RUNAWAY, true },
     { STATE_HEATING, "BIAS_GOOD_LOST", STATE_FAULT, FAULT_BIAS_GOOD_LOST, true },
+    { STATE_HEATING, "BIAS_GOOD_STUCK", STATE_FAULT, FAULT_BIAS_GOOD_STUCK, true },
+    { STATE_HEATING, "BIAS_GOOD_LOW_AT_START", STATE_COOLDOWN, FAULT_NONE, false },
     { STATE_HEATING, "PAN_REMOVED", STATE_NO_PAN, FAULT_NONE, false },
     { STATE_HEATING, "STOP_BUTTON", STATE_COOLDOWN, FAULT_NONE, false },
     { STATE_HEATING, "TIMER_EXPIRED", STATE_COOLDOWN, FAULT_NONE, false },
     { STATE_NO_PAN, "PAN_REPLACED_SAME", STATE_PREHEAT, FAULT_NONE, false },  /* same impedance -> resumes PREHEAT */
     { STATE_NO_PAN, "PAN_REPLACED_DIFFERENT", STATE_COOLDOWN, FAULT_NONE, false },  /* different impedance -> COOLDOWN */
     { STATE_NO_PAN, "NO_PAN_TIMEOUT", STATE_COOLDOWN, FAULT_NONE, false },
+    { STATE_NO_PAN, "BIAS_GOOD_STUCK", STATE_FAULT, FAULT_BIAS_GOOD_STUCK, true },
     { STATE_COOLDOWN, "COOLED_DOWN", STATE_IDLE, FAULT_NONE, false },
     { STATE_COOLDOWN, "COOLDOWN_OVERHEAT", STATE_FAULT, FAULT_COOLDOWN_OVERHEAT, true },
+    { STATE_COOLDOWN, "BIAS_GOOD_STUCK", STATE_FAULT, FAULT_BIAS_GOOD_STUCK, true },
     { STATE_FAULT, "FAULT_RESET_CLEARED", STATE_INIT, FAULT_NONE, false },
     { STATE_FAULT, "FAULT_RESET_PERSISTS", STATE_FAULT, FAULT_OVER_TEMP, true },
     { STATE_RUNAWAY_FAULT, "FAULT_RESET_PERSISTS", STATE_RUNAWAY_FAULT, FAULT_NONE, false },
@@ -96,8 +106,8 @@ static void apply_event_stubs(const char *event) {
         mock_sm_fail_selftest_adc();
         return;
     }
-    if (strcmp(event, "BIAS_GOOD_POST_FAIL") == 0) {
-        mock_sm_set_bias_post_ok(false);
+    if (strcmp(event, "BIAS_GOOD_STUCK") == 0) {
+        mock_sm_set_bias_stuck(true);
         return;
     }
     if (strcmp(event, "START_BUTTON") == 0) {
@@ -113,8 +123,7 @@ static void apply_event_stubs(const char *event) {
         return;
     }
     if (strcmp(event, "BIAS_GOOD_LOW_AT_START") == 0) {
-        mock_sm_set_bias_good(false);
-        state_machine_force_state(STATE_PAN_DET);
+        mock_sm_set_bias_start_refused(true);
         return;
     }
     if (strcmp(event, "BIAS_GOOD_LOST") == 0) {
@@ -251,6 +260,7 @@ static void apply_preconditions(const transition_row_t *row) {
         mock_sm_set_pan_status(MOCK_PAN_PRESENT);
         mock_sm_set_pan_temperature(92.0f);
         state_machine_reset_temp_baseline();
+        power_set_level(50);
         break;
     case STATE_NO_PAN:
         mock_sm_set_pan_status(MOCK_PAN_ABSENT);

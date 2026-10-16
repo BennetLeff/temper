@@ -7,4 +7,6 @@ if(CONFIG_TEMPER_POWER_HW_BINDING)
     list(APPEND POWER_SRCS "n21_hw_esp32.c")
     list(APPEND POWER_REQUIRES esp_adc esp_rom freertos)
 endif()
-idf_component_register(SRCS ${POWER_SRCS} INCLUDE_DIRS "include" REQUIRES ${POWER_REQUIRES})
+# PRIV ../..: firmware/config.h (generated from config.yaml), read by n21_hw_esp32.c only.
+idf_component_register(SRCS ${POWER_SRCS} INCLUDE_DIRS "include" PRIV_INCLUDE_DIRS "../.."
+                       REQUIRES ${POWER_REQUIRES})

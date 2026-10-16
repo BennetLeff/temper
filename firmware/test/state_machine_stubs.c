@@ -38,12 +38,19 @@ static struct {
     float rtd_resistance;
     bool power_bus_fault;        /* BUS_FAULT / PERMIT drop (native-21) */
     bool power_tank_trip;        /* n21 CT peak / RMS trip latched */
-    /* BIAS_GOOD read-back (power board s48 J4.1, B13 H2). The platform owns the level decoding and
-     * the debounce (platform_logic.c platform_bias_*, tested in test_platform_logic.c); the state
-     * machine sees only these verdicts. Defaults = a healthy board (or no J4.1 input fitted). */
-    bool bias_post_ok;           /* power_bias_post_ok(): boot sample verdict */
-    bool bias_good;              /* live: high -> start permitted, low -> power_bias_lost() */
-    uint32_t bias_run_reset_calls;
+    /* BIAS_GOOD read-back (power board J4.1, B13 H2, option P: BIAS_GOOD = bias_ok AND PERMIT).
+     * The platform owns the level decoding and the debounce (platform_logic.c platform_bias_*,
+     * test_platform_logic.c) and the binding the start sequence (n21_binding.c,
+     * test_n21_binding.c); the state machine sees only their verdicts, modelled here:
+     *   PERMIT (modelled) = power requested AND the start not refused AND no bus fault;
+     *   a power request rising from zero is a gate rise: refused if the bias is not ok (check 2);
+     *   power_bias_step(): stuck = bias_stuck (check 1), lost = PERMIT AND NOT bias_ok (check 3).
+     * Defaults = a healthy board (or no J4.1 input fitted). */
+    bool bias_good;              /* bias_ok: the LS / HS-A / HS-B monitors good, heartbeat running */
+    bool bias_stuck;             /* check 1 verdict (U40 stuck high etc.) */
+    bool bias_refused;           /* check 2: the current request was refused (power 0 clears) */
+    uint32_t bias_step_calls;    /* power_bias_step() calls: once per state_machine_update() */
+    uint32_t bias_gate_rises;    /* modelled start sequences (requests rising from zero) */
     float pan_impedance;
     float rim_temperature;      /* R36 rim NTC */
     bool rim_valid;
@@ -108,7 +115,6 @@ static struct {
     .rim_valid = true,
     .thermal_cap_pct = 100,
     .blower_start_permitted = true,
-    .bias_post_ok = true,
     .bias_good = true,
     .coil_temperature = 25.0f,
     .pan_status = PAN_ABSENT,
@@ -166,14 +172,16 @@ void mock_sm_reset(void) {
     mock_sm_state.rim_valid = true;
     mock_sm_state.thermal_cap_pct = 100;
     mock_sm_state.blower_start_permitted = true;
-    mock_sm_state.bias_post_ok = true;
     mock_sm_state.bias_good = true;
     mock_sm_state.coil_temperature = 25.0f;
 }
 
-void mock_sm_set_bias_post_ok(bool ok) { mock_sm_state.bias_post_ok = ok; }
 void mock_sm_set_bias_good(bool high) { mock_sm_state.bias_good = high; }
-uint32_t mock_sm_get_bias_run_reset_count(void) { return mock_sm_state.bias_run_reset_calls; }
+void mock_sm_set_bias_stuck(bool stuck) { mock_sm_state.bias_stuck = stuck; }
+void mock_sm_set_bias_start_refused(bool refused) { mock_sm_state.bias_refused = refused; }
+bool mock_sm_get_bias_start_refused(void) { return mock_sm_state.bias_refused; }
+uint32_t mock_sm_get_bias_step_count(void) { return mock_sm_state.bias_step_calls; }
+uint32_t mock_sm_get_bias_gate_rises(void) { return mock_sm_state.bias_gate_rises; }
 
 void mock_sm_set_blower_start_permitted(bool permitted) {
     mock_sm_state.blower_start_permitted = permitted;
@@ -403,6 +411,13 @@ void pwm_disable_all(void) {
 /* Power */
 void power_set_level(uint8_t level) {
     mock_sm_state.power_set_level_calls++;
+    if (level == 0) {
+        mock_sm_state.bias_refused = false;  /* request withdrawn (binding set_request(false)) */
+    } else if (mock_sm_state.power_level == 0) {
+        /* Gate rise: the binding's start sequence (B13 H2 check 2). */
+        mock_sm_state.bias_gate_rises++;
+        if (!mock_sm_state.bias_good) mock_sm_state.bias_refused = true;
+    }
     mock_sm_state.power_level = level;
 }
 
@@ -441,20 +456,19 @@ bool power_bus_fault_tripped(void) {
     return mock_sm_state.power_bus_fault;
 }
 
-bool power_bias_post_ok(void) {
-    return mock_sm_state.bias_post_ok;
+/* The modelled PERMIT read-back (see the struct). */
+bool mock_sm_get_permit(void) {
+    return mock_sm_state.power_level > 0 && !mock_sm_state.bias_refused && !mock_sm_state.power_bus_fault;
 }
 
-bool power_bias_start_permitted(void) {
-    return mock_sm_state.bias_good;
+void power_bias_step(bool *stuck, bool *lost) {
+    mock_sm_state.bias_step_calls++;
+    *stuck = mock_sm_state.bias_stuck;
+    *lost = mock_sm_get_permit() && !mock_sm_state.bias_good;
 }
 
-bool power_bias_lost(void) {
-    return !mock_sm_state.bias_good;
-}
-
-void power_bias_run_reset(void) {
-    mock_sm_state.bias_run_reset_calls++;
+bool power_bias_start_refused(void) {
+    return mock_sm_state.bias_refused;
 }
 
 bool power_tank_overcurrent_tripped(void) {
