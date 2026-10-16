@@ -459,7 +459,7 @@ Source: the C30 re-run of the interlock, thermal-sense and RTD validators (`evid
 15. **Power stage (C39):** the 2EDR8259X DIS-to-output delay (not in its datasheet). ≤ 190 ns: the capacitive-mode detector vetoes the first S4 edge; under half a period, one S4 edge passes. Bench it with the D-8 double-pulse set-up. Also confirm the CT_ZC polarity and its first-edge behaviour at low current (strap R72 if reversed).
 16. **Bench T3 (C38):** the rim maximum under a 250 °C hold, before the rim trip's 86.6 k is fitted for use. The trip band is 262.1–288.3 °C.
 17. **Procurement (C37):** RG2012V-431-W-T1 (Rref) has stock 0 at JLC/LCSC: consign it. SN74LVC74APWR has 1,588.
-18. **Firmware (C37, C39, C42):** threshold word 35542 (not CR-7's 35544); manual MAX31865 fault cycle; bursts start at or above resonance; RUN_EN raised only with PWM idle; WDI only from the supervisor task.
+18. **Firmware (C37, C39, C42, C46):** MAX31865 high threshold word **35544**, as firmware and sensor-r3 `cr7_thresholds.py` now use (C46; the same encoding gives the −40 °C low word 12844); manual MAX31865 fault cycle; bursts start at or above resonance; RUN_EN raised only with PWM idle; WDI only from the supervisor task.
 19. **Enclosure (C40, C41):** the J12 harness gets a third (drain) contact; J11 is a flush TC2050 land (no header height).
 20. **Routing robustness (C44):** run `layout/convergence.py --runs 3` on the C1 board before release. One clean-start run passed; the two earlier placements failed (LAYOUT.md Results).
 21. **Rim trip resistor (C38, coordinator 2026-10-15):** `r_rim_th_top` stays **86.6 k**. The leak study's 76.8 k is on hold until the bench measures the glass temperature beside the rim NTC under a 250 °C hold. ≤ 244.5 °C means 76.8 k (rerun `rim_trip()`); otherwise 86.6 k stays. Same bench session as item 16.
@@ -540,7 +540,7 @@ Source: `sensor-c1-impulse-mining:output/temper-sensor-r3/pcb/CHANGE-REQUEST.md`
 - **CR-2, Rref:** the library's RG2012V-431-W-T1 (0.05 %, 5 ppm/K) again; the C35 RT0805BRD07430RL override is removed. **Sourcing:** JLC/LCSC stock 0 on 2026-10-15 (`evidence/c1-crs/new-parts-snapshot.json`): consign it. Reason: CR-1's accuracy budget (`checks.py` item 1b) is computed with 0.05 % / 5 ppm.
 - **As-built check:** `evidence/sensor-r3-checks/run_as_built.py` reads the frozen netlist, rebuilds the sensor-r3 design dict from the captured parts and runs the unmodified `checks.py` items (two input paths pointed at copies in that folder). Result `checks-as-built.json`: **no difference from the change request; 11/11 gates PASS** (pickup 0.105 LSB worst DM at 20 kHz, runaway shift 0.03 K, open lead detected, protection, ratings).
 - **Firmware (to the sensor/firmware owner):**
-  - High threshold word: `checks.py` and CR-7 give 35544, which is 233.22 Ω and lies outside the 233.21 Ω window; the firmware's **35542** (sensor-r3 `firmware/DECISIONS.md` D-THRESH) is the right one.
+  - High threshold word: **35544** (corrected by C46; this note first said 35542 on an arithmetic slip, see C46).
   - With the CR-1 filter the input time constant is far above the MAX31865's 100 µs limit for the **automatic** fault-detection cycle. `checks.py` firmware constants call for the **manual** cycle (5 ms wait). Firmware must not use the automatic cycle with this board.
 - **Layout:** the CR asks for the 220 nF and TVS within 3 mm of the J3 pads. That cannot be met: J3's XH body runs 3.44 mm in front of its pin row (courtyard), and the MAX31865 sits 2.6 mm in front of that. Placement (`floorplan.py`): the TVS (upright) and the sense-line caps (flat) in the strip between the MAX31865 and J3, directly in front of their pins; the J3.4 pair and the pull-ups right of J3; the J3.1 cap left of the strip. Pad-to-pad distances are measured on the routed board and reported in `evidence/layout-check.json` (`rtd_j3_protection`); the TVS-to-pin figure is set by the connector body, not by the layout. R1/C1/R2 sit in two rows right of the MAX31865, in front of the Ø8 hole keep-out; `c_rtd_input` keeps the ≤ 3 mm rule to pins 10 / 11.
 
@@ -664,3 +664,21 @@ Source: `sensor-c1-impulse-mining:output/temper-sensor-r3/firmware/DECISIONS.md`
 - Block validators unchanged from C44: interlock 69 / 6 / 5, thermal 88 / 9 / 7, RTD 5 / 33 / 5. No new waiver: the divider is outside the thermal block, and its mapping shows 70 pads, 0 moved.
 
 **Not changed (coordinator):** the CR-5 rim-trip resistor stays 86.6 k (open item 21).
+
+## C46. MAX31865 high threshold word is 35544, not 35542 (2026-10-16)
+C37 called 35542 right and CR-7's 35544 wrong ("233.22 Ω, outside the 233.21 Ω window"). **That was an arithmetic slip.** Word 35544 is code 17772, which is 17772 × 430 / 32768 = **233.2141 Ω**, not 233.22. The "window" was only CR-7's two-decimal print of R(360 °C).
+
+**From first principles** (`controller_calcs.py max31865_thresholds()`, in verify's `calcs` check):
+- R(360 °C) = 100 × (1 + 3.9083e-3·360 − 5.775e-7·360²) = **233.2144 Ω** (IEC 60751 Callendar–Van Dusen).
+- Code = 233.2144 / 430 × 32768 = **17772.022**.
+- The MAX31865 compares inclusively (high fault when the RTD code ≥ the threshold). The repo's own validator encodes it the same way: zapote-erc `ERC.RTD.FIRMWARE_THRESHOLD_ENCODING` expects an "inclusive floor" high word and an "inclusive ceil" low word.
+- So the high word is floor(17772.022) << 1 = **35544**:
+  - 35544 trips at **359.9992 °C**.
+  - The next word, 35546, would trip above 360 °C.
+  - 35542 trips at 359.9616 °C: also safe, but 0.04 K early, and it is not the validator's encoding.
+- The low word for −40 °C (84.2707 Ω, code 6421.82) is ceil → **12844**, which trips at −39.994 °C.
+
+**Changes:**
+- C37's firmware note and open item 18 now say 35544.
+- The board's `checks.py` already used the exact R(360 °C) and printed 35544 (`checks-as-built.json`); no window constant existed in code.
+- New calcs checks: the high word is 35544, it trips at or below 360 °C, and the next word would trip above it. Firmware, sensor-r3 `cr7_thresholds.py` and this repo now agree.

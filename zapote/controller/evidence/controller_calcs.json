@@ -783,6 +783,24 @@
     },
     "source": "CONTROLLER-SPEC R31 connector table and hole list, R33 J7; JLC/JST body lengths"
   },
+  "max31865_thresholds": {
+    "R_high_ohm": 233.2144,
+    "R_low_ohm": 84.27065203199999,
+    "alt_35542_trip_C": 359.96160015658234,
+    "checks": {
+      "high_trips_at_or_below_360C": true,
+      "high_word_is_35544": true,
+      "low_trips_at_or_above_minus40C": true,
+      "next_high_word_would_trip_above_360C": true
+    },
+    "code_high_exact": 17772.021998139535,
+    "code_low_exact": 6421.815641359478,
+    "high_trip_C": 359.99917345215306,
+    "high_word": 35544,
+    "low_trip_C": -39.993887020956876,
+    "low_word": 12844,
+    "source": "IEC 60751 CVD; MAX31865 15-bit ratio code x Rref; zapote-erc inclusive floor/ceil encoding"
+  },
   "ps3_budget": {
     "blower_A": 2.8829641297883883,
     "blower_W_at_duty0_corner": 35.7485328161393,

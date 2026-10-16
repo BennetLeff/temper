@@ -166,6 +166,43 @@ def pt100_inv(r: float) -> float:
     return (-a + math.sqrt(a * a - 4 * b * (1 - r / 100.0))) / (2 * b)
 
 
+def max31865_thresholds(rref=430.0, t_low=-40.0, t_high=360.0) -> dict:
+    """MAX31865 fault-threshold words for the C1 Pt100 window (sensor-r3 CR-7; DECISIONS C37 / C46).
+    Exact IEC 60751 Callendar-Van Dusen (C term below 0 C). Encoding as zapote-erc
+    ERC.RTD.FIRMWARE_THRESHOLD_ENCODING: the 15-bit code is compared inclusively (high fault when
+    RTD code >= high threshold, low fault when <= low), so the high word is floor(R/Rref*2^15) << 1
+    and the low word ceil(...) << 1. Each word is the one that faults closest to, never beyond, its
+    temperature. Also gives where the alternative high word 35542 trips."""
+    a, b, c = 3.9083e-3, -5.775e-7, -4.183e-12
+
+    def r_of(t):
+        return 100.0 * (1 + a * t + b * t * t + (c * (t - 100.0) * t ** 3 if t < 0 else 0.0))
+
+    def t_of(r):
+        lo, hi = -200.0, 850.0
+        for _ in range(80):
+            mid = (lo + hi) / 2
+            lo, hi = (mid, hi) if r_of(mid) < r else (lo, mid)
+        return (lo + hi) / 2
+    full = 2 ** 15
+    r_hi, r_lo = r_of(t_high), r_of(t_low)
+    code_hi = math.floor(r_hi / rref * full)
+    code_lo = math.ceil(r_lo / rref * full)
+
+    def trip_t(word):
+        return t_of((word >> 1) * rref / full)
+    out = {"source": "IEC 60751 CVD; MAX31865 15-bit ratio code x Rref; zapote-erc inclusive floor/ceil encoding",
+           "R_high_ohm": r_hi, "code_high_exact": r_hi / rref * full, "high_word": code_hi << 1,
+           "high_trip_C": trip_t(code_hi << 1), "alt_35542_trip_C": trip_t(35542),
+           "R_low_ohm": r_lo, "code_low_exact": r_lo / rref * full, "low_word": code_lo << 1,
+           "low_trip_C": trip_t(code_lo << 1)}
+    out["checks"] = {"high_word_is_35544": out["high_word"] == 35544,
+                     "high_trips_at_or_below_360C": out["high_trip_C"] <= t_high,
+                     "next_high_word_would_trip_above_360C": trip_t((code_hi + 1) << 1) > t_high,
+                     "low_trips_at_or_above_minus40C": out["low_trip_C"] >= t_low}
+    return out
+
+
 R_LEAD_C1 = 1.80          # ohm per conductor, sensor-r3 checks.py R_LEAD (20 mm manganin + pigtail + harness)
 
 
@@ -992,6 +1029,7 @@ def main() -> int:
         "fan_buck": fan_buck(),
         "en_uvlo": en_uvlo(),
         "runaway": runaway(),
+        "max31865_thresholds": max31865_thresholds(),
         "d11_receiver": d11_receiver(),
         "ct_mon": ct_mon(),
         "adc_pattern": adc_pattern(),
