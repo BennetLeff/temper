@@ -104,36 +104,74 @@ re-allocation, GPIO35).
   - The PS3 inlet allowance never drops on BLW_PG 0: PS3's AC side may still
     draw with a failed output (`blower_aux.h`).
 
-## BIAS_GOOD read-back (power board s48, J4.1; power-stage OPEN-ITEMS B13 H2)
+## BIAS_GOOD read-back (power board s48/s50, J4.1; power-stage OPEN-ITEMS B13 H2)
 
 Stage 48 (power-stage DECISIONS 67) routes the power board's BIAS_GOOD (U40, the
 heartbeat hold node: high only while the LS / HS-A / HS-B bias monitors are all
 good and the heartbeat runs) to J4 pin 1 through R146 220 k. The power board
-already holds both drivers' DIS high while it is low. The firmware adds the
-three checks the FMEA counts (`fmea-s47-2026-10-15` §4 H2: chain coverage 14 %,
-37 % with the boot-sample check):
+already holds both drivers' DIS high while it is low. Under option P (power-stage
+candidate c50, stage 50) U46.A is driven from PERMIT through R135 100 k, so
+**BIAS_GOOD = bias_ok AND PERMIT**: it is low whenever PERMIT is low and rises
+≤ 0.53 ms after PERMIT at GPIO35 (falls ≤ 0.36 ms after it). Every check is
+therefore keyed to PERMIT_RB (GPIO36, the final PERMIT after U37), not to the
+state. Coverage of the H2 chain rows: 36.9 % (c50 §3, `fmea-s47-2026-10-15` §4 H2;
+13.8 % as built), proved on every start instead of once per power-on.
 
 | Check | When | Pass | Fail |
 |---|---|---|---|
-| 1. POST | INIT, on the sample `app_main` takes before anything else | low; or high after a warm reset (watchdog, panic, brown-out, software), when the heartbeat may already run | high after a **power-on** reset (U40 stuck high / Y–VCC) or unreadable → `FAULT_BIAS_GOOD_POST` (`EVENT_BIAS_GOOD_POST_FAIL`), cleared only by a power cycle |
-| 2. Start | PAN_DET entry, the one entry of every start path, before any power (and so before PERMIT) is requested | high | low or unreadable → no power, "NO POWER BIAS", back to IDLE (`EVENT_BIAS_GOOD_LOW_AT_START`); not a fault |
-| 3. Run | every control tick in PAN_DET, PREHEAT and HEATING | high | low or unreadable for ≥ `BIAS_GOOD_DROP_DEBOUNCE_MS` (20 ms, three 10 ms samples) → `FAULT_BIAS_GOOD_LOST` (`EVENT_BIAS_GOOD_LOST`) through `enter_hardware_latched_fault()` (RUN_EN kill + shutdown), cleared only by a power cycle |
+| 1. Low with PERMIT low | every control tick, every state (INIT included), once PERMIT_RB has been low ≥ `BIAS_GOOD_PERMIT_FALL_MS` (2 ms) | low | high or unreadable on `BIAS_GOOD_IDLE_TRIP_SAMPLES` (3) of the last `BIAS_GOOD_IDLE_WINDOW_SAMPLES` (8) judged ticks → `FAULT_BIAS_GOOD_STUCK` (`EVENT_BIAS_GOOD_STUCK`; U40 stuck high / Y–VCC, a U46 A–hb_rx short, R135 open floating high) through `enter_hardware_latched_fault()`, cleared only by a power cycle |
+| 2. High after PERMIT | every start (every RUN_EN rise), in the binding: RUN_EN is raised with the pads forced low, BIAS_GOOD is read `BIAS_GOOD_PERMIT_RISE_MS` (2 ms) later, and only then are the pads released | high | low or unreadable → RUN_EN dropped, the request held refused (no retry), "NO POWER BIAS" (`EVENT_BIAS_GOOD_LOW_AT_START`): back to IDLE from PAN_DET, to COOLDOWN from a PREHEAT / HEATING restart; not a fault |
+| 3. High throughout | every control tick while PERMIT_RB is high and has been for ≥ `BIAS_GOOD_PERMIT_RISE_MS` | high | low or unreadable for ≥ `BIAS_GOOD_DROP_DEBOUNCE_MS` (20 ms, three 10 ms samples) → `FAULT_BIAS_GOOD_LOST` (`EVENT_BIAS_GOOD_LOST`) through `enter_hardware_latched_fault()` (RUN_EN kill + shutdown), cleared only by a power cycle |
 
-- The decisions and the debounce are `platform_bias_*` in
+- **Start order (controller DECISIONS C39, "raise RUN_EN only with the PWM idle
+  (RUN_EN rising re-arms the detector)").** `n21_binding.c` `start_sequence()`
+  forces the pads low, raises RUN_EN, waits `start_check_us` (=
+  `BIAS_GOOD_PERMIT_RISE_MS`; the drivers enable ≤ 13.6 µs after PERMIT plus the
+  unpublished 2EDR8259X DIS-to-output delay, both inside it), checks that PERMIT_RB
+  followed RUN_EN and that the interlock is healthy, reads BIAS_GOOD, and only then
+  releases the pads. Before this the binding raised RUN_EN with the pads already
+  live (the PWM captures are qualified at idle). Bench sessions use the same order
+  without the BIAS_GOOD read.
+- **Once per start, not per detection ping.** PAN_DET holds a 5 % request, so the
+  bridge and PERMIT stay up for the whole detection (the legacy
+  `power_service_pan_pulse` ping is disabled). RUN_EN toggles only when the request
+  goes to zero and back (e.g. the PID at target) or at `pwm_disable_all()`; each
+  re-raise is a fresh start and runs check 2 again. A future ping must pulse the
+  PWM with PERMIT held high, not pulse PERMIT.
+- **PERMIT_RB must follow RUN_EN** (C23: PERMIT = latch Q AND RUN_EN). The binding
+  takes interlock health from the expander's LATCHED_FAULT_RB (P10) and requires
+  PERMIT_RB == RUN_EN; PERMIT_RB high with RUN_EN low is `N21_FAULT_HW` (the gate
+  can no longer remove permission).
+- **Debounce basis** (`config.yaml`). The 2 ms waits are 5.6× / 3.8× the worst
+  fall / rise. Check 1 is 3-of-8 rather than three in a row: an hsb_good–hb_rx
+  short toggles U46.A at line frequency, which 100 Hz sampling never sees three
+  times in a row but which trips 3 of 8 within the first 8 judged ticks for duties
+  of 42–60 % at 59.5–60.5 Hz. No debounce has a safety-time role: the power board
+  cuts the drivers within the hold-node bleed (TP19 ≤ 90 µs after PERMIT falls,
+  123 µs with one pump cap shorted).
+- The decisions and the debounces are `platform_permit_step()`,
+  `platform_bias_idle_step()` and `platform_bias_lost_step()` in
   `components/platform/platform_logic.c` (host tests in
-  `test/test_platform_logic.c`); the state machine reads the verdicts
-  `power_bias_post_ok()` / `power_bias_start_permitted()` / `power_bias_lost()`
-  (`main/platform/platform_esp32.c`, host doubles in
-  `test/state_machine_stubs.c`). The debounce has no safety-time role: the
-  power board cuts the drivers within the hold-node bleed (≤ 90 µs, 123 µs with
-  one pump cap shorted). Its basis is in `config.yaml`.
-- Bus fault keeps priority: a bias collapse that also raises BUS_FAULT (HOT5
-  UV, an open TCO loop) latches `FAULT_IGBT_SHORT`.
+  `test/test_platform_logic.c`); `power_bias_step()` in
+  `main/platform/platform_esp32.c` runs checks 1 and 3 at the top of every
+  `state_machine_update()` (host double in `test/state_machine_stubs.c`), and
+  `power_bias_start_refused()` reports check 2 from the binding's telemetry
+  (`test/test_n21_binding.c` pins the order, the wait and the refusal). The
+  PERMIT edge is timestamped by the binding's RUN_EN change when it has one.
+- Bus fault keeps priority: BUS_FAULT drops PERMIT in hardware, so a bias collapse
+  that also raises BUS_FAULT (HOT5 UV, an open TCO loop) latches
+  `FAULT_IGBT_SHORT`.
+- Not implemented: the c50 optional checks (d) (GPIO35 high 50–406 µs after RUN_EN
+  rises = read-back bypassed) and (e) (high ~0.5 ms after a PERMIT fall = slow hold
+  decay, warning only); both need sub-tick sampling.
 - **Not fitted yet.** No controller branch routes J4.1 to the MCU: on every one
   (up to `controller-c1-crs`, C47) J4.1 is still the controller's **15 V input**
   `v15_selv`, and all 36 module GPIOs are used. Until `controller_pins.h`
-  defines `CTRL_GPIO_BIAS_GOOD_RB`, `platform_esp32.c` reads NOT_FITTED and all
-  three checks pass (nothing is claimed). The controller change is an owner
+  defines `CTRL_GPIO_BIAS_GOOD_RB`, `platform_esp32.c` reads NOT_FITTED and
+  checks 1 and 3 pass, and the binding keeps the C39 start order and wait but
+  reads nothing (nothing is claimed). The GPIO35 routing may land together with
+  power-board stage 50; it must not land on a board without it (as built,
+  BIAS_GOOD is high at idle and check 1 would latch). The controller change is an owner
   item: `zapote/power-stage-120v/validation-results/11-candidates/c23-supply-topology/CONTROLLER-REQUEST.md`
   addendum 3.
 - **Proposed pin: GPIO35**, freed by moving RAIL_OK_RB (U9 Y1_4, push-pull) to
@@ -154,9 +192,9 @@ three checks the FMEA counts (`fmea-s47-2026-10-15` §4 H2: chain coverage 14 %,
   `CTRL_EXP_RAIL_OK_RB 2` in `controller_pins.h`, the GPIO35 row in
   `controller_board.c` (input, no internal pull, external pull DOWN), RAIL_OK
   from the expander cache in `n21_hw_esp32.c` `hw_read_status()`, the fixture
-  refresh, then COMMISSIONING.md H2. The `#ifdef CTRL_GPIO_BIAS_GOOD_RB` block in
-  `platform_esp32.c` has only been compile-checked outside the build (with the
-  define forced), never linked into an image.
+  refresh, then COMMISSIONING.md H2. The `#ifdef CTRL_GPIO_BIAS_GOOD_RB` blocks in
+  `platform_esp32.c` and `n21_hw_esp32.c` have been built into an ESP-IDF 5.3.6
+  image only with the define forced temporarily (never committed or flashed).
 
 ## Thermal trip ladder (L3, DECISIONS C32)
 
@@ -298,9 +336,10 @@ The firmware implements multiple layers of safety:
 6. **RTD Probe Monitoring**: Open circuit (>10kΩ) and short circuit (<10Ω) detection
 7. **Thermal Runaway Detection**: Pan temp exceeding target by >10°C
 8. **Pan Detection**: Impedance-based detection with confidence threshold
-9. **Power-board bias read-back (B13 H2)**: BIAS_GOOD on J4.1 low at the power-on
-   boot sample, high before a start, high throughout power; see "BIAS_GOOD read-back"
-   (inert until the controller routes J4.1 to GPIO35)
+9. **Power-board bias read-back (B13 H2)**: BIAS_GOOD on J4.1 low whenever PERMIT is
+   low, high 2 ms after each start's RUN_EN rise (before the pads are released), high
+   while PERMIT stays up; see "BIAS_GOOD read-back" (inert until the controller routes
+   J4.1 to GPIO35)
 
 ## Configuration
 
