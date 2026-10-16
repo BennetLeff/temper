@@ -1,0 +1,1236 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 8,
+   "list": [
+    {
+     "componentId": 58288907,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "SMT",
+     "erpComponentName": "\u3010\u90ae\u5bc4\u4e13\u7528\u3011CMS15",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-CMS15/C9900274819",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 1000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900274819",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "CMS15",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT CMS15",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOD-128",
+     "describe": "SOD-128 SMT ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "SMT",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>CMS15</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 5893479,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "MOSFETs",
+     "erpComponentName": "CMS1521",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/mosfets_cmos_cms1521_C5203810.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2749
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2174
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1927
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1619
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.1482
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1332
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1283
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2649
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.1427
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2094
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1559
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1857
+      }
+     ],
+     "firstSortAccessId": "268f4926a47b46d88d13ed2961731f51",
+     "secondSortAccessId": "ddf0056ef7c94d4fb214aa681f5dbc74",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Cmos-CMS1521/C5203810",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.7,
+     "preMinPurchaseNum": 33,
+     "minPurchaseNum": 33,
+     "initialPrice": 0.2749,
+     "componentCode": "C5203810",
+     "componentBrandEn": "Cmos",
+     "componentModelEn": "CMS1521",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585160682433732608",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2210191430_Cmos-CMS1521_C5203810.pdf",
+     "dataManualFileAccessId": "8590458567414214656",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Cmos CMS1521",
+     "minImage": "",
+     "minImageAccessId": "8585160683293564928",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOP-8",
+     "describe": "-55\u2103~+150\u2103 1 N-channel 1V 20A 28nC 2W 30V 4.5nF 5.2m\u03a9@4.5V 88pF SOP-8 MOSFETs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Input Capacitance(Ciss)",
+       "attribute_value_name": "4.5nF"
+      },
+      {
+       "attribute_name_en": "Number",
+       "attribute_value_name": "1 N-channel"
+      },
+      {
+       "attribute_name_en": "Gate Threshold Voltage (Vgs(th))",
+       "attribute_value_name": "1V"
+      },
+      {
+       "attribute_name_en": "Gate Charge(Qg)",
+       "attribute_value_name": "28nC"
+      },
+      {
+       "attribute_name_en": "Reverse Transfer Capacitance (Crss@Vds)",
+       "attribute_value_name": "88pF"
+      },
+      {
+       "attribute_name_en": "Current - Continuous Drain(Id)",
+       "attribute_value_name": "20A"
+      },
+      {
+       "attribute_name_en": "Drain to Source Voltage",
+       "attribute_value_name": "30V"
+      },
+      {
+       "attribute_name_en": "Pd - Power Dissipation",
+       "attribute_value_name": "2W"
+      },
+      {
+       "attribute_name_en": "RDS(on)",
+       "attribute_value_name": "5.2m\u03a9@4.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "MOSFETs",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>CMS15</span>21",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 58977480,
+     "componentLibraryType": "expand",
+     "stockCount": 200,
+     "componentTypeEn": "MOSFETs",
+     "erpComponentName": "CMS1521B",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.296
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2345
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.2081
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1752
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1606
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1518
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2259
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.2004
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2851
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1462
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1547
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1687
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 200,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Cmos-CMS1521B/C55185725",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.748,
+     "preMinPurchaseNum": 31,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.296,
+     "componentCode": "C55185725",
+     "componentBrandEn": "Cmos",
+     "componentModelEn": "CMS1521B",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8770771229638561792",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Cmos CMS1521B",
+     "minImage": "",
+     "minImageAccessId": "8770771230692007936",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOP-8",
+     "describe": "SOP-8 MOSFETs ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "MOSFETs",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>CMS15</span>21B",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 59091331,
+     "componentLibraryType": "expand",
+     "stockCount": 200,
+     "componentTypeEn": "MOSFETs",
+     "erpComponentName": "CMS15P02",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.188
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1488
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1322
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1113
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.102
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0965
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1434
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1273
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1811
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1072
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0983
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0929
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 200,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Cmos-CMS15P02/C55231736",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.475,
+     "preMinPurchaseNum": 48,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.188,
+     "componentCode": "C55231736",
+     "componentBrandEn": "Cmos",
+     "componentModelEn": "CMS15P02",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8778230597324636160",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Cmos CMS15P02",
+     "minImage": "",
+     "minImageAccessId": "8778230597721198592",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOP-8",
+     "describe": "SOP-8 MOSFETs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Type",
+       "attribute_value_name": "P-Channel"
+      },
+      {
+       "attribute_name_en": "Input Capacitance(Ciss)",
+       "attribute_value_name": "5.1nF"
+      },
+      {
+       "attribute_name_en": "Vgs",
+       "attribute_value_name": "\u00b112V"
+      },
+      {
+       "attribute_name_en": "Number",
+       "attribute_value_name": "1 P-Channel"
+      },
+      {
+       "attribute_name_en": "Gate Threshold Voltage (Vgs(th))",
+       "attribute_value_name": "1.2V"
+      },
+      {
+       "attribute_name_en": "Gate Charge(Qg)",
+       "attribute_value_name": "53nC"
+      },
+      {
+       "attribute_name_en": "Reverse Transfer Capacitance (Crss@Vds)",
+       "attribute_value_name": "400pF"
+      },
+      {
+       "attribute_name_en": "Current - Continuous Drain(Id)",
+       "attribute_value_name": "15A"
+      },
+      {
+       "attribute_name_en": "Drain to Source Voltage",
+       "attribute_value_name": "20V"
+      },
+      {
+       "attribute_name_en": "Output Capacitance(Coss)",
+       "attribute_value_name": "570pF"
+      },
+      {
+       "attribute_name_en": "Pd - Power Dissipation",
+       "attribute_value_name": "2.5W"
+      },
+      {
+       "attribute_name_en": "RDS(on)",
+       "attribute_value_name": "5.7m\u03a9@4.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "MOSFETs",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>CMS15</span>P02",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 5893521,
+     "componentLibraryType": "expand",
+     "stockCount": 105,
+     "componentTypeEn": "MOSFETs",
+     "erpComponentName": "CMS15N06T",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/mosfets_cmos_cms15n06t_C5203852.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1769
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1402
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1244
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1048
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0903
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0849
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0818
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.087
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1009
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1704
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.135
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1198
+      }
+     ],
+     "firstSortAccessId": "268f4926a47b46d88d13ed2961731f51",
+     "secondSortAccessId": "ddf0056ef7c94d4fb214aa681f5dbc74",
+     "canPresaleNumber": 105,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Cmos-CMS15N06T/C5203852",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.44667,
+     "preMinPurchaseNum": 65,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1769,
+     "componentCode": "C5203852",
+     "componentBrandEn": "Cmos",
+     "componentModelEn": "CMS15N06T",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585157636149432320",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2210191430_Cmos-CMS15N06T_C5203852.pdf",
+     "dataManualFileAccessId": "8757923031593295872",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Cmos CMS15N06T",
+     "minImage": "",
+     "minImageAccessId": "8585157637038354432",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOP-8",
+     "describe": "-55\u2103~+150\u2103 1 N-channel 1.5W 120pF 15A 18.9nC@48V 1V 23m\u03a9@4.5V 3nF 60V SOP-8 MOSFETs ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Input Capacitance(Ciss)",
+       "attribute_value_name": "3nF"
+      },
+      {
+       "attribute_name_en": "Number",
+       "attribute_value_name": "1 N-channel"
+      },
+      {
+       "attribute_name_en": "Gate Threshold Voltage (Vgs(th))",
+       "attribute_value_name": "1V"
+      },
+      {
+       "attribute_name_en": "Gate Charge(Qg)",
+       "attribute_value_name": "18.9nC@48V"
+      },
+      {
+       "attribute_name_en": "Reverse Transfer Capacitance (Crss@Vds)",
+       "attribute_value_name": "120pF"
+      },
+      {
+       "attribute_name_en": "Current - Continuous Drain(Id)",
+       "attribute_value_name": "15A"
+      },
+      {
+       "attribute_name_en": "Drain to Source Voltage",
+       "attribute_value_name": "60V"
+      },
+      {
+       "attribute_name_en": "Pd - Power Dissipation",
+       "attribute_value_name": "1.5W"
+      },
+      {
+       "attribute_name_en": "RDS(on)",
+       "attribute_value_name": "23m\u03a9@4.5V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "MOSFETs",
+     "secondSortName": "Transistors/Thyristors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>CMS15</span>N06T",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 43083699,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "CMS150S04056B",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-CMS150S04056B/C9900137276",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900137276",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "CMS150S04056B",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT CMS150S04056B",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DFN5x6-8L",
+     "describe": "DFN5x6-8L New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>CMS15</span>0S04056B",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 5784049,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "CMS150S040P56B",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "Cmsemicon-CMS150S040P56B/C5155092",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2500,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C5155092",
+     "componentBrandEn": "Cmsemicon",
+     "componentModelEn": "CMS150S040P56B",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Cmsemicon CMS150S040P56B",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "PDFN5*6",
+     "describe": "PDFN(5x6) New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>CMS15</span>0S040P56B",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6517847,
+     "componentLibraryType": "expand",
+     "stockCount": 15,
+     "componentTypeEn": "Schottky Diodes",
+     "erpComponentName": "CMS15(TE12L,Q,M)",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/schottky-diodes_toshiba-cms15-te12l-q-m_C5599368.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.5417
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.346
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.2383
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.1159
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0621
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.0376
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.075
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.2966
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.9996
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.1929
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.4852
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0231
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "8c33c764fe0c4284aa9a8a0e84b8be11",
+     "canPresaleNumber": 15,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TOSHIBA-CMS15_TE12L_Q_M/C5599368",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 3.3448,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.5417,
+     "componentCode": "C5599368",
+     "componentBrandEn": "TOSHIBA",
+     "componentModelEn": "CMS15(TE12L,Q,M)",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8766454086017802240",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311291550_TOSHIBA-CMS15-TE12L-Q-M_C5599368.pdf",
+     "dataManualFileAccessId": "8600688236918824960",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TOSHIBA CMS15(TE12L,Q,M)",
+     "minImage": "",
+     "minImageAccessId": "8766454087133216768",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOD-128",
+     "describe": "-40\u2103~+150\u2103 1 Independent 25uA@60V 3A 580mV@3A 60A 60V SOD-128 Schottky Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "580mV@3A"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "60A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "60V"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-40\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Independent"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "25uA@60V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Schottky Diodes",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>CMS15</span>(TE12L,Q,M)",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "CMS15"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T19:08:14Z"
+}

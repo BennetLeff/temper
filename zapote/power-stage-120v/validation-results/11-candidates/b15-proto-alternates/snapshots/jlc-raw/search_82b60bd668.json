@@ -1,0 +1,561 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 3,
+   "list": [
+    {
+     "componentId": 573940,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Schottky Diodes",
+     "erpComponentName": "PMEG6045ETPX",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/schottky-diodes_nexperia-pmeg6045etpx_C552943.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2578
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.2513
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.248
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.2448
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.2448
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.2448
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.2358
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.2421
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2389
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.2358
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.2484
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.2358
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "8c33c764fe0c4284aa9a8a0e84b8be11",
+     "canPresaleNumber": -5,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-PMEG6045ETPX/C552943",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 1.24285,
+     "preMinPurchaseNum": 37,
+     "minPurchaseNum": 37,
+     "initialPrice": 0.248,
+     "componentCode": "C552943",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "PMEG6045ETPX",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583466980607471616",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2407251002_Nexperia-PMEG6045ETPX_C552943.pdf",
+     "dataManualFileAccessId": "8588913280358629376",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia PMEG6045ETPX",
+     "minImage": "",
+     "minImageAccessId": "8583466981463379968",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOD-128",
+     "describe": "1 Independent 4.5A 400uA@60V 530mV@4.5A 60V 70A SOD-128 Schottky Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "530mV@4.5A"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "70A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "60V"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Independent"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "4.5A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "400uA@60V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Schottky Diodes",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>PMEG6045</span>ETPX",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 7584136,
+     "componentLibraryType": "expand",
+     "stockCount": 14,
+     "componentTypeEn": "Schottky Diodes",
+     "erpComponentName": "PMEG6045ETP-QX",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/schottky-diodes_nexperia-pmeg6045etp-qx_C6629172.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8043
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6445
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.5645
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4862
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4389
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4144
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4684
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6208
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3992
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.5438
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7748
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4228
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "8c33c764fe0c4284aa9a8a0e84b8be11",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-PMEG6045ETPQX/C6629172",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 2.26325,
+     "preMinPurchaseNum": 14,
+     "minPurchaseNum": 14,
+     "initialPrice": 0.6445,
+     "componentCode": "C6629172",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "PMEG6045ETP-QX",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2308091746_Nexperia-PMEG6045ETP-QX_C6629172.pdf",
+     "dataManualFileAccessId": "8601051535875334144",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia PMEG6045ETP-QX",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOD-128",
+     "describe": "-65\u2103~+150\u2103 1 Independent 4.5A 400uA@60V 530mV@4.5A 60V SOD-128 Schottky Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "530mV@4.5A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "60V"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-65\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Independent"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "4.5A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "400uA@60V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Schottky Diodes",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>PMEG6045</span>ETP-QX",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 56090961,
+     "componentLibraryType": "expand",
+     "stockCount": 2470,
+     "componentTypeEn": "Schottky Diodes",
+     "erpComponentName": "PMEG6045ETPX-JSM",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2293
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1816
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1612
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1358
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1244
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1175
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1308
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1198
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2209
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1132
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1553
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.175
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 2453,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JSMSEMI-PMEG6045ETPXJSM/C53113973",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.57949,
+     "preMinPurchaseNum": 40,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.2293,
+     "componentCode": "C53113973",
+     "componentBrandEn": "JSMSEMI",
+     "componentModelEn": "PMEG6045ETPX-JSM",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8765445389296115712",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JSMSEMI PMEG6045ETPX-JSM",
+     "minImage": "",
+     "minImageAccessId": "8765445390428712960",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOD-128",
+     "describe": "-55\u2103~+125\u2103 1 Independent 150A 1mA@60V 5A 60V 700mV@5A SOD-128 Schottky Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "700mV@5A"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "150A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "60V"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Independent"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "5A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "1mA@60V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Schottky Diodes",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>PMEG6045</span>ETPX-JSM",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "PMEG6045"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T19:08:08Z"
+}

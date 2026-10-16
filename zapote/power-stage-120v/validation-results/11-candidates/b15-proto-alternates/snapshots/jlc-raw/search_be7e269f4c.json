@@ -1,0 +1,2002 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 19,
+   "list": [
+    {
+     "componentId": 253212,
+     "componentLibraryType": "expand",
+     "stockCount": 971,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u4e24\u8def \u8d34\u7247\u5171\u6a21\u6ee4\u6ce2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_bc-bao-cheng-elec-cyscm9085tl-162_C261384.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.0376
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.8468
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.7521
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.6575
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.5694
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5417
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.9996
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.8157
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.7245
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.5485
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.5218
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.6334
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 835,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "BC_Bao_Cheng_Elec-CYSCM9085TL162/C261384",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 2.7,
+     "preMinPurchaseNum": 9,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.0376,
+     "componentCode": "C261384",
+     "componentBrandEn": "BC(Bao Cheng Elec)",
+     "componentModelEn": "CYSCM9085TL-162",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583393463857111040",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1810311440_BC-Bao-Cheng-Elec-CYSCM9085TL-162_C261384.pdf",
+     "dataManualFileAccessId": "8588902632983842816",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Bao Cheng CYSCM9085TL-162",
+     "minImage": "",
+     "minImageAccessId": "8583393464852107264",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD-4P,9.2x9mm",
+     "describe": "-40\u2103~+125\u2103 1.6mH@100kHz 100M\u03a9 130m\u03a9 2 2.3A SMD-4P,9.2x9mm Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Insulation Resistance(IR)",
+       "attribute_value_name": "100M\u03a9"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "2.3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6mH@100kHz</span>",
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1.6mH@100kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "130m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+125\u2103 <span class='lucene_highlight_class'>1.6mH</span>@100kHz 100M\u03a9 130m\u03a9 2 2.3A SMD-4P,9.2x9mm <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625357,
+     "componentLibraryType": "expand",
+     "stockCount": 5,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u4e24\u8def \u63d2\u4ef6\u5171\u6a21\u6ee4\u6ce2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_kemet-ssrh7h-m20016_C1534555.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.8827
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.8403
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.8109
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.7816
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.7816
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.7816
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.7162
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.7162
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.7445
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.8136
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.7162
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.7728
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 5,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-SSRH7HM20016/C1534555",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 9.1634,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.8827,
+     "componentCode": "C1534555",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "SSRH7H-M20016",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8770162256740782080",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2105221843_KEMET-SSRH7H-M20016_C1534555.pdf",
+     "dataManualFileAccessId": "8590450350957228032",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET SSRH7H-M20016",
+     "minImage": "",
+     "minImageAccessId": "8770162257890021376",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-25\u2103~+120\u2103 1.6mH@10kHz 2 250V 2A 90m\u03a9 \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-25\u2103~+120\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "2A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6mH@10kHz</span>",
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1.6mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "90m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-25\u2103~+120\u2103 <span class='lucene_highlight_class'>1.6mH</span>@10kHz 2 250V 2A 90m\u03a9 \u63d2\u4ef6 <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1624883,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u30111.6mH @ 10kHz 2A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_wurth-elektronik-7448012002_C1534081.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.4948
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 8.4948
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 299,
+       "productPrice": 8.4948
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 3.2874
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 899,
+       "productPrice": 3.1732
+      },
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 3.1161
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 300,
+       "endNumber": 599,
+       "productPrice": 3.1667
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 299,
+       "productPrice": 8.1831
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 8.1831
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.1831
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 899,
+       "productPrice": 3.0567
+      },
+      {
+       "startNumber": 900,
+       "endNumber": -1,
+       "productPrice": 3.0017
+      }
+     ],
+     "firstSortAccessId": "3db4bff6cfd743f6af1575bf175e9774",
+     "secondSortAccessId": "cfa9bf2378174788abc09e74d45d5b30",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WurthElektronik-7448012002/C1534081",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 300,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 8.4948,
+     "componentCode": "C1534081",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "7448012002",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2108141630_Wurth-Elektronik-7448012002_C1534081.pdf",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/7448012002.pdf",
+     "componentName": "Wurth 7448012002",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "1.6mH@10kHz 2 2A 90m\u03a9 \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "2A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6mH@10kHz</span>",
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1.6mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "90m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "<span class='lucene_highlight_class'>1.6mH</span>@10kHz 2 2A 90m\u03a9 \u63d2\u4ef6 <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625062,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "1.6mH @ 10kHz 20A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_tdk-b82726s2203a020_C1534260.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.6497
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.6497
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 5.6497
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.1862
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.1095
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.072
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.9959
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.1059
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 5.4423
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.4423
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.0321
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.4423
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82726S2203A020/C1534260",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 91,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 5.6497,
+     "componentCode": "C1534260",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82726S2203A020",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2107291730_TDK-B82726S2203A020_C1534260.pdf",
+     "dataManualFileAccessId": "8590450464668868608",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82726S2203A020",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+125\u2103 1.6mH@10kHz 2 20A 250V 4.5m\u03a9 \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "20A"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6mH@10kHz</span>",
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1.6mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "4.5m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+125\u2103 <span class='lucene_highlight_class'>1.6mH</span>@10kHz 2 20A 250V 4.5m\u03a9 \u63d2\u4ef6 <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625384,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u4e24\u8def \u63d2\u4ef6\u5171\u6a21\u6ee4\u6ce2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common mode filters_kemet_ssr10h-30016_C1534582.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1339
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.1339
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 1.1339
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.4389
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4242
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4161
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4008
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.4228
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 1.0923
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.0923
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4087
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.0923
+      }
+     ],
+     "firstSortAccessId": "c3edb15d5c884a76a1ea4a0ab1f65307",
+     "secondSortAccessId": "302e1284e991457489aa3228a1980c6e",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-SSR10H30016/C1534582",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 60,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 8,
+     "initialPrice": 1.1339,
+     "componentCode": "C1534582",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "SSR10H-30016",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2105221905_KEMET-SSR10H-30016_C1534582.pdf",
+     "dataManualFileAccessId": "8590448991671517184",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET SSR10H-30016",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-25\u2103~+120\u2103 1.6mH@10kHz 2 250V 3A 60m\u03a9 \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-25\u2103~+120\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "2.4kV"
+      },
+      {
+       "attribute_name_en": "Insulation Resistance(IR)",
+       "attribute_value_name": "100M\u03a9"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6mH@10kHz</span>",
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1.6mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "60m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-25\u2103~+120\u2103 <span class='lucene_highlight_class'>1.6mH</span>@10kHz 2 250V 3A 60m\u03a9 \u63d2\u4ef6 <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625564,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "1.6mH @ 10kHz 16.4A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 16.3518
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 16.3518
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 16.3518
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.3283
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 6.1065
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 5.9971
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 5.7771
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 6.0961
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 15.7517
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 15.7517
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 5.8824
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 15.7517
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WurthElektronik-744831016164/C1534762",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 9,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 16.3518,
+     "componentCode": "C1534762",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "744831016164",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/744831016164.pdf",
+     "componentName": "Wurth 744831016164",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+125\u2103 1.6mH@10kHz 16.4A 2 3kV 760V 8.5m\u03a9 Plugin Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "760V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "3kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "16.4A"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "8.5m\u03a9"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6mH@10kHz</span>",
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1.6mH@10kHz"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+125\u2103 <span class='lucene_highlight_class'>1.6mH</span>@10kHz 16.4A 2 3kV 760V 8.5m\u03a9 Plugin <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625584,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u4e24\u8def \u5171\u6a21\u6ee4\u6ce2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_tdk-b82720a2152n040_C1534782.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7733
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.7733
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.7733
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.3002
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2888
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2839
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2735
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.2892
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.745
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.745
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2782
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.745
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82720A2152N040/C1534782",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 12,
+     "minPurchaseNum": 12,
+     "initialPrice": 0.7733,
+     "componentCode": "C1534782",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82720A2152N040",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2105221911_TDK-B82720A2152N040_C1534782.pdf",
+     "dataManualFileAccessId": "8589034459236601856",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82720A2152N040",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-40\u2103~+125\u2103 1.5A 1.5kV 1.6mH@10kHz 110m\u03a9 2 250V - Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "1.5A"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6mH@10kHz</span>",
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1.6mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "110m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+125\u2103 1.5A 1.5kV <span class='lucene_highlight_class'>1.6mH</span>@10kHz 110m\u03a9 2 250V - <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625716,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u4e24\u8def \u63d2\u4ef6\u5171\u6a21\u6ee4\u6ce2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_kemet-su10vfc-r17016_C1534914.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.0278
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.0278
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 1.0278
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.3981
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3851
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3769
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3631
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.3835
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.9901
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.9901
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3709
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.9901
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-SU10VFCR17016/C1534914",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 9,
+     "minPurchaseNum": 9,
+     "initialPrice": 1.0278,
+     "componentCode": "C1534914",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "SU10VFC-R17016",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_KEMET-SU10VFC-R17016_C1534914.pdf",
+     "dataManualFileAccessId": "8589034264155734016",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET SU10VFC-R17016",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-25\u2103~+120\u2103 1.6mH@1kHz 1.7A 2 2.4kV 210m\u03a9 250V \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-25\u2103~+120\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "2.4kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "1.7A"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6mH@1kHz</span>",
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1.6mH@1kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "210m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-25\u2103~+120\u2103 <span class='lucene_highlight_class'>1.6mH</span>@1kHz 1.7A 2 2.4kV 210m\u03a9 250V \u63d2\u4ef6 <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625719,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u4e24\u8def \u63d2\u4ef6\u5171\u6a21\u6ee4\u6ce2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common mode filters_kemet_ssr10v-30016_C1534917.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.1306
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.1306
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 1.1306
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.4373
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4226
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4144
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3992
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.4212
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 1.0891
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.0891
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4071
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.0891
+      }
+     ],
+     "firstSortAccessId": "c3edb15d5c884a76a1ea4a0ab1f65307",
+     "secondSortAccessId": "302e1284e991457489aa3228a1980c6e",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-SSR10V30016/C1534917",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 8,
+     "minPurchaseNum": 8,
+     "initialPrice": 1.1306,
+     "componentCode": "C1534917",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "SSR10V-30016",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2105221935_KEMET-SSR10V-30016_C1534917.pdf",
+     "dataManualFileAccessId": "8589034263873904640",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET SSR10V-30016",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-25\u2103~+120\u2103 1.6mH@10kHz 2 250V 3A 60m\u03a9 \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-25\u2103~+120\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "2.4kV"
+      },
+      {
+       "attribute_name_en": "Insulation Resistance(IR)",
+       "attribute_value_name": "100M\u03a9"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6mH@10kHz</span>",
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1.6mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "60m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-25\u2103~+120\u2103 <span class='lucene_highlight_class'>1.6mH</span>@10kHz 2 250V 3A 60m\u03a9 \u63d2\u4ef6 <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625777,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u4e24\u8def \u63d2\u4ef6\u5171\u6a21\u6ee4\u6ce2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_kemet-sc-10-18j_C1534975.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.9399
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.9399
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.9399
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.1388
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.098
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.0784
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.0388
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.097
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.832
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.832
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.0577
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.832
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-SC_1018J/C1534975",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.9399,
+     "componentCode": "C1534975",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "SC-10-18J",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_KEMET-SC-10-18J_C1534975.pdf",
+     "dataManualFileAccessId": "8589034075542077440",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET SC-10-18J",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-25\u2103~+120\u2103 1.6mH@1kHz 10A 2 20m\u03a9 250V 250V \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-25\u2103~+120\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "10A"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6mH@1kHz</span>",
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1.6mH@1kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "20m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-25\u2103~+120\u2103 <span class='lucene_highlight_class'>1.6mH</span>@1kHz 10A 2 20m\u03a9 250V 250V \u63d2\u4ef6 <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625847,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u4e24\u8def \u63d2\u4ef6\u5171\u6a21\u6ee4\u6ce2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common mode filters_kemet_sc-11-16j_C1535045.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.4358
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.4358
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.4358
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.943
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.9104
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8941
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8613
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.9084
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.3464
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.3464
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.877
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.3464
+      }
+     ],
+     "firstSortAccessId": "c3edb15d5c884a76a1ea4a0ab1f65307",
+     "secondSortAccessId": "302e1284e991457489aa3228a1980c6e",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-SC_1116J/C1535045",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 50,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.4358,
+     "componentCode": "C1535045",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "SC-11-16J",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2105222007_KEMET-SC-11-16J_C1535045.pdf",
+     "dataManualFileAccessId": "8589034145334484992",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET SC-11-16J",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-25\u2103~+120\u2103 1.6mH@10kHz 11A 13m\u03a9 2 250V 250V \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-25\u2103~+120\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "11A"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6mH@10kHz</span>",
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1.6mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "13m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-25\u2103~+120\u2103 <span class='lucene_highlight_class'>1.6mH</span>@10kHz 11A 13m\u03a9 2 250V 250V \u63d2\u4ef6 <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1626029,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u4e24\u8def \u5171\u6a21\u6ee4\u6ce2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common mode filters_kemet_scr47b-350-1r6c016jh-d_C1535227.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.9421
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 12.9421
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 12.9421
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 5.0085
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.8323
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 4.7458
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 4.5717
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 4.8247
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 12.4672
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.4672
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 4.655
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 12.4672
+      }
+     ],
+     "firstSortAccessId": "c3edb15d5c884a76a1ea4a0ab1f65307",
+     "secondSortAccessId": "302e1284e991457489aa3228a1980c6e",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-SCR47B_350_1R6C016JHD/C1535227",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 12,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 12.9421,
+     "componentCode": "C1535227",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "SCR47B-350-1R6C016JH-D",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/2105222034_KEMET-SCR47B-350-1R6C016JH-D_C1535227.pdf",
+     "dataManualFileAccessId": "8589034280807120896",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET SCR47B-350-1R6C016JH-D",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-25\u2103~+120\u2103 1.6mH@10kHz 2 3.5m\u03a9 35A 500V 500V - Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-25\u2103~+120\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "500V"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "35A"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "500V"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>1.6mH@10kHz</span>",
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1.6mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "3.5m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-25\u2103~+120\u2103 <span class='lucene_highlight_class'>1.6mH</span>@10kHz 2 3.5m\u03a9 35A 500V 500V - <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 2,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "Common Mode Filters 1.6mH"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T19:00:46Z"
+}

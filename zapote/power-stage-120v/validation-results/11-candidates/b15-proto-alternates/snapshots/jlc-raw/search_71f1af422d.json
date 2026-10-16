@@ -1,0 +1,2198 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 44,
+   "list": [
+    {
+     "componentId": 6060502,
+     "componentLibraryType": "expand",
+     "stockCount": 1265,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u3010\u63d2\u4ef6\u3011\u63d2\u4ef6\u5171\u6a21\u6ee4\u6ce2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_fangcheng-fc-hlf2018-5mh-25a-lf_C5307518.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.7049
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.4928
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 71,
+       "productPrice": 1.3427
+      },
+      {
+       "startNumber": 72,
+       "endNumber": 503,
+       "productPrice": 1.2073
+      },
+      {
+       "startNumber": 504,
+       "endNumber": 1007,
+       "productPrice": 1.0833
+      },
+      {
+       "startNumber": 1008,
+       "endNumber": -1,
+       "productPrice": 1.0588
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 72,
+       "endNumber": 503,
+       "productPrice": 1.163
+      },
+      {
+       "startNumber": 1008,
+       "endNumber": -1,
+       "productPrice": 1.02
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 71,
+       "productPrice": 1.2934
+      },
+      {
+       "startNumber": 504,
+       "endNumber": 1007,
+       "productPrice": 1.0436
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.6423
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.438
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 894,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "FANGCHENG-FC_HLF2018_5mH_25ALF/C5307518",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 72,
+     "shopCostPrice": 5.3,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.7049,
+     "componentCode": "C5307518",
+     "componentBrandEn": "FANGCHENG",
+     "componentModelEn": "FC-HLF2018-5mH-25A-LF",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583717942307930112",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2407101646_FANGCHENG-FC-HLF2018-5mH-25A-LF_C5307518.pdf",
+     "dataManualFileAccessId": "8589839232173694976",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "FANGCHENG FC-HLF2018-5mH-25A-LF",
+     "minImage": "",
+     "minImageAccessId": "8583717943197122560",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+125\u2103 1.5kV 100M\u03a9 2 25A 5mH 6.5m\u03a9 \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Insulation Resistance(IR)",
+       "attribute_value_name": "100M\u03a9"
+      },
+      {
+       "attribute_name_en": "Impedance @ Frequency",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>25A</span>",
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "6.5m\u03a9"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "5mH"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+125\u2103 1.5kV 100M\u03a9 2 <span class='lucene_highlight_class'>25A</span> 5mH 6.5m\u03a9 \u63d2\u4ef6 <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": "FC-HLF2018-5mH-<span class='lucene_highlight_class'>25A</span>-LF",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6060503,
+     "componentLibraryType": "expand",
+     "stockCount": 280,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u63d2\u4ef6\u5171\u6a21\u6ee4\u6ce2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_fangcheng-fc-dlsf3020-2-0mh-25a-lf_C5307519.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.9104
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 55,
+       "productPrice": 1.6249
+      },
+      {
+       "startNumber": 56,
+       "endNumber": 111,
+       "productPrice": 1.4471
+      },
+      {
+       "startNumber": 112,
+       "endNumber": 503,
+       "productPrice": 1.2073
+      },
+      {
+       "startNumber": 504,
+       "endNumber": 1007,
+       "productPrice": 1.1257
+      },
+      {
+       "startNumber": 1008,
+       "endNumber": -1,
+       "productPrice": 1.0898
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1008,
+       "endNumber": -1,
+       "productPrice": 1.0498
+      },
+      {
+       "startNumber": 112,
+       "endNumber": 503,
+       "productPrice": 1.163
+      },
+      {
+       "startNumber": 56,
+       "endNumber": 111,
+       "productPrice": 1.394
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 55,
+       "productPrice": 1.5653
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.8403
+      },
+      {
+       "startNumber": 504,
+       "endNumber": 1007,
+       "productPrice": 1.0844
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 264,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "FANGCHENG-FC_DLSF3020_2_0mH_25ALF/C5307519",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 56,
+     "shopCostPrice": 5.8,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.9104,
+     "componentCode": "C5307519",
+     "componentBrandEn": "FANGCHENG",
+     "componentModelEn": "FC-DLSF3020-2.0mH-25A-LF",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585835208385417216",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2309181445_FANGCHENG-FC-DLSF3020-2-0mH-25A-LF_C5307519.pdf",
+     "dataManualFileAccessId": "8603122786608947200",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "FANGCHENG FC-DLSF3020-2.0mH-25A-LF",
+     "minImage": "",
+     "minImageAccessId": "8585835209305051136",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+125\u2103 1.5kV 100M\u03a9 25A 25m\u03a9 2mH \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Insulation Resistance(IR)",
+       "attribute_value_name": "100M\u03a9"
+      },
+      {
+       "attribute_name_en": "Impedance @ Frequency",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>25A</span>",
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "25m\u03a9"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "2mH"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+125\u2103 1.5kV 100M\u03a9 <span class='lucene_highlight_class'>25A</span> 25m\u03a9 2mH \u63d2\u4ef6 <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": "FC-DLSF3020-2.0mH-<span class='lucene_highlight_class'>25A</span>-LF",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 20542957,
+     "componentLibraryType": "expand",
+     "stockCount": 241,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u5171\u6a21\u7535\u611f\u5927\u7535\u6d41",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_fangcheng-fc-lcl2208-121-25a-lf_C19271492.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.2335
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.899
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 1.7522
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 419,
+       "productPrice": 1.5368
+      },
+      {
+       "startNumber": 420,
+       "endNumber": 1049,
+       "productPrice": 1.4406
+      },
+      {
+       "startNumber": 1050,
+       "endNumber": -1,
+       "productPrice": 1.3982
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 90,
+       "endNumber": 419,
+       "productPrice": 1.4805
+      },
+      {
+       "startNumber": 1050,
+       "endNumber": -1,
+       "productPrice": 1.3469
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 89,
+       "productPrice": 1.6879
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.1515
+      },
+      {
+       "startNumber": 420,
+       "endNumber": 1049,
+       "productPrice": 1.3877
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.8293
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 232,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "FANGCHENG-FC_LCL2208_121_25ALF/C19271492",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 30,
+     "shopCostPrice": 6.8,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.2335,
+     "componentCode": "C19271492",
+     "componentBrandEn": "FANGCHENG",
+     "componentModelEn": "FC-LCL2208-121-25A-LF",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585326478481903616",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311271022_FANGCHENG-FC-LCL2208-121-25A-LF_C19271492.pdf",
+     "dataManualFileAccessId": "8602913961310367744",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "FANGCHENG FC-LCL2208-121-25A-LF",
+     "minImage": "",
+     "minImageAccessId": "8585326479395180544",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DIP-4",
+     "describe": "-40\u2103~+125\u2103 1.4m\u03a9 1.5kV 120uH 2 250V 25A DIP-4 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Insulation Resistance(IR)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Impedance @ Frequency",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>25A</span>",
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "120uH"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "1.4m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+125\u2103 1.4m\u03a9 1.5kV 120uH 2 250V <span class='lucene_highlight_class'>25A</span> DIP-4 <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": "FC-LCL2208-121-<span class='lucene_highlight_class'>25A</span>-LF",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1610643,
+     "componentLibraryType": "expand",
+     "stockCount": 281,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "2.5mH @ 10kHz 25A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.7431
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 12.1443
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 11.1068
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 10.2029
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 10.2029
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 10.2029
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 9.8285
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 10.6992
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.2754
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 9.8285
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 9.8285
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 11.6987
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 258,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WurthElektronik-7448052502/C1519845",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 24,
+     "shopCostPrice": 53.98108,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 12.7431,
+     "componentCode": "C1519845",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "7448052502",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585518307298988032",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/7448052502.pdf",
+     "componentName": "Wurth 7448052502",
+     "minImage": "",
+     "minImageAccessId": "8585518308225388544",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin-4P,36x23mm",
+     "describe": "-40\u2103~+125\u2103 2 2.2m\u03a9 2.5mH@10kHz 250V 25A \u63d2\u4ef6-4P,36x23mm Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>25A</span>",
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "2.2m\u03a9"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "2.5mH@10kHz"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+125\u2103 2 2.2m\u03a9 2.5mH@10kHz 250V <span class='lucene_highlight_class'>25A</span> \u63d2\u4ef6-4P,36x23mm <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625282,
+     "componentLibraryType": "expand",
+     "stockCount": 3,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "DKIH 3242 257K NK",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_schurter-dkih-3242-257k-nk_C1534480.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 48.06
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 46.5461
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 46.5461
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 46.5461
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 46.5461
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 46.5461
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 46.2964
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 44.838
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 44.838
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 44.838
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 44.838
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 44.838
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 3,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SCHURTER-DKIH_3242_257KNK/C1534480",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 20,
+     "shopCostPrice": 241.6604,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 48.06,
+     "componentCode": "C1534480",
+     "componentBrandEn": "SCHURTER",
+     "componentModelEn": "DKIH-3242-257K-NK",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "8590450446918844416",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SCHURTER DKIH-3242-257K-NK",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-40\u2103~+100\u2103 1.6m\u03a9 2 25A - Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+100\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "425V"
+      },
+      {
+       "attribute_name_en": "Insulation Resistance(IR)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Impedance @ Frequency",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>25A</span>",
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "2.35mH"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "1.6m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+100\u2103 1.6m\u03a9 2 <span class='lucene_highlight_class'>25A</span> - <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8280072,
+     "componentLibraryType": "expand",
+     "stockCount": 2,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "SCF29XV-250-2R2A008JV",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_kemet-scf29xv-250-2r2a008jv_C7309564.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 18.7532
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 18.1904
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 13,
+       "productPrice": 18.1904
+      },
+      {
+       "startNumber": 14,
+       "endNumber": 15,
+       "productPrice": 18.1904
+      },
+      {
+       "startNumber": 16,
+       "endNumber": 17,
+       "productPrice": 18.1904
+      },
+      {
+       "startNumber": 18,
+       "endNumber": -1,
+       "productPrice": 18.1904
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 18,
+       "endNumber": -1,
+       "productPrice": 17.5228
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 17.5228
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 13,
+       "productPrice": 17.5228
+      },
+      {
+       "startNumber": 14,
+       "endNumber": 15,
+       "productPrice": 17.5228
+      },
+      {
+       "startNumber": 16,
+       "endNumber": 17,
+       "productPrice": 17.5228
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 18.065
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 2,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "KEMET-SCF29XV_2502R2A008JV/C7309564",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 120,
+     "shopCostPrice": 89.8693,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 18.7532,
+     "componentCode": "C7309564",
+     "componentBrandEn": "KEMET",
+     "componentModelEn": "SCF29XV-250-2R2A008JV",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8770194024189968384",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401301657_KEMET-SCF29XV-250-2R2A008JV_C7309564.pdf",
+     "dataManualFileAccessId": "8597541325206409216",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "KEMET SCF29XV-250-2R2A008JV",
+     "minImage": "",
+     "minImageAccessId": "8770194025322024960",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-40\u2103~+150\u2103 1.68m\u03a9 2 25A - Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "2.4kV"
+      },
+      {
+       "attribute_name_en": "Insulation Resistance(IR)",
+       "attribute_value_name": "100M\u03a9"
+      },
+      {
+       "attribute_name_en": "Impedance @ Frequency",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>25A</span>",
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "1.68m\u03a9"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "700uH@100kHz"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+150\u2103 1.68m\u03a9 2 <span class='lucene_highlight_class'>25A</span> - <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 21047335,
+     "componentLibraryType": "expand",
+     "stockCount": 545,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u5927\u7535\u6d41\u5171\u6a21\u7535\u611f",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_fangcheng-fc-dl2018d-5-0mh-20a-l_C19725255.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.8648
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.5907
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 79,
+       "productPrice": 1.4178
+      },
+      {
+       "startNumber": 80,
+       "endNumber": 479,
+       "productPrice": 1.266
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 959,
+       "productPrice": 1.1861
+      },
+      {
+       "startNumber": 960,
+       "endNumber": -1,
+       "productPrice": 1.1518
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 80,
+       "endNumber": 479,
+       "productPrice": 1.2196
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 79,
+       "productPrice": 1.3657
+      },
+      {
+       "startNumber": 960,
+       "endNumber": -1,
+       "productPrice": 1.1096
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 959,
+       "productPrice": 1.1426
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.7963
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.5323
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 542,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "FANGCHENG-FC_DL2018D_5_0mH_20AL/C19725255",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 80,
+     "shopCostPrice": 5.6,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 1,
+     "initialPrice": 1.8648,
+     "componentCode": "C19725255",
+     "componentBrandEn": "FANGCHENG",
+     "componentModelEn": "FC-DL2018D-5.0mH-20A-L",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8585259797750538240",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401091430_FANGCHENG-FC-DL2018D-5-0mH-20A-L_C19725255.pdf",
+     "dataManualFileAccessId": "8590920170129485824",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "FANGCHENG FC-DL2018D-5.0mH-20A-L",
+     "minImage": "",
+     "minImageAccessId": "8585259798744588288",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DIP-4",
+     "describe": "-40\u2103~+125\u2103 1.5kV 2 25A 265V 5mH 6m\u03a9 DIP-4 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Insulation Resistance(IR)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Impedance @ Frequency",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>25A</span>",
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "5mH"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "6m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+125\u2103 1.5kV 2 <span class='lucene_highlight_class'>25A</span> 265V 5mH 6m\u03a9 DIP-4 <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 52922148,
+     "componentLibraryType": "expand",
+     "stockCount": 160,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "1mH 25A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.0671
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 44,
+       "productPrice": 1.7473
+      },
+      {
+       "startNumber": 45,
+       "endNumber": 89,
+       "productPrice": 1.5466
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 494,
+       "productPrice": 1.3427
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 989,
+       "productPrice": 1.2497
+      },
+      {
+       "startNumber": 990,
+       "endNumber": -1,
+       "productPrice": 1.2089
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 990,
+       "endNumber": -1,
+       "productPrice": 1.1646
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 494,
+       "productPrice": 1.2934
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 44,
+       "productPrice": 1.6832
+      },
+      {
+       "startNumber": 45,
+       "endNumber": 89,
+       "productPrice": 1.4899
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.9912
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 989,
+       "productPrice": 1.2039
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 124,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "PRODTech-PDMCAT251513102MLG/C50326496",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 45,
+     "shopCostPrice": 6.5,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.0671,
+     "componentCode": "C50326496",
+     "componentBrandEn": "PROD Tech",
+     "componentModelEn": "PDMCAT251513-102MLG",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8767022965831405568",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8756506415765184512",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "PROD Tech PDMCAT251513-102MLG",
+     "minImage": "",
+     "minImageAccessId": "8767022966938836992",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+105\u2103 1kV 1mH@1kHz 2 25A 3.5m\u03a9 Plugin Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Insulation Resistance(IR)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Impedance @ Frequency",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>25A</span>",
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "3.5m\u03a9"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1mH@1kHz"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 1kV 1mH@1kHz 2 <span class='lucene_highlight_class'>25A</span> 3.5m\u03a9 Plugin <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 55000056,
+     "componentLibraryType": "expand",
+     "stockCount": 219,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "2mH 25A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.1258
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 44,
+       "productPrice": 2.6593
+      },
+      {
+       "startNumber": 45,
+       "endNumber": 89,
+       "productPrice": 2.3672
+      },
+      {
+       "startNumber": 90,
+       "endNumber": 494,
+       "productPrice": 2.0671
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 989,
+       "productPrice": 1.9317
+      },
+      {
+       "startNumber": 990,
+       "endNumber": -1,
+       "productPrice": 1.8746
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 90,
+       "endNumber": 494,
+       "productPrice": 1.9912
+      },
+      {
+       "startNumber": 495,
+       "endNumber": 989,
+       "productPrice": 1.8608
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.0111
+      },
+      {
+       "startNumber": 45,
+       "endNumber": 89,
+       "productPrice": 2.2804
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 44,
+       "productPrice": 2.5617
+      },
+      {
+       "startNumber": 990,
+       "endNumber": -1,
+       "productPrice": 1.8058
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 219,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "PRODTech-PDMCAT353222A202NLG/C52178001",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 45,
+     "shopCostPrice": 9.5,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.1258,
+     "componentCode": "C52178001",
+     "componentBrandEn": "PROD Tech",
+     "componentModelEn": "PDMCAT353222A-202NLG",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8764024204209463296",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8757072968839245824",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "PROD Tech PDMCAT353222A-202NLG",
+     "minImage": "",
+     "minImageAccessId": "8764024205275222016",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "DIP-4P,35x22mm",
+     "describe": "-40\u2103~+105\u2103 1.5kV 2 25A 2mH@1kHz 3m\u03a9 DIP-4P,35x22mm Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+105\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Insulation Resistance(IR)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Impedance @ Frequency",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>25A</span>",
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "2mH@1kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "3m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+105\u2103 1.5kV 2 <span class='lucene_highlight_class'>25A</span> 2mH@1kHz 3m\u03a9 DIP-4P,35x22mm <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625061,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "1.7mH @ 10kHz 25A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_tdk-b82726s3223a340_C1534259.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 7.0282
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 7.0282
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 7.0282
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.7196
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.625
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.5777
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.4831
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 2.6198
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 6.7703
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.7703
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.5287
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 6.7703
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82726S3223A340/C1534259",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 28,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 7.0282,
+     "componentCode": "C1534259",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82726S3223A340",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2105221808_TDK-B82726S3223A340_C1534259.pdf",
+     "dataManualFileAccessId": "8589034237412716544",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82726S3223A340",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-40\u2103~+125\u2103 1.7mH@10kHz 2 2.75m\u03a9 25A 300V - Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "300V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "2kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>25A</span>",
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "2.75m\u03a9"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1.7mH@10kHz"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+125\u2103 1.7mH@10kHz 2 2.75m\u03a9 <span class='lucene_highlight_class'>25A</span> 300V - <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625612,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "1mH @ 100kHz 25A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 20.582
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 20.582
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 20.582
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 7.9663
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 7.6857
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 7.547
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 7.27
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 7.6739
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 19.8267
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 19.8267
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 7.4036
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 19.8267
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "WurthElektronik-7448262510/C1534810",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 18,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 20.582,
+     "componentCode": "C1534810",
+     "componentBrandEn": "Wurth Elektronik",
+     "componentModelEn": "7448262510",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.we-online.com/components/products/datasheet/7448262510.pdf",
+     "componentName": "Wurth 7448262510",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+125\u2103 1.5kV 1mH@100kHz 2 250V 25A 4.5m\u03a9 Plugin Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>25A</span>",
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1mH@100kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "4.5m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+125\u2103 1.5kV 1mH@100kHz 2 250V <span class='lucene_highlight_class'>25A</span> 4.5m\u03a9 Plugin <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625632,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u56db\u8def \u5171\u6a21\u6ee4\u6ce2\u5668",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_schurter-dkih-3458-250k-nk_C1534830.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 31.7132
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 31.7132
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 31.7132
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 12.2732
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 11.8425
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 11.6288
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 11.2021
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 11.8228
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 30.5494
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 30.5494
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 11.4079
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 30.5494
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "SCHURTER-DKIH_3458_250KNK/C1534830",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 20,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 31.7132,
+     "componentCode": "C1534830",
+     "componentBrandEn": "SCHURTER",
+     "componentModelEn": "DKIH-3458-250K-NK",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_SCHURTER-DKIH-3458-250K-NK_C1534830.pdf",
+     "dataManualFileAccessId": "8589034461476630528",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "SCHURTER DKIH-3458-250K-NK",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "-40\u2103~+100\u2103 1.4m\u03a9 25A 4 760V 760V - Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+100\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "760V"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "4"
+      },
+      {
+       "attribute_value_name_high": "<span class='lucene_highlight_class'>25A</span>",
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "25A"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "1.4m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": "-40\u2103~+100\u2103 1.4m\u03a9 <span class='lucene_highlight_class'>25A</span> 4 760V 760V - <span class='lucene_highlight_class'>Common</span> Mode <span class='lucene_highlight_class'>Filters</span> ROHS",
+     "componentModelHigh": null,
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 4,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "Common Mode Filters 25A"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T19:00:41Z"
+}

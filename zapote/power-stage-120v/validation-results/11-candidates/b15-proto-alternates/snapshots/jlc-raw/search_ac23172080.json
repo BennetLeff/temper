@@ -1,0 +1,675 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 4,
+   "list": [
+    {
+     "componentId": 222641,
+     "componentLibraryType": "expand",
+     "stockCount": 1983,
+     "componentTypeEn": "Schottky Diodes",
+     "erpComponentName": "STPS2L60ZFY",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/schottky-diodes_stmicroelectronics-stps2l60zfy_C222352.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1617
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1314
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1162
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1048
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0957
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0911
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0921
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1558
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1119
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1266
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0877
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1009
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "8c33c764fe0c4284aa9a8a0e84b8be11",
+     "canPresaleNumber": 1886,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "STMicroelectronics-STPS2L60ZFY/C222352",
+     "leastPatchNumber": 5,
+     "lossNumber": 2,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.38845,
+     "preMinPurchaseNum": 69,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1617,
+     "componentCode": "C222352",
+     "componentBrandEn": "STMicroelectronics",
+     "componentModelEn": "STPS2L60ZFY",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583440754123411456",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1806021431_STMicroelectronics-STPS2L60ZFY_C222352.pdf",
+     "dataManualFileAccessId": "8588909992128339968",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "ST STPS2L60ZFY",
+     "minImage": "",
+     "minImageAccessId": "8583440754945765376",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOD-123FL",
+     "describe": "-40\u2103~+175\u2103 1 Independent 2A 50A 50uA@60V 60V 750mV@2A SOD-123FL Schottky Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "750mV@2A"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "60V"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-40\u2103~+175\u2103"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Independent"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "2A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "50uA@60V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Schottky Diodes",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>STPS2L60ZF</span>Y",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 23821610,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "New Arrivals",
+     "erpComponentName": "STPS2L60ZFY",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0397
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0204
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0382
+      },
+      {
+       "startNumber": 100,
+       "endNumber": -1,
+       "productPrice": 0.0197
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JLCPCBAssembly-STPS2L60ZFY/C9900094474",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "0",
+     "noBuyReason": "This product is no longer manufactured.",
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.1,
+     "preMinPurchaseNum": 443,
+     "minPurchaseNum": 443,
+     "initialPrice": 0.0204,
+     "componentCode": "C9900094474",
+     "componentBrandEn": "JLCPCB Assembly",
+     "componentModelEn": "STPS2L60ZFY",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JIALICHUANG SMT STPS2L60ZFY",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOD-123FL",
+     "describe": "SOD-123FL New Arrivals ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "New Arrivals",
+     "secondSortName": "Others",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>STPS2L60ZF</span>Y",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 56444134,
+     "componentLibraryType": "expand",
+     "stockCount": 7059,
+     "componentTypeEn": "Schottky Diodes",
+     "erpComponentName": "STPS2L60ZFY-TP",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0736
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0581
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 2999,
+       "productPrice": 0.0505
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0446
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 8999,
+       "productPrice": 0.04
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": -1,
+       "productPrice": 0.0376
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 300,
+       "endNumber": 2999,
+       "productPrice": 0.0486
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 8999,
+       "productPrice": 0.0386
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.043
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0709
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": -1,
+       "productPrice": 0.0362
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.056
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 7058,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TECHPUBLIC-STPS2L60ZFYTP/C53340922",
+     "leastPatchNumber": 5,
+     "lossNumber": 4,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.198,
+     "preMinPurchaseNum": 156,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0736,
+     "componentCode": "C53340922",
+     "componentBrandEn": "TECH PUBLIC",
+     "componentModelEn": "STPS2L60ZFY-TP",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8765964876063744000",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TECH PUBLIC STPS2L60ZFY-TP",
+     "minImage": "",
+     "minImageAccessId": "8765964877121249280",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOD-123FL",
+     "describe": "-55\u2103~+150\u2103 100uA@60V 2A 50A 60V 650mV@2A SOD-123FL Schottky Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "650mV@2A"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "60V"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Independent"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "2A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "100uA@60V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Schottky Diodes",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>STPS2L60ZF</span>Y-TP",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 55658027,
+     "componentLibraryType": "expand",
+     "stockCount": 185,
+     "componentTypeEn": "Schottky Diodes",
+     "erpComponentName": "STPS2L60ZFY-HXY",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0881
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.071
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0624
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.056
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.051
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0483
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0601
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0684
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0849
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0466
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0491
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.054
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 185,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "HXYMOSFET-STPS2L60ZFYHXY/C52754496",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.219,
+     "preMinPurchaseNum": 128,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.0881,
+     "componentCode": "C52754496",
+     "componentBrandEn": "HXY MOSFET",
+     "componentModelEn": "STPS2L60ZFY-HXY",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8764013135831683072",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8757156570243579904",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "HXY MOSFET STPS2L60ZFY-HXY",
+     "minImage": "",
+     "minImageAccessId": "8764013136854552576",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOD-123FL",
+     "describe": "SOD-123FL Schottky Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "700mV@2A"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "50A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "60V"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-65\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Independent"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "2A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "100uA"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Schottky Diodes",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>STPS2L60ZF</span>Y-HXY",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "STPS2L60ZF"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T19:08:16Z"
+}

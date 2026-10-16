@@ -1,0 +1,2056 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 32,
+   "list": [
+    {
+     "componentId": 1625150,
+     "componentLibraryType": "expand",
+     "stockCount": 5,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "1.8mH @ 10kHz 10A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_tdk-b82725j2103n022_C1534348.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.4608
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 10.6173
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 9.4933
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 8.5519
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 8.5519
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 8.5519
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 8.2381
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 8.2381
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 9.1449
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 12.0036
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 8.2381
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 10.2277
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 5,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82725J2103N022/C1534348",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 160,
+     "shopCostPrice": 48.9809,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 12.4608,
+     "componentCode": "C1534348",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82725J2103N022",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2105221811_TDK-B82725J2103N022_C1534348.pdf",
+     "dataManualFileAccessId": "8590450828994502656",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82725J2103N022",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+125\u2103 1.5kV 1.8mH@10kHz 10A 13m\u03a9 2 250V 250V \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "10A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "1.8mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "13m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B82725</span>J2103N022",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625152,
+     "componentLibraryType": "expand",
+     "stockCount": 5,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "3.9mH @ 10kHz 8A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_tdk-b82725j2802n020_C1534350.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.8554
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 8.6368
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 8.4916
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 8.3464
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 8.3464
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 8.3464
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 8.0401
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 8.0401
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 8.18
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 8.5304
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 8.0401
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 8.3198
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 5,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82725J2802N020/C1534350",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 160,
+     "shopCostPrice": 46.5011,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 8.8554,
+     "componentCode": "C1534350",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82725J2802N020",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2105221905_TDK-B82725J2802N020_C1534350.pdf",
+     "dataManualFileAccessId": "8590450828990308352",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82725J2802N020",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+125\u2103 2 250V 3.9mH@10kHz 31m\u03a9 8A \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "8A"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "31m\u03a9"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "3.9mH@10kHz"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B82725</span>J2802N020",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625160,
+     "componentLibraryType": "expand",
+     "stockCount": 5,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "3.9mH @ 10kHz 6A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_tdk-b82725a2602n001_C1534358.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.6432
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 6.4735
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 6.3593
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 6.2468
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 6.2468
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 6.2468
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 6.0175
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 6.236
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 6.126
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.3994
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 6.0175
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 6.0175
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 5,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82725A2602N001/C1534358",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 160,
+     "shopCostPrice": 36.1165,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 1,
+     "initialPrice": 6.6432,
+     "componentCode": "C1534358",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82725A2602N001",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2201180930_TDK-B82725A2602N001_C1534358.pdf",
+     "dataManualFileAccessId": "8589034244862070785",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82725A2602N001",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+125\u2103 1.5kV 2 250V 250V 3.9mH@10kHz 40m\u03a9 6A \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "6A"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "3.9mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "40m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B82725</span>A2602N001",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3089925,
+     "componentLibraryType": "expand",
+     "stockCount": 22,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u7535\u6d41\u8865\u507f\u5f0f\u73af\u5f62\u78c1\u82af\u53cc\u627c\u6d41\u5708\uff0c\u9002\u7528\u4e8e\u6291\u5236\u5171\u6a21\u5e72\u6270\u548c\u5f00\u5173\u6a21\u5f0f\u5e94\u7528\u3010\u63d2\u4ef6\u3011",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 11.8947
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 11.2993
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 10.2682
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 9.3693
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 9.3693
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 9.3693
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 9.0255
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 9.0255
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 9.8914
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 11.4582
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 9.0255
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 10.8846
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 22,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82725V2103U041/C2879864",
+     "leastPatchNumber": 2,
+     "lossNumber": 1,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 91,
+     "shopCostPrice": 53.6612,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 11.8947,
+     "componentCode": "C2879864",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82725V2103U041",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8761994988655915008",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "8588918800415150080",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82725V2103U041",
+     "minImage": "",
+     "minImageAccessId": "8761994989730062336",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "1.8kV 10A 11m\u03a9 2 250V 250V 6.25mH@10kHz \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.8kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "10A"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "6.25mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "11m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B82725</span>V2103U041",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 44067611,
+     "componentLibraryType": "expand",
+     "stockCount": 2,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "\u7535\u6d41\u8865\u507f\u8868\u9762\u8d34\u88c5\u73af\u5f62\u78c1\u82af\u53cc\u627c\u6d41\u5708",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 9.8375
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 9.5047
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 13,
+       "productPrice": 9.5047
+      },
+      {
+       "startNumber": 14,
+       "endNumber": 15,
+       "productPrice": 9.5047
+      },
+      {
+       "startNumber": 16,
+       "endNumber": 17,
+       "productPrice": 9.5047
+      },
+      {
+       "startNumber": 18,
+       "endNumber": -1,
+       "productPrice": 9.5047
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 18,
+       "endNumber": -1,
+       "productPrice": 9.1559
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 9.1559
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 13,
+       "productPrice": 9.1559
+      },
+      {
+       "startNumber": 14,
+       "endNumber": 15,
+       "productPrice": 9.1559
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 9.4765
+      },
+      {
+       "startNumber": 16,
+       "endNumber": 17,
+       "productPrice": 9.1559
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 2,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82725S2323A040/C42193950",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 360,
+     "shopCostPrice": 52.9636,
+     "preMinPurchaseNum": 1,
+     "minPurchaseNum": 1,
+     "initialPrice": 9.8375,
+     "componentCode": "C42193950",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82725S2323A040",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8762168194666500096",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82725S2323A040",
+     "minImage": "",
+     "minImageAccessId": "8762168195744436224",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SMD",
+     "describe": "1.1m\u03a9 1.5kV 2 250V 260uH@100kHz 32A SMD Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Insulation Resistance(IR)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Impedance @ Frequency",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "32A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "260uH@100kHz"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "1.1m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B82725</span>S2323A040",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1624914,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "7.8mH @ 10kHz 6A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_tdk-b82725s2602n041_C1534112.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.0981
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.0981
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 3.0981
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.1991
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.1567
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.1371
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.0954
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.1551
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.9844
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.9844
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.1143
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.9844
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82725S2602N041/C1534112",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 80,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 3.0981,
+     "componentCode": "C1534112",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82725S2602N041",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2105221806_TDK-B82725S2602N041_C1534112.pdf",
+     "dataManualFileAccessId": "8590449050765066240",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82725S2602N041",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "1.5kV 2 24m\u03a9 250V 7.8mH@10kHz 9A \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Insulation Resistance(IR)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Impedance @ Frequency",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "9A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "7.8mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "24m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B82725</span>S2602N041",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625038,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "3.3mH @ 10kHz 10A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_tdk-b82725s2103n004_C1534236.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.1797
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.1797
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 4.1797
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.6184
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.5613
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.5336
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.4773
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.559
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 4.0264
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.0264
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.504
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.0264
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82725S2103N004/C1534236",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 80,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 4.1797,
+     "componentCode": "C1534236",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82725S2103N004",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2105221808_TDK-B82725S2103N004_C1534236.pdf",
+     "dataManualFileAccessId": "8589034805414023168",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82725S2103N004",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+125\u2103 10A 13.5m\u03a9 2 250V 3.3mH@10kHz \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "10A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "3.3mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "13.5m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B82725</span>S2103N004",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625039,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "2.7mH @ 10kHz 8A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_tdk-b82725a2802n001_C1534237.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.0461
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.896
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.7965
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 5.697
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 5.697
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 5.697
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 5.4879
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 5.4879
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 5.5838
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.8242
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 5.4879
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.6796
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82725A2802N001/C1534237",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 160,
+     "shopCostPrice": 31.7431,
+     "preMinPurchaseNum": 2,
+     "minPurchaseNum": 2,
+     "initialPrice": 6.0461,
+     "componentCode": "C1534237",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82725A2802N001",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8762186980157739008",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2201180930_TDK-B82725A2802N001_C1534237.pdf",
+     "dataManualFileAccessId": "8586207362742947840",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82725A2802N001",
+     "minImage": "",
+     "minImageAccessId": "8762186981260570624",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+125\u2103 1.5kV 2 2.7mH@10kHz 22m\u03a9 250V 250V 8A \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "8A"
+      },
+      {
+       "attribute_name_en": "Voltage Rating (AC)",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "2.7mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "22m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B82725</span>A2802N001",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625048,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "B82725S2602N002",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_tdk-b82725s2602n002_C1534246.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.873
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.873
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 159,
+       "productPrice": 2.873
+      },
+      {
+       "startNumber": 160,
+       "endNumber": 479,
+       "productPrice": 1.1127
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 959,
+       "productPrice": 1.0735
+      },
+      {
+       "startNumber": 960,
+       "endNumber": -1,
+       "productPrice": 1.0539
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 159,
+       "productPrice": 2.7676
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 959,
+       "productPrice": 1.0341
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.7676
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.7676
+      },
+      {
+       "startNumber": 160,
+       "endNumber": 479,
+       "productPrice": 1.0718
+      },
+      {
+       "startNumber": 960,
+       "endNumber": -1,
+       "productPrice": 1.0153
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82725S2602N002/C1534246",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 80,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 4,
+     "initialPrice": 2.873,
+     "componentCode": "C1534246",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82725S2602N002",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2105221808_TDK-B82725S2602N002_C1534246.pdf",
+     "dataManualFileAccessId": "8586207416404873216",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82725S2602N002",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+125\u2103 2 24m\u03a9 250V 3.9mH@10kHz 6A \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV\u30012.1kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "6A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "3.9mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "24m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B82725</span>S2602N002",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625049,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "6.8mH @ 10kHz 4A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_tdk-b82725j2402n020_C1534247.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.1437
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.1437
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 159,
+       "productPrice": 2.1437
+      },
+      {
+       "startNumber": 160,
+       "endNumber": 479,
+       "productPrice": 0.8304
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 959,
+       "productPrice": 0.8011
+      },
+      {
+       "startNumber": 960,
+       "endNumber": -1,
+       "productPrice": 0.7864
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 12,
+       "endNumber": 159,
+       "productPrice": 2.0651
+      },
+      {
+       "startNumber": 480,
+       "endNumber": 959,
+       "productPrice": 0.7717
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 2.0651
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.0651
+      },
+      {
+       "startNumber": 160,
+       "endNumber": 479,
+       "productPrice": 0.8
+      },
+      {
+       "startNumber": 960,
+       "endNumber": -1,
+       "productPrice": 0.7575
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82725J2402N020/C1534247",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 160,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 5,
+     "initialPrice": 2.1437,
+     "componentCode": "C1534247",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82725J2402N020",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2105221808_TDK-B82725J2402N020_C1534247.pdf",
+     "dataManualFileAccessId": "8589034661745446912",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82725J2402N020",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+125\u2103 2 250V 4A 6.8mH@10kHz 75m\u03a9 \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "4A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "6.8mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "75m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B82725</span>J2402N020",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625052,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "2.8mH @ 10kHz 10A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_tdk-b82725s2103n003_C1534250.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 4.0215
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 4.0215
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 4.0215
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.5564
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.5026
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.4749
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.4207
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 1.4993
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 3.8739
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.8739
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.4474
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.8739
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82725S2103N003/C1534250",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 80,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 3,
+     "initialPrice": 4.0215,
+     "componentCode": "C1534250",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82725S2103N003",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2105221808_TDK-B82725S2103N003_C1534250.pdf",
+     "dataManualFileAccessId": "8590450678192902144",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82725S2103N003",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "-40\u2103~+125\u2103 10A 12.5m\u03a9 2 2.8mH@10kHz 250V \u63d2\u4ef6 Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "10A"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "12.5m\u03a9"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "2.8mH@10kHz"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B82725</span>S2103N003",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 1625056,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Common Mode Filters",
+     "erpComponentName": "6.8mH @ 10kHz 4A",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/common-mode-filters_tdk-b82725a2402n001_C1534254.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.1813
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.1813
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.1813
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.8451
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8141
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8011
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.7717
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.8141
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 2.1012
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.1012
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.7843
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.1012
+      }
+     ],
+     "firstSortAccessId": "e89a9371496f4781a6f3a772ca80508c",
+     "secondSortAccessId": "97c273092b6b4964862e3d41c702daec",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "TDK-B82725A2402N001/C1534254",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 160,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 5,
+     "minPurchaseNum": 5,
+     "initialPrice": 2.1813,
+     "componentCode": "C1534254",
+     "componentBrandEn": "TDK",
+     "componentModelEn": "B82725A2402N001",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2201180930_TDK-B82725A2402N001_C1534254.pdf",
+     "dataManualFileAccessId": "8589034841018388480",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "TDK B82725A2402N001",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "2 250V 4A 6.8mH@10kHz 80m\u03a9 - Common Mode Filters ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Voltage Rating - DC",
+       "attribute_value_name": "250V"
+      },
+      {
+       "attribute_name_en": "Voltage Withstand",
+       "attribute_value_name": "1.5kV"
+      },
+      {
+       "attribute_name_en": "Number of Lines",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "4A"
+      },
+      {
+       "attribute_name_en": "Inductance @ Frequency",
+       "attribute_value_name": "6.8mH@10kHz"
+      },
+      {
+       "attribute_name_en": "DC Resistance(DCR)",
+       "attribute_value_name": "80m\u03a9"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Common Mode Filters",
+     "secondSortName": "Filters",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>B82725</span>A2402N001",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 3,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "B82725"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T19:00:42Z"
+}

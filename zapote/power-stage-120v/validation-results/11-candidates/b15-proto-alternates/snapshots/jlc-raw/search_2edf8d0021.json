@@ -1,0 +1,190 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 1,
+   "list": [
+    {
+     "componentId": 6960829,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Safety Capacitors",
+     "erpComponentName": "2.2nF \u00b120% 440V 400V \u7b49\u7ea7:X1,Y1",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/safety-capacitors_murata-electronics-de1e3ra222mn4ah01f_C6022265.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.1454
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.1454
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.1454
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.058
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 1199,
+       "productPrice": 0.0562
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 0.0552
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.0558
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.1401
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.1401
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.1401
+      },
+      {
+       "startNumber": 1200,
+       "endNumber": -1,
+       "productPrice": 0.0532
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 1199,
+       "productPrice": 0.0541
+      }
+     ],
+     "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+     "secondSortAccessId": "1434f40db71f4e068efcc71c651b57fe",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "6960829-DE1E3RA222MN4AH01F/C6022265",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 600,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 63,
+     "minPurchaseNum": 63,
+     "initialPrice": 0.1454,
+     "componentCode": "C6022265",
+     "componentBrandEn": "Murata Electronics",
+     "componentModelEn": "DE1E3RA222MN4AH01F",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401241140_Murata-Electronics-DE1E3RA222MN4AH01F_C6022265.pdf",
+     "dataManualFileAccessId": "8600526692800872448",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "muRata DE1E3RA222MN4AH01F",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin,P=10mm",
+     "describe": "-40\u2103~+125\u2103 2.2nF 400V\u3001440V X1,Y1 \u00b120% Plugin,P=10mm Safety Capacitors ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Voltage(AC)",
+       "attribute_value_name": "400V\u3001440V"
+      },
+      {
+       "attribute_name_en": "Tolerance",
+       "attribute_value_name": "\u00b120%"
+      },
+      {
+       "attribute_name_en": "Capacitance",
+       "attribute_value_name": "2.2nF"
+      },
+      {
+       "attribute_name_en": "Ratings",
+       "attribute_value_name": "X1,Y1"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Safety Capacitors",
+     "secondSortName": "Capacitors",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>DE1E3RA222MN4AH01F</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "DE1E3RA222MN4AH01F"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T19:16:12Z"
+}

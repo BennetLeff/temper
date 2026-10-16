@@ -1,0 +1,394 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 2,
+   "list": [
+    {
+     "componentId": 461987,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Schottky Diodes",
+     "erpComponentName": "PMEG6030ETPX",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/schottky-diodes_nexperia-pmeg6030etpx_C458168.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.3381
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.264
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.2324
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1927
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1541
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1435
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1857
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.2238
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.3257
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.2543
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1484
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1382
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "8c33c764fe0c4284aa9a8a0e84b8be11",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-PMEG6030ETPX/C458168",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.73221,
+     "preMinPurchaseNum": 27,
+     "minPurchaseNum": 27,
+     "initialPrice": 0.3381,
+     "componentCode": "C458168",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "PMEG6030ETPX",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583456626334437376",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2407241031_Nexperia-PMEG6030ETPX_C458168.pdf",
+     "dataManualFileAccessId": "8588911856655716352",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia PMEG6030ETPX",
+     "minImage": "",
+     "minImageAccessId": "8583456627236618240",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOD-128",
+     "describe": "-65\u2103~+150\u2103 1 Independent 200uA@60V 3A 530mV@3A 60V SOD-128 Schottky Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "530mV@3A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "60V"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-65\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Independent"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "200uA@60V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Schottky Diodes",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>PMEG6030ETP</span>X",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8230654,
+     "componentLibraryType": "expand",
+     "stockCount": 3,
+     "componentTypeEn": "Schottky Diodes",
+     "erpComponentName": "PMEG6030ETP-QX",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/schottky-diodes_nexperia-pmeg6030etp-qx_C7261814.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1636
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1601
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1576
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 509,
+       "productPrice": 0.1554
+      },
+      {
+       "startNumber": 510,
+       "endNumber": 519,
+       "productPrice": 0.1554
+      },
+      {
+       "startNumber": 520,
+       "endNumber": -1,
+       "productPrice": 0.1554
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 509,
+       "productPrice": 0.1497
+      },
+      {
+       "startNumber": 520,
+       "endNumber": -1,
+       "productPrice": 0.1497
+      },
+      {
+       "startNumber": 510,
+       "endNumber": 519,
+       "productPrice": 0.1497
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1576
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1519
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1542
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "8c33c764fe0c4284aa9a8a0e84b8be11",
+     "canPresaleNumber": 3,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-PMEG6030ETPQX/C7261814",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 0.7531,
+     "preMinPurchaseNum": 57,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.1636,
+     "componentCode": "C7261814",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "PMEG6030ETP-QX",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8764811771691577344",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2308091749_Nexperia-PMEG6030ETP-QX_C7261814.pdf",
+     "dataManualFileAccessId": "8603211020102496256",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia PMEG6030ETP-QX",
+     "minImage": "",
+     "minImageAccessId": "8764811772740153344",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOD-128",
+     "describe": "-65\u2103~+150\u2103 1 Independent 200uA@60V 3A 530mV@3A 60V SOD-128 Schottky Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "530mV@3A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "60V"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-65\u2103~+150\u2103"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Independent"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "200uA@60V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Schottky Diodes",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>PMEG6030ETP</span>-QX",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "PMEG6030ETP"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T19:08:07Z"
+}

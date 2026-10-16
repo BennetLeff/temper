@@ -1,0 +1,722 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 4,
+   "list": [
+    {
+     "componentId": 499043,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Schottky Diodes",
+     "erpComponentName": "PMEG6030EVPX",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/schottky-diodes_nexperia-pmeg6030evpx_C489223.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8843
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.7146
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.6314
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.5466
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.496
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4699
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4778
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8518
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.6082
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.6884
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.5265
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.4527
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "8c33c764fe0c4284aa9a8a0e84b8be11",
+     "canPresaleNumber": -31,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-PMEG6030EVPX/C489223",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 2.4,
+     "preMinPurchaseNum": 13,
+     "minPurchaseNum": 13,
+     "initialPrice": 0.7146,
+     "componentCode": "C489223",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "PMEG6030EVPX",
+     "componentImageUrl": "https://assets.lcsc.com/images/lcsc/900x900/20230119_Nexperia-PMEG6030EVPX_C489223_front.jpg",
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2410121848_Nexperia-PMEG6030EVPX_C489223.pdf",
+     "dataManualFileAccessId": "8589041836442988544",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia PMEG6030EVPX",
+     "minImage": "https://assets.lcsc.com/images/lcsc/96x96/20230119_Nexperia-PMEG6030EVPX_C489223_front.jpg",
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": "https://assets.lcsc.com/images/lcsc/96x96/20230119_Nexperia-PMEG6030EVPX_C489223_front.jpg",
+       "productImageAccessId": null,
+       "productBigImage": "https://assets.lcsc.com/images/lcsc/900x900/20230119_Nexperia-PMEG6030EVPX_C489223_front.jpg",
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": "https://assets.lcsc.com/images/lcsc/96x96/20230119_Nexperia-PMEG6030EVPX_C489223_back.jpg",
+       "productImageAccessId": null,
+       "productBigImage": "https://assets.lcsc.com/images/lcsc/900x900/20230119_Nexperia-PMEG6030EVPX_C489223_back.jpg",
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": "https://assets.lcsc.com/images/lcsc/96x96/20230119_Nexperia-PMEG6030EVPX_C489223_blank.jpg",
+       "productImageAccessId": null,
+       "productBigImage": "https://assets.lcsc.com/images/lcsc/900x900/20230119_Nexperia-PMEG6030EVPX_C489223_blank.jpg",
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": "https://assets.lcsc.com/images/lcsc/96x96/20230119_Nexperia-PMEG6030EVPX_C489223_package.jpg",
+       "productImageAccessId": null,
+       "productBigImage": "https://assets.lcsc.com/images/lcsc/900x900/20230119_Nexperia-PMEG6030EVPX_C489223_package.jpg",
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOD-128",
+     "describe": "1 Independent 115uA@60V 3A 420mV@3A 60V 70A SOD-128 Schottky Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "420mV@3A"
+      },
+      {
+       "attribute_name_en": "Power Dissipation",
+       "attribute_value_name": "750mW\u30011250mW\u30012500mW"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "70A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "60V"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Independent"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "115uA@60V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Schottky Diodes",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>PMEG6030EVP</span>X",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8230656,
+     "componentLibraryType": "expand",
+     "stockCount": 452,
+     "componentTypeEn": "Schottky Diodes",
+     "erpComponentName": "PMEG6030EVP-QX",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/schottky-diodes_nexperia-pmeg6030evp-qx_C7261816.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4079
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3981
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3916
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.3851
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.3851
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.3851
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 0.3709
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3772
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3929
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 0.3709
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3835
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 0.3709
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "8c33c764fe0c4284aa9a8a0e84b8be11",
+     "canPresaleNumber": 444,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Nexperia-PMEG6030EVPQX/C7261816",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 2.10157,
+     "preMinPurchaseNum": 23,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.4079,
+     "componentCode": "C7261816",
+     "componentBrandEn": "Nexperia",
+     "componentModelEn": "PMEG6030EVP-QX",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8766896944420020224",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2308091749_Nexperia-PMEG6030EVP-QX_C7261816.pdf",
+     "dataManualFileAccessId": "8603211020198694912",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "Nexperia PMEG6030EVP-QX",
+     "minImage": "",
+     "minImageAccessId": "8766896945506074624",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOD-128",
+     "describe": "1 Independent 3A 400uA@60V 475mV@3A 60V 70A SOD-128 Schottky Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "475mV@3A"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "70A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "60V"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Independent"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "400uA@60V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Schottky Diodes",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>PMEG6030EVP</span>-QX",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 18503770,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "Diodes - General Purpose",
+     "erpComponentName": "PMEG6030EVP115",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/diodes-general-purpose_nxp-semicon-pmeg6030evp115_C17374599.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4275
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.4275
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.4275
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1706
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1649
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.162
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1561
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1643
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.4118
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.4118
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.4118
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1589
+      }
+     ],
+     "firstSortAccessId": "2dc9a747be3d4be78948b03a3063559a",
+     "secondSortAccessId": "eee0037aea5346c3802686f5f68f26f6",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "NXPSemicon-PMEG6030EVP115/C17374599",
+     "leastPatchNumber": 5,
+     "lossNumber": 5,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 2270,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 22,
+     "minPurchaseNum": 22,
+     "initialPrice": 0.4275,
+     "componentCode": "C17374599",
+     "componentBrandEn": "NXP Semicon",
+     "componentModelEn": "PMEG6030EVP115",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "NXP PMEG6030EVP115",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "-",
+     "describe": "- Diodes - General Purpose ROHS",
+     "attributes": null,
+     "rankScore": null,
+     "firstSortName": "Diodes - General Purpose",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>PMEG6030EVP</span>115",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 56091096,
+     "componentLibraryType": "expand",
+     "stockCount": 2391,
+     "componentTypeEn": "Schottky Diodes",
+     "erpComponentName": "PMEG6030EVPX-JSM",
+     "componentSource": "shop",
+     "lcscGoodsUrl": null,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.571
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.452
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.4014
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.3378
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.31
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2937
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2829
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.3867
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.5501
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.3254
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2986
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.4354
+      }
+     ],
+     "firstSortAccessId": null,
+     "secondSortAccessId": null,
+     "canPresaleNumber": 2356,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "JSMSEMI-PMEG6030EVPXJSM/C53114108",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 1.44112,
+     "preMinPurchaseNum": 20,
+     "minPurchaseNum": 1,
+     "initialPrice": 0.571,
+     "componentCode": "C53114108",
+     "componentBrandEn": "JSMSEMI",
+     "componentModelEn": "PMEG6030EVPX-JSM",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8765671479587954688",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": null,
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "",
+     "componentName": "JSMSEMI PMEG6030EVPX-JSM",
+     "minImage": "",
+     "minImageAccessId": "8765671480691056640",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOD-128",
+     "describe": "-55\u2103~+125\u2103 1 Independent 3A 500uA@60V 60V 700mV@3A 80A SOD-128 Schottky Diodes ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Voltage - Forward(Vf@If)",
+       "attribute_value_name": "700mV@3A"
+      },
+      {
+       "attribute_name_en": "Non-Repetitive Peak Forward Surge Current",
+       "attribute_value_name": "80A"
+      },
+      {
+       "attribute_name_en": "Voltage - DC Reverse(Vr)",
+       "attribute_value_name": "60V"
+      },
+      {
+       "attribute_name_en": "Operating Junction Temperature Range",
+       "attribute_value_name": "-55\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Diode Configuration",
+       "attribute_value_name": "1 Independent"
+      },
+      {
+       "attribute_name_en": "Current - Rectified",
+       "attribute_value_name": "3A"
+      },
+      {
+       "attribute_name_en": "Reverse Leakage Current (Ir)",
+       "attribute_value_name": "500uA@60V"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Schottky Diodes",
+     "secondSortName": "Diodes",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>PMEG6030EVP</span>X-JSM",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "PMEG6030EVP"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-16T19:08:10Z"
+}

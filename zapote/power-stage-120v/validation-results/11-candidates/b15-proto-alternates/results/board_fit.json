@@ -1,0 +1,756 @@
+{
+ "board": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s50/c50int/section.kicad_pcb",
+ "parts": {
+  "C3": {
+   "footprint": "Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
+   "x": 225.0,
+   "y": 102.8,
+   "rot_deg": 180.0,
+   "side": "F",
+   "courtyard": [
+    213.705,
+    100.005,
+    226.295,
+    105.595
+   ],
+   "pads": [
+    {
+     "num": "1",
+     "net": "l_filt",
+     "x": 225.0,
+     "y": 102.8,
+     "size": [
+      1.5,
+      1.5
+     ],
+     "drill": [
+      0.9,
+      0.9
+     ]
+    },
+    {
+     "num": "2",
+     "net": "pe",
+     "x": 215.0,
+     "y": 102.8,
+     "size": [
+      1.5,
+      1.5
+     ],
+     "drill": [
+      0.9,
+      0.9
+     ]
+    }
+   ],
+   "pad_pitch_mm": 10.0,
+   "nearest_courtyards_mm": [
+    [
+     "C4",
+     0.71
+    ],
+    [
+     "U36",
+     2.66
+    ],
+    [
+     "R68",
+     4.38
+    ],
+    [
+     "R69",
+     5.502
+    ],
+    [
+     "C5",
+     7.61
+    ],
+    [
+     "R67",
+     12.88
+    ]
+   ],
+   "candidates": [
+    {
+     "label": "fitted DE1E3RA222MA4BP01F D9.0 x T4.0",
+     "body_bbox_mm": [
+      215.5,
+      100.8,
+      224.5,
+      104.8
+     ],
+     "pad_axis_horizontal": true,
+     "nearest_other_courtyards_mm": [
+      [
+       "C4",
+       1.505
+      ],
+      [
+       "U36",
+       3.455
+      ],
+      [
+       "R68",
+       6.175
+      ],
+      [
+       "R69",
+       7.426
+      ]
+     ]
+    },
+    {
+     "label": "Murata H01F / P01F same body D9.0 x T4.0",
+     "body_bbox_mm": [
+      215.5,
+      100.8,
+      224.5,
+      104.8
+     ],
+     "pad_axis_horizontal": true,
+     "nearest_other_courtyards_mm": [
+      [
+       "C4",
+       1.505
+      ],
+      [
+       "U36",
+       3.455
+      ],
+      [
+       "R68",
+       6.175
+      ],
+      [
+       "R69",
+       7.426
+      ]
+     ]
+    },
+    {
+     "label": "Murata Q01F D11.0 x T6.0",
+     "body_bbox_mm": [
+      214.5,
+      99.8,
+      225.5,
+      105.8
+     ],
+     "pad_axis_horizontal": true,
+     "nearest_other_courtyards_mm": [
+      [
+       "C4",
+       0.505
+      ],
+      [
+       "U36",
+       2.455
+      ],
+      [
+       "R68",
+       5.175
+      ],
+      [
+       "R69",
+       6.045
+      ]
+     ]
+    },
+    {
+     "label": "Vishay VY1222M47 D12.0 x T5.0",
+     "body_bbox_mm": [
+      214.0,
+      100.3,
+      226.0,
+      105.3
+     ],
+     "pad_axis_horizontal": true,
+     "nearest_other_courtyards_mm": [
+      [
+       "C4",
+       1.005
+      ],
+      [
+       "U36",
+       2.955
+      ],
+      [
+       "R68",
+       4.675
+      ],
+      [
+       "R69",
+       5.916
+      ]
+     ]
+    },
+    {
+     "label": "TDK CD45-E2GA222M D? (see README)",
+     "body_bbox_mm": [
+      215.0,
+      100.3,
+      225.0,
+      105.3
+     ],
+     "pad_axis_horizontal": true,
+     "nearest_other_courtyards_mm": [
+      [
+       "C4",
+       1.005
+      ],
+      [
+       "U36",
+       2.955
+      ],
+      [
+       "R68",
+       5.675
+      ],
+      [
+       "R69",
+       6.734
+      ]
+     ]
+    }
+   ]
+  },
+  "C4": {
+   "footprint": "Murata_DE1E3RA222MA4BP01F_P10.0_Pad1.5_ReviewOnly",
+   "x": 225.0,
+   "y": 109.1,
+   "rot_deg": 180.0,
+   "side": "F",
+   "courtyard": [
+    213.705,
+    106.305,
+    226.295,
+    111.895
+   ],
+   "pads": [
+    {
+     "num": "1",
+     "net": "n_filt",
+     "x": 225.0,
+     "y": 109.1,
+     "size": [
+      1.5,
+      1.5
+     ],
+     "drill": [
+      0.9,
+      0.9
+     ]
+    },
+    {
+     "num": "2",
+     "net": "pe",
+     "x": 215.0,
+     "y": 109.1,
+     "size": [
+      1.5,
+      1.5
+     ],
+     "drill": [
+      0.9,
+      0.9
+     ]
+    }
+   ],
+   "pad_pitch_mm": 10.0,
+   "nearest_courtyards_mm": [
+    [
+     "C3",
+     0.71
+    ],
+    [
+     "R68",
+     5.689
+    ],
+    [
+     "U36",
+     8.96
+    ],
+    [
+     "R69",
+     10.579
+    ],
+    [
+     "R67",
+     13.382
+    ],
+    [
+     "C5",
+     13.91
+    ]
+   ],
+   "candidates": [
+    {
+     "label": "fitted DE1E3RA222MA4BP01F D9.0 x T4.0",
+     "body_bbox_mm": [
+      215.5,
+      107.1,
+      224.5,
+      111.1
+     ],
+     "pad_axis_horizontal": true,
+     "nearest_other_courtyards_mm": [
+      [
+       "C3",
+       1.505
+      ],
+      [
+       "R68",
+       7.597
+      ],
+      [
+       "U36",
+       9.755
+      ],
+      [
+       "R69",
+       12.117
+      ]
+     ]
+    },
+    {
+     "label": "Murata Q01F D11.0 x T6.0",
+     "body_bbox_mm": [
+      214.5,
+      106.1,
+      225.5,
+      112.1
+     ],
+     "pad_axis_horizontal": true,
+     "nearest_other_courtyards_mm": [
+      [
+       "C3",
+       0.505
+      ],
+      [
+       "R68",
+       6.206
+      ],
+      [
+       "U36",
+       8.755
+      ],
+      [
+       "R69",
+       10.752
+      ]
+     ]
+    },
+    {
+     "label": "Vishay VY1222M47 D12.0 x T5.0",
+     "body_bbox_mm": [
+      214.0,
+      106.6,
+      226.0,
+      111.6
+     ],
+     "pad_axis_horizontal": true,
+     "nearest_other_courtyards_mm": [
+      [
+       "C3",
+       1.005
+      ],
+      [
+       "R68",
+       6.104
+      ],
+      [
+       "U36",
+       9.255
+      ],
+      [
+       "R69",
+       10.971
+      ]
+     ]
+    }
+   ]
+  },
+  "L1": {
+   "footprint": "B82726S2_ReviewOnly",
+   "x": 232.0,
+   "y": 31.0,
+   "rot_deg": 0.0,
+   "side": "F",
+   "courtyard": [
+    213.955,
+    28.455,
+    260.045,
+    58.545
+   ],
+   "pads": [
+    {
+     "num": "1",
+     "net": "l_f",
+     "x": 232.0,
+     "y": 31.0,
+     "size": [
+      4.0,
+      4.0
+     ],
+     "drill": [
+      2.5,
+      2.5
+     ]
+    },
+    {
+     "num": "2",
+     "net": "ac_n_in",
+     "x": 242.0,
+     "y": 31.0,
+     "size": [
+      4.0,
+      4.0
+     ],
+     "drill": [
+      2.5,
+      2.5
+     ]
+    },
+    {
+     "num": "3",
+     "net": "n_filt",
+     "x": 242.0,
+     "y": 56.0,
+     "size": [
+      4.0,
+      4.0
+     ],
+     "drill": [
+      2.5,
+      2.5
+     ]
+    },
+    {
+     "num": "4",
+     "net": "l_filt",
+     "x": 232.0,
+     "y": 56.0,
+     "size": [
+      4.0,
+      4.0
+     ],
+     "drill": [
+      2.5,
+      2.5
+     ]
+    }
+   ],
+   "pad_pitch_mm": 10.0,
+   "nearest_courtyards_mm": [
+    [
+     "C5",
+     0.26
+    ],
+    [
+     "C2",
+     0.91
+    ],
+    [
+     "PS2",
+     1.111
+    ],
+    [
+     "C1",
+     2.46
+    ],
+    [
+     "R2",
+     3.38
+    ],
+    [
+     "RV1",
+     4.408
+    ]
+   ],
+   "candidates": []
+  },
+  "D6": {
+   "footprint": "D_SOD-128",
+   "x": 67.2,
+   "y": 17.9,
+   "rot_deg": 0.0,
+   "side": "F",
+   "courtyard": [
+    64.005,
+    16.355,
+    70.395,
+    19.445
+   ],
+   "pads": [
+    {
+     "num": "1",
+     "net": "leg_a-off_h",
+     "x": 65.0,
+     "y": 17.9,
+     "size": [
+      1.4,
+      2.1
+     ],
+     "drill": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "num": "2",
+     "net": "leg_a-gate_h",
+     "x": 69.4,
+     "y": 17.9,
+     "size": [
+      1.4,
+      2.1
+     ],
+     "drill": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "pad_pitch_mm": 4.400000000000006,
+   "nearest_courtyards_mm": [
+    [
+     "R10",
+     0.08
+    ],
+    [
+     "R53",
+     0.88
+    ],
+    [
+     "C55",
+     1.58
+    ],
+    [
+     "C39",
+     3.96
+    ],
+    [
+     "C38",
+     4.141
+    ],
+    [
+     "R11",
+     5.01
+    ]
+   ],
+   "candidates": []
+  },
+  "D7": {
+   "footprint": "D_SOD-128",
+   "x": 49.2,
+   "y": 17.9,
+   "rot_deg": 0.0,
+   "side": "F",
+   "courtyard": [
+    46.005,
+    16.355,
+    52.395,
+    19.445
+   ],
+   "pads": [
+    {
+     "num": "1",
+     "net": "leg_a-off_l",
+     "x": 47.0,
+     "y": 17.9,
+     "size": [
+      1.4,
+      2.1
+     ],
+     "drill": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "num": "2",
+     "net": "leg_a-gate_l",
+     "x": 51.4,
+     "y": 17.9,
+     "size": [
+      1.4,
+      2.1
+     ],
+     "drill": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "pad_pitch_mm": 4.399999999999999,
+   "nearest_courtyards_mm": [
+    [
+     "R12",
+     0.08
+    ],
+    [
+     "R54",
+     0.88
+    ],
+    [
+     "C56",
+     1.58
+    ],
+    [
+     "C38",
+     3.96
+    ],
+    [
+     "R13",
+     5.01
+    ],
+    [
+     "C13",
+     5.46
+    ]
+   ],
+   "candidates": []
+  },
+  "D8": {
+   "footprint": "D_SOD-128",
+   "x": 9.1,
+   "y": 17.9,
+   "rot_deg": 0.0,
+   "side": "F",
+   "courtyard": [
+    5.905,
+    16.355,
+    12.295,
+    19.445
+   ],
+   "pads": [
+    {
+     "num": "1",
+     "net": "leg_b-off_h",
+     "x": 6.9,
+     "y": 17.9,
+     "size": [
+      1.4,
+      2.1
+     ],
+     "drill": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "num": "2",
+     "net": "leg_b-gate_h",
+     "x": 11.3,
+     "y": 17.9,
+     "size": [
+      1.4,
+      2.1
+     ],
+     "drill": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "pad_pitch_mm": 4.4,
+   "nearest_courtyards_mm": [
+    [
+     "R18",
+     0.08
+    ],
+    [
+     "R57",
+     0.88
+    ],
+    [
+     "C62",
+     1.58
+    ],
+    [
+     "C41",
+     3.96
+    ],
+    [
+     "R19",
+     5.01
+    ],
+    [
+     "C19",
+     5.46
+    ]
+   ],
+   "candidates": []
+  },
+  "D9": {
+   "footprint": "D_SOD-128",
+   "x": 27.1,
+   "y": 17.9,
+   "rot_deg": 0.0,
+   "side": "F",
+   "courtyard": [
+    23.905,
+    16.355,
+    30.295,
+    19.445
+   ],
+   "pads": [
+    {
+     "num": "1",
+     "net": "leg_b-off_l",
+     "x": 24.9,
+     "y": 17.9,
+     "size": [
+      1.4,
+      2.1
+     ],
+     "drill": [
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "num": "2",
+     "net": "leg_b-gate_l",
+     "x": 29.3,
+     "y": 17.9,
+     "size": [
+      1.4,
+      2.1
+     ],
+     "drill": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "pad_pitch_mm": 4.400000000000002,
+   "nearest_courtyards_mm": [
+    [
+     "R20",
+     0.08
+    ],
+    [
+     "R58",
+     0.88
+    ],
+    [
+     "C63",
+     1.58
+    ],
+    [
+     "C40",
+     3.96
+    ],
+    [
+     "R5",
+     4.71
+    ],
+    [
+     "R21",
+     5.01
+    ]
+   ],
+   "candidates": []
+  }
+ }
+}
