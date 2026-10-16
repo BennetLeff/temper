@@ -500,3 +500,25 @@ Versus `legB-h0-corr-n19`: entries within 0.5 nH.
 **Leg B is closed on native-19/20 copper.** Native-21's new copper requires a
 re-extraction of both legs (RELAYOUT-REQUIREMENTS, after the layout).
 
+
+## Native-21 leg B (`legB21-h0-best`, `compose_leg_best.py --leg B21`)
+
+Native-21 re-extraction (round 18, scaling off; matrices in
+`../../round18-speedup/matrices/`): cubic coarse(0.5,1,2,3) + (fine h1 at
+0.35 mm − coarse h1) + 20 mm crop. Min eigenvalue 7.81 nH. Versus
+`legB-h0-best-n19`, the bus loops are 6–15 % lower and the gate loops roughly
+double (L33 26.6 → 55.7 nH, L44 29.6 → 46.8 nH): the native-21 gate ports
+close through the −2 V rail and its 0402 decoupling. The decks model the
+driver as an ideal source (0 V, or the F6 off-bias) with the board gate-loop
+inductance only in L_P3/L_P4, so the rail path is counted once.
+
+| Run | Result |
+| --- | --- |
+| Unipolar decision cases (`results/legB21-best/`, 96) | 67/96 (n19: 60/96); 7 S4 cases flip to pass at 3.0 V, none flip at 1.9 V (60/96 both); no aborts; ZVS 12/12 at 443 ns; **S2 off-gate ≤ 1.67 V** (n19 1.28 V; Δ −0.15…+0.50 V, still inside 1.9 V); S2 die VDS +10…+45 V (≤ 396 V); S4 die VDS −66…+23 V (≤ 536 V, the same 6 VDS fails); `compare-vs-n19.json` |
+| F6 bound −1.6 V, PMEG, 27/100/150 °C (`results/f6-vneg-m1p6-legB21-best/`, 144) | **144/144**; S4 off-gate ≤ 1.15 V (n19 1.65 V); S2 die VDS ≤ 412 V (n19 360 V; 585 V limit) |
+| S5 burst start, F6 bound (`results/f6-vneg-m1p6-legB21-best-startup/`, 108) | **108/108**; ≤ 0.37 V (n19 0.30 V) |
+
+**Leg B is closed on native-21 copper** with F6 at the −1.6 V bound. With F6,
+the larger gate loop helps S4's off-gate (−0.5 V of margin gained) and costs
+S2 about 50 V of die VDS, within limits. Leg A21 waits on its 0.45 mm fine
+port P4 (remote `campA21`; the box lost power on 2026-10-10 during P4).
