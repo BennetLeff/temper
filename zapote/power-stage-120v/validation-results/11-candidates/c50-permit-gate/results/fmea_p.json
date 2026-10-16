@@ -1,0 +1,377 @@
+{
+ "fm_source": "validation-results/11-candidates/c24-monitor-fmea/scripts/fmea_metric.py",
+ "coverage": {
+  "chain_RWL": 13.0,
+  "rows": [
+   {
+    "ref": "ISO6721FB (HA)",
+    "mode": "OUTB stuck high (= good)",
+    "RWL": 0.5,
+    "as_built": 0,
+    "S": 0,
+    "P_G": 0,
+    "P_E": 0
+   },
+   {
+    "ref": "ISO6721FB (HA)",
+    "mode": "OUTB undetermined",
+    "RWL": 1.75,
+    "as_built": 0,
+    "S": 0,
+    "P_G": 0,
+    "P_E": 0
+   },
+   {
+    "ref": "ISO6721FB (HA)",
+    "mode": "out of V/t spec",
+    "RWL": 0.0,
+    "as_built": 0,
+    "S": 0,
+    "P_G": 0,
+    "P_E": 0
+   },
+   {
+    "ref": "U38/U39 TPS70950 (HA)",
+    "mode": "output to input: ISO6721 side 1 damaged, state unknown",
+    "RWL": 1.0,
+    "as_built": 0,
+    "S": 0,
+    "P_G": 0,
+    "P_E": 0
+   },
+   {
+    "ref": "ISO6721FB (HB)",
+    "mode": "OUTB stuck high (= good)",
+    "RWL": 0.5,
+    "as_built": 0,
+    "S": 0,
+    "P_G": 0,
+    "P_E": 0
+   },
+   {
+    "ref": "ISO6721FB (HB)",
+    "mode": "OUTB undetermined",
+    "RWL": 1.75,
+    "as_built": 0,
+    "S": 0,
+    "P_G": 0,
+    "P_E": 0
+   },
+   {
+    "ref": "ISO6721FB (HB)",
+    "mode": "out of V/t spec",
+    "RWL": 0.0,
+    "as_built": 0,
+    "S": 0,
+    "P_G": 0,
+    "P_E": 0
+   },
+   {
+    "ref": "U38/U39 TPS70950 (HB)",
+    "mode": "output to input: ISO6721 side 1 damaged, state unknown",
+    "RWL": 1.0,
+    "as_built": 0,
+    "S": 0,
+    "P_G": 0,
+    "P_E": 0
+   },
+   {
+    "ref": "D_and BAT54A (per HS rail)",
+    "mode": "open: that HS rail's veto lost",
+    "RWL": 0.6,
+    "as_built": 0,
+    "S": 0,
+    "P_G": 0,
+    "P_E": 0
+   },
+   {
+    "ref": "D_and BAT54A (per HS rail)",
+    "mode": "short: ISO6721 OUTB fights LM339B on the LS node",
+    "RWL": 0.5,
+    "as_built": 0,
+    "S": 0,
+    "P_G": 0,
+    "P_E": 0
+   },
+   {
+    "ref": "U_osc SN74LVC1G132",
+    "mode": "out of spec (input threshold corrupted)",
+    "RWL": 0.0,
+    "as_built": 0,
+    "S": 0,
+    "P_G": 0,
+    "P_E": 0
+   },
+   {
+    "ref": "C_pump 2 x 100 nF series",
+    "mode": "one short: DC block degraded to one cap (dormant, needs a 2nd fault)",
+    "RWL": 0.0,
+    "as_built": 0,
+    "S": 0,
+    "P_G": 0,
+    "P_E": 0
+   },
+   {
+    "ref": "R_bleed 100k",
+    "mode": "open: hold keeps its charge when the wave stops",
+    "RWL": 0.6,
+    "as_built": 0,
+    "S": 0,
+    "P_G": 0,
+    "P_E": 1
+   },
+   {
+    "ref": "U40 SN74LVC1G17 (non-inverting)",
+    "mode": "Y stuck high (BIAS_GOOD = 1)",
+    "RWL": 1.8,
+    "as_built": 0,
+    "S": 1,
+    "P_G": 1,
+    "P_E": 1
+   },
+   {
+    "ref": "U40 SN74LVC1G17 (non-inverting)",
+    "mode": "Y open (U22/U23 inputs float)",
+    "RWL": 1.8,
+    "as_built": 1,
+    "S": 1,
+    "P_G": 1,
+    "P_E": 1
+   },
+   {
+    "ref": "U40 SN74LVC1G17 (non-inverting)",
+    "mode": "out of spec",
+    "RWL": 0.0,
+    "as_built": 0,
+    "S": 0,
+    "P_G": 0,
+    "P_E": 0
+   },
+   {
+    "ref": "U40 SN74LVC1G17 (non-inverting)",
+    "mode": "adjacent-pin short (Y-VCC)",
+    "RWL": 1.2,
+    "as_built": 0,
+    "S": 1,
+    "P_G": 1,
+    "P_E": 1
+   }
+  ],
+  "DC_pct": {
+   "s48 as built (boot race lost, c49)": 13.85,
+   "S (TPS3808 delay, boot POST)": 36.92,
+   "P (PERMIT-gated heartbeat), guaranteed": 36.92,
+   "P, typical hold-node leakage (E)": 41.54
+  }
+ },
+ "sensitivity": {
+  "base": {
+   "chain_RWL": 13.0,
+   "as_built": 13.8,
+   "S": 36.9,
+   "P_G": 36.9,
+   "P_E": 41.5
+  },
+  "k_u = 0": {
+   "chain_RWL": 5.1,
+   "as_built": 0.0,
+   "S": 58.8,
+   "P_G": 58.8,
+   "P_E": 58.8
+  },
+  "k_u = 1": {
+   "chain_RWL": 20.9,
+   "as_built": 17.2,
+   "S": 31.6,
+   "P_G": 31.6,
+   "P_E": 37.3
+  },
+  "k_o = 0.5": {
+   "chain_RWL": 23.2,
+   "as_built": 7.8,
+   "S": 20.7,
+   "P_G": 20.7,
+   "P_E": 23.3
+  },
+  "passives x5": {
+   "chain_RWL": 19.8,
+   "as_built": 9.1,
+   "S": 24.2,
+   "P_G": 24.2,
+   "P_E": 39.4
+  }
+ },
+ "interface": {
+  "R135 = 10 k": {
+   "VCC 3.135": {
+    "U46A_high_V": 3.01,
+    "VTplus_max_V": 1.948,
+    "margin_high_V": 1.062,
+    "U46A_low_V": 0.11,
+    "VTminus_min_V": 0.891,
+    "margin_low_V": 0.781
+   },
+   "VCC 3.465": {
+    "U46A_high_V": 3.34,
+    "VTplus_max_V": 2.14,
+    "margin_high_V": 1.2,
+    "U46A_low_V": 0.11,
+    "VTminus_min_V": 1.017,
+    "margin_low_V": 0.907
+   },
+   "PERMIT_undriven_plus_hsb_good_at_v3v3_V": 1.575,
+   "below_U22_U23_VIL": false,
+   "PERMIT_driven_ripple_mV": 12.95,
+   "hb_hold_short_hold_V_no_leak": [
+    2.612,
+    2.887
+   ],
+   "hb_hold_short_hold_V_5uA_leak": [
+    2.653,
+    2.928
+   ],
+   "G17_VTminus_band_V": [
+    [
+     0.946,
+     1.269
+    ],
+    [
+     1.082,
+     1.439
+    ]
+   ],
+   "hb_hold_short_verdict": "masking (hold above VT-max: BIAS_GOOD = PERMIT)",
+   "U46A_rise_us_E": 0.18
+  },
+  "R135 = 100 k": {
+   "VCC 3.135": {
+    "U46A_high_V": 2.92,
+    "VTplus_max_V": 1.948,
+    "margin_high_V": 0.972,
+    "U46A_low_V": 0.2,
+    "VTminus_min_V": 0.891,
+    "margin_low_V": 0.691
+   },
+   "VCC 3.465": {
+    "U46A_high_V": 3.25,
+    "VTplus_max_V": 2.14,
+    "margin_high_V": 1.11,
+    "U46A_low_V": 0.2,
+    "VTminus_min_V": 1.017,
+    "margin_low_V": 0.817
+   },
+   "PERMIT_undriven_plus_hsb_good_at_v3v3_V": 0.267,
+   "below_U22_U23_VIL": true,
+   "PERMIT_driven_ripple_mV": 1.3,
+   "hb_hold_short_hold_V_no_leak": [
+    1.044,
+    1.153
+   ],
+   "hb_hold_short_hold_V_5uA_leak": [
+    1.21,
+    1.32
+   ],
+   "G17_VTminus_band_V": [
+    [
+     0.946,
+     1.269
+    ],
+    [
+     1.082,
+     1.439
+    ]
+   ],
+   "hb_hold_short_verdict": "indeterminate (hold inside U40's VT- band)",
+   "U46A_rise_us_E": 1.83
+  },
+  "R135 = 140 k": {
+   "VCC 3.135": {
+    "U46A_high_V": 2.88,
+    "VTplus_max_V": 1.948,
+    "margin_high_V": 0.932,
+    "U46A_low_V": 0.24,
+    "VTminus_min_V": 0.891,
+    "margin_low_V": 0.651
+   },
+   "VCC 3.465": {
+    "U46A_high_V": 3.21,
+    "VTplus_max_V": 2.14,
+    "margin_high_V": 1.07,
+    "U46A_low_V": 0.24,
+    "VTminus_min_V": 1.017,
+    "margin_low_V": 0.777
+   },
+   "PERMIT_undriven_plus_hsb_good_at_v3v3_V": 0.195,
+   "below_U22_U23_VIL": true,
+   "PERMIT_driven_ripple_mV": 0.93,
+   "hb_hold_short_hold_V_no_leak": [
+    0.824,
+    0.91
+   ],
+   "hb_hold_short_hold_V_5uA_leak": [
+    1.008,
+    1.094
+   ],
+   "G17_VTminus_band_V": [
+    [
+     0.946,
+     1.269
+    ],
+    [
+     1.082,
+     1.439
+    ]
+   ],
+   "hb_hold_short_verdict": "indeterminate (hold inside U40's VT- band)",
+   "U46A_rise_us_E": 2.56
+  }
+ },
+ "timing": {
+  "pump_start_from_PERMIT_us_S": [
+   1.95,
+   11.76
+  ],
+  "pump_start_one_cap_shorted_us_S": 6.57,
+  "restart_after_short_off_us_S": {
+   "J T_OFF=5.0us": null,
+   "J T_OFF=30.0us": 6.38,
+   "J T_OFF=1000.0us": 11.13,
+   "J+1short T_OFF=5.0us": null,
+   "J+1short T_OFF=30.0us": 4.08,
+   "J+1short T_OFF=1000.0us": 6.94
+  },
+  "stop_via_heartbeat_us_S": [
+   90.26,
+   122.87
+  ],
+  "U46A_R135_rise_us_E": 1.83,
+  "drivers_enabled_after_PERMIT_us_C": "<= 13.6 + 2EDR8259X DIS-to-output (unpublished, C39)",
+  "GPIO35_high_after_PERMIT_us_C": 528.0,
+  "GPIO35_low_after_PERMIT_fall_us_C": 355.0,
+  "J41_RC": {
+   "fast": {
+    "final_frac": 0.816,
+    "tau_us": 176.5,
+    "rise_to_VIH_us": 443.8,
+    "fall_to_VIL_us": 208.8
+   },
+   "slow": {
+    "final_frac": 0.8099,
+    "tau_us": 197.6,
+    "rise_to_VIH_us": 514.3,
+    "fall_to_VIL_us": 232.2
+   }
+  },
+  "firmware_windows_ms": {
+   "T_START": 2.0,
+   "T_IDLE": 2.0,
+   "run_debounce": 20.0,
+   "start_margin_x": 3.8,
+   "idle_margin_x": 5.6
+  },
+  "J41_J49_short_detect_window_us": [
+   50,
+   406.0
+  ]
+ }
+}

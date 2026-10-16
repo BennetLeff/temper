@@ -1,0 +1,176 @@
+== J4 0430451612 [j_selv] elec/src/parts.ato:SelvHeader16
+   pin   1                -> bias_good_j4 (2 nodes)
+   pin   2                -> selv_gnd (64 nodes)
+   pin   3                -> v3v3 (55 nodes)
+   pin   4                -> selv_gnd (64 nodes)
+   pin   5                -> pwm_ha (2 nodes)
+   pin   6                -> pwm_la (2 nodes)
+   pin   7                -> pwm_hb (2 nodes)
+   pin   8                -> pwm_lb (2 nodes)
+   pin   9                -> permit (3 nodes)
+   pin  10                -> bus_fault (2 nodes)
+   pin  11                -> vbus_p (2 nodes)
+   pin  12                -> vbus_n (2 nodes)
+   pin  13                -> ct_zc (2 nodes)
+   pin  14                -> ct_mon (2 nodes)
+   pin  15                -> selv_gnd (64 nodes)
+   pin  16                -> line_zc (2 nodes)
+== R6 0603WAF1000T5E 100ohm [leg_a.r_permit] elec/src/parts.ato:R100R0603
+   pin   1                -> permit (3 nodes)
+   pin   2                -> leg_a-permit_gate (3 nodes)
+== R7 0603WAF1003T5E 100kohm [leg_a.r_permit_pd] elec/src/parts.ato:R100R0603
+   pin   1                -> leg_a-permit_gate (3 nodes)
+   pin   2                -> selv_gnd (64 nodes)
+== R14 0603WAF1000T5E 100ohm [leg_b.r_permit] elec/src/parts.ato:R100R0603
+   pin   1                -> permit (3 nodes)
+   pin   2                -> leg_b-permit_gate (3 nodes)
+== R15 0603WAF1003T5E 100kohm [leg_b.r_permit_pd] elec/src/parts.ato:R100R0603
+   pin   1                -> leg_b-permit_gate (3 nodes)
+   pin   2                -> selv_gnd (64 nodes)
+== U22 SN74LVC1G00DBVR [leg_a.dis_or] elec/src/f6_parts.ato:DisNand
+   pin   1                -> leg_a-permit_gate (3 nodes)
+   pin   2                -> bias_good (4 nodes)
+   pin   3                -> selv_gnd (64 nodes)
+   pin   4                -> leg_a-driver_dis (3 nodes)
+   pin   5                -> v3v3 (55 nodes)
+== U23 SN74LVC1G00DBVR [leg_b.dis_or] elec/src/f6_parts.ato:DisNand
+   pin   1                -> leg_b-permit_gate (3 nodes)
+   pin   2                -> bias_good (4 nodes)
+   pin   3                -> selv_gnd (64 nodes)
+   pin   4                -> leg_b-driver_dis (3 nodes)
+   pin   5                -> v3v3 (55 nodes)
+== R73 0603WAF1002T5E 10kohm [leg_a.r_driver_dis] elec/src/parts.ato:R100R0603
+   pin   1                -> v3v3 (55 nodes)
+   pin   2                -> leg_a-driver_dis (3 nodes)
+== R76 0603WAF1002T5E 10kohm [leg_b.r_driver_dis] elec/src/parts.ato:R100R0603
+   pin   1                -> v3v3 (55 nodes)
+   pin   2                -> leg_b-driver_dis (3 nodes)
+== U1 2EDR8259XXUMA1 [leg_a.driver] elec/src/parts.ato:Driver2EDR8259X
+   pin   1                -> pwm_ha (2 nodes)
+   pin   2                -> pwm_la (2 nodes)
+   pin   3                -> v3v3 (55 nodes)
+   pin   4                -> selv_gnd (64 nodes)
+   pin   5                -> leg_a-driver_dis (3 nodes)
+   pin   6                -> leg_a.driver-dt (2 nodes)
+   pin   7                -> leg_a.driver-nc_7 (1 nodes)
+   pin   8                -> v3v3 (55 nodes)
+   pin   9                -> n_ls (108 nodes)
+   pin  10                -> leg_a-out_l (3 nodes)
+   pin  11                -> v15_ls (28 nodes)
+   pin  14                -> n_ha (50 nodes)
+   pin  15                -> leg_a-out_h (3 nodes)
+   pin  16                -> p_ha (18 nodes)
+== U2 2EDR8259XXUMA1 [leg_b.driver] elec/src/parts.ato:Driver2EDR8259X
+   pin   1                -> pwm_hb (2 nodes)
+   pin   2                -> pwm_lb (2 nodes)
+   pin   3                -> v3v3 (55 nodes)
+   pin   4                -> selv_gnd (64 nodes)
+   pin   5                -> leg_b-driver_dis (3 nodes)
+   pin   6                -> leg_b.driver-dt (2 nodes)
+   pin   7                -> leg_b.driver-nc_7 (1 nodes)
+   pin   8                -> v3v3 (55 nodes)
+   pin   9                -> n_ls (108 nodes)
+   pin  10                -> leg_b-out_l (3 nodes)
+   pin  11                -> v15_ls (28 nodes)
+   pin  14                -> n_hb (50 nodes)
+   pin  15                -> leg_b-out_h (3 nodes)
+   pin  16                -> p_hb (18 nodes)
+== U45 SN74LVC1G132DBVR [hb.osc] elec/src/f6_parts.ato:DisNand
+   pin   1                -> monitor_ls-good (8 nodes)
+   pin   2                -> hb_rc (3 nodes)
+   pin   3                -> n_ls (108 nodes)
+   pin   4                -> hb_tx (3 nodes)
+   pin   5                -> ls_v5 (11 nodes)
+== R131 0603WAF4991T5E 4.99kohm [hb.rosc] elec/src/parts.ato:R100R0603
+   pin   1                -> hb_tx (3 nodes)
+   pin   2                -> hb_rc (3 nodes)
+== C162 CL10C331JB8NNNC 330pF [hb.cosc] elec/src/parts.ato:C100n0603
+   pin   1                -> hb_rc (3 nodes)
+   pin   2                -> n_ls (108 nodes)
+== U32 CA-IS3720HW [hb.iso] elec/src/parts.ato:IsoReinfH
+   pin   1                -> n_ls (108 nodes)
+   pin   2                -> hb.iso-nc2 (1 nodes)
+   pin   3                -> ls_v5 (11 nodes)
+   pin   4                -> hb_tx (3 nodes)
+   pin   5                -> hb.iso-nc5 (1 nodes)
+   pin   6                -> hb.iso-nc6 (1 nodes)
+   pin   7                -> n_ls (108 nodes)
+   pin   8                -> hb.iso-nc8 (1 nodes)
+   pin   9                -> selv_gnd (64 nodes)
+   pin  10                -> hb.iso-nc10 (1 nodes)
+   pin  11                -> hb.iso-nc11 (1 nodes)
+   pin  12                -> hb.iso-nc12 (1 nodes)
+   pin  13                -> hb_rx (2 nodes)
+   pin  14                -> v3v3 (55 nodes)
+   pin  15                -> hb.iso-nc15 (1 nodes)
+   pin  16                -> selv_gnd (64 nodes)
+== U46 SN74LVC1G132DBVR [hb.buf] elec/src/f6_parts.ato:DisNand
+   pin   1                -> hsb_good (2 nodes)
+   pin   2                -> hb_rx (2 nodes)
+   pin   3                -> selv_gnd (64 nodes)
+   pin   4                -> hb_bufo (2 nodes)
+   pin   5                -> v3v3 (55 nodes)
+== R135 0603WAF1002T5E 10kohm [hb.rgate] elec/src/parts.ato:R100R0603
+   pin   1                -> v3v3 (55 nodes)
+   pin   2                -> hsb_good (2 nodes)
+== R132 0603WAF2200T5E 220ohm [hb.rs] elec/src/parts.ato:R100R0603
+   pin   1                -> hb_bufo (2 nodes)
+   pin   2                -> hb_s (2 nodes)
+== C164 C0603C102J5GACTU 1nF [hb.cp1] elec/src/parts.ato:C100n0603
+   pin   1                -> hb_s (2 nodes)
+   pin   2                -> hb_m (2 nodes)
+== C165 C0603C102J5GACTU 1nF [hb.cp2] elec/src/parts.ato:C100n0603
+   pin   1                -> hb_m (2 nodes)
+   pin   2                -> hb_x (2 nodes)
+== D19 BAT54S-7-F [hb.pump] elec/src/parts.ato:Ref2V5
+   pin   1                -> selv_gnd (64 nodes)
+   pin   2                -> hb_hold (4 nodes)
+   pin   3                -> hb_x (2 nodes)
+== C166 C0603C102J5GACTU 1nF [hb.chold] elec/src/parts.ato:C100n0603
+   pin   1                -> hb_hold (4 nodes)
+   pin   2                -> selv_gnd (64 nodes)
+== R133 RT0603BRD0749K9L 49.9kohm [hb.rbleed] elec/src/parts.ato:R100R0603
+   pin   1                -> hb_hold (4 nodes)
+   pin   2                -> selv_gnd (64 nodes)
+== U40 SN74LVC1G17DBVR [u_bias_flt] elec/src/f6_parts.ato:DisNand
+   pin   1                -> u_bias_flt-nc (1 nodes)
+   pin   2                -> hb_hold (4 nodes)
+   pin   3                -> selv_gnd (64 nodes)
+   pin   4                -> bias_good (4 nodes)
+   pin   5                -> v3v3 (55 nodes)
+== R146 RC1206FR-07220KL 220kohm [r_bias_good_j4] elec/src/parts.ato:R100k1206
+   pin   1                -> bias_good (4 nodes)
+   pin   2                -> bias_good_j4 (2 nodes)
+== D18 BAT54S-7-F [hb.vote] elec/src/parts.ato:Ref2V5
+   pin   1                -> monitor_ls-good (8 nodes)
+   pin   2                -> vote_nc (1 nodes)
+   pin   3                -> mon_good_ha (2 nodes)
+== D20 BAT54S-7-F [hb.vote_b] elec/src/parts.ato:Ref2V5
+   pin   1                -> vote_b_nc (1 nodes)
+   pin   2                -> mon_good_hb (2 nodes)
+   pin   3                -> monitor_ls-good (8 nodes)
+== U44 ISO6721FBDR [bias_hb.link] elec/src/parts.ato:Iso6721Fb
+   pin   1                -> bias_hb.monitor-v5 (5 nodes)
+   pin   2                -> bias_hb-outa_nc (1 nodes)
+   pin   3                -> bias_hb.monitor-good (6 nodes)
+   pin   4                -> n_hb (50 nodes)
+   pin   5                -> n_ls (108 nodes)
+   pin   6                -> mon_good_hb (2 nodes)
+   pin   7                -> n_ls (108 nodes)
+   pin   8                -> ls_v5 (11 nodes)
+## net permit: R6.1, R14.1, J4.9
+## net leg_a-permit_gate: R7.1, R6.2, U22.1
+## net leg_b-permit_gate: R15.1, R14.2, U23.1
+## net leg_a-driver_dis: U1.5, U22.4, R73.2
+## net leg_b-driver_dis: U2.5, U23.4, R76.2
+## net monitor_ls-good: U29.1, U29.2, U29.13, U29.14, R91.2, D18.1, D20.3, U45.1
+## net hb_tx: U45.4, R131.1, U32.4
+## net hb_rx: U32.13, U46.2
+## net hsb_good: U46.1, R135.2
+## net hb_bufo: U46.4, R132.1
+## net hb_s: R132.2, C164.1
+## net hb_m: C164.2, C165.1
+## net hb_x: C165.2, D19.3
+## net hb_hold: D19.2, C166.1, R133.1, U40.2
+## net bias_good: U22.2, U23.2, U40.4, R146.1
+## net bias_good_j4: J4.1, R146.2
