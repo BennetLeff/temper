@@ -160,6 +160,43 @@ hal_status_t max31865_clear_fault_status(const max31865_device_t *device)
     return HAL_SPI_WRITE_REG(device->spi_device, MAX31865_REG_CONFIG, &config, 1u);
 }
 
+static hal_status_t write_config(const max31865_device_t *device, uint8_t config)
+{
+    if (!device_ready(device)) {
+        return HAL_ERROR_INVALID_ARG;
+    }
+    return HAL_SPI_WRITE_REG(device->spi_device, MAX31865_REG_CONFIG, &config, 1u);
+}
+
+hal_status_t max31865_attach(max31865_device_t *device, hal_spi_device_t spi_device)
+{
+    if (device == NULL) {
+        return HAL_ERROR_INVALID_ARG;
+    }
+    device->spi_device = spi_device;
+    return HAL_OK;
+}
+
+hal_status_t max31865_bias_on(const max31865_device_t *device)
+{
+    return write_config(device, MAX31865_CONFIG_VBIAS);
+}
+
+hal_status_t max31865_bias_on_clear(const max31865_device_t *device)
+{
+    return write_config(device, MAX31865_CONFIG_VBIAS | MAX31865_CONFIG_FAULT_CLEAR);
+}
+
+hal_status_t max31865_manual_fault_step1(const max31865_device_t *device)
+{
+    return write_config(device, MAX31865_CONFIG_VBIAS | MAX31865_CONFIG_FAULT_CYCLE_MANUAL_1);
+}
+
+hal_status_t max31865_manual_fault_step2(const max31865_device_t *device)
+{
+    return write_config(device, MAX31865_CONFIG_VBIAS | MAX31865_CONFIG_FAULT_CYCLE_MANUAL_2);
+}
+
 hal_status_t max31865_fault_cycle_busy(const max31865_device_t *device,
                                        bool *busy)
 {

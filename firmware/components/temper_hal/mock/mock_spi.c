@@ -38,6 +38,28 @@ static uint32_t s_call_count_transfer = 0;
 static hal_status_t s_next_read_status = HAL_OK;
 static hal_status_t s_next_write_status = HAL_OK;
 
+/* Device models (mock_max31865.c, mock_mcp3202.c) hook register writes and raw
+ * transfers. Hooks survive mock_spi_reset(): a model is attached for a device
+ * index before the firmware adds the device. */
+typedef void (*mock_spi_write_hook_t)(intptr_t device, uint8_t reg, const uint8_t *data, size_t len);
+typedef bool (*mock_spi_transfer_hook_t)(intptr_t device, const hal_spi_transaction_t *t);
+static mock_spi_write_hook_t s_write_hook;
+static mock_spi_transfer_hook_t s_transfer_hook;
+
+void mock_spi_set_write_hook(mock_spi_write_hook_t hook) { s_write_hook = hook; }
+void mock_spi_set_transfer_hook(mock_spi_transfer_hook_t hook) { s_transfer_hook = hook; }
+
+/* The configuration a device was added with (mode, clock, CS), for tests. */
+bool mock_spi_get_device_config(hal_spi_device_t device, hal_spi_config_t *out)
+{
+    intptr_t idx = (intptr_t)device;
+    if (idx < 0 || idx >= MOCK_SPI_MAX_DEVICES || !s_devices[idx].in_use || out == NULL) {
+        return false;
+    }
+    *out = s_devices[idx].config;
+    return true;
+}
+
 /* ============================================================================
  * Mock Control Functions
  * ============================================================================ */
@@ -146,6 +168,10 @@ static hal_status_t mock_spi_transfer(hal_spi_device_t device,
         return HAL_ERROR_NOT_READY;
     }
     
+    if (s_transfer_hook != NULL && s_transfer_hook(idx, transaction)) {
+        return HAL_OK;
+    }
+
     /* Simple loopback/echo for testing */
     if (transaction->tx_buffer && transaction->rx_buffer) {
         memcpy(transaction->rx_buffer, transaction->tx_buffer, transaction->length);
@@ -205,6 +231,9 @@ static hal_status_t mock_spi_write_reg(hal_spi_device_t device, uint8_t reg,
     /* Write to simulated register file */
     for (size_t i = 0; i < len && (reg + i) < MOCK_SPI_REG_SIZE; i++) {
         s_devices[idx].registers[reg + i] = data[i];
+    }
+    if (s_write_hook != NULL) {
+        s_write_hook(idx, reg, data, len);
     }
     
     return HAL_OK;

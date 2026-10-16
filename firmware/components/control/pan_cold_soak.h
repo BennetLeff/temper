@@ -47,6 +47,18 @@
  * all at once through the driver's arithmetic), Pt100 reads low (class,
  * Rref, converter offset), the soak residuals and a 1 K standby offset of
  * the heatsink over the room.
+ *
+ * threshold_measured_k is the same stack with the rail measured (DECISIONS
+ * D-RAIL: MCP3202 CH1 against the LM4040A25, rail_adc.c) instead of assumed:
+ * the rail term is then the reading's own error over a 5..50 degC board
+ * (rail_adc.py: LM4040 tolerance, tempco, current, drift and hysteresis
+ * allowances, MCP3202 offset/gain/INL, the half LSB, ripple), not the
+ * contract's 3242 mV read as 3300 (hs-ntc.json cold_soak_budget_rail_measured).
+ * The evaluation uses it only when the heatsink reading used a measured rail
+ * at every history note through the window and now (pcs_note_rail /
+ * pcs_evaluate_rail); one note with the rail unknown and the check uses
+ * threshold_k. The 3.300 V fallback is the board's validated state, so an
+ * unknown rail is not a fault: it only widens the threshold.
  */
 
 #ifndef PAN_COLD_SOAK_H
@@ -61,6 +73,7 @@ extern "C" {
 
 /* Gated against output/temper-sensor-r3/firmware/hs-ntc.json by hs_ntc.py. */
 #define PCS_THRESHOLD_K 19.4f
+#define PCS_THRESHOLD_MEASURED_K 16.9f
 #define PCS_SOAK_N_S 1800.0f
 #define PCS_WINDOW_S 900.0f
 #define PCS_HS_FLAT_K 1.0f
@@ -84,7 +97,8 @@ typedef enum {
 } pcs_verdict_t;
 
 typedef struct {
-    float threshold_k;   /**< PCS_THRESHOLD_K */
+    float threshold_k;   /**< PCS_THRESHOLD_K: the rail not measured (3.300 V assumed) */
+    float threshold_measured_k;   /**< PCS_THRESHOLD_MEASURED_K: the rail measured through the window */
     float soak_n_s;      /**< PCS_SOAK_N_S    */
     float window_s;      /**< PCS_WINDOW_S    */
     float bucket_s;      /**< 60              */
@@ -99,6 +113,7 @@ typedef struct {
     float hs_min, hs_max;
     bool pt_ok;          /**< every note in the bucket had a Pt100 reading */
     bool hs_ok;          /**< every note in the bucket had a VALID heatsink */
+    bool rail_ok;        /**< every note in the bucket had a measured rail */
 } pcs_bucket_t;
 
 typedef struct {
@@ -117,6 +132,8 @@ typedef struct {
     float gap_k;         /**< heatsink window min - Pt100 window max (NAN if not reached) */
     float hs_c;
     float pt_c;
+    bool rail_measured;  /**< the rail was measured through the window and now */
+    float threshold_k;   /**< the threshold the verdict used (NAN if not reached) */
 } pcs_result_t;
 
 void pcs_default_params(pcs_params_t *p);
@@ -128,6 +145,9 @@ bool pcs_init(pcs_t *s, const pcs_params_t *p, uint32_t now_ms);
  * VALID and its reading.
  */
 void pcs_note(pcs_t *s, uint32_t now_ms, bool coil_active, float pt_c, bool hs_valid, float hs_c);
+/** pcs_note with whether the heatsink reading used a measured rail (hs_ntc rail_nominal false). */
+void pcs_note_rail(pcs_t *s, uint32_t now_ms, bool coil_active, float pt_c, bool hs_valid, float hs_c,
+                   bool rail_measured);
 
 /**
  * Evaluate at now_ms with the present readings (the same meaning as
@@ -135,9 +155,16 @@ void pcs_note(pcs_t *s, uint32_t now_ms, bool coil_active, float pt_c, bool hs_v
  */
 pcs_result_t pcs_evaluate(const pcs_t *s, uint32_t now_ms, float pt_c, bool hs_valid, float hs_c,
                           bool rim_saturated);
+/** pcs_evaluate with the present reading's rail state: threshold_measured_k when the rail was
+ *  measured now and at every note through the window, threshold_k otherwise. pcs_evaluate()
+ *  is this with rail_measured false. */
+pcs_result_t pcs_evaluate_rail(const pcs_t *s, uint32_t now_ms, float pt_c, bool hs_valid, float hs_c,
+                               bool rim_saturated, bool rail_measured);
 
 /** True when a cold-soak latch may be reset: the Pt100 within threshold_k of a VALID heatsink. */
 bool pcs_agrees(const pcs_t *s, float pt_c, bool hs_valid, float hs_c);
+/** pcs_agrees against threshold_measured_k when this reading's rail is measured. */
+bool pcs_agrees_rail(const pcs_t *s, float pt_c, bool hs_valid, float hs_c, bool rail_measured);
 
 const char *pcs_verdict_name(pcs_verdict_t v);
 

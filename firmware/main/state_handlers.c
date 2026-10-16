@@ -654,7 +654,21 @@ void state_cooldown_update(void) {
  * STATE_FAULT Implementation
  * ============================================================================ */
 
+#ifdef TEMPER_PAN_CONTROL_C1
+/* C1 probe faults (D-RESET, D-FCYC): fault_cleared() first asks the RTD
+ * service for a manual fault-detection cycle and a conversion after it, about
+ * 0.1 s, so one press stays armed this long after it is let go; the check
+ * keeps running with the coil off and the reset is accepted only on its
+ * clean verdict. Other faults keep needing the button held. */
+#define RESET_PROBE_ARM_MS 1000u
+static uint32_t s_reset_armed_at_ms;
+static bool s_reset_armed;
+#endif
+
 void state_fault_entry(void) {
+#ifdef TEMPER_PAN_CONTROL_C1
+    s_reset_armed = false;
+#endif
     /* EMERGENCY SHUTDOWN */
     power_set_level(0);
     pwm_disable_all();
@@ -688,14 +702,36 @@ void state_fault_update(void) {
             /* Fault condition has cleared: reinitialize */
             sm_get_context()->fault_code = FAULT_NONE;
             buzzer_stop();
+#ifdef TEMPER_PAN_CONTROL_C1
+            s_reset_armed = false;
+#endif
             transition_to(STATE_INIT);
             return;
         } else {
             /* Fault persists */
             display_show_message("FAULT PERSISTS");
             buzzer_beep(BEEP_FAULT_PERSISTS_MS);
+#ifdef TEMPER_PAN_CONTROL_C1
+            s_reset_armed = true;
+            s_reset_armed_at_ms = get_time_ms();
+#endif
         }
     }
+#ifdef TEMPER_PAN_CONTROL_C1
+    else if (s_reset_armed) {
+        const fault_code_t f = sm_get_context()->fault_code;
+        if ((f != FAULT_PROBE_OPEN && f != FAULT_PROBE_SHORT) ||
+            (uint32_t)(get_time_ms() - s_reset_armed_at_ms) > RESET_PROBE_ARM_MS) {
+            s_reset_armed = false;
+        } else if (fault_cleared()) {
+            sm_get_context()->fault_code = FAULT_NONE;
+            buzzer_stop();
+            s_reset_armed = false;
+            transition_to(STATE_INIT);
+            return;
+        }
+    }
+#endif
 
     /* Monitor critical temperature even in fault — threshold from
      * config.yaml (interlocks: FAULT_STATE_MAX_TEMP_C) */

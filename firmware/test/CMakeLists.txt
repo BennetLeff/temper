@@ -59,6 +59,8 @@ set(MOCK_HAL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_pwm.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_spi.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_timer.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_max31865.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/temper_hal/mock/mock_mcp3202.c
 )
 
 # Firmware components to test (the actual production code)
@@ -627,6 +629,7 @@ add_executable(test_c1_rtd_service_only
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/max31865.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rail_adc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_rtd_service.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_rtd_service.c
 )
@@ -643,6 +646,7 @@ add_executable(test_c1_rim_ntc_only
     ${MOCK_HAL_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc_board.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rail_adc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_rim_ntc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_rim_ntc.c
 )
@@ -658,6 +662,7 @@ add_executable(test_c1_hs_ntc_only
     ${MOCK_HAL_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/hs_ntc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/hs_ntc_board.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rail_adc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_hs_ntc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_hs_ntc.c
 )
@@ -686,6 +691,7 @@ add_executable(test_sil_fault_injection_c1
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/max31865.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rail_adc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_sil_fault_injection.c
 )
 target_compile_definitions(test_sil_fault_injection_c1 PRIVATE TEMPER_PAN_CONTROL_C1=1)

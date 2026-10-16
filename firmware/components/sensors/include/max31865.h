@@ -27,16 +27,25 @@ extern "C" {
 #define MAX31865_REG_FAULT_STATUS       0x07u
 #define MAX31865_REG_RTD_MSB            0x01u  /* MSB, then LSB (bit 0 = fault) */
 
-/* Config register values used by the non-blocking automatic fault cycle. */
+/* Config register values. The automatic fault cycle (D3:D2 = 01) is the legacy
+ * board's; the C1 board (zapote C37, CR-1 filter) uses the manual cycle only
+ * (D3:D2 = 10, then 11; data sheet "Fault Detection Cycle (D3:D2)", Table 3). */
 #define MAX31865_CONFIG_VBIAS                 0x80u
 #define MAX31865_CONFIG_FAULT_CYCLE_AUTOMATIC 0x04u
+#define MAX31865_CONFIG_FAULT_CYCLE_MANUAL_1  0x08u   /* 100X100Xb: run, manual delay      */
+#define MAX31865_CONFIG_FAULT_CYCLE_MANUAL_2  0x0Cu   /* 100X110Xb: finish, manual delay   */
 #define MAX31865_CONFIG_AUTO_CONVERT          0x40u
+#define MAX31865_CONFIG_ONE_SHOT              0x20u
 #define MAX31865_CONFIG_FAULT_CLEAR           0x02u
 #define MAX31865_CONFIG_FAULT_CYCLE_MASK      0x0Cu
 
 /* Fault-status bits from register 07h. */
 #define MAX31865_FAULT_HIGH_THRESHOLD 0x80u
 #define MAX31865_FAULT_LOW_THRESHOLD  0x40u
+#define MAX31865_FAULT_REFIN_HIGH     0x20u   /* D5: REFIN- > 0.85 VBIAS, FORCE- closed */
+#define MAX31865_FAULT_REFIN_LOW      0x10u   /* D4: REFIN- < 0.85 VBIAS, FORCE- open   */
+#define MAX31865_FAULT_RTDIN_LOW      0x08u   /* D3: RTDIN- < 0.85 VBIAS, FORCE- open   */
+#define MAX31865_FAULT_OVUV           0x04u   /* D2: over/undervoltage                  */
 
 typedef struct {
     hal_spi_device_t spi_device;
@@ -92,6 +101,43 @@ hal_status_t max31865_start_conversions(const max31865_device_t *device);
  * reset policy (rtd_service_request_fault_clear, DECISIONS.md D-OPEN).
  */
 hal_status_t max31865_clear_fault_status(const max31865_device_t *device);
+
+/* ---- Manual fault-detection cycle (sensor-r3 C1 on the CR-1 board) -------
+ *
+ * Data sheet (19-6478 Rev 3), "Fault Detection Cycle (D3:D2)": with an input
+ * filter time constant above 100 us the cycle must be timed manually. The
+ * caller owns the waits (rtd_service.c: RTD_C1_FAULT_CYCLE_STEP_US from
+ * output/temper-sensor-r3/firmware/fault_cycle.py) and calls, in order:
+ *   max31865_attach              handle only, no register write;
+ *   max31865_bias_on             CONFIG 0x80: VBIAS on, conversions off
+ *                                ("Normally Off"), wait >= 5 tau;
+ *   max31865_bias_on_clear       CONFIG 0x82: the same with D1 (fault-status
+ *                                clear; D5/D3/D2 written 0, as D1 requires);
+ *   max31865_manual_fault_step1  CONFIG 0x88: checks REFIN- with FORCE-
+ *                                closed (D5), then opens FORCE-; D3:D2 stay 10;
+ *                                wait >= 5 tau;
+ *   max31865_manual_fault_step2  CONFIG 0x8C: checks REFIN- and RTDIN- with
+ *                                FORCE- open (D4, D3), closes FORCE-, D3:D2
+ *                                self-clear to 00;
+ *   max31865_fault_cycle_busy    until D3:D2 = 00, then
+ *   max31865_read_fault_status   register 07h.
+ * Writing step 2 without step 1 runs the automatic cycle instead (data sheet),
+ * so a failed step-1 write must abort the sequence. */
+
+/** Store the SPI handle; no register access. */
+hal_status_t max31865_attach(max31865_device_t *device, hal_spi_device_t spi_device);
+
+/** CONFIG 0x80: VBIAS on, automatic conversion off, 4-wire, 60 Hz notch. */
+hal_status_t max31865_bias_on(const max31865_device_t *device);
+
+/** CONFIG 0x82: as max31865_bias_on, with the fault-status clear bit (D1). */
+hal_status_t max31865_bias_on_clear(const max31865_device_t *device);
+
+/** CONFIG 0x88: manual fault detection, first step (FORCE- closed check). */
+hal_status_t max31865_manual_fault_step1(const max31865_device_t *device);
+
+/** CONFIG 0x8C: manual fault detection, second step (FORCE- open check). */
+hal_status_t max31865_manual_fault_step2(const max31865_device_t *device);
 
 /** True while a fault-detection cycle is still running (CONFIG D3:D2 != 0). */
 hal_status_t max31865_fault_cycle_busy(const max31865_device_t *device,

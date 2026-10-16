@@ -56,7 +56,11 @@ What this does
      corner: every error at its limit applied to the circuit at once and read back
      through the driver's arithmetic (the per-term K figures are reported beside it;
      their linear sum overstates the cold end, where the node's slope is small), and
-     the threshold the firmware uses (PCS_THRESHOLD_K, gated against pan_cold_soak.h);
+     the thresholds the firmware uses (gated against pan_cold_soak.h): PCS_THRESHOLD_K
+     with the rail unknown (the driver assumes 3.300 V; true v3v3 anywhere in the
+     3.242-3.367 V contract) and PCS_THRESHOLD_MEASURED_K with a measured rail (the
+     MCP3202 CH1 reading, its error rail_adc.py's soak-band figure, D-RAIL); the
+     firmware picks the second only when the rail was measured through the window;
    - the soak timing argument (N, W, flatness, residual bound).
    Exits 1 if a check fails.
 
@@ -75,6 +79,8 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import rail_adc  # noqa: E402
 REPO = HERE.parents[2]
 HEADER = REPO / "firmware" / "components" / "sensors" / "hs_ntc_table.h"
 SOAK_H = REPO / "firmware" / "components" / "control" / "pan_cold_soak.h"
@@ -173,7 +179,9 @@ DT_S = 0.1
 ADC1_PATTERN_SPS = 80e3 / 9   # C45: continuous ADC1 pattern, HS once every 9 slots at 80 ksps
 FILTER_TAU_S = 1.0
 ADC_NOISE_MV = 3.0       # one-shot noise, rms (assumption, as cold_soak.py; bench item 5)
-RAIL_READ_TOL = 0.002    # MCP3202 CH1 against the LM4040A25, if a driver existed (D-HSNTC)
+# MCP3202 CH1 against the LM4040A25 (rail_adc.c, D-RAIL): the reading's worst error over a
+# 5..50 degC board, the band where the cold-soak check runs (rail_adc.py, rail-adc.json).
+RAIL_READ_TOL = rail_adc.SOAK_TOL
 # Driver constants (hs_ntc.h), gated below
 DIVIDER_FAULT_MV = 2950.0
 SAT_MARGIN_MV = 55.0
@@ -504,7 +512,9 @@ def budget(rail_measured: bool = False, band_lo: float = HS_BAND_LO_C):
               "pt100_reads_low": sum(pt.values()),
               "soak_heatsink_above_ambient": soak_hs, "soak_pt100_below_ambient": soak_pt,
               "standby_offset": STANDBY_OFFSET_K}
-        linear_hs = sum(terms.values()) + (0.0 if rail_measured else rail["rail_low_reads_high"])
+        rail_term = (t_from_node(node_v(t), V3V3_NOM * (1.0 + RAIL_READ_TOL)) - t) if rail_measured \
+            else rail["rail_low_reads_high"]
+        linear_hs = sum(terms.values()) + rail_term
         row = {"T_C": round(t, 2), "node_mV": round(v * 1e3, 1), "pin_mV": round(v * ADC_GAIN * 1e3, 1),
                "atten": a, "node_mV_per_K": round(slope * 1e3, 2),
                "heatsink_terms_K": {k: round(x, 3) for k, x in terms.items()},
@@ -748,7 +758,11 @@ def main() -> int:
     b = budget()
     b_rail = budget(rail_measured=True)
     b["threshold_rail_corrected_K"] = b_rail["threshold_K"]   # leak_alternatives.py reads it
+    b_rail["rail_read_tol_pct"] = round(RAIL_READ_TOL * 100, 4)
     checks["threshold_in_pan_cold_soak_h"] = abs(header_define("PCS_THRESHOLD_K") - b["threshold_K"]) < 1e-6
+    checks["threshold_measured_in_pan_cold_soak_h"] = abs(
+        header_define("PCS_THRESHOLD_MEASURED_K") - b_rail["threshold_K"]) < 1e-6
+    checks["measured_threshold_below_fallback"] = b_rail["threshold_K"] < b["threshold_K"]
     checks["soak_constants_in_pan_cold_soak_h"] = (
         header_define("PCS_SOAK_N_S") == SOAK_N_S and header_define("PCS_WINDOW_S") == WINDOW_S
         and header_define("PCS_HS_FLAT_K") == HS_FLAT_K and header_define("PCS_PT_FLAT_K") == PT_FLAT_K

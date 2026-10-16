@@ -67,6 +67,11 @@
  *   c1_pt100_leak_ohm    C1: a leak in parallel with the Pt100 element from
  *                        power-up, temperature-independent (D-LEAK, D-SOAK);
  *                        0 or absent: none
+ *   c1_afe_input         C1: the MAX31865 input wiring condition the SPI
+ *                        mock's analog model applies (mock_max31865_afe.h:
+ *                        "force_n_open", "sense_n_to_gnd", ...; DECISIONS
+ *                        D-FCYC), from power-up or from trace row
+ *                        c1_afe_input_at_tick
  *   xfail                {"c1": "reason"}: a known defect, reported as
  *                        XFAIL; an unexpected pass fails the run
  *
@@ -77,7 +82,11 @@
  * and logs again; the only allowed change is the declared RUNAWAY_FAULT
  * escalation); and a reset request with the fault condition still present is
  * refused. In C1 the state is observed after every 10 ms control tick, the
- * firmware's own cadence; legacy observes once per 100 ms row.
+ * firmware's own cadence; legacy observes once per 100 ms row. In C1 every
+ * scenario also asserts, from the SPI mock's MAX31865 model, that no
+ * automatic fault-detection cycle was ever run, that no manual step came
+ * sooner than the CR-1 network's 5 tau_max and no conversion restart sooner
+ * than its 15-bit settling (zapote C37, DECISIONS D-FCYC).
  *
  * Build: CMake targets test_sil_fault_injection, test_sil_fault_injection_c1
  * Run:   (working directory must contain traces/manifest.json)
@@ -102,6 +111,7 @@
 #endif
 #include "../components/sensors/include/max31865.h"
 #include "../components/sensors/include/rtd_service.h"
+#include "../components/temper_hal/mock/mock_max31865.h"
 #define SIL_MODE "c1"
 #else
 #define SIL_MODE "legacy"
@@ -336,6 +346,8 @@ typedef struct {
     bool c1_bus_sense_dead;
     int  c1_idle_soak_s;          /* C1: idle seconds before the start press */
     float c1_pt100_leak_ohm;      /* C1: element-parallel leak, 0 = none */
+    char c1_afe_input[32];        /* C1: MAX31865 input condition (D-FCYC) */
+    int  c1_afe_input_at_tick;    /* -1: from power-up */
     /* hard assertions (KTD3): a scenario that reaches the right state but
      * misses these side effects fails the run, it does not warn. */
     bool require_power_off;
@@ -431,6 +443,7 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
         e->expected_state = STATE_INIT;
         e->expected_fault = FAULT_NONE;
         e->max_latency_ticks_c1 = -1;
+        e->c1_afe_input_at_tick = -1;
 
         while (*p && *p != '}') {
             p = skip_ws(p);
@@ -465,6 +478,11 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
                 e->c1_idle_soak_s = extract_int(&p);
             } else if (!strcmp(key, "c1_pt100_leak_ohm")) {
                 e->c1_pt100_leak_ohm = (float)extract_number(&p);
+            } else if (!strcmp(key, "c1_afe_input")) {
+                char *val = extract_string(&p);
+                if (val) { strncpy(e->c1_afe_input, val, sizeof(e->c1_afe_input) - 1); free(val); }
+            } else if (!strcmp(key, "c1_afe_input_at_tick")) {
+                e->c1_afe_input_at_tick = extract_int(&p);
             } else if (!strcmp(key, "modes")) {
                 parse_modes(&p, e);
             } else if (!strcmp(key, "xfail")) {
@@ -723,13 +741,23 @@ static int load_csv(const char *path, csvrow_t *rows, int max_rows) {
  * current with the commanded power. The model below sits behind the SPI and
  * GPIO mocks and behaves like the converter and the power stage:
  *
- *   MAX31865   the power-up automatic fault cycle completes on the first
- *              control tick; then, while CONFIG has VBIAS and auto-convert
- *              set and the trace's rtd_drdy column is 1, a conversion every
- *              2nd 10 ms tick (50 Hz): code = R / 430 ohm * 2^15 (clamped),
- *              compared with the threshold words the firmware programmed;
- *              a crossing latches register 07h bit 7/6 and sets the fault
- *              bit (RTD LSB D0); DRDY falls. CONFIG D1 clears 07h.
+ *   MAX31865   CONFIG writes go to the SPI mock's model (mock_max31865.c):
+ *              VBIAS, the FORCE- switch and the manual (or automatic) fault
+ *              cycle against the CR-1 input settling (fault_cycle.py), D1
+ *              clears 07h. The control tick advances the HAL clock by 10 ms.
+ *              Conversions here: from the entry into auto-convert, the first
+ *              after 60 ms (the single-conversion time, <= 55 ms, data sheet
+ *              Note 5, on the 10 ms grid), then one every 20 ms (two control
+ *              ticks: the chip's 16.7-17.6 ms continuous conversion with the
+ *              60 Hz notch, CONFIG 0xC0, on the 10 ms grid) while the trace's
+ *              rtd_drdy column is 1: code = R / 430 ohm * 2^15
+ *              (clamped), compared with the threshold words the firmware
+ *              programmed; a crossing latches register 07h bit 7/6 and sets
+ *              the fault bit (RTD LSB D0); DRDY falls. An element of 2 kohm
+ *              or more is an open element to the analog model too; the
+ *              manifest's c1_afe_input sets other wiring conditions (an
+ *              S- lead shorted to ground adds the lead and switch, 11.8 ohm,
+ *              to what the converter sees).
  *   R          the Pt100 at the trace pan temperature plus the CR-7 0.061 K
  *              self-heating (IEC 60751), in parallel with the manifest's
  *              c1_pt100_leak_ohm if set, unless the trace's rtd_resistance
@@ -767,6 +795,12 @@ extern int mock_sm_get_pan_status(void);
 #define C1_SELF_HEATING_K 0.061
 #define C1_STAGE_V        120.0f
 
+extern void mock_timer_reset(void);
+extern void mock_timer_advance(hal_time_us_t delta_us);
+
+#define C1_OPEN_ELEMENT_OHM 2000.0f   /* at or above: an open element to the AFE model */
+#define C1_SN_GND_EXTRA_OHM 11.8      /* S- to ground: Fn lead + FORCE- switch (checks.py) */
+
 static struct {
     float r_override;     /* NAN: Pt100 follows the pan temperature */
     float i_override;     /* NAN: bus current follows the command   */
@@ -775,7 +809,21 @@ static struct {
     bool drdy;
     uint32_t tick;
     uint32_t conversions;
+    uint32_t conv_starts; /* the model's entries into auto-convert seen */
+    uint64_t next_conv_us;
+    mock_max31865_input_t afe;   /* the manifest's wiring condition */
+    int afe_at_tick;             /* -1: from power-up; else the control tick it starts */
+    int afe_row;                 /* the trace row it starts at, -1: power-up */
 } s_plant;
+
+static mock_max31865_input_t parse_afe_input(const char *s) {
+    static const char *const names[] = {"healthy", "element_open", "sense_n_open", "force_p_open",
+                                        "force_n_open", "sense_n_to_gnd", "force_p_to_gnd"};
+    for (int i = 0; i < (int)MOCK_MAX31865_INPUT_COUNT; i++) {
+        if (!strcmp(s, names[i])) return (mock_max31865_input_t)i;
+    }
+    return MOCK_MAX31865_INPUT_HEALTHY;
+}
 
 /* Rim NTC board HAL for pan_control.c's rim driver: the 104GT-2 node voltage
  * at the trace pan temperature under the 1.00 k pull-up and a 3300 mV rail,
@@ -836,26 +884,32 @@ static uint16_t element_code(void) {
 }
 
 static void c1_converter_step(void) {
-    uint8_t cfg = mock_spi_get_register(C1_DEV, MAX31865_REG_CONFIG);
+    const uint64_t now = HAL_TIME_US();
+    /* the wiring the analog model sees: an open element, or the manifest's */
+    mock_max31865_input_t afe = MOCK_MAX31865_INPUT_HEALTHY;
+    if (!isnan(s_plant.r_override) && s_plant.r_override >= C1_OPEN_ELEMENT_OHM) {
+        afe = MOCK_MAX31865_INPUT_ELEMENT_OPEN;
+    } else if (s_plant.afe_at_tick < 0 || (int)s_plant.tick > s_plant.afe_at_tick) {
+        afe = s_plant.afe;
+    }
+    mock_max31865_set_input(afe);
+    if (mock_max31865_conversion_starts() != s_plant.conv_starts) {
+        s_plant.conv_starts = mock_max31865_conversion_starts();
+        s_plant.next_conv_us = mock_max31865_conversion_start_us() + 60000u;
+    }
+    if (!mock_max31865_converting() || now < s_plant.next_conv_us) {
+        return;
+    }
+    s_plant.next_conv_us += 20000u;
+    if (!s_plant.drdy) {
+        return;
+    }
     uint8_t status = mock_spi_get_register(C1_DEV, MAX31865_REG_FAULT_STATUS);
-    if (cfg & MAX31865_CONFIG_FAULT_CLEAR) {
-        status = 0u;
-        cfg = (uint8_t)(cfg & (uint8_t)~MAX31865_CONFIG_FAULT_CLEAR);
-        mock_spi_set_register(C1_DEV, MAX31865_REG_CONFIG, cfg);
+    uint16_t code = element_code();
+    if (afe == MOCK_MAX31865_INPUT_SENSE_N_TO_GND) {
+        long c = lround((double)code + C1_SN_GND_EXTRA_OHM / C1_R_REF_OHM * 32768.0);
+        code = (uint16_t)(c > 0x7FFF ? 0x7FFF : c);
     }
-    if (cfg & MAX31865_CONFIG_FAULT_CYCLE_MASK) {
-        /* power-up automatic fault-detection cycle: done within one tick */
-        status |= threshold_bits(element_code());
-        mock_spi_set_register(C1_DEV, MAX31865_REG_FAULT_STATUS, status);
-        mock_spi_set_register(C1_DEV, MAX31865_REG_CONFIG,
-                              (uint8_t)(cfg & (uint8_t)~MAX31865_CONFIG_FAULT_CYCLE_MASK));
-        return;
-    }
-    const bool converting = (cfg & MAX31865_CONFIG_VBIAS) && (cfg & MAX31865_CONFIG_AUTO_CONVERT);
-    if (!converting || !s_plant.drdy || (s_plant.tick % 2u) != 0u) {
-        return;
-    }
-    const uint16_t code = element_code();
     status |= threshold_bits(code);
     const uint16_t word = (uint16_t)((code << 1) | (status != 0u ? 1u : 0u));
     mock_spi_set_register(C1_DEV, MAX31865_REG_RTD_MSB, (uint8_t)(word >> 8));
@@ -867,6 +921,7 @@ static void c1_converter_step(void) {
 
 static void c1_control_tick(void) {
     mock_sm_advance_time(C1_TICK_MS);
+    mock_timer_advance((hal_time_us_t)C1_TICK_MS * 1000u);
     s_plant.tick++;
     const bool coupled = mock_sm_get_pan_status() == MOCK_PAN_PRESENT;
     float i_bus = isnan(s_plant.i_override)
@@ -884,11 +939,14 @@ static void c1_control_tick(void) {
 /* Power-up: HAL, MAX31865 bootstrap (main.c init_peripherals), then the
  * state machine. pan_control.c keeps its supervisor in statics; a fresh
  * process starts with R1 empty, so the runner clears R1 between scenarios. */
-static void c1_reset(void) {
+static void c1_reset(const manifest_entry_t *entry) {
     (void)hal_deinit();
     mock_spi_reset();
     mock_gpio_reset();
+    mock_timer_reset();
     (void)hal_init_mock();
+    mock_max31865_attach(0);   /* the MAX31865 is the bus's first device */
+    mock_mcp3202_attach(1);    /* U15, the rail ADC, the second (3.300 V) */
     s_plant.r_override = NAN;
     s_plant.i_override = NAN;
     s_plant.sense_dead = false;
@@ -896,8 +954,36 @@ static void c1_reset(void) {
     s_plant.drdy = true;
     s_plant.tick = 0u;
     s_plant.conversions = 0u;
+    s_plant.conv_starts = 0u;
+    s_plant.next_conv_us = 0u;
+    s_plant.afe = entry->c1_afe_input[0] ? parse_afe_input(entry->c1_afe_input) : MOCK_MAX31865_INPUT_HEALTHY;
+    s_plant.afe_at_tick = -1;
+    s_plant.afe_row = entry->c1_afe_input_at_tick;
+    if (s_plant.afe_row >= 0) {
+        s_plant.afe_at_tick = INT32_MAX;   /* armed by apply_row */
+    }
+    if (s_plant.afe_at_tick < 0) {
+        mock_max31865_set_input(s_plant.afe);
+    }
     TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
     pan_control_rate_reset();
+}
+
+static bool sil_fail(const char *msg);
+
+/* No automatic fault cycle, no manual step sooner than 5 tau_max, no restart
+ * before the 15-bit settling: the CR-1 board's rules (zapote C37, D-FCYC). */
+static bool assert_c1_fault_cycle_rules(void) {
+    char msg[200];
+    if (mock_max31865_auto_cycles() != 0u || mock_max31865_fast_steps() != 0u ||
+        mock_max31865_early_restarts() != 0u) {
+        snprintf(msg, sizeof(msg), "D-FCYC: %u automatic fault cycle(s), %u manual step(s) sooner than "
+                 "5 tau_max, %u early restart(s)", (unsigned)mock_max31865_auto_cycles(),
+                 (unsigned)mock_max31865_fast_steps(), (unsigned)mock_max31865_early_restarts());
+        return sil_fail(msg);
+    }
+    printf("  [C1] %u manual fault cycle(s), 0 automatic\n", (unsigned)mock_max31865_manual_cycles());
+    return true;
 }
 #endif /* TEMPER_PAN_CONTROL_C1 */
 
@@ -924,7 +1010,7 @@ static void sil_step_row(void) {
 static void sil_reset(const manifest_entry_t *entry) {
     mock_sm_reset();
 #ifdef TEMPER_PAN_CONTROL_C1
-    c1_reset();
+    c1_reset(entry);
     s_plant.sense_dead = entry->c1_bus_sense_dead;
     s_plant.leak_ohm = entry->c1_pt100_leak_ohm;
 #else
@@ -943,6 +1029,9 @@ static void apply_row(const csvrow_t *rows, int t) {
     s_plant.i_override = (rows[t][3] != rows[0][3]) ? rows[t][3] : NAN;
     s_plant.r_override = (rows[t][4] != rows[0][4]) ? rows[t][4] : NAN;
     s_plant.drdy = rows[t][7] > 0.5f;
+    if (s_plant.afe_row >= 0 && t == s_plant.afe_row) {
+        s_plant.afe_at_tick = (int)s_plant.tick;
+    }
 #endif
 
     /* Derive pan status from pan_impedance */
@@ -1334,10 +1423,21 @@ static bool assert_reset_refused(const manifest_entry_t *entry) {
         (st != STATE_FAULT && st != STATE_RUNAWAY_FAULT)) {
         return true;
     }
+#ifdef TEMPER_PAN_CONTROL_C1
+    const uint32_t cycles_before = rtd_service_fault_cycles();
+#endif
     mock_sm_press_button(BUTTON_RESET);
     sil_step_row();
     mock_sm_release_button(BUTTON_RESET);
-    const system_state_t after = state_machine_get_state();
+    system_state_t after = state_machine_get_state();
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* A C1 probe-fault press stays armed for 1 s (state_handlers.c, D-RESET):
+     * watch past it. */
+    for (int r = 0; r < 20 && after == st; r++) {
+        sil_step_row();
+        after = state_machine_get_state();
+    }
+#endif
     if (after != st) {
         char msg[200];
         snprintf(msg, sizeof(msg),
@@ -1346,6 +1446,19 @@ static bool assert_reset_refused(const manifest_entry_t *entry) {
                  (int)entry->expected_fault, (int)st, (int)after);
         return sil_fail(msg);
     }
+#ifdef TEMPER_PAN_CONTROL_C1
+    if (!strcmp(entry->c1_mechanism, "rtd-fault-cycle-reset")) {
+        const uint8_t bits = rtd_service_last_fault_cycle_status();
+        if (rtd_service_fault_cycles() == cycles_before || (bits & 0x3Cu) == 0u) {
+            char msg[200];
+            snprintf(msg, sizeof(msg), "C1 mechanism rtd-fault-cycle-reset expected: the reset's "
+                     "manual fault cycle flags D5..D2, got %u new cycle(s), status 0x%02X",
+                     (unsigned)(rtd_service_fault_cycles() - cycles_before), (unsigned)bits);
+            return sil_fail(msg);
+        }
+        printf("  [C1] the reset's manual fault cycle flagged 07h = 0x%02X\n", (unsigned)bits);
+    }
+#endif
     printf("  [PASS] reset refused while the fault persists\n");
     return true;
 }
@@ -1361,6 +1474,9 @@ static bool assert_reset_accepted(const manifest_entry_t *entry) {
                  (int)st);
         return sil_fail(msg);
     }
+#ifdef TEMPER_PAN_CONTROL_C1
+    const uint32_t cycles_before = rtd_service_fault_cycles();
+#endif
     mock_sm_press_button(BUTTON_RESET);
     for (int k = 0; k < SIL_STEPS_PER_ROW; k++) {
         sil_control_step();
@@ -1383,6 +1499,15 @@ static bool assert_reset_accepted(const manifest_entry_t *entry) {
                  (int)entry->expected_fault);
         return sil_fail(msg);
     }
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* D-RESET: no reset without a clean manual fault-detection cycle first. */
+    if (rtd_service_fault_cycles() == cycles_before) {
+        return sil_fail("reset_accepted: no fault-detection cycle ran before the reset was accepted");
+    }
+    printf("  [C1] reset verified by %u manual fault cycle(s), status 0x%02X\n",
+           (unsigned)(rtd_service_fault_cycles() - cycles_before),
+           (unsigned)rtd_service_last_fault_cycle_status());
+#endif
     printf("  [PASS] reset accepted once the sensor reads good; IDLE with the power at 0\n");
     return true;
 }
@@ -1431,6 +1556,17 @@ static bool assert_c1_mechanism(const manifest_entry_t *entry, float reading_at_
         printf("  [C1] cold soak: %s (coil off %.0f s, heatsink %.2f C, Pt100 %.2f C, gap %.2f K)\n",
                pcs_verdict_name(r.verdict), (double)r.off_s, (double)r.hs_c, (double)r.pt_c,
                (double)r.gap_k);
+    } else if (!strcmp(m, "rtd-fault-cycle")) {
+        const uint8_t bits = rtd_service_last_fault_cycle_status();
+        if (rtd_service_fault_cycles() == 0u || (bits & 0x3Cu) == 0u) {
+            snprintf(msg, sizeof(msg), "C1 mechanism rtd-fault-cycle expected: a manual fault cycle "
+                     "flagging D5..D2, got %u cycle(s), status 0x%02X",
+                     (unsigned)rtd_service_fault_cycles(), (unsigned)bits);
+            return sil_fail(msg);
+        }
+        printf("  [C1] manual fault cycle flagged 07h = 0x%02X\n", (unsigned)bits);
+    } else if (!strcmp(m, "rtd-fault-cycle-reset")) {
+        printf("  [C1] rtd-fault-cycle-reset: checked on the reset request below\n");
     } else if (!strcmp(m, "rim-limit")) {
         if (!pan_control_rim_limit_latched()) {
             return sil_fail("C1 mechanism rim-limit expected: the setpoint-relative rim limit has not latched");
@@ -1751,8 +1887,11 @@ static bool run_sil_scenario(const manifest_entry_t *entry) {
     if (!assert_safe_state_side_effects(entry, pwm_disable_baseline)) return false;
     if (entry->c1_mechanism[0] != '\0' && !assert_c1_mechanism(entry, reading_at_trip)) return false;
     if (!assert_first_fault_latched(entry, expected_state, captured_fault, escalate)) return false;
-    if (entry->reset_accepted) return assert_reset_accepted(entry);
-    return assert_reset_refused(entry);
+    const bool reset_ok = entry->reset_accepted ? assert_reset_accepted(entry) : assert_reset_refused(entry);
+#ifdef TEMPER_PAN_CONTROL_C1
+    if (reset_ok && !assert_c1_fault_cycle_rules()) return false;
+#endif
+    return reset_ok;
 }
 
 /* ---------------------------------------------------------------------------

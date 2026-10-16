@@ -7,6 +7,7 @@
 
 #include "hal.h"
 #include "max31865.h"
+#include "rail_adc.h"
 #include "state_machine.h"
 #include "temper_pins.h"
 
@@ -14,25 +15,44 @@
 #include "config.h"
 #include "rtd_convert.h"
 
-/* CR-1 sense-line filter fitted on the controller (pcb/CHANGE-REQUEST.md):
- * enables the CR-7 loading correction. The controller as captured has no
- * CR-1, so the default is 0. */
+/* CR-1 sense-line filter fitted on the controller: enables the CR-7 loading
+ * correction. zapote/controller C37 (controller-c1-crs 467917c38) applied CR-1
+ * exactly as specified, so the C1 board has it (DECISIONS.md D-FCYC); the
+ * manual fault cycle below assumes the same board. */
 #ifndef RTD_FRONT_END_CR1
-#define RTD_FRONT_END_CR1 0
+#define RTD_FRONT_END_CR1 1
 #endif
 
 typedef enum {
-    RTD_C1_PHASE_FAULT_CYCLE = 0,
-    RTD_C1_PHASE_CONVERTING = 1,
+    RTD_C1_PHASE_BIAS = 0,        /* VBIAS on, conversions off: wait STEP          */
+    RTD_C1_PHASE_STEP1 = 1,       /* manual step 1 written: wait STEP              */
+    RTD_C1_PHASE_STEP2 = 2,       /* manual step 2 written: poll D3:D2, read 07h   */
+    RTD_C1_PHASE_RESTART = 3,     /* cycle read: wait RESTART from step 2, 0xC0    */
+    RTD_C1_PHASE_CONVERTING = 4,
 } rtd_c1_phase_t;
 
+typedef enum {
+    RTD_C1_VERIFY_NONE = 0,       /* no verification held                          */
+    RTD_C1_VERIFY_REQUESTED = 1,  /* the reset policy asked; starts next tick      */
+    RTD_C1_VERIFY_RUNNING = 2,    /* the cycle is running                          */
+    RTD_C1_VERIFY_CYCLE_CLEAN = 3,/* 07h read 0; waiting for an unflagged conversion */
+    RTD_C1_VERIFY_CLEAN = 4,      /* verified: the next reset may consume it       */
+} rtd_c1_verify_t;
+
 static rtd_c1_phase_t s_c1_phase;
+static uint64_t s_c1_phase_t0_us;   /* when the phase's wait started              */
+static uint64_t s_c1_step2_us;      /* when step 2 was written                    */
+static uint8_t s_c1_phase_ticks;    /* ticks spent in the phase                   */
+static bool s_c1_power_up;          /* the running cycle is the power-up one      */
+static rtd_c1_verify_t s_c1_verify;
+static uint32_t s_c1_cycles;
+static uint8_t s_c1_cycle_status;
+static bool s_c1_first_drdy;        /* waiting for the first conversion after 0xC0 */
 static rtd_convert_params_t s_c1_conv;
 static rtd_sample_t s_c1_sample;
 static bool s_c1_have_sample;
 static uint16_t s_c1_same_code;
 static bool s_c1_last_flag;        /* fault flag of the latest conversion */
-static bool s_c1_clear_requested;  /* D-OPEN: clear 07h on the next tick */
 #endif
 
 /* SPI2 maps to HAL bus zero. MAX31865 supports mode 1 and a 500 kHz clock is
@@ -118,30 +138,50 @@ hal_status_t rtd_service_bootstrap(void)
         return status;
     }
 
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* C1 on the CR-1 board: no automatic fault cycle (zapote C37). Attach,
+     * program the C1 window (it acts on conversions only), switch VBIAS on with
+     * conversions off and 07h cleared, and let c1_tick time the manual cycle.
+     * The MCP3202 rail ADC joins the bus with its own CS and mode; a failure
+     * there leaves the rail unknown (fallback 3.300 V), not the RTD down. */
+    if (hal_timer == NULL) {
+        s_bootstrap_failed = true;
+        return HAL_ERROR_NOT_READY;
+    }
+    status = max31865_attach(&s_max31865, spi_device);
+    if (status == HAL_OK) {
+        status = max31865_set_thresholds(&s_max31865, MAX31865_C1_LOW_THRESHOLD_WORD,
+                                         MAX31865_C1_HIGH_THRESHOLD_WORD);
+    }
+    if (status == HAL_OK) {
+        status = max31865_bias_on_clear(&s_max31865);
+    }
+    if (status != HAL_OK) {
+        s_bootstrap_failed = true;
+        return status;
+    }
+    (void)rail_adc_board_attach(RTD_SPI2_BUS, &spi_config);
+    rtd_convert_default_params(&s_c1_conv);
+    s_c1_conv.loading_correction = (RTD_FRONT_END_CR1 != 0);
+    s_c1_phase = RTD_C1_PHASE_BIAS;
+    s_c1_phase_t0_us = HAL_TIME_US();
+    s_c1_step2_us = 0u;
+    s_c1_phase_ticks = 0u;
+    s_c1_power_up = true;
+    s_c1_verify = RTD_C1_VERIFY_NONE;
+    s_c1_cycles = 0u;
+    s_c1_cycle_status = 0u;
+    s_c1_first_drdy = false;
+    s_c1_have_sample = false;
+    s_c1_same_code = 0u;
+    s_c1_last_flag = false;
+    s_c1_sample = (rtd_sample_t){0};
+#else
     status = max31865_initialize(&s_max31865, spi_device);
     if (status != HAL_OK) {
         s_bootstrap_failed = true;
         return status;
     }
-
-#ifdef TEMPER_PAN_CONTROL_C1
-    /* C1 Pt100 window (CR-7). max31865_initialize() has already started the
-     * one power-up fault-detection cycle; the thresholds only act on
-     * conversions, which start after that cycle completes. */
-    status = max31865_set_thresholds(&s_max31865, MAX31865_C1_LOW_THRESHOLD_WORD,
-                                     MAX31865_C1_HIGH_THRESHOLD_WORD);
-    if (status != HAL_OK) {
-        s_bootstrap_failed = true;
-        return status;
-    }
-    rtd_convert_default_params(&s_c1_conv);
-    s_c1_conv.loading_correction = (RTD_FRONT_END_CR1 != 0);
-    s_c1_phase = RTD_C1_PHASE_FAULT_CYCLE;
-    s_c1_have_sample = false;
-    s_c1_same_code = 0u;
-    s_c1_last_flag = false;
-    s_c1_clear_requested = false;
-    s_c1_sample = (rtd_sample_t){0};
 #endif
 
     s_ready = true;
@@ -155,17 +195,74 @@ static void c1_fail_open(void)
     state_machine_report_rtd_device_fault(false, true, NULL);
 }
 
-static void c1_tick(void)
+static void c1_enter(rtd_c1_phase_t phase)
 {
-    if (s_c1_phase == RTD_C1_PHASE_FAULT_CYCLE) {
+    s_c1_phase = phase;
+    s_c1_phase_t0_us = HAL_TIME_US();
+    s_c1_phase_ticks = 0u;
+}
+
+static bool c1_waited(uint64_t from_us, uint32_t wait_us)
+{
+    const uint64_t now = HAL_TIME_US();
+    return now >= from_us && now - from_us >= wait_us;
+}
+
+/* A phase that never completes (no clock, a chip stuck in its cycle) must not
+ * leave the RTD unmonitored: fail open after its wait plus the timeout. */
+static bool c1_phase_timed_out(uint32_t wait_us)
+{
+    s_c1_phase_ticks = s_c1_phase_ticks < UINT8_MAX ? (uint8_t)(s_c1_phase_ticks + 1u) : UINT8_MAX;
+    return s_c1_phase_ticks > (uint8_t)(wait_us / 10000u + RTD_C1_FAULT_CYCLE_TIMEOUT_TICKS);
+}
+
+static void c1_report_status(uint8_t status)
+{
+    const uint8_t short_bits = MAX31865_FAULT_LOW_THRESHOLD | MAX31865_FAULT_REFIN_LOW |
+                               MAX31865_FAULT_RTDIN_LOW;
+    state_machine_report_rtd_device_fault((status & short_bits) != 0u,
+                                          (status & (uint8_t)~short_bits) != 0u, NULL);
+}
+
+/* The manual fault-detection cycle (power-up or reset verification). */
+static void c1_fault_cycle_tick(void)
+{
+    switch (s_c1_phase) {
+    case RTD_C1_PHASE_BIAS:
+        if (!c1_waited(s_c1_phase_t0_us, RTD_C1_FAULT_CYCLE_STEP_US)) {
+            if (c1_phase_timed_out(RTD_C1_FAULT_CYCLE_STEP_US)) {
+                c1_fail_open();
+            }
+            return;
+        }
+        if (max31865_manual_fault_step1(&s_max31865) != HAL_OK) {
+            c1_fail_open();   /* step 2 without step 1 would run the automatic cycle */
+            return;
+        }
+        c1_enter(RTD_C1_PHASE_STEP1);
+        return;
+    case RTD_C1_PHASE_STEP1:
+        if (!c1_waited(s_c1_phase_t0_us, RTD_C1_FAULT_CYCLE_STEP_US)) {
+            if (c1_phase_timed_out(RTD_C1_FAULT_CYCLE_STEP_US)) {
+                c1_fail_open();
+            }
+            return;
+        }
+        if (max31865_manual_fault_step2(&s_max31865) != HAL_OK) {
+            c1_fail_open();
+            return;
+        }
+        c1_enter(RTD_C1_PHASE_STEP2);
+        s_c1_step2_us = s_c1_phase_t0_us;
+        return;
+    case RTD_C1_PHASE_STEP2: {
         bool busy = true;
         if (max31865_fault_cycle_busy(&s_max31865, &busy) != HAL_OK) {
             c1_fail_open();
             return;
         }
         if (busy) {
-            s_drdy_wait_ticks++;
-            if (s_drdy_wait_ticks >= RTD_DRDY_TIMEOUT_CONTROL_TICKS) {
+            if (c1_phase_timed_out(0u)) {
                 c1_fail_open();
             }
             return;
@@ -175,43 +272,78 @@ static void c1_tick(void)
             c1_fail_open();
             return;
         }
+        s_c1_cycles++;
+        s_c1_cycle_status = status;
         if (status != 0u) {
-            /* A power-up fault blocks the sensor: report and stay down. */
-            s_ready = false;
-            state_machine_report_rtd_device_fault((status & MAX31865_FAULT_LOW_THRESHOLD) != 0u,
-                                                  (status & (uint8_t)~MAX31865_FAULT_LOW_THRESHOLD) != 0u,
-                                                  NULL);
+            c1_report_status(status);
+            if (s_c1_power_up) {
+                /* A power-up fault blocks the sensor: report and stay down. */
+                s_ready = false;
+                return;
+            }
+            /* Reset verification: the input is still faulty. Keep converting so
+             * the readings stay live; the latch has absorbed the report. */
+            s_c1_verify = RTD_C1_VERIFY_NONE;
+        } else if (!s_c1_power_up) {
+            s_c1_verify = RTD_C1_VERIFY_CYCLE_CLEAN;
+        }
+        c1_enter(RTD_C1_PHASE_RESTART);
+        return;
+    }
+    case RTD_C1_PHASE_RESTART:
+        if (!c1_waited(s_c1_step2_us, RTD_C1_FAULT_CYCLE_RESTART_US + RTD_C1_FAULT_CYCLE_CHECK_US)) {
+            if (c1_phase_timed_out(RTD_C1_FAULT_CYCLE_RESTART_US)) {
+                c1_fail_open();
+            }
             return;
         }
         if (max31865_start_conversions(&s_max31865) != HAL_OK) {
             c1_fail_open();
             return;
         }
-        s_c1_phase = RTD_C1_PHASE_CONVERTING;
+        c1_enter(RTD_C1_PHASE_CONVERTING);
+        s_c1_power_up = false;
+        s_c1_first_drdy = true;
         s_drdy_wait_ticks = 0u;
         s_drdy_complete = false;
         return;
+    case RTD_C1_PHASE_CONVERTING:
+    default:
+        return;
+    }
+}
+
+static void c1_tick(void)
+{
+    if (s_c1_phase != RTD_C1_PHASE_CONVERTING) {
+        c1_fault_cycle_tick();
+        return;
     }
 
-    if (s_c1_clear_requested) {
-        /* D-OPEN: the reset policy asked for a clean 07h. Conversions keep
-         * running; the next one reports only its own condition. */
-        s_c1_clear_requested = false;
-        if (max31865_clear_fault_status(&s_max31865) != HAL_OK) {
+    if (s_c1_verify == RTD_C1_VERIFY_REQUESTED) {
+        /* D-FCYC reset verification. VBIAS has been on throughout, so step 1
+         * follows the clear at once; 0x82 stops conversions and clears 07h. */
+        s_c1_verify = RTD_C1_VERIFY_RUNNING;
+        if (max31865_bias_on_clear(&s_max31865) != HAL_OK ||
+            max31865_manual_fault_step1(&s_max31865) != HAL_OK) {
             c1_fail_open();
             return;
         }
+        c1_enter(RTD_C1_PHASE_STEP1);
+        return;
     }
 
     if (!s_drdy_complete) {
         s_drdy_wait_ticks++;
-        if (s_drdy_wait_ticks >= RTD_C1_STALE_CONTROL_TICKS) {
+        if (s_drdy_wait_ticks >= (s_c1_first_drdy ? RTD_C1_FIRST_DRDY_CONTROL_TICKS
+                                                  : RTD_C1_STALE_CONTROL_TICKS)) {
             c1_fail_open();
         }
         return;
     }
     s_drdy_complete = false;
     s_drdy_wait_ticks = 0u;
+    s_c1_first_drdy = false;
 
     uint8_t msb = 0u;
     uint8_t lsb = 0u;
@@ -245,15 +377,18 @@ static void c1_tick(void)
         }
         smp.fault_status = status;
         if (status != 0u) {
-            state_machine_report_rtd_device_fault((status & MAX31865_FAULT_LOW_THRESHOLD) != 0u,
-                                                  (status & (uint8_t)~MAX31865_FAULT_LOW_THRESHOLD) != 0u,
-                                                  NULL);
+            c1_report_status(status);
         }
     }
     smp.seq++;
     s_c1_sample = smp;
     s_c1_have_sample = true;
     s_c1_last_flag = fault_flag;
+    if (fault_flag) {
+        s_c1_verify = RTD_C1_VERIFY_NONE;
+    } else if (s_c1_verify == RTD_C1_VERIFY_CYCLE_CLEAN) {
+        s_c1_verify = RTD_C1_VERIFY_CLEAN;
+    }
     if ((uint32_t)s_c1_same_code + 1u >= RTD_C1_FROZEN_CONVERSIONS) {
         /* The converter answers DRDY with the same word: a frozen reading. */
         s_ready = false;
@@ -275,11 +410,30 @@ bool rtd_service_fault_status_clean(void)
     if (!s_ready || !s_c1_have_sample) {
         return false;
     }
-    if (s_c1_last_flag) {
-        s_c1_clear_requested = true;
+    switch (s_c1_verify) {
+    case RTD_C1_VERIFY_CLEAN:
+        if (s_c1_last_flag) {
+            s_c1_verify = RTD_C1_VERIFY_REQUESTED;
+            return false;
+        }
+        s_c1_verify = RTD_C1_VERIFY_NONE;   /* consumed by the reset it allows */
+        return true;
+    case RTD_C1_VERIFY_NONE:
+        s_c1_verify = RTD_C1_VERIFY_REQUESTED;
         return false;
+    default:
+        return false;   /* requested or running */
     }
-    return !s_c1_clear_requested;
+}
+
+uint32_t rtd_service_fault_cycles(void)
+{
+    return s_c1_cycles;
+}
+
+uint8_t rtd_service_last_fault_cycle_status(void)
+{
+    return s_c1_cycle_status;
 }
 #else
 bool rtd_service_latest_sample(rtd_sample_t *out)
@@ -291,6 +445,16 @@ bool rtd_service_latest_sample(rtd_sample_t *out)
 bool rtd_service_fault_status_clean(void)
 {
     return true;   /* legacy: the reset policy reads the resistance only */
+}
+
+uint32_t rtd_service_fault_cycles(void)
+{
+    return 0u;
+}
+
+uint8_t rtd_service_last_fault_cycle_status(void)
+{
+    return 0u;
 }
 #endif
 
@@ -307,6 +471,9 @@ void rtd_service_control_tick(void)
     if (s_ready) {
         c1_tick();
     }
+    /* The MCP3202 rail reading shares the bus: taken here, after the MAX31865
+     * work of this tick, in the same task (rail_adc.h, D-RAIL). */
+    rail_adc_board_service();
     return;
 #endif
 

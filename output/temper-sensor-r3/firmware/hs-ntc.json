@@ -1091,7 +1091,7 @@
    "heatsink": 1.541,
    "pt100": 0.385
   },
-  "threshold_rail_corrected_K": 14.5
+  "threshold_rail_corrected_K": 16.9
  },
  "cold_soak_budget_rail_measured": {
   "band_C": [
@@ -1122,7 +1122,7 @@
      "rail_low_reads_high": 7.947,
      "rail_high_reads_low": 14.698
     },
-    "heatsink_linear_sum_reads_high_K": 12.28,
+    "heatsink_linear_sum_reads_high_K": 16.76,
     "pt100_terms_K": {
      "class_F0.15": 0.16,
      "rref_0.1pct_25ppm": 0.397,
@@ -1130,21 +1130,21 @@
      "self_heating_correction": 0.061
     },
     "false_latch_stack_K": {
-     "heatsink_corner_reads_high": 10.813,
+     "heatsink_corner_reads_high": 13.184,
      "pt100_reads_low": 0.72,
      "soak_heatsink_above_ambient": 1.541,
      "soak_pt100_below_ambient": 0.385,
      "standby_offset": 1.0
     },
-    "false_latch_total_K": 14.46,
+    "false_latch_total_K": 16.83,
     "miss_stack_K": {
-     "heatsink_corner_reads_low": 19.661,
+     "heatsink_corner_reads_low": 33.688,
      "pt100_reads_high": 0.659,
      "pt100_off_pan_self_heating": 2.606,
      "soak_heatsink_below_ambient": 1.541,
      "soak_pt100_above_ambient": 0.385
     },
-    "miss_total_K": 24.85
+    "miss_total_K": 38.88
    },
    {
     "T_C": 7.5,
@@ -1167,7 +1167,7 @@
      "rail_low_reads_high": 7.277,
      "rail_high_reads_low": 12.537
     },
-    "heatsink_linear_sum_reads_high_K": 11.12,
+    "heatsink_linear_sum_reads_high_K": 15.2,
     "pt100_terms_K": {
      "class_F0.15": 0.165,
      "rref_0.1pct_25ppm": 0.401,
@@ -1175,21 +1175,21 @@
      "self_heating_correction": 0.061
     },
     "false_latch_stack_K": {
-     "heatsink_corner_reads_high": 10.03,
+     "heatsink_corner_reads_high": 12.258,
      "pt100_reads_low": 0.729,
      "soak_heatsink_above_ambient": 1.541,
      "soak_pt100_below_ambient": 0.385,
      "standby_offset": 1.0
     },
-    "false_latch_total_K": 13.69,
+    "false_latch_total_K": 15.91,
     "miss_stack_K": {
-     "heatsink_corner_reads_low": 16.632,
+     "heatsink_corner_reads_low": 26.111,
      "pt100_reads_high": 0.668,
      "pt100_off_pan_self_heating": 2.621,
      "soak_heatsink_below_ambient": 1.541,
      "soak_pt100_above_ambient": 0.385
     },
-    "miss_total_K": 21.85
+    "miss_total_K": 31.33
    },
    {
     "T_C": 10.0,
@@ -1212,7 +1212,7 @@
      "rail_low_reads_high": 6.656,
      "rail_high_reads_low": 10.85
     },
-    "heatsink_linear_sum_reads_high_K": 10.13,
+    "heatsink_linear_sum_reads_high_K": 13.84,
     "pt100_terms_K": {
      "class_F0.15": 0.17,
      "rref_0.1pct_25ppm": 0.405,
@@ -1220,21 +1220,21 @@
      "self_heating_correction": 0.061
     },
     "false_latch_stack_K": {
-     "heatsink_corner_reads_high": 9.307,
+     "heatsink_corner_reads_high": 11.39,
      "pt100_reads_low": 0.738,
      "soak_heatsink_above_ambient": 1.541,
      "soak_pt100_below_ambient": 0.385,
      "standby_offset": 1.0
     },
-    "false_latch_total_K": 12.97,
+    "false_latch_total_K": 15.05,
     "miss_stack_K": {
-     "heatsink_corner_reads_low": 14.347,
+     "heatsink_corner_reads_low": 21.436,
      "pt100_reads_high": 0.677,
      "pt100_off_pan_self_heating": 2.637,
      "soak_heatsink_below_ambient": 1.541,
      "soak_pt100_above_ambient": 0.385
     },
-    "miss_total_K": 19.59
+    "miss_total_K": 26.68
    },
    {
     "T_C": 12.5,
@@ -1257,7 +1257,7 @@
      "rail_low_reads_high": 6.097,
      "rail_high_reads_low": 9.472
     },
-    "heatsink_linear_sum_reads_high_K": 9.25,
+    "heatsink_linear_sum_reads_high_K": 12.63,
     "pt100_terms_K": {
      "class_F0.15": 0.175,
      "rref_0.1pct_25ppm": 0.409,
@@ -1265,21 +1265,21 @@
      "self_heating_correction": 0.061
     },
     "false_latch_stack_K": {
-     "heatsink_corner_reads_high": 8.644,
+     "heatsink_corner_reads_high": 10.591,
      "pt100_reads_low": 0.747,
      "soak_heatsink_above_ambient": 1.541,
      "soak_pt100_below_ambient": 0.385,
      "standby_offset": 1.0
     },
-    "false_latch_total_K": 12.32,
+    "false_latch_total_K": 14.27,
     "miss_stack_K": {
-     "heatsink_corner_reads_low": 12.543,
+     "heatsink_corner_reads_low": 18.131,
      "pt100_reads_high": 0.686,
      "pt100_off_pan_self_heating": 2.652,
      "soak_heatsink_below_ambient": 1.541,
      "soak_pt100_above_ambient": 0.385
     },
-    "miss_total_K": 17.81
+    "miss_total_K": 23.39
    },
    {
     "T_C": 15.0,
@@ -1302,7 +1302,7 @@
      "rail_low_reads_high": 5.583,
      "rail_high_reads_low": 8.347
     },
-    "heatsink_linear_sum_reads_high_K": 8.47,
+    "heatsink_linear_sum_reads_high_K": 11.54,
     "pt100_terms_K": {
      "class_F0.15": 0.18,
      "rref_0.1pct_25ppm": 0.412,
@@ -1310,21 +1310,21 @@
      "self_heating_correction": 0.061
     },
     "false_latch_stack_K": {
-     "heatsink_corner_reads_high": 8.028,
+     "heatsink_corner_reads_high": 9.854,
      "pt100_reads_low": 0.756,
      "soak_heatsink_above_ambient": 1.541,
      "soak_pt100_below_ambient": 0.385,
      "standby_offset": 1.0
     },
-    "false_latch_total_K": 11.71,
+    "false_latch_total_K": 13.54,
     "miss_stack_K": {
-     "heatsink_corner_reads_low": 11.092,
+     "heatsink_corner_reads_low": 15.661,
      "pt100_reads_high": 0.695,
      "pt100_off_pan_self_heating": 2.666,
      "soak_heatsink_below_ambient": 1.541,
      "soak_pt100_above_ambient": 0.385
     },
-    "miss_total_K": 16.38
+    "miss_total_K": 20.95
    },
    {
     "T_C": 20.0,
@@ -1347,7 +1347,7 @@
      "rail_low_reads_high": 4.694,
      "rail_high_reads_low": 6.606
     },
-    "heatsink_linear_sum_reads_high_K": 7.15,
+    "heatsink_linear_sum_reads_high_K": 9.71,
     "pt100_terms_K": {
      "class_F0.15": 0.19,
      "rref_0.1pct_25ppm": 0.42,
@@ -1355,21 +1355,21 @@
      "self_heating_correction": 0.061
     },
     "false_latch_stack_K": {
-     "heatsink_corner_reads_high": 6.96,
+     "heatsink_corner_reads_high": 8.551,
      "pt100_reads_low": 0.773,
      "soak_heatsink_above_ambient": 1.541,
      "soak_pt100_below_ambient": 0.385,
      "standby_offset": 1.0
     },
-    "false_latch_total_K": 10.66,
+    "false_latch_total_K": 12.25,
     "miss_stack_K": {
-     "heatsink_corner_reads_low": 8.895,
+     "heatsink_corner_reads_low": 12.144,
      "pt100_reads_high": 0.712,
      "pt100_off_pan_self_heating": 2.696,
      "soak_heatsink_below_ambient": 1.541,
      "soak_pt100_above_ambient": 0.385
     },
-    "miss_total_K": 14.23
+    "miss_total_K": 17.48
    },
    {
     "T_C": 25.0,
@@ -1392,7 +1392,7 @@
      "rail_low_reads_high": 3.969,
      "rail_high_reads_low": 5.323
     },
-    "heatsink_linear_sum_reads_high_K": 6.11,
+    "heatsink_linear_sum_reads_high_K": 8.26,
     "pt100_terms_K": {
      "class_F0.15": 0.2,
      "rref_0.1pct_25ppm": 0.427,
@@ -1400,21 +1400,21 @@
      "self_heating_correction": 0.061
     },
     "false_latch_stack_K": {
-     "heatsink_corner_reads_high": 6.078,
+     "heatsink_corner_reads_high": 7.463,
      "pt100_reads_low": 0.791,
      "soak_heatsink_above_ambient": 1.541,
      "soak_pt100_below_ambient": 0.385,
      "standby_offset": 1.0
     },
-    "false_latch_total_K": 9.8,
+    "false_latch_total_K": 11.18,
     "miss_stack_K": {
-     "heatsink_corner_reads_low": 7.307,
+     "heatsink_corner_reads_low": 9.753,
      "pt100_reads_high": 0.73,
      "pt100_off_pan_self_heating": 2.725,
      "soak_heatsink_below_ambient": 1.541,
      "soak_pt100_above_ambient": 0.385
     },
-    "miss_total_K": 12.69
+    "miss_total_K": 15.13
    },
    {
     "T_C": 30.0,
@@ -1437,7 +1437,7 @@
      "rail_low_reads_high": 3.376,
      "rail_high_reads_low": 4.374
     },
-    "heatsink_linear_sum_reads_high_K": 5.44,
+    "heatsink_linear_sum_reads_high_K": 7.26,
     "pt100_terms_K": {
      "class_F0.15": 0.21,
      "rref_0.1pct_25ppm": 0.435,
@@ -1445,21 +1445,21 @@
      "self_heating_correction": 0.061
     },
     "false_latch_stack_K": {
-     "heatsink_corner_reads_high": 5.482,
+     "heatsink_corner_reads_high": 6.685,
      "pt100_reads_low": 0.808,
      "soak_heatsink_above_ambient": 1.541,
      "soak_pt100_below_ambient": 0.385,
      "standby_offset": 1.0
     },
-    "false_latch_total_K": 9.22,
+    "false_latch_total_K": 10.42,
     "miss_stack_K": {
-     "heatsink_corner_reads_low": 6.318,
+     "heatsink_corner_reads_low": 8.246,
      "pt100_reads_high": 0.747,
      "pt100_off_pan_self_heating": 2.753,
      "soak_heatsink_below_ambient": 1.541,
      "soak_pt100_above_ambient": 0.385
     },
-    "miss_total_K": 11.75
+    "miss_total_K": 13.67
    },
    {
     "T_C": 35.0,
@@ -1482,7 +1482,7 @@
      "rail_low_reads_high": 2.892,
      "rail_high_reads_low": 3.649
     },
-    "heatsink_linear_sum_reads_high_K": 4.94,
+    "heatsink_linear_sum_reads_high_K": 6.49,
     "pt100_terms_K": {
      "class_F0.15": 0.22,
      "rref_0.1pct_25ppm": 0.443,
@@ -1490,21 +1490,21 @@
      "self_heating_correction": 0.061
     },
     "false_latch_stack_K": {
-     "heatsink_corner_reads_high": 5.023,
+     "heatsink_corner_reads_high": 6.071,
      "pt100_reads_low": 0.826,
      "soak_heatsink_above_ambient": 1.541,
      "soak_pt100_below_ambient": 0.385,
      "standby_offset": 1.0
     },
-    "false_latch_total_K": 8.78,
+    "false_latch_total_K": 9.82,
     "miss_stack_K": {
-     "heatsink_corner_reads_low": 5.597,
+     "heatsink_corner_reads_low": 7.16,
      "pt100_reads_high": 0.765,
      "pt100_off_pan_self_heating": 2.781,
      "soak_heatsink_below_ambient": 1.541,
      "soak_pt100_above_ambient": 0.385
     },
-    "miss_total_K": 11.07
+    "miss_total_K": 12.63
    },
    {
     "T_C": 40.0,
@@ -1527,7 +1527,7 @@
      "rail_low_reads_high": 2.496,
      "rail_high_reads_low": 3.086
     },
-    "heatsink_linear_sum_reads_high_K": 4.57,
+    "heatsink_linear_sum_reads_high_K": 5.9,
     "pt100_terms_K": {
      "class_F0.15": 0.23,
      "rref_0.1pct_25ppm": 0.45,
@@ -1535,21 +1535,21 @@
      "self_heating_correction": 0.061
     },
     "false_latch_stack_K": {
-     "heatsink_corner_reads_high": 4.676,
+     "heatsink_corner_reads_high": 5.595,
      "pt100_reads_low": 0.843,
      "soak_heatsink_above_ambient": 1.541,
      "soak_pt100_below_ambient": 0.385,
      "standby_offset": 1.0
     },
-    "false_latch_total_K": 8.45,
+    "false_latch_total_K": 9.37,
     "miss_stack_K": {
-     "heatsink_corner_reads_low": 5.074,
+     "heatsink_corner_reads_low": 6.368,
      "pt100_reads_high": 0.782,
      "pt100_off_pan_self_heating": 2.808,
      "soak_heatsink_below_ambient": 1.541,
      "soak_pt100_above_ambient": 0.385
     },
-    "miss_total_K": 10.59
+    "miss_total_K": 11.89
    },
    {
     "T_C": 45.0,
@@ -1572,7 +1572,7 @@
      "rail_low_reads_high": 2.176,
      "rail_high_reads_low": 2.643
     },
-    "heatsink_linear_sum_reads_high_K": 4.31,
+    "heatsink_linear_sum_reads_high_K": 5.46,
     "pt100_terms_K": {
      "class_F0.15": 0.24,
      "rref_0.1pct_25ppm": 0.458,
@@ -1580,29 +1580,30 @@
      "self_heating_correction": 0.061
     },
     "false_latch_stack_K": {
-     "heatsink_corner_reads_high": 4.433,
+     "heatsink_corner_reads_high": 5.244,
      "pt100_reads_low": 0.861,
      "soak_heatsink_above_ambient": 1.541,
      "soak_pt100_below_ambient": 0.385,
      "standby_offset": 1.0
     },
-    "false_latch_total_K": 8.22,
+    "false_latch_total_K": 9.03,
     "miss_stack_K": {
-     "heatsink_corner_reads_low": 4.697,
+     "heatsink_corner_reads_low": 5.785,
      "pt100_reads_high": 0.8,
      "pt100_off_pan_self_heating": 2.835,
      "soak_heatsink_below_ambient": 1.541,
      "soak_pt100_above_ambient": 0.385
     },
-    "miss_total_K": 10.26
+    "miss_total_K": 11.35
    }
   ],
-  "threshold_K": 14.5,
+  "threshold_K": 16.9,
   "worst_row_T_C": 5.0,
   "soak_residual_K": {
    "heatsink": 1.541,
    "pt100": 0.385
-  }
+  },
+  "rail_read_tol_pct": 0.9334
  },
  "soak_timing": {
   "tau_estimates_s": {
@@ -1644,6 +1645,8 @@
   "divider_fault_level_above_intact_reading": true,
   "divider_bottom_open_agrees_with_c45_0p5K": true,
   "threshold_in_pan_cold_soak_h": true,
+  "threshold_measured_in_pan_cold_soak_h": true,
+  "measured_threshold_below_fallback": true,
   "soak_constants_in_pan_cold_soak_h": true,
   "heatsink_valid_over_the_band_at_the_false_corner": true
  },

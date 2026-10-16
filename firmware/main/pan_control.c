@@ -57,6 +57,7 @@ static uint32_t s_soak_begin_ms;
 static float s_soak_pt_c;
 static bool s_soak_hs_valid;
 static float s_soak_hs_c;
+static bool s_soak_rail_measured;   /* the heatsink reading used a measured rail (D-RAIL) */
 static pcs_result_t s_soak_res;
 static bool s_soak_latched;
 static bool s_soak_have_note;
@@ -227,7 +228,7 @@ void pan_control_soak_note(uint32_t now_ms)
     s_soak_last_note_ms = now_ms;
     hs_ntc_reading_t hs;
     const bool hs_valid = read_heatsink_ntc(&hs);
-    pcs_note(&s_pcs, now_ms, coil_active, soak_reading(), hs_valid, hs.t_c);
+    pcs_note_rail(&s_pcs, now_ms, coil_active, soak_reading(), hs_valid, hs.t_c, !hs.rail_nominal);
 }
 
 void pan_control_soak_restart(void)
@@ -261,7 +262,7 @@ bool pan_control_cold_soak_clearable(void)
     }
     hs_ntc_reading_t hs;
     const bool hs_valid = read_heatsink_ntc(&hs);
-    return pcs_agrees(&s_pcs, soak_reading(), hs_valid, hs.t_c);
+    return pcs_agrees_rail(&s_pcs, soak_reading(), hs_valid, hs.t_c, !hs.rail_nominal);
 }
 
 bool pan_control_rate_sample(float reading_c, uint32_t now_ms)
@@ -311,6 +312,7 @@ void pan_control_begin(void)
         hs_ntc_reading_t hs;
         s_soak_hs_valid = read_heatsink_ntc(&hs);
         s_soak_hs_c = hs.t_c;
+        s_soak_rail_measured = !hs.rail_nominal;
     }
     s_soak_pending = true;
     s_soak_latched = false;
@@ -363,8 +365,8 @@ pan_control_status_t pan_control_step(float setpoint_c, uint8_t intensity_level)
     /* D-SOAK: the session's first period, before any power is commanded. */
     if (s_soak_pending) {
         s_soak_pending = false;
-        s_soak_res = pcs_evaluate(&s_pcs_begin, s_soak_begin_ms, s_soak_pt_c, s_soak_hs_valid, s_soak_hs_c,
-                                  s_rim_rd.state == RIM_NTC_SATURATED);
+        s_soak_res = pcs_evaluate_rail(&s_pcs_begin, s_soak_begin_ms, s_soak_pt_c, s_soak_hs_valid,
+                                       s_soak_hs_c, s_rim_rd.state == RIM_NTC_SATURATED, s_soak_rail_measured);
         if (s_soak_res.verdict == PCS_LEAK) {
             s_soak_latched = true;
             s_p_applied_w = 0.0f;

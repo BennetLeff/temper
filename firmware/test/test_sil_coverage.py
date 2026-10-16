@@ -36,11 +36,14 @@ fault paths in different ways:
   3. C1_SUPPLEMENTAL_PAIRS (C1 only) -- the C1 converter service
      (rtd_service.c) reports register-07h, DRDY-stale and frozen-code faults
      from every state, so C1 adds IDLE (a non-power state, where no legacy
-     interlock runs) as a representative origin for those classes.
+     interlock runs) as a representative origin for those classes, and
+     INIT for FAULT_PROBE_OPEN: the power-up manual fault-detection cycle
+     (D-FCYC) reports a wiring fault before the machine leaves INIT.
 
 C1 also replaces rules, not only paths, so a second C1 matrix is gated:
 C1_MECHANISMS x origin (R1, the absolute 300 degC check, supervisor R2
-stages 1/2a/2b, register 07h, DRDY stale, frozen code, the current-sense
+stages 1/2a/2b, register 07h, DRDY stale, frozen code, the manual
+fault-detection cycle at power-up and on a reset request, the current-sense
 checks (a) and (b), and the probe-leakage latch). A scenario covers a
 cell through its manifest "c1_mechanism"; the C1 runner checks the attribution
 where the firmware exposes it (supervisor latch, reading at the trip, 07h,
@@ -124,6 +127,9 @@ _C1_RIMLIM = ("pan_control_step() setpoint-relative rim limit (components/contro
               "first PREHEAT period")
 C1_SUPPLEMENTAL_PAIRS = {
     ("FAULT_PROBE_OPEN", "IDLE"): _C1_SERVICE,
+    ("FAULT_PROBE_OPEN", "INIT"): ("rtd_service_bootstrap()/control tick (C1): the power-up manual "
+                                   "fault-detection cycle, coil off (DECISIONS D-FCYC) -> "
+                                   "state_machine_report_rtd_device_fault()"),
     ("FAULT_PROBE_SHORT", "IDLE"): _C1_SERVICE,
     ("FAULT_ADC_STUCK", "IDLE"): _C1_SERVICE,
     ("FAULT_CURRENT_SENSE", "PREHEAT"): _C1_ISENSE,
@@ -147,6 +153,11 @@ C1_MECHANISMS = {
     "rtd-07h": (("IDLE", "PREHEAT", "HEATING"),
                 "MAX31865 threshold fault, register 07h (C1 window)"),
     "rtd-stale": (("IDLE", "HEATING"), "no DRDY for 60 ms"),
+    "rtd-fault-cycle": (("INIT",), "the power-up manual fault-detection cycle (07h D5..D2), coil off "
+                                   "(D-FCYC)"),
+    "rtd-fault-cycle-reset": (("IDLE",), "the manual fault-detection cycle a reset request runs "
+                                         "refuses the reset on a wiring fault the conversion "
+                                         "window misses (D-FCYC, D-RESET)"),
     "rtd-frozen": (("IDLE", "PREHEAT", "HEATING"), "250 identical conversions"),
     "isense-run": (("PREHEAT", "HEATING"),
                    "current-sense check (a): >= 300 W commanded, bus current near 0 A for 0.5 s"),
@@ -322,12 +333,12 @@ def render_matrix(designed: dict, covered: dict) -> str:
 
 
 def render_mechanisms(cells: dict) -> tuple[str, int, int]:
-    origins = ("IDLE", "PREHEAT", "HEATING")
-    header = "C1 mechanism".ljust(16) + "".join(o.ljust(11) for o in origins)
+    origins = ("INIT", "IDLE", "PREHEAT", "HEATING")
+    header = "C1 mechanism".ljust(22) + "".join(o.ljust(11) for o in origins)
     lines = [header, "-" * len(header)]
     required = covered = 0
     for mech, (need, _why) in C1_MECHANISMS.items():
-        row = mech.ljust(16)
+        row = mech.ljust(22)
         for o in origins:
             if o not in need:
                 cell = "."

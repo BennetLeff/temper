@@ -91,7 +91,7 @@ typedef struct {
     float dt_s;                  /**< 0.1 */
     float r_pullup_ohm;          /**< 1000 */
     float v3v3_nominal_mv;       /**< 3300 */
-    float v3v3_min_mv;           /**< 3200: below, the rail reading is not used */
+    float v3v3_min_mv;           /**< 3195 (rail_adc.h window): below, the rail reading is not used */
     float v3v3_max_mv;           /**< 3420 */
     float atten0_below_mv;       /**< 800  (CR-7) */
     float atten2_below_mv;       /**< 1550 (CR-7) */

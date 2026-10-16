@@ -22,7 +22,7 @@ void hs_ntc_default_params(hs_ntc_params_t *p)
     p->r_pullup_ohm = 10000.0f;
     p->adc_gain = HS_NTC_ADC_GAIN;
     p->v3v3_nominal_mv = 3300.0f;
-    p->v3v3_min_mv = 3200.0f;
+    p->v3v3_min_mv = 3195.0f;   /* rail_adc.h RAIL_ADC_V3V3_MIN_MV: every MEASURED reading is used */
     p->v3v3_max_mv = 3420.0f;
     p->v3v3_contract_max_mv = 3367.0f;
     p->atten0_below_mv = 800.0f;

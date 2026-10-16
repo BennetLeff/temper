@@ -1677,7 +1677,7 @@
   },
   {
     "name": "SIL: C1 RTD Probe Open Then Reconnected (IDLE)",
-    "description": "In IDLE the Pt100 opens (15 kohm) at tick 20 and reconnects at tick 40. FAULT_PROBE_OPEN latches without RUNAWAY; once the sensor reads good again a reset is accepted (register 07h is cleared on the reset request and must read clean on a later conversion) and the machine returns to IDLE with the power at 0 throughout.",
+    "description": "In IDLE the Pt100 opens (15 kohm) at tick 20 and reconnects at tick 40. FAULT_PROBE_OPEN latches without RUNAWAY; once the sensor reads good again a reset is accepted: the reset request clears register 07h and runs a manual fault-detection cycle with the coil off (D-FCYC), and the reset is accepted only after that cycle reads 07h = 0 and a later conversion is unflagged; the machine returns to IDLE with the power at 0 throughout.",
     "trace_file": "trace_c1_probe_open_reconnect_idle.csv",
     "origin_state": "IDLE",
     "initial_conditions": {
@@ -1712,6 +1712,83 @@
     ],
     "c1_mechanism": "rtd-07h",
     "c1_only_reason": "The recoverable path of DECISIONS D-OPEN: the C1 service latches register 07h until the reset policy clears it. The legacy SIL target does not link the converter service."
+  },
+  {
+    "name": "SIL: C1 RTD FORCE- Open At Power-Up (INIT)",
+    "description": "The MAX31865 FORCE- input is open from power-up (a broken lead the conversion cannot see once the ratio clamps). The power-up manual fault-detection cycle (CONFIG 0x88 then 0x8C, 5.5 ms apart, coil off, D-FCYC) flags 07h D5 (REFIN- > 0.85 VBIAS with FORCE- closed) and the machine latches FAULT_PROBE_OPEN without leaving INIT; the service stops, so a reset is refused until a power cycle (D-RESET). The SPI mock models the CR-1 input settling: an automatic cycle would flag a healthy input.",
+    "trace_file": "trace_c1_power_up_fault_cycle_init.csv",
+    "origin_state": "INIT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 0,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_OPEN",
+      "max_latency_ticks": 1,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_OPEN"
+        }
+      ],
+      "hold_state": true
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_afe_input": "force_n_open",
+    "c1_mechanism": "rtd-fault-cycle",
+    "c1_only_reason": "The manual fault-detection cycle is the C1 converter service's (zapote C37, CR-1 input filter); the legacy SIL target does not link the service."
+  },
+  {
+    "name": "SIL: C1 RTD Reconnected With S- Shorted To Ground, Reset Refused (IDLE)",
+    "description": "As the reconnect scenario, but the probe comes back at tick 40 with its RTDIN- lead shorted to ground. The conversions read in the 84.27/233.21 ohm window again (the short adds the lead and FORCE- switch, about 12 ohm), so the window alone would allow the reset; the reset request's manual fault-detection cycle flags 07h D3 (RTDIN- < 0.85 VBIAS with FORCE- open) and the reset is refused, the coil off throughout (D-FCYC, D-RESET).",
+    "trace_file": "trace_c1_probe_open_reconnect_idle.csv",
+    "origin_state": "IDLE",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 20,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_OPEN",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_OPEN"
+        }
+      ],
+      "hold_state": true
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_afe_input": "sense_n_to_gnd",
+    "c1_afe_input_at_tick": 40,
+    "c1_mechanism": "rtd-fault-cycle-reset",
+    "c1_only_reason": "The reset-time manual fault-detection cycle is the C1 converter service's (D-FCYC); the legacy SIL target does not link the service."
   },
   {
     "name": "SIL: C1 RTD No DRDY (IDLE)",
