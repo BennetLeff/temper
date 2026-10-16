@@ -970,7 +970,8 @@ items 10–11 and `../leak-barrier/` carry the peak-rule numbers.
 
 *Superseded in part by D-RIMLIM:* the setpoint-relative rim limit latches 69
 of the 277 hazardous runs before 300 °C (peak rule). The bar is still not
-met. The numbers below are this rule's alone, as first recorded under the
+met by firmware; D-BARRIER (2026-10-16) assigns it to the sensor's
+construction and tests, with no setpoint cap and CR-5 unchanged. The numbers below are this rule's alone, as first recorded under the
 steady rule, and are not regenerated.
 
 **The hazard.** A leak in parallel with the element reads low and is an
@@ -2353,6 +2354,86 @@ of uptime before any power and PREHEAT revokes the token; the same unit
 without a token skips; a failing erase does not stop heating. SIL: the
 power-cycle scenario in D-SOAK.
 
+## D-BARRIER. The 300 °C leak bar is met by construction and test; no setpoint cap; CR-5 unchanged (2026-10-16)
+
+**The bar (owner).** Every element-parallel Pt100 leak whose untripped pan
+temperature would exceed 300 °C at any time, transient overshoot included
+(`leak_checks.hazardous()`, owner 2026-10-16, D-LEAK), must be stopped
+before the pan first exceeds 300 °C. At the 250 °C setpoint that is 277 of
+the sweep's 624 leak runs, 300 Ω–2.32 kΩ (`leak-checks.json`
+`summary.leak.all_onsets.hazardous_runs`, `highest_r_hazardous_ohm`).
+
+**Decision.** The bar is carried by the sensor's construction and its tests
+(`../leak-barrier/SPEC.md`, T1). Firmware latches and the CR-5 hardware rim
+trip stay as partial, independent second layers. No maximum-setpoint cap is
+adopted for this hazard, and CR-5 stays at 86.6 k (today's band,
+262.3–288.1 °C glass).
+
+**1. Construction and test (T1, `../leak-barrier/leak-barrier.json`).**
+- Hot-zone insulation ≥ 10 MΩ at 300 °C between leads and across the
+  element (`insulation.minimum_ohm`, `insulation.test_C`): 4311× the largest
+  hazardous leak (`leak-checks.json`
+  `summary.requirements.ratio_10Mohm_to_highest_hazardous`; T1's unrounded
+  ratio is 4310.53×).
+- Production, every cartridge: hot IR on the lead/separator subassembly
+  before the element is joined, a common-mode IR after assembly, and a hot
+  accuracy check against an independent reference. The ±0.5 K hot check
+  rejects any parallel path below 83.9 kΩ under the full masking budget
+  (`accuracy_acceptance[1].full_mask_budget_boundary_ohm`; 36.2× the hazard,
+  `full_budget_margin_to_sampled_hazard`), 252 kΩ ideally. A path across the
+  element cannot be measured in circuit; the pre-join IR, supplier process
+  control and witness coupons carry it (SPEC.md).
+- Qualification: 3 lots, 24 assemblies per stress group, 192 in all
+  (`qualification.lots`, `per_group_assemblies`, `total_assemblies`), 0
+  failures allowed; damp heat (steady and cyclic), thermal cycling, wash,
+  oil/fat at temperature and a combined sequence; afterwards still ≥ 10 MΩ
+  at 300 °C and within ±0.5 K. Zero failures in 24 bounds the failure
+  fraction at 11.7 % (95 %, `zero_failure_binomial_upper_failure_fraction`).
+- Not yet evidence: the fused-silica capillary's ~100 MΩ at 350 °C
+  (`insulation.candidate_status`: pending supplier confirmation), an ageing
+  rate (the lifetime table is conditional), and the qualification
+  severities (the IEC method texts were not read). Open items 19–21.
+
+**2. No setpoint cap (T2, `../leak-barrier/setpoint-cap.json`
+`combined_table`).** Firmware latches before the bar, by maximum setpoint:
+
+| Cap °C | Nominal: before / hazardous | Worst corner: before / hazardous | Never, nominal / worst |
+|---|---|---|---|
+| 200 | 99 / 179 (55.3 %) | 14 / 90 (15.6 %) | 0 / 0 |
+| 210 | 83 / 180 (46.1 %) | 9 / 90 (10.0 %) | 0 / 0 |
+| 220 | 91 / 211 (43.1 %) | 9 / 108 (8.3 %) | 0 / 9 |
+| 230 | 71 / 213 (33.3 %) | 6 / 108 (5.6 %) | 0 / 9 |
+| 240 | 72 / 247 (29.1 %) | 6 / 126 (4.8 %) | 9 / 18 |
+| 250 | 69 / 277 (24.9 %) | 3 / 137 (2.2 %) | 4 / 21 |
+
+No cap meets the bar. At the worst corner coverage stays ≤ 15.6 % even at
+200 °C, the never-caught counts are not monotonic in the cap (nominal: 9
+at 240 °C against 4 at 250 °C), and a cap gives up searing range. A cap is
+not adopted for this hazard.
+
+**3. CR-5 unchanged (T3, `../leak-barrier/cr5-band.json`).** For each cap,
+the lowest band that keeps today's width and today's 15.8 K margin over the
+hottest benign glass (`board_owner`, `control.reported_margin_K`): 200 °C
+215.9–241.7, 210 °C 224.8–250.6, 220 °C 234.2–260.0, 230 °C 243.7–269.5,
+240 °C 253.1–278.9, 250 °C 262.3–288.1 °C glass. At every cap and in every
+cohort (nominal, worst corner, offset worst corner) the band top reaches the
+glass before the bar only in runs firmware had already latched before the
+bar: CR-5 adds 0 (`caps.<cap>.<cohort>.all.cr5_adds_over_firmware`). A
+retuned band buys no timing coverage, so CR-5 stays at 86.6 k as the
+independent trip if the MCU fails, not as a leak detector. (This leaves
+zapote/controller item 21, the bench glass measurement, as the only reason
+to move CR-5.)
+
+**4. Firmware as the second layer.** The leak chain (D-LEAK), the rim limit
+(D-RIMLIM) and the cold soak (D-SOAK) stay enabled. At 250 °C they latch 69
+of 277 hazardous runs before the bar and all but 4 eventually; the cold soak
+catches leaks already present when the unit is cold (D-SOAK). None of them
+is credited as meeting the bar.
+
+**Benign runs.** No false latch at any cap in T2 or T3. T3's stress-benign
+set also shows D1 LOST power cuts at 230 °C (1 run) and 250 °C (2 runs)
+(`caps.<cap>.benign.d1_lost`); open item 18.
+
 ## Open items for the firmware owner
 
 1. **The ESP-IDF target links** (resolved 2026-10-15, branch
@@ -2477,8 +2558,10 @@ power-cycle scenario in D-SOAK.
    with pan bow) is not observable by the window or D1, and needs the rim
    cross-check or the mechanical margin.
 10. **Element-parallel leakage: two firmware latches now exist (D-LEAK,
-    D-RIMLIM), and the 300 °C bar is still not met.** With the
-    setpoint-relative rim limit in the loop (`leak-checks.json`):
+    D-RIMLIM), and the 300 °C bar is still not met by firmware.** Decided
+    by D-BARRIER (2026-10-16): construction and test carry the bar, no
+    setpoint cap, CR-5 unchanged; what remains is open items 18–21. With
+    the setpoint-relative rim limit in the loop (`leak-checks.json`):
     - hazardous counts transient overshoot from 2026-10-16 (D-LEAK): 277
       runs, 300 Ω–2.32 kΩ (235 and 1.73 kΩ under the steady rule);
     - 69 of 277 latch before the pan passes 300 °C (7 of 235 before
@@ -2591,3 +2674,35 @@ power-cycle scenario in D-SOAK.
     coil never runs. D-BRINGUP lists what the power stage's driver must do:
     burst start ≥ 1.02 × last resonance, RUN_EN only with the gates idle,
     PWM_HA loop-back for the PLL capture, and pan evidence.
+
+18. **D1 LOST power cuts on benign stress runs** (D-BARRIER; T3,
+    `../leak-barrier/cr5-band.json` `caps.<cap>.benign.d1_lost_runs`). The
+    rim study's stress-benign set had never been checked for D1. Three runs
+    lose contact, all `sp_down` (setpoint lowered 100 K at 900 s) at the
+    `hot_stack` corner with τ_g 106 s:
+    - cap 230 °C: carbon_steel_28, seed 40017, LOST at 1177.9 s (T_c
+      133.0 °C, glass 146.8 °C);
+    - cap 250 °C: carbon_steel_28, seed 40014, LOST at 1195.5 s (T_c
+      150.2 °C, glass 165.6 °C);
+    - cap 250 °C: cast_iron_26, seed 40020, LOST at 1261.6 s (T_c
+      150.7 °C, glass 165.7 °C).
+
+    In each, the controller was applying power (mean 450.0 W over the 10 s
+    before LOST, `p_cmd_mean_10s_before_lost_W`) and power stayed off for
+    25.0 s (`power_off_s`, until p_cmd is next above zero), once per run.
+    Nothing latches; power returns when the retry probe passes. A usability
+    item, not a safety one: D1 reads a reading falling under power, with
+    the glass above the pan after a setpoint drop, as a lift. T3's gate
+    holds the count (`gate.benign_d1_lost_as_recorded`, cr5_band.py
+    `D1_LOST_RECORDED`).
+19. **Supplier confirmation of the hot-zone insulation** (D-BARRIER, T1):
+    the fused-silica 4-bore capillary's ~100 MΩ at 350 °C, with geometry,
+    atmosphere, voltage, cleanliness, lot spread and ageing
+    (`../leak-barrier/leak-barrier.json` `insulation.candidate_status`).
+20. **A measured ageing-rate anchor** for the assembled insulation and seal:
+    the T1 lifetime table is conditional without one (`ageing`,
+    `../leak-barrier/NOTES.md`).
+21. **Qualification severities from the licensed standards**, set by a test
+    lab: IEC 60068-2-78, -2-14 and -2-30 were named, not read
+    (`qualification.standard_text_read`); the wash and oil profiles are
+    engineering proposals.

@@ -53,6 +53,12 @@
 #      control against leak-checks / rim-limit / cold-soak, plus the 200 degC cap;
 #      about 10 min). The full check, every cap (about 30 min), is manual:
 #      python3 ../leak-barrier/setpoint_cap.py --check   (NOTES-t2.md)
+#   5e. CR-5 band with a setpoint cap under the peak hazard rule
+#      (../leak-barrier/cr5_band.py --check --caps 250,200: the 250 degC control
+#      against leak-checks / rim-limit, plus the 200 degC cap's band and
+#      coverage; about 16 min on the Mac under load). The full check, every cap
+#      (about 30 min), is manual:
+#      python3 ../leak-barrier/cr5_band.py --check   (NOTES-t3.md)
 #   6. plant-gain sensitivity (sensitivity.json, reported only)
 # Exits non-zero if any step fails. Build products go to a temp dir.
 set -eu
@@ -145,6 +151,11 @@ echo "== 5d. setpoint cap vs leak coverage, caps 250 and 200 (../leak-barrier, T
 "$py" "$here/../leak-barrier/setpoint_cap.py" --check --caps 250,200 > "$tmp/sc.log" 2>&1 \
     || { tail -20 "$tmp/sc.log"; exit 1; }
 tail -1 "$tmp/sc.log"
+
+echo "== 5e. CR-5 band vs leak coverage, caps 250 and 200 (../leak-barrier, T3)"
+"$py" "$here/../leak-barrier/cr5_band.py" --check --caps 250,200 > "$tmp/cr5.log" 2>&1 \
+    || { tail -20 "$tmp/cr5.log"; exit 1; }
+tail -1 "$tmp/cr5.log"
 
 echo "== 6. plant-gain sensitivity (reported, not gated)"
 "$py" "$here/sensitivity.py" --lib "$lib" --out "$here/sensitivity.json" > /dev/null
