@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Controls for the scorecard stock gate (bom_buildable_500 / bom_lines_short_at_500) and same-channel price comparison.
+"""Controls for the scorecard stock gate (bom_buildable_proto / bom_lines_short_proto, 20-board prototype; the 500-board
+shortfall is information only) and same-channel price comparison.
 
     python3 -I native-21/layout/gates/test_stock_gate.py
 
@@ -58,6 +59,10 @@ check("stock split over several distributors does not count (only the best singl
 check("not in the snapshot -> 0", bq(None) == 0)
 check("OWNER_PREORDER_CONSIGN -> 0 even with JLC stock", bq(srow(jlc=100000), flags="LOW_JLC_STOCK(50 < 500);OWNER_PREORDER_CONSIGN(>=550)") == 0)
 check("LONG_LEAD flag -> 0", bq(srow(jlc=100000), flags="LONG_LEAD(28 wk)") == 0)
+check("prototype count ignores OWNER_PREORDER_CONSIGN / LONG_LEAD: recorded stock is stock", sc.buildable_stock(
+    srow(jlc=50), flags="LOW_JLC_STOCK(50 < 500);OWNER_PREORDER_CONSIGN(>=550)", ignore_flags=True)[0] == 50)
+check("prototype count: broker-only still 0", sc.buildable_stock(srow(unauth=10**6), ignore_flags=True)[0] == 0)
+check("prototype count: zero-stock lead-time flag stays 0 (no recorded stock)", sc.buildable_stock(srow(), flags="LONG_LEAD(28 wk)", ignore_flags=True)[0] == 0)
 check("legacy LEAD_12wk survey note does not zero a line that has counted stock", bq(srow(jlc=100000), flags="LEAD_12wk;SINGLE_SOURCE") == 100000)
 
 with tempfile.TemporaryDirectory() as td:
@@ -72,33 +77,46 @@ with tempfile.TemporaryDirectory() as td:
         return td / name
 
     bom = write([{"Designator": "C1,C2", "Manufacturer Part Number": "OK"}, {"Designator": "U1", "Manufacturer Part Number": "PRE"},
-                 {"Designator": "R1,R2,R3", "Manufacturer Part Number": "LOW"}], "bom.csv", ["Designator", "Manufacturer Part Number"])
-    snap = write([{"mpn": "OK", **srow(jlc=1000)}, {"mpn": "PRE", **srow(jlc=5000)}, {"mpn": "LOW", **srow(jlc=1499)}],
+                 {"Designator": "R1,R2,R3", "Manufacturer Part Number": "LOW"}, {"Designator": "Q1", "Manufacturer Part Number": "BRK"}],
+                "bom.csv", ["Designator", "Manufacturer Part Number"])
+    snap = write([{"mpn": "OK", **srow(jlc=1000)}, {"mpn": "PRE", **srow(jlc=50)}, {"mpn": "LOW", **srow(jlc=59)},
+                  {"mpn": "BRK", **srow(unauth=10**6)}],
                  "snap.csv", ["mpn", "jlc_stock", "jlc_library", "auth_best_stock", "auth_total_stock", "unauth_max_stock"])
     stock = write([{"board": "power-19b", "mpn": "PRE", "flags": "OWNER_PREORDER_CONSIGN(>=550)"}], "stock.csv", ["board", "mpn", "flags"])
     g = sc.stock_gate(bom, snap, stock)
-    short = {l["mpn"]: l for l in g["bom_short_lines_500"]}
-    check("synthetic: exactly the pre-order line and the 1499 < 3 x 500 line fail", set(short) == {"PRE", "LOW"} and g["bom_lines_short_at_500"] == 2, g)
-    check("synthetic: need = qty_per_board x 500, listed with stock", short["LOW"]["need"] == 1500 and short["LOW"]["buildable"] == 1499
-          and short["PRE"]["need"] == 500 and short["PRE"]["buildable"] == 0 and short["PRE"]["jlc_stock"] == "5000")
+    sp = {l["mpn"]: l for l in g["bom_short_lines_proto"]}
+    s5 = {l["mpn"] for l in g["bom_short_lines_500"]}
+    check("synthetic proto: the pre-order line with 50 in stock passes 20 boards; 59 < 3 x 20 and broker-only fail",
+          set(sp) == {"LOW", "BRK"} and g["bom_lines_short_proto"] == 2 and g["bom_proto_boards"] == 20, g)
+    check("synthetic proto: need = qty_per_board x 20, listed with stock", sp["LOW"]["need"] == 60 and sp["LOW"]["buildable"] == 59
+          and sp["BRK"]["buildable"] == 0)
+    check("synthetic 500 (information): PRE (flag), LOW, BRK short; OK (1000 = 2 x 500) passes", s5 == {"PRE", "LOW", "BRK"} and g["bom_lines_short_at_500"] == 3, s5)
+    check("synthetic: --proto-boards changes the lot", sc.stock_gate(bom, snap, stock, 10)["bom_lines_short_proto"] == 1)
     check("synthetic: no snapshot -> no verdict", sc.stock_gate(bom, "", stock) == {})
 
 # ---- real data: s48
 g48 = sc.stock_gate(BOM48, SNAP48, STOCKS)
 mp48 = {l["mpn"]: l for l in g48["bom_short_lines_500"]}
-# Honest record of what the committed s48 snapshot says (nothing loosened to make s48 pass): 15 lines are short at 500 boards
+# Honest record of what the committed s48 snapshot says (nothing loosened to make s48 pass)
 EXPECT48 = {"KLDR025.TXP", "R463N410050N1K", "B82726S2203A020", "DE1E3RA222MA4BP01F", "B32676G1905K000", "6SVPC220MV",
             "PMEG6030EP,115", "IPW65R018CFD7", "CST3015-200ED", "B32654A1104J000", "AC05000001507JAC00", "C0603C102J5GACTU",
             "LM4050AEM3-2.5/NOPB", "1704004", "VOL628A-2X001T"}
-check("s48: the gate names the 15 short lines (they are real, listed in the report)", set(mp48) == EXPECT48, sorted(set(mp48) ^ EXPECT48))
-check("s48: old bank part B32654A1104J000 holds 881 of 2500", mp48["B32654A1104J000"]["buildable"] == 881 and mp48["B32654A1104J000"]["need"] == 2500)
-check("s48: LM4050 (U5) is zero by its OWNER_PREORDER_CONSIGN flag although JLC shows 50",
-      mp48["LM4050AEM3-2.5/NOPB"]["buildable"] == 0 and mp48["LM4050AEM3-2.5/NOPB"]["jlc_stock"] == "50")
-check("s48: every other BOM line passes", g48["bom_lines_short_at_500"] == 15)
+PROTO48 = {"B82726S2203A020", "DE1E3RA222MA4BP01F", "PMEG6030EP,115"}
+mp48 = {l["mpn"]: l for l in g48["bom_short_lines_proto"]}
+check("s48: three lines are short at 20 boards (L1 0 in stock, C3/C4 6 < 40, D6-D9 7 < 80)", set(mp48) == PROTO48, sorted(set(mp48) ^ PROTO48))
+check("s48: L1 B82726S2203A020 has no stock anywhere", mp48["B82726S2203A020"]["buildable"] == 0 and mp48["B82726S2203A020"]["need"] == 20)
+check("s48: LM4050 (U5) passes the prototype gate: 50 at JLC covers 20 boards despite OWNER_PREORDER_CONSIGN",
+      "LM4050AEM3-2.5/NOPB" not in mp48)
+check("s48: the old bank part passes the prototype gate (881 in stock)", "B32654A1104J000" not in mp48)
+m500 = {l["mpn"]: l for l in g48["bom_short_lines_500"]}
+check("s48 production lot (information only): the 15 lines short at 500 boards", set(m500) == EXPECT48, sorted(set(m500) ^ EXPECT48))
+check("s48 production lot: LM4050 is 0 by flag, old bank part 881 of 2500",
+      m500["LM4050AEM3-2.5/NOPB"]["buildable"] == 0 and m500["B32654A1104J000"]["buildable"] == 881)
 c48 = json.load(open(CARD48))
-check("s48 card carries the metric, the failing list and a failing release gate",
-      c48["cost"].get("bom_lines_short_at_500") == 15 and c48["gates"].get("bom_buildable_500") is False
-      and {l["mpn"] for l in c48["cost"]["bom_short_lines_500"]} == EXPECT48)
+check("s48 card carries the proto metric, the failing list and a failing release gate; the 500-board gate is gone",
+      c48["cost"].get("bom_lines_short_proto") == 3 and c48["gates"].get("bom_buildable_proto") is False
+      and "bom_buildable_500" not in c48["gates"] and c48["cost"].get("bom_lines_short_at_500") == 15
+      and {l["mpn"] for l in c48["cost"]["bom_short_lines_proto"]} == PROTO48)
 
 # ---- real data: the s49 swap (verbatim s49 snapshot row for B32643B8104J000, DECISIONS 68; flags from STOCK addendum s49)
 S49_ROW = {"mpn": "B32643B8104J000", "jlc_stock": "0", "jlc_library": "listed_no_stock", "auth_best_stock": "0.0",
@@ -125,10 +143,12 @@ with tempfile.TemporaryDirectory() as td:
         f.write("board,mpn,flags\n" + f'power-19b,B32643B8104J000,"{S49_FLAGS}"\n')
     g49 = sc.stock_gate(td / "bom49.csv", td / "snap49.csv", STOCKS + "," + str(td / "stock49.csv"))
     mp49 = {l["mpn"]: l for l in g49["bom_short_lines_500"]}
-    check("s49: B32643B8104J000 fails the gate: need 5 x 500 = 2500, buildable 0",
-          "B32643B8104J000" in mp49 and mp49["B32643B8104J000"]["need"] == 2500 and mp49["B32643B8104J000"]["buildable"] == 0, mp49.get("B32643B8104J000"))
+    mp49 = {l["mpn"]: l for l in g49["bom_short_lines_proto"]}
+    check("s49: B32643B8104J000 fails the prototype gate: need 5 x 20 = 100, buildable 0",
+          "B32643B8104J000" in mp49 and mp49["B32643B8104J000"]["need"] == 100 and mp49["B32643B8104J000"]["buildable"] == 0, mp49.get("B32643B8104J000"))
+    check("s49: LM4050 passes the prototype gate", "LM4050AEM3-2.5/NOPB" not in mp49)
     check("s49: broker stock (27,690) is not counted", mp49["B32643B8104J000"]["buildable"] == 0)
-    nof = sc.stock_gate(td / "bom49.csv", td / "snap49.csv", STOCKS)["bom_short_lines_500"]
+    nof = sc.stock_gate(td / "bom49.csv", td / "snap49.csv", STOCKS)["bom_short_lines_proto"]
     check("s49: with no flags the same row still fails on the counts (JLC 0, no authorised stock)",
           any(l["mpn"] == "B32643B8104J000" for l in nof))
 
@@ -148,7 +168,7 @@ with tempfile.TemporaryDirectory() as td:
     new["cost"]["parts_usd_at_500_v2"] = old["cost"]["parts_usd_at_500_v2"] - 6.19      # the card totals: a $1.24 x 5 "saving"
     notes = []
     ok, reasons, cheaper, better = sc.compare(new, old, notes)
-    check("compare s49 vs s48: REJECT on the newly unbuildable line", not ok and any("newly unbuildable" in r and "B32643B8104J000" in r for r in reasons), reasons)
+    check("compare s49 vs s48: REJECT on the newly unbuildable line", not ok and any("newly unbuildable for the 20-board prototype" in r and "B32643B8104J000" in r for r in reasons), reasons)
     check("compare: the unbuyable part's saving is not counted as cheaper", "parts_usd_at_500_v2" not in cheaper, cheaper)
     check("compare: price-channel mismatch flagged (digikey→jlc)",
           any(n.startswith("price-channel mismatch: B32654A1104J000→B32643B8104J000") and "digikey→jlc" in n for n in notes), notes)
@@ -167,6 +187,16 @@ with tempfile.TemporaryDirectory() as td:
     same = card(g48, [pl("B32654A1104J000", "digikey", 1.4, {"digikey": 1.4})], "same")
     n3 = sc.channel_check(same["cost"], old["cost"])[0]
     check("compare: same channel on both cards -> no mismatch note", n3 == [], n3)
+
+    # a 500-board shortfall alone does not reject: same proto lines, more lines short at 500
+    more = copy.deepcopy(old)
+    more["cost"]["bom_lines_short_at_500"] += 3
+    more["cost"]["bom_short_lines_500"] = old["cost"]["bom_short_lines_500"] + [
+        {"mpn": "X", "need": 500, "buildable": 0, "why": "synthetic"}] * 3
+    n6 = []
+    ok6, r6, _, _ = sc.compare(more, old, n6)
+    check("compare: more lines short at 500 boards alone is not a reason; printed as a note",
+          not any("short" in r or "unbuildable" in r for r in r6) and any("production lot (information only" in n for n in n6), (r6, n6))
 
     # a candidate no worse than the benchmark on stock is not rejected for it
     keep = card(g48, old["cost"]["price_lines_500"], "keep")

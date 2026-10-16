@@ -20,7 +20,7 @@
   "jet_strip_height": true,
   "audit_rs": true,
   "b3_ratings": true,
-  "bom_buildable_500": false
+  "bom_buildable_proto": false
  },
  "performance": {
   "d5_hot_selv_mm": 8.047,
@@ -1358,6 +1358,43 @@
     "channel_prices": {
      "jlc": 0.0021
     }
+   }
+  ],
+  "bom_proto_boards": 20,
+  "bom_lines_short_proto": 3,
+  "bom_short_lines_proto": [
+   {
+    "mpn": "B82726S2203A020",
+    "designators": "L1",
+    "qty_per_board": 1,
+    "need": 20,
+    "buildable": 0,
+    "jlc_stock": "0",
+    "auth_best_stock": "0",
+    "flags": "ZERO_STOCK_ALL_CHECKED_SOURCES;ZERO_JLC_LCSC_STOCK;LEAD_29wk;SINGLE_SOURCE",
+    "why": "no in-stock JLC or authorised source"
+   },
+   {
+    "mpn": "DE1E3RA222MA4BP01F",
+    "designators": "C3,C4",
+    "qty_per_board": 2,
+    "need": 40,
+    "buildable": 6,
+    "jlc_stock": "6",
+    "auth_best_stock": "0",
+    "flags": "LCSC_STOCK<10x_5board_need;LOW_JLC_STOCK(<10x 5-board need)",
+    "why": "JLC library stock"
+   },
+   {
+    "mpn": "PMEG6030EP,115",
+    "designators": "D6,D7,D8,D9",
+    "qty_per_board": 4,
+    "need": 80,
+    "buildable": 7,
+    "jlc_stock": "7",
+    "auth_best_stock": "0",
+    "flags": "",
+    "why": "JLC library stock"
    }
   ]
  },
