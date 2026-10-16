@@ -60,7 +60,9 @@ SUPPLY_NETS = ["V5_UI", "v5_drop", "v5_mid", "RTD_AVDD"]
 ANALOG_NETS = ["rtd_sense_p", "rtd_sense_n", "rtd_force_p", "rtd_force_n", "vbus_p",
                "vbus_n", "ct_mon", "ct_buf_out", "m12_node", "m12_filt", "p1", "refin_n", "rms_in", "rms_ibuf",
                "rms_ignd", "CT_RMS_CORE", "rms_core_in", "rms_cavg", "rms_obuf", "rms_fb", "CT_RMS_ADC",
-               "rx_a_n", "rx_a_p", "rx_a_out", "rx_bias", "rx_bias_div", "ref2v5", "RUNAWAY_TH", "rtd_pan.low_window-inp", "inn", "vbias", "rtd_pan.r_high_top-inp"]
+               "rx_a_n", "rx_a_p", "rx_a_out", "rx_bias", "rx_bias_div", "ref2v5", "RUNAWAY_TH", "rtd_pan.low_window-inp", "inn", "vbias", "rtd_pan.r_high_top-inp",
+               # C37 (sensor-r3 CR-1) connector-side and mid-filter RTD sense nodes; C38 rim trip threshold
+               "rtd_sense_p_ext", "rtd_sense_n_ext", "rtd_sense_p_mid", "rtd_sense_n_mid", "RIM_TRIP_TH", "rim_filt"]
 
 # C34: the layers sum exactly to the 1.6 mm board thickness (zapote DRC.BOARD.STACKUP): JLC's
 # JLC04161H-7628 figures (0.2104 prepreg, 0.0152 inner Cu, 1.065 core, masks 0.01) total 1.6062, so

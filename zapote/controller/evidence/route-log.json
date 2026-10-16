@@ -2,101 +2,105 @@
  "rounds": [
   {
    "round": 1,
-   "open_before": 315
+   "open_before": 359
   },
   {
    "round": 2,
-   "open_before": 10
+   "open_before": 21
   },
   {
    "round": 3,
-   "open_before": 5
+   "open_before": 6
   },
   {
    "repair": "0.0",
    "radius_mm": 3.0,
    "open_before": 5,
-   "first": "RAIL_OK_RB,hs_buf_out,rtd_sense_n,rtd_sense_p,runaway_healthy"
+   "first": "LINE_ZC_MCU,ovp_healthy,rtd_sense_p_ext,v3v3"
   },
   {
    "round": 4,
-   "open_before": 87,
-   "first": "RAIL_OK_RB,hs_buf_out,rtd_sense_n,rtd_sense_p,runaway_healthy"
+   "open_before": 77,
+   "first": "LINE_ZC_MCU,ovp_healthy,rtd_sense_p_ext,v3v3"
   },
   {
    "round": 5,
-   "open_before": 5
+   "open_before": 10
   },
   {
    "round": 6,
-   "open_before": 4
+   "open_before": 2
   },
   {
    "repair": "0.1",
    "radius_mm": 5.0,
-   "open_before": 3,
-   "first": "inn,rtd_pan.r_high_top-inp,rtd_sense_n"
+   "open_before": 2,
+   "first": "RUNAWAY_FAULT,v3v3"
   },
   {
    "round": 7,
-   "open_before": 54,
-   "first": "inn,rtd_pan.r_high_top-inp,rtd_sense_n"
+   "open_before": 35,
+   "first": "RUNAWAY_FAULT,v3v3"
   },
   {
    "round": 8,
-   "open_before": 9
+   "open_before": 4
   },
   {
    "round": 9,
-   "open_before": 4
+   "open_before": 3
   },
   {
    "repair": "0.2",
    "radius_mm": 8.0,
-   "open_before": 4,
-   "first": "pwm_ha,rtd_pan.low_window-inp,v3v3"
+   "open_before": 3,
+   "first": "rtd_healthy,sense,v3v3"
   },
   {
    "round": 10,
-   "open_before": 102,
-   "first": "pwm_ha,rtd_pan.low_window-inp,v3v3"
+   "open_before": 77,
+   "first": "rtd_healthy,sense,v3v3"
   },
   {
    "round": 11,
-   "open_before": 8
-  },
-  {
-   "round": 12,
-   "open_before": 3
+   "open_before": 2
   },
   {
    "cleanup": 0
   },
   {
+   "round": 12,
+   "open_before": 4
+  },
+  {
    "round": 13,
-   "open_before": 1
+   "open_before": 2
   },
   {
    "repair": "1.0",
    "radius_mm": 3.0,
-   "open_before": 1,
-   "first": "v3v3"
+   "open_before": 2,
+   "first": "rtd_sense_p_ext,v3v3"
   },
   {
    "round": 14,
-   "open_before": 10,
-   "first": "v3v3"
+   "open_before": 30,
+   "first": "rtd_sense_p_ext,v3v3"
   },
   {
    "round": 15,
    "open_before": 1
   },
   {
-   "round": 16,
-   "open_before": 0
+   "repair": "1.1",
+   "radius_mm": 5.0,
+   "open_before": 1,
+   "first": "v3v3"
   },
   {
-   "cleanup": 1
+   "round": 16,
+   "open_before": 18,
+   "first": "v3v3"
   },
   {
    "round": 17,
@@ -104,6 +108,13 @@
   },
   {
    "round": 18,
+   "open_before": 0
+  },
+  {
+   "cleanup": 1
+  },
+  {
+   "round": 19,
    "open_before": 0
   }
  ],

@@ -18,6 +18,7 @@ Enclosure (R31 CONTROLLER-SPEC section + R33 DECISIONS section 3 delta, via layo
 Layout rules (brief):
   decoupling  every IC supply pin (the 'vcc' pins of verify_controller's part models) has a capacitor to
               selv_gnd on the same net within 5 mm (pad to pad)
+  rtd_j3_protection  each J3 pin has its 220 nF and TVS (C37); pad distances reported
   interlock   no track of an MCU (U4) net crosses the interlock region; PERMIT path latch->J4.9 length
   thermal_relief  every through-hole pad that a pour reaches is thermal-relieved (zone setting)
   power_widths  V_BLOWER routed >= 0.8 mm; V15_BLW's J13.1, bulk and input-cap pads in one F.Cu pour region
@@ -44,7 +45,7 @@ GATE_PATHS = ["u_permit", "c_permit", "r_run_en_pd", "r_permit_pd"]
 HEIGHTS = {"JST XH mated (J1-J3, J7, J9, J10, J12; JST eXH.pdf 9.8 assembled)": 9.8,
            "J13 B2P-VH mated (JST eVH.pdf p.1 mounting height 16.5)": 16.5,
            "J4 43045-1600 + 43025-1600 mated (Molex 43045 series part data 10.29)": 10.29,
-           "J11 61300811121 pin tips (Wurth DS rev 003, 11.54 - 3.0)": 8.54,
+           "J11 TC2050-IDC-NL land (C41: copper pads only, nothing fitted)": 0.0,
            "C1 EEE-FK1E101P": 6.2, "L1 SWPA6045": 4.5, "L2 SWRB1205S (Sunlord SWRB-S, 6.0 max)": 6.0,
            "U4 ESP32-S3-WROOM-1U (Espressif DS v1.8 Table 1-2)": 3.2}
 CONNECTOR_PARTS = {k for k in HEIGHTS if k.startswith(("JST", "J4", "J11", "J13"))}
@@ -242,7 +243,7 @@ def main():
     put("height", local_ok and all(v["height_mm"] <= v["limit_mm"] for v in rows.values()), allowance_mm=round(allowance, 2),
         parts=rows, not_checked=["J4 plug overhang beyond the board edge (R31: to X-50); the 43045-1600 sales drawing "
                                  "itself was not readable from this network, the mated height is the 43045 series figure",
-                                 "cable bends above the mated XH housings (harness); J13's 18 AWG bend is inside R41's local allowance", "a socket mated on J11"])
+                                 "cable bends above the mated XH housings (harness); J13's 18 AWG bend is inside R41's local allowance", "the TC2050 cable while a bring-up probe is held on J11"])
 
     # ---- decoupling
     supplies = {"v3v3", "v15_selv", "V15_BLW", "RTD_AVDD", "V5_UI", "v5_drop", "V_BLOWER"}
@@ -276,6 +277,30 @@ def main():
             rows.append({"pin": f"{ref}.{p.GetNumber()}", "net": n, "cap": best[1] if best else None,
                          "distance_mm": round(best[0], 2) if best else None, "ok": good})
     put("decoupling", ok, limit_mm=5.0, pins=rows)
+
+    # ---- C37 (sensor-r3 CR-1): J3 protection distances, reported (the CR's 3 mm cannot be met: the XH
+    # body courtyard reaches 3.44 mm in front of the pin row). Pad centre to pad centre, and pad-edge gap.
+    j3 = next((f for f in fps.values() if f.GetFieldText("MPN").startswith("B4B-XH")), None)
+    prot = []
+    if j3 is not None:
+        for jp in j3.Pads():
+            n = jp.GetNetname()
+            for f in fps.values():
+                if f is j3 or not (f.GetReference().startswith(("C", "D"))):
+                    continue
+                pads = {q.GetNetname(): q for q in f.Pads()}
+                if n in pads and "selv_gnd" in pads:
+                    q = pads[n]
+                    d = math.hypot(mm(q.GetPosition().x - jp.GetPosition().x), mm(q.GetPosition().y - jp.GetPosition().y))
+                    bj, bq = jp.GetBoundingBox(), q.GetBoundingBox()
+                    gx = max(0, mm(max(bj.GetLeft(), bq.GetLeft()) - min(bj.GetRight(), bq.GetRight())))
+                    gy = max(0, mm(max(bj.GetTop(), bq.GetTop()) - min(bj.GetBottom(), bq.GetBottom())))
+                    prot.append({"j3_pin": jp.GetNumber(), "net": n, "part": f.GetReference(), "mpn": f.GetFieldText("MPN"),
+                                 "centre_mm": round(d, 2), "edge_gap_mm": round(math.hypot(gx, gy), 2)})
+    four = sorted({r["j3_pin"] for r in prot if r["part"].startswith("D")}) == ["1", "2", "3", "4"] and \
+        sorted({r["j3_pin"] for r in prot if r["part"].startswith("C")}) == ["1", "2", "3", "4"]
+    put("rtd_j3_protection", four, rule="sensor-r3 CR-1 asks <= 3 mm; reported, set by the XH body (DECISIONS C37)",
+        rows=sorted(prot, key=lambda r: (r["j3_pin"], r["part"])))
 
     # ---- interlock regions: no MCU-net track through them. Two regions: the latch block
     # (U20-U25 and their pull-ups/bypasses) and the PERMIT gate at J4.9 (U37 with its parts).

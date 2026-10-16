@@ -1,9 +1,9 @@
 (fp_lib_table
   (version 7)
   (lib (name "Capacitor_SMD") (type "KiCad") (uri "${KIPRJMOD}/libs/Capacitor_SMD.pretty") (options "") (descr ""))
+  (lib (name "Connector") (type "KiCad") (uri "${KIPRJMOD}/libs/Connector.pretty") (options "") (descr ""))
   (lib (name "Connector_JST") (type "KiCad") (uri "${KIPRJMOD}/libs/Connector_JST.pretty") (options "") (descr ""))
   (lib (name "Connector_Molex") (type "KiCad") (uri "${KIPRJMOD}/libs/Connector_Molex.pretty") (options "") (descr ""))
-  (lib (name "Connector_PinHeader_2.54mm") (type "KiCad") (uri "${KIPRJMOD}/libs/Connector_PinHeader_2.54mm.pretty") (options "") (descr ""))
   (lib (name "Diode_SMD") (type "KiCad") (uri "${KIPRJMOD}/libs/Diode_SMD.pretty") (options "") (descr ""))
   (lib (name "Inductor_SMD") (type "KiCad") (uri "${KIPRJMOD}/libs/Inductor_SMD.pretty") (options "") (descr ""))
   (lib (name "Package_SO") (type "KiCad") (uri "${KIPRJMOD}/libs/Package_SO.pretty") (options "") (descr ""))

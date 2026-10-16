@@ -35,7 +35,7 @@ PLACE = {
            90 if world.J4_MATING == "-X" else -90, "crtyd"),
     # WROOM-1U: antenna/U.FL end (footprint -y) toward world +Y, body top edge on the R33 box's rear edge
     "U4": ((world.WROOM[0] + world.WROOM[2]) / 2, world.WROOM[3] - world.WROOM_BODY_YSPAN / 2, 0, "fab"),
-    "J11": (138.0, 19.0, 90, "fab"),                # bring-up header, next to the module's USB pins
+    "J11": (138.0, 19.0, 90, "fab"),                # C41: TC2050 flush land, next to the module's USB pins
     # ---- PERMIT gate at J4.9, in front of J4
     "u_permit": (-32.0, 24.5, 90),
     # ---- J4 analog
@@ -102,14 +102,63 @@ PLACE = {
     "u_runaway": (118.0, 74.0, 0),
     # C34: the 1 nF differential filter across the MAX31865's RTDIN+ (pin 10) / RTDIN- (pin 11) end,
     # pad 1 (rtd_sense_p) toward pin 10; the RTD unit's locality rule is <= 3 mm pad to pin
-    "rtd_pan.c_rtd_input": (154.5, 76.5, 90),
+    "rtd_pan.c_rtd_input": (155.6, 76.5, 90),   # C37: now the 100 nF C0G 1206 (sensor-r3 CR-1)
+    # ---- C37 (sensor-r3 CR-1) J3 protection and the two-stage sense filter. J3's XH body reaches
+    #      3.4 mm in front of its pin row and the MAX31865 sits 2.6 mm in front of that, so the 220 nF /
+    #      TVS pairs take the strip between them (TVS upright, caps flat), the force-line pair for
+    #      J3.4 the strip right of J3 (behind the Ø8 hole keep-out); the filter the two rows right of
+    #      the MAX31865 in front of that keep-out: R1 (r_s1) and R2 (r_s2) in the rear row, the 1206 C1
+    #      (c_s1) in front of R1 with the 499 k pull-ups at the ends of that row; c_rtd_input bridges
+    #      pins 10/11. (A first run with the pull-ups behind the keep-out routed J3.2's net along the
+    #      board edge.)
+    "rtd_pan.c_j_fp": (143.65, 81.5, 0),
+    "rtd_pan.d_j_fp": (146.0, 81.33, 90),
+    "rtd_pan.c_j_sp": (148.55, 81.85, 0),
+    "rtd_pan.d_j_sp": (150.85, 81.33, 90),
+    "rtd_pan.c_j_sn": (153.2, 81.85, 0),
+    "rtd_pan.d_j_sn": (155.5, 81.33, 90),
+    "rtd_pan.c_cm_n": (157.5, 80.75, 90),
+    "rtd_pan.c_j_fn": (159.9, 86.6, 90),
+    "rtd_pan.d_j_fn": (161.7, 86.6, 90),
+    "rtd_pan.r_rtdin_p_bias": (165.6, 71.3, 90),
+    "rtd_pan.r_rtdin_n_bias": (157.4, 71.6, 0),
+    "rtd_pan.r_s2n": (157.75, 74.4, 90),
+    "rtd_pan.r_s2p": (159.5, 74.4, 90),
+    "rtd_pan.r_s1n": (161.25, 74.4, 90),
+    "rtd_pan.r_s1p": (163.0, 74.4, 90),
+    "rtd_pan.c_s1": (162.3, 71.3, 0),
     # ---- rim NTC (R36): follower beside J12; divider and filter at its input, ADC RC at the module
-    "u_buf3": (119.5, 81.5, 0),
+    "u_buf3": (118.3, 81.0, 0),           # C40: 0.7 mm left for the 3-pin J12
+    # ---- C38 (sensor-r3 CR-5): rim trip comparator and the RUNAWAY_FAULT OR, in the free column
+    #      between the keep-apart band and the RTD block (rim_filt runs down to it; RUNAWAY_FAULT
+    #      leaves left for the interlock)
+    "u_rim_trip": (116.5, 56.5, 0),
+    "u_runaway_or": (116.5, 61.5, 0),
+    # the runaway divider and the RTD pull-ups around it kept at their C36 poses: with U41 in the
+    # column the auto-placer pushed r_runaway_top to 7.8 mm from L2 (partition gate >= 10 mm) and
+    # r_runaway_bot to the rear edge (C44)
+    "r_runaway_top": (116.21, 66.97, 90),
+    "r_runaway_bot": (113.78, 66.45, -90),
+    "rtd_pan.r_rail_ok_pullup": (115.87, 70.25, 0),
+    "rtd_pan.r_fault_pullup": (122.9, 61.35, 90),
+    "rtd_pan.r_high_bottom": (122.35, 64.59, 180),
+    "rtd_pan.r_window_ok_pulldown": (119.06, 65.87, -90),
+    "rtd_pan.r_avdd_top": (114.22, 75.76, 90),
+    "rtd_pan.r_avdd_bottom": (113.7, 80.24, 90),
+    # ---- C39 capacitive-mode detector: in the free field at the front edge right of the X65 hole,
+    #      south of the MCU-to-J4 signal bus. A first placement inside the bus (X93-112, Y33-44)
+    #      left one pair open in two of two make.py runs (DECISIONS C44); its nets now cross the
+    #      bus on B.Cu (vertical) instead of the bus bending round five ICs
+    "u_cm_ff": (83.0, 24.0, 0),
+    "u_cm_inv_ha": (89.6, 27.0, 0),
+    "u_cm_inv_la": (89.6, 21.5, 0),
+    "u_cm_pol": (76.4, 26.5, 0),
+    "u_cm_or": (76.4, 21.0, 0),
 }
 
 # Board text (world mm, size): ID and SELV mark on F.Silkscreen in the free front-middle area
-SILK = [("TEMPER CONTROLLER", 98.0, 24.0, 2.5), ("SELV  15 V max  -  NO MAINS", 98.0, 20.0, 1.5),
-        ("zapote/controller  rev L2 (enclosure R33)", 98.0, 30.0, 1.2)]
+SILK = [("TEMPER CONTROLLER", 115.0, 24.0, 2.5), ("SELV  15 V max  -  NO MAINS", 115.0, 20.0, 1.5),
+        ("zapote/controller  rev L2 (enclosure R33)", 115.0, 30.0, 1.2)]  # C44: X98 -> X115, clear of the C39 group
 
 # Passive -> anchor IC/connector (pin chosen automatically: the anchor pin on the passive's
 # non-ground net). Listed where the automatic "most specific net" choice would pick the wrong
@@ -171,6 +220,25 @@ ANCHOR = {
     "r_v5_drop2": "u_v5", "r_v5_drop": "r_v5_drop2",
     "r_scl_pu": "u_io", "r_sda_pu": "u_io", "r_dc_pd": "U4", "r_en": "U4",
     "r_adc_cs_pu": "u_adc", "d_rms_clamp": "u_adc", "r_rms_adc": "u_adc",
+    # C37 (sensor-r3 CR-1): connector-side protection and the first filter stage at J3; the second
+    # stage and the CM caps at the MAX31865's RTDIN pins
+    "rtd_pan.c_j_fp": "rtd_pan.j_rtd1", "rtd_pan.c_j_sp": "rtd_pan.j_rtd1",
+    "rtd_pan.c_j_sn": "rtd_pan.j_rtd1", "rtd_pan.c_j_fn": "rtd_pan.j_rtd1",
+    "rtd_pan.d_j_fp": "rtd_pan.j_rtd1", "rtd_pan.d_j_sp": "rtd_pan.j_rtd1",
+    "rtd_pan.d_j_sn": "rtd_pan.j_rtd1", "rtd_pan.d_j_fn": "rtd_pan.j_rtd1",
+    "rtd_pan.r_s1p": "rtd_pan.j_rtd1", "rtd_pan.r_s1n": "rtd_pan.j_rtd1",
+    "rtd_pan.r_rtdin_p_bias": "rtd_pan.j_rtd1", "rtd_pan.r_rtdin_n_bias": "rtd_pan.j_rtd1",
+    "rtd_pan.c_s1": "rtd_pan.r_s1p",
+    "rtd_pan.r_s2p": "rtd_pan.adc", "rtd_pan.r_s2n": "rtd_pan.adc",
+    "rtd_pan.c_cm_p": "rtd_pan.adc", "rtd_pan.c_cm_n": "rtd_pan.adc",
+    "rtd_pan.c_window": "rtd_pan.low_window",
+    # C38 rim trip and runaway OR
+    "r_rim_th_top": "u_rim_trip", "r_rim_th_bot": "u_rim_trip", "c_rim_th": "u_rim_trip",
+    "c_rim_trip": "u_rim_trip", "c_runaway_or": "u_runaway_or",
+    # C39 detector
+    "c_cm_inv_ha": "u_cm_inv_ha", "c_cm_inv_la": "u_cm_inv_la", "c_cm_pol": "u_cm_pol", "c_cm_ff": "u_cm_ff",
+    "c_cm_or": "u_cm_or", "r_cm_pol": "u_cm_pol", "r_cm_pol_pu": "u_cm_pol",
+    "r_cm_ha_rb": "u_cm_ff", "r_cm_la_rb": "u_cm_ff",
 }
 
 # Routing channels kept free of auto-placed parts (world rects; decoupling capacitors excepted).
@@ -199,7 +267,9 @@ BLW_FEED: list[tuple[float, float, float, float]] = [(82.6, 74.6, 84.3, 84.6),  
 # via within RTD_RETURN_VIA_MM: the analog return then stays in one filled In1 corridor (the unit's
 # DRC.RTD.NATIVE_GEOMETRY "analog_return" check).
 RTD_ANALOG_NETS = ["rtd_sense_p", "rtd_sense_n", "rtd_force_p", "rtd_force_n", "p1", "refin_n",
-                   "rtd_pan.low_window-inp", "vbias"]
+                   "rtd_pan.low_window-inp", "vbias",
+                   # C37: the connector-side and mid-filter sense nodes (sensor-r3 CR-1)
+                   "rtd_sense_p_ext", "rtd_sense_n_ext", "rtd_sense_p_mid", "rtd_sense_n_mid"]
 RTD_RETURN_VIA_MM = 2.5          # the unit's required_locality_mm is 3.0
 # C34: selv_gnd stitching vias on a pitch grid over the RTD analog region (world rects), where no plane
 # via sits within half a pitch already: every point of the region then has a return via within reach

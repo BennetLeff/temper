@@ -1,14 +1,21 @@
 # Controller PCB layout (L3 + stage 16 + L4: enclosure R33/R41, R36 rim NTC, blower supply from PS3, thermal trip ladder, block-validator fixes)
 
-This is the layout of the integrated SELV controller: 248 parts, 4 layers, 206 × 76 mm, placed and routed by scripts from `frozen/default.net`, with a JLCPCB fab package. Nothing was drawn by hand in the KiCad GUI.
+This is the layout of the integrated SELV controller: 284 parts, 4 layers, 206 × 76 mm, placed and routed by scripts from `frozen/default.net`, with a JLCPCB fab package. Nothing was drawn by hand in the KiCad GUI.
 
-**Status: DRC-clean candidate, not released** (ordering is the owner's decision). KiCad DRC: 0 errors, 0 unconnected, schematic parity 0; JLC DFM PASS; all 12 enclosure/layout checks PASS; gerbv fab review PASS. Not fabricated. Every number below comes from a file in `evidence/` that `python3 layout/make.py` regenerates: `drc.json`, `jlc-dfm.json`, `layout-check.json`, `fab-review.json`, `silk-designators.json`, `verify.json`; the routing-robustness proof is `evidence/convergence.json` (`layout/convergence.py`).
+**Status: DRC-clean candidate, not released** (ordering is the owner's decision). KiCad DRC: 0 errors, 0 unconnected, schematic parity 0; JLC DFM PASS; all 13 enclosure/layout checks PASS; gerbv fab review PASS. Not fabricated. Every number below comes from a file in `evidence/` that `python3 layout/make.py` regenerates: `drc.json`, `jlc-dfm.json`, `layout-check.json`, `fab-review.json`, `silk-designators.json`, `verify.json`; the routing-robustness proof is `evidence/convergence.json` (`layout/convergence.py`).
 
 **Enclosure revision:** R31 outline, holes and connectors (`output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md`, "R31" section, with R30's mounting and heights) plus the **R33 controller delta** (`output/temper-manufacturing-r33/design/r33/DECISIONS.md` §3; the R35 HANDOFF restates it unchanged):
 - J5, J6 and J8 are deleted; one 12-way JST B12B-XH-A **J7** at X29.8–62.2, Y57.1–62.9 carries the UI bus (DECISIONS C26);
 - the module is the **ESP32-S3-WROOM-1U-N8** at X141–159, Y50–69.5, with a U.FL to an off-board chip antenna, so there is no antenna keep-out.
 
 **R36 / R38:** the rim NTC on the sensor cartridge adds an ADC1 channel and **J12** (B2B-XH-A) at (126, 86) (DECISIONS C27, C31). The enclosure session (R38) accepted J12 at (126, 86) and the U.FL at (156, 67).
+
+**C1 change set (DECISIONS C37–C41, 2026-10-15, branch controller-c1-crs):** 37 parts added and the 0 Ω OVP tie removed (248 → 284); every existing explicit pose is kept except u_buf3 (1.2 mm left) and c_rtd_input (now a 1206, 1.1 mm right).
+- **RTD protection and filter (C37):** the J3 TVS and 220 nF take the strip between the MAX31865 and J3, directly in front of their pins. The J3.4 pair sits right of J3 behind the Ø8 hole keep-out, and c_j_fp left of the strip. The two-stage filter sits in two rows right of the MAX31865, in front of the keep-out: R2n, R2p, R1n, R1p in the rear row (Y 74.4), the 1206 C1 in front of R1, the 499 k pull-ups at the ends of the front row. c_cm_n is beside pin 11. The new sense nodes (`rtd_sense_*_ext`, `rtd_sense_*_mid`) are RTD analog nets (F.Cu / In2.Cu, return vias). Pad distances to J3: `layout-check.json` `rtd_j3_protection`.
+- **Rim trip and runaway OR (C38):** U40 / U41 at (116.5, 56.5) / (116.5, 61.5), in the free column between the keep-apart band and the RTD block.
+- **Capacitive-mode detector (C39, C44):** U42–U46 at the front edge right of the X65 hole, X 76–90 / Y 21–27, south of the MCU-to-J4 signal bus, with the PWM series resistors R1 / R2 beside the inverters. The board text moved from X98 to X115 to make room. A first placement inside the bus (X 96–110 / Y 36–42) routed once but left one pair open in the next run (C44).
+- **Runaway divider and RTD pull-ups (C44):** r_runaway_top / r_runaway_bot, rtd_pan.r_rail_ok_pullup, r_fault_pullup, r_high_bottom, r_window_ok_pulldown, r_avdd_top and r_avdd_bottom are pinned at their C36 poses. With U41 in that column the auto-placer had moved r_runaway_top to 7.8 mm from L2 (partition gate ≥ 10 mm) and r_runaway_bot to the rear edge.
+- **J12 (C40):** 3-way B3B-XH-A at the same centre. **J11 (C41):** TC2050-IDC-NL land at (138, 19); its symbol and footprint are excluded from the BOM and CPL.
 
 **L3 schematic changes laid out here** (DECISIONS C28–C32):
 - **Blower supply (C28):** the 12 V fan buck became an adjustable 5.03–12.40 V supply (≥ 1.5 A) on **J10** (B3B-XH-A, fixed at (139, 86)): pin 1 V_BLOWER, 2 GND, 3 FG (tach). Speed is a filtered PWM from GPIO46 injected into the feedback node (duty 0 = full speed); on/off is expander P15 (FAN_OFF). The inductor is now a Sunlord SWRB1205S 10 µH (12.5 mm, 6.0 mm tall; project footprint `layout/footprints/Temper_Controller.pretty/L_Sunlord_SWRB1205S.kicad_mod`).
@@ -131,7 +138,7 @@ JLC figures re-read 2026-10-09 from jlcpcb.com/capabilities/pcb-capabilities (mu
   - Routing channels keep auto-placed parts out of both.
   - The BLW_PG divider sits at J13, so only its ≤ 3.9 V node runs to the expander.
   - **Return:** J13.2 drops into the In1 plane beside the buck. The 15 V supply current enters and leaves there, instead of crossing the board from J4 as in L3.
-- **Rim NTC channel** (R36/C31): TVS at J12; the 1.00 k pull-up, the 10 k / 100 nF filter and the TLV9061 follower (u_buf3) at (119.5, 81.5) beside it; the ADC anti-kick RC at the module.
+- **Rim NTC channel** (R36/C31): TVS at J12; the 1.00 k pull-up, the 10 k / 100 nF filter and the TLV9061 follower (u_buf3) at (118.3, 81.0) beside it (C40: 1.2 mm left of its L3 spot for the 3-pin J12); the ADC anti-kick RC at the module.
 - **Module channels (L3):** a band in front of the module (X 137…163, Y 41…49.6) and a strip along its left pin column (X 134.5…140.4) are kept free of auto-placed parts except decoupling capacitors. The module's right-column nets all leave to the left round its front edge; the nets that stayed open in L2's failed runs were all module nets at these pins.
 
 ## Analog / digital partitioning
@@ -174,14 +181,15 @@ Every IC supply pin (the "vcc" pins of `verify_controller.py`'s part models) has
 | KiCad DRC errors | **0** | `evidence/drc.json` |
 | Unconnected items | **0** | `evidence/drc.json` |
 | Schematic parity | 0 | `evidence/drc.json` |
-| DRC warnings | 29: connection_width 15, silk_edge_clearance 12, lib_footprint_mismatch 2. connection_width is thin necks in zone fills; silk_edge_clearance is designators near the board edge; lib_footprint_mismatch is the two intended footprint edits (U20 pads, WROOM courtyard). No dangling track or via | `evidence/drc.json` |
-| JLC DFM (1 oz limits) | PASS: 901 vias (96 of them the C34 RTD stitching grid), 3366 tracks, 66 plated pads, 2 NPTH, min track 0.15 mm | `evidence/jlc-dfm.json` |
-| Enclosure + layout check | PASS on all 12 checks (stage 16 adds power_widths: V_BLOWER ≥ 0.8 mm; V15_BLW's J13.1, bulk and input-cap pads in one F.Cu pour region) | `evidence/layout-check.json` |
-| Fab review (gerbv) | PASS: 967 PTH hits (66 component, 901 via), 2 NPTH, outline 206.0 × 76.0 mm | `evidence/fab-review.json` |
-| Designators | 185 on silk, 63 on F.Fab only (all on the assembly drawing) | `evidence/silk-designators.json` |
-| `tools/verify_controller.py` | PASS, 182 checks in 13 sections; 33/33 mutation tests (`tests/test_verify_mutations.py`) | `evidence/verify.json` |
-| Routing robustness | **3/3 consecutive full runs from a clean start close the board** with all gates passing | `evidence/convergence.json` |
-| Block validators (C30, C34) | interlock 70 pass / 5 fail / 5 indeterminate, thermal-sense 88 / 9 / 7, RTD 5 / 18 / 5 (before C34: 69 / 6 / 5, 86 / 14 / 7, 5 / 165 / 6). Every remaining FAIL and INDETERMINATE is waived line by line; the same counts on all three convergence boards | `evidence/block-validators/` (`WAIVERS.md`, `summary.json`) |
+| DRC warnings | 36: connection_width 19, silk_edge_clearance 14, lib_footprint_mismatch 2, copper_sliver 1. connection_width is thin necks in zone fills; silk_edge_clearance is designators near the board edge; lib_footprint_mismatch is the two intended footprint edits (U20 pads, WROOM courtyard); copper_sliver is one F.Cu zone-fill sliver. No dangling track or via | `evidence/drc.json` |
+| JLC DFM (1 oz limits) | PASS: 1010 vias (the C34 RTD stitching grid included), 3814 tracks, 59 plated pads, 5 NPTH (J4's 2, J11's 3 TC2050 holes), min track 0.15 mm | `evidence/jlc-dfm.json` |
+| Enclosure + layout check | PASS on all 13 checks (C37 adds rtd_j3_protection: J3 cap / TVS edge gaps 2.83–5.45 mm, reported; the CR's 3 mm is set by the XH body, C37). Partition: L2 to the RTD front end 10.5 mm | `evidence/layout-check.json` |
+| Fab review (gerbv) | PASS: 1069 PTH hits (59 component, 1010 via), 5 NPTH, outline 206.0 × 76.0 mm | `evidence/fab-review.json` |
+| Designators | 191 on silk, 93 on F.Fab only (all on the assembly drawing) | `evidence/silk-designators.json` |
+| `tools/verify_controller.py` | PASS, 224 checks in 15 sections; 47/47 mutation tests (`tests/test_verify_mutations.py`) | `evidence/verify.json` |
+| CPL rotations | audit rerun (C44): 16 CORRECTED (U42 SN74LVC74APWR added, 270°), 223 OK, 44 NEEDS-PREVIEW (listed in `fab/fab-notes.md`); all 283 CPL lines equal the proposal | `evidence/fab-loose-ends/cpl-rotation/audit.json` |
+| Routing robustness | **Not re-proved for C1.** One full run from a clean start closed the board (this board). Earlier C1 runs did not pass: run 1 closed with 10 copper-to-edge errors (an `rtd_sense_p_ext` route along the right edge; the pull-ups moved, C44); run 2 (detector inside the bus) left 1 pair open, also after a gridroute `--eco` attempt; run 3 (detector moved) closed but failed the partition gate. `convergence.json` is the L3 proof | `evidence/route-log.json` |
+| Block validators (C44) | interlock 69 pass / 6 fail / 5 indeterminate, thermal-sense 88 / 9 / 7, RTD 5 / 33 / 5 (C34: 70 / 5 / 5, 88 / 9 / 7, 5 / 18 / 5). The new fails are the C35 HC30 swap (W6) and the C37 RTD filter (W7). Every FAIL and INDETERMINATE is waived line by line | `evidence/block-validators/` (`WAIVERS.md`, `summary.json`) |
 
 **Convergence (routing robustness).** `python3 layout/convergence.py --runs 3 --out <dir>` moves `pcb/route/` away before each run, so no run reuses copper, then runs the whole `make.py`. Result (`evidence/convergence.json`): runs 1, 2 and 3 each ended "ALL GATES PASS" (exit 0, about 753 s each), each with 0 errors, 0 unconnected, parity 0, and the same 22 warnings listed above. That L3 proof's committed board was run 3 (315 open pairs after placement; one 3 mm repair; closed in round 7; the three runs' logs were identical). The boards differ slightly between runs (KiCad's DRC lists pairs in varying order), but all close.
 
@@ -208,7 +216,7 @@ What changed from L2, where three of four runs closed:
 - WROOM-1U body X140.95…159.05 / Y50.25…69.55 (inside the R33 box, max edge offset 0.25 mm), U.FL end at the rear, no other part within 3.0 mm of the U.FL;
 - **U.FL position:** Espressif Figure 10-2 puts the receptacle at (156.0, 67.04) on the R33 body box, not R33's (150, 67). R38 accepted (156, 67); `layout-check.json` still lists the R33 figure as an enclosure delta for traceability;
 - J13 (stage 16): body centre (88, 85.65), 0.35 mm from R41's (88, 86) and flush with the rear edge;
-- heights (drawing-based, ENCLOSURE-HANDOFF table): mated XH 9.8 mm, J4 + plug 10.29 mm (series figure), J11 8.54 mm, all under the 15.4 mm allowance; J13 mated 16.5 mm (JST eVH p.1) inside R41's local allowance (29.4 mm above the board within ±6 mm of (88, 86)); C1 6.2, L1 4.5, L2 (SWRB1205S) 6.0, WROOM-1U 3.2 mm under the 6.4 mm allocation.
+- heights (drawing-based, ENCLOSURE-HANDOFF table): mated XH 9.8 mm, J4 + plug 10.29 mm (series figure), J11 0 mm (TC2050 land, C41), all under the 15.4 mm allowance; J13 mated 16.5 mm (JST eVH p.1) inside R41's local allowance (29.4 mm above the board within ±6 mm of (88, 86)); C1 6.2, L1 4.5, L2 (SWRB1205S) 6.0, WROOM-1U 3.2 mm under the 6.4 mm allocation.
 
 ## Open items
 

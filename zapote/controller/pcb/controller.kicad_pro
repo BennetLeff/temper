@@ -582,6 +582,30 @@
         "pattern": "rtd_pan.r_high_top-inp"
       },
       {
+        "netclass": "Analog",
+        "pattern": "rtd_sense_p_ext"
+      },
+      {
+        "netclass": "Analog",
+        "pattern": "rtd_sense_n_ext"
+      },
+      {
+        "netclass": "Analog",
+        "pattern": "rtd_sense_p_mid"
+      },
+      {
+        "netclass": "Analog",
+        "pattern": "rtd_sense_n_mid"
+      },
+      {
+        "netclass": "Analog",
+        "pattern": "RIM_TRIP_TH"
+      },
+      {
+        "netclass": "Analog",
+        "pattern": "rim_filt"
+      },
+      {
         "netclass": "Thermal",
         "pattern": "COIL_FAULT"
       },

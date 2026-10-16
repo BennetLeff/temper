@@ -56,6 +56,9 @@ def main() -> None:
             ds = re.search(r'\(property "Datasheet" "([^"]*)"', block)
             if r_:
                 datasheet[r_.group(1)] = ds.group(1) if ds else ""
+    # C41: copper-only lands (TC2050) carry exclude_from_bom on the footprint; the symbol matches it
+    board_only = {m for m, p in json.loads((UNIT / "bom/controller-parts.json").read_text())["parts"].items()
+                  if p.get("board_only")}
     root = uid("root")
     defs, inst = [], []
     order = sorted(comps, key=lambda r: (r.rstrip("0123456789"), int(r[len(r.rstrip("0123456789")):])))
@@ -67,7 +70,8 @@ def main() -> None:
         x, y = 63.5 + (i % 16) * 101.6, 50.8 + (i // 16) * 63.5
         split = (len(pins) + 1) // 2
         h = max(5.08, (split - 1) * 2.54 + 2.54)
-        d = [f'(symbol "Ctl:{name}" (pin_names (offset 0.508)) (in_bom yes) (on_board yes)',
+        bom = "no" if a["mpn"] in board_only else "yes"
+        d = [f'(symbol "Ctl:{name}" (pin_names (offset 0.508)) (in_bom {bom}) (on_board yes)',
              f'(property "Reference" "{ref.rstrip("0123456789")}" (at 0 {h + 2.54:.2f} 0) (effects (font (size 1.27 1.27))))',
              f'(property "Value" {q(a["mpn"])} (at 0 {-h - 2.54:.2f} 0) (effects (font (size 1.27 1.27))))',
              '(property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))',
@@ -89,7 +93,7 @@ def main() -> None:
             pin_inst.append(f'(pin {q(num)} (uuid "{uid(ref + "/pin/" + num)}"))')
         d.append("))")
         defs.append("\n".join(d))
-        inst.append(f'''(symbol (lib_id "Ctl:{name}") (at {x:.2f} {y:.2f} 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid "{c["tstamp"]}")
+        inst.append(f'''(symbol (lib_id "Ctl:{name}") (at {x:.2f} {y:.2f} 0) (unit 1) (in_bom {bom}) (on_board yes) (dnp no) (uuid "{c["tstamp"]}")
  (property "Reference" {q(ref)} (at {x:.2f} {y - h - 3.81:.2f} 0) (effects (font (size 1.27 1.27))))
  (property "Value" {q(a["mpn"])} (at {x:.2f} {y + h + 3.81:.2f} 0) (effects (font (size 1.016 1.016))))
  (property "Footprint" {q(a["footprint"])} (at {x:.2f} {y:.2f} 0) (effects (font (size 1.27 1.27)) hide))
