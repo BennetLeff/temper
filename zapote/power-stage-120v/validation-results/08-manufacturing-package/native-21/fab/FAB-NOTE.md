@@ -1,11 +1,11 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 44, the board of record (DECISIONS.md item 58: stage 43, item 57, plus seven SELV transfer caps
-C169–C175; the stage history is DECISIONS.md items 12–58). Built by
-`SPINE_OWNER=selv sh native-21/layout/gates/chain.sh native21s44 …`; SHA-256
-`2a84051f251e03a3206e99fdef4bb48e7862c233bcbdf344e61b09952e423136`.
+Board: native-21 stage 45, the board of record (DECISIONS.md item 60: stage 44's copper, item 58, with the S16 rail-monitor
+values; the stage history is DECISIONS.md items 12–60). Built by
+`sh native-21/layout/gates/chain.sh native21s45 …`; SHA-256
+`26ce953166f87f0538ee008a019406cef5f637461f6f0b415769f39b36f32b87`.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`d5707f035d94395ceb4c250b0ac407717a96e044db110a68cf12137de8a34880`.
+`5af23b8b7e62a5f1bc8c9360e2d91a17452d3d612b79797bdea0aae97970d733`.
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).
 
