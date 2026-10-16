@@ -2543,6 +2543,12 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - the TPS70950QDBVRQ1 cannot be bought for 500 boards (11,607 in stock today): fall back to the plain part with the
         same dividers, which fixes S19 but keeps U3's ±1 % specified only to 85 °C.
 
+    - **Correction (2026-10-16):** `kelvin_budget.BAND_BEFORE["native21s48"]` had been left at the s47 band (68.87, 117.45).
+      The bands47 engine on s48's own solve gives 68.63–117.70 A (S23 analysis, `11-candidates/s23-ocp-cm-2026-10-16/`), so
+      the OCP low corner after Kelvin is **66.22 A** (+2.05 over 64.17), not 66.46. The s48 card was re-scored; that is
+      0.53 A under s47, past the 0.5 A tolerance. The adoption stands on its cost override; stage 49's S23 fix raises the
+      corner to about 69.2 A.
+
 68. **The resonant bank on the 28 A route: fit the c34 bank (5 × B32643B8104J000) and require ≥ 3 m/s across the bank
     column; the bank metric becomes a physical self-heating check under the declared airflow (2026-10-16; adopted).**
     Records: `11-candidates/bank28-air/README.md` (analysis lane, reviewed).

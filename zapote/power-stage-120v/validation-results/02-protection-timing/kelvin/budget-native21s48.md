@@ -13,4 +13,4 @@
 | R30.2 | 0.2131 | 150.4912 | 0.0321 | bus divider at 400 V (above the 280 V maximum) |
 | R137.2 | 0.123 | 150.3767 | 0.0185 | U3 EN divider R136 100 k / R137 27 k from V15_LS (15.46 V max above GND) |
 | R145.2 | 0.0335 | 150.2587 | 0.005 | REF25 watchdog R144 63.4 k + R145 11.7 k (also inside the U5.2 bound) |
-| **total** | **15.505** | | **2.3239** | trip shift **-2.41 A**; band 66.46–117.45 A |
+| **total** | **15.505** | | **2.3239** | trip shift **-2.41 A**; band 66.22–117.7 A |
