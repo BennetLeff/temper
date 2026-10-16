@@ -65,6 +65,7 @@ SELV-spine lock (13-coupling contract WS4 ↔ WS5, `validation-results/13-coupli
         # --owner selv = only the contract nets, the selv_gnd / v3v3 planes and J4 + the transfer caps (C47, C144,
         # C153-C156, and from s44 C169-C175)
     python3 -I gates/test_spine_lock.py        # 11 controls: mutations per mode, and s31 must fail
+    python3 -I gates/test_stock_gate.py        # 27 controls: bom_buildable_500 (buildable stock >= qty x 500), s48 / s49, price-channel mismatch
 
 `chain.sh` runs it in the copper block (BUILDDIR/spine-lock.json) and fails the chain on any difference; set
 `SPINE_OWNER=selv` for the SELV-side lane only. A lane that has to change the spine re-issues `selv_spine_lock.json` (new baseline export and board hash) under its own

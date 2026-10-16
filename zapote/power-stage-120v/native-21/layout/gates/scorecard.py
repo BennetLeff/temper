@@ -27,6 +27,18 @@ containment, CMTI). Every metric names its source file. Three groups:
   2026-10-13 stock-survey meaning (58 of 94 lines were estimates there) so old cards stay comparable; --compare uses the v2
   keys when both cards carry the same price_basis, otherwise it compares the legacy keys and says so (--strict-basis: refuse).
 
+Stock gate (added 2026-10-16, after stage 49 was ACCEPTed with a fitted part nobody could sell): gate bom_buildable_500 and
+cost metric bom_lines_short_at_500. Every fitted BOM line needs buildable stock >= qty_per_board x 500 boards, counting
+only JLC library stock (basic / extended, in stock) or ONE authorised distributor's in-stock quantity (JLC Global
+Sourcing), both from the dated snapshot. Lead-time-only listings, MOQ-only offers, brokers, split stock and any line the
+stock rows flag OWNER_PREORDER_CONSIGN / LONG_LEAD count as zero. The failing lines (stock, need) are listed on the card
+(bom_short_lines_500). Like b3_ratings it is a RELEASE gate (many fitted lines are short today, so it does not block a
+candidate by itself); --compare ratchets it: more short lines than the benchmark, or any short MPN the benchmark did not
+already carry, is a REJECT. Price channels: the card stores each line's channel (jlc / digikey / ...) and the price on
+every channel it has a read for (price_lines_500); --compare re-prices a line whose channel differs between the two cards
+on a channel both have, or flags "price-channel mismatch" and leaves that line out of the parts-cost saving. Cards from
+before this carry neither: `scorecard.py --restamp CARD.json --bom B --snapshot S` adds the new fields to a saved card.
+
 --compare BENCH.json applies the acceptance rule fixed on 2026-10-13 (RESOLUTION-PLAN / benchmark README) against a
 benchmark's scorecard: every gate passes; no performance metric is worse than the benchmark beyond its tolerance;
 and cost is lower (parts cost at 500, or line count, strictly lower with neither higher) or performance strictly
@@ -106,7 +118,12 @@ def b3_ratings(b):
 # pin_absmax (gates/pin_absmax.py) joined 2026-10-15 with the four TPS70950 EN violations on the benchmark itself and sat here
 # until stage 48 (c48-ldo-en-ref-watch) fixed them; pin_absmax_expected.json is empty since, so from s48 on `pin_absmax` is an
 # ordinary gate: a candidate with any pin over its absolute maximum is rejected.
-RELEASE_GATES = {"b3_ratings"}
+RELEASE_GATES = {"b3_ratings", "bom_buildable_500"}
+BUILD_BOARDS = 500          # the card's build quantity: every *_at_500 cost key and the 500-board lot of bom_pricing.BOARDS
+# Stock-row flags that mean the quantity is not on a shelf: an owner pre-order consigned to JLC, or a lead-time-only listing.
+# (The legacy LEAD_<n>wk flags of the 2026-10-13 survey are DigiKey factory-lead notes on parts that also have counted
+# stock, so they do not zero a line; the snapshot's counts decide those.)
+NO_STOCK_FLAGS = ("OWNER_PREORDER_CONSIGN", "PREORDER", "LONG_LEAD", "LEAD_ONLY")
 # OCP low-corner floor since stage 15 (28 A ceiling): 59.17 A envelope peak + 3.0 A coil-pickup stack (DECISIONS
 # item 9) + 2 A margin; kelvin_budget.py FLOOR carries the same figure per tag.
 KELVIN_FLOOR_MIN_A = 64.17
@@ -435,6 +452,54 @@ def buildability(bom_path, snap_path):
     return b
 
 
+def _stock_flags(stock_path):
+    """{mpn: flags string} from the comma-separated STOCK-*.csv list; later files override earlier rows (as cost() does)."""
+    st = {}
+    for sp in [Path(x) for x in str(stock_path).split(",") if x.strip()]:
+        if sp.exists():
+            for r in csv.DictReader(open(sp)):
+                if r["board"].startswith("power"):
+                    st[r["mpn"].strip()] = r.get("flags", "")
+    return st
+
+
+def buildable_stock(s, flags=""):
+    """(quantity, why) one source could place from stock for a snapshot row `s` (None: not in the snapshot).
+    JLC library stock, else one authorised distributor's stock (JLC Global Sourcing): the larger of the two, never a sum
+    (JLC places from one source). Brokers (unauth_max_stock), split stock, MOQ-only and lead-time-only listings are 0."""
+    toks = {t.split("(")[0].strip() for t in (flags or "").split(";")}
+    hit = [f for f in NO_STOCK_FLAGS if f in toks]
+    if hit:
+        return 0.0, "flag " + "+".join(hit) + " (pre-order / lead-time only)"
+    if not s:
+        return 0.0, "not in the stock snapshot"
+    js = float(s["jlc_stock"] or 0) if s["jlc_library"] in ("basic", "extended") else 0.0
+    ab = float(s["auth_best_stock"] or 0)
+    return max(js, ab), ("no in-stock JLC or authorised source" if max(js, ab) == 0 else
+                         "JLC library stock" if js >= ab else "authorised distributor stock (global sourcing)")
+
+
+def stock_gate(bom_path, snap_path, stock_path=""):
+    """Every fitted BOM line against qty_per_board x BUILD_BOARDS of buildable stock. Returns {} when there is no snapshot."""
+    if not snap_path or not Path(snap_path).exists():
+        return {}
+    snap = {r["mpn"].strip(): r for r in csv.DictReader(open(snap_path))}
+    flags = _stock_flags(stock_path)
+    short = []
+    rows = list(csv.DictReader(open(bom_path)))
+    for r in rows:
+        mpn = r["Manufacturer Part Number"].strip()
+        q = len([d for d in r["Designator"].split(",") if d.strip()])
+        need = q * BUILD_BOARDS
+        have, why = buildable_stock(snap.get(mpn), flags.get(mpn, ""))
+        if have < need:
+            s = snap.get(mpn) or {}
+            short.append({"mpn": mpn, "designators": r["Designator"], "qty_per_board": q, "need": need, "buildable": int(have),
+                          "jlc_stock": s.get("jlc_stock", ""), "auth_best_stock": s.get("auth_best_stock", ""),
+                          "flags": flags.get(mpn, ""), "why": why})
+    return {f"bom_lines_short_at_{BUILD_BOARDS}": len(short), f"bom_short_lines_{BUILD_BOARDS}": short}
+
+
 def _parts_key(ca, cb, notes, reasons, strict):
     """The parts-cost key to compare: v2 only when both cards carry it on the same price_basis. A card on the new basis
     against an old-basis benchmark (or the reverse) falls back to the legacy keys and says so; strict refuses."""
@@ -450,6 +515,47 @@ def _parts_key(ca, cb, notes, reasons, strict):
             notes.append(why + ": parts cost compared on the LEGACY parts_usd_at_500 (class-default estimates on most lines); "
                          "the v2 totals are not compared")
     return "parts_usd_at_500"
+
+
+_CHANNEL_PREF = ("jlc", "digikey", "distributor")
+
+
+def channel_check(ca, cb):
+    """Same-channel view of the parts-cost delta at 500 boards, card `ca` against benchmark `cb` (price_lines_500, keyed by
+    the line's designators). Returns (notes, like_for_like_delta_usd or None, unresolved_count). A line whose channel
+    differs is re-priced on the first channel (jlc, digikey, distributor) both cards hold a purchasable read for; if there
+    is none it is flagged and left out of the delta (its saving, or loss, is unknown rather than a catalogue price)."""
+    la, lb = ca.get("price_lines_500"), cb.get("price_lines_500")
+    if la is None or lb is None:
+        return (["price channels not on both cards (re-score with --restamp): parts-cost delta not checked for channel mismatch"]
+                if ("price_lines_500" in ca or "price_lines_500" in cb) else []), None, 0
+    A = {frozenset(x.strip() for x in l["designators"].split(",")): l for l in la}
+    B = {frozenset(x.strip() for x in l["designators"].split(",")): l for l in lb}
+    notes, delta, unresolved = [], 0.0, 0
+    for k in sorted(A.keys() & B.keys(), key=lambda k: sorted(k)):
+        a, b = A[k], B[k]
+        qa, qb = a["qty"], b["qty"]
+        if a["channel"] == b["channel"] and a["tier"] not in ("P4",) and b["tier"] not in ("P4",):
+            if a["unit"] is not None and b["unit"] is not None:
+                delta += a["unit"] * qa - b["unit"] * qb
+            continue
+        common = next((c for c in _CHANNEL_PREF if c in a.get("channel_prices", {}) and c in b.get("channel_prices", {})), None)
+        tag = f"{b['mpn']}→{a['mpn']} ({a['designators']})" if a["mpn"] != b["mpn"] else f"{a['mpn']} ({a['designators']})"
+        if common:
+            pa, pb = a["channel_prices"][common], b["channel_prices"][common]
+            delta += pa * qa - pb * qb
+            notes.append(f"price-channel mismatch: {tag} {b['channel']}→{a['channel']}; re-priced on {common}: "
+                         f"${pb:g} → ${pa:g} per part (was ${b['unit']:g} → ${a['unit']:g})")
+        else:
+            unresolved += 1
+            notes.append(f"price-channel mismatch: {tag} {b['channel']}→{a['channel']}; no common channel to re-price on, "
+                         f"line left out of the like-for-like saving (card unit prices ${b['unit']:g} → ${a['unit']:g} "
+                         f"are not comparable{'; the new price is a no-stock catalogue price' if a['tier'] in ('P3', 'P4') else ''})")
+    for k in sorted(A.keys() ^ B.keys(), key=lambda k: sorted(k)):          # added / removed lines count as they are priced
+        l, sign = (A[k], 1) if k in A else (B[k], -1)
+        if l["unit"] is not None:
+            delta += sign * l["unit"] * l["qty"]
+    return notes, round(delta, 4), unresolved
 
 
 def compare(cur, bench, notes=None, strict_basis=False):
@@ -478,6 +584,28 @@ def compare(cur, bench, notes=None, strict_basis=False):
     for k in ("jlc_assemblable_share_500", "jlc_assemblable_share_5"):     # higher is better
         if k in ca and k in cb:
             (cheaper if ca[k] > cb[k] else dearer if ca[k] < cb[k] else []).append(k)
+    # stock ratchet: the benchmark's short lines are inherited; a new short line, or more of them, is not
+    sk = f"bom_lines_short_at_{BUILD_BOARDS}"
+    if sk in ca and sk in cb:
+        if ca[sk] < cb[sk]:
+            cheaper.append(sk)
+        new = sorted({l["mpn"] for l in ca.get(f"bom_short_lines_{BUILD_BOARDS}", [])}
+                     - {l["mpn"] for l in cb.get(f"bom_short_lines_{BUILD_BOARDS}", [])})
+        if ca[sk] > cb[sk]:
+            reasons.append(f"{sk} worse: {ca[sk]} vs benchmark {cb[sk]}")
+        if new:
+            det = {l["mpn"]: l for l in ca[f"bom_short_lines_{BUILD_BOARDS}"]}
+            reasons.append("newly unbuildable at 500 boards: " + ", ".join(
+                f"{m} (buildable {det[m]['buildable']} < need {det[m]['need']}; {det[m]['why']})" for m in new))
+    elif sk in ca:
+        notes.append(f"benchmark card has no {sk}: stock ratchet not applied (scorecard.py --restamp the benchmark)")
+    # same-channel pricing: a saving that exists only because two different price channels were compared is not a saving
+    cn, lfl, unres = channel_check(ca, cb)
+    notes.extend(cn)
+    if lfl is not None and pk in cheaper and pk.endswith("_v2") and lfl >= 0:
+        cheaper.remove(pk)
+        notes.append(f"{pk} is lower on the card totals but the like-for-like (same-channel) delta is ${lfl:+.2f}"
+                     f"{f' with {unres} line(s) not comparable' if unres else ''}: not counted as cheaper")
     if dearer and not better:
         reasons.append(f"costlier on {dearer} with no performance gain")
     if not cheaper and not better:
@@ -495,6 +623,32 @@ def bench_card(path):
     return c
 
 
+def restamp(a):
+    """Re-derive only the stock gate and price-channel fields of a saved card; every other value is left as scored, and the
+    price totals are re-checked against the card's own (a mismatch is reported, not overwritten)."""
+    card = jload(a.restamp)
+    bom = Path(a.bom)
+    sg = stock_gate(bom, a.snapshot, a.stock)
+    if not sg:
+        raise SystemExit("--restamp needs --snapshot")
+    bp = _bom_pricing()
+    cf = bp.card_fields(bp.price_bom(bom, bp.load_reads(a.sourcing)))
+    for k in ("parts_usd_at_5_v2", "parts_usd_at_500_v2"):
+        if card["cost"].get(k) is not None and abs(card["cost"][k] - cf[k]) > 0.005:
+            print(f"WARNING: {k} on the card {card['cost'][k]} but {cf[k]} from the reads given; totals left as scored")
+    card["cost"].update(sg)
+    card["cost"]["price_lines_500"] = cf["price_lines_500"]
+    card["gates"]["bom_buildable_500"] = sg[f"bom_lines_short_at_{BUILD_BOARDS}"] == 0
+    sp = Path(a.snapshot).resolve()
+    card.setdefault("sources", {})["stock_gate"] = (f"scorecard.py stock_gate over {sp.relative_to(UNIT) if sp.is_relative_to(UNIT) else sp}, "
+                                                    f"BOM {bom.name}; restamped {a.restamp}")
+    Path(a.restamp).write_text(json.dumps(card, indent=1))
+    print(f"{card['tag']}: bom_lines_short_at_{BUILD_BOARDS} = {sg[f'bom_lines_short_at_{BUILD_BOARDS}']}")
+    for l in sg[f"bom_short_lines_{BUILD_BOARDS}"]:
+        print(f"  SHORT {l['mpn']} ({l['designators']}): buildable {l['buildable']} < need {l['need']} "
+              f"[JLC {l['jlc_stock']}, auth {l['auth_best_stock']}; {l['why']}]")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("tag", nargs="?")
@@ -508,10 +662,17 @@ def main():
                     help="dated stock snapshot (build_snapshot.py) for the buildability metrics; latest by name")
     ap.add_argument("--audit")
     ap.add_argument("--json")
+    ap.add_argument("--restamp", metavar="CARD.json",
+                    help="add the stock gate and price-channel fields to a saved card (from --bom / --snapshot / --stock; "
+                         "--sourcing = the sourcing folder the card's prices were read from); writes the card in place")
+    ap.add_argument("--sourcing", help="--restamp: sourcing folder for bom_pricing reads (default: this unit's)")
     ap.add_argument("--compare")
     ap.add_argument("--strict-basis", action="store_true",
                     help="refuse (REJECT) when the card and the benchmark are on different parts-price bases")
     a = ap.parse_args()
+    if a.restamp:
+        restamp(a)
+        return
     if a.card:
         card = jload(a.card)
         notes = []
@@ -532,6 +693,9 @@ def main():
             "gates": gates(b, a.tag, a.audit), "performance": perf, "cost": cost(b, Path(a.bom), a.stock),
             "sources": src}
     card["cost"].update(buildability(Path(a.bom), a.snapshot))
+    card["cost"].update(stock_gate(Path(a.bom), a.snapshot, a.stock))
+    if f"bom_lines_short_at_{BUILD_BOARDS}" in card["cost"]:
+        card["gates"]["bom_buildable_500"] = card["cost"][f"bom_lines_short_at_{BUILD_BOARDS}"] == 0
     card["sources"]["bom_pricing"] = ("gates/bom_pricing.py " + card["cost"]["price_basis"] + " over the 2026-10-15 JLC / DigiKey / "
                                       "Octopart snapshots and the STOCK-2026-10-13*.csv survey reads (sourcing/)")
     if a.snapshot:
@@ -554,4 +718,5 @@ def main():
     raise SystemExit(0 if all(card["gates"].values()) else 1)
 
 
-main()
+if __name__ == "__main__":
+    main()

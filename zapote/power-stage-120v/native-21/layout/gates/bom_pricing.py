@@ -206,6 +206,16 @@ def artefact_reasons(c, price, others):
     return why
 
 
+def channel_of(c):
+    """Price channel of a read: 'jlc' (JLC part-page ladder or a JLC survey read), 'digikey' (DigiKey page, Octopart DigiKey
+    offer or a DK survey read), 'distributor' (any other authorised seller), 'estimate' (class default / derived)."""
+    if c["kind"] == "jlc":
+        return "jlc"
+    if c["kind"] == "auth":
+        return "digikey" if c["source"].startswith(("Digi-Key", "DigiKey")) else "distributor"
+    return {"dist": "digikey", "jlc": "jlc"}.get(c.get("cls"), "estimate")
+
+
 def price_line(mpn, qty, code, R, boards):
     """Price one BOM line for `boards` boards. Returns a dict with the chosen price, tier, source, date, flags and
     every candidate considered."""
@@ -249,6 +259,7 @@ def price_line(mpn, qty, code, R, boards):
     if got:
         c, tier = got
         unit, source, date = c["price"], c["source"], c["date"]
+        channel = channel_of(c)
         if tier == "P3":
             flags.append("short: no 2026-10-15 read shows a source holding the lot; priced from the best-covering read")
         if tier == "P4":
@@ -264,9 +275,11 @@ def price_line(mpn, qty, code, R, boards):
         e = R.survey.get(mpn)
         unit = _n(e[("unit_usd_at_5boards" if boards == 5 else "unit_usd_at_500boards")]) if e else None
         if unit is not None:
+            channel = "estimate"
             tier, source, date = "P5", f"ESTIMATE {e['_file']}: {e['price_source'].strip()[:90]}", e["check_date"]
             flags.append("estimate")
         else:
+            channel = "none"
             tier, source, date = "none", "", ""
             flags.append("unpriced")
     # cheapest stock-holding read (JLC stock or authorised stock), for the sensitivity total only
@@ -274,13 +287,28 @@ def price_line(mpn, qty, code, R, boards):
         (c["kind"] == "jlc" and c["in_library"] and not c["listed_no_stock"] and c["stock"] >= need)
         or (c["kind"] == "auth" and (c["stock"] or 0) >= need and (c["moq"] or 1) <= need))]
     rec = {"boards": boards, "need": need, "unit": unit, "line_usd": None if unit is None else round(unit * qty, 6),
-           "tier": tier, "source": source, "date": date, "flags": flags,
+           "tier": tier, "source": source, "date": date, "flags": flags, "channel": channel,
+           "channel_prices": _channel_prices(ok),
            "cheapest_stock_holding_unit": min(hold) if hold else None,
            "candidates": [{"source": c["source"], "kind": c["kind"], "date": c["date"], "stock": c["stock"], "moq": c["moq"],
                            "unit": c["price"], "artefact": c["artefact"],
                            "non_purchasable": bool(c.get("listed_no_stock")),
                            "survey_class": c.get("cls")} for c in cands]}
     return rec
+
+
+def _channel_prices(ok):
+    """Lowest non-artefact unit price per price channel (estimates excluded): lets a comparison re-price a line on a
+    channel both cards have a read for. A JLC listing with stock 0 is a catalogue price, kept apart as 'jlc_no_stock'."""
+    out = {}
+    for c in ok:
+        if not c["price"] or (c["kind"] == "survey" and c.get("cls") not in ("dist", "jlc")):
+            continue
+        no_stock = c.get("listed_no_stock") or (c["kind"] == "survey" and c.get("cls") == "jlc" and c["stock"] == 0)
+        ch = "jlc_no_stock" if no_stock else channel_of(c)
+        if ch not in out or c["price"] < out[ch]:
+            out[ch] = c["price"]
+    return out
 
 
 def read_bom(path):
@@ -335,6 +363,10 @@ def card_fields(priced):
         "price_short_lines_500": sorted(l["mpn"] for l in L if l["n500"]["tier"] == "P3"),
         "price_tiers_5": T["tiers_5"],
         "price_tiers_500": T["tiers_500"],
+        # per line (keyed by designators) channel + unit at the 500-board lot, for same-channel comparison (scorecard.compare)
+        "price_lines_500": [{"designators": l["designators"], "mpn": l["mpn"], "qty": l["qty"], "tier": l["n500"]["tier"],
+                             "channel": l["n500"]["channel"], "unit": l["n500"]["unit"],
+                             "channel_prices": l["n500"]["channel_prices"]} for l in L],
     }
 
 
