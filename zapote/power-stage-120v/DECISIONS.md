@@ -2228,3 +2228,32 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       current is the cheapest correct answer now; a later candidate can buy it back and must show it on this basis.
     - **Reverses if:** a coupled solve with redistributed current (not fixed J) or bench thermocouples at R10 / R12 at
       17.5–18 A show ≥ 2 K more margin than this model; or a layout candidate raises the R10 row.
+
+62. **Stage 46 (candidate 46): rail-monitor ICs on their 125 °C grades, BOM-only on s45 (2026-10-15; adopted). Board
+    16a58861 (integration build), geometry identical to s45 a1e6488f; card ACCEPT against the hot-copper s45 card.**
+    Records: `11-candidates/c46-monitor-grades/README.md` (lane build 7bfe8b76 on the c18 basis; the integration chain
+    re-ran it on the c17.5 basis of item 61, `runs-native21/s46/chain46int.log`, CHAIN_DONE, no spine owner).
+    - **Change:** U17 / U19 / U21 TL431BIDBZR → **TL431BQDBZR** (C190245, 17,789 at JLC); U29–U31 LM339BIDR →
+      **LM2901BIDR** (C22427890, **1,966 against 1,500: buy early**). Same pads and pinouts; 6 instances; BOM stays at
+      94 lines, 69 Extended; **+$0.12 / board** (v2 pricing $171.71 → $171.83 @ 500). The B3 gate now takes each
+      monitor row's limit from the T_A grade of the MPN in the frozen BOM (`MONITOR_GRADES`); an unknown MPN stops it.
+    - **B3 (hot copper, c17.5 @ 61):** worst monitor U29 102.6 °C, **+22.4 K** against 125 °C (c28: +19.0 K). Release
+      margin −17.6 → **+1.0 K**, bound by R10 2512 terminal derating; **`b3_ratings` gate PASS** for the first time on
+      hot copper. Ratchet unchanged (laminate −51.1, rated part −51.3 K).
+    - **Bands on the 125 °C basis** (dividers unchanged; controls reproduce s45 to 1e-4): rail margins worst case neg
+      UV +0.060, neg OV +0.105, span UV **+0.057** (was +0.096), span OV +0.102 V; joint RSS 6.0σ / 6.4σ unchanged. Span
+      UV is MARGINAL against the 0.080 V target, still positive at the worst-case corner; the span-UV lower corner 15.53 V
+      is +0.03 V over 15.5 V. Span-OV corner 18.643 V, +0.357 V under the 19 V hot-load re-run; 2EDR8259X VDD 0.888 of
+      21 V.
+    - **Card:** every gate and other metric equals s45; better `b3_release_margin_K`; `gates.b3_ratings` False → True.
+      Audit 88 / 88 (with `stage46` checks), ledger PASS 3 / 38 / 53 / 0 of 94 (LM2901BIDR PARTIAL), all unit tests pass.
+    - **U5 stays LM4040A25IDBZR, and is still over its rating:** no A-grade 125 °C LM4040 exists at TI, and the C25Q
+      would raise the OVP upper corner by 2.16 V. The probe sweep reads U5 at 89.5 °C against 85 °C (−4.5 K at c18 @
+      61), a report-only row the gate does not hold. **Open:** a cross-vendor search for a 0.1 % 125 °C 2.5 V shunt
+      that holds the OVP and OCP corners is running; the row becomes gated when it lands.
+    - **Integration note:** the lane's ledger refresh of 30 c18 citations was superseded by item 61's c17.5 re-cite; the
+      new part entries were re-applied with `ledger46.py` on the integration margins.
+    - **Not done:** FMEA C1–C7 re-run on the Q grades; the 15.5 V droop campaign at the span-UV corner; JLC preview of
+      the 6 changed CPL lines (U17 / U19 / U21 180°, U29–U31 270°).
+    - **Board of record and benchmark: s46.** FAB-NOTE moved to 16a58861 / gerbers 059681ec.
+    - **Reverses if:** LM2901BIDR stock cannot cover the lot (fallback LM339BIDR fails the release case at any current).

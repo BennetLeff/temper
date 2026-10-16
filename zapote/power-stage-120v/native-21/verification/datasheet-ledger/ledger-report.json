@@ -14,8 +14,8 @@
    "VIOLATION": 0
   },
   "SIGNAL": {
-   "PARTIAL": 8,
-   "UNAUDITED": 54,
+   "PARTIAL": 9,
+   "UNAUDITED": 53,
    "VERIFIED": 1,
    "VIOLATION": 0
   }
@@ -465,7 +465,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "VDD operating max",
-     "ratio": 0.8857,
+     "ratio": 0.8876,
      "severity": "violation",
      "stress": "VDD at the span OV trip"
     },
@@ -2279,8 +2279,54 @@
    "status": "PARTIAL",
    "unchecked_layout": []
   },
-  "LM339BIDR": {
-   "checks": [],
+  "LM2901BIDR": {
+   "checks": [
+    {
+     "id": "VS",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Supply voltage, recommended max",
+     "ratio": 0.5179,
+     "severity": "violation",
+     "stress": "Supply voltage, operating max"
+    },
+    {
+     "id": "VIN",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Input voltage range max at the lowest operating span",
+     "ratio": 0.1318,
+     "severity": "violation",
+     "stress": "Input voltage, operating max"
+    },
+    {
+     "id": "IOL",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Output sink current, abs max",
+     "ratio": 0.0202,
+     "severity": "violation",
+     "stress": "Output sink current"
+    },
+    {
+     "id": "temperature, release case",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Free-air temperature max",
+     "ratio": 0.8208,
+     "severity": "violation",
+     "stress": "Local temperature, release case"
+    },
+    {
+     "id": "temperature, BASIS max",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Free-air temperature max",
+     "ratio": 0.848,
+     "severity": "violation",
+     "stress": "Local temperature, BASIS max"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "U29",
@@ -2288,11 +2334,13 @@
     "U31"
    ],
    "finding": null,
-   "function": "quad comparator",
+   "function": "Rail-monitor quad comparator (four windows wired-AND onto 'good', no hysteresis), LS / HS-A / HS-B; the 125 C grade since stage 46 (S17 hot copper; LM339BIDR before)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "the local temperature is the B3 body-model estimate (pad copper as the die / ambient proxy, hot copper, still air at the BASIS bays), not a measurement; the band analysis is bounded at the 125 C rated maximum (validation-results/11-candidates/c46-monitor-grades/results/bands-s46.md)",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger",
+    "fault states where src floats to P (R77 / TLVH431 open) put the UV tap above (V+) - 2 V; the paired input (halfref) stays in range, which the datasheet note 1 (6.8 p.8) says is sufficient"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "LM4040A25IDBZR": {
@@ -3218,7 +3266,7 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
-  "TL431BIDBZR": {
+  "TL431BQDBZR": {
    "checks": [
     {
      "id": "VKA",
@@ -3234,7 +3282,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Cathode current, recommended max",
-     "ratio": 0.0729,
+     "ratio": 0.0734,
      "severity": "violation",
      "stress": "Cathode current, operating max"
     },
@@ -3243,18 +3291,27 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Cathode current, recommended max",
-     "ratio": 0.0979,
+     "ratio": 0.0983,
      "severity": "violation",
      "stress": "Cathode current, fault case"
     },
     {
-     "id": "temperature (estimate)",
+     "id": "temperature, release case",
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Free-air temperature max",
-     "ratio": 0.7565,
-     "severity": "gap",
-     "stress": "Local temperature, expected"
+     "ratio": 0.7392,
+     "severity": "violation",
+     "stress": "Local temperature, release case"
+    },
+    {
+     "id": "temperature, BASIS max",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Free-air temperature max",
+     "ratio": 0.7584,
+     "severity": "violation",
+     "stress": "Local temperature, BASIS max"
     }
    ],
    "class": "SIGNAL",
@@ -3264,9 +3321,9 @@
     "U21"
    ],
    "finding": null,
-   "function": "Rail-monitor reference (REF tied to K, fed by rref 2.2 k), LS / HS-A / HS-B; B grade since stage 45 (S16 option 1c-4420, DECISIONS 59)",
+   "function": "Rail-monitor reference (REF tied to K, fed by rref 2.2 k), LS / HS-A / HS-B; B grade since stage 45 (S16 option 1c-4420, DECISIONS 59), Q temperature grade since stage 46 (S17 hot copper)",
    "gaps": [
-    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the local temperature is the B3 body-model estimate (pad copper as the die / ambient proxy, hot copper, still air at the BASIS bays), not a measurement; the band analysis is bounded at the 125 C rated maximum (validation-results/11-candidates/c46-monitor-grades/results/bands-s46.md)",
     "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger",
     "Vref long-term (load-life) drift is not specified (only VI(dev) over temperature); covered only by the 0.5 % margin target of the band analysis"
    ],
@@ -3522,6 +3579,7 @@
   "IPW65R018CFD7",
   "ISO6721FBDR",
   "KLDR025.TXP",
+  "LM2901BIDR",
   "MPM-20-24",
   "R24C2T25/R-R",
   "R463N410050N1K",
@@ -3532,15 +3590,15 @@
   "RT0603BRD07750RL",
   "RT0603BRD0790K9L",
   "SN74LVC1G132DBVR",
-  "TL431BIDBZR",
+  "TL431BQDBZR",
   "TMOV20RP175E",
   "VOL628A-2X001T"
  ],
  "result": "PASS",
  "strict": false,
  "totals": {
-  "PARTIAL": 37,
-  "UNAUDITED": 54,
+  "PARTIAL": 38,
+  "UNAUDITED": 53,
   "VERIFIED": 3,
   "VIOLATION": 0
  },
@@ -3570,7 +3628,6 @@
   "GRM188R71E105KA12D",
   "GRM21BZ71E106KE15L",
   "GRM31C5C1H104JA01L",
-  "LM339BIDR",
   "LM4040A25IDBZR",
   "PMEG6030EP,115",
   "RC1206FR-0716K5L",
@@ -3604,6 +3661,6 @@
  "unchecked_layout_items": 15,
  "violations": [],
  "warnings": [
-  "54 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
+  "53 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
  ]
 }

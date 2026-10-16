@@ -3001,7 +3001,7 @@
      "enforced_by": "libraries/temper.pretty/Wuerth_REDCUBE-SMT_WP-SMBU_7466004R.kicad_mod"
     },
     {
-     "item": "terminal current into the inner and B.Cu layers through 20 land vias (0.85 / 0.3 mm) per terminal round the Ø8.5 land (design guide p.7 / p.11: 0.3-0.4 mm drills)",
+     "item": "terminal current into the inner and B.Cu layers through 20 land vias (0.85 / 0.3 mm) per terminal round the \u00d88.5 land (design guide p.7 / p.11: 0.3-0.4 mm drills)",
      "enforced_by": "native-21/layout/patches21.py"
     },
     {
@@ -5027,22 +5027,22 @@
    "finding": null,
    "notes": null
   },
-  "TL431BIDBZR": {
-   "mpn": "TL431BIDBZR",
+  "TL431BQDBZR": {
+   "mpn": "TL431BQDBZR",
    "designators": [
     "U17",
     "U19",
     "U21"
    ],
    "class": "SIGNAL",
-   "function": "Rail-monitor reference (REF tied to K, fed by rref 2.2 k), LS / HS-A / HS-B; B grade since stage 45 (S16 option 1c-4420, DECISIONS 59)",
+   "function": "Rail-monitor reference (REF tied to K, fed by rref 2.2 k), LS / HS-A / HS-B; B grade since stage 45 (S16 option 1c-4420, DECISIONS 59), Q temperature grade since stage 46 (S17 hot copper)",
    "status": "PARTIAL",
    "datasheet": {
     "url": "https://www.ti.com/lit/ds/symlink/tl431.pdf",
     "revision": "TI SLVS543S, Aug 2004, revised May 2024",
     "fetched": "2026-10-15",
     "repo_copy": null,
-    "note": "S16 study download (datasheet-manifest.json); not committed. Table 6.12 p.13 (TL431BI): Vref 2483 / 2495 / 2507 mV at 25 C, VKA = Vref, IKA 10 mA; VI(dev) 14 typ / 34 max mV (max - min over the rated temperature range, note 1); |ZKA| 0.5 ohm max; Imin 0.7 mA max. Table 6.1 p.5 abs max VKA 37 V, IKA -100..150 mA, TJ 150 C; Table 6.4 p.5 recommended VKA Vref..36 V, IKA 1..100 mA, TL43xxI TA -40..85 C; Table 6.3 p.5 DBZ RthJA 206 C/W; Table 5-1 p.4 DBZ pins 1 = cathode, 2 = REF, 3 = anode (same as the A grade)",
+    "note": "S16 study download, copied to runs-native21/s46/dl; not committed. Table 6.13 p.14 (TL431BQ): Vref 2483 / 2495 / 2507 mV at 25 C, VKA = Vref, IKA 10 mA; VI(dev) 14 typ / 34 max mV (max - min over the rated temperature range, note 1); |ZKA| 0.5 ohm max; Imin 0.7 mA max (the BI row's numbers, Table 6.12 p.13, over the wider range). Table 6.1 p.5 abs max VKA 37 V, IKA -100..150 mA, TJ 150 C; Table 6.4 p.5 recommended VKA Vref..36 V, IKA 1..100 mA, TL43xxQ TA -40..125 C; Table 6.3 p.5 DBZ RthJA 206 C/W; p.4 DBZ pins 1 = cathode, 2 = REF, 3 = anode (all grades); orderable TL431BQDBZR p.39, -40 to 125 C",
     "sha256_prefix16": "ed2e90697de4e2c5"
    },
    "ratings": [
@@ -5062,24 +5062,24 @@
     },
     {
      "parameter": "Free-air temperature max",
-     "datasheet_limit": 85,
+     "datasheet_limit": 125,
      "unit": "C",
-     "basis": "TL43xxI operating range -40..85 C",
+     "basis": "TL43xxQ operating range -40..125 C (TL43xxI: 85 C)",
      "source": "Table 6.4 p.5"
     },
     {
      "parameter": "Vref at 25 C, B grade",
      "datasheet_limit": 2.507,
      "unit": "V",
-     "basis": "2.483-2.507 V (A grade 2.470-2.520 V, Table 6.9 p.10); the S16 band model takes this range +- VI(dev)",
-     "source": "Table 6.12 p.13"
+     "basis": "2.483-2.507 V; the S16 band model takes this range +- VI(dev)",
+     "source": "Table 6.13 p.14"
     },
     {
      "parameter": "VI(dev) max",
      "datasheet_limit": 0.034,
      "unit": "V",
-     "basis": "deviation over the full rated temperature range, max - min (not a TC)",
-     "source": "Table 6.12 p.13"
+     "basis": "deviation over the full rated temperature range (-40..125 C for the Q grade), max - min (not a TC)",
+     "source": "Table 6.13 p.14"
     }
    ],
    "stresses": [
@@ -5088,31 +5088,38 @@
      "worst_case_value": 2.541,
      "unit": "V",
      "condition": "REF tied to K: VKA = Vref <= 2.507 + 0.034 V",
-     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:45"
+     "evidence": "validation-results/11-candidates/c46-monitor-grades/results/bands-s46.md:40"
     },
     {
      "parameter": "Cathode current, operating max",
-     "worst_case_value": 7.291,
+     "worst_case_value": 7.342,
      "unit": "mA",
-     "condition": "span at the span-OV worst-case upper corner, rref -1.6 %, Vref low, halfref divider high (minimum 5.652 mA at the span-UV lower corner, >= 1 mA)",
-     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:45"
+     "condition": "span at the span-OV worst-case upper corner (125 C basis), rref -2 %, Vref low, halfref divider high (minimum 5.612 mA at the span-UV lower corner, >= 1 mA)",
+     "evidence": "validation-results/11-candidates/c46-monitor-grades/results/bands-s46.md:40"
     },
     {
      "parameter": "Cathode current, fault case",
-     "worst_case_value": 9.786,
+     "worst_case_value": 9.827,
      "unit": "mA",
-     "condition": "span at V24_RAW 24 V (LS LDO pass short; stated case, not a bound); 24.87 mW, 5.12 K self-heat at 206 C/W",
-     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:45"
+     "condition": "span at V24_RAW 24 V (LS LDO pass short; stated case, not a bound); 24.97 mW, 5.14 K self-heat at 206 C/W",
+     "evidence": "validation-results/11-candidates/c46-monitor-grades/results/bands-s46.md:40"
     },
     {
-     "parameter": "Local temperature, expected",
-     "worst_case_value": 64.3,
+     "parameter": "Local temperature, release case",
+     "worst_case_value": 92.4,
      "unit": "C",
-     "condition": "S16 fallback estimate (no B3 row): bay 61 C + self-heat; not solved",
-     "evidence": "validation-results/11-candidates/s16-monitor-2026-10-15/README.md:73"
+     "condition": "B3 hot-copper gated row (pad-copper max + P x RthJA), c17.5_h10 at bay 61 C, worst of U17 / U19 / U21 (U17); board 16a58861",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json cases.c17.5_h10 'U17:' row"
+    },
+    {
+     "parameter": "Local temperature, BASIS max",
+     "worst_case_value": 94.8,
+     "unit": "C",
+     "condition": "same rows, worst over the BASIS cases (U17 at c28_h10)",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json cases.c28_h10 'U17:' row"
     }
    ],
-   "derating_rule": "VKA and IKA inside the recommended operating conditions (IKA >= 1 mA); ambient <= 85 C (I grade).",
+   "derating_rule": "VKA and IKA inside the recommended operating conditions (IKA >= 1 mA); ambient <= 125 C (Q grade).",
    "checks": [
     {
      "id": "VKA",
@@ -5129,8 +5136,8 @@
      "stress": "Cathode current, operating max",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "7.291 mA <= 100 mA",
-     "ratio": 0.0729
+     "rule": "7.342 mA <= 100 mA",
+     "ratio": 0.0734
     },
     {
      "id": "IKA fault",
@@ -5138,17 +5145,26 @@
      "stress": "Cathode current, fault case",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "9.786 mA <= 100 mA",
-     "ratio": 0.0979
+     "rule": "9.827 mA <= 100 mA",
+     "ratio": 0.0983
     },
     {
-     "id": "temperature (estimate)",
+     "id": "temperature, release case",
      "rating": "Free-air temperature max",
-     "stress": "Local temperature, expected",
+     "stress": "Local temperature, release case",
      "max_ratio": 1.0,
-     "severity": "gap",
-     "rule": "64.3 C estimate <= 85 C; not a solved temperature",
-     "ratio": 0.7565
+     "severity": "violation",
+     "rule": "92.4 C <= 125 C (B3 gate row)",
+     "ratio": 0.7392
+    },
+    {
+     "id": "temperature, BASIS max",
+     "rating": "Free-air temperature max",
+     "stress": "Local temperature, BASIS max",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "94.8 C <= 125 C",
+     "ratio": 0.7584
     }
    ],
    "layout_guidance": [
@@ -5158,12 +5174,12 @@
     }
    ],
    "gaps": [
-    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the local temperature is the B3 body-model estimate (pad copper as the die / ambient proxy, hot copper, still air at the BASIS bays), not a measurement; the band analysis is bounded at the 125 C rated maximum (validation-results/11-candidates/c46-monitor-grades/results/bands-s46.md)",
     "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger",
     "Vref long-term (load-life) drift is not specified (only VI(dev) over temperature); covered only by the 0.5 % margin target of the band analysis"
    ],
    "finding": null,
-   "notes": "JLC C41283, extended, 182,901 in stock 2026-10-15; $0.0467 at 500+ (1,500 pcs). Replaces TL431AIDBZR (C23892) on the same DBZ pads: the A grade's 25 C tolerance (+-25 mV) and VI(dev) dominated the s43 / s44 window widths (S16 rss_contrib). Bands: validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md."
+   "notes": "JLC C190245, extended, 17,789 in stock 2026-10-15; $0.0744 at 500+ (1,500 pcs). Replaces TL431BIDBZR (C41283) on the same DBZ pads: at the c18 @ 61 release case the I grade read -7.7 / +3.1 / -0.5 K on the s42 board (b3-ratings/monitor-probes-2026-10-15). Bands at the 125 C basis: validation-results/11-candidates/c46-monitor-grades/results/bands-s46.md."
   },
   "RC1206FR-072K2L": {
    "mpn": "RC1206FR-072K2L",
@@ -5637,27 +5653,159 @@
    "finding": null,
    "notes": "JLC C861070, extended, 8,450 in stock 2026-10-15; $0.0212 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4)."
   },
-  "LM339BIDR": {
-   "mpn": "LM339BIDR",
+  "LM2901BIDR": {
+   "mpn": "LM2901BIDR",
    "designators": [
     "U29",
     "U30",
     "U31"
    ],
    "class": "SIGNAL",
-   "function": "quad comparator",
-   "status": "UNAUDITED",
-   "datasheet": null,
-   "ratings": [],
-   "stresses": [],
-   "derating_rule": "",
-   "checks": [],
-   "layout_guidance": [],
+   "function": "Rail-monitor quad comparator (four windows wired-AND onto 'good', no hysteresis), LS / HS-A / HS-B; the 125 C grade since stage 46 (S17 hot copper; LM339BIDR before)",
+   "status": "PARTIAL",
+   "datasheet": {
+    "url": "https://www.ti.com/lit/ds/symlink/lm339b.pdf",
+    "revision": "TI SLCS006Z, Oct 1979, revised May 2025",
+    "fetched": "2026-10-15",
+    "repo_copy": null,
+    "note": "S16 study download, copied to runs-native21/s46/dl; not committed. 6.1 p.5 (LM339B and LM2901B) abs max supply 38 V, inputs -0.3..38 V, output pin 38 V, output sink 25 mA, TJ 150 C; 6.4 p.6 recommended supply 2..36 V, LM2901B TA -40..125 C, input range (V-) - 0.1 .. (V+) - 2.0 V; 6.6 p.6 D (SOIC) RthJA 111.2 C/W; 6.8 p.8 (LM2901B) VIO +-3.5 mV at 25 C, +-5.5 mV over -40..125 C, IB <= 50 nA, VOL <= 550 mV at 4 mA over temperature, IQ <= 1.6 mA at 36 V; Table 5-1 p.4 D pinout (one table for LM339B and LM2901B); orderable LM2901BIDR p.28, SOIC (D) 14, -40 to 125 C",
+    "sha256_prefix16": "406e7bd1ab1f2fb1"
+   },
+   "ratings": [
+    {
+     "parameter": "Supply voltage, recommended max",
+     "datasheet_limit": 36,
+     "unit": "V",
+     "basis": "recommended operating conditions (2..36 V)",
+     "source": "6.4 p.6"
+    },
+    {
+     "parameter": "Free-air temperature max",
+     "datasheet_limit": 125,
+     "unit": "C",
+     "basis": "LM2901B TA -40..125 C (LM339B: 85 C)",
+     "source": "6.4 p.6"
+    },
+    {
+     "parameter": "Input voltage range max at the lowest operating span",
+     "datasheet_limit": 13.531,
+     "unit": "V",
+     "basis": "(V+) - 2.0 V at V+ = 15.5315 V, the span-UV worst-case lower corner (only one input of a pair needs to be in range, 6.7 / 6.8 note 1)",
+     "source": "6.4 p.6; 6.8 p.8 note 1"
+    },
+    {
+     "parameter": "Output sink current, abs max",
+     "datasheet_limit": 25,
+     "unit": "mA",
+     "basis": "absolute maximum",
+     "source": "6.1 p.5"
+    },
+    {
+     "parameter": "VIO over temperature",
+     "datasheet_limit": 0.0055,
+     "unit": "V",
+     "basis": "-40..125 C, VS 5..36 V; used by the band analysis",
+     "source": "6.8 p.8"
+    }
+   ],
+   "stresses": [
+    {
+     "parameter": "Supply voltage, operating max",
+     "worst_case_value": 18.6434,
+     "unit": "V",
+     "condition": "V+ - V- = the span, at the span-OV worst-case upper corner (125 C basis); the 24 V V24_RAW fault case is 0.667 of 36 V",
+     "evidence": "validation-results/11-candidates/c46-monitor-grades/results/bands-s46.md:41"
+    },
+    {
+     "parameter": "Input voltage, operating max",
+     "worst_case_value": 1.783,
+     "unit": "V",
+     "condition": "span-OV tap at the span-OV upper corner (18.6434 V x 11000 / 115000); halfref <= 1.76 V, the neg taps <= 1.61 V",
+     "evidence": "validation-results/11-candidates/c46-monitor-grades/results/bands-s46.md:20"
+    },
+    {
+     "parameter": "Output sink current",
+     "worst_case_value": 0.505,
+     "unit": "mA",
+     "condition": "fault state: the 10 k 1 % pull-up (rpull) from the 5 V LDO into the wired-AND outputs",
+     "evidence": "elec/src/f6_bias.ato RailMonitor rpull / ldo5"
+    },
+    {
+     "parameter": "Local temperature, release case",
+     "worst_case_value": 102.6,
+     "unit": "C",
+     "condition": "B3 hot-copper gated row (pad-copper max + P x RthJA), c17.5_h10 at bay 61 C, worst of U29 / U30 / U31 (U29); board 16a58861",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json cases.c17.5_h10 'U29:' row"
+    },
+    {
+     "parameter": "Local temperature, BASIS max",
+     "worst_case_value": 106.0,
+     "unit": "C",
+     "condition": "same rows, worst over the BASIS cases (U29 at c28_h10)",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json cases.c28_h10 'U29:' row"
+    }
+   ],
+   "derating_rule": "Supply and inputs inside the recommended operating conditions; output sink under the abs max; ambient <= 125 C.",
+   "checks": [
+    {
+     "id": "VS",
+     "rating": "Supply voltage, recommended max",
+     "stress": "Supply voltage, operating max",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "18.6434 V <= 36 V",
+     "ratio": 0.5179
+    },
+    {
+     "id": "VIN",
+     "rating": "Input voltage range max at the lowest operating span",
+     "stress": "Input voltage, operating max",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "1.783 V <= 13.531 V",
+     "ratio": 0.1318
+    },
+    {
+     "id": "IOL",
+     "rating": "Output sink current, abs max",
+     "stress": "Output sink current",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "0.505 mA <= 25 mA",
+     "ratio": 0.0202
+    },
+    {
+     "id": "temperature, release case",
+     "rating": "Free-air temperature max",
+     "stress": "Local temperature, release case",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "102.6 C <= 125 C (B3 gate row)",
+     "ratio": 0.8208
+    },
+    {
+     "id": "temperature, BASIS max",
+     "rating": "Free-air temperature max",
+     "stress": "Local temperature, BASIS max",
+     "max_ratio": 1.0,
+     "severity": "violation",
+     "rule": "106.0 C <= 125 C",
+     "ratio": 0.848
+    }
+   ],
+   "layout_guidance": [
+    {
+     "item": "same SOIC-14 pads and nets as the LM339BIDR (BOM-only stage)",
+     "enforced_by": "audit.rs (IDENTITY) and prototype-closure/pcb/pin_functions21.py (supply / output net check)"
+    }
+   ],
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "the local temperature is the B3 body-model estimate (pad copper as the die / ambient proxy, hot copper, still air at the BASIS bays), not a measurement; the band analysis is bounded at the 125 C rated maximum (validation-results/11-candidates/c46-monitor-grades/results/bands-s46.md)",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger",
+    "fault states where src floats to P (R77 / TLVH431 open) put the UV tap above (V+) - 2 V; the paired input (halfref) stays in range, which the datasheet note 1 (6.8 p.8) says is sufficient"
    ],
    "finding": null,
-   "notes": null
+   "notes": "JLC C22427890, extended, 1,966 in stock 2026-10-15 against 1,500 for 500 boards (buy early); $0.1266 at 500+ (1,500 pcs). Replaces LM339BIDR (C22416291) on the same SOIC-14 pads: at the c18 @ 61 release case the LM339B read -17.9 / -11.6 / -16.5 K on the s42 board (b3-ratings/monitor-probes-2026-10-15). Bands at the 125 C basis: validation-results/11-candidates/c46-monitor-grades/results/bands-s46.md."
   },
   "R24C2T25/R-R": {
    "mpn": "R24C2T25/R-R",
@@ -6591,10 +6739,10 @@
    "stresses": [
     {
      "parameter": "VDD at the span OV trip",
-     "worst_case_value": 18.6,
+     "worst_case_value": 18.64,
      "unit": "V",
-     "condition": "s45 (S16 option 1c-4420): the span-OV worst-case upper corner (nominal 18.09 V); the stage runs up to this span before the monitor disables DIS (was 17.84 V, the c25-driver nominal trip at the old values)",
-     "evidence": "validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md:44"
+     "condition": "s46 (S16 option 1c-4420 values on the 125 C grades, band at -10..125 C): the span-OV worst-case upper corner (nominal 18.09 V); the stage runs up to this span before the monitor disables DIS (s45 at the 85 C basis: 18.60 V; was 17.84 V, the c25-driver nominal trip at the pre-s45 values)",
+     "evidence": "validation-results/11-candidates/c46-monitor-grades/results/bands-s46.md:39"
     },
     {
      "parameter": "Barrier peak",
@@ -6640,8 +6788,8 @@
      "stress": "VDD at the span OV trip",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "<= 21 V operating (18.6 V worst-case upper corner, 0.886)",
-     "ratio": 0.8857
+     "rule": "<= 21 V operating (18.64 V worst-case upper corner, 0.888)",
+     "ratio": 0.8876
     },
     {
      "id": "barrier",

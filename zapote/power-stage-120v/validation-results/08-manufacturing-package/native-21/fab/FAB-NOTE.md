@@ -1,11 +1,13 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 45, the board of record (DECISIONS.md item 60: stage 44's copper, item 58, with the S16 rail-monitor
-values; the stage history is DECISIONS.md items 12–60). Built by
-`sh native-21/layout/gates/chain.sh native21s45 …`; SHA-256
-`a1e6488f72c6af95a971182d6b024a157339a5a983f29e264f7715f1ae6c0199` (the hot-copper re-score build, 2026-10-15; geometry, footprints and fields identical to the adopted 26ce9531 by `c45-s16-monitor/scripts/geom_diff45.py`; the hash differs only in file ordering and refill).
+Board: native-21 stage 46, the board of record (DECISIONS.md item 62: stage 45 with the rail-monitor ICs on their
+125 °C grades; item 60: the S16 rail-monitor values on stage 44's copper, item 58; the stage history is DECISIONS.md
+items 12–62). Built by `sh native-21/layout/gates/chain.sh native21s46 …`; SHA-256
+`16a588612c9823a5acf80760c75f7e985a5e359b4c9027bd4bedd4a463fea809` (geometry identical to the s45 build a1e6488f by
+`c45-s16-monitor/scripts/geom_diff45.py`; only U17 / U19 / U21 and U29–U31 Value / MPN change).
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`e8dd9726f07cf7fda4605b2cd450e18fd06c51e8a09f8bfd05b9f6602eeeba33`.
+`059681eca3a4c580b37c3bd74105f657335f36814fe8a6bc080ff1046ea9f6b8`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
+(DECISIONS.md item 61).
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).
 

@@ -53,59 +53,11 @@
  "cases": {
   "c17.5_h10": [
    {
-    "item": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 102.6,
-    "self_heat_k": 3.14,
-    "margin_k": -17.6
-   },
-   {
-    "item": "U31: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 101.3,
-    "self_heat_k": 3.14,
-    "margin_k": -16.3
-   },
-   {
-    "item": "U30: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 96.5,
-    "self_heat_k": 3.14,
-    "margin_k": -11.5
-   },
-   {
-    "item": "U17: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 92.4,
-    "self_heat_k": 3.44,
-    "margin_k": -7.4
-   },
-   {
-    "item": "U21: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 85.3,
-    "self_heat_k": 3.44,
-    "margin_k": -0.3
-   },
-   {
     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
     "est_c": 131.0,
     "margin_k": 1.0
-   },
-   {
-    "item": "U19: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 81.9,
-    "self_heat_k": 3.44,
-    "margin_k": 3.1
    },
    {
     "item": "laminate: 1 mm-block copper peak",
@@ -267,6 +219,14 @@
     "margin_k": 22.4
    },
    {
+    "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 102.6,
+    "self_heat_k": 3.14,
+    "margin_k": 22.4
+   },
+   {
     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
@@ -279,6 +239,14 @@
     "limit_c": 110.0,
     "est_c": 86.5,
     "margin_k": 23.5
+   },
+   {
+    "item": "U31: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 101.3,
+    "self_heat_k": 3.14,
+    "margin_k": 23.7
    },
    {
     "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
@@ -324,6 +292,22 @@
     "margin_k": 25.3
    },
    {
+    "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 96.5,
+    "self_heat_k": 3.14,
+    "margin_k": 28.5
+   },
+   {
+    "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 92.4,
+    "self_heat_k": 3.44,
+    "margin_k": 32.6
+   },
+   {
     "item": "R63: monitor divider, terminal derating at 0.1025 W (20 % margin; Yageo RC1206 thick film 1/4 W, -55..155 C (not re-read))",
     "gated": false,
     "limit_c": 111.4,
@@ -343,6 +327,14 @@
     "limit_c": 155.0,
     "est_c": 119.0,
     "margin_k": 36.0
+   },
+   {
+    "item": "U21: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 85.3,
+    "self_heat_k": 3.44,
+    "margin_k": 39.7
    },
    {
     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
@@ -374,12 +366,20 @@
     "margin_k": 42.2
    },
    {
+    "item": "U19: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 81.9,
+    "self_heat_k": 3.44,
+    "margin_k": 43.1
+   },
+   {
     "item": "U18: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
     "gated": true,
     "limit_c": 125.0,
-    "est_c": 80.2,
+    "est_c": 80.1,
     "self_heat_k": 1.29,
-    "margin_k": 44.8
+    "margin_k": 44.9
    },
    {
     "item": "R5: element max (Bourns CSS2H p.1)",
@@ -734,22 +734,6 @@
   ],
   "c22_h10": [
    {
-    "item": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 99.9,
-    "self_heat_k": 3.14,
-    "margin_k": -14.9
-   },
-   {
-    "item": "U31: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 98.0,
-    "self_heat_k": 3.14,
-    "margin_k": -13.0
-   },
-   {
     "item": "laminate: 1 mm-block copper peak",
     "gated": true,
     "limit_c": 130.0,
@@ -783,27 +767,11 @@
     "margin_k": -10.3
    },
    {
-    "item": "U30: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 91.5,
-    "self_heat_k": 3.14,
-    "margin_k": -6.5
-   },
-   {
     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
     "est_c": 137.9,
     "margin_k": -6.0
-   },
-   {
-    "item": "U17: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 89.3,
-    "self_heat_k": 3.44,
-    "margin_k": -4.3
    },
    {
     "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
@@ -841,14 +809,6 @@
     "margin_k": 1.5
    },
    {
-    "item": "U21: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 81.2,
-    "self_heat_k": 3.44,
-    "margin_k": 3.8
-   },
-   {
     "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
     "gated": true,
     "limit_c": 110.0,
@@ -881,14 +841,6 @@
     "gated": true,
     "limit_c": 128.2,
     "est_c": 120.7,
-    "margin_k": 7.5
-   },
-   {
-    "item": "U19: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 77.5,
-    "self_heat_k": 3.44,
     "margin_k": 7.5
    },
    {
@@ -1004,6 +956,14 @@
     "margin_k": 24.8
    },
    {
+    "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 99.9,
+    "self_heat_k": 3.14,
+    "margin_k": 25.1
+   },
+   {
     "item": "L1: B82726 climatic upper (TDK p.4)",
     "gated": false,
     "limit_c": 125.0,
@@ -1017,6 +977,14 @@
     "est_c": 98.2,
     "self_heat_k": 1.29,
     "margin_k": 26.8
+   },
+   {
+    "item": "U31: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 98.0,
+    "self_heat_k": 3.14,
+    "margin_k": 27.0
    },
    {
     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
@@ -1040,6 +1008,22 @@
     "margin_k": 33.2
    },
    {
+    "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 91.5,
+    "self_heat_k": 3.14,
+    "margin_k": 33.5
+   },
+   {
+    "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 89.3,
+    "self_heat_k": 3.44,
+    "margin_k": 35.7
+   },
+   {
     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
@@ -1061,12 +1045,28 @@
     "margin_k": 38.5
    },
    {
+    "item": "U21: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 81.2,
+    "self_heat_k": 3.44,
+    "margin_k": 43.8
+   },
+   {
     "item": "U20: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
     "gated": true,
     "limit_c": 125.0,
     "est_c": 78.9,
     "self_heat_k": 1.29,
     "margin_k": 46.1
+   },
+   {
+    "item": "U19: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 77.5,
+    "self_heat_k": 3.44,
+    "margin_k": 47.5
    },
    {
     "item": "U18: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
@@ -1532,27 +1532,11 @@
     "margin_k": -23.5
    },
    {
-    "item": "U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 106.0,
-    "self_heat_k": 3.14,
-    "margin_k": -21.0
-   },
-   {
     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
     "gated": true,
     "limit_c": 128.2,
     "est_c": 146.6,
     "margin_k": -18.4
-   },
-   {
-    "item": "U31: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 102.7,
-    "self_heat_k": 3.14,
-    "margin_k": -17.7
    },
    {
     "item": "C21: MKP Top,max (TDK June 2026 p.35)",
@@ -1597,22 +1581,6 @@
     "margin_k": -11.9
    },
    {
-    "item": "U17: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 94.8,
-    "self_heat_k": 3.44,
-    "margin_k": -9.8
-   },
-   {
-    "item": "U30: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 94.2,
-    "self_heat_k": 3.14,
-    "margin_k": -9.2
-   },
-   {
     "item": "C151: MKP Top,max (TDK June 2026 p.35)",
     "gated": false,
     "limit_c": 110.0,
@@ -1648,14 +1616,6 @@
     "margin_k": 0.3
    },
    {
-    "item": "U21: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 84.5,
-    "self_heat_k": 3.44,
-    "margin_k": 0.5
-   },
-   {
     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
@@ -1668,14 +1628,6 @@
     "limit_c": 105.0,
     "est_c": 101.7,
     "margin_k": 3.3
-   },
-   {
-    "item": "U19: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)",
-    "gated": true,
-    "limit_c": 85.0,
-    "est_c": 80.8,
-    "self_heat_k": 3.44,
-    "margin_k": 4.2
    },
    {
     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
@@ -1699,6 +1651,14 @@
     "margin_k": 12.5
    },
    {
+    "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 106.0,
+    "self_heat_k": 3.14,
+    "margin_k": 19.0
+   },
+   {
     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
     "gated": true,
     "limit_c": 150.0,
@@ -1712,6 +1672,14 @@
     "est_c": 104.8,
     "self_heat_k": 1.29,
     "margin_k": 20.2
+   },
+   {
+    "item": "U31: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 102.7,
+    "self_heat_k": 3.14,
+    "margin_k": 22.3
    },
    {
     "item": "R59: monitor divider, terminal derating at 0.1025 W (20 % margin; Yageo RC1206 thick film 1/4 W, -55..155 C (not re-read))",
@@ -1728,6 +1696,22 @@
     "margin_k": 23.1
    },
    {
+    "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 94.8,
+    "self_heat_k": 3.44,
+    "margin_k": 30.2
+   },
+   {
+    "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 94.2,
+    "self_heat_k": 3.14,
+    "margin_k": 30.8
+   },
+   {
     "item": "R65: monitor divider, terminal derating at 0.1025 W (20 % margin; Yageo RC1206 thick film 1/4 W, -55..155 C (not re-read))",
     "gated": false,
     "limit_c": 111.4,
@@ -1742,12 +1726,28 @@
     "margin_k": 37.6
    },
    {
+    "item": "U21: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 84.5,
+    "self_heat_k": 3.44,
+    "margin_k": 40.5
+   },
+   {
     "item": "U20: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
     "gated": true,
     "limit_c": 125.0,
     "est_c": 81.7,
     "self_heat_k": 1.29,
     "margin_k": 43.3
+   },
+   {
+    "item": "U19: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+    "gated": true,
+    "limit_c": 125.0,
+    "est_c": 80.8,
+    "self_heat_k": 3.44,
+    "margin_k": 44.2
    },
    {
     "item": "R22: 1206 thick film (unverified)",
@@ -1968,13 +1968,6 @@
     "margin_k": 81.9
    },
    {
-    "item": "R117: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
-    "gated": false,
-    "limit_c": 154.9,
-    "est_c": 72.9,
-    "margin_k": 81.9
-   },
-   {
     "item": "R98: monitor divider, terminal derating at 0.0002 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
     "gated": false,
     "limit_c": 154.8,
@@ -1983,6 +1976,13 @@
    },
    {
     "item": "R116: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
+    "gated": false,
+    "limit_c": 154.9,
+    "est_c": 72.9,
+    "margin_k": 82.0
+   },
+   {
+    "item": "R117: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
     "gated": false,
     "limit_c": 154.9,
     "est_c": 72.9,
@@ -2096,9 +2096,9 @@
   ]
  },
  "board_sha256": {
-  "c17.5_h10": "a1e6488f72c6af95a971182d6b024a157339a5a983f29e264f7715f1ae6c0199",
-  "c22_h10": "a1e6488f72c6af95a971182d6b024a157339a5a983f29e264f7715f1ae6c0199",
-  "c28_h10": "a1e6488f72c6af95a971182d6b024a157339a5a983f29e264f7715f1ae6c0199"
+  "c17.5_h10": "16a588612c9823a5acf80760c75f7e985a5e359b4c9027bd4bedd4a463fea809",
+  "c22_h10": "16a588612c9823a5acf80760c75f7e985a5e359b4c9027bd4bedd4a463fea809",
+  "c28_h10": "16a588612c9823a5acf80760c75f7e985a5e359b4c9027bd4bedd4a463fea809"
  },
  "metrics": {
   "b3_laminate_margin_K": -51.1,
@@ -2109,15 +2109,9 @@
    "c22_h10",
    "c28_h10"
   ],
-  "b3_release_margin_K": -17.6,
-  "release_worst_gated": "c17.5_h10: U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
-  "release_failing_rows": [
-   "c17.5_h10: U29: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6) -17.6 K",
-   "c17.5_h10: U31: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6) -16.3 K",
-   "c17.5_h10: U30: LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6) -11.5 K",
-   "c17.5_h10: U17: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI) -7.4 K",
-   "c17.5_h10: U21: TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI) -0.3 K"
-  ]
+  "b3_release_margin_K": 1.0,
+  "release_worst_gated": "c17.5_h10: R10: 2512 terminal derating at 0.217 W (20 % margin)",
+  "release_failing_rows": []
  },
- "pass": false
+ "pass": true
 }
