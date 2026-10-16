@@ -58,6 +58,43 @@ float rtd_convert_ohm_to_c(float r_ohm, float r0_ohm);
 /** Code -> pan-sensor temperature (degC), self-heating removed. */
 float rtd_convert_code_to_c(const rtd_convert_params_t *p, uint16_t code);
 
+/* ---- Sensor-failure classification of a C1 conversion --------------------
+ *
+ * A conversion that is evidently a sensor failure is not a temperature: it
+ * goes to the recoverable FAULT_PROBE_OPEN / FAULT_PROBE_SHORT path, never to
+ * the RUNAWAY latch (output/temper-sensor-r3/firmware/DECISIONS.md D-OPEN;
+ * the codes are recomputed and gated by sensor_fail_codes.py).
+ *
+ *   OPEN   code >= RTD_C1_FAIL_HIGH_CODE: R >= R(850 degC) = 390.48 ohm, the
+ *          top of the IEC 60751 range, 250 K above the C1 chip's 600 degC
+ *          rating. An open element converts to full scale (32767, 988.7
+ *          degC). The firmware's 300 degC latch fires on the way up, and a
+ *          real pan cannot climb from 300 to 850 degC between two 50 Hz
+ *          conversions (the fastest modelled fault heats it at 3.84 K/s), so
+ *          only a broken sensor path produces a first reading up here.
+ *          Also: register 07h with any of D5..D2 set (REFIN- high/low,
+ *          RTDIN- low, over/under-voltage): the input circuit, not the
+ *          temperature, failed.
+ *   SHORT  code <= RTD_C1_FAIL_LOW_CODE: R <= R(-200 degC) = 18.52 ohm, below
+ *          the IEC 60751 range (code 0 converts to NAN).
+ *
+ * Not a sensor failure: the RTD High / RTD Low threshold bits (D7/D6) alone.
+ * The high-threshold bit is what a real over-temperature above 360 degC
+ * (word 35544) also sets, so a plausible code with only that bit set is a
+ * temperature and the 300 degC check latches RUNAWAY on it. */
+#define RTD_C1_FAIL_HIGH_CODE 29757u
+#define RTD_C1_FAIL_LOW_CODE  1411u
+#define RTD_FAULT_INPUT_BITS  0x3Cu   /* 07h D5..D2 */
+
+typedef enum {
+    RTD_SENSOR_OK = 0,
+    RTD_SENSOR_FAIL_OPEN = 1,
+    RTD_SENSOR_FAIL_SHORT = 2,
+} rtd_sensor_fail_t;
+
+/** Classify one conversion (15-bit code, register 07h of that conversion). */
+rtd_sensor_fail_t rtd_convert_classify_failure(uint16_t code, uint8_t fault_status);
+
 #ifdef __cplusplus
 }
 #endif

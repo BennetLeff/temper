@@ -120,11 +120,11 @@
         {
           "eeprom_logged": "FAULT_PROBE_OPEN"
         }
-      ]
+      ],
+      "hold_state": true
     },
     "c1_mechanism": "rtd-07h",
-    "c1_escalates_to_runaway": true,
-    "c1_note": "C1 reads the pan temperature from the same MAX31865 conversion: an open element saturates the code, register 07h flags it (FAULT_PROBE_OPEN, first), and the saturated code converts above 300 degC, so check_runaway_boundary then latches RUNAWAY_FAULT in the same 10 ms tick (runaway-checks.json sensor_open: C_abs 0.0 s)."
+    "c1_note": "An open element saturates the code (32767, 988.7 degC). Register 07h flags it and the code is at or beyond R(850 degC), so the conversion is classified a sensor failure (DECISIONS D-OPEN): FAULT_PROBE_OPEN, recoverable, and no RUNAWAY latch. Until D-OPEN the 300 degC check escalated it to RUNAWAY_FAULT in the same 10 ms tick."
   },
   {
     "name": "SIL: RTD Probe Short Fault (HEATING)",
@@ -194,7 +194,7 @@
     "legacy_only_reason": "Asserts the legacy target + 10 K latch (state_heating_update), which C1 builds compile out: supervisor R2 replaces it (DECISIONS D-RUN). In C1 a reading over target + 10 K with an obeying stage forces the command to 0 without latching (stage 1), and FAULT_THERMAL_RUNAWAY latches when the power stage is not obeying (stage 2a) or the pan keeps rising with no command (stage 2b). The trace also holds 115.0 noise-free for 6.5 s, which the C1 converter path rightly reports as a frozen code (FAULT_ADC_STUCK).",
     "c1_replaced_by": [
       "SIL: Power Stage Stuck On (HEATING)",
-      "SIL: Stuck-On Stage with Current Sense Lost (HEATING)",
+      "SIL: C1 Stuck-On Stage with Current Sense Lost, No Command (HEATING)",
       "SIL: C1 Over-Target Reading with an Obeying Stage (HEATING)"
     ]
   },
@@ -515,11 +515,11 @@
         {
           "eeprom_logged": "FAULT_PROBE_OPEN"
         }
-      ]
+      ],
+      "hold_state": true
     },
     "c1_mechanism": "rtd-07h",
-    "c1_escalates_to_runaway": true,
-    "c1_note": "C1 reads the pan temperature from the same MAX31865 conversion: an open element saturates the code, register 07h flags it (FAULT_PROBE_OPEN, first), and the saturated code converts above 300 degC, so check_runaway_boundary then latches RUNAWAY_FAULT in the same 10 ms tick (runaway-checks.json sensor_open: C_abs 0.0 s)."
+    "c1_note": "An open element saturates the code (32767, 988.7 degC). Register 07h flags it and the code is at or beyond R(850 degC), so the conversion is classified a sensor failure (DECISIONS D-OPEN): FAULT_PROBE_OPEN, recoverable, and no RUNAWAY latch. Until D-OPEN the 300 degC check escalated it to RUNAWAY_FAULT in the same 10 ms tick."
   },
   {
     "name": "SIL: RTD Probe Short Fault (PREHEAT)",
@@ -818,7 +818,6 @@
       "final_state": "FAULT",
       "fault_code": "FAULT_THERMAL_RUNAWAY",
       "max_latency_ticks": 122,
-      "max_latency_ticks_c1": 350,
       "hard_assertions": [
         {
           "power_off": true
@@ -828,9 +827,250 @@
         }
       ]
     },
+    "latency_bound_note": "max_latency_ticks = the legacy target + 10 K latch, 120 rows + 2.",
+    "modes": [
+      "legacy"
+    ],
+    "legacy_only_reason": "In C1 the same trace is caught by a different rule with a different fault code: the loop is still commanding well above 300 W toward the 100 degC target when the sense dies, so the current-sense plausibility check (a) latches FAULT_CURRENT_SENSE in 0.5 s (DECISIONS D-ISENSE). The C1 replacements run this trace for (a) and a no-command variant for stage 2b, the last resort when the loop is not commanding.",
+    "c1_replaced_by": [
+      "SIL: C1 Stuck-On Stage with Current Sense Lost While Heating (HEATING)",
+      "SIL: C1 Stuck-On Stage with Current Sense Lost, No Command (HEATING)"
+    ]
+  },
+  {
+    "name": "SIL: C1 Stuck-On Stage with Current Sense Lost While Heating (HEATING)",
+    "description": "The legacy double-fault trace: power stage stuck on and the bus-current sense reading 0 A from tick 85, the pan rising 1.5 K/s from 92 degC. The loop is commanding toward the 100 degC target, so the current-sense plausibility check (a) sees >= 300 W commanded with no current and latches FAULT_CURRENT_SENSE.",
+    "trace_file": "trace_stage_stuck_on_current_sense_lost_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "dc_current",
+          "over_ticks": 1
+        },
+        {
+          "name": "pan_temperature",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_CURRENT_SENSE",
+      "max_latency_ticks": 7,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_CURRENT_SENSE"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "isense-run",
+    "c1_only_reason": "C1 replacement of the legacy double-fault scenario while the loop is commanding (DECISIONS D-ISENSE).",
+    "latency_bound_note": "run_hold_s 0.5 s (5 rows) + one control period of alignment + one row: 7 rows."
+  },
+  {
+    "name": "SIL: C1 Stuck-On Stage with Current Sense Lost, No Command (HEATING)",
+    "description": "Double fault with the loop not commanding: at tick 85 the pan is already above target + 10 K (112 degC, the loop and stage 1 hold the command at 0) when the stage sticks on and the bus-current sense reads 0 A; the pan rises 1.5 K/s. With no command the current-sense check cannot see the dead sense, and stage 2a has no current: stage 2b (over target, command 0 for 20 s, still rising) is the last resort.",
+    "trace_file": "trace_c1_stuck_on_sense_lost_no_command_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "dc_current",
+          "over_ticks": 1
+        },
+        {
+          "name": "pan_temperature",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_THERMAL_RUNAWAY",
+      "max_latency_ticks": 350,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_THERMAL_RUNAWAY"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
     "c1_mechanism": "R2-2b",
-    "c1_later_than_legacy_reason": "DECISIONS D-RUN trade-off, allowed in runaway-checks.json allowed_later_than_legacy['fault_stuck_on/current_broken']: stage 2b waits rise_hold_s (20 s) so a hot pan placed above target does not trip it; its bound is the worst hazardous double-fault detection there, 35.0 s (350 rows).",
-    "latency_bound_note": "max_latency_ticks = the legacy target + 10 K latch, 120 rows + 2; max_latency_ticks_c1 = 35.0 s, see c1_later_than_legacy_reason."
+    "c1_only_reason": "C1 replacement of the legacy double-fault scenario for stage 2b: the residual case the current-sense checks cannot see (DECISIONS D-ISENSE, D-RUN).",
+    "latency_bound_note": "The D-RUN stage-2b allowance, 35.0 s (350 rows): the worst hazardous double-fault detection in runaway-checks.json."
+  },
+  {
+    "name": "SIL: C1 Current Sense Fails While Heating (HEATING)",
+    "description": "The bus-current sense reads 0 A from tick 85 while the stage keeps heating (the loop commands well above 300 W toward the 100 degC target). A latent sense failure, before any stuck-on stage: check (a) latches FAULT_CURRENT_SENSE after the command has stood >= 300 W with no current for 0.5 s.",
+    "trace_file": "trace_c1_current_sense_dead_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "dc_current",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_CURRENT_SENSE",
+      "max_latency_ticks": 7,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_CURRENT_SENSE"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "isense-run",
+    "c1_only_reason": "A C1 runtime check (main/pan_control.c, components/control/current_sense_check.c; DECISIONS D-ISENSE): the legacy loop has no bus-current plausibility check.",
+    "latency_bound_note": "run_hold_s 0.5 s (5 rows) + one control period of alignment + one row: 7 rows."
+  },
+  {
+    "name": "SIL: C1 Current Sense Fails While Heating (PREHEAT)",
+    "description": "As the HEATING case, during PREHEAT (pan at 80 degC, target 100 degC): the bus-current sense reads 0 A from tick 85.",
+    "trace_file": "trace_c1_current_sense_dead_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "dc_current",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_CURRENT_SENSE",
+      "max_latency_ticks": 7,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_CURRENT_SENSE"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "isense-run",
+    "c1_only_reason": "A C1 runtime check (main/pan_control.c, components/control/current_sense_check.c; DECISIONS D-ISENSE): the legacy loop has no bus-current plausibility check.",
+    "latency_bound_note": "As the HEATING case: 7 rows."
+  },
+  {
+    "name": "SIL: C1 Pt100 Element-Parallel Leakage (HEATING)",
+    "description": "A leak develops in parallel with the Pt100 element from tick 85 while the pan heats: over 10 s the pan, and the rim NTC under it, climb from 92 to 140 degC while the leaky Pt100 reads only up to 100 degC (the target), then all hold. The MAX31865 sees an ordinary in-range resistance. The rim cross-check finds the reading 40 K below the rim for 30 s, D1's probe finds contact intact (PROBE_PASSED), and the cross-check fires again with the rim not falling and the reading not rising: the second chained cycle latches FAULT_PROBE_LEAKAGE.",
+    "trace_file": "trace_c1_probe_leakage_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 100
+        },
+        {
+          "name": "pan_temp",
+          "over_ticks": 100
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_LEAKAGE",
+      "max_latency_ticks": 1250,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_LEAKAGE"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "xchk-leak",
+    "c1_only_reason": "A C1 runtime check (main/pan_control.c, components/control/pan_leak_check.c; DECISIONS D-LEAK) on the C1 rim cross-check and D1 probe: the legacy loop has neither.",
+    "latency_bound_note": "Latency counts from the end of the perturbation (tick 184). The reading falls 25 K below the rim at tick ~147; each leak cycle is the 30 s cross-check hold plus the 18 s probe (D1's 30 s hold-off runs under the next hold), and a hold restarts whenever the command drops to 0: two cycles plus one restarted hold, 2 x 48 s + 30 s = 126 s from tick 147, is tick 1407, 1223 rows after 184; 1250 rows. Observed 972."
+  },
+  {
+    "name": "SIL: C1 Current-Sense Start-Up Pulse Fails (PREHEAT)",
+    "description": "The bus-current sense reads 0 A from power-up (c1_bus_sense_dead). PREHEAT entry runs the start-up pulse (360 W for 1 s, a pan present) before the loop heats; no current -> FAULT_CURRENT_SENSE, so a dead sense never reaches a cook.",
+    "trace_file": "trace_c1_pulse_sense_dead_preheat.csv",
+    "origin_state": "PREHEAT",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 0,
+      "sensors": [
+        {
+          "name": "dc_current",
+          "over_ticks": 0
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_CURRENT_SENSE",
+      "max_latency_ticks": 14,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_CURRENT_SENSE"
+        }
+      ]
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "isense-pulse",
+    "c1_bus_sense_dead": true,
+    "c1_only_reason": "A C1 runtime check (main/pan_control.c, components/control/current_sense_check.c; DECISIONS D-ISENSE): the legacy loop has no bus-current plausibility check.",
+    "latency_bound_note": "Timed from the first trace row; the pulse started at PREHEAT entry during the boilerplate: up to 1 control period to apply, pulse_s 1.0 s, one period to evaluate and one row: 14 rows."
   },
   {
     "name": "SIL: Sustained Sensor Rise 20 K/s (HEATING)",
@@ -1132,14 +1372,15 @@
         {
           "eeprom_logged": "FAULT_PROBE_OPEN"
         }
-      ]
+      ],
+      "hold_state": true
     },
     "modes": [
       "c1"
     ],
     "c1_mechanism": "rtd-07h",
-    "c1_escalates_to_runaway": true,
-    "c1_only_reason": "C1 services the MAX31865 in every state (rtd_service_control_tick, 07h, stale and frozen checks), so its sensor faults are reachable from IDLE. The legacy SIL target does not link the converter service; its RTD checks run only in PREHEAT/HEATING (check_safety_interlocks)."
+    "c1_only_reason": "C1 services the MAX31865 in every state (rtd_service_control_tick, 07h, stale and frozen checks), so its sensor faults are reachable from IDLE. The legacy SIL target does not link the converter service; its RTD checks run only in PREHEAT/HEATING (check_safety_interlocks).",
+    "c1_note": "An open element saturates the code (32767, 988.7 degC). Register 07h flags it and the code is at or beyond R(850 degC), so the conversion is classified a sensor failure (DECISIONS D-OPEN): FAULT_PROBE_OPEN, recoverable, and no RUNAWAY latch. Until D-OPEN the 300 degC check escalated it to RUNAWAY_FAULT in the same 10 ms tick."
   },
   {
     "name": "SIL: C1 RTD Probe Short (IDLE)",
@@ -1176,6 +1417,119 @@
     ],
     "c1_mechanism": "rtd-07h",
     "c1_only_reason": "C1 services the MAX31865 in every state (rtd_service_control_tick, 07h, stale and frozen checks), so its sensor faults are reachable from IDLE. The legacy SIL target does not link the converter service; its RTD checks run only in PREHEAT/HEATING (check_safety_interlocks)."
+  },
+  {
+    "name": "SIL: C1 Flagged Over-Temperature Still Latches Runaway (HEATING)",
+    "description": "The pan reading steps to 380 degC at tick 85 with a plausible code: above the 360 degC high-threshold word, so register 07h sets RTD High, the same bit an open element sets. Register 07h reports first (FAULT_PROBE_OPEN); the code is below the R(850 degC) sensor-failure code, so the 300 degC check must still latch RUNAWAY_FAULT in the same tick.",
+    "trace_file": "trace_c1_overtemp_flagged_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "pan_temperature",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_OPEN",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_OPEN"
+        }
+      ],
+      "hold_state": false
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "absolute-300",
+    "c1_escalates_to_runaway": true,
+    "c1_only_reason": "C1 reads the pan temperature from the MAX31865 conversion, so a flagged conversion can be a real over-temperature or a broken sensor; D-OPEN separates them by the code, and this checks that a plausible flagged code above 300 degC still latches RUNAWAY. The legacy SIL target does not link the converter service."
+  },
+  {
+    "name": "SIL: C1 RTD Near Full Scale, Not Open (HEATING)",
+    "description": "At tick 85 the element reads 410 ohm (915 degC; code 31246, below full scale but beyond R(850 degC)): a high-resistance contact, not a clean open. Only RTD High is set in 07h. It is a sensor failure: FAULT_PROBE_OPEN, held to the end with no RUNAWAY latch.",
+    "trace_file": "trace_c1_near_full_scale_heating.csv",
+    "origin_state": "HEATING",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 85,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_OPEN",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_OPEN"
+        }
+      ],
+      "hold_state": true
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "rtd-07h",
+    "c1_only_reason": "Tests the C1 sensor-failure code (DECISIONS D-OPEN) below full scale; the legacy SIL target does not link the converter service."
+  },
+  {
+    "name": "SIL: C1 RTD Probe Open Then Reconnected (IDLE)",
+    "description": "In IDLE the Pt100 opens (15 kohm) at tick 20 and reconnects at tick 40. FAULT_PROBE_OPEN latches without RUNAWAY; once the sensor reads good again a reset is accepted (register 07h is cleared on the reset request and must read clean on a later conversion) and the machine returns to IDLE with the power at 0 throughout.",
+    "trace_file": "trace_c1_probe_open_reconnect_idle.csv",
+    "origin_state": "IDLE",
+    "initial_conditions": {
+      "self_test_pass": true
+    },
+    "perturbation": {
+      "at_tick": 20,
+      "sensors": [
+        {
+          "name": "rtd_resistance",
+          "over_ticks": 1
+        }
+      ]
+    },
+    "expected": {
+      "final_state": "FAULT",
+      "fault_code": "FAULT_PROBE_OPEN",
+      "max_latency_ticks": 2,
+      "hard_assertions": [
+        {
+          "power_off": true
+        },
+        {
+          "eeprom_logged": "FAULT_PROBE_OPEN"
+        }
+      ],
+      "hold_state": true,
+      "reset_accepted": true
+    },
+    "modes": [
+      "c1"
+    ],
+    "c1_mechanism": "rtd-07h",
+    "c1_only_reason": "The recoverable path of DECISIONS D-OPEN: the C1 service latches register 07h until the reset policy clears it. The legacy SIL target does not link the converter service."
   },
   {
     "name": "SIL: C1 RTD No DRDY (IDLE)",

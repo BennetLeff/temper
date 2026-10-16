@@ -77,3 +77,14 @@ float rtd_convert_code_to_c(const rtd_convert_params_t *p, uint16_t code)
 {
     return rtd_convert_ohm_to_c(rtd_convert_code_to_ohm(p, code), p->r0_ohm) - p->self_heating_k;
 }
+
+rtd_sensor_fail_t rtd_convert_classify_failure(uint16_t code, uint8_t fault_status)
+{
+    if (code >= RTD_C1_FAIL_HIGH_CODE || (fault_status & RTD_FAULT_INPUT_BITS) != 0u) {
+        return RTD_SENSOR_FAIL_OPEN;
+    }
+    if (code <= RTD_C1_FAIL_LOW_CODE) {
+        return RTD_SENSOR_FAIL_SHORT;
+    }
+    return RTD_SENSOR_OK;
+}

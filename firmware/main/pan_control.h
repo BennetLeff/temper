@@ -22,7 +22,11 @@
  *           state_machine_report_rtd_device_fault();
  *           D1 contact lost -> state_machine_report_pan_contact_lost();
  *           supervisor stage 2a/2b latches -> PAN_CONTROL_RUNAWAY (the
- *           caller latches FAULT_THERMAL_RUNAWAY).
+ *           caller latches FAULT_THERMAL_RUNAWAY);
+ *           current-sense plausibility (D-ISENSE) -> FAULT_CURRENT_SENSE and
+ *           element-parallel Pt100 leakage (D-LEAK) -> FAULT_PROBE_LEAKAGE,
+ *           both through state_machine_report_latched_fault() (hardware
+ *           cut, not software-clearable).
  *
  * The supervisor's R1 (sustained-rise) half is fed every 10 ms tick from
  * check_runaway_boundary() through pan_control_rate_sample().
@@ -37,6 +41,7 @@
 #include <stdint.h>
 
 #include "rim_ntc.h"
+#include "rtd_convert.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -81,12 +86,33 @@ float pan_control_resistance_ohm(void);
 bool pan_control_sensor_ready(void);
 
 /**
+ * Sensor-failure class of the latest conversion (rtd_convert_classify_failure:
+ * a code at or beyond R(850 degC) or R(-200 degC), or register 07h input
+ * bits). RTD_SENSOR_OK before the first conversion. check_runaway_boundary()
+ * routes a failed conversion to the recoverable probe fault instead of the
+ * RUNAWAY latch (DECISIONS.md D-OPEN).
+ */
+rtd_sensor_fail_t pan_control_reading_failure(void);
+
+/** Reset policy: register 07h reads clean on the latest conversion (asks the
+ *  service for a clear otherwise; rtd_service_fault_status_clean). */
+bool pan_control_sensor_fault_clean(void);
+
+/**
  * Supervisor R2 latch since the last pan_control_begin(): 0 none, 1 stage 2a
  * (the power stage is not obeying), 2 stage 2b (still rising with no command).
  * Read-only diagnostics; the SIL suite uses it to attribute a
  * FAULT_THERMAL_RUNAWAY to the rule that raised it.
  */
 int pan_control_supervisor_latch(void);
+
+/**
+ * Current-sense plausibility latch since the last pan_control_begin()
+ * (components/control/current_sense_check.h csc_latch_t): 0 none, 1 (a) the
+ * command drew no current, 2 (b) the start-up pulse showed no current, 3 (c)
+ * input and bus current disagree. Read-only diagnostics for the SIL.
+ */
+int pan_control_current_sense_latch(void);
 
 /**
  * Rim NTC temperature (degC) of the last control period: the filtered
@@ -98,6 +124,12 @@ float read_rim_ntc_temperature(void);
 bool pan_control_rim_reading(rim_ntc_reading_t *out);
 /** Pt100-vs-rim cross-check suspects (D-XCHK) since pan_control_begin(). */
 uint32_t pan_control_xcheck_suspects(void);
+/**
+ * Element-parallel Pt100 leakage latch since pan_control_begin()
+ * (components/control/pan_leak_check.h, DECISIONS.md D-LEAK). Read-only
+ * diagnostics for the SIL.
+ */
+bool pan_control_leak_latched(void);
 
 /** R1: feed one 10 ms reading; true when the sustained-rise latch trips. */
 bool pan_control_rate_sample(float reading_c, uint32_t now_ms);

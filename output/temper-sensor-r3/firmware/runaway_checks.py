@@ -19,8 +19,13 @@ C1 builds replace them with components/control/pan_supervisor.c:
           rising rise_min_k over rise_window_s -> latch (current sensing
           broken too).
 
-Kept unchanged in both builds: the absolute 300 degC / non-finite check on
-every 10 ms read (L-abs). The legacy equal-reading ADC_STUCK check (49 equal
+Kept in both builds: the absolute 300 degC / non-finite check on every
+10 ms read (L-abs). C1 builds (D-OPEN) first classify each conversion with
+rtd_convert_classify_failure: a code >= RTD_C1_FAIL_HIGH_CODE (850 degC) or
+<= RTD_C1_FAIL_LOW_CODE (-200 degC), or 07h bits D5..D2, is a sensor failure
+and goes to the recoverable PROBE_OPEN / PROBE_SHORT path (rtd_fail_code)
+instead of the 300 degC RUNAWAY latch (C_abs); every other reading above
+300 degC still latches RUNAWAY. The legacy equal-reading ADC_STUCK check (49 equal
 10 ms reads, L-stuck) is evaluated here too; C1 builds replace it with the
 rtd_service checks: no conversion (DRDY) for 6 ticks, 60 ms (rtd_stale), and
 RTD_C1_FROZEN_CONVERSIONS = 250 identical 50 Hz codes, 5 s (rtd_frozen).
@@ -41,6 +46,23 @@ broken (reads 0), RTD open / short (MAX31865 fault bit, code saturated),
 conversions stop (no DRDY), and a reading frozen at 250 s with the setpoint
 step at 360 s (the loop then heats a pan it cannot see: a real runaway with
 contact).
+
+Bus-current sense plausibility (D-ISENSE, components/control/current_sense_
+check.c, through the cosim shim): isense = (a) the command in force has been
+>= 300 W for > 0.3 s and the bus current reads <= 0.5 A for 0.5 s;
+isense_pulse = (b) the start-up pulse (360 W for 1.0 s at PREHEAT entry, mean
+current after 0.3 s must exceed 0.5 A). The pulse is evaluated passively at
+t = 0 against the sense as it is at power-up: the plant receives the loop's
+command over those 1.1 s, not the pulse's 360 W (the trajectories, and every
+number measured on them, stay those of the loop alone). The sense either
+works throughout, or reads 0 A from sense_dead_at: = fault_t for the
+simultaneous double fault (the existing current_broken runs; stage 2b's
+case), 0 (dead at power-up: the pulse) or 100 s (dies mid-cook: (a)) for a
+latent sense failure before the stage sticks at fault_t. sense_latent runs
+kill the sense with no other fault and measure (a)'s latency per pan; burst
+runs repeat every benign non-loss run with the stage in burst mode below its
+floor (BURST_FLOOR_W = 160 W, period 20 s, on for P / 160 of it, bus current
+160 W / 120 V while on and 0 between).
 
 Every run is passive for the trip rules (they are recorded, not acted on) so
 each rule's first-trip time is measured on the same trajectory; fault runs
@@ -90,7 +112,19 @@ SWEEP_WIN = (5.0, 10.0, 20.0)
 SWEEP_RISE = (1.0, 2.0, 4.0)
 # Must equal psup_default_params (pan_supervisor.c) and lie on the grid.
 CHOSEN = (20.0, 5.0, 2.0)
-HW_TRIPS = ("C_abs", "R1", "R2a", "R2b", "rtd_fault", "rtd_stale", "rtd_frozen", "guard")
+HW_TRIPS = ("C_abs", "R1", "R2a", "R2b", "rtd_fault", "rtd_fail_code", "rtd_stale", "rtd_frozen", "guard",
+            "isense", "isense_pulse")
+ISENSE = ("isense", "isense_pulse")
+# rtd_convert.h (D-OPEN): sensor-failure codes and 07h input-fault bits.
+RTD_C1_FAIL_HIGH_CODE = 29757
+RTD_C1_FAIL_LOW_CODE = 1411
+RTD_FAULT_INPUT_BITS = 0x3C
+# Power stage burst mode below its continuous floor (D-ISENSE false-trip runs).
+BURST_FLOOR_W = 160.0
+BURST_PERIOD_S = 20.0
+# Latent sense failure: the bus-current sense reads 0 from these times.
+LATENT_SENSE_AT = (0.0, 100.0)
+SENSE_LATENT_AT = (30.0, 100.0, 200.0)
 LEGACY = ("L_abs", "L_rate", "L_over", "L_stuck", "L_rtd")
 # The legacy rules that respond to each fault (its time budget). L_rate is
 # excluded everywhere: no scenario, fault or not, sustains more than 4 K/s
@@ -147,10 +181,45 @@ def code_of(t, rng, sigma_lsb, sigma_k):
     return min(max(c, 0), 32767)
 
 
+def rtd_failure(code, fault_status):
+    """rtd_convert_classify_failure (rtd_convert.c): True for OPEN or SHORT."""
+    return code >= RTD_C1_FAIL_HIGH_CODE or code <= RTD_C1_FAIL_LOW_CODE or bool(fault_status & RTD_FAULT_INPUT_BITS)
+
+
 def lib():
     L = cosim.lib()
     L.sim_set.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_double]
+    L.csc_start.argtypes = [ctypes.c_void_p]
+    L.csc_start.restype = ctypes.c_int
+    L.csc_run.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double]
+    L.csc_run.restype = ctypes.c_int
+    L.csc_pulse_arm.argtypes = [ctypes.c_void_p]
+    L.csc_pulse.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_double,
+                            ctypes.POINTER(ctypes.c_double)]
+    L.csc_pulse.restype = ctypes.c_int
     return L
+
+
+def sense_alive(case, t):
+    if case.get("current_ok", True):
+        return True
+    return t < case.get("sense_dead_at", case.get("fault_t", FAULT_T)) - 1e-9
+
+
+def pulse_trip(L_, h, alive):
+    """(b) at PREHEAT entry, passive: the stage obeys the pulse; the sense reads
+    it if alive. Returns the latch time after session start, or None."""
+    L_.csc_pulse_arm(h)
+    w = ctypes.c_double(0.0)
+    applied = 0.0
+    for k in range(40):
+        st = L_.csc_pulse(h, applied, applied / V_BUS if alive else 0.0, es.P_MAX, ctypes.byref(w))
+        if st == 4:
+            return round(k * es.DT_CTRL, 2)
+        if st == 3:
+            return None
+        applied = w.value
+    raise AssertionError("pulse did not finish")
 
 
 def sup_variant_params():
@@ -180,8 +249,9 @@ def run(case):
         assert L_.sim_set(h, key.encode(), v) == 0, key
     assert L_.sim_start(h, es.T_AMB) == 0
     assert L_.sup_start(h) == 0
+    assert L_.csc_start(h) == 0
     variants = []
-    for hold, win, rise in sup_variant_params():
+    for hold, win, rise in ([] if case.get("no_sweep") else sup_variant_params()):
         hv = L_.sim_new()
         for key, v in (("sup_rise_hold", hold), ("sup_rise_window", win), ("sup_rise_min", rise)):
             assert L_.sim_set(hv, key.encode(), v) == 0
@@ -199,6 +269,7 @@ def run(case):
     max_same_code = 0
     prev_code = None
     var_first = [None] * len(variants)
+    isense_seen = False
 
     def trip(rule, t):
         # first: any time (false trips); after: first at or after the fault.
@@ -223,6 +294,10 @@ def run(case):
     tick = 0
     peak_tc = peak_tm = -1e9
     force_zero_s = 0.0
+    pt = pulse_trip(L_, h, sense_alive(case, 0.0))
+    if pt is not None:
+        trip("isense_pulse", pt)
+        isense_seen = True
     r1_blocks = []
     blk_sum, blk_n = 0.0, 0
     for k in range(int(es.T_END / es.DT_CTRL)):
@@ -237,8 +312,13 @@ def run(case):
         fault_on = fault is not None and t >= fault_t
         fault_status = 0
         fresh_any = False
+        p_in_force = 0.0 if (cut or cmd_off) else P_cmd
+        p_stage = p_in_force
+        if case.get("burst") and 0.0 < p_stage < BURST_FLOOR_W:
+            on = (t % BURST_PERIOD_S) < BURST_PERIOD_S * p_stage / BURST_FLOOR_W
+            p_stage = BURST_FLOOR_W if on else 0.0
         for _ in range(round(es.DT_CTRL / es.DT_SIM)):
-            P_true = cosim.deliver(0.0 if (cut or cmd_off) else P_cmd, "measured")
+            P_true = cosim.deliver(p_stage, "measured")
             if fault_on and fault[0] == "stuck_on" and not cut:
                 P_true = fault[1]
             tr.step(P_true, h_now)
@@ -273,7 +353,12 @@ def run(case):
                 # --- legacy rules (passive) ---
                 if not math.isfinite(reading) or reading > T_ABS:
                     trip("L_abs", tt)
-                    trip("C_abs", tt)
+                    # C1 (D-OPEN): a sensor-failure conversion is PROBE_OPEN /
+                    # PROBE_SHORT, every other one above 300 degC RUNAWAY.
+                    if rtd_failure(code, fault_status):
+                        trip("rtd_fail_code", tt)
+                    else:
+                        trip("C_abs", tt)
                 if prev_tick is not None and math.isfinite(reading) and math.isfinite(prev_tick):
                     if (reading - prev_tick) / 0.01 > 15.0:
                         trip("L_rate", tt)
@@ -312,7 +397,12 @@ def run(case):
         if o["cc_event"] == cosim.CC_EVT_LOST:
             trip("contact_lost", t)
         P_cmd = o["p_cmd"]
-        i_bus = P_true / V_BUS if case.get("current_ok", True) else 0.0
+        i_bus = P_true / V_BUS if sense_alive(case, t) else 0.0
+        # D-ISENSE (a): the command in force over this period, the bus
+        # current at its end (before this period's command is decided).
+        if not isense_seen and L_.csc_run(h, p_in_force, i_bus):
+            trip("isense", t)
+            isense_seen = True
         L_.sup_step(h, o["t_hat"], reading, sp, P_cmd, i_bus, 1, so)
         if so[0]:
             P_cmd = 0.0
@@ -339,7 +429,8 @@ def run(case):
             "max_identical_codes": max_same_code, "trace_T_c_1s": trace_tc,
             "peak_T_c": round(peak_tc, 1), "peak_T_mean": round(peak_tm, 1),
             "stage1_s": round(force_zero_s, 1), "r1_max_5block_rise_K_per_s": round(float(sustained), 2),
-            "r1_max_block_rise_K_per_s": round(float(rises.max()), 2), "sweep_2b": var_first}
+            "r1_max_block_rise_K_per_s": round(float(rises.max()), 2), "sweep_2b": var_first,
+            "sense_dead_at": None if case.get("current_ok", True) else case.get("sense_dead_at", fault_t)}
 
 
 def scenarios():
@@ -371,6 +462,7 @@ def scenarios():
         base.append(dict(name=f"sp_down/{pan}", kind="sp_down", pan=pan, h=hm, eta=0.82, seed=seed + 2,
                          sp_down_at=450.0))
         seed += 3
+    benign_base = list(base)
     for pan in ("triply_clad_24", "cast_iron_26"):
         lo, hi = spread[pan]
         for pw in STUCK_ON_W:
@@ -378,6 +470,14 @@ def scenarios():
                 base.append(dict(name=f"stuck_on/{pan}/{pw:.0f}W/{'current_ok' if cur else 'current_broken'}",
                                  kind="fault_stuck_on", pan=pan, h=(lo * hi) ** 0.5, eta=0.82, seed=seed,
                                  fault=("stuck_on", pw), current_ok=cur))
+                if not cur:
+                    # The same double fault with the sense failing first
+                    # (latent); same seed, so the same passive trajectory.
+                    for at in LATENT_SENSE_AT:
+                        base.append(dict(name=f"stuck_on/{pan}/{pw:.0f}W/current_broken_latent_{at:.0f}s",
+                                         kind="fault_stuck_on", pan=pan, h=(lo * hi) ** 0.5, eta=0.82, seed=seed,
+                                         fault=("stuck_on", pw), current_ok=False, sense_dead_at=at, latent=True,
+                                         no_sweep=True))
                 seed += 1
     lo, hi = spread["carbon_steel_28"]
     for f in ("open", "short", "nodrdy"):
@@ -392,6 +492,14 @@ def scenarios():
         base.append(dict(name=f"frozen_ramp/{pan}", kind="fault_frozen", pan=pan, h=(lo * hi) ** 0.5, eta=0.82,
                          seed=seed + 50, fault=("frozen",), fault_t=20.0))
         seed += 1
+    for b in benign_base:
+        if b["kind"] != "loss":
+            base.append({**b, "name": "burst/" + b["name"], "kind": "burst_" + b["kind"], "burst": True})
+    for pan, (lo, hi) in spread.items():
+        for at in SENSE_LATENT_AT:
+            base.append(dict(name=f"sense_latent/{pan}/{at:.0f}s", kind="sense_latent", pan=pan, h=(lo * hi) ** 0.5,
+                             eta=0.82, seed=seed, current_ok=False, sense_dead_at=at, no_sweep=True))
+            seed += 1
     out = []
     for nname, lsb in NOISES:
         for b in base:
@@ -417,10 +525,10 @@ def hazardous(r):
 def analyse(rows):
     params = sup_variant_params()
     passive = [r for r in rows if not r["acting"]]
-    benign = [r for r in passive if not r["kind"].startswith("fault")]
+    benign = [r for r in passive if not r["kind"].startswith("fault") and r["kind"] != "sense_latent"]
     faults = [r for r in passive if r["kind"].startswith("fault")]
     legacy_false = {}
-    nonloss = [r for r in benign if r["kind"] != "loss"]
+    nonloss = [r for r in benign if r["kind"] != "loss" and not r.get("burst")]
     for rule in ("L_rate", "L_over", "L_stuck", "L_abs"):
         hit = [r["name"] + "@" + r["noise"] for r in nonloss if rule in r["first"]]
         legacy_false[rule] = {"runs": len(hit), "of": len(nonloss), "examples": hit[:12]}
@@ -428,14 +536,27 @@ def analyse(rows):
     # outside loss runs), or before the fault in a fault run.
     c1_false = [(r["name"], r["noise"], r["first"]) for r in benign
                 if any(k in r["first"] for k in HW_TRIPS) or (r["kind"] != "loss" and "contact_lost" in r["first"])]
+    def early(r, k):
+        # Before the fault, and (for the current-sense rules) before the sense
+        # itself failed: a latent sense failure caught early is a detection.
+        if k in ISENSE and r["sense_dead_at"] is not None:
+            return r["first"][k] < r["sense_dead_at"]
+        return r["first"][k] < r["fault_t"]
+
     c1_false += [(r["name"], r["noise"], r["first"]) for r in faults
-                 if any(r["first"][k] < r["fault_t"] for k in HW_TRIPS + ("contact_lost",) if k in r["first"])]
-    broken = [r for r in faults if r["kind"] == "fault_stuck_on" and not r["current_ok"] and hazardous(r)]
+                 if any(early(r, k) for k in HW_TRIPS + ("contact_lost",) if k in r["first"])]
+    sense_lat = [r for r in passive if r["kind"] == "sense_latent"]
+    c1_false += [(r["name"], r["noise"], r["first"]) for r in sense_lat
+                 if any(early(r, k) for k in HW_TRIPS + ("contact_lost",) if k in r["first"])]
+    broken = [r for r in faults if r["kind"] == "fault_stuck_on" and not r["current_ok"] and hazardous(r)
+              and not r.get("latent")]
+    benign_sw = [r for r in benign if not r.get("no_sweep")]
+    faults_sw = [r for r in faults if not r.get("no_sweep")]
     sweep = []
     for i, (hold, win, rise) in enumerate(params):
-        fp = sum(r["sweep_2b"][i] is not None for r in benign) + sum(
-            r["sweep_2b"][i] is not None and r["sweep_2b"][i] < r["fault_t"] for r in faults)
-        fp_ex = [r["name"] + "@" + r["noise"] for r in benign if r["sweep_2b"][i] is not None][:6]
+        fp = sum(r["sweep_2b"][i] is not None for r in benign_sw) + sum(
+            r["sweep_2b"][i] is not None and r["sweep_2b"][i] < r["fault_t"] for r in faults_sw)
+        fp_ex = [r["name"] + "@" + r["noise"] for r in benign_sw if r["sweep_2b"][i] is not None][:6]
         det = [(r["sweep_2b"][i], r) for r in broken]
         ok = [(d, r) for d, r in det if d is not None]
         sweep.append({"hold_s": hold, "window_s": win, "rise_k": rise, "false_trips": fp,
@@ -459,23 +580,51 @@ def analyse(rows):
             "at_trip": r["at"],
             "acting_peak_T_c": act["peak_T_c"], "acting_peak_T_mean": act["peak_T_mean"],
             "acting_c1_rules": sorted(k for k in act["after"] if k not in LEGACY),
+            "sense_dead_at": r["sense_dead_at"],
+            "sense_fault_caught_s": min((r["first"][k] for k in ISENSE if k in r["first"]), default=None),
         })
     loss_rows = [r for r in rows if r["kind"] == "loss" and r["acting"]]
     loss = [{"name": r["name"], "noise": r["noise"], "contact_lost_s_after": None if "contact_lost" not in r["first"]
              else round(r["first"]["contact_lost"] - cosim.LOSS_T, 1),
              "hw_trips": [k for k in HW_TRIPS if k in r["first"]], "peak_T_c": r["peak_T_c"]} for r in loss_rows]
+    # D-ISENSE: latent sense failures, and a sense dying with no other fault.
+    latent = [{"name": f["name"], "noise": f["noise"], "sense_dead_at": f["sense_dead_at"],
+               "caught_s": f["sense_fault_caught_s"], "stuck_on_at_s": FAULT_T,
+               "acting_peak_T_c": f["acting_peak_T_c"], "passive_peak_T_c": f["passive_peak_T_c"]}
+              for f in fault_table if "latent" in f["name"]]
+    simultaneous = [{"name": f["name"], "noise": f["noise"], "hazardous": f["hazardous"],
+                     "isense_s_after_fault": f["c1_rules"].get("isense"),
+                     "R2b_s_after_fault": f["c1_rules"].get("R2b"),
+                     "acting_peak_T_c": f["acting_peak_T_c"]}
+                    for f in fault_table if f["name"].endswith("/current_broken")]
+    sense_alone = [{"name": r["name"], "noise": r["noise"], "sense_dead_at": r["sense_dead_at"],
+                    "latency_s": None if "isense" not in r["first"] else round(r["first"]["isense"] - r["sense_dead_at"], 1)}
+                   for r in sense_lat]
+    burst = [r for r in benign if r.get("burst")]
+    isense = {"latent_before_stuck_on": latent, "simultaneous_double_fault": simultaneous,
+              "sense_dies_alone": sense_alone,
+              "sense_dies_alone_worst_latency_s": max((x["latency_s"] for x in sense_alone if x["latency_s"] is not None),
+                                                       default=None),
+              "sense_dies_alone_not_caught_in_run": [x["name"] + "@" + x["noise"] for x in sense_alone
+                                                     if x["latency_s"] is None],
+              "benign_runs": len([r for r in benign if r["kind"] != "loss" and not r.get("burst")]),
+              "burst_runs": len(burst),
+              "isense_false_trips": [(r["name"], r["noise"]) for r in benign if any(k in r["first"] for k in ISENSE)]}
     margins = {"r1_benign_max_5block_rise_K_per_s": max(r["r1_max_5block_rise_K_per_s"] for r in benign),
                "r1_benign_max_1block_rise_K_per_s": max(r["r1_max_block_rise_K_per_s"] for r in benign),
                "r1_fault_max_5block_rise_K_per_s": max(r["r1_max_5block_rise_K_per_s"] for r in faults),
                "frozen_threshold_conversions": FROZEN_CONVERSIONS,
                "max_identical_codes_by_noise": {n: max(r["max_identical_codes"] for r in passive if r["noise"] == n)
                                                 for n, _ in NOISES}}
-    return legacy_false, c1_false, sweep, fault_table, loss, margins
+    return legacy_false, c1_false, sweep, fault_table, loss, margins, isense
 
 
-def checks(c1_false, sweep, fault_table, loss, chosen):
+def checks(c1_false, sweep, fault_table, loss, chosen, isense):
     ch = {}
     ch["c1_no_false_trip"] = not c1_false
+    ch["isense_no_false_trip_incl_burst"] = not isense["isense_false_trips"] and isense["burst_runs"] > 0
+    ch["latent_sense_failure_caught_before_stuck_on"] = bool(isense["latent_before_stuck_on"]) and all(
+        x["caught_s"] is not None and x["caught_s"] < x["stuck_on_at_s"] for x in isense["latent_before_stuck_on"])
     row = next(s for s in sweep if (s["hold_s"], s["window_s"], s["rise_k"]) == chosen)
     half = next((s for s in sweep if (s["hold_s"], s["window_s"], s["rise_k"]) == (chosen[0] / 2, chosen[1], chosen[2])),
                 None)
@@ -515,14 +664,14 @@ def main():
     cs = scenarios()
     with Pool(min(10, os.cpu_count() or 1), initializer=cosim._init, initargs=(args.lib,)) as pool:
         rows = pool.map(run, cs)
-    legacy_false, c1_false, sweep, fault_table, loss, margins = analyse(rows)
-    ch, uncaught, late, hot = checks(c1_false, sweep, fault_table, loss, chosen)
+    legacy_false, c1_false, sweep, fault_table, loss, margins, isense = analyse(rows)
+    ch, uncaught, late, hot = checks(c1_false, sweep, fault_table, loss, chosen, isense)
     out = {"scope": __doc__.strip(), "chosen_2b": dict(zip(("hold_s", "window_s", "rise_k"), chosen)),
            "allowed_later_than_legacy": ALLOWED_LATER,
            "checks": ch, "all_pass": all(ch.values()), "uncaught": uncaught, "c1_later_than_legacy": late,
            "c1_trip_above_301": hot, "legacy_false_trips": legacy_false, "c1_false_trips": c1_false,
            "margins": margins,
-           "stage_2b_sweep": sweep, "faults": fault_table, "contact_loss": loss,
+           "stage_2b_sweep": sweep, "current_sense": isense, "faults": fault_table, "contact_loss": loss,
            "rows": [{k: v for k, v in r.items() if k not in ("sweep_2b", "trace_T_c_1s")} for r in rows]}
     Path(args.out).write_text(json.dumps(out, indent=1, default=float) + "\n")
     print("legacy false trips (benign runs):", {k: f"{v['runs']}/{v['of']}" for k, v in legacy_false.items()})
@@ -539,6 +688,18 @@ def main():
             continue
         print(f"   {'' if f['hazardous'] else '(not hazardous) '}{f['name']:45s} {f['noise']:6s} legacy {f['legacy_first_s_after_fault']!s:>7} "
               f"C1 {f['c1_first_s_after_fault']!s:>7} {sorted(f['c1_rules'])} peak {f['acting_peak_T_c']}")
+    print("current sense (D-ISENSE): benign", isense["benign_runs"], "+ burst", isense["burst_runs"],
+          "false trips", isense["isense_false_trips"] or "none")
+    for x in isense["latent_before_stuck_on"]:
+        if x["noise"] == "1LSB":
+            print(f"   latent {x['name']:52s} dead at {x['sense_dead_at']:5.1f} s caught {x['caught_s']} s "
+                  f"(stuck on at {x['stuck_on_at_s']:.0f} s) acting peak {x['acting_peak_T_c']}")
+    for x in isense["simultaneous_double_fault"]:
+        if x["noise"] == "1LSB":
+            print(f"   simultaneous {x['name']:40s} isense +{x['isense_s_after_fault']} R2b +{x['R2b_s_after_fault']} "
+                  f"acting peak {x['acting_peak_T_c']}")
+    print("   sense dies alone: worst latency", isense["sense_dies_alone_worst_latency_s"], "s; not caught in run:",
+          isense["sense_dies_alone_not_caught_in_run"] or "none")
     print("contact loss:", [(l["name"], l["noise"], l["contact_lost_s_after"], l["hw_trips"]) for l in loss])
     print("CHECKS", ch)
     print("ALL RUNAWAY CHECKS PASS" if out["all_pass"] else "RUNAWAY CHECK FAILURE")

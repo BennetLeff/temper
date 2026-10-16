@@ -1,0 +1,69 @@
+{
+ "scope": "DECISIONS.md D-OPEN: the C1 sensor-failure codes, and why a reading up there is not a temperature.\n\ncheck_runaway_boundary() latches the unclearable RUNAWAY_FAULT on any reading\nabove 300 degC. An open Pt100 converts to full scale (code 32767, 988.7 degC),\nso before D-OPEN an open element latched RUNAWAY even though register 07h had\nflagged the conversion. rtd_convert_classify_failure() (components/sensors/\nrtd_convert.c) now sends a conversion that is evidently a sensor failure to the\nrecoverable FAULT_PROBE_OPEN / FAULT_PROBE_SHORT path:\n\n  OPEN   code >= RTD_C1_FAIL_HIGH_CODE = ceil(code(R(850 degC))), or 07h D5..D2\n  SHORT  code <= RTD_C1_FAIL_LOW_CODE  = floor(code(R(-200 degC)))\n\nThis script recomputes both codes from IEC 60751 (RREF 430 ohm, 15-bit code)\nand gates them against rtd_convert.h. It also writes the evidence that 850 degC\nis out of physical reach as a first reading:\n\n  - the C1 element's rating (IST P0K1.202, -200..+600 degC, cad/QUOTE-LIST.md)\n    and the IEC 60751 range top (850 degC: the Callendar-Van Dusen equation\n    the firmware inverts is not defined above it);\n  - the hottest the r3 truth plant can drive the element uncontrolled: each\n    frying pan at 1800 W x eta 0.92 (the top of es.ETA_SWEEP) from ambient\n    to steady state, element temperature T_el;\n  - the time a real pan needs to climb from the 300 degC latch to 850 degC at\n    the fastest heating any modelled fault produces (runaway-checks.json\n    margins.r1_fault_max_5block_rise_K_per_s), in 50 Hz conversions, every\n    one of which latches RUNAWAY on the way;\n  - the codes of full scale, the 360 degC high-threshold word (35544) and\n    300 degC, so the bands are visible: plausible over-temperatures (300..850\n    degC, flagged above 360 degC) still latch RUNAWAY.\n\nWrites sensor-fail-codes.json. Exit 1 if rtd_convert.h disagrees or a margin\nfails. Run: python3 sensor_fail_codes.py",
+ "R_850C_ohm": 390.4811,
+ "R_minus200C_ohm": 18.5201,
+ "RTD_C1_FAIL_HIGH_CODE": 29757,
+ "RTD_C1_FAIL_LOW_CODE": 1411,
+ "header": {
+  "RTD_C1_FAIL_HIGH_CODE": 29757,
+  "RTD_C1_FAIL_LOW_CODE": 1411
+ },
+ "chip_rating_C": 600.0,
+ "iec60751_top_C": 850.0,
+ "plant_uncontrolled_full_power": {
+  "cast_iron_26": {
+   "eta": 0.92,
+   "T_el_C": 495.2,
+   "T_c_C": 497.4,
+   "hottest_ring_C": 537.4
+  },
+  "carbon_steel_28": {
+   "eta": 0.92,
+   "T_el_C": 516.4,
+   "T_c_C": 518.6,
+   "hottest_ring_C": 634.9
+  },
+  "triply_clad_24": {
+   "eta": 0.92,
+   "T_el_C": 775.1,
+   "T_c_C": 776.3,
+   "hottest_ring_C": 803.1
+  }
+ },
+ "plant_hottest_T_el_C": 775.1,
+ "fastest_fault_heating_K_per_s": 3.84,
+ "climb_300_to_850C_s": 143.2,
+ "climb_300_to_850C_conversions": 7161,
+ "bands": {
+  "full_scale": {
+   "code": 32767,
+   "degC": 988.7
+  },
+  "fail_high_code": {
+   "code": 29757,
+   "ohm": 390.488,
+   "degC": 849.96,
+   "below_degC": 849.92
+  },
+  "high_threshold_word_35544": {
+   "code": 17772,
+   "degC": 359.94
+  },
+  "absolute_300": {
+   "code": 16161
+  },
+  "fail_low_code": {
+   "code": 1411,
+   "ohm": 18.516
+  }
+ },
+ "checks": {
+  "header_high_code_matches": true,
+  "header_low_code_matches": true,
+  "fail_high_above_chip_rating": true,
+  "fail_high_above_hottest_uncontrolled_plant": true,
+  "fail_high_above_high_threshold_word": true,
+  "full_scale_is_a_failure": true
+ },
+ "all_pass": true
+}

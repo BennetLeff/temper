@@ -149,6 +149,17 @@ hal_status_t max31865_start_conversions(const max31865_device_t *device)
     return HAL_SPI_WRITE_REG(device->spi_device, MAX31865_REG_CONFIG, &config, 1u);
 }
 
+hal_status_t max31865_clear_fault_status(const max31865_device_t *device)
+{
+    const uint8_t config = MAX31865_CONFIG_VBIAS | MAX31865_CONFIG_AUTO_CONVERT |
+                           MAX31865_CONFIG_FAULT_CLEAR;
+
+    if (!device_ready(device)) {
+        return HAL_ERROR_INVALID_ARG;
+    }
+    return HAL_SPI_WRITE_REG(device->spi_device, MAX31865_REG_CONFIG, &config, 1u);
+}
+
 hal_status_t max31865_fault_cycle_busy(const max31865_device_t *device,
                                        bool *busy)
 {

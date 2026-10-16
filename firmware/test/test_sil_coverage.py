@@ -40,7 +40,8 @@ fault paths in different ways:
 
 C1 also replaces rules, not only paths, so a second C1 matrix is gated:
 C1_MECHANISMS x origin (R1, the absolute 300 degC check, supervisor R2
-stages 1/2a/2b, register 07h, DRDY stale, frozen code). A scenario covers a
+stages 1/2a/2b, register 07h, DRDY stale, frozen code, the current-sense
+checks (a) and (b), and the probe-leakage latch). A scenario covers a
 cell through its manifest "c1_mechanism"; the C1 runner checks the attribution
 where the firmware exposes it (supervisor latch, reading at the trip, 07h,
 service stopped).
@@ -113,10 +114,17 @@ for _origin in REPRESENTATIVE_ANY_STATE_ORIGINS:
 
 _C1_SERVICE = ("rtd_service_control_tick() (C1, every state) -> "
                "state_machine_report_rtd_{device_fault,frozen}(); representative non-power state")
+_C1_ISENSE = ("pan_control_step() current-sense checks (components/control/current_sense_check.c, "
+              "DECISIONS D-ISENSE) -> state_machine_report_latched_fault(), PREHEAT/HEATING")
+_C1_LEAK = ("pan_control_step() Pt100 leak check (components/control/pan_leak_check.c, DECISIONS "
+            "D-LEAK) -> state_machine_report_latched_fault(); needs a hot pan, HEATING")
 C1_SUPPLEMENTAL_PAIRS = {
     ("FAULT_PROBE_OPEN", "IDLE"): _C1_SERVICE,
     ("FAULT_PROBE_SHORT", "IDLE"): _C1_SERVICE,
     ("FAULT_ADC_STUCK", "IDLE"): _C1_SERVICE,
+    ("FAULT_CURRENT_SENSE", "PREHEAT"): _C1_ISENSE,
+    ("FAULT_CURRENT_SENSE", "HEATING"): _C1_ISENSE,
+    ("FAULT_PROBE_LEAKAGE", "HEATING"): _C1_LEAK,
 }
 
 # C1 rules x the origins each must be injected from.
@@ -135,6 +143,11 @@ C1_MECHANISMS = {
                 "MAX31865 threshold fault, register 07h (C1 window)"),
     "rtd-stale": (("IDLE", "HEATING"), "no DRDY for 60 ms"),
     "rtd-frozen": (("IDLE", "PREHEAT", "HEATING"), "250 identical conversions"),
+    "isense-run": (("PREHEAT", "HEATING"),
+                   "current-sense check (a): >= 300 W commanded, bus current near 0 A for 0.5 s"),
+    "isense-pulse": (("PREHEAT",), "current-sense check (b): the start-up pulse shows no current"),
+    "xchk-leak": (("HEATING",),
+                  "Pt100 leak check: two chained cross-check suspect -> probe-passed cycles"),
 }
 
 # Fault classes with NO manifest path at all (no transition_table.yaml row,

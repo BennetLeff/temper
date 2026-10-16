@@ -4,7 +4,7 @@
  *
  * Tests:
  * - FAULT_IGBT_SHORT and FAULT_ADC_STUCK exist in the enum
- * - FAULT_COUNT matches expected total (14: 9 manifest + 5 supplemental)
+ * - FAULT_COUNT matches expected total (16: 13 manifest + 3 supplemental)
  * - String table is complete and non-empty for all fault codes
  * - Known labels preserved (backward compatibility with EEPROM logs)
  */
@@ -43,8 +43,9 @@ void test_fault_adc_stuck_exists(void)
 
 void test_fault_count_expected(void)
 {
-    /* 9 manifest-derived + 5 supplemental = 14 total */
-    TEST_ASSERT_EQUAL(14, FAULT_COUNT);
+    /* 13 manifest-derived + 3 supplemental = 16 total (FAULT_CURRENT_SENSE,
+     * FAULT_PROBE_LEAKAGE: sensor-r3 DECISIONS D-ISENSE, D-LEAK) */
+    TEST_ASSERT_EQUAL(16, FAULT_COUNT);
 }
 
 /* ---------------------------------------------------------------------------

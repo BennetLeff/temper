@@ -46,11 +46,20 @@
  *                        (the first fault logged since reset)
  *   c1_mechanism         C1 rule expected to act; checked where the firmware
  *                        exposes it (R2-2a, R2-2b, R1, absolute-300,
- *                        rtd-07h, rtd-stale, rtd-frozen)
+ *                        rtd-07h, rtd-stale, rtd-frozen, isense-run,
+ *                        isense-pulse)
  *   c1_escalates_to_runaway  true: in C1 the fault is followed by the
- *                        RUNAWAY_FAULT latch (an open Pt100 converts to a
- *                        reading above 300 degC); required, not allowed,
- *                        so it is never silent
+ *                        RUNAWAY_FAULT latch (a flagged but plausible
+ *                        over-temperature: register 07h reports first, then
+ *                        the 300 degC check latches; DECISIONS D-OPEN);
+ *                        required, not allowed, so it is never silent
+ *   expected.reset_accepted  true: the fault condition has gone by the end
+ *                        of the trace (a healed sensor): a reset must be
+ *                        accepted and the machine reach IDLE with the power
+ *                        at 0 throughout, instead of being refused
+ *   c1_bus_sense_dead    true (C1): the bus-current sense reads 0 A from
+ *                        power-up, whatever the stage draws (a latent sense
+ *                        failure; DECISIONS D-ISENSE)
  *   xfail                {"c1": "reason"}: a known defect, reported as
  *                        XFAIL; an unexpected pass fails the run
  *
@@ -124,7 +133,7 @@ extern float        read_pan_temperature(void);   /* stub: the plant value */
  * Constants
  * --------------------------------------------------------------------------- */
 
-#define MAX_TICKS             1000
+#define MAX_TICKS             2000  /* the D-LEAK trace needs ~1300 rows */
 #define PAN_ABSENT_THRESHOLD  3.0f
 #define PAN_CONFIDENCE_NEEDED 3
 #define DT_MS                 100    /* 100 ms per tick (matches plant model dt) */
@@ -167,6 +176,8 @@ static fault_code_t parse_fault_code(const char *str) {
     if (!strcmp(str, "FAULT_SELF_TEST_FAILED"))        return FAULT_SELF_TEST_FAILED;
     if (!strcmp(str, "FAULT_WATCHDOG_RESET"))          return FAULT_WATCHDOG_RESET;
     if (!strcmp(str, "FAULT_PAN_DETECT_HW"))           return FAULT_PAN_DETECT_HW;
+    if (!strcmp(str, "FAULT_CURRENT_SENSE"))           return FAULT_CURRENT_SENSE;
+    if (!strcmp(str, "FAULT_PROBE_LEAKAGE"))           return FAULT_PROBE_LEAKAGE;
     return FAULT_NONE;
 }
 
@@ -305,7 +316,9 @@ typedef struct {
     int  max_latency_ticks;
     int  max_latency_ticks_c1;    /* -1: same as max_latency_ticks */
     bool hold_state;
+    bool reset_accepted;
     bool c1_escalates_to_runaway;
+    bool c1_bus_sense_dead;
     /* hard assertions (KTD3): a scenario that reaches the right state but
      * misses these side effects fails the run, it does not warn. */
     bool require_power_off;
@@ -429,6 +442,8 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
                 if (val) { strncpy(e->c1_mechanism, val, sizeof(e->c1_mechanism) - 1); free(val); }
             } else if (!strcmp(key, "c1_escalates_to_runaway")) {
                 e->c1_escalates_to_runaway = extract_bool(&p);
+            } else if (!strcmp(key, "c1_bus_sense_dead")) {
+                e->c1_bus_sense_dead = extract_bool(&p);
             } else if (!strcmp(key, "modes")) {
                 parse_modes(&p, e);
             } else if (!strcmp(key, "xfail")) {
@@ -560,6 +575,8 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
                             e->max_latency_ticks_c1 = extract_int(&p);
                         } else if (!strcmp(ek, "hold_state")) {
                             e->hold_state = extract_bool(&p);
+                        } else if (!strcmp(ek, "reset_accepted")) {
+                            e->reset_accepted = extract_bool(&p);
                         } else if (!strcmp(ek, "hard_assertions")) {
                             /* Array of hard assertion objects (KTD3):
                              * power_off, power_level_zero and eeprom_logged
@@ -697,9 +714,11 @@ static int load_csv(const char *path, csvrow_t *rows, int max_rows) {
  *              column departs from its row-0 placeholder: then that value
  *              is the element's resistance (an injected RTD fault).
  *   bus I      an obeying stage, P_cmd / 120 V (from the last power level;
- *              the supervisor allows down to 100 V), unless the trace's
+ *              the supervisor allows down to 100 V), and 0 A with no pan
+ *              (no coupling, so no real power), unless the trace's
  *              dc_current column departs from its row-0 placeholder: then
- *              that value (an injected power-stage or sense fault).
+ *              that value (an injected power-stage or sense fault). A
+ *              scenario with c1_bus_sense_dead reads 0 A throughout.
  *   rim NTC    the trace pan temperature (no cross-check suspicion).
  *
  * The legacy traces hold dc_current 5.0 A and rtd_resistance 100.0 ohm as
@@ -715,6 +734,7 @@ extern void mock_spi_set_register(hal_spi_device_t device, uint8_t reg, uint8_t 
 extern uint8_t mock_spi_get_register(hal_spi_device_t device, uint8_t reg);
 extern void mock_gpio_reset(void);
 extern void mock_gpio_trigger_interrupt(hal_pin_t pin);
+extern int mock_sm_get_pan_status(void);
 
 #define C1_DEV            ((hal_spi_device_t)0)
 #define C1_TICK_MS        10u
@@ -726,6 +746,7 @@ extern void mock_gpio_trigger_interrupt(hal_pin_t pin);
 static struct {
     float r_override;     /* NAN: Pt100 follows the pan temperature */
     float i_override;     /* NAN: bus current follows the command   */
+    bool sense_dead;      /* the bus-current sense reads 0 A        */
     bool drdy;
     uint32_t tick;
     uint32_t conversions;
@@ -819,9 +840,13 @@ static void c1_converter_step(void) {
 static void c1_control_tick(void) {
     mock_sm_advance_time(C1_TICK_MS);
     s_plant.tick++;
-    const float i_bus = isnan(s_plant.i_override)
-        ? (float)mock_sm_get_power_level() / 100.0f * PAN_CONTROL_P_MAX_W / C1_STAGE_V
+    const bool coupled = mock_sm_get_pan_status() == MOCK_PAN_PRESENT;
+    float i_bus = isnan(s_plant.i_override)
+        ? (coupled ? (float)mock_sm_get_power_level() / 100.0f * PAN_CONTROL_P_MAX_W / C1_STAGE_V : 0.0f)
         : s_plant.i_override;
+    if (s_plant.sense_dead) {
+        i_bus = 0.0f;
+    }
     mock_sm_set_dc_bus_current(i_bus);
     c1_converter_step();
     rtd_service_control_tick();   /* main.c control_task order */
@@ -838,6 +863,7 @@ static void c1_reset(void) {
     (void)hal_init_mock();
     s_plant.r_override = NAN;
     s_plant.i_override = NAN;
+    s_plant.sense_dead = false;
     s_plant.drdy = true;
     s_plant.tick = 0u;
     s_plant.conversions = 0u;
@@ -866,10 +892,13 @@ static void sil_step_row(void) {
     }
 }
 
-static void sil_reset(void) {
+static void sil_reset(const manifest_entry_t *entry) {
     mock_sm_reset();
 #ifdef TEMPER_PAN_CONTROL_C1
     c1_reset();
+    s_plant.sense_dead = entry->c1_bus_sense_dead;
+#else
+    (void)entry;
 #endif
     state_machine_init();
 }
@@ -1272,6 +1301,43 @@ static bool assert_reset_refused(const manifest_entry_t *entry) {
     return true;
 }
 
+/* The fault condition has gone (a healed sensor): a reset must be accepted
+ * and the machine reach IDLE through INIT, with the power at 0 at every
+ * control step from the press to the end (the coil stays off throughout). */
+static bool assert_reset_accepted(const manifest_entry_t *entry) {
+    char msg[200];
+    const system_state_t st = state_machine_get_state();
+    if (st != STATE_FAULT) {
+        snprintf(msg, sizeof(msg), "reset_accepted: expected FAULT before the reset, state %d",
+                 (int)st);
+        return sil_fail(msg);
+    }
+    mock_sm_press_button(BUTTON_RESET);
+    for (int k = 0; k < SIL_STEPS_PER_ROW; k++) {
+        sil_control_step();
+        if (mock_sm_get_power_level() != 0u) {
+            return sil_fail("reset_accepted: power on during the reset");
+        }
+    }
+    mock_sm_release_button(BUTTON_RESET);
+    for (int r = 0; r < 30 && state_machine_get_state() != STATE_IDLE; r++) {
+        for (int k = 0; k < SIL_STEPS_PER_ROW; k++) {
+            sil_control_step();
+            if (mock_sm_get_power_level() != 0u) {
+                return sil_fail("reset_accepted: power on after the reset");
+            }
+        }
+    }
+    if (state_machine_get_state() != STATE_IDLE || state_machine_get_fault() != FAULT_NONE) {
+        snprintf(msg, sizeof(msg), "reset_accepted: state %d fault %d after the reset (fault %d)",
+                 (int)state_machine_get_state(), (int)state_machine_get_fault(),
+                 (int)entry->expected_fault);
+        return sil_fail(msg);
+    }
+    printf("  [PASS] reset accepted once the sensor reads good; IDLE with the power at 0\n");
+    return true;
+}
+
 /* C1 rule attribution where the firmware exposes it. */
 static bool assert_c1_mechanism(const manifest_entry_t *entry, float reading_at_trip) {
 #ifdef TEMPER_PAN_CONTROL_C1
@@ -1286,6 +1352,21 @@ static bool assert_c1_mechanism(const manifest_entry_t *entry, float reading_at_
             return sil_fail(msg);
         }
         printf("  [C1] supervisor latch %s\n", m);
+    } else if (!strcmp(m, "isense-run") || !strcmp(m, "isense-pulse")) {
+        const int want = !strcmp(m, "isense-run") ? 1 : 2;
+        const int got = pan_control_current_sense_latch();
+        if (got != want) {
+            snprintf(msg, sizeof(msg), "C1 mechanism %s expected: current-sense latch %d, got %d",
+                     m, want, got);
+            return sil_fail(msg);
+        }
+        printf("  [C1] current-sense latch %s\n", m);
+    } else if (!strcmp(m, "xchk-leak")) {
+        if (!pan_control_leak_latched()) {
+            return sil_fail("C1 mechanism xchk-leak expected: the Pt100 leak check has not latched");
+        }
+        printf("  [C1] Pt100 leak check latched after %u cross-check suspects\n",
+               (unsigned)pan_control_xcheck_suspects());
     } else if (!strcmp(m, "R1")) {
         if (!(reading_at_trip < g_config.runaway.max_absolute_temp_c)) {
             snprintf(msg, sizeof(msg), "C1 mechanism R1 expected: reading %.1f C at the trip "
@@ -1331,7 +1412,7 @@ static bool assert_c1_mechanism(const manifest_entry_t *entry, float reading_at_
  * --------------------------------------------------------------------------- */
 
 static bool run_sil_timing_test(const manifest_entry_t *entry) {
-    sil_reset();
+    sil_reset(entry);
     uint32_t pwm_disable_baseline = mock_sm_get_pwm_disable_count();
 
     sm_boilerplate_to_origin(entry->origin_state, entry->self_test_pass, NAN);
@@ -1434,7 +1515,7 @@ static bool run_sil_scenario(const manifest_entry_t *entry) {
     check_trace_invariants(rows, row_count, entry);
 
     /* Reset and initialize */
-    sil_reset();
+    sil_reset(entry);
 
     /* Baseline the power-disable probe before any boilerplate/replay runs,
      * so the hard power_off assertion measures an increment attributable to
@@ -1596,6 +1677,7 @@ static bool run_sil_scenario(const manifest_entry_t *entry) {
     if (!assert_safe_state_side_effects(entry, pwm_disable_baseline)) return false;
     if (entry->c1_mechanism[0] != '\0' && !assert_c1_mechanism(entry, reading_at_trip)) return false;
     if (!assert_first_fault_latched(entry, expected_state, captured_fault, escalate)) return false;
+    if (entry->reset_accepted) return assert_reset_accepted(entry);
     return assert_reset_refused(entry);
 }
 

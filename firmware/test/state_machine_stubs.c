@@ -222,6 +222,7 @@ void mock_sm_fail_selftest_fan(void) { mock_sm_state.test_fan_pass = false; }
 
 /* Query mock state */
 uint32_t mock_sm_get_power_level(void) { return mock_sm_state.power_level; }
+int mock_sm_get_pan_status(void) { return (int)mock_sm_state.pan_status; }
 uint32_t mock_sm_get_pwm_duty(void) { return mock_sm_state.pwm_duty_cycle; }
 bool mock_sm_get_pll_enabled(void) { return mock_sm_state.pll_enabled; }
 led_pattern_t mock_sm_get_led_pattern(void) { return mock_sm_state.led_pattern; }

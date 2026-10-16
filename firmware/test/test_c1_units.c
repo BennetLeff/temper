@@ -1,7 +1,9 @@
 /**
  * @file test_c1_units.c
- * @brief sensor-r3 C1 runtime units: runaway supervisor (pan_supervisor.c)
- *        and MAX31865 code conversion (rtd_convert.c).
+ * @brief sensor-r3 C1 runtime units: runaway supervisor (pan_supervisor.c),
+ *        MAX31865 code conversion (rtd_convert.c), current-sense plausibility
+ *        (current_sense_check.c, D-ISENSE) and the Pt100 leak check
+ *        (pan_leak_check.c, D-LEAK).
  *
  * Scenario values mirror output/temper-sensor-r3/firmware/runaway_checks.py
  * (DECISIONS.md D-RUN): a preheated pan placed on the disc, an h_c drop, a
@@ -11,6 +13,9 @@
 #include <math.h>
 
 #include "unity/unity.h"
+#include "../components/control/contact_check.h"
+#include "../components/control/current_sense_check.h"
+#include "../components/control/pan_leak_check.h"
 #include "../components/control/pan_supervisor.h"
 #include "../components/sensors/include/rtd_convert.h"
 
@@ -236,6 +241,274 @@ static void test_rtd_convert_zero_code_is_not_a_temperature(void)
     TEST_ASSERT_TRUE(isnan(rtd_convert_code_to_c(&p, 0u)));
 }
 
+/* ---- D-OPEN: sensor-failure classification -------------------------------- */
+
+static void test_sensor_failure_open_starts_at_r_850c(void)
+{
+    /* R(850 degC) = 390.481 ohm -> code 29756.4: 29757 is the first code at or
+     * beyond it, 29756 is still a temperature (849.9 degC). */
+    TEST_ASSERT_EQUAL_INT(RTD_SENSOR_OK, rtd_convert_classify_failure(29756u, 0x80u));
+    TEST_ASSERT_EQUAL_INT(RTD_SENSOR_FAIL_OPEN, rtd_convert_classify_failure(29757u, 0x80u));
+    TEST_ASSERT_EQUAL_INT(RTD_SENSOR_FAIL_OPEN, rtd_convert_classify_failure(29757u, 0x00u));
+    TEST_ASSERT_EQUAL_INT(RTD_SENSOR_FAIL_OPEN, rtd_convert_classify_failure(0x7FFFu, 0x80u));
+    rtd_convert_params_t p;
+    rtd_convert_default_params(&p);
+    TEST_ASSERT_TRUE(rtd_convert_code_to_c(&p, 29756u) < 850.0f);
+    TEST_ASSERT_TRUE(rtd_convert_code_to_c(&p, 29757u) > 849.9f);
+}
+
+static void test_sensor_failure_short_ends_at_r_minus_200c(void)
+{
+    /* R(-200 degC) = 18.52 ohm -> code 1411.3 */
+    TEST_ASSERT_EQUAL_INT(RTD_SENSOR_FAIL_SHORT, rtd_convert_classify_failure(0u, 0x40u));
+    TEST_ASSERT_EQUAL_INT(RTD_SENSOR_FAIL_SHORT, rtd_convert_classify_failure(1411u, 0x40u));
+    TEST_ASSERT_EQUAL_INT(RTD_SENSOR_OK, rtd_convert_classify_failure(1412u, 0x40u));
+}
+
+static void test_flagged_plausible_over_temperature_is_a_temperature(void)
+{
+    /* 380 degC: R 241.7 ohm, code 18420, above the 360 degC high-threshold
+     * word, so 07h reads RTD High (0x80): the same bit an open sets. */
+    TEST_ASSERT_EQUAL_INT(RTD_SENSOR_OK, rtd_convert_classify_failure(18420u, 0x80u));
+    TEST_ASSERT_EQUAL_INT(RTD_SENSOR_OK, rtd_convert_classify_failure(18420u, 0x00u));
+}
+
+static void test_register_07h_input_bits_are_a_sensor_failure(void)
+{
+    /* REFIN- high, REFIN- low, RTDIN- low, OV/UV: whatever the code. */
+    const uint8_t bits[] = {0x20u, 0x10u, 0x08u, 0x04u, 0x84u};
+    for (unsigned i = 0; i < sizeof(bits); i++) {
+        TEST_ASSERT_EQUAL_INT(RTD_SENSOR_FAIL_OPEN, rtd_convert_classify_failure(13000u, bits[i]));
+    }
+}
+
+/* ---- D-ISENSE: bus-current sense plausibility -------------------------------- */
+
+static csc_t csc;
+
+static void csc_new(void)
+{
+    csc_params_t p;
+    csc_default_params(&p);
+    TEST_ASSERT_TRUE(csc_init(&csc, &p));
+}
+
+/* Periods (0.1 s) until (a) latches at a constant command and current; 0 if never within n. */
+static int csc_run_periods(float p_w, float i_a, int n)
+{
+    for (int k = 1; k <= n; k++) {
+        if (csc_run_step(&csc, p_w, i_a)) {
+            return k;
+        }
+    }
+    return 0;
+}
+
+static void test_isense_run_latches_after_settle_and_hold(void)
+{
+    csc_new();
+    /* 0.3 s settle, then 0.5 s with no current: the 8th period (0.8 s) */
+    TEST_ASSERT_EQUAL_INT(8, csc_run_periods(306.0f, 0.0f, 50));
+    TEST_ASSERT_EQUAL_INT(CSC_LATCH_RUN, csc.latched);
+    csc_new();
+    TEST_ASSERT_EQUAL_INT(8, csc_run_periods(1800.0f, NAN, 50));   /* not a current */
+}
+
+static void test_isense_run_ignores_commands_below_the_burst_safe_floor(void)
+{
+    /* Below 300 W the stage may burst at its ~160 W floor with a 20 s period
+     * and read 0 A between bursts. */
+    csc_new();
+    TEST_ASSERT_EQUAL_INT(0, csc_run_periods(288.0f, 0.0f, 400));
+    TEST_ASSERT_EQUAL_INT(0, csc_run_periods(90.0f, 0.0f, 400));
+}
+
+static void test_isense_run_accepts_any_current_above_near_zero(void)
+{
+    /* 300 W at 120 V, coil delivering 0.9: 2.25 A expected; 0.6 A still counts */
+    csc_new();
+    TEST_ASSERT_EQUAL_INT(0, csc_run_periods(306.0f, 0.6f, 400));
+    TEST_ASSERT_EQUAL_INT(0, csc_run_periods(1800.0f, 13.5f, 400));
+}
+
+static void test_isense_run_needs_the_full_hold(void)
+{
+    csc_new();
+    TEST_ASSERT_EQUAL_INT(0, csc_run_periods(900.0f, 7.5f, 10));
+    TEST_ASSERT_EQUAL_INT(0, csc_run_periods(900.0f, 0.0f, 4));   /* 0.4 s dropout */
+    TEST_ASSERT_EQUAL_INT(0, csc_run_periods(900.0f, 7.5f, 1));
+    TEST_ASSERT_EQUAL_INT(5, csc_run_periods(900.0f, 0.0f, 10));
+}
+
+static void test_isense_pulse_passes_with_current_and_fails_without(void)
+{
+    float cmd = 0.0f;
+    csc_new();
+    csc_pulse_begin(&csc);
+    TEST_ASSERT_EQUAL_INT(CSC_PULSE_PENDING, csc_pulse_step(&csc, 0.0f, 0.0f, 1800.0f, &cmd));
+    TEST_ASSERT_EQUAL_FLOAT(360.0f, cmd);
+    csc_pulse_state_t st = CSC_PULSE_PENDING;
+    int k = 0;
+    while (csc_pulse_active(&csc) && k < 30) {
+        st = csc_pulse_step(&csc, cmd, 3.0f, 1800.0f, &cmd);   /* 360 W / 120 V */
+        k++;
+    }
+    TEST_ASSERT_EQUAL_INT(CSC_PULSE_PASSED, st);
+    TEST_ASSERT_EQUAL_INT(10, k);
+    TEST_ASSERT_EQUAL_INT(CSC_OK, csc.latched);
+
+    csc_new();
+    csc_pulse_begin(&csc);
+    (void)csc_pulse_step(&csc, 0.0f, 0.0f, 1800.0f, &cmd);
+    for (k = 0; csc_pulse_active(&csc) && k < 30; k++) {
+        st = csc_pulse_step(&csc, cmd, 0.1f, 1800.0f, &cmd);
+    }
+    TEST_ASSERT_EQUAL_INT(CSC_PULSE_FAILED, st);
+    TEST_ASSERT_EQUAL_INT(CSC_LATCH_PULSE, csc.latched);
+}
+
+static void test_isense_pulse_waits_while_the_command_is_held_at_zero(void)
+{
+    float cmd = 0.0f;
+    csc_new();
+    csc_pulse_begin(&csc);
+    /* stage 1 holds the command at 0 for 30 s: the pulse waits, no verdict */
+    for (int k = 0; k < 300; k++) {
+        TEST_ASSERT_EQUAL_INT(CSC_PULSE_PENDING, csc_pulse_step(&csc, 0.0f, 0.0f, 1800.0f, &cmd));
+        TEST_ASSERT_FALSE(csc_run_step(&csc, 0.0f, 0.0f));
+    }
+    /* zeroed half-way: it restarts */
+    for (int k = 0; k < 5; k++) {
+        (void)csc_pulse_step(&csc, cmd, 3.0f, 1800.0f, &cmd);
+    }
+    TEST_ASSERT_EQUAL_INT(CSC_PULSE_PENDING, csc_pulse_step(&csc, 0.0f, 0.0f, 1800.0f, &cmd));
+    int k = 0;
+    while (csc_pulse_active(&csc) && k < 30) {
+        (void)csc_pulse_step(&csc, cmd, 3.0f, 1800.0f, &cmd);
+        k++;
+    }
+    TEST_ASSERT_EQUAL_INT(10, k);
+    TEST_ASSERT_EQUAL_INT(CSC_PULSE_PASSED, csc.pulse);
+}
+
+static void test_isense_pulse_is_clamped_to_the_power_limit(void)
+{
+    float cmd = 0.0f;
+    csc_new();
+    csc_pulse_begin(&csc);
+    (void)csc_pulse_step(&csc, 0.0f, 0.0f, 180.0f, &cmd);   /* intensity 1 */
+    TEST_ASSERT_EQUAL_FLOAT(180.0f, cmd);
+}
+
+static void test_isense_xcheck_agreeing_senses_never_latch(void)
+{
+    csc_new();
+    for (int k = 0; k < 600; k++) {
+        const float i = 15.0f * (float)(k % 100) / 100.0f;
+        TEST_ASSERT_FALSE(csc_xcheck_step(&csc, i * 1.2f, i));   /* 20 % gain error */
+    }
+    TEST_ASSERT_FALSE(csc_xcheck_step(&csc, 0.9f, 0.0f));        /* below the floor */
+}
+
+static void test_isense_xcheck_disagreeing_senses_latch_after_hold(void)
+{
+    csc_new();
+    for (int k = 1; k <= 4; k++) {
+        TEST_ASSERT_FALSE(csc_xcheck_step(&csc, 7.5f, 0.0f));   /* bus sense dead */
+    }
+    TEST_ASSERT_TRUE(csc_xcheck_step(&csc, 7.5f, 0.0f));
+    TEST_ASSERT_EQUAL_INT(CSC_LATCH_XCHECK, csc.latched);
+    csc_new();
+    for (int k = 0; k < 4; k++) {
+        TEST_ASSERT_FALSE(csc_xcheck_step(&csc, 15.0f, 7.5f));   /* half-gain bus sense */
+    }
+    TEST_ASSERT_TRUE(csc_xcheck_step(&csc, 15.0f, 7.5f));
+    csc_new();
+    for (int k = 0; k < 4; k++) {
+        TEST_ASSERT_FALSE(csc_xcheck_step(&csc, NAN, 7.5f));
+    }
+    TEST_ASSERT_TRUE(csc_xcheck_step(&csc, NAN, 7.5f));
+}
+
+/* ---- D-LEAK: element-parallel Pt100 leakage ------------------------------- */
+
+static plc_t plc;
+
+static void plc_new(void)
+{
+    plc_params_t p;
+    plc_default_params(&p);
+    TEST_ASSERT_TRUE(plc_init(&plc, &p));
+}
+
+/* Idle periods (no suspect, no event) at reading y, rim r. */
+static bool plc_idle(int n, float y, float r)
+{
+    bool l = false;
+    for (int k = 0; k < n; k++) {
+        l = plc_step(&plc, false, CC_EVT_NONE, y, r);
+    }
+    return l;
+}
+
+/* One leak cycle as leak-checks.json shows it: suspect, a 6 s probe, PASSED. */
+static bool plc_cycle(float y, float r)
+{
+    (void)plc_step(&plc, true, CC_EVT_SUSPECT, y, r);
+    (void)plc_idle(60, y, r);
+    return plc_step(&plc, false, CC_EVT_PROBE_PASSED, y, r);
+}
+
+static void test_leak_two_chained_cycles_latch(void)
+{
+    plc_new();
+    TEST_ASSERT_FALSE(plc_cycle(251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_idle(430, 245.0f, 286.0f));   /* 30 s hold-off + 30 s xcheck hold */
+    TEST_ASSERT_TRUE(plc_cycle(244.0f, 288.0f));       /* reading lower, rim higher */
+    TEST_ASSERT_TRUE(plc_idle(5, 244.0f, 288.0f));     /* sticky */
+}
+
+static void test_leak_one_cycle_or_cycles_beyond_the_gap_never_latch(void)
+{
+    plc_new();
+    TEST_ASSERT_FALSE(plc_cycle(251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_idle(3000, 251.0f, 285.0f));
+    plc_new();
+    TEST_ASSERT_FALSE(plc_cycle(251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_idle(1150, 251.0f, 285.0f));  /* suspects 121 s apart */
+    TEST_ASSERT_FALSE(plc_cycle(251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_idle(400, 251.0f, 285.0f));   /* ...but this one chains */
+    TEST_ASSERT_TRUE(plc_cycle(251.0f, 285.0f));
+}
+
+static void test_leak_a_resolving_disturbance_breaks_the_chain(void)
+{
+    plc_new();   /* the reading recovers more than 2 K: food heating back up */
+    TEST_ASSERT_FALSE(plc_cycle(200.0f, 240.0f));
+    TEST_ASSERT_FALSE(plc_idle(400, 205.0f, 240.0f));
+    TEST_ASSERT_FALSE(plc_cycle(202.5f, 240.0f));
+    plc_new();   /* the rim cools more than 5 K: the glass was the hot one */
+    TEST_ASSERT_FALSE(plc_cycle(200.0f, 240.0f));
+    TEST_ASSERT_FALSE(plc_idle(400, 200.0f, 236.0f));
+    TEST_ASSERT_FALSE(plc_cycle(200.0f, 234.5f));
+}
+
+static void test_leak_contact_doubt_or_no_rim_restarts_the_count(void)
+{
+    plc_new();
+    TEST_ASSERT_FALSE(plc_cycle(251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_step(&plc, false, CC_EVT_LOST, 251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_cycle(251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_step(&plc, false, CC_EVT_RESTORED, 251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_cycle(251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_cycle(251.0f, NAN));         /* rim not VALID */
+    TEST_ASSERT_FALSE(plc_cycle(251.0f, 285.0f));
+    plc_new();   /* a probe D1 started on its own (no cross-check suspect) */
+    TEST_ASSERT_FALSE(plc_cycle(251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_step(&plc, false, CC_EVT_PROBE_PASSED, 251.0f, 285.0f));
+    TEST_ASSERT_FALSE(plc_idle(100, 251.0f, 285.0f));
+}
+
 void run_c1_units_tests(void)
 {
     RUN_TEST(test_r1_ignores_hot_pan_placement_that_the_10ms_check_trips);
@@ -255,4 +528,21 @@ void run_c1_units_tests(void)
     RUN_TEST(test_rtd_convert_cvd_points_within_half_an_lsb);
     RUN_TEST(test_rtd_convert_loading_correction_cr7);
     RUN_TEST(test_rtd_convert_zero_code_is_not_a_temperature);
+    RUN_TEST(test_sensor_failure_open_starts_at_r_850c);
+    RUN_TEST(test_sensor_failure_short_ends_at_r_minus_200c);
+    RUN_TEST(test_flagged_plausible_over_temperature_is_a_temperature);
+    RUN_TEST(test_register_07h_input_bits_are_a_sensor_failure);
+    RUN_TEST(test_isense_run_latches_after_settle_and_hold);
+    RUN_TEST(test_isense_run_ignores_commands_below_the_burst_safe_floor);
+    RUN_TEST(test_isense_run_accepts_any_current_above_near_zero);
+    RUN_TEST(test_isense_run_needs_the_full_hold);
+    RUN_TEST(test_isense_pulse_passes_with_current_and_fails_without);
+    RUN_TEST(test_isense_pulse_waits_while_the_command_is_held_at_zero);
+    RUN_TEST(test_isense_pulse_is_clamped_to_the_power_limit);
+    RUN_TEST(test_isense_xcheck_agreeing_senses_never_latch);
+    RUN_TEST(test_isense_xcheck_disagreeing_senses_latch_after_hold);
+    RUN_TEST(test_leak_two_chained_cycles_latch);
+    RUN_TEST(test_leak_one_cycle_or_cycles_beyond_the_gap_never_latch);
+    RUN_TEST(test_leak_a_resolving_disturbance_breaks_the_chain);
+    RUN_TEST(test_leak_contact_doubt_or_no_rim_restarts_the_count);
 }

@@ -499,20 +499,28 @@ entry past the 24th. It now runs every entry by name.
 | Mode | Scenarios | Designed (fault class, origin) pairs covered |
 |---|---|---|
 | legacy | 31 | 20/20 |
-| C1 | 36 | 23/23 |
+| C1 | 44 | 26/26 |
+
+(36 and 23/23 when D-SIL landed; D-OPEN, D-ISENSE and D-LEAK added the
+rest.)
 
 C1's pairs are a superset of legacy's. It adds IDLE for `FAULT_PROBE_OPEN`,
 `FAULT_PROBE_SHORT` and `FAULT_ADC_STUCK`: the converter service reports from
-every state, while legacy's RTD checks run only in PREHEAT/HEATING.
+every state, while legacy's RTD checks run only in PREHEAT/HEATING. It also
+adds FAULT_CURRENT_SENSE (PREHEAT, HEATING) and FAULT_PROBE_LEAKAGE (HEATING).
 
-A second matrix, C1 mechanism × origin, covers 16/16 cells:
+A second matrix, C1 mechanism × origin, covers 20/20 cells (16/16 at D-SIL):
 - R1 and the absolute 300 °C check;
 - R2 stages 1, 2a and 2b;
-- register 07h, DRDY stale and frozen code.
+- register 07h, DRDY stale and frozen code;
+- the current-sense checks (a) and (b) (D-ISENSE);
+- the Pt100 leak check (D-LEAK).
 
 The C1 runner checks each attribution where the firmware exposes it:
 - the supervisor latch, through the new read-only
-  `pan_control_supervisor_latch()`;
+  `pan_control_supervisor_latch()`, and likewise the current-sense latch
+  (`pan_control_current_sense_latch()`) and the leak latch
+  (`pan_control_leak_latched()`);
 - the reading at the trip;
 - register 07h;
 - whether the service has stopped.
@@ -733,15 +741,277 @@ Results:
   - Worst estimate error 1.96 K nominal and 9.92 K food. cosim.py's own food
     runs reach 8.47 K.
 - **Element-parallel leakage** from 250 s, 16 runs (cold corner):
-  - **1 kΩ:** the cross-check fires in 7 of 8, 208–292 s after the leak. D1's
+  - **1 kΩ:** the cross-check fires in 6 of 8, 208–292 s after the leak. D1's
     probe then (correctly) finds the sensor in contact, so heating continues.
-    T_c reaches SP + 121.9 K, about 352 °C.
+    T_c reaches SP + 121.9 K, about 352 °C. In the other two (carbon steel
+    and cast iron, Δ 12 K) the glass passes 300 °C and the rim channel's
+    over-range fault latches first, at 463–485 s. (Until D-LEAK the glass
+    model clamped the NTC at its 300 °C table top, which hid that fault: 7
+    of 8 fired then.)
   - **3 kΩ:** no cross-check. T_c settles at SP + 35.4 K.
   - **CR-5 hardware trip:** the glass reaches the band's low edge (262.3 °C)
     in 6 of 16 runs and its top (288.1 °C) in 4.
 
   So the cross-check as specified (D-XCHK: suspect → probe) does not stop
-  leakage. See open item 10.
+  leakage. See D-LEAK and open item 10.
+
+## D-OPEN. A sensor-failure conversion is a recoverable probe fault, not RUNAWAY
+
+**Before.** An open Pt100 converts to full scale (code 32767, 988.7 °C). In
+the same 10 ms tick the absolute 300 °C check in `check_runaway_boundary()`
+latched RUNAWAY_FAULT, which is not software-clearable, although register
+07h had already flagged the conversion (open item 6).
+
+**Rule.** `rtd_convert_classify_failure(code, fault_status)`
+(`components/sensors/rtd_convert.c`) classes a conversion as:
+- **OPEN:** code ≥ `RTD_C1_FAIL_HIGH_CODE` = 29757, the code of R(850 °C) =
+  390.48 Ω, or any 07h input bit D5..D2 (REFIN/RTDIN and over/undervoltage);
+- **SHORT:** code ≤ `RTD_C1_FAIL_LOW_CODE` = 1411, the code of R(−200 °C) =
+  18.52 Ω;
+- **a temperature**, otherwise. The 07h threshold bits D7/D6 alone are not a
+  failure: a flagged 300–850 °C reading is a real over-temperature.
+
+In C1 builds `check_runaway_boundary()` sends a failed conversion to
+`state_machine_report_rtd_device_fault()` (FAULT_PROBE_OPEN /
+FAULT_PROBE_SHORT, recoverable) and returns: no RUNAWAY latch and no R1
+sample. Every other reading above 300 °C still latches RUNAWAY.
+
+**Why 850 °C** (`sensor_fail_codes.py` → `sensor-fail-codes.json`, gated
+against `rtd_convert.h`):
+- it is the IEC 60751 range top; the Callendar–Van Dusen equation the
+  firmware inverts is not defined above it;
+- the element is rated −200..600 °C (IST P0K1.202);
+- the hottest the truth plant drives the element uncontrolled is 775.1 °C
+  (triply clad at 1.8 kW and η 0.92; cast iron 495.2, carbon steel 516.4);
+- the fastest heating of any modelled fault is 3.84 K/s
+  (`runaway-checks.json` margins). A pan takes 143 s from 300 °C to 850 °C at
+  that rate, and each of its 7161 conversions on the way latches RUNAWAY.
+
+So a first reading at or above 850 °C is a sensor, not a pan.
+
+**Reset.** The MAX31865 latches 07h until CONFIG D1 clears it, so before this
+a healed sensor was re-reported for ever. `fault_cleared()` for
+PROBE_OPEN/SHORT in C1 now needs, in order:
+1. the resistance inside the C1 window;
+2. a conversion that is not a failure;
+3. `rtd_service_fault_status_clean()`: if the latest conversion carried a
+   flag, the service writes CONFIG 0xC2 at the start of its next converting
+   tick, and returns true only after a later conversion reads clean
+   (`max31865_clear_fault_status()`).
+
+**Evidence.**
+- `runaway-checks.json`: the open and short sensor runs now trip
+  `rtd_fail_code` (0.00 s) and `rtd_fault` (0.02 s), no longer `C_abs`.
+  Acting peaks are unchanged (197.9 °C).
+- SIL C1 (`sil_fault_tests_c1`):
+  - the three probe-open scenarios (HEATING, PREHEAT, IDLE) now hold
+    FAULT_PROBE_OPEN to the end, where they used to escalate to RUNAWAY;
+  - *C1 Flagged Over-Temperature Still Latches Runaway*: a 380 °C step
+    (07h D7 set) still latches RUNAWAY on the absolute check, in 1 row;
+  - *C1 RTD Near Full Scale, Not Open*: 410 Ω (917.5 °C, no input bit) is
+    held as FAULT_PROBE_OPEN;
+  - *C1 RTD Probe Open Then Reconnected*: the reset is accepted once the
+    element is back. Without the 07h clear the same scenario fails (negative
+    control, run by hand).
+- Unit tests: 4 classifier tests (`test_c1_units_only`), 2 clear tests
+  (`test_c1_rtd_service_only`).
+
+## D-ISENSE. The bus-current sense is checked on its own
+
+**Why.** Stage 2a (D-RUN) finds a power stage that does not obey its command
+from the bus current. If the sense reads 0 A, 2a is blind, and only stage 2b
+is left against a stuck-on stage (≤ 35.0 s, D-RUN). A stage and a sense need
+not fail together: a sense that dies first stays latent until the stage
+sticks. `components/control/current_sense_check.{c,h}` checks the sense on
+its own. `main/pan_control.c` runs it and latches FAULT_CURRENT_SENSE through
+`state_machine_report_latched_fault()` (hardware cut, not
+software-clearable).
+
+**Rules.**
+- **(a) run**, every control period: the command in force has been ≥ 300 W
+  for > 0.3 s, and the bus current reads ≤ 0.5 A (or not finite) for 0.5 s.
+  - 0.5 A, 0.3 s and 0.5 s are stage 2a's no-current bound, settle time and
+    hold.
+  - 300 W is well above the stage's ~160 W burst floor, so the stage runs
+    continuously whenever (a) looks. Below the floor it bursts and reads 0 A
+    between bursts.
+  - At 300 W an obeying stage draws at least 0.9 × 300 W / 120 V = 2.25 A,
+    4.5× the bound.
+- **(b) start-up pulse**, at PREHEAT entry (PAN_DET has found a pan): 360 W
+  (20 % of 1.8 kW, clamped to the intensity limit) replaces the loop's
+  command for 1.0 s. After 0.3 s the mean current must exceed 0.5 A. The
+  pulse restarts if something holds the command at 0 (stage 1, a fault).
+  (a) does not look while the pulse runs.
+- **(c) input vs bus current**, for the AMC1301 input-current sense
+  (nameplate-r1 D3). On the unfiltered full-bridge bus the two read the same
+  statistic, so above 1.0 A a difference greater than max(1.0 A, 25 %) for
+  0.5 s latches. It is compiled only with `TEMPER_INPUT_CURRENT_SENSE`
+  (default 0, the sense is not on the board), and tested by
+  `test_c1_runtime_isense_only`.
+
+Stage 2b is unchanged and remains the last resort for a stage and a sense
+that fail at the same moment.
+
+**Evidence** (`runaway_checks.py` → `runaway-checks.json` `current_sense`;
+the C library is driven passively on every run):
+- **Latent sense failure, then the stage sticks at 250 s.** Two pans × 600 /
+  1200 / 1800 W × 3 noise levels:
+  - dead from power-up: the pulse latches 1.0 s after PREHEAT entry, 18/18;
+  - dies at 100 s: (a) latches at 100.4 s, 18/18.
+
+  Acting, the stage never gets to stick: peak T_c is 32.6–34.2 °C and
+  108.2–117.2 °C. The same double fault with the sense dying at the moment
+  the stage sticks peaks at 197.4–259.9 °C.
+- **Simultaneous double fault** (the existing `current_broken` runs, the
+  sense now dying at 250 s with the stage). Cast iron: (a) latches 0.4 s
+  after, because the loop is commanding ≥ 300 W when both fail. Triply clad
+  holds below 300 W, so (a) does not look and stage 2b latches in 22.6–26.7 s. The 2b result is unchanged, because the passive trajectories are
+  identical: 20/5/2 detects 15/15 hazardous double faults in ≤ 35.0 s with
+  T_c ≤ 243.5 °C (`stage_2b_sweep` worst_T_c_at_detect; 245.7 °C at the trip
+  in D-RUN's `at_trip` reading), and has 0 false trips.
+- **Sense dies with no other fault**, 4 pans × at 30 / 100 / 200 s × 3 noise
+  levels: (a) latches 0.4 s later in 36/36. The loop was commanding ≥ 300 W
+  each time.
+- **False trips: 0.** That covers the 75 benign runs, and the same 75 with the
+  stage in burst mode below its floor (160 W, 20 s period, on for P/160 of
+  it, 1.33 A while on and 0 A between). It also covers the fault runs before
+  their fault, and the four contact-loss runs.
+- **SIL C1:**
+  - *C1 Current Sense Fails While Heating* (HEATING, PREHEAT): 4 rows.
+  - *C1 Current-Sense Start-Up Pulse Fails* (PREHEAT): 11 rows.
+  - *C1 Stuck-On Stage with Current Sense Lost While Heating*: (a), 4 rows.
+  - *…, No Command*: pan at 112 °C, so stage 1 holds the command at 0; 2b
+    latches in 199 rows (bound 350).
+  - The legacy double-fault trace is legacy-only, and names both.
+- **Unit tests:** 9 (`test_c1_units_only`). Runtime: 3 tests, plus 3 more
+  under `TEMPER_INPUT_CURRENT_SENSE`.
+
+**Changed JSON.**
+- `runaway-checks.json` gains the `current_sense` block, the burst and
+  sense_latent rows, and `rtd_fail_code` (D-OPEN).
+- Legacy false trips are still counted on the 75 non-burst runs. The 2b
+  sweep now also sees the 75 burst runs. Every variant that false-tripped
+  before trips about twice as often (6 → 12 or 13, 3 → 6): holds of 5 s, of
+  10 s with a 10–20 s window, and of 20 s with a 20 s window. Every variant
+  that had no false trip still has none, 20/5/2 and its half-hold 10/5/2
+  included.
+- `max_identical_codes` at 0.3 LSB rises from 88 to 108 (burst runs), still
+  under 250.
+
+**Limits.**
+- (a) looks only while the command is ≥ 300 W. A sense that dies during a
+  hold below 300 W waits for the next such command; meanwhile, 2b still
+  stands.
+- The pulse runs once per heating session.
+- None of this helps when the sense and the stage fail in the same instant
+  while the loop is not commanding: that case is still 2b's (open item 4).
+
+## D-LEAK. Element-parallel Pt100 leakage: a latch, and why firmware cannot meet the 300 °C bar
+
+**The hazard.** A leak in parallel with the element reads low and is an
+ordinary in-range resistance to the MAX31865 (`../pcb/DECISIONS.md` D6). The
+loop holds the reading at the setpoint and the pan runs hot.
+
+**The bar (owner).** Every leak whose untripped steady pan temperature would
+exceed 300 °C must latch before the pan first exceeds 300 °C.
+
+**Rule.** `components/control/pan_leak_check.{c,h}`, run by
+`main/pan_control.c`, latches FAULT_PROBE_LEAKAGE (new code, label "PROBE
+LEAKAGE"). It goes through `state_machine_report_latched_fault()`: hardware
+cut, not software-clearable.
+- A *leak cycle* is a cross-check suspect (D-XCHK) followed by D1's
+  PROBE_PASSED: the reading sits 25 K below the rim and D1 finds the contact
+  intact.
+- Two consecutive cycles latch when, at the second suspect:
+  - it is within 120 s of the first;
+  - the rim reads no more than 5 K lower;
+  - the Pt100 reads no more than 2 K higher.
+- A D1 LOST or RESTORED, or a suspect without a VALID rim reading, restarts
+  the count.
+
+Why these values:
+- **One cycle is what food does.** 22 of the 548 benign runs below raise
+  exactly one suspect, all food, each ending in PROBE_PASSED. A one-cycle
+  rule would latch on all 22. No benign run raises a second suspect.
+- **120 s.** A leak repeats the cycle about every 48 s (the 30 s
+  cross-check hold plus the 18 s probe; D1's 30 s hold-off runs under the
+  next hold). 120 s is 2.5 cycles.
+- **The qualifiers.** A leak keeps the reading flat or falling and the rim
+  flat or rising, while a benign disturbance resolves: the reading recovers
+  or the rim cools. 2 K is the cross-check's own rise limit (D-XCHK). Since
+  no benign co-sim run reaches a second suspect, the qualifiers are
+  exercised only by the unit tests.
+
+**Evidence** (`leak_checks.py` → `leak-checks.json`, gated in `run.sh`
+step 3c). The setup:
+- the xcheck_cosim plant and loop, every latch passive;
+- 13 leaks from 300 Ω to 10 kΩ × 4 pans × glass Δ {12, 46} K × bead corner
+  {hot, cold} × onset {step, conductance ramp over 120 s, over 600 s}: 624
+  runs;
+- frying pans at a 250 °C final setpoint, 1800 s.
+
+Results:
+- **Hazardous** (untripped steady T_c > 300 °C): 234 runs, all at 300 Ω –
+  1.73 kΩ. Steady T_c reaches up to 819.5 °C (300 Ω, the plant's
+  uncontrolled ceiling). 2.32 kΩ peaks at a steady 299.8 °C.
+- **The bar is not met.** 7 of 234 latch before T_c first exceeds 300 °C: 6
+  by the leak check and 1 by the rim over-range fault, all with a ramp
+  onset. By onset that is step 0/82, 120 s ramp 3/82 and 600 s ramp 4/70.
+- **218 latch after T_c passes 300 °C:** the first latch comes 30.8–367.3 s
+  later, at T_c up to 474.1 °C. The rim over-range fault is the first latch
+  in 187 hazardous runs and the leak check in 38.
+- **9 never latch:** 1.73 kΩ at Δ 46 K, cold bead corner, all three frying
+  pans, every onset, at a steady 318.7–318.9 °C. This is the largest
+  uncaught leak: **1.73 kΩ, steady 318.9 °C.**
+- **No rule on these signals can meet the bar.** Any such rule needs a
+  cross-check suspect, and 209 of the 234 hazardous runs have none before
+  T_c passes 300 °C (step 82/82, 120 s 62/82, 600 s 65/70). The reasons:
+  - The cross-check needs the reading 25 K below a rim that reads the glass.
+    The glass sits 12–46 K below the pan, and the bead is ±10.2 K at 250 °C
+    (D-XCHK). So with the reading held at a 250 °C setpoint, the first
+    suspect can need a pan up to 250 + 25 + 46 + 10.2 ≈ 331 °C, and only
+    50 K separate the highest setpoint from 300 °C.
+  - The suspect also needs a reading that does not rise for 30 s.
+- **The CR-5 hardware rim trip is no guaranteed backstop either.** Its band
+  is 262.3–288.1 °C on the glass. The glass reaches the band's top before
+  T_c passes 300 °C in 0 of 234 hazardous runs, and its low edge in 13.
+- **Moderate leaks are firmware-invisible.**
+  - ≥ 4.16 kΩ (steady T_c ≤ 276.8 °C): no suspect and no latch in any run.
+  - 3.11 kΩ (the owner's ~3 kΩ: steady up to 286.2 °C): latched in 9 of
+    48.
+  - 2.32 kΩ (up to 299.8 °C): latched in 13 of 48.
+  - The water pot never exceeds 115.6 °C (it boils). The leak check
+    latches 31 of its 156 leak runs, which are real leaks but not hazards.
+- **D1 sometimes takes a leak for a lifted pan.** A leaky reading falling
+  under power can look like a lift, and D1 then zeroes the power until a
+  retry probe passes (`d1_lost` per leak in the JSON). That is why the same
+  leak is not hazardous in every run. It does not latch.
+- **Benign: 0 leak latches in 548 runs** (gated). The runs are xcheck's 28,
+  and b5-style sets through the glass and rim model (5 seeds × Δ × corner):
+  nominal 80, food 60, probe on intact contact 160, food batches every
+  120 s 60, a cold pan on 200 °C glass 80, and the setpoint lowered by 60 K
+  80. There were also 0 D1 LOST and 0 other latches (gated).
+- **SIL C1:** *C1 Pt100 Element-Parallel Leakage (HEATING)*: the pan and rim
+  at 140 °C, the reading at 100 °C. It latches in 972 rows (bound 1250). The
+  SIL trace limit was raised from 1000 to 2000 rows for it.
+- **Unit tests:** 4 (`test_c1_units_only`).
+
+**What the hardware and production must carry** (the firmware cannot):
+1. **Hot-zone insulation ≥ 10 MΩ at 300 °C** between leads and across the
+   element (`../pcb/REQUIREMENTS.md` R3.3). CAD's fused-silica 4-bore
+   capillary gives about 100 MΩ at 350 °C, pending supplier confirmation
+   (`../pcb/DECISIONS.md`, orchestrator rulings). 10 MΩ is 5773× the
+   highest hazardous leak (1.73 kΩ), and reads 0.013 K low at 300 °C
+   (100 MΩ: 0.001 K).
+2. **A production hot insulation test on every cartridge:** ≥ 10 MΩ at
+   300 °C, as R3.3. Leakage *across* the element cannot be measured with the
+   element in circuit. A hot accuracy check covers it: at 300 °C with a
+   ±0.5 K acceptance, it catches any parallel path below 252 kΩ, 145× the
+   hazard.
+3. **Seal-ingress qualification.** Moisture or fat entering the cartridge is
+   the credible way a hot-zone leak forms. Qualify the seal with steam/damp
+   heat, thermal cycling and wash exposure. Afterwards the cartridge must
+   still pass the 10 MΩ at 300 °C test.
 
 ## Open items for the firmware owner
 
@@ -813,9 +1083,15 @@ Results:
 
    C1 runs the automatic cycle at power-up with the coil off.
 4. **The double-fault trade-off (D-RUN)** is for the safety owner to accept or
-   tighten. Options:
+   tighten. **Narrowed by D-ISENSE:** a sense that fails before the stage
+   sticks is now caught on its own, by the start-up pulse or by (a) at the
+   first ≥ 300 W command, and the stage never gets to stick unwatched. What
+   is left for 2b (≤ 35.0 s) is a stage and a sense that fail in the same
+   instant while the loop commands under 300 W. Options:
    - a bus-current validity signal, which would turn 2b into 2a;
-   - a bus-voltage sense, to replace the 100 V placeholder in P_cmd/V.
+   - a bus-voltage sense, to replace the 100 V placeholder in P_cmd/V;
+   - the AMC1301 input-current sense, for which D-ISENSE (c) is written and
+     tested but compiled out (`TEMPER_INPUT_CURRENT_SENSE`).
 5. **Bench items:**
    - real MAX31865 conversion noise. Below about 0.25 LSB the 250-code frozen
      check needs lengthening;
@@ -827,12 +1103,11 @@ Results:
    legacy-only scenarios names its C1 replacement. Coverage is gated in both modes:
    20/20 pairs legacy, 23/23 pairs C1, and 16/16 C1 mechanism cells. The C1
    run found two defects, both fixed (D-LATCH, D-RESET). Still open:
-   - **An open Pt100 escalates to RUNAWAY_FAULT.** The absolute 300 °C check
-     reads the saturated code as 988.7 °C (`sil_fault_tests_c1` output), even
-     though register 07h has already flagged the conversion. That is fail-safe, but it is not
-     software-clearable. The safety owner should decide whether
-     `check_runaway_boundary()` should skip a flagged conversion and leave it
-     to the recoverable `FAULT_PROBE_OPEN`.
+   - **An open Pt100 escalates to RUNAWAY_FAULT: closed by D-OPEN.** A
+     conversion at or beyond R(850 °C) or R(−200 °C), or with a 07h input
+     bit, is now the recoverable FAULT_PROBE_OPEN / SHORT. A flagged
+     plausible over-temperature still latches RUNAWAY. The reset also clears
+     07h.
    - **If `ptl_init()` rejects its parameters,** `pan_control_step()` returns
      `PAN_CONTROL_SENSOR_FAULT` with no report. The PREHEAT/HEATING handlers
      then return before `check_safety_interlocks()` on every update. That
@@ -848,12 +1123,24 @@ Results:
 9. **h_c steps are reported, not gated:** B1 0/4, B2 0/4, overshoot up to
    13.09 K for 1000 → 300 (`cosim-results.json` h_step). C1 no longer latches
    on them (D-RUN).
-10. **Element-parallel leakage is not stopped by firmware (safety owner).**
+10. **Element-parallel leakage: a firmware latch now exists (D-LEAK), and the
+    300 °C bar is not met.** Firmware cannot meet it on these signals:
+    - 7 of 234 hazardous leak runs latch before the pan passes 300 °C;
+    - the leak check and the rim over-range fault latch most of the rest
+      after it (T_c ≤ 474.1 °C);
+    - 1.73 kΩ at Δ 46 K on the cold corner never latches (318.9 °C steady);
+    - ≥ 4.16 kΩ is invisible.
+
+    The protection that meets the bar is the insulation: ≥ 10 MΩ at 300 °C,
+    the production hot test and seal-ingress qualification (D-LEAK
+    requirements 1–3), for the PCB, CAD and production owners. The original
+    note follows.
     In `xcheck-cosim.json`:
     - 1 kΩ drives the pan to SP + 121.9 K;
     - 3 kΩ holds it at SP + 35.4 K;
-    - the cross-check fires on 7 of the 8 1 kΩ runs only, and its D1 probe
-      correctly confirms contact.
+    - the cross-check fires on 6 of the 8 1 kΩ runs only (7 before D-LEAK
+      extrapolated the NTC above 300 °C; the other two now meet the rim
+      over-range fault), and its D1 probe correctly confirms contact.
 
     Only the CR-5 hardware trip remains: the glass reaches the band's low edge
     in 6 of 16 runs and its top in 4.

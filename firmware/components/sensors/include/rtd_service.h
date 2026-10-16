@@ -74,6 +74,18 @@ typedef struct {
 /** Latest conversion. Returns false until the first conversion completes. */
 bool rtd_service_latest_sample(rtd_sample_t *out);
 
+/**
+ * Safety-reset hook (fault_cleared() in C1 builds; DECISIONS.md D-OPEN).
+ * Register 07h latches until cleared, so a probe fault would otherwise be
+ * re-reported on every conversion after the sensor has healed. Returns true
+ * when the latest conversion carries no fault flag. Otherwise it asks the
+ * service to clear 07h on its next control tick (CONFIG D1, conversions keep
+ * running) and returns false; a later call returns true only once a
+ * conversion completed after that clear comes back clean. A sensor that is
+ * still faulty sets the flag again on that conversion.
+ */
+bool rtd_service_fault_status_clean(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -4,7 +4,7 @@ HANDOFF section C. The C1 algorithms are host-tested C in
 `firmware/components/control/`. The same C runs closed-loop against the r3
 Python truth plant here. Decisions and open items are in `DECISIONS.md`.
 
-**Rerun everything:** `./run.sh`. It takes about 5 min and exits non-zero on any
+**Rerun everything:** `./run.sh`. It takes about 12 min and exits non-zero on any
 failure. It includes both SIL configurations and their coverage gate.
 
 The firmware build uses the C1 runtime when `TEMPER_PAN_CONTROL_C1` is
@@ -23,10 +23,14 @@ MAX31865 service, the rim NTC driver and the power stage.
 | `pan_sensor_guard.{c,h}` | Checks MAX31865 07h, SPI, stale data, range, rate, and the rim cross-check. Reports into the existing RTD fault sink. |
 | `pan_temp_loop.{c,h}` | Composes the modules above and holds power authority: it never chases a cold reading. |
 | `pan_supervisor.{c,h}` | Runaway supervision that replaces the legacy 15 K/s and target + 10 K latches in C1 builds: R1 sustained rise, and R2 stages 1/2a/2b (DECISIONS D-RUN). |
+| `current_sense_check.{c,h}` | Bus-current sense plausibility: (a) ≥ 300 W commanded with no current, (b) the start-up pulse at PREHEAT entry, (c) input vs bus current when the input sense is fitted. Latches FAULT_CURRENT_SENSE (DECISIONS D-ISENSE). |
+| `pan_leak_check.{c,h}` | Element-parallel Pt100 leakage: two chained cross-check suspect → probe-passed cycles latch FAULT_PROBE_LEAKAGE (DECISIONS D-LEAK). |
 
 The C1 MAX31865 path is in `firmware/components/sensors/`:
 - `rtd_convert.{c,h}` converts code → Ω → °C, with the CR-7 self-heating and
-  optional loading correction;
+  optional loading correction, and classes a conversion beyond R(850 °C) or
+  R(−200 °C), or with a 07h input bit, as a sensor failure (DECISIONS
+  D-OPEN);
 - `rtd_service.c` runs the C1 thresholds, the power-up fault cycle, continuous
   conversion, the DRDY-stale check and the frozen-code check (DECISIONS
   D-CR7, D-STALE).
@@ -51,11 +55,12 @@ The rim NTC (Semitec 104GT-2 on GPIO9 / ADC1_CH8) is also in
 | `test_contact_check_only` | 11 tests. Replays loss on 4 pans, food on 3 and nominal runs, in screen mode and firmware mode, plus synthetic cases. |
 | `test_pan_temp_loop_only` | 19 tests. Guard, plant gain (including the later-step updates), PID and power authority. |
 | `test_pan_contact_sm_only` | 2 tests. EVENT_CONTACT_LOST in the state machine. |
-| `test_c1_units_only` | 17 tests. Supervisor R1/R2 and code-to-temperature conversion. |
-| `test_c1_runtime_only` | 17 tests. The C1 state machine and `pan_control`: hot pan, h_c drop, lowered target, power stage disobeying, rising with power off, absolute 300 °C, intensity, C1 RTD window. Rim: cross-check on a low flat Pt100, no cross-check on a rising quench or a saturated rim, rim short/open/ADC failure → FAULT_PROBE_SHORT/OPEN. |
-| `test_c1_rtd_service_only` | 6 tests. The C1 MAX31865 sequence through the SPI mock: thresholds (35544 / 12844), fault cycle, conversion, fault flag, stale, frozen. |
+| `test_c1_units_only` | 34 tests. Supervisor R1/R2, code-to-temperature conversion and the sensor-failure classes (D-OPEN), the current-sense checks (D-ISENSE) and the leak check (D-LEAK). |
+| `test_c1_runtime_only` | 20 tests. The C1 state machine and `pan_control`: hot pan, h_c drop, lowered target, power stage disobeying, rising with power off, absolute 300 °C, intensity, C1 RTD window. Rim: cross-check on a low flat Pt100, no cross-check on a rising quench or a saturated rim, rim short/open/ADC failure → FAULT_PROBE_SHORT/OPEN. Current sense: dead while heating, failed start-up pulse, a low-power hold without a latch (D-ISENSE). |
+| `test_c1_runtime_isense_only` | 23 tests. `test_c1_runtime_only` built with `TEMPER_INPUT_CURRENT_SENSE=1`, plus the input-vs-bus current cross-check (D-ISENSE (c)). |
+| `test_c1_rtd_service_only` | 8 tests. The C1 MAX31865 sequence through the SPI mock: thresholds (35544 / 12844), fault cycle, conversion, fault flag, stale, frozen, and the 07h clear before a reset (D-OPEN). |
 | `test_c1_rim_ntc_only` | 13 tests. The rim driver through a mock HAL. Datasheet points 25–250 °C, chain accuracy at 100–250 °C (worst 0.073 K) and the CR-7 attenuation, hysteresis and clip re-read. Saturation, rail fallback, short, glitch, over-range, open (600 s), ADC failure, filter τ, trimmed mean, and the board binding over the `hal_adc` mock. |
-| `test_sil_fault_injection` / `test_sil_fault_injection_c1` | The SIL fault-injection suite, built twice from one runner and `traces/manifest.json` (D-SIL). Legacy runs 31 scenarios. C1 runs 36: it uses the real MAX31865 service through a register-level converter model at the firmware's 10 ms cadence, and the bus current follows the command. |
+| `test_sil_fault_injection` / `test_sil_fault_injection_c1` | The SIL fault-injection suite, built twice from one runner and `traces/manifest.json` (D-SIL). Legacy runs 31 scenarios. C1 runs 44: it uses the real MAX31865 service through a register-level converter model at the firmware's 10 ms cadence, and the bus current follows the command. |
 
 ## SIL fault injection in both configurations (D-SIL)
 
@@ -65,12 +70,14 @@ coverage. CI runs it as `scripts/check_sil_coverage.py`.
 | Mode | Scenarios | (fault class, origin) pairs | C1 mechanism × origin |
 |---|---|---|---|
 | legacy | 31 | 20/20 | n/a |
-| C1 | 36 | 23/23, a superset of legacy's (adds IDLE) | 16/16 |
+| C1 | 44 | 26/26, a superset of legacy's (adds IDLE, FAULT_CURRENT_SENSE and FAULT_PROBE_LEAKAGE) | 20/20 |
 
 The C1 mechanisms are:
 - R1 and the absolute 300 °C check;
 - R2 stages 1, 2a and 2b;
-- register 07h, DRDY stale and frozen code.
+- register 07h, DRDY stale and frozen code;
+- the current-sense checks (a) and (b) (D-ISENSE);
+- the Pt100 leak check (D-LEAK).
 
 Four legacy scenarios are legacy-only, and each names its C1 replacement:
 - **Thermal Runaway (target + 10 K latch).** Replaced by stage 1 (no latch,
@@ -82,7 +89,16 @@ Four legacy scenarios are legacy-only, and each names its C1 replacement:
 C1 results (`sil_fault_tests_c1` output):
 - **Stuck-on stage:** latches in 4 rows (0.4 s), against 120 (HEATING) and
   200 (PREHEAT) rows for legacy.
-- **Double fault:** 207 rows (20.7 s). The bound is 350 (D-RUN).
+- **Double fault:** the legacy trace (the loop still commanding) is now
+  caught by current-sense check (a) in 4 rows. With the loop not commanding
+  (pan over target), stage 2b latches in 199 rows (bound 350, D-RUN).
+- **Current sense dead:** (a) in 4 rows; dead from power-up, the start-up
+  pulse in 11 rows (D-ISENSE).
+- **Open Pt100:** held as FAULT_PROBE_OPEN (no longer RUNAWAY); a reset is
+  accepted once the element is back. A flagged 380 °C reading still latches
+  RUNAWAY (D-OPEN).
+- **Pt100 leakage** (pan 140 °C, reading 100 °C): FAULT_PROBE_LEAKAGE in 972
+  rows (bound 1250, D-LEAK).
 - **20 K/s sensor rise:** R1 latches in 62 rows (6.2 s), before the reading
   passes 216 °C.
 - **Frozen code:** 50 rows from the freeze onset in IDLE, PREHEAT and
@@ -101,14 +117,16 @@ The C1 run found two defects, both fixed in `main/state_machine.c`:
 |---|---|
 | `ref.py` | Python references: the KF (checked equal to r2 `KFNoPower`), the D1 replay, and the truth plant with a hot pan. |
 | `export_vectors.py` | Writes `firmware/test/{pan_temp_estimator,contact_check}_vectors.h` and `vectors-summary.json`. Deterministic. |
-| `cosim_shim.c`, `build_lib.sh` | The eight C sources (the six loop modules, the supervisor and the rim NTC driver) and the ctypes shim, built as a host `.so` with plain `cc`. |
+| `cosim_shim.c`, `build_lib.sh` | The ten C sources (the six loop modules, the supervisor, the current-sense and leak checks, and the rim NTC driver) and the ctypes shim, built as a host `.so` with plain `cc`. |
 | `cosim.py` | Copy of screen.py `run()` with the C loop in it. Runs the cases below and writes `cosim-results.json`; gates the bars. |
 | `b5_montecarlo.py` | D1 over 20 seeds and 3 rule sets. Writes `b5-montecarlo.json`; gates safety. |
 | `sensitivity.py` | Tolerance to errors in a, and the loss-term variant. Writes `sensitivity.json`; reported only. |
-| `runaway_checks.py` | Legacy vs C1 runaway rules on 50 Hz quantised readings: false trips, fault detection times, and the stage-2b sweep. Writes `runaway-checks.json`; gates the C1 rules (DECISIONS D-RUN). |
+| `runaway_checks.py` | Legacy vs C1 runaway rules on 50 Hz quantised readings: false trips (also with the stage in burst mode), fault detection times, the stage-2b sweep, and the current-sense checks against latent and simultaneous sense failures. Writes `runaway-checks.json`; gates the C1 rules (DECISIONS D-RUN, D-ISENSE, D-OPEN). |
+| `sensor_fail_codes.py` | Recomputes the sensor-failure codes from IEC 60751 and shows 850 °C is out of the plant's reach. Writes `sensor-fail-codes.json`; gates `rtd_convert.h` (DECISIONS D-OPEN). |
 | `rim_ntc.py` | The 104GT-2 R-T table, transcribed from the Semitec GT-2 datasheet (`--verify-pdf` re-extracts it). Writes `rim_ntc_table.h` and `rim-ntc.json`: interpolation error, K/mV, saturation and short temperatures, self-heating, and the rail error without the MCP3202. Gates. |
 | `cr7_thresholds.py` | Recomputes the MAX31865 C1 threshold words from the CR-7 inputs (R(−40 °C), R(360 °C)) using the firmware's derivation rule. Writes `cr7-thresholds.json`; gates `config.yaml` (DECISIONS D-THRESH). |
 | `xcheck_cosim.py` | The rim NTC in the loop. The plant gets a glass node at T_c − Δ, and the NTC runs at its tolerance corners through the C driver. Covers benign runs and Pt100 leakage. Writes `xcheck-cosim.json`; gates benign runs (DECISIONS D-RIM). |
+| `leak_checks.py` | The leak sweep (13 leaks 300 Ω–10 kΩ × 4 pans × Δ × bead corner) and 548 benign runs through the same glass and rim model, against the leak check. Writes `leak-checks.json`; gates 0 benign latches and the recorded status of the 300 °C bar (DECISIONS D-LEAK). |
 
 The co-sim cases are:
 - 16 design cases;
@@ -168,6 +186,12 @@ Runaway checks (`runaway-checks.json`):
 - Every hazardous fault is caught by C1 before T_c exceeds 301 °C. The one
   case later than legacy is the double fault (stuck-on stage with a failed
   current sense): ≤ 35.0 s, T_c ≤ 245.7 °C (DECISIONS D-RUN).
+- Current sense (D-ISENSE): a sense that fails before the stage sticks is
+  caught first (dead at power-up: the pulse, 1.0 s; dying at 100 s: 0.4 s
+  later), 36/36 latent cases. A sense dying alone is caught in 0.4 s, 36/36.
+  There are 0 false trips on the 75 benign runs and on the same 75 with the
+  stage bursting below its 160 W floor.
+- Open / short Pt100 (D-OPEN): `rtd_fail_code` at 0.00 s, no RUNAWAY.
 
 ## Rim NTC and threshold words
 
@@ -187,4 +211,5 @@ From `rim-ntc.json`, `cr7-thresholds.json` and `xcheck-cosim.json`
 | Fault policy | Latch through the RTD sink: short/over-range → FAULT_PROBE_SHORT, open/ADC → FAULT_PROBE_OPEN |
 | Threshold words | 12844 / 35544. Recomputed from R(−40 °C) / R(360 °C), matching CR-7. The firmware was fixed from 35542. |
 | Cross-check co-sim, benign (28 runs) | 0 D1 lost, 0 guard / rim / supervisor faults. 2 cross-check suspects (cast iron food). |
-| Cross-check co-sim, Pt100 leakage (16 runs) | 1 kΩ: suspect in 7 of 8, 208–292 s after the leak, but the probe confirms contact and T_c reaches SP + 121.9 K. 3 kΩ: no suspect, SP + 35.4 K. Open item 10. |
+| Cross-check co-sim, Pt100 leakage (16 runs) | 1 kΩ: suspect in 6 of 8, 208–292 s after the leak, but the probe confirms contact and T_c reaches SP + 121.9 K; the other two meet the rim over-range fault. 3 kΩ: no suspect, SP + 35.4 K. |
+| Leak check (`leak-checks.json`, 624 leak runs, 548 benign) | Hazardous (steady T_c > 300 °C at a 250 °C setpoint): 300 Ω–1.73 kΩ, 234 runs. Latched before T_c passes 300 °C: 7. After: 218 (T_c ≤ 474.1 °C). Never: 9 (1.73 kΩ, Δ 46 K, cold corner, 318.9 °C). The 300 °C bar is not met; insulation, a hot production test and seal qualification carry it (DECISIONS D-LEAK, open item 10). ≥ 4.16 kΩ is invisible. Benign: 0 latches. |

@@ -183,6 +183,14 @@ void state_machine_report_rtd_frozen(void) {
     enter_hardware_latched_fault(FAULT_ADC_STUCK);
 }
 
+void state_machine_report_latched_fault(fault_code_t fault) {
+    if (fault_already_latched()) {
+        assert_hardware_fault_cut();
+        return;
+    }
+    enter_hardware_latched_fault(fault);
+}
+
 void state_machine_report_pan_contact_lost(void) {
     /* EVENT_CONTACT_LOST is a self-loop in PREHEAT and HEATING
      * (transition_table.yaml): no state change, a user message instead. */
@@ -523,6 +531,21 @@ static void check_runaway_boundary(void) {
      * that never converts is reported by rtd_service (fault-cycle timeout,
      * DRDY stale). */
     if (!pan_control_have_reading()) return;
+    /* A conversion that is evidently a sensor failure (code at or beyond
+     * R(850 degC) / R(-200 degC), or register 07h input bits) is not a
+     * temperature: an open element converts to full scale, 988.7 degC. It
+     * goes to the recoverable probe fault, not to the RUNAWAY latch, and R1
+     * does not see it. A plausible code above 300 degC still latches below,
+     * flagged by the 360 degC high threshold or not.
+     * output/temper-sensor-r3/firmware/DECISIONS.md D-OPEN. */
+    {
+        const rtd_sensor_fail_t sensor_fail = pan_control_reading_failure();
+        if (sensor_fail != RTD_SENSOR_OK) {
+            state_machine_report_rtd_device_fault(sensor_fail == RTD_SENSOR_FAIL_SHORT,
+                                                  sensor_fail == RTD_SENSOR_FAIL_OPEN, NULL);
+            return;
+        }
+    }
 #endif
 
     float temp = read_pan_temperature();
@@ -625,8 +648,23 @@ bool fault_cleared(void) {
              * still reports a short or open/out-of-range PT100 condition. The
              * window is the one the interlock uses: the C1 84.27 / 233.21 ohm
              * window in C1 builds (D-RESET), the legacy one otherwise. */
+#ifdef TEMPER_PAN_CONTROL_C1
+            /* C1 (D-OPEN): the sensor must read good again: in the window,
+             * not a failed conversion, and register 07h clean on a
+             * conversion after a clear (the MAX31865 latches 07h; without
+             * the clear a healed sensor is re-reported forever). The
+             * window test runs first, so a sensor still out of the window
+             * never triggers a clear. */
+            if (!(rtd_resistance > SM_RTD_SHORT_FAULT_OHM &&
+                  rtd_resistance < SM_RTD_OPEN_FAULT_OHM) ||
+                pan_control_reading_failure() != RTD_SENSOR_OK) {
+                return false;
+            }
+            return pan_control_sensor_fault_clean();
+#else
             return (rtd_resistance > SM_RTD_SHORT_FAULT_OHM &&
                     rtd_resistance < SM_RTD_OPEN_FAULT_OHM);
+#endif
 
         case FAULT_SELF_TEST_FAILED:
             return run_self_test();

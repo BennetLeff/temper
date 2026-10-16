@@ -12,7 +12,8 @@ This co-sim gives the plant a rim:
     cited in pcb/DECISIONS.md D6) and tau_g 60 s (assumption: no transient
     glass data exists). The truth cartridge leaks to that glass, so the KF's
     sink is the same physical temperature the NTC reads.
-  - Rim NTC: the 104GT-2 table at the R25/B tolerance corners (hot: R25 -3 %,
+  - Rim NTC: the 104GT-2 table (extrapolated above its 300 degC top with
+    the last segment's beta) at the R25/B tolerance corners (hot: R25 -3 %,
     B +2 %, reads high; cold: R25 +3 %, B -2 %, reads low). The node is
     3300 mV x R/(R + 1 k), rounded to whole mV by the shim's mock ADC, and goes
     through the firmware driver (components/sensors/rim_ntc.c). It maps onto
@@ -78,9 +79,25 @@ class GlassTruth(ref.HotTruth):
         self.Tg += es.DT_SIM * (target - self.Tg) / self.tau_g
 
 
+_T_TOP = max(rim_ntc.GT2_104_KOHM)
+_T_NEXT = sorted(rim_ntc.GT2_104_KOHM)[-2]
+# Above the 104GT-2 table top (300 degC): the table's last-segment beta. A
+# glass hotter than 300 degC only arises with a leaking or uncontrolled
+# probe; clamping it at 300 degC (as this model did before D-LEAK) hid the
+# rim channel's over-range fault from those runs.
+_B_TOP = math.log(rim_ntc.r_table(_T_NEXT) / rim_ntc.r_table(_T_TOP)) / (
+    1 / (_T_NEXT + 273.15) - 1 / (_T_TOP + 273.15))
+
+
+def r_ntc(t):
+    if t <= _T_TOP:
+        return rim_ntc.interp_r(max(t, -50.0))
+    return rim_ntc.r_table(_T_TOP) * math.exp(_B_TOP * (1 / (t + 273.15) - 1 / (_T_TOP + 273.15)))
+
+
 def node_mv(t_rim, corner):
     rs, bs = CORNERS[corner]
-    r = rim_ntc.interp_r(min(max(t_rim, -50.0), 300.0)) * rs
+    r = r_ntc(t_rim) * rs
     r *= math.exp(rim_ntc.B25_85_K * (bs - 1) * (1 / (t_rim + 273.15) - 1 / 298.15))
     return 3300.0 * r / (r + 1000.0)
 
@@ -132,6 +149,7 @@ def run_case(case):
     err_max = 0.0
     for k in range(int(es.T_END / es.DT_CTRL)):
         t = k * es.DT_CTRL
+        p_applied = P_cmd   # the command in force over this period
         for _ in range(n_sub):
             tr.step(P_cmd, case["h"])
         leak = case.get("r_leak") if t >= LEAK_AT else None
@@ -161,7 +179,9 @@ def run_case(case):
             rim_fault = (round(t, 1), int(rout[2]))
         P_cmd = 0.0 if st == RIM_FAULT else o["p_cmd"]
         L_.sup_rate(h, y, int(round(t * 1000)))
-        L_.sup_step(h, o["t_hat"], y, sp, P_cmd, P_cmd / 120.0, 1, sup_out)
+        # bus current of the period that just ended (main/pan_control.c reads
+        # it before deciding the new command)
+        L_.sup_step(h, o["t_hat"], y, sp, P_cmd, p_applied / 120.0, 1, sup_out)
         if sup_out[0]:
             P_cmd = 0.0
         if sup_out[1] and sup_latch is None:

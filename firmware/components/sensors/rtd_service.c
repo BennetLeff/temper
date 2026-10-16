@@ -31,6 +31,8 @@ static rtd_convert_params_t s_c1_conv;
 static rtd_sample_t s_c1_sample;
 static bool s_c1_have_sample;
 static uint16_t s_c1_same_code;
+static bool s_c1_last_flag;        /* fault flag of the latest conversion */
+static bool s_c1_clear_requested;  /* D-OPEN: clear 07h on the next tick */
 #endif
 
 /* SPI2 maps to HAL bus zero. MAX31865 supports mode 1 and a 500 kHz clock is
@@ -137,6 +139,8 @@ hal_status_t rtd_service_bootstrap(void)
     s_c1_phase = RTD_C1_PHASE_FAULT_CYCLE;
     s_c1_have_sample = false;
     s_c1_same_code = 0u;
+    s_c1_last_flag = false;
+    s_c1_clear_requested = false;
     s_c1_sample = (rtd_sample_t){0};
 #endif
 
@@ -189,6 +193,16 @@ static void c1_tick(void)
         return;
     }
 
+    if (s_c1_clear_requested) {
+        /* D-OPEN: the reset policy asked for a clean 07h. Conversions keep
+         * running; the next one reports only its own condition. */
+        s_c1_clear_requested = false;
+        if (max31865_clear_fault_status(&s_max31865) != HAL_OK) {
+            c1_fail_open();
+            return;
+        }
+    }
+
     if (!s_drdy_complete) {
         s_drdy_wait_ticks++;
         if (s_drdy_wait_ticks >= RTD_C1_STALE_CONTROL_TICKS) {
@@ -239,6 +253,7 @@ static void c1_tick(void)
     smp.seq++;
     s_c1_sample = smp;
     s_c1_have_sample = true;
+    s_c1_last_flag = fault_flag;
     if ((uint32_t)s_c1_same_code + 1u >= RTD_C1_FROZEN_CONVERSIONS) {
         /* The converter answers DRDY with the same word: a frozen reading. */
         s_ready = false;
@@ -254,11 +269,28 @@ bool rtd_service_latest_sample(rtd_sample_t *out)
     *out = s_c1_sample;
     return true;
 }
+
+bool rtd_service_fault_status_clean(void)
+{
+    if (!s_ready || !s_c1_have_sample) {
+        return false;
+    }
+    if (s_c1_last_flag) {
+        s_c1_clear_requested = true;
+        return false;
+    }
+    return !s_c1_clear_requested;
+}
 #else
 bool rtd_service_latest_sample(rtd_sample_t *out)
 {
     (void)out;
     return false;
+}
+
+bool rtd_service_fault_status_clean(void)
+{
+    return true;   /* legacy: the reset policy reads the resistance only */
 }
 #endif
 

@@ -75,23 +75,50 @@ const rim_ntc_hal_t *rim_ntc_board_hal(void) { return &s_rim_hal; }
 /* The converter service is not linked here; it is running whenever a
  * conversion has been set (test_c1_rtd_service.c covers it stopping). */
 bool rtd_service_is_ready(void) { return s_have; }
+/* Register 07h is not modelled here: clean unless a test flags it. */
+bool rtd_service_fault_status_clean(void) { return s_smp.fault_status == 0u; }
 
 static void set_reading(float t_c)
 {
     /* Callendar-Van Dusen T >= 0 for the resistance; the code is not used. */
     s_smp.t_c = t_c;
     s_smp.r_ohm = 100.0f * (1.0f + 3.9083e-3f * t_c - 5.775e-7f * t_c * t_c);
+    s_smp.code = (uint16_t)lroundf(s_smp.r_ohm / 430.0f * 32768.0f);
     s_smp.spi_ok = true;
     s_smp.fault_status = 0u;
     s_smp.seq++;
     s_have = true;
 }
 
+/* The bus current: an obeying stage, P_cmd / 120 V, as the SIL C1 plant
+ * (DECISIONS D-SIL), unless a test forces a value (s_i_force, NAN: follow).
+ * Before D-ISENSE these tests left the mock at 0 A while heating, which the
+ * current-sense plausibility check now rightly latches. */
+static float s_i_force = NAN;
+
+static void set_bus_current(void)
+{
+    mock_sm_set_dc_bus_current(isfinite(s_i_force) ? s_i_force
+                                                   : (float)mock_sm_get_power_level() / 100.0f * 1800.0f / 120.0f);
+}
+
+#if TEMPER_INPUT_CURRENT_SENSE
+/* The input-current (AMC1301) sense: on the unfiltered bus it reads what the
+ * stage draws, P_cmd / 120 V, unless a test forces it (s_iin_force). */
+static float s_iin_force = NAN;
+float read_input_current(void)
+{
+    return isfinite(s_iin_force) ? s_iin_force
+                                 : (float)mock_sm_get_power_level() / 100.0f * 1800.0f / 120.0f;
+}
+#endif
+
 /* 10 ms state-machine ticks; a fresh conversion every other tick. */
 static void run_ms(uint32_t ms, float (*reading)(uint32_t), uint32_t *clock)
 {
     for (uint32_t t = 0; t < ms; t += 10u) {
         mock_sm_advance_time(10u);
+        set_bus_current();
         *clock += 10u;
         if (reading != NULL && (*clock % 20u) == 0u) {
             set_reading(reading(*clock));
@@ -113,6 +140,10 @@ static void start(system_state_t st, float target, uint8_t intensity, float t0)
     s_rim = 40.0f;
     s_rim_node_mv = NAN;
     s_rim_adc_fail = false;
+    s_i_force = NAN;
+#if TEMPER_INPUT_CURRENT_SENSE
+    s_iin_force = NAN;
+#endif
     mock_sm_advance_time(1000u);
     state_machine_init();
     mock_sm_set_pan_status(MOCK_PAN_PRESENT);
@@ -216,7 +247,7 @@ static void test_power_stage_drawing_current_with_power_off_latches_thermal_runa
     s_hold_t = 215.0f;
     run_ms(1000u, hold, &s_clock);
     TEST_ASSERT_EQUAL_INT(STATE_HEATING, state_machine_get_state());
-    mock_sm_set_dc_bus_current(10.0f);
+    s_i_force = 10.0f;
     run_ms(1500u, hold, &s_clock);
     TEST_ASSERT_EQUAL_INT(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL_INT(FAULT_THERMAL_RUNAWAY, state_machine_get_fault());
@@ -227,6 +258,7 @@ static void test_still_rising_with_power_off_latches_thermal_runaway(void)
     /* stuck-on stage and a current sense reading 0: 2b after 20 s */
     start(STATE_HEATING, 200.0f, 10u, 200.0f);
     s_hold_t = 211.0f;
+    s_i_force = 0.0f;
     uint32_t elapsed = 0u;
     while (state_machine_get_state() == STATE_HEATING && elapsed < 60000u) {
         s_hold_t += 0.03f;    /* 3 K/s */
@@ -368,6 +400,116 @@ static void test_rim_adc_failure_latches_probe_open(void)
     TEST_ASSERT_EQUAL_INT(FAULT_PROBE_OPEN, state_machine_get_fault());
 }
 
+/* ---- D-ISENSE through the state machine and pan_control ---------------------- */
+
+/* Heat a pan held at 150 degC toward 200 degC until the loop commands at
+ * least min_pct (the start-up pulse runs first); false if it never does. */
+static bool heat_until_power(uint8_t min_pct)
+{
+    for (int i = 0; i < 600; i++) {
+        run_ms(100u, hold, &s_clock);
+        if (mock_sm_get_power_level() >= min_pct && i > 15) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void test_bus_sense_dead_while_heating_latches_current_sense(void)
+{
+    start(STATE_HEATING, 200.0f, 10u, 150.0f);
+    s_hold_t = 150.0f;
+    TEST_ASSERT_TRUE(heat_until_power(20u));   /* pulse passed, loop at >= 360 W */
+    TEST_ASSERT_EQUAL_INT(STATE_HEATING, state_machine_get_state());
+#if TEMPER_INPUT_CURRENT_SENSE
+    s_iin_force = 0.0f;   /* both senses dead: check (a) alone */
+#endif
+    s_i_force = 0.0f;
+    uint32_t elapsed = 0u;
+    while (state_machine_get_state() == STATE_HEATING && elapsed < 5000u) {
+        run_ms(10u, hold, &s_clock);
+        elapsed += 10u;
+    }
+    TEST_ASSERT_EQUAL_INT(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL_INT(FAULT_CURRENT_SENSE, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_INT(1, pan_control_current_sense_latch());
+    TEST_ASSERT_TRUE(elapsed <= 700u);
+    TEST_ASSERT_EQUAL_UINT32(0u, mock_sm_get_power_level());
+}
+
+static void test_dead_sense_fails_the_start_up_pulse(void)
+{
+    start(STATE_PREHEAT, 200.0f, 10u, 25.0f);
+    s_i_force = 0.0f;
+#if TEMPER_INPUT_CURRENT_SENSE
+    s_iin_force = 0.0f;   /* both senses dead: the pulse alone */
+#endif
+    s_hold_t = 25.0f;
+    run_ms(2000u, hold, &s_clock);
+    TEST_ASSERT_EQUAL_INT(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL_INT(FAULT_CURRENT_SENSE, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_INT(2, pan_control_current_sense_latch());
+}
+
+static void test_low_power_hold_with_no_current_does_not_latch(void)
+{
+    /* Intensity 1 (180 W) never reaches the 300 W floor of check (a): a stage
+     * bursting below its floor reads 0 A between bursts. The pulse (180 W)
+     * still sees current. */
+    start(STATE_HEATING, 200.0f, 1u, 150.0f);
+    s_hold_t = 150.0f;
+    run_ms(3000u, hold, &s_clock);
+    s_i_force = 0.0f;
+#if TEMPER_INPUT_CURRENT_SENSE
+    s_iin_force = 0.0f;   /* between bursts neither sense sees current */
+#endif
+    run_ms(20000u, hold, &s_clock);
+    TEST_ASSERT_EQUAL_INT(STATE_HEATING, state_machine_get_state());
+    TEST_ASSERT_EQUAL_INT(FAULT_NONE, state_machine_get_fault());
+}
+
+#if TEMPER_INPUT_CURRENT_SENSE
+static void test_input_current_agreeing_does_not_latch(void)
+{
+    start(STATE_PREHEAT, 200.0f, 10u, 25.0f);
+    s_hold_t = 25.0f;
+    run_ms(10000u, hold, &s_clock);
+    TEST_ASSERT_EQUAL_INT(STATE_PREHEAT, state_machine_get_state());
+    TEST_ASSERT_EQUAL_INT(FAULT_NONE, state_machine_get_fault());
+    TEST_ASSERT_TRUE(mock_sm_get_power_level() > 0u);
+}
+
+static void test_input_current_disagreeing_latches_current_sense(void)
+{
+    /* The bus sense reads half of what the stage draws (gain fault): (a) does
+     * not see it (above near zero), the cross-check does. */
+    start(STATE_HEATING, 200.0f, 10u, 150.0f);
+    s_hold_t = 150.0f;
+    TEST_ASSERT_TRUE(heat_until_power(30u));
+    TEST_ASSERT_EQUAL_INT(STATE_HEATING, state_machine_get_state());
+    const uint32_t lvl = mock_sm_get_power_level();
+    for (int i = 0; i < 10 && state_machine_get_state() == STATE_HEATING; i++) {
+        s_i_force = 0.5f * (float)lvl / 100.0f * 1800.0f / 120.0f;
+        s_iin_force = (float)lvl / 100.0f * 1800.0f / 120.0f;
+        run_ms(100u, hold, &s_clock);
+    }
+    TEST_ASSERT_EQUAL_INT(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL_INT(FAULT_CURRENT_SENSE, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_INT(3, pan_control_current_sense_latch());
+}
+
+static void test_input_sense_dead_latches_current_sense(void)
+{
+    start(STATE_HEATING, 200.0f, 10u, 150.0f);
+    s_hold_t = 150.0f;
+    TEST_ASSERT_TRUE(heat_until_power(20u));
+    s_iin_force = 0.0f;
+    run_ms(1000u, hold, &s_clock);
+    TEST_ASSERT_EQUAL_INT(FAULT_CURRENT_SENSE, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_INT(3, pan_control_current_sense_latch());
+}
+#endif
+
 void run_c1_runtime_tests(void)
 {
     RUN_TEST(test_no_runaway_latch_before_the_first_conversion);
@@ -380,6 +522,14 @@ void run_c1_runtime_tests(void)
     RUN_TEST(test_power_stage_drawing_current_with_power_off_latches_thermal_runaway);
     RUN_TEST(test_still_rising_with_power_off_latches_thermal_runaway);
     RUN_TEST(test_rtd_resistance_interlock_uses_the_c1_window);
+    RUN_TEST(test_bus_sense_dead_while_heating_latches_current_sense);
+    RUN_TEST(test_dead_sense_fails_the_start_up_pulse);
+    RUN_TEST(test_low_power_hold_with_no_current_does_not_latch);
+#if TEMPER_INPUT_CURRENT_SENSE
+    RUN_TEST(test_input_current_agreeing_does_not_latch);
+    RUN_TEST(test_input_current_disagreeing_latches_current_sense);
+    RUN_TEST(test_input_sense_dead_latches_current_sense);
+#endif
     RUN_TEST(test_leaving_heating_stops_the_loop);
     RUN_TEST(test_rim_cross_check_fires_on_a_low_flat_pt100);
     RUN_TEST(test_rim_cross_check_ignores_a_cold_food_quench);

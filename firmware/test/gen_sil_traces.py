@@ -108,6 +108,36 @@ def cooldown(n_rows, at, hs_of_t):
             for t in range(n_rows)]
 
 
+def pt100_ohm(t_c: float) -> float:
+    """IEC 60751, T >= 0, with the CR-7 0.061 K self-heating the C1 SIL adds."""
+    t = t_c + 0.061
+    return 100.0 * (1.0 + 3.9083e-3 * t - 5.775e-7 * t * t)
+
+
+# DECISIONS D-LEAK: an element-parallel leak developing while the pan heats.
+# Over 100 rows the pan (and the rim NTC, which the C1 SIL reads at the pan
+# temperature) climbs from 92 to 140 degC while the leaky Pt100's reading
+# climbs only to 100 degC (the loop's target); then both hold. At the end the
+# leak is LEAK_OHM in parallel with the element. The resistance column
+# carries +0.1 ohm every 5th row (a live converter: no frozen code).
+LEAK_PAN_C = 140.0
+LEAK_READ_C = 100.0
+LEAK_OHM = 1.0 / (1.0 / pt100_ohm(LEAK_READ_C) - 1.0 / pt100_ohm(LEAK_PAN_C))
+
+
+def leak(n_rows, start_c, at, ramp_rows):
+    out = []
+    for t in range(n_rows):
+        if t < at:
+            out.append(row(t, start_c + noise(t)))
+            continue
+        f = min(1.0, (t - at + 1) / ramp_rows)
+        pan = start_c + (LEAK_PAN_C - start_c) * f
+        reading = start_c + (LEAK_READ_C - start_c) * f
+        out.append(row(t, pan + noise(t), rtd=round(pt100_ohm(reading), 1) + noise(t)))
+    return out
+
+
 # name -> rows. Perturbation ticks and expectations live in manifest.json.
 TRACES = {
     # Power stage stuck on (current sense working): legacy latches target +
@@ -118,6 +148,19 @@ TRACES = {
     # latches target + 10 K, C1 latches stage 2b.
     "trace_stage_stuck_on_current_sense_lost_heating.csv":
         lambda: ramp(500, 92.0, 85, STUCK_RAMP_K_PER_ROW, 0.0),
+    # DECISIONS D-ISENSE: a latent bus-current sense failure (reads 0 A while
+    # the stage keeps working, the pan held below target so the loop heats),
+    # and a sense dead from power-up (the manifest's c1_bus_sense_dead) that
+    # the PREHEAT start-up pulse must catch.
+    "trace_c1_current_sense_dead_heating.csv": lambda: ramp(151, 92.0, 85, 0.0, 0.0),
+    # The double fault with the loop not commanding: the pan already above
+    # target + 10 K (112 degC) when the stage sticks on and the sense dies.
+    "trace_c1_stuck_on_sense_lost_no_command_heating.csv": lambda: [
+        row(t, 92.0 + noise(t)) if t < 85 else
+        row(t, 112.0 + STUCK_RAMP_K_PER_ROW * (t - 85) + noise(t), cur=0.0) for t in range(500)],
+    "trace_c1_current_sense_dead_preheat.csv": lambda: ramp(151, 80.0, 85, 0.0, 0.0),
+    "trace_c1_probe_leakage_heating.csv": lambda: leak(1800, 92.0, 85, 100),
+    "trace_c1_pulse_sense_dead_preheat.csv": lambda: ramp(60, 80.0, 60, 0.0),
     # Sensor-path rise at 20 K/s: legacy 15 K/s per-read check, C1 R1.
     "trace_sustained_rise_heating.csv": lambda: ramp(200, 92.0, 85, SENSOR_RAMP_K_PER_ROW),
     "trace_sustained_rise_preheat.csv": lambda: ramp(200, 80.0, 85, SENSOR_RAMP_K_PER_ROW),
@@ -145,6 +188,14 @@ TRACES = {
     "trace_gap_pan_det_fan_failure_dwell.csv": lambda: [
         row(t, 25.0 + noise(t), fan=(0 if t < 10 else 1), z=(Z_REMOVED if t < 10 else Z_PAN))
         for t in range(40)],
+    # DECISIONS D-OPEN. A plausible over-temperature above the 360 degC
+    # high-threshold word (07h RTD High set) must still latch RUNAWAY; a
+    # high-resistance element beyond R(850 degC) is a sensor failure; an open
+    # element that reconnects can be reset.
+    "trace_c1_overtemp_flagged_heating.csv": lambda: step_hold(151, 92.0, 85, 380.0),
+    "trace_c1_near_full_scale_heating.csv": lambda: rtd_fault(151, 92.0, 85, 410.0),
+    "trace_c1_probe_open_reconnect_idle.csv": lambda: [
+        row(t, 25.0 + noise(t), rtd=(15000.0 if 20 <= t < 40 else R_NOMINAL_OHM)) for t in range(120)],
     # 80 ohm: inside the legacy 10..300 ohm window, below the C1 84.27 ohm
     # short threshold. Exercises the C1 window end to end, reset included.
     "trace_c1_rtd_low_80ohm_heating.csv": lambda: rtd_fault(151, 92.0, 85, 80.0),

@@ -85,6 +85,14 @@ hal_status_t max31865_set_thresholds(const max31865_device_t *device,
 /** CONFIG 0xC0: VBIAS on, automatic conversion, 4-wire, 60 Hz notch. */
 hal_status_t max31865_start_conversions(const max31865_device_t *device);
 
+/**
+ * CONFIG 0xC2: as max31865_start_conversions, with the fault-status clear bit
+ * (D1) set, so register 07h and the RTD LSB fault bit return to 0 and the
+ * next conversion reports only its own condition. Called only by the safety
+ * reset policy (rtd_service_request_fault_clear, DECISIONS.md D-OPEN).
+ */
+hal_status_t max31865_clear_fault_status(const max31865_device_t *device);
+
 /** True while a fault-detection cycle is still running (CONFIG D3:D2 != 0). */
 hal_status_t max31865_fault_cycle_busy(const max31865_device_t *device,
                                        bool *busy);

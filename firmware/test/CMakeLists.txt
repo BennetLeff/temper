@@ -557,6 +557,8 @@ add_test(NAME pan_contact_sm_tests COMMAND test_pan_contact_sm_only)
 set(C1_RUNTIME_SOURCES
     ${PAN_TEMP_LOOP_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_supervisor.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/current_sense_check.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_leak_check.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/pan_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rim_ntc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
@@ -571,6 +573,8 @@ set(C1_RUNTIME_SOURCES
 add_executable(test_c1_units_only
     ${UNITY_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_supervisor.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/current_sense_check.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_leak_check.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_units.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_units.c
@@ -582,6 +586,7 @@ target_link_libraries(test_c1_units_only m)
 add_executable(test_c1_runtime_only
     ${UNITY_SOURCES}
     ${C1_RUNTIME_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_runtime.c
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_runtime.c
 )
@@ -590,6 +595,24 @@ target_include_directories(test_c1_runtime_only PRIVATE ${INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
 target_link_libraries(test_c1_runtime_only m)
 add_dependencies(test_c1_runtime_only gen_config gen_fault_list gen_transition_table)
+
+# The same runtime tests with the input-current (AMC1301) cross-check compiled
+# in (TEMPER_INPUT_CURRENT_SENSE, default 0 until the sense is on the board;
+# DECISIONS.md D-ISENSE (c)). test_c1_runtime.c adds the cross-check tests in
+# this build.
+add_executable(test_c1_runtime_isense_only
+    ${UNITY_SOURCES}
+    ${C1_RUNTIME_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_c1_runtime.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_c1_runtime.c
+)
+target_compile_definitions(test_c1_runtime_isense_only PRIVATE TEMPER_PAN_CONTROL_C1=1
+    TEMPER_INPUT_CURRENT_SENSE=1)
+target_include_directories(test_c1_runtime_isense_only PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_c1_runtime_isense_only m)
+add_dependencies(test_c1_runtime_isense_only gen_config gen_fault_list gen_transition_table)
 
 add_executable(test_c1_rtd_service_only
     ${UNITY_SOURCES}
@@ -623,6 +646,7 @@ target_link_libraries(test_c1_rim_ntc_only m)
 
 add_test(NAME c1_units_tests COMMAND test_c1_units_only)
 add_test(NAME c1_runtime_tests COMMAND test_c1_runtime_only)
+add_test(NAME c1_runtime_isense_tests COMMAND test_c1_runtime_isense_only)
 add_test(NAME c1_rtd_service_tests COMMAND test_c1_rtd_service_only)
 add_test(NAME c1_rim_ntc_tests COMMAND test_c1_rim_ntc_only)
 

@@ -11,6 +11,8 @@
 
 #include <math.h>
 
+#include "current_sense_check.h"
+#include "pan_leak_check.h"
 #include "pan_supervisor.h"
 #include "pan_temp_loop.h"
 #include "rim_ntc.h"
@@ -22,6 +24,10 @@ typedef struct {
     cc_t cc;
     psup_params_t sp;
     psup_t sup;
+    csc_params_t cp;
+    csc_t csc;            /* current-sense plausibility (current_sense_check.c) */
+    plc_params_t lp;
+    plc_t plc;            /* element-parallel Pt100 leakage (pan_leak_check.c) */
     rim_ntc_t rim;        /* rim NTC driver (components/sensors/rim_ntc.c) */
     float rim_node_mv;    /* node voltage the mock ADC returns this period */
     int last_xcheck;      /* ptl_output_t.xcheck_suspect of the last sim_step */
@@ -33,6 +39,8 @@ void *sim_new(void)
     if (s != NULL) {
         ptl_default_params(&s->p);
         psup_default_params(&s->sp);
+        csc_default_params(&s->cp);
+        plc_default_params(&s->lp);
     }
     return s;
 }
@@ -94,6 +102,20 @@ int sim_set(void *h, const char *key, double v)
         F("sup_cmd_v_min", q->cmd_v_min)
         F("sup_rate_max", q->rate_max_k_per_s)
         U("sup_rate_blocks", q->rate_blocks_required = (uint8_t)v)
+    }
+    {
+        csc_params_t *q = &((sim_t *)h)->cp;
+        F("csc_p_min", q->run_p_min_w)
+        F("csc_near_zero", q->near_zero_a)
+        F("csc_hold", q->run_hold_s)
+        F("csc_pulse_w", q->pulse_w)
+    }
+    {
+        plc_params_t *q = &((sim_t *)h)->lp;
+        U("leak_cycles", q->cycles = (uint8_t)v)
+        F("leak_gap", q->gap_s)
+        F("leak_rim_fall", q->rim_fall_k)
+        F("leak_pt_rise", q->pt_rise_k)
     }
     return -1;
 }
@@ -245,4 +267,50 @@ void rim_step(void *h, double node_mv, double t_pt100, double *out)
 int sim_xcheck(void *h)
 {
     return ((sim_t *)h)->last_xcheck;
+}
+
+/* ---- current-sense plausibility (components/control/current_sense_check.c) */
+int csc_start(void *h)
+{
+    sim_t *s = (sim_t *)h;
+    return csc_init(&s->csc, &s->cp) ? 0 : -1;
+}
+
+/* (a): command in force over the period that ended, bus current read at its
+ * end. Returns the latch (0 none, 1 run, 2 pulse, 3 xcheck). */
+int csc_run(void *h, double p_applied, double i_bus)
+{
+    sim_t *s = (sim_t *)h;
+    (void)csc_run_step(&s->csc, (float)p_applied, (float)i_bus);
+    return (int)s->csc.latched;
+}
+
+void csc_pulse_arm(void *h)
+{
+    csc_pulse_begin(&((sim_t *)h)->csc);
+}
+
+/* (b): returns the pulse state; *p_cmd the pulse command for the next period. */
+int csc_pulse(void *h, double p_applied, double i_bus, double p_limit, double *p_cmd)
+{
+    float w = 0.0f;
+    const csc_pulse_state_t st = csc_pulse_step(&((sim_t *)h)->csc, (float)p_applied, (float)i_bus,
+                                                (float)p_limit, &w);
+    *p_cmd = w;
+    return (int)st;
+}
+
+/* ---- element-parallel Pt100 leakage (components/control/pan_leak_check.c) */
+int plc_start(void *h)
+{
+    sim_t *s = (sim_t *)h;
+    return plc_init(&s->plc, &s->lp) ? 0 : -1;
+}
+
+/* One control period, as main/pan_control.c feeds it: the cross-check suspect
+ * and D1 event of the last sim_step, the reading, the VALID rim (else NAN). */
+int plc_run(void *h, int suspect, int cc_event, double t_pt100, double t_rim)
+{
+    sim_t *s = (sim_t *)h;
+    return plc_step(&s->plc, suspect != 0, cc_event, (float)t_pt100, (float)t_rim) ? 1 : 0;
 }

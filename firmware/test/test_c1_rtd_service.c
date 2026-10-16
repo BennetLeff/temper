@@ -161,6 +161,45 @@ static void test_c1_identical_codes_are_normal_until_the_frozen_limit(void)
     TEST_ASSERT_FALSE(rtd_service_is_ready());
 }
 
+/* D-OPEN: register 07h latches until cleared. The reset policy's hook asks
+ * for a clear (CONFIG 0xC2, conversions keep running) and reports clean only
+ * after a later conversion comes back without the fault flag. */
+static void test_c1_reset_hook_clears_register_07h_then_needs_a_clean_conversion(void)
+{
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    finish_fault_cycle(0u);
+    convert(code_for(109.73), false);
+    TEST_ASSERT_TRUE(rtd_service_fault_status_clean());
+    mock_spi_set_register(DEV, MAX31865_REG_FAULT_STATUS, MAX31865_FAULT_HIGH_THRESHOLD);
+    convert(0x7FFFu, true);
+    TEST_ASSERT_EQUAL_INT(FAULT_PROBE_OPEN, state_machine_get_fault());
+    /* the element reconnects, but 07h is still latched: the flag stays set */
+    convert(code_for(109.73), true);
+    TEST_ASSERT_FALSE(rtd_service_fault_status_clean());
+    TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_VBIAS | MAX31865_CONFIG_AUTO_CONVERT,
+                           mock_spi_get_register(DEV, MAX31865_REG_CONFIG));
+    rtd_service_control_tick();   /* the service writes the clear */
+    TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_VBIAS | MAX31865_CONFIG_AUTO_CONVERT |
+                               MAX31865_CONFIG_FAULT_CLEAR,
+                           mock_spi_get_register(DEV, MAX31865_REG_CONFIG));
+    /* no conversion since the clear: still not clean */
+    TEST_ASSERT_FALSE(rtd_service_fault_status_clean());
+    convert(code_for(109.73), false);
+    TEST_ASSERT_TRUE(rtd_service_fault_status_clean());
+}
+
+static void test_c1_reset_hook_stays_dirty_while_the_fault_persists(void)
+{
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    finish_fault_cycle(0u);
+    mock_spi_set_register(DEV, MAX31865_REG_FAULT_STATUS, MAX31865_FAULT_HIGH_THRESHOLD);
+    convert(0x7FFFu, true);
+    TEST_ASSERT_FALSE(rtd_service_fault_status_clean());
+    rtd_service_control_tick();
+    convert(0x7FFFu, true);   /* still open: the chip flags it again */
+    TEST_ASSERT_FALSE(rtd_service_fault_status_clean());
+}
+
 void run_c1_rtd_service_tests(void)
 {
     RUN_TEST(test_c1_bootstrap_programs_the_c1_window);
@@ -169,4 +208,6 @@ void run_c1_rtd_service_tests(void)
     RUN_TEST(test_c1_conversion_fault_flag_reports_register_07h);
     RUN_TEST(test_c1_no_drdy_for_six_ticks_is_an_open_fault);
     RUN_TEST(test_c1_identical_codes_are_normal_until_the_frozen_limit);
+    RUN_TEST(test_c1_reset_hook_clears_register_07h_then_needs_a_clean_conversion);
+    RUN_TEST(test_c1_reset_hook_stays_dirty_while_the_fault_persists);
 }

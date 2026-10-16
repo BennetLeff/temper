@@ -111,7 +111,7 @@ class TestGenFaultList:
     def test_fault_count_in_comment(self):
         """The trailing comment mentions total entry count."""
         content = self.OUTPUT.read_text()
-        assert "14 total entries" in content
+        assert "16 total entries" in content
 
     def test_deterministic(self):
         """Running gen_fault_list.py twice produces identical output."""

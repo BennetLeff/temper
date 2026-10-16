@@ -1,5 +1,5 @@
 {
- "scope": "sensor-r3 rim NTC in the loop: the Pt100-vs-rim cross-check (D-XCHK) against a rim truth signal.\n\nWhy a separate co-sim. cosim.py feeds the loop the r2 plant's leak sink,\n25 + 50 (1 - exp(-t/300)) degC + 3 K, as \"the rim NTC\". That never exceeds\n78 degC, below the rim channel's saturation (87-97 degC, rim-ntc.json), so the\nreal channel would read SATURATED for every cosim.py run and the cross-check\ncould never fire there. cosim.py is left unchanged.\n\nThis co-sim gives the plant a rim:\n  - Glass under the rim NTC: a first-order lag toward T_c - delta, with\n    delta 12 or 46 K (the glass underside 12-46 K below the pan, study 08 as\n    cited in pcb/DECISIONS.md D6) and tau_g 60 s (assumption: no transient\n    glass data exists). The truth cartridge leaks to that glass, so the KF's\n    sink is the same physical temperature the NTC reads.\n  - Rim NTC: the 104GT-2 table at the R25/B tolerance corners (hot: R25 -3 %,\n    B +2 %, reads high; cold: R25 +3 %, B -2 %, reads low). The node is\n    3300 mV x R/(R + 1 k), rounded to whole mV by the shim's mock ADC, and goes\n    through the firmware driver (components/sensors/rim_ntc.c). It maps onto\n    the loop input as main/pan_control.c loop_rim_input() does.\n  - The C loop, D1 and the supervisor as in cosim.py (gain mode id_measured).\n\nCases:\n  benign  4 pans (h_mid) x nominal/food x delta {12, 46} x corner {hot, cold}.\n          Gate: no D1 contact-lost latch, no guard or rim fault, no supervisor\n          latch. Cross-check suspects are probes on intact contact and are\n          reported, not gated (D-B5: such probes never latch).\n  leak    Pt100 element-parallel leakage from t = 250 s (R_leak 1 k and 3 k\n          ohm; pcb/DECISIONS.md D6: it reads low and is electrically\n          invisible), 4 pans x delta {12, 46}, cold corner. Reported: first\n          cross-check suspect, what D1 concluded, the pan peak, and whether\n          the glass reaches the CR-5 hardware rim trip band (262.3-288.1 degC).\n\nWrites xcheck-cosim.json. Run: python3 xcheck_cosim.py [--lib path]",
+ "scope": "sensor-r3 rim NTC in the loop: the Pt100-vs-rim cross-check (D-XCHK) against a rim truth signal.\n\nWhy a separate co-sim. cosim.py feeds the loop the r2 plant's leak sink,\n25 + 50 (1 - exp(-t/300)) degC + 3 K, as \"the rim NTC\". That never exceeds\n78 degC, below the rim channel's saturation (87-97 degC, rim-ntc.json), so the\nreal channel would read SATURATED for every cosim.py run and the cross-check\ncould never fire there. cosim.py is left unchanged.\n\nThis co-sim gives the plant a rim:\n  - Glass under the rim NTC: a first-order lag toward T_c - delta, with\n    delta 12 or 46 K (the glass underside 12-46 K below the pan, study 08 as\n    cited in pcb/DECISIONS.md D6) and tau_g 60 s (assumption: no transient\n    glass data exists). The truth cartridge leaks to that glass, so the KF's\n    sink is the same physical temperature the NTC reads.\n  - Rim NTC: the 104GT-2 table (extrapolated above its 300 degC top with\n    the last segment's beta) at the R25/B tolerance corners (hot: R25 -3 %,\n    B +2 %, reads high; cold: R25 +3 %, B -2 %, reads low). The node is\n    3300 mV x R/(R + 1 k), rounded to whole mV by the shim's mock ADC, and goes\n    through the firmware driver (components/sensors/rim_ntc.c). It maps onto\n    the loop input as main/pan_control.c loop_rim_input() does.\n  - The C loop, D1 and the supervisor as in cosim.py (gain mode id_measured).\n\nCases:\n  benign  4 pans (h_mid) x nominal/food x delta {12, 46} x corner {hot, cold}.\n          Gate: no D1 contact-lost latch, no guard or rim fault, no supervisor\n          latch. Cross-check suspects are probes on intact contact and are\n          reported, not gated (D-B5: such probes never latch).\n  leak    Pt100 element-parallel leakage from t = 250 s (R_leak 1 k and 3 k\n          ohm; pcb/DECISIONS.md D6: it reads low and is electrically\n          invisible), 4 pans x delta {12, 46}, cold corner. Reported: first\n          cross-check suspect, what D1 concluded, the pan peak, and whether\n          the glass reaches the CR-5 hardware rim trip band (262.3-288.1 degC).\n\nWrites xcheck-cosim.json. Run: python3 xcheck_cosim.py [--lib path]",
  "tau_g_s": 60.0,
  "leak_at_s": 250.0,
  "cr5_band_C": [
@@ -36,14 +36,13 @@
   },
   "leak": {
    "runs": 16,
-   "xcheck_detected": 7,
+   "xcheck_detected": 6,
    "xcheck_first_after_leak_s": [
     208.3,
     232.9,
     235.0,
     251.9,
     257.7,
-    289.7,
     291.7
    ],
    "d1_lost_latches": 4,
@@ -566,18 +565,21 @@
    "delta": 12.0,
    "corner": "cold",
    "r_leak": 1000.0,
-   "xcheck_suspects": 2,
+   "xcheck_suspects": 1,
    "xcheck_first_s": 458.3,
-   "d1_probes": 3,
+   "d1_probes": 2,
    "d1_lost_at": 269.6,
    "guard_fault": null,
-   "rim_fault": null,
+   "rim_fault": [
+    484.5,
+    2
+   ],
    "sup_latch": null,
-   "rim_valid_frac": 0.744,
-   "Tc_max_C": 334.8,
-   "glass_max_C": 317.4,
+   "rim_valid_frac": 0.551,
+   "Tc_max_C": 334.0,
+   "glass_max_C": 305.3,
    "est_err_c_max_K": 1.6,
-   "Tc_over_sp_after_leak_K": 104.8,
+   "Tc_over_sp_after_leak_K": 104.0,
    "xcheck_first_after_leak_s": 208.3,
    "glass_reaches_cr5_band": true
   },
@@ -814,19 +816,22 @@
    "delta": 12.0,
    "corner": "cold",
    "r_leak": 1000.0,
-   "xcheck_suspects": 2,
-   "xcheck_first_s": 539.7,
-   "d1_probes": 3,
+   "xcheck_suspects": 0,
+   "xcheck_first_s": null,
+   "d1_probes": 1,
    "d1_lost_at": null,
    "guard_fault": null,
-   "rim_fault": null,
+   "rim_fault": [
+    463.2,
+    2
+   ],
    "sup_latch": null,
-   "rim_valid_frac": 0.743,
-   "Tc_max_C": 351.9,
-   "glass_max_C": 331.7,
+   "rim_valid_frac": 0.515,
+   "Tc_max_C": 345.3,
+   "glass_max_C": 313.6,
    "est_err_c_max_K": 1.58,
-   "Tc_over_sp_after_leak_K": 121.9,
-   "xcheck_first_after_leak_s": 289.7,
+   "Tc_over_sp_after_leak_K": 115.3,
+   "xcheck_first_after_leak_s": null,
    "glass_reaches_cr5_band": true
   },
   {

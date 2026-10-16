@@ -8,6 +8,8 @@
 #include <math.h>
 #include <stddef.h>
 
+#include "current_sense_check.h"
+#include "pan_leak_check.h"
 #include "pan_supervisor.h"
 #include "pan_temp_loop.h"
 #include "rim_ntc.h"
@@ -17,6 +19,15 @@
 extern uint32_t get_time_ms(void);
 extern void power_set_level(uint8_t level);
 extern float read_dc_bus_current(void);
+
+/* (c) of D-ISENSE: the input-current (AMC1301) vs bus-current cross-check.
+ * Off until the input-current sense is on the board (nameplate-r1 D3). */
+#ifndef TEMPER_INPUT_CURRENT_SENSE
+#define TEMPER_INPUT_CURRENT_SENSE 0
+#endif
+#if TEMPER_INPUT_CURRENT_SENSE
+extern float read_input_current(void);
+#endif
 
 static ptl_params_t s_params;
 static ptl_t s_loop;
@@ -30,6 +41,8 @@ static float s_t_hat = NAN;
 static rim_ntc_t s_rim;
 static rim_ntc_reading_t s_rim_rd;
 static uint32_t s_xcheck_suspects;
+static csc_t s_csc;                 /* bus-current sense plausibility (D-ISENSE) */
+static plc_t s_plc;                 /* element-parallel Pt100 leakage (D-LEAK) */
 
 static void ensure_init(void)
 {
@@ -39,6 +52,12 @@ static void ensure_init(void)
     psup_params_t sp;
     psup_default_params(&sp);
     (void)psup_init(&s_sup, &sp);
+    csc_params_t cp;
+    csc_default_params(&cp);
+    (void)csc_init(&s_csc, &cp);
+    plc_params_t lp;
+    plc_default_params(&lp);
+    (void)plc_init(&s_plc, &lp);
     ptl_default_params(&s_params);
     rim_ntc_params_t rp;
     rim_ntc_default_params(&rp);
@@ -124,6 +143,17 @@ bool pan_control_sensor_ready(void)
     return rtd_service_is_ready();
 }
 
+rtd_sensor_fail_t pan_control_reading_failure(void)
+{
+    rtd_sample_t smp;
+    return latest(&smp) ? rtd_convert_classify_failure(smp.code, smp.fault_status) : RTD_SENSOR_OK;
+}
+
+bool pan_control_sensor_fault_clean(void)
+{
+    return rtd_service_fault_status_clean();
+}
+
 float pan_control_t_hat(void)
 {
     return s_t_hat;
@@ -132,6 +162,16 @@ float pan_control_t_hat(void)
 int pan_control_supervisor_latch(void)
 {
     return s_inited ? (int)s_sup.latched : 0;
+}
+
+int pan_control_current_sense_latch(void)
+{
+    return s_inited ? (int)s_csc.latched : 0;
+}
+
+bool pan_control_leak_latched(void)
+{
+    return s_inited && s_plc.latched;
 }
 
 bool pan_control_rate_sample(float reading_c, uint32_t now_ms)
@@ -153,6 +193,15 @@ void pan_control_begin(void)
     const float t0 = (latest(&smp) && isfinite(smp.t_c)) ? smp.t_c : s_params.pg.t_amb_c;
     s_running = ptl_init(&s_loop, &s_params, t0);
     psup_r2_reset(&s_sup);
+    /* D-ISENSE: fresh plausibility state, and the start-up current pulse
+     * before the loop heats (a pan is present: PAN_DET confirmed it). */
+    {
+        const csc_params_t cp = s_csc.p;
+        s_running = csc_init(&s_csc, &cp) && s_running;
+        csc_pulse_begin(&s_csc);
+        const plc_params_t lp = s_plc.p;
+        s_running = plc_init(&s_plc, &lp) && s_running;
+    }
     /* Fresh rim detection per heating session, as ptl_init clears the guard;
      * a persisting rim fault latches again within short_persist periods. */
     const rim_ntc_params_t rp = s_rim.p;
@@ -199,6 +248,8 @@ pan_control_status_t pan_control_step(float setpoint_c, uint8_t intensity_level)
 
     rtd_sample_t smp;
     const bool have = latest(&smp);
+    /* The bus current of the period that just ended, under s_p_applied_w. */
+    const float i_bus = read_dc_bus_current();
     /* Rim NTC: one driver period; the open rule uses the last estimate. */
     rim_ntc_step(&s_rim, rim_ntc_board_hal(), s_t_hat, &s_rim_rd);
     const bool rim_fault = s_rim_rd.state == RIM_NTC_FAULT;
@@ -221,9 +272,20 @@ pan_control_status_t pan_control_step(float setpoint_c, uint8_t intensity_level)
     if (out.xcheck_suspect) {
         s_xcheck_suspects++;
     }
+    /* D-LEAK: repeated cross-check suspects on intact contact. */
+    const bool leak_fault = plc_step(&s_plc, out.xcheck_suspect, (int)out.cc_event, in.t_pt100_c,
+                                     s_rim_rd.state == RIM_NTC_VALID ? s_rim_rd.t_c : NAN);
 
     float p_cmd = out.p_cmd_w;
-    const float i_bus = read_dc_bus_current();
+    /* D-ISENSE (b): the start-up pulse replaces the loop's command until it
+     * has shown current; the limits below still apply to it. */
+    if (csc_pulse_active(&s_csc)) {
+        float pulse_w = 0.0f;
+        const csc_pulse_state_t ps = csc_pulse_step(&s_csc, s_p_applied_w, i_bus, p_max, &pulse_w);
+        if (ps == CSC_PULSE_PENDING || ps == CSC_PULSE_RUNNING) {
+            p_cmd = pulse_w;
+        }
+    }
     const psup_input_t si = {
         .t_hat_c = out.t_hat_c,
         .t_raw_c = in.t_pt100_c,
@@ -240,7 +302,13 @@ pan_control_status_t pan_control_step(float setpoint_c, uint8_t intensity_level)
         p_cmd = 0.0f;
     }
 
-    if (out.fault != PSG_OK || so.latch != PSUP_OK || rim_fault) {
+    /* D-ISENSE (a), and (c) when the input-current sense is fitted. */
+    bool isense_fault = csc_run_step(&s_csc, s_p_applied_w, i_bus);
+#if TEMPER_INPUT_CURRENT_SENSE
+    isense_fault = csc_xcheck_step(&s_csc, read_input_current(), i_bus) || isense_fault;
+#endif
+
+    if (out.fault != PSG_OK || so.latch != PSUP_OK || rim_fault || isense_fault || leak_fault) {
         p_cmd = 0.0f;
     }
     long pct = lroundf(p_cmd / PAN_CONTROL_P_MAX_W * 100.0f);
@@ -258,6 +326,14 @@ pan_control_status_t pan_control_step(float setpoint_c, uint8_t intensity_level)
     if (rim_fault) {
         /* D-RIM: a rim fault latches through the same RTD sink. */
         rim_ntc_report(&s_rim_rd, state_machine_report_rtd_device_fault, NULL);
+        return PAN_CONTROL_SENSOR_FAULT;
+    }
+    if (isense_fault) {
+        state_machine_report_latched_fault(FAULT_CURRENT_SENSE);
+        return PAN_CONTROL_SENSOR_FAULT;
+    }
+    if (leak_fault) {
+        state_machine_report_latched_fault(FAULT_PROBE_LEAKAGE);
         return PAN_CONTROL_SENSOR_FAULT;
     }
     if (out.cc_event == CC_EVT_LOST) {
