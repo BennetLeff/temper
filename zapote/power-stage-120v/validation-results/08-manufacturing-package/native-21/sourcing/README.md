@@ -1,5 +1,7 @@
 # LCSC sourcing for native-21 (survey 2026-10-08)
 
+> **Stale for the board of record (2026-10-15):** this survey describes the 2026-10-08 BOM and still names superseded parts (UCC21550, ISO7710, CST3015-100ED, B32656G0275J000, 74650074R). For s43, use `../PROTOTYPE-LOT.md` and `SNAPSHOT-2026-10-15.csv` (s43 rows).
+
 `lcsc-map.csv`: every one of the 92 BOM lines looked up on jlcpcb.com/parts and lcsc.com product
 pages (URL per line in `Source_URL`; no C-number guessed). `../scripts/apply_lcsc.py` writes the
 result into `../fab/bom-jlcpcb.csv`.
@@ -18,8 +20,10 @@ result into `../fab/bom-jlcpcb.csv`.
 - **R51, R52, R55, R56** `RC1206FR-070R68L`: Yageo's RC series starts at 1 Ω, so this MPN does not
   exist. Changed to **RL1206FR-070R68L (C728510)**, Yageo's low-ohm series: 0.68 Ω, 1 %, 0.25 W.
 
-**Accepted substitute:** C12/C13/C19/C20, Murata GRM31A5C3A102JW01D (not on LCSC) → Yageo
-CC1206JKNPOCBN102 (C113872): 1206, 1 nF, 5 %, 1 kV, C0G.
+**Accepted substitute (to stage 42):** C12/C13/C19/C20, Murata GRM31A5C3A102JW01D (not on LCSC) → Yageo
+CC1206JKNPOCBN102 (C113872): 1206, 1 nF, 5 %, 1 kV, C0G. GRM31A5C3A102JW01D is not a Murata part at all (the
+GRM31A5C3A list ends at 100 pF), so from stage 43 the source MPN is CC1206JKNPOCBN102 itself and the BOM line is a plain
+JLC Extended line (`apply_lcsc.py`, `STOCK-2026-10-13-addendum-s43.csv`, `study-2026-10-15/snapshot/s43/`).
 
 **Consign or hand-assemble:**
 - C5/C6 B32656G0275J000;

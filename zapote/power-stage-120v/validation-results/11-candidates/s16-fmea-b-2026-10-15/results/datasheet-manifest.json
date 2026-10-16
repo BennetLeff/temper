@@ -1,0 +1,130 @@
+{
+ "lm339b/lm339b.pdf": {
+  "bytes": 2545965,
+  "fetched": "2026-10-15",
+  "kind": "datasheet",
+  "revision": "TI SLCS006Z, Oct 1979, revised May 2025",
+  "sha256": "406e7bd1ab1f2fb15b46bff397bde497ba714b00ed4455a556d84e1113546f6a",
+  "url": "https://www.ti.com/lit/ds/symlink/lm339b.pdf"
+ },
+ "sbva070/sbva070.pdf": {
+  "bytes": 477877,
+  "fetched": "2026-10-15",
+  "kind": "TI functional-safety FIT/FMD/pin FMA (TPS3702-Q1, DDC)",
+  "revision": "TI SBVA070A, Dec 2019, revised Mar 2021",
+  "sha256": "09278163d74dbec64831506b993aaa9aff9e064f7a43cd05a2dd6a6f7b79d830",
+  "url": "https://www.ti.com/lit/pdf/sbva070 (-> /lit/fs/sbva070a/sbva070a.pdf)"
+ },
+ "sffs074/sffs074.pdf": {
+  "bytes": 476084,
+  "fetched": "2026-10-15",
+  "kind": "TI functional-safety FIT/FMD/pin FMA (TPS3702, DDC)",
+  "revision": "TI SFFS074, Mar 2021",
+  "sha256": "df58004ed6443323e0819ddf92ddefd0be90aeea5f2eb2b004ec5ce20d71a307",
+  "url": "https://www.ti.com/lit/pdf/sffs074 (-> /lit/fs/sffs074/sffs074.pdf)"
+ },
+ "sffs944/sffs944.pdf": {
+  "bytes": 295115,
+  "fetched": "2026-10-15",
+  "kind": "TI functional-safety FIT/FMD/pin FMA (TPS3703, DSE)",
+  "revision": "TI SFFS944, Jul 2024",
+  "sha256": "4d07ef3cf61d127d3f25ef447cd12826cf40bc6b10c48108a78022d29b2a2306",
+  "url": "https://www.ti.com/lit/pdf/sffs944 (-> /lit/fs/sffs944/sffs944.pdf)"
+ },
+ "slca004/slca004.pdf": {
+  "bytes": 467144,
+  "fetched": "2026-10-15",
+  "kind": "TI functional-safety FIT/FMD/pin FMA (LM2901, LM2901B, LM2901V, LM2901AV; SOIC-14 / TSSOP-14)",
+  "revision": "TI SLCA004, Feb 2023",
+  "sha256": "ba97a5aee9434ab406d66bda5b26a0c0327dc3cdd928585a5300969bf59e9dcf",
+  "url": "https://www.ti.com/lit/pdf/slca004 (-> /lit/fs/slca004/slca004.pdf)"
+ },
+ "slvaem2a/slvaem2a.pdf": {
+  "bytes": 533958,
+  "fetched": "2026-10-15",
+  "kind": "TI functional-safety FIT/FMD/pin FMA (TPS3700-Q1, DDC and DSE)",
+  "revision": "TI SLVAEM2A, Jan 2020, revised Mar 2021",
+  "sha256": "f1a680b94a9865d53eb86a10a97b5f680375944aec72729b52e665d5a1f4c9a4",
+  "url": "https://www.ti.com/lit/pdf/slvaem2a (-> /lit/fs/slvaem2a/slvaem2a.pdf)"
+ },
+ "snva914/snva914.pdf": {
+  "bytes": 296631,
+  "fetched": "2026-10-15",
+  "kind": "TI functional-safety FIT/FMD (TL431-Q1 / TL432-Q1)",
+  "revision": "TI SNVA914 'TL43x-Q1 Functional Safety FIT Rate and Failure Mode Distribution' (no revision letter printed; PDF created 2021-12-03)",
+  "sha256": "2e4f60c5629b0e6838aa4f00b642d7533c83f277b01414026117cdc0681f2e80",
+  "url": "https://www.ti.com/lit/pdf/snva914 (-> /lit/fs/snva914/snva914.pdf)"
+ },
+ "ti-estimator/est_LM339BIDR.html": {
+  "bytes": 103780,
+  "fetched": "2026-10-15",
+  "kind": "TI reliability (HTOL-based) FIT",
+  "revision": "as above",
+  "sha256": "95f5003a4feebcff36008a9921513d08afd0ff6d34421482e31239cabd0f0052",
+  "url": "https://www.ti.com/quality/docs/estimator.tsp?opn=LM339BIDR&cpn=&partNumber=LM339BIDR"
+ },
+ "ti-estimator/est_TL431AIDBZR.html": {
+  "bytes": 103624,
+  "fetched": "2026-10-15",
+  "kind": "TI reliability (HTOL-based) FIT",
+  "revision": "as above",
+  "sha256": "94014699563a8e5652f6991d1c331f02b7eb888e42985e506645995c6a3ac716",
+  "url": "https://www.ti.com/quality/docs/estimator.tsp?opn=TL431AIDBZR&cpn=&partNumber=TL431AIDBZR"
+ },
+ "ti-estimator/est_TL431BIDBZR.html": {
+  "bytes": 103787,
+  "fetched": "2026-10-15",
+  "kind": "TI reliability (HTOL-based) FIT",
+  "revision": "as above",
+  "sha256": "17111a16ee83ca48d2a2d461079474a962b8dd6b8f0aea59259e9f296bfbd94b",
+  "url": "https://www.ti.com/quality/docs/estimator.tsp?opn=TL431BIDBZR&cpn=&partNumber=TL431BIDBZR"
+ },
+ "ti-estimator/est_TPS3701DDCR.html": {
+  "bytes": 103626,
+  "fetched": "2026-10-15",
+  "kind": "TI reliability (HTOL-based) FIT",
+  "revision": "TI MTBF/FIT estimator page as served 2026-10-15",
+  "sha256": "c895aafb4762753115a41b6136b84f956efef29d3ef7de873bed96bed35d6d15",
+  "url": "https://www.ti.com/quality/docs/estimator.tsp?opn=TPS3701DDCR&cpn=&partNumber=TPS3701DDCR"
+ },
+ "tl431/tl431.pdf": {
+  "bytes": 3087819,
+  "fetched": "2026-10-15",
+  "kind": "datasheet",
+  "revision": "TI SLVS543S, Aug 2004, revised May 2024",
+  "sha256": "ed2e90697de4e2c553195514adf1ee59cda42863716b6ef702b8304a5b921d22",
+  "url": "https://www.ti.com/lit/ds/symlink/tl431.pdf"
+ },
+ "tps3700/tps3700.pdf": {
+  "bytes": 682718,
+  "fetched": "2026-10-15",
+  "kind": "datasheet (pin-compatible sibling)",
+  "revision": "TI SBVS187G",
+  "sha256": "3bb7daed20b154bf22ded78e23269c6437eb587400b89bce0f543813df94ebf0",
+  "url": "https://www.ti.com/lit/ds/symlink/tps3700.pdf"
+ },
+ "tps3701/tps3701.pdf": {
+  "bytes": 757645,
+  "fetched": "2026-10-15",
+  "kind": "datasheet",
+  "revision": "TI SBVS240C, Nov 2014, revised Feb 2019",
+  "sha256": "27c94a6c3a243bf539e98942d26f0bd9ed979c5775c12cf86b7c1a8c3d7d9560",
+  "url": "https://www.ti.com/lit/ds/symlink/tps3701.pdf"
+ },
+ "tps709/tps709.pdf": {
+  "bytes": 2271988,
+  "fetched": "2026-10-15",
+  "kind": "datasheet (local 5 V LDO, sliver question)",
+  "revision": "TI SBVS186H, Mar 2012, revised Jul 2021",
+  "sha256": "8c14e3efae738a27b857b789aa87369de9037a8ef3616a9f71a423587cdc6949",
+  "url": "https://www.ti.com/lit/ds/symlink/tps709.pdf"
+ },
+ "tps7a47/tps7a47.pdf": {
+  "bytes": 2275327,
+  "fetched": "2026-10-15",
+  "kind": "datasheet (ANY-OUT pins, test-hook question)",
+  "revision": "TI SBVS204G, Jun 2012, revised May 2026",
+  "sha256": "8ca46a9968923d2ec9a4deedacfe37220ee5159f4570009cb7c3163661c5dfe0",
+  "url": "https://www.ti.com/lit/ds/symlink/tps7a47.pdf"
+ }
+}

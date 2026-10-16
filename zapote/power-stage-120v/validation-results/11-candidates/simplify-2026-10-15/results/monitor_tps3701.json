@@ -1,0 +1,192 @@
+{
+ "control": "old bands reproduce g05-g07 results/tps3700_band.json",
+ "old_bands": {
+  "neg UV": [
+   1.7367950591884107,
+   1.8616762104874167
+  ],
+  "neg OV": [
+   2.1271979885898173,
+   2.2849662531772306
+  ],
+  "span UV": [
+   15.578135727965892,
+   16.868996190269232
+  ],
+  "span OV": [
+   17.134957225578862,
+   18.5569626181734
+  ]
+ },
+ "old_nominal": {
+  "neg UV": 1.798895,
+  "neg OV": 2.2055800000000003,
+  "span UV": 16.2175,
+  "span OV": 17.83925
+ },
+ "design": {
+  "neg UV": {
+   "top_k": 7.68,
+   "bottom_k": 2.21,
+   "nominal_V": 1.79,
+   "old_nominal_V": 1.7989,
+   "band_V": [
+    1.7651,
+    1.8153
+   ],
+   "old_band_V": [
+    1.7368,
+    1.8617
+   ],
+   "inside_old_band": true,
+   "band_width_vs_old": 0.402,
+   "top_part": {
+    "mpn": "RT0603BRD077K68L",
+    "lcsc": "C375517",
+    "class": "extended",
+    "jlc_stock": 6376,
+    "on_s43_bom": true
+   },
+   "bottom_part": {
+    "mpn": "RT0603BRD072K21L",
+    "lcsc": "C705758",
+    "class": "extended",
+    "jlc_stock": 4018,
+    "on_s43_bom": true
+   },
+   "divider_current_uA_at_nominal": 181.0,
+   "release_band_V": [
+    1.7784,
+    1.8603
+   ],
+   "rail_V": [
+    1.9684,
+    2.0589
+   ],
+   "rail_margin_V_new_release_side": 0.108,
+   "rail_margin_V_old": 0.1067
+  },
+  "neg OV": {
+   "top_k": 10.2,
+   "bottom_k": 2.21,
+   "nominal_V": 2.2462,
+   "old_nominal_V": 2.2056,
+   "band_V": [
+    2.214,
+    2.2787
+   ],
+   "old_band_V": [
+    2.1272,
+    2.285
+   ],
+   "inside_old_band": true,
+   "band_width_vs_old": 0.41,
+   "top_part": {
+    "mpn": "RT0603BRD0710K2L",
+    "lcsc": "C515735",
+    "class": "expand",
+    "jlc_stock": 13263
+   },
+   "bottom_part": {
+    "mpn": "RT0603BRD072K21L",
+    "lcsc": "C705758",
+    "class": "extended",
+    "jlc_stock": 4018,
+    "on_s43_bom": true
+   },
+   "divider_current_uA_at_nominal": 181.0,
+   "release_band_V": [
+    2.1582,
+    2.2617
+   ],
+   "rail_V": [
+    1.9684,
+    2.0589
+   ],
+   "rail_margin_V_new_release_side": 0.099,
+   "rail_margin_V_old": 0.0683
+  },
+  "span UV": {
+   "top_k": 453.0,
+   "bottom_k": 11.7,
+   "nominal_V": 15.8872,
+   "old_nominal_V": 16.2175,
+   "band_V": [
+    15.6305,
+    16.147
+   ],
+   "old_band_V": [
+    15.5781,
+    16.869
+   ],
+   "inside_old_band": true,
+   "band_width_vs_old": 0.4,
+   "top_part": {
+    "mpn": "RT0603BRD07453KL",
+    "lcsc": "C861412",
+    "class": "expand",
+    "jlc_stock": 5264
+   },
+   "bottom_part": {
+    "mpn": "TNPW060311K7BEEA",
+    "lcsc": "C4553285",
+    "class": "extended",
+    "jlc_stock": 2839,
+    "on_s43_bom": true
+   },
+   "divider_current_uA_at_nominal": 34.2,
+   "release_band_V": [
+    15.7487,
+    16.5474
+   ],
+   "rail_V": [
+    16.575,
+    17.424999999999997
+   ],
+   "rail_margin_V_new_release_side": 0.028,
+   "rail_margin_V_old": -0.294
+  },
+  "span OV": {
+   "top_k": 44.2,
+   "bottom_k": 1.0,
+   "nominal_V": 18.08,
+   "old_nominal_V": 17.8392,
+   "band_V": [
+    17.7991,
+    18.3643
+   ],
+   "old_band_V": [
+    17.135,
+    18.557
+   ],
+   "inside_old_band": true,
+   "band_width_vs_old": 0.397,
+   "top_part": {
+    "mpn": "RT0603BRD0744K2L",
+    "lcsc": "C861410",
+    "class": "expand",
+    "jlc_stock": 4707
+   },
+   "bottom_part": {
+    "mpn": "RT0603BRD071KL",
+    "lcsc": "C110776",
+    "class": "extended",
+    "jlc_stock": 1819360,
+    "on_s43_bom": true
+   },
+   "divider_current_uA_at_nominal": 400.0,
+   "release_band_V": [
+    17.3508,
+    18.2276
+   ],
+   "rail_V": [
+    16.575,
+    17.424999999999997
+   ],
+   "rail_margin_V_new_release_side": -0.074,
+   "rail_margin_V_old": -0.29
+  }
+ },
+ "ref_branch_removed_mA_per_rail": 6.72,
+ "tps3701_idd_max_uA_per_rail": 22
+}

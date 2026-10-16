@@ -50,6 +50,12 @@ CU_INDEX = T.CU_INDEX
 THK_MM = T.THICK_MM
 BASE = 0.0625                      # supersampling pitch for copper fill fractions [mm]
 K_AIR = 0.026                      # W/m/K, dry air near 60 C (Incropera table A.4)
+# Copper TCR for the hot-copper fixed point (OPEN-ITEMS S17): the task-04 A4 fields are 20 C DC copper
+# (run_board.py 'assumptions', sheet_solver temp_c=20), so each A4 heat cell is q = q20 (1 + ALPHA_CU (T - 20 C)) at its
+# absolute temperature T. One value: thermal.ALPHA_CU, asserted there against sheet_solver.ALPHA_CU.
+ALPHA_CU = T.ALPHA_CU
+TCR_TOL_K = 1e-3                   # Picard check: max |dT| between successive solves
+TCR_MAX_ITER = 50
 
 # --------------------------------------------------------------------------------------------------------------
 # Package network specifications. Every number carries its source. "derived" = computed here from handbook
@@ -84,18 +90,32 @@ SPECS = {
              "96 % alumina, handbook), path (L/2)/(2 k W t) = 1.6 mm / (2 x 24 x 1.6 mm x 0.635 mm) = 33 K/W. "
              "Rating 0.25 W at 70 C derated to 0 at 155 C is the vendor-typical 1206 curve (Yageo RC_L / UniRoyal "
              "datasheets were not retrievable from this host: NOT re-verified here)"),
+    "chip2512": dict(  # thick-film chip resistors, 2512 (6.35 x 3.20 x 0.55 mm alumina): R10/R12/R18/R20 from stage 42
+        label="2512 chip resistor", r_pad=37.6, r_top=0.0, body_mm=(6.35, 3.2), standoff_mm=0.05,
+        pad_filter=None, tj_limit=155.0,
+        cite="DERIVED as chip1206: element-to-termination conduction through the 96 % alumina substrate, k = 24 W/mK, "
+             "path (L/2)/(2 k W t) = 3.175 mm / (2 x 24 x 3.20 mm x 0.55 mm) = 37.6 K/W (L 6.35, W 3.20, H 0.55 mm: "
+             "UniRoyal thick-film chip resistor data sheet V.3 2019-02-12 p.4/9). Rating 1 W at 70 C derated to 0 at "
+             "155 C (p.4/9 table 6, p.5/9 section 9 figure 1); operating -55..155 C (p.5/9 table 7) - candidate 39"),
     "css2h": dict(  # R5  Bourns CSS2H-2512R-1L00F
         label="Bourns CSS2H-2512R-1L00F", r_pad=20.0, r_top=0.0, body_mm=(6.35, 3.05), standoff_mm=0.05,
         pad_filter=None, tj_limit=170.0,
         cite="DERIVED from the vendor terminal derating curve recorded in ../stage17-r5/screen.py (5 W at 70 C terminal "
              "falling linearly to 0 W at 170 C terminal, Bourns CSS2H PDF p.3, bourns.com 403 from this host so "
              "NOT re-fetched): element 170 C at 0 W-headroom => (170-70)/5 W = 20 K/W element-to-terminal"),
-    "film_radial": dict(  # C21-23, C151, C152 TDK B32654A1104K000; C38-41 B32652A0104K000
+    "film_radial": dict(  # C21-23, C151, C152 TDK B32654A1104K000 (C38-41 until 2026-10-15: see film_hf)
         label="TDK MKP radial film capacitor", r_pad=50.0, r_top=0.0, body_mm=None, standoff_mm=3.0,
         pad_filter=None, tj_limit=105.0, body_air=False,
         cite="ASSUMED class value: two 0.8 mm leads (cap doc components/B32652A0104K000), 3 mm free length, copper-clad "
              "steel k = 60 W/mK  => 2 x 99 K/W in parallel = 50 K/W. TDK datasheet was not retrievable (403): the 105 C "
              "upper category temperature and the 85 C ripple curve are the values recorded in round6-full-power/README.md"),
+    "film_hf": dict(  # C38-41 TDK B32652A0104K000 (HF bus film, gated): film_radial's lead path + a body-to-air path
+        label="TDK B32652A0104K000 HF film capacitor", r_pad=50.0, r_top=0.0, body_mm=None, standoff_mm=3.0,
+        pad_filter=None, tj_limit=110.0, body_air="film_fin",
+        cite="lead path as film_radial (ASSUMED 50 K/W: two 0.8 mm leads, TDK B3265* June 2026 p.3 drawing A1 'B32652 "
+             "lead diameter d1 0.8'; 3 mm free length; copper-clad steel k 60 - p.2 gives only 'parallel wire leads, "
+             "lead-free tinned', no material). Body-to-air (b3-ratings jet-2026-10-15): body 9.0 x 17.5 x 18.0 mm "
+             "(w x h x l, p.14 ordering table, B32652A0104, max dimensions), film_body_g_air(); Top,max 110 C (p.2, p.35)"),
     "film_4pin": dict(  # C5, C6 TDK B32676 (4-pin)
         label="TDK MKP 4-pin film capacitor", r_pad=25.0, r_top=0.0, body_mm=None, standoff_mm=3.0,
         pad_filter=None, tj_limit=105.0, body_air=False,
@@ -170,6 +190,119 @@ def build_lead_links(board_obj, leads, nx, ny, xmin, ymin, pitch, i0, j0):
     return out
 
 
+# --------------------------------------------------------------------------------------------------------------
+# HF film capacitor body-to-air path (b3-ratings/jet-2026-10-15). Until then C38-C41's body node was reached only
+# through the 50 K/W lead path: with no other exit, the node settles at the lead-weighted pad temperature plus
+# P x 50 K/W, the hottest a body heated from its leads can be (refine-2026-10-15 declared it an upper bound).
+# The body is a plastic box (TDK B3265* June 2026 p.2 'Plastic case (UL 94 V-0), Epoxy resin sealing') of 9.0 x 17.5 x
+# 18.0 mm (w x h x l, p.14 ordering table, B32652A0104, maximum dimensions). Its surface loses heat to the air: the
+# datasheet's own self-heating terms are the heat transfer coefficient and the 'Capacitor surface area' (p.77 symbols).
+# The leads join the sprayed end contacts at the two l-ends, so the heat that comes up the leads enters at the end
+# faces and must cross the winding lengthwise to reach the side and top surfaces. Each half-body is taken as a straight
+# fin from its end face (length l/2, adiabatic at mid-length, cross-section w x h, exposed perimeter 2h + w: the bottom
+# faces the board and gets nothing), plus the end face itself at h:
+#     g_air = 2 [h w h_b + sqrt(h P k A_c) tanh(m l/2)],  m = sqrt(h P / (k A_c)).
+# k = 0.2 W/mK (ASSUMED lower bound: polypropylene 0.22, epoxy fill ~0.2, PBT case ~0.25 W/mK, handbook) for heat
+# along the film planes. At h 10 this gives 81 % of the bare-area h A (fin efficiency 0.74); at h 100 it gives 50 %.
+# No radiation credit, no credit for the bottom face, case-wall resistance neglected (~0.5 mm, ~2 % of the h-10 film).
+FILM_HF_BODY = dict(w_mm=9.0, h_mm=17.5, l_mm=18.0, k_w_mk=0.2,
+                    cite="TDK B3265*A/G/J/T June 2026 (MKP_B32651_658.pdf, sha256 c32e3754787fa19b...): p.14 "
+                         "B32652A0104 max dimensions w x h x l 9.0 x 17.5 x 18.0 mm; p.3 drawing A1, B32652 lead "
+                         "d1 0.8 mm, e 15.0 mm; p.2 plastic case, epoxy sealing; p.77 heat transfer coefficient, "
+                         "capacitor surface area; k ASSUMED 0.2 W/mK")
+
+
+def film_body_g_air(h: float, w_mm=FILM_HF_BODY["w_mm"], h_mm=FILM_HF_BODY["h_mm"], l_mm=FILM_HF_BODY["l_mm"],
+                    k_w_mk=FILM_HF_BODY["k_w_mk"]) -> float:
+    """Body-to-air conductance [W/K] of a box film capacitor heated at its two end contacts (see FILM_HF_BODY)."""
+    if h <= 0:
+        return 0.0
+    w, hb, half = w_mm * 1e-3, h_mm * 1e-3, l_mm * 1e-3 / 2
+    a_c, per = w * hb, 2 * hb + w
+    m = math.sqrt(h * per / (k_w_mk * a_c))
+    return 2.0 * (h * w * hb + math.sqrt(h * per * k_w_mk * a_c) * math.tanh(m * half))
+
+
+# The body-to-air path makes the cap row depend on how strongly the body is tied to the board, and the two kinds of
+# row want opposite ends of that: the board rows (laminate, gate resistors, R5) are conservative with a WEAK tie (less
+# heat leaves the board through the cap), the cap's own Top row with a STRONG tie (the body sits at the board's
+# temperature). The solve keeps the weak, assumed 50 K/W lead path (film_radial's 3 mm of copper-clad steel). The cap
+# row is evaluated at the strong end, from that solve's hotter pad (film_top_bound_rise): the leads as copper,
+# k 390 W/mK (TDK p.2 gives only 'tinned', not the core metal), d 0.8 mm (p.3), over the free length between the body
+# and the board top in the board's own 3D model (0.62 mm: validation-plan/enclosure-fit/native21-boxes.json, C40 body
+# z 2.11 mm over the board top 1.493 mm), plus air conduction across that gap under the 9.0 x 18.0 mm bottom face.
+# The weak solve's pads are the hotter ones (the strong tie draws more heat out through the cap), so this bounds the
+# body from above at either end of the lead range; the hotter pad stands in for the hotter end contact.
+FILM_HF_STRONG = dict(lead_d_mm=0.8, lead_k_w_mk=390.0, seat_mm=0.62, n_leads=2,
+                      cite="lead d1 0.8 mm TDK B3265* June 2026 p.3; copper k 390 (thermal.K_CU, the upper end for a "
+                           "'tinned' wire of unstated core); seat 0.62 mm from native21-boxes.json (C40 body bottom z "
+                           "2.11, board top 1.493 mm); bottom-face gap conduction K_AIR 0.026 W/mK")
+
+
+# The air the cap bodies see is not bay air. They stand 17.5 mm tall on a board whose top runs ~90-120 C, inside the
+# board's own natural-convection layer: upper surface of a heated horizontal plate, Nu = 0.54 Ra^1/4 with L = A/P
+# (Incropera & DeWitt, Fundamentals of Heat and Mass Transfer, sec. 9.6) gives h ~ 6.5 W/m2K for the 290 x 190 mm board,
+# a conduction-equivalent layer k/h ~ 4.3 mm; an exponential profile over the 17.5 mm faces averages 0.24 x the board's
+# excess over the bay: ~ +9 K at the release case (C40's pad ~98 C, bay 61 C), toward +12 K with the plume from the
+# 110-120 C channel beside the caps. Default: +12 K + 3 K headroom = +15 K over the bay for a film_hf body NOT credited
+# by a TopRegion (sens key film_air_rise overrides it; run_basis --film-air-rise). A region-credited cap keeps the
+# region's air: the jet sweeps the board's layer away. Sensitivity: b3-ratings/jet-2026-10-15/cap-air.json (release
+# margin -0.11 K per K of cap-air rise).
+FILM_HF_AIR_RISE_K = 15.0
+
+
+def film_strong_coupling_g(d=FILM_HF_STRONG, body=FILM_HF_BODY) -> float:
+    """Body-to-board conductance [W/K] at the strong end: copper leads over the seat height + the bottom-face air gap."""
+    a = math.pi * (d["lead_d_mm"] * 1e-3 / 2) ** 2
+    seat = d["seat_mm"] * 1e-3
+    return d["n_leads"] * d["lead_k_w_mk"] * a / seat + K_AIR * body["w_mm"] * body["l_mm"] * 1e-6 / seat
+
+
+def film_top_bound_rise(t_pad_hot: float, watts: float, g_air: float, t_air: float = 0.0) -> float:
+    """Upper bound of the film body rise [K]: the body tied to its hotter pad (rise t_pad_hot) through
+    film_strong_coupling_g(), to air (rise t_air) through g_air, self-heating `watts`."""
+    g_s = film_strong_coupling_g()
+    return t_pad_hot + (watts - g_air * (t_pad_hot - t_air)) / (g_s + g_air)
+
+
+def film_body_area_mm2(w_mm=FILM_HF_BODY["w_mm"], h_mm=FILM_HF_BODY["h_mm"], l_mm=FILM_HF_BODY["l_mm"]) -> float:
+    """Exposed body area [mm^2]: top, two sides, two ends (the bottom faces the board)."""
+    return w_mm * l_mm + 2 * h_mm * l_mm + 2 * w_mm * h_mm
+
+
+# --------------------------------------------------------------------------------------------------------------
+# Top-face airflow region (b3-ratings jet-2026-10-15; temper-8d airflow-r1's board_h_sweep.py made first-class).
+# Cells of the TOP sheet (F.Cu, z = 0) whose centres lie in [x0, x1] x [y0, y1] (inclusive, model mm) convect at h_top to
+# air at t_air_rise over the model ambient (the gate shifts the field by bay - 50, so t_air_rise = T_air - bay; 0 = air at
+# the bay temperature). The bottom face and every other top cell keep the case h. Package networks whose heat-row
+# centre lies in the region take body-to-air at h_top, to the same air. None = the still-air model, bit-identical.
+# credit_refs: bodies credited at h_top although centred outside (a sensitivity, e.g. the HF film caps beside the jet box).
+# --------------------------------------------------------------------------------------------------------------
+class TopRegion:
+    def __init__(self, xy_mm, h_top, t_air_rise=0.0, name="region", credit_refs=()):
+        self.x0, self.x1, self.y0, self.y1 = (float(v) for v in xy_mm)
+        self.h_top, self.t_air_rise, self.name = float(h_top), float(t_air_rise), name
+        self.credit_refs = tuple(sorted(credit_refs))
+
+    def contains(self, x, y):
+        return self.x0 <= x <= self.x1 and self.y0 <= y <= self.y1
+
+    def credits(self, ref, x, y):
+        return self.contains(x, y) or ref in self.credit_refs
+
+    def mask(self, x, y):
+        """Cell-centre mask (len(x), len(y))."""
+        x, y = np.asarray(x), np.asarray(y)
+        return ((x >= self.x0) & (x <= self.x1))[:, None] & ((y >= self.y0) & (y <= self.y1))[None, :]
+
+    def as_dict(self):
+        d = {"name": self.name, "xy_mm": [self.x0, self.x1, self.y0, self.y1], "h_top": self.h_top,
+             "t_air_rise_k": self.t_air_rise}
+        if self.credit_refs:
+            d["credit_refs"] = list(self.credit_refs)
+        return d
+
+
 def spec_for(ref: str, mpn: str, fp: str) -> str:
     if mpn.startswith("R24C2T25"):
         return "recom"
@@ -183,6 +316,10 @@ def spec_for(ref: str, mpn: str, fp: str) -> str:
         return "css2h"
     if "R_1206" in fp:
         return "chip1206"
+    if "Resistor_SMD:R_2512" in fp:     # stage 42 (candidate 39): the 68 ohm 2512 turn-on resistors
+        return "chip2512"
+    if mpn.startswith("B32652A0104"):     # C38-C41: body-to-air path since 2026-10-15 (jet-2026-10-15)
+        return "film_hf"
     if mpn.startswith("B32654") or mpn.startswith("B32652"):
         return "film_radial"
     if mpn.startswith("B32676") or mpn.startswith("B32656"):
@@ -329,8 +466,9 @@ def pad_overlap(poly, xmin, ymin, pitch, i0, j0, nx, ny):
 # --------------------------------------------------------------------------------------------------------------
 # linear system
 # --------------------------------------------------------------------------------------------------------------
-def assemble(board, k, thk_m, h, pitch_m, links):
-    """Conductance matrix of the 7-sheet stack as COO pieces + diagonal (same stencil as thermal.solve_stack)."""
+def assemble(board, k, thk_m, h, pitch_m, links, top_region=None):
+    """Conductance matrix of the 7-sheet stack as COO pieces + diagonal (same stencil as thermal.solve_stack).
+    top_region: None or (mask (nx, ny), h_top) - those top-sheet cells convect at h_top instead of h."""
     nz, nx, ny = k.shape
     area = pitch_m * pitch_m
     nxy = nx * ny
@@ -359,6 +497,9 @@ def assemble(board, k, thk_m, h, pitch_m, links):
     conv = h * area
     for z in (0, nz - 1):
         np.add.at(diag, ids[z][board], conv)
+    if top_region is not None:
+        m, h_top = top_region
+        np.add.at(diag, ids[0][m & board], (h_top - h) * area)
     return rows, cols, vals, diag, ids, conv
 
 
@@ -385,15 +526,20 @@ class NetPart:
         self.ref, self.watts, self.spec_key = ref, watts, spec_key
         self.groups = []         # (flat_ids, weights(sum 1), g_W_per_K, tag)
         self.g_air = 0.0
+        self.t_air = 0.0         # air temperature the body sees, as a rise over the model ambient (TopRegion)
         self.r_top = 0.0
         self.metrics_pads = []   # (z, i, j, area) of the reported pad copper (heated pads on the heated layer)
         self.meta = {}
 
 
-def build_network_parts(board_obj, heat_json, mode, nz, nx, ny, xmin, ymin, pitch, i0, j0, h, fps, sens, inside):
+def build_network_parts(board_obj, heat_json, mode, nz, nx, ny, xmin, ymin, pitch, i0, j0, h, fps, sens, inside,
+                        region=None):
     """Create NetPart objects for every heat-generating part passing `inside(x_mm, y_mm)`.
 
-    sens: dict(h_body_factor, all_pins, gap, r_scale)
+    sens: dict(h_body_factor, all_pins, gap, r_scale, film_lead_only)
+      film_lead_only: C38-C41 (film_hf) without their body-to-air path - the model before 2026-10-15 (a control).
+    region: None or TopRegion - a part whose heat-row centre (x_mm, y_mm) lies in it takes body-to-air at
+      region.h_top, to air at region.t_air_rise; every other part at h, to the model ambient.
     """
     data = json.loads(Path(heat_json).read_text())
     nxy = nx * ny
@@ -445,12 +591,27 @@ def build_network_parts(board_obj, heat_json, mode, nz, nx, ny, xmin, ymin, pitc
         elif sp["body_mm"]:
             body = sp["body_mm"]
         use_air = sp.get("body_air", True) and (p.get("sink_fraction", 0.0) == 0.0 or sens.get("air_all", False))
-        if body is not None and use_air:
+        in_region = region is not None and region.credits(ref, p["x_mm"], p["y_mm"])
+        h_loc = region.h_top if in_region else h
+        if sp.get("body_air") == "film_fin":
+            if use_air and not sens.get("film_lead_only", False):
+                hb = h_loc * sens.get("h_body_factor", 1.0)
+                np_.g_air = film_body_g_air(hb)
+                np_.t_air = sens.get("film_air_rise", FILM_HF_AIR_RISE_K)    # board-heated air (FILM_HF_AIR_RISE_K);
+                np_.meta.update(body_area_mm2=film_body_area_mm2(), body_air_model="film_fin", h_body=hb,  # a region
+                                film_air_rise_k=np_.t_air)                    # credit below replaces it
+
+        elif body is not None and use_air:
             a_top = body[0] * body[1] * 1e-6
-            hb = h * sens.get("h_body_factor", 1.0)
+            hb = h_loc * sens.get("h_body_factor", 1.0)
             r_tot = sp["r_top"] + 1.0 / (hb * a_top)
             np_.g_air = 1.0 / r_tot
             np_.meta["body_area_mm2"] = body[0] * body[1]
+        if in_region and np_.g_air > 0:
+            np_.t_air = region.t_air_rise          # jet air (for a film cap: the jet sweeps the board's warm layer away)
+            np_.meta["region_credited"] = True
+            if "film_air_rise_k" in np_.meta:
+                np_.meta["film_air_rise_k"] = region.t_air_rise
         if sens.get("gap") and body is not None:
             cx, cy = fp["at"][0], fp["at"][1]
             rot = math.radians(fp["at"][2]) if len(fp["at"]) > 2 else 0.0
@@ -472,15 +633,32 @@ def build_network_parts(board_obj, heat_json, mode, nz, nx, ny, xmin, ymin, pitc
     return parts, omitted
 
 
-def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=None, rtol=1e-10, label="", leads=()):
+def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=None, rtol=1e-10, label="", leads=(),
+                 top_region=None, tcr=None):
     """Solve for rises. `heat` (nz,nx,ny) W injected into cells (point-source part heat is already in it).
     dirichlet: None or (T_bc array (nz,nx,ny)) - the outer ring of cells (all sheets) is held at T_bc.
     leads: LeadLink fixed-temperature ties (FET drain leads to the sink); their heat to the sink is lead_sink_w.
+    top_region: None or (mask (nx, ny), h_top, t_air_rise) - TopRegion cells of the top sheet convect at h_top to air
+    at t_air_rise; parts carry their own NetPart.t_air.
+    tcr: None (heat fixed, the 20 C copper model) or {"q20": (nz,nx,ny) W, the part of `heat` that is A4 copper at 20 C,
+    "alpha": 1/K, "t_abs0_c": absolute temperature of zero rise (the case's bay air)} - the hot-copper fixed point
+    T = M^-1 (b + q(T)), q = q20 (1 + alpha (t_abs0 + rise - 20)), fixed current paths. q is affine in T, so the fixed
+    point is the solution of the linear system with -alpha q20 on the cell diagonal (solved exactly by CG); it is then
+    checked by Picard steps on the unmodified operator until max |dT| < TCR_TOL_K. A non-SPD folded operator (CG
+    failure) or a Picard check that does not settle is thermal runaway: RuntimeError, never a silent result.
     Returns rise (nz,nx,ny), rise_J (len(parts)), receipt."""
     nz, nx, ny = k.shape
     nxy = nx * ny
-    rows, cols, vals, diag, ids, conv = assemble(board, k, thk_m, h, pitch_m, links)
+    rows, cols, vals, diag, ids, conv = assemble(board, k, thk_m, h, pitch_m, links,
+                                                 None if top_region is None else top_region[:2])
     N = nz * nxy
+    if tcr is not None:
+        assert dirichlet is None, "the hot-copper fixed point is solved on global meshes only"
+        q20 = np.where(np.broadcast_to(board, (nz, nx, ny)), tcr["q20"], 0.0).ravel()
+        a_t, off = float(tcr["alpha"]), float(tcr["t_abs0_c"]) - 20.0
+        d_tcr = a_t * q20                           # dq/dT per cell [W/K]
+        diag = diag - d_tcr
+        heat = heat + (a_t * off) * tcr["q20"]      # q at zero rise: q20 (1 + alpha (t_abs0 - 20))
     nJ = len(parts)
     diagJ = np.zeros(nJ)
     rhs = np.zeros(N + nJ)
@@ -491,6 +669,8 @@ def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=N
         J = N + s
         rhs[J] = p.watts
         diagJ[s] += p.g_air
+        if p.t_air:
+            rhs[J] += p.g_air * p.t_air
         for gids, w, g, _ in p.groups:
             onb = board.ravel()[gids % nxy]          # cells off the board outline carry no heat path: drop and renormalise
             if not onb.all():
@@ -515,6 +695,9 @@ def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=N
             v2.append((g * np.outer(w, w)).ravel())
             np.add.at(rhs, gids, g * lk.t_rise * w)
             lead_groups.append((gids, w, g, lk.t_rise))
+    if top_region is not None and top_region[2]:
+        m, h_top, t_air = top_region
+        rhs[ids[0][m & board]] += h_top * pitch_m * pitch_m * t_air
     diag_full = np.concatenate([diag, diagJ])
     # outer-product blocks add to the cell diagonal: pull them out of the COO so Jacobi sees the true diagonal
     diag_extra = np.zeros(N + nJ)
@@ -536,10 +719,14 @@ def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=N
     if dirichlet is None:
         iters = [0]
         pre = LinearOperator(M.shape, matvec=lambda v: v / diag_full)
+        if tcr is not None and (diag_full[:N] <= 0).any():
+            raise RuntimeError(f"hot-copper operator lost its diagonal (dq/dT exceeds the cell's conductance): thermal "
+                               f"runaway {label}")
         x, info = cg(M, rhs, rtol=rtol, atol=1e-14, M=pre, maxiter=40000,
                      callback=lambda _: iters.__setitem__(0, iters[0] + 1))
         if info != 0:
-            raise RuntimeError(f"CG failed info={info} it={iters[0]} {label}")
+            raise RuntimeError(f"CG failed info={info} it={iters[0]} {label}"
+                               + (" (hot copper: the folded operator is not SPD - thermal runaway)" if tcr else ""))
         resid = float(np.linalg.norm(M @ x - rhs) / max(np.linalg.norm(rhs), 1e-30))
         TB = None
     else:
@@ -568,15 +755,60 @@ def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=N
         S = -MUB.tocsr()
         bc_flux = float((S.sum(axis=1).A1 * xU).sum() - (S.sum(axis=0).A1 * TBv).sum())
         # interior rows in the ring-adjacent layer carry the ring's convection too: those nodes are fixed, not counted
+    tcr_rec = None
+    if tcr is not None:
+        # Picard check on the unmodified operator M0 = M + diag(d_tcr): x_{k+1} = M0^-1 (b + q(x_k)), warm-started
+        M0 = M + csr_matrix((np.concatenate([d_tcr, np.zeros(nJ)]), (np.arange(N + nJ), np.arange(N + nJ))),
+                            shape=M.shape)
+        d0 = diag_full + np.concatenate([d_tcr, np.zeros(nJ)])
+        pre0 = LinearOperator(M0.shape, matvec=lambda v: v / d0)
+        rhs0 = rhs.copy()
+        steps, dmax = 0, float("inf")
+        while steps < TCR_MAX_ITER:
+            rhs_k = rhs0.copy()
+            rhs_k[:N] += d_tcr * x[:N]
+            xk, info = cg(M0, rhs_k, x0=x, rtol=rtol, atol=1e-14, M=pre0, maxiter=40000)
+            if info != 0:
+                raise RuntimeError(f"hot-copper Picard check: CG failed info={info} {label}")
+            dmax = float(np.abs(xk[:N] - x[:N]).max())
+            x = xk
+            steps += 1
+            if dmax < TCR_TOL_K:
+                break
+        else:
+            raise RuntimeError(f"hot-copper fixed point did not settle (max |dT| {dmax:.3g} K after {steps} Picard "
+                               f"steps): thermal runaway {label}")
+        # loop gain: the Rayleigh quotient x'Dx / x'M0x of the solved field bounds rho(M0^-1 D) from below; >= 1 is a
+        # runaway (the folded operator is then indefinite and its "solution" unphysical)
+        gain = float((d_tcr * x[:N] ** 2).sum() / max(float(x @ (M0 @ x)), 1e-300))
+        if not gain < 1.0:
+            raise RuntimeError(f"hot copper: loop gain {gain:.3g} >= 1 (thermal runaway) {label}")
+        q_hot = q20 * (1.0 + a_t * (off + x[:N]))
+        tcr_rec = {"alpha": a_t, "t_abs0_c": float(tcr["t_abs0_c"]), "picard_steps": steps, "max_dT_k": dmax,
+                   "loop_gain_rayleigh": gain,
+                   "q20_w": float(q20.sum()), "q_hot_w": float(q_hot.sum())}
+        heat = (heat - (a_t * off) * tcr["q20"]) + (q_hot - q20).reshape(nz, nx, ny)   # the heat actually injected
     rise = x[:N].reshape(nz, nx, ny)
     riseJ = x[N:]
     if dirichlet is None:
         conv_w = float(conv * (rise[0][board].sum() + rise[-1][board].sum()))
+        live = board
     else:
         inner = board.copy()
         inner[0, :] = inner[-1, :] = inner[:, 0] = inner[:, -1] = False
         conv_w = float(conv * (rise[0][inner].sum() + rise[-1][inner].sum()))
-    air_w = float(sum(p.g_air * riseJ[s] for s, p in enumerate(parts)))
+        live = inner
+    region_w = None
+    if top_region is not None:
+        m, h_top, t_air = top_region
+        sel = m & live
+        a_cell = pitch_m * pitch_m
+        region_w = float(h_top * a_cell * (rise[0][sel] - t_air).sum())
+        conv_w += region_w - float(conv * rise[0][sel].sum())
+    if any(p.t_air for p in parts):
+        air_w = float(sum(p.g_air * (riseJ[s] - p.t_air) for s, p in enumerate(parts)))
+    else:
+        air_w = float(sum(p.g_air * riseJ[s] for s, p in enumerate(parts)))
     lead_w = float(sum(g * (float((x[gids] * w).sum()) - ts) for gids, w, g, ts in lead_groups))   # board -> sink
     if dirichlet is None:
         src = float(heat[:, board].sum() + sum(p.watts for p in parts))
@@ -588,6 +820,10 @@ def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=N
     rec = {"source_w": src, "convection_w": conv_w, "body_air_w": air_w, "boundary_flux_w": bc_flux, "lead_sink_w": lead_w,
            "balance_w": src - out_w, "balance_rel": (src - out_w) / max(abs(src), 1e-30),
            "cg_iterations": iters[0], "relative_residual": resid}
+    if region_w is not None:
+        rec["region_top_convection_w"] = region_w
+    if tcr_rec is not None:
+        rec["tcr"] = tcr_rec
     return rise, riseJ, rec
 
 

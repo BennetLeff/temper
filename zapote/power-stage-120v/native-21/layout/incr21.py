@@ -687,6 +687,12 @@ def load(base_path, patches=True, prune=False):
     # stage 41 (candidate 36): tank / FET-row pours at R5 and the R5.4 via moves, edited into the base the same way
     if hasattr(patches21, "edit_base41"):
         patches21.edit_base41(base)
+    # stage 42 (candidate 39): the four gate runs re-laid round the 68 ohm 2512 turn-on resistors
+    if hasattr(patches21, "edit_base42"):
+        patches21.edit_base42(base)
+    # stage 44 (candidate 44): SELV return-path transfer caps C169-C175, the bus_fault drop via and the bias_good In2 leg
+    if hasattr(patches21, "edit_base44"):
+        patches21.edit_base44(base)
     # nets renamed in the source since the base was frozen keep their base copper (patches21.RENAME_NETS)
     ren = getattr(patches21, "RENAME_NETS", {}) if patches else {}
     for kind in ("zones", "tracks", "vias"):

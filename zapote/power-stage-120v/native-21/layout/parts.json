@@ -112,9 +112,9 @@
 {
 "ref": "R10",
 "path": "leg_a.r_gh",
-"fp": "Resistor_SMD:R_1206_3216Metric",
-"w": 4.65,
-"h": 2.35,
+"fp": "Resistor_SMD:R_2512_6332Metric",
+"w": 7.75,
+"h": 3.95,
 "ox": 0.0,
 "oy": 0.0,
 "group": "leg_a"
@@ -122,9 +122,9 @@
 {
 "ref": "R12",
 "path": "leg_a.r_gl",
-"fp": "Resistor_SMD:R_1206_3216Metric",
-"w": 4.65,
-"h": 2.35,
+"fp": "Resistor_SMD:R_2512_6332Metric",
+"w": 7.75,
+"h": 3.95,
 "ox": 0.0,
 "oy": 0.0,
 "group": "leg_a"
@@ -172,9 +172,9 @@
 {
 "ref": "R18",
 "path": "leg_b.r_gh",
-"fp": "Resistor_SMD:R_1206_3216Metric",
-"w": 4.65,
-"h": 2.35,
+"fp": "Resistor_SMD:R_2512_6332Metric",
+"w": 7.75,
+"h": 3.95,
 "ox": 0.0,
 "oy": 0.0,
 "group": "leg_b"
@@ -182,9 +182,9 @@
 {
 "ref": "R20",
 "path": "leg_b.r_gl",
-"fp": "Resistor_SMD:R_1206_3216Metric",
-"w": 4.65,
-"h": 2.35,
+"fp": "Resistor_SMD:R_2512_6332Metric",
+"w": 7.75,
+"h": 3.95,
 "ox": 0.0,
 "oy": 0.0,
 "group": "leg_b"
@@ -3298,6 +3298,76 @@
 "ox": 0.0,
 "oy": 0.0,
 "group": "other:c_ref_xfer_5"
+},
+{
+"ref": "C169",
+"path": "c_ref_xfer_6",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:c_ref_xfer_6"
+},
+{
+"ref": "C170",
+"path": "c_ref_xfer_7",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:c_ref_xfer_7"
+},
+{
+"ref": "C171",
+"path": "c_ref_xfer_8",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:c_ref_xfer_8"
+},
+{
+"ref": "C172",
+"path": "c_ref_xfer_9",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:c_ref_xfer_9"
+},
+{
+"ref": "C173",
+"path": "c_ref_xfer_10",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:c_ref_xfer_10"
+},
+{
+"ref": "C174",
+"path": "c_ref_xfer_11",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:c_ref_xfer_11"
+},
+{
+"ref": "C175",
+"path": "c_ref_xfer_12",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "other:c_ref_xfer_12"
 },
 {
 "ref": "R130",

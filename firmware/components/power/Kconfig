@@ -33,16 +33,21 @@ config TEMPER_POWER_CALIBRATED
     default n
 
 config TEMPER_POWER_TANK_CEILING_DA
-    int "Commissioned tank RMS ceiling, 0.1 A (220 = 22 A ships; raise only per COMMISSIONING.md)"
+    int "Commissioned tank RMS ceiling, 0.1 A (180 = 18 A ships; raise only per COMMISSIONING.md)"
     depends on TEMPER_POWER_HW_BINDING
     range 100 280
-    default 220
+    default 180
     help
-        The one tank-current parameter. The hardware (stage 15) is sized for 28 A; the firmware
-        ships at 22 A. Raise 220 -> 240 -> 260 -> 280 only after each step's bench gates pass
-        (COMMISSIONING.md "Raising the commissioned tank ceiling"). Derived from it: half-cycle
-        RMS trip 1.05 x, per-sample crest guard 1.5 x, peak trip min(2.17 x + 3, 62) A. With no pan
-        established the loop holds the tank at or below 22 A whatever this is set to.
+        The one tank-current parameter. The firmware ships at 18 A (power-stage DECISIONS 55: the
+        s42 board's still-air rating is 18.3 A at the worst bay air, 61 C). The hardware (stage 15)
+        is sized for 28 A, but only with board-face airflow. Raising this above 180 needs, first,
+        a B3 thermal basis that passes at the higher ceiling: board-face airflow per
+        zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/
+        b3-ratings/ENCLOSURE-REQUEST.md, or a measured bay air below 61 C; then each step's bench
+        gates (COMMISSIONING.md "Raising the commissioned tank ceiling"). Derived from it:
+        half-cycle RMS trip 1.05 x, per-sample crest guard 1.5 x, peak trip min(2.17 x + 3, 62) A.
+        With no pan established the loop holds the tank at or below 18 A (TANK_CEILING_DEFAULT_A)
+        whatever this is set to.
 
 config TEMPER_POWER_F_MAX_HZ
     int "Frequency loop start / maximum, Hz (bench sessions run here)"

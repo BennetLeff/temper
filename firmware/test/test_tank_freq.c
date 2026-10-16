@@ -58,9 +58,10 @@ static void test_trip_derivation(void)
 {
     /* PLAN section 4: min(2.17 c + 3, 62); 1.05 c on the half RMS; 1.5 c per sample. */
     static const struct { float c, peak, rms, crest; } k[] = {
-        {22, 50.74f, 23.1f, 33.0f}, {24, 55.08f, 25.2f, 36.0f}, {26, 59.42f, 27.3f, 39.0f}, {28, 62.0f, 29.4f, 42.0f},
+        {18, 42.06f, 18.9f, 27.0f}, {20, 46.4f, 21.0f, 30.0f}, {22, 50.74f, 23.1f, 33.0f},
+        {24, 55.08f, 25.2f, 36.0f}, {26, 59.42f, 27.3f, 39.0f}, {28, 62.0f, 29.4f, 42.0f},
     };
-    for (unsigned i = 0; i < 4; i++) {
+    for (unsigned i = 0; i < sizeof k / sizeof k[0]; i++) {
         assert(NEAR(tank_peak_trip_for(k[i].c), k[i].peak, 1e-3));
         assert(NEAR(tank_rms_trip_for(k[i].c), k[i].rms, 1e-3));
         assert(NEAR(tank_crest_guard_for(k[i].c), k[i].crest, 1e-3));
@@ -80,7 +81,9 @@ static void test_trip_derivation(void)
 
 static void test_config_caps(void)
 {
-    assert(tank_ceiling_ok(22) && tank_ceiling_ok(28) && tank_ceiling_ok(10));
+    assert(tank_ceiling_ok(TANK_CEILING_DEFAULT_A) && tank_ceiling_ok(22) && tank_ceiling_ok(28) && tank_ceiling_ok(10));
+    /* Shipping ceiling 18 A (power-stage DECISIONS 55), inside the 10..28 A commissioning range. */
+    assert(TANK_CEILING_DEFAULT_A == 18.0f && TANK_CEILING_DEFAULT_A < TANK_CEILING_MAX_A);
     assert(!tank_ceiling_ok(28.01f) && !tank_ceiling_ok(9.9f) && !tank_ceiling_ok(NAN) && !tank_ceiling_ok(44));
     tank_freq_cfg_t d = tank_freq_default(), c;
     assert(tank_freq_config_ok(&d) && d.f_min_hz == 35000 && d.f_max_hz == 60000 && d.f_res_margin == 1.05f);
@@ -174,10 +177,11 @@ static void test_stop_zvs(void)
 
 static void test_stop_rms(void)
 {
-    /* Pan R 1.4 ohm: the ceiling binds well above the floor. At 22 A with no pan established the
-     * clamp equals the ceiling, so this is the plain RMS stop. */
+    /* Pan R 1.4 ohm: the ceiling binds well above the floor. At the 18 A shipping ceiling the
+     * no-pan clamp equals the ceiling, so that is the plain RMS stop; above it (commissioned
+     * raises) the pan must be established to reach the ceiling. */
     tank_t k = {.L = 55e-6, .C = 0.5e-6, .R = 1.4, .v1 = 108};
-    for (float ceiling = 22; ceiling <= 26; ceiling += 2) {
+    for (float ceiling = TANK_CEILING_DEFAULT_A; ceiling <= 26; ceiling += 2) {
         tank_freq_limits_t lim = limits(ceiling);
         tank_freq_reset(&T, &C);
         tank_freq_obs_t o;
@@ -271,11 +275,11 @@ static void test_fault_inputs(void)
     (void)run(&k, &C, &lim, &T, 400, NULL);
     assert(T.pan_present && T.f_hz < 45000);
     uint32_t f = T.f_hz;
-    /* Missing CT_ZC: no lag over the half. Steps up, drops the pan (clamp to 22 A). */
+    /* Missing CT_ZC: no lag over the half. Steps up, drops the pan (clamp to the 18 A default). */
     tank_freq_obs_t o = observe(&k, f);
     o.phase_valid = false;
     assert(tank_freq_step(&T, &C, &lim, &o) == TF_UP_NO_PHASE && T.f_hz == f + C.step_up_hz);
-    assert(!T.pan_present && T.ceiling_eff_a == 22.0f);
+    assert(!T.pan_present && T.ceiling_eff_a == TANK_CEILING_DEFAULT_A);
     /* Stale / broken half: steps up from the target, pan stays dropped. */
     uint32_t g = T.f_hz;
     tank_freq_obs_t bad = {.valid = false};
@@ -329,21 +333,22 @@ static void test_fault_inputs(void)
 static void test_no_pan_clamp(void)
 {
     /* Empty coil: R 0.2 ohm, 66.5 uH, Q ~ 55. Configured ceiling 28 A, but no pan is ever
-     * established, so the loop holds the tank at or below 22 A. */
+     * established, so the loop holds the tank at or below the 18 A no-pan clamp. */
     tank_t empty = {.L = 66.5e-6, .C = 0.5e-6, .R = 0.2, .v1 = 150};
     tank_freq_limits_t lim = limits(28);
     tank_freq_reset(&T, &C);
     tank_freq_obs_t o;
     for (unsigned n = 0; n < 400; n++) {
         o = observe(&empty, T.f_hz);
-        assert(o.tank_rms_a <= 22.0f * 1.05f);
+        assert(o.tank_rms_a <= TANK_CEILING_DEFAULT_A * 1.05f);
         tank_freq_reason_t r = tank_freq_step(&T, &C, &lim, &o);
-        assert(r != TF_FAULT_OVERRUN && !T.pan_present && T.ceiling_eff_a == 22.0f);
+        assert(r != TF_FAULT_OVERRUN && !T.pan_present && T.ceiling_eff_a == TANK_CEILING_DEFAULT_A);
     }
     o = observe(&empty, T.f_hz);
     /* Its ~88 deg lag never feeds a fit, so it can never show pan evidence. */
-    assert(o.tank_rms_a <= 22.0f && o.tank_rms_a > 20 && !T.have_fit && o.phi_rad > 85 * 0.0174533f);
-    /* Would have gone well past 22 A at the floor. */
+    assert(o.tank_rms_a <= TANK_CEILING_DEFAULT_A && o.tank_rms_a > TANK_CEILING_DEFAULT_A - 2 && !T.have_fit &&
+           o.phi_rad > 85 * 0.0174533f);
+    /* Would have gone well past the clamp (and the old 22 A one) at the floor. */
     assert(observe(&empty, 35000).tank_rms_a > 22.5f);
 
     /* A real pan establishes after pan_confirm_halves and gets the full ceiling. */
@@ -352,17 +357,17 @@ static void test_no_pan_clamp(void)
     (void)run(&pan, &C, &lim, &T, 400, &o);
     assert(T.pan_present && T.ceiling_eff_a == 28.0f && observe(&pan, T.f_hz).tank_rms_a > 25);
     uint32_t f_pan = T.f_hz;
-    /* Pan lifted at that frequency: the evidence fails at once, the clamp returns to 22 A and the
-     * loop retreats; holding above 1.05 x 22 A for more than overrun_halves latches. */
+    /* Pan lifted at that frequency: the evidence fails at once, the clamp returns to 18 A and the
+     * loop retreats; holding above 1.05 x 18 A for more than overrun_halves latches. */
     tank_freq_obs_t lifted = observe(&pan, f_pan);
     lifted.p_inv_w = 0.2f * lifted.tank_rms_a * lifted.tank_rms_a; /* power per A^2 of an empty coil */
-    assert(lifted.tank_rms_a > 23.1f);
+    assert(lifted.tank_rms_a > tank_rms_trip_for(TANK_CEILING_DEFAULT_A));
     tank_freq_reason_t r = TF_DOWN;
     unsigned n = 0;
     for (; n < 40 && r != TF_FAULT_OVERRUN; n++) {
         lifted.f_hz = f_pan; /* the actuator stuck: worst case */
         r = tank_freq_step(&T, &C, &lim, &lifted);
-        assert(!T.pan_present && T.ceiling_eff_a == 22.0f);
+        assert(!T.pan_present && T.ceiling_eff_a == TANK_CEILING_DEFAULT_A);
         if (r != TF_FAULT_OVERRUN) assert(r == TF_UP_RMS || r == TF_UP_NO_PHASE || r == TF_UP_BELOW_FLOOR);
     }
     assert(r == TF_FAULT_OVERRUN && n == C.overrun_halves + 1);
@@ -380,7 +385,7 @@ static void test_no_pan_clamp(void)
         case 3: o.valid = false; break;                                   /* stale */
         }
         (void)tank_freq_step(&T, &C, &lim, &o);
-        assert(!T.pan_present && T.ceiling_eff_a == 22.0f);
+        assert(!T.pan_present && T.ceiling_eff_a == TANK_CEILING_DEFAULT_A);
     }
     /* Confirmation needs pan_confirm_halves consecutive halves of evidence. */
     tank_freq_reset(&T, &C);
@@ -391,12 +396,16 @@ static void test_no_pan_clamp(void)
         if (T.pan_present) first = h;
     }
     assert(first >= C.pan_confirm_halves);
-    /* With a ceiling at or below 22 A the clamp changes nothing. */
-    tank_freq_limits_t l20 = limits(20);
+    /* With a ceiling at or below 18 A the clamp changes nothing; a raised 20 A one is clamped to 18 A
+     * until a pan is established. */
+    tank_freq_limits_t l16 = limits(16), l20 = limits(20);
     tank_freq_reset(&T, &C);
     o = observe(&empty, 60000);
+    (void)tank_freq_step(&T, &C, &l16, &o);
+    assert(T.ceiling_eff_a == 16.0f);
+    tank_freq_reset(&T, &C);
     (void)tank_freq_step(&T, &C, &l20, &o);
-    assert(T.ceiling_eff_a == 20.0f);
+    assert(!T.pan_present && T.ceiling_eff_a == TANK_CEILING_DEFAULT_A);
     tests++;
 }
 
@@ -530,7 +539,7 @@ static void test_reset(void)
     tank_freq_reset(&T, &C);
     (void)run(&k, &C, &lim, &T, 400, NULL);
     tank_freq_reset(&T, &C);
-    assert(T.f_hz == 60000 && !T.have_fit && !T.pan_present && T.ceiling_eff_a == 22.0f);
+    assert(T.f_hz == 60000 && !T.have_fit && !T.pan_present && T.ceiling_eff_a == TANK_CEILING_DEFAULT_A);
     tests++;
 }
 

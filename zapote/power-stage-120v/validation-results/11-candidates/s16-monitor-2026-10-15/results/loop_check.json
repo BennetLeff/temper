@@ -1,0 +1,19 @@
+{
+ "control RTOP 6120 (qualified)": {
+  "min_phase_margin_deg": 51.6177,
+  "committed_deg": 51.6177
+ },
+ "control RTOP 6200 (BOM)": {
+  "min_phase_margin_deg": 51.62,
+  "committed_deg": 51.62
+ },
+ "s43 as built (14.42 k, 17.68 k)": {
+  "min_phase_margin_deg": 51.62
+ },
+ "option 2 (15.8k+4.42k, 28.4k+6.2k)": {
+  "min_phase_margin_deg": 51.6186
+ },
+ "option 1c-4420 (0.75k+10k, 2.94k+10k)": {
+  "min_phase_margin_deg": 51.6211
+ }
+}

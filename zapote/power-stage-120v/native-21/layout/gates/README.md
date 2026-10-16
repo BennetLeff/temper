@@ -101,9 +101,11 @@ and B3's caches share one model key, so a change to any model input misses both:
 SELV-spine lock (13-coupling contract WS4 ↔ WS5, `validation-results/13-coupling/README.md` §8 and §10 item 1):
 
     python3 -I gates/spine_lock.py native-21/verification/TAG-all-copper.json.gz [--owner selv]
-        # the spine region x 30-110 / y 130-180 must match the locked baseline (selv_spine_lock.json, s32 export):
+        # the spine region x 30-110 / y 130-180 must match the locked baseline (selv_spine_lock.json; s32 export,
+        # re-issued by the selv lane on s38 and s44):
         # default = every track / via / pad / pour in the region (any lane that does not own the spine);
-        # --owner selv = only the contract nets, the selv_gnd / v3v3 planes and J4 + the transfer caps
+        # --owner selv = only the contract nets, the selv_gnd / v3v3 planes and J4 + the transfer caps (C47, C144,
+        # C153-C156, and from s44 C169-C175)
     python3 -I gates/test_spine_lock.py        # 11 controls: mutations per mode, and s31 must fail
 
 `chain.sh` runs it in the copper block (BUILDDIR/spine-lock.json) and fails the chain on any difference; set
@@ -121,3 +123,11 @@ right angles and snaps any-angle segments on routed copper, keeping every edit o
 spine, fill and connectivity checks hold (the tool's docstring lists them). The export must be the build of COPPER.json.
 It touches every island, so it runs last, after the other lanes merge, then the chain. A second run on its own output
 (rebuilt and re-exported) changes nothing. Controls: `native-21/layout/test_track_cleanup21.py`.
+
+Scoped chain (`scoped/README.md`): a lane iterates without the full chain. The run re-runs only the steps whose inputs
+changed against a full-chain benchmark build, and reuses the rest under content keys. `chain.sh` reads `SCOPED_PLAN`
+(`want STEP`). Every full chain writes `BUILDDIR/scoped-manifest.json`, the keys a later scoped run compares against.
+The full chain stays mandatory at merge, and `scorecard.py --compare` refuses a scoped card as a benchmark.
+
+    python3 -I gates/scoped/scoped_chain.py run TAG PASSDIR BUILDDIR --bench-build FULL_BUILDDIR [--dry-run]
+    python3 -I gates/scoped/test_scoped.py && python3 -I gates/scoped/depmap_check.py   # planner + dependency-map controls

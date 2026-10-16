@@ -1,0 +1,41 @@
+  registered validation-plan/sim-kit/04-current/sheet_solver.py  ['net', 'rho']  not a claim (self-test) 20
+  registered validation-results/02-protection-timing/f2-coordination/f2_coord.py  ['rho']  both corners 20
+  registered validation-results/02-protection-timing/kelvin/kelvin_budget.py  []  both corners 125
+  registered validation-results/02-protection-timing/kelvin/kelvin_plane.py  ['net']  hot is conservative 125
+  registered validation-results/02-protection-timing/kelvin/kelvin_track_bound.py  ['rho']  hot is conservative 120
+  registered validation-results/02-protection-timing/shoot-through-f1/f1_containment.py  ['rho']  both corners 105
+  waived     validation-results/02-protection-timing/stage15-28A/neck_fin.py  ['rho']  hot is conservative 95
+  waived     validation-results/02-protection-timing/stage15-28A/sw_widths.py  ['ipc']  hot is conservative 45
+  waived     validation-results/04-board-current-thermal/round5-native21/a4_fields.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/b3/thermal.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/b3-convergence/body_runs.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/b3-convergence/report_convergence.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/b3-convergence/run_convergence.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/b3-convergence/thermal_body.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/b3-ratings/audit-2026-10-15/scripts/body_cases.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/b3-ratings/line-hold-2026-10-15/scripts/line_hold.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/a4_fields.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/controls.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/plan.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/solve.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/superposition.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/b3-ratings/run_basis.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/h10-stall/h10_stall.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/heat-attribution-2026-10-15/analyze.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/heat-attribution-2026-10-15/solve_terms.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/r5-derating/r5_derating.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/run_board.py  ['a4field', 'net']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/stage15b/a4_cases.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/stage15b/b3-model/thermal_lead.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/stage15b/b3-model/thermal_snap.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/stage15b/heatmap_cases.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/stage15b/ref/neck_fin.py  ['rho']  hot is conservative 95
+  waived     validation-results/04-board-current-thermal/round5-native21/stage15b/ref/sw_widths.py  ['ipc']  hot is conservative 45
+  waived     validation-results/04-board-current-thermal/round5-native21/stage17-r5/g6_r5_derating.py  ['a4field']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/stage17-r5/r5_vias17.py  ['rho']  hot is conservative 20
+  waived     validation-results/04-board-current-thermal/round5-native21/summarize.py  ['a4field']  hot is conservative 20
+  registered validation-results/04-board-current-thermal/scripts/audit_kit_solver.py  ['net']  not a claim (self-test) 20
+WARN waiver S17 (expires 2026-11-30) covers 26 file(s): a4_fields.py, thermal.py, body_runs.py, report_convergence.py ...
+WARN waiver S17-ipc (expires 2026-11-30) covers 2 file(s): sw_widths.py, sw_widths.py
+WARN waiver S17-neck (expires 2026-11-30) covers 2 file(s): neck_fin.py, neck_fin.py
+cu_temp_basis: 101 files scanned, 37 registered, 30 waived, 0 failures -> PASS

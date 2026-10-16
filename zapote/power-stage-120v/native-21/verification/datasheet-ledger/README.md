@@ -11,7 +11,8 @@ a malformed or self-inconsistent entry; any `VIOLATION`; any SAFETY/POWER-class 
 Self-consistency: the gate recomputes every `checks[].ratio = stress / limit`; a failing `violation`-severity check forces
 `VIOLATION`, a failing `gap`-severity check forces `PARTIAL` or worse; `VERIFIED` needs a datasheet url or repo copy, rated
 limits with a source page, stresses with evidence, at least one passing check and no gaps; `PARTIAL` must list its gaps;
-every `path[:line]` cited in stress evidence or layout guidance must exist in the unit. `--strict` fails on any non-VERIFIED.
+every `path[:line]` cited in stress evidence or layout guidance must exist in the unit.
+Generated `b3-ratings/margins.json` is cited by key, not line: a stress `evidence` list holds `{"file": ".../margins.json", "b3_row": {"case": "c18_h10", "item": "R10: 2512 terminal"}, "est_c": 128.8}`; `item` is the first three whitespace tokens of the row's `item` (designator + kind, wattages and limits excluded) and must match exactly one row in that case, so re-sorting or re-running B3 cannot shift it; a missing case/item is dangling evidence, and a stated `est_c` / `margin_k` / `limit_c` must equal the row within 0.05 (the file's rounding), so a stale number fails. `--strict` fails on any non-VERIFIED.
 SIGNAL-class `UNAUDITED` lines only warn. Prints counts by status and class; writes `ledger-report.json`.
 
     python3 -I native-21/verification/datasheet-ledger/gate.py [--strict]
@@ -31,6 +32,25 @@ Stage 38 (2026-10-15): 93 BOM lines, 3 VERIFIED / 31 PARTIAL / 59 UNAUDITED / 0 
 Stage 40 (2026-10-15, candidate 30a): 92 BOM lines. CA-IS3720LW removed (U44 is now the second ISO6721FBDR); D20 joins
 BAT54S-7-F (its reverse stress is D18's), R135 joins 0603WAF1002T5E and C168 joins CC0603KRX7R9BB104. The one VIOLATION is
 IPW65R018CFD7 (DECISIONS 49), unchanged.
+Stage 42 (2026-10-15, candidate 39, DECISIONS 54): 93 BOM lines, 3 VERIFIED / 31 PARTIAL / 58 UNAUDITED / 1 VIOLATION.
+R10/R12/R18/R20 RS-06L8R20FT -> 25121WF680JT4E (68 ohm 2512, new POWER entry) and C55/C56/C62/C63 leave
+C0603C102J5GACTU for GRM1885C1H472JA01D (4.7 nF C0G, new SIGNAL entry, PARTIAL). IPW65R018CFD7 VIOLATION -> PARTIAL: the
+S4 diode limits are met at typical Qrr (49.7 V/ns, 244 A/us); the maximum-Qrr basis is its open gap (D-8 bench). The one
+VIOLATION is now **25121WF680JT4E**: at the 22 A c22 ceiling (bay 55 C) its B3 terminal is 138.1 C, where 0.217 W is 109 %
+of the derated power against the 80 % rule; the gated still-air ceiling with this network is 20.0 A
+(validation-results/11-candidates/c39-gate-network).
+Batches A/B merged on s42 (2026-10-15, 27 lines, DECISIONS 56 stress basis: thermal ratings at the release case c18_h10 /
+bay 61 C from b3-ratings/margins.json, with c22/c28 overruns as `owner: airflow route (c22/c28)` gaps; electrical ratings
+at s42's 49.7 V/ns S4 edge, maximum Qrr a D-8 gap): 3 VERIFIED / 32 PARTIAL / 58 UNAUDITED / **0 VIOLATION**; PASS.
+25121WF680JT4E clears at c18 (0.217 W = 0.775 of the 131.2 C-terminal curve, rule 0.8), and so do batch A's R5 and bank
+(28 A rows) and batch B's ISO6721FB / 2EDR8259X CMTI (2.0x / 3.0x at 49.7 V/ns). The B3 gate's C5/C6 advisory limit is
+now TDK's 105 C (B3267* p.13).
+Stage 43 (2026-10-15, candidate 43, track cleanup + source MPN fix): 93 BOM lines, 3 VERIFIED / 32 PARTIAL / 58 UNAUDITED /
+0 VIOLATION; PASS. C12/C13/C19/C20 re-keyed GRM31A5C3A102JW01D -> **CC1206JKNPOCBN102** (the source now names the ordered
+Yageo part; the source-MPN owner gap is closed). GRM1885C1H472JA01D's temperature re-cited from the c22 FET-row value
+(133.5 C) to the release case, 122.1 C <= 125 C, with the c22 overrun (132.6 C) an `owner: airflow route (c22/c28)` gap.
+Every margins.json citation is keyed (case + item) and checked against the s43 rows; the c22 worst R_on is now R12 (136.1 C
+terminal, 0.976 of the derated power). validation-results/11-candidates/c43-cleanup/README.md section 5.
 History: seed 1 / 24 / 64 / 2. Stage 27 replaced J1 (VIOLATION -> PARTIAL); R1/R2 and the snubber caps were audited
 (UNAUDITED -> PARTIAL). Stage 28 replaced F2 (VIOLATION -> VERIFIED) and added its limiter R130 (PARTIAL). `ledger.json` is the record from here on; `seed_ledger.py` reproduces only the first seed.
 **VIOLATION**: none.
@@ -46,7 +66,7 @@ and CSA group B 30 A, 300 V): 45-55 % across 13.5-16.5 A, 83 % at F1's 25 A.
 - R130 AC05000001507JAC00: pulse 0.54 of capacity on the current-limiting clearing estimate, 0.94 on 3x melting; F2's clearing I2t is unpublished, so a bench short at J11 settles it.
 - J1 1714971: ratings from Phoenix catalog extracts (2017; a 2010 copy agrees on 30 A, prints 600 V UL/cUL); UL Product iQ, database.ul.com and Phoenix all 403 on 2026-10-13, so E60425 / CSA 13631 still unconfirmed.
 - R1/R2 1206W4F1003T5E: 44 % of continuous working voltage, 58 % of the 5 s overload in a surge (RV1 455 V clamp); no maker pulse rating.
-- C12/C13/C19/C20 GRM31A5C3A102JW01D: 490 V die VDS at 49 % of 1 kV (50 % rule, modelled); exact-MPN sheet and ripple/pulse rating not obtained.
+- C12/C13/C19/C20 CC1206JKNPOCBN102 (source MPN GRM31A5C3A102JW01D until stage 43; not a Murata part): 490 V die VDS at 49 % of 1 kV (50 % rule, modelled); Yageo sheet read, no ripple/pulse rating published.
 - F1 KLDR025: overload through J1 not interrupted (25 A fuse vs 15 A terminal); clip datasheet not read.
 - BR1 GBJ2510-F: I2t 510 < F1 clearing 1,710 (sacrificial, accepted); Tj not computed.
 - Q2/Q3/Q5/Q6: switching loss/dv/dt unmeasured; Tj 128.7 C vs 125 C design on K1 contingency sink; F7 open.

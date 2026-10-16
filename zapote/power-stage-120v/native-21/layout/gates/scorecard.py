@@ -2,7 +2,7 @@
 """Benchmark scorecard for a native-21 candidate board (stage 19c onward).
 
     python3 scorecard.py TAG BUILDDIR [--bom BOM.csv] [--stock STOCK.csv] [--json OUT.json]
-                         [--audit PASS|FAIL] [--compare BENCH.json]
+                         [--audit PASS|FAIL] [--compare BENCH.json] [--strict-basis]
     python3 scorecard.py --card CANDIDATE.json --compare BENCH.json      # saved card against saved card
 
 Score a candidate immediately after its own `chain.sh` run and save the card (--json): the D5 audit, B3 summary
@@ -21,6 +21,11 @@ containment, CMTI). Every metric names its source file. Three groups:
   Buildability (added 2026-10-15, sourcing study; --snapshot, a SNAPSHOT-*.csv from build_snapshot.py): lines no single
   source holds for 5 / 500 boards, the share JLC can place from its own stock or via Global Sourcing, consign-only lines,
   and the build lead (max factory lead among lines short everywhere). A snapshot is dated: re-take it before comparing.
+  Price basis v2 (added for OPEN-ITEMS C8, gates/bom_pricing.py): parts_usd_at_5_v2 / parts_usd_at_500_v2 price every line
+  from the best dated read (JLC ladder at the true lot quantity, then authorised distributor, then survey read) and take a
+  class-default estimate only where no read exists (price_estimated_lines). The legacy parts_usd_at_5 / _500 keep their
+  2026-10-13 stock-survey meaning (58 of 94 lines were estimates there) so old cards stay comparable; --compare uses the v2
+  keys when both cards carry the same price_basis, otherwise it compares the legacy keys and says so (--strict-basis: refuse).
 
 --compare BENCH.json applies the acceptance rule fixed on 2026-10-13 (RESOLUTION-PLAN / benchmark README) against a
 benchmark's scorecard: every gate passes; no performance metric is worse than the benchmark beyond its tolerance;
@@ -51,6 +56,11 @@ PERF = {
     # temperature and to the hot parts' datasheet limits at the declared basis (b3-ratings/b3_ratings_gate.py).
     "b3_laminate_margin_K": ("higher", 1.0),
     "b3_rated_part_margin_K": ("higher", 1.0),
+    # added 2026-10-15 (after DECISIONS 55): worst gated margin at the release case (c18_h10: the 18.0 A release ceiling's
+    # 1.05 x trip, bay 61 C, still air, I_line 13.5 A) - the margin behind the b3_ratings release gate, ratcheted like the
+    # two above (which stay on c22 / c28 at bay 55 C so cards remain comparable). Cards before s42's re-score lack it and
+    # are skipped by compare().
+    "b3_release_margin_K": ("higher", 1.0),
     "emi_min_margin_dB": ("higher", 0.5),
     "leakage_touch_mA": ("lower", 0.0),
     "cmti_gate_ratio_min": ("higher", 0.0),
@@ -87,6 +97,7 @@ def b3_ratings(b):
 
 # Release gates: absolute pass / fail at the declared basis. Reported on the card, but not part of the candidate-vs-
 # benchmark rule while the benchmark itself fails them; their margins are ratcheted in PERF instead (DECISIONS 46).
+# b3_ratings is decided on the release case alone since 2026-10-15 (c18_h10 at bay 61 C, b3_ratings_gate.BASIS).
 RELEASE_GATES = {"b3_ratings"}
 
 
@@ -118,6 +129,10 @@ def gates(b, tag, audit):
     ra = jload(b / "res-a-creepage.json")
     if ra:
         g["res_a_creepage18"] = not ra["violations"]
+    ct = jload(b / "cu-temp-basis.json")           # gates/cu_temp_basis.py, written by chain.sh (S17); older builds lack it
+    if ct:
+        g["cu_temp_basis"] = not ct["errors"]
+        src["cu_temp_basis"] = str(b / "cu-temp-basis.json")
     d5 = jload(UNIT / "native-21/verification/d5-audit.json")
     if d5:
         g["d5"] = bool(d5["verdict_pcb"])
@@ -125,10 +140,16 @@ def gates(b, tag, audit):
     r4 = jload(UNIT / "validation-plan/enclosure-fit/native21-in-r4.json")
     if fit and r4:
         g["enclosure_fit"] = fit.get("unattributed", 1) == 0 and not fit.get("part_overlaps") and not r4.get("hits")
+    # jet strip: nothing over 4 mm under the airflow jet box (OPEN-ITEMS S2; jet_strip_height.py)
+    js = jload(UNIT / "validation-plan/enclosure-fit/native21-jet-strip.json")
+    if js:
+        g["jet_strip_height"] = js["pass"]
     if audit:
         g["audit_rs"] = audit == "PASS"
-    # B3 ratings gate: laminate (KB-6164 UL MOT 130 C) and datasheet-limited parts at the declared basis (c22/c28 ceilings,
-    # still-air board bay h 10, 55 C bay air); the file is written by b3-ratings/b3_ratings_gate.py --out
+    # B3 ratings gate: laminate (KB-6164 UL MOT 130 C) and datasheet-limited parts at the release case (c18_h10: the
+    # 18.0 A release ceiling of DECISIONS 55 at its 1.05 x trip, still air h 10, bay 61 C, I_line 13.5 A); every gated
+    # row must pass there. The file is written by b3-ratings/b3_ratings_gate.py --out (via run_basis.py). margins.json
+    # files from before 2026-10-15 have no release case; their pass is over c22 / c28 at bay 55.
     br = b3_ratings(b)
     if br:
         g["b3_ratings"] = bool(br["pass"])
@@ -178,8 +199,12 @@ def performance(b, tag):
     if br:
         m["b3_laminate_margin_K"] = br["metrics"]["b3_laminate_margin_K"]
         m["b3_rated_part_margin_K"] = br["metrics"]["b3_rated_part_margin_K"]
+        if br["metrics"].get("b3_release_margin_K") is not None:
+            m["b3_release_margin_K"] = br["metrics"]["b3_release_margin_K"]
         src["b3_ratings"] = (f"04-board-current-thermal/round5-native21/b3-ratings/margins.json {br['basis']} "
-                             f"worst {br['metrics']['worst_gated']}")
+                             f"worst {br['metrics']['worst_gated']}"
+                             + (f"; release worst {br['metrics']['release_worst_gated']}"
+                                if br["metrics"].get("release_worst_gated") else ""))
     emi = jload(VR / "07-conducted-emi/s19b/results.json")
     if emi:
         def margins(o):
@@ -261,6 +286,14 @@ def performance(b, tag):
     return m, src
 
 
+def _bom_pricing():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("bom_pricing", Path(__file__).resolve().parent / "bom_pricing.py")
+    bp = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bp)
+    return bp
+
+
 def cost(b, bom_path, stock_path):
     c = {}
     rows = list(csv.DictReader(open(bom_path)))
@@ -308,6 +341,9 @@ def cost(b, bom_path, stock_path):
         c["unpriced_lines"] = unpriced
         c["zero_stock_lines"] = len(zero)
         c["single_source_lines"] = len(single)
+    # price basis v2 (C8): best dated read per line, estimate only where none exists; independent of the legacy stock survey
+    bp = _bom_pricing()
+    c.update(bp.card_fields(bp.price_bom(bom_path, bp.load_reads())))
     dfm = jload(b / "jlc-dfm.json")
     if dfm:
         c["vias"] = dfm["vias"]
@@ -360,8 +396,26 @@ def buildability(bom_path, snap_path):
     return b
 
 
-def compare(cur, bench):
+def _parts_key(ca, cb, notes, reasons, strict):
+    """The parts-cost key to compare: v2 only when both cards carry it on the same price_basis. A card on the new basis
+    against an old-basis benchmark (or the reverse) falls back to the legacy keys and says so; strict refuses."""
+    v2 = "parts_usd_at_500_v2"
+    if v2 in ca and v2 in cb and ca.get("price_basis") == cb.get("price_basis"):
+        return v2
+    if v2 in ca or v2 in cb:
+        why = (f"price basis differs: card {ca.get('price_basis', 'legacy 2026-10-13 stock survey')} vs benchmark "
+               f"{cb.get('price_basis', 'legacy 2026-10-13 stock survey')}")
+        if strict:
+            reasons.append(why + "; parts cost not comparable (--strict-basis); re-score the benchmark with bom_pricing.py")
+        else:
+            notes.append(why + ": parts cost compared on the LEGACY parts_usd_at_500 (class-default estimates on most lines); "
+                         "the v2 totals are not compared")
+    return "parts_usd_at_500"
+
+
+def compare(cur, bench, notes=None, strict_basis=False):
     reasons, better = [], []
+    notes = [] if notes is None else notes
     for k, ok in cur["gates"].items():
         if not ok and k not in RELEASE_GATES:
             reasons.append(f"gate {k} fails")
@@ -375,10 +429,11 @@ def compare(cur, bench):
         elif (a > b) if direction == "higher" else (a < b):
             better.append(k)
     ca, cb = cur["cost"], bench["cost"]
-    cheaper = [k for k in ("parts_usd_at_500", "bom_lines", "placements", "jlc_extended_lines", "hand_or_consign_lines",
+    pk = _parts_key(ca, cb, notes, reasons, strict_basis)
+    cheaper = [k for k in (pk, "bom_lines", "placements", "jlc_extended_lines", "hand_or_consign_lines",
                            "consign_lines", "zero_stock_lines", "lines_short_for_500", "lines_short_for_5", "build_lead_wk_500")
                if k in ca and k in cb and ca[k] < cb[k]]
-    dearer = [k for k in ("parts_usd_at_500", "bom_lines", "jlc_extended_lines", "hand_or_consign_lines", "consign_lines",
+    dearer = [k for k in (pk, "bom_lines", "jlc_extended_lines", "hand_or_consign_lines", "consign_lines",
                           "lines_short_for_500", "lines_short_for_5", "build_lead_wk_500")
               if k in ca and k in cb and ca[k] > cb[k]]
     for k in ("jlc_assemblable_share_500", "jlc_assemblable_share_5"):     # higher is better
@@ -389,6 +444,16 @@ def compare(cur, bench):
     if not cheaper and not better:
         reasons.append("neither cheaper/simpler nor better than the benchmark")
     return (not reasons), reasons, cheaper, better
+
+
+def bench_card(path):
+    """A benchmark card must come from the full chain: a scoped card (gates/scoped, key "scoped") is never a benchmark."""
+    c = jload(path)
+    if c is None:
+        raise SystemExit(f"{path}: no such card")
+    if "scoped" in c:
+        raise SystemExit(f"{path} is a scoped card ({c['scoped'].get('mode')}); benchmarks come from the full chain.sh")
+    return c
 
 
 def main():
@@ -405,12 +470,22 @@ def main():
     ap.add_argument("--audit")
     ap.add_argument("--json")
     ap.add_argument("--compare")
+    ap.add_argument("--strict-basis", action="store_true",
+                    help="refuse (REJECT) when the card and the benchmark are on different parts-price bases")
     a = ap.parse_args()
     if a.card:
         card = jload(a.card)
-        ok, reasons, cheaper, better = compare(card, jload(a.compare))
+        notes = []
+        ok, reasons, cheaper, better = compare(card, bench_card(a.compare), notes, a.strict_basis)
+        for n in notes:
+            print("NOTE: " + n)
+        sc = card.get("scoped")
+        if sc and sc.get("stale"):        # a scoped card with stale entries cannot be accepted yet
+            ok = False
+            reasons.append("scoped card not final, stale: " + ", ".join(sorted(sc["stale"])))
         print(("ACCEPT" if ok else "REJECT") + f" {card['tag']} vs {a.compare}: cheaper {cheaper}, better {better}"
-              + ("" if ok else "; " + "; ".join(reasons)))
+              + ("" if ok else "; " + "; ".join(reasons))
+              + (f" [scoped {sc.get('mode')}: {len(sc.get('reused', {}))} entries reused by key; full chain still due at merge]" if sc else ""))
         raise SystemExit(0 if ok else 1)
     b = Path(a.build)
     perf, src = performance(b, a.tag)
@@ -418,6 +493,8 @@ def main():
             "gates": gates(b, a.tag, a.audit), "performance": perf, "cost": cost(b, Path(a.bom), a.stock),
             "sources": src}
     card["cost"].update(buildability(Path(a.bom), a.snapshot))
+    card["sources"]["bom_pricing"] = ("gates/bom_pricing.py " + card["cost"]["price_basis"] + " over the 2026-10-15 JLC / DigiKey / "
+                                      "Octopart snapshots and the STOCK-2026-10-13*.csv survey reads (sourcing/)")
     if a.snapshot:
         sp = Path(a.snapshot).resolve()
         card["sources"]["buildability"] = str(sp.relative_to(UNIT)) if sp.is_relative_to(UNIT) else str(sp)
@@ -428,7 +505,10 @@ def main():
     if a.json:
         Path(a.json).write_text(json.dumps(card, indent=1))
     if a.compare:
-        ok, reasons, cheaper, better = compare(card, jload(a.compare))
+        notes = []
+        ok, reasons, cheaper, better = compare(card, bench_card(a.compare), notes, a.strict_basis)
+        for n in notes:
+            print("NOTE: " + n)
         print(("ACCEPT" if ok else "REJECT") + f" vs {a.compare}: cheaper {cheaper}, better {better}"
               + ("" if ok else "; " + "; ".join(reasons)))
         raise SystemExit(0 if ok else 1)

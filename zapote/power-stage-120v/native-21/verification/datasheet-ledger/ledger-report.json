@@ -1,11 +1,11 @@
 {
- "bom_lines": 92,
+ "bom_lines": 94,
  "counts_by_class": {
   "POWER": {
-   "PARTIAL": 8,
+   "PARTIAL": 10,
    "UNAUDITED": 0,
    "VERIFIED": 0,
-   "VIOLATION": 1
+   "VIOLATION": 0
   },
   "SAFETY": {
    "PARTIAL": 19,
@@ -14,13 +14,13 @@
    "VIOLATION": 0
   },
   "SIGNAL": {
-   "PARTIAL": 2,
-   "UNAUDITED": 59,
+   "PARTIAL": 8,
+   "UNAUDITED": 54,
    "VERIFIED": 1,
    "VIOLATION": 0
   }
  },
- "entries": 92,
+ "entries": 94,
  "entries_detail": {
   "0430451612": {
    "checks": [],
@@ -265,11 +265,10 @@
    "finding": null,
    "function": "X-capacitor bleed R1/R2 (two 100 k in series across the mains)",
    "gaps": [
-    "UniOhm publishes no pulse or surge rating (only a 5 s overload voltage test and a 500 V dielectric withstand); the surge check compares an impulse against the overload voltage as the nearest published number.",
-    "Voltage across the pair at 245-750 A through RV1 (ALT-D3.md:119) is not in the repo or the ledger; only Vc 455 V at 100 A is. The check holds up to Vc = 790 V. RV1's own datasheet is still not obtained (ledger entry TMOV20RP175E).",
-    "Datasheet is the UniOhm series sheet V.3 (2019) from LCSC, not an MPN-specific sheet; the 0.25 W / 1206 mapping comes from its ordering code table, and the derating line is read from a graph.",
-    "Local ambient at R1/R2 is an assumed 85 C bound; no thermal or IR result for these two parts (power ratio would stay under 0.5 up to about 121 C).",
-    "Discharge time (0.854 s) uses the repo's own X-cap +20 % tolerance and 2 uF; the regulatory clause behind the 34 V / 1 s criterion is not re-read, and the real C1/C2 measurements are not compared."
+    "certifier: UniOhm publishes no pulse or surge rating (only the 5 s overload voltage and a 500 V withstand); the surge check compares an impulse with the overload voltage as the nearest published number.",
+    "desk: the pair voltage at 245-750 A through RV1 (ALT-D3.md:119) is not in the repo; only Vc 455 V at 100 A is. The check holds while Vc < 790 V. RV1's Figure 4 (Rev 10/01/19 p.3) is too dense to read the 175 V curve at 750 A reliably; a surge-lab capture of RV1 voltage would settle it (bench).",
+    "bench: local ambient at R1/R2 is an assumed 85 C bound with no thermal result (the power ratio stays under 0.5 to about 121 C).",
+    "certifier: the 34 V / 1 s discharge criterion's clause is not re-read; 0.854 s uses +20 % X caps and R +1 %."
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -370,8 +369,91 @@
    "finding": "Stage 27 replacement for 1711725 (15 A cULus / 10 A CSA). UL/cUL and CSA group B 30 A at 300 V: 45-55 % across the 13.5 A hold, 15 A trip and 16.5 A envelope, 83 % at F1's 25 A non-interrupting ceiling (FINDINGS #4 / #11 closed on rating).",
    "function": "Mains inlet terminal (L/N), Phoenix MKDS 5/2-9,5 (stage 27, DECISIONS 29)",
    "gaps": [
-    "Ratings from Phoenix catalog extracts (2017 LCSC copy; 2010 copy agrees on 30 A UL/cUL/CSA but prints 600 V for UL/cUL); UL Product iQ (E60425, XCFR2), database.ul.com and Phoenix all returned 403 on 2026-10-13: confirm 1714971 on the UL and CSA 13631 files before the certification submission.",
-    "No 3D model in temper.pretty: the enclosure fit uses a 22 mm courtyard envelope (native21-envelopes.json)."
+    "certifier: ratings are from Phoenix catalog extracts (2017 LCSC copy; the 2010 copy agrees on 30 A UL/cUL/CSA but prints 600 V for UL/cUL); UL Product iQ (E60425, XCFR2), database.ul.com and phoenixcontact.com all returned 403 on 2026-10-13 and again 2026-10-15: confirm 1714971 on UL E60425 and CSA 13631 before the certification submission.",
+    "owner: no 3D model in temper.pretty; the enclosure fit uses a 22 mm courtyard envelope (native21-envelopes.json)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": []
+  },
+  "25121WF680JT4E": {
+   "checks": [
+    {
+     "id": "power c18 (release)",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Power derated at the c18 terminal estimate (release)",
+     "ratio": 0.7041,
+     "severity": "violation",
+     "stress": "R_on dissipation, 60 kHz window top"
+    },
+    {
+     "id": "element c18 (release)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Operating temperature max",
+     "ratio": 0.8535,
+     "severity": "violation",
+     "stress": "Element estimate c18 (release)"
+    },
+    {
+     "id": "power c22",
+     "max_ratio": 0.8,
+     "ok": false,
+     "rating": "Power derated at the c22 terminal estimate",
+     "ratio": 0.9757,
+     "severity": "gap",
+     "stress": "R_on dissipation, 60 kHz window top"
+    },
+    {
+     "id": "element c22",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Operating temperature max",
+     "ratio": 0.909,
+     "severity": "gap",
+     "stress": "Element estimate c22"
+    },
+    {
+     "id": "element c28",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Operating temperature max",
+     "ratio": 1.089,
+     "severity": "gap",
+     "stress": "Element estimate c28"
+    },
+    {
+     "id": "voltage",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Max working voltage",
+     "ratio": 0.085,
+     "severity": "violation",
+     "stress": "Gate-drive step across R_on"
+    },
+    {
+     "id": "edge pulse",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Short-time overload voltage",
+     "ratio": 0.8252,
+     "severity": "gap",
+     "stress": "Gate-drive step across R_on"
+    }
+   ],
+   "class": "POWER",
+   "designators": [
+    "R10",
+    "R12",
+    "R18",
+    "R20"
+   ],
+   "finding": null,
+   "function": "Turn-on gate resistors R10/R12/R18/R20, 68 ohm 1 % 1 W 2512 (stage 42, candidate 39, DECISIONS 54): with Cgs 4.7 nF they hold the CFD7's S4 reverse-diode dv/dt and diF/dt",
+   "gaps": [
+    "No single-pulse rating is published: the < 1 us 17 V gate-edge step (~4.3 W peak) is compared with the 5 s short-time overload level (2.5 x RCWV).",
+    "bench: the terminal temperatures are B3 body-model estimates (still air); the gate-row temperature and the R_on power basis (0.217 W charge-split bound against the study's ~0.17 W) are an IR bench item; the release margin is +0.7 K (DECISIONS 56).",
+    "owner: airflow route (c22/c28): at c22 (22 A, bay 55 C) the R10 terminal is 138.2 C, where the curve allows 0.1976 W and 0.217 W is 110 % against the 80 % rule; at c28 the terminal (165.4 C, R12) is past the curve's 155 C zero-power point and the element is 171.4 C. The firmware ships 18 A (DECISIONS 56); raising it needs a passing B3 basis (board-face airflow or a measured bay under 61 C) plus the bench R_on reading."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -383,7 +465,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "VDD operating max",
-     "ratio": 0.8495,
+     "ratio": 0.8857,
      "severity": "violation",
      "stress": "VDD at the span OV trip"
     },
@@ -397,13 +479,40 @@
      "stress": "Barrier peak"
     },
     {
+     "id": "working",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIOWM",
+     "ratio": 0.1618,
+     "severity": "violation",
+     "stress": "Barrier rms"
+    },
+    {
      "id": "CMTI",
-     "max_ratio": 0.6666666666666666,
+     "max_ratio": 1.0,
      "ok": true,
      "rating": "CMTI min",
-     "ratio": 0.6333,
+     "ratio": 0.3313,
      "severity": "violation",
-     "stress": "CMTI edge"
+     "stress": "CMTI edge, s42 typical Qrr"
+    },
+    {
+     "id": "CMTI 1.5x",
+     "max_ratio": 0.6667,
+     "ok": true,
+     "rating": "CMTI min",
+     "ratio": 0.3313,
+     "severity": "violation",
+     "stress": "CMTI edge, s42 typical Qrr"
+    },
+    {
+     "id": "CMTI 1.5x, max Qrr",
+     "max_ratio": 0.6667,
+     "ok": false,
+     "rating": "CMTI min",
+     "ratio": 0.7081,
+     "severity": "gap",
+     "stress": "CMTI edge, maximum Qrr (open)"
     }
    ],
    "class": "SAFETY",
@@ -414,10 +523,10 @@
    "finding": null,
    "function": "Isolated dual gate driver, leg A / leg B (stage 29, DECISIONS 31; Infineon 2EDR8259X, PG-DSO-14 on the DWK pads)",
    "gaps": [
-    "CMTI is a characterisation figure (not production tested); the 1.5x rule needs the bench S4/S5 dv/dt <= 100 V/ns.",
-    "No DIS-to-output delay is specified (the protection budget assumed TI's 80 ns); no channel-to-channel voltage rating (X: 3.3 mm creepage).",
-    "DIS has an internal pull-down (open = enabled): R73 / R76 alone hold an open DIS disabled.",
-    "Single source (Infineon), 39-week lead time; VDD start-up overshoot < 21 V and driver / Rg temperature are bench items."
+    "bench: CMTI is a characterisation figure (not production tested). s42's S4 edge at typical Qrr is 49.7 V/ns (3.0x); the maximum-Qrr basis is open (nearest tested network 106 V/ns, 1.41x): the D-8 double-pulse bench measures S4/S5 dv/dt (DECISIONS 54).",
+    "bench: no DIS-to-output delay is specified (Table 21 p.16 has none; Fig. 6 p.21 only defines it): the protection budget assumed TI's 80 ns; measure. No channel-to-channel voltage rating (Table 25: 3.3 mm creepage only).",
+    "owner: DIS has an internal pull-down (open = enabled): R73 / R76 alone hold an open DIS disabled.",
+    "owner: single source (Infineon), 39-week lead time; bench: VDD start-up overshoot < 21 V and driver / Rg temperature."
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -436,11 +545,29 @@
      "stress": "Bus static OVP"
     },
     {
+     "id": "IPP",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "IPP",
+     "ratio": 0.8398,
+     "severity": "violation",
+     "stress": "Clamp current 1 kV DM"
+    },
+    {
+     "id": "pulse power",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "PPP at 49 us rectangular",
+     "ratio": 0.6912,
+     "severity": "violation",
+     "stress": "Pulse power, 2 J rectangular"
+    },
+    {
      "id": "plug-in vs VBR",
      "max_ratio": 1.0,
      "ok": false,
      "rating": "VBR min string",
-     "ratio": 1.1463,
+     "ratio": 1.1456,
      "severity": "gap",
      "stress": "Plug-in overshoot"
     }
@@ -453,10 +580,9 @@
    "finding": null,
    "function": "Bus clamp D3/D17, two Good-Ark 30KPA150CA bidirectional TVS in series",
    "gaps": [
-    "No Good-Ark datasheet copy; figures from ALT-D3 citing p.3; Good-Ark/Littelfuse publish no tempco (hot clamp open, ALT-D3:134).",
-    "Bench pulse qualification (ALT-D3 5) open; until then the bench bus stays <= 150 V DC (DECISIONS.md:461).",
-    "Standoff margin 4.7 % to the 286 V OVP corner; 384 V plug-in overshoot exceeds the string VBR min so the TVS conducts at every plug-in at the crest.",
-    "Lead-bend stress on the P600 body unverified (FINDINGS #8)."
+    "bench: hot clamp. Good-Ark publishes no VBR / VC temperature coefficient (ALT-D3:134); the 466.8 V clamp is at 25 C. ALT-D3 section 5 pulse qualification is open; until it passes the bench bus stays <= 150 V DC (DECISIONS.md:462).",
+    "bench: plug-in at the line crest (362-384 V) exceeds the string's 335 V VBR min, so D3/D17 conduct ~0.4 J at each crest plug-in; single-event energy is inside the rating, the repetition (every plug-in) is not rated.",
+    "bench: P600 lead bend, hole centre 1.8 mm from the body end (FINDINGS #8): check a formed sample before ordering."
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -527,18 +653,27 @@
      "max_ratio": 0.6,
      "ok": true,
      "rating": "I max @ 20C",
-     "ratio": 0.588,
+     "ratio": 0.378,
      "severity": "violation",
      "stress": "I tank trip"
     },
     {
-     "id": "I50",
+     "id": "I61",
      "max_ratio": 0.8,
      "ok": true,
-     "rating": "I derated @ 50C ambient",
-     "ratio": 0.6562,
-     "severity": "gap",
+     "rating": "I derated @ 61C bay (release)",
+     "ratio": 0.4468,
+     "severity": "violation",
      "stress": "I tank trip"
+    },
+    {
+     "id": "I 28 A",
+     "max_ratio": 0.6,
+     "ok": true,
+     "rating": "I max @ 20C",
+     "ratio": 0.588,
+     "severity": "gap",
+     "stress": "I tank 28 A ceiling"
     },
     {
      "id": "T",
@@ -558,10 +693,11 @@
    "finding": null,
    "function": "Resonant-tank coil terminals J2 (coil_feed) / J5 (res_a), Wuerth REDCUBE SMT WP-SMBU M4 internal through-hole thread (stage 35, candidate 35; replaces the THR 74650074)",
    "gaps": [
-    "No derating curve in the datasheet; the design-guide curve (one curve for THR 7x7 and SMD D7) is for a 6 mm2 cable on a 4-layer 105 um Cu test board, not this board's 2 oz outer copper and Litz lead; terminal contact temperature at 28 A is a bench item.",
-    "Mechanical: through-thread tearing force 300-410 N (design guide p.9) is lower than the blind-thread part's; lug-pull and torque retention on a soldered sample are bench items; screw length and lug stack with the enclosure session (c35-smt-terminals/ENCLOSURE-REQUEST.md).",
-    "Paste: 150 um per the datasheet; the board's stencil thickness for the fine-pitch parts is not yet chosen (step stencil or a larger aperture).",
-    "Terminal temperature: B3 models the terminal through its copper only (no heat-source row for either terminal); the board's copper next to J5 / J2 runs 0.5-3.7 K above the THR at every B3 operating point (extreme_h10 127.3 C at J5), and the contact / lug heat at 28 A is a bench item (c35-smt-terminals/README.md)."
+    "bench: no derating curve in the datasheet; the design-guide curve (one curve for THR 7x7 and SMD D7) is for a 6 mm2 cable on a 4-layer 105 um test board, not this board's 2 oz outer copper and Litz lead; terminal contact temperature at 28 A is a bench item.",
+    "bench: through-thread tearing force 300-410 N (design guide p.9); lug pull and torque retention on a soldered sample; owner: screw length and lug stack with the enclosure session (c35-smt-terminals/ENCLOSURE-REQUEST.md).",
+    "owner: paste 150 um per the datasheet; the board's stencil thickness is not chosen (step stencil or larger aperture).",
+    "bench: terminal temperature is a legacy single-cell value on s35 (not on the B3 ratings body model, no heat row for either terminal); contact / lug heat at 28 A is a bench item.",
+    "certifier: no UL / CSA recognition listed for the terminal; it carries the resonant tank (HOT), so the end product covers it."
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -575,7 +711,7 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "Power 70 C",
-     "ratio": 0.0604,
+     "ratio": 0.0643,
      "severity": "violation",
      "stress": "Continuous dissipation"
     },
@@ -605,9 +741,8 @@
    "finding": null,
    "function": "J11 fault-current limiter in series after F2 (stage 28, DECISIONS 30)",
    "gaps": [
-    "F2's clearing I2t is unpublished: the pulse stress is an estimate; a bench short at J11 with R130 fitted (record i(t), integrate) settles it.",
-    "Fail-open behaviour on overload is not stated by Vishay (certifier item); an open only lowers the fault current.",
-    "The pulse chart was read by eye (+-25 %)."
+    "bench: F2's clearing I2t is unpublished, so the pulse stress is an estimate (0.54 of capacity on the current-limiting clearing estimate, 0.94 on 3x melting); with the chart's +/-25 % reading tolerance the 3x-melting case could reach 1.25x. A bench short at J11 with R130 fitted (record i(t), integrate) settles it.",
+    "certifier: the AC05 is not UL-recognised and its overload / fail-open behaviour is not stated; Vishay's UL-approved fusible variant is the AC05-CS (p.4). The certifier judges R130 in the end-product abnormal test (an open only lowers the fault current)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -617,11 +752,20 @@
     {
      "id": "CMTI",
      "max_ratio": 0.6666666666666666,
-     "ok": false,
+     "ok": true,
      "rating": "CMTI min",
-     "ratio": 0.95,
+     "ratio": 0.497,
      "severity": "gap",
      "stress": "CMTI edge"
+    },
+    {
+     "id": "CMTI, max Qrr",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "CMTI min",
+     "ratio": 1.0621,
+     "severity": "gap",
+     "stress": "CMTI edge, maximum Qrr (open)"
     },
     {
      "id": "barrier",
@@ -658,6 +802,24 @@
      "ratio": 0.9474,
      "severity": "gap",
      "stress": "VSENSE at 286 V OVP corner"
+    },
+    {
+     "id": "surge",
+     "max_ratio": 0.7692,
+     "ok": true,
+     "rating": "VIOSM",
+     "ratio": 0.1562,
+     "severity": "violation",
+     "stress": "Surge L-E across barrier"
+    },
+    {
+     "id": "IN abs at surge",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "IN abs max",
+     "ratio": 0.7395,
+     "severity": "violation",
+     "stress": "VSENSE in a 2 kV DM surge"
     }
    ],
    "class": "SAFETY",
@@ -667,26 +829,10 @@
    "finding": null,
    "function": "Isolated bus-voltage amplifier U4 (reinforced)",
    "gaps": [
-    "CMTI margin 1.05x vs 1.5x rule (min 100 vs 95 V/ns applied as a bound): an upset is a spurious VBUS sample, no gate command (CMTI README:21 OPEN).",
-    "Bus readings above 240.0 V are outside the 2 V linear range (clipping at 301.9 V). Firmware flags VBUS over-range at 230.9 V (N21_VBUS_OVERRANGE_MV) and the hardware OVP is the TLV3201 on VSENSE_IN (elec/src/power_stage_120v.ato:612), so no protection relies on the nonlinear band; nothing gates that dependency."
+    "bench: CMTI. U4 straddles OCP_KELVIN_P, not a switch node; the bound (s42's S4 at typical Qrr, 49.7 V/ns) is 2.0x the 100 V/ns minimum; maximum Qrr is open (nearest tested network 106 V/ns). An upset is a spurious VBUS sample, no gate command (validation-results/06-controller-interface/cmti/README.md:21). Probe HV_RET-to-SELV dv/dt at hard S4/S5 edges (D-8).",
+    "owner: bus readings above 240.0 V are outside the 2 V linear range (clipping at 301.9 V). Firmware flags VBUS over-range at 230.9 V (N21_VBUS_OVERRANGE_MV) and the hardware OVP is the TLV3201 on VSENSE_IN (elec/src/power_stage_120v.ato:614), so no protection relies on the nonlinear band; nothing gates that dependency."
    ],
    "status": "PARTIAL",
-   "unchecked_layout": []
-  },
-  "ARG03BTC1333": {
-   "checks": [],
-   "class": "SIGNAL",
-   "designators": [
-    "R105",
-    "R120",
-    "R87"
-   ],
-   "finding": null,
-   "function": "133 k",
-   "gaps": [
-    "Not audited (outside SAFETY/POWER)."
-   ],
-   "status": "UNAUDITED",
    "unchecked_layout": []
   },
   "B2P3-VH(LF)(SN)": {
@@ -695,8 +841,8 @@
      "id": "I J11",
      "max_ratio": 0.8,
      "ok": true,
-     "rating": "I rated",
-     "ratio": 0.315,
+     "rating": "I rated AWG 18",
+     "ratio": 0.45,
      "severity": "violation",
      "stress": "I J11 bounded by F2"
     },
@@ -704,10 +850,10 @@
      "id": "I J3",
      "max_ratio": 0.8,
      "ok": true,
-     "rating": "I rated",
-     "ratio": 0.075,
+     "rating": "I rated AWG 18",
+     "ratio": 0.1857,
      "severity": "violation",
-     "stress": "I J3 (PS2 input)"
+     "stress": "I J3 bounded by I_aux"
     },
     {
      "id": "V",
@@ -727,8 +873,8 @@
    "finding": null,
    "function": "Mains tap headers J3 (PS2 TCO loop) and J11 (blower tap), JST VH",
    "gaps": [
-    "The retrieved JST catalogue defers UL/CSA ratings to a website list; the NA approval basis (UL E60389-class file, 10 A/250 V) was not read, so 'applicable approval basis' is unverified.",
-    "J11 bounded by F2 which itself fails its breaking capacity (see 3403.0171)."
+    "certifier: UL E60389 / CSA LR20812 are named in JST's catalogue, but the recognised current, voltage and wire range of B2P3-VH in those files were not read (UL Product iQ / database.ul.com 403 on 2026-10-15; the current eVH.pdf defers approvals to JST's website list). Confirm the file ratings cover 250 V / 3.15 A with 18 AWG.",
+    "bench: housing temperature at J3 / J11 against the 105 C rating (including self-heating) is not in the B3 model; IR at first power."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -743,6 +889,51 @@
      "ratio": 0.451,
      "severity": "violation",
      "stress": "Vbus worst no-clamp"
+    },
+    {
+     "id": "V hot",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "VR DC derated at 110 C",
+     "ratio": 0.656,
+     "severity": "violation",
+     "stress": "Vbus worst no-clamp"
+    },
+    {
+     "id": "V spike",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "VR DC",
+     "ratio": 0.49,
+     "severity": "violation",
+     "stress": "Commutation spike bound"
+    },
+    {
+     "id": "Top C40 c18 (release)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Top,max",
+     "ratio": 0.9891,
+     "severity": "violation",
+     "stress": "Top C40 c18 (release)"
+    },
+    {
+     "id": "Top C40 c22",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Top,max",
+     "ratio": 1.0545,
+     "severity": "gap",
+     "stress": "Top C40 c22"
+    },
+    {
+     "id": "Top C40 c28",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Top,max",
+     "ratio": 1.2518,
+     "severity": "gap",
+     "stress": "Top C40 c28"
     }
    ],
    "class": "POWER",
@@ -755,8 +946,8 @@
    "finding": null,
    "function": "Local bus decoupling film C38-C41, 100 nF 1000 VDC",
    "gaps": [
-    "Per-part RMS current share is unknown ('local current sharing needs measurement', parts.ato).",
-    "Current rating taken from the parts.ato docstring, not re-read."
+    "owner: airflow route (c22/c28): C40 is 116.0 C at c22 and 137.8 C at c28 (still air, bay 55 C) against Top,max 110 C; all four parts are over at c28. At the release case (c18_h10, bay 61 C) C40 is 108.9 C (B3 release gate PASS, DECISIONS 56). The firmware ships 18 A; raising it needs a passing B3 basis, i.e. board-face airflow (b3-ratings/ENCLOSURE-REQUEST.md) or a measured bay under 61 C; 2 oz outer copper cannot fix c28 (DECISIONS.md:1889).",
+    "bench: per-part RMS current share is unknown: B3 carries 0.05-0.2 W per part as an estimate (make_heat_sources.py:113, ~3.8 A at the 14 mOhm ESR if real); measure, and apply the p.64 FT derating above 85 C ambient."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -764,22 +955,67 @@
   "B32654A1104J000": {
    "checks": [
     {
-     "id": "V normal",
+     "id": "V 28 A",
      "max_ratio": 0.8,
      "ok": true,
      "rating": "VR DC",
-     "ratio": 0.4,
+     "ratio": 0.3538,
      "severity": "violation",
-     "stress": "V peak normal"
+     "stress": "V peak 28 A"
     },
     {
-     "id": "I commissioned",
-     "max_ratio": 1.0,
+     "id": "V no-pan fault hot",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "VR DC at 110 C",
+     "ratio": 0.7045,
+     "severity": "violation",
+     "stress": "V peak no-pan fault"
+    },
+    {
+     "id": "Vrms",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "VRMS 1 kHz",
+     "ratio": 0.536,
+     "severity": "violation",
+     "stress": "V rms 28 A"
+    },
+    {
+     "id": "I release",
+     "max_ratio": 0.85,
      "ok": true,
      "rating": "I tank allowed @35kHz",
-     "ratio": 0.9701,
+     "ratio": 0.7052,
      "severity": "violation",
-     "stress": "I tank commissioned"
+     "stress": "I tank release trip"
+    },
+    {
+     "id": "body c18 (release)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Top,max",
+     "ratio": 0.8182,
+     "severity": "violation",
+     "stress": "Body temperature c18 (release)"
+    },
+    {
+     "id": "I 22 A",
+     "max_ratio": 0.85,
+     "ok": true,
+     "rating": "I tank allowed @35kHz",
+     "ratio": 0.8209,
+     "severity": "gap",
+     "stress": "I tank 22 A"
+    },
+    {
+     "id": "body c22",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Top,max",
+     "ratio": 0.87,
+     "severity": "gap",
+     "stress": "Body temperature c22"
     },
     {
      "id": "I design",
@@ -789,6 +1025,24 @@
      "ratio": 1.0448,
      "severity": "gap",
      "stress": "I tank design"
+    },
+    {
+     "id": "self-heating 28 A",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Self-heating allowance",
+     "ratio": 1.09,
+     "severity": "gap",
+     "stress": "Self-heating 28 A"
+    },
+    {
+     "id": "body c28",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Top,max",
+     "ratio": 1.07,
+     "severity": "gap",
+     "stress": "Body temperature c28"
     },
     {
      "id": "V third fault",
@@ -811,9 +1065,9 @@
    "finding": null,
    "function": "Resonant tank bank C21-C23/C151/C152, 5 x 100 nF +/-5 %, 1600 VDC MKP",
    "gaps": [
-    "The 28 A design ceiling is 4.5 % above the repo's digitised TDK current curve (ratio 1.022 at 40 kHz); only the 26 A commissioned ceiling is inside.",
-    "TDK p.57 curve is digitised by the repo ('digitise TDK p.57 properly' is still an open item, DECISIONS.md:373).",
-    "Third-fault voltage 1,683 V exceeds the 1,600 VDC rating (covered only by the 35 kHz floor and a third independent fault)."
+    "owner: airflow route (c22/c28): at the 28 A Kconfig ceiling the bank is over its TDK ratings: worst-share current 1.045x the 85 C permissible-current curve at the 35 kHz floor (c34 bank_margin), self-heating 21.8 K against the 20 K that defines TDK's IRMS, and B3 bodies 117.7 C (C21) against 110 C in still air at bay 55 C. The firmware ships 18 A (DECISIONS 56); raising the ceiling needs a passing B3 basis (board-face airflow) and, for 28 A, candidate 34's bank (B32643B8104J000, 0.831; 28-week lead).",
+    "certifier: third-fault 1,683 V exceeds 1,600 VDC; it is outside IEC 60335-1 19.11's one-fault analysis and under the 2,560 V factory test (DECISIONS.md:575-580); owner (non-blocking): ask TDK for a single-event rating.",
+    "desk: the TDK current curve is the repo's digitisation (DECISIONS.md:373), and B3's bank rows are advisory (board fraction 0.3 assumed); bench: middle-cap hot spot <= 20 K before running above 18 A (DECISIONS.md:371-374)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -841,6 +1095,60 @@
      "stress": "Vbus worst no-clamp"
     },
     {
+     "id": "Vbus worst hot",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Vop at 105 C case",
+     "ratio": 0.7912,
+     "severity": "violation",
+     "stress": "Vbus worst no-clamp"
+    },
+    {
+     "id": "inrush pulse",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Pulse current C x dV/dt",
+     "ratio": 0.4118,
+     "severity": "violation",
+     "stress": "Inrush pulse current per part"
+    },
+    {
+     "id": "AC component",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "AC component peak",
+     "ratio": 0.8387,
+     "severity": "violation",
+     "stress": "Bus AC component bound"
+    },
+    {
+     "id": "case c18 (release)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Top,max case",
+     "ratio": 0.7962,
+     "severity": "violation",
+     "stress": "Case temperature c18 (release)"
+    },
+    {
+     "id": "case c22",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Top,max case",
+     "ratio": 0.8105,
+     "severity": "gap",
+     "stress": "Case temperature c22"
+    },
+    {
+     "id": "case c28",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Top,max case",
+     "ratio": 0.9448,
+     "severity": "gap",
+     "stress": "Case temperature c28"
+    },
+    {
      "id": "ripple 22 A",
      "max_ratio": 1.0,
      "ok": true,
@@ -850,20 +1158,11 @@
      "stress": "ripple dT use at 22 A"
     },
     {
-     "id": "ripple 26 A",
-     "max_ratio": 1.0,
-     "ok": false,
-     "rating": "ripple dT allowance",
-     "ratio": 1.12,
-     "severity": "gap",
-     "stress": "ripple dT use at 26 A (scaled)"
-    },
-    {
      "id": "ripple 28 A",
      "max_ratio": 1.0,
      "ok": false,
      "rating": "ripple dT allowance",
-     "ratio": 1.3,
+     "ratio": 1.296,
      "severity": "gap",
      "stress": "ripple dT use at 28 A (scaled)"
     }
@@ -876,8 +1175,9 @@
    "finding": null,
    "function": "DC-link bulk film C5/C6, 9 uF 750 VDC, 4-pin radial MKP",
    "gaps": [
-    "Ripple self-heating was only evaluated at I_tank <= 22 A (80% of the allowance). The commissioned ceiling is 26 A and the design ceiling 28 A: a pure I^2 scale puts both above the allowance. Rerun ripple.py at 26/28 A and measure case temperature at first power.",
-    "Footprint is named TDK_B32656G0275J000 (stale name, geometry correct)."
+    "owner: airflow route (c22/c28): ripple self-heating at the 28 A Kconfig ceiling is only this ledger's I^2 extrapolation (1.30 of the allowance at an assumed 85 C cap ambient), and B3's C5 heat is an estimate (make_heat_sources.py:111), not ripple.py's figure. Before the ceiling rises above 22 A (DECISIONS 56: a passing B3 basis first), rerun ALT-C5C6's ripple.py (not committed) at the new ceiling and feed it to B3; bench: case thermocouple at first power (DECISIONS.md:457).",
+    "certifier: no UL / CSA component recognition is listed for B3267* (UL 94 V-0 materials only); C5/C6 sit on the rectified mains bus, so the end-product evaluation covers them.",
+    "desk: the footprint is named TDK_B32656G0275J000 (stale name, geometry correct)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -899,6 +1199,15 @@
      "ok": true,
      "rating": "I_op at 50 C design inlet air",
      "ratio": 0.75,
+     "severity": "violation",
+     "stress": "I inlet trip"
+    },
+    {
+     "id": "I at 61 C (release bay)",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "I_op at 61 C release bay",
+     "ratio": 0.7553,
      "severity": "violation",
      "stress": "I inlet trip"
     },
@@ -928,6 +1237,33 @@
      "ratio": 0.5588,
      "severity": "violation",
      "stress": "Line high corner"
+    },
+    {
+     "id": "body c18 (release)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Climatic upper temperature",
+     "ratio": 0.8176,
+     "severity": "violation",
+     "stress": "Body temperature c18 (release)"
+    },
+    {
+     "id": "body c22",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Climatic upper temperature",
+     "ratio": 0.7808,
+     "severity": "gap",
+     "stress": "Body temperature c22"
+    },
+    {
+     "id": "body c28",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Climatic upper temperature",
+     "ratio": 0.8,
+     "severity": "gap",
+     "stress": "Body temperature c28"
     }
    ],
    "class": "SAFETY",
@@ -937,10 +1273,10 @@
    "finding": null,
    "function": "Mains common-mode choke L1, 20 A 1.6 mH",
    "gaps": [
-    "L1 local air is not evidenced. It sits on the exhaust (mains) side of the 50 C-inlet duct (DECISIONS.md:66). 15 A meets the 80 % rule only up to 67.7 C, and IR itself only up to 85.3 C (13.5 A: 77.0 / 91.0 C). Bench IR item (DECISIONS.md:836).",
-    "Derating curve digitised from the p.5 figure (+/-3 % of full scale); the 67.7 C boundary moves about +/-2 C with it.",
-    "The data sheet cites EN 60938-2 design compliance only; no UL/CSA component recognition is listed, so the end-product evaluation must cover L1.",
-    "Core stock zero, 29 weeks (DECISIONS.md:846)."
+    "bench: L1 local air is not evidenced; the B3 body (102.2 C at the c18 release case, bay 61 C; 97.6 / 100.0 C at c22 / c28; inlet 13.5 A) is a body, not the TDK ambient TA. At the 61 C release bay taken as local air, 15 A is 76 % of Iop. 15 A meets 80 % of Iop only up to 67.7 C local air, and IR itself only up to 85.3 C (13.5 A: 77.0 / 91.0 C). Bench IR item (DECISIONS.md:836).",
+    "desk: derating curve digitised from the p.5 figure (+/-3 % of full scale); the 67.7 C boundary moves about +/-2 C.",
+    "certifier: TDK lists EN 60938-2 design compliance only, no UL / CSA recognition, so the end-product evaluation must cover L1.",
+    "owner: core stock zero, 29 weeks (DECISIONS.md:846); sets the build date (DECISIONS 45)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1012,10 +1348,6 @@
     "C27",
     "C31",
     "C33",
-    "C55",
-    "C56",
-    "C62",
-    "C63",
     "C66",
     "C67",
     "C68",
@@ -1051,11 +1383,38 @@
     {
      "id": "CMTI",
      "max_ratio": 0.6666666666666666,
-     "ok": false,
+     "ok": true,
      "rating": "CMTI min",
-     "ratio": 0.95,
+     "ratio": 0.497,
      "severity": "gap",
      "stress": "CMTI edge"
+    },
+    {
+     "id": "CMTI, max Qrr",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "CMTI min",
+     "ratio": 1.0621,
+     "severity": "gap",
+     "stress": "CMTI edge, maximum Qrr (open)"
+    },
+    {
+     "id": "working",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIOWM",
+     "ratio": 0.1397,
+     "severity": "violation",
+     "stress": "Line high corner"
+    },
+    {
+     "id": "surge",
+     "max_ratio": 0.7692,
+     "ok": true,
+     "rating": "VIOSM",
+     "ratio": 0.2829,
+     "severity": "violation",
+     "stress": "Surge L-E across barrier"
     }
    ],
    "class": "SAFETY",
@@ -1066,9 +1425,10 @@
    "finding": null,
    "function": "Reinforced digital isolators U9 (bus_fault) and U32 (the bias-monitor heartbeat), default output HIGH on input-side power loss or an open input",
    "gaps": [
-    "CMTI min 100 V/ns < 1.5 x 95 V/ns. U9: R134/C167 (1 k / 100 pF, tau 100 ns) before U13.A filter a 5.5 ns upset; bench-probe BUS_FAULT_FLT at hard S4/S5 edges. U32: a heartbeat carrier, an upset drops or adds an edge but cannot sustain a wave (FMEA 6a).",
-    "Single source (Chipanalog). JLC 1,640 at 2026-10-14 (C428883), two per board. The UL 1577 file E511334 is quoted from the datasheet; not looked up in UL Product iQ.",
-    "Mixed-supply (5 V / 3.3 V) timing is not tabulated; the 3.3 V table is used for the SELV side (as for the ISO7710). VOH at 3.3 V is specified at -2 mA (ISO7710: -4 mA at 5 V); the loads are CMOS gate inputs and the 1 k R134."
+    "bench: CMTI. Neither crossing is on a switch node; the bound (s42's S4 at typical Qrr, 49.7 V/ns) is 2.0x the 100 V/ns minimum. Maximum Qrr is open (nearest tested network 106 V/ns would be 1.06x over): U9 has R134 / C167 (1 k / 100 pF, tau 100 ns) before U13.A against a ns upset; U32 is a heartbeat carrier, an upset drops or adds an edge but cannot sustain a wave (FMEA 6a). Probe BUS_FAULT_FLT and the heartbeat at hard S4/S5 edges (D-8).",
+    "certifier: no CSA certificate is listed (UL 1577 E511334, VDE 40057278, TUV CB JPTUV-111116); UL Product iQ 403. Confirm E511334 covers CA-IS3720HW (SOIC16-WB, 5000 Vrms) and whether UL 1577 alone serves Canada.",
+    "owner: single source (Chipanalog). JLC 1,640 at 2026-10-14 (C428883), two per board.",
+    "bench: mixed-supply (5 V / 3.3 V) timing is not tabulated; the 3.3 V table is used for the SELV side. VOH at 3.3 V is specified at -2 mA; the loads are CMOS gate inputs and the 1 k R134."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1095,6 +1455,13 @@
     "C161",
     "C163",
     "C168",
+    "C169",
+    "C170",
+    "C171",
+    "C172",
+    "C173",
+    "C174",
+    "C175",
     "C25",
     "C28",
     "C29",
@@ -1146,6 +1513,82 @@
    ],
    "status": "UNAUDITED",
    "unchecked_layout": []
+  },
+  "CC1206JKNPOCBN102": {
+   "checks": [
+    {
+     "id": "die VDS",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Rated voltage DC",
+     "ratio": 0.49,
+     "severity": "violation",
+     "stress": "Die VDS worst (switch-node spike)"
+    },
+    {
+     "id": "S4 die VDS (s42)",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Rated voltage DC",
+     "ratio": 0.3472,
+     "severity": "violation",
+     "stress": "Die VDS S4 typical Qrr (s42)"
+    },
+    {
+     "id": "bus no-clamp worst",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Rated voltage DC",
+     "ratio": 0.451,
+     "severity": "violation",
+     "stress": "Bus, worst stacked no-clamp case"
+    },
+    {
+     "id": "bus static OVP",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Rated voltage DC",
+     "ratio": 0.286,
+     "severity": "violation",
+     "stress": "Bus static OVP (continuous)"
+    },
+    {
+     "id": "temperature bound c18 (release)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Operating temperature max",
+     "ratio": 0.9768,
+     "severity": "violation",
+     "stress": "Board temperature bound at the cap, c18 (release)"
+    },
+    {
+     "id": "temperature bound c22",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Operating temperature max",
+     "ratio": 1.0608,
+     "severity": "gap",
+     "stress": "Board temperature bound at the cap, c22"
+    }
+   ],
+   "class": "POWER",
+   "designators": [
+    "C12",
+    "C13",
+    "C19",
+    "C20"
+   ],
+   "finding": null,
+   "function": "Drain-source snubber capacitors C12/C13/C19/C20, 1 nF 1 kV C0G 1206",
+   "gaps": [
+    "bench: maximum-Qrr S4 basis (DECISIONS 54, D-8 bench): s42's 347 V die VDS is at typical recovery charge; the 4.60 uC maximum was not run on the adopted network.",
+    "bench: no ripple, pulse-current or dV/dt rating is published (Yageo or Murata); the 95 A modelled edge (49.7 A at s42's S4) and the 1.81 A RMS bound are uncompared; the cap's own temperature is not modelled (bounded by the FET-row copper, 123.0 C at the release case).",
+    "certifier: the 1.8 mm pad escape is below the 3.2 mm HOT rule by design; the part's own gap is 1.40 mm min (Yageo p.3), and surface creepage at up to 490 V (F6 matrix) over 1.8 mm is unqualified (pad_escapes.json:3)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "Physical functional-insulation qualification of the bounded escapes (up to 490 V across 1.8 mm on the surface)"
+   ]
   },
   "CL05B104KB54PNC": {
    "checks": [],
@@ -1288,22 +1731,67 @@
   "CSS2H-2512R-1L00F": {
    "checks": [
     {
-     "id": "P at terminal 130C",
-     "max_ratio": 0.3,
+     "id": "P at c18 terminal (release)",
+     "max_ratio": 0.8,
      "ok": true,
-     "rating": "P rated @ terminal 130C",
-     "ratio": 0.2613,
+     "rating": "P allowed at c18 terminal 118.3 C (release)",
+     "ratio": 0.1381,
      "severity": "violation",
-     "stress": "P shunt"
+     "stress": "P shunt c18 (release)"
     },
     {
-     "id": "T element",
+     "id": "element c18 (release)",
      "max_ratio": 0.85,
      "ok": true,
      "rating": "T operating max",
-     "ratio": 0.8235,
+     "ratio": 0.7224,
+     "severity": "violation",
+     "stress": "T element c18 (release)"
+    },
+    {
+     "id": "P at c22 terminal",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "P allowed at c22 terminal 130.9 C",
+     "ratio": 0.2731,
      "severity": "gap",
-     "stress": "T element converged"
+     "stress": "P shunt c22"
+    },
+    {
+     "id": "element c22",
+     "max_ratio": 0.85,
+     "ok": true,
+     "rating": "T operating max",
+     "ratio": 0.8118,
+     "severity": "gap",
+     "stress": "T element c22"
+    },
+    {
+     "id": "P at c28 terminal",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "P allowed at c28 terminal 162.5 C",
+     "ratio": 2.304,
+     "severity": "gap",
+     "stress": "P shunt c28"
+    },
+    {
+     "id": "element c28",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "T operating max",
+     "ratio": 1.0259,
+     "severity": "gap",
+     "stress": "T element c28"
+    },
+    {
+     "id": "OCP pulse",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Pulse power 10 us",
+     "ratio": 0.007,
+     "severity": "violation",
+     "stress": "OCP transient pulse power"
     }
    ],
    "class": "POWER",
@@ -1313,9 +1801,9 @@
    "finding": null,
    "function": "Bus/OCP shunt R5, 1 mOhm Bourns CSS2H-2512 Kelvin",
    "gaps": [
-    "Peak/pulse rating (Maximum Pulse Power/Energy charts) vs the 71 A OCP trip transient is not compared.",
-    "Stress P uses the tank current as the shunt current; actual bus-return RMS is not separately evidenced.",
-    "Zero stock (DECISIONS.md:846 F13)."
+    "owner: airflow route (c22/c28): at the 28 A Kconfig ceiling (29.4 A trip, still air, bay 55 C) the B3 element is 174.8 C against 170 C and the terminal 163.0 C, where the curve allows 0.35 W against 0.864 W (2.47x). The firmware ships 18 A (DECISIONS 56); raising the ceiling needs a passing B3 basis (board-face airflow, b3-ratings/ENCLOSURE-REQUEST.md, or a measured bay under 61 C) or the 0.5 mOhm shunt after an OCP front-end rework (DECISIONS 53).",
+    "desk: the B3 element estimate is under-corrected by about 4 K (b3_ratings_gate.py:21); at the release case that leaves about 127.1 C (0.75 of 170 C).",
+    "owner: zero stock (DECISIONS.md:846, F13)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1327,9 +1815,18 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "I primary sensed",
-     "ratio": 0.3379,
+     "ratio": 0.2172,
      "severity": "violation",
      "stress": "I primary tank trip"
+    },
+    {
+     "id": "I 28 A",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "I primary sensed",
+     "ratio": 0.3379,
+     "severity": "gap",
+     "stress": "I primary 28 A ceiling"
     },
     {
      "id": "volt-time",
@@ -1348,9 +1845,8 @@
    "finding": null,
    "function": "Tank current transformer T1, 1:200, reinforced barrier SW_A end",
    "gaps": [
-    "Coilcraft states reinforced / 5 kV rms but gives no working voltage, CTI or HF / partial-discharge rating at 198 Vpk, 31+ kHz: a Coilcraft question (DECISIONS.md:757).",
-    "Temperature-rise curve vs actual coil-side ambient not evaluated.",
-    "Cww unspecified (CMTI README:70)."
+    "owner: Coilcraft question: reinforced / 5 kVrms but no working voltage, CTI or HF / partial-discharge rating at 198 Vpk, 35-60 kHz (DECISIONS.md:757), and Cww is unspecified; certifier: no UL / CSA component recognition, so the T1 barrier is evaluated in the end product.",
+    "bench: T1 ambient / body is not in B3 (limits 125 C ambient, 165 C part); the p.2 DC rise at 29.4 A (the 28 A ceiling) is about 5 K, HF proximity loss in the primary bar is not included."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1365,6 +1861,24 @@
      "ratio": 0.4657,
      "severity": "violation",
      "stress": "Line high corner to PE"
+    },
+    {
+     "id": "surge",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Y1 impulse",
+     "ratio": 0.2747,
+     "severity": "violation",
+     "stress": "Surge voltage bound line-PE"
+    },
+    {
+     "id": "touch current",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Touch-current budget (requirement, not a datasheet limit)",
+     "ratio": 0.9648,
+     "severity": "violation",
+     "stress": "Touch current PE open, 132 V"
     }
    ],
    "class": "SAFETY",
@@ -1375,8 +1889,9 @@
    "finding": null,
    "function": "Y1 line-to-PE capacitors C3/C4, 2.2 nF",
    "gaps": [
-    "Product leakage (F5) PASSES at stage 38: 0.2412 mA vs the 0.25 mA budget (50 % of UL 1026 0.5 mA, clause unconfirmed, DECISIONS.md:844), margin 8.8 uA; it depends on the D-22 module Y removal and PS3 = MPM-65-15ST (off-board owners) and FAILs with +0.15 nF Y per line. C3/C4 contribute 2.64 nF (+20 %) x 2 pi 60 Hz x 132 V = 0.131 mA per polarity.",
-    "Datasheet is a 2023 reference specification from a distributor; Murata says to consult the approval sheet before ordering."
+    "certifier: the 0.5 mA limit clause (UL 1026 portable) is unconfirmed; owner: the 0.2412 mA pass depends on the off-board D-22 module Y removal and PS3 = MPM-65-15ST, and fails with +0.15 nF Y per line.",
+    "owner: the spec is Murata's Jun 2023 reference specification from a distributor; Murata asks buyers to consult the approval sheet before ordering, and murata.com serves no PDF to a script (2026-10-15).",
+    "bench: surface temperature (125 C limit incl. self-heating) is not evidenced; B3 has no C3/C4 row."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1400,6 +1915,15 @@
      "ratio": 0.451,
      "severity": "violation",
      "stress": "V reverse worst"
+    },
+    {
+     "id": "Tj",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "TJ max",
+     "ratio": 0.7933,
+     "severity": "violation",
+     "stress": "Tj bound"
     },
     {
      "id": "inrush I2t",
@@ -1427,13 +1951,61 @@
    "finding": null,
    "function": "Mains bridge rectifier BR1 (25 A, 1000 V) on the main heatsink (AlN tile B)",
    "gaps": [
-    "BR1 I2t 510 A2s < F1 clearing 1,710 A2s: BR1 is sacrificial in a shoot-through, a repair item accepted at DECISIONS.md:840 (departs from D-31).",
-    "Junction temperature not computed; case 82.5 C is a model (RthJC 1.0 C/W per element); bench thermocouple pending.",
-    "Datasheet not re-fetched this session (repo copy)."
+    "owner: BR1 I2t 510 A2s < F1 clearing 1,710 A2s, so BR1 is sacrificial in a shoot-through (accepted at DECISIONS.md:840, departs from D-31); certifier: the abnormal-operation outcome of a BR1 failure with F1 clearing is a lab item.",
+    "bench: the Tj bound rests on a typical RthJC (no maximum published) and the modelled 0.37 K/W gap pad; thermocouple on BR1's case pending (FINDINGS #3)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
     "thermal interface (1.0 mm gap pad, ~0.37 K/W) to the AlN tile"
+   ]
+  },
+  "GRM1885C1H472JA01D": {
+   "checks": [
+    {
+     "id": "voltage",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Rated voltage",
+     "ratio": 0.34,
+     "severity": "violation",
+     "stress": "Gate-source voltage"
+    },
+    {
+     "id": "temperature bound c18 (release)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Operating temperature max",
+     "ratio": 0.9768,
+     "severity": "violation",
+     "stress": "Board temperature bound at the cap, c18 (release)"
+    },
+    {
+     "id": "temperature bound c22",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Operating temperature max",
+     "ratio": 1.0608,
+     "severity": "gap",
+     "stress": "Board temperature bound at the cap, c22"
+    }
+   ],
+   "class": "SIGNAL",
+   "designators": [
+    "C55",
+    "C56",
+    "C62",
+    "C63"
+   ],
+   "finding": null,
+   "function": "Gate-source capacitors C55/C56/C62/C63 of the CFD7s, 4.7 nF 5 % 50 V C0G 0603 (stage 42, candidate 39, DECISIONS 54)",
+   "gaps": [
+    "owner: airflow route (c22/c28): at c22 (22 A, bay 55 C, still air) the FET-row copper bound is 132.6 C against the 125 C C0G limit; the cap's own temperature is not modelled. The firmware ships 18 A (DECISIONS 56), where the bound is 122.1 C; raising the ceiling needs a passing B3 basis (board-face airflow, b3-ratings/ENCLOSURE-REQUEST.md, or a measured bay under 61 C).",
+    "bench: the caps' local temperature is not modelled in B3 (no heat row); only the FET-row copper maximum bounds it (122.1 C at the release case).",
+    "Pulse current (gate charge, ~0.1-1 A for < 1 us) is not compared with a rating; C0G MLCC dissipation is negligible."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "next to the FET's gate run (0603, same pads as the 1 nF it replaces)"
    ]
   },
   "GRM188R71E105KA12D": {
@@ -1472,57 +2044,6 @@
    ],
    "status": "UNAUDITED",
    "unchecked_layout": []
-  },
-  "GRM31A5C3A102JW01D": {
-   "checks": [
-    {
-     "id": "die VDS",
-     "max_ratio": 0.5,
-     "ok": true,
-     "rating": "Rated voltage DC",
-     "ratio": 0.49,
-     "severity": "violation",
-     "stress": "Die VDS worst (switch-node spike)"
-    },
-    {
-     "id": "bus no-clamp worst",
-     "max_ratio": 0.5,
-     "ok": true,
-     "rating": "Rated voltage DC",
-     "ratio": 0.451,
-     "severity": "violation",
-     "stress": "Bus, worst stacked no-clamp case"
-    },
-    {
-     "id": "bus static OVP",
-     "max_ratio": 0.5,
-     "ok": true,
-     "rating": "Rated voltage DC",
-     "ratio": 0.286,
-     "severity": "violation",
-     "stress": "Bus static OVP (continuous)"
-    }
-   ],
-   "class": "POWER",
-   "designators": [
-    "C12",
-    "C13",
-    "C19",
-    "C20"
-   ],
-   "finding": null,
-   "function": "Drain-source snubber capacitors C12/C13/C19/C20, 1 nF 1 kV C0G 1206",
-   "gaps": [
-    "Exact-MPN datasheet not obtained: Murata's product page and PDF endpoint were not retrievable, and the only Murata catalogue found (2010/2012 edition, distributor-hosted) does not list the 1 nF GRM31A5C3A member; ratings are the series values (DC1000 V, g min 1.5 mm, Q >= 1000). Thickness, exact DF and any 1 nF-specific limit are unread.",
-    "No allowable ripple current, self-heating or dv/dt / pulse-current rating is published in the catalogue; the 95 A edge current and the 1.81 A RMS bound (60 kHz) are not compared with any limit. Dissipation = I_rms^2 x ESR, and ESR at the edge spectrum (above self-resonance) is not published (Q >= 1000 is only at 1 MHz); 1.81 A and an ESR of 0.1 ohm (assumption) would be 0.33 W.",
-    "Die VDS margin is thin against the 50 % rule (0.49): the 490 V is a modelled transient (F6 matrix), not a measurement; the bench should confirm it before the 1 kV part is called derated.",
-    "Capacitor temperature next to the FET row (Q2/Q3/Q5/Q6 sink contingency Tj 128.7 C) is not computed; the 125 C maximum is not compared.",
-    "The 1.8 mm escape is below the 3.2 mm HOT rule by design; the 1.5 mm part gap is from the sibling-series catalogue, and the surface creepage at 490 V over 1.8 mm is unqualified (pad_escapes.json:3)."
-   ],
-   "status": "PARTIAL",
-   "unchecked_layout": [
-    "Physical functional-insulation qualification of the bounded escapes (up to 490 V across 1.8 mm on the surface)"
-   ]
   },
   "GRM31C5C1H104JA01L": {
    "checks": [],
@@ -1580,20 +2101,29 @@
     {
      "id": "dv/dt diode",
      "max_ratio": 0.8,
-     "ok": false,
+     "ok": true,
      "rating": "dv/dt reverse diode",
-     "ratio": 1.2257,
+     "ratio": 0.71,
      "severity": "violation",
      "stress": "dv/dt diode commutation (S4)"
     },
     {
      "id": "diF/dt diode",
      "max_ratio": 0.8,
-     "ok": false,
+     "ok": true,
      "rating": "diF/dt diode commutation",
-     "ratio": 1.6162,
+     "ratio": 0.1877,
      "severity": "violation",
      "stress": "diF/dt diode commutation (S4)"
+    },
+    {
+     "id": "dv/dt diode, max Qrr",
+     "max_ratio": 0.8,
+     "ok": false,
+     "rating": "dv/dt reverse diode",
+     "ratio": 1.5173,
+     "severity": "gap",
+     "stress": "dv/dt diode commutation (S4), maximum Qrr"
     }
    ],
    "class": "POWER",
@@ -1603,14 +2133,15 @@
     "Q5",
     "Q6"
    ],
-   "finding": "Reverse-diode dv/dt (70 V/ns, Table 2 p.3) is exceeded outright in the modelled S4 hard-commutation case: 85.8 V/ns (1.23x; the 80 % rule is 56 V/ns). Found by the 2026-10-15 device study (DECISIONS 49). S4 was already an open risk for die VDS and off-gate (D-24); the ledger had compared its 95 V/ns edge only with the 120 V/ns MOSFET rating. Fix: slower turn-on of the commutating switch (gate network), candidate 39; bench: D-8 double-pulse S4 measurement. Also diF/dt: 2101 A/us against the 1300 A/us maximum diode commutation speed (1.62x), and at typical recovery charge the as-built S4 runs 109-112 V/ns with die VDS 620 V (gate-network study, DECISIONS 54). Fix: candidate 39, R_on 68 ohm 2512 + Cgs 4.7 nF (49.7 V/ns, 244 A/us at typical charge); no tested network passes at maximum recovery charge, so the D-8 bench decides.",
+   "finding": "Stage 42 (candidate 39, DECISIONS 54) resolves the VIOLATION at typical recovery charge. History: the 2026-10-15 device study (DECISIONS 49) found the reverse-diode dv/dt (70 V/ns, Table 2 p.3) exceeded in the modelled S4 hard-commutation case, 85.8 V/ns as built (1.23x; 80 % rule 56 V/ns), and the gate-network study (DECISIONS 54) the diF/dt (2101 A/us against 1300, 1.62x), 109-112 V/ns at typical charge. The 68 ohm 2512 turn-on + Cgs 4.7 nF network gives 49.7 V/ns and 244 A/us at typical charge (640/640 full grid). Open: the maximum-Qrr basis (gap check), bench D-8.",
    "function": "Full-bridge switches Q2/Q3/Q5/Q6, 650 V CoolMOS CFD7, TO-247",
    "gaps": [
+    "Maximum-Qrr basis not closed: the S4 diode limits are met at typical recovery charge (49.7 V/ns, 244 A/us) but no tested network meets 56 V/ns at the 4.60 uC maximum; the D-8 double-pulse bench (S4 dv/dt and diF/dt, R_on x Cgs bracket, repeated-pulse run) decides (DECISIONS 54).",
     "Switching loss, S4/S5 dv/dt and VDS are not measured (bench).",
     "Tj at 28 A / 50 kHz exceeds the 125 C design value on the K1 contingency sink (128.7 C); S8 baseline Tj not recorded.",
     "F7 loop re-extraction open (FINDINGS #1)."
    ],
-   "status": "VIOLATION",
+   "status": "PARTIAL",
    "unchecked_layout": [
     "clamp-stack force and tab coplanarity"
    ]
@@ -1627,13 +2158,40 @@
      "stress": "Barrier peak"
     },
     {
+     "id": "working",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIOWM",
+     "ratio": 0.4493,
+     "severity": "violation",
+     "stress": "Barrier rms"
+    },
+    {
      "id": "CMTI",
-     "max_ratio": 0.6666666666666666,
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "CMTI min",
+     "ratio": 0.497,
+     "severity": "violation",
+     "stress": "CMTI edge, s42 typical Qrr"
+    },
+    {
+     "id": "CMTI 1.5x",
+     "max_ratio": 0.6667,
+     "ok": true,
+     "rating": "CMTI min",
+     "ratio": 0.497,
+     "severity": "gap",
+     "stress": "CMTI edge, s42 typical Qrr"
+    },
+    {
+     "id": "CMTI, max Qrr",
+     "max_ratio": 1.0,
      "ok": false,
      "rating": "CMTI min",
-     "ratio": 0.95,
+     "ratio": 1.0621,
      "severity": "gap",
-     "stress": "CMTI edge"
+     "stress": "CMTI edge, maximum Qrr (open)"
     },
     {
      "id": "gap",
@@ -1653,8 +2211,8 @@
    "finding": null,
    "function": "U43 / U44: HS-A / HS-B rail verdicts into the LS domain (functional HS-LS crossings in the bias-monitor PEC); default output LOW = not good. Stage 40 (candidate 30a): U44 replaces the HS-B -> SELV verdict isolator (CA-IS3720LW) in U42's n_ls pocket, as M1b drew it; both verdicts meet on the LS vote (D18 / D20)",
    "gaps": [
-    "CMTI min 100 V/ns is 1.05x the 95 V/ns modelled edge (rule 1.5x). An upset on OUTB (U43 or U44) lasts ~5.5 ns: LOW pauses the LS oscillator for under one period, HIGH while a rail is bad can add at most one or two edges; neither sustains the heartbeat (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json). Bench: S4/S5 dv/dt <= 100 V/ns.",
-    "Basic insulation used as functional HS-LS; the certifier is asked whether its barrier short may be excluded (FMEA section 7 Q4)."
+    "bench: maximum-Qrr basis (DECISIONS 54): s42's S4 edge at typical recovery charge is 49.7 V/ns (2.0x the 100 V/ns minimum); the 4.60 uC maximum was not run on the adopted network, and the nearest tested network reads 106 V/ns (1.06x over). The D-8 double-pulse bench measures S4/S5 dv/dt and probes OUTB of U43/U44 for upsets at hard edges (missed-pulse margin >= 0.78 V, validation-results/11-candidates/c24-monitor-fmea/results/m1_pump_spice.json); an upset is availability, not safety (c24 FMEA).",
+    "certifier: basic insulation (UL 1577 single protection E181974, CSA 220991 basic) used as the functional HS-LS crossing; the certifier is asked whether its barrier short may be excluded (FMEA section 7 Q4)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1662,11 +2220,29 @@
   "KLDR025.TXP": {
    "checks": [
     {
-     "id": "continuous at trip",
+     "id": "continuous at trip, 61 C (release)",
      "max_ratio": 1.0,
      "ok": true,
-     "rating": "I_cont derated",
-     "ratio": 0.8876,
+     "rating": "I_cont at 61 C bay air (release)",
+     "ratio": 0.9375,
+     "severity": "violation",
+     "stress": "I inlet trip"
+    },
+    {
+     "id": "continuous at trip, 55 C",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "I_cont at 55 C bay air",
+     "ratio": 0.9091,
+     "severity": "violation",
+     "stress": "I inlet trip"
+    },
+    {
+     "id": "clip current",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "Clip current 01250003H",
+     "ratio": 0.5,
      "severity": "violation",
      "stress": "I inlet trip"
     },
@@ -1696,9 +2272,9 @@
    "finding": null,
    "function": "Mains inlet fuse F1, Class CC 25 A time-delay, held in 2 x Littelfuse 01250003H clips",
    "gaps": [
-    "Clip (Littelfuse 01250003H, 30 A) datasheet not fetched or committed; clip and Recognized-component acceptance is a certifier item.",
-    "F1 never interrupts 15-25 A through J1 (a 25 A UL 248 fuse carries its rating indefinitely): overload coordination with J1 rests on firmware plus the branch breaker (FINDINGS #11).",
-    "Derating curve value (~90% at 50 C) is the repo's reading of a plot, not a tabulated figure."
+    "bench: F1 / clip local air is not evidenced; 16.0 A assumes the 61 C release bay of the B3 basis (DECISIONS.md:2033-2037; 16.5 A at the 55 C expected bay), and the rerating value is read off the p.6 plot (+/-2 %).",
+    "certifier: 01250003H open clips: UL Recognized E14721 per the maker's sheet (merged 105/125 cell), 30 A, but no voltage rating and no CSA file printed; acceptance of a Class CC fuse in non-rejection PCB clips and the fuse+clip temperature rise at 15 A are certifier items (CERTIFIER-PACKET row 6).",
+    "certifier: F1 does not interrupt 15-25 A overloads (a UL 248 fuse carries its rating); J1 is now the 30 A UL/CSA MKDS 5/2-9,5, so F1 protects J1, but the 15 A plug and cord rest on firmware and the branch breaker (FINDINGS #11). No NMX/NOM mark is printed (UL / CSA only); UL Product iQ returned 403, so the files are as printed by the maker."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1745,11 +2321,20 @@
      "stress": "P bias allocation"
     },
     {
-     "id": "P at 70 C",
+     "id": "P at 61 C bay",
      "max_ratio": 0.9,
      "ok": true,
-     "rating": "P derated at 70 C ambient",
-     "ratio": 0.888,
+     "rating": "P derated at 61 C bay",
+     "ratio": 0.6529,
+     "severity": "violation",
+     "stress": "P bias allocation"
+    },
+    {
+     "id": "P at 78 C bay",
+     "max_ratio": 0.9,
+     "ok": false,
+     "rating": "P derated at 78 C bay",
+     "ratio": 1.1288,
      "severity": "gap",
      "stress": "P bias allocation"
     },
@@ -1761,6 +2346,15 @@
      "ratio": 0.5292,
      "severity": "violation",
      "stress": "Vin high corner"
+    },
+    {
+     "id": "surge",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Surge L-L tested",
+     "ratio": 1.0,
+     "severity": "gap",
+     "stress": "Product DM surge level"
     }
    ],
    "class": "SAFETY",
@@ -1770,10 +2364,10 @@
    "finding": null,
    "function": "Bias/gate supply PS2 (TCO-switched), MEAN WELL MPM-20-24 medical encapsulated, Class II (stage 38, was IRM-20-24)",
    "gaps": [
-    "Local air at PS2 is not measured: the 9.59 W allocation meets the 90 % rule only up to 70.3 C local air (curve read from the p.3 graph). Earlier model case 98 C vs the 85 C ambient rating (DECISIONS.md:834); judge against measured air.",
-    "Approval basis is IEC/EN 60601-1 (2 x MOPP) and IEC/EN 60335-1 (Dekra), not UL 62368-1 or UL 1026: the datasheet lists no UL file. The certifier must accept it as a component in a UL 1026 product (owner-items/CERTIFIER-PACKET.md A3 #14).",
-    "Input current 0.75 A typ at 115 VAC (MPM-20-SPEC p.2) is above IRM-20's 0.6 A; I_aux = 1.3 A (DECISIONS.md:171) counted two IRM-20 modules and stays a bound now that PS1 is gone (one MPM-20 at 0.75 A scaled to 108 V).",
-    "Pin length 3.5 +1/-0.5 mm (IRM-20: 3.5 +/-1 mm); the 1.6 mm board takes it, solder fillet unchecked."
+    "bench: local air at PS2 is unmeasured. 9.59 W is within 90 % of the p.3 curve up to 70.5 C local air (100 % to 74.2 C). At the B3 audit's all-allowances-stacked bay air, 78 C (audit-2026-10-15/README.md:23), it is 1.13x the curve's 8.50 W: over the datasheet derating, not just the 90 % rule. Soak-measure the air at PS2; IRM/MPM-30 class or relocation if the stacked case is real.",
+    "certifier: approval basis is IEC/EN 60601-1 (2 x MOPP), ANSI/AAMI ES60601-1, CAN/CSA C22.2 No. 60601-1 and IEC/EN 60335-1 (Dekra); the sheet prints no UL/CSA file or certificate numbers (an older distributor copy that lists 'UL ANSI/AAMI ES60601-1' returned 403). The certifier must accept it as a component in the UL 858 / 1026 product (owner-items/CERTIFIER-PACKET.md A3 #14).",
+    "certifier: product surge level. The module is tested to 1 kV L-L alone; a 2 kV L-L product test relies on RV1 / L1 ahead of it (no residual-voltage figure at L_FILT is committed).",
+    "bench: pin length 3.5 +1/-0.5 mm in the 1.6 mm board; solder fillet at first article."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1807,15 +2401,6 @@
      "stress": "Barrier peak functional"
     },
     {
-     "id": "CMTI",
-     "max_ratio": 0.6666666666666666,
-     "ok": true,
-     "rating": "CMTI",
-     "ratio": 0.6333,
-     "severity": "violation",
-     "stress": "CMTI edge"
-    },
-    {
      "id": "Pout",
      "max_ratio": 0.9,
      "ok": true,
@@ -1823,6 +2408,60 @@
      "ratio": 0.698,
      "severity": "violation",
      "stress": "Pout at 80 kHz"
+    },
+    {
+     "id": "CMTI",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "CMTI",
+     "ratio": 0.3313,
+     "severity": "violation",
+     "stress": "CMTI edge"
+    },
+    {
+     "id": "CMTI 1.5x",
+     "max_ratio": 0.6667,
+     "ok": true,
+     "rating": "CMTI",
+     "ratio": 0.3313,
+     "severity": "gap",
+     "stress": "CMTI edge"
+    },
+    {
+     "id": "CMTI 1.5x, max Qrr",
+     "max_ratio": 0.6667,
+     "ok": false,
+     "rating": "CMTI",
+     "ratio": 0.7081,
+     "severity": "gap",
+     "stress": "CMTI edge, maximum Qrr (open)"
+    },
+    {
+     "id": "Tj c18 (release)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Tj abs max",
+     "ratio": 0.8907,
+     "severity": "violation",
+     "stress": "Tj U42 c18 (release)"
+    },
+    {
+     "id": "Tj c22",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Tj abs max",
+     "ratio": 0.8707,
+     "severity": "gap",
+     "stress": "Tj U42 c22"
+    },
+    {
+     "id": "Tj c28",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Tj abs max",
+     "ratio": 0.9027,
+     "severity": "gap",
+     "stress": "Tj U42 c28"
     }
    ],
    "class": "POWER",
@@ -1833,9 +2472,9 @@
    "finding": "Isolation claim resolved: elec/src/f6_parts.ato:354 ('reinforced 5 kVAC / 1.4 kVDC working') matches the current R24C2T25/R Rev. 1-2024 sheet (p.1; p.8: 1.4 kVp repetitive, 1000 Vrms TDDB, 1.4 kVDC). The 'preliminary 850 Vrms / 1.2 kVp functional' copy was the different non-/R R24C2T25 series. Barrier check now 520/1400 = 37 % (was 43 % against the wrong part).",
    "function": "High-side isolated gate-bias modules U41/U42 (RECOM), HOT-to-HOT functional barrier",
    "gaps": [
-    "Local enclosure air at U41/U42 not evidenced (DECISIONS.md:836 bench IR). 1.71 W stays within 90 % of the derated power only up to 85.6 C (100 % to 92.4 C) on a straight line through RECOM's labelled points, and the curve is for RECOM's 50x50 mm EVM, not this board.",
-    "'Reinforced' is a p.1 feature claim; the isolation table names no standard and UL file E542996 (p.1 logo) could not be read (UL Product iQ 403). Not needed for this HOT-to-HOT functional use; do not rely on it as safety insulation.",
-    "Start-up (6-13 ms vs 16 ms timeout) and 11-16 MHz switching emissions are bench items (DECISIONS.md:442-448)."
+    "bench: CMTI. s42's S4 edge at typical Qrr is 49.7 V/ns, 3.0x the 150 V/ns. The 1.5x rule (validation-results/06-controller-interface/cmti/README.md:8) applies to gate-command crossings; a RECOM upset is a regulation transient the reservoir rides through (validation-results/06-controller-interface/cmti/README.md:23), so its severity is gap. Maximum Qrr is open (nearest tested network 106 V/ns, 1.41x): D-8 bench.",
+    "bench: B3 body model gives Tj 133.7 C (U42) at the c18 release case (bay 61 C; 130.6 / 135.4 C at c22 / c28), under 150 C; the 2 W / 82 C knee is an ambient curve on RECOM's 50 x 50 mm EVM, not this board. IR the module tops at first power (DECISIONS.md:836).",
+    "bench: start-up (6-13 ms vs 16 ms timeout) and 11-16 MHz switching emissions (DECISIONS.md:442-448)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1850,6 +2489,24 @@
      "ratio": 0.4506,
      "severity": "violation",
      "stress": "Line high corner"
+    },
+    {
+     "id": "surge",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "X2 impulse",
+     "ratio": 0.8792,
+     "severity": "violation",
+     "stress": "Surge voltage bound across CX"
+    },
+    {
+     "id": "dV/dt",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "dV/dt",
+     "ratio": 0.0004,
+     "severity": "violation",
+     "stress": "Line dV/dt"
     }
    ],
    "class": "SAFETY",
@@ -1860,8 +2517,8 @@
    "finding": null,
    "function": "X2 across-the-line capacitors C1/C2, 1 uF 310 VAC",
    "gaps": [
-    "Body temperature next to L1/BR1 and the 1-2 kV surge pulse (X2 pulse/dV/dt limits) not compared to the datasheet.",
-    "Bleed (R1/R2) is itself UNAUDITED; plug-pin discharge < 34 V in 1 s asserted by FINDINGS #10 only."
+    "bench: body temperature next to L1 / BR1 is not evidenced (B3 has no C1/C2 row; its L1 body is 102.2 C at the c18 release case, bay 61 C, and 97.6 / 100.0 C at c22 / c28, bay 55 C, validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json rows \"L1: B82726 climatic\" (keyed, cases c18_h10 / c22_h10 / c28_h10)); limit 110 C.",
+    "desk: the 35-60 kHz differential-mode current through C1/C2 is not compared with the p.6 'Maximum Irms vs Th' derating (the s19b EMI model carries these currents)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1895,11 +2552,29 @@
      "stress": "V per resistor static"
     },
     {
+     "id": "V transient",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "V overload",
+     "ratio": 0.5637,
+     "severity": "violation",
+     "stress": "V per resistor transient"
+    },
+    {
      "id": "P",
      "max_ratio": 0.5,
      "ok": true,
      "rating": "P rated",
      "ratio": 0.372,
+     "severity": "violation",
+     "stress": "P per resistor static"
+    },
+    {
+     "id": "P at 85 C",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "P at 85 C",
+     "ratio": 0.4517,
      "severity": "violation",
      "stress": "P per resistor static"
     }
@@ -1912,8 +2587,8 @@
    "finding": null,
    "function": "Bus bleed R3/R4 (two 220 k in series, midpoint to D3/D17)",
    "gaps": [
-    "Series spec from 2004 used; confirm the RC1206FR-07 maximum working voltage (200 V) and overload (400 V) against the current Yageo RC_L sheet.",
-    "Transient 451 V no-clamp corner would be 225 V per resistor, above the 200 V working figure but below the 400 V overload."
+    "bench: local air at R3/R4 is not evidenced (B3 has no R3/R4 row); 85 C is assumed as for R1/R2, and the 50 % power rule holds to 91.8 C.",
+    "certifier: with one resistor shorted the other carries the whole bus (286 V static > 200 V working, < 400 V overload); the abnormal-operation outcome (bleed lost if it opens) is a lab item."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1951,22 +2626,85 @@
   "RC1206FR-07470KL": {
    "checks": [
     {
-     "id": "bank",
+     "id": "bank rms",
      "max_ratio": 0.8,
      "ok": true,
      "rating": "V working",
-     "ratio": 0.8,
+     "ratio": 0.6102,
      "severity": "violation",
-     "stress": "V peak per resistor (bank bleed)"
+     "stress": "V rms per resistor, bank bleed (bound)"
+    },
+    {
+     "id": "bank peak",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "V working",
+     "ratio": 0.863,
+     "severity": "violation",
+     "stress": "V peak per resistor, bank bleed (bound)"
     },
     {
      "id": "divider",
      "max_ratio": 0.8,
      "ok": true,
      "rating": "V working",
-     "ratio": 0.25,
+     "ratio": 0.3575,
      "severity": "violation",
-     "stress": "V per resistor (bus divider)"
+     "stress": "V per resistor, bus divider at static OVP"
+    },
+    {
+     "id": "divider surge",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "V overload 5 s",
+     "ratio": 0.305,
+     "severity": "violation",
+     "stress": "V per resistor, bus divider in a 2 kV DM surge"
+    },
+    {
+     "id": "power",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "P derated at 83.9 C (release)",
+     "ratio": 0.1516,
+     "severity": "violation",
+     "stress": "P per resistor, bank bleed (bound)"
+    },
+    {
+     "id": "temperature",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "T operating max",
+     "ratio": 0.5413,
+     "severity": "violation",
+     "stress": "T body R22 c18 (release)"
+    },
+    {
+     "id": "power c28",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "P derated at 98.1 C",
+     "ratio": 0.1894,
+     "severity": "gap",
+     "stress": "P per resistor, bank bleed (bound)"
+    },
+    {
+     "id": "temperature c28",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "T operating max",
+     "ratio": 0.6329,
+     "severity": "gap",
+     "stress": "T body R22 c28"
+    },
+    {
+     "id": "third fault",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "V overload 5 s",
+     "ratio": 1.0519,
+     "severity": "gap",
+     "stress": "V per resistor, bank third fault"
     }
    ],
    "class": "SAFETY",
@@ -1981,10 +2719,10 @@
     "R29"
    ],
    "finding": null,
-   "function": "Bus divider and resonant-bank bleed string R22-R29 (470 k, 4 in series)",
+   "function": "R22-R25: C_res bank bleed string (RES_A to SW_B, 4 x 470 k); R26-R29: bus-voltage divider top (BUS_P to VSENSE_IN, 4 x 470 k over 15.8 k)",
    "gaps": [
-    "Series spec from 2004; confirm against the current Yageo RC_L sheet.",
-    "Pulse behaviour in the double-fault bank over-voltage case not compared to the pulse-voltage curves."
+    "owner: F3's third-fault case (DECISIONS.md:853, 1,683 V across C_res) puts 421 V on each of R22-R25, 1.05x the 400 V / 5 s overload rating. The same case already exceeds C21-C23's 1,600 VDC and is accepted only as a third independent fault behind the 35 kHz floor; confirm it stays outside the design basis (a bleed resistor failing open there only loses the bleed).",
+    "bench: R26-R29 (divider) are not in the B3 thermal model; their dissipation is <= 11 mW each at 286 V, but the local board temperature is unmeasured (IR at first power)."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -2006,22 +2744,52 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
-  "RS-06L8R20FT": {
-   "checks": [],
+  "RT0603BRD07104KL": {
+   "checks": [
+    {
+     "id": "voltage operating",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.2243,
+     "severity": "violation",
+     "stress": "Voltage, operating"
+    },
+    {
+     "id": "voltage fault",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.2894,
+     "severity": "violation",
+     "stress": "Voltage, fault"
+    },
+    {
+     "id": "power fault",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Power at 85 C",
+     "ratio": 0.055,
+     "severity": "violation",
+     "stress": "Power, fault"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
-    "R10",
-    "R12",
-    "R18",
-    "R20"
+    "R105",
+    "R120",
+    "R87"
    ],
    "finding": null,
-   "function": "Gate resistors R10/R12/R18/R20, 8.2 ohm (stage 29: keeps the 2EDR8259X edge at 0.99x the as-built one)",
+   "function": "104000 ohm 0.1 % 25 ppm 0603: rail-monitor span-OV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
    ],
-   "status": "UNAUDITED",
-   "unchecked_layout": []
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "same 0603 pads as the s44 part it replaces (BOM-only stage)"
+   ]
   },
   "RT0603BRD07105KL": {
    "checks": [],
@@ -2043,15 +2811,10 @@
    "designators": [
     "R100",
     "R102",
-    "R104",
-    "R106",
     "R111",
-    "R112",
     "R113",
     "R115",
     "R117",
-    "R119",
-    "R121",
     "R32",
     "R33",
     "R36",
@@ -2060,14 +2823,10 @@
     "R49",
     "R50",
     "R78",
-    "R79",
     "R80",
     "R82",
     "R84",
-    "R86",
-    "R88",
     "R96",
-    "R97",
     "R98"
    ],
    "finding": null,
@@ -2082,27 +2841,17 @@
    "checks": [],
    "class": "SIGNAL",
    "designators": [
+    "R104",
+    "R106",
+    "R119",
+    "R121",
     "R61",
+    "R86",
+    "R88",
     "R93"
    ],
    "finding": null,
-   "function": "11 k",
-   "gaps": [
-    "Not audited (outside SAFETY/POWER)."
-   ],
-   "status": "UNAUDITED",
-   "unchecked_layout": []
-  },
-  "RT0603BRD07120KL": {
-   "checks": [],
-   "class": "SIGNAL",
-   "designators": [
-    "R103",
-    "R118",
-    "R85"
-   ],
-   "finding": null,
-   "function": "120 k",
+   "function": "11 k 0.1 %: HS module feedback bottoms (R61 / R93) and, since stage 45, the rail-monitor span-UV / span-OV tap bottoms (S16 option 1c-4420)",
    "gaps": [
     "Not audited (outside SAFETY/POWER)."
    ],
@@ -2181,6 +2930,53 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
+  "RT0603BRD072K94L": {
+   "checks": [
+    {
+     "id": "voltage operating",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.0275,
+     "severity": "violation",
+     "stress": "Voltage, operating"
+    },
+    {
+     "id": "voltage fault",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.318,
+     "severity": "violation",
+     "stress": "Voltage, fault"
+    },
+    {
+     "id": "power fault",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Power at 85 C",
+     "ratio": 0.1227,
+     "severity": "violation",
+     "stress": "Power, fault"
+    }
+   ],
+   "class": "SIGNAL",
+   "designators": [
+    "R101",
+    "R116",
+    "R83"
+   ],
+   "finding": null,
+   "function": "2940 ohm 0.1 % 25 ppm 0603: rail-monitor neg-OV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
+   "gaps": [
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "same 0603 pads as the s44 part it replaces (BOM-only stage)"
+   ]
+  },
   "RT0603BRD0749K9L": {
    "checks": [],
    "class": "SIGNAL",
@@ -2201,12 +2997,12 @@
    "checks": [],
    "class": "SIGNAL",
    "designators": [
-    "R114",
-    "R81",
-    "R99"
+    "R112",
+    "R79",
+    "R97"
    ],
    "finding": null,
-   "function": "4.42 k",
+   "function": "4.42 k 0.1 %: rail-monitor halfref top (stage 45, S16 option 1c-4420; was the neg-UV tap top)",
    "gaps": [
     "Not audited (outside SAFETY/POWER)."
    ],
@@ -2244,21 +3040,99 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
-  "RT0603BRD077K68L": {
-   "checks": [],
+  "RT0603BRD07750RL": {
+   "checks": [
+    {
+     "id": "voltage operating",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.0167,
+     "severity": "violation",
+     "stress": "Voltage, operating"
+    },
+    {
+     "id": "voltage fault",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.1933,
+     "severity": "violation",
+     "stress": "Voltage, fault"
+    },
+    {
+     "id": "power fault",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Power at 85 C",
+     "ratio": 0.0454,
+     "severity": "violation",
+     "stress": "Power, fault"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
-    "R101",
-    "R116",
-    "R83"
+    "R114",
+    "R81",
+    "R99"
    ],
    "finding": null,
-   "function": "7.68 k",
+   "function": "750 ohm 0.1 % 25 ppm 0603: rail-monitor neg-UV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
    ],
-   "status": "UNAUDITED",
-   "unchecked_layout": []
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "same 0603 pads as the s44 part it replaces (BOM-only stage)"
+   ]
+  },
+  "RT0603BRD0790K9L": {
+   "checks": [
+    {
+     "id": "voltage operating",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.2212,
+     "severity": "violation",
+     "stress": "Voltage, operating"
+    },
+    {
+     "id": "voltage fault",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Rated working voltage",
+     "ratio": 0.2855,
+     "severity": "violation",
+     "stress": "Voltage, fault"
+    },
+    {
+     "id": "power fault",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "Power at 85 C",
+     "ratio": 0.0612,
+     "severity": "violation",
+     "stress": "Power, fault"
+    }
+   ],
+   "class": "SIGNAL",
+   "designators": [
+    "R103",
+    "R118",
+    "R85"
+   ],
+   "finding": null,
+   "function": "90900 ohm 0.1 % 25 ppm 0603: rail-monitor span-UV tap top (stage 45, S16 option 1c-4420, DECISIONS 59)",
+   "gaps": [
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger"
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "same 0603 pads as the s44 part it replaces (BOM-only stage)"
+   ]
   },
   "SN74LVC1G00DBVR": {
    "checks": [],
@@ -2344,8 +3218,45 @@
    "status": "UNAUDITED",
    "unchecked_layout": []
   },
-  "TL431AIDBZR": {
-   "checks": [],
+  "TL431BIDBZR": {
+   "checks": [
+    {
+     "id": "VKA",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Cathode voltage, recommended max",
+     "ratio": 0.0706,
+     "severity": "violation",
+     "stress": "Cathode voltage"
+    },
+    {
+     "id": "IKA operating",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Cathode current, recommended max",
+     "ratio": 0.0729,
+     "severity": "violation",
+     "stress": "Cathode current, operating max"
+    },
+    {
+     "id": "IKA fault",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Cathode current, recommended max",
+     "ratio": 0.0979,
+     "severity": "violation",
+     "stress": "Cathode current, fault case"
+    },
+    {
+     "id": "temperature (estimate)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Free-air temperature max",
+     "ratio": 0.7565,
+     "severity": "gap",
+     "stress": "Local temperature, expected"
+    }
+   ],
    "class": "SIGNAL",
    "designators": [
     "U17",
@@ -2353,11 +3264,13 @@
     "U21"
    ],
    "finding": null,
-   "function": "adjustable shunt",
+   "function": "Rail-monitor reference (REF tied to K, fed by rref 2.2 k), LS / HS-A / HS-B; B grade since stage 45 (S16 option 1c-4420, DECISIONS 59)",
    "gaps": [
-    "Not audited (outside SAFETY/POWER)."
+    "bench / B3: no B3 probe rows at the monitor islands (U16-U21, U29-U31; OPEN-ITEMS S16 next step): the local temperature is the S16 fallback estimate 64.3 C (bay 61 C + TL431 self-heat) and the band analysis is bounded at 85 C (the TL431BI / LM339B rated maximum, 60 K TCR excursion); the parts sit 11-13 mm from U26 / U41 / U42",
+    "the fault-case span is a stated case, not a bound: V24_RAW nominal 24 V on the span (LS LDO pass short); PS2's own output tolerance / OVP and the RECOM feedback-open output are not in the ledger",
+    "Vref long-term (load-life) drift is not specified (only VI(dev) over temperature); covered only by the 0.5 % margin target of the band analysis"
    ],
-   "status": "UNAUDITED",
+   "status": "PARTIAL",
    "unchecked_layout": []
   },
   "TLV3201AIDBVR": {
@@ -2440,10 +3353,9 @@
    "finding": null,
    "function": "Mains surge varistor RV1 (thermally protected MOV, 175 Vrms)",
    "gaps": [
-    "Datasheet is the 2017 revision from a distributor (Littelfuse 403); confirm no later change to the TMOV20RP175E row.",
-    "RV1 local ambient is not evidenced; ratings hold to 85 C and derate to 0 at 125 C (Figure 2).",
-    "100-pulse surge limit is digitised from Figure 6 (about +/-10 %); the lab's surge count is not fixed (DC-LINK-CLAMP.md).",
-    "UL 1449 recognition (E320116, component) not confirmed on UL Product iQ (403); the thermal-disconnect time under limited-current overvoltage is typical only (Figure 1)."
+    "bench: RV1 local ambient is not evidenced (B3 has no RV1 row); ratings hold to 85 C and derate to 0 at about 125 C (Figure 2, p.3).",
+    "certifier: surge level and count are the lab's choice (ALT-D3 'Which surge level applies?'); the 100-pulse limit is digitised from Figure 6 (+/-10 %).",
+    "certifier: UL1449 E320116 is a component recognition (maker's p.1; UL Product iQ 403, 2026-10-15); behaviour of the thermal disconnect in the end product's abnormal-overvoltage test (p.3 note: heating, arcing and venting before opening, the enclosure must contain it) is a lab item."
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -2519,6 +3431,51 @@
      "ratio": 0.1882,
      "severity": "violation",
      "stress": "Line crest"
+    },
+    {
+     "id": "IF",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "IF abs max",
+     "ratio": 0.0496,
+     "severity": "violation",
+     "stress": "IF at line crest"
+    },
+    {
+     "id": "IF surge",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "IF abs max",
+     "ratio": 0.3025,
+     "severity": "violation",
+     "stress": "IF in a 1 kV surge (bound)"
+    },
+    {
+     "id": "P LED",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "P input abs max",
+     "ratio": 0.0446,
+     "severity": "violation",
+     "stress": "P LED at line crest"
+    },
+    {
+     "id": "creepage IIIa",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "CPG",
+     "ratio": 1.0,
+     "severity": "violation",
+     "stress": "Creepage required, reinforced PD3 IIIa"
+    },
+    {
+     "id": "surge",
+     "max_ratio": 0.5,
+     "ok": true,
+     "rating": "VIOTM",
+     "ratio": 0.2747,
+     "severity": "violation",
+     "stress": "Surge L-E across barrier"
     }
    ],
    "class": "SAFETY",
@@ -2528,9 +3485,8 @@
    "finding": null,
    "function": "Line zero-cross optocoupler U36 (mains L/N to SELV), LSOP-4 long creepage",
    "gaps": [
-    "Input LED current at the mains peak is not evidenced against IF +/-60 mA / Pdiss 100 mW.",
-    "CTI 275 (group IIIa) vs the material-group assumed in the D5 basis not compared.",
-    "No CMTI published for the part (CMTI README:22): false zero-cross edge handled in firmware."
+    "bench: Vishay publishes no CMTI (p.1 'high common mode transient immunity' only). U36 straddles mains L/N to SELV, so EFT / surge fronts, not switch nodes, set its dv/dt; a false zero-cross edge is handled by the firmware window (UNCHECKED). Bench: EFT 1 kV / surge at the inlet with LINE_ZC on a scope.",
+    "certifier: UL 1577 file E76222 is quoted from Rev. 1.8 (2018); Rev. 1.9 drops the number and UL Product iQ returned 403. Confirm VOL628A on E76222 (and cUL) in the submission."
    ],
    "status": "PARTIAL",
    "unchecked_layout": [
@@ -2539,13 +3495,12 @@
   }
  },
  "errors": [],
- "failures": [
-  "VIOLATION: IPW65R018CFD7 (Q2,Q3,Q5,Q6): Reverse-diode dv/dt (70 V/ns, Table 2 p.3) is exceeded outright in the modelled S4 hard-commutation case: 85.8 V/ns (1.23x; the 80 % rule is 56 V/ns). Found by the 2026-10-15 device study (DECISIONS 49). S4 was already an open risk for die VDS and off-gate (D-24); the ledger had compared its 95 V/ns edge only with the 120 V/ns MOSFET rating. Fix: slower turn-on of the commutating switch (gate network), candidate 39; bench: D-8 double-pulse S4 measurement. Also diF/dt: 2101 A/us against the 1300 A/us maximum diode commutation speed (1.62x), and at typical recovery charge the as-built S4 runs 109-112 V/ns with die VDS 620 V (gate-network study, DECISIONS 54). Fix: candidate 39, R_on 68 ohm 2512 + Cgs 4.7 nF (49.7 V/ns, 244 A/us at typical charge); no tested network passes at maximum recovery charge, so the D-8 bench decides."
- ],
+ "failures": [],
  "missing_from_ledger": [],
  "partial": [
   "1206W4F1003T5E",
   "1714971",
+  "25121WF680JT4E",
   "2EDR8259XXUMA1",
   "30KPA150CA",
   "7466004R",
@@ -2557,12 +3512,14 @@
   "B32676G1905K000",
   "B82726S2203A020",
   "CA-IS3720HW",
+  "CC1206JKNPOCBN102",
   "CL32B106KBJNNNE",
   "CSS2H-2512R-1L00F",
   "CST3015-200ED",
   "DE1E3RA222MA4BP01F",
   "GBJ2510-F",
-  "GRM31A5C3A102JW01D",
+  "GRM1885C1H472JA01D",
+  "IPW65R018CFD7",
   "ISO6721FBDR",
   "KLDR025.TXP",
   "MPM-20-24",
@@ -2570,17 +3527,22 @@
   "R463N410050N1K",
   "RC1206FR-07220KL",
   "RC1206FR-07470KL",
+  "RT0603BRD07104KL",
+  "RT0603BRD072K94L",
+  "RT0603BRD07750RL",
+  "RT0603BRD0790K9L",
   "SN74LVC1G132DBVR",
+  "TL431BIDBZR",
   "TMOV20RP175E",
   "VOL628A-2X001T"
  ],
- "result": "FAIL",
+ "result": "PASS",
  "strict": false,
  "totals": {
-  "PARTIAL": 29,
-  "UNAUDITED": 59,
+  "PARTIAL": 37,
+  "UNAUDITED": 54,
   "VERIFIED": 3,
-  "VIOLATION": 1
+  "VIOLATION": 0
  },
  "unaudited_other": [
   "0430451612",
@@ -2597,7 +3559,6 @@
   "1206W4F1001T5E",
   "1206W4F100KT5E",
   "6SVPC220MV",
-  "ARG03BTC1333",
   "BAS116H,115",
   "C0603C102J5GACTU",
   "CC0603KRX7R9BB104",
@@ -2616,11 +3577,9 @@
   "RC1206FR-072K2L",
   "RC1206FR-073RL",
   "RL1206FR-070R68L",
-  "RS-06L8R20FT",
   "RT0603BRD07105KL",
   "RT0603BRD0710KL",
   "RT0603BRD0711KL",
-  "RT0603BRD07120KL",
   "RT0603BRD0712K6L",
   "RT0603BRD07140KL",
   "RT0603BRD0715K8L",
@@ -2630,12 +3589,10 @@
   "RT0603BRD074K42L",
   "RT0603BRD0763K4L",
   "RT0603BRD076K2L",
-  "RT0603BRD077K68L",
   "SN74LVC1G00DBVR",
   "SN74LVC1G10DBVR",
   "SN74LVC1G17DBVR",
   "SN74LVC1G332DBVR",
-  "TL431AIDBZR",
   "TLV3201AIDBVR",
   "TLVH431BQDBZR",
   "TNPW060311K7BEEA",
@@ -2644,11 +3601,9 @@
   "TPS7A4700RGWR"
  ],
  "unaudited_safety_power": [],
- "unchecked_layout_items": 10,
- "violations": [
-  "IPW65R018CFD7"
- ],
+ "unchecked_layout_items": 15,
+ "violations": [],
  "warnings": [
-  "59 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
+  "54 SIGNAL-class lines are UNAUDITED (allowed; listed in the report)"
  ]
 }

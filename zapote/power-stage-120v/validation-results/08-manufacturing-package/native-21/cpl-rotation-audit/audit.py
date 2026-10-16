@@ -21,6 +21,9 @@ Classes:
   CORRECTED      the offset is non-zero and both sources agree on it.  Applied in cpl-jlcpcb.corrected.csv.
   NEEDS-PREVIEW  the sources disagree, one is missing, the footprints do not match, or polarity cannot be
                  established offline.  Left unchanged in the corrected file; the proposed value is the best guess.
+  A disagreement is settled for an LCSC number listed in sources/pin-evidence.json: the datasheet confirms that the
+  EasyEDA pin numbering is the datasheet's and that KiCad pad n is datasheet pin n, so a unique EasyEDA pad-number
+  fit is the part JLC places, and the DB rule (a per-footprint-name heuristic) is overridden: CORRECTED.
 Lines JLC does not place (consigned / hand-assembled, no LCSC number) are listed as EXCLUDED, not classed.
 
 Tool controls are asserted at the end of every run (see CONTROLS and selftest()).
@@ -161,7 +164,7 @@ def db_lookup(rules, fpname):
 
 
 # ----------------------------------------------------------------------------- core classifier
-def evaluate(kfp, fpname, ee, rules, ref, kind_override=None):
+def evaluate(kfp, fpname, ee, rules, ref, kind_override=None, evidence=None):
     """Return a dict describing the EasyEDA fit, the DB rule and the proposed offset set.  Pure function of
     the footprints so selftest() can drive it with synthetic input."""
     kpads = by_num(kfp["pads"])
@@ -222,6 +225,14 @@ def evaluate(kfp, fpname, ee, rules, ref, kind_override=None):
     res["pads_k"], res["pads_ee"] = len(kpads), len(epads)
     if rms[best] <= FIT_OK_RMS and second - rms[best] >= FIT_SEP:
         res["theta"] = [best]
+        if evidence and res["method"] == "pad number":
+            ee_names = {p["num"]: p["name"].strip().upper() for p in ee.get("pins", [])}
+            ds = {n: f.upper() for n, f in evidence["datasheet_pins"].items()}
+            if ee_names == ds and evidence.get("kicad_pad_is_datasheet_pin") and set(ds) == set(kpads):
+                res["pin_evidence"] = evidence["source"]
+            else:
+                res["note"] = (f"pin evidence does not confirm the numbering (EasyEDA {ee_names}, datasheet {ds}, "
+                               f"KiCad pads {sorted(kpads)})")
     else:
         res["note"] = (f"pad layouts do not match well enough (best rms {rms[best]:.2f} mm at {best} deg, "
                        f"next {second:.2f} mm)")
@@ -260,6 +271,11 @@ def decide(k, ev, kind, fpname, passive_std):
     if dboff is not None and ((k + dboff) % 360) in P:
         return ("CORRECTED", (k + dboff) % 360,
                 f"EasyEDA footprint fit needs {sorted(th)} deg and DB rule {db[0]!r} gives {dboff:+d}: agree")
+    if ev.get("pin_evidence") and len(P) == 1:
+        return ("CORRECTED", sorted(P)[0],
+                f"EasyEDA footprint fit needs offset {sorted(th)} deg, unique; pin numbering confirmed by the datasheet "
+                f"(sources/pin-evidence.json: {ev['pin_evidence'][:80]}...)"
+                + (f"; DB rule {db[0]!r} {dboff:+d} overridden" if dboff is not None else ""))
     if dboff is None:
         return ("NEEDS-PREVIEW", sorted(P)[0],
                 f"EasyEDA footprint fit needs offset {sorted(th)} deg but no DB rule covers {fpname!r}")
@@ -413,6 +429,19 @@ def selftest(rules):
     assert db_lookup(rules, "SOT-23")[1] == -90 and db_lookup(rules, "SOT-23-5")[1] == -90
     assert db_lookup(rules, "SOIC-8_3.9x4.9mm_P1.27mm")[1] == 270
     assert db_lookup(rules, "R_0603_1608Metric") is None
+    # pin evidence: a SOT-23-3 whose EasyEDA footprint is the KiCad one turned 180 deg, DB rule -90
+    k3 = [{"num": "1", "x": -0.9375, "y": -0.95}, {"num": "2", "x": -0.9375, "y": 0.95}, {"num": "3", "x": 0.9375, "y": 0.0}]
+    e3 = [{"num": p["num"], "x": -p["x"], "y": -p["y"], "w": 1, "h": 1} for p in k3]
+    pins = [{"num": "1", "name": "CATHODE"}, {"num": "2", "name": "REF"}, {"num": "3", "name": "ANODE"}]
+    good = {"datasheet_pins": {"1": "CATHODE", "2": "REF", "3": "ANODE"}, "kicad_pad_is_datasheet_pin": True, "source": "t"}
+    ev = evaluate({"pads": k3}, "SOT-23", {"pads": e3, "pins": pins}, rules, "U1", evidence=good)
+    assert ev["theta"] == [180] and ev.get("pin_evidence"), ev
+    assert decide(0, ev, "U", "SOT-23", False)[:2] == ("CORRECTED", 180)
+    bad = dict(good, datasheet_pins={"1": "REF", "2": "CATHODE", "3": "ANODE"})    # TL432 numbering: must not settle
+    ev = evaluate({"pads": k3}, "SOT-23", {"pads": e3, "pins": pins}, rules, "U1", evidence=bad)
+    assert not ev.get("pin_evidence") and decide(0, ev, "U", "SOT-23", False)[0] == "NEEDS-PREVIEW", ev
+    ev = evaluate({"pads": k3}, "SOT-23", {"pads": e3, "pins": pins}, rules, "U1")    # no evidence: unchanged
+    assert decide(0, ev, "U", "SOT-23", False)[0] == "NEEDS-PREVIEW"
     print("selftest: ok")
 
 
@@ -424,6 +453,8 @@ CONTROLS = {
     "U14": {"class": "CORRECTED", "delta": -90},
     # SOIC-14 (LM339B, C22416291): DB "^SOIC-" 270 and the LCSC footprint fit both give 270
     "U29": {"class": "CORRECTED", "delta": -90},
+    # SOT-23-3 (TL431BIDBZR, C41283): EasyEDA fit 180, DB "^SOT-23" -90; settled by the TI SLVS543S p.4 pinout
+    "U17": {"class": "CORRECTED", "delta": -180},
 }
 
 
@@ -437,6 +468,7 @@ def main():
     selftest(rules)
     kfps = json.loads((SRC / "kicad-footprints.json").read_text())
     ees = json.loads((SRC / "easyeda-footprints.json").read_text())
+    pin_ev = json.loads((SRC / "pin-evidence.json").read_text())["parts"]
     bom = expand_bom(FAB / "bom-jlcpcb.csv")
     cpl = list(csv.DictReader(open(FAB / "cpl-jlcpcb.csv", newline="")))
 
@@ -460,7 +492,7 @@ def main():
         assert line["Layer"] == "Top", f"{ref}: bottom side not handled"
         ee = ees.get(lcsc)
         kind = re.match(r"[A-Z]+", ref).group(0)
-        ev = evaluate(kfp, fpname, ee, rules, ref)
+        ev = evaluate(kfp, fpname, ee, rules, ref, evidence=pin_ev.get(lcsc))
         passive_std = bool(re.match(r"(R|C|L)_(0201|0402|0603|0805|1206|1210|2512)_", fpname)) and kind in ("R", "C")
         cls, prop, reason = decide(k, ev, kind, fpname, passive_std)
         th = ev["theta"]

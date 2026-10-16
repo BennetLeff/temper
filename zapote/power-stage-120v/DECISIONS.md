@@ -1943,3 +1943,247 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - a repeated-pulse run of several hundred S4 edges.
       Until then the ledger keeps both checks on the as-built stresses.
     - **Sourcing flag:** JLC holds 3 of the fitted PMEG6030EP,115. The JSMSEMI clone (C53114006) is not qualified.
+
+55. **Stage 42 (candidate 39): the DECISIONS 54 gate network, built on s41 (2026-10-15; adopted; board of record s42, 9e075b4b). Adopt over the card's
+    laminate REJECT. The regression is the network's own heat, which item 54 accepted, and the still-air ceiling becomes
+    20.0 A at bay 55 °C / 18.3 A at bay 61 °C.** Records: `validation-results/11-candidates/c39-gate-network/README.md`.
+    Board native21s42 `9e075b4b`, chain CHAIN_DONE with no spine owner (SPINE_LOCK PASS).
+    - **Scorecard against s41: REJECT on `b3_laminate_margin_K` only** (−25.2 → −30.6 K, tolerance 1.0).
+      - Better: `b3_rated_part_margin_K` −64.1 → −33.4 K. Every other gate and performance metric is unchanged:
+        - DRC 0 / 0, barrier, RES_A 13.375 mm, D5 8.047 / 8.507 mm;
+        - Kelvin 67.77–116.44 A, OCP pickup 4.17 A, fuse-copper 0.993;
+        - task 04 39 / 0, return path 15, EMI, touch, CMTI.
+      - Cost: +$0.14 / +$0.11 at 5 / 500 boards, one more BOM line (93), 753 vias (−1).
+    - **Built:**
+      - R10 / R12 / R18 / R20 → UniRoyal 25121WF680JT4E, 68 Ω 1 W 2512 (C50371), turned 180° on the same axis, centre
+        y 12.4.
+      - C55 / C56 / C62 / C63 → Murata GRM1885C1H472JA01D, 4.7 nF C0G 0603 (C85980).
+      - Gate runs re-laid locally (`patches21.edit_base42`): gate down x g − 2.15 into pad 2; OUT under the body to pad 1.
+      - Pull-downs 0.5 mm west and north. R11 is turned 180° with its sw_a via at (59.6, 13.3), which keeps the leg-A
+        In1 fuse neck at 3.88 mm (2.87 on s41). The first build's via at (59.4, 9.7) cut it to 2.42 mm, ratio 0.882.
+      - R10's redundant sw_a stub via is removed.
+    - **Why the laminate moved** (s42 copper with the s41 heat file, `scripts/heat_swap.sh`):
+      - The copper alone is neutral to better: FET row c28 −25.2 → −22.8 K, c22 block +1.2 → +4.3 K.
+      - The network's +0.68 W (c28 basis: R_on 0.140 → 0.217 W ×4, R_off 0.036 → 0.063 W ×4, RECOM / U26 / PS2 +16 %
+        charge) costs c28 −4.1 / −7.8 K (block / FET row) and c22 −11.1 K (block).
+      - At c22 the hottest laminate is now R12's own gate pad.
+      - No copper change on this candidate recovers it. The levers are listed below.
+    - **B3 rows, s41 → s42 (bay 55 °C):**
+
+      | | c22 | c28 |
+      |---|---|---|
+      | Laminate, 1 mm block | +1.2 → −6.8 K | −25.1 → −30.6 K |
+      | Laminate, FET row | +1.1 → −3.5 K | −25.2 → −30.6 K |
+      | C40 | −2.7 → −6.0 K | −24.6 → −27.8 K |
+      | R_on terminal derating (worst) | −39.6 (1206) → −6.2 K (2512) | −64.1 → −33.4 K |
+      | R_off R58 terminal derating | +19.4 → +1.8 K | −7.7 → −25.4 K |
+
+    - **Still-air ceilings** (c36's I_trip² method, `scripts/ceilings.py`):
+      - bay 55 °C: all gated rows **0.0 → 20.0 A** (laminate block, R10 derating). On s41 the 1206 gate resistors failed
+        with no tank current. Laminate + film 21.1 → 20.0 A.
+      - bay 61 °C, solved at 61 (not shifted): **18.3 A** (R10 derating), laminate + film 18.4 A.
+      - So the commissioned still-air ceiling, still open with the owner since items 46 / 51 / 53 (≤ 18 A requested), is
+        **≤ 20.0 A at bay 55 °C and ≤ 18.3 A at bay 61 °C** on this board. The 22 A c22 point is no longer supported in
+        still air.
+    - **Datasheet ledger (3 / 31 / 58 / 1):**
+      - IPW65R018CFD7 VIOLATION → PARTIAL. S4 meets 70 V/ns and 1,300 A/µs at typical Qrr (49.7 V/ns, 244 A/µs). The
+        maximum-Qrr basis stays open for the D-8 bench.
+      - **25121WF680JT4E is the one VIOLATION:** at c22 its terminal (138.1 °C) allows 0.199 W, and 0.217 W is 109 %
+        against the 80 % rule. It clears at the ≤ 20 A ceiling above or with airflow.
+      - GRM1885C1H472JA01D is PARTIAL: its temperature is bounded only by the FET-row copper.
+    - **Decision: adopt s42 as board of record; the laminate REJECT is overridden.** The S4 per-edge diode limits are a
+      device-ruggedness case that item 54 made the binding one, and the thermal cost is item 54's own heat, measured here.
+      Holding s41 keeps an S4 overrun of 1.6× diF/dt and a gate resistor that fails with no tank current.
+    - **Open (not built):**
+      - local spreading copper on the R_on pads (both nets are low-voltage to their own potential group);
+      - airflow over the FET row;
+      - the R_on power basis: charge split 0.217 W against the study's simulated ~0.17 W, to be settled by a gate-row IR
+        reading on the bench;
+      - the D-8 double-pulse bench for maximum Qrr;
+      - the hardware capacitive-mode detector (`CONTROLLER-REQUEST.md`, requirement only).
+    - **Release condition:** unchanged from items 46 / 51 / 53. The B3 gate still fails on c28 everywhere and, at c22, on
+      the laminate, C40 and the R_on derating rows. The commissioned ceiling decision above is what closes c22.
+
+    **Integration review:**
+    - **Re-scored on integration:** cherry-picked as 5ff4aded2 / 139d6443c onto 10dde8438. The task-04 fields synced
+      from ps-layers (`a4_fields.py`: 41 cases, board 9e075b4b). The card is identical to the lane's: REJECT on
+      `b3_laminate_margin_K` only.
+    - **Rust audit re-run here:** `audit.rs` 84 / 84 tests, PASS on `frozen/` (351 components, 183 nets).
+    - **Gate-network source diff:** R10 / R12 / R18 / R20 and C55 / C56 / C62 / C63 only, read in
+      `power_stage_120v.ato`. The PMEG + 1 Ω turn-off path is unchanged.
+    - **Override, decided:** the card's laminate metric does not distinguish heat the fix needs from heat a layout
+      wastes. Before overriding, look at the all-gated-row ceiling: it goes from 0 A (s41 could not be released at any
+      current) to 20.0 / 18.3 A. The benchmark becomes s42; later candidates are compared against it.
+    - **Release ceiling, decided: 18.0 A** (bay 61 °C, the enclosure's worst with B3 heat; 18.3 A rounded down).
+      Rated on the worst bay, not the expected 55 °C, because no measurement yet bounds the bay.
+      - The firmware's shipping commissioned ceiling goes 22 → 18 A: `TANK_CEILING_DEFAULT_A`, Kconfig
+        `TEMPER_POWER_TANK_CEILING_DA` default 180 and `input_limits` default. This is a follow-on firmware commit.
+      - Raising it needs:
+        - a B3 basis at the higher ceiling that passes, which takes board-face airflow (`b3-ratings/ENCLOSURE-REQUEST.md`)
+          or a bay-air measurement under 61 °C;
+        - the bench R_on reading.
+      - A bay-air sensor would let the firmware run 20 A when the bay reads ≤ 55 °C. That is a controller option, not
+        built.
+    - **Product consequence** (temper-8d nameplate-r1, OPEN-ITEMS S2): at 18 A pooled pan power is about 650 W at 120 V
+      (0.42× the Control Freak). Board-face airflow is the lever that matters. On 2 oz copper, layout is worth about
+      1 A.
+    - **Ledger after the cherry-pick:** 3 / 31 / 58 / 1 (25121WF680JT4E). The two verification batches (S7, 27 lines)
+      are applied on top in a later commit, and their isolator CMTI rows are re-evaluated at s42's 49.7 V/ns edge.
+
+56. **B3 release basis set to the release ceiling: c18 at bay 61 °C, and I_line 13.5 A everywhere; firmware ships 18 A
+    (2026-10-15; gate, records and firmware, no board change). s42 passes the release gate by +0.7 K.**
+    - **Why:** after item 55 the `b3_ratings` gate still judged c22 / c28, which cannot pass in still air on this board, so
+      it gated nothing. The release case `c18_h10` now decides it:
+      - 18.0 A × 1.05 = 18.9 A trip, h 10, bay 61 °C (the enclosure's worst bay with B3 heat);
+      - solved at that bay, not shifted.
+    - **Ratchets:** `b3_laminate_margin_K` / `b3_rated_part_margin_K` stay on c22 / c28 at bay 55 °C, so cards from s32
+      on stay comparable. New compared ratchet: `b3_release_margin_K` (higher is better, 1 K tolerance; cards without
+      it are skipped).
+    - **Line current:** 13.5 A in every case (`b3/run_study.py` `I_LINE_A`). That is the firmware inlet bound
+      I_ps·1.10 + I_aux ≤ 13.5 A; the 11.1 A hold was not a bound (`b3-ratings/line-hold-2026-10-15/`). Three inputs
+      move: the ac_l / ac_n copper, L1's row, and BR1's sink share.
+    - **s42 (9e075b4b), release case:** PASS with no failing row.
+      - R10 2512 derating +0.7 K, C40 +1.1 K, R20 +1.1 K.
+      - Laminate block +4.1 K, FET row +7.0 K.
+      - Ratchet rows move ≤ 0.1 K (laminate −30.6 → −30.7 K). L1 (advisory) −12 K, +25 K left.
+      - Card: `b3_ratings` false → **true**. Against s41 it is still REJECT on the laminate ratchet only; that is
+        overridden by item 55.
+    - **Gated still-air ceiling at bay 61 °C / 13.5 A:** 18.3 A (R10), unchanged, so the 18.0 A release ceiling
+      stands. The I_trip² interpolation agrees with the direct c18 solve within 0.2 K on R10 / R20 / C40 / FET row, and
+      is 2.7 K conservative on the laminate block.
+    - **Firmware** (1c98e4492, 7fc8da3bb; host tests 31 / 31):
+      - `TANK_CEILING_DEFAULT_A` 22 → 18 A; it is also the no-pan clamp. Kconfig `TEMPER_POWER_TANK_CEILING_DA`
+        default 180.
+      - `COIL_SENSOR_FAULT_TANK_MAX_A` 22 → 18 A, and a test keeps it ≤ the default.
+      - `config_ok` no longer accepts an RMS trip above the derived 1.05× (it allowed 1.1×, 19.8 A at 18 A, above the
+        trip this rating is computed at).
+      - `pan_min_rms_a` must sit below the no-pan clamp.
+      - COMMISSIONING's raise ladder is now 18 → 20 → … → 28 A. Its new gate 0 is a passing B3 basis at the new
+        ceiling (board-face airflow or a measured bay under 61 °C), plus the bench R_on reading.
+      - The derived trips at 18 A: RMS 18.9, crest guard 27, peak 42.06 A.
+    - **Margin is thin:** +0.7 K rests on the R_on 0.217 W charge-split bound (~0.17 W simulated). The bench IR
+      reading of the gate row (S2) confirms it, or frees about 3 K.
+    - **Cache note:** `run_study.py` is in `model_key.py`, so the next chain recomputes task 04 and B3 once.
+
+57. **Stage 43 (candidate 43): DECISIONS 48 cleanup pass on s42, snubber source MPN fixed, ledger re-cited to s43
+    (2026-10-15; board of record s43, 61447816). Card ACCEPT against s42.** Records: `11-candidates/c43-cleanup/README.md`.
+    - **Cleanup:** `track_cleanup21.py` (unchanged) on s42's copper and export: 621 edits on 100 nets; nothing excluded.
+      - Right angles 100 → 49, acute 199 → 23, fold-backs 43 → 3, any-angle 675.0 → 272.6 mm; track −97.3 mm.
+      - Deterministic (copper `e5f7f90e`); a second run on the s43 export makes 0 edits.
+      - Gate networks: no spacing fell, every gate loop is shorter (−2.6 to −4.9 mm).
+      - Fuse necks are identical; Kelvin, OCP pickup and the spine lock are unchanged.
+    - **Chain CHAIN_DONE, no spine owner:** DRC 0 / 0 (s42 warning set); barrier 0; RES_A 13.375; D5 8.047 / 8.507; DFM 753
+      vias; FIT clean; task 04 39 / 0 (hv_dc −0.011 %, res_a +0.043 %). TP3 / TP4 / TP7 (refs TP26 / TP29) move 0.5–1.0 mm.
+    - **B3:** release margin +0.7 → **+1.2 K** (worst row now C40; R10 +3.1 K); laminate ratchet −30.7 → −30.2 K;
+      rated-part −33.4 → −32.3 K; `b3_ratings` PASS. Heat inputs are unchanged: the R_on rows gain 1–4 K from copper alone,
+      and R53 / R54 lose up to 0.7 K.
+    - **Source:** C12 / C13 / C19 / C20 GRM31A5C3A102JW01D (no such Murata part) → YAGEO CC1206JKNPOCBN102, the C113872
+      the order already placed.
+      - Same 1206 footprint, nets and designators. atopile 0.2.69 offline, refrozen.
+      - `audit.rs` IDENTITY plus `stage43_snubber_mpn_holds` (85 / 85); `verify_source.py` asserts it.
+      - The BOM line is plain JLC Extended (`apply_lcsc.py`; STOCK addendum s43 and snapshot s43 re-key the existing rows).
+    - **Card:** better on 3 B3 margins and 4 geometry metrics. `jlc_extended_lines` 67 → 68 is a counting correction: the
+      line was always Extended but labelled "JLC substitute". Price and stock are unchanged.
+    - **Ledger 3 / 32 / 58 / 0, gate PASS:**
+      - CC1206JKNPOCBN102 re-keyed and its source-MPN gap closed.
+      - GRM1885C1H472JA01D re-cited to the c18 release case (FET row 122.1 °C ≤ 125 °C); the c22 overrun (132.6 °C) is an
+        `owner: airflow route (c22/c28)` gap.
+      - Every margins.json citation follows the s43 rows. The c22 worst R_on is now R12 (136.1 °C, 0.976 of the derated
+        power).
+    - **Decision:** adopt s43 as the board of record. The OPEN-ITEMS B5 cleanup is done on the merged copper. Later lanes
+      re-run the pass after they merge (it is idempotent).
+
+    **Integration review:**
+    - **Cherry-pick:** 719084486 / cb7d7a76e onto 00be6ebc5, clean. Task-04 fields synced, board 61447816.
+    - **Checks re-run here:** `audit.rs` PASS on `frozen/`; ledger gate PASS; tests (ledger, track geometry, spine lock,
+      cleanup, jet strip) all pass.
+    - **Card:** re-scored on integration. Identical to the lane's, plus the new `jet_strip_height` gate (PASS, max
+      1.72 mm, C13), which the lane predates. ACCEPT against s42.
+    - **The benchmark is now s43.** It is the first ACCEPT since s41 that needs no override.
+    - **Follow-on (systemic):** the ledger cites `margins.json` by line range, so every B3 re-run moves the citations
+      (this lane re-cited them all by hand). The ledger is to cite B3 rows by key (case + item) instead, resolved by
+      `gate.py`.
+
+58. **Stage 44 (candidate 44, SELV-spine lane): the SELV return-path pass, built on s43 (2026-10-15; adopted). Board of
+    record s44, 2a84051f. Card ACCEPT against s43.** Records: `11-candidates/c44-selv-spine/README.md`. Chain
+    CHAIN_DONE with `SPINE_OWNER=selv`.
+    - **Opens 15 → 7 (OPEN-ITEMS S10).** All 8 SELV-net opens are closed: PERMIT ×3, BUS_FAULT, BUS_FAULT_ISO, BIAS_GOOD ×3.
+      Each F↔B via of these slow SELV lines swaps the In1 v3v3 / In2 selv_gnd reference, and no cap was within 4.6–21 mm.
+    - **The fix:**
+      - seven 100 nF 0603 v3v3-selv_gnd transfer caps, **C169–C175** (`c_ref_xfer_6..12`), 1.10–2.60 mm from their vias;
+      - each on its own plane vias 0.85 mm off the pad;
+      - BUS_FAULT's U13 drop via moves 0.97 mm down its trunk (no cap pose within 3 mm of the old spot);
+      - BIAS_GOOD's U40 In2 hop runs on to its leg-A drop, and its pour-edge via (no pour on either side) is removed.
+    - **Card:**
+      - better: `return_path_open_changes` 15 → 7, acute corners 23 → 22;
+      - costs: parts $202.32 → $202.38 at 500, placements 351 → 358, vias 753 → 765. The caps share the existing JLC Basic
+        line C14663 (no new BOM line or MPN);
+      - unchanged: D5 8.047 / 8.507, RES_A 13.375, worst asserted 2.72 mm, Kelvin 67.77, OCP pickup 4.17 A, fuse ratio
+        0.993, EMI 12.4 dB, touch 0.241 mA, CMTI 1.579, jet strip 1.72 mm;
+      - B3 release +1.2 K, laminate −30.2 K, rated part −32.3 K, `b3_ratings` PASS (2 of 132 rows move 0.1 K).
+      - Cleanup pass: 0 edits (idempotent).
+    - **Left (7, HOT side, not this lane):** bus_fault_hot ×3, ocp_ok_hot, ovp_ok_hot ×2, the GOOD node at U45.1.
+      - Their vias sit off the In1 `ocp_kelvin_p` / `n_ls` pours, with In2 / B bare.
+      - Closing them needs HOT-domain Kelvin / n_ls copper on the stage-28-locked OCP nets.
+      - That is a WS4 / G08 pass with the OCP pickup and Kelvin re-checked. S10 stays open for those 7.
+    - **SELV-spine lock re-issued** (baseline `spine-baseline-native21s44`, board f27d5bba = the run-1 copper):
+      - owner-scope differences: only C170 / C174's 4 plane vias and stubs, and 3.155 mm² of plane antipad per plane;
+      - frozen_refs gains C169–C175.
+    - **Gates tightened:**
+      - `return_path19.XFER_CAPS` adds C169–C175 (pad-to-plane via ≤ 1.6 mm);
+      - `audit.rs` IDENTITY and the net loop cover `c_ref_xfer_5..12`; new test `stage44_selv_transfer_caps_hold`, 86 / 86.
+    - **Reverses if:** a lane needs the C169–C175 / BUS_FAULT via spots for other copper (then the opens come back), or
+      bench SI shows the slow SELV lines need no transfer caps (−7 placements).
+    - **Integration check (2026-10-15):** cherry-picked onto the integration branch with the task-04 fields synced;
+      `audit.rs` PASS (358 / 183); the card re-scored there is identical to the lane's; ACCEPT vs s43; ledger, track,
+      spine-lock, cleanup, jet-strip and scoped tests pass on the s44 board. FAB-NOTE moved to s44 (750 POFV vias,
+      60 in pad, 75 at a pad edge; 859 plated holes). **The benchmark is now s44.**
+
+59. **S16 follow-up: candidate B (TPS3701 per window) against the chosen 1c-4420, by side-by-side FMEA (2026-10-15;
+    1c-4420 kept, B not adopted).** Study: `validation-results/11-candidates/s16-fmea-b-2026-10-15/` (s43 / 1c-4420 / B,
+    rows C1–C9 of `c24-monitor-fmea` plus new rows; reruns byte-identical; S16 bands and c24 scores reproduced).
+    - **Reference drift is bounded in both designs.** The companion UV / OV announces before any threshold passes its hard
+      limit, TL431 and TPS3701 alike (worst dormant span OV: s43 19.51, 1c-4420 19.96, B 19.94 V; H = 21 V). The S16
+      study's C4 objection holds only against the qualified basis, and equally for both.
+    - **B as drawn is a regression:** an open span-divider bottom, or an INB-VDD pin short, puts 17 V on a 7 V input
+      (SBVS240C p.4). TI documents no overstress behaviour, so span OV can be lost silently and no proof test covers it.
+    - **B amended** (span bottoms split 2 × 10 k / 2 × 6.2 k, tops 193 k / 138 k; both TPS3701 VDD from the local 5 V)
+      removes that path and beats 1c-4420 in all nine exposure cases: 16.7 vs 19.3 FIT·rails (−13 %), front end −42 %.
+      Still worse: OV detection +27 µs typical (no maximum published for either part), C5 rate 2.8 vs 2.0 FIT / rail.
+    - **Cost:** about +$1.49 / board over 1c-4420 plus a three-island layout change, for about 2.6 FIT·rails. Build it only
+      if those islands are re-laid anyway, and then in the amended form (decouplers C176–C178; U47–U49).
+    - **Found on the way:** no proof test covers dormant masking in any monitor variant (B8 screens only the HS veto
+      corridor): OPEN-ITEMS B13. The c24 C7 sliver is narrower than recorded (LM339B minimum supply 2 V, not 3 V).
+    - **Open:** TI TPS3701 FMD / pin FMA and INx clamp rating; bench tpd(LH) spread at 10 mV overdrive.
+    - **Reverses if:** TI publishes TPS3701 overstress data that makes the as-drawn B safe, or the monitor islands are
+      re-laid (then build amended B).
+
+60. **Stage 45 (candidate 45): the S16 rail-monitor fix, option 1c-4420, BOM-only on s44 (2026-10-15; adopted with a cost
+    override). Board 26ce9531, copper identical to s44. Card REJECT against s44 on cost alone (+1 BOM / Extended line).**
+    Records: `11-candidates/c45-s16-monitor/README.md` (chain CHAIN_DONE, no spine owner).
+    - **Change (×3 rails):**
+      - U17 / U19 / U21 TL431AIDBZR → TL431BIDBZR;
+      - R79 / R97 / R112 10 k → 4.42 k;
+      - taps: neg UV 750 / 10 k, neg OV 2.94 k / 10 k, span UV 90.9 k / 11 k, span OV 104 k / 11 k;
+      - same pads; `default.net` byte-identical; 24 instances change MPN.
+    - **Bands** (re-derived from the frozen values with the S16 model; the 1c-4420 table reproduced to 1e-4):
+      - span UV release ≤ 16.479 V against the 16.575 V rail minimum: **−0.229 → +0.096 V**;
+      - span OV trip ≥ 17.569 V against the 17.425 V rail maximum: **−0.233 → +0.144 V**;
+      - RSS +0.310 / +0.382 V; joint 6.0σ / 6.4σ (was 4.6σ / 4.7σ);
+      - neg UV catch −0.015 → +0.060 V.
+    - **Corners:** span-OV upper 18.60 V. That is inside the 19 V hot-load re-run (+0.40 V), and the 2EDR8259X VDD ratio is
+      0.886 of 21 V. Span UV lower 15.569 V, MARGINAL (+0.069 V against 15.5 V).
+    - **Card:** every gate and performance metric equals s44.
+      - Cost: lines 93 → 94, Extended 68 → 69.
+      - parts $202.38 → $201.60 is an estimate-basis artefact: on like-for-like JLC 2026-10-15 ladders the change is
+        **+$0.181 / board**.
+      - ACCEPT against s43 / s42; REJECT against s41 on the laminate ratchet (DECISIONS 55).
+    - **Proposed: adopt with a cost override, as for S16 correctness.** The card has no metric for monitor tolerance.
+      Buy RT0603BRD07750RL early (2,661 at JLC against 1,500 needed).
+    - **Gates tightened:** `audit.rs` IDENTITY + `stage45_rail_monitor_values_hold` (87 / 87); `verify_source.py` values;
+      ledger 3 / 37 / 54 / 0 of 94. **Open:** B3 probe rows at the monitors; JLC preview U17 / U19 / U21.
+    - **Reverses if:** the islands are re-laid anyway (then amended candidate B, DECISIONS 59).
+    - **Integration (2026-10-15): adopted with the cost override.** S16 is a worst-case correctness defect the card cannot
+      score; the fix costs +$0.18 / board. The FMEA of this exact variant is DECISIONS 59 (V1). Cherry-picked with the
+      card re-scored identical, audit.rs PASS, `cu_temp_basis` PASS, all tests pass on the s45 board. **Board of record
+      and benchmark: s45.** FAB-NOTE moved to s45 (vias and drills as s44).

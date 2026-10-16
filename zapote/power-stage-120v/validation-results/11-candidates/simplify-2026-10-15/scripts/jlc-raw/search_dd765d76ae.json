@@ -1,0 +1,458 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 2,
+   "list": [
+    {
+     "componentId": 3067743,
+     "componentLibraryType": "expand",
+     "stockCount": 3034,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u5fae\u529f\u8017\u300136V\u7a97\u53e3\u6bd4\u8f83\u5668\uff0c\u5177\u6709400mV\u57fa\u51c6\u7535\u538b",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv6710ddcr_C2863066.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.3544
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.0968
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.9158
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.7511
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.6745
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.6435
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.0199
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.6869
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.5832
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.8455
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.268
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.6131
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 3019,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-TLV6710DDCR/C2863066",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 3000,
+     "shopCostPrice": 8.32737,
+     "preMinPurchaseNum": 4,
+     "minPurchaseNum": 1,
+     "initialPrice": 2.3544,
+     "componentCode": "C2863066",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV6710DDCR",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8583870470534283264",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.ti.com/cn/lit/gpn/tlv6710",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv6710",
+     "componentName": "TI TLV6710DDCR",
+     "minImage": "",
+     "minImageAccessId": "8583870471456894976",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+125\u2103 0.12us\u30012.7us 1.8V~36V 12mV 2 25nA 40V 8uA 9.9us\u300128.1us Open-drain SOT-23-6 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Open-drain"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "1.8V~36V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "12mV"
+      },
+      {
+       "attribute_name_en": "Response Time (tr)",
+       "attribute_value_name": "0.12us\u30012.7us"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Maximum Power Supply Range (Vdd-Vss)",
+       "attribute_value_name": "40V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "8uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "25nA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "9.9us\u300128.1us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV6710</span>DDCR",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3071431,
+     "componentLibraryType": "expand",
+     "stockCount": 239,
+     "componentTypeEn": "Comparators",
+     "erpComponentName": "\u5fae\u529f\u8017\u300136V\u7a97\u53e3\u6bd4\u8f83\u5668\uff0c\u5177\u6709400mV\u57fa\u51c6\u7535\u538b",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/comparators_texas-instruments-tlv6710ddct_C2866754.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.3751
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 3.0066
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 2.8191
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 2.568
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.4783
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.4392
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.8963
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 249,
+       "productPrice": 2.7156
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 2.3497
+      },
+      {
+       "startNumber": 250,
+       "endNumber": 499,
+       "productPrice": 2.4738
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 3.2512
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 2.3874
+      }
+     ],
+     "firstSortAccessId": "e3e42cbeca794b379734d72eb85f2f43",
+     "secondSortAccessId": "b9467b516dce4241802a779b8a474d6f",
+     "canPresaleNumber": 237,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "TexasInstruments-TLV6710DDCT/C2866754",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 250,
+     "shopCostPrice": 12.36002,
+     "preMinPurchaseNum": 3,
+     "minPurchaseNum": 1,
+     "initialPrice": 3.3751,
+     "componentCode": "C2866754",
+     "componentBrandEn": "Texas Instruments",
+     "componentModelEn": "TLV6710DDCT",
+     "componentImageUrl": "",
+     "productBigImageAccessId": "8766451958146584576",
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.ti.com/cn/lit/gpn/tlv6710",
+     "dataManualFileAccessId": "",
+     "dataManualFileAccessIdUrl": null,
+     "dataManualOfficialLink": "https://www.ti.com/cn/lit/gpn/tlv6710",
+     "componentName": "TI TLV6710DDCT",
+     "minImage": "",
+     "minImageAccessId": "8766451959312060416",
+     "minImageAccessIdUrl": null,
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "SOT-23-6",
+     "describe": "-40\u2103~+125\u2103 1.8V~36V 11uA 12mV 2 2.7us 25nA 40V 9.9us Open-drain SOT-23-6 Comparators ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Operating Temperature",
+       "attribute_value_name": "-40\u2103~+125\u2103"
+      },
+      {
+       "attribute_name_en": "Output Type",
+       "attribute_value_name": "Open-drain"
+      },
+      {
+       "attribute_name_en": "Vos - Input Offset Voltage",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Single Supply",
+       "attribute_value_name": "1.8V~36V"
+      },
+      {
+       "attribute_name_en": "Input Hysteresis Voltage (Vhys)",
+       "attribute_value_name": "12mV"
+      },
+      {
+       "attribute_name_en": "Response Time (tr)",
+       "attribute_value_name": "2.7us"
+      },
+      {
+       "attribute_name_en": "Common Mode Rejection Ratio(CMRR)",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Number of Channels",
+       "attribute_value_name": "2"
+      },
+      {
+       "attribute_name_en": "Maximum Power Supply Range (Vdd-Vss)",
+       "attribute_value_name": "40V"
+      },
+      {
+       "attribute_name_en": "Quiescent Current",
+       "attribute_value_name": "11uA"
+      },
+      {
+       "attribute_name_en": "Features",
+       "attribute_value_name": "-"
+      },
+      {
+       "attribute_name_en": "Ib - Input Bias Current",
+       "attribute_value_name": "25nA"
+      },
+      {
+       "attribute_name_en": "Propagation Delay Time",
+       "attribute_value_name": "9.9us"
+      },
+      {
+       "attribute_name_en": "Output Mode",
+       "attribute_value_name": "-"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "Comparators",
+     "secondSortName": "Amplifiers/Comparators",
+     "componentBrandHigh": null,
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>TLV6710</span>DDCT",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 15,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "TLV6710"
+ },
+ "message": null,
+ "_fetched_utc": "2026-10-15T20:56:42Z"
+}

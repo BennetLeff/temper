@@ -30,8 +30,10 @@ component BiasComparator:
     signal p14 ~ pin 14
 
 component BiasReference:
+    """Rail-monitor reference. Stage 45 (OPEN-ITEMS S16, DECISIONS 59, option 1c-4420): the B grade, Vref 2.483-2.507 V
+    at 25 C (SLVS543S Table 6.12 p.13) against the A grade's 2.470-2.520 V; same DBZ (SOT-23-3) package and pinout."""
     designator_prefix = "U"
-    mpn = "TL431AIDBZR"
+    mpn = "TL431BIDBZR"
     manufacturer = "Texas Instruments"
     footprint = "Package_TO_SOT_SMD:SOT-23"
     signal K ~ pin 1
@@ -82,28 +84,41 @@ component Bias4k42:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Bias7k68:
+component Bias750R:
+    """Stage 45 (S16 1c-4420): rail-monitor neg-UV tap top, 750 ohm 0.1 % 25 ppm (LCSC C861551)."""
     designator_prefix = "R"
-    mpn = "RT0603BRD077K68L"
+    mpn = "RT0603BRD07750RL"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Bias120k:
+component Bias2k94:
+    """Stage 45 (S16 1c-4420): rail-monitor neg-OV tap top, 2.94 k 0.1 % 25 ppm (LCSC C705761)."""
     designator_prefix = "R"
-    mpn = "RT0603BRD07120KL"
+    mpn = "RT0603BRD072K94L"
     manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
-component Bias133k:
+component Bias90k9:
+    """Stage 45 (S16 1c-4420): rail-monitor span-UV tap top, 90.9 k 0.1 % 25 ppm (LCSC C728600)."""
     designator_prefix = "R"
-    mpn = "ARG03BTC1333"
-    manufacturer = "Viking Tech"
+    mpn = "RT0603BRD0790K9L"
+    manufacturer = "Yageo"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    value: resistance
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component Bias104k:
+    """Stage 45 (S16 1c-4420): rail-monitor span-OV tap top, 104 k 0.1 % 25 ppm (LCSC C861070)."""
+    designator_prefix = "R"
+    mpn = "RT0603BRD07104KL"
+    manufacturer = "Yageo"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: resistance
     signal p1 ~ pin 1

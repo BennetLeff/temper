@@ -1,0 +1,313 @@
+{
+ "schema": 1,
+ "about": "Copper-temperature basis registry for gates/cu_temp_basis.py. One entry per consumer of copper resistance or copper loss in the scorecard input chain that does not carry its own explicit temperature. basis_temp_c is the copper temperature the code assumes; direction is the side that is conservative for THAT consumer's verdict; a 'hot is conservative' consumer must sit at or above hot_floor_c, a 'cold is conservative' one at or below cold_ceil_c, or carry an unexpired waiver. Audit: tmp/cu-temp-audit/README.md (2026-10-15).",
+ "defaults": {
+  "hot_floor_c": 100.0,
+  "cold_ceil_c": 25.0
+ },
+ "scan": {
+  "include": [
+   "validation-plan/sim-kit/04-current/*.py",
+   "validation-results/04-board-current-thermal/round5-native21/**/*.py",
+   "validation-results/04-board-current-thermal/scripts/*.py",
+   "validation-results/02-protection-timing/kelvin/*.py",
+   "validation-results/02-protection-timing/shoot-through-f1/*.py",
+   "validation-results/02-protection-timing/coil-pickup/s21b/*.py",
+   "validation-results/02-protection-timing/f2-coordination/*.py",
+   "validation-results/02-protection-timing/stage15-28A/*.py"
+  ],
+  "exclude": [],
+  "a4_modules": [
+   "thermal",
+   "thermal_body",
+   "body_runs",
+   "a4_fields",
+   "a4_cases",
+   "thermal_snap",
+   "thermal_lead"
+  ],
+  "not_scanned_note": "Older rounds (round1-4, native-0x..1x power-probes) and candidate studies under 11-candidates are outside the scorecard input chain; the audit README lists them."
+ },
+ "consumers": [
+  {
+   "id": "CU-01",
+   "consumer": "B3 board-thermal model, ratings gate inputs and the R5 derating / via checks (hot copper, S17)",
+   "files": [
+    "validation-results/04-board-current-thermal/round5-native21/b3/thermal.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-convergence/thermal_body.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-convergence/body_runs.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/run_basis.py",
+    "validation-results/04-board-current-thermal/round5-native21/stage17-r5/g6_r5_derating.py",
+    "validation-results/04-board-current-thermal/round5-native21/stage17-r5/r5_vias17.py"
+   ],
+   "kinds": [
+    "a4field",
+    "rho"
+   ],
+   "basis_temp_c": "solved",
+   "basis_how": "copper loss q = q20 (1 + 0.00393 (T - 20)) at each cell's solved absolute temperature (fixed-J, conservative by Thomson's principle); r5_vias17 barrel rho(T) at the via mid-wall; run files record copper_temp_model and b3_ratings_gate refuses cold runs",
+   "direction": "hot is conservative",
+   "justification": "S17 closed by the B3 hot-copper lane (b3-ratings/hot-copper-2026-10-15/). --copper-tcr 0 reproduces the 20 C margins byte for byte (control).",
+   "pin": "0\\.00393|ALPHA|copper_tcr|copper_temp_model"
+  },
+  {
+   "id": "CU-02",
+   "consumer": "Dated B3 studies (audit, line-hold, refine, heat attribution) kept as records at 20 C copper",
+   "files": [
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/audit-2026-10-15/scripts/body_cases.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/line-hold-2026-10-15/scripts/line_hold.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/a4_fields.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/controls.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/plan.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/solve.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/refine-2026-10-15/scripts/superposition.py",
+    "validation-results/04-board-current-thermal/round5-native21/heat-attribution-2026-10-15/solve_terms.py",
+    "validation-results/04-board-current-thermal/round5-native21/heat-attribution-2026-10-15/analyze.py"
+   ],
+   "kinds": [
+    "a4field"
+   ],
+   "basis_temp_c": 20,
+   "basis_how": "inherited from the A4 fields",
+   "direction": "not a claim (dated record)",
+   "justification": "Historical study records dated before S17 closed; they feed no gate. Their 20 C basis is stated in their READMEs; current numbers come from CU-01."
+  },
+  {
+   "id": "CU-04",
+   "consumer": "Task 04 A4 producers and index (A4 loss fields, via_currents.json, summary.json)",
+   "files": [
+    "validation-results/04-board-current-thermal/round5-native21/run_board.py",
+    "validation-results/04-board-current-thermal/round5-native21/a4_fields.py",
+    "validation-results/04-board-current-thermal/round5-native21/summarize.py"
+   ],
+   "kinds": [
+    "net",
+    "a4field"
+   ],
+   "basis_temp_c": 20,
+   "basis_how": "default (solver.Net(...) without temp_c); run_board.py:312 lists '20 C copper'",
+   "direction": "reference (corrected downstream)",
+   "justification": "The A4 fields are solved at 20 C as a reference; B3 (CU-01) applies the copper TCR at the solved temperature before any verdict.",
+   "corrected_by": "CU-01"
+  },
+  {
+   "id": "CU-05",
+   "consumer": "R5 derating (r5-derating/r5_derating.py), pre-G6 script on B3 pad temperatures at 20 C",
+   "files": [
+    "validation-results/04-board-current-thermal/round5-native21/r5-derating/r5_derating.py"
+   ],
+   "kinds": [
+    "a4field",
+    "rho"
+   ],
+   "basis_temp_c": 20,
+   "basis_how": "inherited from B3 pad temperature; RHO_CU 1.72e-8 at 20 C (no TCR) in r5_vias17.py",
+   "direction": "hot is conservative",
+   "waiver": {
+    "id": "S17",
+    "reason": "OPEN-ITEMS S17: B3 scales the 20 C A4 fields by I^2 only; hot-copper iteration is in the B3 model lane. Remove when it lands and re-pin the basis.",
+    "expires": "2026-11-30"
+   },
+   "justification": "c28/h25 pad max 134.87 C against the 148.39 C bound (13.5 K headroom, g6.json). The pad rise (84.87 K) includes copper heat built at 20 C; if >~35 % of it is copper the G6 verdict can flip. Needs the hot-copper B3 solve."
+  },
+  {
+   "id": "CU-06",
+   "consumer": "Fuse-copper fusing ratio (fuse_copper_fusing_ratio): Onderdonk neck I2t at the pre-fault copper temperature; cord resistance for the let-through",
+   "files": [
+    "validation-results/02-protection-timing/shoot-through-f1/f1_containment.py"
+   ],
+   "kinds": [
+    "rho"
+   ],
+   "basis_temp_c": 105,
+   "basis_how": "explicit: TA_HOT = 105 (neck fusing, hot); RHO_CU 1.724e-8 at 20 C for the cord/branch R (cold); 25 C also reported",
+   "direction": "both corners",
+   "markers": [
+    "TA_HOT\\s*=\\s*105\\.0",
+    "RHO_CU\\s*=\\s*1\\.724e-8",
+    "I2t_conservative_Ta25"
+   ],
+   "pin": "TA_HOT\\s*=\\s*105\\.0",
+   "justification": "Fusing I2t falls with Ta (hot conservative); prospective current rises as source R falls (cold conservative). min_ratio_all is 0.993 at Ta 105; it crosses 1.0 at Ta ~102 C, so the sign hinges on the pre-fault neck temperature (estimate in the audit)."
+  },
+  {
+   "id": "CU-07",
+   "consumer": "F2 coordination (cord/branch/panel copper loop for let-through current)",
+   "files": [
+    "validation-results/02-protection-timing/f2-coordination/f2_coord.py"
+   ],
+   "kinds": [
+    "rho"
+   ],
+   "basis_temp_c": 20,
+   "basis_how": "explicit: RHO_CU20 'cold = max current'; Cu=0 variants evaluated as the stiffest bound",
+   "direction": "both corners",
+   "markers": [
+    "RHO_CU20\\s*=\\s*1\\.72e-8",
+    "\"Cu=0"
+   ],
+   "pin": "RHO_CU20\\s*=\\s*1\\.72e-8",
+   "justification": "Lower R = higher fault current, so cold copper and Cu=0 are the conservative side for let-through."
+  },
+  {
+   "id": "CU-08",
+   "consumer": "Kelvin plane solve (OCP threshold shift from the In1 Kelvin pour), kit Net with explicit temp_c",
+   "files": [
+    "validation-results/02-protection-timing/kelvin/kelvin_plane.py"
+   ],
+   "kinds": [
+    "net"
+   ],
+   "basis_temp_c": 125,
+   "basis_how": "explicit: PLATING_UM, PITCH, TEMP = 18.0, 0.1, 125.0",
+   "direction": "hot is conservative",
+   "pin": "PLATING_UM, PITCH, TEMP = 18\\.0, 0\\.1, 125\\.0",
+   "justification": "A positive threshold error e_th lowers the trip; hot copper raises e_th. 125 C is above the 83-112 C tank copper but the Kelvin pour sits beside R5, whose pad reaches 135 C (c28/h25) to 162 C (c28/h10): first-order effect +2.8 % to +10 % on e_th (-0.06 to -0.21 A on the band low edge)."
+  },
+  {
+   "id": "CU-09",
+   "consumer": "Kelvin budget (kelvin_band_low_A scorecard metric): reads plane-TAG.json from CU-08",
+   "files": [
+    "validation-results/02-protection-timing/kelvin/kelvin_budget.py"
+   ],
+   "kinds": [
+    "derived"
+   ],
+   "basis_temp_c": 125,
+   "basis_how": "derived from kelvin_plane.py (125 C) for the low edge; the high edge takes zero shift",
+   "direction": "both corners",
+   "markers": [
+    "\"band_after_A\": \\[round\\(lo \\+ e \\* a_per_mv, 2\\), hi\\]",
+    "meets_floor_at_bound"
+   ],
+   "pin": "plane-\\{tag\\}\\.json",
+   "justification": "Low edge: hot-copper census shift (down). High edge: unshifted (zero return current = cold bound). Both ends of the band are bounded, so a TCR miss cannot widen it past the stated bound."
+  },
+  {
+   "id": "CU-10",
+   "consumer": "Kelvin track-only bound (Rayleigh monotone bound; not in the chain, kept explicit)",
+   "files": [
+    "validation-results/02-protection-timing/kelvin/kelvin_track_bound.py"
+   ],
+   "kinds": [
+    "rho"
+   ],
+   "basis_temp_c": 120,
+   "basis_how": "explicit: 1.72e-8 x (1 + 0.00393 x 100) is 120 C although the comment says 125 C",
+   "direction": "hot is conservative",
+   "pin": "RHO = 1\\.72e-8 \\* \\(1 \\+ 0\\.00393 \\* 100\\)",
+   "justification": "Label mismatch only (1.5 % in rho, 1.4137 vs 1.393). Also uses 50 um copper (thinner than 70 um), so the bound stays conservative."
+  },
+  {
+   "id": "CU-11",
+   "consumer": "Tank-path neck fin estimate (stage 15, 22 / 28 A local copper rise; ESTIMATE, not a gate)",
+   "files": [
+    "validation-results/02-protection-timing/stage15-28A/neck_fin.py",
+    "validation-results/04-board-current-thermal/round5-native21/stage15b/ref/neck_fin.py"
+   ],
+   "kinds": [
+    "rho"
+   ],
+   "basis_temp_c": 95,
+   "basis_how": "explicit but mislabelled: RHO = 1.72e-8 x (1 + 0.00393 x 75) is 95 C, comment says 100 C",
+   "direction": "hot is conservative",
+   "waiver": {
+    "id": "S17-neck",
+    "reason": "Estimate only (docstring: B3 is the gate). Re-base to the c28 copper temperature (130-160 C) when the B3 hot-copper solve exists.",
+    "expires": "2026-11-30"
+   },
+   "pin": "RHO = 1\\.72e-8 \\* \\(1 \\+ 0\\.00393 \\* 75\\)",
+   "justification": "Excess over neighbouring copper at 28 A is up to 30.4 K (out/neck_fin.json). At 130-160 C copper rho is x1.10-1.20 higher than coded: estimate 33.6-36.4 K."
+  },
+  {
+   "id": "CU-12",
+   "consumer": "IPC-2221 20 K tank-width screen (sw_widths.py; sets the stage-15 9.77-9.82 mm tank-copper width)",
+   "files": [
+    "validation-results/02-protection-timing/stage15-28A/sw_widths.py",
+    "validation-results/04-board-current-thermal/round5-native21/stage15b/ref/sw_widths.py"
+   ],
+   "kinds": [
+    "ipc"
+   ],
+   "basis_temp_c": 45,
+   "basis_how": "none stated: the IPC-2221 fit assumes copper near ambient (~25 C) + the 20 K rise = ~45 C",
+   "direction": "hot is conservative",
+   "waiver": {
+    "id": "S17-ipc",
+    "reason": "A design screen superseded by B3; at bay 61 C + 20 K the copper is ~81 C, so the screen needs about +9 % width (estimate). Replace the screen's basis with the B3 copper temperature, or retire the screen.",
+    "expires": "2026-11-30"
+   },
+   "justification": "Required width 9.82 mm at 28 A (sw_widths.py docstring). Copper at 81 C vs 45 C: rho x1.129 -> current-equivalent x1.063 -> width x1.087 -> about 10.7 mm (estimate)."
+  },
+  {
+   "id": "CU-13",
+   "consumer": "Kit sheet solver library (Net default temp_c = 20, RHO_CU, ALPHA_CU) and its closed-form self-test",
+   "files": [
+    "validation-plan/sim-kit/04-current/sheet_solver.py"
+   ],
+   "kinds": [
+    "net",
+    "rho"
+   ],
+   "basis_temp_c": 20,
+   "basis_how": "library default; every caller must pass temp_c or register",
+   "direction": "not a claim (self-test)",
+   "pin": "temp_c: float = 20\\.0",
+   "justification": "Reference temperature of the constants; the self-test compares against closed forms at 20 C. Not a physical claim about any board."
+  },
+  {
+   "id": "CU-14",
+   "consumer": "Kit solver audit (closed-form checks)",
+   "files": [
+    "validation-results/04-board-current-thermal/scripts/audit_kit_solver.py"
+   ],
+   "kinds": [
+    "net"
+   ],
+   "basis_temp_c": 20,
+   "basis_how": "default",
+   "direction": "not a claim (self-test)",
+   "justification": "Solver validation against analytic strips; resistance ratios, not a board claim."
+  },
+  {
+   "id": "CU-16",
+   "consumer": "Undated B3 diagnostics and convergence scripts still on 20 C copper (h10-stall, stage-15b snapshots, b3-convergence run / report)",
+   "files": [
+    "validation-results/04-board-current-thermal/round5-native21/h10-stall/h10_stall.py",
+    "validation-results/04-board-current-thermal/round5-native21/stage15b/a4_cases.py",
+    "validation-results/04-board-current-thermal/round5-native21/stage15b/heatmap_cases.py",
+    "validation-results/04-board-current-thermal/round5-native21/stage15b/b3-model/thermal_lead.py",
+    "validation-results/04-board-current-thermal/round5-native21/stage15b/b3-model/thermal_snap.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-convergence/run_convergence.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-convergence/report_convergence.py"
+   ],
+   "kinds": [
+    "a4field"
+   ],
+   "basis_temp_c": 20,
+   "basis_how": "inherited 20 C or pre-S17 run files",
+   "direction": "hot is conservative",
+   "waiver": {
+    "id": "S17",
+    "reason": "OPEN-ITEMS S17: B3 scales the 20 C A4 fields by I^2 only; hot-copper iteration is in the B3 model lane. Remove when it lands and re-pin the basis.",
+    "expires": "2026-11-30"
+   },
+   "justification": "Diagnostics, not gate inputs; re-run on hot copper or retire before the waiver expires."
+  },
+  {
+   "id": "CU-15",
+   "consumer": "B3 hot-copper and airflow tests (cold runs are the controls)",
+   "files": [
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/test_b3_airflow.py",
+    "validation-results/04-board-current-thermal/round5-native21/b3-ratings/test_b3_hot_copper.py"
+   ],
+   "kinds": [
+    "a4field"
+   ],
+   "basis_temp_c": 20,
+   "basis_how": "tests: --copper-tcr 0 controls and closed forms",
+   "direction": "not a claim (self-test)",
+   "justification": "Tests compare the hot model against cold controls and closed forms; no board claim."
+  }
+ ]
+}

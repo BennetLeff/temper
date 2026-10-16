@@ -12,6 +12,11 @@
 #     stage-18/19 copper gates | fab package;
 #  3. task 04 and B3 are cached on content keys that exclude the board hash (regate.sh task04; B3 below); every reuse is
 #     recorded in the study's outputs/cache.json.
+#
+# Scoped mode (gates/scoped/README.md): `scoped_chain.py run` sets SCOPED_PLAN=BUILDDIR/scoped-plan.json, which marks every
+# step RUN or REUSE against a benchmark build; `want STEP` is true for a step to run. Without SCOPED_PLAN (the full chain,
+# mandatory at merge to the integration branch) every step runs, as before. The last step writes BUILDDIR/scoped-manifest.json
+# (content keys of this build), which makes any full-chain build a benchmark for later scoped runs.
 set -e
 # a failing step must stop the chain even when its output is piped through grep / tail (a wrong PASSDIR once
 # ran a whole chain on the previous test-point plan because `planner | grep` hid the traceback)
@@ -27,6 +32,11 @@ KC=/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli
 E=validation-plan/enclosure-fit; O=validation-results/08-manufacturing-package/native-21/fab
 cd "$U"
 . "$G/laps.sh"; laps_init chain "$B/steps.jsonl"
+want() {
+  [ -z "${SCOPED_PLAN:-}" ] && return 0
+  python3 -I -c "import json,sys;sys.exit(json.load(open(sys.argv[1]))['steps'][sys.argv[2]]['do'] not in ('RUN','RUN?'))" "$SCOPED_PLAN" "$1"
+}
+if want build; then
 python3 native-21/layout/plan_board_only21.py "$PASS/copper-dump.json" | grep -E "TPs|^holes|fiducials" | cut -c1-200
 lap plan_board_only21
 python3 $G/zone_priority_gate.py native-21/layout/copper.json   # stage 17b: no fill-order-dependent pours
@@ -48,10 +58,23 @@ while :; do
 done
 grep -E "^unconnected|thermal reliefs|labels|plane splits" "$B.log"; head -1 "$B/barrier.txt"
 echo "errors $(python3 $G/count_errors.py $B/drc.json)"; tail -3 "$B.log" | grep violations
+else
+  # scoped, no board input changed: BUILDDIR is the scoped run's copy of the benchmark build (same board_sha256)
+  echo "scoped: board build reused from the benchmark"; head -1 "$B/barrier.txt"
+  echo "errors $(python3 $G/count_errors.py $B/drc.json)"
+fi
+# copper-temperature basis (OPEN-ITEMS S17): every consumer of copper resistance / loss in the scorecard input chain
+# carries a declared basis (cu_temp_registry.json) or passes an explicit temperature. Static, about 1 s, no board data.
+# (no pipe: in sh a pipeline takes the exit status of its last command, so `| tail` would hide a failure)
+python3 -I $G/cu_temp_basis.py --report "$B/cu-temp-basis.json" > "$B/cu-temp-basis.log" 2>&1 || {
+  tail -20 "$B/cu-temp-basis.log" >&2; echo "cu_temp_basis: FAILED" >&2; exit 1; }
+tail -4 "$B/cu-temp-basis.log"
 H=$(shasum -a 256 "$B/section.kicad_pcb" | cut -d' ' -f1); echo "BOARD $H"
 lap report
+if want d5; then
 $KP native-21/layout/dump_pads.py "$B/section.kicad_pcb" "$B/pads-board.json" >/dev/null 2>&1
 python3 native-21/verification/d5_audit.py "$B/copper-dump.json" "$B/pads-board.json" >/dev/null 2>&1
+fi
 python3 -c "import json;d=json.load(open('native-21/verification/d5-audit.json'));print('D5',d['verdict_pcb'],d['copper']['HOT-SELV']['min_mm'],d['copper']['HOT-PE']['min_mm'])"
 lap d5_audit
 python3 native-21/layout/probe_map21.py
@@ -93,6 +116,9 @@ lap pin_tag_and_layers
   lap body_collisions
   python3 $E/board_in_enclosure.py $E/native21-boxes.json $E/native21-courtyards.json $E/native21-envelopes.json > $E/native21-in-r4.json 2>&1 || echo "R4 FAIL"
   lap board_in_enclosure
+  # OPEN-ITEMS S2 airflow route: nothing over 4 mm under the jet box (temper-8d airflow-r1 D6.2)
+  python3 native-21/layout/gates/jet_strip_height.py $E/native21-boxes.json $E/native21-courtyards.json $E/native21-jet-strip.json || echo "JET STRIP FAIL"
+  lap jet_strip_height
   python3 -c "import json;a=json.load(open('$E/native21-body-collisions.json'));b=json.load(open('$E/native21-in-r4.json'));print('FIT',a['solids'],a['unattributed'],len(a['part_overlaps']),b['bodies'],len(b['hits']))"
 ) > "$B/blk-fit.log" 2>&1 &
 P_FIT=$!
@@ -122,7 +148,8 @@ P_FIT=$!
 ) > "$B/blk-fab.log" 2>&1 &
 P_FAB=$!
 # core regate (barrier, DFM, bypass, copper exports) must finish before the copper-dependent blocks
-sh $G/regate.sh "$B" core > "$B/blk-core.log" 2>&1 || { cat "$B/blk-core.log"; echo "REGATE CORE FAILED"; exit 1; }
+SKIP_BAR=""; want core_barrier || SKIP_BAR=1
+REGATE_SKIP_BARRIER=$SKIP_BAR sh $G/regate.sh "$B" core > "$B/blk-core.log" 2>&1 || { cat "$B/blk-core.log"; echo "REGATE CORE FAILED"; exit 1; }
 lap regate_core
 cp "$B/native21-all-copper.json.gz" native-21/verification/$TAG-all-copper.json.gz
 cp "$B/bypass-check.json" native-21/verification/bypass-check-$TAG.json
@@ -130,12 +157,17 @@ cp "$B/jlc-dfm.json" validation-results/08-manufacturing-package/native-21/jlc-d
 CK=$($KP $G/copper_key.py "$B/section.kicad_pcb" 2>/dev/null | tail -1)
 case "$CK" in [0-9a-f]*) ;; *) echo "copper_key failed" >&2; exit 1;; esac
 lap copy_and_copper_key
+# scoped: decide the keyed thermal steps and the manual card inputs on this build's keys (writes SCOPED_PLAN)
+if [ -n "${SCOPED_PLAN:-}" ]; then python3 -I $G/scoped/scoped_chain.py decide "$B" "$SCOPED_PLAN" || { echo "SCOPED DECIDE FAILED"; exit 1; }; fi
+lap scoped_decide
 ( # B3's heat inputs first: they are part of the shared model key (model_key.py) that task 04's cache key also takes
   ( cd validation-results/04-board-current-thermal/round5-native21/b3 && python3 make_heat_sources.py >/dev/null )
   LAPS_SCRIPT=chain/thermal; lap make_heat_sources
+  if want task04; then
   sh $G/regate.sh "$B" task04 > "$B/task04.log" 2>&1 || { tail -5 "$B/task04.log"; exit 1; }
   lap task04
   tail -2 "$B/task04.log"
+  else echo "scoped: task 04 reused from the benchmark (key in $SCOPED_PLAN)" | tee "$B/task04.log"; fi
   # key: the board's copper inputs (copper_key.py; the refilled copper is not bit-reproducible), the shared model key
   # (model_key.py: every task-04 and B3 script, the heat sources, the stackup file(s), SHEET_BARREL; stage 33, so a
   # model change misses both caches together) and the task-04 results B3 reads
@@ -148,6 +180,7 @@ print(h.hexdigest())
 PY
   }
   cd validation-results/04-board-current-thermal/round5-native21/b3
+  if want b3_study; then
   KEY=$(b3key)
   lap b3_key
   b3hit() { [ -f outputs/cache.json ] && [ -f outputs/summary.json ] && grep -q "\"key\": \"$KEY\"" outputs/cache.json; }
@@ -166,18 +199,23 @@ PY
     python3 run_study.py >/dev/null 2>&1; python3 ceiling_sweep.py
     printf '{"key": "%s", "computed_on_board": "%s", "reused_for_boards": []}\n' "$KEY" "$H" > outputs/cache.json
   fi
+  else echo "scoped: B3 study and ceiling sweep reused from the benchmark (key in $SCOPED_PLAN)"; fi
   python3 -c "
 import json;d=json.load(open('outputs/summary.json'))
 print('B3',[(r,round(d['runs'][r]['peak']['temperature_c'],1)) for r in ('nominal_h10_p1p0','nominal_h25_p1p0','extreme_h10_p1p0','c28_h10_p1p0','c28_h25_p1p0')])"
   lap b3_study
-  # B3 ratings (DECISIONS 46): body-model margins to the laminate MOT and part limits, ~6 min. Its FAIL is a release
-  # verdict the scorecard reads, not a chain failure; a margins.json not solved on this board is.
+  # B3 ratings (DECISIONS 46): body-model margins to the laminate MOT and part limits, ~9 min (b3_ratings_gate.BASIS:
+  # release case c18_h10 at bay 61 C, ratchet cases c22_h10 / c28_h10 at bay 55 C, all at I_line 13.5 A; six solves,
+  # at most 4 workers). Its FAIL is a release verdict the scorecard reads, not a chain failure; a margins.json not solved
+  # on this board is.
   # run_basis.py exits with the gate's status (1 on a FAIL verdict); under set -e that ended the block on every board
   # that fails the release gate (all of them today), so its status is not used: the board check below catches a crash
+  if want b3_ratings; then
   ( cd ../b3-ratings && python3 run_basis.py --workers 4 > "$B/b3-ratings.log" 2>&1 ) || true; tail -1 "$B/b3-ratings.log"
   lap b3_ratings
   python3 -c "import json,sys;m=json.load(open('../b3-ratings/margins.json'));sys.exit(set(m['board_sha256'].values())!={'$H'})" \
     || { echo "B3_RATINGS: margins.json not solved on board $H"; tail -5 "$B/b3-ratings.log"; exit 1; }
+  else echo "scoped: B3 ratings reused from the benchmark (key in $SCOPED_PLAN)"; fi
 ) > "$B/blk-thermal.log" 2>&1 &
 P_TH=$!
 ( cd validation-results/02-protection-timing/kelvin && python3 kelvin_plane.py ../../../native-21/verification/$TAG-all-copper.json.gz $TAG | tail -1 && python3 kelvin_budget.py $TAG | tail -1
@@ -211,4 +249,6 @@ python3 -c "import json;d=json.load(open('$B/bypass-check.json'));print('BYPASS'
 cat "$B/blk-kelvin.log" "$B/blk-thermal.log" "$B/blk-fab.log"
 lap summary
 [ -z "$FAIL" ] || { echo "BLOCK FAILED:$FAIL"; exit 1; }
+# content keys of this build (board, copper, per-net, thermal steps), so a later scoped run can prove what it reuses
+python3 -I $G/scoped/scoped_chain.py manifest "$B" "$TAG" || echo "scoped manifest not written (non-fatal)"
 echo CHAIN_DONE

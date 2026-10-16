@@ -70,6 +70,7 @@
   "C165": "G07",
   "C166": "G07",
   "C167": "G09",
+  "C168": "G10",
   "C17": "G05",
   "C18": "G05",
   "C19": "G03",
@@ -162,6 +163,7 @@
   "D17": "G02",
   "D18": "G07",
   "D19": "G07",
+  "D20": "G07",
   "D3": "G02",
   "D4": "G09",
   "D5": "G09",
@@ -179,7 +181,6 @@
   "J5": "G04",
   "J6": "G01",
   "L1": "G01",
-  "PS1": "G10",
   "PS2": "G06",
   "Q2": "G03",
   "Q3": "G03",
@@ -220,6 +221,7 @@
   "R132": "G07",
   "R133": "G07",
   "R134": "G09",
+  "R135": "G07",
   "R14": "G05",
   "R15": "G05",
   "R17": "G05",
@@ -350,22 +352,22 @@
   "U8": "G08",
   "U9": "G08"
  },
- "board": "native-21 stage 32 (native21s32)",
- "board_sha256": "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e",
+ "board": "native-21 stage 43 (native21s43)",
+ "board_sha256": "61447816b9dd4921525b4f610aca40486989964368d69abb17bf7071cbf4d8df",
  "controls": [
   {
    "control": "every parts.json entry assigned",
-   "detail": "349/349",
+   "detail": "351/351",
    "pass": true
   },
   {
    "control": "netlist components == parts.json refs",
-   "detail": "netlist 349, parts 349",
+   "detail": "netlist 351, parts 351",
    "pass": true
   },
   {
    "control": "every part placed",
-   "detail": "placement 349",
+   "detail": "placement 351",
    "pass": true
   },
   {
@@ -379,12 +381,12 @@
    "pass": true
   },
   {
-   "control": "19c assignment reproduced for surviving parts (except R1-R4)",
+   "control": "19c assignment reproduced for surviving parts (except R1-R5)",
    "detail": "unexplained []",
    "pass": true
   },
   {
-   "control": "stage-32 pads inside their courtyard boxes",
+   "control": "stage-43 pads inside their courtyard boxes",
    "detail": "0 outside: []",
    "pass": true
   },
@@ -402,7 +404,6 @@
   "C6",
   "J2",
   "J4",
-  "PS1",
   "Q2",
   "Q3",
   "Q5",
@@ -419,7 +420,7 @@
   "G04": 11,
   "G05": 92,
   "G06": 42,
-  "G07": 90,
+  "G07": 92,
   "G08": 42,
   "G09": 32,
   "G10": 10
@@ -427,13 +428,13 @@
  "listed_parts": {
   "BR1": {
    "electrical_vote": {
-    "G01": 0.857,
+    "G01": 1.0,
     "G02": 0.752,
     "G03": 1.06,
-    "G06": 0.286,
+    "G06": 0.333,
     "G08": 0.188,
-    "G09": 0.286,
-    "G10": 0.571
+    "G09": 0.333,
+    "G10": 0.333
    },
    "group": "G01",
    "mpn": "GBJ2510-F",
@@ -445,7 +446,7 @@
    "path": "br1",
    "rule": "R0 stage-19c rule (map_groups.assign)",
    "why_listed": [
-    "electrical vote G03 (own-group share 0.214)"
+    "electrical vote G03 (own-group share 0.25)"
    ]
   },
   "C13": {
@@ -458,7 +459,7 @@
     "G09": 0.05
    },
    "group": "G03",
-   "mpn": "GRM31A5C3A102JW01D",
+   "mpn": "CC1206JKNPOCBN102",
    "nearest_courtyard": {
     "gap_mm": 1.3,
     "group": "G03",
@@ -509,8 +510,8 @@
     "group": "G07",
     "ref": "U44"
    },
-   "path": "bias_hb.cver1",
-   "rule": "R2 rail-verdict isolator + its caps (U43 / U44, stage 30): monitoring function, not supply (19c rule would say G06)",
+   "path": "bias_hb.clink1",
+   "rule": "R5 U44 = ISO6721FB HS-B -> LS verdict link + its caps C159 / C160 (stage 40, DECISIONS 52; renamed from bias_hb.verdict / cver*): monitoring function like U43, not supply (19c rule would say G06)",
    "why_listed": [
     "new since 19c"
    ]
@@ -520,12 +521,12 @@
    "group": "G07",
    "mpn": "CC0603KRX7R9BB104",
    "nearest_courtyard": {
-    "gap_mm": 0.53,
+    "gap_mm": 0.43,
     "group": "G07",
     "ref": "U44"
    },
-   "path": "bias_hb.cver2",
-   "rule": "R2 rail-verdict isolator + its caps (U43 / U44, stage 30): monitoring function, not supply (19c rule would say G06)",
+   "path": "bias_hb.clink2",
+   "rule": "R5 U44 = ISO6721FB HS-B -> LS verdict link + its caps C159 / C160 (stage 40, DECISIONS 52; renamed from bias_hb.verdict / cver*): monitoring function like U43, not supply (19c rule would say G06)",
    "why_listed": [
     "new since 19c"
    ]
@@ -645,6 +646,21 @@
     "new since 19c"
    ]
   },
+  "C168": {
+   "electrical_vote": {},
+   "group": "G10",
+   "mpn": "CC0603KRX7R9BB104",
+   "nearest_courtyard": {
+    "gap_mm": 0.15,
+    "group": "G07",
+    "ref": "R135"
+   },
+   "path": "c_ref_xfer_5",
+   "rule": "R0 stage-19c rule (map_groups.assign)",
+   "why_listed": [
+    "new since 19c"
+   ]
+  },
   "C20": {
    "electrical_vote": {
     "G03": 0.214,
@@ -655,7 +671,7 @@
     "G08": 0.031
    },
    "group": "G03",
-   "mpn": "GRM31A5C3A102JW01D",
+   "mpn": "CC1206JKNPOCBN102",
    "nearest_courtyard": {
     "gap_mm": 1.3,
     "group": "G03",
@@ -714,9 +730,9 @@
    "group": "G07",
    "mpn": "BAT54S-7-F",
    "nearest_courtyard": {
-    "gap_mm": 0.3,
+    "gap_mm": 0.11,
     "group": "G07",
-    "ref": "U17"
+    "ref": "D20"
    },
    "path": "hb.vote",
    "rule": "R1 hb.* = stage-30 bias-monitor heartbeat (replaces the bias_common notice stages, DECISIONS 33)",
@@ -741,14 +757,31 @@
     "new since 19c"
    ]
   },
+  "D20": {
+   "electrical_vote": {
+    "G07": 2.0
+   },
+   "group": "G07",
+   "mpn": "BAT54S-7-F",
+   "nearest_courtyard": {
+    "gap_mm": 0.11,
+    "group": "G07",
+    "ref": "D18"
+   },
+   "path": "hb.vote_b",
+   "rule": "R1 hb.* = stage-30 bias-monitor heartbeat (replaces the bias_common notice stages, DECISIONS 33)",
+   "why_listed": [
+    "new since 19c"
+   ]
+  },
   "J2": {
    "electrical_vote": {
     "G09": 1.0
    },
    "group": "G04",
-   "mpn": "74650074",
+   "mpn": "7466004R",
    "nearest_courtyard": {
-    "gap_mm": 3.07,
+    "gap_mm": 3.36,
     "group": "G09",
     "ref": "T1"
    },
@@ -775,26 +808,6 @@
    "rule": "R0 stage-19c rule (map_groups.assign)",
    "why_listed": [
     "electrical vote G05 (own-group share 0.0)"
-   ]
-  },
-  "PS1": {
-   "electrical_vote": {
-    "G01": 1.143,
-    "G06": 0.286,
-    "G09": 0.286,
-    "G10": 0.286
-   },
-   "group": "G10",
-   "mpn": "IRM-20-15",
-   "nearest_courtyard": {
-    "gap_mm": 0.21,
-    "group": "G01",
-    "ref": "C4"
-   },
-   "path": "ps_selv",
-   "rule": "R0 stage-19c rule (map_groups.assign)",
-   "why_listed": [
-    "electrical vote G01 (own-group share 0.143)"
    ]
   },
   "Q2": {
@@ -975,6 +988,23 @@
     "new since 19c"
    ]
   },
+  "R135": {
+   "electrical_vote": {
+    "G07": 1.0
+   },
+   "group": "G07",
+   "mpn": "0603WAF1002T5E",
+   "nearest_courtyard": {
+    "gap_mm": 0.15,
+    "group": "G10",
+    "ref": "C168"
+   },
+   "path": "hb.rgate",
+   "rule": "R1 hb.* = stage-30 bias-monitor heartbeat (replaces the bias_common notice stages, DECISIONS 33)",
+   "why_listed": [
+    "new since 19c"
+   ]
+  },
   "R47": {
    "electrical_vote": {
     "G09": 1.0,
@@ -1051,14 +1081,14 @@
     "G07": 2.0
    },
    "group": "G07",
-   "mpn": "CA-IS3720LW",
+   "mpn": "ISO6721FBDR",
    "nearest_courtyard": {
-    "gap_mm": 0.53,
+    "gap_mm": 0.43,
     "group": "G07",
-    "ref": "C159"
+    "ref": "C160"
    },
-   "path": "bias_hb.verdict",
-   "rule": "R2 rail-verdict isolator + its caps (U43 / U44, stage 30): monitoring function, not supply (19c rule would say G06)",
+   "path": "bias_hb.link",
+   "rule": "R5 U44 = ISO6721FB HS-B -> LS verdict link + its caps C159 / C160 (stage 40, DECISIONS 52; renamed from bias_hb.verdict / cver*): monitoring function like U43, not supply (19c rule would say G06)",
    "why_listed": [
     "new since 19c"
    ]
@@ -1116,7 +1146,7 @@
    ]
   }
  },
- "netlist_sha256": "f23302546e74894f099d3a79a888c0f915c3dbee5ae6020d3362d8f5c5cc42e7",
+ "netlist_sha256": "e0ea4377de81c834f62b1bed5d1a6933104b4eabbf6b9c6fee34cb68058e0704",
  "new_since_19c": [
   "C157",
   "C158",
@@ -1129,19 +1159,22 @@
   "C165",
   "C166",
   "C167",
+  "C168",
   "D18",
   "D19",
+  "D20",
   "R130",
   "R131",
   "R132",
   "R133",
   "R134",
+  "R135",
   "U43",
   "U44",
   "U45",
   "U46"
  ],
- "parts_total": 349,
+ "parts_total": 351,
  "reassigned_since_19c": {},
  "removed_since_19c": {
   "C137": "G07",
@@ -1157,6 +1190,7 @@
   "J7": "G02",
   "J8": "G02",
   "J9": "G02",
+  "PS1": "G10",
   "Q1": "G05",
   "Q4": "G05",
   "Q7": "G07",
@@ -1175,12 +1209,13 @@
   "U33": "G07",
   "U34": "G07"
  },
- "rule": "common.assign_32: R1-R4 (stage 20-32) then the stage-19c map_groups rule (R0)",
+ "rule": "common.assign_43: R1-R5 (stage 20-43) then the stage-19c map_groups rule (R0)",
  "rules": [
   "R0 stage-19c rule (map_groups.assign)",
   "R1 hb.* = stage-30 bias-monitor heartbeat (replaces the bias_common notice stages, DECISIONS 33)",
   "R2 rail-verdict isolator + its caps (U43 / U44, stage 30): monitoring function, not supply (19c rule would say G06)",
   "R3 R130 = F2 blower-tap limiter in series with F2 / J11 (stage 28, DECISIONS 30)",
-  "R4 BUS_FAULT RC R134 / C167 sits at U13.A, the fault OR (stage 30); ambiguous G08 / G09, see electrical vote"
+  "R4 BUS_FAULT RC R134 / C167 sits at U13.A, the fault OR (stage 30); ambiguous G08 / G09, see electrical vote",
+  "R5 U44 = ISO6721FB HS-B -> LS verdict link + its caps C159 / C160 (stage 40, DECISIONS 52; renamed from bias_hb.verdict / cver*): monitoring function like U43, not supply (19c rule would say G06)"
  ]
 }

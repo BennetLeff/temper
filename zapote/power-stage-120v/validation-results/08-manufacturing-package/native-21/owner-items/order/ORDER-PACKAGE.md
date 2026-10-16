@@ -1,5 +1,7 @@
 # Native-21 prototype lot at JLCPCB: order package for owner approval
 
+> **Superseded (2026-10-15):** the current order plan is `../../PROTOTYPE-LOT.md`, regenerated for s43. Do not order from this file.
+
 > **Superseded in part, 2026-10-09:** this package describes stage 11/12. The order must be regenerated from **stage 13** before it is placed.
 > - **BOM simplification:** `../../bom-simplification/` (66 → 45 Extended types). It also clears three blockers listed below: R34 → 12.4 k / 11.7 k, R77/R95/R110 → 6.2 k, R87/R105/R120 → Viking ARG03BTC1333.
 > - **Resonant bank:** C21–C23 (942C) become **5 × TDK B32654A1104K000**.

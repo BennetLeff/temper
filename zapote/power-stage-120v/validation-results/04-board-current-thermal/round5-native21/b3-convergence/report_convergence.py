@@ -126,7 +126,7 @@ def limit_for(ref, row):
                                   f"terminal; G6 rule (>= 20 % margin, pad <= 160 C) gives {min(t_g6, 160.0):.1f} C"), "pad_max_cell_c", True
     if k == "chip1206":
         return 155.0, "1206 chip resistor 155 C max (vendor-typical, NOT re-verified here)", "tj_c", False
-    if k in ("film_radial", "film_4pin"):
+    if k in ("film_radial", "film_hf", "film_4pin"):
         return 105.0, "film capacitor 105 C upper category temperature (TDK, as recorded in round6 README; ripple derating applies below)", "tj_c", False
     if k == "meanwell":
         return 85.0, "IRM-20 85 C AMBIENT max (spec: derating curve); no pin/case limit published", "tj_c", False
@@ -137,7 +137,7 @@ def limit_for(ref, row):
 
 def bench_dependent(ref, row):
     k = row["spec"]
-    return (k in ("film_radial", "film_4pin", "meanwell", "choke")) or row.get("sink_fraction", 0) > 0
+    return (k in ("film_radial", "film_hf", "film_4pin", "meanwell", "choke")) or row.get("sink_fraction", 0) > 0
 
 
 # ----------------------------------------------------------------------------------------------------- controls

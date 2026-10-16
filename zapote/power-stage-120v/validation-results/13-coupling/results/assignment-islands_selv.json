@@ -62,7 +62,7 @@
   "C158": "LS",
   "C159": "HSB",
   "C16": "LS",
-  "C160": "SELV",
+  "C160": "LS",
   "C161": "LS",
   "C162": "LS",
   "C163": "SELV",
@@ -70,6 +70,7 @@
   "C165": "SELV",
   "C166": "SELV",
   "C167": "SELV",
+  "C168": "SELV",
   "C17": "HSB",
   "C18": "HSB",
   "C19": "G03",
@@ -162,6 +163,7 @@
   "D17": "G02",
   "D18": "LS",
   "D19": "SELV",
+  "D20": "LS",
   "D3": "G02",
   "D4": "SELV",
   "D5": "SELV",
@@ -179,7 +181,6 @@
   "J5": "G04",
   "J6": "G01",
   "L1": "G01",
-  "PS1": "SELV",
   "PS2": "LS",
   "Q2": "G03",
   "Q3": "G03",
@@ -220,6 +221,7 @@
   "R132": "SELV",
   "R133": "SELV",
   "R134": "SELV",
+  "R135": "SELV",
   "R14": "SELV",
   "R15": "SELV",
   "R17": "SELV",
@@ -358,7 +360,7 @@
   "G08": 42,
   "HSA": 52,
   "HSB": 52,
-  "LS": 94,
+  "LS": 96,
   "SELV": 68
  },
  "rule": "Alternative partitions: re-cut gate drive / bias / monitors (G05 / G06 / G07) by isolation island.\n\n    python3 -I validation-results/13-coupling/scripts/regroup.py make       # writes results/assignment-<alt>.json\n    python3 -I validation-results/13-coupling/scripts/electrical.py --alt islands   (and physical.py; also islands_selv)\n    python3 -I validation-results/13-coupling/scripts/regroup.py compare    # writes results/regroup.json\n\nThe electrical communities (electrical.json, all nets) follow the isolation islands, not the functions: each of G05,\nG06 and G07 has parts on the HS-A island (SW_A), the HS-B island (SW_B), the low-side (LOW) island and the SELV side.\nRule (pin domains from native-21/layout/domains.py over each part's pins):\n  islands:       G05 / G06 / G07 parts become HSA (pins on SW_A, incl. U41 and U43), HSB (SW_B, incl. U42 and U44),\n                 LS (LOW / HOT, incl. U1 / U2 drivers whose isolated outputs and supply are LS-referenced, U32, PS2, J3)\n                 and SLOG (SELV-only drive / supervision logic); G01-G04, G08, G09, G10 unchanged.\n  islands_selv:  as islands, with SLOG, G09 and G10 merged into one SELV-side group (SELV).",
@@ -425,7 +427,7 @@
    "G07",
    "HSB",
    [
-    "SELV",
+    "HOT",
     "SW_B"
    ]
   ]

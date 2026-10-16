@@ -1,0 +1,148 @@
+{
+ "E1_b3_release_c18_bay61": {
+  "C40 body": {
+   "margin_K_20C": 1.2,
+   "add_K": 6.13,
+   "margin_K_after": -4.93
+  },
+  "R10 terminal derating": {
+   "margin_K_20C": 3.1,
+   "add_K": 6.51,
+   "margin_K_after": -3.41
+  },
+  "laminate 1 mm block": {
+   "margin_K_20C": 5.0,
+   "add_K": 7.22,
+   "margin_K_after": -2.22
+  },
+  "C41 body": {
+   "margin_K_20C": 3.8,
+   "add_K": 4.95,
+   "margin_K_after": -1.15
+  },
+  "R20 terminal derating": {
+   "margin_K_20C": 4.6,
+   "add_K": 5.4,
+   "margin_K_after": -0.8
+  }
+ },
+ "E1_ceiling_bay61": {
+  "ceiling_a": 16.42,
+  "gain_a": -2.02,
+  "binding_row": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)"
+ },
+ "E2_c28_copper_temperature": {
+  "c18_heat_weighted_C": [
+   82.9,
+   112.3
+  ],
+  "I2_scale_c28_over_c18": 2.42,
+  "naive_low_C": 108.0,
+  "upper_bound_C_b3_c28_copper_peak": 160.2,
+  "rho_factor_range": [
+   1.35,
+   1.55
+  ],
+  "note": "ESTIMATE: low = bay 55 + (29.4/18.9)^2 x (smallest c18 heat-weighted rise over bay 61); high = B3 c28 copper peak (margins.json), which no heat-weighted mean can exceed"
+ },
+ "E3_G6_R5_derating_c28_h25": {
+  "pad_max_c": 134.87,
+  "bound_c": 148.39,
+  "headroom_K": 13.52,
+  "pad_rise_K": 84.87,
+  "copper_share_that_flips_at_rho_x1.55": 0.29,
+  "copper_share_that_flips_at_rho_x1.35": 0.46
+ },
+ "E3_note": "ESTIMATE: pad rise x copper share x (rho factor - 1) >= headroom flips G6. The share is unknown without a re-solve; b3-ratings c18/c22/c28 R5 rows (57.3 / 75.9 / 107.5 K at bay 61/55/55) fit 20 K fixed + 0.1 K/A^2, so the I^2 part is most of the rise",
+ "E4_ocp_band": {
+  "band_low_before_kelvin_A": 69.71,
+  "tcr_ppm": 75,
+  "A_per_K": 0.00523,
+  "extra_pad_rise_0_to_20K_A": [
+   0.0,
+   0.105
+  ],
+  "after_kelvin_low_A": 67.48,
+  "floor_A": 64.17,
+  "margin_A": 3.31
+ },
+ "E5_kelvin_plane": {
+  "band_low_A_at_125C": 67.77,
+  "floor_A": 64.17,
+  "margin_A": 3.6,
+  "hotter_local_copper": {
+   "R5 pad c28 h25 (g6.json)": {
+    "T_C": 134.87,
+    "e_th_scale": 1.0275,
+    "trip_shift_A": -2.181,
+    "band_low_A": 67.71
+   },
+   "R5 row c28 h10 bay 55 (margins.json)": {
+    "T_C": 162.5,
+    "e_th_scale": 1.1043,
+    "trip_shift_A": -2.344,
+    "band_low_A": 67.55
+   }
+  },
+  "colder_than_125C": {
+   "T_C": 85,
+   "e_th_scale": 0.889
+  }
+ },
+ "E6_fuse_ratio": {
+  "min_ratio_all_at_Ta105": 0.993,
+  "ratio_vs_Ta": {
+   "95": 1.0149,
+   "100": 1.0039,
+   "102": 0.9995,
+   "105": 0.993,
+   "112": 0.978
+  },
+  "ratio_crosses_1_at_Ta_C": 101.7,
+  "c18_heat_weighted_C": {
+   "bus_p": [
+    99.1,
+    102.1
+   ],
+   "hv_ret": [
+    104.4,
+    106.3
+   ],
+   "leg": [
+    109.2,
+    112.3
+   ]
+  },
+  "note": "the binding row is bus_p BR1+ -> Q2/Q5 drain (1697.7 A2s of 1710). Ta 105 is on the hot (conservative) side of 99-102"
+ },
+ "E7_ipc2221": {
+  "rho_ratio_81C_vs_45C": 1.1288,
+  "width_ratio": 1.0872,
+  "width_mm_from_9.82": 10.68,
+  "note": "ESTIMATE: IPC-2221 rise ~ P/(h A); P ~ rho I^2 so I_eq = I sqrt(m); width ~ I^(1/0.725)"
+ },
+ "E8_neck_fin": {
+  "coded_rho_factor": 1.2948,
+  "coded_equals_C": 95,
+  "worst_span": "SW_A F.Cu, leg x 139-148.6 to T1",
+  "excess_28A_K": 30.4,
+  "at_130C": 33.6,
+  "at_160C": 36.4
+ },
+ "E9_r5_via_barrel": {
+  "c28_barrel_w_20C": 0.0293,
+  "c28_barrel_w_at_135C": 0.0425,
+  "mid_rise_K_20C": 0.28,
+  "mid_rise_K_at_135C": 0.41
+ },
+ "E10_pickup": {
+  "stack_A": 4.173,
+  "R5_hot_factor": 1.0083,
+  "stack_A_with_hot_R5": 4.139,
+  "note": "pickup volts come from loop flux (geometry only); A = V/Rs, so a hot Rs makes the pickup in amps smaller. Nominal Rs is the conservative side"
+ },
+ "E11_labels": {
+  "neck_fin": "1.72e-8 x (1 + 0.00393 x 75) = 2.2270e-08 is 95 C, comment says 100 C",
+  "kelvin_track_bound": "1.72e-8 x (1 + 0.00393 x 100) is 120 C, comment says 125 C; rho 125 C = 2.4298e-08 vs coded 2.3960e-08"
+ }
+}

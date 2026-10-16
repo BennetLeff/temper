@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
 """Layer 3, coupling that is on no net: heat, coil field, return-path references, switch-node dv/dt, creepage.
 
-    python3 -I validation-results/13-coupling/scripts/physics.py      (after assign32.py)
+    python3 -I validation-results/13-coupling/scripts/physics.py      (after $assign)
 
-No new physics: each term reads an existing model's input or output for the stage-32 board.
-* Thermal (B3, 04-board-current-thermal/round5-native21/b3, run c28_h25_p1p0 on board 2fb346dc): the solver's own
+No new physics: each term reads an existing model's input or output for the stage-$n board.
+* Thermal (B3, 04-board-current-thermal/round5-native21/b3, run $b3run on board $board8$b3extra): the solver's own
   deposited-heat map heat_w (1 mm cells) is attributed to groups - cells under a heat-source part's courtyard to that
   part's group, the rest to the nets of the case's Joule-heated copper (sw_a / sw_b / res_a / coil_feed / leg / bus /
   ac nets) by which copper occupies the cell. Screen: heat of group i deposited within 5 mm and 15 mm of group j's
   courtyards (W), and each group's hottest part from the solved rise map. This is proximity on B3's own heat, not a
   new solve.
-* Coil field (02-protection-timing/coil-pickup): OCP Kelvin / comparator pickup on this board (s21b/result-s32.json,
+* Coil field (02-protection-timing/coil-pickup): OCP Kelvin / comparator pickup on this board (s21b/result-$s.json,
   the scorecard's ocp_pickup_stack_pan60_A) against its 6.5 A gate; CT and LINE_ZC verdicts from PICKUP.md.
-* Return-path references (return-path.json of the stage-32 chain): which groups' planes and transfer capacitors each
+* Return-path references (return-path.json of the stage-$n chain): which groups' planes and transfer capacitors each
   fast or slow signal's layer changes lean on; the open changes (> 3 mm or no cap) per group pair.
 * dv/dt: copper area of the switching domains (SW_A, SW_B nets) overlapping other domains' copper on the adjacent
   layer (plane-to-plane capacitance proxy, mm2) and same-layer copper within 1 mm, by group.
-* Creepage: RES_A (G04) to SELV / PE pairs from the stage-32 res-a-creepage.json, margin over the 12.6 mm floor.
-Controls: attributed heat + unattributed = B3's total source watts (balance); the pickup row equals the s32 scorecard;
-the return-path open-change count equals the scorecard's 18.
+* Creepage: RES_A (G04) to SELV / PE pairs from the stage-$n res-a-creepage.json, margin over the 12.6 mm floor.
+Controls: attributed heat + unattributed = B3's total source watts (balance), per run (b3_maps.py checks the heat maps
+themselves); the pickup row equals the stage's scorecard; the return-path open-change count equals the scorecard's.
 """
 import json
 import sys
@@ -31,36 +31,33 @@ from scipy import ndimage
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import common as C  # noqa: E402
+import stages as STG  # noqa: E402
 
-B3 = C.VR / "04-board-current-thermal/round5-native21/b3"
 SW_DOMAINS = ("SW_A", "SW_B")
 STATIC_POWER = {"bus_p", "hv_ret", "leg_ret"}     # DC rails, not dv/dt aggressors or victims of interest
 
 
-def main():
-    ctl = C.Controls()
+def b3_paths(spec):
+    """(run json, heat-map npz, heat-sources json) of a B3 run in the stage registry. 'committed': the stage's own B3
+    output JSON under ROOT, its gitignored npz from --b3-dir; 'regenerate': b3_maps.py's solve in --b3-dir."""
+    B3 = C.VR / STG.B3_DIR
+    if spec["source"] == "committed":
+        return B3 / f"outputs/{spec['run']}.json", C.B3RUNS / f"{spec['run']}.npz", B3 / "inputs/native21-board-heat-sources-c28.json"
+    man = json.loads((C.B3RUNS / f"{spec['run']}.inputs.json").read_text())
+    return C.B3RUNS / f"{spec['run']}.json", C.B3RUNS / f"{spec['run']}.npz", C.B3RUNS / man["heat_file"]
+
+
+def thermal(spec, ctl, asg, cy, d, net_groups, prefix=""):
+    """Attribute one B3 run's deposited-heat map (heat_w, 1 mm cells) to groups; see the module docstring."""
     sg, so = C.shapely()
     import shapely
-    asg = C.load("assignment.json")["assignment"]
-    cy = C.courtyards()
-    d = C.dump()
-    dom, R = C.domains()
-    card = json.loads((C.VR / "10-benchmark/scorecard-native21s32.json").read_text())
-    pad_refs = defaultdict(set)
-    for x in d["primitives"]:
-        if x["kind"] == "pad" and x.get("net"):
-            r = x["ref"].split(".")[0]
-            if r in asg:
-                pad_refs[x["net"]].add(r)
-    net_groups = {n: sorted({asg[r] for r in rs}) for n, rs in pad_refs.items()}
-
-    # ---------------------------------------------------------------- thermal
-    run = json.loads((B3 / "outputs/c28_h25_p1p0.json").read_text())
-    ctl.check("B3 c28_h25 run is on the stage-32 board", run["board_sha256"] == C.BOARD_SHA)
-    z = np.load(B3 / "outputs/c28_h25_p1p0.npz")
+    run_json, run_npz, heat_file = b3_paths(spec)
+    run = json.loads(run_json.read_text())
+    ctl.check(f"{prefix}B3 {spec['run'][:7]} run is on the stage-{C.N} board", run["board_sha256"] == C.BOARD_SHA)
+    z = np.load(run_npz)
     xs, ys, heat, rise = z["x_mm"], z["y_mm"], z["heat_w"].sum(axis=0), z["rise_k"]
     XX, YY = np.meshgrid(xs, ys, indexing="ij")
-    src = json.loads((B3 / "inputs/native21-board-heat-sources-c28.json").read_text())["parts"]
+    src = json.loads(heat_file.read_text())["parts"]
     owner = np.full(heat.shape, -1, int)
     gidx = {g: i for i, g in enumerate(C.GIDS)}
     part_cells = {}
@@ -103,7 +100,7 @@ def main():
             else:
                 unatt += w
     tot_att = float(att.sum())
-    ctl.check("thermal: attributed + unattributed heat = B3 source watts", abs(tot_att + unatt - run["balance"]["source_w"]) < 1e-3,
+    ctl.check(f"{prefix}thermal: attributed + unattributed heat = B3 source watts", abs(tot_att + unatt - run["balance"]["source_w"]) < 1e-3,
               f"{tot_att:.3f} + {unatt:.3f} vs {run['balance']['source_w']:.3f} W")
     heat_by_group = {g: float(att[gidx[g]].sum()) for g in C.GIDS}
     therm = {}
@@ -136,19 +133,48 @@ def main():
             if best is None or t > best[1]:
                 best = (r, t)
         hottest[g] = {"ref": best[0], "local_peak_C": best[1]} if best else None
+    return {"b3_run": spec["run"], "source_w": run["balance"]["source_w"], "attributed_w": tot_att, "unattributed_w": unatt,
+            "heat_by_group_W": heat_by_group, **therm, "hottest_part_by_group": hottest, "joule_nets": nets_j}
+
+
+def main():
+    C.init()
+    C.FMT["b3run"] = next(sp["run"] for sp in C.ST["b3"] if sp["role"] == "primary")
+    C.FMT["b3extra"] = "".join(f"; run {sp['run']} also, for continuity" for sp in C.ST["b3"] if sp["role"] != "primary")
+    ctl = C.Controls()
+    sg, so = C.shapely()
+    import shapely
+    asg = C.load("assignment.json")["assignment"]
+    cy = C.courtyards()
+    d = C.dump()
+    dom, R = C.domains()
+    card = C.card()
+    pad_refs = defaultdict(set)
+    for x in d["primitives"]:
+        if x["kind"] == "pad" and x.get("net"):
+            r = x["ref"].split(".")[0]
+            if r in asg:
+                pad_refs[x["net"]].add(r)
+    net_groups = {n: sorted({asg[r] for r in rs}) for n, rs in pad_refs.items()}
+
+    # ---------------------------------------------------------------- thermal
+    specs = C.ST["b3"]
+    thermal_blocks = {sp["run"]: thermal(sp, ctl, asg, cy, d, net_groups, "" if sp["role"] == "primary" else f"[{sp['run']}] ")
+                      for sp in specs}
+    primary = next(sp["run"] for sp in specs if sp["role"] == "primary")
 
     # ---------------------------------------------------------------- coil field
-    pk = json.loads((C.VR / "02-protection-timing/coil-pickup/s21b/result-s32.json").read_text())
+    pk = json.loads((C.VR / f"02-protection-timing/coil-pickup/s21b/result-{STG.short(C.TAG)}.json").read_text())
     row = pk["rows"]["f60|pan_bars_31kHz_45Apk|base_A|cluster_drawn"]
     ocp = round(row["stack_any_phase_x1p5_A"], 2)
-    ctl.check("coil field: OCP pickup row equals the s32 scorecard", ocp == card["performance"]["ocp_pickup_stack_pan60_A"],
+    ctl.check(f"coil field: OCP pickup row equals the {STG.short(C.TAG)} scorecard", ocp == card["performance"]["ocp_pickup_stack_pan60_A"],
               f"{ocp} A")
     field = {
         "source": "coil current (tank, G04 via J2 / J5; coil off board)",
         "victims": {
             "G08": {"loop": "OCP Kelvin + comparator node / threshold loops (R5, R33, R35, C30, C31, U6)",
                     "value_A": ocp, "gate_A": 6.5, "utilisation": round(ocp / 6.5, 3),
-                    "parts_A": row["parts_A"], "source_file": "02-protection-timing/coil-pickup/s21b/result-s32.json"},
+                    "parts_A": row["parts_A"], "source_file": f"02-protection-timing/coil-pickup/s21b/result-{STG.short(C.TAG)}.json"},
             "G09": {"loop": "CT comparator loops and LINE_ZC string", "value": "negligible (<= 0.35 A tank-current equivalent, <= 0.6 deg ZC shift; LINE_ZC nA / ns)",
                     "utilisation": 0.0, "source_file": "02-protection-timing/coil-pickup/PICKUP.md lines 9-10 (13b copper; not rerun per stage)"},
         },
@@ -158,7 +184,7 @@ def main():
     }
 
     # ---------------------------------------------------------------- return-path references
-    rp = json.loads((C.S32_BUILD / "return-path.json").read_text())
+    rp = json.loads((C.BUILD / "return-path.json").read_text())
     cap_group = {c: asg.get(c) for c in rp["signals"]["transfer_caps"]}
     RP = {i: {j: 0 for j in C.GIDS} for i in C.GIDS}
     RPopen = {i: {j: 0 for j in C.GIDS} for i in C.GIDS}
@@ -184,7 +210,7 @@ def main():
                          "mm": c.get("mm"), "open": is_open, "plane_groups": pgs})
         for t in s.get("plane_crossings", []):
             pass
-    ctl.check("return path: open changes equal the s32 scorecard", n_open == card["performance"]["return_path_open_changes"],
+    ctl.check(f"return path: open changes equal the {STG.short(C.TAG)} scorecard", n_open == card["performance"]["return_path_open_changes"],
               f"{n_open}")
     exp_ret = {n: s["expected_return"] for n, s in rp["signals"].items() if isinstance(s, dict) and "expected_return" in s}
     plane_dep = {}
@@ -222,7 +248,7 @@ def main():
     top_victims = sorted(victims.items(), key=lambda t: -t[1])[:20]
 
     # ---------------------------------------------------------------- creepage
-    ra = json.loads((C.S32_BUILD / "res-a-creepage.json").read_text())
+    ra = json.loads((C.BUILD / "res-a-creepage.json").read_text())
     cre = []
     CR = {j: 0.0 for j in C.GIDS}
     for p in ra["pairs_under_25mm"]:
@@ -235,13 +261,12 @@ def main():
         for g in gs:
             if p.get("gated") and p["hv_net"] == "res_a":       # the 12.6 mm RES_A outer-layer rows (res_a is G04's own net)
                 CR[g] = max(CR[g], 1.0 / max(p["mm"] - p["floor_mm"], 0.1))
-    ctl.check("creepage: RES_A outer minimum equals the s32 scorecard",
+    ctl.check(f"creepage: RES_A outer minimum equals the {STG.short(C.TAG)} scorecard",
               abs(min(c["mm"] for c in cre if c["gated"] and c["hv_net"] == "res_a") - card["performance"]["res_a_outer_min_mm"]) < 1e-6)
 
     out = {
-        "board_sha256": C.BOARD_SHA, "method": __doc__.split("Controls:")[0].strip(),
-        "thermal": {"b3_run": "c28_h25_p1p0", "source_w": run["balance"]["source_w"], "attributed_w": tot_att, "unattributed_w": unatt,
-                    "heat_by_group_W": heat_by_group, **therm, "hottest_part_by_group": hottest, "joule_nets": nets_j},
+        "board_sha256": C.BOARD_SHA, "method": C.method(__doc__),
+        "thermal": thermal_blocks[primary],
         "coil_field": field,
         "return_path": {"reference_changes": rows, "pair_changes": RP, "pair_open_changes": RPopen, "open_total": n_open,
                         "transfer_cap_groups": cap_group, "expected_return_planes": plane_dep},
@@ -250,6 +275,8 @@ def main():
         "creepage_res_a": {"pairs": cre, "inverse_margin_by_group": CR},
         "controls": ctl.rows,
     }
+    if len(thermal_blocks) > 1:            # other B3 runs (stage 43: c28_h25 beside the c18 release case)
+        out["thermal_other_runs"] = {k: v for k, v in thermal_blocks.items() if k != primary}
     h = C.write("physics.json", out)
     print("physics.json", h[:12])
     ctl.finish()

@@ -22,11 +22,16 @@ R=validation-results/04-board-current-thermal/round5-native21
 if [ "$MODE" = all ] || [ "$MODE" = core ]; then
   $KP tools/copper_dump.py $B $1/evidence.json >/dev/null 2>&1
   lap copper_dump
+  # REGATE_SKIP_BARRIER=1 (scoped chain only, gates/scoped): the plan reuses the benchmark's barrier-gate-rust.json, which
+  # the scoped run copied into BUILDDIR with the benchmark build (same board_sha256); the full chain never sets it
+  if [ -n "${REGATE_SKIP_BARRIER:-}" ] && [ -f $1/barrier-gate-rust.json ]; then P_BAR=""
+  else
   # the release barrier binary of this checkout's sources (barrier_bin.sh: ~9x faster than debug, identical report)
   BAR_BIN=${ZAPOTE_POWER_BARRIER_BIN:-$(sh "$U/native-21/layout/gates/barrier_bin.sh")}
   lap barrier_bin
   ZAPOTE_POWER_BARRIER_BIN=$BAR_BIN python3 native-21/layout/barrier_gate21.py $1/evidence.json > $1/barrier-gate-rust.json &
   P_BAR=$!
+  fi
   $KP tools/jlc_dfm_check.py $B > $1/jlc-dfm.json 2>/dev/null
   lap jlc_dfm
   # local bypass: every comparator / Schmitt buffer / rail monitor has its 100 nF within the stage-19 limits (fails the gate)
@@ -37,7 +42,7 @@ if [ "$MODE" = all ] || [ "$MODE" = core ]; then
   # exported beside the build; task04 copies it into the study only when it recomputes, so inputs/ always matches outputs/
   $KP tools/export_power_copper.py $B "$BD/power_copper.json.gz" >/dev/null 2>&1
   lap export_power_copper
-  wait $P_BAR
+  [ -z "$P_BAR" ] || wait $P_BAR
   lap barrier_gate_wait
 fi
 if [ "$MODE" = all ] || [ "$MODE" = task04 ]; then

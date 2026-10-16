@@ -518,6 +518,29 @@ STAGE40 = {"bias_hb.link": (3.25, 47.25, 270.0),
 for path, pose in STAGE40.items():
     POSE[path] = pose
 
+# Stage 42 (candidate 39, DECISIONS 54): R10 / R12 / R18 / R20 become 68 ohm 2512 on the same axis, turned 180 deg
+# (rotation 270: pad 1 = OUT north, pad 2 = gate south), so the gate runs from the FET pin down the resistor's west side
+# and enters pad 2 outside the 3.2 mm circle of the other potential group's R_off / OUT copper (R54 / R57 at x g - 5.5).
+# The centre moves 0.2 mm north (y 12.4) so the 2512 courtyard clears the PMEG's (D6-D9, top y 16.355) by 0.08 mm; the
+# 0603 pull-downs R11 / R13 / R19 / R21 move 0.5 mm west to open the gate channel and 0.5 mm north (y 11.6) to keep
+# their gate pad 3.2 mm from the other group's OUT run ((g - 7.0, 14.3) -> (g - 5.5, 16.9)). The copper is patches21.edit_base42
+# (11-candidates/c39-gate-network/README.md section 3). R11 (leg A high side) is turned 180 deg so its sw_a via can sit
+# south-east of it, clear of the Q3 source -> R5 leg_ret neck on In1 (patches21.S42_PD_VIAS).
+for leg, q, side in (("leg_b", "leg_b.q_high", "h"), ("leg_b", "leg_b.q_low", "l"),
+                     ("leg_a", "leg_a.q_high", "h"), ("leg_a", "leg_a.q_low", "l")):
+    x, y, ang = POSE[f"{leg}.r_g{side}"]
+    assert (round(x, 3), y, ang) == (round(GATE[q], 3), 12.6, 90), (leg, side, POSE[f"{leg}.r_g{side}"])
+    POSE[f"{leg}.r_g{side}"] = (x, 12.4, 270.0)
+    x, y, ang = POSE[f"{leg}.r_g{side}_pd"]
+    assert (round(x, 3), y, ang) == (round(GATE[q] - 2.7, 3), 12.1, 90), (leg, side, POSE[f"{leg}.r_g{side}_pd"])
+    POSE[f"{leg}.r_g{side}_pd"] = (round(x - 0.5, 3), 11.6, 270.0 if (leg, side) == ("leg_a", "h") else ang)
+
+# Stage 44 (candidate 44, SELV-spine lane): the seven SELV return-path transfer caps C169-C175 (c_ref_xfer_6..12);
+# their poses and plane vias are patches21.S44_CAPS (one source for the part and its copper).
+from patches21 import S44_CAPS  # noqa: E402
+for _ref, (path, cx, cy, ang, _v1, _v2) in S44_CAPS.items():
+    POSE[path] = (cx, cy, ang)
+
 missing = sorted(set(PARTS) - set(POSE))
 if missing:
     raise SystemExit(f"{len(missing)} unplaced: {missing}")

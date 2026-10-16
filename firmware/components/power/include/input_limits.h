@@ -34,7 +34,7 @@ typedef struct {
     float aux_max_a;    /* worst-case auxiliary allowance: PS2 + PS3 with the blower at full */
     float aux_min_a;    /* static part, PS2 + PS3 logic (blower off, inlet-RMS increment): the
                          * lowest allowance a schedule may set */
-    float tank_limit_a; /* commissioned tank RMS ceiling: 22 A default, <= 28 A (hardware basis) */
+    float tank_limit_a; /* commissioned tank RMS ceiling: 18 A default, <= 28 A (hardware basis) */
 } input_limits_cfg_t;
 typedef struct {
     float bus_v;      /* VBUS from the isolated AMC1311, V */

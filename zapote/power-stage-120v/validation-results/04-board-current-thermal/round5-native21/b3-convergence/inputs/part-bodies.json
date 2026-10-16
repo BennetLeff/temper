@@ -108,24 +108,24 @@
    "layer": "F.Cu"
   },
   "R18": {
-   "fp": "Resistor_SMD:R_1206_3216Metric",
-   "mpn": "RC1206FR-073R9L",
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "mpn": "25121WF680JT4E",
    "at": [
     4.5,
-    12.6,
-    90.0
+    12.4,
+    270.0
    ],
    "fab": [
+    -3.15,
     -1.6,
-    -0.8,
-    1.6,
-    0.8
+    3.15,
+    1.6
    ],
    "crt": [
-    -2.28,
-    -1.13,
-    2.28,
-    1.13
+    -3.83,
+    -1.93,
+    3.83,
+    1.93
    ],
    "layer": "F.Cu"
   },
@@ -383,24 +383,24 @@
    "layer": "F.Cu"
   },
   "R20": {
-   "fp": "Resistor_SMD:R_1206_3216Metric",
-   "mpn": "RC1206FR-073R9L",
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "mpn": "25121WF680JT4E",
    "at": [
     22.5,
-    12.6,
-    90.0
+    12.4,
+    270.0
    ],
    "fab": [
+    -3.15,
     -1.6,
-    -0.8,
-    1.6,
-    0.8
+    3.15,
+    1.6
    ],
    "crt": [
-    -2.28,
-    -1.13,
-    2.28,
-    1.13
+    -3.83,
+    -1.93,
+    3.83,
+    1.93
    ],
    "layer": "F.Cu"
   },
@@ -641,24 +641,24 @@
    "layer": "F.Cu"
   },
   "R10": {
-   "fp": "Resistor_SMD:R_1206_3216Metric",
-   "mpn": "RC1206FR-073R9L",
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "mpn": "25121WF680JT4E",
    "at": [
     62.6,
-    12.6,
-    90.0
+    12.4,
+    270.0
    ],
    "fab": [
+    -3.15,
     -1.6,
-    -0.8,
-    1.6,
-    0.8
+    3.15,
+    1.6
    ],
    "crt": [
-    -2.28,
-    -1.13,
-    2.28,
-    1.13
+    -3.83,
+    -1.93,
+    3.83,
+    1.93
    ],
    "layer": "F.Cu"
   },
@@ -897,24 +897,24 @@
    "layer": "F.Cu"
   },
   "R12": {
-   "fp": "Resistor_SMD:R_1206_3216Metric",
-   "mpn": "RC1206FR-073R9L",
+   "fp": "Resistor_SMD:R_2512_6332Metric",
+   "mpn": "25121WF680JT4E",
    "at": [
     44.6,
-    12.6,
-    90.0
+    12.4,
+    270.0
    ],
    "fab": [
+    -3.15,
     -1.6,
-    -0.8,
-    1.6,
-    0.8
+    3.15,
+    1.6
    ],
    "crt": [
-    -2.28,
-    -1.13,
-    2.28,
-    1.13
+    -3.83,
+    -1.93,
+    3.83,
+    1.93
    ],
    "layer": "F.Cu"
   },
@@ -941,6 +941,7 @@
   }
  },
  "edits": [
-  "stage 38 (candidate 23, 2026-10-15): PS1 removed (deleted part, no heat row); PS2 mpn IRM-20-24 -> MPM-20-24 (same Case 219A footprint, pose and body). The rest is the stage-19b extraction unchanged; a full re-extraction on the s38 board also picks up later MPN changes of other lanes (U1/U2, R10/R12/R18/R20, R39, bank grade) and is left to the B3 owner."
+  "stage 38 (candidate 23, 2026-10-15): PS1 removed (deleted part, no heat row); PS2 mpn IRM-20-24 -> MPM-20-24 (same Case 219A footprint, pose and body). The rest is the stage-19b extraction unchanged; a full re-extraction on the s38 board also picks up later MPN changes of other lanes (U1/U2, R10/R12/R18/R20, R39, bank grade) and is left to the B3 owner.",
+  "stage 42 (candidate 39, 2026-10-15): R10/R12/R18/R20 -> UniRoyal 25121WF680JT4E 68 ohm 2512 (KiCad Resistor_SMD:R_2512_6332Metric: F.Fab +/-3.15 x 1.60, F.CrtYd +/-3.83 x 1.93 mm), same axis, centre y 12.6 -> 12.4, rotation 270; their stale stage-19b MPN (RC1206FR-073R9L) is corrected with it. R11/R13/R19/R21 (no heat row) move 0.5 mm west and 0.5 mm north (R11 also turned 180 deg)."
  ]
 }

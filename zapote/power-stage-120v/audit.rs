@@ -299,6 +299,16 @@ const IDENTITY: &[(&str, &str)] = &[
     ("c_ref_xfer_2", "CC0603KRX7R9BB104"),
     ("c_ref_xfer_3", "CC0603KRX7R9BB104"),
     ("c_ref_xfer_4", "CC0603KRX7R9BB104"),
+    // Stage 40: pwm_hb's fifth; stage 44 (candidate 44, OPEN-ITEMS S10): one beside each SELV return-path open change of
+    // PERMIT (3), BUS_FAULT, BUS_FAULT_ISO and BIAS_GOOD (2).
+    ("c_ref_xfer_5", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_6", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_7", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_8", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_9", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_10", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_11", "CC0603KRX7R9BB104"),
+    ("c_ref_xfer_12", "CC0603KRX7R9BB104"),
     ("j_blw_ac", "B2P3-VH(LF)(SN)"),
     ("rv1", "TMOV20RP175E"),
     ("br1", "GBJ2510-F"),
@@ -310,13 +320,21 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_hb.ren_bot", "0603WAF2702T5E"),
     ("r_shunt", "CSS2H-2512R-1L00F"),   // stage 17: replaces WSK25121L000FEA (derating, DECISIONS 17)
     // DECISIONS.md 2026-10-03: dead-time resistors (native-18 onward).
-    // stage 29: 8.2 ohm gate resistors set the edge the 2EDR8259X's CMTI ratio (1.58) is computed at
-    ("leg_a.r_gh", "RS-06L8R20FT"),
-    ("leg_a.r_gl", "RS-06L8R20FT"),
-    ("leg_b.r_gh", "RS-06L8R20FT"),
-    ("leg_b.r_gl", "RS-06L8R20FT"),
+    // stage 29: 8.2 ohm gate resistors set the edge the 2EDR8259X's CMTI ratio (1.58) is computed at.
+    // stage 42 (candidate 39, DECISIONS 54): 68 ohm 2512 turn-on resistors (with Cgs 4.7 nF) hold the CFD7's S4
+    // reverse-diode dv/dt and diF/dt; the 8.2 ohm 1206 broke both limits (85.8 V/ns, 2,101 A/us)
+    ("leg_a.r_gh", "25121WF680JT4E"),
+    ("leg_a.r_gl", "25121WF680JT4E"),
+    ("leg_b.r_gh", "25121WF680JT4E"),
+    ("leg_b.r_gl", "25121WF680JT4E"),
     ("leg_a.r_dt", "RT0603BRD0749K9L"),
     ("leg_b.r_dt", "RT0603BRD0749K9L"),
+    // stage 43: the 1 kV drain-source snubbers are the ordered YAGEO part (JLC C113872); the former source MPN
+    // GRM31A5C3A102JW01D is not a Murata part
+    ("leg_a.c_snub_h", "CC1206JKNPOCBN102"),
+    ("leg_a.c_snub_l", "CC1206JKNPOCBN102"),
+    ("leg_b.c_snub_h", "CC1206JKNPOCBN102"),
+    ("leg_b.c_snub_l", "CC1206JKNPOCBN102"),
     ("leg_a.q_high", "IPW65R018CFD7"),
     ("leg_a.q_low", "IPW65R018CFD7"),
     ("leg_b.q_high", "IPW65R018CFD7"),
@@ -395,10 +413,10 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_a.dis_or", "SN74LVC1G00DBVR"),
     ("leg_a.c_dis_or", "CC0603KRX7R9BB104"),
     ("leg_a.r_driver_dis", "0603WAF1002T5E"),
-    ("leg_a.cgs_h", "C0603C102J5GACTU"),
+    ("leg_a.cgs_h", "GRM1885C1H472JA01D"),   // stage 42: Cgs 4.7 nF C0G (candidate 39)
     ("leg_a.doff_h", "PMEG6030EP,115"),
     ("leg_a.roff_h", "1206W4F100KT5E"),
-    ("leg_a.cgs_l", "C0603C102J5GACTU"),
+    ("leg_a.cgs_l", "GRM1885C1H472JA01D"),
     ("leg_a.doff_l", "PMEG6030EP,115"),
     ("leg_a.roff_l", "1206W4F100KT5E"),
     ("leg_b.bias_h.clocal1", "CL32B106KBJNNNE"),
@@ -426,10 +444,10 @@ const IDENTITY: &[(&str, &str)] = &[
     ("leg_b.dis_or", "SN74LVC1G00DBVR"),
     ("leg_b.c_dis_or", "CC0603KRX7R9BB104"),
     ("leg_b.r_driver_dis", "0603WAF1002T5E"),
-    ("leg_b.cgs_h", "C0603C102J5GACTU"),
+    ("leg_b.cgs_h", "GRM1885C1H472JA01D"),
     ("leg_b.doff_h", "PMEG6030EP,115"),
     ("leg_b.roff_h", "1206W4F100KT5E"),
-    ("leg_b.cgs_l", "C0603C102J5GACTU"),
+    ("leg_b.cgs_l", "GRM1885C1H472JA01D"),
     ("leg_b.doff_l", "PMEG6030EP,115"),
     ("leg_b.roff_l", "1206W4F100KT5E"),
     ("bias_ls.ldo", "TPS7A4700RGWR"),
@@ -441,18 +459,18 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_ls.shunt", "TLVH431BQDBZR"),
     ("bias_ls.rtop", "RT0603BRD076K2L"),
     ("bias_ls.rbot", "RT0603BRD0710KL"),
-    ("monitor_ls.reference", "TL431AIDBZR"),
+    ("monitor_ls.reference", "TL431BIDBZR"),   // stage 45 (S16, DECISIONS 59, option 1c-4420): TL431B, halfref 4.42 k / 10 k, re-centred taps
     ("monitor_ls.rref", "RC1206FR-072K2L"),
-    ("monitor_ls.rhalf_top", "RT0603BRD0710KL"),
+    ("monitor_ls.rhalf_top", "RT0603BRD074K42L"),
     ("monitor_ls.rhalf_bot", "RT0603BRD0710KL"),
-    ("monitor_ls.ruv_top", "RT0603BRD074K42L"),
+    ("monitor_ls.ruv_top", "RT0603BRD07750RL"),
     ("monitor_ls.ruv_bot", "RT0603BRD0710KL"),
-    ("monitor_ls.rov_top", "RT0603BRD077K68L"),
+    ("monitor_ls.rov_top", "RT0603BRD072K94L"),
     ("monitor_ls.rov_bot", "RT0603BRD0710KL"),
-    ("monitor_ls.rspanuv_top", "RT0603BRD07120KL"),
-    ("monitor_ls.rspanuv_bot", "RT0603BRD0710KL"),
-    ("monitor_ls.rspanov_top", "ARG03BTC1333"),
-    ("monitor_ls.rspanov_bot", "RT0603BRD0710KL"),
+    ("monitor_ls.rspanuv_top", "RT0603BRD0790K9L"),
+    ("monitor_ls.rspanuv_bot", "RT0603BRD0711KL"),
+    ("monitor_ls.rspanov_top", "RT0603BRD07104KL"),
+    ("monitor_ls.rspanov_bot", "RT0603BRD0711KL"),
     ("monitor_ls.monitor", "LM339BIDR"),
     ("monitor_ls.rpull", "0603WAF1002T5E"),
     ("u_bias_flt", "SN74LVC1G17DBVR"),
@@ -494,18 +512,18 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_ha.split.shunt", "TLVH431BQDBZR"),
     ("bias_ha.split.rtop", "RT0603BRD076K2L"),
     ("bias_ha.split.rbot", "RT0603BRD0710KL"),
-    ("bias_ha.monitor.reference", "TL431AIDBZR"),
+    ("bias_ha.monitor.reference", "TL431BIDBZR"),
     ("bias_ha.monitor.rref", "RC1206FR-072K2L"),
-    ("bias_ha.monitor.rhalf_top", "RT0603BRD0710KL"),
+    ("bias_ha.monitor.rhalf_top", "RT0603BRD074K42L"),
     ("bias_ha.monitor.rhalf_bot", "RT0603BRD0710KL"),
-    ("bias_ha.monitor.ruv_top", "RT0603BRD074K42L"),
+    ("bias_ha.monitor.ruv_top", "RT0603BRD07750RL"),
     ("bias_ha.monitor.ruv_bot", "RT0603BRD0710KL"),
-    ("bias_ha.monitor.rov_top", "RT0603BRD077K68L"),
+    ("bias_ha.monitor.rov_top", "RT0603BRD072K94L"),
     ("bias_ha.monitor.rov_bot", "RT0603BRD0710KL"),
-    ("bias_ha.monitor.rspanuv_top", "RT0603BRD07120KL"),
-    ("bias_ha.monitor.rspanuv_bot", "RT0603BRD0710KL"),
-    ("bias_ha.monitor.rspanov_top", "ARG03BTC1333"),
-    ("bias_ha.monitor.rspanov_bot", "RT0603BRD0710KL"),
+    ("bias_ha.monitor.rspanuv_top", "RT0603BRD0790K9L"),
+    ("bias_ha.monitor.rspanuv_bot", "RT0603BRD0711KL"),
+    ("bias_ha.monitor.rspanov_top", "RT0603BRD07104KL"),
+    ("bias_ha.monitor.rspanov_bot", "RT0603BRD0711KL"),
     ("bias_ha.monitor.monitor", "LM339BIDR"),
     ("bias_ha.monitor.rpull", "0603WAF1002T5E"),
     ("bias_ha.monitor.ldo5", "TPS70950DBVR"),
@@ -527,18 +545,18 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_hb.split.shunt", "TLVH431BQDBZR"),
     ("bias_hb.split.rtop", "RT0603BRD076K2L"),
     ("bias_hb.split.rbot", "RT0603BRD0710KL"),
-    ("bias_hb.monitor.reference", "TL431AIDBZR"),
+    ("bias_hb.monitor.reference", "TL431BIDBZR"),
     ("bias_hb.monitor.rref", "RC1206FR-072K2L"),
-    ("bias_hb.monitor.rhalf_top", "RT0603BRD0710KL"),
+    ("bias_hb.monitor.rhalf_top", "RT0603BRD074K42L"),
     ("bias_hb.monitor.rhalf_bot", "RT0603BRD0710KL"),
-    ("bias_hb.monitor.ruv_top", "RT0603BRD074K42L"),
+    ("bias_hb.monitor.ruv_top", "RT0603BRD07750RL"),
     ("bias_hb.monitor.ruv_bot", "RT0603BRD0710KL"),
-    ("bias_hb.monitor.rov_top", "RT0603BRD077K68L"),
+    ("bias_hb.monitor.rov_top", "RT0603BRD072K94L"),
     ("bias_hb.monitor.rov_bot", "RT0603BRD0710KL"),
-    ("bias_hb.monitor.rspanuv_top", "RT0603BRD07120KL"),
-    ("bias_hb.monitor.rspanuv_bot", "RT0603BRD0710KL"),
-    ("bias_hb.monitor.rspanov_top", "ARG03BTC1333"),
-    ("bias_hb.monitor.rspanov_bot", "RT0603BRD0710KL"),
+    ("bias_hb.monitor.rspanuv_top", "RT0603BRD0790K9L"),
+    ("bias_hb.monitor.rspanuv_bot", "RT0603BRD0711KL"),
+    ("bias_hb.monitor.rspanov_top", "RT0603BRD07104KL"),
+    ("bias_hb.monitor.rspanov_bot", "RT0603BRD0711KL"),
     ("bias_hb.monitor.monitor", "LM339BIDR"),
     ("bias_hb.monitor.rpull", "0603WAF1002T5E"),
     ("bias_hb.monitor.ldo5", "TPS70950DBVR"),
@@ -899,8 +917,9 @@ fn audit(m: &Model) -> Vec<String> {
         e.push(format!("tco_l must join only the TCO header and PS2, found {:?}", tco));
     }
     // Blower-supply tap (stage 16): fused after F1 and the filter, a branch of its own to J11.
-    // Reference-transfer caps (stage 19b): each joins the two SELV reference planes, v3v3 (In1) and selv_gnd (In2).
-    for i in 1..=4 {
+    // Reference-transfer caps (stage 19b; 5 stage 40; 6-12 stage 44): each joins the two SELV reference planes, v3v3
+    // (In1) and selv_gnd (In2).
+    for i in 1..=12 {
         let p = format!("c_ref_xfer_{i}");
         expect(&mut e, m, &p, "1", "v3v3");
         expect(&mut e, m, &p, "2", "selv_gnd");
@@ -1734,6 +1753,63 @@ mod tests {
         let mut m = built();
         m.set_part("j_coil", "74650074");
         fails(&m, "j_coil is 74650074");
+    }
+
+    #[test]
+    fn stage42_gate_network_holds() {
+        // candidate 39 (DECISIONS 54): the 8.2 ohm 1206 turn-on resistor or the 1 nF Cgs back on any gate must fail
+        let mut m = built();
+        m.set_part("leg_b.r_gl", "RS-06L8R20FT");
+        fails(&m, "leg_b.r_gl is RS-06L8R20FT");
+        let mut m = built();
+        m.set_part("leg_a.cgs_h", "C0603C102J5GACTU");
+        fails(&m, "leg_a.cgs_h is C0603C102J5GACTU");
+    }
+
+    #[test]
+    fn stage43_snubber_mpn_holds() {
+        // the non-existent GRM31A5C3A102JW01D back on any drain-source snubber must fail
+        let mut m = built();
+        m.set_part("leg_b.c_snub_l", "GRM31A5C3A102JW01D");
+        fails(&m, "leg_b.c_snub_l is GRM31A5C3A102JW01D");
+    }
+
+    #[test]
+    fn stage44_selv_transfer_caps_hold() {
+        // candidate 44: a stage-44 transfer cap off the SELV planes, or a different part, must fail
+        let mut m = built();
+        m.rewire("c_ref_xfer_8", "1", "bias_good");
+        fails(&m, "c_ref_xfer_8.1");
+        let mut m = built();
+        m.rewire("c_ref_xfer_12", "2", "permit");
+        fails(&m, "c_ref_xfer_12.2");
+        let mut m = built();
+        m.set_part("c_ref_xfer_6", "CL10A106KP8NNNC");
+        fails(&m, "c_ref_xfer_6 is CL10A106KP8NNNC");
+    }
+
+    #[test]
+    fn stage45_rail_monitor_values_hold() {
+        // S16 (DECISIONS 59, option 1c-4420): the TL431A reference, the 10 k halfref top or any pre-stage-45 tap value
+        // back on a rail monitor must fail (the windows overlap the rails' worst-case tolerance with those values)
+        let mut m = built();
+        m.set_part("bias_ha.monitor.reference", "TL431AIDBZR");
+        fails(&m, "bias_ha.monitor.reference is TL431AIDBZR");
+        let mut m = built();
+        m.set_part("monitor_ls.rhalf_top", "RT0603BRD0710KL");
+        fails(&m, "monitor_ls.rhalf_top is RT0603BRD0710KL");
+        let mut m = built();
+        m.set_part("bias_hb.monitor.rspanov_top", "ARG03BTC1333");
+        fails(&m, "bias_hb.monitor.rspanov_top is ARG03BTC1333");
+        let mut m = built();
+        m.set_part("monitor_ls.rspanuv_bot", "RT0603BRD0710KL");
+        fails(&m, "monitor_ls.rspanuv_bot is RT0603BRD0710KL");
+        let mut m = built();
+        m.set_part("bias_ha.monitor.ruv_top", "RT0603BRD074K42L");
+        fails(&m, "bias_ha.monitor.ruv_top is RT0603BRD074K42L");
+        let mut m = built();
+        m.set_part("bias_hb.monitor.rov_top", "RT0603BRD077K68L");
+        fails(&m, "bias_hb.monitor.rov_top is RT0603BRD077K68L");
     }
 
     #[test]

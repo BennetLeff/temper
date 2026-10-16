@@ -1,0 +1,45 @@
+{
+ "old_band_V": [
+  272.09,
+  288.02
+ ],
+ "designs": {
+  "TPS3701": {
+   "R30a_k": 13.0,
+   "R30b_k": 2.74,
+   "sum_k": 15.74,
+   "vbus_scale_change_pct": -0.377,
+   "trip_band_V": [
+    269.61,
+    284.03
+   ],
+   "inside_old_band": false,
+   "upper_corner_change_V": -3.99,
+   "lower_corner_change_V": -2.48,
+   "release_band_V": [
+    262.82,
+    281.91
+   ],
+   "width_vs_old": 0.905,
+   "R30a_part": {
+    "mpn": "RT0603BRD0713KL",
+    "lcsc": "C861121",
+    "class": "expand",
+    "jlc_stock": 19105
+   },
+   "R30b_part": {
+    "mpn": "RT0603BRD072K74L",
+    "lcsc": "C861304",
+    "class": "expand",
+    "jlc_stock": 7216
+   },
+   "strictly_inside_candidates_unstocked": [
+    [
+     13.0,
+     2.71
+    ]
+   ]
+  },
+  "TPS3700": "no stocked pair meets the acceptance"
+ }
+}

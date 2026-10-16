@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Combine the four coupling layers, score the model against stages 19c -> 32, and count workstreams.
+"""Combine the four coupling layers, score the model against stages 19c -> $n, and count workstreams.
 
     python3 -I validation-results/13-coupling/scripts/combine.py      (after the five layer scripts)
 
@@ -98,7 +98,43 @@ def cluster(M, tau):
     return out
 
 
+def eval_cases(hi, comb, layers):
+    """Every (intended group, other group) pair of every stage that changed copper or parts, labelled positive if the other
+    group's territory took >= 2 changed routed-copper items or DECISIONS records a ripple between them, with the model's
+    scores; plus the documented ripple whose source is outside the stage's intended groups."""
+    doc = {}
+    for r in hi["documented_ripple"]:
+        for a in r["from"]:
+            for b in r["to"]:
+                if a != b:
+                    doc.setdefault((r["stage"], a, b), r["mechanism"])
+    ev = []
+    for st in hi["stages"]:
+        I = set(st["intended_groups"])
+        changed = bool(st["routed_copper_changed_nets"] or st["added"] or st["removed"] or st["moved"] or st["pour_fill_changed"])
+        if not I or not changed:
+            continue
+        terr = {g for g, k in st["changed_items_by_territory"].items() if g != "open" and k >= 2}
+        for a in sorted(I):
+            for b in G:
+                if b in I:
+                    continue
+                pos_obs = b in terr
+                pos_doc = (st["to"], a, b) in doc
+                ev.append({"stage": st["to"], "from": a, "to": b, "observed_copper_ripple": pos_obs, "documented_ripple": pos_doc,
+                           "positive": pos_obs or pos_doc, "combined": float(comb[ix[a], ix[b]]),
+                           **{lay: float(layers[lay][ix[a], ix[b]]) for lay in layers}})
+    for (stg, a, b), mech in doc.items():
+        st = next(s for s in hi["stages"] if s["to"] == stg)
+        if a not in st["intended_groups"]:
+            ev.append({"stage": stg, "from": a, "to": b, "observed_copper_ripple": False, "documented_ripple": True, "positive": True,
+                       "combined": float(comb[ix[a], ix[b]]), **{lay: float(layers[lay][ix[a], ix[b]]) for lay in layers},
+                       "note": "documented blocker / ripple source outside the stage's intended groups"})
+    return ev
+
+
 def main():
+    C.init()
     ctl = C.Controls()
     el = C.load("electrical.json")
     ph = C.load("physical.json")
@@ -149,34 +185,7 @@ def main():
     ctl.check("combined reproduced from the layer matrices", np.allclose(comb, comb2))
 
     # ---------------- empirical check
-    doc = {}
-    for r in hi["documented_ripple"]:
-        for a in r["from"]:
-            for b in r["to"]:
-                if a != b:
-                    doc.setdefault((r["stage"], a, b), r["mechanism"])
-    ev = []
-    for st in hi["stages"]:
-        I = set(st["intended_groups"])
-        changed = bool(st["routed_copper_changed_nets"] or st["added"] or st["removed"] or st["moved"] or st["pour_fill_changed"])
-        if not I or not changed:
-            continue
-        terr = {g for g, k in st["changed_items_by_territory"].items() if g != "open" and k >= 2}
-        for a in sorted(I):
-            for b in G:
-                if b in I:
-                    continue
-                pos_obs = b in terr
-                pos_doc = (st["to"], a, b) in doc
-                ev.append({"stage": st["to"], "from": a, "to": b, "observed_copper_ripple": pos_obs, "documented_ripple": pos_doc,
-                           "positive": pos_obs or pos_doc, "combined": float(comb[ix[a], ix[b]]),
-                           **{lay: float(layers[lay][ix[a], ix[b]]) for lay in layers}})
-    for (stg, a, b), mech in doc.items():
-        st = next(s for s in hi["stages"] if s["to"] == stg)
-        if a not in st["intended_groups"]:
-            ev.append({"stage": stg, "from": a, "to": b, "observed_copper_ripple": False, "documented_ripple": True, "positive": True,
-                       "combined": float(comb[ix[a], ix[b]]), **{lay: float(layers[lay][ix[a], ix[b]]) for lay in layers},
-                       "note": "documented blocker / ripple source outside the stage's intended groups"})
+    ev = eval_cases(hi, comb, layers)
     labels = [e["positive"] for e in ev]
     aucs = {k: auc([e[k] for e in ev], labels) for k in ("combined", "electrical", "physical", "physics", "verification")}
     ctl.check("AUC of a constant score is 0.5", auc([1.0] * len(ev), labels) == 0.5)
@@ -197,11 +206,18 @@ def main():
     for st in hi["stages"]:
         I = st["intended_groups"]
         pred = sorted({m for g in I for m in retrig[g]})
-        moved = sorted(m for m in st["metrics_moved"] if m not in ("ledger_violations", "ledger_unaudited_safety_power"))
+        basis = st.get("metrics_moved_basis_change", {})
+        moved = sorted(m for m in st["metrics_moved"] if m not in ("ledger_violations", "ledger_unaudited_safety_power")
+                       and m not in glob and m not in basis)
         hit = [m for m in moved if m in pred]
         miss = [m for m in moved if m not in pred]
         mrows.append({"stage": st["to"], "intended": I, "moved": moved, "predicted_reads": len(pred), "moved_and_predicted": hit,
                       "moved_not_predicted": miss})
+        g_moved = sorted(m for m in st["metrics_moved"] if m in glob and not m.startswith("ledger_"))
+        if g_moved:                 # a global metric moves with any change: predicted by definition, counted apart
+            mrows[-1]["moved_global"] = g_moved
+        if basis:
+            mrows[-1]["moved_basis_change"] = sorted(basis)
     moved_tot = sum(len(r["moved"]) for r in mrows)
     hit_tot = sum(len(r["moved_and_predicted"]) for r in mrows)
     # propagated: intended groups plus every group joined to one of them by combined >= tau
@@ -248,7 +264,7 @@ def main():
     pairs6 = sorted(({"pair": f"{G[i]}-{G[j]}", "combined_now": float(comb[i, j]), "combined_six_layer_bound": float(comb6[i, j]),
                       "cut": float(comb[i, j] - comb6[i, j])} for i, j in combinations(range(N), 2)), key=lambda r: (-r["cut"], r["pair"]))
     out = {
-        "method": __doc__.split("Controls:")[0].strip(),
+        "method": C.method(__doc__),
         "layer_matrices": {lay: {G[i]: {G[j]: float(layers[lay][i, j]) for j in range(N)} for i in range(N)} for lay in layers},
         "term_matrices_raw": {lay: {k: {G[i]: {G[j]: float(M[i, j]) for j in range(N)} for i in range(N)} for k, M in ts.items()} for lay, ts in terms.items()},
         "combined": {G[i]: {G[j]: float(comb[i, j]) for j in range(N)} for i in range(N)},

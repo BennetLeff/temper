@@ -1,0 +1,389 @@
+{
+ "FS_NOT_61508": {
+  "doc": "slvaem2a",
+  "page": 2,
+  "values": {},
+  "verified_in_text": true,
+  "what": "TI FS documents: quality-managed process, not developed to IEC 61508 / ISO 26262 (same statement in each)"
+ },
+ "FS_RANDOM_ONLY": {
+  "doc": "slvaem2a",
+  "page": 5,
+  "values": {},
+  "verified_in_text": true,
+  "what": "FMDs are random failures only; overstress (the C5 case) is outside them"
+ },
+ "LM2901B_FIT": {
+  "doc": "slca004",
+  "page": 3,
+  "values": {
+   "SOIC14_package": 14,
+   "SOIC14_total": 16,
+   "die": 2
+  },
+  "verified_in_text": true,
+  "what": "LM2901/LM2901B family, SOIC-14 (SLCA004 Table 1-1 p.3); LM339B and LM2901B share data sheet SLCS006Z and die family; used as the LM339BIDR proxy"
+ },
+ "LM2901B_FMD": {
+  "doc": "slca004",
+  "page": 4,
+  "values": {
+   "hiz": 0.15,
+   "out_of_spec": 0.3,
+   "pin_short": 0.05,
+   "sat_high": 0.25,
+   "sat_low": 0.25
+  },
+  "verified_in_text": true,
+  "what": "SLCA004 Table 1-3 p.4"
+ },
+ "LM2901B_PIN_OPEN": {
+  "doc": "slca004",
+  "page": 6,
+  "values": {},
+  "verified_in_text": true,
+  "what": "pin-open FMA: GND open is class A; input open 'output may be low or high'; VCC open 'no power' (SLCA004 Table 1-6 p.6)"
+ },
+ "LM339B_ABSMAX_IN": {
+  "doc": "lm339b",
+  "page": 5,
+  "values": {
+   "VIN_abs_max_V": 38.0
+  },
+  "verified_in_text": true,
+  "what": "SLCS006Z \u00a76.1 p.5"
+ },
+ "LM339B_ONE_INPUT": {
+  "doc": "lm339b",
+  "page": 7,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SLCS006Z p.7 note 1"
+ },
+ "LM339B_ROC": {
+  "doc": "lm339b",
+  "page": 6,
+  "values": {
+   "VS_min_V": 2.0
+  },
+  "verified_in_text": true,
+  "what": "SLCS006Z \u00a76.4 p.6"
+ },
+ "LM339B_TRESP": {
+  "doc": "lm339b",
+  "page": 12,
+  "values": {
+   "tresponse_typ_ns": 1000
+  },
+  "verified_in_text": true,
+  "what": "typical only (SLCS006Z \u00a76.13 p.12)"
+ },
+ "TI_ESTIMATOR": {
+  "doc": "ti-estimator",
+  "values": {
+   "LM339BIDR": {
+    "Ea_eV": 0.7,
+    "FIT": 8.0,
+    "MTBF_h": 125000000.0,
+    "conf_level_pct": 60.0,
+    "fails": 0,
+    "recomputed_FIT_chi2_60pct_0fail": 8.066,
+    "sample_size": 1463,
+    "test_hours": 1000.0,
+    "test_temp_C": 125.0,
+    "usage_temp_C": 55.0
+   },
+   "TL431AIDBZR": {
+    "Ea_eV": 0.7,
+    "FIT": 8.0,
+    "MTBF_h": 125000000.0,
+    "conf_level_pct": 60.0,
+    "fails": 0,
+    "recomputed_FIT_chi2_60pct_0fail": 8.066,
+    "sample_size": 1463,
+    "test_hours": 1000.0,
+    "test_temp_C": 125.0,
+    "usage_temp_C": 55.0
+   },
+   "TL431BIDBZR": {
+    "Ea_eV": 0.7,
+    "FIT": 8.0,
+    "MTBF_h": 125000000.0,
+    "conf_level_pct": 60.0,
+    "fails": 0,
+    "recomputed_FIT_chi2_60pct_0fail": 8.066,
+    "sample_size": 1463,
+    "test_hours": 1000.0,
+    "test_temp_C": 125.0,
+    "usage_temp_C": 55.0
+   },
+   "TPS3701DDCR": {
+    "Ea_eV": 0.7,
+    "FIT": 0.1,
+    "MTBF_h": 10000000000.0,
+    "conf_level_pct": 60.0,
+    "fails": 0,
+    "recomputed_FIT_chi2_60pct_0fail": 0.064,
+    "sample_size": 183306,
+    "test_hours": 1000.0,
+    "test_temp_C": 125.0,
+    "usage_temp_C": 55.0
+   }
+  },
+  "verified_in_text": true,
+  "what": "TI MTBF/FIT estimator (HTOL, 60 % confidence, 0 fails, Ea 0.7 eV, 55 C use). TI: 'failure rates are highly dependent on the number of units tested, therefore, it is not recommended to compare failure rates'."
+ },
+ "TL431_FIT": {
+  "doc": "snva914",
+  "page": 1,
+  "values": {
+   "die": 4,
+   "package": 2,
+   "total": 6
+  },
+  "verified_in_text": true,
+  "what": "TL431-Q1/TL432-Q1 FIT, IEC TR 62380 (TI SNVA914 p.1; package not named)"
+ },
+ "TL431_FMD": {
+  "doc": "snva914",
+  "page": 1,
+  "values": {
+   "open": 0.25,
+   "out_of_spec": 0.4,
+   "short": 0.35
+  },
+  "verified_in_text": true,
+  "what": "TL431-Q1 die FMD (SNVA914 p.1)"
+ },
+ "TL431_SN29500": {
+  "doc": "snva914",
+  "page": 1,
+  "values": {
+   "ref_FIT": 3,
+   "ref_TJ_C": 45
+  },
+  "verified_in_text": true,
+  "what": "TL431-Q1 SN 29500-2 reference rate (SNVA914 p.1)"
+ },
+ "TPS3700Q1_ASSUMPTION": {
+  "doc": "slvaem2a",
+  "page": 6,
+  "values": {},
+  "verified_in_text": true,
+  "what": "pin FMA assumes all pins in the recommended range and VDD = 5 V (SLVAEM2A \u00a74 p.6); on this board VDD = P = 17 V, so the INx-to-VDD rows do not transfer"
+ },
+ "TPS3700Q1_FIT": {
+  "doc": "slvaem2a",
+  "page": 3,
+  "values": {
+   "die": 2,
+   "package": 2,
+   "total": 4
+  },
+  "verified_in_text": true,
+  "what": "TPS3700-Q1 DDC, IEC TR 62380 (SLVAEM2A Table 2-1 p.3); TPS3701 proxy"
+ },
+ "TPS3700Q1_FMD": {
+  "doc": "slvaem2a",
+  "page": 5,
+  "values": {
+   "hiz": 0.3,
+   "out_of_spec": 0.4,
+   "stuck_low": 0.3
+  },
+  "verified_in_text": true,
+  "what": "SLVAEM2A Table 3-1 p.5"
+ },
+ "TPS3700Q1_PINOPEN_INB": {
+  "doc": "slvaem2a",
+  "page": 7,
+  "values": {},
+  "verified_in_text": true,
+  "what": "INB open -> OUTB 'no overvoltage' (masked); INA open -> OUTA 'undervoltage' (announced); VDD/GND open -> 'device unpowered, nonfunctional' (SLVAEM2A Table 4-3 p.7)"
+ },
+ "TPS3700Q1_SN29500": {
+  "doc": "slvaem2a",
+  "page": 3,
+  "values": {
+   "ref_FIT": 20,
+   "ref_TJ_C": 55
+  },
+  "verified_in_text": true,
+  "what": "SLVAEM2A Table 2-2 p.3"
+ },
+ "TPS3701_ABSMAX_IN": {
+  "doc": "tps3701",
+  "page": 4,
+  "values": {
+   "VIN_abs_max_V": 7.0
+  },
+  "verified_in_text": true,
+  "what": "SBVS240C \u00a76.1 p.4"
+ },
+ "TPS3701_ABSMAX_VDD": {
+  "doc": "tps3701",
+  "page": 4,
+  "values": {
+   "VDD_abs_max_V": 40.0
+  },
+  "verified_in_text": true,
+  "what": "SBVS240C \u00a76.1 p.4"
+ },
+ "TPS3701_IN_SWING": {
+  "doc": "tps3701",
+  "page": 11,
+  "values": {},
+  "verified_in_text": true,
+  "what": "SBVS240C \u00a77.3.1 p.11"
+ },
+ "TPS3701_NO_IN_CURRENT_RATING": {
+  "doc": "tps3701",
+  "page": 4,
+  "values": {
+   "output_pin_current_mA": 40
+  },
+  "verified_in_text": true,
+  "what": "the only current abs-max is the output pin; no input-pin current or clamp rating (SBVS240C \u00a76.1 p.4)"
+ },
+ "TPS3701_OUT25": {
+  "doc": "tps3701",
+  "page": 11,
+  "values": {},
+  "verified_in_text": true,
+  "what": "outputs are not clamped to VDD (SBVS240C \u00a77.3.2 p.11)"
+ },
+ "TPS3701_POR": {
+  "doc": "tps3701",
+  "page": 11,
+  "values": {
+   "VPOR_max_V": 0.8
+  },
+  "verified_in_text": true,
+  "what": "VDD < V(POR) (0.8 V max, p.5): both outputs Hi-Z (SBVS240C \u00a77.4.3 p.11)"
+ },
+ "TPS3701_ROC_IN": {
+  "doc": "tps3701",
+  "page": 4,
+  "values": {
+   "VIN_recommended_max_V": 6.5
+  },
+  "verified_in_text": true,
+  "what": "SBVS240C \u00a76.3 p.4"
+ },
+ "TPS3701_ROC_NOTE": {
+  "doc": "tps3701",
+  "page": 4,
+  "values": {},
+  "verified_in_text": true,
+  "what": "INx >= 2.4 V at 125 C for 10 years degrades accuracy to 1.5 % (SBVS240C \u00a76.3 note 1 p.4)"
+ },
+ "TPS3701_SHARED_REF": {
+  "doc": "tps3701",
+  "page": 11,
+  "values": {},
+  "verified_in_text": true,
+  "what": "one internal reference serves INA and INB (SBVS240C \u00a77.3.1 p.11)"
+ },
+ "TPS3701_TPD": {
+  "doc": "tps3701",
+  "page": 6,
+  "values": {
+   "td_start_typ_us": 155,
+   "tpd_HL_typ_us": 9.9,
+   "tpd_LH_typ_us": 28.1
+  },
+  "verified_in_text": true,
+  "what": "typical only, VDD 24 V, +-10 mV overdrive; no minimum or maximum column entry (SBVS240C \u00a76.6 p.6)"
+ },
+ "TPS3701_TPD_FIG": {
+  "doc": "tps3701",
+  "page": 8,
+  "values": {
+   "HL_us_range_fig12": [
+    5.4,
+    9.6
+   ],
+   "LH_us_range_fig13": [
+    1.75,
+    2.5
+   ]
+  },
+  "verified_in_text": true,
+  "what": "read off Figures 12-13 (+-200 mV step, -40..125 C, VDD 1.8 and 36 V; typical curves; values are a figure reading)"
+ },
+ "TPS3701_UVLO": {
+  "doc": "tps3701",
+  "page": 5,
+  "values": {},
+  "verified_in_text": true,
+  "what": "UVLO 1.3-1.7 V falling; OUTA low below UVLO (SBVS240C \u00a76.5 note 2 p.5)"
+ },
+ "TPS3701_VIT": {
+  "doc": "tps3701",
+  "page": 5,
+  "values": {},
+  "verified_in_text": true,
+  "what": "VIT-(INA) 397/400/403 mV etc. (SBVS240C \u00a76.5 p.5)"
+ },
+ "TPS3702_FMD": {
+  "doc": "sffs074",
+  "page": 4,
+  "values": {
+   "hiz": 0.3,
+   "out_of_spec": 0.4,
+   "stuck_low": 0.3
+  },
+  "verified_in_text": true,
+  "what": "TPS3702 DDC (SFFS074 Table 3-1 p.4); same as TPS3700-Q1"
+ },
+ "TPS3703_FIT": {
+  "doc": "sffs944",
+  "page": 3,
+  "values": {
+   "die": 2,
+   "package": 2,
+   "total": 4
+  },
+  "verified_in_text": true,
+  "what": "TPS3703 DSE (SFFS944 Table 2-1 p.3)"
+ },
+ "TPS3703_FMD": {
+  "doc": "sffs944",
+  "page": 4,
+  "values": {
+   "delay": 0.05,
+   "fail_to_trip": 0.15,
+   "false_trip": 0.15,
+   "trip_out_of_spec": 0.65
+  },
+  "verified_in_text": true,
+  "what": "SFFS944 Table 3-1 p.4 (alternative proxy)"
+ },
+ "TPS709_VIN_MIN": {
+  "doc": "tps709",
+  "page": 4,
+  "values": {
+   "VIN_min_V": 2.7
+  },
+  "verified_in_text": true,
+  "what": "recommended input 2.7-30 V: below 2.7 V the local 5 V output is unspecified (SBVS186H \u00a76.3 p.4)"
+ },
+ "TPS7A47_3P2V": {
+  "doc": "tps7a47",
+  "page": 3,
+  "values": {
+   "pin": 6
+  },
+  "verified_in_text": true,
+  "what": "ANY-OUT 3.2 V pin is pin 6 (SBVS204G p.3); unconnected in f6_bias.ato:64-77"
+ },
+ "TPS7A47_ANYOUT_EQ": {
+  "doc": "tps7a47",
+  "page": 12,
+  "values": {
+   "VREF_V": 1.4
+  },
+  "verified_in_text": true,
+  "what": "SBVS204G \u00a76.5.1 Eq. 2"
+ }
+}

@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "4f76f47950de4595a2209f5695564e9fb43f5aa60cb632da11c065edb5ce2ffd",
+    "build/default.csv": "94242344490ebd4bc11a1ebd88991421ccc61632a423c204a12201e87b1e5450",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "b78a5061365874a7c5055a967dfa829df1ee9a56487d2bc5ca89aff16e4c2d74",
+    "build/default.net": "5fd47c48b431ddff4274f0fb7c750b1a5dec2e3e69f77ecd4e9ef32953ba8774",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -570,10 +570,10 @@
       "attributes": {
         "designator": "R10",
         "designator_prefix": "R",
-        "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "FH",
-        "mpn": "RS-06L8R20FT",
-        "value": "8.2ohm"
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "25121WF680JT4E",
+        "value": "68ohm"
       }
     },
     {
@@ -592,10 +592,10 @@
       "attributes": {
         "designator": "R12",
         "designator_prefix": "R",
-        "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "FH",
-        "mpn": "RS-06L8R20FT",
-        "value": "8.2ohm"
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "25121WF680JT4E",
+        "value": "68ohm"
       }
     },
     {
@@ -615,9 +615,9 @@
         "designator": "C55",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C102J5GACTU",
-        "value": "1nF"
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H472JA01D",
+        "value": "4.7nF"
       }
     },
     {
@@ -647,9 +647,9 @@
         "designator": "C56",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C102J5GACTU",
-        "value": "1nF"
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H472JA01D",
+        "value": "4.7nF"
       }
     },
     {
@@ -699,8 +699,8 @@
         "designator": "C12",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1206_3216Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM31A5C3A102JW01D"
+        "manufacturer": "YAGEO",
+        "mpn": "CC1206JKNPOCBN102"
       }
     },
     {
@@ -709,8 +709,8 @@
         "designator": "C13",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1206_3216Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM31A5C3A102JW01D"
+        "manufacturer": "YAGEO",
+        "mpn": "CC1206JKNPOCBN102"
       }
     },
     {
@@ -1112,10 +1112,10 @@
       "attributes": {
         "designator": "R18",
         "designator_prefix": "R",
-        "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "FH",
-        "mpn": "RS-06L8R20FT",
-        "value": "8.2ohm"
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "25121WF680JT4E",
+        "value": "68ohm"
       }
     },
     {
@@ -1134,10 +1134,10 @@
       "attributes": {
         "designator": "R20",
         "designator_prefix": "R",
-        "footprint": "Resistor_SMD:R_1206_3216Metric",
-        "manufacturer": "FH",
-        "mpn": "RS-06L8R20FT",
-        "value": "8.2ohm"
+        "footprint": "Resistor_SMD:R_2512_6332Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "25121WF680JT4E",
+        "value": "68ohm"
       }
     },
     {
@@ -1157,9 +1157,9 @@
         "designator": "C62",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C102J5GACTU",
-        "value": "1nF"
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H472JA01D",
+        "value": "4.7nF"
       }
     },
     {
@@ -1189,9 +1189,9 @@
         "designator": "C63",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_0603_1608Metric",
-        "manufacturer": "KEMET",
-        "mpn": "C0603C102J5GACTU",
-        "value": "1nF"
+        "manufacturer": "Murata",
+        "mpn": "GRM1885C1H472JA01D",
+        "value": "4.7nF"
       }
     },
     {
@@ -1241,8 +1241,8 @@
         "designator": "C19",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1206_3216Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM31A5C3A102JW01D"
+        "manufacturer": "YAGEO",
+        "mpn": "CC1206JKNPOCBN102"
       }
     },
     {
@@ -1251,8 +1251,8 @@
         "designator": "C20",
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:C_1206_3216Metric",
-        "manufacturer": "Murata",
-        "mpn": "GRM31A5C3A102JW01D"
+        "manufacturer": "YAGEO",
+        "mpn": "CC1206JKNPOCBN102"
       }
     },
     {
@@ -2190,6 +2190,83 @@
       }
     },
     {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_6",
+      "attributes": {
+        "designator": "C169",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_7",
+      "attributes": {
+        "designator": "C170",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_8",
+      "attributes": {
+        "designator": "C171",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_9",
+      "attributes": {
+        "designator": "C172",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_10",
+      "attributes": {
+        "designator": "C173",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_11",
+      "attributes": {
+        "designator": "C174",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_12",
+      "attributes": {
+        "designator": "C175",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF"
+      }
+    },
+    {
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_mon",
       "attributes": {
         "designator": "R47",
@@ -2379,7 +2456,7 @@
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23",
         "manufacturer": "Texas Instruments",
-        "mpn": "TL431AIDBZR"
+        "mpn": "TL431BIDBZR"
       }
     },
     {
@@ -2400,8 +2477,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0710KL",
-        "value": "10kohm"
+        "mpn": "RT0603BRD074K42L",
+        "value": "4.42kohm"
       }
     },
     {
@@ -2422,8 +2499,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD074K42L",
-        "value": "4.42kohm"
+        "mpn": "RT0603BRD07750RL",
+        "value": "750ohm"
       }
     },
     {
@@ -2444,8 +2521,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD077K68L",
-        "value": "7.68kohm"
+        "mpn": "RT0603BRD072K94L",
+        "value": "2.94kohm"
       }
     },
     {
@@ -2466,8 +2543,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD07120KL",
-        "value": "120kohm"
+        "mpn": "RT0603BRD0790K9L",
+        "value": "90.9kohm"
       }
     },
     {
@@ -2477,8 +2554,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0710KL",
-        "value": "10kohm"
+        "mpn": "RT0603BRD0711KL",
+        "value": "11kohm"
       }
     },
     {
@@ -2487,9 +2564,9 @@
         "designator": "R87",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Viking Tech",
-        "mpn": "ARG03BTC1333",
-        "value": "133kohm"
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD07104KL",
+        "value": "104kohm"
       }
     },
     {
@@ -2499,8 +2576,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0710KL",
-        "value": "10kohm"
+        "mpn": "RT0603BRD0711KL",
+        "value": "11kohm"
       }
     },
     {
@@ -2781,7 +2858,7 @@
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23",
         "manufacturer": "Texas Instruments",
-        "mpn": "TL431AIDBZR"
+        "mpn": "TL431BIDBZR"
       }
     },
     {
@@ -2802,8 +2879,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0710KL",
-        "value": "10kohm"
+        "mpn": "RT0603BRD074K42L",
+        "value": "4.42kohm"
       }
     },
     {
@@ -2824,8 +2901,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD074K42L",
-        "value": "4.42kohm"
+        "mpn": "RT0603BRD07750RL",
+        "value": "750ohm"
       }
     },
     {
@@ -2846,8 +2923,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD077K68L",
-        "value": "7.68kohm"
+        "mpn": "RT0603BRD072K94L",
+        "value": "2.94kohm"
       }
     },
     {
@@ -2868,8 +2945,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD07120KL",
-        "value": "120kohm"
+        "mpn": "RT0603BRD0790K9L",
+        "value": "90.9kohm"
       }
     },
     {
@@ -2879,8 +2956,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0710KL",
-        "value": "10kohm"
+        "mpn": "RT0603BRD0711KL",
+        "value": "11kohm"
       }
     },
     {
@@ -2889,9 +2966,9 @@
         "designator": "R105",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Viking Tech",
-        "mpn": "ARG03BTC1333",
-        "value": "133kohm"
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD07104KL",
+        "value": "104kohm"
       }
     },
     {
@@ -2901,8 +2978,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0710KL",
-        "value": "10kohm"
+        "mpn": "RT0603BRD0711KL",
+        "value": "11kohm"
       }
     },
     {
@@ -3215,7 +3292,7 @@
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23",
         "manufacturer": "Texas Instruments",
-        "mpn": "TL431AIDBZR"
+        "mpn": "TL431BIDBZR"
       }
     },
     {
@@ -3236,8 +3313,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0710KL",
-        "value": "10kohm"
+        "mpn": "RT0603BRD074K42L",
+        "value": "4.42kohm"
       }
     },
     {
@@ -3258,8 +3335,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD074K42L",
-        "value": "4.42kohm"
+        "mpn": "RT0603BRD07750RL",
+        "value": "750ohm"
       }
     },
     {
@@ -3280,8 +3357,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD077K68L",
-        "value": "7.68kohm"
+        "mpn": "RT0603BRD072K94L",
+        "value": "2.94kohm"
       }
     },
     {
@@ -3302,8 +3379,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD07120KL",
-        "value": "120kohm"
+        "mpn": "RT0603BRD0790K9L",
+        "value": "90.9kohm"
       }
     },
     {
@@ -3313,8 +3390,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0710KL",
-        "value": "10kohm"
+        "mpn": "RT0603BRD0711KL",
+        "value": "11kohm"
       }
     },
     {
@@ -3323,9 +3400,9 @@
         "designator": "R120",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "Viking Tech",
-        "mpn": "ARG03BTC1333",
-        "value": "133kohm"
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD07104KL",
+        "value": "104kohm"
       }
     },
     {
@@ -3335,8 +3412,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "Yageo",
-        "mpn": "RT0603BRD0710KL",
-        "value": "10kohm"
+        "mpn": "RT0603BRD0711KL",
+        "value": "11kohm"
       }
     },
     {
@@ -3782,9 +3859,10 @@
   "entry": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V",
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
-    "elec/src/f6_bias.ato": "82b0be9402b4d45bb4270b6a8cb4b750a1927cb0b91064d9d9ff27fbe4473896",
-    "elec/src/f6_parts.ato": "fd04ced5a61043be957e53c397ba4f75ac90c74074024f2fd48ce70a743052ac",
-    "elec/src/parts.ato": "8088379b42c92430dcedf04aa9667a91127c4b804c0202074fcd42d997b47300",
-    "elec/src/power_stage_120v.ato": "bdf9476ca52e40176d14ca0cdc42ba9c75694a5d8e856a561af20a4b0c6ccfb8"
+    "elec/src/f6_bias.ato": "e63a787631b5a5b42d657638afacc8808c6fcac84b83ec0736b349d6acb61c2a",
+    "elec/src/f6_parts.ato": "a8a83f87bb3d46bc249f788f2a5ea1a25a119b8a38033f6d75b16c3833a6851f",
+    "elec/src/parts.ato": "498892092ab146d387a3a79a2ed39da0073ad1072dc511d004888bf87563cfda",
+    "elec/src/power_stage_120v.ato": "5107cb8e60408efc497a2e964d8b00290aa4b7c92818b14fa46aeb2664e975b3",
+    "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

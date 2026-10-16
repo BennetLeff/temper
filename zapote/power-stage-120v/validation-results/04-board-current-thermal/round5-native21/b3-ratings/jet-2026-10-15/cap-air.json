@@ -1,0 +1,126 @@
+{
+ "scope": "Cap-air sensitivity (jet-2026-10-15 addendum): only C38-C41's body-to-air sees air warmer than the bay.\n\nA TopRegion of zero board area (xy -1000..-999) at h_top = the case h (10), credit_refs C38-C41, t_air_rise = dT: the\nboard's top cells are untouched; the four cap bodies convect at h 10 to air at bay + dT. Solved exactly as run_basis.one\n(same heat file construction, FET tab ties, I_line), at 0.25 and 0.5 mm; rows from b3_ratings_gate.evaluate.\n    python3 cap_air.py [--workers 4]   -> cap-air.json next to the study README (rows), runs here",
+ "script": "#!/usr/bin/env python3\n\"\"\"Cap-air sensitivity (jet-2026-10-15 addendum): only C38-C41's body-to-air sees air warmer than the bay.\n\nA TopRegion of zero board area (xy -1000..-999) at h_top = the case h (10), credit_refs C38-C41, t_air_rise = dT: the\nboard's top cells are untouched; the four cap bodies convect at h 10 to air at bay + dT. Solved exactly as run_basis.one\n(same heat file construction, FET tab ties, I_line), at 0.25 and 0.5 mm; rows from b3_ratings_gate.evaluate.\n    python3 cap_air.py [--workers 4]   -> cap-air.json next to the study README (rows), runs here\n\"\"\"\nimport json\nimport sys\nfrom concurrent.futures import ProcessPoolExecutor\nfrom pathlib import Path\n\nsys.dont_write_bytecode = True\nHERE = Path(__file__).resolve().parent\nB3R = HERE.parents[1]\nsys.path.insert(0, str(B3R))\nimport run_basis as rb  # noqa: E402\n\ngate, br, tb, rs, fet_case = rb.gate, rb.br, rb.tb, rb.rs, rb.fet_case\nCAPS = (\"C38\", \"C39\", \"C40\", \"C41\")\nJOBS = [(\"c18_h10\", 61.0, dt) for dt in (5.0, 10.0, 15.0)] + [(\"c22_h10\", 55.0, 10.0)]\nOUT = B3R / \"jet-2026-10-15/cap-air.json\"\n\n\ndef tag(case, bay, dt):\n    return f\"{case}_bay{int(bay)}_capair{int(dt)}\"\n\n\ndef one(job):\n    case, bay, dt, pitch = job\n    ceil, h = gate.case_ceiling_h(case)\n    op = case.split(\"_\")[0]\n    c = rb.inputs(op, ceil, HERE)\n    br.op_inputs = lambda _op, _c=c: _c\n    brd = tb.Board(rs.GEOM, rb.RUNS / \"cache\")\n    leads = {\"pad\": \"2\", \"g\": rb.LEAD_G,\n             \"t_rise\": {r: t - bay for r, t in fet_case.t_case(ceil, i_line=rb.I_LINE_A).items()}}\n    region = tb.TopRegion((-1000.0, -999.0, -1000.0, -999.0), float(h), dt, name=\"cap_air\", credit_refs=CAPS)\n    res = br.run_case(brd, op, h, pitch, \"fraction\", \"network\", {}, None, None, True, True,\n                      label=tag(case, bay, dt), leads=leads, region=region)\n    res[\"board_sha256\"] = brd.data[\"board_sha256\"]\n    res.update(bay_c=bay, i_line_a=rb.I_LINE_A, i_t_a=rb.i_trip(ceil), ceiling_a=ceil)\n    assert res[\"region\"][\"region_cells_top\"] == 0 and res[\"region\"][\"body_air_credited\"] == list(CAPS)\n    name = f\"{tag(case, bay, dt)}_p{str(pitch).replace('.', 'p')}\"\n    (HERE / f\"{name}.json\").write_text(json.dumps(res, indent=1) + \"\\n\")\n    return name\n\n\ndef rows(r25, r05, bay):\n    keep = (\"R10: 2512 terminal\", \"R20: 2512 terminal\", \"R12: 2512 terminal\", \"C40:\", \"C38:\", \"laminate\")\n    ev = gate.evaluate(r25, r05, bay)\n    return ({r[\"item\"]: r[\"margin_k\"] for r in ev if r[\"item\"].startswith(keep)},\n            min(r[\"margin_k\"] for r in ev if r[\"gated\"]), min((r for r in ev if r[\"gated\"]), key=lambda r: r[\"margin_k\"])[\"item\"])\n\n\ndef main():\n    import argparse\n    ap = argparse.ArgumentParser()\n    ap.add_argument(\"--workers\", type=int, default=4)\n    a = ap.parse_args()\n    jobs = [(c, b, d, p) for c, b, d in JOBS for p in (0.25, 0.5)]\n    with ProcessPoolExecutor(max_workers=min(a.workers, 4)) as ex:\n        for n in ex.map(one, jobs):\n            print(\"  solved\", n, flush=True)\n    out = {\"scope\": __doc__.strip(), \"script\": Path(__file__).read_text(), \"cases\": {}}\n    ld = B3R / \"runs/control-lead-only\"\n    for case, bay in ((\"c18_h10\", 61.0), (\"c22_h10\", 55.0)):\n        r25, r05 = (json.loads((ld / f\"{case}_p{p}.json\").read_text()) for p in (\"0p25\", \"0p5\"))\n        sel, worst, wi = rows(r25, r05, bay)\n        out[\"cases\"][f\"{case}@{bay:g} lead-only (floor)\"] = {\"rows\": sel, \"worst_gated_margin_k\": worst, \"worst\": wi,\n                                                              \"pass\": worst >= 0}\n        r25, r05 = (json.loads((B3R / f\"runs/{case}_p{p}.json\").read_text()) for p in (\"0p25\", \"0p5\"))\n        sel, worst, wi = rows(r25, r05, bay)\n        out[\"cases\"][f\"{case}@{bay:g} cap air +0 K (margins.json)\"] = {\"rows\": sel, \"worst_gated_margin_k\": worst,\n                                                                       \"worst\": wi, \"pass\": worst >= 0}\n    for case, bay, dt in JOBS:\n        r25, r05 = (json.loads((HERE / f\"{tag(case, bay, dt)}_p{p}.json\").read_text()) for p in (\"0p25\", \"0p5\"))\n        sel, worst, wi = rows(r25, r05, bay)\n        caps_w = sum(p[\"body_air_w\"] for p in r25[\"parts\"] if p[\"ref\"] in CAPS)\n        out[\"cases\"][f\"{case}@{bay:g} cap air +{dt:g} K\"] = {\"rows\": sel, \"worst_gated_margin_k\": worst, \"worst\": wi,\n                                                             \"pass\": worst >= 0, \"caps_body_air_w_p0p25\": round(caps_w, 3),\n                                                             \"balance_rel\": r25[\"balance\"][\"balance_rel\"]}\n    OUT.write_text(json.dumps(out, indent=1) + \"\\n\")\n    for k, v in out[\"cases\"].items():\n        print(k, \"PASS\" if v[\"pass\"] else \"FAIL\", v[\"worst_gated_margin_k\"], v[\"worst\"][:30], v[\"rows\"])\n\n\nif __name__ == \"__main__\":\n    main()\n",
+ "cases": {
+  "c18_h10@61 lead-only (floor)": {
+   "rows": {
+    "laminate: 1 mm-block copper peak": 4.1,
+    "laminate: FET-row copper": 7.0,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 0.7,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 5.7,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 1.1,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 5.1,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 1.1
+   },
+   "worst_gated_margin_k": 0.7,
+   "worst": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "pass": true
+  },
+  "c18_h10@61 cap air +0 K (margins.json)": {
+   "rows": {
+    "laminate: 1 mm-block copper peak": 10.0,
+    "laminate: FET-row copper": 11.8,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 5.2,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 11.6,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 6.8,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 15.9,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 14.2
+   },
+   "worst_gated_margin_k": 5.2,
+   "worst": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "pass": true
+  },
+  "c22_h10@55 lead-only (floor)": {
+   "rows": {
+    "laminate: 1 mm-block copper peak": -6.8,
+    "laminate: FET-row copper": -3.6,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": -6.2,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": -5.1,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": -5.1,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -2.0,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": -6.0
+   },
+   "worst_gated_margin_k": -6.8,
+   "worst": "laminate: 1 mm-block copper peak",
+   "pass": false
+  },
+  "c22_h10@55 cap air +0 K (margins.json)": {
+   "rows": {
+    "laminate: 1 mm-block copper peak": 0.8,
+    "laminate: FET-row copper": 2.5,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": -0.5,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 2.4,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 1.8,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 12.4,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 9.6
+   },
+   "worst_gated_margin_k": -0.5,
+   "worst": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "pass": false
+  },
+  "c18_h10@61 cap air +5 K": {
+   "rows": {
+    "laminate: 1 mm-block copper peak": 9.4,
+    "laminate: FET-row copper": 11.2,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 4.7,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 10.9,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 6.1,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 15.0,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 12.9
+   },
+   "worst_gated_margin_k": 4.7,
+   "worst": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "pass": true,
+   "caps_body_air_w_p0p25": 0.751,
+   "balance_rel": 7.264377689517942e-11
+  },
+  "c18_h10@61 cap air +10 K": {
+   "rows": {
+    "laminate: 1 mm-block copper peak": 8.7,
+    "laminate: FET-row copper": 10.7,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 4.1,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 10.3,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 5.5,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 14.0,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 11.7
+   },
+   "worst_gated_margin_k": 4.1,
+   "worst": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "pass": true,
+   "caps_body_air_w_p0p25": 0.652,
+   "balance_rel": 7.117792619032812e-11
+  },
+  "c18_h10@61 cap air +15 K": {
+   "rows": {
+    "laminate: 1 mm-block copper peak": 8.1,
+    "laminate: FET-row copper": 10.2,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": 3.6,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 9.6,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 4.9,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 13.1,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 10.4
+   },
+   "worst_gated_margin_k": 3.6,
+   "worst": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "pass": true,
+   "caps_body_air_w_p0p25": 0.553,
+   "balance_rel": 7.09435106473663e-11
+  },
+  "c22_h10@55 cap air +10 K": {
+   "rows": {
+    "laminate: 1 mm-block copper peak": -0.5,
+    "laminate: FET-row copper": 1.5,
+    "R10: 2512 terminal derating at 0.217 W (20 % margin)": -1.5,
+    "R12: 2512 terminal derating at 0.217 W (20 % margin)": 1.1,
+    "R20: 2512 terminal derating at 0.217 W (20 % margin)": 0.5,
+    "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 10.1,
+    "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)": 7.1
+   },
+   "worst_gated_margin_k": -1.5,
+   "worst": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "pass": false,
+   "caps_body_air_w_p0p25": 0.882,
+   "balance_rel": 5.7580420738681386e-11
+  }
+ }
+}

@@ -20,7 +20,7 @@
  *   - Any input fault (BUS_FAULT, RAIL_OK, PERMIT, SUP_RUN_OK, VBUS invalid/over-range, CT_MON,
  *     RMS channel, CT_ZC phase, tank RMS over the envelope, LINE_ZC loss) or a stale sample makes
  *     sample() return false, which power_service turns into a latched inhibit.
- *   - Tank ceiling (tank_freq.h): one commissioned value, limits.tank_limit_a (22 A default,
+ *   - Tank ceiling (tank_freq.h): one commissioned value, limits.tank_limit_a (18 A default,
  *     <= 28 A), set with n21_config_set_tank_ceiling(), which derives the RMS trip (1.05 x, on the
  *     half-cycle RMS), the per-sample crest guard (1.5 x) and the peak trip (min(2.17 x + 3, 62)).
  *   - The half-cycle RMS is time weighted (n21_half_close); a stuck-low AD8436 channel (RMS below
@@ -184,7 +184,7 @@ n21_init_t n21_binding_init(n21_binding_t *, const n21_config_t *, const n21_hw_
 void n21_acquire_step(n21_binding_t *);
 bool n21_set_pan_model(n21_binding_t *, float watts);
 /* Thermal clamp on the tank RMS ceiling (controller L3: a latched coil-sensor fault derates the
- * tank to <= 22 A, thermal_mgmt.h COIL_SENSOR_FAULT_TANK_MAX_A). The frequency loop holds
+ * tank to <= 18 A, thermal_mgmt.h COIL_SENSOR_FAULT_TANK_MAX_A). The frequency loop holds
  * min(commissioned ceiling, clamp); the derived trips stay those of the commissioned ceiling.
  * limited=true needs a finite a >= TANK_CEILING_MIN_A (else false, nothing changes); false clears. */
 bool n21_set_thermal_tank_limit(n21_binding_t *, bool limited, float a);

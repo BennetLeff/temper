@@ -1,0 +1,3184 @@
+{
+ "controls": {
+  "C1": "P4 benchmark bands reproduce simplify-2026-10-15 old_bands (1e-9)",
+  "C2": "study candidate-B bands reproduce under the study's assumptions (1e-4)"
+ },
+ "basis": {
+  "T_lo_C": -10.0,
+  "T_hi_bound_C": 85.0,
+  "T_expected_C": 64.3,
+  "TCR_excursion_K": 60.0,
+  "margin_target": "0.5% of the threshold",
+  "droop_nominal_V": 0.1543,
+  "droop_corner_V": 0.2846,
+  "neg_edge_phys_V": 1.3513
+ },
+ "rails": {
+  "LS span": {
+   "wc": [
+    16.575,
+    17.425
+   ],
+   "centre": 17.0,
+   "rss": 0.425,
+   "cite": "SBVS204G Table 5.5 p.6 overall accuracy +-2.5 %"
+  },
+  "HS span": {
+   "wc": [
+    16.5767,
+    17.2471
+   ],
+   "centre": 16.9108,
+   "rss": 0.2311,
+   "vendor_1p5pct": [
+    16.6555,
+    17.1627
+   ],
+   "ripple_pk": 0.0416,
+   "cite": "R24C2T25/R Rev 1-2024 p.2 (VFB, hysteresis, +-1.5 %); 25 C only"
+  },
+  "LS neg": {
+   "wc": [
+    1.9654,
+    2.0757
+   ],
+   "centre": 2.0204,
+   "rss": 0.0375
+  },
+  "HS neg": {
+   "wc": [
+    1.9654,
+    2.0594
+   ],
+   "centre": 2.0123,
+   "rss": 0.036
+  },
+  "span union": [
+   16.575,
+   17.425
+  ],
+  "neg union": [
+   1.9654,
+   2.0757
+  ]
+ },
+ "allowed_generic": {
+  "span UV": {
+   "lo_Q": 15.5,
+   "lo_H": 12.4,
+   "hi": 16.575
+  },
+  "span OV": {
+   "lo": 17.425,
+   "hi_Q": 18.0,
+   "hi_H": 21.0
+  },
+  "neg UV": {
+   "lo_Q": 1.7543,
+   "lo_H": 1.5056,
+   "lo_corner_infeasible": 1.8846,
+   "hi": 1.9654
+  },
+  "neg OV": {
+   "lo": 2.0757,
+   "hi_Q": 2.4,
+   "hi_H": 5.5
+  }
+ },
+ "s43": {
+  "design": {
+   "ref": "TL431AIDBZR",
+   "halfref": "10k/10k",
+   "taps_ohm": {
+    "neg UV": [
+     4420.0,
+     10000.0
+    ],
+    "neg OV": [
+     7680.0,
+     10000.0
+    ],
+    "span UV": [
+     120000.0,
+     10000.0
+    ],
+    "span OV": [
+     133000.0,
+     10000.0
+    ]
+   }
+  },
+  "thresholds": {
+   "neg UV": {
+    "nominal_V": 1.7989,
+    "trip_wc_V": [
+     1.7395,
+     1.8583
+    ],
+    "release_wc_V": [
+     1.7395,
+     1.8583
+    ],
+    "trip_rss_V": [
+     1.767,
+     1.8304
+    ],
+    "release_rss_V": [
+     1.767,
+     1.8304
+    ],
+    "Q": {
+     "catch_side_V": -0.0148,
+     "rail_side_V": 0.1071,
+     "lim_catch": 1.7543,
+     "lim_rail": 1.9654,
+     "target_V": 0.009,
+     "verdict": "FAIL"
+    },
+    "H": {
+     "catch_side_V": 0.2339,
+     "rail_side_V": 0.1071,
+     "lim_catch": 1.5056,
+     "lim_rail": 1.9654,
+     "target_V": 0.009,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.135,
+    "joint_rss": {
+     "margin_V": 0.1657,
+     "z_sigma": 13.3593,
+     "tail_ppm_per_rail_normal": 0.0
+    },
+    "rss_contrib_V": {
+     "dev": 0.02451,
+     "v25": 0.01802,
+     "vos": 0.00793,
+     "r80": 0.00225,
+     "r79": 0.00225,
+     "rb": 0.00138,
+     "rt": 0.00138,
+     "zk": 0.00082,
+     "ibh": 0.00072,
+     "ibt": 0.00011
+    }
+   },
+   "neg OV": {
+    "nominal_V": 2.2056,
+    "trip_wc_V": [
+     2.1313,
+     2.2798
+    ],
+    "release_wc_V": [
+     2.1313,
+     2.2798
+    ],
+    "trip_rss_V": [
+     2.1664,
+     2.2442
+    ],
+    "release_rss_V": [
+     2.1664,
+     2.2442
+    ],
+    "Q": {
+     "catch_side_V": 0.1202,
+     "rail_side_V": 0.0556,
+     "lim_catch": 2.4,
+     "lim_rail": 2.0757,
+     "recovery_V": 0.0556,
+     "target_V": 0.011,
+     "verdict": "PASS"
+    },
+    "H": {
+     "catch_side_V": 3.2202,
+     "rail_side_V": 0.0556,
+     "lim_catch": 5.5,
+     "lim_rail": 2.0757,
+     "recovery_V": 0.0556,
+     "target_V": 0.011,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.0907,
+    "joint_rss": {
+     "margin_V": 0.1308,
+     "z_sigma": 10.2575,
+     "tail_ppm_per_rail_normal": 0.0
+    },
+    "rss_contrib_V": {
+     "dev": 0.03006,
+     "v25": 0.0221,
+     "vos": 0.00972,
+     "r80": 0.00276,
+     "r79": 0.00275,
+     "rb": 0.0024,
+     "rt": 0.00239,
+     "zk": 0.001,
+     "ibh": 0.00088,
+     "ibt": 0.00019
+    }
+   },
+   "span UV": {
+    "nominal_V": 16.2175,
+    "trip_wc_V": [
+     15.6299,
+     16.8044
+    ],
+    "release_wc_V": [
+     15.6299,
+     16.8044
+    ],
+    "trip_rss_V": [
+     15.9237,
+     16.5036
+    ],
+    "release_rss_V": [
+     15.9237,
+     16.5036
+    ],
+    "Q": {
+     "catch_side_V": 0.1299,
+     "rail_side_V": -0.2294,
+     "lim_catch": 15.5,
+     "lim_rail": 16.575,
+     "target_V": 0.0811,
+     "verdict": "FAIL"
+    },
+    "H": {
+     "catch_side_V": 3.3501,
+     "rail_side_V": -0.2294,
+     "lim_catch": 12.2798,
+     "lim_rail": 16.575,
+     "target_V": 0.0811,
+     "verdict": "FAIL"
+    },
+    "rss_vs_wc_rail_V": 0.0714,
+    "joint_rss": {
+     "margin_V": 0.2719,
+     "z_sigma": 4.5852,
+     "tail_ppm_per_rail_normal": 2.2679
+    },
+    "rss_contrib_V": {
+     "dev": 0.221,
+     "v25": 0.1625,
+     "vos": 0.0715,
+     "rb": 0.03742,
+     "rt": 0.03742,
+     "r80": 0.02027,
+     "r79": 0.02025,
+     "zk": 0.00736,
+     "ibh": 0.0065,
+     "ibt": 0.003
+    }
+   },
+   "span OV": {
+    "nominal_V": 17.8392,
+    "trip_wc_V": [
+     17.1923,
+     18.4855
+    ],
+    "release_wc_V": [
+     17.1923,
+     18.4855
+    ],
+    "trip_rss_V": [
+     17.5159,
+     18.154
+    ],
+    "release_rss_V": [
+     17.5159,
+     18.154
+    ],
+    "Q": {
+     "catch_side_V": -0.4855,
+     "rail_side_V": -0.2327,
+     "lim_catch": 18.0,
+     "lim_rail": 17.425,
+     "recovery_V": -0.2327,
+     "target_V": 0.0892,
+     "verdict": "FAIL"
+    },
+    "H": {
+     "catch_side_V": 2.5145,
+     "rail_side_V": -0.2327,
+     "lim_catch": 21.0,
+     "lim_rail": 17.425,
+     "recovery_V": -0.2327,
+     "target_V": 0.0892,
+     "verdict": "FAIL"
+    },
+    "rss_vs_wc_rail_V": 0.0909,
+    "joint_rss": {
+     "margin_V": 0.3035,
+     "z_sigma": 4.7135,
+     "tail_ppm_per_rail_normal": 1.2173
+    },
+    "rss_contrib_V": {
+     "dev": 0.2431,
+     "v25": 0.17875,
+     "vos": 0.07865,
+     "rb": 0.04148,
+     "rt": 0.04147,
+     "r80": 0.0223,
+     "r79": 0.02228,
+     "zk": 0.0081,
+     "ibh": 0.00715,
+     "ibt": 0.00333
+    }
+   }
+  },
+  "allowed": {
+   "span UV": {
+    "lo_Q": 15.5,
+    "lo_H": 12.2798,
+    "hi": 16.575
+   },
+   "span OV": {
+    "lo": 17.425,
+    "hi_Q": 18.0,
+    "hi_H": 21.0
+   },
+   "neg UV": {
+    "lo_Q": 1.7543,
+    "lo_H": 1.5056,
+    "lo_corner_infeasible": 1.8846,
+    "hi": 1.9654
+   },
+   "neg OV": {
+    "lo": 2.0757,
+    "hi_Q": 2.4,
+    "hi_H": 5.5
+   }
+  }
+ },
+ "option1": {
+  "1a": {
+   "ref": "TL431AIDBZR",
+   "r79_ohm": 10000.0,
+   "picks": {
+    "neg UV": {
+     "top_ohm": 5760.0,
+     "bottom_ohm": 11700.0,
+     "selection": "Q",
+     "top_part": {
+      "mpn": "RT0603BRD075K76L",
+      "lcsc": "C861489",
+      "jlc_stock": 5979,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0382,
+      "fetched": "2026-10-15T21:48:13Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "TNPW060311K7BEEA",
+      "lcsc": "C4553285",
+      "jlc_stock": 2839,
+      "on_s43_bom": true,
+      "usd_500": 0.0584,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      6190.0,
+      12600.0
+     ]
+    },
+    "neg OV": {
+     "top_ohm": 8660.0,
+     "bottom_ohm": 11000.0,
+     "selection": "Q",
+     "top_part": {
+      "mpn": "RT0603BRD078K66L",
+      "lcsc": "C861591",
+      "jlc_stock": 10952,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0273,
+      "fetched": "2026-10-15T21:48:15Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "RT0603BRD0711KL",
+      "lcsc": "C728581",
+      "jlc_stock": 10027,
+      "on_s43_bom": true,
+      "usd_500": 0.038,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      10000.0,
+      12600.0
+     ]
+    },
+    "span UV": {
+     "top_ohm": 137000.0,
+     "bottom_ohm": 11700.0,
+     "selection": "rail side fixed; Q catch side violated, H met",
+     "top_part": {
+      "mpn": "RT0603BRD07137KL",
+      "lcsc": "C861114",
+      "jlc_stock": 11370,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0286,
+      "fetched": "2026-10-15T21:43:48Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "TNPW060311K7BEEA",
+      "lcsc": "C4553285",
+      "jlc_stock": 2839,
+      "on_s43_bom": true,
+      "usd_500": 0.0584,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      129000.0,
+      11000.0
+     ]
+    },
+    "span OV": {
+     "top_ohm": 150000.0,
+     "bottom_ohm": 11000.0,
+     "selection": "rail side fixed; Q catch side violated, H met",
+     "top_part": {
+      "mpn": "RT0603BRD07150KL",
+      "lcsc": "C326734",
+      "jlc_stock": 20517,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0286,
+      "fetched": "2026-10-15T21:48:17Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "RT0603BRD0711KL",
+      "lcsc": "C728581",
+      "jlc_stock": 10027,
+      "on_s43_bom": true,
+      "usd_500": 0.038,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      150000.0,
+      11000.0
+     ]
+    }
+   },
+   "thresholds": {
+    "neg UV": {
+     "nominal_V": 1.8617,
+     "trip_wc_V": [
+      1.7999,
+      1.9233
+     ],
+     "release_wc_V": [
+      1.7999,
+      1.9233
+     ],
+     "trip_rss_V": [
+      1.8286,
+      1.8942
+     ],
+     "release_rss_V": [
+      1.8286,
+      1.8942
+     ],
+     "Q": {
+      "catch_side_V": 0.0456,
+      "rail_side_V": 0.0421,
+      "lim_catch": 1.7543,
+      "lim_rail": 1.9654,
+      "target_V": 0.0093,
+      "verdict": "PASS"
+     },
+     "H": {
+      "catch_side_V": 0.2943,
+      "rail_side_V": 0.0421,
+      "lim_catch": 1.5056,
+      "lim_rail": 1.9654,
+      "target_V": 0.0093,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.0712,
+     "joint_rss": {
+      "margin_V": 0.1022,
+      "z_sigma": 9.293,
+      "tail_ppm_per_rail_normal": 0.0
+     },
+     "rss_contrib_V": {
+      "dev": 0.02537,
+      "v25": 0.01865,
+      "vos": 0.00821,
+      "r80": 0.00233,
+      "r79": 0.00233,
+      "rb": 0.00154,
+      "rt": 0.00153,
+      "zk": 0.00085,
+      "ibh": 0.00075,
+      "ibt": 0.00014
+     }
+    },
+    "neg OV": {
+     "nominal_V": 2.2296,
+     "trip_wc_V": [
+      2.1544,
+      2.3047
+     ],
+     "release_wc_V": [
+      2.1544,
+      2.3047
+     ],
+     "trip_rss_V": [
+      2.1899,
+      2.2686
+     ],
+     "release_rss_V": [
+      2.1899,
+      2.2686
+     ],
+     "Q": {
+      "catch_side_V": 0.0953,
+      "rail_side_V": 0.0788,
+      "lim_catch": 2.4,
+      "lim_rail": 2.0757,
+      "recovery_V": 0.0788,
+      "target_V": 0.0111,
+      "verdict": "PASS"
+     },
+     "H": {
+      "catch_side_V": 3.1953,
+      "rail_side_V": 0.0788,
+      "lim_catch": 5.5,
+      "lim_rail": 2.0757,
+      "recovery_V": 0.0788,
+      "target_V": 0.0111,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.1143,
+     "joint_rss": {
+      "margin_V": 0.1545,
+      "z_sigma": 11.5243,
+      "tail_ppm_per_rail_normal": 0.0
+     },
+     "rss_contrib_V": {
+      "dev": 0.03038,
+      "v25": 0.02234,
+      "vos": 0.00983,
+      "r80": 0.00279,
+      "r79": 0.00278,
+      "rb": 0.00246,
+      "rt": 0.00245,
+      "zk": 0.00101,
+      "ibh": 0.00089,
+      "ibt": 0.00022
+     }
+    },
+    "span UV": {
+     "nominal_V": 15.855,
+     "trip_wc_V": [
+      15.2797,
+      16.4286
+     ],
+     "release_wc_V": [
+      15.2797,
+      16.4286
+     ],
+     "trip_rss_V": [
+      15.5672,
+      16.1342
+     ],
+     "release_rss_V": [
+      15.5672,
+      16.1342
+     ],
+     "Q": {
+      "catch_side_V": -0.2203,
+      "rail_side_V": 0.1464,
+      "lim_catch": 15.5,
+      "lim_rail": 16.575,
+      "target_V": 0.0793,
+      "verdict": "FAIL"
+     },
+     "H": {
+      "catch_side_V": 2.9749,
+      "rail_side_V": 0.1464,
+      "lim_catch": 12.3047,
+      "lim_rail": 16.575,
+      "target_V": 0.0793,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.4408,
+     "joint_rss": {
+      "margin_V": 0.6384,
+      "z_sigma": 6.749,
+      "tail_ppm_per_rail_normal": 0.0
+     },
+     "rss_contrib_V": {
+      "dev": 0.21606,
+      "v25": 0.15887,
+      "vos": 0.0699,
+      "rb": 0.03652,
+      "rt": 0.03651,
+      "r80": 0.01982,
+      "r79": 0.0198,
+      "zk": 0.0072,
+      "ibh": 0.00635,
+      "ibt": 0.00343
+     }
+    },
+    "span OV": {
+     "nominal_V": 18.2589,
+     "trip_wc_V": [
+      17.5958,
+      18.9204
+     ],
+     "release_wc_V": [
+      17.5958,
+      18.9204
+     ],
+     "trip_rss_V": [
+      17.9276,
+      18.5807
+     ],
+     "release_rss_V": [
+      17.9276,
+      18.5807
+     ],
+     "Q": {
+      "catch_side_V": -0.9204,
+      "rail_side_V": 0.1708,
+      "lim_catch": 18.0,
+      "lim_rail": 17.425,
+      "recovery_V": 0.1708,
+      "target_V": 0.0913,
+      "verdict": "FAIL"
+     },
+     "H": {
+      "catch_side_V": 2.0796,
+      "rail_side_V": 0.1708,
+      "lim_catch": 21.0,
+      "lim_rail": 17.425,
+      "recovery_V": 0.1708,
+      "target_V": 0.0913,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.5026,
+     "joint_rss": {
+      "margin_V": 0.7182,
+      "z_sigma": 7.0196,
+      "tail_ppm_per_rail_normal": 0.0
+     },
+     "rss_contrib_V": {
+      "dev": 0.24882,
+      "v25": 0.18295,
+      "vos": 0.0805,
+      "rb": 0.04253,
+      "rt": 0.04252,
+      "r80": 0.02282,
+      "r79": 0.0228,
+      "zk": 0.00829,
+      "ibh": 0.00732,
+      "ibt": 0.00375
+     }
+    }
+   },
+   "allowed": {
+    "span UV": {
+     "lo_Q": 15.5,
+     "lo_H": 12.3047,
+     "hi": 16.575
+    },
+    "span OV": {
+     "lo": 17.425,
+     "hi_Q": 18.0,
+     "hi_H": 21.0
+    },
+    "neg UV": {
+     "lo_Q": 1.7543,
+     "lo_H": 1.5056,
+     "lo_corner_infeasible": 1.8846,
+     "hi": 1.9654
+    },
+    "neg OV": {
+     "lo": 2.0757,
+     "hi_Q": 2.4,
+     "hi_H": 5.5
+    }
+   },
+   "delta": {
+    "lines_removed": [
+     "RT0603BRD074K42L",
+     "RT0603BRD077K68L",
+     "RT0603BRD07120KL",
+     "ARG03BTC1333"
+    ],
+    "lines_added": [
+     "RT0603BRD075K76L",
+     "RT0603BRD078K66L",
+     "RT0603BRD07137KL",
+     "RT0603BRD07150KL"
+    ],
+    "net_lines": 0,
+    "usd_per_board": 0.366,
+    "usd_per_500": 183.0,
+    "placements_delta": 0
+   }
+  },
+  "1b": {
+   "ref": "TL431BIDBZR",
+   "r79_ohm": 10000.0,
+   "picks": {
+    "neg UV": {
+     "top_ohm": 5760.0,
+     "bottom_ohm": 11700.0,
+     "selection": "Q",
+     "top_part": {
+      "mpn": "RT0603BRD075K76L",
+      "lcsc": "C861489",
+      "jlc_stock": 5979,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0382,
+      "fetched": "2026-10-15T21:48:13Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "TNPW060311K7BEEA",
+      "lcsc": "C4553285",
+      "jlc_stock": 2839,
+      "on_s43_bom": true,
+      "usd_500": 0.0584,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      6190.0,
+      12600.0
+     ]
+    },
+    "neg OV": {
+     "top_ohm": 8660.0,
+     "bottom_ohm": 11000.0,
+     "selection": "Q",
+     "top_part": {
+      "mpn": "RT0603BRD078K66L",
+      "lcsc": "C861591",
+      "jlc_stock": 10952,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0273,
+      "fetched": "2026-10-15T21:48:15Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "RT0603BRD0711KL",
+      "lcsc": "C728581",
+      "jlc_stock": 10027,
+      "on_s43_bom": true,
+      "usd_500": 0.038,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      10000.0,
+      12600.0
+     ]
+    },
+    "span UV": {
+     "top_ohm": 118000.0,
+     "bottom_ohm": 10000.0,
+     "selection": "rail side fixed; Q catch side violated, H met",
+     "top_part": {
+      "mpn": "RT0603BRD07118KL",
+      "lcsc": "C861086",
+      "jlc_stock": 8636,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0426,
+      "fetched": "2026-10-15T21:43:49Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "RT0603BRD0710KL",
+      "lcsc": "C95204",
+      "jlc_stock": 2125333,
+      "on_s43_bom": true,
+      "usd_500": 0.0232,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      149000.0,
+      12600.0
+     ]
+    },
+    "span OV": {
+     "top_ohm": 135000.0,
+     "bottom_ohm": 10000.0,
+     "selection": "rail side fixed; Q catch side violated, H met",
+     "top_part": {
+      "mpn": "RT0603BRD07135KL",
+      "lcsc": "C861113",
+      "jlc_stock": 22236,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0361,
+      "fetched": "2026-10-15T21:43:50Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "RT0603BRD0710KL",
+      "lcsc": "C95204",
+      "jlc_stock": 2125333,
+      "on_s43_bom": true,
+      "usd_500": 0.0232,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      135000.0,
+      10000.0
+     ]
+    }
+   },
+   "thresholds": {
+    "neg UV": {
+     "nominal_V": 1.8617,
+     "trip_wc_V": [
+      1.8096,
+      1.9136
+     ],
+     "release_wc_V": [
+      1.8096,
+      1.9136
+     ],
+     "trip_rss_V": [
+      1.833,
+      1.8898
+     ],
+     "release_rss_V": [
+      1.833,
+      1.8898
+     ],
+     "Q": {
+      "catch_side_V": 0.0553,
+      "rail_side_V": 0.0518,
+      "lim_catch": 1.7543,
+      "lim_rail": 1.9654,
+      "target_V": 0.0093,
+      "verdict": "PASS"
+     },
+     "H": {
+      "catch_side_V": 0.304,
+      "rail_side_V": 0.0518,
+      "lim_catch": 1.5056,
+      "lim_rail": 1.9654,
+      "target_V": 0.0093,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.0755,
+     "joint_rss": {
+      "margin_V": 0.105,
+      "z_sigma": 9.8662,
+      "tail_ppm_per_rail_normal": 0.0
+     },
+     "rss_contrib_V": {
+      "dev": 0.02537,
+      "v25": 0.00895,
+      "vos": 0.00821,
+      "r80": 0.00233,
+      "r79": 0.00233,
+      "rb": 0.00154,
+      "rt": 0.00153,
+      "zk": 0.00085,
+      "ibh": 0.00075,
+      "ibt": 0.00014
+     }
+    },
+    "neg OV": {
+     "nominal_V": 2.2296,
+     "trip_wc_V": [
+      2.166,
+      2.2931
+     ],
+     "release_wc_V": [
+      2.166,
+      2.2931
+     ],
+     "trip_rss_V": [
+      2.1952,
+      2.2634
+     ],
+     "release_rss_V": [
+      2.1952,
+      2.2634
+     ],
+     "Q": {
+      "catch_side_V": 0.1069,
+      "rail_side_V": 0.0903,
+      "lim_catch": 2.4,
+      "lim_rail": 2.0757,
+      "recovery_V": 0.0903,
+      "target_V": 0.0111,
+      "verdict": "PASS"
+     },
+     "H": {
+      "catch_side_V": 3.2069,
+      "rail_side_V": 0.0903,
+      "lim_catch": 5.5,
+      "lim_rail": 2.0757,
+      "recovery_V": 0.0903,
+      "target_V": 0.0111,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.1195,
+     "joint_rss": {
+      "margin_V": 0.1581,
+      "z_sigma": 12.3549,
+      "tail_ppm_per_rail_normal": 0.0
+     },
+     "rss_contrib_V": {
+      "dev": 0.03038,
+      "v25": 0.01072,
+      "vos": 0.00983,
+      "r80": 0.00279,
+      "r79": 0.00278,
+      "rb": 0.00246,
+      "rt": 0.00245,
+      "zk": 0.00101,
+      "ibh": 0.00089,
+      "ibt": 0.00022
+     }
+    },
+    "span UV": {
+     "nominal_V": 15.968,
+     "trip_wc_V": [
+      15.4722,
+      16.462
+     ],
+     "release_wc_V": [
+      15.4722,
+      16.462
+     ],
+     "trip_rss_V": [
+      15.7156,
+      16.2128
+     ],
+     "release_rss_V": [
+      15.7156,
+      16.2128
+     ],
+     "Q": {
+      "catch_side_V": -0.0278,
+      "rail_side_V": 0.113,
+      "lim_catch": 15.5,
+      "lim_rail": 16.575,
+      "target_V": 0.0798,
+      "verdict": "FAIL"
+     },
+     "H": {
+      "catch_side_V": 3.1791,
+      "rail_side_V": 0.113,
+      "lim_catch": 12.2931,
+      "lim_rail": 16.575,
+      "target_V": 0.0798,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.3622,
+     "joint_rss": {
+      "margin_V": 0.5434,
+      "z_sigma": 6.311,
+      "tail_ppm_per_rail_normal": 0.0001
+     },
+     "rss_contrib_V": {
+      "dev": 0.2176,
+      "v25": 0.0768,
+      "vos": 0.0704,
+      "rb": 0.0368,
+      "rt": 0.03679,
+      "r80": 0.01996,
+      "r79": 0.01994,
+      "zk": 0.00725,
+      "ibh": 0.0064,
+      "ibt": 0.00295
+     }
+    },
+    "span OV": {
+     "nominal_V": 18.0888,
+     "trip_wc_V": [
+      17.5262,
+      18.6492
+     ],
+     "release_wc_V": [
+      17.5262,
+      18.6492
+     ],
+     "trip_rss_V": [
+      17.8027,
+      18.3662
+     ],
+     "release_rss_V": [
+      17.8027,
+      18.3662
+     ],
+     "Q": {
+      "catch_side_V": -0.6492,
+      "rail_side_V": 0.1012,
+      "lim_catch": 18.0,
+      "lim_rail": 17.425,
+      "recovery_V": 0.1012,
+      "target_V": 0.0904,
+      "verdict": "FAIL"
+     },
+     "H": {
+      "catch_side_V": 2.3508,
+      "rail_side_V": 0.1012,
+      "lim_catch": 21.0,
+      "lim_rail": 17.425,
+      "recovery_V": 0.1012,
+      "target_V": 0.0904,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.3777,
+     "joint_rss": {
+      "margin_V": 0.5745,
+      "z_sigma": 6.38,
+      "tail_ppm_per_rail_normal": 0.0001
+     },
+     "rss_contrib_V": {
+      "dev": 0.2465,
+      "v25": 0.087,
+      "vos": 0.07975,
+      "rb": 0.0421,
+      "rt": 0.04209,
+      "r80": 0.02261,
+      "r79": 0.02259,
+      "zk": 0.00821,
+      "ibh": 0.00725,
+      "ibt": 0.00337
+     }
+    }
+   },
+   "allowed": {
+    "span UV": {
+     "lo_Q": 15.5,
+     "lo_H": 12.2931,
+     "hi": 16.575
+    },
+    "span OV": {
+     "lo": 17.425,
+     "hi_Q": 18.0,
+     "hi_H": 21.0
+    },
+    "neg UV": {
+     "lo_Q": 1.7543,
+     "lo_H": 1.5056,
+     "lo_corner_infeasible": 1.8846,
+     "hi": 1.9654
+    },
+    "neg OV": {
+     "lo": 2.0757,
+     "hi_Q": 2.4,
+     "hi_H": 5.5
+    }
+   },
+   "delta": {
+    "lines_removed": [
+     "TL431AIDBZR",
+     "RT0603BRD074K42L",
+     "RT0603BRD077K68L",
+     "RT0603BRD07120KL",
+     "ARG03BTC1333"
+    ],
+    "lines_added": [
+     "TL431BIDBZR",
+     "RT0603BRD075K76L",
+     "RT0603BRD078K66L",
+     "RT0603BRD07118KL",
+     "RT0603BRD07135KL"
+    ],
+    "net_lines": 0,
+    "usd_per_board": 0.2748,
+    "usd_per_500": 137.4,
+    "placements_delta": 0
+   }
+  },
+  "1c-7680": {
+   "ref": "TL431BIDBZR",
+   "r79_ohm": 7680.0,
+   "picks": {
+    "neg UV": {
+     "top_ohm": 3480.0,
+     "bottom_ohm": 11000.0,
+     "selection": "Q",
+     "top_part": {
+      "mpn": "RT0603BRD073K48L",
+      "lcsc": "C861378",
+      "jlc_stock": 8326,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0393,
+      "fetched": "2026-10-15T21:48:22Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "RT0603BRD0711KL",
+      "lcsc": "C728581",
+      "jlc_stock": 10027,
+      "on_s43_bom": true,
+      "usd_500": 0.038,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      4020.0,
+      12600.0
+     ]
+    },
+    "neg OV": {
+     "top_ohm": 6810.0,
+     "bottom_ohm": 11700.0,
+     "selection": "Q",
+     "top_part": {
+      "mpn": "RT0603BRD076K81L",
+      "lcsc": "C861538",
+      "jlc_stock": 17506,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0434,
+      "fetched": "2026-10-15T21:48:25Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "TNPW060311K7BEEA",
+      "lcsc": "C4553285",
+      "jlc_stock": 2839,
+      "on_s43_bom": true,
+      "usd_500": 0.0584,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      7410.0,
+      12600.0
+     ]
+    },
+    "span UV": {
+     "top_ohm": 121000.0,
+     "bottom_ohm": 11700.0,
+     "selection": "Q",
+     "top_part": {
+      "mpn": "RT0603BRD07121KL",
+      "lcsc": "C861095",
+      "jlc_stock": 6715,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0364,
+      "fetched": "2026-10-15T21:48:27Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "TNPW060311K7BEEA",
+      "lcsc": "C4553285",
+      "jlc_stock": 2839,
+      "on_s43_bom": true,
+      "usd_500": 0.0584,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      114000.0,
+      11000.0
+     ]
+    },
+    "span OV": {
+     "top_ohm": 118000.0,
+     "bottom_ohm": 10000.0,
+     "selection": "rail side fixed; Q catch side violated, H met",
+     "top_part": {
+      "mpn": "RT0603BRD07118KL",
+      "lcsc": "C861086",
+      "jlc_stock": 8636,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0426,
+      "fetched": "2026-10-15T21:43:49Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "RT0603BRD0710KL",
+      "lcsc": "C95204",
+      "jlc_stock": 2125333,
+      "on_s43_bom": true,
+      "usd_500": 0.0232,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      118000.0,
+      10000.0
+     ]
+    }
+   },
+   "thresholds": {
+    "neg UV": {
+     "nominal_V": 1.8577,
+     "trip_wc_V": [
+      1.8082,
+      1.9067
+     ],
+     "release_wc_V": [
+      1.8082,
+      1.9067
+     ],
+     "trip_rss_V": [
+      1.8293,
+      1.8853
+     ],
+     "release_rss_V": [
+      1.8293,
+      1.8853
+     ],
+     "Q": {
+      "catch_side_V": 0.0539,
+      "rail_side_V": 0.0587,
+      "lim_catch": 1.7543,
+      "lim_rail": 1.9654,
+      "target_V": 0.0093,
+      "verdict": "PASS"
+     },
+     "H": {
+      "catch_side_V": 0.3026,
+      "rail_side_V": 0.0587,
+      "lim_catch": 1.5056,
+      "lim_rail": 1.9654,
+      "target_V": 0.0093,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.0801,
+     "joint_rss": {
+      "margin_V": 0.1094,
+      "z_sigma": 10.192,
+      "tail_ppm_per_rail_normal": 0.0
+     },
+     "rss_contrib_V": {
+      "dev": 0.02531,
+      "v25": 0.00893,
+      "vos": 0.00724,
+      "r80": 0.00202,
+      "r79": 0.00202,
+      "rb": 0.00112,
+      "rt": 0.00112,
+      "zk": 0.00085,
+      "ibh": 0.00057,
+      "ibt": 9e-05
+     }
+    },
+    "neg OV": {
+     "nominal_V": 2.2326,
+     "trip_wc_V": [
+      2.1716,
+      2.293
+     ],
+     "release_wc_V": [
+      2.1716,
+      2.293
+     ],
+     "trip_rss_V": [
+      2.1983,
+      2.2658
+     ],
+     "release_rss_V": [
+      2.1983,
+      2.2658
+     ],
+     "Q": {
+      "catch_side_V": 0.107,
+      "rail_side_V": 0.0959,
+      "lim_catch": 2.4,
+      "lim_rail": 2.0757,
+      "recovery_V": 0.0959,
+      "target_V": 0.0112,
+      "verdict": "PASS"
+     },
+     "H": {
+      "catch_side_V": 3.207,
+      "rail_side_V": 0.0959,
+      "lim_catch": 5.5,
+      "lim_rail": 2.0757,
+      "recovery_V": 0.0959,
+      "target_V": 0.0112,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.1227,
+     "joint_rss": {
+      "margin_V": 0.1612,
+      "z_sigma": 12.5841,
+      "tail_ppm_per_rail_normal": 0.0
+     },
+     "rss_contrib_V": {
+      "dev": 0.03042,
+      "v25": 0.01074,
+      "vos": 0.0087,
+      "r80": 0.00242,
+      "r79": 0.00242,
+      "rb": 0.00205,
+      "rt": 0.00205,
+      "zk": 0.00102,
+      "ibh": 0.00069,
+      "ibt": 0.00017
+     }
+    },
+    "span UV": {
+     "nominal_V": 16.0057,
+     "trip_wc_V": [
+      15.5225,
+      16.4834
+     ],
+     "release_wc_V": [
+      15.5225,
+      16.4834
+     ],
+     "trip_rss_V": [
+      15.7538,
+      16.2467
+     ],
+     "release_rss_V": [
+      15.7538,
+      16.2467
+     ],
+     "Q": {
+      "catch_side_V": 0.0225,
+      "rail_side_V": 0.0916,
+      "lim_catch": 15.5,
+      "lim_rail": 16.575,
+      "target_V": 0.08,
+      "verdict": "MARGINAL"
+     },
+     "H": {
+      "catch_side_V": 3.2295,
+      "rail_side_V": 0.0916,
+      "lim_catch": 12.293,
+      "lim_rail": 16.575,
+      "target_V": 0.08,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.3283,
+     "joint_rss": {
+      "margin_V": 0.5084,
+      "z_sigma": 6.1048,
+      "tail_ppm_per_rail_normal": 0.0005
+     },
+     "rss_contrib_V": {
+      "dev": 0.21811,
+      "v25": 0.07698,
+      "vos": 0.06238,
+      "rb": 0.03648,
+      "rt": 0.03647,
+      "r80": 0.01738,
+      "r79": 0.01737,
+      "zk": 0.00729,
+      "ibh": 0.00493,
+      "ibt": 0.00303
+     }
+    },
+    "span OV": {
+     "nominal_V": 18.0633,
+     "trip_wc_V": [
+      17.5181,
+      18.6034
+     ],
+     "release_wc_V": [
+      17.5181,
+      18.6034
+     ],
+     "trip_rss_V": [
+      17.7795,
+      18.336
+     ],
+     "release_rss_V": [
+      17.7795,
+      18.336
+     ],
+     "Q": {
+      "catch_side_V": -0.6034,
+      "rail_side_V": 0.0931,
+      "lim_catch": 18.0,
+      "lim_rail": 17.425,
+      "recovery_V": 0.0931,
+      "target_V": 0.0903,
+      "verdict": "FAIL"
+     },
+     "H": {
+      "catch_side_V": 2.3966,
+      "rail_side_V": 0.0931,
+      "lim_catch": 21.0,
+      "lim_rail": 17.425,
+      "recovery_V": 0.0931,
+      "target_V": 0.0903,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.3545,
+     "joint_rss": {
+      "margin_V": 0.5497,
+      "z_sigma": 6.2465,
+      "tail_ppm_per_rail_normal": 0.0002
+     },
+     "rss_contrib_V": {
+      "dev": 0.24615,
+      "v25": 0.08688,
+      "vos": 0.0704,
+      "rb": 0.04162,
+      "rt": 0.04162,
+      "r80": 0.01961,
+      "r79": 0.0196,
+      "zk": 0.00823,
+      "ibh": 0.00556,
+      "ibt": 0.00295
+     }
+    }
+   },
+   "allowed": {
+    "span UV": {
+     "lo_Q": 15.5,
+     "lo_H": 12.293,
+     "hi": 16.575
+    },
+    "span OV": {
+     "lo": 17.425,
+     "hi_Q": 18.0,
+     "hi_H": 21.0
+    },
+    "neg UV": {
+     "lo_Q": 1.7543,
+     "lo_H": 1.5056,
+     "lo_corner_infeasible": 1.8846,
+     "hi": 1.9654
+    },
+    "neg OV": {
+     "lo": 2.0757,
+     "hi_Q": 2.4,
+     "hi_H": 5.5
+    }
+   },
+   "delta": {
+    "lines_removed": [
+     "TL431AIDBZR",
+     "RT0603BRD074K42L",
+     "RT0603BRD07120KL",
+     "ARG03BTC1333"
+    ],
+    "lines_added": [
+     "TL431BIDBZR",
+     "RT0603BRD073K48L",
+     "RT0603BRD076K81L",
+     "RT0603BRD07121KL",
+     "RT0603BRD07118KL"
+    ],
+    "net_lines": 1,
+    "usd_per_board": 0.4452,
+    "usd_per_500": 222.6,
+    "placements_delta": 0
+   }
+  },
+  "1c-6200": {
+   "ref": "TL431BIDBZR",
+   "r79_ohm": 6200.0,
+   "picks": {
+    "neg UV": {
+     "top_ohm": 2430.0,
+     "bottom_ohm": 11700.0,
+     "selection": "Q",
+     "top_part": {
+      "mpn": "RT0603BRD072K43L",
+      "lcsc": "C861298",
+      "jlc_stock": 4135,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0366,
+      "fetched": "2026-10-15T21:48:31Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "TNPW060311K7BEEA",
+      "lcsc": "C4553285",
+      "jlc_stock": 2839,
+      "on_s43_bom": true,
+      "usd_500": 0.0584,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      2430.0,
+      11700.0
+     ]
+    },
+    "neg OV": {
+     "top_ohm": 4530.0,
+     "bottom_ohm": 10000.0,
+     "selection": "Q",
+     "top_part": {
+      "mpn": "RT0603BRD074K53L",
+      "lcsc": "C861443",
+      "jlc_stock": 2901,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0271,
+      "fetched": "2026-10-15T21:43:52Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "RT0603BRD0710KL",
+      "lcsc": "C95204",
+      "jlc_stock": 2125333,
+      "on_s43_bom": true,
+      "usd_500": 0.0232,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      4530.0,
+      10000.0
+     ]
+    },
+    "span UV": {
+     "top_ohm": 94200.0,
+     "bottom_ohm": 10000.0,
+     "selection": "Q",
+     "top_part": {
+      "mpn": "RT0603BRD0794K2L",
+      "lcsc": "C861602",
+      "jlc_stock": 9080,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0281,
+      "fetched": "2026-10-15T21:42:40Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "RT0603BRD0710KL",
+      "lcsc": "C95204",
+      "jlc_stock": 2125333,
+      "on_s43_bom": true,
+      "usd_500": 0.0232,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      94200.0,
+      10000.0
+     ]
+    },
+    "span OV": {
+     "top_ohm": 118000.0,
+     "bottom_ohm": 11000.0,
+     "selection": "rail side fixed; Q catch side violated, H met",
+     "top_part": {
+      "mpn": "RT0603BRD07118KL",
+      "lcsc": "C861086",
+      "jlc_stock": 8636,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0426,
+      "fetched": "2026-10-15T21:43:49Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "RT0603BRD0711KL",
+      "lcsc": "C728581",
+      "jlc_stock": 10027,
+      "on_s43_bom": true,
+      "usd_500": 0.038,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      118000.0,
+      11000.0
+     ]
+    }
+   },
+   "thresholds": {
+    "neg UV": {
+     "nominal_V": 1.86,
+     "trip_wc_V": [
+      1.8122,
+      1.9071
+     ],
+     "release_wc_V": [
+      1.8122,
+      1.9071
+     ],
+     "trip_rss_V": [
+      1.8317,
+      1.8874
+     ],
+     "release_rss_V": [
+      1.8317,
+      1.8874
+     ],
+     "Q": {
+      "catch_side_V": 0.0579,
+      "rail_side_V": 0.0583,
+      "lim_catch": 1.7543,
+      "lim_rail": 1.9654,
+      "target_V": 0.0093,
+      "verdict": "PASS"
+     },
+     "H": {
+      "catch_side_V": 0.3066,
+      "rail_side_V": 0.0583,
+      "lim_catch": 1.5056,
+      "lim_rail": 1.9654,
+      "target_V": 0.0093,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.078,
+     "joint_rss": {
+      "margin_V": 0.1072,
+      "z_sigma": 10.0669,
+      "tail_ppm_per_rail_normal": 0.0
+     },
+     "rss_contrib_V": {
+      "dev": 0.02535,
+      "v25": 0.00895,
+      "vos": 0.00664,
+      "r80": 0.00178,
+      "r79": 0.00178,
+      "zk": 0.00085,
+      "rb": 0.0008,
+      "rt": 0.0008,
+      "ibh": 0.00046,
+      "ibt": 6e-05
+     }
+    },
+    "neg OV": {
+     "nominal_V": 2.2378,
+     "trip_wc_V": [
+      2.1787,
+      2.2961
+     ],
+     "release_wc_V": [
+      2.1787,
+      2.2961
+     ],
+     "trip_rss_V": [
+      2.2037,
+      2.2708
+     ],
+     "release_rss_V": [
+      2.2037,
+      2.2708
+     ],
+     "Q": {
+      "catch_side_V": 0.1039,
+      "rail_side_V": 0.103,
+      "lim_catch": 2.4,
+      "lim_rail": 2.0757,
+      "recovery_V": 0.103,
+      "target_V": 0.0112,
+      "verdict": "PASS"
+     },
+     "H": {
+      "catch_side_V": 3.2039,
+      "rail_side_V": 0.103,
+      "lim_catch": 5.5,
+      "lim_rail": 2.0757,
+      "recovery_V": 0.103,
+      "target_V": 0.0112,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.128,
+     "joint_rss": {
+      "margin_V": 0.1665,
+      "z_sigma": 12.9198,
+      "tail_ppm_per_rail_normal": 0.0
+     },
+     "rss_contrib_V": {
+      "dev": 0.0305,
+      "v25": 0.01076,
+      "vos": 0.00799,
+      "r80": 0.00214,
+      "r79": 0.00214,
+      "rb": 0.00174,
+      "rt": 0.00174,
+      "zk": 0.00102,
+      "ibh": 0.00056,
+      "ibt": 0.00011
+     }
+    },
+    "span UV": {
+     "nominal_V": 16.0481,
+     "trip_wc_V": [
+      15.5748,
+      16.515
+     ],
+     "release_wc_V": [
+      15.5748,
+      16.515
+     ],
+     "trip_rss_V": [
+      15.7969,
+      16.2878
+     ],
+     "release_rss_V": [
+      15.7969,
+      16.2878
+     ],
+     "Q": {
+      "catch_side_V": 0.0748,
+      "rail_side_V": 0.06,
+      "lim_catch": 15.5,
+      "lim_rail": 16.575,
+      "target_V": 0.0802,
+      "verdict": "MARGINAL"
+     },
+     "H": {
+      "catch_side_V": 3.2787,
+      "rail_side_V": 0.06,
+      "lim_catch": 12.2961,
+      "lim_rail": 16.575,
+      "target_V": 0.0802,
+      "verdict": "MARGINAL"
+     },
+     "rss_vs_wc_rail_V": 0.2872,
+     "joint_rss": {
+      "margin_V": 0.4668,
+      "z_sigma": 5.8536,
+      "tail_ppm_per_rail_normal": 0.0024
+     },
+     "rss_contrib_V": {
+      "dev": 0.21869,
+      "v25": 0.07719,
+      "vos": 0.05731,
+      "rb": 0.03626,
+      "rt": 0.03626,
+      "r80": 0.01535,
+      "r79": 0.01534,
+      "zk": 0.00733,
+      "ibh": 0.00399,
+      "ibt": 0.00235
+     }
+    },
+    "span OV": {
+     "nominal_V": 18.0614,
+     "trip_wc_V": [
+      17.5273,
+      18.5879
+     ],
+     "release_wc_V": [
+      17.5273,
+      18.5879
+     ],
+     "trip_rss_V": [
+      17.7783,
+      18.3311
+     ],
+     "release_rss_V": [
+      17.7783,
+      18.3311
+     ],
+     "Q": {
+      "catch_side_V": -0.5879,
+      "rail_side_V": 0.1023,
+      "lim_catch": 18.0,
+      "lim_rail": 17.425,
+      "recovery_V": 0.1023,
+      "target_V": 0.0903,
+      "verdict": "FAIL"
+     },
+     "H": {
+      "catch_side_V": 2.4121,
+      "rail_side_V": 0.1023,
+      "lim_catch": 21.0,
+      "lim_rail": 17.425,
+      "recovery_V": 0.1023,
+      "target_V": 0.0903,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.3533,
+     "joint_rss": {
+      "margin_V": 0.5478,
+      "z_sigma": 6.2415,
+      "tail_ppm_per_rail_normal": 0.0002
+     },
+     "rss_contrib_V": {
+      "dev": 0.24613,
+      "v25": 0.08687,
+      "vos": 0.0645,
+      "rb": 0.04129,
+      "rt": 0.04129,
+      "r80": 0.01728,
+      "r79": 0.01727,
+      "zk": 0.00825,
+      "ibh": 0.00449,
+      "ibt": 0.00295
+     }
+    }
+   },
+   "allowed": {
+    "span UV": {
+     "lo_Q": 15.5,
+     "lo_H": 12.2961,
+     "hi": 16.575
+    },
+    "span OV": {
+     "lo": 17.425,
+     "hi_Q": 18.0,
+     "hi_H": 21.0
+    },
+    "neg UV": {
+     "lo_Q": 1.7543,
+     "lo_H": 1.5056,
+     "lo_corner_infeasible": 1.8846,
+     "hi": 1.9654
+    },
+    "neg OV": {
+     "lo": 2.0757,
+     "hi_Q": 2.4,
+     "hi_H": 5.5
+    }
+   },
+   "delta": {
+    "lines_removed": [
+     "TL431AIDBZR",
+     "RT0603BRD074K42L",
+     "RT0603BRD077K68L",
+     "RT0603BRD07120KL",
+     "ARG03BTC1333"
+    ],
+    "lines_added": [
+     "TL431BIDBZR",
+     "RT0603BRD072K43L",
+     "RT0603BRD074K53L",
+     "RT0603BRD0794K2L",
+     "RT0603BRD07118KL"
+    ],
+    "net_lines": 0,
+    "usd_per_board": 0.2469,
+    "usd_per_500": 123.45,
+    "placements_delta": 0
+   }
+  },
+  "1c-4420": {
+   "ref": "TL431BIDBZR",
+   "r79_ohm": 4420.0,
+   "picks": {
+    "neg UV": {
+     "top_ohm": 750.0,
+     "bottom_ohm": 10000.0,
+     "selection": "Q",
+     "top_part": {
+      "mpn": "RT0603BRD07750RL",
+      "lcsc": "C861551",
+      "jlc_stock": 2661,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0271,
+      "fetched": "2026-10-15T21:42:42Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "RT0603BRD0710KL",
+      "lcsc": "C95204",
+      "jlc_stock": 2125333,
+      "on_s43_bom": true,
+      "usd_500": 0.0232,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      750.0,
+      10000.0
+     ]
+    },
+    "neg OV": {
+     "top_ohm": 2940.0,
+     "bottom_ohm": 10000.0,
+     "selection": "Q",
+     "top_part": {
+      "mpn": "RT0603BRD072K94L",
+      "lcsc": "C705761",
+      "jlc_stock": 8015,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0441,
+      "fetched": "2026-10-15T21:43:55Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "RT0603BRD0710KL",
+      "lcsc": "C95204",
+      "jlc_stock": 2125333,
+      "on_s43_bom": true,
+      "usd_500": 0.0232,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      3700.0,
+      12600.0
+     ]
+    },
+    "span UV": {
+     "top_ohm": 90900.0,
+     "bottom_ohm": 11000.0,
+     "selection": "Q",
+     "top_part": {
+      "mpn": "RT0603BRD0790K9L",
+      "lcsc": "C728600",
+      "jlc_stock": 18027,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0331,
+      "fetched": "2026-10-15T21:48:36Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "RT0603BRD0711KL",
+      "lcsc": "C728581",
+      "jlc_stock": 10027,
+      "on_s43_bom": true,
+      "usd_500": 0.038,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      90900.0,
+      11000.0
+     ]
+    },
+    "span OV": {
+     "top_ohm": 104000.0,
+     "bottom_ohm": 11000.0,
+     "selection": "rail side fixed; Q catch side violated, H met",
+     "top_part": {
+      "mpn": "RT0603BRD07104KL",
+      "lcsc": "C861070",
+      "jlc_stock": 8450,
+      "on_s43_bom": false,
+      "class": "expand",
+      "usd_500": 0.0212,
+      "fetched": "2026-10-15T21:42:33Z",
+      "ok": true
+     },
+     "bottom_part": {
+      "mpn": "RT0603BRD0711KL",
+      "lcsc": "C728581",
+      "jlc_stock": 10027,
+      "on_s43_bom": true,
+      "usd_500": 0.038,
+      "ok": true
+     },
+     "unconstrained_best_ohm": [
+      104000.0,
+      11000.0
+     ]
+    }
+   },
+   "thresholds": {
+    "neg UV": {
+     "nominal_V": 1.86,
+     "trip_wc_V": [
+      1.8146,
+      1.9044
+     ],
+     "release_wc_V": [
+      1.8146,
+      1.9044
+     ],
+     "trip_rss_V": [
+      1.8318,
+      1.8871
+     ],
+     "release_rss_V": [
+      1.8318,
+      1.8871
+     ],
+     "Q": {
+      "catch_side_V": 0.0603,
+      "rail_side_V": 0.061,
+      "lim_catch": 1.7543,
+      "lim_rail": 1.9654,
+      "target_V": 0.0093,
+      "verdict": "PASS"
+     },
+     "H": {
+      "catch_side_V": 0.309,
+      "rail_side_V": 0.061,
+      "lim_catch": 1.5056,
+      "lim_rail": 1.9654,
+      "target_V": 0.0093,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.0783,
+     "joint_rss": {
+      "margin_V": 0.1075,
+      "z_sigma": 10.1033,
+      "tail_ppm_per_rail_normal": 0.0
+     },
+     "rss_contrib_V": {
+      "dev": 0.02535,
+      "v25": 0.00895,
+      "vos": 0.00591,
+      "r80": 0.00142,
+      "r79": 0.00142,
+      "zk": 0.00085,
+      "ibh": 0.00033,
+      "rb": 0.00032,
+      "rt": 0.00032,
+      "ibt": 2e-05
+     }
+    },
+    "neg OV": {
+     "nominal_V": 2.2389,
+     "trip_wc_V": [
+      2.1825,
+      2.2942
+     ],
+     "release_wc_V": [
+      2.1825,
+      2.2942
+     ],
+     "trip_rss_V": [
+      2.2049,
+      2.2715
+     ],
+     "release_rss_V": [
+      2.2049,
+      2.2715
+     ],
+     "Q": {
+      "catch_side_V": 0.1058,
+      "rail_side_V": 0.1068,
+      "lim_catch": 2.4,
+      "lim_rail": 2.0757,
+      "recovery_V": 0.1068,
+      "target_V": 0.0112,
+      "verdict": "PASS"
+     },
+     "H": {
+      "catch_side_V": 3.2058,
+      "rail_side_V": 0.1068,
+      "lim_catch": 5.5,
+      "lim_rail": 2.0757,
+      "recovery_V": 0.1068,
+      "target_V": 0.0112,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.1293,
+     "joint_rss": {
+      "margin_V": 0.1676,
+      "z_sigma": 13.0269,
+      "tail_ppm_per_rail_normal": 0.0
+     },
+     "rss_contrib_V": {
+      "dev": 0.03051,
+      "v25": 0.01077,
+      "vos": 0.00712,
+      "r80": 0.00172,
+      "r79": 0.00171,
+      "rb": 0.00127,
+      "rt": 0.00127,
+      "zk": 0.00103,
+      "ibh": 0.0004,
+      "ibt": 7e-05
+     }
+    },
+    "span UV": {
+     "nominal_V": 16.0283,
+     "trip_wc_V": [
+      15.5689,
+      16.4788
+     ],
+     "release_wc_V": [
+      15.5689,
+      16.4788
+     ],
+     "trip_rss_V": [
+      15.7782,
+      16.2647
+     ],
+     "release_rss_V": [
+      15.7782,
+      16.2647
+     ],
+     "Q": {
+      "catch_side_V": 0.0689,
+      "rail_side_V": 0.0962,
+      "lim_catch": 15.5,
+      "lim_rail": 16.575,
+      "target_V": 0.0801,
+      "verdict": "MARGINAL"
+     },
+     "H": {
+      "catch_side_V": 3.2746,
+      "rail_side_V": 0.0962,
+      "lim_catch": 12.2942,
+      "lim_rail": 16.575,
+      "target_V": 0.0801,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.3103,
+     "joint_rss": {
+      "margin_V": 0.4888,
+      "z_sigma": 5.9947,
+      "tail_ppm_per_rail_normal": 0.001
+     },
+     "rss_contrib_V": {
+      "dev": 0.21842,
+      "v25": 0.07709,
+      "vos": 0.05095,
+      "rb": 0.03574,
+      "rt": 0.03573,
+      "r80": 0.01228,
+      "r79": 0.01227,
+      "zk": 0.00735,
+      "ibh": 0.00284,
+      "ibt": 0.00227
+     }
+    },
+    "span OV": {
+     "nominal_V": 18.0888,
+     "trip_wc_V": [
+      17.5692,
+      18.5984
+     ],
+     "release_wc_V": [
+      17.5692,
+      18.5984
+     ],
+     "trip_rss_V": [
+      17.8065,
+      18.3558
+     ],
+     "release_rss_V": [
+      17.8065,
+      18.3558
+     ],
+     "Q": {
+      "catch_side_V": -0.5984,
+      "rail_side_V": 0.1442,
+      "lim_catch": 18.0,
+      "lim_rail": 17.425,
+      "recovery_V": 0.1442,
+      "target_V": 0.0904,
+      "verdict": "FAIL"
+     },
+     "H": {
+      "catch_side_V": 2.4016,
+      "rail_side_V": 0.1442,
+      "lim_catch": 21.0,
+      "lim_rail": 17.425,
+      "recovery_V": 0.1442,
+      "target_V": 0.0904,
+      "verdict": "PASS"
+     },
+     "rss_vs_wc_rail_V": 0.3815,
+     "joint_rss": {
+      "margin_V": 0.5751,
+      "z_sigma": 6.4094,
+      "tail_ppm_per_rail_normal": 0.0001
+     },
+     "rss_contrib_V": {
+      "dev": 0.2465,
+      "v25": 0.087,
+      "vos": 0.0575,
+      "rb": 0.04089,
+      "rt": 0.04088,
+      "r80": 0.01386,
+      "r79": 0.01385,
+      "zk": 0.0083,
+      "ibh": 0.0032,
+      "ibt": 0.0026
+     }
+    }
+   },
+   "allowed": {
+    "span UV": {
+     "lo_Q": 15.5,
+     "lo_H": 12.2942,
+     "hi": 16.575
+    },
+    "span OV": {
+     "lo": 17.425,
+     "hi_Q": 18.0,
+     "hi_H": 21.0
+    },
+    "neg UV": {
+     "lo_Q": 1.7543,
+     "lo_H": 1.5056,
+     "lo_corner_infeasible": 1.8846,
+     "hi": 1.9654
+    },
+    "neg OV": {
+     "lo": 2.0757,
+     "hi_Q": 2.4,
+     "hi_H": 5.5
+    }
+   },
+   "delta": {
+    "lines_removed": [
+     "TL431AIDBZR",
+     "RT0603BRD077K68L",
+     "RT0603BRD07120KL",
+     "ARG03BTC1333"
+    ],
+    "lines_added": [
+     "TL431BIDBZR",
+     "RT0603BRD07750RL",
+     "RT0603BRD072K94L",
+     "RT0603BRD0790K9L",
+     "RT0603BRD07104KL"
+    ],
+    "net_lines": 1,
+    "usd_per_board": 0.1674,
+    "usd_per_500": 83.7,
+    "placements_delta": 0
+   }
+  }
+ },
+ "option2": {
+  "picks": {
+   "neg UV": {
+    "top_ohm": 15800.0,
+    "bottom_ohm": 4420.0,
+    "selection": "Q; tie-break fewer new MPNs within 10 mV",
+    "top_part": {
+     "mpn": "RT0603BRD0715K8L",
+     "lcsc": "C861143",
+     "jlc_stock": 7399,
+     "on_s43_bom": true,
+     "usd_500": 0.0467,
+     "ok": true
+    },
+    "bottom_part": {
+     "mpn": "RT0603BRD074K42L",
+     "lcsc": "C861442",
+     "jlc_stock": 8076,
+     "on_s43_bom": true,
+     "usd_500": 0.0265,
+     "ok": true
+    },
+    "best_stocked_min_Q_V": 0.0589,
+    "unconstrained_best": [
+     45300.0,
+     12600.0
+    ],
+    "unconstrained_best_min_Q_V": 0.059
+   },
+   "neg OV": {
+    "top_ohm": 28400.0,
+    "bottom_ohm": 6200.0,
+    "selection": "Q; tie-break fewer new MPNs within 10 mV",
+    "top_part": {
+     "mpn": "RT0603BRD0728K4L",
+     "lcsc": "C861281",
+     "jlc_stock": 1967,
+     "on_s43_bom": false,
+     "class": "expand",
+     "usd_500": 0.0209,
+     "fetched": "2026-10-15T21:42:52Z",
+     "ok": true
+    },
+    "bottom_part": {
+     "mpn": "RT0603BRD076K2L",
+     "lcsc": "C136960",
+     "jlc_stock": 90071,
+     "on_s43_bom": true,
+     "usd_500": 0.0237,
+     "ok": true
+    },
+    "best_stocked_min_Q_V": 0.1358,
+    "unconstrained_best": [
+     5560.0,
+     1210.0
+    ],
+    "unconstrained_best_min_Q_V": 0.1358
+   },
+   "span UV": {
+    "top_ohm": 240000.0,
+    "bottom_ohm": 6200.0,
+    "selection": "Q; tie-break fewer new MPNs within 10 mV",
+    "top_part": {
+     "mpn": "RT0603BRD07240KL",
+     "lcsc": "C515423",
+     "jlc_stock": 5139,
+     "on_s43_bom": false,
+     "class": "expand",
+     "usd_500": 0.0274,
+     "fetched": "2026-10-15T21:42:54Z",
+     "ok": true
+    },
+    "bottom_part": {
+     "mpn": "RT0603BRD076K2L",
+     "lcsc": "C136960",
+     "jlc_stock": 90071,
+     "on_s43_bom": true,
+     "usd_500": 0.0237,
+     "ok": true
+    },
+    "best_stocked_min_Q_V": 0.0888,
+    "unconstrained_best": [
+     487000.0,
+     12600.0
+    ],
+    "unconstrained_best_min_Q_V": 0.107
+   },
+   "span OV": {
+    "top_ohm": 86600.0,
+    "bottom_ohm": 2000.0,
+    "selection": "Q; tie-break fewer new MPNs within 10 mV",
+    "top_part": {
+     "mpn": "RT0603BRD0786K6L",
+     "lcsc": "C861580",
+     "jlc_stock": 10896,
+     "on_s43_bom": false,
+     "class": "expand",
+     "usd_500": 0.0302,
+     "fetched": "2026-10-15T21:45:02Z",
+     "ok": true
+    },
+    "bottom_part": {
+     "mpn": "RT0603BRD072KL",
+     "lcsc": "C728588",
+     "jlc_stock": 14213,
+     "on_s43_bom": false,
+     "class": "expand",
+     "usd_500": 0.0266,
+     "fetched": "2026-10-15T21:45:02Z",
+     "ok": true
+    },
+    "best_stocked_min_Q_V": 0.0575,
+    "unconstrained_best": [
+     86600.0,
+     2000.0
+    ],
+    "unconstrained_best_min_Q_V": 0.0575
+   }
+  },
+  "thresholds": {
+   "neg UV": {
+    "nominal_V": 1.8299,
+    "trip_wc_V": [
+     1.8087,
+     1.8512
+    ],
+    "release_wc_V": [
+     1.8223,
+     1.8971
+    ],
+    "trip_rss_V": [
+     1.8152,
+     1.8445
+    ],
+    "release_rss_V": [
+     1.8294,
+     1.8898
+    ],
+    "Q": {
+     "catch_side_V": 0.0544,
+     "rail_side_V": 0.0683,
+     "lim_catch": 1.7543,
+     "lim_rail": 1.9654,
+     "target_V": 0.0091,
+     "verdict": "PASS"
+    },
+    "H": {
+     "catch_side_V": 0.3031,
+     "rail_side_V": 0.0683,
+     "lim_catch": 1.5056,
+     "lim_rail": 1.9654,
+     "target_V": 0.0091,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.0756,
+    "joint_rss": {
+     "margin_V": 0.1057,
+     "z_sigma": 9.7496,
+     "tail_ppm_per_rail_normal": 0.0
+    },
+    "rss_contrib_V": {
+     "vit": 0.01372,
+     "rb": 0.00357,
+     "rt": 0.00357,
+     "iin": 0.00039
+    }
+   },
+   "neg OV": {
+    "nominal_V": 2.2323,
+    "trip_wc_V": [
+     2.2057,
+     2.259
+    ],
+    "release_wc_V": [
+     2.1502,
+     2.2422
+    ],
+    "trip_rss_V": [
+     2.2143,
+     2.2502
+    ],
+    "release_rss_V": [
+     2.1591,
+     2.2328
+    ],
+    "Q": {
+     "catch_side_V": 0.141,
+     "rail_side_V": 0.1301,
+     "lim_catch": 2.4,
+     "lim_rail": 2.0757,
+     "recovery_V": 0.0745,
+     "target_V": 0.0112,
+     "verdict": "PASS"
+    },
+    "H": {
+     "catch_side_V": 3.241,
+     "rail_side_V": 0.1301,
+     "lim_catch": 5.5,
+     "lim_rail": 2.0757,
+     "recovery_V": 0.0745,
+     "target_V": 0.0112,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.1386,
+    "joint_rss": {
+     "margin_V": 0.1702,
+     "z_sigma": 15.276,
+     "tail_ppm_per_rail_normal": 0.0
+    },
+    "rss_contrib_V": {
+     "vit": 0.01674,
+     "rb": 0.00458,
+     "rt": 0.00458,
+     "iin": 0.00071
+    }
+   },
+   "span UV": {
+    "nominal_V": 15.8839,
+    "trip_wc_V": [
+     15.6821,
+     16.0872
+    ],
+    "release_wc_V": [
+     15.8007,
+     16.4862
+    ],
+    "trip_rss_V": [
+     15.7526,
+     16.0151
+    ],
+    "release_rss_V": [
+     15.8779,
+     16.4061
+    ],
+    "Q": {
+     "catch_side_V": 0.1821,
+     "rail_side_V": 0.0888,
+     "lim_catch": 15.5,
+     "lim_rail": 16.575,
+     "target_V": 0.0794,
+     "verdict": "PASS"
+    },
+    "H": {
+     "catch_side_V": 3.4231,
+     "rail_side_V": 0.0888,
+     "lim_catch": 12.259,
+     "lim_rail": 16.575,
+     "target_V": 0.0794,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.1689,
+    "joint_rss": {
+     "margin_V": 0.3576,
+     "z_sigma": 5.1442,
+     "tail_ppm_per_rail_normal": 0.1343
+    },
+    "rss_contrib_V": {
+     "vit": 0.11913,
+     "rb": 0.03871,
+     "rt": 0.03871,
+     "iin": 0.006
+    }
+   },
+   "span OV": {
+    "nominal_V": 17.72,
+    "trip_wc_V": [
+     17.4992,
+     17.9425
+    ],
+    "release_wc_V": [
+     17.0584,
+     17.809
+    ],
+    "trip_rss_V": [
+     17.5737,
+     17.8663
+    ],
+    "release_rss_V": [
+     17.1379,
+     17.7262
+    ],
+    "Q": {
+     "catch_side_V": 0.0575,
+     "rail_side_V": 0.0742,
+     "lim_catch": 18.0,
+     "lim_rail": 17.425,
+     "recovery_V": -0.3666,
+     "target_V": 0.0886,
+     "verdict": "MARGINAL"
+    },
+    "H": {
+     "catch_side_V": 3.0575,
+     "rail_side_V": 0.0742,
+     "lim_catch": 21.0,
+     "lim_rail": 17.425,
+     "recovery_V": -0.3666,
+     "target_V": 0.0886,
+     "verdict": "MARGINAL"
+    },
+    "rss_vs_wc_rail_V": 0.1487,
+    "joint_rss": {
+     "margin_V": 0.2705,
+     "z_sigma": 4.8054,
+     "tail_ppm_per_rail_normal": 0.7721
+    },
+    "rss_contrib_V": {
+     "vit": 0.1329,
+     "rb": 0.0433,
+     "rt": 0.0433,
+     "iin": 0.00216
+    }
+   }
+  },
+  "allowed": {
+   "span UV": {
+    "lo_Q": 15.5,
+    "lo_H": 12.259,
+    "hi": 16.575
+   },
+   "span OV": {
+    "lo": 17.425,
+    "hi_Q": 18.0,
+    "hi_H": 21.0
+   },
+   "neg UV": {
+    "lo_Q": 1.7543,
+    "lo_H": 1.5056,
+    "lo_corner_infeasible": 1.8846,
+    "hi": 1.9654
+   },
+   "neg OV": {
+    "lo": 2.0757,
+    "hi_Q": 2.4,
+    "hi_H": 5.5
+   }
+  },
+  "delta": {
+   "lines_removed": [
+    "TL431AIDBZR",
+    "RC1206FR-072K2L",
+    "RT0603BRD077K68L",
+    "RT0603BRD07120KL",
+    "ARG03BTC1333",
+    "LM339BIDR"
+   ],
+   "lines_added": [
+    "TPS3701DDCR",
+    "RT0603BRD0728K4L",
+    "RT0603BRD07240KL",
+    "RT0603BRD0786K6L",
+    "RT0603BRD072KL"
+   ],
+   "net_lines": -1,
+   "usd_per_board": 1.5318,
+   "usd_per_500": 765.9,
+   "placements_delta": -6
+  }
+ },
+ "option2_study_values": {
+  "taps_ohm": {
+   "neg UV": [
+    7680.0,
+    2210.0
+   ],
+   "neg OV": [
+    10200.0,
+    2210.0
+   ],
+   "span UV": [
+    453000.0,
+    11700.0
+   ],
+   "span OV": [
+    44200.0,
+    1000.0
+   ]
+  },
+  "thresholds": {
+   "neg UV": {
+    "nominal_V": 1.79,
+    "trip_wc_V": [
+     1.7695,
+     1.8107
+    ],
+    "release_wc_V": [
+     1.7829,
+     1.8556
+    ],
+    "trip_rss_V": [
+     1.7757,
+     1.8043
+    ],
+    "release_rss_V": [
+     1.7896,
+     1.8486
+    ],
+    "Q": {
+     "catch_side_V": 0.0152,
+     "rail_side_V": 0.1098,
+     "lim_catch": 1.7543,
+     "lim_rail": 1.9654,
+     "target_V": 0.009,
+     "verdict": "PASS"
+    },
+    "H": {
+     "catch_side_V": 0.264,
+     "rail_side_V": 0.1098,
+     "lim_catch": 1.5056,
+     "lim_rail": 1.9654,
+     "target_V": 0.009,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.1167,
+    "joint_rss": {
+     "margin_V": 0.1466,
+     "z_sigma": 12.445,
+     "tail_ppm_per_rail_normal": 0.0
+    },
+    "rss_contrib_V": {
+     "vit": 0.01343,
+     "rb": 0.00348,
+     "rt": 0.00348,
+     "iin": 0.00019
+    }
+   },
+   "neg OV": {
+    "nominal_V": 2.2462,
+    "trip_wc_V": [
+     2.2199,
+     2.2726
+    ],
+    "release_wc_V": [
+     2.164,
+     2.2557
+    ],
+    "trip_rss_V": [
+     2.2281,
+     2.2642
+    ],
+    "release_rss_V": [
+     2.1726,
+     2.2467
+    ],
+    "Q": {
+     "catch_side_V": 0.1274,
+     "rail_side_V": 0.1442,
+     "lim_catch": 2.4,
+     "lim_rail": 2.0757,
+     "recovery_V": 0.0883,
+     "target_V": 0.0112,
+     "verdict": "PASS"
+    },
+    "H": {
+     "catch_side_V": 3.2274,
+     "rail_side_V": 0.1442,
+     "lim_catch": 5.5,
+     "lim_rail": 2.0757,
+     "recovery_V": 0.0883,
+     "target_V": 0.0112,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.1524,
+    "joint_rss": {
+     "margin_V": 0.1841,
+     "z_sigma": 16.2607,
+     "tail_ppm_per_rail_normal": 0.0
+    },
+    "rss_contrib_V": {
+     "vit": 0.01685,
+     "rb": 0.00462,
+     "rt": 0.00462,
+     "iin": 0.00026
+    }
+   },
+   "span UV": {
+    "nominal_V": 15.8872,
+    "trip_wc_V": [
+     15.6801,
+     16.0959
+    ],
+    "release_wc_V": [
+     15.7986,
+     16.495
+    ],
+    "trip_rss_V": [
+     15.7556,
+     16.0188
+    ],
+    "release_rss_V": [
+     15.881,
+     16.4097
+    ],
+    "Q": {
+     "catch_side_V": 0.1801,
+     "rail_side_V": 0.08,
+     "lim_catch": 15.5,
+     "lim_rail": 16.575,
+     "target_V": 0.0794,
+     "verdict": "PASS"
+    },
+    "H": {
+     "catch_side_V": 3.4075,
+     "rail_side_V": 0.08,
+     "lim_catch": 12.2726,
+     "lim_rail": 16.575,
+     "target_V": 0.0794,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.1653,
+    "joint_rss": {
+     "margin_V": 0.3542,
+     "z_sigma": 5.1228,
+     "tail_ppm_per_rail_normal": 0.1505
+    },
+    "rss_contrib_V": {
+     "vit": 0.11915,
+     "rb": 0.03872,
+     "rt": 0.03872,
+     "iin": 0.01133
+    }
+   },
+   "span OV": {
+    "nominal_V": 18.08,
+    "trip_wc_V": [
+     17.8558,
+     18.306
+    ],
+    "release_wc_V": [
+     17.406,
+     18.1697
+    ],
+    "trip_rss_V": [
+     17.9307,
+     18.2293
+    ],
+    "release_rss_V": [
+     17.486,
+     18.0864
+    ],
+    "Q": {
+     "catch_side_V": -0.306,
+     "rail_side_V": 0.4308,
+     "lim_catch": 18.0,
+     "lim_rail": 17.425,
+     "recovery_V": -0.019,
+     "target_V": 0.0904,
+     "verdict": "FAIL"
+    },
+    "H": {
+     "catch_side_V": 2.694,
+     "rail_side_V": 0.4308,
+     "lim_catch": 21.0,
+     "lim_rail": 17.425,
+     "recovery_V": -0.019,
+     "target_V": 0.0904,
+     "verdict": "PASS"
+    },
+    "rss_vs_wc_rail_V": 0.5057,
+    "joint_rss": {
+     "margin_V": 0.6295,
+     "z_sigma": 7.1925,
+     "tail_ppm_per_rail_normal": 0.0
+    },
+    "rss_contrib_V": {
+     "vit": 0.1356,
+     "rb": 0.0442,
+     "rt": 0.0442,
+     "iin": 0.00111
+    }
+   }
+  }
+ },
+ "feasibility_Q": {
+  "LM339B + TL431A, halfref 10k/10k": {
+   "neg UV": {
+    "width_V": 0.1232,
+    "slot_V": 0.2111,
+    "slack_per_side_V": 0.0439
+   },
+   "neg OV": {
+    "width_V": 0.1509,
+    "slot_V": 0.3243,
+    "slack_per_side_V": 0.0867
+   },
+   "span UV": {
+    "width_V": 1.1613,
+    "slot_V": 1.075,
+    "slack_per_side_V": -0.0431
+   },
+   "span OV": {
+    "width_V": 1.2839,
+    "slot_V": 0.575,
+    "slack_per_side_V": -0.3545
+   }
+  },
+  "LM339B + TL431B, halfref 10k/10k": {
+   "neg UV": {
+    "width_V": 0.1038,
+    "slot_V": 0.2111,
+    "slack_per_side_V": 0.0536
+   },
+   "neg OV": {
+    "width_V": 0.1276,
+    "slot_V": 0.3243,
+    "slack_per_side_V": 0.0984
+   },
+   "span UV": {
+    "width_V": 0.9942,
+    "slot_V": 1.075,
+    "slack_per_side_V": 0.0404
+   },
+   "span OV": {
+    "width_V": 1.0994,
+    "slot_V": 0.575,
+    "slack_per_side_V": -0.2622
+   }
+  },
+  "LM339B + TL431B, R79 6.2k": {
+   "neg UV": {
+    "width_V": 0.0949,
+    "slot_V": 0.2111,
+    "slack_per_side_V": 0.0581
+   },
+   "neg OV": {
+    "width_V": 0.1174,
+    "slot_V": 0.3243,
+    "slack_per_side_V": 0.1035
+   },
+   "span UV": {
+    "width_V": 0.9395,
+    "slot_V": 1.075,
+    "slack_per_side_V": 0.0677
+   },
+   "span OV": {
+    "width_V": 1.0393,
+    "slot_V": 0.575,
+    "slack_per_side_V": -0.2322
+   }
+  },
+  "LM339B + TL431B, R79 4.42k": {
+   "neg UV": {
+    "width_V": 0.0898,
+    "slot_V": 0.2111,
+    "slack_per_side_V": 0.0606
+   },
+   "neg OV": {
+    "width_V": 0.1117,
+    "slot_V": 0.3243,
+    "slack_per_side_V": 0.1063
+   },
+   "span UV": {
+    "width_V": 0.91,
+    "slot_V": 1.075,
+    "slack_per_side_V": 0.0825
+   },
+   "span OV": {
+    "width_V": 1.0069,
+    "slot_V": 0.575,
+    "slack_per_side_V": -0.216
+   }
+  },
+  "TPS3701 (UV: trip-low to release-high)": {
+   "neg UV": {
+    "width_V": 0.089,
+    "slot_V": 0.2111,
+    "slack_per_side_V": 0.061
+   },
+   "neg OV": {
+    "width_V": 0.0534,
+    "slot_V": 0.3243,
+    "slack_per_side_V": 0.1355
+   },
+   "span UV": {
+    "width_V": 0.8009,
+    "slot_V": 1.075,
+    "slack_per_side_V": 0.1371
+   },
+   "span OV": {
+    "width_V": 0.4522,
+    "slot_V": 0.575,
+    "slack_per_side_V": 0.0614
+   }
+  }
+ },
+ "sensitivity_dt": {
+  "39.3K": {
+   "s43": {
+    "neg UV": {
+     "trip_wc_V": [
+      1.741,
+      1.8567
+     ],
+     "Q_min_V": -0.0133,
+     "H_min_V": 0.1094
+    },
+    "neg OV": {
+     "trip_wc_V": [
+      2.1334,
+      2.2776
+     ],
+     "Q_min_V": 0.0585,
+     "H_min_V": 0.0585
+    },
+    "span UV": {
+     "trip_wc_V": [
+      15.6531,
+      16.7797
+     ],
+     "Q_min_V": -0.2047,
+     "H_min_V": -0.2047
+    },
+    "span OV": {
+     "trip_wc_V": [
+      17.2178,
+      18.4582
+     ],
+     "Q_min_V": -0.4582,
+     "H_min_V": -0.2072
+    }
+   },
+   "option2": {
+    "neg UV": {
+     "trip_wc_V": [
+      1.8101,
+      1.8497
+     ],
+     "release_wc_V": [
+      1.8238,
+      1.8956
+     ],
+     "Q_min_V": 0.0558
+    },
+    "neg OV": {
+     "trip_wc_V": [
+      2.2076,
+      2.257
+     ],
+     "release_wc_V": [
+      2.152,
+      2.2402
+     ],
+     "Q_min_V": 0.1328
+    },
+    "span UV": {
+     "trip_wc_V": [
+      15.6979,
+      16.071
+     ],
+     "release_wc_V": [
+      15.8166,
+      16.4696
+     ],
+     "Q_min_V": 0.1054
+    },
+    "span OV": {
+     "trip_wc_V": [
+      17.5169,
+      17.9244
+     ],
+     "release_wc_V": [
+      17.0756,
+      17.791
+     ],
+     "Q_min_V": 0.0756
+    }
+   }
+  },
+  "60K": {
+   "s43": {
+    "neg UV": {
+     "trip_wc_V": [
+      1.7395,
+      1.8583
+     ],
+     "Q_min_V": -0.0148,
+     "H_min_V": 0.1071
+    },
+    "neg OV": {
+     "trip_wc_V": [
+      2.1313,
+      2.2798
+     ],
+     "Q_min_V": 0.0556,
+     "H_min_V": 0.0556
+    },
+    "span UV": {
+     "trip_wc_V": [
+      15.6299,
+      16.8044
+     ],
+     "Q_min_V": -0.2294,
+     "H_min_V": -0.2294
+    },
+    "span OV": {
+     "trip_wc_V": [
+      17.1923,
+      18.4855
+     ],
+     "Q_min_V": -0.4855,
+     "H_min_V": -0.2327
+    }
+   },
+   "option2": {
+    "neg UV": {
+     "trip_wc_V": [
+      1.8087,
+      1.8512
+     ],
+     "release_wc_V": [
+      1.8223,
+      1.8971
+     ],
+     "Q_min_V": 0.0544
+    },
+    "neg OV": {
+     "trip_wc_V": [
+      2.2057,
+      2.259
+     ],
+     "release_wc_V": [
+      2.1502,
+      2.2422
+     ],
+     "Q_min_V": 0.1301
+    },
+    "span UV": {
+     "trip_wc_V": [
+      15.6821,
+      16.0872
+     ],
+     "release_wc_V": [
+      15.8007,
+      16.4862
+     ],
+     "Q_min_V": 0.0888
+    },
+    "span OV": {
+     "trip_wc_V": [
+      17.4992,
+      17.9425
+     ],
+     "release_wc_V": [
+      17.0584,
+      17.809
+     ],
+     "Q_min_V": 0.0575
+    }
+   }
+  },
+  "100K": {
+   "s43": {
+    "neg UV": {
+     "trip_wc_V": [
+      1.7367,
+      1.8613
+     ],
+     "Q_min_V": -0.0176,
+     "H_min_V": 0.1026
+    },
+    "neg OV": {
+     "trip_wc_V": [
+      2.1273,
+      2.2841
+     ],
+     "Q_min_V": 0.05,
+     "H_min_V": 0.05
+    },
+    "span UV": {
+     "trip_wc_V": [
+      15.5853,
+      16.8522
+     ],
+     "Q_min_V": -0.3037,
+     "H_min_V": -0.3037
+    },
+    "span OV": {
+     "trip_wc_V": [
+      17.143,
+      18.5383
+     ],
+     "Q_min_V": -0.5383,
+     "H_min_V": -0.282
+    }
+   },
+   "option2": {
+    "neg UV": {
+     "trip_wc_V": [
+      1.8058,
+      1.8541
+     ],
+     "release_wc_V": [
+      1.8195,
+      1.9001
+     ],
+     "Q_min_V": 0.0515
+    },
+    "neg OV": {
+     "trip_wc_V": [
+      2.2021,
+      2.2627
+     ],
+     "release_wc_V": [
+      2.1466,
+      2.2458
+     ],
+     "Q_min_V": 0.1248
+    },
+    "span UV": {
+     "trip_wc_V": [
+      15.6516,
+      16.1186
+     ],
+     "release_wc_V": [
+      15.7699,
+      16.5184
+     ],
+     "Q_min_V": 0.0301
+    },
+    "span OV": {
+     "trip_wc_V": [
+      17.465,
+      17.9777
+     ],
+     "release_wc_V": [
+      17.0251,
+      17.8438
+     ],
+     "Q_min_V": 0.0223
+    }
+   }
+  }
+ },
+ "parts": {
+  "TPS3701DDCR": {
+   "lcsc": "C132788",
+   "class": "expand",
+   "jlc_stock": 26599,
+   "usd_at_1500": 0.3457,
+   "usd_at_3000": 0.3457,
+   "fetched": "2026-10-15T21:42:55Z"
+  },
+  "TL431BIDBZR": {
+   "lcsc": "C41283",
+   "class": "expand",
+   "jlc_stock": 182901,
+   "usd_at_1500": 0.0467,
+   "usd_at_3000": 0.0418,
+   "fetched": "2026-10-15T21:42:30Z"
+  },
+  "CC0603KRX7R9BB104": {
+   "lcsc": "C14663",
+   "class": "base",
+   "jlc_stock": 50379091,
+   "usd_at_1500": 0.0113,
+   "usd_at_3000": 0.0113,
+   "fetched": "2026-10-15T21:42:56Z"
+  }
+ }
+}

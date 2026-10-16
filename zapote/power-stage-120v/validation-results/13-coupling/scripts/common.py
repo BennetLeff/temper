@@ -1,19 +1,31 @@
 """Shared loaders for the native-21 coupling audit (validation-results/13-coupling).
 
-Read-only on every input. Inputs (stage 32, tag native21s32, board 2fb346dc...):
-  native-21/frozen/default.net            netlist (components, ato addresses, nets)
-  native-21/layout/parts.json             ref -> ato path, footprint, legacy layout group
-  native-21/placement.json                ato path -> [x, y, rot]
-  native-21/verification/native21s32-all-copper.json.gz   every copper primitive (pads, tracks, vias, zone fills)
-  validation-plan/enclosure-fit/native21-courtyards.json  courtyard boxes from the stage-32 chain (checked against the pads)
-  native-21/layout/domains.py, rules21.py  isolation domain / potential group per net
-History inputs come from the stage tags with `git show TAG:path` (read-only).
+Read-only on every input. Every script takes the same stage options (parsed by init(); unknown options are left to the
+script):
+  --stage TAG   stage to audit (stages.STAGES; default stages.LATEST)
+  --root DIR    power-stage root holding the stage's in-repo inputs (default: the tree these scripts sit in; for an
+                older stage, an export made by export_stage.sh at the stage's root_ref)
+  --out DIR     results directory (default results/ for the latest stage, results-<sNN>/ otherwise)
+  --repo DIR    git checkout used for `git show REF:...` (default: the root's checkout, else stages.REPO)
+  --build DIR   the stage's chain BUILDDIR (default stages.STAGES[TAG]['build'])
+  --b3-dir DIR  directory holding the stage's legacy B3 runs <run>.npz (default 13-coupling/ + stages b3_dir)
+  --b3-primary RUN  sensitivity: use this registered B3 run as the primary heat map (stage 43: c28_h25_p1p0)
+Inputs of a stage TAG under ROOT:
+  native-21/frozen/default.net, default.csv   netlist (components, ato addresses, nets) and BOM
+  native-21/layout/parts.json                 ref -> ato path, footprint, legacy layout group
+  native-21/placement.json                    ato path -> [x, y, rot]
+  native-21/verification/TAG-all-copper.json.gz   every copper primitive (pads, tracks, vias, zone fills)
+  validation-plan/enclosure-fit/native21-courtyards.json  courtyard boxes from the stage's chain (checked against the pads)
+  native-21/layout/domains.py, rules21.py     isolation domain / potential group per net
+History inputs come from the chain's git refs with `git show REF:path` (read-only).
 """
+import argparse
 import gzip
 import hashlib
 import importlib.util
 import json
 import re
+import string
 import subprocess
 import sys
 from collections import defaultdict
@@ -21,16 +33,10 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-OUT = HERE.parent / "results"
-PS = HERE.parents[2]                       # zapote/power-stage-120v
-REPO = PS.parents[1]
-N21 = PS / "native-21"
-VR = PS / "validation-results"
+sys.path.insert(0, str(HERE))
+import stages as STG  # noqa: E402
+
 REL = "zapote/power-stage-120v"
-BOARD_SHA = "2fb346dc8277e4295d8ef88effabdcc71dcd363fcaa93604800ddc2872fbfa4e"
-TAG = "native21s32"
-DUMP = N21 / "verification/native21s32-all-copper.json.gz"
-S32_BUILD = Path("/Users/bennet/Desktop/temper/worktrees/runs-native21/s32/b2")
 LAYERS = ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")
 
 GROUPS = [
@@ -41,6 +47,62 @@ GROUPS = [
 ]
 GIDS = [g for g, _ in GROUPS]
 GNAME = dict(GROUPS)
+
+# set by init()
+STAGE = TAG = N = BOARD_SHA = None
+ST = {}
+PS = REPO = N21 = VR = OUT = BUILD = DUMP = B3RUNS = None
+FMT = {}
+
+
+def init(argv=None):
+    """Parse the stage options (leaving the script's own arguments) and set the module's stage globals."""
+    global STAGE, TAG, N, BOARD_SHA, ST, PS, REPO, N21, VR, OUT, BUILD, DUMP, B3RUNS, FMT
+    ap = argparse.ArgumentParser(add_help=False)
+    ap.add_argument("--stage", default=STG.LATEST)
+    ap.add_argument("--root")
+    ap.add_argument("--out")
+    ap.add_argument("--repo")
+    ap.add_argument("--build")
+    ap.add_argument("--b3-dir")
+    ap.add_argument("--b3-primary")
+    a, rest = ap.parse_known_args(sys.argv[1:] if argv is None else argv)
+    if a.stage not in STG.STAGES:
+        sys.exit(f"unknown stage {a.stage}; known: {sorted(STG.STAGES)}")
+    STAGE = TAG = a.stage
+    ST = dict(STG.STAGES[TAG])
+    if a.b3_primary:            # sensitivity: make another registered B3 run the primary heat map
+        assert a.b3_primary in [r["run"] for r in ST["b3"]], a.b3_primary
+        ST["b3"] = [dict(r, role="primary" if r["run"] == a.b3_primary else "other") for r in ST["b3"]]
+        ST["b3"].sort(key=lambda r: r["role"] != "primary")
+    N = ST["n"]
+    BOARD_SHA = ST["board_sha256"]
+    PS = Path(a.root).resolve() if a.root else HERE.parents[2]           # zapote/power-stage-120v
+    N21 = PS / "native-21"
+    VR = PS / "validation-results"
+    OUT = Path(a.out).resolve() if a.out else HERE.parent / ("results" if TAG == STG.LATEST else f"results-{STG.short(TAG)}")
+    if a.repo:
+        REPO = Path(a.repo)
+    else:
+        top = subprocess.run(["git", "-C", str(PS), "rev-parse", "--show-toplevel"], capture_output=True, text=True)
+        REPO = Path(top.stdout.strip()) if top.returncode == 0 else STG.REPO
+    BUILD = Path(a.build) if a.build else ST["build"]
+    DUMP = N21 / f"verification/{TAG}-all-copper.json.gz"
+    B3RUNS = Path(a.b3_dir).resolve() if a.b3_dir else HERE.parent / ST["b3_dir"]
+    FMT = {"n": N, "tag": TAG, "board8": BOARD_SHA[:8], "build": f"{ST['build'].parent.name}/{ST['build'].name}",
+           "first": "19c", "last": N, "s": STG.short(TAG), "assign": "assign32.py" if N == "32" else "assign.py"}
+    sys.argv = sys.argv[:1] + rest
+    return a
+
+
+def method(doc):
+    """The method text of a script's docstring (everything before 'Controls:'), rendered for the stage ($n, $tag ...)."""
+    return string.Template(doc.split("Controls:")[0].strip()).substitute(FMT)
+
+
+def card(tag=None):
+    """The stage's scorecard (10-benchmark/scorecard-TAG.json under ROOT)."""
+    return json.loads((VR / f"10-benchmark/scorecard-{tag or TAG}.json").read_text())
 
 
 # ------------------------------------------------------------------ output
@@ -140,7 +202,7 @@ def netlist(tag=None):
     return comps, nets
 
 
-# ------------------------------------------------------------------ group assignment (stage 32)
+# ------------------------------------------------------------------ group assignment
 def assign_19c(path, old_group):
     """The stage-19c rule of 11-candidates/scripts/map_groups.py:assign, copied verbatim."""
     if path in ("j_mains", "f1", "rv1", "cx1", "cx2", "rb1a", "rb1b", "l1", "cy1", "cy2", "br1", "j_pe"):
@@ -168,20 +230,40 @@ def assign_19c(path, old_group):
     return None
 
 
-# Stage 20-32 additions. Each rule names why; parts it touches are listed in assignment.json.
+# Stage 20+ additions. Each rule names why and the stage that introduced it; parts it touches are listed in
+# assignment.json. A stage run applies the rules introduced up to its own stage (stages.STAGES[TAG]['rules_upto']).
 VERDICT_PATHS = ("bias_ha.link", "bias_ha.clink1", "bias_ha.clink2", "bias_hb.verdict", "bias_hb.cver1", "bias_hb.cver2")
+HB_LINK_PATHS = ("bias_hb.link", "bias_hb.clink1", "bias_hb.clink2")
+RULES = [   # (rule id, stage introduced, predicate on (path, old_group), group, text)
+    ("R1", 32, lambda p, g: p.startswith("hb."), "G07",
+     "R1 hb.* = stage-30 bias-monitor heartbeat (replaces the bias_common notice stages, DECISIONS 33)"),
+    ("R2", 32, lambda p, g: p in VERDICT_PATHS, "G07",
+     "R2 rail-verdict isolator + its caps (U43 / U44, stage 30): monitoring function, not supply (19c rule would say G06)"),
+    ("R3", 32, lambda p, g: p == "r_blw", "G10",
+     "R3 R130 = F2 blower-tap limiter in series with F2 / J11 (stage 28, DECISIONS 30)"),
+    ("R4", 32, lambda p, g: p in ("r_bf", "c_bf"), "G09",
+     "R4 BUS_FAULT RC R134 / C167 sits at U13.A, the fault OR (stage 30); ambiguous G08 / G09, see electrical vote"),
+    ("R5", 40, lambda p, g: p in HB_LINK_PATHS, "G07",
+     "R5 U44 = ISO6721FB HS-B -> LS verdict link + its caps C159 / C160 (stage 40, DECISIONS 52; renamed from "
+     "bias_hb.verdict / cver*): monitoring function like U43, not supply (19c rule would say G06)"),
+]
 
 
-def assign_32(path, old_group):
-    """-> (group, rule). Stage-19c rule first, with these stage 20-32 rules ahead of it."""
-    if path.startswith("hb."):
-        return "G07", "R1 hb.* = stage-30 bias-monitor heartbeat (replaces the bias_common notice stages, DECISIONS 33)"
-    if path in VERDICT_PATHS:
-        return "G07", "R2 rail-verdict isolator + its caps (U43 / U44, stage 30): monitoring function, not supply (19c rule would say G06)"
-    if path == "r_blw":
-        return "G10", "R3 R130 = F2 blower-tap limiter in series with F2 / J11 (stage 28, DECISIONS 30)"
-    if path in ("r_bf", "c_bf"):
-        return "G09", "R4 BUS_FAULT RC R134 / C167 sits at U13.A, the fault OR (stage 30); ambiguous G08 / G09, see electrical vote"
+def rules_for(upto=None):
+    upto = int(ST["rules_upto"]) if upto is None else upto
+    return [r for r in RULES if r[1] <= upto]
+
+
+def rule_text():
+    rs = rules_for()
+    return f"common.assign_{N}: R1-R{len(rs)} (stage 20-{N}) then the stage-19c map_groups rule (R0)"
+
+
+def assign_stage(path, old_group):
+    """-> (group, rule). The rules introduced up to the audited stage first, then the stage-19c rule."""
+    for rid, _, pred, g, text in rules_for():
+        if pred(path, old_group):
+            return g, text
     g = assign_19c(path, old_group)
     return g, "R0 stage-19c rule (map_groups.assign)"
 
@@ -197,10 +279,10 @@ def placement(tag=None):
 
 
 def assignment(tag=None):
-    """ref -> group for a stage's parts.json (stage-32 rule)."""
+    """ref -> group for a stage's parts.json (the audited stage's rule)."""
     out = {}
     for p in parts(tag):
-        g, _ = assign_32(p["path"], p["group"])
+        g, _ = assign_stage(p["path"], p["group"])
         if g:
             out[p["ref"]] = g
     return out
@@ -236,8 +318,8 @@ def net_class(n):
 
 
 # ------------------------------------------------------------------ geometry
-def dump(path=DUMP):
-    return json.load(gzip.open(path))
+def dump(path=None):
+    return json.load(gzip.open(path or DUMP))
 
 
 def courtyards():
@@ -245,7 +327,7 @@ def courtyards():
 
 
 def pads_board():
-    return json.loads((S32_BUILD / "pads-board.json").read_text())
+    return json.loads((BUILD / "pads-board.json").read_text())
 
 
 def shapely():
@@ -281,3 +363,8 @@ def copper_geoms(d, sg, so, nets=None):
 
 def sha_file(p):
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+
+
+if __name__ == "__main__":          # sh helper: print the resolved results directory for the stage options
+    init()
+    print(OUT)

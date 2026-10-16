@@ -7,7 +7,7 @@ import json
 def main() -> None:
     root = Path(__file__).resolve().parents[2]
     resolved = json.loads((root / 'frozen/resolved-components.json').read_text())
-    assert len(resolved["components"]) == 351   # stage 40: + hb.vote_b (D20), + hb.rgate (R135), + c_ref_xfer_5 (C168, pwm_hb transfer cap in place of the old verdict isolator's SELV decoupler) (candidate 30a; U44 / C159 / C160 become the HS-B link and its caps); stage 38: - ps_selv (PS1, candidate 23); stage 30: -22 / +21 (candidate 24 heartbeat, HS-A link ISO6721FB, HS-B verdict ISO7710F, U9 RC); stage 28: + r_blw (F2 fault-current limiter); stage 22: - Q1 / Q4 PERMIT FETs and R8 / R16 330 ohm (DIS NAND); stage 21: - link_pos / link_neg studs J7-J10 (BR1 feeds the bus); stage 19b: + c_ref_xfer_1..4 (pwm_hb reference-transfer caps C153-C156); stage 16: + f_blw / j_blw_ac (blower-supply tap); stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
+    assert len(resolved["components"]) == 358   # stage 44: + c_ref_xfer_6..12 (C169-C175, SELV return-path transfer caps, candidate 44); stage 40: + hb.vote_b (D20), + hb.rgate (R135), + c_ref_xfer_5 (C168, pwm_hb transfer cap in place of the old verdict isolator's SELV decoupler) (candidate 30a; U44 / C159 / C160 become the HS-B link and its caps); stage 38: - ps_selv (PS1, candidate 23); stage 30: -22 / +21 (candidate 24 heartbeat, HS-A link ISO6721FB, HS-B verdict ISO7710F, U9 RC); stage 28: + r_blw (F2 fault-current limiter); stage 22: - Q1 / Q4 PERMIT FETs and R8 / R16 330 ohm (DIS NAND); stage 21: - link_pos / link_neg studs J7-J10 (BR1 feeds the bus); stage 19b: + c_ref_xfer_1..4 (pwm_hb reference-transfer caps C153-C156); stage 16: + f_blw / j_blw_ac (blower-supply tap); stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
     for filename, expected in resolved['source_sha256'].items():
         assert hashlib.sha256((root / filename).read_bytes()).hexdigest() == expected, filename
     for filename in ('default.csv', 'default.net', 'resolved-components.json',
@@ -36,10 +36,16 @@ def main() -> None:
     assert parts['r_blw']['mpn'] == 'AC05000001507JAC00'   # stage 28: J11 fault-current limiter
     for leg in ('leg_a', 'leg_b'):   # stage 29 (DECISIONS 31): 2EDR8259X drivers with 8.2 ohm gates
         assert parts[f'{leg}.driver']['mpn'] == '2EDR8259XXUMA1'
-        assert parts[f'{leg}.r_gh']['mpn'] == parts[f'{leg}.r_gl']['mpn'] == 'RS-06L8R20FT'
+        # stage 42 (candidate 39, DECISIONS 54): 68 ohm 2512 turn-on resistors and 4.7 nF C0G Cgs
+        assert parts[f'{leg}.r_gh']['mpn'] == parts[f'{leg}.r_gl']['mpn'] == '25121WF680JT4E'
+        assert parts[f'{leg}.r_gh']['footprint'] == parts[f'{leg}.r_gl']['footprint'] == 'Resistor_SMD:R_2512_6332Metric'
+        assert parts[f'{leg}.cgs_h']['mpn'] == parts[f'{leg}.cgs_l']['mpn'] == 'GRM1885C1H472JA01D'
+        # stage 43: the 1 kV snubbers are the ordered YAGEO part (C113872); GRM31A5C3A102JW01D is not a Murata part
+        assert parts[f'{leg}.c_snub_h']['mpn'] == parts[f'{leg}.c_snub_l']['mpn'] == 'CC1206JKNPOCBN102'
+        assert parts[f'{leg}.c_snub_h']['footprint'] == parts[f'{leg}.c_snub_l']['footprint'] == 'Capacitor_SMD:C_1206_3216Metric'
     assert parts['r_shunt']['mpn'] == 'CSS2H-2512R-1L00F' and parts['r_shunt']['footprint'] == 'temper:R_Shunt_Bourns_CSS2H-2512_Kelvin'   # stage 17 (DECISIONS 17)
     assert parts['r_ct_hi_top']['mpn'] == parts['r_ct_lo_bot']['mpn'] == 'RT0603BRD072K21L'
-    assert all(parts[f'c_ref_xfer_{i}']['mpn'] == parts['c_fault_or']['mpn'] == 'CC0603KRX7R9BB104' for i in range(1, 6))   # stage 19b; 5: stage 40
+    assert all(parts[f'c_ref_xfer_{i}']['mpn'] == parts['c_fault_or']['mpn'] == 'CC0603KRX7R9BB104' for i in range(1, 13))   # stage 19b; 5: stage 40; 6-12: stage 44
     for leg in ('leg_a', 'leg_b'):
         assert parts[f'{leg}.c_hs']['mpn'] == 'CC0805KRX7R9BB104' and parts[f'{leg}.c_hs_bulk']['mpn'] == 'GRM21BZ71E106KE15L'
         assert parts[f'{leg}.c_ls']['mpn'] == 'CC0805KRX7R9BB104'
@@ -62,6 +68,20 @@ def main() -> None:
     assert 'bias_or' not in parts and 'r_bias_flt' not in parts and 'c_bias_flt' not in parts
     assert sum(part.get('mpn') == 'CL32B106KBJNNNE' for part in parts.values()) == 24 and not any(part.get('mpn') == 'UMK325AB7106KM-T' for part in parts.values())
     assert parts['r_bf']['mpn'] == '0603WAF1001T5E' and parts['c_bf']['mpn'] == 'CL10C101JB8NNNC'
+    # stage 45 (OPEN-ITEMS S16, DECISIONS 59, option 1c-4420): TL431B reference, halfref 4.42 k / 10 k, re-centred taps
+    # (validation-results/11-candidates/c45-s16-monitor; bands re-derived there from these exports)
+    s45 = {'reference': ('TL431BIDBZR', None), 'rref': ('RC1206FR-072K2L', '2.2kohm'),
+           'rhalf_top': ('RT0603BRD074K42L', '4.42kohm'), 'rhalf_bot': ('RT0603BRD0710KL', '10kohm'),
+           'ruv_top': ('RT0603BRD07750RL', '750ohm'), 'ruv_bot': ('RT0603BRD0710KL', '10kohm'),
+           'rov_top': ('RT0603BRD072K94L', '2.94kohm'), 'rov_bot': ('RT0603BRD0710KL', '10kohm'),
+           'rspanuv_top': ('RT0603BRD0790K9L', '90.9kohm'), 'rspanuv_bot': ('RT0603BRD0711KL', '11kohm'),
+           'rspanov_top': ('RT0603BRD07104KL', '104kohm'), 'rspanov_bot': ('RT0603BRD0711KL', '11kohm')}
+    for base in ('monitor_ls', 'bias_ha.monitor', 'bias_hb.monitor'):
+        for key, (mpn, value) in s45.items():
+            part = parts[f'{base}.{key}']
+            assert part['mpn'] == mpn and part.get('value') == value, (base, key, part)
+            assert part['footprint'] == ('Package_TO_SOT_SMD:SOT-23' if key == 'reference' else
+                                         'Resistor_SMD:R_1206_3216Metric' if key == 'rref' else 'Resistor_SMD:R_0603_1608Metric')
     for base in ('monitor_ls', 'bias_ha', 'bias_hb', 'hb'):
         assert not any(path.startswith(base + '.') and part.get('mpn') == 'VO617A-3X017T' for path, part in parts.items())
     result = {'components': len(parts), 'source_hashes_match': True,

@@ -70,9 +70,12 @@ Do not return any bias recharge or shunt current through the Kelvin island.
 
 Three HOT-powered monitor circuits cover LS, HS-A and HS-B. Each uses an
 LM339B, TL431 reference, and an **ISO7710 reinforced digital isolator** (side 1 from a local TPS70950 5 V on the monitored domain) for the healthy indication. The VO617A phototransistor optocoupler of the first draft was replaced (2026-10-06 review): the HS domains ride the switch node (≈10 V/ns ZVS, up to ≈95 V/ns hard edges), and ISO7710 is specified at 85 kV/µs minimum, 100 typical, CMTI (SLLSER9E p.11). The negative
-window is nominally **−2.198 to −1.799 V**; the total-span window is nominally
-**16.218 to 17.839 V**. The combination supervises the positive rail too
-(approximately +14.02 to +16.04 V at nominal thresholds). It does not claim a
+window is nominally **−2.239 to −1.860 V**; the total-span window is nominally
+**16.028 to 18.089 V**. The combination supervises the positive rail too
+(approximately +13.79 to +16.23 V at nominal thresholds). Stage 45 (OPEN-ITEMS S16,
+DECISIONS 59, option 1c-4420: TL431B, halfref 4.42 k / 10 k, re-centred taps; was
+−2.198 to −1.799 V and 16.218 to 17.839 V; nominal at Vref 2.495 V); worst-case bands in
+`validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md`. It does not claim a
 precise +15 V window independent of negative-rail voltage. Divider/reference
 and comparator errors must be included when measuring enable thresholds.
 

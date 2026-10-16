@@ -7,6 +7,7 @@ real ledger's result; asserts a clean synthetic ledger passes (so the gate can r
 import copy
 import csv
 import json
+import random
 import subprocess
 import sys
 import tempfile
@@ -16,6 +17,7 @@ HERE = Path(__file__).resolve().parent
 LEDGER_DIR = HERE.parent
 GATE = LEDGER_DIR / "gate.py"
 LEDGER = LEDGER_DIR / "ledger.json"
+UNIT_ROOT = LEDGER_DIR.parents[2]
 BOM = LEDGER_DIR.parents[1] / "frozen" / "default.csv"
 FAILS = []
 
@@ -44,11 +46,19 @@ def main():
     base = json.loads(LEDGER.read_text())
     ent = base["entries"]
 
-    # 1. the real ledger: one known VIOLATION since 2026-10-15 (DECISIONS 49: IPW65R018CFD7 reverse-diode dv/dt in S4),
-    # no unaudited SAFETY/POWER line. Update KNOWN_VIOLATIONS when a fix lands or a new finding is recorded.
-    KNOWN_VIOLATIONS = ["IPW65R018CFD7"]
+    # 1. the real ledger: the known VIOLATIONs (now none), no unaudited SAFETY/POWER line. Update KNOWN_VIOLATIONS when a
+    # fix lands or a new finding is recorded. History: DECISIONS 49 IPW65R018CFD7 S4 diode dv/dt (PARTIAL at stage 42,
+    # typical Qrr); 25121WF680JT4E failed the 80 % derating rule at the 22 A c22 point. 2026-10-15 batches A/B merge
+    # (DECISIONS 56 stress basis): thermal ratings are judged at the release case c18_h10 (bay 61 C), electrical ones at
+    # s42's 49.7 V/ns S4 edge, so 25121WF680JT4E, CSS2H, the bank, ISO6721FB and 2EDR8259X all end PARTIAL.
+    KNOWN_VIOLATIONS = []
     rc, out, rep = run(LEDGER)
-    expect("real ledger exits 1 on exactly the known violations", rc == 1 and rep and rep["violations"] == KNOWN_VIOLATIONS,
+    expect("real ledger exits 1 on exactly the known violations (0 when there are none)",
+           rc == (1 if KNOWN_VIOLATIONS else 0) and rep and rep["violations"] == KNOWN_VIOLATIONS,
+           str(rep and (rc, rep["violations"], rep["failures"][:3])))
+    expect("real ledger: the release-case re-evaluations are PARTIAL, not VIOLATION",
+           rep and all(m in rep["partial"] for m in ("25121WF680JT4E", "CSS2H-2512R-1L00F", "B32654A1104J000",
+                                                     "ISO6721FBDR", "2EDR8259XXUMA1")),
            str(rep and rep["violations"]))
     expect("real ledger: no malformed entries", rep and not rep["errors"], str(rep and rep["errors"][:3]))
     # stage 27: J1 is the MKDS 5/2-9,5 (UL group B 30 A); its ratings source keeps it PARTIAL
@@ -131,6 +141,69 @@ def main():
         d["entries"]["0603WAF1002T5E"]["status"] = "VERIFIED"  # invalid on purpose: no datasheet
         rc, out, rep = run(write(td, d), bom=bom)
         expect("VERIFIED without datasheet/ratings is rejected", rc == 1 and any("VERIFIED needs" in e for e in rep["errors"]))
+
+    # 8. keyed margins.json citations: dangling case/item and stale numbers fail; re-sorting the rows still passes
+    margins = UNIT_ROOT / "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json"
+
+    def first_keyed(d):
+        for e in d["entries"].values():
+            for st in e["stresses"]:
+                if isinstance(st.get("evidence"), list):
+                    for c in st["evidence"]:
+                        if isinstance(c, dict) and "est_c" in c:
+                            return c
+        raise SystemExit("no keyed citation with est_c in the ledger")
+
+    with tempfile.TemporaryDirectory() as td:
+        d = copy.deepcopy(base)
+        first_keyed(d)["b3_row"]["case"] = "c99_h10"
+        rc, out, rep = run(write(td, d))
+        expect("keyed citation to a missing case is rejected",
+               rc == 1 and any("no case" in e for e in rep["errors"]), str(rep["errors"][:2]))
+    with tempfile.TemporaryDirectory() as td:
+        d = copy.deepcopy(base)
+        first_keyed(d)["b3_row"]["item"] = "Z99: no such"
+        rc, out, rep = run(write(td, d))
+        expect("keyed citation to a missing item is rejected",
+               rc == 1 and any("dangling keyed" in e for e in rep["errors"]), str(rep["errors"][:2]))
+    with tempfile.TemporaryDirectory() as td:
+        d = copy.deepcopy(base)
+        first_keyed(d)["est_c"] += 0.5
+        rc, out, rep = run(write(td, d))
+        expect("stale cited number is rejected", rc == 1 and any("stale est_c" in e for e in rep["errors"]),
+               str(rep["errors"][:2]))
+    with tempfile.TemporaryDirectory() as td:
+        d = copy.deepcopy(base)
+        first_keyed(d)["est_c"] += 0.04   # inside the file's 0.1 K rounding
+        rc, out, rep = run(write(td, d))
+        expect("number within the file's rounding passes", rc == 0, str(rep["errors"][:2]))
+    with tempfile.TemporaryDirectory() as td:
+        # a shuffled copy of margins.json (cases and rows re-ordered, as a B3 re-run would): same citations still PASS
+        m = json.loads(margins.read_text())
+        rnd = random.Random(7)
+        for rows in m["cases"].values():
+            rnd.shuffle(rows)
+        m["cases"] = dict(reversed(list(m["cases"].items())))
+        mp = Path(td) / "margins.json"
+        mp.write_text(json.dumps(m, indent=1))
+        d = copy.deepcopy(base)
+        n = 0
+        for e in d["entries"].values():
+            for st in e["stresses"]:
+                for c in st["evidence"] if isinstance(st.get("evidence"), list) else []:
+                    if isinstance(c, dict):
+                        c["file"] = str(mp)   # absolute path: root / abs == abs
+                        n += 1
+        rc, out, rep = run(write(td, d))
+        expect(f"re-sorted margins.json ({n} keyed citations) still PASSES", n > 20 and rc == 0, str(rep["errors"][:2]))
+        # and a changed value in the shuffled copy is caught
+        for rows in m["cases"].values():
+            for r in rows:
+                if r["item"].startswith("C40:"):
+                    r["est_c"] += 3
+        mp.write_text(json.dumps(m, indent=1))
+        rc, out, rep = run(write(td, d))
+        expect("re-run with a moved C40 temperature is caught as stale", rc == 1 and any("stale est_c" in e for e in rep["errors"]))
 
     print("\n%d failure(s)" % len(FAILS))
     return 1 if FAILS else 0

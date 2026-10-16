@@ -109,11 +109,12 @@ def compare():
     ctl.check("current partition reproduces electrical.json Q (all nets)", abs(res["current"]["Q_all"] - el["variants"]["all"]["Q_groups"]) < 1e-12)
     for k in sorted(res):
         print(k, {kk: (round(v, 3) if isinstance(v, float) else v) for kk, v in res[k].items() if kk != "sizes"})
-    C.write("regroup.json", {"method": __doc__.split("Controls:")[0].strip(), "partitions": res,
+    C.write("regroup.json", {"method": C.method(__doc__), "partitions": res,
                              "straddlers": {alt: C.load(f"assignment-{alt}.json")["straddlers"] for alt in ALTS},
                              "controls": ctl.rows})
     ctl.finish()
 
 
 if __name__ == "__main__":
+    C.init()
     {"make": make, "compare": compare}[sys.argv[1]]()

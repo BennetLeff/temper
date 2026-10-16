@@ -1,4 +1,7 @@
 > **Committed 2026-10-15 by the integration session (DECISIONS 45).** Moved here from the study's scratch folder.
+
+> **Board note (2026-10-15):** this study was run on the s32 BOM; its §4 pre-order table still names 74650074 and UCC21550. The long-lead logic stands. For the current list use `../../PROTOTYPE-LOT.md` (s43) and `../SNAPSHOT-2026-10-15.csv`.
+
 > Not committed: `downloads/` (vendor PDFs, Octopart pages; untrusted) and `c34-copy/` (its `bank_margin.json` is
 > byte-identical to `11-candidates/c34-bank-margin/results/`, which `run_all.sh` now reads). `run_all.sh` is
 > repo-relative; its offline steps reproduce every committed result byte for byte. The scorecard reads

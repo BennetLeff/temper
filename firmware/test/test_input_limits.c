@@ -1,4 +1,5 @@
 #include "input_limits.h"
+#include "tank_freq.h"
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -19,8 +20,9 @@ static void test_config(void)
     input_limits_cfg_t bad = c; bad.eta_min = 1.2f; assert(!input_limits_config_ok(&bad));
     bad = c; bad.est_error = NAN; assert(!input_limits_config_ok(&bad));
     bad = c; bad.tank_limit_a = 0; assert(!input_limits_config_ok(&bad));
-    /* Stage 15: the ceiling ships at 22 A and may be commissioned up to the 28 A hardware basis. */
-    assert(c.tank_limit_a == 22.0f);
+    /* The ceiling ships at 18 A (power-stage DECISIONS 55: s42 still-air rating 18.3 A at bay 61 C)
+     * and may be commissioned up to the 28 A stage-15 hardware basis. */
+    assert(c.tank_limit_a == 18.0f && c.tank_limit_a == TANK_CEILING_DEFAULT_A);
     input_limits_cfg_t ok = c; ok.tank_limit_a = 28.0f; assert(input_limits_config_ok(&ok));
     bad = c; bad.tank_limit_a = 28.01f; assert(!input_limits_config_ok(&bad));
     bad = c; bad.tank_limit_a = 44.0f; assert(!input_limits_config_ok(&bad));   /* was accepted */
@@ -54,8 +56,8 @@ static void test_tank_ceiling(void)
     input_sample_t s[N]; input_estimate_t e;
     for (int j = 0; j < N; j++) s[j] = (input_sample_t){ 160.0f, 25.0f, 0.9f, 0.0f };
     assert(input_limits_half_cycle(&c, s, N, 120.0f, &e));
-    assert(e.tank_ceiling_w < e.p_inv_w);                                   /* above 22 A: cut */
-    assert(fabsf(e.tank_ceiling_w - e.p_inv_w * (22.0f / 25.0f) * (22.0f / 25.0f)) < 0.01f * e.p_inv_w);
+    assert(e.tank_ceiling_w < e.p_inv_w);                                   /* above 18 A: cut */
+    assert(fabsf(e.tank_ceiling_w - e.p_inv_w * (18.0f / 25.0f) * (18.0f / 25.0f)) < 0.01f * e.p_inv_w);
     for (int j = 0; j < N; j++) s[j].tank_rms_a = 10.0f;
     assert(input_limits_half_cycle(&c, s, N, 120.0f, &e) && e.tank_ceiling_w > e.p_inv_w); /* below: room */
     for (int j = 0; j < N; j++) s[j].tank_rms_a = 0;
@@ -66,9 +68,9 @@ static void test_tank_ceiling(void)
     assert(input_limits_half_cycle(&c28, s, N, 120.0f, &e) && e.tank_ceiling_w > e.p_inv_w);
     assert(fabsf(e.tank_ceiling_w - e.p_inv_w * (28.0f / 25.0f) * (28.0f / 25.0f)) < 0.01f * e.p_inv_w);
     /* The half-cycle RMS is the quantity the binding trips on (1.05 x ceiling, not per sample):
-     * an envelope with a 32 A crest is a 22.6 A half. */
-    half_cycle(s, 170.0f, 32.0f, 0.5f);
-    assert(input_limits_half_cycle(&c, s, N, 120.0f, &e) && fabsf(e.tank_rms_a - 32.0f / sqrtf(2.0f)) < 0.05f);
+     * an envelope with a 26 A crest (above the 18.9 A trip) is an 18.4 A half (below it). */
+    half_cycle(s, 170.0f, 26.0f, 0.5f);
+    assert(input_limits_half_cycle(&c, s, N, 120.0f, &e) && fabsf(e.tank_rms_a - 26.0f / sqrtf(2.0f)) < 0.05f);
     assert(e.tank_rms_a < 1.05f * c.tank_limit_a);
     tests++;
 }

@@ -2,7 +2,12 @@
 """Stage-17 gate G6 (go/no-go): R5 = Bourns CSS2H-2512R-1L00F derating at the 28 A ceiling case on the
 stage-17 board (PLAN-17 section 4, G6).
 
-    python3 g6_r5_derating.py [--tag native21s17] [--control-a4 DIR]   -> g6.json (exit 1 if a control fails)
+    python3 g6_r5_derating.py [--tag native21s17] [--control-a4 DIR] [--copper-tcr A] [--out g6.json]
+                                                                    -> g6.json (exit 1 if a control fails)
+
+Copper temperature (OPEN-ITEMS S17): thermal.py now iterates the A4 copper loss to q20 (1 + alpha (T - 20 C)) at the
+50 C ambient (default alpha = ALPHA_CU 0.00393 /K, hot copper); --copper-tcr 0 is the 20 C copper record (the
+committed s17b g6.json). The solve's copper_temp_model is written into the output.
 
 Solve (committed B3 tool, same command line as ../r5-derating/r5_derating.py): ../b3/thermal.py, c28 case
 (29.4 A tank RMS = 1.05 x the 28 A ceiling, 11.1 A inlet), 0.25 mm mesh, h 25 W/m2K, 50 C ambient, geometry
@@ -58,11 +63,16 @@ def sha(p):
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
+COPPER_TCR = None                 # set from --copper-tcr in main(); None = thermal.py's default (hot copper)
+
+
 def solve(geom, heat, env_a4=None):
     rs = load("run_study", R5N / "b3/run_study.py")
     out = Path(tempfile.mkdtemp()) / "b3_p0p25.json"
     cmd = [sys.executable, str(R5N / "b3/thermal.py"), "--geometry", str(geom), "--case", rs.cases("c28"),
            "--pitch-mm", "0.25", "--h", "25", "--a6-heat", str(heat), "--a6-mode", "nominal", "--output", str(out)]
+    if COPPER_TCR is not None:
+        cmd += ["--copper-tcr", repr(COPPER_TCR)]
     env = dict(os.environ)
     if env_a4:
         env["B3_A4_DIR"] = str(env_a4)
@@ -77,7 +87,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", default="native21s17b")
     ap.add_argument("--control-a4", help="stage-16 A4 outputs dir (*-heat.npz) for solver control B")
+    ap.add_argument("--copper-tcr", type=float, help="copper TCR for thermal.py (default: its ALPHA_CU, hot copper; 0 = 20 C)")
+    ap.add_argument("--out", default=str(HERE / "g6.json"))
     a = ap.parse_args()
+    global COPPER_TCR
+    COPPER_TCR = a.copper_tcr
     scr = load("screen", HERE / "screen.py")
     css = next(c for c in scr.CANDS if c["key"] == "CSS2H-2512R-1L00F")
     m = scr.load_thr()
@@ -101,6 +115,8 @@ def main():
 
     # ---- control B (solver, optional): stage-16 board, stage-16 heat semantics
     ctrl_b = None
+    if a.control_a4 and a.copper_tcr != 0:
+        sys.exit("control B reproduces the committed 20 C copper stage-16 solve: run it with --copper-tcr 0")
     if a.control_a4:
         tmp = Path(tempfile.mkdtemp()) / "heat-c28-stage16-semantics.json"
         h16 = json.loads(heat.read_text())
@@ -179,7 +195,8 @@ def main():
                   "board_sha256": r["board_sha256"], "power_copper_board_sha256": board,
                   "heat_file": str(heat.relative_to(UNIT)), "heat_sha256": sha(heat),
                   "a4_npz_sha256": {p.name: sha(p) for p in sorted((R5N / "outputs").glob("*-pl18-heat.npz"))},
-                  "balance_w": r["balance"]["balance_w"], "board_peak": r["peak"]},
+                  "balance_w": r["balance"]["balance_w"], "board_peak": r["peak"],
+                  "copper_temp_model": r.get("copper_temp_model") or {"model": "cold-20C", "alpha_per_k": 0.0}},
         "r5": {"watts_to_board": q["watts_to_board"], "pad_numbers_heated": r5row["pad_numbers"], "pad_cell_count": q["pad_cell_count"],
                "pad_cell_max_c": round(t_max, 2), "pad_cell_mean_c": round(t_mean, 2),
                "vs_stage16_wsk_pad_max_c": t_wsk},
@@ -198,7 +215,7 @@ def main():
                               "part's own sense point sits", "element-to-terminal thermal resistance (no figure in the datasheet)"],
         "controls": {"A_arithmetic_current_part_fail": ctrl_a, "B_solver_stage16_reproduced": ctrl_b},
     }
-    (HERE / "g6.json").write_text(json.dumps(out, indent=1) + "\n")
+    Path(a.out).write_text(json.dumps(out, indent=1) + "\n")
     print(json.dumps({"verdict": out["verdict"], "criteria": crit, "pad_max_c": round(t_max, 2), "pad_mean_c": round(t_mean, 2),
                       "derated_w": d_auth, "g6_margin_pct": out["g6_margin_pct"], "low_edge_a": round(lo_k, 2),
                       "control_A": ctrl_a["verdict"], "control_B": ctrl_b and ctrl_b["pad_max_c"], "sensitivity": sens}, indent=1))

@@ -19,7 +19,7 @@ import run_study as rs  # noqa: E402
 out = []
 for ceiling in (22.0, 24.0, 26.0, 28.0):
     it = round(1.05 * ceiling, 2)
-    rs.OPS["sweep"] = {"I_t": it, "I_line": 11.1, "parts": "nominal", "heat": "c28"}
+    rs.OPS["sweep"] = {"I_t": it, "I_line": rs.I_LINE_A, "parts": "nominal", "heat": "c28"}
     path = HERE / "outputs" / f"sweep_c{int(ceiling)}_h25_p1p0.json"
     subprocess.run([sys.executable, str(HERE / "thermal.py"), "--geometry", str(rs.GEOM), "--case", rs.cases("sweep"),
                     "--pitch-mm", "1.0", "--h", "25", "--a6-heat", str(rs.HEAT_C28), "--a6-mode", "nominal",
