@@ -1,0 +1,2089 @@
+{
+ "inputs": {
+  "D_kemet_esr": 0.0002145799263918395,
+  "esr_model_control_factor_R76UR2470_35k": 0.9729,
+  "flow": {
+   "v_m_s": 3.07,
+   "bulk_rise_K": 3.7
+  },
+  "release_pads_board": "9afc509b",
+  "pin_span_mm": 65.2,
+  "gap_mm": 0.5
+ },
+ "parts": {
+  "r76ur2470": {
+   "mpn": "R76UR24704030J",
+   "series": "KEMET R76",
+   "C_nF": 47,
+   "tol": 0.05,
+   "w": 11.0,
+   "h": 20.1,
+   "l": 32.0,
+   "lead_mm": 27.5,
+   "I_basis": "curve",
+   "curve": "R76UR2470",
+   "I100k_table_A": 6.1,
+   "ESR100k_mOhm": 17,
+   "Rth_K_W": 31,
+   "dvdt_V_us": 2500,
+   "k0_V2_us": 10000000,
+   "approval": "IEC 60384-16 related; AEC-Q200 not at 27.5 mm; case UL94 V-0 per R76 family",
+   "jlc": {
+    "code": "C3783048",
+    "stock": 0
+   },
+   "dT_v": 20.0,
+   "top_max": 110.0,
+   "VR": 2000,
+   "VRMS": 700,
+   "VC_top": 1375.0,
+   "VC_basis": "2000 V x (1 - 0.0125 x (110 - 85)), p.5",
+   "I35": 4.431,
+   "I40": 4.614,
+   "V35": 428.702
+  },
+  "r76un2470": {
+   "mpn": "R76UN24704040J",
+   "series": "KEMET R76",
+   "C_nF": 47,
+   "tol": 0.05,
+   "w": 10.0,
+   "h": 18.5,
+   "l": 26.5,
+   "lead_mm": 22.5,
+   "I_basis": "esr_model",
+   "I100k_table_A": 6.4,
+   "ESR100k_mOhm": 14,
+   "Rth_K_W": 36,
+   "dvdt_V_us": 4500,
+   "k0_V2_us": 18000000,
+   "approval": "AEC-Q200 (22.5 mm); IEC 60384-16 related",
+   "jlc": {
+    "code": "C3800203",
+    "stock": 0
+   },
+   "dT_v": 20.0,
+   "top_max": 110.0,
+   "VR": 2000,
+   "VRMS": 700,
+   "VC_top": 1375.0,
+   "VC_basis": "2000 V x (1 - 0.0125 x (110 - 85)), p.5",
+   "I35": 4.443,
+   "I40": 4.669,
+   "V35": 429.866
+  },
+  "r76un2390": {
+   "mpn": "R76UN23905050J",
+   "series": "KEMET R76",
+   "C_nF": 39,
+   "tol": 0.05,
+   "w": 8.5,
+   "h": 17.0,
+   "l": 26.5,
+   "lead_mm": 22.5,
+   "I_basis": "esr_model",
+   "I100k_table_A": 5.6,
+   "ESR100k_mOhm": 16.3,
+   "Rth_K_W": 38,
+   "dvdt_V_us": 4500,
+   "k0_V2_us": 18000000,
+   "approval": "AEC-Q200 (22.5 mm)",
+   "jlc": {
+    "code": null,
+    "stock": 0
+   },
+   "dT_v": 20.0,
+   "top_max": 110.0,
+   "VR": 2000,
+   "VRMS": 700,
+   "VC_top": 1375.0,
+   "VC_basis": "2000 V x (1 - 0.0125 x (110 - 85)), p.5",
+   "I35": 3.855,
+   "I40": 4.054,
+   "V35": 449.436
+  },
+  "r76ur2680": {
+   "mpn": "R76UR26804030J",
+   "series": "KEMET R76",
+   "C_nF": 68,
+   "tol": 0.05,
+   "w": 13.0,
+   "h": 22.1,
+   "l": 32.0,
+   "lead_mm": 27.5,
+   "I_basis": "esr_model",
+   "I100k_table_A": 6.5,
+   "ESR100k_mOhm": 16,
+   "Rth_K_W": 29,
+   "dvdt_V_us": 2500,
+   "k0_V2_us": 10000000,
+   "approval": "IEC 60384-16 related; AEC-Q200 not at 27.5 mm",
+   "jlc": {
+    "code": null,
+    "stock": 0
+   },
+   "dT_v": 20.0,
+   "top_max": 110.0,
+   "VR": 2000,
+   "VRMS": 700,
+   "VC_top": 1375.0,
+   "VC_basis": "2000 V x (1 - 0.0125 x (110 - 85)), p.5",
+   "I35": 5.026,
+   "I40": 5.214,
+   "V35": 336.111
+  },
+  "knscha104": {
+   "mpn": "MMK104J3DF1KN208G2",
+   "series": "KNSCHA MMKP82",
+   "C_nF": 100,
+   "tol": 0.05,
+   "w": 11.5,
+   "h": 20.0,
+   "l": 32.0,
+   "lead_mm": 27.5,
+   "I_basis": "fixed",
+   "I35": 6.2,
+   "I40": 6.16,
+   "dT_v": 10.0,
+   "top_max": 105.0,
+   "VRMS": 700,
+   "VC_top": 1500,
+   "dvdt_V_us": 2200,
+   "approval": "case UL94 V-0; no AEC",
+   "jlc": {
+    "code": "C528962",
+    "stock": 4952
+   },
+   "V35": 281.932
+  },
+  "tdk_a2333k": {
+   "mpn": "B32654A2333K000",
+   "series": "TDK B3265x",
+   "C_nF": 33,
+   "tol": 0.1,
+   "w": 13.5,
+   "h": 23.0,
+   "l": 31.5,
+   "lead_mm": 27.5,
+   "I_basis": "tdk_interp",
+   "dT_v": 20.0,
+   "top_max": 100.0,
+   "VR": 2000,
+   "VRMS": 700,
+   "VC_top": 1625.0,
+   "dvdt_V_us": 2300,
+   "approval": "AEC-Q200 per DigiKey; IEC 60384-16; ESTIMATE rating: p.57 2000 V / 27.5 mm chart (c34 digitisation p57B) interpolated in log C between the 22 nF and 47 nF curves; Top 100 C (upper category, DigiKey -55..100 C); VC(100 C) 1625 V ASSUMED 1.25 %/C",
+   "jlc": {
+    "code": null,
+    "stock": 0
+   },
+   "I35": 3.658,
+   "I40": 3.811,
+   "V35": 504.055
+  }
+ },
+ "options": {
+  "O1": {
+   "label": "11 x R76UR2470 (47 nF P27.5)",
+   "items": [
+    [
+     "r76ur2470",
+     11
+    ]
+   ],
+   "C_nom_uF": 0.517,
+   "C_min_uF": 0.4911,
+   "yield_28A": 0.8644,
+   "yield_delta_pts": -2.2,
+   "per_part": {
+    "r76ur2470": {
+     "mpn": "R76UR24704030J",
+     "n": 11,
+     "share": 0.0995,
+     "I_part_28A_A": 2.787,
+     "I35_A": 4.431,
+     "I40_A": 4.614,
+     "I_basis": "curve",
+     "vendor_35k": 0.629,
+     "vendor_40k": 0.604,
+     "tank_A_at_vendor_0.85": 37.84
+    }
+   },
+   "vendor_worst_35k": 0.629,
+   "voltage_rows_worst": {
+    "V 28 A <= 0.8 VR": 0.342,
+    "no-pan <= 0.8 VC(Top)": 0.681,
+    "Vrms <= 0.8 VRMS": 0.463,
+    "F3 R0/R1 <= 0.85 VR": 0.963,
+    "F3 any <= VR": 0.864,
+    "Z0 x top <= VR": 0.777,
+    "dV/dt": 0.134
+   },
+   "voltage_all_pass": true,
+   "fit": {
+    "bodies": 11,
+    "column_body_thickness_mm": 121.0,
+    "columns": [
+     {
+      "n": 6,
+      "pin_span_mm": 57.5,
+      "body_envelope_mm": 68.5
+     },
+     {
+      "n": 5,
+      "pin_span_mm": 46.0,
+      "body_envelope_mm": 57.0
+     }
+    ],
+    "fits_one_column": false,
+    "lead_spacings_mm": [
+     27.5
+    ],
+    "pin_span_needed_one_column_mm": 115.0
+   },
+   "thermal": {
+    "r76ur2470": {
+     "gate_28A": 0.864,
+     "T_op_max_C": 89.4,
+     "gate_pass": true,
+     "worst": {
+      "point": "@55 h15",
+      "position": "interior",
+      "g_board": "lo",
+      "P_W": 0.347,
+      "T_pad_C": 87.2,
+      "T_A_C": 64.3,
+      "dT_K": 13.58,
+      "dT_allowed_K": 18.2,
+      "T_op_C": 77.9,
+      "eff": 0.8636,
+      "gap_u_m_s": null
+     },
+     "gate_gap_28A": 0.83,
+     "release_18.375A_rad": 0.5949,
+     "release_18.375A_norad": 0.7493,
+     "steps": {
+      "18": {
+       "vendor": 0.404,
+       "gate": 0.555,
+       "gate_gap": 0.533,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "20": {
+       "vendor": 0.449,
+       "gate": 0.617,
+       "gate_gap": 0.593,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "22": {
+       "vendor": 0.494,
+       "gate": 0.678,
+       "gate_gap": 0.652,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "24": {
+       "vendor": 0.539,
+       "gate": 0.74,
+       "gate_gap": 0.711,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "26": {
+       "vendor": 0.584,
+       "gate": 0.802,
+       "gate_gap": 0.771,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "28": {
+       "vendor": 0.629,
+       "gate": 0.864,
+       "gate_gap": 0.83,
+       "strict_ok": true,
+       "gap_ok": true
+      }
+     }
+    }
+   },
+   "gate_strict_worst_28A": 0.864,
+   "gate_gap_worst_28A": 0.83,
+   "release_worst_rad": 0.5949,
+   "release_worst_norad": 0.7493,
+   "highest_step_strict": 28.0,
+   "highest_step_gap": 28.0,
+   "stock_ok_20_boards": true,
+   "stock_ok_500_boards": true,
+   "bank_cost_per_board_usd_at_500": 13.24,
+   "cost_src": {
+    "r76ur2470": {
+     "allocation": [
+      [
+       "digikey",
+       998,
+       1.03885
+      ],
+      [
+       "newark",
+       4502,
+       1.24
+      ]
+     ],
+     "mean_unit_usd": 1.2035,
+     "qty": 5500
+    }
+   },
+   "reaches_28A_strict": false
+  },
+  "O2": {
+   "label": "11 x R76UN2470 (47 nF P22.5, AEC)",
+   "items": [
+    [
+     "r76un2470",
+     11
+    ]
+   ],
+   "C_nom_uF": 0.517,
+   "C_min_uF": 0.4911,
+   "yield_28A": 0.8644,
+   "yield_delta_pts": -2.2,
+   "per_part": {
+    "r76un2470": {
+     "mpn": "R76UN24704040J",
+     "n": 11,
+     "share": 0.0995,
+     "I_part_28A_A": 2.787,
+     "I35_A": 4.443,
+     "I40_A": 4.669,
+     "I_basis": "esr_model",
+     "vendor_35k": 0.627,
+     "vendor_40k": 0.597,
+     "tank_A_at_vendor_0.85": 37.95
+    }
+   },
+   "vendor_worst_35k": 0.627,
+   "voltage_rows_worst": {
+    "V 28 A <= 0.8 VR": 0.342,
+    "no-pan <= 0.8 VC(Top)": 0.681,
+    "Vrms <= 0.8 VRMS": 0.463,
+    "F3 R0/R1 <= 0.85 VR": 0.963,
+    "F3 any <= VR": 0.864,
+    "Z0 x top <= VR": 0.777,
+    "dV/dt": 0.074
+   },
+   "voltage_all_pass": true,
+   "fit": {
+    "bodies": 11,
+    "column_body_thickness_mm": 110.0,
+    "columns": [
+     {
+      "n": 7,
+      "pin_span_mm": 63.0,
+      "body_envelope_mm": 73.0
+     },
+     {
+      "n": 4,
+      "pin_span_mm": 31.5,
+      "body_envelope_mm": 41.5
+     }
+    ],
+    "fits_one_column": false,
+    "lead_spacings_mm": [
+     22.5
+    ],
+    "pin_span_needed_one_column_mm": 105.0
+   },
+   "thermal": {
+    "r76un2470": {
+     "gate_28A": 0.827,
+     "T_op_max_C": 89.1,
+     "gate_pass": true,
+     "worst": {
+      "point": "@55 h15",
+      "position": "interior",
+      "g_board": "lo",
+      "P_W": 0.28,
+      "T_pad_C": 87.2,
+      "T_A_C": 65.0,
+      "dT_K": 12.45,
+      "dT_allowed_K": 18.2,
+      "T_op_C": 77.5,
+      "eff": 0.8269,
+      "gap_u_m_s": null
+     },
+     "gate_gap_28A": 0.787,
+     "release_18.375A_rad": 0.5758,
+     "release_18.375A_norad": 0.7116,
+     "steps": {
+      "18": {
+       "vendor": 0.403,
+       "gate": 0.532,
+       "gate_gap": 0.506,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "20": {
+       "vendor": 0.448,
+       "gate": 0.591,
+       "gate_gap": 0.562,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "22": {
+       "vendor": 0.493,
+       "gate": 0.65,
+       "gate_gap": 0.618,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "24": {
+       "vendor": 0.537,
+       "gate": 0.709,
+       "gate_gap": 0.674,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "26": {
+       "vendor": 0.582,
+       "gate": 0.768,
+       "gate_gap": 0.731,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "28": {
+       "vendor": 0.627,
+       "gate": 0.827,
+       "gate_gap": 0.787,
+       "strict_ok": true,
+       "gap_ok": true
+      }
+     }
+    }
+   },
+   "gate_strict_worst_28A": 0.827,
+   "gate_gap_worst_28A": 0.787,
+   "release_worst_rad": 0.5758,
+   "release_worst_norad": 0.7116,
+   "highest_step_strict": 28.0,
+   "highest_step_gap": 28.0,
+   "stock_ok_20_boards": true,
+   "stock_ok_500_boards": false,
+   "bank_cost_per_board_usd_at_500": "stock short",
+   "cost_src": {
+    "r76un2470": {
+     "allocation": [
+      [
+       "digikey",
+       408,
+       0.97783
+      ],
+      [
+       "newark",
+       1709,
+       1.13
+      ]
+     ],
+     "mean_unit_usd": null,
+     "qty": 5500
+    }
+   },
+   "reaches_28A_strict": false
+  },
+  "O3": {
+   "label": "10 x R76UR2470 + 1 x R76UN2390 (39 nF)",
+   "items": [
+    [
+     "r76ur2470",
+     10
+    ],
+    [
+     "r76un2390",
+     1
+    ]
+   ],
+   "C_nom_uF": 0.509,
+   "C_min_uF": 0.4836,
+   "yield_28A": 0.8746,
+   "yield_delta_pts": -1.1,
+   "per_part": {
+    "r76ur2470": {
+     "mpn": "R76UR24704030J",
+     "n": 10,
+     "share": 0.1011,
+     "I_part_28A_A": 2.83,
+     "I35_A": 4.431,
+     "I40_A": 4.614,
+     "I_basis": "curve",
+     "vendor_35k": 0.639,
+     "vendor_40k": 0.613,
+     "tank_A_at_vendor_0.85": 37.26
+    },
+    "r76un2390": {
+     "mpn": "R76UN23905050J",
+     "n": 1,
+     "share": 0.084,
+     "I_part_28A_A": 2.352,
+     "I35_A": 3.855,
+     "I40_A": 4.054,
+     "I_basis": "esr_model",
+     "vendor_35k": 0.61,
+     "vendor_40k": 0.58,
+     "tank_A_at_vendor_0.85": 39.0
+    }
+   },
+   "vendor_worst_35k": 0.639,
+   "voltage_rows_worst": {
+    "V 28 A <= 0.8 VR": 0.347,
+    "no-pan <= 0.8 VC(Top)": 0.692,
+    "Vrms <= 0.8 VRMS": 0.47,
+    "F3 R0/R1 <= 0.85 VR": 0.978,
+    "F3 any <= VR": 0.878,
+    "Z0 x top <= VR": 0.789,
+    "dV/dt": 0.136
+   },
+   "voltage_all_pass": true,
+   "fit": {
+    "bodies": 11,
+    "column_body_thickness_mm": 118.5,
+    "columns": [
+     {
+      "n": 6,
+      "pin_span_mm": 57.5,
+      "body_envelope_mm": 68.5
+     },
+     {
+      "n": 5,
+      "pin_span_mm": 44.75,
+      "body_envelope_mm": 54.5
+     }
+    ],
+    "fits_one_column": false,
+    "lead_spacings_mm": [
+     22.5,
+     27.5
+    ],
+    "pin_span_needed_one_column_mm": 113.8
+   },
+   "thermal": {
+    "r76ur2470": {
+     "gate_28A": 0.877,
+     "T_op_max_C": 89.8,
+     "gate_pass": true,
+     "worst": {
+      "point": "@55 h15",
+      "position": "interior",
+      "g_board": "lo",
+      "P_W": 0.359,
+      "T_pad_C": 87.2,
+      "T_A_C": 64.3,
+      "dT_K": 14.02,
+      "dT_allowed_K": 18.2,
+      "T_op_C": 78.3,
+      "eff": 0.8774,
+      "gap_u_m_s": null
+     },
+     "gate_gap_28A": 0.843,
+     "release_18.375A_rad": 0.6037,
+     "release_18.375A_norad": 0.7601,
+     "steps": {
+      "18": {
+       "vendor": 0.411,
+       "gate": 0.564,
+       "gate_gap": 0.542,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "20": {
+       "vendor": 0.456,
+       "gate": 0.627,
+       "gate_gap": 0.602,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "22": {
+       "vendor": 0.502,
+       "gate": 0.689,
+       "gate_gap": 0.663,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "24": {
+       "vendor": 0.548,
+       "gate": 0.752,
+       "gate_gap": 0.723,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "26": {
+       "vendor": 0.593,
+       "gate": 0.815,
+       "gate_gap": 0.783,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "28": {
+       "vendor": 0.639,
+       "gate": 0.877,
+       "gate_gap": 0.843,
+       "strict_ok": true,
+       "gap_ok": true
+      }
+     }
+    },
+    "r76un2390": {
+     "gate_28A": 0.829,
+     "T_op_max_C": 89.5,
+     "gate_pass": true,
+     "worst": {
+      "point": "@55 h15",
+      "position": "interior",
+      "g_board": "lo",
+      "P_W": 0.24,
+      "T_pad_C": 87.2,
+      "T_A_C": 66.1,
+      "dT_K": 12.5,
+      "dT_allowed_K": 18.2,
+      "T_op_C": 78.6,
+      "eff": 0.8285,
+      "gap_u_m_s": null
+     },
+     "gate_gap_28A": 0.785,
+     "release_18.375A_rad": 0.5681,
+     "release_18.375A_norad": 0.689,
+     "steps": {
+      "18": {
+       "vendor": 0.392,
+       "gate": 0.533,
+       "gate_gap": 0.505,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "20": {
+       "vendor": 0.436,
+       "gate": 0.592,
+       "gate_gap": 0.561,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "22": {
+       "vendor": 0.479,
+       "gate": 0.651,
+       "gate_gap": 0.617,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "24": {
+       "vendor": 0.523,
+       "gate": 0.71,
+       "gate_gap": 0.673,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "26": {
+       "vendor": 0.567,
+       "gate": 0.769,
+       "gate_gap": 0.729,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "28": {
+       "vendor": 0.61,
+       "gate": 0.829,
+       "gate_gap": 0.785,
+       "strict_ok": true,
+       "gap_ok": true
+      }
+     }
+    }
+   },
+   "gate_strict_worst_28A": 0.877,
+   "gate_gap_worst_28A": 0.843,
+   "release_worst_rad": 0.6037,
+   "release_worst_norad": 0.7601,
+   "highest_step_strict": 28.0,
+   "highest_step_gap": 28.0,
+   "stock_ok_20_boards": true,
+   "stock_ok_500_boards": false,
+   "bank_cost_per_board_usd_at_500": "stock short",
+   "cost_src": {
+    "r76ur2470": {
+     "allocation": [
+      [
+       "digikey",
+       998,
+       1.03885
+      ],
+      [
+       "newark",
+       4002,
+       1.24
+      ]
+     ],
+     "mean_unit_usd": 1.1999,
+     "qty": 5000
+    },
+    "r76un2390": {
+     "allocation": [
+      [
+       "newark",
+       46,
+       0.807
+      ],
+      [
+       "digikey",
+       250,
+       1.22
+      ]
+     ],
+     "mean_unit_usd": null,
+     "qty": 500
+    }
+   },
+   "reaches_28A_strict": false
+  },
+  "O4": {
+   "label": "2 x R76UR2470 + 6 x R76UR2680 (68 nF)",
+   "items": [
+    [
+     "r76ur2470",
+     2
+    ],
+    [
+     "r76ur2680",
+     6
+    ]
+   ],
+   "C_nom_uF": 0.502,
+   "C_min_uF": 0.4769,
+   "yield_28A": 0.8835,
+   "yield_delta_pts": -0.3,
+   "per_part": {
+    "r76ur2470": {
+     "mpn": "R76UR24704030J",
+     "n": 2,
+     "share": 0.1025,
+     "I_part_28A_A": 2.869,
+     "I35_A": 4.431,
+     "I40_A": 4.614,
+     "I_basis": "curve",
+     "vendor_35k": 0.648,
+     "vendor_40k": 0.622,
+     "tank_A_at_vendor_0.85": 36.76
+    },
+    "r76ur2680": {
+     "mpn": "R76UR26804030J",
+     "n": 6,
+     "share": 0.1476,
+     "I_part_28A_A": 4.133,
+     "I35_A": 5.026,
+     "I40_A": 5.214,
+     "I_basis": "esr_model",
+     "vendor_35k": 0.822,
+     "vendor_40k": 0.793,
+     "tank_A_at_vendor_0.85": 28.94
+    }
+   },
+   "vendor_worst_35k": 0.822,
+   "voltage_rows_worst": {
+    "V 28 A <= 0.8 VR": 0.352,
+    "no-pan <= 0.8 VC(Top)": 0.702,
+    "Vrms <= 0.8 VRMS": 0.477,
+    "F3 R0/R1 <= 0.85 VR": 0.992,
+    "F3 any <= VR": 0.89,
+    "Z0 x top <= VR": 0.8,
+    "dV/dt": 0.138
+   },
+   "voltage_all_pass": true,
+   "fit": {
+    "bodies": 8,
+    "column_body_thickness_mm": 100.0,
+    "columns": [
+     {
+      "n": 5,
+      "pin_span_mm": 54.0,
+      "body_envelope_mm": 67.0
+     },
+     {
+      "n": 3,
+      "pin_span_mm": 24.0,
+      "body_envelope_mm": 36.0
+     }
+    ],
+    "fits_one_column": false,
+    "lead_spacings_mm": [
+     27.5
+    ],
+    "pin_span_needed_one_column_mm": 91.5
+   },
+   "thermal": {
+    "r76ur2470": {
+     "gate_28A": 0.89,
+     "T_op_max_C": 90.1,
+     "gate_pass": true,
+     "worst": {
+      "point": "@55 h15",
+      "position": "interior",
+      "g_board": "lo",
+      "P_W": 0.369,
+      "T_pad_C": 87.2,
+      "T_A_C": 64.3,
+      "dT_K": 14.41,
+      "dT_allowed_K": 18.2,
+      "T_op_C": 78.7,
+      "eff": 0.8896,
+      "gap_u_m_s": null
+     },
+     "gate_gap_28A": 0.855,
+     "release_18.375A_rad": 0.6109,
+     "release_18.375A_norad": 0.7683,
+     "steps": {
+      "18": {
+       "vendor": 0.416,
+       "gate": 0.572,
+       "gate_gap": 0.55,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "20": {
+       "vendor": 0.463,
+       "gate": 0.635,
+       "gate_gap": 0.611,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "22": {
+       "vendor": 0.509,
+       "gate": 0.699,
+       "gate_gap": 0.672,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "24": {
+       "vendor": 0.555,
+       "gate": 0.762,
+       "gate_gap": 0.733,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "26": {
+       "vendor": 0.601,
+       "gate": 0.826,
+       "gate_gap": 0.794,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "28": {
+       "vendor": 0.648,
+       "gate": 0.89,
+       "gate_gap": 0.855,
+       "strict_ok": true,
+       "gap_ok": true
+      }
+     }
+    },
+    "r76ur2680": {
+     "gate_28A": 1.093,
+     "T_op_max_C": 95.6,
+     "gate_pass": false,
+     "worst": {
+      "point": "@55 h15",
+      "position": "interior",
+      "g_board": "lo",
+      "P_W": 0.668,
+      "T_pad_C": 87.2,
+      "T_A_C": 63.4,
+      "dT_K": 21.76,
+      "dT_allowed_K": 18.2,
+      "T_op_C": 85.1,
+      "eff": 1.0934,
+      "gap_u_m_s": null
+     },
+     "gate_gap_28A": 1.054,
+     "release_18.375A_rad": 0.7477,
+     "release_18.375A_norad": 0.9518,
+     "steps": {
+      "18": {
+       "vendor": 0.529,
+       "gate": 0.703,
+       "gate_gap": 0.678,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "20": {
+       "vendor": 0.587,
+       "gate": 0.781,
+       "gate_gap": 0.753,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "22": {
+       "vendor": 0.646,
+       "gate": 0.859,
+       "gate_gap": 0.828,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "24": {
+       "vendor": 0.705,
+       "gate": 0.937,
+       "gate_gap": 0.904,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "26": {
+       "vendor": 0.764,
+       "gate": 1.015,
+       "gate_gap": 0.979,
+       "strict_ok": false,
+       "gap_ok": true
+      },
+      "28": {
+       "vendor": 0.822,
+       "gate": 1.093,
+       "gate_gap": 1.054,
+       "strict_ok": false,
+       "gap_ok": false
+      }
+     }
+    }
+   },
+   "gate_strict_worst_28A": 1.093,
+   "gate_gap_worst_28A": 1.054,
+   "release_worst_rad": 0.7477,
+   "release_worst_norad": 0.9518,
+   "highest_step_strict": 24.0,
+   "highest_step_gap": 26.0,
+   "stock_ok_20_boards": true,
+   "stock_ok_500_boards": false,
+   "bank_cost_per_board_usd_at_500": "stock short",
+   "cost_src": {
+    "r76ur2470": {
+     "allocation": [
+      [
+       "digikey",
+       998,
+       1.03885
+      ],
+      [
+       "newark",
+       2,
+       1.33
+      ]
+     ],
+     "mean_unit_usd": 1.0394,
+     "qty": 1000
+    },
+    "r76ur2680": {
+     "allocation": [
+      [
+       "newark",
+       602,
+       1.39
+      ]
+     ],
+     "mean_unit_usd": null,
+     "qty": 3000
+    }
+   },
+   "reaches_28A_strict": false
+  },
+  "O5": {
+   "label": "5 x R76UR2470 + 4 x R76UR2680",
+   "items": [
+    [
+     "r76ur2470",
+     5
+    ],
+    [
+     "r76ur2680",
+     4
+    ]
+   ],
+   "C_nom_uF": 0.507,
+   "C_min_uF": 0.4816,
+   "yield_28A": 0.8771,
+   "yield_delta_pts": -0.9,
+   "per_part": {
+    "r76ur2470": {
+     "mpn": "R76UR24704030J",
+     "n": 5,
+     "share": 0.1015,
+     "I_part_28A_A": 2.841,
+     "I35_A": 4.431,
+     "I40_A": 4.614,
+     "I_basis": "curve",
+     "vendor_35k": 0.641,
+     "vendor_40k": 0.616,
+     "tank_A_at_vendor_0.85": 37.12
+    },
+    "r76ur2680": {
+     "mpn": "R76UR26804030J",
+     "n": 4,
+     "share": 0.1462,
+     "I_part_28A_A": 4.093,
+     "I35_A": 5.026,
+     "I40_A": 5.214,
+     "I_basis": "esr_model",
+     "vendor_35k": 0.814,
+     "vendor_40k": 0.785,
+     "tank_A_at_vendor_0.85": 29.23
+    }
+   },
+   "vendor_worst_35k": 0.814,
+   "voltage_rows_worst": {
+    "V 28 A <= 0.8 VR": 0.349,
+    "no-pan <= 0.8 VC(Top)": 0.695,
+    "Vrms <= 0.8 VRMS": 0.472,
+    "F3 R0/R1 <= 0.85 VR": 0.982,
+    "F3 any <= VR": 0.881,
+    "Z0 x top <= VR": 0.792,
+    "dV/dt": 0.136
+   },
+   "voltage_all_pass": true,
+   "fit": {
+    "bodies": 9,
+    "column_body_thickness_mm": 107.0,
+    "columns": [
+     {
+      "n": 6,
+      "pin_span_mm": 64.5,
+      "body_envelope_mm": 76.5
+     },
+     {
+      "n": 3,
+      "pin_span_mm": 23.0,
+      "body_envelope_mm": 34.0
+     }
+    ],
+    "fits_one_column": false,
+    "lead_spacings_mm": [
+     27.5
+    ],
+    "pin_span_needed_one_column_mm": 99.0
+   },
+   "thermal": {
+    "r76ur2470": {
+     "gate_28A": 0.881,
+     "T_op_max_C": 89.8,
+     "gate_pass": true,
+     "worst": {
+      "point": "@55 h15",
+      "position": "interior",
+      "g_board": "lo",
+      "P_W": 0.362,
+      "T_pad_C": 87.2,
+      "T_A_C": 64.3,
+      "dT_K": 14.13,
+      "dT_allowed_K": 18.2,
+      "T_op_C": 78.4,
+      "eff": 0.8809,
+      "gap_u_m_s": null
+     },
+     "gate_gap_28A": 0.847,
+     "release_18.375A_rad": 0.606,
+     "release_18.375A_norad": 0.7628,
+     "steps": {
+      "18": {
+       "vendor": 0.412,
+       "gate": 0.566,
+       "gate_gap": 0.544,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "20": {
+       "vendor": 0.458,
+       "gate": 0.629,
+       "gate_gap": 0.605,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "22": {
+       "vendor": 0.504,
+       "gate": 0.692,
+       "gate_gap": 0.665,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "24": {
+       "vendor": 0.55,
+       "gate": 0.755,
+       "gate_gap": 0.726,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "26": {
+       "vendor": 0.596,
+       "gate": 0.818,
+       "gate_gap": 0.786,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "28": {
+       "vendor": 0.641,
+       "gate": 0.881,
+       "gate_gap": 0.847,
+       "strict_ok": true,
+       "gap_ok": true
+      }
+     }
+    },
+    "r76ur2680": {
+     "gate_28A": 1.083,
+     "T_op_max_C": 95.3,
+     "gate_pass": false,
+     "worst": {
+      "point": "@55 h15",
+      "position": "interior",
+      "g_board": "lo",
+      "P_W": 0.655,
+      "T_pad_C": 87.2,
+      "T_A_C": 63.4,
+      "dT_K": 21.35,
+      "dT_allowed_K": 18.2,
+      "T_op_C": 84.7,
+      "eff": 1.0831,
+      "gap_u_m_s": null
+     },
+     "gate_gap_28A": 1.044,
+     "release_18.375A_rad": 0.742,
+     "release_18.375A_norad": 0.9454,
+     "steps": {
+      "18": {
+       "vendor": 0.524,
+       "gate": 0.696,
+       "gate_gap": 0.671,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "20": {
+       "vendor": 0.582,
+       "gate": 0.774,
+       "gate_gap": 0.746,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "22": {
+       "vendor": 0.64,
+       "gate": 0.851,
+       "gate_gap": 0.82,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "24": {
+       "vendor": 0.698,
+       "gate": 0.928,
+       "gate_gap": 0.895,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "26": {
+       "vendor": 0.756,
+       "gate": 1.006,
+       "gate_gap": 0.97,
+       "strict_ok": false,
+       "gap_ok": true
+      },
+      "28": {
+       "vendor": 0.814,
+       "gate": 1.083,
+       "gate_gap": 1.044,
+       "strict_ok": false,
+       "gap_ok": false
+      }
+     }
+    }
+   },
+   "gate_strict_worst_28A": 1.083,
+   "gate_gap_worst_28A": 1.044,
+   "release_worst_rad": 0.742,
+   "release_worst_norad": 0.9454,
+   "highest_step_strict": 24.0,
+   "highest_step_gap": 26.0,
+   "stock_ok_20_boards": true,
+   "stock_ok_500_boards": false,
+   "bank_cost_per_board_usd_at_500": "stock short",
+   "cost_src": {
+    "r76ur2470": {
+     "allocation": [
+      [
+       "digikey",
+       998,
+       1.03885
+      ],
+      [
+       "newark",
+       1502,
+       1.24
+      ]
+     ],
+     "mean_unit_usd": 1.1597,
+     "qty": 2500
+    },
+    "r76ur2680": {
+     "allocation": [
+      [
+       "newark",
+       602,
+       1.39
+      ]
+     ],
+     "mean_unit_usd": null,
+     "qty": 2000
+    }
+   },
+   "reaches_28A_strict": false
+  },
+  "O6": {
+   "label": "10 x R76UR2470 + 1 x TDK B32654A2333K000 (33 nF K)",
+   "items": [
+    [
+     "r76ur2470",
+     10
+    ],
+    [
+     "tdk_a2333k",
+     1
+    ]
+   ],
+   "C_nom_uF": 0.503,
+   "C_min_uF": 0.4762,
+   "yield_28A": 0.8822,
+   "yield_delta_pts": -0.4,
+   "per_part": {
+    "r76ur2470": {
+     "mpn": "R76UR24704030J",
+     "n": 10,
+     "share": 0.1026,
+     "I_part_28A_A": 2.873,
+     "I35_A": 4.431,
+     "I40_A": 4.614,
+     "I_basis": "curve",
+     "vendor_35k": 0.648,
+     "vendor_40k": 0.623,
+     "tank_A_at_vendor_0.85": 36.7
+    },
+    "tdk_a2333k": {
+     "mpn": "B32654A2333K000",
+     "n": 1,
+     "share": 0.0752,
+     "I_part_28A_A": 2.105,
+     "I35_A": 3.658,
+     "I40_A": 3.811,
+     "I_basis": "tdk_interp",
+     "vendor_35k": 0.576,
+     "vendor_40k": 0.552,
+     "tank_A_at_vendor_0.85": 41.35
+    }
+   },
+   "vendor_worst_35k": 0.648,
+   "voltage_rows_worst": {
+    "V 28 A <= 0.8 VR": 0.353,
+    "no-pan <= 0.8 VC(Top)": 0.703,
+    "Vrms <= 0.8 VRMS": 0.477,
+    "F3 R0/R1 <= 0.85 VR": 0.993,
+    "F3 any <= VR": 0.891,
+    "Z0 x top <= VR": 0.802,
+    "dV/dt": 0.15
+   },
+   "voltage_all_pass": true,
+   "fit": {
+    "bodies": 11,
+    "column_body_thickness_mm": 123.5,
+    "columns": [
+     {
+      "n": 6,
+      "pin_span_mm": 58.75,
+      "body_envelope_mm": 71.0
+     },
+     {
+      "n": 5,
+      "pin_span_mm": 46.0,
+      "body_envelope_mm": 57.0
+     }
+    ],
+    "fits_one_column": false,
+    "lead_spacings_mm": [
+     27.5
+    ],
+    "pin_span_needed_one_column_mm": 116.2
+   },
+   "thermal": {
+    "r76ur2470": {
+     "gate_28A": 0.89,
+     "T_op_max_C": 90.1,
+     "gate_pass": true,
+     "worst": {
+      "point": "@55 h15",
+      "position": "interior",
+      "g_board": "lo",
+      "P_W": 0.369,
+      "T_pad_C": 87.2,
+      "T_A_C": 64.3,
+      "dT_K": 14.43,
+      "dT_allowed_K": 18.2,
+      "T_op_C": 78.7,
+      "eff": 0.8905,
+      "gap_u_m_s": null
+     },
+     "gate_gap_28A": 0.856,
+     "release_18.375A_rad": 0.6121,
+     "release_18.375A_norad": 0.7703,
+     "steps": {
+      "18": {
+       "vendor": 0.417,
+       "gate": 0.572,
+       "gate_gap": 0.55,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "20": {
+       "vendor": 0.463,
+       "gate": 0.636,
+       "gate_gap": 0.611,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "22": {
+       "vendor": 0.509,
+       "gate": 0.7,
+       "gate_gap": 0.672,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "24": {
+       "vendor": 0.556,
+       "gate": 0.763,
+       "gate_gap": 0.734,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "26": {
+       "vendor": 0.602,
+       "gate": 0.827,
+       "gate_gap": 0.795,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "28": {
+       "vendor": 0.648,
+       "gate": 0.89,
+       "gate_gap": 0.856,
+       "strict_ok": true,
+       "gap_ok": true
+      }
+     }
+    },
+    "tdk_a2333k": {
+     "gate_28A": 0.724,
+     "T_op_max_C": 86.5,
+     "gate_pass": true,
+     "worst": {
+      "point": "@61 h20",
+      "position": "interior",
+      "g_board": "lo",
+      "P_W": 0.337,
+      "T_pad_C": 86.7,
+      "T_A_C": 68.1,
+      "dT_K": 10.49,
+      "dT_allowed_K": 20.0,
+      "T_op_C": 78.6,
+      "eff": 0.7241,
+      "gap_u_m_s": null
+     },
+     "gate_gap_28A": 0.699,
+     "release_18.375A_rad": 0.5848,
+     "release_18.375A_norad": 0.7572,
+     "steps": {
+      "18": {
+       "vendor": 0.37,
+       "gate": 0.466,
+       "gate_gap": 0.449,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "20": {
+       "vendor": 0.411,
+       "gate": 0.517,
+       "gate_gap": 0.499,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "22": {
+       "vendor": 0.452,
+       "gate": 0.569,
+       "gate_gap": 0.549,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "24": {
+       "vendor": 0.493,
+       "gate": 0.621,
+       "gate_gap": 0.599,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "26": {
+       "vendor": 0.535,
+       "gate": 0.672,
+       "gate_gap": 0.649,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "28": {
+       "vendor": 0.576,
+       "gate": 0.724,
+       "gate_gap": 0.699,
+       "strict_ok": true,
+       "gap_ok": true
+      }
+     }
+    }
+   },
+   "gate_strict_worst_28A": 0.89,
+   "gate_gap_worst_28A": 0.856,
+   "release_worst_rad": 0.6121,
+   "release_worst_norad": 0.7703,
+   "highest_step_strict": 28.0,
+   "highest_step_gap": 28.0,
+   "stock_ok_20_boards": true,
+   "stock_ok_500_boards": true,
+   "bank_cost_per_board_usd_at_500": 13.6,
+   "cost_src": {
+    "r76ur2470": {
+     "allocation": [
+      [
+       "digikey",
+       998,
+       1.03885
+      ],
+      [
+       "newark",
+       4002,
+       1.24
+      ]
+     ],
+     "mean_unit_usd": 1.1999,
+     "qty": 5000
+    },
+    "tdk_a2333k": {
+     "allocation": [
+      [
+       "digikey",
+       500,
+       1.60396
+      ]
+     ],
+     "mean_unit_usd": 1.604,
+     "qty": 500
+    }
+   },
+   "reaches_28A_strict": false
+  },
+  "R1": {
+   "label": "ref: 5 x KNSCHA 104 (s51 as built)",
+   "items": [
+    [
+     "knscha104",
+     5
+    ]
+   ],
+   "C_nom_uF": 0.5,
+   "C_min_uF": 0.475,
+   "yield_28A": 0.886,
+   "yield_delta_pts": 0.0,
+   "per_part": {
+    "knscha104": {
+     "mpn": "MMK104J3DF1KN208G2",
+     "n": 5,
+     "share": 0.2165,
+     "I_part_28A_A": 6.062,
+     "I35_A": 6.2,
+     "I40_A": 6.16,
+     "I_basis": "fixed",
+     "vendor_35k": 0.978,
+     "vendor_40k": 0.984,
+     "tank_A_at_vendor_0.85": 24.34
+    }
+   },
+   "vendor_worst_35k": 0.978,
+   "voltage_rows_worst": {
+    "V 28 A <= 0.8 VR": 0.354,
+    "no-pan <= 0.8 VC(Top)": 0.646,
+    "Vrms <= 0.8 VRMS": 0.479,
+    "F3 R0/R1 <= 0.85 VR": 0.996,
+    "F3 any <= VR": 0.893,
+    "Z0 x top <= VR": 0.804,
+    "dV/dt": 0.157
+   },
+   "voltage_all_pass": true,
+   "fit": {
+    "bodies": 5,
+    "column_body_thickness_mm": 57.5,
+    "columns": [
+     {
+      "n": 5,
+      "pin_span_mm": 48.0,
+      "body_envelope_mm": 59.5
+     }
+    ],
+    "fits_one_column": true,
+    "lead_spacings_mm": [
+     27.5
+    ],
+    "pin_span_needed_one_column_mm": 48.0
+   },
+   "thermal": {
+    "knscha104": {
+     "gate_28A": 1.221,
+     "T_op_max_C": 90.8,
+     "gate_pass": false,
+     "worst": {
+      "point": "@61 h20",
+      "position": "interior",
+      "g_board": "lo",
+      "P_W": 0.393,
+      "T_pad_C": 86.7,
+      "T_A_C": 68.9,
+      "dT_K": 14.91,
+      "dT_allowed_K": 10.0,
+      "T_op_C": 83.8,
+      "eff": 1.2209,
+      "gap_u_m_s": null
+     },
+     "gate_gap_28A": 1.177,
+     "release_18.375A_rad": 0.9566,
+     "release_18.375A_norad": 1.2063,
+     "steps": {
+      "18": {
+       "vendor": 0.629,
+       "gate": 0.785,
+       "gate_gap": 0.756,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "20": {
+       "vendor": 0.698,
+       "gate": 0.872,
+       "gate_gap": 0.841,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "22": {
+       "vendor": 0.768,
+       "gate": 0.959,
+       "gate_gap": 0.925,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "24": {
+       "vendor": 0.838,
+       "gate": 1.046,
+       "gate_gap": 1.009,
+       "strict_ok": false,
+       "gap_ok": false
+      },
+      "26": {
+       "vendor": 0.908,
+       "gate": 1.134,
+       "gate_gap": 1.093,
+       "strict_ok": false,
+       "gap_ok": false
+      },
+      "28": {
+       "vendor": 0.978,
+       "gate": 1.221,
+       "gate_gap": 1.177,
+       "strict_ok": false,
+       "gap_ok": false
+      }
+     }
+    }
+   },
+   "gate_strict_worst_28A": 1.221,
+   "gate_gap_worst_28A": 1.177,
+   "release_worst_rad": 0.9566,
+   "release_worst_norad": 1.2063,
+   "highest_step_strict": 22.0,
+   "highest_step_gap": 22.0,
+   "stock_ok_20_boards": true,
+   "stock_ok_500_boards": true,
+   "bank_cost_per_board_usd_at_500": 1.52,
+   "cost_src": {
+    "knscha104": {
+     "allocation": [
+      [
+       "jlc",
+       2500,
+       0.3035
+      ]
+     ],
+     "mean_unit_usd": 0.3035,
+     "qty": 2500
+    }
+   },
+   "reaches_28A_strict": false
+  },
+  "R2": {
+   "label": "ref: 10 x R76UR2470 (0.47 uF)",
+   "items": [
+    [
+     "r76ur2470",
+     10
+    ]
+   ],
+   "C_nom_uF": 0.47,
+   "C_min_uF": 0.4465,
+   "yield_28A": 0.9028,
+   "yield_delta_pts": 1.7,
+   "per_part": {
+    "r76ur2470": {
+     "mpn": "R76UR24704030J",
+     "n": 10,
+     "share": 0.1094,
+     "I_part_28A_A": 3.062,
+     "I35_A": 4.431,
+     "I40_A": 4.614,
+     "I_basis": "curve",
+     "vendor_35k": 0.691,
+     "vendor_40k": 0.664,
+     "tank_A_at_vendor_0.85": 34.44
+    }
+   },
+   "vendor_worst_35k": 0.691,
+   "voltage_rows_worst": {
+    "V 28 A <= 0.8 VR": 0.376,
+    "no-pan <= 0.8 VC(Top)": 0.75,
+    "Vrms <= 0.8 VRMS": 0.509,
+    "F3 R0/R1 <= 0.85 VR": 1.06,
+    "F3 any <= VR": 0.95,
+    "Z0 x top <= VR": 0.855,
+    "dV/dt": 0.147
+   },
+   "voltage_all_pass": false,
+   "fit": {
+    "bodies": 10,
+    "column_body_thickness_mm": 110.0,
+    "columns": [
+     {
+      "n": 6,
+      "pin_span_mm": 57.5,
+      "body_envelope_mm": 68.5
+     },
+     {
+      "n": 4,
+      "pin_span_mm": 34.5,
+      "body_envelope_mm": 45.5
+     }
+    ],
+    "fits_one_column": false,
+    "lead_spacings_mm": [
+     27.5
+    ],
+    "pin_span_needed_one_column_mm": 103.5
+   },
+   "thermal": {
+    "r76ur2470": {
+     "gate_28A": 0.95,
+     "T_op_max_C": 91.6,
+     "gate_pass": true,
+     "worst": {
+      "point": "@55 h15",
+      "position": "interior",
+      "g_board": "lo",
+      "P_W": 0.42,
+      "T_pad_C": 87.2,
+      "T_A_C": 64.3,
+      "dT_K": 16.41,
+      "dT_allowed_K": 18.2,
+      "T_op_C": 80.7,
+      "eff": 0.9495,
+      "gap_u_m_s": null
+     },
+     "gate_gap_28A": 0.912,
+     "release_18.375A_rad": 0.6495,
+     "release_18.375A_norad": 0.8161,
+     "steps": {
+      "18": {
+       "vendor": 0.444,
+       "gate": 0.61,
+       "gate_gap": 0.587,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "20": {
+       "vendor": 0.494,
+       "gate": 0.678,
+       "gate_gap": 0.652,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "22": {
+       "vendor": 0.543,
+       "gate": 0.746,
+       "gate_gap": 0.717,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "24": {
+       "vendor": 0.593,
+       "gate": 0.814,
+       "gate_gap": 0.782,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "26": {
+       "vendor": 0.642,
+       "gate": 0.882,
+       "gate_gap": 0.847,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "28": {
+       "vendor": 0.691,
+       "gate": 0.95,
+       "gate_gap": 0.912,
+       "strict_ok": true,
+       "gap_ok": true
+      }
+     }
+    }
+   },
+   "gate_strict_worst_28A": 0.95,
+   "gate_gap_worst_28A": 0.912,
+   "release_worst_rad": 0.6495,
+   "release_worst_norad": 0.8161,
+   "highest_step_strict": 28.0,
+   "highest_step_gap": 28.0,
+   "stock_ok_20_boards": true,
+   "stock_ok_500_boards": true,
+   "bank_cost_per_board_usd_at_500": 12.0,
+   "cost_src": {
+    "r76ur2470": {
+     "allocation": [
+      [
+       "digikey",
+       998,
+       1.03885
+      ],
+      [
+       "newark",
+       4002,
+       1.24
+      ]
+     ],
+     "mean_unit_usd": 1.1999,
+     "qty": 5000
+    }
+   },
+   "reaches_28A_strict": false
+  },
+  "R3": {
+   "label": "ref: 7 x R76UR2680 (0.476 uF)",
+   "items": [
+    [
+     "r76ur2680",
+     7
+    ]
+   ],
+   "C_nom_uF": 0.476,
+   "C_min_uF": 0.4522,
+   "yield_28A": 0.8994,
+   "yield_delta_pts": 1.3,
+   "per_part": {
+    "r76ur2680": {
+     "mpn": "R76UR26804030J",
+     "n": 7,
+     "share": 0.1556,
+     "I_part_28A_A": 4.356,
+     "I35_A": 5.026,
+     "I40_A": 5.214,
+     "I_basis": "esr_model",
+     "vendor_35k": 0.867,
+     "vendor_40k": 0.835,
+     "tank_A_at_vendor_0.85": 27.46
+    }
+   },
+   "vendor_worst_35k": 0.867,
+   "voltage_rows_worst": {
+    "V 28 A <= 0.8 VR": 0.372,
+    "no-pan <= 0.8 VC(Top)": 0.74,
+    "Vrms <= 0.8 VRMS": 0.503,
+    "F3 R0/R1 <= 0.85 VR": 1.046,
+    "F3 any <= VR": 0.938,
+    "Z0 x top <= VR": 0.844,
+    "dV/dt": 0.145
+   },
+   "voltage_all_pass": false,
+   "fit": {
+    "bodies": 7,
+    "column_body_thickness_mm": 91.0,
+    "columns": [
+     {
+      "n": 5,
+      "pin_span_mm": 54.0,
+      "body_envelope_mm": 67.0
+     },
+     {
+      "n": 2,
+      "pin_span_mm": 13.5,
+      "body_envelope_mm": 26.5
+     }
+    ],
+    "fits_one_column": false,
+    "lead_spacings_mm": [
+     27.5
+    ],
+    "pin_span_needed_one_column_mm": 81.0
+   },
+   "thermal": {
+    "r76ur2680": {
+     "gate_28A": 1.153,
+     "T_op_max_C": 97.6,
+     "gate_pass": false,
+     "worst": {
+      "point": "@55 h15",
+      "position": "interior",
+      "g_board": "lo",
+      "P_W": 0.742,
+      "T_pad_C": 87.2,
+      "T_A_C": 63.4,
+      "dT_K": 24.19,
+      "dT_allowed_K": 18.2,
+      "T_op_C": 87.5,
+      "eff": 1.1527,
+      "gap_u_m_s": null
+     },
+     "gate_gap_28A": 1.111,
+     "release_18.375A_rad": 0.7845,
+     "release_18.375A_norad": 0.9972,
+     "steps": {
+      "18": {
+       "vendor": 0.557,
+       "gate": 0.741,
+       "gate_gap": 0.714,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "20": {
+       "vendor": 0.619,
+       "gate": 0.823,
+       "gate_gap": 0.794,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "22": {
+       "vendor": 0.681,
+       "gate": 0.906,
+       "gate_gap": 0.873,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "24": {
+       "vendor": 0.743,
+       "gate": 0.988,
+       "gate_gap": 0.953,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "26": {
+       "vendor": 0.805,
+       "gate": 1.07,
+       "gate_gap": 1.032,
+       "strict_ok": false,
+       "gap_ok": false
+      },
+      "28": {
+       "vendor": 0.867,
+       "gate": 1.153,
+       "gate_gap": 1.111,
+       "strict_ok": false,
+       "gap_ok": false
+      }
+     }
+    }
+   },
+   "gate_strict_worst_28A": 1.153,
+   "gate_gap_worst_28A": 1.111,
+   "release_worst_rad": 0.7845,
+   "release_worst_norad": 0.9972,
+   "highest_step_strict": 24.0,
+   "highest_step_gap": 24.0,
+   "stock_ok_20_boards": true,
+   "stock_ok_500_boards": false,
+   "bank_cost_per_board_usd_at_500": "stock short",
+   "cost_src": {
+    "r76ur2680": {
+     "allocation": [
+      [
+       "newark",
+       602,
+       1.39
+      ]
+     ],
+     "mean_unit_usd": null,
+     "qty": 3500
+    }
+   },
+   "reaches_28A_strict": false
+  },
+  "R4": {
+   "label": "ref: 8 x R76UR2680 (0.544 uF)",
+   "items": [
+    [
+     "r76ur2680",
+     8
+    ]
+   ],
+   "C_nom_uF": 0.544,
+   "C_min_uF": 0.5168,
+   "yield_28A": 0.8301,
+   "yield_delta_pts": -5.6,
+   "per_part": {
+    "r76ur2680": {
+     "mpn": "R76UR26804030J",
+     "n": 8,
+     "share": 0.1364,
+     "I_part_28A_A": 3.818,
+     "I35_A": 5.026,
+     "I40_A": 5.214,
+     "I_basis": "esr_model",
+     "vendor_35k": 0.76,
+     "vendor_40k": 0.732,
+     "tank_A_at_vendor_0.85": 31.33
+    }
+   },
+   "vendor_worst_35k": 0.76,
+   "voltage_rows_worst": {
+    "V 28 A <= 0.8 VR": 0.325,
+    "no-pan <= 0.8 VC(Top)": 0.648,
+    "Vrms <= 0.8 VRMS": 0.44,
+    "F3 R0/R1 <= 0.85 VR": 0.915,
+    "F3 any <= VR": 0.821,
+    "Z0 x top <= VR": 0.739,
+    "dV/dt": 0.127
+   },
+   "voltage_all_pass": true,
+   "fit": {
+    "bodies": 8,
+    "column_body_thickness_mm": 104.0,
+    "columns": [
+     {
+      "n": 5,
+      "pin_span_mm": 54.0,
+      "body_envelope_mm": 67.0
+     },
+     {
+      "n": 3,
+      "pin_span_mm": 27.0,
+      "body_envelope_mm": 40.0
+     }
+    ],
+    "fits_one_column": false,
+    "lead_spacings_mm": [
+     27.5
+    ],
+    "pin_span_needed_one_column_mm": 94.5
+   },
+   "thermal": {
+    "r76ur2680": {
+     "gate_28A": 1.01,
+     "T_op_max_C": 93.1,
+     "gate_pass": false,
+     "worst": {
+      "point": "@55 h15",
+      "position": "interior",
+      "g_board": "lo",
+      "P_W": 0.57,
+      "T_pad_C": 87.2,
+      "T_A_C": 63.4,
+      "dT_K": 18.59,
+      "dT_allowed_K": 18.2,
+      "T_op_C": 81.9,
+      "eff": 1.0105,
+      "gap_u_m_s": null
+     },
+     "gate_gap_28A": 0.974,
+     "release_18.375A_rad": 0.6957,
+     "release_18.375A_norad": 0.8875,
+     "steps": {
+      "18": {
+       "vendor": 0.488,
+       "gate": 0.65,
+       "gate_gap": 0.626,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "20": {
+       "vendor": 0.543,
+       "gate": 0.722,
+       "gate_gap": 0.696,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "22": {
+       "vendor": 0.597,
+       "gate": 0.794,
+       "gate_gap": 0.765,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "24": {
+       "vendor": 0.651,
+       "gate": 0.866,
+       "gate_gap": 0.835,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "26": {
+       "vendor": 0.706,
+       "gate": 0.938,
+       "gate_gap": 0.905,
+       "strict_ok": true,
+       "gap_ok": true
+      },
+      "28": {
+       "vendor": 0.76,
+       "gate": 1.01,
+       "gate_gap": 0.974,
+       "strict_ok": false,
+       "gap_ok": true
+      }
+     }
+    }
+   },
+   "gate_strict_worst_28A": 1.01,
+   "gate_gap_worst_28A": 0.974,
+   "release_worst_rad": 0.6957,
+   "release_worst_norad": 0.8875,
+   "highest_step_strict": 26.0,
+   "highest_step_gap": 28.0,
+   "stock_ok_20_boards": true,
+   "stock_ok_500_boards": false,
+   "bank_cost_per_board_usd_at_500": "stock short",
+   "cost_src": {
+    "r76ur2680": {
+     "allocation": [
+      [
+       "newark",
+       602,
+       1.39
+      ]
+     ],
+     "mean_unit_usd": null,
+     "qty": 4000
+    }
+   },
+   "reaches_28A_strict": false
+  }
+ },
+ "controls": {
+  "knscha_gate": [
+   1.221,
+   1.221
+  ],
+  "esr_factor": 0.9729,
+  "failed": []
+ }
+}

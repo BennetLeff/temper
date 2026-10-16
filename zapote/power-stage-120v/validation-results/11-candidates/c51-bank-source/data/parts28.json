@@ -1,0 +1,460 @@
+{
+ "_about": "Per-part inputs for scripts/options28.py (28 A options at ~0.50 uF). KEMET rows: F3034_R76 3/21/2025 (dl/KEM_F3034_R76, sha256 c45e4c7f...), 2000 VDC / 700 VAC table rows p.21-22 (T x H x L, lead spacing, dV/dt, ESR max 100 kHz, Irms max 100 kHz at 85 C (dT ~20 K hot spot), Rth); p.5 rated temperature 85 C, 1.25 %/C VR derating 85-110 C, 55/110/56; p.6 dT_lim vs Th (40 K to Th 60 C, 0 K at 110 C); p.1 AEC-Q200 up to 22.5 mm lead spacing. 'curve' = the c34 digitisation of the p.8 2000 V chart (c34-bank-margin/results/kemet_r76_curves.json, read-only from PS); 'esr_model' = ESTIMATE (c34 ESR(f) model, D fitted to the plotted 0.1 uF curve, then scaled by the 47 nF control factor).",
+ "parts": {
+  "r76ur2470": {
+   "mpn": "R76UR24704030J",
+   "series": "KEMET R76",
+   "C_nF": 47,
+   "tol": 0.05,
+   "w": 11.0,
+   "h": 20.1,
+   "l": 32.0,
+   "lead_mm": 27.5,
+   "I_basis": "curve",
+   "curve": "R76UR2470",
+   "I100k_table_A": 6.1,
+   "ESR100k_mOhm": 17,
+   "Rth_K_W": 31,
+   "dvdt_V_us": 2500,
+   "k0_V2_us": 10000000,
+   "approval": "IEC 60384-16 related; AEC-Q200 not at 27.5 mm; case UL94 V-0 per R76 family",
+   "jlc": {
+    "code": "C3783048",
+    "stock": 0
+   }
+  },
+  "r76un2470": {
+   "mpn": "R76UN24704040J",
+   "series": "KEMET R76",
+   "C_nF": 47,
+   "tol": 0.05,
+   "w": 10.0,
+   "h": 18.5,
+   "l": 26.5,
+   "lead_mm": 22.5,
+   "I_basis": "esr_model",
+   "I100k_table_A": 6.4,
+   "ESR100k_mOhm": 14,
+   "Rth_K_W": 36,
+   "dvdt_V_us": 4500,
+   "k0_V2_us": 18000000,
+   "approval": "AEC-Q200 (22.5 mm); IEC 60384-16 related",
+   "jlc": {
+    "code": "C3800203",
+    "stock": 0
+   }
+  },
+  "r76un2390": {
+   "mpn": "R76UN23905050J",
+   "series": "KEMET R76",
+   "C_nF": 39,
+   "tol": 0.05,
+   "w": 8.5,
+   "h": 17.0,
+   "l": 26.5,
+   "lead_mm": 22.5,
+   "I_basis": "esr_model",
+   "I100k_table_A": 5.6,
+   "ESR100k_mOhm": 16.3,
+   "Rth_K_W": 38,
+   "dvdt_V_us": 4500,
+   "k0_V2_us": 18000000,
+   "approval": "AEC-Q200 (22.5 mm)",
+   "jlc": {
+    "code": null,
+    "stock": 0
+   }
+  },
+  "r76ur2680": {
+   "mpn": "R76UR26804030J",
+   "series": "KEMET R76",
+   "C_nF": 68,
+   "tol": 0.05,
+   "w": 13.0,
+   "h": 22.1,
+   "l": 32.0,
+   "lead_mm": 27.5,
+   "I_basis": "esr_model",
+   "I100k_table_A": 6.5,
+   "ESR100k_mOhm": 16,
+   "Rth_K_W": 29,
+   "dvdt_V_us": 2500,
+   "k0_V2_us": 10000000,
+   "approval": "IEC 60384-16 related; AEC-Q200 not at 27.5 mm",
+   "jlc": {
+    "code": null,
+    "stock": 0
+   }
+  },
+  "knscha104": {
+   "mpn": "MMK104J3DF1KN208G2",
+   "series": "KNSCHA MMKP82",
+   "C_nF": 100,
+   "tol": 0.05,
+   "w": 11.5,
+   "h": 20.0,
+   "l": 32.0,
+   "lead_mm": 27.5,
+   "I_basis": "fixed",
+   "I35": 6.2,
+   "I40": 6.16,
+   "dT_v": 10.0,
+   "rule": {
+    "type": "knscha"
+   },
+   "top_max": 105.0,
+   "VRMS": 700,
+   "VC_top": 1500,
+   "dvdt_V_us": 2200,
+   "approval": "case UL94 V-0; no AEC",
+   "jlc": {
+    "code": "C528962",
+    "stock": 4952
+   }
+  },
+  "tdk_a2333k": {
+   "mpn": "B32654A2333K000",
+   "series": "TDK B3265x",
+   "C_nF": 33,
+   "tol": 0.1,
+   "w": 13.5,
+   "h": 23.0,
+   "l": 31.5,
+   "lead_mm": 27.5,
+   "I_basis": "tdk_interp",
+   "dT_v": 20.0,
+   "rule": {
+    "type": "tdk",
+    "end": 110.0,
+    "span": 25.0
+   },
+   "top_max": 100.0,
+   "VR": 2000,
+   "VRMS": 700,
+   "VC_top": 1625.0,
+   "dvdt_V_us": 2300,
+   "approval": "AEC-Q200 per DigiKey; IEC 60384-16; ESTIMATE rating: p.57 2000 V / 27.5 mm chart (c34 digitisation p57B) interpolated in log C between the 22 nF and 47 nF curves; Top 100 C (upper category, DigiKey -55..100 C); VC(100 C) 1625 V ASSUMED 1.25 %/C",
+   "jlc": {
+    "code": null,
+    "stock": 0
+   }
+  }
+ },
+ "kemet_common": {
+  "dT_v": 20.0,
+  "rule": {
+   "type": "kemet",
+   "dTlim_vs_Th": [
+    [
+     60,
+     40
+    ],
+    [
+     110,
+     0
+    ]
+   ]
+  },
+  "top_max": 110.0,
+  "VR": 2000,
+  "VRMS": 700,
+  "VC_top": 1375.0,
+  "VC_basis": "2000 V x (1 - 0.0125 x (110 - 85)), p.5"
+ },
+ "stock": {
+  "_read": "DigiKey 2026-10-16 ~19:58-20:05Z (snapshots/digikey-2026-10-16b.json; R76UR2680 from snapshots/digikey-2026-10-16.json 18:05-18:35Z); Newark via findchips 2026-10-16T19:54Z (snapshots/findchips.json); JLC part API 2026-10-16 (snapshots/jlc-raw).",
+  "R76UR24704030J": {
+   "digikey": 998,
+   "newark": 9008,
+   "jlc": 0,
+   "ladders": {
+    "digikey": [
+     [
+      1,
+      2.35
+     ],
+     [
+      10,
+      1.605
+     ],
+     [
+      50,
+      1.3076
+     ],
+     [
+      336,
+      1.09256
+     ],
+     [
+      672,
+      1.03885
+     ],
+     [
+      1008,
+      1.01194
+     ],
+     [
+      2688,
+      0.95821
+     ],
+     [
+      5040,
+      0.93077
+     ]
+    ],
+    "newark": [
+     [
+      1,
+      2.67
+     ],
+     [
+      10,
+      2.15
+     ],
+     [
+      25,
+      1.99
+     ],
+     [
+      50,
+      1.83
+     ],
+     [
+      100,
+      1.65
+     ],
+     [
+      500,
+      1.48
+     ],
+     [
+      1000,
+      1.33
+     ],
+     [
+      2500,
+      1.24
+     ]
+    ]
+   }
+  },
+  "R76UN24704040J": {
+   "digikey": 408,
+   "newark": 1709,
+   "jlc": 0,
+   "ladders": {
+    "digikey": [
+     [
+      1,
+      2.13
+     ],
+     [
+      10,
+      1.439
+     ],
+     [
+      50,
+      1.166
+     ],
+     [
+      300,
+      0.97783
+     ],
+     [
+      600,
+      0.92697
+     ],
+     [
+      1200,
+      0.88508
+     ],
+     [
+      2700,
+      0.84537
+     ],
+     [
+      5100,
+      0.81996
+     ]
+    ],
+    "newark": [
+     [
+      1,
+      2.41
+     ],
+     [
+      10,
+      1.67
+     ],
+     [
+      25,
+      1.54
+     ],
+     [
+      50,
+      1.39
+     ],
+     [
+      100,
+      1.19
+     ],
+     [
+      500,
+      1.17
+     ],
+     [
+      1000,
+      1.13
+     ],
+     [
+      2500,
+      1.11
+     ]
+    ]
+   }
+  },
+  "R76UN23905050J": {
+   "digikey": 250,
+   "newark": 46,
+   "jlc": 0,
+   "ladders": {
+    "newark": [
+     [
+      10,
+      0.923
+     ],
+     [
+      20,
+      0.865
+     ],
+     [
+      30,
+      0.807
+     ],
+     [
+      50,
+      0.748
+     ],
+     [
+      100,
+      0.69
+     ],
+     [
+      250,
+      0.654
+     ],
+     [
+      500,
+      0.619
+     ],
+     [
+      1000,
+      0.583
+     ]
+    ],
+    "digikey": [
+     [
+      1,
+      1.22
+     ]
+    ]
+   }
+  },
+  "R76UR26804030J": {
+   "digikey": 315,
+   "newark": 602,
+   "jlc": 0,
+   "ladders": {
+    "newark": [
+     [
+      1,
+      2.78
+     ],
+     [
+      25,
+      1.97
+     ],
+     [
+      100,
+      1.43
+     ],
+     [
+      250,
+      1.41
+     ],
+     [
+      500,
+      1.39
+     ],
+     [
+      1000,
+      1.36
+     ],
+     [
+      2500,
+      1.34
+     ],
+     [
+      5000,
+      1.3
+     ]
+    ]
+   }
+  },
+  "MMK104J3DF1KN208G2": {
+   "digikey": 0,
+   "newark": 0,
+   "jlc": 4952,
+   "ladders": {
+    "jlc": [
+     [
+      1000,
+      0.3035
+     ]
+    ]
+   }
+  },
+  "B32654A2333K000": {
+   "digikey": 820,
+   "newark": 0,
+   "jlc": 0,
+   "ladders": {
+    "digikey": [
+     [
+      1,
+      3.23
+     ],
+     [
+      10,
+      2.249
+     ],
+     [
+      50,
+      1.8574
+     ],
+     [
+      260,
+      1.60396
+     ],
+     [
+      520,
+      1.52783
+     ],
+     [
+      1040,
+      1.46514
+     ],
+     [
+      2600,
+      1.39892
+     ],
+     [
+      5200,
+      1.35897
+     ]
+    ]
+   },
+   "_read": "DigiKey detail page 2026-10-16 ~20:08Z, 28-week lead time, K = +-10 %"
+  }
+ }
+}

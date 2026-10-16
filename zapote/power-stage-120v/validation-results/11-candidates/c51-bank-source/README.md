@@ -29,6 +29,138 @@ the vendor rated-current row and the producer bank_air gate (0.967).
    - Ratios: vendor 0.818, gate 1.021, with gap credit 0.72, release 0.81 / 1.03.
    - Costs: yield 88.6 % -> 75.9 % (-12.7 pts), and about 1-2 mm more pin span at the R22/R25 end.
 
+## 28 A options (in-stock parts, ~0.50 uF; scripts/options28.py -> results/options28.{json,md})
+
+**Answer.** No in-stock bank reaches 28 A on the vendor row (<= 0.85) inside today's column. One that does reach it
+strictly is **O6: 10 x KEMET R76UR24704030J (47 nF, 2 kV, P27.5) + 1 x TDK B32654A2333K000 (33 nF K)**.
+
+| | O6 |
+|---|---|
+| C | 0.503 uF (C_min 0.476) |
+| Yield | -0.4 pts |
+| Vendor ratio | 0.648 |
+| Gate, strict | 0.890 |
+| Gate, with gap credit | 0.856 |
+| Release | 0.61 / 0.77 |
+| F3 R0/R1 | 0.993 |
+| Highest strict step | 28 A |
+
+The catch is fit. It is 11 bodies, and the column holds 6 of them, so **5 go into a second column outside the slot**.
+
+The simplest fully curve-rated bank is O1, 11 x R76UR24704030J (0.517 uF). It passes the same way but costs 2.2 yield
+points.
+
+### Tolerance band (round 6 `fstrat-b-bank-sweep.csv`, L 70 uH, 220 mm pans, 28 A)
+
+- **Yield falls monotonically with C above 0.35 uF:** 0.45 -> 91.4 %, 0.50 -> 88.6 %, 0.60 -> 75.9 %. Interpolated
+  linearly as in c34, it costs about 1.27 points per +0.01 uF above 0.50.
+- **The 35 kHz floor does not bind for C <= 0.50.** The floor-limited share is 0.4 % at 0.50 and 0 at 0.45.
+- **F3 sets the floor on C.** F3 R0/R1 is 0.996 of the 0.85 x VR limit at C_min 0.475. Scaling conservatively as 1/C,
+  this needs C_min >= 0.4731 uF, i.e. C_nom >= 0.498 uF for J parts.
+- **Band: C_nom 0.498-0.500 uF moves nothing.** Every 0.01 uF above it costs about 1.3 points of yield.
+- So 10 x 47 nF (0.47 uF) fails F3 (1.06), and 7 x 68 nF (0.476 uF) fails F3 (1.046).
+
+### Why n x (0.50/n) only helps with a different part
+
+- In a parallel bank every part sees the same voltage. Part i's vendor ratio is about V_bank x (1 + t) / V_allow,i(35 kHz),
+  and n cancels out (c34 rule: V_allow >= 268 x 1.05 / 0.85 = 331 V rms).
+- **KNSCHA 104 has V_allow = 282 V.** It reads 0.978 in any 0.50 uF bank, mixed or not: 4 x 0.1 + 2 x 0.047 leaves the
+  104 parts at 0.978.
+- **Smaller parts of the same family carry more volts at 35 kHz** (less heat per unit of surface):
+
+| Part | C | V_allow(35 kHz) | Basis |
+|---|---|---|---|
+| R76UR2470 | 47 nF | 429 V | plotted curve |
+| R76UN2470 | 47 nF | 430 V | ESR model x 0.973 control, ESTIMATE |
+| R76UN2390 | 39 nF | 449 V | ESTIMATE |
+| R76UR2680 | 68 nF | 336 V | ESTIMATE, marginal |
+| R76 82 / 100 nF | 82 / 100 nF | 294-329 V | fail |
+| TDK B32654A2333K | 33 nF | 504 V | p.57 2000 V chart interpolated between 22 and 47 nF, ESTIMATE |
+
+**Ruled out:**
+- **KNSCHA 2 kV 473J / 683J / 823J / 333J.** None is listed in stock at JLC/LCSC; the only KNSCHA 47-82 nF parts in stock
+  are 630 V-1.6 kV. The family chart's 473 P27.5 curve (about 4.3 A, ~416 V) would pass if it could be bought.
+- **Faratronic C82 (C823D473J90C000, 1,000 at JLC).** Its datasheet (dl/C5121891, pp.1-5) gives no current rating, only
+  tan d <= 10e-4 at 1 kHz and a rated temperature of 75 C for U_R(ac), so it cannot carry a margin claim.
+- **82 nF options (6 x 82 nF = 0.492 uF fails F3; 5 x 82 + 1 x 91).** No in-stock 2 kV 82 nF part with a rating reaches
+  331 V: R76 82 nF is 301-329 V, B32643B8823 is not stocked, and B32643H has no readable sheet. No 2 kV 91 nF part was
+  found.
+
+### Options (28 A, S24 flow; strict = producer method, gap 0.5 mm; per-part detail in results/options28.md)
+
+| id | bank | C nom / min uF | yield pts | vendor 35k | F3 R0/R1 | gate strict / gap | release 18.375 A rad / no-rad | highest step strict / gap | columns (pin span mm) | stock 20 / 500 boards | $/board @500 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **O6** | 10 x R76UR2470 + 1 x B32654A2333K000 | 0.503 / 0.476 | -0.4 | 0.648 | 0.993 | **0.890 / 0.856** | 0.612 / 0.770 | **28 / 28** | 6 (58.75) + 5 (46.0) | yes / yes | 13.60 |
+| **O1** | 11 x R76UR2470 | 0.517 / 0.491 | -2.2 | 0.629 | 0.963 | **0.864 / 0.830** | 0.595 / 0.749 | **28 / 28** | 6 (57.5) + 5 (46.0) | yes / yes | 13.24 |
+| O2 | 11 x R76UN2470 (P22.5, AEC) | 0.517 / 0.491 | -2.2 | 0.627 | 0.963 | 0.827 / 0.787 | 0.576 / 0.712 | 28 / 28 | 7 (63.0) + 4 (31.5) | yes / **no** (2,117 vs 5,500) | short |
+| O3 | 10 x R76UR2470 + 1 x R76UN2390 | 0.509 / 0.484 | -1.1 | 0.639 | 0.978 | 0.877 / 0.843 | 0.604 / 0.760 | 28 / 28 | 6 + 5 | yes / **no** (39 nF: 296) | short |
+| O4 | 2 x R76UR2470 + 6 x R76UR2680 | 0.502 / 0.477 | -0.3 | 0.822 | 0.992 | 1.093 / 1.054 | 0.748 / 0.952 | 24 / 26 | 5 + 3 | yes / **no** (68 nF: 917) | short |
+| O5 | 5 x R76UR2470 + 4 x R76UR2680 | 0.507 / 0.482 | -0.9 | 0.814 | 0.982 | 1.083 / 1.044 | 0.742 / 0.945 | 24 / 26 | 6 + 3 | yes / no | short |
+| R1 | 5 x KNSCHA 104 (s51 as built) | 0.500 / 0.475 | 0 | 0.978 | 0.996 | 1.221 / 1.177 | 0.957 / 1.206 | 22 / 22 | 5 (48.0) | yes / yes | 1.52 |
+| R2 | 10 x R76UR2470 | 0.470 / 0.447 | +1.7 | 0.691 | **1.060 F3 fail** | 0.950 / 0.912 | 0.650 / 0.816 | 28 / 28 | 6 + 4 | yes / yes | 12.00 |
+| R3 | 7 x R76UR2680 | 0.476 / 0.452 | +1.3 | 0.867 | **1.046 F3 fail** | 1.153 / 1.111 | 0.785 / 0.997 | 24 / 24 | 5 + 2 | yes / no | short |
+| R4 | 8 x R76UR2680 | 0.544 / 0.517 | **-5.6** | 0.760 | 0.915 | 1.010 / 0.974 | 0.696 / 0.888 | 26 / 28 | 5 + 3 | yes / no | short |
+
+**Notes on the table**
+- **Stock** (read 2026-10-16; snapshots/digikey-2026-10-16b.json, snapshots/findchips.json, JLC part API):
+
+| Part | DigiKey | Newark | JLC | Notes |
+|---|---|---|---|---|
+| R76UR24704030J | 998 (20 wk) | 336 + 8,672 (two rows) | 0 (C3783048) | |
+| R76UN24704040J | 408 | 1,709 | 0 | |
+| B32654A2333K000 | 820 (28 wk) | — | — | |
+| R76UN23905050J | 250 | 46 | — | |
+| R76UR26804030J | 315 | 602 | — | |
+
+  - LCSC is the same record as JLC (0).
+  - None of these is at JLC, so the bank is a consigned THT line.
+  - Prototype quantities (n x 20 boards) are covered by DigiKey alone.
+- **Cost** allocates each line's 500-board quantity to the cheapest distributor up to its stock (O6: 998 DigiKey at
+  $1.039 + 4,002 Newark at $1.24 + 500 TDK at $1.604). By comparison, 5 x c34 TDK on order is about $6.55 and the KNSCHA
+  bank is $1.52.
+- **Thermal binding term.** The KEMET temperature rule takes Th = max(T_A, T_pad). With the s49 pads at 87.2 C, the
+  allowed rise is 18.2 K, and that sets the R76 gate.
+  - The second column's pads are unknown, so the same pads are assumed.
+  - The gate reaches 1.00 at Th of about 93 C (O1) or 92 C (O6). So the column-2 copper must keep pads <= ~92 C at 28 A.
+- **Release pads are now board 9afc509b (s51).** The ps-selv runs were rewritten again. The R1 release value (0.957) is
+  unchanged from the earlier run.
+
+### Fit and layout (O6; O1 is the same geometry)
+
+- **Column 1 (today's slot)**
+  - Holds 6 bodies at about 11.5 mm row pitch (0.5 mm gaps), pin span 57.5-58.75 mm inside the s49 / s51 rows (y 53.2-113.2).
+  - Uses the P27.5 holes' x positions (RES_A x 163.0, SW_B x 190.5) on the existing strips.
+  - **The dual-pitch footprints' drills sit on 15 mm rows, so only row 1 (y 53.2) coincides.** The five bank footprints
+    are re-placed at the new pitch with 6 new footprint instances. The strips stay; drills and pour clearances move.
+  - The TDK part is 13.5 mm thick; put it in column 1.
+- **Column 2 (new)**
+  - 5 x R76UR2470 at 11.5 mm pitch: pin span 46.0 mm, body envelope about 57 x 32 mm, courtyard about 58 x 33 mm.
+  - It needs RES_A and SW_B strips carrying about 14 A rms worst case (5 parts x 2.79 A).
+  - **This lane did not find or check a location for it.** It is a layout stage (B3 + DRC). Inter-column loop inductance
+    is not a sharing issue at 35 kHz (96.7 ohm per part against tens of mOhm of copper).
+- **One long column instead** needs a 115-116 mm pin span against 65.2. That means moving the R22-R25 bleed string above
+  and line_zc_raw / the SELV lane / J6 below by about 50 mm in total.
+
+### BOM, cost and bench items for the top option (O6)
+
+**BOM:** C21-C23, C151, C152 plus 6 new references:
+- 10 x KEMET R76UR24704030J (47 nF +-5 %, 2000 VDC / 700 VAC, 32 x 11 x 20.1 mm, P27.5, 55/110/56, case UL94 V-0, not
+  AEC at 27.5 mm);
+- 1 x TDK B32654A2333K000 (33 nF +-10 %, 2000 VDC / 700 VAC, 31.5 x 13.5 x 23 mm, P27.5, -55..100 C, AEC-Q200).
+
+**Cost:** $13.60 per board at 500 boards.
+
+**Bench items:**
+1. **R76UR2470 rating basis.** The p.8 curve is Th <= 85 C with about 20 K hot-spot rise. The curve implies a heat of
+   about 0.65 W at 4.43 A (Rth 31 K/W), which is an ESR of about 33 mOhm at 35 kHz. Measure ESR at 35 / 40 kHz and
+   80 C. The gate (0.890) tolerates ESR up to x1.26.
+2. **Column-2 pad temperature <= ~92 C** at 28 A. The KEMET Th rule makes the pads the binding term. A B3 solve of the
+   new copper is needed first.
+3. **TDK B32654A2333K000 rating** (ESTIMATE, interpolated). It is a single part at 0.576. Confirm it against the p.23
+   table row once the B3265x sheet is readable.
+4. **Yield at 0.503 uF.** The -0.4 points are from linear interpolation, so no new run is needed.
+5. **No gap credit is needed:** both columns pass strictly at 0.5 mm gaps.
+
 ## Decision inputs (5 x KNSCHA MMK104J3DF1KN208G2; scripts/decision_inputs.py)
 
 **How these are computed**
@@ -186,6 +318,7 @@ python3 -I scripts/digitize_r75.py                            # results/r75_curv
 python3 -I scripts/bank_air_cand.py                           # results/bank_air_cand.{json,md}; controls 0.967 / 1.308
 python3 -I scripts/voltage_rows.py                            # results/voltage_rows.{json,md}
 python3 -I scripts/decision_inputs.py                         # results/decision_inputs.{json,md}; control = bank_air_cand 1.221
+python3 -I scripts/options28.py                               # results/options28.{json,md}; controls: knscha 1.221 via share override, ESR model within 3 %
 ```
 
 **Inputs read**
