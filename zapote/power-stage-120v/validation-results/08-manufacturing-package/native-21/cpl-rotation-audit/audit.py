@@ -227,6 +227,10 @@ def evaluate(kfp, fpname, ee, rules, ref, kind_override=None, evidence=None):
         res["theta"] = [best]
         if evidence and res["method"] == "pad number":
             ee_names = {p["num"]: p["name"].strip().upper() for p in ee.get("pins", [])}
+            # an evidence entry may declare how the EasyEDA symbol abbreviates the datasheet pin names (stage 47:
+            # C2156518's symbol says C / A for the SNOS455H Cathode / Anode); only the names it lists are mapped
+            alias = {k.upper(): v.upper() for k, v in (evidence.get("ee_name_alias") or {}).items()}
+            ee_names = {n: alias.get(v, v) for n, v in ee_names.items()}
             ds = {n: f.upper() for n, f in evidence["datasheet_pins"].items()}
             if ee_names == ds and evidence.get("kicad_pad_is_datasheet_pin") and set(ds) == set(kpads):
                 res["pin_evidence"] = evidence["source"]
@@ -442,6 +446,17 @@ def selftest(rules):
     assert not ev.get("pin_evidence") and decide(0, ev, "U", "SOT-23", False)[0] == "NEEDS-PREVIEW", ev
     ev = evaluate({"pads": k3}, "SOT-23", {"pads": e3, "pins": pins}, rules, "U1")    # no evidence: unchanged
     assert decide(0, ev, "U", "SOT-23", False)[0] == "NEEDS-PREVIEW"
+    # stage 47: an abbreviated EasyEDA symbol (C / A / NC) settles only through the entry's declared alias
+    pins_ab = [{"num": "1", "name": "C"}, {"num": "2", "name": "A"}, {"num": "3", "name": "NC"}]
+    ds_full = {"datasheet_pins": {"1": "CATHODE", "2": "ANODE", "3": "NC"}, "kicad_pad_is_datasheet_pin": True, "source": "t"}
+    ev = evaluate({"pads": k3}, "SOT-23", {"pads": e3, "pins": pins_ab}, rules, "U1", evidence=ds_full)
+    assert not ev.get("pin_evidence"), ev
+    ev = evaluate({"pads": k3}, "SOT-23", {"pads": e3, "pins": pins_ab}, rules, "U1",
+                  evidence=dict(ds_full, ee_name_alias={"C": "CATHODE", "A": "ANODE"}))
+    assert ev.get("pin_evidence") and decide(0, ev, "U", "SOT-23", False)[:2] == ("CORRECTED", 180), ev
+    ev = evaluate({"pads": k3}, "SOT-23", {"pads": e3, "pins": pins_ab}, rules, "U1",     # alias swapped: must not settle
+                  evidence=dict(ds_full, ee_name_alias={"C": "ANODE", "A": "CATHODE"}))
+    assert not ev.get("pin_evidence"), ev
     print("selftest: ok")
 
 

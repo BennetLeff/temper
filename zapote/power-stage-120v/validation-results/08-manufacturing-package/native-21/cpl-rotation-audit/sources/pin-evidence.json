@@ -167,7 +167,11 @@
    },
    "kicad_pad_is_datasheet_pin": true,
    "source": "TI SNOS455H (May 2000, rev. Mar 2025), p.3 section 4 Figure 4-1 'DBZ Package 3-Pin SOT-23 Top View' and Table 4-1 Pin Functions: 1 Cathode, 2 Anode, 3 NC 'No internal connection' (figure note: '*This pin must be left floating or connected to pin 2'; Table 4-1 note 1: tie it to the anode in high-EMI applications) - the LM4040A25IDBZR (C9421) DBZ pinout. Orderable LM4050AEM3-2.5/NOPB, SOT-23 (DBZ) 3, -40 to 125 C, marking RCA (Package Option Addendum p.25). https://www.ti.com/lit/ds/symlink/lm4050-n.pdf sha256 950d04912ac6cdab64523f3fb8633382a528afdd18239d864ffeaf556ded5aa1, read 2026-10-15",
-   "kicad_check": "native-21 frozen netlist (stage 47): U5 pad 1 (CATHODE) on ref25 (bias R31, loads R32 / R34 / R36), pad 2 (ANODE) on ocp_kelvin_p, pad 3 (NC) alone on u_ref-nc (floating, which p.3 allows; audit.rs checks it): KiCad pad n = datasheet pin n; same pads and nets as C9421 (LM4040A25IDBZR) at stage 46. EasyEDA symbol C2156518: 1 C, 2 A, 3 NC"
+   "kicad_check": "native-21 frozen netlist (stage 47): U5 pad 1 (CATHODE) on ref25 (bias R31, loads R32 / R34 / R36), pad 2 (ANODE) on ocp_kelvin_p, pad 3 (NC) alone on u_ref-nc (floating, which p.3 allows; audit.rs checks it): KiCad pad n = datasheet pin n; same pads and nets as C9421 (LM4040A25IDBZR) at stage 46. EasyEDA symbol C2156518: 1 C, 2 A, 3 NC",
+   "ee_name_alias": {
+    "C": "CATHODE",
+    "A": "ANODE"
+   }
   }
  }
 }
