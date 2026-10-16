@@ -2608,3 +2608,66 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       clamp, per-ceiling minimum drive) and S27 (78 °C stacked bay outside every solved case) opened.
     - **Reverses if:** the two diagonals disagree beyond U95 on the bench (the jumpers or guard bias the fit), in
       which case fall back to in-situ thermocouples with the operating-heat uncertainty carried into U95.
+
+70. **Stage 49 (candidate 49): the bank-area re-cut for a P22.5 2000 V bank, fitted with an interim TDK B32643B8104J000,
+    and S23's B′-1.02 V OCP divider (R33 7.5 k, R34 16 k, R35 11 k) (2026-10-16; adopted as the board of record). Board
+    d0471587 (integration build), geometry identical to the lane build 73702f18, copper key f704213432bf. Card ACCEPT
+    against s48 on performance; every gate passes; D5, RES_A outer and return-path opens equal s48.**
+    Records: `11-candidates/c49-c34-bank/README.md` (lane chain run 2, `runs-native21/s49/chain2.out`, `SPINE_OWNER=selv`;
+    draft `DECISIONS-DRAFT.md`). The integration chain re-ran it with no spine owner (`runs-native21/s49/chain-int.out`,
+    CHAIN_DONE): the whole-region lock passes on baseline 596ba3bf. Chain inputs from the lane: the routed `copper.json`
+    (pass p5 j1) and `reference-labels.json`; placement, pads, schematic, BOM / CPL and the CPL audit regenerate byte-equal
+    to the lane's. `geom_diff45.py` lane → integration: `geometry_identical`, no field changes
+    (`c49-c34-bank/results/geom-s49-lane-int.json`).
+    - **The bank part is interim.** On 2026-10-16 the owner ruled out c34's B32643B8104J000: it cannot be sourced (JLC
+      C3781430 lists 0 stock; untaped MOQ 2080, 28 weeks; no authorised offer). DECISIONS 68's reversal condition ("c34
+      cannot be sourced") has therefore fired for the part, not for the layout. s49 is adopted for the S23 fix and the
+      bank-area copper re-cut, which a 2000 V P22.5 bank needs whichever part fills it. **A later stage replaces
+      B32643B8104J000 with an in-stock part that passes the same F3 (≤ 0.85 × VR on R0 / R1, `audit.rs` S49_BANK_VR) and
+      `bank_air_ratio_28A_35k` (≤ 1.0, this board's jetmix pads) checks**; a search for that part is running.
+      B32643B8104J000 is **not** on the pre-order list (OPEN-ITEMS owner action 7 no longer names it). The figures below
+      are the interim part's and show the bar the replacement must meet.
+    - **Bank layout (DECISIONS 68).** C21–C23 / C151 / C152 on 22.5 mm pads (pad 1 round: a square corner came 8.035 mm
+      from the In1 v3v3 plane), RES_A pins x 163.0, SW_B pins x 185.5, rows y 53.2 / 68.2 / 83.2 / 98.2 / 113.2 at
+      15.0 mm pitch. **The bodies span x 161.0–187.5, y 45.95–120.45**: 5 × 14.9 mm courtyards at 15 mm pitch need 74.5 mm
+      against the air box's 73, so the column reaches 0.05 mm above and 1.45 mm below DECISIONS 68's y 46–119 (S24 now
+      states the wider span). The sw_b / res_a B.Cu strips are re-cut. line_zc_raw (SELV): the x 184–203.3 run moves
+      y 121.27 → 122.75, and the y 127.5 run dips to y 128.2 over x 157.7–171.3; these hold D5 HOT-SELV at 8.047 mm and
+      RES_A outer at 13.375 mm (c34's planned 122.55 alone gave 8.025 / 12.775 mm). No other copper moved.
+    - **F3 closes on a 2000 V bank.** F3 = 1,683 V × top / 118.74 A: 1,624–1,693 V over the R0 / R1 readings, worst
+      **1,693.2 V = 0.847 × 2000 V** (c28 R1, physical HOT5; rule 0.85, `audit.rs` S49_BANK_VR; spec-literal R4 1,787 V,
+      0.89). The CT-failed double fault Z0,max × top is 1,461 V at the R0 release reading, **+139 V to the old 1600 V
+      rule** (+43 V with the as-built divider) and ≥ +393 V to 2000 V on every reading. The no-pan fault, 775 V against
+      VC(125 °C) 1000 V, is the tightest bank row: 0.775 of the 0.8 rule. dV/dt 345 V/µs, 0.09 of 3800 V/µs
+      (`c49-c34-bank/results/bank-voltage-s49.{json,md}`).
+    - **Bank self-heating.** `bank_air_ratio_28A_35k` **1.308 → 0.967**, now solved on this board in the chain (B3 jetmix
+      cases `c28_h20_jet100@61` / `c28_h15_jet100@55`, `bank28-air/scripts/bank_air_metric.py`). Worst point: an interior
+      cap under the design flow at 61 °C, ΔT 14.04 / 15 K, T_op 88.9 / 125 °C. Vendor curve 0.831 / 0.816 (35 / 40 kHz).
+      B3 bank bodies (film_mmkp, ESR 8 mΩ): release 82.8 °C (C21), c28 still air 106.2 °C. The hottest interior cap on
+      this layout is **C22** (y 68.2; B3 and both jetmix runs), so S25's pre-lot bench gate moves from C151 to C22.
+    - **S23 B′-1.02 V is built** (BOM only, same 0603 pads): R33 RT0603BRD077K5L (C728597), R34 RT0603BRD0716KL
+      (C326732), R35 RT0603BRD0711KL (C728581, an existing line); R32 unchanged. Nominal trip 92.593 A, U6 VCM
+      1.204 → 1.0185 V, 1.75 A/mV. On this board's solve (`bands49.py`, = the lane's): **release R0 band 71.59–114.58 A
+      before Kelvin, low corner after Kelvin 69.18 A (+5.01 A; +2.37 A on the R1 60 dB-hot reading); c28 +3.92 / +1.29
+      A.** `kelvin_band_low_A` 66.22 → 69.18. OVP unchanged (top 287.47 / 287.62 V). C30 τ 429 ns ≤ 500 ns; REF25 minimum
+      current 98.8 µA > 65 µA; the H1 watchdog window 2.526–2.610 V stays below U5-open REF25 2.816 V (`audit.rs`).
+      **S23 stays open on the bench run** (s23-ocp-cm README Option C: 30 TLV3201AIDBVR from ≥ 3 reels, falling-trip
+      shift VCM 1.0185 V vs VCC/2 ≤ 2.164 mV at c28 Q1). The spec-literal R4 reading still fails (−4.25 / −5.30 A).
+    - **Cost: the card's −$6.19 / board is a pricing-channel artefact.** It prices the old bank from DigiKey ($1.48848)
+      and the new one from JLC's catalogue ladder ($0.248, listed with 0 stock). On one channel the saving is −$1.37
+      (JLC: C3794777 $0.5221 → C3781430 $0.248) or −$0.90 (DigiKey $1.48848 → $1.30931 at MOQ 2080). The ACCEPT does not
+      rest on cost: it rests on the performance gains (`kelvin_band_low_A`, the three B3 margins, the two vendor-curve bank
+      ratios, `bank_air_ratio_28A_35k`), and none falls. With an interim bank part the cost line will move again.
+    - **Integration** (`--compare` s48): ACCEPT, cheaper `parts_usd_at_500_v2` 175.68 → 169.49 and
+      `jlc_assemblable_share_500`, better on the seven metrics above; B3 release margin +1.3 K (R10; s48 +1.2 K).
+      Re-verified on d0471587: `audit.rs` PASS and 91 / 91; `pin_absmax --fail-stale` PASS and `test_pin_absmax`;
+      `cu_temp_basis --fail-waived` 0 waived PASS; ledger gate PASS 3 / 92 / 0 / 0 and its tests; scoped 16 / 16 and
+      depmap C2–C6 PASS (C1 lists the pre-existing cost / gate entries, as at s48); `bands49.py --check` PASS. The S21
+      temp-ratings rows are re-based on s49 (`temps_snap49.py`; 71 lines / 310 refs; U26's c28 gap closes, −0.5 → +0.1 K).
+      The s48 band correction (68.63–117.70 A) is kept; the lane had left the s47 band in `BAND_BEFORE["native21s48"]`.
+    - **Board of record and benchmark: s49.** FAB-NOTE moved to d0471587 / gerbers d647a2ba.
+    - **Pre-order note (owner):** TLV3201AIDBVR (C105188) shows 3,221 at JLC (2026-10-16) against 2,500 for U6 / U7 /
+      U10–U12 at 500 boards: order it or confirm stock at kitting. The bank part waits on the replacement search.
+    - **Reverses if:** the S23 bench shift at 1.0185 V fails at ≥ 105 °C (fall back to the as-built divider and the 17.5 A
+      ceiling), or no in-stock 2000 V P22.5-class bank passes F3 and `bank_air_ratio_28A_35k` (re-plan the bank column
+      and the ceiling ladder around the fitted B32654A1104J000).

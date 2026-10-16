@@ -1,5 +1,13 @@
 # Candidate 49: the c34 resonant bank (5 x B32643B8104J000) and the S23 B'-1.02 V OCP divider (native21s49)
 
+**Integrated as DECISIONS 70 (2026-10-16): board of record s49, integration build d0471587** (geometry identical to the
+lane build 73702f18, copper key f704213432bf; `results/geom-s49-lane-int.json`; chain `runs-native21/s49/chain-int.out`,
+no spine owner). Card ACCEPT vs s48 with `kelvin_band_low_A` 66.22 → 69.18 (the s48 card carries its own-solve 66.22
+since 328fe4edc). **The bank part is interim:** the owner ruled B32643B8104J000 out the same day (it cannot be sourced),
+so it is not pre-ordered; a later stage replaces it with an in-stock part that passes the same F3 and
+`bank_air_ratio_28A_35k` checks. The pre-order notes below (section 6 and DECISIONS-DRAFT.md) are the lane's and are superseded
+for the bank. The integration re-based the S21 temperature rows (`scripts/temps_snap49.py`) and dropped ledger49's GAP49.
+
 **Card: ACCEPT against s48.** Cheaper on `parts_usd_at_500_v2` (175.68 → 169.49) and `jlc_assemblable_share_500`.
 Better on `kelvin_band_low_A`, the three B3 margins, the two vendor-curve bank ratios and `bank_air_ratio_28A_35k`.
 Every gate passes. D5 (8.047 / 8.507 mm), RES_A outer (13.375 mm) and return-path opens (7) equal s48. B3 release
@@ -8,7 +16,7 @@ Board **73702f18** (copper key f704213432bf), chain run 2 CHAIN_DONE (`runs-nati
 
 Branch `claude/native21-s49-c34-bank` (one-writer layout lane, worktree `ps-selv`), from b8ddef3da. Scope: DECISIONS 68
 (fit the c34 bank) and, added mid-lane, OPEN-ITEMS S23's BOM-only fix B'-1.02 V
-(`11-candidates/s23-ocp-cm-2026-10-16/results.md` section 5). The integrator decides (`DECISIONS-DRAFT.md`, item 70).
+(`11-candidates/s23-ocp-cm-2026-10-16/README.md` section 5; the lane's copy names it results.md). The integrator decides (`DECISIONS-DRAFT.md`, item 70).
 
 ```
 ACCEPT vs validation-results/10-benchmark/scorecard-native21s48.json: cheaper ['parts_usd_at_500_v2', 'jlc_assemblable_share_500'], better ['kelvin_band_low_A', 'b3_laminate_margin_K', 'b3_rated_part_margin_K', 'b3_release_margin_K', 'bank_ratio_tdk_28A_40k', 'bank_ratio_tdk_28A_35k', 'bank_air_ratio_28A_35k']
