@@ -26,14 +26,17 @@ or current-HEAD values enter the gate.
 **Current result: `T3 FAIL`.** The strict benign gate remains failed:
 `gate.benign_no_firmware_latch_or_d1_lost` is false because
 `caps.230.benign.d1_lost` is **1** and `caps.250.benign.d1_lost` is **2**.
+These count benign runs with a D1 LOST classification, not repeated events.
 All caps have **0** benign firmware latches (`caps.<cap>.benign.firmware_latches`)
 and **0** hardware nuisance trips (`caps.<cap>.band.benign_hardware_trips`).
 D1 LOST is a non-latching probe classification that removes power; it is
 reported separately from firmware latches. The gate is retained unchanged.
 This new check covers both imported benign sets and does not alter any
 existing firmware or study gate.
-The full regeneration comparison is being verified; a matching JSON can
-still return `T3 FAIL` for this benign finding.
+The full `--check` rerun reproduced the committed JSON exactly, then returned
+nonzero for this benign gate. All other `gate` entries are true. Its final
+line was `T3 FAIL: gates failed: ...`; no JSON mismatch was reported. No gate
+was loosened.
 
 ## Results and source keys
 
@@ -223,7 +226,8 @@ existing firmware latch is recorded, strictly before the first pan crossing.
 The low edge denotes a possible trip and is never credited as guaranteed.
 The imported latches remain passive so all mechanisms see the same
 trajectory. Native D1 and the non-latching supervisor power actions remain
-active as in the imported apparatus. Credit assumes immediate interruption at that event: comparator
+active as in the imported apparatus. Credit assumes immediate interruption
+at that event: comparator
 and power-cut delay, stored heat, and post-cut temperature rise are not
 modelled. This is a timing screen, not proof that a physical pan stays below
 the bar. The cold-soak latch gets no credit because these leaks develop
@@ -246,6 +250,12 @@ fields; the generated versions and diff were retained under
 `/tmp/temper-t3-baseline-generated`, then only this run's generated tracked
 outputs were restored to their exact original bytes. No existing evidence
 was re-baselined. The T3 gate checks its input hashes again after regeneration.
+
+Ruff passed for the new script, and the repository's required import-boundary
+gate passed. Smoke checks covered strict before-bar timing, possible-only
+low-edge trips, OR de-duplication, and rejection of changed evidence without
+writing it. The recorded input hashes and script hash match the committed
+files.
 
 Bench work remains: glass temperature and lag under the proposed cap,
 mounting/warp and eye-air range, bead/rail errors, component tolerance spread
