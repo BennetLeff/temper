@@ -1,5 +1,12 @@
 # Stage 51 (c51-bank-source): dual-pitch bank footprint, KNSCHA MMK104J3DF1KN208G2 fitted
 
+**Integrated as DECISIONS 73 (2026-10-16): board of record s51 with a sourcing override, integration build 0b0ebcf7**
+(geometry identical to the lane build 9afc509b, copper key 3a4c616e7870; `results/geom-s51-lane-int.json`; chain
+`runs-native21/s51/chain-int.out`, no spine owner). Integration card: REJECT vs s50 (bank metrics, +$0.28), better on the
+20-board stock gate (`bom_lines_short_proto` 4 → 3); ACCEPT vs s48. The S25 pre-lot gate is on **C22**, the hottest
+interior cap on this board (B3, release solve and both jetmix runs), not C151. OPEN-ITEMS rows are re-applied on the
+integration copy (S24, S25, S28, owner action 7, B15). The S21 temperature rows are re-based on s51 (`scripts/temps_snap51.py`).
+
 Selv lane, 2026-10-16, branch `claude/native21-s51-dual-pitch-bank` (from the s50 lane head 29f16fd77). This directory is
 the build record. The sourcing study that chose the part is `../README.md` (the bank-src lane, copied here; see section 8).
 The DECISIONS draft is item 73 (`DECISIONS-DRAFT.md`).

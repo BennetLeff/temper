@@ -2768,3 +2768,99 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       every card: **L1 B82726S2203A020 0 / 20, C3/C4 DE1E3RA222MA4BP01F 6 / 40, D6–D9 PMEG6030EP 7 / 80** (OPEN-ITEMS
       B15), so the gate ratchets rather than hard-fails. s49 / s50 add the interim bank (0 / 100) and REJECT against
       s48; s50 against s49 is ACCEPT.
+
+73. **Stage 51 (c51-bank-source): fit KNSCHA MMK104J3DF1KN208G2 on a dual-pitch bank footprint and keep TDK
+    B32643B8104J000 as the documented drop-in for the 28 A route (2026-10-16; adopted as the board of record with a sourcing override). Board 0b0ebcf7 (integration build), geometry
+    identical to the lane build 9afc509b, copper key 3a4c616e7870. Card REJECT against s50 on bank_air and the
+    vendor-curve bank ratios and on cost (+$0.28 / board); better on the 20-board stock gate (`bom_lines_short_proto`
+    4 → 3: the zero-stock bank line is gone). ACCEPT against s48. Every gate passes except `bom_buildable_proto`, which
+    fails on s50 too (B15).**
+    Records:
+    - `11-candidates/c51-bank-source/README.md`: the sourcing study, copied from the bank-src lane;
+    - `c51-bank-source/stage51/README.md`: the build. Chain `runs-native21/s51/chain1.out`, CHAIN_DONE, `SPINE_OWNER=selv`.
+    - Integration: chain `runs-native21/s51/chain-int.out` with no spine owner (the whole-region lock passes on
+      596ba3bf), CHAIN_DONE. `copper.json` is s50's; placement, pads, labels, schematic, BOM / CPL, the CPL audit and the
+      sourcing snapshots regenerate byte-equal to the lane's. `geom_diff45.py` lane → integration: `geometry_identical`
+      (`c51-bank-source/stage51/results/geom-s51-lane-int.json`).
+
+    **Why.**
+    - The owner ruled B32643B8104J000 unbuyable (DECISIONS 70): JLC 0, a 28-week lead and MOQ 2080.
+    - KNSCHA MMK104J3DF1KN208G2 (JLC C528962) is **the only in-stock 2 kV part with a published current curve: 4,952 at
+      JLC (read 2026-10-16T17:48Z), against 100 for the 20-board prototype lot and 2,500 for 500 boards**, $0.3035 at
+      1000+. The s51 stock snapshot carries that row (`snapshot/s51/SNAPSHOT-s51.csv`).
+    - No second stocked part qualifies. KEMET R75 has 1,804 across DigiKey / Newark and fails on heat at 1.444.
+
+    **Change.**
+    - **Footprint** `temper:Bank_Film_DualPitch_P22.5_P27.5_Radial`:
+      - pad 1 (RES_A) at x 163.0, round;
+      - two pad-2 (SW_B) holes, at x 185.5 (P22.5, TDK) and x 190.5 (P27.5, KNSCHA), both on sw_b;
+      - drills 1.2 mm for both 0.8 ± 0.05 mm leads, ring 0.6 mm against JLC's 0.254 mm PTH rule;
+      - courtyard / silk over the union of both bodies.
+    - **Rows** stay at the s49 y 53.2–113.2, 15 mm pitch. The TDK 14.5 mm body still fits (0.5 mm gaps); KNSCHA's
+      11.5 mm leaves 3.5 mm.
+    - **No copper edit:** the new hole sits on the widened s49 sw_b strip.
+    - **Board unchanged from s50:** D5 8.047 / 8.507 mm, RES_A outer 13.375 mm, barrier 0, DRC 0 / 0, Kelvin
+      69.18 A, B3 release +1.3 K. The new holes are 8.229 mm plan view from SELV copper and 20.0 mm from PE.
+    - **BOM / CPL:** KNSCHA fitted (C528962, OK in the CPL audit). TDK is not fitted and is **off the pre-order list**.
+      Its ledger audit moves to `alternates`. **The dual-pitch footprint keeps TDK B32643B8104J000 as a drop-in for the
+      28 A route** (its P22.5 hole is built; no re-layout).
+
+    **Margins (this board).**
+    - **Voltage passes, as c34** (both 2000 V):
+      - F3 R0/R1 1693.2 V against 1700 V (0.996 of 0.85 VR, +6.8 V);
+      - double fault 1607.1 / 2000 V;
+      - no-pan 775 / 1200 V (0.646);
+      - dV/dt 0.157.
+    - **Current does not reach 28 A:**
+      - vendor ratio 0.978 at 28 A / 35 kHz (c34 0.831);
+      - bank_air strict **1.221** (c34 0.967), 0.869 with the gap-flow credit;
+      - **release in still air 0.958 with radiation, 1.209 without, at 18.375 A** (the 17.5 A ceiling's trip; this
+        board's own release solve). The hottest interior cap is **C22** (y 68.2) in B3, the release solve and both
+        jetmix runs, so **S25's pre-lot gate moves to the KNSCHA interior cap C22** (pass ΔT ≤ 10 K and T_A + ΔT ≤ 105 °C).
+    - **F3 is +6.8 V against 0.85 VR** (1693.2 / 1700 V at c28 R1 phys), as at s49 / s50: both parts are 2000 V.
+    - **B3 advisory falls 7.3 → −0.3 K:** C21 reaches 105.3 °C in the c28 still-air context case against KNSCHA's 105 °C
+      Top,max (TDK's was 125 °C). It is not an operating case, since 28 A requires airflow (S24), and it is not a gate;
+      it is recorded. The release body is 82.8 / 105 °C.
+
+    **Ceiling consequence.**
+    - **22 A strict.** At 22 A the gate is 0.959 and the vendor ratio 0.768. The strict gate crosses 1.00 at 22.9 A.
+    - **24 A if the bench shows the gap credit.** At 24 A the gap-credit gate is 0.745 and the vendor ratio 0.838. The
+      85 % rule binds at 24.3 A.
+    - **28 A needs the TDK alternate fitted** (same footprint, no re-layout: bank_air 0.967, vendor 0.831), **or a
+      better-rated part.** The new OPEN-ITEMS row S28 tracks this (S26 / S27 are taken on ps-integrate).
+    - This caps the commissioned ladder above the shipped 17.5 A. It does not change the release.
+    - **This modifies DECISIONS 66's 28 A route:** with the fitted bank the ladder stops at 22 A strict (24 A with the
+      bench gap credit); 28 A needs the TDK alternate or a better-rated part (OPEN-ITEMS S28). The owner has been told.
+
+    **Bench items** (KNSCHA publishes none per part; pre-lot, with S25):
+    1. the current rating basis: rise at 6.2 A / 35 kHz on one part;
+    2. ESR / tan δ at 35 / 40 kHz, at 25 °C and about 80 °C (the rating implies ≤ 10.7 mΩ; strict 22 A tolerates 11.6 mΩ);
+    3. behaviour above 85 °C ambient (the derating to 105 °C is ASSUMED linear);
+    4. the gap-flow credit at 28 A under the S24 flow: the worst interior part ≤ 10 K over local air, and the gap
+       velocity;
+    5. body dimensions on 10 parts (the gap width drives the credit);
+    6. the UL 94 V-0 case grade, still to be confirmed (the spec gives flammability grade B; see below).
+
+    **Approval basis.** A HOT-side tank part: no UL / ENEC file is required, and KNSCHA lists none (no AEC either). The
+    spec gives flammability grade B; a UL 94 V-0 case is reported by the study but not read in the spec.
+
+    **Integration.** `--compare` s50: REJECT, cheaper ['zero_stock_lines', 'lines_short_for_500', 'lines_short_for_5',
+    'jlc_assemblable_share_500', 'jlc_assemblable_share_5', 'bom_lines_short_proto'], better []; worse bank_ratio_tdk_28A_40k
+    0.984 vs 0.816, bank_ratio_tdk_28A_35k 0.978 vs 0.831, bank_air_ratio_28A_35k 1.221 vs 0.967; costlier
+    `parts_usd_at_500_v2` 169.49 → 169.77. `--compare` s48: ACCEPT (the bank re-priced on JLC on both cards). Adopted as a
+    **sourcing override**: the only bank that can be bought. Re-verified on 0b0ebcf7: `audit.rs` PASS on both frozen
+    exports and 93 / 93; `pin_absmax --fail-stale` PASS and its test; `cu_temp_basis --fail-waived` 0 waived; ledger gate
+    PASS 3 / 92 / 0 / 0 and its tests; scoped 16 / 16; depmap (`--card` s50) C2–C6 PASS (C1: the pre-existing cost / gate
+    entries); `bands51.py --check` PASS; `test_stock_gate` PASS. S21 temp-ratings re-based on s51 (`temps_snap51.py`).
+    **Board of record and benchmark: s51.** The interim bank of DECISIONS 70 is retired (OPEN-ITEMS B15). FAB-NOTE moved
+    to 0b0ebcf7 / gerbers 6c9a3daa; its inner-ring creepage remark re-checked on this board (C152.1's In1 / In2 rings
+    8.328 mm from the SELV v3v3 plane; the new x 190.5 holes ≥ 14.8 mm).
+
+    **Reverses if:**
+    - the bench fails the S25 gate on KNSCHA (C22), or item 1 or 2 at 22 A strict: the bank would not hold its own cap.
+      Fit the TDK alternate (owner pre-order) or find a better-rated part;
+    - a better-rated in-stock part appears (vendor ratio ≤ 0.85 and bank_air ≤ 1.00 at 28 A on P22.5 / P27.5): fit it on
+      the same footprint;
+    - TDK B32643B8104J000 (or another part qualified for 28 A on P22.5 / P27.5) becomes stocked at a usable lead and MOQ:
+      fit it on the same footprint, with no re-layout;
+    - the product needs 28 A commissioned before a second part is found: the TDK pre-order is back on the list.

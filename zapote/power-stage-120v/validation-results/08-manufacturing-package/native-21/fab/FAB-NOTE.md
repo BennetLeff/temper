@@ -1,22 +1,23 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 50, the board of record (DECISIONS.md item 71: U46.A (hsb_good) driven from PERMIT through R135
-100 k, so BIAS_GOOD = bias_ok AND PERMIT and TP19 reads low while PERMIT is low; item 70: S23's B′-1.02 V OCP divider, R33 7.5 k / R34 16 k /
-R35 11 k, and the bank-area re-cut for a 2000 V P22.5 bank, fitted with an **interim** TDK B32643B8104J000 on
-C21–C23 / C151 / C152; item 67: the four TPS70950 ENs on 100 k / 27 k dividers and on the 125 °C TPS70950QDBVRQ1, the
-REF25 watchdog on U14's second channel, BIAS_GOOD read back on J4.1 through R146, end-of-line test pads; item 63: U5
-(REF25) on the 125 °C LM4050AEM3-2.5/NOPB; item 62: the rail-monitor ICs on their 125 °C grades; item 60: the S16
-rail-monitor values; the stage history is DECISIONS.md items 12–71). Built by
-`sh native-21/layout/gates/chain.sh native21s50 …`; SHA-256
-`e842d9c8e04f7795f31f026706ab6a1bb74f2ae47d8ad46da1c2fb012b25d59f` (the integration build; it differs from the lane build
-4876c42e only by KiCad zone-fill jitter, same copper key 095e5b732746; geometry identical by
-`c45-s16-monitor/scripts/geom_diff45.py`). **The bank part is interim:** the owner ruled B32643B8104J000 out on
-2026-10-16 (it cannot be sourced: JLC C3781430 0 stock, MOQ 2080, 28 weeks), so it is not to be ordered; a later stage
-fits an in-stock part on these pads that passes the same F3 and bank_air checks (OPEN-ITEMS S25). U5 is sourced and
-consigned (JLC stock 50 against 500; owner pre-order, OPEN-ITEMS owner action 7); U3 / U37–U39 TPS70950QDBVRQ1
-(C485909) are JLC Extended, 11,607 in stock.
+Board: native-21 stage 51, the board of record (DECISIONS.md item 73: the resonant bank C21–C23 / C151 / C152 on KNSCHA
+MMK104J3DF1KN208G2 (JLC C528962, 4,952 in stock on 2026-10-16) on the dual-pitch footprint
+`temper:Bank_Film_DualPitch_P22.5_P27.5_Radial` (pad 1 at x 163.0; pad-2 holes at x 185.5 for the TDK B32643B8104J000
+28 A alternate and x 190.5 for KNSCHA, both on sw_b; 1.2 mm drills, 0.6 mm rings); a sourcing override that caps the
+commissioned ladder at 22 A strict / 24 A with the bench gap credit; item 71: U46.A (hsb_good) driven from PERMIT
+through R135 100 k, so BIAS_GOOD = bias_ok AND PERMIT and TP19 reads low while PERMIT is low; item 70: S23's B′-1.02 V
+OCP divider, R33 7.5 k / R34 16 k / R35 11 k, and the bank-area re-cut for a 2000 V bank; item 67: the four TPS70950
+ENs on 100 k / 27 k dividers and on the 125 °C TPS70950QDBVRQ1, the REF25 watchdog on U14's second channel, BIAS_GOOD
+read back on J4.1 through R146, end-of-line test pads; item 63: U5 (REF25) on the 125 °C LM4050AEM3-2.5/NOPB; item 62:
+the rail-monitor ICs on their 125 °C grades; item 60: the S16 rail-monitor values; the stage history is DECISIONS.md
+items 12–73). Built by `sh native-21/layout/gates/chain.sh native21s51 …`; SHA-256
+`0b0ebcf737ec3e00037e02efb1b15ec7b44eb366f9086f288e34f8fb969b3c5a` (the integration build; it differs from the lane build
+9afc509b only by KiCad zone-fill jitter, same copper key 3a4c616e7870; geometry identical by
+`c45-s16-monitor/scripts/geom_diff45.py`). Plated holes 876 (the five unused 22.5 mm holes are plated and stay open at
+assembly: KNSCHA fills the 27.5 mm holes). U5 is sourced and consigned (JLC stock 50 against 500; owner pre-order,
+OPEN-ITEMS owner action 7); U3 / U37–U39 TPS70950QDBVRQ1 (C485909) are JLC Extended, 11,607 in stock.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`1c8d6dc41c8b5e8c83fbc82e1336e13c688ab2e0643999be87469c6d7c6ae8a7`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
+`6c9a3daaf4df6dd02b4d13768eee8e7b90d9ef5265fb9b335112467a2265ac60`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
 (DECISIONS.md item 61).
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).
@@ -24,14 +25,14 @@ Gerbers: `native-21-gerbers.zip`, SHA-256
 **Before ordering the bench prototype lot** (run on an isolated, current-limited supply):
 - the native-21 FEM correction matrices (leg A/B `a21corr` / `b21corr`) land and F6 re-runs on them. A failure would mean a copper change;
 - M11 (heatsink HOT↔PE stack) is approved (DECISIONS.md 2026-10-08). Its parts still need sourcing: AlN tiles (quote), non-conductive compound, gap pad, spreader bar, comb spring, FR-4 strip (`../owner-items/m11/`);
-- procurement of the no-stock parts in `../owner-items/order/ORDER-PACKAGE.md`, incl. T1, the RECOM R24C2T25/R-R bias modules U41/U42, the 30KPA150CA clamp pair D3/D17, C5/C6, and the resonant bank once its in-stock replacement part is chosen (the s49 interim B32643B8104J000 is not ordered; DECISIONS.md item 70).
+- procurement of the no-stock parts in `../owner-items/order/ORDER-PACKAGE.md`, incl. T1, the RECOM R24C2T25/R-R bias modules U41/U42, the 30KPA150CA clamp pair D3/D17, C5/C6. The resonant bank (KNSCHA MMK104J3DF1KN208G2) is in stock at JLC; TDK B32643B8104J000 is ordered only for the 28 A route (DECISIONS.md item 73, OPEN-ITEMS S28).
 
 **Before mains-connected or unattended operation, and before product release:**
 - insulation and thermal qualification (PD3, IEC 60664-4, hipot, partial discharge);
 - the laminate CTI: settled from Kingboard / UL records by naming KB-6164 on the order (`../sourcing/inquiries/CTI-RESEARCH-2026-10-14.md`, DECISIONS 41); the certifier accepts PLC 3 as group IIIa (CERTIFIER-PACKET A3);
 - F1 (Littelfuse KLDR025.TXP, UL Class CC, 600 Vac / 200 kA): the open-clip (01250003H) acceptance and the clip's voltage rating and agency file (`../owner-items/f1cc/`). The nameplate is 120–127 V~ 60 Hz, and there is no inlet fuse (DECISIONS.md 2026-10-09);
 - the certification lab's answer on the tank-voltage RMS convention (M6 reversal condition);
-- RES_A (297 V rms at 28 A) is held at 12.6 mm reinforced creepage to SELV/PE on the outer layers (item 18); the lab confirms that same-layer inner paths count as solid insulation (C152's inner rings are 9.694 mm from the SELV inner islands).
+- RES_A (297 V rms at 28 A) is held at 12.6 mm reinforced creepage to SELV/PE on the outer layers (item 18); the lab confirms that same-layer inner paths count as solid insulation (on s51 the closest is C152.1, RES_A at (163.0, 113.2): its In1 / In2 rings are 8.328 mm from the SELV v3v3 plane, unchanged since s49; the s51 x 190.5 holes are sw_b and ≥ 14.8 mm from it, `c51-bank-source/stage51/results/hole-clearance-s51.md`).
 
 M6, M10 and M11 are decided (DECISIONS.md 2026-10-08).
 
