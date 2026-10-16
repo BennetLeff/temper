@@ -75,7 +75,7 @@ Fiducials: FID1 (4, 36), FID2 (278, 128), FID3 (6, 186) (1 mm copper, 3 mm mask 
 | H5 | 24, 74 | 1.2 mm | **M3 nylon only** (UL94 V-0): screw, washer and standoff. Washer face copper-free on both outer layers (review M4); **nylon standoff ≥ 10 mm**, which carries the HOT→chassis 8.0 mm surface path |
 | H6 | 88, 100 | 7.92 mm | **M3 nylon only** (UL94 V-0): screw, washer and standoff. Washer face copper-free on both outer layers (review M4); **nylon standoff ≥ 10 mm**, which carries the HOT→chassis 8.0 mm surface path |
 | H7 | 128, 54 | 1.9 mm | **M3 nylon only** (UL94 V-0): screw, washer and standoff. Washer face copper-free on both outer layers (review M4); **nylon standoff ≥ 10 mm**, which carries the HOT→chassis 8.0 mm surface path |
-| H8 | 194, 130 | 15.4 mm | **M3 nylon only** (UL94 V-0): screw, washer and standoff. Washer face copper-free on both outer layers (review M4) |
+| H8 | 194, 130 | 14.15 mm | **M3 nylon only** (UL94 V-0): screw, washer and standoff. Washer face copper-free on both outer layers (review M4) |
 | H9 | 142, 4 | 0.9 mm | **M3 nylon only** (UL94 V-0): screw, washer and standoff. Washer face copper-free on both outer layers (review M4); **nylon standoff ≥ 10 mm**, which carries the HOT→chassis 8.0 mm surface path |
 | H10 | 152, 122 | 6.4 mm | **M3 nylon only** (UL94 V-0): screw, washer and standoff. Washer face copper-free on both outer layers (review M4); **nylon standoff ≥ 10 mm**, which carries the HOT→chassis 8.0 mm surface path |
 

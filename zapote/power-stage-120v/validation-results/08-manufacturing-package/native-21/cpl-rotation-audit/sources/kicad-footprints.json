@@ -2053,7 +2053,7 @@
  },
  "C151": {
   "layer": "F.Cu",
-  "lib": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+  "lib": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
   "pads": [
    {
     "ang": 0.0,
@@ -2080,17 +2080,17 @@
     "num": "2",
     "type": "thru_hole",
     "w": 2.4,
-    "x": 27.5,
+    "x": 22.5,
     "y": 0.0
    }
   ],
   "rot": 0.0,
   "x": 163.0,
-  "y": 97.0
+  "y": 98.2
  },
  "C152": {
   "layer": "F.Cu",
-  "lib": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+  "lib": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
   "pads": [
    {
     "ang": 0.0,
@@ -2117,13 +2117,13 @@
     "num": "2",
     "type": "thru_hole",
     "w": 2.4,
-    "x": 27.5,
+    "x": 22.5,
     "y": 0.0
    }
   ],
   "rot": 0.0,
   "x": 163.0,
-  "y": 111.5
+  "y": 113.2
  },
  "C153": {
   "layer": "F.Cu",
@@ -3373,7 +3373,7 @@
  },
  "C21": {
   "layer": "F.Cu",
-  "lib": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+  "lib": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
   "pads": [
    {
     "ang": 0.0,
@@ -3400,7 +3400,7 @@
     "num": "2",
     "type": "thru_hole",
     "w": 2.4,
-    "x": 27.5,
+    "x": 22.5,
     "y": 0.0
    }
   ],
@@ -3410,7 +3410,7 @@
  },
  "C22": {
   "layer": "F.Cu",
-  "lib": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+  "lib": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
   "pads": [
    {
     "ang": 0.0,
@@ -3437,17 +3437,17 @@
     "num": "2",
     "type": "thru_hole",
     "w": 2.4,
-    "x": 27.5,
+    "x": 22.5,
     "y": 0.0
    }
   ],
   "rot": 0.0,
   "x": 163.0,
-  "y": 67.7
+  "y": 68.2
  },
  "C23": {
   "layer": "F.Cu",
-  "lib": "temper:TDK_B32654_P27.5_W14.0_L31.5_Radial",
+  "lib": "temper:TDK_B32643B_P22.5_W14.5_L26.5_Radial",
   "pads": [
    {
     "ang": 0.0,
@@ -3474,13 +3474,13 @@
     "num": "2",
     "type": "thru_hole",
     "w": 2.4,
-    "x": 27.5,
+    "x": 22.5,
     "y": 0.0
    }
   ],
   "rot": 0.0,
   "x": 163.0,
-  "y": 82.5
+  "y": 83.2
  },
  "C24": {
   "layer": "F.Cu",
@@ -14268,7 +14268,7 @@
   ],
   "rot": 0.0,
   "x": 116.4,
-  "y": 80.05
+  "y": 81.05
  },
  "TP27": {
   "layer": "B.Cu",
