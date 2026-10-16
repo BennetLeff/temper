@@ -79,7 +79,7 @@ static bool config_ok(const n21_config_t *c)
            isfinite(c->rectifier_drop_v) && c->rectifier_drop_v >= 0 && c->rectifier_drop_v < 5 &&
            isfinite(c->startup_budget_w) && c->startup_budget_w >= 0 &&
            isfinite(c->tank_rms_trip_a) && c->tank_rms_trip_a > 0 &&
-           /* Never above the derived 1.05 x trip: the B3 board rating (DECISIONS 55) is computed at it. */
+           /* Never above the derived 1.05 x trip: the B3 board rating (OPEN-ITEMS S17) is computed at it. */
            c->tank_rms_trip_a <= tank_rms_trip_for(ceiling) + 1e-3f &&
            /* The guard sits above the crest of the RMS trip (1.41 x) but never above 1.5 x. */
            isfinite(c->tank_crest_guard_a) && c->tank_crest_guard_a >= c->tank_rms_trip_a &&
