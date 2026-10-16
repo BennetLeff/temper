@@ -242,8 +242,9 @@ impl Model {
 // ----------------------------------------------------------------- checks
 
 const SELV_NETS: &[&str] = &[
-    // stage 38 (candidate 23): v15_selv is gone with PS1; J4 pin 1 is the single-pin SELV net j4_nc1
-    "j4_nc1", "selv_gnd", "v3v3", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb", "permit",
+    // stage 38 (candidate 23): v15_selv is gone with PS1; J4 pin 1 was the single-pin SELV net j4_nc1. Stage 48
+    // (B13 H2): J4 pin 1 is bias_good_j4, BIAS_GOOD through the 220 k readback resistor
+    "bias_good_j4", "selv_gnd", "v3v3", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb", "permit",
     "bus_fault", "vbus_p", "vbus_n", "ct_s1", "ct_s2",
     "ct_sense_mon", "ct_ref_hi", "ct_ref_lo", "ct_oc_pos", "ct_oc_neg", "ct_zc", "ct_mon",
     "bus_fault_iso", "bus_fault_flt", "bias_good",
@@ -350,7 +351,16 @@ const IDENTITY: &[(&str, &str)] = &[
     ("r_hot5_uv_pull", "RT0603BRD0710KL"),
     ("r_fe", "0603WAF0000T5E"),
     ("u_ref", "LM4050AEM3-2.5/NOPB"),   // stage 47 (S17 hot copper; c47-ref25-grade): TA -40..125 C (SNOS455H 5.3 p.5); was LM4040A25IDBZR (85 C)
-    ("u_ldo", "TPS70950DBVR"),
+    // stage 48 (OPEN-ITEMS S19; c48-ldo-en-ref-watch): the Q1 grade, +-1 % over -40 <= TJ, TA <= 125 C (SLVSCE6D
+    // 5.5 p.5); the catalog TPS70950DBVR is specified only to TA 85 C (SBVS186H 6.5 p.5) and U3 sits at 106.7 C
+    ("u_ldo", "TPS70950QDBVRQ1"),
+    ("r_ldo_en_top", "0603WAF1003T5E"),
+    ("r_ldo_en_bot", "0603WAF2702T5E"),
+    // stage 48 (B13 H1): the REF25 watchdog divider, 0.1 % / 25 ppm (RT0603 B-D, TNPW B-E)
+    ("r_ref_wd_top", "RT0603BRD0763K4L"),
+    ("r_ref_wd_bot", "TNPW060311K7BEEA"),
+    // stage 48 (B13 H2): BIAS_GOOD -> J4.1 readback, >= 160 k (J4.1-J4.9 short analysis)
+    ("r_bias_good_j4", "RC1206FR-07220KL"),
     ("r_ref_bias", "0603WAF5601T5E"),
     ("r_ocp_ref", "RT0603BRD0710KL"),
     ("r_ocp_sense", "RT0603BRD0710KL"),
@@ -494,7 +504,9 @@ const IDENTITY: &[(&str, &str)] = &[
     ("hb.rbleed", "RT0603BRD0749K9L"),
     ("r_bf", "0603WAF1001T5E"),
     ("c_bf", "CL10C101JB8NNNC"),
-    ("monitor_ls.ldo5", "TPS70950DBVR"),
+    ("monitor_ls.ldo5", "TPS70950QDBVRQ1"),   // stage 48 (S19)
+    ("monitor_ls.rldo_en_top", "0603WAF1003T5E"),
+    ("monitor_ls.rldo_en_bot", "0603WAF2702T5E"),
     ("monitor_ls.cuv", "C0603C102J5GACTU"),
     ("monitor_ls.cov", "C0603C102J5GACTU"),
     ("monitor_ls.cspanuv", "C0603C102J5GACTU"),
@@ -527,7 +539,9 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_ha.monitor.rspanov_bot", "RT0603BRD0711KL"),
     ("bias_ha.monitor.monitor", "LM2901BIDR"),
     ("bias_ha.monitor.rpull", "0603WAF1002T5E"),
-    ("bias_ha.monitor.ldo5", "TPS70950DBVR"),
+    ("bias_ha.monitor.ldo5", "TPS70950QDBVRQ1"),   // stage 48 (S19)
+    ("bias_ha.monitor.rldo_en_top", "0603WAF1003T5E"),
+    ("bias_ha.monitor.rldo_en_bot", "0603WAF2702T5E"),
     ("bias_ha.monitor.cuv", "C0603C102J5GACTU"),
     ("bias_ha.monitor.cov", "C0603C102J5GACTU"),
     ("bias_ha.monitor.cspanuv", "C0603C102J5GACTU"),
@@ -560,7 +574,9 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_hb.monitor.rspanov_bot", "RT0603BRD0711KL"),
     ("bias_hb.monitor.monitor", "LM2901BIDR"),
     ("bias_hb.monitor.rpull", "0603WAF1002T5E"),
-    ("bias_hb.monitor.ldo5", "TPS70950DBVR"),
+    ("bias_hb.monitor.ldo5", "TPS70950QDBVRQ1"),   // stage 48 (S19)
+    ("bias_hb.monitor.rldo_en_top", "0603WAF1003T5E"),
+    ("bias_hb.monitor.rldo_en_bot", "0603WAF2702T5E"),
     ("bias_hb.monitor.cuv", "C0603C102J5GACTU"),
     ("bias_hb.monitor.cov", "C0603C102J5GACTU"),
     ("bias_hb.monitor.cspanuv", "C0603C102J5GACTU"),
@@ -624,7 +640,9 @@ fn min_reference_cathode_current_ua(bias_ohm: f64, ref_max: f64) -> f64 {
     // R34 + R35 = 12.6 k + 11.7 k (stage 15, 2026-10-10; was 12.4 k + 11.7 k, and 10.6 k + 10 k before 2026-10-09).
     let ocp_threshold_load = ref_max / (24_300.0 * 0.999);
     let ovp_threshold_load = ref_max / (150_000.0 * 0.999);
-    (bias_current - ocp_offset_load - ocp_threshold_load - ovp_threshold_load) * 1e6
+    // stage 48 (B13 H1): the REF25 watchdog divider R144 + R145 = 63.4 k + 11.7 k into U14 INB-
+    let watchdog_load = ref_max / (75_100.0 * 0.999);
+    (bias_current - ocp_offset_load - ocp_threshold_load - ovp_threshold_load - watchdog_load) * 1e6
 }
 
 /// Stage 47: the most REF25 cathode current can be, the whole bias-resistor current with every load open (the
@@ -680,6 +698,130 @@ fn dead_time_window_ns(r_kohm: f64, tol: f64, tcr_ppm: f64) -> (f64, f64) {
     let rmin = r_kohm * (1.0 - tol) * (1.0 - drift);
     let rmax = r_kohm * (1.0 + tol) * (1.0 + drift);
     (dt_lin(rmin, 0).min(dt_ratio(rmin, 0)), dt_lin(rmax, 2).max(dt_ratio(rmax, 2)))
+}
+
+// Stage 48 (c48-ldo-en-ref-watch). Resistor data used by the arithmetic checks: (MPN, ohm, tolerance, TCR ppm/K).
+// UNI-ROYAL 0603WAF / Yageo RC1206FR: +-1 %, +-100 ppm/K; Yageo RT0603 B-D and Vishay TNPW B-E: +-0.1 %, +-25 ppm/K.
+const S48_RESISTORS: &[(&str, f64, f64, f64)] = &[
+    ("0603WAF1003T5E", 100_000.0, 0.01, 100.0),
+    ("0603WAF2702T5E", 27_000.0, 0.01, 100.0),
+    ("RT0603BRD0763K4L", 63_400.0, 0.001, 25.0),
+    ("TNPW060311K7BEEA", 11_700.0, 0.001, 25.0),
+    ("RC1206FR-07220KL", 220_000.0, 0.01, 100.0),
+];
+/// |dT| for the ratio drift: 25 C to the 125 C rating corner (100 K).
+const S48_DT_K: f64 = 100.0;
+/// TPS709(-Q1) EN: VEN(HI) >= 0.9 V, recommended VEN <= 6.5 V (SBVS186H 6.3 / 6.5 p.4-5; SLVSCE6D 5.3 / 5.5 p.4-5).
+/// IEN is 300 nA typical only (no limit); the check carries 1 uA out of the pin (pull-up) as a bound.
+const S48_VEN_HI: f64 = 0.9;
+const S48_VEN_MAX: f64 = 6.5;
+const S48_IEN_A: f64 = 1.0e-6;
+/// IN - GND of each LDO (V): U3 = V15_LS - OCP_KELVIN_P 14.50-15.46 V (S16 rail model, s20-286v-recite 1.6); U37-U39 =
+/// the rail span 16.575-17.425 V, rounded up to 17.43 V. The checks also hold the span-OV corner 18.643 V (DECISIONS
+/// 62) and U3's 16.68 V there.
+const S48_LDO_IN: &[(&str, &str, f64, f64, f64)] = &[
+    ("u_ldo", "", 14.50, 15.46, 16.68),
+    ("monitor_ls.ldo5", "monitor_ls.", 16.575, 17.43, 18.643),
+    ("bias_ha.monitor.ldo5", "bias_ha.monitor.", 16.575, 17.43, 18.643),
+    ("bias_hb.monitor.ldo5", "bias_hb.monitor.", 16.575, 17.43, 18.643),
+];
+/// TPS3700 INB-: VIT+ 396-404 mV, I(INB-) +-15 nA (SBVS187G 6.5 p.6).
+const S48_VIT: (f64, f64) = (0.396, 0.404);
+const S48_IINB_A: f64 = 15.0e-9;
+/// LM4050AEM3-2.5 VR max (reference_spec) and REF25 with U5 open: R31 5.6 k (+1 %) from HOT5 >= 4.632 V (the
+/// HOT5-UV no-trip ceiling, s20-286v-recite 1.4) into the REF25 loads at their maxima (+0.1 %), KELVIN_N at 0 V.
+const S48_U5_OPEN_MIN_FLOOR: f64 = 2.80;
+
+fn s48_res(m: &Model, path: &str) -> Option<(f64, f64, f64)> {
+    let mpn = m.resolved.get(path)?;
+    S48_RESISTORS.iter().find(|(p, ..)| p == mpn).map(|&(_, r, t, c)| (r, t, c))
+}
+
+/// (min, max) divider ratio bottom / (top + bottom) at tolerance and TCR corners (adverse, untracked).
+fn s48_ratio(top: (f64, f64, f64), bot: (f64, f64, f64)) -> (f64, f64) {
+    let d = |r: (f64, f64, f64), s: f64| r.0 * (1.0 + s * (r.1 + r.2 * 1e-6 * S48_DT_K));
+    let lo = d(bot, -1.0) / (d(bot, -1.0) + d(top, 1.0));
+    let hi = d(bot, 1.0) / (d(bot, 1.0) + d(top, -1.0));
+    (lo, hi)
+}
+
+/// (EN min at IN min, EN max at IN max, EN max at the corner IN) for one LDO divider; the pull-up raises EN by at most
+/// IEN x Rth.
+fn s48_en_window(top: (f64, f64, f64), bot: (f64, f64, f64), vin_min: f64, vin_max: f64, vin_corner: f64) -> (f64, f64, f64) {
+    let (lo, hi) = s48_ratio(top, bot);
+    let rth = top.0 * (1.0 + top.1) * bot.0 * (1.0 + bot.1) / (top.0 * (1.0 + top.1) + bot.0 * (1.0 + bot.1));
+    (vin_min * lo, vin_max * hi + S48_IEN_A * rth, vin_corner * hi + S48_IEN_A * rth)
+}
+
+/// REF25 trip window of the watchdog: REF = (VIT+ +- I x Rth) / ratio.
+fn s48_trip_window(top: (f64, f64, f64), bot: (f64, f64, f64)) -> (f64, f64) {
+    let (lo, hi) = s48_ratio(top, bot);
+    let rth = top.0 * bot.0 / (top.0 + bot.0);
+    ((S48_VIT.0 - S48_IINB_A * rth) / hi, (S48_VIT.1 + S48_IINB_A * rth) / lo)
+}
+
+/// REF25 with U5 open, at its lowest: HOT5 4.632 V over R31 (+1 %) into the loads (OCP 20 k, threshold 24.3 k, OVP
+/// 150 k, watchdog top + bottom, each +0.1 %).
+fn s48_u5_open_min(wd_ohm: f64) -> f64 {
+    let g: f64 = [20_000.0, 24_300.0, 150_000.0, wd_ohm].iter().map(|r| 1.0 / (r * 1.001)).sum();
+    let rl = 1.0 / g;
+    4.632 * rl / (rl + 5_600.0 * 1.01)
+}
+
+fn stage48_checks(m: &Model, e: &mut Vec<String>) {
+    // S19: every TPS70950(Q)'s EN on its own divider tap, inside VEN(HI) .. 6.5 V across its IN range
+    for (ldo, base, vin_min, vin_max, vin_corner) in S48_LDO_IN {
+        let (top, bot, en) = if base.is_empty() {
+            ("r_ldo_en_top".to_string(), "r_ldo_en_bot".to_string(), "hot5_en".to_string())
+        } else {
+            let b = base.trim_end_matches('.');
+            (format!("{base}rldo_en_top"), format!("{base}rldo_en_bot"), format!("{b}-ldo_en"))
+        };
+        match m.net_of(ldo, "3") {
+            Some(n) if n == en => {}
+            n => e.push(format!("stage48: {ldo}.3 (EN) on {n:?}, expected the divider tap {en}")),
+        }
+        let want: BTreeSet<(String, String)> = [(ldo.to_string(), "3"), (top.clone(), "2"), (bot.clone(), "1")]
+            .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+        if members(m, &en) != want {
+            e.push(format!("stage48: {en} must join only {ldo}.3 and its divider, found {:?}", members(m, &en)));
+        }
+        if m.net_of(&top, "1") != m.net_of(ldo, "1") || m.net_of(&bot, "2") != m.net_of(ldo, "2") {
+            e.push(format!("stage48: {top} / {bot} must run from {ldo} IN to its GND"));
+        }
+        match (s48_res(m, &top), s48_res(m, &bot)) {
+            (Some(t), Some(b)) => {
+                let (lo, hi, corner) = s48_en_window(t, b, *vin_min, *vin_max, *vin_corner);
+                if lo < S48_VEN_HI || hi > S48_VEN_MAX || corner > S48_VEN_MAX {
+                    e.push(format!(
+                        "stage48: {ldo} EN {lo:.3}-{hi:.3} V (corner {corner:.3} V) outside VEN(HI) {S48_VEN_HI} .. {S48_VEN_MAX} V"
+                    ));
+                }
+            }
+            _ => e.push(format!("stage48: {top} / {bot} have no resistor data (S48_RESISTORS)")),
+        }
+    }
+    // B13 H1: the watchdog trips above VR max and below REF25 with U5 open, and its input stays in its 6.5 V range
+    match (s48_res(m, "r_ref_wd_top"), s48_res(m, "r_ref_wd_bot")) {
+        (Some(t), Some(b)) => {
+            let (lo, hi) = s48_trip_window(t, b);
+            let vr_max = m.resolved.get("u_ref").and_then(|p| reference_spec(p)).map(|s| s.0).unwrap_or(f64::NAN);
+            let open = s48_u5_open_min(t.0 + b.0);
+            if !(lo > vr_max) {
+                e.push(format!("stage48: REF25 watchdog trips from {lo:.4} V, not above the reference maximum {vr_max:.4} V"));
+            }
+            if !(hi < open && open > S48_U5_OPEN_MIN_FLOOR) {
+                e.push(format!("stage48: REF25 watchdog trips up to {hi:.4} V, not below REF25 with U5 open ({open:.4} V)"));
+            }
+        }
+        _ => e.push("stage48: r_ref_wd_top / r_ref_wd_bot have no resistor data (S48_RESISTORS)".into()),
+    }
+    // B13 H2: the readback resistor is >= 160 k, so a J4.1-J4.9 short holds PERMIT_GATE below VIL 0.8 V with the two
+    // 100 k pulldowns (3.3 V x 50 k / (50 k + R) < 0.8 V needs R > 156 k)
+    match s48_res(m, "r_bias_good_j4") {
+        Some((r, tol, _)) if 3.6 * 50_000.0 * 1.01 / (50_000.0 * 1.01 + r * (1.0 - tol)) < 0.8 => {}
+        _ => e.push("stage48: r_bias_good_j4 must be >= 160 k (a J4.1-J4.9 short must not lift PERMIT)".into()),
+    }
 }
 
 fn audit(m: &Model) -> Vec<String> {
@@ -885,7 +1027,10 @@ fn audit(m: &Model) -> Vec<String> {
         ("r_th_bot", "2"),
         ("u_hot5_schmitt", "3"),
         ("u_hot5_uv", "2"),
-        ("u_hot5_uv", "4"),
+        // stage 48: U14 INB (pin 4) is the REF25 watchdog input now; its divider bottom and U3's EN divider bottom
+        // return here (0.034 / 0.122-0.130 mA, in the Kelvin census)
+        ("r_ref_wd_bot", "2"),
+        ("r_ldo_en_bot", "2"),
         ("u_iso", "1"),
         ("u_iso", "7"),
         ("u_ldo", "2"),
@@ -968,7 +1113,8 @@ fn audit(m: &Model) -> Vec<String> {
             e.push(format!("{path} is {mpn}: the IRM supplies' 0.25 mA leakage cannot meet the touch-current budget (DECISIONS 47)"));
         }
     }
-    expect(&mut e, m, "u_ldo", "3", "v15_ls");
+    // stage 48 (OPEN-ITEMS S19): EN from the divider, never on IN (SBVS186H 7.4 p.13)
+    expect(&mut e, m, "u_ldo", "3", "hot5_en");
     expect(&mut e, m, "u_ldo", "1", "v15_ls");
     expect(&mut e, m, "u_ldo", "5", "hot5");
 
@@ -982,6 +1128,7 @@ fn audit(m: &Model) -> Vec<String> {
     let want: BTreeSet<(String, String)> = [
         ("r_ref_bias", "2"), ("u_ref", "1"), ("r_ocp_ref", "1"),
         ("r_th_top", "1"), ("r_ovp_top", "1"),
+        ("r_ref_wd_top", "1"),   // stage 48 (B13 H1): the REF25 watchdog divider
     ]
     .iter()
     .map(|(path, pin)| (path.to_string(), pin.to_string()))
@@ -1026,11 +1173,14 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "r_th_top", "2", "ocp_thresh");
     expect(&mut e, m, "r_th_bot", "1", "ocp_thresh");
     expect(&mut e, m, "r_th_bot", "2", "ocp_kelvin_p");
-    expect(&mut e, m, "u_hot5_uv", "5", "v15_ls");
+    // stage 48 (B13 H1): VDD on HOT5 (an INB-VDD pin 4-5 short then stays inside INB's 7 V rating, SBVS187G 6.1
+    // p.5); INB- watches REF25 and OUTB joins OUTA on hot5_uv_raw
+    expect(&mut e, m, "u_hot5_uv", "5", "hot5");
     expect(&mut e, m, "u_hot5_uv", "2", "ocp_kelvin_p");
     expect(&mut e, m, "u_hot5_uv", "3", "hot5_uv_sense");
-    expect(&mut e, m, "u_hot5_uv", "4", "ocp_kelvin_p");
+    expect(&mut e, m, "u_hot5_uv", "4", "ref25_wd");
     expect(&mut e, m, "u_hot5_uv", "1", "hot5_uv_raw");
+    expect(&mut e, m, "u_hot5_uv", "6", "hot5_uv_raw");
     expect(&mut e, m, "r_hot5_uv_top", "1", "hot5");
     expect(&mut e, m, "r_hot5_uv_top", "2", "hot5_uv_sense");
     expect(&mut e, m, "r_hot5_uv_bot", "1", "hot5_uv_sense");
@@ -1041,13 +1191,15 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "u_hot5_schmitt", "3", "ocp_kelvin_p");
     expect(&mut e, m, "u_hot5_schmitt", "4", "hot5_ok_hot");
     expect(&mut e, m, "u_hot5_schmitt", "5", "hot5");
-    expect(&mut e, m, "c_hot5_uv", "1", "v15_ls");
+    expect(&mut e, m, "c_hot5_uv", "1", "hot5");   // stage 48: decouples U14 VDD on HOT5
     expect(&mut e, m, "c_hot5_uv", "2", "ocp_kelvin_p");
     expect(&mut e, m, "c_hot5_schmitt", "1", "hot5");
     expect(&mut e, m, "c_hot5_schmitt", "2", "ocp_kelvin_p");
     for (net, wanted) in [
         ("hot5_uv_sense", vec![("u_hot5_uv", "3"), ("r_hot5_uv_top", "2"), ("r_hot5_uv_bot", "1")]),
-        ("hot5_uv_raw", vec![("u_hot5_uv", "1"), ("r_hot5_uv_pull", "2"), ("u_hot5_schmitt", "2")]),
+        ("hot5_uv_raw", vec![("u_hot5_uv", "1"), ("u_hot5_uv", "6"), ("r_hot5_uv_pull", "2"), ("u_hot5_schmitt", "2")]),
+        ("ref25_wd", vec![("u_hot5_uv", "4"), ("r_ref_wd_top", "2"), ("r_ref_wd_bot", "1")]),
+        ("hot5_en", vec![("u_ldo", "3"), ("r_ldo_en_top", "2"), ("r_ldo_en_bot", "1")]),
         ("hot5_ok_hot", vec![("u_hot5_schmitt", "4"), ("u_nand", "6")]),
     ] {
         let want: BTreeSet<(String, String)> = wanted.iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
@@ -1153,18 +1305,21 @@ fn audit(m: &Model) -> Vec<String> {
 
     // 10. Controller header map.
     let header = [
-        "j4_nc1", "selv_gnd", "v3v3", "selv_gnd", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb",
+        "bias_good_j4", "selv_gnd", "v3v3", "selv_gnd", "pwm_ha", "pwm_la", "pwm_hb", "pwm_lb",
         "permit", "bus_fault", "vbus_p", "vbus_n", "ct_zc", "ct_mon", "selv_gnd", "line_zc",
     ];
     for (i, net) in header.iter().enumerate() {
         expect(&mut e, m, "j_selv", &(i + 1).to_string(), net);
     }
-    // stage 38: pin 1 carried PS1's 15 V; it is now not connected (a single-pin net), so nothing on this board can
-    // drive the controller's former 15 V input
-    let nc1: BTreeSet<(String, String)> = [("j_selv".to_string(), "1".to_string())].into_iter().collect();
-    if members(m, "j4_nc1") != nc1 {
-        e.push(format!("j4_nc1 (J4 pin 1) must stay not connected, found {:?}", members(m, "j4_nc1")));
+    // stage 38: pin 1 carried PS1's 15 V and was then left not connected. Stage 48 (B13 H2): it carries only
+    // BIAS_GOOD through r_bias_good_j4, so nothing on this board can drive J4.1 harder than 3.3 V / 220 k
+    let j41: BTreeSet<(String, String)> = [("j_selv", "1"), ("r_bias_good_j4", "2")]
+        .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if members(m, "bias_good_j4") != j41 {
+        e.push(format!("bias_good_j4 (J4 pin 1) must join only J4.1 and the readback resistor, found {:?}", members(m, "bias_good_j4")));
     }
+    expect(&mut e, m, "r_bias_good_j4", "1", "bias_good");
+    stage48_checks(m, &mut e);
 
     // 11. Tank CT: the secondary is terminated on this board, at the CT, and
     //     never reaches the connector (an open secondary spikes to hundreds of
@@ -1478,9 +1633,11 @@ mod tests {
     }
 
     #[test]
-    fn hot5_supervisor_must_use_independent_v15() {
+    fn hot5_supervisor_vdd_on_hot5() {
+        // stage 48 (B13 H1): VDD moved V15_LS -> HOT5 so an INB-VDD short stays inside INB's 7 V rating; back on
+        // V15_LS must fail
         let mut m = built();
-        m.rewire("u_hot5_uv", "5", "hot5");
+        m.rewire("u_hot5_uv", "5", "v15_ls");
         fails(&m, "u_hot5_uv.5");
     }
 
@@ -1865,6 +2022,56 @@ mod tests {
     }
 
     #[test]
+    fn stage48_ldo_en_ref_watch_holds() {
+        let m = built();
+        assert!(audit(&m).is_empty(), "{:#?}", audit(&m));
+        // S19: EN back on IN must fail, on U3 and on each monitor LDO
+        let mut m = built();
+        m.rewire("u_ldo", "3", "v15_ls");
+        fails(&m, "stage48: u_ldo.3 (EN)");
+        for (ldo, inn) in [("monitor_ls.ldo5", "v15_ls"), ("bias_ha.monitor.ldo5", "p_ha"), ("bias_hb.monitor.ldo5", "p_hb")] {
+            let mut m = built();
+            m.rewire(ldo, "3", inn);
+            fails(&m, &format!("stage48: {ldo}.3 (EN)"));
+        }
+        // the catalog grade back must fail
+        let mut m = built();
+        m.set_part("u_ldo", "TPS70950DBVR");
+        fails(&m, "u_ldo is TPS70950DBVR");
+        // a divider that lets EN pass 6.5 V at the IN maximum must fail by arithmetic (27 k top / 100 k bottom swapped)
+        let t = (27_000.0, 0.01, 100.0);
+        let b = (100_000.0, 0.01, 100.0);
+        assert!(s48_en_window(t, b, 14.5, 15.46, 16.68).1 > S48_VEN_MAX);
+        // and the chosen one holds: EN 2.987-3.41 V on U3, <= 4.11 V at the 18.643 V span-OV corner on U37-U39
+        let (lo, hi, _) = s48_en_window(b, t, 14.5, 15.46, 16.68);
+        assert!(lo > 2.98 && lo < 2.99 && hi < 3.42, "{lo} {hi}");
+        let (_, _, c) = s48_en_window(b, t, 16.575, 17.43, 18.643);
+        assert!(c < 4.12, "{c}");
+        // H1: the trip window 2.526-2.610 V sits above VR max 2.5162 V and below REF25 with U5 open
+        let (lo, hi) = s48_trip_window((63_400.0, 0.001, 25.0), (11_700.0, 0.001, 25.0));
+        assert!(lo > 2.5162 && lo < 2.527 && hi > 2.609 && hi < 2.611, "{lo} {hi}");
+        assert!(s48_u5_open_min(75_100.0) > 2.80);
+        // a 10 k / 10 k watchdog trips at ~0.8 V (fails: below VR) and a 105 k / 10 k one at ~4.6 V (U5 open missed)
+        let mut m = built();
+        m.set_part("r_ref_wd_top", "TNPW060311K7BEEA");
+        fails(&m, "stage48: REF25 watchdog trips from");
+        // INB back on the Kelvin net, or OUTB left open, must fail
+        let mut m = built();
+        m.rewire("u_hot5_uv", "4", "ocp_kelvin_p");
+        fails(&m, "u_hot5_uv.4");
+        let mut m = built();
+        m.rewire("u_hot5_uv", "6", "ref25");
+        fails(&m, "u_hot5_uv.6");
+        // H2: a 1 k readback (a J4.1-J4.9 short would lift PERMIT) must fail; J4.1 straight onto BIAS_GOOD must fail
+        let mut m = built();
+        m.set_part("r_bias_good_j4", "0603WAF1001T5E");
+        fails(&m, "stage48: r_bias_good_j4 must be >= 160 k");
+        let mut m = built();
+        m.rewire("j_selv", "1", "bias_good");
+        fails(&m, "j_selv.1");
+    }
+
+    #[test]
     fn stage47_ref25_grade_holds() {
         // S17 hot copper (c47-ref25-grade): U5 reads 88.9 C at the c17.5 @ 61 release case (s46 B3 probes), over the
         // LM4040A25I's 85 C; the 85 C grade back at REF25 must fail, and so must a pin 3 that is not left floating
@@ -1890,10 +2097,10 @@ mod tests {
         m.set_part("ps_gate", "IRM-20-24");
         fails(&m, "ps_gate is IRM-20-24");
         fails(&m, "IRM supplies");
-        // anything on J4 pin 1 (the former PS1 15 V) must fail
+        // anything else on J4 pin 1 (the former PS1 15 V, now the BIAS_GOOD readback) must fail
         let mut m = built();
-        m.rewire("c_iso2", "1", "j4_nc1");
-        fails(&m, "j4_nc1 (J4 pin 1)");
+        m.rewire("c_iso2", "1", "bias_good_j4");
+        fails(&m, "bias_good_j4 (J4 pin 1)");
         let mut m = built();
         m.rewire("j_selv", "1", "v3v3");
         fails(&m, "j_selv.1");

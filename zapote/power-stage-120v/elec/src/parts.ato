@@ -678,7 +678,7 @@ component Nand3Lvc1g10:
     signal C ~ pin 6
 
 component Hot5Supervisor:
-    """TI TPS3700DDCR; V15-powered HOT5 undervoltage detector. DDC SOT-6."""
+    """TI TPS3700DDCR; HOT5 undervoltage detector (channel A) and REF25 watchdog (channel B); HOT5-powered since stage 48. DDC SOT-6."""
     designator_prefix = "U"
     mpn = "TPS3700DDCR"
     manufacturer = "Texas Instruments"

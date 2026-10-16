@@ -148,6 +148,9 @@ fn connections() -> Vec<(String, String, String)> {
             ("cspanuv", "spanuv", "n"),
             ("cspanov", "spanov", "n"),
             ("cmonitor", "p", "n"),
+            // stage 48 (OPEN-ITEMS S19): the LDO's EN from a 100 k / 27 k divider on the rail span (SBVS186H 7.4 p.13)
+            ("rldo_en_top", "p", "ldo_en"),
+            ("rldo_en_bot", "ldo_en", "n"),
         ] {
             add(&format!("{base}.{part}"), "1", &local(a));
             add(&format!("{base}.{part}"), "2", &local(b));
@@ -175,10 +178,10 @@ fn connections() -> Vec<(String, String, String)> {
             ("reference", "1", "ref"),
             ("reference", "2", "ref"),
             ("reference", "3", "n"),
-            // TPS70950 SOT-23-5: 1 IN, 2 GND, 3 EN, 5 OUT.
+            // TPS70950(Q) SOT-23-5: 1 IN, 2 GND, 3 EN, 5 OUT. Stage 48: EN on the divider tap, never on IN (S19).
             ("ldo5", "1", "p"),
             ("ldo5", "2", "n"),
-            ("ldo5", "3", "p"),
+            ("ldo5", "3", "ldo_en"),
             ("ldo5", "5", "v5"),
         ] {
             add(&format!("{base}.{part}"), pin, &local(key));

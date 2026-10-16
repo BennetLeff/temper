@@ -123,6 +123,7 @@ module RailMonitor:
     signal halfref
     signal good
     signal v5
+    signal ldo_en
     signal uv
     signal ov
     signal spanuv
@@ -192,9 +193,19 @@ module RailMonitor:
     monitor.p14 ~ good
     ldo5 = new HotLdo
     ldo5.IN ~ p
-    ldo5.EN ~ p
+    ldo5.EN ~ ldo_en
     ldo5.GND ~ n
     ldo5.OUT ~ v5
+    # Stage 48 (OPEN-ITEMS S19): EN was tied to IN (the rail span, <= 17.43 V) against SBVS186H 7.4 p.13. 100 k / 27 k:
+    # EN 3.41-3.85 V over the span 16.575-17.43 V (4.11 V at the 18.643 V span-OV corner), inside 0.9 .. 6.5 V
+    rldo_en_top = new R100k0603
+    rldo_en_top.value = 100kohm
+    rldo_en_top.p1 ~ p
+    rldo_en_top.p2 ~ ldo_en
+    rldo_en_bot = new Bias27k
+    rldo_en_bot.value = 27kohm
+    rldo_en_bot.p1 ~ ldo_en
+    rldo_en_bot.p2 ~ n
     cldo_in = new C100n0603
     cldo_in.value = 100nF
     cldo_in.p1 ~ p

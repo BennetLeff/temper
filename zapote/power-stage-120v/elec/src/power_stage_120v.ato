@@ -36,7 +36,7 @@ from "parts.ato" import Hot5Supervisor, Hot5SchmittBuffer, R105kThin
 from "parts.ato" import BusTvs30kpa150
 from "parts.ato" import Burden3R0, C100nC0G1206, R1kThin, R2k21Thin, R1k1206, ClampBas116h, Or3Lvc1g332
 
-from "f6_parts.ato" import HotSupply24, HotLdo, GateDischarge, Gate1R, DisNand, BiasGoodSchmitt, Bias4k99, Bias10u, Bias27k
+from "f6_parts.ato" import HotSupply24, HotLdo, GateDischarge, Gate1R, DisNand, BiasGoodSchmitt, Bias4k99, Bias10u, Bias27k, BiasFb63k4
 from "f6_bias.ato" import BiasReservoir, RegulatedSplit, RailMonitor, HighBiasLink, LineZeroCross, Heartbeat
 
 module BridgeLeg:
@@ -268,11 +268,17 @@ module PowerStage120V:
     signal OVP_OK_HOT
     signal HOT5_UV_SENSE
     signal HOT5_UV_RAW
+    # stage 48 (OPEN-ITEMS S19): U3's EN from a 100 k / 27 k divider on V15_LS (SBVS186H 7.4 p.13: EN must not see VIN)
+    signal HOT5_EN
+    # stage 48 (OPEN-ITEMS B13 H1): REF25 watchdog tap, 63.4 k / 11.7 k into U14 INB-
+    signal REF25_WD
     signal HOT5_OK_HOT
     signal BUS_FAULT_HOT
     # SELV
     signal SELV_GND
-    signal J4_NC1   # stage 38: J4 pin 1 (was V15_SELV from PS1), not connected; a named single-pin SELV net
+    # stage 38: J4 pin 1 (was V15_SELV from PS1) was the single-pin net J4_NC1. Stage 48 (OPEN-ITEMS B13 H2): BIAS_GOOD
+    # read back on J4 pin 1 through a 220 k series resistor (a J4.1-J4.9 short cannot lift PERMIT; c48 README)
+    signal BIAS_GOOD_J4
     signal V3V3
     signal PWM_HA
     signal PWM_LA
@@ -477,9 +483,20 @@ module PowerStage120V:
     c_v15.p2 ~ N_LS
     u_ldo = new HotLdo
     u_ldo.IN ~ V15_LS
-    u_ldo.EN ~ V15_LS
+    u_ldo.EN ~ HOT5_EN
     u_ldo.GND ~ OCP_KELVIN_P
     u_ldo.OUT ~ HOT5
+    # Stage 48 (OPEN-ITEMS S19): EN was tied to IN (V15_LS, <= 15.46 V above OCP_KELVIN_P) against SBVS186H 7.4 p.13
+    # ("Do not connect EN to VIN"; VEN abs max 7 V, recommended 0-6.5 V). 100 k / 27 k: EN 2.99-3.41 V over IN
+    # 14.50-15.46 V, inside VEN(HI) >= 0.9 V .. 6.5 V; EN stays <= 6.5 V for IN up to 29.5 V (11-candidates/c48-ldo-en-ref-watch)
+    r_ldo_en_top = new R100k0603
+    r_ldo_en_top.value = 100kohm
+    r_ldo_en_top.p1 ~ V15_LS
+    r_ldo_en_top.p2 ~ HOT5_EN
+    r_ldo_en_bot = new Bias27k
+    r_ldo_en_bot.value = 27kohm
+    r_ldo_en_bot.p1 ~ HOT5_EN
+    r_ldo_en_bot.p2 ~ OCP_KELVIN_P
     c_ldo_in = new C100n0603
     c_ldo_in.value = 100nF
     c_ldo_in.p1 ~ V15_LS
@@ -651,7 +668,7 @@ module PowerStage120V:
     # ---------------- SELV controller header (Micro-Fit 2x8)
     j_selv = new SelvHeader16
     # pin 1 (was V15_SELV from PS1) is not connected since stage 38; the J4 re-pin (g06-g08-g10 P5) is separate
-    j_selv.p1 ~ J4_NC1
+    j_selv.p1 ~ BIAS_GOOD_J4
     j_selv.p2 ~ SELV_GND
     j_selv.p3 ~ V3V3
     j_selv.p4 ~ SELV_GND
@@ -887,11 +904,24 @@ module PowerStage120V:
     # native18 integration baseline. The nets above may be joined later.
     # TPS3700 uses V15_LS independently of the HOT5 rail it measures.
     u_hot5_uv = new Hot5Supervisor
-    u_hot5_uv.VDD ~ V15_LS
+    # Stage 48 (OPEN-ITEMS B13 H1): VDD moves V15_LS -> HOT5, so an INB-VDD (pin 4-5) short puts <= 5.5 V on INB
+    # (7 V abs max, SBVS187G 6.1 p.5); below UVLO OUTA is driven low (6.5 note 3 p.6), and the HOT-side chain on HOT5
+    # (U15, U9) defaults to fault below that. The spare channel watches REF25: INB- from 63.4 k / 11.7 k, OUTB wired-AND
+    # onto HOT5_UV_RAW (R50 pull-up), so REF25 above 2.526-2.610 V (U5 open) raises BUS_FAULT.
+    u_hot5_uv.VDD ~ HOT5
     u_hot5_uv.GND ~ OCP_KELVIN_P
     u_hot5_uv.INA ~ HOT5_UV_SENSE
-    u_hot5_uv.INB ~ OCP_KELVIN_P
+    u_hot5_uv.INB ~ REF25_WD
     u_hot5_uv.OUTA ~ HOT5_UV_RAW
+    u_hot5_uv.OUTB ~ HOT5_UV_RAW
+    r_ref_wd_top = new BiasFb63k4
+    r_ref_wd_top.value = 63.4kohm
+    r_ref_wd_top.p1 ~ REF25
+    r_ref_wd_top.p2 ~ REF25_WD
+    r_ref_wd_bot = new R11k7Thin
+    r_ref_wd_bot.value = 11.7kohm
+    r_ref_wd_bot.p1 ~ REF25_WD
+    r_ref_wd_bot.p2 ~ OCP_KELVIN_P
     r_hot5_uv_top = new R105kThin
     r_hot5_uv_top.value = 105kohm
     r_hot5_uv_top.p1 ~ HOT5
@@ -906,7 +936,7 @@ module PowerStage120V:
     r_hot5_uv_pull.p2 ~ HOT5_UV_RAW
     c_hot5_uv = new C100n0603
     c_hot5_uv.value = 100nF
-    c_hot5_uv.p1 ~ V15_LS
+    c_hot5_uv.p1 ~ HOT5
     c_hot5_uv.p2 ~ OCP_KELVIN_P
     u_hot5_schmitt = new Hot5SchmittBuffer
     u_hot5_schmitt.VCC ~ HOT5
@@ -962,6 +992,13 @@ module PowerStage120V:
     u_bias_flt = new SchmittBuf17
     u_bias_flt.A ~ hb.hb_hold
     u_bias_flt.Y ~ BIAS_GOOD
+    # Stage 48 (OPEN-ITEMS B13 H2): BIAS_GOOD read back on J4 pin 1 for the controller's power-on check. 220 k so a
+    # J4.1-J4.9 (PERMIT) short with the controller pin high-Z leaves PERMIT_GATE <= 0.68 V (3.6 V into the two 100 k
+    # pulldowns; VIL 0.8 V), and a harness fault (15 V on J4.1) pushes <= 68 uA into U40's output
+    r_bias_good_j4 = new R220k1206
+    r_bias_good_j4.value = 220kohm
+    r_bias_good_j4.p1 ~ BIAS_GOOD
+    r_bias_good_j4.p2 ~ BIAS_GOOD_J4
     u_bias_flt.VCC ~ V3V3
     u_bias_flt.GND ~ SELV_GND
     c_bias_flt_vcc = new C100n0603
@@ -1043,6 +1080,18 @@ module PowerStage120V:
     c_ref_xfer_11.designator = "C174"
     c_ref_xfer_12.designator = "C175"
     c_hot5_uv.designator = "C48"
+    # stage 48: EN dividers (S19), the REF25 watchdog (B13 H1) and the BIAS_GOOD readback (B13 H2)
+    r_ldo_en_top.designator = "R136"
+    r_ldo_en_bot.designator = "R137"
+    monitor_ls.rldo_en_top.designator = "R138"
+    monitor_ls.rldo_en_bot.designator = "R139"
+    bias_ha.monitor.rldo_en_top.designator = "R140"
+    bias_ha.monitor.rldo_en_bot.designator = "R141"
+    bias_hb.monitor.rldo_en_top.designator = "R142"
+    bias_hb.monitor.rldo_en_bot.designator = "R143"
+    r_ref_wd_top.designator = "R144"
+    r_ref_wd_bot.designator = "R145"
+    r_bias_good_j4.designator = "R146"
     c_hot5_schmitt.designator = "C49"
     u_ref.designator = "U5"
     leg_a.r_permit.designator = "R6"

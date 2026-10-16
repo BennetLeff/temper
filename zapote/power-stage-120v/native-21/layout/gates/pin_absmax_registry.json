@@ -8,31 +8,31 @@
    "tol": 0.01,
    "file": "uniroyal_w4f.pdf",
    "page": 2,
-   "quote": "7thcode:Tolerance.E.g.:D=±0.5%F=±1%"
+   "quote": "7thcode:Tolerance.E.g.:D=\u00b10.5%F=\u00b11%"
   },
   "1206W4F": {
    "tol": 0.01,
    "file": "uniroyal_w4f.pdf",
    "page": 2,
-   "quote": "7thcode:Tolerance.E.g.:D=±0.5%F=±1%"
+   "quote": "7thcode:Tolerance.E.g.:D=\u00b10.5%F=\u00b11%"
   },
   "RC1206FR-07": {
    "tol": 0.01,
    "file": "yageo_rc.pdf",
    "page": 2,
-   "quote": "F=±1.0%"
+   "quote": "F=\u00b11.0%"
   },
   "RT0603BRD07": {
    "tol": 0.001,
    "file": "yageo_rt.pdf",
    "page": 2,
-   "quote": "B=±0.1%"
+   "quote": "B=\u00b10.1%"
   },
   "TNPW0603": {
    "tol": 0.01,
    "file": "vishay_tnpw.pdf",
    "page": 1,
-   "quote": "Resistancetolerance(1)±0.5%;±0.1%±1%;±0.5%;±0.1%"
+   "quote": "Resistancetolerance(1)\u00b10.5%;\u00b10.1%\u00b11%;\u00b10.5%;\u00b10.1%"
   },
   "_default": {
    "tol": 0.05,
@@ -118,7 +118,7 @@
     {
      "file": "mpm-20-spec.pdf",
      "page": 2,
-     "quote": "VOLTAGETOLERANCENote.5±2.0%±2.0%±2.0%±2.0%±2.0%"
+     "quote": "VOLTAGETOLERANCENote.5\u00b12.0%\u00b12.0%\u00b12.0%\u00b12.0%\u00b12.0%"
     },
     {
      "file": "mpm-20-spec.pdf",
@@ -130,14 +130,19 @@
   "hot5": {
    "kind": "rail",
    "ref": "ocp_kelvin_p",
-   "lo": 4.95,
-   "hi": 5.05,
-   "cite": "U3 TPS70950 OUT: 5.0 V -1 %..+1 % (SBVS186H 6.5 p.5, 'DC output accuracy VOUT >= 3.3 V -1 % 1 %')",
+   "lo": 4.89,
+   "hi": 5.11,
+   "cite": "U3 TPS70950QDBVRQ1 OUT (stage 48: the Q1 grade, specified at -40 C <= TJ, TA <= 125 C, SLVSCE6D 5.5 p.5): 5.0 V +-1 % ('DC output accuracy VOUT >= 3.3 V -1 1'), line regulation 10 mV max, load regulation 50 mV max, signs adverse: 4.89-5.11 V",
    "datasheet_cites": [
     {
-     "file": "tps709.pdf",
+     "file": "tps709-q1.pdf",
      "page": 5,
-     "quote": "VOUT≥3.3V–1%1%"
+     "quote": "VOUT\u22653.3V\u201311"
+    },
+    {
+     "file": "tps709-q1.pdf",
+     "page": 5,
+     "quote": "Lineregulation(VOUT(nom)+1V,2.7V)\u2264VIN\u226430V310"
     }
    ]
   },
@@ -151,21 +156,26 @@
     {
      "file": "lm4050n.pdf",
      "page": 7,
-     "quote": "tolerance(5)LM4050AEM3±15"
+     "quote": "tolerance(5)LM4050AEM3\u00b115"
     }
    ]
   },
   "ls_v5": {
    "kind": "rail",
    "ref": "n_ls",
-   "lo": 4.95,
-   "hi": 5.05,
-   "cite": "U37 TPS70950 OUT: 5.0 V +-1 % (SBVS186H 6.5 p.5)",
+   "lo": 4.89,
+   "hi": 5.11,
+   "cite": "U37 TPS70950QDBVRQ1 OUT (stage 48: the Q1 grade, specified at -40 C <= TJ, TA <= 125 C, SLVSCE6D 5.5 p.5): 5.0 V +-1 % ('DC output accuracy VOUT >= 3.3 V -1 1'), line regulation 10 mV max, load regulation 50 mV max, signs adverse: 4.89-5.11 V",
    "datasheet_cites": [
     {
-     "file": "tps709.pdf",
+     "file": "tps709-q1.pdf",
      "page": 5,
-     "quote": "VOUT≥3.3V–1%1%"
+     "quote": "VOUT\u22653.3V\u201311"
+    },
+    {
+     "file": "tps709-q1.pdf",
+     "page": 5,
+     "quote": "Lineregulation(VOUT(nom)+1V,2.7V)\u2264VIN\u226430V310"
     }
    ]
   },
@@ -196,14 +206,19 @@
   "bias_ha.monitor-v5": {
    "kind": "rail",
    "ref": "n_ha",
-   "lo": 4.95,
-   "hi": 5.05,
-   "cite": "U38 TPS70950 OUT: 5.0 V +-1 % (SBVS186H 6.5 p.5)",
+   "lo": 4.89,
+   "hi": 5.11,
+   "cite": "U38 TPS70950QDBVRQ1 OUT (stage 48: the Q1 grade, specified at -40 C <= TJ, TA <= 125 C, SLVSCE6D 5.5 p.5): 5.0 V +-1 % ('DC output accuracy VOUT >= 3.3 V -1 1'), line regulation 10 mV max, load regulation 50 mV max, signs adverse: 4.89-5.11 V",
    "datasheet_cites": [
     {
-     "file": "tps709.pdf",
+     "file": "tps709-q1.pdf",
      "page": 5,
-     "quote": "VOUT≥3.3V–1%1%"
+     "quote": "VOUT\u22653.3V\u201311"
+    },
+    {
+     "file": "tps709-q1.pdf",
+     "page": 5,
+     "quote": "Lineregulation(VOUT(nom)+1V,2.7V)\u2264VIN\u226430V310"
     }
    ]
   },
@@ -234,14 +249,19 @@
   "bias_hb.monitor-v5": {
    "kind": "rail",
    "ref": "n_hb",
-   "lo": 4.95,
-   "hi": 5.05,
-   "cite": "U39 TPS70950 OUT: 5.0 V +-1 % (SBVS186H 6.5 p.5)",
+   "lo": 4.89,
+   "hi": 5.11,
+   "cite": "U39 TPS70950QDBVRQ1 OUT (stage 48: the Q1 grade, specified at -40 C <= TJ, TA <= 125 C, SLVSCE6D 5.5 p.5): 5.0 V +-1 % ('DC output accuracy VOUT >= 3.3 V -1 1'), line regulation 10 mV max, load regulation 50 mV max, signs adverse: 4.89-5.11 V",
    "datasheet_cites": [
     {
-     "file": "tps709.pdf",
+     "file": "tps709-q1.pdf",
      "page": 5,
-     "quote": "VOUT≥3.3V–1%1%"
+     "quote": "VOUT\u22653.3V\u201311"
+    },
+    {
+     "file": "tps709-q1.pdf",
+     "page": 5,
+     "quote": "Lineregulation(VOUT(nom)+1V,2.7V)\u2264VIN\u226430V310"
     }
    ]
   },
@@ -1108,6 +1128,80 @@
    ],
    "cite": "frozen netlist: R135 pin 1 on v3v3 (default.net:3360), pin 2 on hsb_good with U46.1 (default.net:3166-3168)",
    "derive": "U46 input A tied high through R135 to V3V3; its only other connection is a high-impedance CMOS input, so the node lies in [SELV_GND, V3V3]"
+  },
+  "hot5_en": {
+   "kind": "divider",
+   "top": "v15_ls",
+   "bottom": "ocp_kelvin_p",
+   "r_top": [
+    "R136"
+   ],
+   "r_bot": [
+    "R137"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "stage 48 (OPEN-ITEMS S19): U3 EN from R136 100 k off V15_LS and R137 27 k to the HOT ground (U3 GND), in place of EN tied to IN"
+  },
+  "monitor_ls-ldo_en": {
+   "kind": "divider",
+   "top": "v15_ls",
+   "bottom": "n_ls",
+   "r_top": [
+    "R138"
+   ],
+   "r_bot": [
+    "R139"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "stage 48 (OPEN-ITEMS S19): U37 EN from R138 100 k off the rail top V15_LS and R139 27 k to the rail bottom N_LS (its GND), in place of EN tied to IN"
+  },
+  "bias_ha.monitor-ldo_en": {
+   "kind": "divider",
+   "top": "p_ha",
+   "bottom": "n_ha",
+   "r_top": [
+    "R140"
+   ],
+   "r_bot": [
+    "R141"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "stage 48 (OPEN-ITEMS S19): U38 EN from R140 100 k off the rail top P_HA and R141 27 k to the rail bottom N_HA (its GND), in place of EN tied to IN"
+  },
+  "bias_hb.monitor-ldo_en": {
+   "kind": "divider",
+   "top": "p_hb",
+   "bottom": "n_hb",
+   "r_top": [
+    "R142"
+   ],
+   "r_bot": [
+    "R143"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "stage 48 (OPEN-ITEMS S19): U39 EN from R142 100 k off the rail top P_HB and R143 27 k to the rail bottom N_HB (its GND), in place of EN tied to IN"
+  },
+  "ref25_wd": {
+   "kind": "divider",
+   "top": "ref25",
+   "bottom": "ocp_kelvin_p",
+   "r_top": [
+    "R144"
+   ],
+   "r_bot": [
+    "R145"
+   ],
+   "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
+   "derive": "stage 48 (OPEN-ITEMS B13 H1): the REF25 watchdog tap into U14 INB-, R144 63.4 k from REF25 and R145 11.7 k to the HOT ground"
+  },
+  "bias_good_j4": {
+   "kind": "follow",
+   "src": "bias_good",
+   "via": [
+    "R146"
+   ],
+   "cite": "series resistor from the source net",
+   "derive": "stage 48 (OPEN-ITEMS B13 H2): R146 220 k in series from BIAS_GOOD to J4 pin 1 (the controller's power-on readback); no IC pin on the net"
   }
  },
  "parts": {
@@ -1799,7 +1893,7 @@
        "min": 2.7,
        "max": 5.5,
        "page": 4,
-       "quote": "VSSupplyvoltage,VS=(VS+)-(VS-)2.7(±1.35)5.5(±2.75)V",
+       "quote": "VSSupplyvoltage,VS=(VS+)-(VS-)2.7(\u00b11.35)5.5(\u00b12.75)V",
        "table": "6.3 Recommended Operating Conditions"
       }
      ]
@@ -3504,7 +3598,7 @@
        "min": 21,
        "max": 27,
        "page": 2,
-       "quote": "InputVoltageRangeVINreferto„DeratingGraph“21VDC24VDC27VDC",
+       "quote": "InputVoltageRangeVINreferto\u201eDeratingGraph\u201c21VDC24VDC27VDC",
        "table": "BASIC CHARACTERISTICS"
       }
      ]
@@ -3526,7 +3620,7 @@
        "min": 21,
        "max": 27,
        "page": 2,
-       "quote": "InputVoltageRangeVINreferto„DeratingGraph“21VDC24VDC27VDC",
+       "quote": "InputVoltageRangeVINreferto\u201eDeratingGraph\u201c21VDC24VDC27VDC",
        "table": "BASIC CHARACTERISTICS"
       }
      ]
@@ -3706,6 +3800,102 @@
        "page": 5,
        "quote": "Drain-sourcebreakdownvoltageV(BR)DSS650",
        "table": "Table 3 (V(BR)DSS min 650 V used as the drain-source stress limit)"
+      }
+     ]
+    }
+   }
+  },
+  "TPS70950QDBVRQ1": {
+   "datasheet": {
+    "file": "tps709-q1.pdf",
+    "title": "TI TPS709-Q1 SLVSCE6D, December 2013, revised August 2025",
+    "url": "https://www.ti.com/lit/ds/symlink/tps709-q1.pdf"
+   },
+   "pins": {
+    "1": "IN",
+    "2": "GND",
+    "3": "EN",
+    "4": "NC",
+    "5": "OUT"
+   },
+   "functions": {
+    "GND": {
+     "role": "ref"
+    },
+    "NC": {
+     "role": "nc"
+    },
+    "IN": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 32,
+       "page": 3,
+       "quote": "VIN\u20130.332",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 2.7,
+       "max": 30,
+       "page": 4,
+       "quote": "VINInputvoltage2.730V",
+       "table": "5.3 Recommended Operating Conditions"
+      }
+     ]
+    },
+    "EN": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 7,
+       "page": 3,
+       "quote": "VEN\u20130.37",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 0,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VENEnablevoltage06.5V",
+       "table": "5.3 Recommended Operating Conditions"
+      }
+     ],
+     "forbid_tie": [
+      {
+       "with": "IN",
+       "page": 3,
+       "quote": "This pin can be left floating to enable the device. The maximum voltage must remain below 6.5 V.",
+       "table": "4 Pin Configuration and Functions (EN; VIN runs to 30 V, 5.3 p.4); the catalog sheet states it outright, SBVS186H 7.4 p.13 'Do not connect EN to VIN'"
+      }
+     ]
+    },
+    "OUT": {
+     "limits": [
+      {
+       "vs": "GND",
+       "min": -0.3,
+       "max": 7,
+       "page": 3,
+       "quote": "VOUT\u20130.37",
+       "table": "5.1 Absolute Maximum Ratings"
+      }
+     ],
+     "rec": [
+      {
+       "vs": "GND",
+       "min": 1.2,
+       "max": 6.5,
+       "page": 4,
+       "quote": "VOUTOutputvoltage1.26.5V",
+       "table": "5.3 Recommended Operating Conditions"
       }
      ]
     }

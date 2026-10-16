@@ -60,7 +60,9 @@ groups["LOW"] |= {"ocp_kelvin_p", "n_ls", "v24_raw", "bias_sw1", "bias_sw2", "bi
                   "ls_v5", "mon_good_ha", "vote_nc", "hb_tx", "hb_rc", "hb.iso-nc2", "hb.iso-nc5", "hb.iso-nc6",
                   "hb.iso-nc8",
                   # stage 40 (candidate 30a): HS-B's verdict after its ISO6721FB link, and the second vote diode's open anode
-                  "mon_good_hb", "vote_b_nc"}
+                  "mon_good_hb", "vote_b_nc",
+                  # stage 48 (c48-ldo-en-ref-watch): U3's EN divider tap (S19) and the REF25 watchdog tap (B13 H1)
+                  "hot5_en", "ref25_wd"}
 for n in nets:
     if n in SELV or n in wr.SELV_NC or re.search(r"\.(iso|verdict)-nc(10|11|12|15)$", n):
         continue

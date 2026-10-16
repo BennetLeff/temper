@@ -153,16 +153,32 @@ mpn_of, val = g.load_bom(root / "native-21/frozen/default.csv", root / "native-2
 text = (root / "native-21/frozen/default.net").read_text()
 real = g.check(root, REAL, text, mpn_of, val)
 check(not real["errors"], "real tree: no registry errors (topology, citations, sources all consistent)", real["errors"][:5])
-expect = {"U3.3", "U37.3", "U38.3", "U39.3"}
-check(set(keys(real)) == expect, "real tree FAILS on exactly the four TPS70950 EN pins (U3, U37, U38, U39)", keys(real))
+# stage 48 (c48-ldo-en-ref-watch): the four EN pins sit on 100 k / 27 k dividers, so the real tree has no failure at all and
+# the expected list is empty (the gate hard-gates from s48 on)
+check(keys(real) == [], "real tree (stage 48) has no pin over its absolute maximum", keys(real))
 exp_file = json.loads((HERE / "pin_absmax_expected.json").read_text())["expected"]
-check(set(exp_file) == expect, "pin_absmax_expected.json lists exactly those four", sorted(exp_file))
+check(exp_file == {}, "pin_absmax_expected.json is empty (stage 48 closed U3.3 / U37.3 / U38.3 / U39.3)", sorted(exp_file))
 real_e = g.check(root, REAL, text, mpn_of, val, expect=exp_file)
 check(not real_e["new_failures"] and not real_e["stale_expected"], "with the expect-fail file there is no NEW failure and no stale entry")
+en = {f"{x['part']}.{x['pin']}": x for x in real["rows"] if f"{x['part']}.{x['pin']}" in ("U3.3", "U37.3", "U38.3", "U39.3")}
+check(len(en) == 4 and all(x["status"] == "OK" and x["limits"][0]["iv"][1] < 6.5 for x in en.values()),
+      "the four divider-fed EN pins read inside 0 .. 6.5 V (recommended) against their GND", {k: x["limits"] for k, x in en.items()})
+# EN rewired back onto IN, one LDO at a time: exactly that pin FAILS (the stage-48 regression control)
+for ref, inn in (("U3", "v15_ls"), ("U37", "v15_ls"), ("U38", "p_ha"), ("U39", "p_hb")):
+    node = f'      (node (ref "{ref}") (pin "3") (pintype "stereo"))\n'
+    t2 = text.replace(node, "")
+    head = f'(name "{inn}")\n'
+    i = t2.index(head) + len(head)
+    t2 = t2[:i] + node + t2[i:]
+    r = g.check(root, REAL, t2, mpn_of, val)
+    check(keys(r) == [f"{ref}.3"], f"{ref} EN back on IN ({inn}) FAILS on {ref}.3 only", keys(r))
+# a listed entry that no longer fails is stale (what --fail-stale reports)
+r = g.check(root, REAL, text, mpn_of, val, expect={"U3.3": "S19"})
+check(r["stale_expected"] == ["U3.3"], "an expected entry that no longer fails is reported stale", r["stale_expected"])
 extra = copy.deepcopy(REAL)
-extra["parts"]["TLV3201AIDBVR"]["functions"]["VCC"]["limits"][0]["max"] = 4.0     # an invented tighter limit: hot5 (5.05 V) now fails
+extra["parts"]["TLV3201AIDBVR"]["functions"]["VCC"]["limits"][0]["max"] = 4.0     # an invented tighter limit: hot5 (5.11 V) now fails
 r = g.check(root, extra, text, mpn_of, val, expect=exp_file)
-check(any(x["mpn"] == "TLV3201AIDBVR" for x in r["new_failures"]), "an injected tighter limit surfaces as a NEW failure beside the expected four")
+check(any(x["mpn"] == "TLV3201AIDBVR" for x in r["new_failures"]), "an injected tighter limit surfaces as a NEW failure")
 reg_e = copy.deepcopy(REAL)
 del reg_e["nets"]["hot5"]
 r = g.check(root, reg_e, text, mpn_of, val, expect=exp_file)

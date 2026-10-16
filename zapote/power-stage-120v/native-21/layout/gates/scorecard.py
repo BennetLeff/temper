@@ -98,9 +98,10 @@ def b3_ratings(b):
 # Release gates: absolute pass / fail at the declared basis. Reported on the card, but not part of the candidate-vs-
 # benchmark rule while the benchmark itself fails them; their margins are ratcheted in PERF instead (DECISIONS 46).
 # b3_ratings is decided on the release case alone since 2026-10-15 (c17.5_h10 at bay 61 C since DECISIONS 61, b3_ratings_gate.BASIS).
-# pin_absmax (gates/pin_absmax.py) joined 2026-10-15 with the four TPS70950 EN violations on the benchmark itself (stage 48 fixes
-# them on another branch); until pin_absmax_expected.json is empty it is reported here, and a NEW failure still stops chain.sh.
-RELEASE_GATES = {"b3_ratings", "pin_absmax"}
+# pin_absmax (gates/pin_absmax.py) joined 2026-10-15 with the four TPS70950 EN violations on the benchmark itself and sat here
+# until stage 48 (c48-ldo-en-ref-watch) fixed them; pin_absmax_expected.json is empty since, so from s48 on `pin_absmax` is an
+# ordinary gate: a candidate with any pin over its absolute maximum is rejected.
+RELEASE_GATES = {"b3_ratings"}
 
 
 def gates(b, tag, audit):

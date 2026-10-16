@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "408bbe7e237572e890f021c6b4a7bfec13972d150f7b5e673fedb8877dcd83f0",
+    "build/default.csv": "c8cd9e460d4ec8ad4995994c46bcf73cb79041e6c25dbc1b50a5a3f81f4808a0",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "3bc1b6a02bf2452b1a2eda5c20267ad14cfa8e9c2869475543daff1dfa0a8e34",
+    "build/default.net": "d91dd85f2f9946b9687c00c3d05cb6ea61fa9fc586f96a537ff48e4af3ff894d",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -1437,7 +1437,29 @@
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
         "manufacturer": "Texas Instruments",
-        "mpn": "TPS70950DBVR"
+        "mpn": "TPS70950QDBVRQ1"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ldo_en_top",
+      "attributes": {
+        "designator": "R136",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1003T5E",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ldo_en_bot",
+      "attributes": {
+        "designator": "R137",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF2702T5E",
+        "value": "27kohm"
       }
     },
     {
@@ -2288,6 +2310,28 @@
       }
     },
     {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ref_wd_top",
+      "attributes": {
+        "designator": "R144",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD0763K4L",
+        "value": "63.4kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ref_wd_bot",
+      "attributes": {
+        "designator": "R145",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "Vishay Dale",
+        "mpn": "TNPW060311K7BEEA",
+        "value": "11.7kohm"
+      }
+    },
+    {
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_hot5_uv_top",
       "attributes": {
         "designator": "R48",
@@ -2597,7 +2641,29 @@
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
         "manufacturer": "Texas Instruments",
-        "mpn": "TPS70950DBVR"
+        "mpn": "TPS70950QDBVRQ1"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rldo_en_top",
+      "attributes": {
+        "designator": "R138",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1003T5E",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rldo_en_bot",
+      "attributes": {
+        "designator": "R139",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF2702T5E",
+        "value": "27kohm"
       }
     },
     {
@@ -2999,7 +3065,29 @@
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
         "manufacturer": "Texas Instruments",
-        "mpn": "TPS70950DBVR"
+        "mpn": "TPS70950QDBVRQ1"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rldo_en_top",
+      "attributes": {
+        "designator": "R140",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1003T5E",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rldo_en_bot",
+      "attributes": {
+        "designator": "R141",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF2702T5E",
+        "value": "27kohm"
       }
     },
     {
@@ -3433,7 +3521,29 @@
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
         "manufacturer": "Texas Instruments",
-        "mpn": "TPS70950DBVR"
+        "mpn": "TPS70950QDBVRQ1"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rldo_en_top",
+      "attributes": {
+        "designator": "R142",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF1003T5E",
+        "value": "100kohm"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rldo_en_bot",
+      "attributes": {
+        "designator": "R143",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_0603_1608Metric",
+        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+        "mpn": "0603WAF2702T5E",
+        "value": "27kohm"
       }
     },
     {
@@ -3759,6 +3869,17 @@
       }
     },
     {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_bias_good_j4",
+      "attributes": {
+        "designator": "R146",
+        "designator_prefix": "R",
+        "footprint": "Resistor_SMD:R_1206_3216Metric",
+        "manufacturer": "Yageo",
+        "mpn": "RC1206FR-07220KL",
+        "value": "220kohm"
+      }
+    },
+    {
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_bias_flt_vcc",
       "attributes": {
         "designator": "C144",
@@ -3859,10 +3980,10 @@
   "entry": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V",
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
-    "elec/src/f6_bias.ato": "e63a787631b5a5b42d657638afacc8808c6fcac84b83ec0736b349d6acb61c2a",
-    "elec/src/f6_parts.ato": "246a8b9d604a1e60aed43c2250244929e6d7c1da136b475e7b79d2673df4a946",
-    "elec/src/parts.ato": "3eaa763b64ed139779b0d6adde87f680477a85dd6ab379fd161af0a2d79455f9",
-    "elec/src/power_stage_120v.ato": "5107cb8e60408efc497a2e964d8b00290aa4b7c92818b14fa46aeb2664e975b3",
+    "elec/src/f6_bias.ato": "2005b776b02862baa4731cab15d3658c108983a06562fbbe36fb0a4282c22a85",
+    "elec/src/f6_parts.ato": "bcca99f9c3b6b33f16a36c900de9d187710624155801f8ba0ec62c797fd69b88",
+    "elec/src/parts.ato": "a0fdb34875d915cd6a8a1e9150c2e73d7eb2837c3b444be3e34cb13052c317e1",
+    "elec/src/power_stage_120v.ato": "7c03bd75b7f0c18873bbcd98ea0e321380ffa29fda53a2e1e6bdeaa194364fb7",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

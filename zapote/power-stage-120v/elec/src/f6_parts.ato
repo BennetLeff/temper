@@ -314,8 +314,10 @@ component SpanRegulator:
     signal p21 ~ pin 21
 
 component HotLdo:
+    # Stage 48 (OPEN-ITEMS S19): the TPS709-Q1 grade (SLVSCE6D: +/-1 % over -40 <= TJ, TA <= 125 C, 5.5 p.5; same DBV
+    # pinout IN 1 / GND 2 / EN 3 / NC 4 / OUT 5, Table 4-1 p.3; LCSC C485909). Was TPS70950DBVR (SBVS186H: +/-1 % to TA 85 C)
     designator_prefix = "U"
-    mpn = "TPS70950DBVR"
+    mpn = "TPS70950QDBVRQ1"
     manufacturer = "Texas Instruments"
     footprint = "Package_TO_SOT_SMD:SOT-23-5"
     signal IN ~ pin 1

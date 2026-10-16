@@ -7,7 +7,7 @@ import json
 def main() -> None:
     root = Path(__file__).resolve().parents[2]
     resolved = json.loads((root / 'frozen/resolved-components.json').read_text())
-    assert len(resolved["components"]) == 358   # stage 44: + c_ref_xfer_6..12 (C169-C175, SELV return-path transfer caps, candidate 44); stage 40: + hb.vote_b (D20), + hb.rgate (R135), + c_ref_xfer_5 (C168, pwm_hb transfer cap in place of the old verdict isolator's SELV decoupler) (candidate 30a; U44 / C159 / C160 become the HS-B link and its caps); stage 38: - ps_selv (PS1, candidate 23); stage 30: -22 / +21 (candidate 24 heartbeat, HS-A link ISO6721FB, HS-B verdict ISO7710F, U9 RC); stage 28: + r_blw (F2 fault-current limiter); stage 22: - Q1 / Q4 PERMIT FETs and R8 / R16 330 ohm (DIS NAND); stage 21: - link_pos / link_neg studs J7-J10 (BR1 feeds the bus); stage 19b: + c_ref_xfer_1..4 (pwm_hb reference-transfer caps C153-C156); stage 16: + f_blw / j_blw_ac (blower-supply tap); stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
+    assert len(resolved["components"]) == 369   # stage 48: + 8 LDO EN dividers R136-R143 (S19), + REF25 watchdog R144 / R145 (B13 H1), + BIAS_GOOD readback R146 (B13 H2); stage 44: + c_ref_xfer_6..12 (C169-C175, SELV return-path transfer caps, candidate 44); stage 40: + hb.vote_b (D20), + hb.rgate (R135), + c_ref_xfer_5 (C168, pwm_hb transfer cap in place of the old verdict isolator's SELV decoupler) (candidate 30a; U44 / C159 / C160 become the HS-B link and its caps); stage 38: - ps_selv (PS1, candidate 23); stage 30: -22 / +21 (candidate 24 heartbeat, HS-A link ISO6721FB, HS-B verdict ISO7710F, U9 RC); stage 28: + r_blw (F2 fault-current limiter); stage 22: - Q1 / Q4 PERMIT FETs and R8 / R16 330 ohm (DIS NAND); stage 21: - link_pos / link_neg studs J7-J10 (BR1 feeds the bus); stage 19b: + c_ref_xfer_1..4 (pwm_hb reference-transfer caps C153-C156); stage 16: + f_blw / j_blw_ac (blower-supply tap); stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
     for filename, expected in resolved['source_sha256'].items():
         assert hashlib.sha256((root / filename).read_bytes()).hexdigest() == expected, filename
     for filename in ('default.csv', 'default.net', 'resolved-components.json',
@@ -89,6 +89,17 @@ def main() -> None:
     assert parts['u_ref']['mpn'] == 'LM4050AEM3-2.5/NOPB' and parts['u_ref']['footprint'] == 'Package_TO_SOT_SMD:SOT-23'
     for base in ('monitor_ls', 'bias_ha', 'bias_hb', 'hb'):
         assert not any(path.startswith(base + '.') and part.get('mpn') == 'VO617A-3X017T' for path, part in parts.items())
+    # stage 48 (OPEN-ITEMS S19, B13 H1 / H2; c48-ldo-en-ref-watch): the four TPS70950s on the Q1 grade (SLVSCE6D, +-1 %
+    # to 125 C) with EN from 100 k / 27 k dividers; the REF25 watchdog 63.4 k / 11.7 k (0.1 %); the 220 k J4.1 readback
+    for base in ('', 'monitor_ls.', 'bias_ha.monitor.', 'bias_hb.monitor.'):
+        ldo, top, bot = (('u_ldo', 'r_ldo_en_top', 'r_ldo_en_bot') if not base else
+                         (base + 'ldo5', base + 'rldo_en_top', base + 'rldo_en_bot'))
+        assert parts[ldo]['mpn'] == 'TPS70950QDBVRQ1' and parts[ldo]['footprint'] == 'Package_TO_SOT_SMD:SOT-23-5'
+        assert (parts[top]['mpn'], parts[top]['value']) == ('0603WAF1003T5E', '100kohm'), top
+        assert (parts[bot]['mpn'], parts[bot]['value']) == ('0603WAF2702T5E', '27kohm'), bot
+    assert (parts['r_ref_wd_top']['mpn'], parts['r_ref_wd_bot']['mpn']) == ('RT0603BRD0763K4L', 'TNPW060311K7BEEA')
+    assert parts['r_bias_good_j4']['mpn'] == 'RC1206FR-07220KL' and parts['r_bias_good_j4']['value'] == '220kohm'
+    assert not any(part.get('mpn') == 'TPS70950DBVR' for part in parts.values())
     result = {'components': len(parts), 'source_hashes_match': True,
               'two_frozen_exports_identical': True, 'native20_protection_parts_retained': True,
               'RECOM_only_hs_bias_modules': True, 'no_bootstrap': True, 'monitor_crossing_single_ISO7710_heartbeat': True, 'source_sha256': resolved['source_sha256']}

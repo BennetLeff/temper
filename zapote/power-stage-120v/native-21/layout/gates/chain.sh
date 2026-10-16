@@ -64,10 +64,10 @@ python3 -I $G/cu_temp_basis.py --fail-waived --report "$B/cu-temp-basis.json" > 
 tail -4 "$B/cu-temp-basis.log"
 # per-pin absolute maximum (found 2026-10-15: four TPS70950 EN pins tied to IN at 15-17 V against a 7 V rating): every IC pin's
 # net range, in the part's own reference frame, against that pin's datasheet abs max (pin_absmax_registry.json, every limit
-# cited to a PDF page). Static, about 1 s, no board data. REPORT-ONLY for now: the exit status is 1 only for a FAIL that is not
-# listed in pin_absmax_expected.json (the four EN pins, fixed by stage 48); the scorecard gate `pin_absmax` stays False until
-# the report has no failure at all. (no pipe, as above)
-python3 -I $G/pin_absmax.py --expect-fail $G/pin_absmax_expected.json --report "$B/pin-absmax.json" > "$B/pin-absmax.log" 2>&1 || {
+# cited to a PDF page). Static, about 1 s, no board data. The exit status is 1 for a FAIL not listed in
+# pin_absmax_expected.json, or (--fail-stale) for a listed one that no longer fails. Stage 48 fixed the four EN pins and emptied
+# the list, so this is a hard gate from s48 on, and the scorecard gate `pin_absmax` is True only with no failure. (no pipe)
+python3 -I $G/pin_absmax.py --expect-fail $G/pin_absmax_expected.json --fail-stale --report "$B/pin-absmax.json" > "$B/pin-absmax.log" 2>&1 || {
   tail -30 "$B/pin-absmax.log" >&2; echo "pin_absmax: NEW violation or registry error (not in pin_absmax_expected.json)" >&2; exit 1; }
 head -1 "$B/pin-absmax.log"
 python3 -I -c "import json;d=json.load(open('$B/pin-absmax.json'));print('pin_absmax: failures',len(d['failures']),'(new',len(d['new_failures']),') warnings',len(d['warnings']),'undeclared',len(d['undeclared']))"

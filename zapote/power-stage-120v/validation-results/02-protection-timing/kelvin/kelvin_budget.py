@@ -39,6 +39,25 @@ CENSUS = [  # pad, mA, what, source
 CENSUS21 = [row if row[0] != "U3.2" else
             ("U3.2", 0.1, "TPS70950 ground-pin current, over-bounded at 0.1 mA (datasheet IQ is microamp-class)",
              "TI tps709.pdf (native-21/ECO.md sources)") for row in CENSUS]
+# Stage 48 correction (11-candidates/band-terms-2026-10-15/results/kelvin_census.md): U9 has been the CA-IS3720HW since stage 31
+# (DECISIONS 34), not the ISO7710 the row still carried (2.4 mA). Its side-A supply current returns on GNDA (U9.1 / U9.7).
+CENSUS21 = [row if row[0] != "U9.1" else
+            ("U9.1", 4.1, "CA-IS3720HW IDDA max, healthy state: INA = bus_fault_hot low (VIN = 0 V, H version), VDDA 5 V +-10 %, "
+             "TA -40..125 C (fault state VIN = VDDA: 1.3 mA max)",
+             "Chipanalog CA-IS372x v1.05 7.9.1 p.11 (EN v1.02 p.11, same table): IDDA 4.1 mA max, 'VIN = 0V (CA-IS3720H)'")
+            for row in CENSUS21]
+# Stage 48 (c48-ldo-en-ref-watch): two new returns on the Kelvin net, counted where the board has the pads (native21s48 on).
+#  - R137.2: U3's EN divider (OPEN-ITEMS S19), R136 100 k / R137 27 k 1 % from V15_LS, at IN - GND 15.46 V max
+#    (S16 rail model, s20-286v-recite 1.6);
+#  - R145.2: the REF25 watchdog divider (B13 H1), R144 63.4 k + R145 11.7 k 0.1 % at VR max 2.5162 V. That current is also inside
+#    the U5.2 row (all of R31's current, bounded at the anode), so it is counted twice: conservative by its 5 uV.
+#  U14 VDD moves V15_LS -> HOT5 at stage 48; its IDD still returns at U14.2 (row unchanged), and U14.4 (INB-) leaves the net.
+CENSUS48 = [
+    ("R137.2", 15.46 / ((100e3 + 27e3) * 0.99) * 1e3, "U3 EN divider R136 100 k / R137 27 k from V15_LS (15.46 V max above GND)",
+     "power_stage_120v.ato r_ldo_en_top / r_ldo_en_bot (0603WAF 1 %); IN - GND from the S16 rail model"),
+    ("R145.2", 2.5162 / (75.1e3 * 0.999) * 1e3, "REF25 watchdog R144 63.4 k + R145 11.7 k (also inside the U5.2 bound)",
+     "power_stage_120v.ato r_ref_wd_top / r_ref_wd_bot (0.1 %); LM4050AEM3 VR max 2.5162 V (SNOS455H 5.6 p.7)"),
+]
 
 
 BAND_BEFORE = {"native21s13": (49.53, 97.77), "native21s13b": (49.53, 97.77), "native21s14": (49.53, 97.77),
@@ -49,10 +68,12 @@ BAND_BEFORE = {"native21s13": (49.53, 97.77), "native21s13b": (49.53, 97.77), "n
                # s47: U5 LM4050AEM3-2.5 (+-15 mV + 1.2 mV over -40..125 C) with the network at its hot-copper B3 solve at the
                # c17.5 @ 61 release case (R32-R35 93-96 C, R5 element 124 C; the -10 C corner as before):
                # 11-candidates/c47-ref25-grade/scripts/bands47.py (committed -10/85 C basis: 70.01-116.27 A)
-               "native21s47": (68.87, 117.45)}   # 12.6 k / 11.7 k (stage 15; scratchpad stage15/ocp_bands.py -> task 02); s17: R5 CSS2H 75 ppm (round5-native21/stage17-r5/ocp_band17.py)
+               "native21s47": (68.87, 117.45),
+               # s48: the band network is unchanged (only the watchdog divider joins REF25, inside U5's current window)
+               "native21s48": (68.87, 117.45)}   # 12.6 k / 11.7 k (stage 15; scratchpad stage15/ocp_bands.py -> task 02); s17: R5 CSS2H 75 ppm (round5-native21/stage17-r5/ocp_band17.py)
 # Low-corner floor after the shift. 44 A until stage 14; stage 15 (28 A ceiling): 59.17 A envelope peak + 3.0 A
 # coil-pickup stack (DECISIONS item 9) + 2 A margin = 64.17 A (round 6 rule; basis A of the stage-15 plan).
-FLOOR = {"native21s15": 64.17, "native21s15b": 64.17, "native21s16": 64.17, "native21s17": 64.17, "native21s17b": 64.17, "native21s18": 64.17, "native21s19": 64.17, "native21s19b": 64.17, "native21s19c": 64.17, "native21s20": 64.17, "native21s21": 64.17, "native21s21b": 64.17, "native21s22": 64.17, "native21s26": 64.17, "native21s27": 64.17, "native21s28": 64.17, "native21s29": 64.17, "native21s30": 64.17, "native21s31": 64.17, "native21s32": 64.17, "native21s33": 64.17, "native21s35": 64.17, "native21s38": 64.17, "native21s40": 64.17, "native21s41": 64.17, "native21s42": 64.17, "native21s43": 64.17, "native21s44": 64.17, "native21s45": 64.17, "native21s46": 64.17, "native21s47": 64.17}
+FLOOR = {"native21s15": 64.17, "native21s15b": 64.17, "native21s16": 64.17, "native21s17": 64.17, "native21s17b": 64.17, "native21s18": 64.17, "native21s19": 64.17, "native21s19b": 64.17, "native21s19c": 64.17, "native21s20": 64.17, "native21s21": 64.17, "native21s21b": 64.17, "native21s22": 64.17, "native21s26": 64.17, "native21s27": 64.17, "native21s28": 64.17, "native21s29": 64.17, "native21s30": 64.17, "native21s31": 64.17, "native21s32": 64.17, "native21s33": 64.17, "native21s35": 64.17, "native21s38": 64.17, "native21s40": 64.17, "native21s41": 64.17, "native21s42": 64.17, "native21s43": 64.17, "native21s44": 64.17, "native21s45": 64.17, "native21s46": 64.17, "native21s47": 64.17, "native21s48": 64.17}
 
 
 def main():
@@ -60,6 +81,8 @@ def main():
     census = CENSUS21 if tag.startswith("native21") else CENSUS
     plane = json.loads((HERE / f"plane-{tag}.json").read_text())
     T = plane["transfer_mohm_to_R35_2"]
+    if tag.startswith("native21"):
+        census = census + [row for row in CENSUS48 if row[0] in T]
     a_per_mv = plane["trip_shift_A_per_mV_at_R35_2"]
     # Band before the Kelvin shift: D-31 retune (10.6 k / 10 k), or 12.4 k / 11.7 k from stage 13
     # (../../08-manufacturing-package/native-21/bom-simplification/calc_protection_bands.py).
