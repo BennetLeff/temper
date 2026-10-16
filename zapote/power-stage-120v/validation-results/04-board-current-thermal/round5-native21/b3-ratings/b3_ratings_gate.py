@@ -3,8 +3,8 @@
 limit, at the declared operating basis. Proposed home: validation-results/04-board-current-thermal/round5-native21/
 b3-ratings/ (thermal-ratings audit, 2026-10-15).
 
-    python3 b3_ratings_gate.py --runs DIR [--out margins.json] [--cases c18_h10@61,c22_h10@55,c28_h10@55]
-                               [--release c18_h10] [--bay-c 55]
+    python3 b3_ratings_gate.py --runs DIR [--out margins.json] [--cases c17.5_h10@61,c22_h10@55,c28_h10@55]
+                               [--release c17.5_h10] [--bay-c 55]
 
 --cases takes CASE or CASE@BAY. CASE = c<ceiling>_h<h>[_jet<h_top>[a<air C>]]: the _jet suffix is an airflow case
 (run_basis.JET_REGION at h_top on the top face, air at <air C>, default the bay; b3-ratings/jet-2026-10-15). Airflow
@@ -26,7 +26,8 @@ gate_control G6 table.
 Basis (decided in the audit, DECISIONS 46; release case after DECISIONS 55; change only with evidence):
   * h 10 W/m2K is still air - the enclosure's bay model has no through-flow and D-18 ducts the blower through the sink
     only. A forced-air case counts only once an enclosure record gives the board-face airflow.
-  * release case c18_h10 at bay 61 C: the 18.0 A release ceiling (DECISIONS 55) at its 1.05 x trip, at the enclosure R33
+  * release case c17.5_h10 at bay 61 C: the 17.5 A release ceiling (DECISIONS 61, hot copper; 18.0 A to DECISIONS 55-60)
+    at its 1.05 x trip, at the enclosure R33
     study 14 worst bay with B3 heat (61 C). The b3_ratings release gate passes only if every gated row passes here;
     metric b3_release_margin_K = its worst gated margin.
   * ratchet cases c22_h10 (22 A) and c28_h10 (28 A Kconfig ceiling) at bay 55 C (study 14 expected value at a 40 C
@@ -92,7 +93,7 @@ GATE_R_PKG = {("on", "chip1206"): ("1206 element 155 C (FH RS-06L V11.0 p.2)", 1
               ("off", "chip1206"): ("1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)", 155.0, 0.25),
               ("on", "chip2512"): ("2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)", 155.0, 1.0)}
 PKG_NAME = {"chip1206": "1206", "chip2512": "2512"}
-BASIS = {"c18_h10": {"ceiling_a": 18.0, "h": 10, "bay_c": 61.0, "role": "release"},
+BASIS = {"c17.5_h10": {"ceiling_a": 17.5, "h": 10, "bay_c": 61.0, "role": "release"},
          "c22_h10": {"ceiling_a": 22.0, "h": 10, "bay_c": 55.0, "role": "ratchet"},
          "c28_h10": {"ceiling_a": 28.0, "h": 10, "bay_c": 55.0, "role": "ratchet"}}
 

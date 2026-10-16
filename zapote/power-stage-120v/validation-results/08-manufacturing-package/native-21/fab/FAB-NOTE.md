@@ -3,9 +3,9 @@
 Board: native-21 stage 45, the board of record (DECISIONS.md item 60: stage 44's copper, item 58, with the S16 rail-monitor
 values; the stage history is DECISIONS.md items 12–60). Built by
 `sh native-21/layout/gates/chain.sh native21s45 …`; SHA-256
-`26ce953166f87f0538ee008a019406cef5f637461f6f0b415769f39b36f32b87`.
+`a1e6488f72c6af95a971182d6b024a157339a5a983f29e264f7715f1ae6c0199` (the hot-copper re-score build, 2026-10-15; geometry, footprints and fields identical to the adopted 26ce9531 by `c45-s16-monitor/scripts/geom_diff45.py`; the hash differs only in file ordering and refill).
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`5af23b8b7e62a5f1bc8c9360e2d91a17452d3d612b79797bdea0aae97970d733`.
+`e8dd9726f07cf7fda4605b2cd450e18fd06c51e8a09f8bfd05b9f6602eeeba33`.
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).
 

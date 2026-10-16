@@ -56,7 +56,7 @@ PERF = {
     # temperature and to the hot parts' datasheet limits at the declared basis (b3-ratings/b3_ratings_gate.py).
     "b3_laminate_margin_K": ("higher", 1.0),
     "b3_rated_part_margin_K": ("higher", 1.0),
-    # added 2026-10-15 (after DECISIONS 55): worst gated margin at the release case (c18_h10: the 18.0 A release ceiling's
+    # added 2026-10-15 (after DECISIONS 55): worst gated margin at the release case (c17.5_h10 since DECISIONS 61, c18_h10 before: the release ceiling's
     # 1.05 x trip, bay 61 C, still air, I_line 13.5 A) - the margin behind the b3_ratings release gate, ratcheted like the
     # two above (which stay on c22 / c28 at bay 55 C so cards remain comparable). Cards before s42's re-score lack it and
     # are skipped by compare().
@@ -97,7 +97,7 @@ def b3_ratings(b):
 
 # Release gates: absolute pass / fail at the declared basis. Reported on the card, but not part of the candidate-vs-
 # benchmark rule while the benchmark itself fails them; their margins are ratcheted in PERF instead (DECISIONS 46).
-# b3_ratings is decided on the release case alone since 2026-10-15 (c18_h10 at bay 61 C, b3_ratings_gate.BASIS).
+# b3_ratings is decided on the release case alone since 2026-10-15 (c17.5_h10 at bay 61 C since DECISIONS 61, b3_ratings_gate.BASIS).
 RELEASE_GATES = {"b3_ratings"}
 
 
@@ -146,7 +146,7 @@ def gates(b, tag, audit):
         g["jet_strip_height"] = js["pass"]
     if audit:
         g["audit_rs"] = audit == "PASS"
-    # B3 ratings gate: laminate (KB-6164 UL MOT 130 C) and datasheet-limited parts at the release case (c18_h10: the
+    # B3 ratings gate: laminate (KB-6164 UL MOT 130 C) and datasheet-limited parts at the release case (c17.5_h10: the
     # 18.0 A release ceiling of DECISIONS 55 at its 1.05 x trip, still air h 10, bay 61 C, I_line 13.5 A); every gated
     # row must pass there. The file is written by b3-ratings/b3_ratings_gate.py --out (via run_basis.py). margins.json
     # files from before 2026-10-15 have no release case; their pass is over c22 / c28 at bay 55.

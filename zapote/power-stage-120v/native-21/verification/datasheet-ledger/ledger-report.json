@@ -378,29 +378,29 @@
   "25121WF680JT4E": {
    "checks": [
     {
-     "id": "power c18 (release)",
+     "id": "power c17.5 (release)",
      "max_ratio": 0.8,
      "ok": true,
-     "rating": "Power derated at the c18 terminal estimate (release)",
-     "ratio": 0.7041,
+     "rating": "Power derated at the c17.5 terminal estimate (release)",
+     "ratio": 0.7684,
      "severity": "violation",
      "stress": "R_on dissipation, 60 kHz window top"
     },
     {
-     "id": "element c18 (release)",
+     "id": "element c17.5 (release)",
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Operating temperature max",
-     "ratio": 0.8535,
+     "ratio": 0.8697,
      "severity": "violation",
-     "stress": "Element estimate c18 (release)"
+     "stress": "Element estimate c17.5 (release)"
     },
     {
      "id": "power c22",
      "max_ratio": 0.8,
      "ok": false,
      "rating": "Power derated at the c22 terminal estimate",
-     "ratio": 0.9757,
+     "ratio": 1.5368,
      "severity": "gap",
      "stress": "R_on dissipation, 60 kHz window top"
     },
@@ -409,7 +409,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Operating temperature max",
-     "ratio": 0.909,
+     "ratio": 0.9574,
      "severity": "gap",
      "stress": "Element estimate c22"
     },
@@ -418,7 +418,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Operating temperature max",
-     "ratio": 1.089,
+     "ratio": 1.2168,
      "severity": "gap",
      "stress": "Element estimate c28"
     },
@@ -909,20 +909,20 @@
      "stress": "Commutation spike bound"
     },
     {
-     "id": "Top C40 c18 (release)",
+     "id": "Top C40 c17.5 (release)",
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Top,max",
-     "ratio": 0.9891,
+     "ratio": 0.9418,
      "severity": "violation",
-     "stress": "Top C40 c18 (release)"
+     "stress": "Top C40 c17.5 (release)"
     },
     {
      "id": "Top C40 c22",
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Top,max",
-     "ratio": 1.0545,
+     "ratio": 1.0309,
      "severity": "gap",
      "stress": "Top C40 c22"
     },
@@ -931,7 +931,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Top,max",
-     "ratio": 1.2518,
+     "ratio": 1.2918,
      "severity": "gap",
      "stress": "Top C40 c28"
     }
@@ -991,13 +991,13 @@
      "stress": "I tank release trip"
     },
     {
-     "id": "body c18 (release)",
+     "id": "body c17.5 (release)",
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Top,max",
-     "ratio": 0.8182,
+     "ratio": 0.83,
      "severity": "violation",
-     "stress": "Body temperature c18 (release)"
+     "stress": "Body temperature c17.5 (release)"
     },
     {
      "id": "I 22 A",
@@ -1013,7 +1013,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Top,max",
-     "ratio": 0.87,
+     "ratio": 0.9118,
      "severity": "gap",
      "stress": "Body temperature c22"
     },
@@ -1040,7 +1040,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Top,max",
-     "ratio": 1.07,
+     "ratio": 1.1591,
      "severity": "gap",
      "stress": "Body temperature c28"
     },
@@ -1122,20 +1122,20 @@
      "stress": "Bus AC component bound"
     },
     {
-     "id": "case c18 (release)",
+     "id": "case c17.5 (release)",
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Top,max case",
-     "ratio": 0.7962,
+     "ratio": 0.7952,
      "severity": "violation",
-     "stress": "Case temperature c18 (release)"
+     "stress": "Case temperature c17.5 (release)"
     },
     {
      "id": "case c22",
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Top,max case",
-     "ratio": 0.8105,
+     "ratio": 0.8219,
      "severity": "gap",
      "stress": "Case temperature c22"
     },
@@ -1144,7 +1144,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Top,max case",
-     "ratio": 0.9448,
+     "ratio": 0.9686,
      "severity": "gap",
      "stress": "Case temperature c28"
     },
@@ -1239,20 +1239,20 @@
      "stress": "Line high corner"
     },
     {
-     "id": "body c18 (release)",
+     "id": "body c17.5 (release)",
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Climatic upper temperature",
-     "ratio": 0.8176,
+     "ratio": 0.8248,
      "severity": "violation",
-     "stress": "Body temperature c18 (release)"
+     "stress": "Body temperature c17.5 (release)"
     },
     {
      "id": "body c22",
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Climatic upper temperature",
-     "ratio": 0.7808,
+     "ratio": 0.7904,
      "severity": "gap",
      "stress": "Body temperature c22"
     },
@@ -1261,7 +1261,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Climatic upper temperature",
-     "ratio": 0.8,
+     "ratio": 0.8152,
      "severity": "gap",
      "stress": "Body temperature c28"
     }
@@ -1553,20 +1553,20 @@
      "stress": "Bus static OVP (continuous)"
     },
     {
-     "id": "temperature bound c18 (release)",
+     "id": "temperature bound c17.5 (release)",
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Operating temperature max",
-     "ratio": 0.9768,
+     "ratio": 0.9928,
      "severity": "violation",
-     "stress": "Board temperature bound at the cap, c18 (release)"
+     "stress": "Board temperature bound at the cap, c17.5 (release)"
     },
     {
      "id": "temperature bound c22",
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Operating temperature max",
-     "ratio": 1.0608,
+     "ratio": 1.1224,
      "severity": "gap",
      "stress": "Board temperature bound at the cap, c22"
     }
@@ -1731,38 +1731,38 @@
   "CSS2H-2512R-1L00F": {
    "checks": [
     {
-     "id": "P at c18 terminal (release)",
+     "id": "P at c17.5 terminal (release)",
      "max_ratio": 0.8,
      "ok": true,
-     "rating": "P allowed at c18 terminal 118.3 C (release)",
-     "ratio": 0.1381,
+     "rating": "P allowed at c17.5 terminal 120.2 C (release)",
+     "ratio": 0.1434,
      "severity": "violation",
-     "stress": "P shunt c18 (release)"
+     "stress": "P shunt c17.5 (release)"
     },
     {
-     "id": "element c18 (release)",
+     "id": "element c17.5 (release)",
      "max_ratio": 0.85,
      "ok": true,
      "rating": "T operating max",
-     "ratio": 0.7224,
+     "ratio": 0.7306,
      "severity": "violation",
-     "stress": "T element c18 (release)"
+     "stress": "T element c17.5 (release)"
     },
     {
      "id": "P at c22 terminal",
      "max_ratio": 0.8,
      "ok": true,
-     "rating": "P allowed at c22 terminal 130.9 C",
-     "ratio": 0.2731,
+     "rating": "P allowed at c22 terminal 139.2 C",
+     "ratio": 0.3468,
      "severity": "gap",
      "stress": "P shunt c22"
     },
     {
      "id": "element c22",
      "max_ratio": 0.85,
-     "ok": true,
+     "ok": false,
      "rating": "T operating max",
-     "ratio": 0.8118,
+     "ratio": 0.8571,
      "severity": "gap",
      "stress": "T element c22"
     },
@@ -1770,8 +1770,8 @@
      "id": "P at c28 terminal",
      "max_ratio": 1.0,
      "ok": false,
-     "rating": "P allowed at c28 terminal 162.5 C",
-     "ratio": 2.304,
+     "rating": "P allowed at c28 terminal 184.6 C",
+     "ratio": 864.0,
      "severity": "gap",
      "stress": "P shunt c28"
     },
@@ -1780,7 +1780,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "T operating max",
-     "ratio": 1.0259,
+     "ratio": 1.1459,
      "severity": "gap",
      "stress": "T element c28"
     },
@@ -1971,20 +1971,20 @@
      "stress": "Gate-source voltage"
     },
     {
-     "id": "temperature bound c18 (release)",
+     "id": "temperature bound c17.5 (release)",
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Operating temperature max",
-     "ratio": 0.9768,
+     "ratio": 0.9928,
      "severity": "violation",
-     "stress": "Board temperature bound at the cap, c18 (release)"
+     "stress": "Board temperature bound at the cap, c17.5 (release)"
     },
     {
      "id": "temperature bound c22",
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Operating temperature max",
-     "ratio": 1.0608,
+     "ratio": 1.1224,
      "severity": "gap",
      "stress": "Board temperature bound at the cap, c22"
     }
@@ -2437,20 +2437,20 @@
      "stress": "CMTI edge, maximum Qrr (open)"
     },
     {
-     "id": "Tj c18 (release)",
+     "id": "Tj c17.5 (release)",
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Tj abs max",
-     "ratio": 0.8907,
+     "ratio": 0.888,
      "severity": "violation",
-     "stress": "Tj U42 c18 (release)"
+     "stress": "Tj U42 c17.5 (release)"
     },
     {
      "id": "Tj c22",
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Tj abs max",
-     "ratio": 0.8707,
+     "ratio": 0.8727,
      "severity": "gap",
      "stress": "Tj U42 c22"
     },
@@ -2459,7 +2459,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Tj abs max",
-     "ratio": 0.9027,
+     "ratio": 0.9167,
      "severity": "gap",
      "stress": "Tj U42 c28"
     }
@@ -2665,8 +2665,8 @@
      "id": "power",
      "max_ratio": 0.5,
      "ok": true,
-     "rating": "P derated at 83.9 C (release)",
-     "ratio": 0.1516,
+     "rating": "P derated at 85.9 C (release)",
+     "ratio": 0.156,
      "severity": "violation",
      "stress": "P per resistor, bank bleed (bound)"
     },
@@ -2675,16 +2675,16 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "T operating max",
-     "ratio": 0.5413,
+     "ratio": 0.5542,
      "severity": "violation",
-     "stress": "T body R22 c18 (release)"
+     "stress": "T body R22 c17.5 (release)"
     },
     {
      "id": "power c28",
      "max_ratio": 0.5,
      "ok": true,
-     "rating": "P derated at 98.1 C",
-     "ratio": 0.1894,
+     "rating": "P derated at 109.3 C",
+     "ratio": 0.2359,
      "severity": "gap",
      "stress": "P per resistor, bank bleed (bound)"
     },
@@ -2693,7 +2693,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "T operating max",
-     "ratio": 0.6329,
+     "ratio": 0.7052,
      "severity": "gap",
      "stress": "T body R22 c28"
     },

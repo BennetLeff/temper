@@ -48,7 +48,8 @@ ok(tb.FILM_HF_AIR_RISE_K == 15.0, "film_hf body air defaults to bay + 15 K (boar
 import json  # noqa: E402
 cap_air = HERE / "jet-2026-10-15/cap-air.json"
 margins = json.loads((HERE / "margins.json").read_text())
-if "copper" in margins["basis"]["cases"]["c18_h10"]:
+REL = next(c for c, v in gate.BASIS.items() if v["role"] == "release")
+if REL not in margins["basis"]["cases"] or "copper" in margins["basis"]["cases"][REL]:
     print("skip cap-air.json is a 20 C copper record; margins.json is on hot copper since OPEN-ITEMS S17")
 elif cap_air.exists():
     sens = json.loads(cap_air.read_text())["cases"].get("c18_h10@61 cap air +15 K")

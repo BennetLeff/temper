@@ -20,7 +20,7 @@ the board stays at h. The gate labels them role "airflow"; they never decide the
 has none.
 
 The cases and their bays are b3_ratings_gate.BASIS (2026-10-15, after DECISIONS 55):
-  c18_h10 at bay 61 C   the release case - the 18.0 A release ceiling at its 1.05 x trip (18.9 A), the enclosure's
+  c17.5_h10 at bay 61 C the release case - the 17.5 A release ceiling (DECISIONS 61) at its 1.05 x trip (18.375 A), the enclosure's
                         worst bay with B3 heat; the b3_ratings release gate is this case's verdict;
   c22_h10, c28_h10 at bay 55 C   the ratchet cases (b3_laminate_margin_K / b3_rated_part_margin_K), kept so cards stay
                         comparable with s32 onward.
