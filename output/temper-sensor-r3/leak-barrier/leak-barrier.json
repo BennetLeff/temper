@@ -839,8 +839,8 @@
     "release_status": "proposed specification, not qualified; complete metrology and supplier/lifetime evidence first"
   },
   "provenance": {
-    "compiler": "cc (Debian 14.2.0-19) 14.2.0",
-    "derivation_sha256": "c546cd9e6aa51bc3410dac5660de4037ee49226b804e4db4538514806c3b786c",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+    "derivation_sha256": "f2f1714dedf3af74797a27c1c904c73f4529e8b1d16ec1a70055f11b316e9026",
     "input_sha256": {
       "firmware/components/control/cascade_pid.c": "9918548d1df194a941d17a711e9f2d9bf53382e933ed801c46b5409dfe3114f9",
       "firmware/components/control/cascade_pid.h": "1935ab68a83440018037e6fde531ea8c5bee30adc8405327343ed50b0a9f53e6",
@@ -901,8 +901,8 @@
       "output/temper-sensor-r3/pcb/REQUIREMENTS.md": "a36b2a343b507575d0722cb03d9a70dd0350613624f33be61d652175423a6c46",
       "output/temper-sensor-r3/screen.py": "1dbfcbf158f92af1d551bfb29a97a733c65aaf102165068e33e51b52c3dd5118"
     },
-    "numpy_version": "2.5.4",
-    "python_version": "3.12.14",
+    "numpy_version": "2.4.6",
+    "python_version": "3.12.12",
     "scope": "model/evidence derivation, no physical measurements",
     "seed": "no random draws; reads the committed sweep including its deterministic seeds",
     "source_inputs_dirty": false,

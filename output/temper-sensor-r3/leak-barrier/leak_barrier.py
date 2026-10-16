@@ -301,6 +301,9 @@ def derive(repo):
                     "gates": gates, "all_pass": all(gates.values())})
 
 
+TOOLCHAIN_KEYS = ("compiler", "numpy_version", "python_version")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--check", action="store_true", help="compare regenerated evidence byte-for-byte, without writing")
@@ -314,7 +317,13 @@ def main():
             failed = [k for k, passed in result["gates"].items() if not passed]
             raise ValueError("derivation gates failed: " + ", ".join(failed))
         if args.check:
-            if args.out.read_text() != encoded:
+            # The toolchain strings record where the file was written; every derived
+            # value must still match exactly on any machine.
+            committed = json.loads(args.out.read_text())
+            for key in TOOLCHAIN_KEYS:
+                committed["provenance"].pop(key, None)
+                result["provenance"].pop(key, None)
+            if committed != json.loads(json.dumps(result, allow_nan=False)):
                 raise ValueError("regenerated JSON differs from " + str(args.out))
         else:
             args.out.write_text(encoded)

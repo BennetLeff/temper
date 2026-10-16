@@ -45,6 +45,9 @@
 #      DECISIONS.md D-RUN, D-ISENSE, D-OPEN)
 #   5b. sensor-failure codes against IEC 60751 and the plant
 #      (sensor-fail-codes.json, gates rtd_convert.h; DECISIONS.md D-OPEN)
+#   5c. the element-parallel leak barrier (../leak-barrier/leak_barrier.py
+#      --check: insulation margin, production-test detection limits,
+#      qualification sample plan; SPEC.md)
 #   6. plant-gain sensitivity (sensitivity.json, reported only)
 # Exits non-zero if any step fails. Build products go to a temp dir.
 set -eu
@@ -127,6 +130,11 @@ grep -E '^(legacy false trips|C1 false trips|current sense|CHECKS|ALL RUNAWAY)' 
 echo "== 5b. sensor-failure codes"
 "$py" "$here/sensor_fail_codes.py" > "$tmp/sfc.log" || { cat "$tmp/sfc.log"; exit 1; }
 tail -1 "$tmp/sfc.log"
+
+echo "== 5c. leak barrier: insulation, production test, qualification (../leak-barrier, T1)"
+"$py" "$here/../leak-barrier/leak_barrier.py" --check > "$tmp/lb.log" 2>&1 \
+    || { cat "$tmp/lb.log"; exit 1; }
+tail -1 "$tmp/lb.log"
 
 echo "== 6. plant-gain sensitivity (reported, not gated)"
 "$py" "$here/sensitivity.py" --lib "$lib" --out "$here/sensitivity.json" > /dev/null
