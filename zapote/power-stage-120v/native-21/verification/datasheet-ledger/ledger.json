@@ -1757,10 +1757,10 @@
     },
     {
      "parameter": "OCP transient pulse power",
-     "worst_case_value": 14.1,
+     "worst_case_value": 14.18,
      "unit": "W",
-     "condition": "118.74 A shunt-band top squared x 1 mOhm, for <= 10 us (shunt OCP chain <= 4.5 us as built)",
-     "evidence": "DECISIONS.md:550; validation-results/02-protection-timing/README.md:23"
+     "condition": "119.09 A shunt-band top squared x 1 mOhm, for <= 10 us (shunt OCP chain <= 4.5 us as built); the s47 band (LM4050AEM3-2.5/NOPB REF25, the R26-R37 network at its solved c28_h10@55 temperatures; 117.45 A at the c17.5_h10@61 release basis), the higher of the two",
+     "evidence": "validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:24; validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md:22; validation-results/02-protection-timing/README.md:23"
     }
    ],
    "derating_rule": "Power <= 80 % of the p.3 terminal-derating curve at the modelled terminal temperature (the G6 / B3 rule) and element <= 85 % of 170 C at the B3 release case (c18_h10, bay 61 C, DECISIONS 56); c22/c28 (bay 55 C) are context, and a c28 overrun is the airflow-route gap; transient pulse power <= 50 % of the p.4 curve.",
@@ -1825,8 +1825,8 @@
      "stress": "OCP transient pulse power",
      "max_ratio": 0.5,
      "severity": "violation",
-     "rule": "14 W against >= 2 kW",
-     "ratio": 0.007
+     "rule": "14.2 W against >= 2 kW",
+     "ratio": 0.0071
     }
    ],
    "layout_guidance": [
