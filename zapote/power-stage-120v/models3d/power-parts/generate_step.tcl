@@ -71,13 +71,13 @@ makecylinder tmov_pin2 7.5 0 0 0.6 5
 lappend tmov_parts tmov_pin1 tmov_pin2
 exportmodel tmov $tmov_parts "$out/TMOV20RP175E_provisional.step"
 
-# TDK B82726S2203A020 45 x 25.5 x 41 maximum envelope. The torus
-# represents the open ferrite/windings; exact winding profile is unavailable.
+# TDK B82726S2203A020 / B82726S2243A020 (one drawing, IND2421-G-E) 45 x 25.5 x 41 maximum envelope.
+# Stage 53 (s52 footprint/3D review row 16): the body is the datasheet MAXIMUM box above the carrier, 45 x 25.5 to
+# 41 mm (TDK 5/26 p.3: 45 max x 25 max; EPCOS 07/12 p.3: 41 max height). The earlier torus (12 mm thick, top 40.52 mm)
+# let the fit and collision gates see a thinner, lower body than the datasheet allows; the winding profile is unknown.
 makebox choke_carrier -17.5 -25.25 0 45 25.5 3
-ptorus choke_ring 12.5 6.0
-trotate choke_ring 0 0 0 1 0 0 90
-ttranslate choke_ring 5 -12.5 20.5
-set choke_parts {choke_carrier choke_ring}
+makebox choke_body -17.5 -25.25 3 45 25.5 38
+set choke_parts {choke_carrier choke_body}
 foreach {name x y} {choke_pin1 0 0 choke_pin2 10 0 choke_pin3 10 -25 choke_pin4 0 -25} {
     makecylinder $name $x $y -3.5 1.0 3.5
     lappend choke_parts $name

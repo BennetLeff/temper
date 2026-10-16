@@ -172,9 +172,12 @@ def gates(b, tag, audit):
     if d5:
         g["d5"] = bool(d5["verdict_pcb"])
     fit = jload(UNIT / "validation-plan/enclosure-fit/native21-body-collisions.json")
-    r4 = jload(UNIT / "validation-plan/enclosure-fit/native21-in-r4.json")
-    if fit and r4:
-        g["enclosure_fit"] = fit.get("unattributed", 1) == 0 and not fit.get("part_overlaps") and not r4.get("hits")
+    # stage 53: the real-pose R43 exact-solid check (board_in_r43.py) replaces the R4 mirror-pose AABB one; known pairs are
+    # its ratchet (r43-expected-hits.json), so the gate holds on no new / closer / stale pair and nothing outside the interior
+    r43 = jload(UNIT / "validation-plan/enclosure-fit/native21-in-r43.json")
+    if fit and r43:
+        g["enclosure_fit"] = fit.get("unattributed", 1) == 0 and not fit.get("part_overlaps") and not r43.get("new_hits") \
+            and not r43.get("worse_hits") and not r43.get("stale_expected") and not r43.get("outside_interior")
     # jet strip: nothing over 4 mm under the airflow jet box (OPEN-ITEMS S2; jet_strip_height.py)
     js = jload(UNIT / "validation-plan/enclosure-fit/native21-jet-strip.json")
     if js:

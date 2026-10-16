@@ -96,7 +96,7 @@ for m in spec.get("silk", []):
         txt.SetText("\n".join(m["lines"]))
         txt.SetLayer(pcbnew.F_SilkS)
         txt.SetTextSize(pcbnew.VECTOR2I(mm(m["size"]), mm(m["size"])))
-        txt.SetTextThickness(mm(max(0.15, m["size"] * 0.15)))
+        txt.SetTextThickness(mm(m.get("stroke", max(0.15, m["size"] * 0.15))))   # stage 53: explicit stroke (fit mark)
         txt.SetPosition(pcbnew.VECTOR2I(mm(m["at"][0]), mm(m["at"][1])))
         board.Add(txt)
     elif m["kind"] == "ring":
@@ -109,7 +109,7 @@ for m in spec.get("silk", []):
     elif m["kind"] == "rect":
         r = pcbnew.PCB_SHAPE(board, pcbnew.SHAPE_T_RECT)
         r.SetLayer(pcbnew.F_SilkS)
-        r.SetWidth(mm(0.15))
+        r.SetWidth(mm(m.get("width", 0.15)))
         r.SetStart(pcbnew.VECTOR2I(mm(m["box"][0]), mm(m["box"][1])))
         r.SetEnd(pcbnew.VECTOR2I(mm(m["box"][2]), mm(m["box"][3])))
         board.Add(r)

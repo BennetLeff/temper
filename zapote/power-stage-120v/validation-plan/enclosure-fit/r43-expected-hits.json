@@ -1,0 +1,13 @@
+{
+ "about": "Known pairs under the 1.0 mm fit gap in the R43 real-pose exact-solid check (board_in_r43.py, stage 53). Found on the s52 board of record (32665572, STEP 10ccab43) the first time the chain checked the real pose; none is caused by stage 53. Each is a ratchet entry: a new pair, a listed pair that gets closer, or a listed pair that no longer hits fails the chain. Owner of every row: the enclosure lane (R44+), with the power stage for T1 / F2.",
+ "hits": [
+  {"ref": "T1", "part": "electronics_coil_lug_J2", "distance_mm": 0.5,
+   "why": "CT T1's provisional maximum-envelope body (23 x 30 x 15.2 mm) to the coil-lead lug envelope on J2 (R26: 25 mm barrel + insulation, 'envelope until the coil supplier picks the part'). Both are envelopes; no contact, 0.5 mm < 1.0 mm gap."},
+  {"ref": "BOARD", "part": "electronics_controller_J4_right_angle", "distance_mm": 0.0,
+   "why": "The controller's right-angle J4 header box (world x -50.0 .. -24.3, z 24.6 .. 35.0) starts at the tongue's edge (board x 91 = world x -50.0) and spans the board's Z: the header abuts the power board's edge. Enclosure / controller placement item."},
+  {"ref": "J11", "part": "electronics_PS3_J11_anchor", "distance_mm": 0.555,
+   "why": "J11 is model-less: its envelope is the courtyard x 25 mm (mated height), wider than the plug; R42 places the anchor fin 3 mm over the housing and 1 mm outside the plug footprint. Envelope conservatism; confirm on the R43 solids with a J11 model."},
+  {"ref": "F2", "part": "electronics_native21_J11_mate", "distance_mm": 0.755,
+   "why": "F2 (Schurter UMT-H envelope, 5.4 mm high) to the mated J11 plug body: 0.755 mm, under the 1.0 mm gap, no contact."}
+ ]
+}

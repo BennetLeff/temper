@@ -99,7 +99,7 @@
    "wall_s": 6,
    "workers": 1,
    "policy": "cheap",
-   "cmd": "STEP export, board_boxes, body_collisions, board_in_enclosure, jet_strip_height",
+   "cmd": "STEP export, model_gate, board_boxes, body_collisions, board_in_r43 (R43 real pose), jet_strip_height",
    "card": [
     "gates.enclosure_fit",
     "gates.jet_strip_height"
@@ -1342,7 +1342,7 @@
    "class": "unknown"
   },
   {
-   "glob": "validation-plan/enclosure-fit/native21-{boxes,courtyards,body-collisions,in-r4,jet-strip}.json",
+   "glob": "validation-plan/enclosure-fit/native21-{boxes,courtyards,body-collisions,in-r4,in-r43,jet-strip}.json",
    "class": "output",
    "steps": [
     "fit"

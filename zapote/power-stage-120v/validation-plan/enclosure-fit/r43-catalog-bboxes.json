@@ -1,0 +1,3200 @@
+{
+"source": "/Users/bennet/Desktop/temper/output/temper-manufacturing-r43/catalog.json",
+"source_sha256": "aca70907b7c8f45467a8abb1de5fad460410ad626cdc3493231c13981e9ddf6e",
+"revision": "R43",
+"frame": "enclosure world: x across, y from the front, z up (mm)",
+"items": [
+{
+"name": "enclosure_bottom_chassis_with_locator_tangs",
+"group": "enclosure",
+"bbox": [
+-182.0,
+8.0,
+0.968,
+182.0,
+432.0,
+20.0
+],
+"file": "STEP/parts/enclosure_bottom_chassis_with_locator_tangs.step",
+"sha256": "8567654d044dfb64e4e680f2e3401bd9945faedd6699664f68490ec62af32612"
+},
+{
+"name": "enclosure_glass_350x340x4_sensor_bore",
+"group": "enclosure",
+"bbox": [
+-175.0,
+91.0,
+106.0,
+175.0,
+431.0,
+110.0
+],
+"file": "STEP/parts/enclosure_glass_350x340x4_sensor_bore.step",
+"sha256": "3ca5dc9681bcdee3c2fd7957196ba622474295fb32673b943d3c474690ab02d2"
+},
+{
+"name": "enclosure_one_rear_service_door",
+"group": "enclosure",
+"bbox": [
+-175.0,
+422.5,
+7.698,
+175.0,
+457.0,
+101.0
+],
+"file": "STEP/parts/enclosure_one_rear_service_door.step",
+"sha256": "94c8ec775372b4590d0e04fd1c3fe336fc284c3da82ff86897ed03ba9f014b61"
+},
+{
+"name": "enclosure_door_hook_bracket_-150",
+"group": "enclosure",
+"bbox": [
+149.0,
+433.0,
+62.0,
+162.0,
+442.0,
+88.0
+],
+"file": "STEP/parts/enclosure_door_hook_bracket_-150.step",
+"sha256": "dc7786d5481f945d1499507b07a8b09ac87e05f5f85ebf2a47bf057987a0d539"
+},
+{
+"name": "enclosure_door_hook_nut_-150_68",
+"group": "enclosure",
+"bbox": [
+152.5,
+435.9,
+64.5,
+159.5,
+439.1,
+71.5
+],
+"file": "STEP/parts/enclosure_door_hook_nut_-150_68.step",
+"sha256": "a58d0744d1c46eb5317eadb783b72c542f68af1d789cd87304a85b4b0030855f"
+},
+{
+"name": "enclosure_door_hook_nut_-150_78",
+"group": "enclosure",
+"bbox": [
+152.5,
+435.9,
+74.5,
+159.5,
+439.1,
+81.5
+],
+"file": "STEP/parts/enclosure_door_hook_nut_-150_78.step",
+"sha256": "f590c272a9a8f45cbfb3918fd3b1219b02786ca4a4f75df6ccd92322910485c4"
+},
+{
+"name": "enclosure_door_hook_bracket_150",
+"group": "enclosure",
+"bbox": [
+-162.0,
+433.0,
+62.0,
+-149.0,
+442.0,
+88.0
+],
+"file": "STEP/parts/enclosure_door_hook_bracket_150.step",
+"sha256": "5075d082d0e3fcaf9ab0a69436efc2b8aca7eaa59e60c5210b5f8528dcec5df6"
+},
+{
+"name": "enclosure_door_hook_nut_150_68",
+"group": "enclosure",
+"bbox": [
+-159.5,
+435.9,
+64.5,
+-152.5,
+439.1,
+71.5
+],
+"file": "STEP/parts/enclosure_door_hook_nut_150_68.step",
+"sha256": "861d7c649b71ff3dd761d4230ab5ab850210f00450c303e3df902d81311ee88f"
+},
+{
+"name": "enclosure_door_hook_nut_150_78",
+"group": "enclosure",
+"bbox": [
+-159.5,
+435.9,
+74.5,
+-152.5,
+439.1,
+81.5
+],
+"file": "STEP/parts/enclosure_door_hook_nut_150_78.step",
+"sha256": "836d0c3f2e01d7a3454b4e0e4a3e0e00f0b40c44ff2d1929df7e0dfa70b7b193"
+},
+{
+"name": "enclosure_rear_door_gasket_allocation",
+"group": "enclosure",
+"bbox": [
+-172.0,
+440.0,
+12.0,
+172.0,
+442.0,
+97.0
+],
+"file": "STEP/parts/enclosure_rear_door_gasket_allocation.step",
+"sha256": "59cba0a35d80f2fa0c878ab9b58afb5d0fad56499b9fd3ed867f794259642c28"
+},
+{
+"name": "enclosure_shell_nut_-170_150",
+"group": "enclosure",
+"bbox": [
+172.1,
+82.1,
+11.4,
+179.9,
+89.9,
+15.3
+],
+"file": "STEP/parts/enclosure_shell_nut_-170_150.step",
+"sha256": "0de2de4f151afdbcda5311ef3a6f1874de9609233cd45f13fcd0b32f8823fc2a"
+},
+{
+"name": "enclosure_shell_bottom_screw_-170_150",
+"group": "enclosure",
+"bbox": [
+172.5,
+82.5,
+4.968,
+179.5,
+89.5,
+20.968
+],
+"file": "STEP/parts/enclosure_shell_bottom_screw_-170_150.step",
+"sha256": "44b9ae94fdd0362f6b418b4b6e59b7c08b846a9fd3ce8009d6a422702d36cb11"
+},
+{
+"name": "enclosure_shell_nut_-170_360",
+"group": "enclosure",
+"bbox": [
+172.1,
+356.1,
+11.4,
+179.9,
+363.9,
+15.3
+],
+"file": "STEP/parts/enclosure_shell_nut_-170_360.step",
+"sha256": "9b50aa92b8686e81f54086f92133dd1034d8dbd1d81ce54bde57d3156b7f1d1b"
+},
+{
+"name": "enclosure_shell_bottom_screw_-170_360",
+"group": "enclosure",
+"bbox": [
+172.5,
+356.5,
+4.968,
+179.5,
+363.5,
+20.968
+],
+"file": "STEP/parts/enclosure_shell_bottom_screw_-170_360.step",
+"sha256": "11539f40a6357a890b5dd441d31e998f7d425a12c1732ff7e5b93b5a5584c743"
+},
+{
+"name": "enclosure_shell_nut_170_150",
+"group": "enclosure",
+"bbox": [
+-179.9,
+82.1,
+11.4,
+-172.1,
+89.9,
+15.3
+],
+"file": "STEP/parts/enclosure_shell_nut_170_150.step",
+"sha256": "bda3d9ff6c19a54cdd2f29df89788f790c1fe4e4e70b95b1f02b39434cc17ed0"
+},
+{
+"name": "enclosure_shell_bottom_screw_170_150",
+"group": "enclosure",
+"bbox": [
+-179.5,
+82.5,
+4.968,
+-172.5,
+89.5,
+20.968
+],
+"file": "STEP/parts/enclosure_shell_bottom_screw_170_150.step",
+"sha256": "bf1490dbd250d2941993427dfe1a36769a971bd5618a7362528d1992066ef121"
+},
+{
+"name": "enclosure_shell_nut_170_360",
+"group": "enclosure",
+"bbox": [
+-179.9,
+419.1,
+11.4,
+-172.1,
+426.9,
+15.3
+],
+"file": "STEP/parts/enclosure_shell_nut_170_360.step",
+"sha256": "4fdd6bf3ef8687dc8369e4ef5e0239e145c66721ac5bf3e4c84efc68c7822224"
+},
+{
+"name": "enclosure_shell_bottom_screw_170_360",
+"group": "enclosure",
+"bbox": [
+-179.5,
+419.5,
+4.968,
+-172.5,
+426.5,
+20.968
+],
+"file": "STEP/parts/enclosure_shell_bottom_screw_170_360.step",
+"sha256": "bb575aacc0ace53ef2f203becafdce7c2cda0d24650f5e1cf88122cf7589a4f8"
+},
+{
+"name": "enclosure_door_nut_-145",
+"group": "enclosure",
+"bbox": [
+141.1,
+421.1,
+10.1,
+148.9,
+428.9,
+14.0
+],
+"file": "STEP/parts/enclosure_door_nut_-145.step",
+"sha256": "0118acdbad2f62eaf79760a13a1f0c2c7f85c75bfa647ebd39f9f786309d0a7c"
+},
+{
+"name": "enclosure_door_bottom_screw_-145",
+"group": "enclosure",
+"bbox": [
+141.5,
+421.5,
+3.698,
+148.5,
+428.5,
+19.698
+],
+"file": "STEP/parts/enclosure_door_bottom_screw_-145.step",
+"sha256": "96a626946125c77ac8e2e10d40c480f164778b61c5e3334b23fd04d1f73246f0"
+},
+{
+"name": "enclosure_door_nut_145",
+"group": "enclosure",
+"bbox": [
+-148.9,
+421.1,
+10.1,
+-141.1,
+428.9,
+14.0
+],
+"file": "STEP/parts/enclosure_door_nut_145.step",
+"sha256": "ca0a7d164f3b5d4a6e06f65578bd5199a2c2c74a10a1667bc9a95efd66e45f6f"
+},
+{
+"name": "enclosure_door_bottom_screw_145",
+"group": "enclosure",
+"bbox": [
+-148.5,
+421.5,
+3.698,
+-141.5,
+428.5,
+19.698
+],
+"file": "STEP/parts/enclosure_door_bottom_screw_145.step",
+"sha256": "7e3d46cf5a06e3061b17f7b94f1111c259e536ed1dbda2a14ca33db26fc8dde9"
+},
+{
+"name": "enclosure_foot_-150_40",
+"group": "enclosure",
+"bbox": [
+137.3,
+27.3,
+-3.732,
+162.7,
+52.7,
+13.468
+],
+"file": "STEP/parts/enclosure_foot_-150_40.step",
+"sha256": "2b967814e8f1385298bebbc281c712bff92a2b1c3cd602adf97e9fa95d15a48b"
+},
+{
+"name": "enclosure_foot_-150_402",
+"group": "enclosure",
+"bbox": [
+137.3,
+389.3,
+-3.732,
+162.7,
+414.7,
+13.468
+],
+"file": "STEP/parts/enclosure_foot_-150_402.step",
+"sha256": "a923c8ca220f6fda08d75ddb11a536e5b84595a0b9156a066e3ecece63595d30"
+},
+{
+"name": "enclosure_foot_150_40",
+"group": "enclosure",
+"bbox": [
+-162.7,
+27.3,
+-3.732,
+-137.3,
+52.7,
+13.468
+],
+"file": "STEP/parts/enclosure_foot_150_40.step",
+"sha256": "2054e35a9ee37836d71d6c186152b58b5622ecb89d0eb058c550d2ba04b9b80e"
+},
+{
+"name": "enclosure_foot_150_402",
+"group": "enclosure",
+"bbox": [
+-162.7,
+389.3,
+-3.732,
+-137.3,
+414.7,
+13.468
+],
+"file": "STEP/parts/enclosure_foot_150_402.step",
+"sha256": "e4fe7ca8153f2bd4baa89935d0a2f1c5302390bc9f3bf782f3fe3d78a526e294"
+},
+{
+"name": "enclosure_coil_standoff_-157_190",
+"group": "enclosure",
+"bbox": [
+153.0,
+186.0,
+11.0,
+161.0,
+194.0,
+91.0
+],
+"file": "STEP/parts/enclosure_coil_standoff_-157_190.step",
+"sha256": "9785a3b8d7ed6b625a06c7f03860fd994548832960e85f1822bd4fc640074c4d"
+},
+{
+"name": "enclosure_coil_standoff_bottom_screw_-157_190",
+"group": "enclosure",
+"bbox": [
+153.5,
+186.5,
+4.968,
+160.5,
+193.5,
+20.968
+],
+"file": "STEP/parts/enclosure_coil_standoff_bottom_screw_-157_190.step",
+"sha256": "fc00f921e165464d1289b60b7f4c88ddb12dec19b78c1e480d6827f55e96ba60"
+},
+{
+"name": "enclosure_coil_standoff_157_190",
+"group": "enclosure",
+"bbox": [
+-161.0,
+186.0,
+11.0,
+-153.0,
+194.0,
+91.0
+],
+"file": "STEP/parts/enclosure_coil_standoff_157_190.step",
+"sha256": "0993d5aa64a8e8063f07bd541d147dd56b09da2f8df0f3620905a59b714f42aa"
+},
+{
+"name": "enclosure_coil_standoff_bottom_screw_157_190",
+"group": "enclosure",
+"bbox": [
+-160.5,
+186.5,
+4.968,
+-153.5,
+193.5,
+20.968
+],
+"file": "STEP/parts/enclosure_coil_standoff_bottom_screw_157_190.step",
+"sha256": "54b3e26bd875bdccad649d62033f09dc0f348c0df2677d03570bf687a0bdbfe2"
+},
+{
+"name": "enclosure_coil_standoff_0_396",
+"group": "enclosure",
+"bbox": [
+-4.0,
+392.0,
+11.0,
+4.0,
+400.0,
+91.0
+],
+"file": "STEP/parts/enclosure_coil_standoff_0_396.step",
+"sha256": "1f314816c51bb2bf921065af5a9b2dfa38870c568157b5c77e9d3f7fa45c2949"
+},
+{
+"name": "enclosure_coil_standoff_bottom_screw_0_396",
+"group": "enclosure",
+"bbox": [
+-3.5,
+392.5,
+4.968,
+3.5,
+399.5,
+20.968
+],
+"file": "STEP/parts/enclosure_coil_standoff_bottom_screw_0_396.step",
+"sha256": "88619719c356c8f80f637844dad097c4391f809a8decd5d26fdd8595315e594d"
+},
+{
+"name": "electronics_Schurter_C20_inlet_envelope",
+"group": "connectors",
+"bbox": [
+7.0,
+398.0,
+35.8,
+73.0,
+440.0,
+74.2
+],
+"file": "STEP/parts/electronics_Schurter_C20_inlet_envelope.step",
+"sha256": "083f95ee5aa3e835cedad04f12767acb16018f3242aa8c0b436c332c5ed7a3b5"
+},
+{
+"name": "electronics_M12_rear_M16_nut",
+"group": "connectors",
+"bbox": [
+-183.73,
+61.0,
+44.0,
+-179.73,
+83.0,
+66.0
+],
+"file": "STEP/parts/electronics_M12_rear_M16_nut.step",
+"sha256": "ef76cb4ec1414e68ad4cb62474f48ac9cf91ba81791640d0551e20e058e09e60"
+},
+{
+"name": "electronics_Binder_M12_probe_envelope",
+"group": "connectors",
+"bbox": [
+-191.0,
+61.0,
+44.0,
+-170.0,
+83.0,
+66.0
+],
+"file": "STEP/parts/electronics_Binder_M12_probe_envelope.step",
+"sha256": "1b04154be5549205f093a05ca83ffc273f3e8482c07d96fa9d3e5e507e4278f7"
+},
+{
+"name": "electronics_M12_panel_O_ring",
+"group": "connectors",
+"bbox": [
+-186.0,
+62.0,
+45.0,
+-185.0,
+82.0,
+65.0
+],
+"file": "STEP/parts/electronics_M12_panel_O_ring.step",
+"sha256": "7458e1fe7f003fec1cae9d9f7a082c35408e66cdf3c58817913ed36d78fa9d22"
+},
+{
+"name": "electronics_PE_M4_ring_lug",
+"group": "connectors",
+"bbox": [
+162.0,
+295.0,
+11.0,
+172.0,
+311.0,
+14.0
+],
+"file": "STEP/parts/electronics_PE_M4_ring_lug.step",
+"sha256": "f868486dba50a89801e083f740e50bac2304a68a627edb9d1325cf9586211219"
+},
+{
+"name": "electronics_PE_cover_base_ring_lug",
+"group": "connectors",
+"bbox": [
+162.0,
+290.0,
+12.0,
+179.0,
+305.0,
+15.0
+],
+"file": "STEP/parts/electronics_PE_cover_base_ring_lug.step",
+"sha256": "cb149b7a887b8ad3a4dfb106bf1386ea136068379beb1329fcd89822459c2dd1"
+},
+{
+"name": "electronics_PE_serrated_washer",
+"group": "connectors",
+"bbox": [
+163.0,
+296.0,
+13.0,
+171.0,
+304.0,
+13.5
+],
+"file": "STEP/parts/electronics_PE_serrated_washer.step",
+"sha256": "3e86323565525623edbd4440af46c64ab8cc1faf2436eebfc7f6b4d4fd3a6ae9"
+},
+{
+"name": "electronics_PE_M4_chassis_set",
+"group": "connectors",
+"bbox": [
+163.2,
+296.2,
+6.768,
+170.8,
+303.8,
+20.968
+],
+"file": "STEP/parts/electronics_PE_M4_chassis_set.step",
+"sha256": "caaf47442774fa23545b853fa397dad6049b8765b1ebe02d799c8f76d440e6a9"
+},
+{
+"name": "electronics_PE_cover_stud_ring_lug",
+"group": "connectors",
+"bbox": [
+181.73,
+379.0,
+35.0,
+183.73,
+395.0,
+45.0
+],
+"file": "STEP/parts/electronics_PE_cover_stud_ring_lug.step",
+"sha256": "15e23f218520ba349c094913b9a264f8fbc638bfc5f930a5ec0cde4d7fede4a9"
+},
+{
+"name": "electronics_PE_cover_stud_washer_nut_set",
+"group": "connectors",
+"bbox": [
+179.03,
+386.0,
+36.0,
+182.73,
+394.0,
+44.0
+],
+"file": "STEP/parts/electronics_PE_cover_stud_washer_nut_set.step",
+"sha256": "1b12993e2c39bbc6114447710995cd156b682cbf510857c597da6a4916e1e62a"
+},
+{
+"name": "electronics_native21_board",
+"group": "electronics",
+"bbox": [
+-141.0,
+46.0,
+26.0,
+149.0,
+236.0,
+27.493
+],
+"file": "STEP/parts/electronics_native21_board.step",
+"sha256": "513d3ba4b6e91c9bd4936448e46c9c0f277abd73f6a45fbd0195ceac678d4db1"
+},
+{
+"name": "electronics_native21_components_ENVELOPE",
+"group": "electronics",
+"bbox": [
+-140.1,
+51.02,
+23.5,
+147.575,
+235.6,
+75.613
+],
+"file": "STEP/parts/electronics_native21_components_ENVELOPE.step",
+"sha256": "22201302cf7761696d935b7ba9669b47a7f7e2ef371fa352cfc140c79f53d035"
+},
+{
+"name": "electronics_native21_standoff_H1",
+"group": "electronics",
+"bbox": [
+141.25,
+98.25,
+8.0,
+146.75,
+103.75,
+26.0
+],
+"file": "STEP/parts/electronics_native21_standoff_H1.step",
+"sha256": "bc904a83273f2cf902d57509df3a7e6a13691f03f172b9a005ebdbc6eb07da66"
+},
+{
+"name": "electronics_native21_top_screw_H1",
+"group": "electronics",
+"bbox": [
+141.15,
+98.15,
+21.6,
+146.85,
+103.85,
+29.25
+],
+"file": "STEP/parts/electronics_native21_top_screw_H1.step",
+"sha256": "c5f23ce7d28db9d53960c82bcdf58b88d13404eabf229768ffc5360b62575bfc"
+},
+{
+"name": "electronics_native21_standoff_H2",
+"group": "electronics",
+"bbox": [
+-137.75,
+53.25,
+8.0,
+-132.25,
+58.75,
+26.0
+],
+"file": "STEP/parts/electronics_native21_standoff_H2.step",
+"sha256": "e570c88568b4f0e3b9d76a51dbcbf1bae3159546884694516404816158603ee2"
+},
+{
+"name": "electronics_native21_top_screw_H2",
+"group": "electronics",
+"bbox": [
+-137.85,
+53.15,
+21.6,
+-132.15,
+58.85,
+29.25
+],
+"file": "STEP/parts/electronics_native21_top_screw_H2.step",
+"sha256": "05e3a8b2f9afa7fab1c8220d996405ad9938113f8178073d81405f6da4a2dda7"
+},
+{
+"name": "electronics_native21_standoff_H3",
+"group": "electronics",
+"bbox": [
+-57.75,
+53.25,
+8.0,
+-52.25,
+58.75,
+26.0
+],
+"file": "STEP/parts/electronics_native21_standoff_H3.step",
+"sha256": "0af34622fd2112562ac0f47557975c7c0bb21755f858b0fc1cdbe7de245f2dea"
+},
+{
+"name": "electronics_native21_top_screw_H3",
+"group": "electronics",
+"bbox": [
+-57.85,
+53.15,
+21.6,
+-52.15,
+58.85,
+29.25
+],
+"file": "STEP/parts/electronics_native21_top_screw_H3.step",
+"sha256": "152206b16d3596879eb4997936589f18fd1a7bfcfe9f87e930ef0bfdf380df19"
+},
+{
+"name": "electronics_native21_standoff_H4",
+"group": "electronics",
+"bbox": [
+-119.75,
+159.25,
+8.0,
+-114.25,
+164.75,
+26.0
+],
+"file": "STEP/parts/electronics_native21_standoff_H4.step",
+"sha256": "e9b3554b6ab6beb8aab963b7e6ed41545a52284e1e4af8e124980382ae9600e4"
+},
+{
+"name": "electronics_native21_top_screw_H4",
+"group": "electronics",
+"bbox": [
+-119.85,
+159.15,
+21.6,
+-114.15,
+164.85,
+29.25
+],
+"file": "STEP/parts/electronics_native21_top_screw_H4.step",
+"sha256": "92e112e3cc1ffb1e923bb2f791802241901a23d0cbd035b8d20c52dd4b38a09a"
+},
+{
+"name": "electronics_native21_standoff_H5",
+"group": "electronics",
+"bbox": [
+-55.75,
+133.25,
+8.0,
+-50.25,
+138.75,
+26.0
+],
+"file": "STEP/parts/electronics_native21_standoff_H5.step",
+"sha256": "d56c5e2c68bfef09ea012bffa0189d7c269f16888577116469cd90eda01d289c"
+},
+{
+"name": "electronics_native21_top_screw_H5",
+"group": "electronics",
+"bbox": [
+-55.85,
+133.15,
+21.6,
+-50.15,
+138.85,
+29.25
+],
+"file": "STEP/parts/electronics_native21_top_screw_H5.step",
+"sha256": "59969c8e9dd5e39c4b056ded550c510ae35549dd0634a7097ad5dee0a4b6873b"
+},
+{
+"name": "electronics_native21_standoff_H6",
+"group": "electronics",
+"bbox": [
+-15.75,
+179.25,
+8.0,
+-10.25,
+184.75,
+26.0
+],
+"file": "STEP/parts/electronics_native21_standoff_H6.step",
+"sha256": "286fc76e16dbc3580fe4b5e287ec3b978e183afd94a324eb2505947106ea8c23"
+},
+{
+"name": "electronics_native21_top_screw_H6",
+"group": "electronics",
+"bbox": [
+-15.85,
+179.15,
+21.6,
+-10.15,
+184.85,
+29.25
+],
+"file": "STEP/parts/electronics_native21_top_screw_H6.step",
+"sha256": "4b62934e0b858cd35532f2c9cf642932f326706ffd03f8ae093029755b8447da"
+},
+{
+"name": "electronics_native21_standoff_H7",
+"group": "electronics",
+"bbox": [
+50.25,
+103.25,
+8.0,
+55.75,
+108.75,
+26.0
+],
+"file": "STEP/parts/electronics_native21_standoff_H7.step",
+"sha256": "236ee0f82450602fffedb19474c3643a856b382fa802434dd4b499a14743beb3"
+},
+{
+"name": "electronics_native21_top_screw_H7",
+"group": "electronics",
+"bbox": [
+50.15,
+103.15,
+21.6,
+55.85,
+108.85,
+29.25
+],
+"file": "STEP/parts/electronics_native21_top_screw_H7.step",
+"sha256": "a0e4effce59448f61cd84f06767dd0830101a4cc50c29587862c8b696c382539"
+},
+{
+"name": "electronics_native21_sink_ENVELOPE",
+"group": "thermal",
+"bbox": [
+-149.0,
+244.3,
+15.5,
+-32.0,
+292.3,
+83.0
+],
+"file": "STEP/parts/electronics_native21_sink_ENVELOPE.step",
+"sha256": "6794c09b229a777f7e9b18a759e2a23c43a1966ddb97200a160deff10a33e26c"
+},
+{
+"name": "electronics_inlet_EMI_module_ENVELOPE",
+"group": "connectors",
+"bbox": [
+40.0,
+296.0,
+26.0,
+150.0,
+376.0,
+76.0
+],
+"file": "STEP/parts/electronics_inlet_EMI_module_ENVELOPE.step",
+"sha256": "6bea841a7ae17bc5d81e5671689dbd9ee956f37f9a9bb2e2fcb4eba85d0ee142"
+},
+{
+"name": "electronics_TCO_sink",
+"group": "thermal",
+"bbox": [
+-72.0,
+278.3,
+83.0,
+-60.0,
+284.3,
+88.0
+],
+"file": "STEP/parts/electronics_TCO_sink.step",
+"sha256": "11710beffe30cbab70c98ff0cf4770d69cbbeb6f65aafc52f3096cd8d0e3bdee"
+},
+{
+"name": "electronics_TCO_under_glass",
+"group": "thermal",
+"bbox": [
+123.0,
+255.0,
+101.0,
+135.0,
+267.0,
+106.0
+],
+"file": "STEP/parts/electronics_TCO_under_glass.step",
+"sha256": "7d7056a2a11251c9e99e0f35537dab9f4a32b85f6bb4ff24867fdaf7f7307a01"
+},
+{
+"name": "electronics_native21_J3_mate",
+"group": "connectors",
+"bbox": [
+72.75,
+221.0,
+38.6,
+80.55,
+235.3,
+49.4
+],
+"file": "STEP/parts/electronics_native21_J3_mate.step",
+"sha256": "0b58b02ecc110ad3f1723823fc5285ddaf4ea3bec8db4043fdb08c241d2dbb1a"
+},
+{
+"name": "electronics_native21_J4_mate",
+"group": "connectors",
+"bbox": [
+-109.0,
+51.0,
+37.6,
+-83.0,
+58.4,
+47.4
+],
+"file": "STEP/parts/electronics_native21_J4_mate.step",
+"sha256": "c370e55bebd363ed00cae91115e8faccdf50b9cf83c632da8b26a73f259fffd6"
+},
+{
+"name": "electronics_EMI_module_stand",
+"group": "electronics",
+"bbox": [
+40.0,
+298.0,
+2.0,
+150.0,
+384.0,
+26.0
+],
+"file": "STEP/parts/electronics_EMI_module_stand.step",
+"sha256": "77a38a142adffce4342646306c069a1c0d5ee3b56e2d542cbc9f4eb653c0b07e"
+},
+{
+"name": "electronics_EMI_stand_module_nut_1",
+"group": "electronics",
+"bbox": [
+139.1,
+301.1,
+21.0,
+146.9,
+308.9,
+26.0
+],
+"file": "STEP/parts/electronics_EMI_stand_module_nut_1.step",
+"sha256": "3b8921f5ed81407481df829764f7c2ca61b1b6316059efa2cca79458c72b3f75"
+},
+{
+"name": "electronics_EMI_stand_module_nut_2",
+"group": "electronics",
+"bbox": [
+139.1,
+363.1,
+21.0,
+146.9,
+370.9,
+26.0
+],
+"file": "STEP/parts/electronics_EMI_stand_module_nut_2.step",
+"sha256": "5880258b1601f4523b111fe770d1e04e00c5bd5c227d602705a86f09af5feb32"
+},
+{
+"name": "electronics_EMI_stand_module_nut_3",
+"group": "electronics",
+"bbox": [
+43.1,
+301.1,
+21.0,
+50.9,
+308.9,
+26.0
+],
+"file": "STEP/parts/electronics_EMI_stand_module_nut_3.step",
+"sha256": "ab1fab9edb252af0f825d784211220a468872e5bc0ecbd9a70405409ea098716"
+},
+{
+"name": "electronics_EMI_stand_module_nut_4",
+"group": "electronics",
+"bbox": [
+43.1,
+363.1,
+21.0,
+50.9,
+370.9,
+26.0
+],
+"file": "STEP/parts/electronics_EMI_stand_module_nut_4.step",
+"sha256": "aa09221e0b319535bd48ef00975d95299ecd6a4ae3bc026c7f94927f641159a1"
+},
+{
+"name": "electronics_SELV_controller_board",
+"group": "electronics",
+"bbox": [
+-38.0,
+14.0,
+23.0,
+168.0,
+90.0,
+24.6
+],
+"file": "STEP/parts/electronics_SELV_controller_board.step",
+"sha256": "72b168a6f0faa1f1f560c2242452c7d8d48286a33469c5c6fe6d2f0b2c916fa8"
+},
+{
+"name": "electronics_harness_lane_bracket_165",
+"group": "electronics",
+"bbox": [
+160.0,
+165.0,
+2.0,
+181.0,
+166.0,
+56.0
+],
+"file": "STEP/parts/electronics_harness_lane_bracket_165.step",
+"sha256": "2c011a1877e1fafece44c72a9312dcdaec18aac1b06d9ec410bc9f2e3a08c5ff"
+},
+{
+"name": "electronics_harness_lane_bracket_235",
+"group": "electronics",
+"bbox": [
+160.0,
+235.0,
+2.0,
+181.0,
+236.0,
+56.0
+],
+"file": "STEP/parts/electronics_harness_lane_bracket_235.step",
+"sha256": "8f3d0f389bb5982387394ffd531998028bdac9893d81673bf02a8b67175315b5"
+},
+{
+"name": "electronics_harness_mains_anchor",
+"group": "electronics",
+"bbox": [
+133.0,
+255.0,
+2.0,
+152.0,
+256.0,
+38.0
+],
+"file": "STEP/parts/electronics_harness_mains_anchor.step",
+"sha256": "b2e70e6863beb70e666c9853bc7f2deb75ffc53f7bc1ede1b397f0aa1686b8c2"
+},
+{
+"name": "electronics_coil_lug_J2",
+"group": "electronics",
+"bbox": [
+-13.25,
+139.0,
+31.3,
+-4.75,
+154.75,
+57.09
+],
+"file": "STEP/parts/electronics_coil_lug_J2.step",
+"sha256": "be4d03eca6e61dd007f831f2b2c7b280c836bf7d77ea1bb6ba98fcba1a428c27"
+},
+{
+"name": "electronics_coil_lug_J5",
+"group": "electronics",
+"bbox": [
+-13.25,
+161.25,
+31.3,
+-4.75,
+177.0,
+57.09
+],
+"file": "STEP/parts/electronics_coil_lug_J5.step",
+"sha256": "4c5ee1b70fbcd8b1255411951c14135fef318a3cadd5edf41b455f4c6c55e1d4"
+},
+{
+"name": "electronics_sink_AlN_tile_A",
+"group": "thermal",
+"bbox": [
+-145.0,
+234.465,
+27.8,
+-102.25,
+236.465,
+59.6
+],
+"file": "STEP/parts/electronics_sink_AlN_tile_A.step",
+"sha256": "453496ec6c9fbea4125349792c596ff6376d4c1bb5249d523caa1dec251eb84f"
+},
+{
+"name": "electronics_sink_AlN_tile_B",
+"group": "thermal",
+"bbox": [
+-101.75,
+234.465,
+27.8,
+-28.0,
+236.465,
+59.6
+],
+"file": "STEP/parts/electronics_sink_AlN_tile_B.step",
+"sha256": "29c47c79d66f1d9f409a83250946ae756a3f6e937b7bd069a0337ebad1dbfa48"
+},
+{
+"name": "electronics_sink_spreader_bar",
+"group": "thermal",
+"bbox": [
+-149.0,
+236.465,
+35.6,
+-32.0,
+244.3,
+95.0
+],
+"file": "STEP/parts/electronics_sink_spreader_bar.step",
+"sha256": "affb32975c6514442b92b4177e038ec50e65a198e8278972b93dbb499fb56547"
+},
+{
+"name": "electronics_sink_FR4_pressure_strip",
+"group": "thermal",
+"bbox": [
+-145.0,
+226.5,
+36.6,
+-28.0,
+229.5,
+50.6
+],
+"file": "STEP/parts/electronics_sink_FR4_pressure_strip.step",
+"sha256": "99b542abb67c04f3ecf7332094782d66e235808f0ee4cc168605c01e8db9b504"
+},
+{
+"name": "electronics_sink_clamp_comb",
+"group": "thermal",
+"bbox": [
+-145.0,
+226.0,
+50.6,
+-28.0,
+236.465,
+72.6
+],
+"file": "STEP/parts/electronics_sink_clamp_comb.step",
+"sha256": "3fb95868179c041f124199dbf7d9e3bd3849d098b66e83c3995c8faba5783f5b"
+},
+{
+"name": "electronics_SELV_controller_components_ENVELOPE",
+"group": "electronics",
+"bbox": [
+-38.0,
+14.0,
+24.6,
+168.0,
+90.0,
+31.0
+],
+"file": "STEP/parts/electronics_SELV_controller_components_ENVELOPE.step",
+"sha256": "610cccb65595fbcba1bb33618e16ef0e6e2bf6953ce02a70c65bb04f65dece9d"
+},
+{
+"name": "electronics_controller_J1",
+"group": "connectors",
+"bbox": [
+51.3,
+81.125,
+24.6,
+58.7,
+86.875,
+35.1
+],
+"file": "STEP/parts/electronics_controller_J1.step",
+"sha256": "037c5826f0d64e1e7b9167987045db554fdc9728fc7af9b5725040dae4f35c33"
+},
+{
+"name": "electronics_controller_J2",
+"group": "connectors",
+"bbox": [
+-23.7,
+81.125,
+24.6,
+-16.3,
+86.875,
+35.1
+],
+"file": "STEP/parts/electronics_controller_J2.step",
+"sha256": "c67fe0f6b87d00b754cf00c838ece2adcae73d79d8a3af54f063d7ea076092ea"
+},
+{
+"name": "electronics_controller_J3",
+"group": "connectors",
+"bbox": [
+145.8,
+83.125,
+24.6,
+158.2,
+88.875,
+35.1
+],
+"file": "STEP/parts/electronics_controller_J3.step",
+"sha256": "51d75ba433c311a8460f2ae1edcd1cecf7a2787cfe53582d8c315fa8866410b4"
+},
+{
+"name": "electronics_controller_J9",
+"group": "connectors",
+"bbox": [
+-37.95,
+83.125,
+24.6,
+-28.05,
+88.875,
+35.1
+],
+"file": "STEP/parts/electronics_controller_J9.step",
+"sha256": "1faeaa7ee6c619dc8d0fd29b6282439467f4753aa2687ed0d53fcb006f0ff82d"
+},
+{
+"name": "electronics_controller_J10",
+"group": "connectors",
+"bbox": [
+134.05,
+83.125,
+24.6,
+143.95,
+88.875,
+35.1
+],
+"file": "STEP/parts/electronics_controller_J10.step",
+"sha256": "8b03d66a538c51b70d797bf81fada100950ddc83b3bcacc26ed31e6c1b6dc237"
+},
+{
+"name": "electronics_controller_J4_right_angle",
+"group": "connectors",
+"bbox": [
+-50.0,
+27.8,
+24.6,
+-24.3,
+57.0,
+35.0
+],
+"file": "STEP/parts/electronics_controller_J4_right_angle.step",
+"sha256": "d8c16821a7c232983daf7bdd6a9f8a6bb2be97e6717669b5d1c6ac4053431e1f"
+},
+{
+"name": "electronics_controller_ESP32_S3_WROOM_1",
+"group": "electronics",
+"bbox": [
+141.0,
+50.0,
+24.6,
+159.0,
+69.5,
+27.8
+],
+"file": "STEP/parts/electronics_controller_ESP32_S3_WROOM_1.step",
+"sha256": "f65521a18ae5e5689530a7780be2928423d60cd202c3d3ab7011b126e14b93e5"
+},
+{
+"name": "electronics_sink_PE_bolt_set",
+"group": "electronics",
+"bbox": [
+-147.3,
+233.065,
+84.7,
+-138.7,
+251.265,
+93.3
+],
+"file": "STEP/parts/electronics_sink_PE_bolt_set.step",
+"sha256": "af84c2f2dc48777f54650ac9a601b2ff984129eb35f7e10be401b2eb6f155bfc"
+},
+{
+"name": "electronics_sink_PE_ear_lug",
+"group": "electronics",
+"bbox": [
+-147.5,
+244.865,
+84.5,
+-138.5,
+245.665,
+98.0
+],
+"file": "STEP/parts/electronics_sink_PE_ear_lug.step",
+"sha256": "8e9c846fd9cbcee10a40ae65801f4f85815e7596c6693b8703853508d5dd005b"
+},
+{
+"name": "electronics_sink_PE_base_stud_set",
+"group": "electronics",
+"bbox": [
+-176.5,
+399.5,
+8.968,
+-167.5,
+408.5,
+20.968
+],
+"file": "STEP/parts/electronics_sink_PE_base_stud_set.step",
+"sha256": "ca033dfd540028c33812043fc45e24662110afb30c21c13b6a26d89f869a2180"
+},
+{
+"name": "electronics_controller_snap_support_-164_18",
+"group": "electronics",
+"bbox": [
+161.0,
+15.0,
+8.3,
+167.0,
+21.0,
+25.6
+],
+"file": "STEP/parts/electronics_controller_snap_support_-164_18.step",
+"sha256": "362a04c8a1bdff43703bbe11d7adf84d0e1fc1d4f701abc1f9f39d1cf4416f0c"
+},
+{
+"name": "electronics_controller_snap_support_-164_80",
+"group": "electronics",
+"bbox": [
+161.0,
+77.0,
+8.3,
+167.0,
+83.0,
+25.6
+],
+"file": "STEP/parts/electronics_controller_snap_support_-164_80.step",
+"sha256": "de8a15dbd275bbdc0121d19a8cf8e95a3c94384999fa14cad5dc061ab8da52f1"
+},
+{
+"name": "electronics_controller_snap_support_-65_18",
+"group": "electronics",
+"bbox": [
+62.0,
+15.0,
+8.3,
+68.0,
+21.0,
+25.6
+],
+"file": "STEP/parts/electronics_controller_snap_support_-65_18.step",
+"sha256": "bbe41eaeb25f4b80c66103740d615c718e6404bac590c2ee2cd40dba373ac48e"
+},
+{
+"name": "electronics_controller_snap_support_-75_86",
+"group": "electronics",
+"bbox": [
+72.0,
+83.0,
+8.3,
+78.0,
+89.0,
+25.6
+],
+"file": "STEP/parts/electronics_controller_snap_support_-75_86.step",
+"sha256": "2bbef11126d5f395f8a8b73a9d5d8ebe198b3d01009911063f2509e3a1d334c9"
+},
+{
+"name": "electronics_controller_snap_support_34_18",
+"group": "electronics",
+"bbox": [
+-37.0,
+15.0,
+8.3,
+-31.0,
+21.0,
+25.6
+],
+"file": "STEP/parts/electronics_controller_snap_support_34_18.step",
+"sha256": "99983665537105b7340e5d50e2b06b0bdb4994de8e441b78b6292de0904af792"
+},
+{
+"name": "electronics_controller_snap_support_26_74",
+"group": "electronics",
+"bbox": [
+-29.0,
+71.0,
+8.3,
+-23.0,
+77.0,
+25.6
+],
+"file": "STEP/parts/electronics_controller_snap_support_26_74.step",
+"sha256": "fe8af656677035b30fbccba1782b8290f484a235c690c6cf914e329694bd0b15"
+},
+{
+"name": "electronics_sink_BR1_gap_pad",
+"group": "thermal",
+"bbox": [
+-61.9,
+233.8,
+30.4,
+-31.6,
+234.465,
+47.9
+],
+"file": "STEP/parts/electronics_sink_BR1_gap_pad.step",
+"sha256": "2911ddb5d9600f3934fa025d4495680d2604bce45b61cce3da439eb646109e13"
+},
+{
+"name": "controls_open_OLED_carrier",
+"group": "controls",
+"bbox": [
+-107.0,
+27.1144,
+60.4489,
+37.0,
+85.8495,
+100.7624
+],
+"file": "STEP/parts/controls_open_OLED_carrier.step",
+"sha256": "c9b36c844b22d3b0364e1767b3555f7259b2ca67d65b30a24af62ab1971ad7c4"
+},
+{
+"name": "controls_IFHA_M3_10_stud_1",
+"group": "controls",
+"bbox": [
+-101.3,
+29.2437,
+58.6887,
+-96.7,
+39.2394,
+70.6981
+],
+"file": "STEP/parts/controls_IFHA_M3_10_stud_1.step",
+"sha256": "717b6660d5206a4e1c7b254048c90d52808fa712c8f80ba79a903938abee8ae1"
+},
+{
+"name": "controls_carrier_M3_nut_1",
+"group": "controls",
+"bbox": [
+-102.2,
+31.9479,
+60.6626,
+-95.8,
+38.5671,
+66.2994
+],
+"file": "STEP/parts/controls_carrier_M3_nut_1.step",
+"sha256": "30627acff68e93bec64eedf6fc9e8d62788d63bd989feccfcb8fe550162ae265"
+},
+{
+"name": "controls_IFHA_M3_10_stud_2",
+"group": "controls",
+"bbox": [
+-101.3,
+65.2864,
+83.9261,
+-96.7,
+75.2821,
+95.9355
+],
+"file": "STEP/parts/controls_IFHA_M3_10_stud_2.step",
+"sha256": "b881a621c71df73b7d341ebc4bf010b2d21707bb0a4e158b99998535e3c0ca9b"
+},
+{
+"name": "controls_carrier_M3_nut_2",
+"group": "controls",
+"bbox": [
+-102.2,
+67.9906,
+85.8999,
+-95.8,
+74.6098,
+91.5368
+],
+"file": "STEP/parts/controls_carrier_M3_nut_2.step",
+"sha256": "9048642a19c3a0f7acbcbd506e419810c3f0064eeccfb45d9acf070084238c37"
+},
+{
+"name": "controls_IFHA_M3_10_stud_3",
+"group": "controls",
+"bbox": [
+26.7,
+29.2437,
+58.6887,
+31.3,
+39.2394,
+70.6981
+],
+"file": "STEP/parts/controls_IFHA_M3_10_stud_3.step",
+"sha256": "fac7a86dc1050e8d079b0f0780926049529c8611d1ede9c504675079cc0c5d21"
+},
+{
+"name": "controls_carrier_M3_nut_3",
+"group": "controls",
+"bbox": [
+25.8,
+31.9479,
+60.6626,
+32.2,
+38.5671,
+66.2994
+],
+"file": "STEP/parts/controls_carrier_M3_nut_3.step",
+"sha256": "f17592387a6a33cea973bcc9111f029dd20de6abc8d2163ea9deae675aa42a7c"
+},
+{
+"name": "controls_IFHA_M3_10_stud_4",
+"group": "controls",
+"bbox": [
+26.7,
+65.2864,
+83.9261,
+31.3,
+75.2821,
+95.9355
+],
+"file": "STEP/parts/controls_IFHA_M3_10_stud_4.step",
+"sha256": "ff0343f68f16879057d90d90bad2bd5cd8b3f1693a36273b2dc14fe53ca26b73"
+},
+{
+"name": "controls_carrier_M3_nut_4",
+"group": "controls",
+"bbox": [
+25.8,
+67.9906,
+85.8999,
+32.2,
+74.6098,
+91.5368
+],
+"file": "STEP/parts/controls_carrier_M3_nut_4.step",
+"sha256": "2ec6831665eadd8fc5018737851d46c5274a200b110295580dfda264d3915a24"
+},
+{
+"name": "controls_flush_front_lens",
+"group": "controls",
+"bbox": [
+-89.0,
+36.8618,
+71.7556,
+19.0,
+69.1368,
+95.1898
+],
+"file": "STEP/parts/controls_flush_front_lens.step",
+"sha256": "9005fad718ac2ccb9719457673a1429762ef5f9e6901e51850f19a262bb12456"
+},
+{
+"name": "controls_lens_rear_bond_bed",
+"group": "controls",
+"bbox": [
+-89.0,
+38.009,
+71.346,
+19.0,
+69.4236,
+93.5515
+],
+"file": "STEP/parts/controls_lens_rear_bond_bed.step",
+"sha256": "7d4cc3453f0462ffeb742ffe6224c6e069ab6063d042874fce31ef8a788fd9bb"
+},
+{
+"name": "controls_lens_perimeter_seal",
+"group": "controls",
+"bbox": [
+-89.4,
+36.5342,
+71.5262,
+19.4,
+69.4644,
+95.4193
+],
+"file": "STEP/parts/controls_lens_perimeter_seal.step",
+"sha256": "e00c5c42b4616c97ec5899bd36955feec0f0040fb59ab3de6e20c919401ba7e2"
+},
+{
+"name": "controls_Newhaven_OLED_module",
+"group": "controls",
+"bbox": [
+-79.6,
+39.8534,
+63.0721,
+9.6,
+76.4696,
+89.1286
+],
+"file": "STEP/parts/controls_Newhaven_OLED_module.step",
+"sha256": "91e50de0a9a35e853d19bc93845c5389b67033668db57fa328a002a5164ca73f"
+},
+{
+"name": "controls_Newhaven_OLED_bezel_envelope",
+"group": "controls",
+"bbox": [
+-79.5,
+43.8258,
+67.6769,
+9.5,
+69.5067,
+86.7026
+],
+"file": "STEP/parts/controls_Newhaven_OLED_bezel_envelope.step",
+"sha256": "47f456a50e75742d360b17ba509eeb29765cf8be73341e65ed7fbc3a3e110f71"
+},
+{
+"name": "controls_OLED_M2x5_1",
+"group": "controls",
+"bbox": [
+-78.5,
+39.2383,
+62.5562,
+-74.7,
+45.2438,
+69.4335
+],
+"file": "STEP/parts/controls_OLED_M2x5_1.step",
+"sha256": "ad67fa1faba9027504f2157e0e2cb1aee120cd2ccc190e02a3600f167342c2a6"
+},
+{
+"name": "controls_OLED_M2x5_2",
+"group": "controls",
+"bbox": [
+-78.5,
+70.3661,
+84.3521,
+-74.7,
+76.3716,
+91.2294
+],
+"file": "STEP/parts/controls_OLED_M2x5_2.step",
+"sha256": "a81ae0876da4b3cdb0faadbaa47d3a5c15063ddc69317c7fc6b85981cad19086"
+},
+{
+"name": "controls_OLED_M2x5_3",
+"group": "controls",
+"bbox": [
+4.7,
+39.2383,
+62.5562,
+8.5,
+45.2438,
+69.4335
+],
+"file": "STEP/parts/controls_OLED_M2x5_3.step",
+"sha256": "17563789e2edf2654398b84fdb0ad54bdc16175086daca8ae0df430964dd8fd0"
+},
+{
+"name": "controls_OLED_M2x5_4",
+"group": "controls",
+"bbox": [
+4.7,
+70.3661,
+84.3521,
+8.5,
+76.3716,
+91.2294
+],
+"file": "STEP/parts/controls_OLED_M2x5_4.step",
+"sha256": "b93f0e3fd0c993593e6e8614098180bb297847e792b1eb94ba47be94f9f0c953"
+},
+{
+"name": "controls_APEM_back_button",
+"group": "controls",
+"bbox": [
+-83.75,
+11.2625,
+47.6692,
+-66.25,
+33.7841,
+71.6105
+],
+"file": "STEP/parts/controls_APEM_back_button.step",
+"sha256": "a496223f0fe888c844a8fe11587f1ef3275b2f8b32c33ffc5c94c86e95f0bdab"
+},
+{
+"name": "controls_APEM_back_rear_U166_nut",
+"group": "controls",
+"bbox": [
+-83.0829,
+16.3976,
+53.5183,
+-66.9171,
+30.959,
+64.6747
+],
+"file": "STEP/parts/controls_APEM_back_rear_U166_nut.step",
+"sha256": "3804eccaf04b4b21e88788626e2d8f4fdb8504512a34a2b50f519144ba87b4f6"
+},
+{
+"name": "controls_APEM_select_start_button",
+"group": "controls",
+"bbox": [
+-43.75,
+11.2625,
+47.6692,
+-26.25,
+33.7841,
+71.6105
+],
+"file": "STEP/parts/controls_APEM_select_start_button.step",
+"sha256": "cf04d1d7cf43b81251e259aaca3151659f5c5f21490e9e84eec6cd8335f1db45"
+},
+{
+"name": "controls_APEM_select_start_rear_U166_nut",
+"group": "controls",
+"bbox": [
+-43.0829,
+16.3976,
+53.5183,
+-26.9171,
+30.959,
+64.6747
+],
+"file": "STEP/parts/controls_APEM_select_start_rear_U166_nut.step",
+"sha256": "2275262dce236378a9d4c05f889de4336da3955e57829d757ee3d9d2d2a3d85d"
+},
+{
+"name": "controls_APEM_stop_button",
+"group": "controls",
+"bbox": [
+-3.75,
+11.2625,
+47.6692,
+13.75,
+33.7841,
+71.6105
+],
+"file": "STEP/parts/controls_APEM_stop_button.step",
+"sha256": "2c0573e71559b98f21782f50e26ea238c3dd16e31ab5c6eea24d06715f32db85"
+},
+{
+"name": "controls_APEM_stop_rear_U166_nut",
+"group": "controls",
+"bbox": [
+-3.0829,
+16.3976,
+53.5183,
+13.0829,
+30.959,
+64.6747
+],
+"file": "STEP/parts/controls_APEM_stop_rear_U166_nut.step",
+"sha256": "41f8dd5f7891e469caa2d9d965076839bcd6a6a53e05991c3cbf33e954df342b"
+},
+{
+"name": "controls_Grayhill_sealed_encoder",
+"group": "controls",
+"bbox": [
+103.5,
+32.5384,
+60.7383,
+116.5,
+58.2036,
+91.6318
+],
+"file": "STEP/parts/controls_Grayhill_sealed_encoder.step",
+"sha256": "a07e1171748e5bd2d5b3529e6ae8cec321e577c717d091f6015d6f6cc5a0e43b"
+},
+{
+"name": "controls_Grayhill_rear_lockwasher",
+"group": "controls",
+"bbox": [
+101.3515,
+35.8144,
+73.022,
+118.6485,
+50.4995,
+83.6803
+],
+"file": "STEP/parts/controls_Grayhill_rear_lockwasher.step",
+"sha256": "950514ac498a403132c1d606fd4bd0f1b4cb3089a280223b335e215d0bc159c8"
+},
+{
+"name": "controls_Grayhill_rear_hex_nut",
+"group": "controls",
+"bbox": [
+101.9,
+34.8986,
+74.0738,
+118.1,
+49.534,
+85.3153
+],
+"file": "STEP/parts/controls_Grayhill_rear_hex_nut.step",
+"sha256": "44c439ab458e424de11105c7cd65cc5bade932cbe1d5990898b11a5a93143cf0"
+},
+{
+"name": "controls_encoder_3in_cable_route",
+"group": "controls",
+"bbox": [
+108.5,
+55.2137,
+63.0334,
+111.5,
+60.2111,
+67.7852
+],
+"file": "STEP/parts/controls_encoder_3in_cable_route.step",
+"sha256": "c0993f4ff540ca9695d4856eb8827c90a838cd3f6ccfe83696a3520138352137"
+},
+{
+"name": "controls_turned_push_on_D_bore_knob",
+"group": "controls",
+"bbox": [
+82.0,
+9.2367,
+66.5096,
+138.0,
+63.1393,
+110.3436
+],
+"file": "STEP/parts/controls_turned_push_on_D_bore_knob.step",
+"sha256": "29aee3bc54a47b3fd2a145fa09885a8af50dc1a56e8be96b40808a8b9392601f"
+},
+{
+"name": "controls_knob_retention_O_ring",
+"group": "controls",
+"bbox": [
+105.327,
+34.0349,
+81.7735,
+114.673,
+42.7117,
+88.5922
+],
+"file": "STEP/parts/controls_knob_retention_O_ring.step",
+"sha256": "7d18d8a0d7a2757c68577760d8df32d882255bdcfe6e1ea5b08512128f83a518"
+},
+{
+"name": "sensor_coil_routed_insulating_carrier",
+"group": "coil",
+"bbox": [
+-166.0,
+104.0,
+89.5,
+166.0,
+405.0,
+93.0
+],
+"file": "STEP/parts/sensor_coil_routed_insulating_carrier.step",
+"sha256": "37b22a313b29709cdcfafd9229d9a52713e551fb237089b8dd944b6c62321ac0"
+},
+{
+"name": "sensor_coil_carrier_M4x12_top_screw_-157_190",
+"group": "coil",
+"bbox": [
+153.2,
+186.2,
+81.0,
+160.8,
+193.8,
+95.2
+],
+"file": "STEP/parts/sensor_coil_carrier_M4x12_top_screw_-157_190.step",
+"sha256": "33fa32959d004ac09102cbddd717465b91709d94c2a143334cea57821fa1cb55"
+},
+{
+"name": "sensor_coil_carrier_M4x12_top_screw_157_190",
+"group": "coil",
+"bbox": [
+-160.8,
+186.2,
+81.0,
+-153.2,
+193.8,
+95.2
+],
+"file": "STEP/parts/sensor_coil_carrier_M4x12_top_screw_157_190.step",
+"sha256": "890e7dc86aa69f3cfedc44868fabded2da398ee641a120d538ec5832f2a9b308"
+},
+{
+"name": "sensor_coil_carrier_M4x12_top_screw_0_396",
+"group": "coil",
+"bbox": [
+-3.8,
+392.2,
+81.0,
+3.8,
+399.8,
+95.2
+],
+"file": "STEP/parts/sensor_coil_carrier_M4x12_top_screw_0_396.step",
+"sha256": "e6252c9529ee4cb1d30ff80e0295b446ed8fc504bebce27ba629a0628a035f37"
+},
+{
+"name": "sensor_coil_sensor_alumina_contact_cap",
+"group": "sensor",
+"bbox": [
+-5.0,
+256.0,
+106.6,
+5.0,
+266.0,
+110.6
+],
+"file": "STEP/parts/sensor_coil_sensor_alumina_contact_cap.step",
+"sha256": "2c31974500856d5b9cb356312bbfed33f09f3827b39b3d8962ecd66ffc79e903"
+},
+{
+"name": "sensor_coil_sensor_PT100_element",
+"group": "sensor",
+"bbox": [
+-0.9,
+260.0,
+108.7,
+0.9,
+262.0,
+109.8
+],
+"file": "STEP/parts/sensor_coil_sensor_PT100_element.step",
+"sha256": "a01acf8d0fdd6d53cccce42e4af6113b46365b648b887fe0ad5fa31341fcae44"
+},
+{
+"name": "sensor_coil_sensor_cap_bond",
+"group": "sensor",
+"bbox": [
+-4.35,
+256.65,
+109.8,
+4.35,
+265.35,
+110.0
+],
+"file": "STEP/parts/sensor_coil_sensor_cap_bond.step",
+"sha256": "f7b8e26ff237a0780388033aee48764e3ee4f3ea70be73d27d688c44dfd8fe45"
+},
+{
+"name": "sensor_coil_sensor_PEEK_plunger",
+"group": "sensor",
+"bbox": [
+-4.75,
+256.25,
+94.6,
+4.75,
+265.75,
+109.8
+],
+"file": "STEP/parts/sensor_coil_sensor_PEEK_plunger.step",
+"sha256": "16dd813744d5d08c0c4157e138f641e41ae269770745db6df9c824cd07a71ed6"
+},
+{
+"name": "sensor_coil_sensor_silicone_boot",
+"group": "sensor",
+"bbox": [
+-12.0,
+249.0,
+105.0,
+12.0,
+273.0,
+109.4
+],
+"file": "STEP/parts/sensor_coil_sensor_silicone_boot.step",
+"sha256": "4f48c4a98daded18d9c1c3ac42765535e4011ca9fba2260c4bc602fc357e3daf"
+},
+{
+"name": "sensor_coil_sensor_PEEK_bayonet_body",
+"group": "sensor",
+"bbox": [
+-21.5,
+239.5,
+78.5,
+21.5,
+282.5,
+106.0
+],
+"file": "STEP/parts/sensor_coil_sensor_PEEK_bayonet_body.step",
+"sha256": "25d5dead1abb4cbd437306e26709e913ff2c1457df66f8be03d3699ca4ed0a57"
+},
+{
+"name": "sensor_coil_sensor_cartridge_wave_spring",
+"group": "sensor",
+"bbox": [
+-21.4,
+239.6,
+93.0,
+21.4,
+282.4,
+94.0
+],
+"file": "STEP/parts/sensor_coil_sensor_cartridge_wave_spring.step",
+"sha256": "75f3a4a3af29cae17ed14ebe9c12da58d39c630111aa8f6cf42060d59389ef0b"
+},
+{
+"name": "sensor_coil_sensor_spring_S23CS",
+"group": "sensor",
+"bbox": [
+-4.085,
+256.915,
+81.2,
+4.085,
+265.085,
+94.6
+],
+"file": "STEP/parts/sensor_coil_sensor_spring_S23CS.step",
+"sha256": "0f6ae327ecf6d8cb4ae0849d4a701ff2720245eaa2f501d4b8cc44d96f24e568"
+},
+{
+"name": "sensor_coil_sensor_PEEK_spring_washer",
+"group": "sensor",
+"bbox": [
+-4.5,
+256.5,
+80.4,
+4.5,
+265.5,
+81.2
+],
+"file": "STEP/parts/sensor_coil_sensor_PEEK_spring_washer.step",
+"sha256": "f54b3cb1b3721bdc57abddd45f00bc372a2012ebbc53449c58c0ecbaba654b77"
+},
+{
+"name": "sensor_coil_sensor_four_wire_cable_ALLOCATION",
+"group": "sensor",
+"bbox": [
+-1.15,
+259.85,
+62.3,
+1.15,
+262.15,
+108.5
+],
+"file": "STEP/parts/sensor_coil_sensor_four_wire_cable_ALLOCATION.step",
+"sha256": "b3c6adb53404dd78c6536fa3b1ff9f232624834387def0ddf07e37272b1e3f4b"
+},
+{
+"name": "harness_mains_L_C20_to_EMI",
+"group": "harness",
+"bbox": [
+29.88,
+349.88,
+43.88,
+39.92,
+398.62,
+62.12
+],
+"file": "STEP/parts/harness_mains_L_C20_to_EMI.step",
+"sha256": "1b8816dbd65450de67604b21103bac67e07132f7db2666531a05069f9a4b1063"
+},
+{
+"name": "harness_mains_N_C20_to_EMI",
+"group": "harness",
+"bbox": [
+34.4881,
+363.88,
+57.88,
+50.12,
+398.62,
+64.12
+],
+"file": "STEP/parts/harness_mains_N_C20_to_EMI.step",
+"sha256": "19698579b7e9227b99f437e33df81a37a85cb0dabf79b697d3f503dcfefdd024"
+},
+{
+"name": "harness_mains_L_EMI_to_J1",
+"group": "harness",
+"bbox": [
+137.78,
+234.48,
+30.88,
+156.62,
+332.12,
+54.12
+],
+"file": "STEP/parts/harness_mains_L_EMI_to_J1.step",
+"sha256": "058f360a6b121c481edf7319afde50d6ee659b757e34859776e2f21af032fb28"
+},
+{
+"name": "harness_mains_N_EMI_to_J1",
+"group": "harness",
+"bbox": [
+142.88,
+234.48,
+30.88,
+161.12,
+347.12,
+54.12
+],
+"file": "STEP/parts/harness_mains_N_EMI_to_J1.step",
+"sha256": "35139d4af147c539e0d8e418e832924b8a25eafb8f7bb3e456f89b26e416a5cc"
+},
+{
+"name": "harness_PE_C20_to_chassis_star",
+"group": "harness",
+"bbox": [
+37.88,
+391.88,
+11.88,
+96.12,
+398.62,
+50.12
+],
+"file": "STEP/parts/harness_PE_C20_to_chassis_star.step",
+"sha256": "186bf5a463c0e72cf9ea9849273235d1876713f8c847e3aea76f0d12afa247a4"
+},
+{
+"name": "harness_PE_cover_bond",
+"group": "harness",
+"bbox": [
+173.88,
+285.88,
+12.88,
+181.82,
+378.92,
+42.12
+],
+"file": "STEP/parts/harness_PE_cover_bond.step",
+"sha256": "c24cb1dcb61ae0bc76d77474f509f40562dcb6c5d1ec1888fdc1cbddf2c8068c"
+},
+{
+"name": "harness_PE_native21_J6_to_star",
+"group": "harness",
+"bbox": [
+7.48,
+99.38,
+16.38,
+167.12,
+298.12,
+82.12
+],
+"file": "STEP/parts/harness_PE_native21_J6_to_star.step",
+"sha256": "5781409b4b58b2738e92908d3c5cff863751fab03d9e89e886d427ec69ec5bb0"
+},
+{
+"name": "harness_coil_lead_to_J2",
+"group": "harness",
+"bbox": [
+-27.694,
+141.3,
+55.89,
+-7.8,
+150.499,
+101.4
+],
+"file": "STEP/parts/harness_coil_lead_to_J2.step",
+"sha256": "eda6c466a14087f2b9df1ba411a48baa40786f1a50ab5923f326e3f101547656"
+},
+{
+"name": "harness_coil_lead_to_J5",
+"group": "harness",
+"bbox": [
+-47.7244,
+172.3,
+55.89,
+-1.1881,
+238.1147,
+104.5
+],
+"file": "STEP/parts/harness_coil_lead_to_J5.step",
+"sha256": "d20a9d833d234113e75f1fa034b9db1e469729b3cc751aadc334279435fb4fd7"
+},
+{
+"name": "harness_TCO_J3p1_to_sink_TCO",
+"group": "harness",
+"bbox": [
+-61.3,
+222.69,
+50.0,
+78.15,
+281.0,
+87.5
+],
+"file": "STEP/parts/harness_TCO_J3p1_to_sink_TCO.step",
+"sha256": "8802dcb42caa76641a27da9ad33fdaf2ef0273cf3d2b6830dbe1ce3050acadd8"
+},
+{
+"name": "harness_TCO_sink_to_glass_TCO",
+"group": "harness",
+"bbox": [
+-61.3,
+260.5,
+83.087,
+159.5,
+291.4139,
+105.0
+],
+"file": "STEP/parts/harness_TCO_sink_to_glass_TCO.step",
+"sha256": "11691c7025b0493cf70c188e8e9cffb5cacd21f5d77e4cba246c29f4d16d687b"
+},
+{
+"name": "harness_TCO_glass_TCO_to_J3p2",
+"group": "harness",
+"bbox": [
+75.15,
+230.61,
+50.0,
+153.5,
+259.5,
+105.0
+],
+"file": "STEP/parts/harness_TCO_glass_TCO_to_J3p2.step",
+"sha256": "55badd0ba58701889a4553c356bcb1c153f376eb9afe50c0b2634595e353939f"
+},
+{
+"name": "harness_SELV_J4_to_controller",
+"group": "harness",
+"bbox": [
+-97.75,
+40.25,
+28.25,
+-50.5,
+56.45,
+62.6787
+],
+"file": "STEP/parts/harness_SELV_J4_to_controller.step",
+"sha256": "eeeaed1679d455832ad2d83041ba846c1269c770140cc77dc840b085055b4780"
+},
+{
+"name": "harness_probe_M12_to_controller",
+"group": "harness",
+"bbox": [
+-170.95,
+70.85,
+35.65,
+-31.85,
+95.65,
+89.15
+],
+"file": "STEP/parts/harness_probe_M12_to_controller.step",
+"sha256": "11a8d569fc8d2518a1ba7890287826a5d8292729c3e37caddd33aa7d63df2e8c"
+},
+{
+"name": "harness_pan_RTD_to_controller",
+"group": "harness",
+"bbox": [
+-1.15,
+84.85,
+28.85,
+173.15,
+286.15,
+63.45
+],
+"file": "STEP/parts/harness_pan_RTD_to_controller.step",
+"sha256": "c3a7a8514268839de07d1f6ef6dd77459fff78223011c6001652a67a0c268226"
+},
+{
+"name": "harness_fan_to_controller",
+"group": "harness",
+"bbox": [
+-179.25,
+84.75,
+30.75,
+140.25,
+398.25,
+96.25
+],
+"file": "STEP/parts/harness_fan_to_controller.step",
+"sha256": "9f20bc9a04a5f38b0b024852dfc6b91e31ab0c294ed9c7944e088b10d6f6cd4c"
+},
+{
+"name": "harness_NTC_coil_to_thermal_sense",
+"group": "harness",
+"bbox": [
+44.85,
+82.85,
+35.65,
+65.3576,
+202.8489,
+101.35
+],
+"file": "STEP/parts/harness_NTC_coil_to_thermal_sense.step",
+"sha256": "8282a55fa707d67ab4bf8fa077ccddaef0735937b14757ceb928a264364da78f"
+},
+{
+"name": "harness_NTC_sink_to_thermal_sense",
+"group": "harness",
+"bbox": [
+-101.15,
+82.85,
+35.65,
+-18.85,
+271.15,
+89.15
+],
+"file": "STEP/parts/harness_NTC_sink_to_thermal_sense.step",
+"sha256": "72b258e5f6b50d33b839f7d85da8ef4358c3b0d62104127071f9a8224d1df1fe"
+},
+{
+"name": "harness_PE_sink_bond",
+"group": "harness",
+"bbox": [
+-174.12,
+244.28,
+12.88,
+-140.88,
+401.62,
+100.12
+],
+"file": "STEP/parts/harness_PE_sink_bond.step",
+"sha256": "3b4b169b1d2c692b2d1e612b837bd0f83eb04c273537b4a0f73d2da8bec46dce"
+},
+{
+"name": "spill_hidden_rear_louver_duct",
+"group": "cooling",
+"bbox": [
+-139.5,
+415.0,
+22.0,
+-20.5,
+439.5,
+85.8
+],
+"file": "STEP/parts/spill_hidden_rear_louver_duct.step",
+"sha256": "eac5638ef1a1b5c07a1413eb8fd9276010aeaf2f4a4c5d0577157e3e0498064f"
+},
+{
+"name": "electronics_harness_lane_bracket_250",
+"group": "electronics",
+"bbox": [
+160.0,
+250.0,
+2.0,
+181.0,
+262.0,
+56.0
+],
+"file": "STEP/parts/electronics_harness_lane_bracket_250.step",
+"sha256": "0cb518469f1a4aa05d6286a2ebf76c0ab174934b3f1ea0272b66770ab0fba789"
+},
+{
+"name": "electronics_harness_mains_anchor_290",
+"group": "electronics",
+"bbox": [
+140.0,
+279.0,
+2.0,
+160.0,
+291.0,
+48.0
+],
+"file": "STEP/parts/electronics_harness_mains_anchor_290.step",
+"sha256": "613cff14f21527e2bf6087fa45b766f52f178393604ed4846bc012c73a4f4f14"
+},
+{
+"name": "electronics_SELV_crossing_posts",
+"group": "electronics",
+"bbox": [
+55.0,
+274.0,
+11.0,
+125.0,
+289.0,
+74.0
+],
+"file": "STEP/parts/electronics_SELV_crossing_posts.step",
+"sha256": "fd90d4e2c11ab3525c51a2d4d2cf84ab1bfd73cb1329c6edd5902a315fc80b1e"
+},
+{
+"name": "electronics_SELV_tray",
+"group": "electronics",
+"bbox": [
+-82.0,
+104.0,
+85.25,
+56.0,
+237.0,
+86.85
+],
+"file": "STEP/parts/electronics_SELV_tray.step",
+"sha256": "ee25aaa33d4719d6f1b3f81bc73d0d7369e05264ec54d4f117f19a05aa98e658"
+},
+{
+"name": "electronics_SELV_tray_spacers",
+"group": "electronics",
+"bbox": [
+-78.0,
+142.0,
+83.25,
+55.0,
+236.0,
+93.0
+],
+"file": "STEP/parts/electronics_SELV_tray_spacers.step",
+"sha256": "4042a0285aa3c17d4f50b8ac9ab1f28303cbca803ede658d2ea67069067357fc"
+},
+{
+"name": "electronics_probe_P_clips",
+"group": "electronics",
+"bbox": [
+-139.0,
+90.5,
+84.5,
+-71.0,
+98.5,
+98.82
+],
+"file": "STEP/parts/electronics_probe_P_clips.step",
+"sha256": "2fc6a8d27784de2772d706d4063e05cd79bc600f49c875c0e77141f398d5f5b5"
+},
+{
+"name": "electronics_EMI_case_PE_braid",
+"group": "electronics",
+"bbox": [
+90.0,
+376.0,
+15.5,
+100.0,
+389.5,
+42.0
+],
+"file": "STEP/parts/electronics_EMI_case_PE_braid.step",
+"sha256": "03b595c901e8032bfe03deca15a81a3bc071a6345f867e0a192e85ec40aa77b9"
+},
+{
+"name": "electronics_PE_S1_stud_set",
+"group": "electronics",
+"bbox": [
+95.4,
+390.4,
+8.0,
+104.6,
+399.6,
+26.0
+],
+"file": "STEP/parts/electronics_PE_S1_stud_set.step",
+"sha256": "90d70cbf4b821181ecd60ebfacbbd6c47e77da1623ca880d35d66135702c199e"
+},
+{
+"name": "sensor_coil_sensor_spring_gap_key",
+"group": "sensor",
+"bbox": [
+19.4,
+260.4,
+93.0,
+21.4,
+261.6,
+94.0
+],
+"file": "STEP/parts/sensor_coil_sensor_spring_gap_key.step",
+"sha256": "60b727276f71ab9322fac2cde55790dfdd9ecc2569db8570e64f2c87c580e010"
+},
+{
+"name": "electronics_EMI_stand_M3_screw",
+"group": "electronics",
+"bbox": [
+92.25,
+376.25,
+7.0,
+97.75,
+381.75,
+15.5
+],
+"file": "STEP/parts/electronics_EMI_stand_M3_screw.step",
+"sha256": "2733ef0ce26c50e214f803a815be417a6f3adfb0e302d53543ff943644c37aca"
+},
+{
+"name": "enclosure_P1_seat_ring",
+"group": "enclosure",
+"bbox": [
+-185.0,
+77.4656,
+101.825,
+185.0,
+440.0,
+105.0
+],
+"file": "STEP/parts/enclosure_P1_seat_ring.step",
+"sha256": "74a3a65d1fa8a3d3ce5719971040ff802225f9d9bb4a3dd9791edf979f6a1354"
+},
+{
+"name": "enclosure_P2_fence_ring",
+"group": "enclosure",
+"bbox": [
+-185.0,
+77.4656,
+105.0,
+185.0,
+440.0,
+109.064
+],
+"file": "STEP/parts/enclosure_P2_fence_ring.step",
+"sha256": "cff5d4a9b05217d3226e39ad4f8564d3cfb851b7f23bb5a6d5bb444ceef505b5"
+},
+{
+"name": "enclosure_P3_fascia",
+"group": "enclosure",
+"bbox": [
+-185.0,
+0.0,
+11.5,
+185.0,
+96.0,
+101.825
+],
+"file": "STEP/parts/enclosure_P3_fascia.step",
+"sha256": "f1fc9ae63d6da06784cda76b531f9cdc3339e6b632f099677b54f74889d2694e"
+},
+{
+"name": "enclosure_P4_U_wrapper",
+"group": "enclosure",
+"bbox": [
+-185.0,
+3.0,
+11.0,
+185.0,
+440.0,
+101.825
+],
+"file": "STEP/parts/enclosure_P4_U_wrapper.step",
+"sha256": "1cb85c81a42f751ff2966922924b8edcae22124cfafcc03c74a1c2bc82e15f75"
+},
+{
+"name": "enclosure_glass_S96_bed_and_edge_seal",
+"group": "enclosure",
+"bbox": [
+-176.0,
+90.0,
+105.0,
+176.0,
+432.0,
+110.0
+],
+"file": "STEP/parts/enclosure_glass_S96_bed_and_edge_seal.step",
+"sha256": "78a96e8ab38cc30e5deed8e9d25ad32b7b213be84604481645cd13f3858752ba"
+},
+{
+"name": "enclosure_fence_M3_screws",
+"group": "enclosure",
+"bbox": [
+-180.75,
+85.25,
+96.825,
+180.75,
+438.75,
+108.0
+],
+"file": "STEP/parts/enclosure_fence_M3_screws.step",
+"sha256": "49d7f7be41173f642b1c6daeca0d2d0de471ebef0f52033d6f160cf73364c5aa"
+},
+{
+"name": "enclosure_door_hook_studs",
+"group": "enclosure",
+"bbox": [
+-158.0,
+430.0,
+66.0,
+158.0,
+443.27,
+80.0
+],
+"file": "STEP/parts/enclosure_door_hook_studs.step",
+"sha256": "a33e719f9c6514e620f7631d356859abdcbec76c182b1bf3570b2811f558cc60"
+},
+{
+"name": "enclosure_foot_-8_380",
+"group": "enclosure",
+"bbox": [
+-20.7,
+367.3,
+-3.732,
+4.7,
+392.7,
+13.468
+],
+"file": "STEP/parts/enclosure_foot_-8_380.step",
+"sha256": "cb239bd454c4b6383e25cb8f9ab89eef2dc2b31d7e5978378a1afe7726c12e9f"
+},
+{
+"name": "electronics_inlet_bulkhead",
+"group": "enclosure",
+"bbox": [
+0.0,
+404.0,
+11.0,
+80.0,
+440.0,
+84.0
+],
+"file": "STEP/parts/electronics_inlet_bulkhead.step",
+"sha256": "f91fde59c50e03a6b092d471d6f40313edac5b5eb5411bbea849d4eac208607e"
+},
+{
+"name": "electronics_inlet_bulkhead_M4_set",
+"group": "enclosure",
+"bbox": [
+21.4,
+414.4,
+6.168,
+58.6,
+421.6,
+18.868
+],
+"file": "STEP/parts/electronics_inlet_bulkhead_M4_set.step",
+"sha256": "bc997c3459592d89bc587daac731a5de67bebf2f9463e0faaac62b4e51d13cd1"
+},
+{
+"name": "electronics_inlet_window_gasket",
+"group": "enclosure",
+"bbox": [
+9.75,
+440.0,
+31.75,
+70.25,
+442.0,
+82.25
+],
+"file": "STEP/parts/electronics_inlet_window_gasket.step",
+"sha256": "e3b5219b56fcb9cd8105d6c15eba125764b2ea4d46f79a6dea7fdcf82860f8af"
+},
+{
+"name": "electronics_sink_bar_bond_screws_M4",
+"group": "electronics",
+"bbox": [
+-139.5,
+231.865,
+73.5,
+-40.5,
+252.465,
+82.5
+],
+"file": "STEP/parts/electronics_sink_bar_bond_screws_M4.step",
+"sha256": "22ee270270692985cb702332fdb819bfa78009d79798c738147a648b052d020f"
+},
+{
+"name": "electronics_blower_Delta_BFB1012VH",
+"group": "electronics",
+"bbox": [
+-181.0,
+300.0,
+21.0,
+-83.8,
+394.4,
+54.0
+],
+"file": "STEP/parts/electronics_blower_Delta_BFB1012VH.step",
+"sha256": "9357bd8859db36deb379fb378eef608be2330a3f56cfed23c2cc63a73b1f34db"
+},
+{
+"name": "electronics_blower_mount_set",
+"group": "electronics",
+"bbox": [
+-179.5,
+300.5,
+5.968,
+-84.5,
+393.5,
+28.968
+],
+"file": "STEP/parts/electronics_blower_mount_set.step",
+"sha256": "540a6ab54d10068baa07bd5dec045972aaf60e5da1b0bbb265530f6d764f33de"
+},
+{
+"name": "electronics_push_hood",
+"group": "electronics",
+"bbox": [
+-182.0,
+236.0,
+11.0,
+-113.0,
+300.0,
+87.0
+],
+"file": "STEP/parts/electronics_push_hood.step",
+"sha256": "42fa59853c1a3ff1936768eff6f4235bf62a29fedf98cc4242553c8b9ca2d0d4"
+},
+{
+"name": "electronics_coil_bleed_duct_F2",
+"group": "electronics",
+"bbox": [
+-180.0,
+150.0,
+78.0,
+-116.0,
+244.5,
+90.0
+],
+"file": "STEP/parts/electronics_coil_bleed_duct_F2.step",
+"sha256": "57fbd0ed1aa76333360b03841fae47a96b8c947fdd8aefb9f59648fb76f1e29f"
+},
+{
+"name": "electronics_exhaust_plenum",
+"group": "electronics",
+"bbox": [
+-113.0,
+292.5,
+11.0,
+-22.0,
+414.0,
+81.0
+],
+"file": "STEP/parts/electronics_exhaust_plenum.step",
+"sha256": "fdc1fc0de50c0f9e3d3a2f7b9ed8623d130bc972860303ef6217e5eb60ebd41c"
+},
+{
+"name": "electronics_coil_plenum_floors",
+"group": "electronics",
+"bbox": [
+-116.0,
+141.0,
+81.0,
+116.0,
+381.0,
+82.5
+],
+"file": "STEP/parts/electronics_coil_plenum_floors.step",
+"sha256": "157dd4f4dbe699e2132550d34f66db4bb7e2f0f3654e16712245af04ff84a91f"
+},
+{
+"name": "electronics_coil_plenum_sink_nomex",
+"group": "electronics",
+"bbox": [
+-149.0,
+245.3,
+83.5,
+-32.0,
+292.3,
+84.0
+],
+"file": "STEP/parts/electronics_coil_plenum_sink_nomex.step",
+"sha256": "93a233ef228165fd48d2a7da473d3f16dd5a7685acf0405dae82ecaf2e9ed15b"
+},
+{
+"name": "enclosure_rear_underbase_dam",
+"group": "enclosure",
+"bbox": [
+-172.0,
+416.0,
+-2.032,
+177.0,
+421.0,
+8.968
+],
+"file": "STEP/parts/enclosure_rear_underbase_dam.step",
+"sha256": "5dd4932245376387a35030b905bcaaaf4c182bce03caf5a984910bbb1b21e07f"
+},
+{
+"name": "electronics_push_hood_M3_screws",
+"group": "electronics",
+"bbox": [
+-172.75,
+237.25,
+8.968,
+-117.25,
+299.25,
+14.5
+],
+"file": "STEP/parts/electronics_push_hood_M3_screws.step",
+"sha256": "8df43c42cd1560035ff02e3cef0b1c43aa35131919c46933c842a17c809dee0c"
+},
+{
+"name": "enclosure_door_exhaust_rib",
+"group": "enclosure",
+"bbox": [
+-16.0,
+443.27,
+12.0,
+-9.365,
+456.27,
+92.0
+],
+"file": "STEP/parts/enclosure_door_exhaust_rib.step",
+"sha256": "0426165c153a85aaa9e66366e707dbb3d95218a6b9e24c9f9922103a772c6a6b"
+},
+{
+"name": "electronics_sink_cradle",
+"group": "electronics",
+"bbox": [
+-110.0,
+250.0,
+11.0,
+-40.0,
+305.0,
+19.5
+],
+"file": "STEP/parts/electronics_sink_cradle.step",
+"sha256": "91f5d33a7a8c27b79739968f30155bfe93b001de0653446173758e827ea1c439"
+},
+{
+"name": "electronics_sink_cradle_pad",
+"group": "electronics",
+"bbox": [
+-108.0,
+252.0,
+13.0,
+-42.0,
+288.0,
+15.5
+],
+"file": "STEP/parts/electronics_sink_cradle_pad.step",
+"sha256": "df89c741cd8ec39a3016a5fe14e4f0828f71928d2489488aab30b290811cf39d"
+},
+{
+"name": "electronics_sink_cradle_M3_screw",
+"group": "electronics",
+"bbox": [
+-77.75,
+297.25,
+8.968,
+-72.25,
+302.75,
+15.5
+],
+"file": "STEP/parts/electronics_sink_cradle_M3_screw.step",
+"sha256": "29da7c4f3dc84c440e9a79d3b7e91a1885cf9cb091c5b2e2ead215876d5d8ab1"
+},
+{
+"name": "sensor_coil_coil_ear_M3_screws",
+"group": "sensor",
+"bbox": [
+-92.5526,
+168.4474,
+89.0,
+92.5526,
+353.5526,
+98.0
+],
+"file": "STEP/parts/sensor_coil_coil_ear_M3_screws.step",
+"sha256": "51b2c09655e3e0b7873f20fcbb61aca798df6eeb94911aaea17077ceb58bc866"
+},
+{
+"name": "controls_ui_board",
+"group": "controls",
+"bbox": [
+-106.0,
+20.3174,
+43.4079,
+64.0,
+87.5864,
+91.1782
+],
+"file": "STEP/parts/controls_ui_board.step",
+"sha256": "51d78f44ecff35b0e142c7debcf4a661a2518ff11507c8cb026939d62f72e3e3"
+},
+{
+"name": "controls_ui_board_connectors",
+"group": "controls",
+"bbox": [
+-61.0,
+47.1408,
+52.9461,
+62.2,
+78.4771,
+88.3095
+],
+"file": "STEP/parts/controls_ui_board_connectors.step",
+"sha256": "da225c3a46be6cc49cd7014f4be5b596c35e7e04cdd9d6fca3e7569320046456"
+},
+{
+"name": "controls_ui_board_M3_screws",
+"group": "controls",
+"bbox": [
+-106.75,
+53.0826,
+65.184,
+36.75,
+88.2832,
+93.84
+],
+"file": "STEP/parts/controls_ui_board_M3_screws.step",
+"sha256": "8a7d4a6355029c5e5f9a858e5a61ce2e061bf99b74fd42ff924a76ac0f0f9922"
+},
+{
+"name": "electronics_controller_J7",
+"group": "connectors",
+"bbox": [
+29.8,
+57.125,
+24.6,
+62.2,
+62.875,
+35.1
+],
+"file": "STEP/parts/electronics_controller_J7.step",
+"sha256": "ddb4f7cebc57ad927ecc84c894652733bcdb5a389954016ed76970557a9a365d"
+},
+{
+"name": "electronics_WiFi_antenna_board",
+"group": "electronics",
+"bbox": [
+130.0,
+108.0,
+93.0,
+150.0,
+118.0,
+94.9
+],
+"file": "STEP/parts/electronics_WiFi_antenna_board.step",
+"sha256": "2a2e53409071e733b2503a298f1c3dce05ba3e9325df852e2646cde620e24a35"
+},
+{
+"name": "harness_UI_fascia_to_controller",
+"group": "harness",
+"bbox": [
+44.0,
+53.5184,
+33.6,
+48.0,
+62.0,
+56.5951
+],
+"file": "STEP/parts/harness_UI_fascia_to_controller.step",
+"sha256": "4e7fe18d3ddfdb924474cc387fcc2e6b959e4d8b77f228acc171cb92cbbb9234"
+},
+{
+"name": "harness_encoder_pigtail_to_UI_board",
+"group": "harness",
+"bbox": [
+58.75,
+58.2974,
+59.4408,
+111.75,
+63.2657,
+65.7424
+],
+"file": "STEP/parts/harness_encoder_pigtail_to_UI_board.step",
+"sha256": "5ebf2294f75d8a778d839dffae7dfcc68cbe7cafdffa0094d0466c2cd4e7644d"
+},
+{
+"name": "harness_WiFi_coax",
+"group": "harness",
+"bbox": [
+147.25,
+66.25,
+27.85,
+166.75,
+113.75,
+95.35
+],
+"file": "STEP/parts/harness_WiFi_coax.step",
+"sha256": "5c68b2d2d03713892d226474a59f82bd90fee4ed297457b3b47abd50cdaadb56"
+},
+{
+"name": "sensor_coil_former",
+"group": "sensor",
+"bbox": [
+-123.5,
+137.5,
+93.0,
+123.5,
+384.5,
+101.6
+],
+"file": "STEP/parts/sensor_coil_former.step",
+"sha256": "4ce9c33faf0ab82c0dc6eed19d8c20543638542774d79650baabb96ba7ea7411"
+},
+{
+"name": "sensor_coil_ferrite_bars",
+"group": "sensor",
+"bbox": [
+-119.6989,
+142.8756,
+93.0,
+119.6989,
+379.1244,
+98.0
+],
+"file": "STEP/parts/sensor_coil_ferrite_bars.step",
+"sha256": "abdcf6181925f8e448b49e401b37a85e98c3859a1075a711c87344b8a0e02efd"
+},
+{
+"name": "sensor_coil_litz_winding",
+"group": "sensor",
+"bbox": [
+-115.2961,
+148.1326,
+99.0,
+113.6406,
+375.4683,
+101.4
+],
+"file": "STEP/parts/sensor_coil_litz_winding.step",
+"sha256": "2c66fff29caebd194ef8c73d35045c8204f034e77c128cce7a6786a81eb94767"
+},
+{
+"name": "electronics_exhaust_plenum_M3_screws",
+"group": "electronics",
+"bbox": [
+-29.25,
+302.25,
+8.968,
+-23.75,
+407.75,
+15.0
+],
+"file": "STEP/parts/electronics_exhaust_plenum_M3_screws.step",
+"sha256": "90edc77ddee96ecbf1d5d11c564f9f6d097b5c27df3da3851b01846fed04f03d"
+},
+{
+"name": "sensor_coil_sensor_rim_NTC",
+"group": "sensor",
+"bbox": [
+-0.675,
+274.825,
+103.0,
+0.675,
+276.175,
+106.0
+],
+"file": "STEP/parts/sensor_coil_sensor_rim_NTC.step",
+"sha256": "daead0728c62ef6ac2d0ab70be0ddb3eb3bd6f782b0879e2c3a2ad400ccf8d99"
+},
+{
+"name": "electronics_controller_J12",
+"group": "connectors",
+"bbox": [
+122.25,
+83.125,
+24.6,
+129.75,
+88.875,
+31.6
+],
+"file": "STEP/parts/electronics_controller_J12.step",
+"sha256": "40ca98af4a1abb7b7e6d3b1fc5396e7573e66dd190901b01671e5f72cabad422"
+},
+{
+"name": "harness_rim_NTC_breakout_to_J12",
+"group": "harness",
+"bbox": [
+125.0,
+85.0,
+33.6,
+150.5,
+87.0,
+43.0
+],
+"file": "STEP/parts/harness_rim_NTC_breakout_to_J12.step",
+"sha256": "aca761202de99cfd886d53ab0f9602ce9c9c453d8759149a087282f0cc4fef52"
+},
+{
+"name": "sensor_coil_winding_NTC",
+"group": "sensor",
+"bbox": [
+64.0433,
+202.6706,
+99.525,
+66.3787,
+205.9552,
+100.875
+],
+"file": "STEP/parts/sensor_coil_winding_NTC.step",
+"sha256": "974a4864c9a97ffc6c3d4ca6c23650f1b445764e936e1aef9d89e47827c2fd95"
+},
+{
+"name": "electronics_PS3_IRM_60_15ST",
+"group": "electronics",
+"bbox": [
+-165.0,
+43.5,
+36.5,
+-113.0,
+152.5,
+70.0
+],
+"file": "STEP/parts/electronics_PS3_IRM_60_15ST.step",
+"sha256": "ec3d3ee58481e02014b2472b8ca2f0f52448314aba271c7f94860559bca75427"
+},
+{
+"name": "electronics_PS3_bracket",
+"group": "electronics",
+"bbox": [
+-178.0,
+28.0,
+11.0,
+-113.0,
+168.0,
+56.0
+],
+"file": "STEP/parts/electronics_PS3_bracket.step",
+"sha256": "c96e1cbbfb01d945ae049d2387775f98d1e098013a0a5f302e00eb7ad5783a1d"
+},
+{
+"name": "electronics_PS3_bracket_CLS_M3_nuts",
+"group": "fasteners",
+"bbox": [
+-158.0,
+46.5,
+32.97,
+-120.0,
+149.5,
+36.5
+],
+"file": "STEP/parts/electronics_PS3_bracket_CLS_M3_nuts.step",
+"sha256": "594591ea1921d0b5841d954b2dc6ce5871ee4a1cbe955b8d29ad2194e1aaf168"
+},
+{
+"name": "enclosure_PS3_floor_CLS_M3_nuts",
+"group": "fasteners",
+"bbox": [
+-175.0,
+53.5,
+7.47,
+-170.0,
+147.5,
+11.0
+],
+"file": "STEP/parts/enclosure_PS3_floor_CLS_M3_nuts.step",
+"sha256": "cf754075e077932da94f59189a7a600a3d48614ea94a8e11e405b24f78f3c0b6"
+},
+{
+"name": "electronics_PS3_M3_screws",
+"group": "fasteners",
+"bbox": [
+-158.25,
+46.25,
+33.2,
+-119.75,
+149.75,
+46.2
+],
+"file": "STEP/parts/electronics_PS3_M3_screws.step",
+"sha256": "aa2658e73a627461d8598c55a48b8fa2b51762ed047b1928e5164721e3239e10"
+},
+{
+"name": "electronics_PS3_floor_M3_screws",
+"group": "fasteners",
+"bbox": [
+-175.25,
+53.25,
+7.03,
+-169.75,
+147.75,
+16.03
+],
+"file": "STEP/parts/electronics_PS3_floor_M3_screws.step",
+"sha256": "f3f4ad4884fb7f61c1910e69bf9ccd97c7946094cc46cbcfd77975524a0fdcf8"
+},
+{
+"name": "electronics_controller_J13",
+"group": "connectors",
+"bbox": [
+84.07,
+81.3,
+24.6,
+91.93,
+90.0,
+41.1
+],
+"file": "STEP/parts/electronics_controller_J13.step",
+"sha256": "6cebf1213b12f6e947647cb6df57452c44f4ead3a1f8f1e935f749269531e4ab"
+},
+{
+"name": "electronics_native21_J11_mate",
+"group": "connectors",
+"bbox": [
+123.55,
+105.85,
+27.5,
+135.37,
+114.55,
+44.0
+],
+"file": "STEP/parts/electronics_native21_J11_mate.step",
+"sha256": "6b0d2947ab0567a68adfbe8f35050894fb11dd4e45858f69a43ea8444a50686a"
+},
+{
+"name": "harness_PS3_DC_to_controller_J13",
+"group": "harness",
+"bbox": [
+-141.1,
+23.3557,
+38.9,
+90.1,
+87.75,
+53.6
+],
+"file": "STEP/parts/harness_PS3_DC_to_controller_J13.step",
+"sha256": "cdb80bfcded0df12c3f07c1a6dbfe35dc8508f18964eaedcbb0c6212ca34083a"
+},
+{
+"name": "harness_mains_J11_to_PS3_AC",
+"group": "harness",
+"bbox": [
+-141.9,
+107.3,
+41.7,
+132.36,
+181.3899,
+62.9
+],
+"file": "STEP/parts/harness_mains_J11_to_PS3_AC.step",
+"sha256": "aa56960a8e8ba01310bb89630efd6ed373d5fbc9c645d72fd0e99ccaf458f960"
+},
+{
+"name": "electronics_PS3_J11_anchor",
+"group": "electronics",
+"bbox": [
+121.211,
+102.82,
+11.0,
+161.5,
+123.3,
+57.0
+],
+"file": "STEP/parts/electronics_PS3_J11_anchor.step",
+"sha256": "dd23a0327baa2e206ba0dc19d3d3d6e1af53928b3e68d670a98a876087d778f1"
+},
+{
+"name": "enclosure_PS3_J11_anchor_CLS_M3_nuts",
+"group": "fasteners",
+"bbox": [
+154.1,
+108.9,
+7.47,
+159.1,
+120.9,
+11.0
+],
+"file": "STEP/parts/enclosure_PS3_J11_anchor_CLS_M3_nuts.step",
+"sha256": "11ffea9f51dd455b9f2a2ba4f3b59d590a91d22a32568989b9611d07c854d344"
+},
+{
+"name": "electronics_PS3_J11_anchor_M3_screws",
+"group": "fasteners",
+"bbox": [
+153.85,
+108.65,
+7.03,
+159.35,
+121.15,
+16.03
+],
+"file": "STEP/parts/electronics_PS3_J11_anchor_M3_screws.step",
+"sha256": "e545e0a0642d2e20032635495e8021a1d8b43b76bc57cb723072f13a1bd332e4"
+},
+{
+"name": "electronics_J13_barrier",
+"group": "electronics",
+"bbox": [
+60.0,
+91.7,
+5.0,
+124.0,
+94.275,
+56.0
+],
+"file": "STEP/parts/electronics_J13_barrier.step",
+"sha256": "1d1d3e84e745b2e9e4aa7363919defcc7e50407788b03128873436128e2fe6a0"
+}
+]
+}

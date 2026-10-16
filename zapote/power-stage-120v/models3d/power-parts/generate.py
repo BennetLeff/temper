@@ -109,10 +109,9 @@ save("TMOV20RP175E_provisional.wrl", parts)
 # visual approximation; its exact winding geometry and pin-seat offsets need
 # the manufacturer CAD or a sample.
 parts = header("TDK B82726S2203A020", "Maximum envelope; open-ring winding depiction approximate.")
+# stage 53: the datasheet maximum box (45 x 25.5, 41 mm high), as the STEP (generate_step.tcl)
 parts += [box(5, -12.5, 1.5, 45, 25.5, 3, DARK),
-          torus(5, -12.5, 20.5, 12.5, 6.5, BLACK)]
-parts += [torus(5, -12.5, 20.5, 12.5, 7.0, COPPER, 0.25, 2.9, 19),
-          torus(5, -12.5, 20.5, 12.5, 7.0, COPPER, 3.4, 6.05, 19)]
+          box(5, -12.5, 22.0, 45, 25.5, 38, BLACK)]
 parts += [cylinder(x, y, -1.75, 1.0, 3.5, SILVER, "rotation 1 0 0 1.5707963")
           for x, y in ((0, 0), (10, 0), (10, -25), (0, -25))]
 save("B82726S2203A020_provisional.wrl", parts)

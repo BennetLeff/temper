@@ -349,7 +349,10 @@ if pe:
 # fiducials by 0.5 mm (so off every mask opening: KiCad's silk_over_copper is silk clipped by a pad's mask), inside the 1.5 mm
 # edge inset. Silk over tented copper (tracks, pours) is allowed, as for the other legends.
 BANK_FIT_ROWS = (("BANK FIT, TICK ONE:", False), ("H  B32643H8104J000  24 A MAX", True), ("B  B32643B8104J000  28 A", True))
-BANK_FIT_TEXT, BANK_FIT_PITCH, BANK_FIT_BOX, BANK_FIT_GAP = 1.0, 2.6, 2.0, 0.8
+# Stage 53 (s52 footprint/3D review row 26): 1.0 mm text at 0.15 mm stroke sat exactly on JLC's legibility floor (stroke 1:6.7,
+# thinner than the preferred 1:6); now 1.2 mm text at a 0.2 mm stroke (1:6) and 0.2 mm tick-box lines, at a 3.0 mm row pitch.
+BANK_FIT_TEXT, BANK_FIT_PITCH, BANK_FIT_BOX, BANK_FIT_GAP = 1.2, 3.0, 2.0, 0.8
+BANK_FIT_STROKE = 0.2
 
 
 def bank_fit_mark(target):
@@ -372,11 +375,12 @@ def bank_fit_mark(target):
         for k, (t, has_box) in enumerate(BANK_FIT_ROWS):
             yc = y0 + (k + 0.5) * BANK_FIT_PITCH
             xt = x0 + (BANK_FIT_BOX + BANK_FIT_GAP if has_box else 0.0)
-            out.append({"kind": "text", "lines": [t], "size": BANK_FIT_TEXT,
+            out.append({"kind": "text", "lines": [t], "size": BANK_FIT_TEXT, "stroke": BANK_FIT_STROKE,
                         "at": [round(xt + len(t) * BANK_FIT_TEXT * 1.0 / 2, 2), round(yc, 2)], "mark": "bank_fit"})
             if has_box:
                 out.append({"kind": "rect", "box": [x0, round(yc - BANK_FIT_BOX / 2, 2), x0 + BANK_FIT_BOX,
-                                                    round(yc + BANK_FIT_BOX / 2, 2)], "mark": "bank_fit"})
+                                                    round(yc + BANK_FIT_BOX / 2, 2)], "width": BANK_FIT_STROKE,
+                            "mark": "bank_fit"})
         return out
     raise SystemExit("bank-fit mark: no legal spot near the bank column")
 

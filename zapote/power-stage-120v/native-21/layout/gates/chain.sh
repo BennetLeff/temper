@@ -104,13 +104,22 @@ CUL=$(python3 -c "import sys; sys.path.insert(0, 'native-21/layout'); import lay
 case "$CUL" in F.Cu,*,B.Cu) ;; *) echo "layers21 failed: $CUL" >&2; exit 1;; esac
 # ---- parallel blocks ---------------------------------------------------------------------------------------------
 ( $KC pcb export step --force --subst-models --define-var KIPRJMOD=$U/native-21 --output "$B/board.step" "$BP" > "$B/step.log" 2>&1
+  # stage 53 (s52 footprint/3D review item 22): every model resolves to a tracked file, and a model the STEP export drops
+  # ("Could not add 3D model for REF") must have a model-less envelope; otherwise the fit gates silently miss the body
+  python3 -I $G/model_gate.py "$BP" "$B/step.log" $E/native21-envelopes.json --kiprjmod $U/native-21 --json "$B/model-gate.json" \
+    || { echo "MODEL GATE FAIL"; exit 1; }
   uv run --offline --no-project --with cadquery-ocp python $E/board_boxes.py "$B/board.step" $E/native21-boxes.json >/dev/null 2>&1
   $KP $E/body_collisions.py --dump-courtyards "$BP" $E/native21-courtyards.json >/dev/null 2>&1
   python3 $E/body_collisions.py $E/native21-boxes.json $E/native21-courtyards.json $E/native21-envelopes.json > $E/native21-body-collisions.json 2>&1
-  python3 $E/board_in_enclosure.py $E/native21-boxes.json $E/native21-courtyards.json $E/native21-envelopes.json > $E/native21-in-r4.json 2>&1 || echo "R4 FAIL"
+  # stage 53 (review item 23): the real mounting pose (a) against the current enclosure R43, exact solids, lead-trim rule; the
+  # old line ran the R4 catalog in the mirror-legacy pose (a reflection, DECISIONS 2026-10-09) and only echoed a failure.
+  # Known pairs are a ratchet (r43-expected-hits.json); a new or closer pair fails the chain.
+  uv run --offline --no-project --with cadquery-ocp python $E/board_in_r43.py "$B/board.step" $E/native21-courtyards.json \
+      $E/native21-envelopes.json $E/r43-catalog-bboxes.json "${R43_DIR:-/Users/bennet/Desktop/temper/output/temper-manufacturing-r43}" \
+      $E/native21-in-r43.json --expect $E/r43-expected-hits.json > "$B/r43-fit.log" 2>&1 || { cat "$B/r43-fit.log"; echo "R43 FIT FAIL"; exit 1; }
   # OPEN-ITEMS S2 airflow route: nothing over 4 mm under the jet box (temper-8d airflow-r1 D6.2)
   python3 native-21/layout/gates/jet_strip_height.py $E/native21-boxes.json $E/native21-courtyards.json $E/native21-jet-strip.json || echo "JET STRIP FAIL"
-  python3 -c "import json;a=json.load(open('$E/native21-body-collisions.json'));b=json.load(open('$E/native21-in-r4.json'));print('FIT',a['solids'],a['unattributed'],len(a['part_overlaps']),b['bodies'],len(b['hits']))"
+  python3 -c "import json;a=json.load(open('$E/native21-body-collisions.json'));b=json.load(open('$E/native21-in-r43.json'));print('FIT',a['solids'],a['unattributed'],len(a['part_overlaps']),'R43',b['bodies'],'hits',len(b['hits']),'new',len(b['new_hits']),'worse',len(b['worse_hits']),'stale',len(b['stale_expected']),'outside',len(b['outside_interior']))"
 ) > "$B/blk-fit.log" 2>&1 &
 P_FIT=$!
 ( $KC pcb export gerbers --output $O/gerbers/ --layers $CUL,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,F.Mask,B.Mask,Edge.Cuts --subtract-soldermask $BP >/dev/null 2>&1

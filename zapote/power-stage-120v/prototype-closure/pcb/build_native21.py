@@ -197,8 +197,12 @@ def main():
                 m.m_Rotation = pcbnew.VECTOR3D(*rot)
                 m.m_Scale = pcbnew.VECTOR3D(*sc)
                 fp.Models().append(m)
-        for model in fp.Models():          # vendored libraries point one level up
-            model.m_Filename = model.m_Filename.replace("${KIPRJMOD}/../models3d/", "${KIPRJMOD}/models3d/")
+        # stage 53 (s52 footprint/3D review item 22): every unit model resolves to the TRACKED PS/models3d/
+        # (${KIPRJMOD}/../models3d/ with KIPRJMOD = native-21), as the vendored libraries already point. The native-20
+        # assignments named ${KIPRJMOD}/models3d/, an untracked copy, so a clean checkout exported the STEP without L1,
+        # C1-C6, C38-C41, BR1, RV1, J4, J6 and T1 (gates/model_gate.py now fails the chain on that).
+        for model in fp.Models():
+            model.m_Filename = model.m_Filename.replace("${KIPRJMOD}/models3d/", "${KIPRJMOD}/../models3d/")
         board.Add(fp)
         for pad in fp.Pads():
             n = pin_net.get((ref, pad.GetNumber()))
@@ -214,8 +218,7 @@ def main():
     rules = pro["board"]["design_settings"]["rules"]
     rules.update(min_through_hole_diameter=0.15, min_via_annular_width=0.15)
     (OUT / "section.kicad_pro").write_text(json.dumps(pro, indent=2) + "\n")
-    if not (OUT / "models3d").exists() and (N20 / "models3d").exists():
-        shutil.copytree(N20 / "models3d", OUT / "models3d")
+    # (stage 53: no native-21/models3d copy any more; the models are PS/models3d/, tracked)
     if board.GetCopperLayerCount() != len(layers21.CU):
         board.SetCopperLayerCount(len(layers21.CU))
     pcbnew.SaveBoard(str(OUT / "section.kicad_pcb"), board)

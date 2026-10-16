@@ -159,7 +159,7 @@
         1
       ],
       "status": "provisional-dimensioned",
-      "sha256": "4c79e571d2df591727741e39d11d11448eb52ea19febdc5cdc49ea36077e1939",
+      "sha256": "035016003a32b344e9453ea449009cb05a950fdf972d239ac6d57d16542a77c4",
       "source_urls": [
         "https://product.tdk.com/en/search/emc/emc/line-filter/info?part_no=B82726S2203A020",
         "https://product.tdk.com/system/files/dam/doc/product/emc/emc/line-filter/3doutline_step/b82726s22x3a020_v06_max_public_tdk-pc.zip"
@@ -171,7 +171,7 @@
         "pad_pitch_x": 10.0,
         "pad_pitch_y": 25.0
       },
-      "limitations": "TDK lists an exact STEP archive but returned HTTP 403 in this environment. The torus and carrier are approximate; the envelope and pin centres follow TDK and the reviewed footprint."
+      "limitations": "Stage 53 (s52 footprint/3D review row 16): the body is the datasheet maximum box, 45 x 25.5 mm to 41 mm above the board (TDK 5/26 p.3 45 max x 25 max; EPCOS 07/12 p.3 41 max), on the 3 mm carrier; the earlier torus was 12 mm thick with its top at 40.52 mm. TDK lists an exact STEP archive but returned HTTP 403 in this environment. The envelope and pin centres follow TDK and the reviewed footprint; B82726S2243A020 (the prototype lot's L1) shares the drawing."
     },
     {
       "references": [
