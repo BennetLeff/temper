@@ -52,7 +52,7 @@ def _bounds(shape):
 # Search grids sit on one board-wide lattice (x = i * STEP, y = j * STEP), the box snapped inward to it, so every
 # grown obstacle is rasterised once per lattice tile and reused by every later search (2026-10-15: rebuilding the
 # union of all grown obstacles for every search was most of incr21's time, and it grew with the box area).
-TILE = 32
+TILE = 64
 _TILES = {}      # (id(shape), STEP) -> (shape, {(ti, tj): bool array | True | False}, lattice bounds)
 _STABLE = {}     # derived outline shapes, kept so their ids (and tiles) stay valid
 _TILE_XY = {}    # (ti, tj, step) -> shared lattice coordinates, independent of the obstacle
