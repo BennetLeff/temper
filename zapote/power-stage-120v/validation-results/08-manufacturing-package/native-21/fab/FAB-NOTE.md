@@ -1,21 +1,22 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 49, the board of record (DECISIONS.md item 70: S23's B′-1.02 V OCP divider, R33 7.5 k / R34 16 k /
+Board: native-21 stage 50, the board of record (DECISIONS.md item 71: U46.A (hsb_good) driven from PERMIT through R135
+100 k, so BIAS_GOOD = bias_ok AND PERMIT and TP19 reads low while PERMIT is low; item 70: S23's B′-1.02 V OCP divider, R33 7.5 k / R34 16 k /
 R35 11 k, and the bank-area re-cut for a 2000 V P22.5 bank, fitted with an **interim** TDK B32643B8104J000 on
 C21–C23 / C151 / C152; item 67: the four TPS70950 ENs on 100 k / 27 k dividers and on the 125 °C TPS70950QDBVRQ1, the
 REF25 watchdog on U14's second channel, BIAS_GOOD read back on J4.1 through R146, end-of-line test pads; item 63: U5
 (REF25) on the 125 °C LM4050AEM3-2.5/NOPB; item 62: the rail-monitor ICs on their 125 °C grades; item 60: the S16
-rail-monitor values; the stage history is DECISIONS.md items 12–70). Built by
-`sh native-21/layout/gates/chain.sh native21s49 …`; SHA-256
-`d04715873768ffbb3dde61ecc54510a0143a5e81ebdbc3949044e170abc5b466` (the integration build; it differs from the lane build
-73702f18 only by KiCad zone-fill jitter, same copper key f704213432bf; geometry identical by
+rail-monitor values; the stage history is DECISIONS.md items 12–71). Built by
+`sh native-21/layout/gates/chain.sh native21s50 …`; SHA-256
+`e842d9c8e04f7795f31f026706ab6a1bb74f2ae47d8ad46da1c2fb012b25d59f` (the integration build; it differs from the lane build
+4876c42e only by KiCad zone-fill jitter, same copper key 095e5b732746; geometry identical by
 `c45-s16-monitor/scripts/geom_diff45.py`). **The bank part is interim:** the owner ruled B32643B8104J000 out on
 2026-10-16 (it cannot be sourced: JLC C3781430 0 stock, MOQ 2080, 28 weeks), so it is not to be ordered; a later stage
 fits an in-stock part on these pads that passes the same F3 and bank_air checks (OPEN-ITEMS S25). U5 is sourced and
 consigned (JLC stock 50 against 500; owner pre-order, OPEN-ITEMS owner action 7); U3 / U37–U39 TPS70950QDBVRQ1
 (C485909) are JLC Extended, 11,607 in stock.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`d647a2ba153ef1901a336b76dcce29f9e5c98df87ea95727a662345b619a26c8`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
+`1c8d6dc41c8b5e8c83fbc82e1336e13c688ab2e0643999be87469c6d7c6ae8a7`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
 (DECISIONS.md item 61).
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).

@@ -1,5 +1,12 @@
 # Stage 50 (c50-permit-gate): U46.A gated by PERMIT through R135 100 k
 
+**Integrated as DECISIONS 71 (2026-10-16): board of record s50, integration build e842d9c8** (geometry identical to the
+lane build 4876c42e, copper key 095e5b732746; `results/geom-s50-lane-int.json`; chain `runs-native21/s50/chain-int.out`,
+no spine owner). Card ACCEPT vs s49 at $0. The firmware start sequence for option P was already on the integration branch
+(229d6cfed / 2a8bf30af), so section 4's firmware item is closed there; the TP19 probe text is fixed (dcf7b2a53); the
+stale `default.net` libsource fields are OPEN-ITEMS B14. The S21 temperature rows are re-based on s50
+(`scripts/temps_snap50.py`).
+
 Selv lane, 2026-10-16, branch `claude/native21-s50-permit-gate` (from the s49 head db60f2692). This directory is the build
 record. The review that chose the change is `../README.md` (the analysis lane, fd358959d); its scripts and results stay as
 committed there.
