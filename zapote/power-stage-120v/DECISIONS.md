@@ -2430,3 +2430,23 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - the bench reads PS2's local air above bay + 19.2 K at the release point, or PS2's output above about 7.1 W;
       - MEAN WELL or the CB report (Tma) defines the rating at a case or internal point;
       - the firmware's window top or PS2's load rises without this row being re-run.
+
+66. **Product target: a 28 A tank ceiling, reached through board-face airflow (owner decision, 2026-10-16).**
+    - **Why:** full-power yield (DECISIONS 10, simulated on an ASSUMED pan and coil basis) is about 85 % of pan cases
+      at 28 A against about 13 % at 22 A, and fewer at the 17.5 A that the still-air board supports today
+      (DECISIONS 61). The owner chose full power on most pans over the simpler, fan-free 22 A product.
+    - **How:** the hardware is already sized for 28 A electrically (stage 15). Heat is the blocker: at c28 in still air
+      the laminate and rated-part margins are about −51 K. Board-face airflow is the only lever large enough; the
+      heat-attribution levers without it sum to roughly +5 A (about 22 A). Tank-copper changes follow only where
+      airflow alone does not close a row.
+    - **Ladder unchanged:** firmware ships at 17.5 A and steps up (18 → 20 → 22 → … → 28 A) only on bench evidence at
+      each step: board thermocouples, bank hot spot, coil R_ac and winding temperature, switching loss.
+    - **Blockers to 28 A, tracked in OPEN-ITEMS:**
+      - the airflow requirement (h at the board face and inlet air temperature), to be agreed with the enclosure;
+      - the c28 rows of S21 and the B3 gate;
+      - the resonant bank at 1.045–1.12× TDK's 85 °C curve;
+      - S23, the OCP floor common-mode term, which binds above about 27 A;
+      - U3 TJ at c28 (S19);
+      - a bench check of the yield basis on real pans.
+    - **Reverses if:** the enclosure cannot deliver the required airflow at an acceptable noise and cost, or bench pan
+      data shows the 22 A yield is much higher than simulated.
