@@ -205,12 +205,13 @@ TRACES = {
     "trace_c1_near_full_scale_heating.csv": lambda: rtd_fault(151, 92.0, 85, 410.0),
     "trace_c1_probe_open_reconnect_idle.csv": lambda: [
         row(t, 25.0 + noise(t), rtd=(15000.0 if 20 <= t < 40 else R_NOMINAL_OHM)) for t in range(120)],
-    # DECISIONS D-SOAK: a unit soaked at 35 degC (heatsink, pan and glass at
-    # the room; the heatsink NTC VALID above ~29-36 degC). The manifest's
-    # c1_idle_soak_s idles it in IDLE on rows 0-4 before the start press and
-    # c1_pt100_leak_ohm adds a temperature-independent leak; the trace is the
-    # first 6 s of PREHEAT, where the first control period evaluates the check.
-    "trace_c1_cold_soak_preheat.csv": lambda: [row(t, 35.0 + noise(t)) for t in range(60)],
+    # DECISIONS D-SOAK: a unit soaked in a 25 degC room (heatsink, pan and glass
+    # at the room; with the CR-8 divider, zapote C45, the heatsink NTC is VALID
+    # from -40 degC). The manifest's c1_idle_soak_s idles it in IDLE on rows 0-4
+    # before the start press and c1_pt100_leak_ohm adds a temperature-independent
+    # leak; the trace is the first 6 s of PREHEAT, where the first control
+    # period evaluates the check.
+    "trace_c1_cold_soak_preheat.csv": lambda: [row(t, 25.0 + noise(t), hs=25.0) for t in range(60)],
     # 80 ohm: inside the legacy 10..300 ohm window, below the C1 84.27 ohm
     # short threshold. Exercises the C1 window end to end, reset included.
     "trace_c1_rtd_low_80ohm_heating.csv": lambda: rtd_fault(151, 92.0, 85, 80.0),

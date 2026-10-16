@@ -543,14 +543,14 @@ static void soak_preheat(uint32_t ms)
 
 static void test_cold_soak_leak_latches_before_any_power_and_holds(void)
 {
-    /* a leak reading 20 K low after 31 min idle */
-    soak_idle(15.0f, 35.0f, 31u * 60000u);
+    /* a leak reading 25 K low after 31 min idle (threshold 19.4 K) */
+    soak_idle(10.0f, 35.0f, 31u * 60000u);
     soak_preheat(300u);
     TEST_ASSERT_EQUAL_INT(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL_INT(FAULT_PROBE_LEAKAGE, state_machine_get_fault());
     TEST_ASSERT_TRUE(pan_control_cold_soak_latched());
     TEST_ASSERT_EQUAL_INT(PCS_LEAK, pan_control_cold_soak_result().verdict);
-    TEST_ASSERT_FLOAT_WITHIN(0.1f, 20.0f, pan_control_cold_soak_result().gap_k);
+    TEST_ASSERT_FLOAT_WITHIN(0.1f, 25.0f, pan_control_cold_soak_result().gap_k);
     TEST_ASSERT_EQUAL_UINT32(0u, s_soak_max_power);           /* the coil never started */
     TEST_ASSERT_FALSE(fault_cleared());                       /* the leak persists */
     /* a cold item removed or thawed: the reading agrees again, reset allowed */
@@ -580,7 +580,7 @@ static void test_cold_soak_passes_when_the_readings_agree(void)
 static void test_cold_soak_skips_with_the_heatsink_saturated_or_the_rim_warm(void)
 {
     start(STATE_IDLE, 200.0f, 10u, 15.0f);
-    mock_sm_set_heatsink_ntc_state(HS_NTC_SATURATED);   /* a 25 degC room */
+    mock_sm_set_heatsink_ntc_state(HS_NTC_SATURATED);   /* above range, or an open sensor */
     s_hold_t = 15.0f;
     run_ms(31u * 60000u, hold, &s_clock);
     soak_preheat(300u);

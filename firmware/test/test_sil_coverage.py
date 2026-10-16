@@ -157,7 +157,7 @@ C1_MECHANISMS = {
                   "setpoint-relative rim limit: rim over the glass envelope of max(setpoint, t_hat) "
                   "+ 19.1 K, not falling, for 5 s"),
     "cold-soak": (("PREHEAT",),
-                  "cold-soak check: soaked >= 30 min, the heatsink NTC over the Pt100 by > 12.9 K "
+                  "cold-soak check: soaked >= 30 min, the heatsink NTC over the Pt100 by > 19.4 K "
                   "through the window, before the first power"),
     "cold-soak-pass": (("PREHEAT",), "cold-soak check runs on an intact probe: verdict pass, no latch"),
     "cold-soak-skip": (("PREHEAT",), "cold-soak check skips when not soaked (power-up counts as "

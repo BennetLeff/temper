@@ -1118,7 +1118,7 @@
   },
   {
     "name": "SIL: C1 Cold-Soak Leak Before Heating (PREHEAT)",
-    "description": "DECISIONS D-SOAK. A temperature-independent 1 kohm leak in parallel with the Pt100 from power-up (moisture, a conductive film): soaked at 35 degC the leaky element reads ~102 ohm, 5.2 degC, inside the C1 window (above the 84.27 ohm short threshold). The unit idles 40 min (>= the 30 min soak plus history), then the start press: PREHEAT entry freezes the coil-off history and the first control period, before any power, finds the heatsink NTC (35 degC, VALID) 29.8 K above the Pt100 through the 15 min window, over the 12.9 K threshold, with the rim NTC saturated: FAULT_PROBE_LEAKAGE. The leak never reaches a cook.",
+    "description": "DECISIONS D-SOAK. A temperature-independent 1 kohm leak in parallel with the Pt100 from power-up (moisture, a conductive film): soaked in a 25 degC room the leaky element reads ~98.9 ohm, -2.9 degC, inside the C1 window (above the 84.27 ohm short threshold). The unit idles 40 min (>= the 30 min soak plus history), then the start press: PREHEAT entry freezes the coil-off history and the first control period, before any power, finds the heatsink NTC (25 degC, VALID through the CR-8 divider, zapote C45) 27.9 K above the Pt100 through the 15 min window, over the 19.4 K threshold, with the rim NTC saturated: FAULT_PROBE_LEAKAGE. The leak never reaches a cook.",
     "trace_file": "trace_c1_cold_soak_preheat.csv",
     "origin_state": "PREHEAT",
     "initial_conditions": {
@@ -1157,7 +1157,7 @@
   },
   {
     "name": "SIL: C1 Cold Soak Passes an Intact Probe (PREHEAT)",
-    "description": "DECISIONS D-SOAK, the benign case. The same 40 min idle at 35 degC with an intact Pt100: the check runs (soaked, history complete, heatsink VALID and flat, Pt100 flat, rim saturated), the heatsink and the Pt100 agree within the 12.9 K threshold, verdict pass, and PREHEAT holds with no fault.",
+    "description": "DECISIONS D-SOAK, the benign case. The same 40 min idle in a 25 degC room with an intact Pt100: the check runs (soaked, history complete, heatsink VALID and flat, Pt100 flat, rim saturated), the heatsink and the Pt100 agree within the 19.4 K threshold, verdict pass, and PREHEAT holds with no fault.",
     "trace_file": "trace_c1_cold_soak_preheat.csv",
     "origin_state": "PREHEAT",
     "initial_conditions": {

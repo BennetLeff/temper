@@ -20,7 +20,7 @@ void hs_ntc_default_params(hs_ntc_params_t *p)
     }
     p->dt_s = 0.1f;
     p->r_pullup_ohm = 10000.0f;
-    p->adc_gain = 1.0f;
+    p->adc_gain = HS_NTC_ADC_GAIN;
     p->v3v3_nominal_mv = 3300.0f;
     p->v3v3_min_mv = 3200.0f;
     p->v3v3_max_mv = 3420.0f;
@@ -31,12 +31,15 @@ void hs_ntc_default_params(hs_ntc_params_t *p)
     p->fs0_mv = 850.0f;
     p->fs2_mv = 1600.0f;
     p->fs3_mv = 2900.0f;
+    p->sat_margin_mv = HS_NTC_SAT_MARGIN_MV;
+    p->divider_fault_mv = HS_NTC_DIVIDER_FAULT_MV;
     p->clip_margin_mv = 10.0f;
     p->short_below_mv = 250.0f;
     p->filter_tau_s = 1.0f;
     p->oversample = 8u;
     p->short_persist = 3u;
     p->adc_fail_persist = 10u;
+    p->divider_persist = 3u;
 }
 
 bool hs_ntc_init(hs_ntc_t *h, const hs_ntc_params_t *p)
@@ -45,7 +48,9 @@ bool hs_ntc_init(hs_ntc_t *h, const hs_ntc_params_t *p)
         p->adc_gain > 1.0f || p->oversample < 1u || p->oversample > 16u || !(p->fs0_mv > p->atten0_below_mv) ||
         !(p->fs2_mv > p->atten2_below_mv) || !(p->fs3_mv > p->fs2_mv) ||
         !(p->v3v3_contract_max_mv >= p->v3v3_nominal_mv) || p->short_persist == 0u ||
-        p->adc_fail_persist == 0u || !(p->filter_tau_s >= 0.0f)) {
+        p->adc_fail_persist == 0u || !(p->filter_tau_s >= 0.0f) || !(p->sat_margin_mv >= 0.0f) ||
+        !(p->sat_margin_mv < p->fs3_mv) || !(p->divider_fault_mv >= 0.0f) ||
+        (p->divider_fault_mv > 0.0f && (!(p->divider_fault_mv > p->fs3_mv) || p->divider_persist == 0u))) {
         return false;
     }
     memset(h, 0, sizeof(*h));
@@ -146,6 +151,21 @@ static rim_atten_t choose_atten(const hs_ntc_params_t *p, rim_atten_t cur, float
     return cur;
 }
 
+/* Upper bound on the heatsink temperature from a pin reading: the pin less
+ * sat_margin_mv (ADC error, divider band, buffer offset), at the rail `vb`.
+ * Colder than the table (or the node at or above the rail): the table's
+ * -40 degC, which is then also an upper bound. */
+static float sat_bound_c(const hs_ntc_params_t *p, float pin_mv, float vb)
+{
+    const float x = (pin_mv - p->sat_margin_mv) / p->adc_gain / vb;
+    const float r = x < 1.0f ? p->r_pullup_ohm * x / (1.0f - x) : INFINITY;
+    if (r < k_hs_ntc_table_ohm[HS_NTC_TABLE_N - 1u]) {
+        return INFINITY;   /* not reached from the callers (the pin is near the rail); no bound */
+    }
+    const float t = hs_ntc_r_to_c(r);
+    return isfinite(t) ? t : k_hs_ntc_table_c[0];
+}
+
 static void latch(hs_ntc_t *h, hs_ntc_diag_t d)
 {
     h->last.state = HS_NTC_FAULT;
@@ -182,6 +202,16 @@ void hs_ntc_step(hs_ntc_t *h, const hs_ntc_hal_t *hal, hs_ntc_reading_t *out)
     h->atten = choose_atten(p, a, pin);
     const float node = pin / p->adc_gain;
 
+    /* 1b. Divider fault: a pin level the intact divider cannot produce. */
+    if (p->divider_fault_mv > 0.0f && a == RIM_ATTEN_3 && pin >= p->divider_fault_mv) {
+        if (++h->divider_count >= p->divider_persist) {
+            latch(h, HS_NTC_DIAG_DIVIDER);
+        }
+        *out = h->last;
+        return;
+    }
+    h->divider_count = 0u;
+
     /* 2. Rail for the ratio. */
     float vdd = p->v3v3_nominal_mv;
     bool rail_nominal = true;
@@ -209,17 +239,16 @@ void hs_ntc_step(hs_ntc_t *h, const hs_ntc_hal_t *hal, hs_ntc_reading_t *out)
     }
     h->short_count = 0u;
 
-    /* 4. Saturated (cold, or an open sensor): an upper bound only. Without a
-     *    rail reading the bound is taken at the rail's contract maximum, the
-     *    coldest temperature the 2900 mV top can mean. */
+    /* 4. Saturated: above ATTEN3's calibrated range. An upper bound only;
+     *    without a rail reading it is taken at the rail's contract maximum,
+     *    the coldest temperature the reading can mean. */
+    const float vb = rail_nominal ? p->v3v3_contract_max_mv : vdd;
     if (a == RIM_ATTEN_3 && pin >= p->fs3_mv) {
         h->over_count = 0u;
         h->have_filter = false;
-        const float vb = rail_nominal ? p->v3v3_contract_max_mv : vdd;
-        const float x = p->fs3_mv / p->adc_gain / vb;
-        rd.r_ohm = x < 1.0f ? p->r_pullup_ohm * x / (1.0f - x) : INFINITY;
+        rd.r_ohm = NAN;
         rd.state = HS_NTC_SATURATED;
-        rd.t_c = hs_ntc_r_to_c(rd.r_ohm);
+        rd.t_c = sat_bound_c(p, p->fs3_mv, vb);
         rd.t_raw_c = NAN;
         h->last = rd;
         *out = rd;
@@ -239,13 +268,14 @@ void hs_ntc_step(hs_ntc_t *h, const hs_ntc_hal_t *hal, hs_ntc_reading_t *out)
             *out = h->last;
             return;
         }
-        /* Colder than -40 degC without saturating (a gain below 1): treat as
-         * the saturated case, an upper bound at the table bottom. */
+        /* Colder than the table (-40 degC), or the node at the rail (an open
+         * sensor, which HS_OPEN latches in hardware): no temperature, an
+         * upper bound from this pin reading. */
         h->over_count = 0u;
         h->have_filter = false;
         rd.r_ohm = res;
         rd.state = HS_NTC_SATURATED;
-        rd.t_c = k_hs_ntc_table_c[0];
+        rd.t_c = sat_bound_c(p, pin, vb);
         rd.t_raw_c = NAN;
         h->last = rd;
         *out = rd;

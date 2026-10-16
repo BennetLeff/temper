@@ -19,8 +19,9 @@ C. Cold-soak plausibility. After an idle soak every part is at ambient. A
    - the check threshold from the reference's error budget (the heatsink
      NTC, the only on-board candidate: hs-ntc.json cold_soak_budget, the
      threshold the firmware's cold-soak check uses, DECISIONS D-HSNTC/D-SOAK),
-     evaluated at T_EVAL = 35 degC: the heatsink channel is SATURATED below
-     28.6-35.7 degC (ATTEN3), so at 25 degC the check skips;
+     evaluated at T_EVAL = 35 degC (the point of the pre-C45 analysis, when the
+     channel saturated below 28.6-35.7 degC; with the CR-8 divider, zapote C45,
+     it is VALID from -40 degC and cold_soak.py covers 5-40 degC);
    - an Arrhenius leak R(T) = R_300 exp(Ea/k (1/T - 1/573.15)), equal to a
      hazardous value at 300 degC: its resistance and reading error at T_EVAL,
      and the activation energy above which C misses it.
@@ -176,8 +177,8 @@ def main():
 
     out["C"] = {"reading_low_K_temperature_independent_leak": cold,
                 "reference": "heatsink NTC (NTCALUG01A104GA, GPIO6 / ADC1_CH5, components/sensors/hs_ntc.c; "
-                             "DECISIONS D-HSNTC). Its channel is SATURATED below 28.6-35.7 degC (ATTEN3's "
-                             "2900 mV top), so C runs only in a warm room; the check is implemented "
+                             "DECISIONS D-HSNTC), through the CR-8 divider (zapote C45): VALID from -40 degC, so C "
+                             "runs at room temperature; the check is implemented "
                              "(components/control/pan_cold_soak.c, D-SOAK) and run through the C in cold_soak.py",
                 "t_eval_C": T_EVAL,
                 "threshold_budget_K": {"source": "hs-ntc.json cold_soak_budget", "band_C": HS_NTC_BUDGET["band_C"]},

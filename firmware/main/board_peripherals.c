@@ -221,16 +221,19 @@ bool is_fan_running(void)
  *   state_handlers.c state_fault_update()       > FAULT_STATE_MAX_TEMP_C (125)
  *                                               triggers the hardware shutdown
  *   components/safety/safety.c check_hardware_interlocks(),
- *   run_safety_check()                         non-finite or > 80: over-temp
+ *   run_safety_check()                         non-finite or > 95: over-temp
  *                                               (linked, no caller in this image)
- * VALID gives the filtered reading; SATURATED (colder than about 32 degC,
- * the normal room-temperature state of this channel) gives the upper bound,
- * which is below every limit and release above; no reading or a latched
- * driver fault (short, over-range, ADC) gives +INFINITY, as the former
- * TODO(hardware) stub always did: the `>` limits trip (FAULT_OVER_TEMP),
- * the `<` releases refuse, and in FAULT the hardware shutdown is asserted.
- * A driver fault stays latched until power-up. An open sensor reads
- * SATURATED; the board's HS_OPEN comparator latches it in hardware.
+ * With the CR-8 divider (zapote C45, HS_NTC_ADC_GAIN) the channel is VALID
+ * from -40 degC up. VALID gives the filtered reading; SATURATED (above the
+ * calibrated range at the extreme cold corner, or an open sensor) gives an
+ * upper bound, below every limit and release above; no reading or a latched
+ * driver fault (short, over-range, ADC, divider) gives +INFINITY, as the
+ * former TODO(hardware) stub always did: the `>` limits trip
+ * (FAULT_OVER_TEMP), the `<` releases refuse, and in FAULT the hardware
+ * shutdown is asserted. A driver fault stays latched until power-up. A
+ * failed divider (bottom open: DIVIDER at a cold start; top open: SHORT)
+ * therefore holds the coil off. An open sensor reads SATURATED; the board's
+ * HS_OPEN comparator latches it in hardware.
  * ============================================================================ */
 
 static hs_ntc_t s_hs;

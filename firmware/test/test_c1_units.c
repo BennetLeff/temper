@@ -681,16 +681,16 @@ static void test_soak_leak_after_the_soak_and_not_before(void)
     r = pcs_evaluate(&soak, t, 15.0f, true, 35.0f, true);
     TEST_ASSERT_EQUAL_INT(PCS_LEAK, r.verdict);
     TEST_ASSERT_FLOAT_WITHIN(1e-3f, 20.0f, r.gap_k);
-    /* 12.9 K is the threshold: 12.8 K passes, 13.0 K latches */
+    /* 19.4 K is the threshold: 19.3 K passes, 19.5 K latches */
     /* the window and the present reading must both be over the threshold */
-    r = pcs_evaluate(&soak, t, 22.2f, true, 35.0f, true);
+    r = pcs_evaluate(&soak, t, 15.7f, true, 35.0f, true);
     TEST_ASSERT_EQUAL_INT(PCS_PASS, r.verdict);
     soak_new(0u);
-    t = soak_feed(0u, 1900u, 22.2f, true, 35.0f);
-    TEST_ASSERT_EQUAL_INT(PCS_PASS, pcs_evaluate(&soak, t, 22.2f, true, 35.0f, true).verdict);
+    t = soak_feed(0u, 1900u, 15.7f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_PASS, pcs_evaluate(&soak, t, 15.7f, true, 35.0f, true).verdict);
     soak_new(0u);
-    t = soak_feed(0u, 1900u, 22.0f, true, 35.0f);
-    TEST_ASSERT_EQUAL_INT(PCS_LEAK, pcs_evaluate(&soak, t, 22.0f, true, 35.0f, true).verdict);
+    t = soak_feed(0u, 1900u, 15.5f, true, 35.0f);
+    TEST_ASSERT_EQUAL_INT(PCS_LEAK, pcs_evaluate(&soak, t, 15.5f, true, 35.0f, true).verdict);
 }
 
 static void test_soak_coil_activity_restarts_the_soak_and_the_history(void)
@@ -706,7 +706,7 @@ static void test_soak_coil_activity_restarts_the_soak_and_the_history(void)
 
 static void test_soak_skips_on_a_saturated_or_warm_or_drifting_reference(void)
 {
-    /* the heatsink saturated (cold room) for one minute of the window */
+    /* the heatsink not VALID (saturated: above range, or an open sensor) for one minute of the window */
     soak_new(0u);
     uint32_t t = soak_feed(0u, 1500u, 15.0f, true, 35.0f);
     t = soak_feed(t, 60u, 15.0f, false, NAN);
@@ -779,13 +779,13 @@ static void test_soak_agreement_and_parameters(void)
 {
     soak_new(0u);
     TEST_ASSERT_TRUE(pcs_agrees(&soak, 30.0f, true, 35.0f));
-    TEST_ASSERT_TRUE(pcs_agrees(&soak, 22.2f, true, 35.0f));
-    TEST_ASSERT_FALSE(pcs_agrees(&soak, 22.0f, true, 35.0f));
+    TEST_ASSERT_TRUE(pcs_agrees(&soak, 15.7f, true, 35.0f));
+    TEST_ASSERT_FALSE(pcs_agrees(&soak, 15.5f, true, 35.0f));
     TEST_ASSERT_FALSE(pcs_agrees(&soak, 34.0f, false, NAN));
     TEST_ASSERT_FALSE(pcs_agrees(&soak, NAN, true, 35.0f));
     pcs_params_t p;
     pcs_default_params(&p);
-    TEST_ASSERT_EQUAL_FLOAT(12.9f, p.threshold_k);
+    TEST_ASSERT_EQUAL_FLOAT(19.4f, p.threshold_k);
     TEST_ASSERT_EQUAL_FLOAT(1800.0f, p.soak_n_s);
     p.window_s = 3000.0f;   /* more than PCS_BUCKET_MAX minutes, and longer than the soak */
     TEST_ASSERT_FALSE(pcs_init(&soak, &p, 0u));

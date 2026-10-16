@@ -4,7 +4,7 @@ The check (components/control/pan_cold_soak.c, evaluated by main/pan_control.c a
 PREHEAT entry, before the first power): after the coil has been off >= 30 min,
 with 15 min of flat history, the heatsink NTC VALID and <= 45 degC and the rim NTC
 saturated, latch FAULT_PROBE_LEAKAGE when the heatsink exceeds the Pt100 by more
-than PCS_THRESHOLD_K (12.9 K, hs-ntc.json cold_soak_budget) through the window and
+than PCS_THRESHOLD_K (19.4 K, hs-ntc.json cold_soak_budget) through the window and
 now. Here the heatsink driver (components/sensors/hs_ntc.c), the Pt100 conversion
 (components/sensors/rtd_convert.c) and the check run in C through the cosim shim
 (soak_run: one sample per second, the check evaluated every EVAL_EVERY_S as a
@@ -19,19 +19,24 @@ PREHEAT entry then would), fed by a thermal model of an idle unit:
             screen-results.json tau_off); a leak in parallel with the element;
   rim       SATURATED while the glass is below 87.05 degC (rim-ntc.json, the
             lowest saturation temperature over the v3v3 contract).
-The channel errors are set per corner as hs_ntc.py budgets them, but applied
-physically (resistances, rail, ADC error at the attenuation the driver picks):
+The channel is the board as built since zapote C45: the CR-8 divider after the
+follower, gain 0.855072 (the driver's HS_NTC_ADC_GAIN), so the heatsink is VALID
+from -40 degC up. The channel errors are set per corner as hs_ntc.py budgets them,
+but applied physically (resistances, rail, ADC error at the attenuation the driver
+picks):
   false     the heatsink reads high and the Pt100 low: NTC R25 -2 % and B column,
-            pull-up +1.2 %, ADC -50 / -10 / -5 mV, buffer -2 mV, v3v3 3.242 V
-            read as 3.300 V, standby offset +1 K; Pt100 class -, Rref +0.15 %,
-            converter -3 LSB, no off-pan self-heating;
+            pull-up +1.2 %, divider gain 0.854421 (C45 low corner), ADC -50 / -10
+            / -5 mV and the SAR sampling bound -3.19 mV at the pin, buffer -2 mV,
+            v3v3 3.242 V read as 3.300 V, standby offset +1 K; Pt100 class -,
+            Rref +0.15 %, converter -3 LSB, no off-pan self-heating;
   nominal   every term zero;
-  miss      the other way, with the Pt100's off-pan self-heating (2.7 K at 30 degC,
-            hs_ntc.py pt_off_pan_self_heating) and v3v3 3.367 V.
-Variants (the check's threshold re-derived for each from its own false corner,
-reported only): rail_corrected (an MCP3202 CH1 rail reading, +/-0.2 %; no driver
-exists, D-HSNTC) and cr8 (a divider after the buffer, gain 0.85 +/-0.2 %, so the
-whole range is inside ATTEN3: DECISIONS CR-8).
+  miss      the other way (gain 0.855722), with the Pt100's off-pan self-heating
+            (2.7 K at 30 degC, hs_ntc.py pt_off_pan_self_heating) and v3v3 3.367 V.
+ADC noise (3 mV rms per one-shot sample) runs in every corner.
+Variant rail_corrected (reported; the check's threshold re-derived from its own
+false corner): an MCP3202 CH1 rail reading, +/-0.2 %; no driver exists, D-HSNTC.
+The pre-C45 network (100 R, no divider, gain 1) is no longer run: its results are
+this file's output at 75e512eab (variant as_built there).
 
 1. Threshold cross-check: the C path's steady false-corner gap over the band plus
    the soak residuals (hs-ntc.json) must not exceed PCS_THRESHOLD_K (gated).
@@ -41,13 +46,15 @@ whole range is inside ATTEN3: DECISIONS CR-8).
    450/900/1800 s, evaluated every 10 s for 4 h, which includes idle 0, 10, 20,
    30, 45, 60, 90, 120 min); a hot pan (100/200 degC) placed on a soaked unit; a
    cold pan (4 / -18 degC, warming with tau 900/1800 s) placed on a soaked unit;
-   transport (a unit at 5, 50 or 60 degC carried into a 25-40 degC room and
-   powered up on arrival, tau_h 450/900/1800 s, tau_g 408/816 s); and the
+   transport (a unit at -20 (the storage minimum, docs/ENVIRONMENTAL_SPEC.md), 5,
+   50 or 60 degC carried into a 5-40 degC room and powered up on arrival, tau_h
+   450/900/1800 s, tau_g 408/816 s); and the
    existing sets' cold starts (every leak-checks.json benign kind starts from a
    unit at 25 degC, hot_glass from glass at 200 degC just after use).
    Reported, not gated (outside the assumptions, D-SOAK limits): tau_h 3600 s; a
    large pot of cold water (tau 20000 s); a pot of frozen food whose melting
-   plateau holds the glass at ~2 degC for hours.
+   plateau holds the glass at ~2 degC for hours; a unit run in a 0 or -5 degC
+   room (below the 5 degC the threshold is budgeted for; rated 10 degC).
 3. Hazardous leaks (leak-checks.json, the 235 runs whose untripped steady T_c
    exceeds 300 degC; 7 leak values 300-1732 ohm) at a cold start, soaked steady at
    5-40 degC: caught before heating by the cold-soak check (FAULT_PROBE_LEAKAGE)
@@ -102,14 +109,12 @@ RAIL_READ_TOL = 0.002
 # 8 per step, then filters); MAX31865 +/-1 LSB (0.034 K). Assumptions; bench item.
 ADC_NOISE_MV = 3.0
 PT_NOISE_LSB = 1.0
-CR8_GAIN, CR8_GAIN_TOL = 0.85, 0.002
 CORNERS = ("false", "nominal", "miss")
-VARIANTS = {"as_built": {"gain": 1.0, "rail": False},
-            "rail_corrected": {"gain": 1.0, "rail": True},
-            "cr8": {"gain": CR8_GAIN, "rail": False}}
-# As-built, nominal corner, temperature-independent leaks: hazardous runs caught
-# before heating (cold soak or the 84.27 ohm window) per ambient. Recorded.
-EXPECTED_INDEP_NOMINAL = {"5.0": 71, "15.0": 71, "25.0": 35, "30.0": 35, "35.0": 235, "40.0": 235}
+VARIANTS = {"as_built": {"gain": H.ADC_GAIN, "rail": False},
+            "rail_corrected": {"gain": H.ADC_GAIN, "rail": True}}
+# As-built (CR-8, C45), nominal corner, temperature-independent leaks: hazardous runs
+# caught before heating (cold soak or the 84.27 ohm window) per ambient. Recorded.
+EXPECTED_INDEP_NOMINAL = {"5.0": 169, "15.0": 200, "25.0": 200, "30.0": 200, "35.0": 200, "40.0": 200}
 IDLE_MIN = (0, 10, 20, 30, 45, 60, 90, 120)
 
 # ---- vectorised physics --------------------------------------------------------------
@@ -143,10 +148,12 @@ def corner_terms(corner: str, variant: str):
     v = VARIANTS[variant]
     rail_true = {"false": H.V3V3_MIN, "nominal": H.V3V3_NOM, "miss": H.V3V3_MAX}[corner] * 1e3
     rail_read = rail_true * (1.0 - s * RAIL_READ_TOL) if v["rail"] else -1.0   # false: read high -> hot
-    gain_actual = v["gain"] * (1.0 + s * CR8_GAIN_TOL) if v["gain"] != 1.0 else 1.0
+    gain_actual = {-1.0: H.GAIN_LO, 0.0: H.ADC_GAIN, 1.0: H.GAIN_HI}[s]
     return {
         "s": s, "rail_true_mv": rail_true, "rail_read_mv": rail_read, "gain_nom": v["gain"],
         "gain_actual": gain_actual,
+        # the SAR sampling bound (hs_ntc.py sar_sampling) at the pin, in the corner's direction
+        "sar_node_mv": s * H.SAR_BOUND_V * 1e3 / gain_actual,
         "rpu_scale": 1.0 - s * (H.R_PULLUP_TOL + H.R_PULLUP_TC * H.BOARD_DT_K),
         "buf_mv": s * H.BUF_VOS_V * 1e3, "standby_k": H.STANDBY_OFFSET_K if corner == "false" else 0.0,
         "rref_ohm": 430.0 * (1.0 - s * H.PT_RREF_FRAC), "offset_lsb": s * H.PT_OFFSET_LSB,
@@ -161,7 +168,7 @@ def node_mv(t_hs, c):
     p = (c["rail_true_mv"] * 1e-3 / (r + rp)) ** 2 * r
     r2 = ntc_r(t_hs + p / H.NTC_DISSIPATION_W_PER_K) * (1.0 + c["s"] * H.R25_TOL) * (1.0 + c["s"] * btol(t_hs))
     v = c["rail_true_mv"] * r2 / (r2 + rp)
-    return v + c["buf_mv"]
+    return v + c["buf_mv"] + c["sar_node_mv"]
 
 
 def pt_meas_ohm(t_pt, c, corner, r_leak=None):
@@ -290,8 +297,10 @@ def benign_cases():
             reported.append(("cold_pot_large", {"A": a, "T_pan": 4.0, "tau_pan": 20000.0, "t_place": tp,
                                                  "t_end": int(tp + 12 * 3600)}))
             reported.append(("frozen_plateau", {"A": a, "t_place": tp, "t_end": int(tp + 3 * 3600)}))
-    for t0 in (5.0, 50.0, 60.0):
-        for a in (25.0, 30.0, 35.0, 40.0):
+    for a in (0.0, -5.0):
+        reported.append(("ambient", {"A": a, "t_end": 3 * 3600}))
+    for t0 in (-20.0, 5.0, 50.0, 60.0):
+        for a in AMBIENTS:
             for th in (450.0, 900.0, 1800.0):
                 for tg in (408.0, 816.0):
                     gated.append(("transport", {"A": a, "T0": t0, "tau_h": th, "tau_g": tg, "t_end": 4 * 3600}))
@@ -380,8 +389,7 @@ def main() -> int:
     thr = {v: derive_threshold(v) for v in VARIANTS}
     gate["threshold_c_path_within_firmware"] = thr["as_built"]["threshold_K"] <= fw["threshold_k"] + 1e-6
     gate["firmware_threshold_is_hs_ntc_budget"] = abs(fw["threshold_k"] - analytic["threshold_K"]) < 1e-6
-    use_thr = {"as_built": fw["threshold_k"], "rail_corrected": thr["rail_corrected"]["threshold_K"],
-               "cr8": thr["cr8"]["threshold_K"]}
+    use_thr = {"as_built": fw["threshold_k"], "rail_corrected": thr["rail_corrected"]["threshold_K"]}
     for v, d in thr.items():
         print(f"threshold {v}: C-path steady false gap {d['steady_false_gap_max_K']} K + residuals "
               f"{d['residuals_K']} K -> {d['threshold_K']} K; check runs at {d['band_A_C']} degC (false corner)")

@@ -428,7 +428,7 @@ static bool soak_rail(void *ctx, float *mv)
 void *soak_new(void) { return calloc(1, sizeof(soak_t)); }
 void soak_free(void *h) { free(h); }
 
-/* adc_gain_nominal: the driver's adc_gain (1.0 as built, 0.85 with CR-8);
+/* adc_gain_nominal: the driver's adc_gain (HS_NTC_ADC_GAIN 0.855072 as built, zapote C45);
  * gain_actual: the divider as fitted; threshold_k <= 0: PCS_THRESHOLD_K. */
 int soak_init(void *h, double adc_gain_nominal, double gain_actual, double err_sign, double rail_read_mv,
               double threshold_k, double noise_mv, double seed)

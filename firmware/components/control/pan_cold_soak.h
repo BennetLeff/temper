@@ -26,10 +26,10 @@
  *            time constant, glass ~820 s; D-SOAK);
  *   history  the last window_s (15 min) of per-minute history complete;
  *   ref      the heatsink VALID now and through the window, <= hs_max_c
- *            (45 degC). The channel is SATURATED below 28.6-35.7 degC
- *            (ATTEN3's 2900 mV top; at tolerance corners VALID from ~23.9),
- *            so at most room temperatures the check skips: DECISIONS
- *            D-HSNTC, CR-8;
+ *            (45 degC). With the CR-8 divider (zapote C45) the channel is
+ *            VALID from -40 degC, so the check runs at room temperature
+ *            (DECISIONS D-HSNTC); the threshold is budgeted for rooms down
+ *            to 5 degC (5 K under the rated 10 degC);
  *   flat     the heatsink within hs_flat_k (1.0 K) and the Pt100 within
  *            pt_flat_k (0.25 K) over the window: a single exponential with
  *            tau <= 1800 s that moved that little is then within 1.54 K /
@@ -41,10 +41,12 @@
  * Pt100's window maximum) and now; PASS otherwise.
  *
  * threshold_k is the false-latch stack at its worst over the band where the
- * check runs (hs-ntc.json cold_soak_budget): heatsink reads high (sensor,
- * pull-up, ADC +/-50 mV, buffer, the rail read as 3300 mV when it is 3242),
- * Pt100 reads low (class, Rref, converter offset), the soak residuals and a
- * 1 K standby offset of the heatsink over the room.
+ * check runs (hs-ntc.json cold_soak_budget, heatsink 5..45 degC, worst at
+ * 5 degC): heatsink reads high (sensor, pull-up, divider gain band, ADC
+ * +/-50 mV, SAR sampling, buffer, the rail read as 3300 mV when it is 3242,
+ * all at once through the driver's arithmetic), Pt100 reads low (class,
+ * Rref, converter offset), the soak residuals and a 1 K standby offset of
+ * the heatsink over the room.
  */
 
 #ifndef PAN_COLD_SOAK_H
@@ -58,7 +60,7 @@ extern "C" {
 #endif
 
 /* Gated against output/temper-sensor-r3/firmware/hs-ntc.json by hs_ntc.py. */
-#define PCS_THRESHOLD_K 12.9f
+#define PCS_THRESHOLD_K 19.4f
 #define PCS_SOAK_N_S 1800.0f
 #define PCS_WINDOW_S 900.0f
 #define PCS_HS_FLAT_K 1.0f

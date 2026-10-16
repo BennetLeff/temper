@@ -2,7 +2,9 @@
  * @file hs_ntc_board.c
  * @brief Board binding of the heatsink NTC driver: hal_adc on ESP32-S3
  *        ADC1_CH5 (GPIO6, zapote/controller HS_ADC: mcu.IO6 ~ hs_adc, the
- *        TLV9062 U6B follower of HS_SENSE through 10 k / 100 nF).
+ *        TLV9062 U6B follower of HS_SENSE through 10 k / 100 nF, then the
+ *        CR-8 divider 1.00 k / 5.90 k with 100 nF, zapote C45: the gain is
+ *        HS_NTC_ADC_GAIN in hs_ntc.h, the driver's default).
  *
  * As rim_ntc_board.c: the HAL's ESP32 port (hal_adc_esp32.c) owns the one
  * ADC1 one-shot unit and keeps a configuration and a curve-fitting

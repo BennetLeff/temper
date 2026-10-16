@@ -1,11 +1,13 @@
 /**
  * @file test_c1_hs_ntc.c
- * @brief Heatsink NTC driver (components/sensors/hs_ntc.c): the Vishay
- *        material D table, the ADC chain with the CR-7 attenuation rule,
- *        ATTEN3 saturation and its upper bound, short / over-range / ADC
- *        faults, the interlock value read_heatsink_temperature() returns, the
- *        poll rate, the CR-8 divider gain, and the board binding over the
- *        hal_adc mock (ADC1_CH5).
+ * @brief Heatsink NTC driver (components/sensors/hs_ntc.c) on the board as
+ *        built since zapote C45 (the CR-8 divider, gain 0.855072): the
+ *        Vishay material D table, the ADC chain with the CR-7 attenuation
+ *        rule, room and cold temperatures VALID, the SATURATED upper bound,
+ *        short / over-range / ADC / divider faults (the divider's bottom open
+ *        and top open), the interlock value read_heatsink_temperature()
+ *        returns, the poll rate, and the board binding over the hal_adc mock
+ *        (ADC1_CH5).
  *
  * Expected values come from the Vishay NTCLE100E3 data sheet (doc 29049
  * p. 12, NTCLE100E3104 column), copied here independently of hs_ntc_table.h.
@@ -33,7 +35,8 @@ static const float k_pts_ohm[] = {100000.0f, 51750.0f, 11260.0f, 6837.0f, 2783.0
 
 typedef struct {
     double node_mv;
-    double gain;            /* pin / node */
+    double gain;            /* pin / node: the divider as fitted */
+    double offset_mv;       /* ADC error at the pin */
     bool fail;
     bool rail_ok;
     float rail_mv;
@@ -56,7 +59,7 @@ static bool m_read(void *ctx, rim_atten_t a, float *mv)
     if (m->fail) {
         return false;
     }
-    const float v = (float)(m->node_mv * m->gain);
+    const float v = (float)(m->node_mv * m->gain + m->offset_mv);
     *mv = roundf(v < clip_mv(a) ? v : clip_mv(a));
     return true;
 }
@@ -83,7 +86,7 @@ static hs_ntc_t s_h;
 static void fresh(void)
 {
     memset(&s_m, 0, sizeof(s_m));
-    s_m.gain = 1.0;
+    s_m.gain = HS_NTC_ADC_GAIN;
     s_m.rail_ok = true;
     s_m.rail_mv = 3300.0f;
     hs_ntc_params_t p;
@@ -118,10 +121,11 @@ static void test_table_conversion_matches_the_datasheet_points(void)
 }
 
 /* The trip and release points through the whole driver at the nominal and
- * the low rail (measured), with the CR-7 attenuation the node calls for. */
+ * the low rail (measured), with the CR-7 attenuation the pin calls for
+ * (pin = 0.855 x node: 80 degC is 1495 mV, ATTEN2). */
 static void test_chain_accuracy_at_the_trip_points(void)
 {
-    const rim_atten_t expect[] = {RIM_ATTEN_3, RIM_ATTEN_3, RIM_ATTEN_3, RIM_ATTEN_2, RIM_ATTEN_0, RIM_ATTEN_0};
+    const rim_atten_t expect[] = {RIM_ATTEN_3, RIM_ATTEN_3, RIM_ATTEN_2, RIM_ATTEN_2, RIM_ATTEN_0, RIM_ATTEN_0};
     for (unsigned i = 1; i < N_PTS; i++) {
         for (int rail = 0; rail < 2; rail++) {
             fresh();
@@ -139,35 +143,133 @@ static void test_chain_accuracy_at_the_trip_points(void)
     }
 }
 
-/* Room temperature is above ATTEN3's 2900 mV top: SATURATED, an upper bound. */
-static void test_room_temperature_is_saturated_with_an_upper_bound(void)
+/* The bound the driver gives in SATURATED: the pin less HS_NTC_SAT_MARGIN_MV,
+ * at the rail `vb` (computed here from the definition, not the driver). */
+static float expect_bound(float pin_mv, float vb)
 {
-    s_m.node_mv = node_for_ohm(k_pts_ohm[0], 3300.0);   /* 3000 mV */
-    hs_ntc_reading_t rd = steps(3u);
-    TEST_ASSERT_EQUAL_INT(HS_NTC_SATURATED, rd.state);
-    TEST_ASSERT_FALSE(rd.rail_nominal);
-    /* hs-ntc.json saturation_C_by_v3v3: 32.17 degC at 3.300 V */
-    TEST_ASSERT_FLOAT_WITHIN(0.05f, 32.17f, rd.t_c);
-    TEST_ASSERT_FLOAT_WITHIN(0.05f, 32.17f, hs_ntc_interlock_c(&rd));
-    /* No rail reading: the bound at the rail's contract maximum, 35.72 degC */
+    const double x = ((double)pin_mv - HS_NTC_SAT_MARGIN_MV) / HS_NTC_ADC_GAIN / vb;
+    return hs_ntc_r_to_c((float)(10000.0 * x / (1.0 - x)));
+}
+
+/* CR-8 (zapote C45): the divider keeps the node inside ATTEN3's 2900 mV, so
+ * room temperature and the cold end read VALID (pre-C45 they saturated). */
+static void test_room_and_cold_temperatures_are_valid(void)
+{
+    const float pts_c[] = {25.0f, 15.0f, 5.0f, 0.0f};
+    const float pts_ohm[] = {100000.0f, 160000.0f, 263100.0f, 340900.0f};
+    for (unsigned i = 0; i < 4u; i++) {
+        for (int rail = 0; rail < 2; rail++) {
+            fresh();
+            s_m.rail_ok = rail == 0;          /* measured, or 3300 assumed */
+            s_m.node_mv = node_for_ohm(pts_ohm[i], 3300.0);
+            const hs_ntc_reading_t rd = steps(30u);
+            TEST_ASSERT_EQUAL_INT(HS_NTC_VALID, rd.state);
+            TEST_ASSERT_EQUAL_INT(RIM_ATTEN_3, rd.atten);
+            /* whole-mV pin: 0.5 mV / 4.1 mV/K at 0 degC (hs-ntc.json channel rows) */
+            TEST_ASSERT_FLOAT_WITHIN(0.15f, pts_c[i], rd.t_c);
+            TEST_ASSERT_FLOAT_WITHIN(0.15f, pts_c[i], hs_ntc_interlock_c(&rd));
+        }
+    }
+    /* -35 degC (2.638 Mohm): VALID, coarse (pin 0.8 mV/K) */
     fresh();
+    s_m.node_mv = node_for_ohm(2638000.0, 3300.0);
+    const hs_ntc_reading_t rd = steps(30u);
+    TEST_ASSERT_EQUAL_INT(HS_NTC_VALID, rd.state);
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, -35.0f, rd.t_c);
+}
+
+/* SATURATED is left for readings the intact divider only gives at its
+ * extremes: the pin at or above 2900 mV (ADC error at the cold corner), or a
+ * node at the rail (an open sensor). t_c is an upper bound. */
+static void test_saturated_readings_give_an_upper_bound(void)
+{
+    /* -40 degC at the rail's contract maximum with +36 mV of ADC error: the pin
+     * reads 2907 mV, above the calibrated top */
     s_m.rail_ok = false;
-    s_m.node_mv = node_for_ohm(k_pts_ohm[0], 3300.0);
-    rd = steps(3u);
+    s_m.node_mv = 3367.0 * 3666000.0 / 3676000.0;
+    s_m.offset_mv = 2907.0 - s_m.node_mv * s_m.gain;
+    hs_ntc_reading_t rd = steps(5u);
     TEST_ASSERT_EQUAL_INT(HS_NTC_SATURATED, rd.state);
     TEST_ASSERT_TRUE(rd.rail_nominal);
-    TEST_ASSERT_FLOAT_WITHIN(0.05f, 35.72f, rd.t_c);
-    /* 40 degC is in range without a rail reading (3300 mV assumed) */
-    fresh();
-    s_m.rail_ok = false;
-    s_m.node_mv = node_for_ohm(k_pts_ohm[1], 3300.0);
-    rd = steps(30u);
-    TEST_ASSERT_EQUAL_INT(HS_NTC_VALID, rd.state);
-    TEST_ASSERT_FLOAT_WITHIN(0.1f, 40.0f, rd.t_c);
-    /* An open sensor (node at the rail) is indistinguishable from cold. */
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, expect_bound(2900.0f, 3367.0f), rd.t_c);
+    TEST_ASSERT_TRUE(rd.t_c > -17.0f && rd.t_c < -15.5f);       /* -16.3 degC */
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, rd.t_c, hs_ntc_interlock_c(&rd));
+    /* an open sensor: the node at the rail, the pin 2822 mV (calibrated):
+     * colder than the table; the bound from this pin at the measured rail */
     fresh();
     s_m.node_mv = 3300.0;
-    TEST_ASSERT_EQUAL_INT(HS_NTC_SATURATED, steps(5u).state);
+    rd = steps(5u);
+    TEST_ASSERT_EQUAL_INT(HS_NTC_SATURATED, rd.state);
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, expect_bound(2822.0f, 3300.0f), rd.t_c);
+    TEST_ASSERT_TRUE(isfinite(hs_ntc_interlock_c(&rd)) && hs_ntc_interlock_c(&rd) < 0.0f);
+    /* the same without a rail reading: bounded at 3367 mV, warmer (still an upper bound) */
+    fresh();
+    s_m.rail_ok = false;
+    s_m.node_mv = 3300.0;
+    rd = steps(5u);
+    TEST_ASSERT_EQUAL_INT(HS_NTC_SATURATED, rd.state);
+    TEST_ASSERT_FLOAT_WITHIN(0.05f, expect_bound(2822.0f, 3367.0f), rd.t_c);
+    TEST_ASSERT_TRUE(rd.t_c < 10.0f);
+}
+
+/* The divider's bottom open (or top shorted): gain 1, the pin is the node.
+ * Below ~25 degC (3.3 V) it is above 2950 mV, which the intact divider never
+ * reaches (2883 mV + 50 mV ADC error): DIVIDER latches after 3 periods and
+ * reads +INF, so FAULT_OVER_TEMP holds the coil off. */
+static void test_divider_bottom_open_latches_at_a_cold_start(void)
+{
+    s_m.gain = 1.0;
+    s_m.node_mv = node_for_ohm(126100.0, 3300.0);       /* 20 degC: 3046 mV */
+    hs_ntc_reading_t rd = steps(2u);
+    TEST_ASSERT_EQUAL_INT(HS_NTC_NO_DATA, rd.state);    /* candidate: nothing to hold yet */
+    TEST_ASSERT_TRUE(isinf(hs_ntc_interlock_c(&rd)));
+    rd = steps(1u);
+    TEST_ASSERT_EQUAL_INT(HS_NTC_FAULT, rd.state);
+    TEST_ASSERT_EQUAL_INT(HS_NTC_DIAG_DIVIDER, rd.diag);
+    TEST_ASSERT_TRUE(isinf(hs_ntc_interlock_c(&rd)) && hs_ntc_interlock_c(&rd) > 0.0f);
+    s_m.gain = HS_NTC_ADC_GAIN;                          /* latched until init */
+    TEST_ASSERT_EQUAL_INT(HS_NTC_FAULT, steps(5u).state);
+    /* a VALID history is held while the candidate persists */
+    fresh();
+    s_m.gain = 1.0;
+    s_m.node_mv = node_for_ohm(9496.0, 3300.0);          /* 85 degC: reads ~76, VALID */
+    rd = steps(20u);
+    TEST_ASSERT_EQUAL_INT(HS_NTC_VALID, rd.state);
+    TEST_ASSERT_TRUE(rd.t_c < 80.0f);                    /* the C45 single fault: reads cold */
+    s_m.node_mv = node_for_ohm(126100.0, 3300.0);
+    rd = steps(2u);
+    TEST_ASSERT_EQUAL_INT(HS_NTC_VALID, rd.state);
+    TEST_ASSERT_EQUAL_INT(HS_NTC_FAULT, steps(1u).state);
+}
+
+/* No false DIVIDER fault from the intact divider at its extreme: an open
+ * NTC at the rail's contract maximum with the follower's offset (2883 mV) and
+ * +50 mV of ADC error reads 2933 mV, under 2950. */
+static void test_intact_divider_at_its_extreme_is_not_a_divider_fault(void)
+{
+    s_m.rail_ok = false;
+    s_m.gain = 0.855722;                                 /* C45 band, high */
+    s_m.node_mv = 3367.0 + 2.0;
+    s_m.offset_mv = 50.0;
+    const hs_ntc_reading_t rd = steps(50u);
+    TEST_ASSERT_EQUAL_INT(HS_NTC_SATURATED, rd.state);
+    TEST_ASSERT_EQUAL_INT(HS_NTC_DIAG_NONE, rd.diag);
+    /* a few mV more is the fault */
+    s_m.offset_mv = 67.0;
+    TEST_ASSERT_EQUAL_INT(HS_NTC_DIAG_DIVIDER, steps(3u).diag);
+}
+
+/* The divider's top open (or bottom shorted): the pin at 0 V reads as a
+ * short and +INF: fail-safe, a nuisance FAULT_OVER_TEMP. */
+static void test_divider_top_open_reads_short_and_infinite(void)
+{
+    s_m.node_mv = node_for_ohm(100000.0, 3300.0);
+    (void)steps(20u);
+    s_m.gain = 0.0;
+    const hs_ntc_reading_t rd = steps(3u);
+    TEST_ASSERT_EQUAL_INT(HS_NTC_FAULT, rd.state);
+    TEST_ASSERT_EQUAL_INT(HS_NTC_DIAG_SHORT, rd.diag);
+    TEST_ASSERT_TRUE(isinf(hs_ntc_interlock_c(&rd)) && hs_ntc_interlock_c(&rd) > 0.0f);
 }
 
 static void test_short_latches_after_three_periods_and_reads_infinite(void)
@@ -245,21 +347,24 @@ static void test_poll_runs_one_period_per_100ms(void)
     TEST_ASSERT_EQUAL_INT(HS_NTC_VALID, rd.state);
 }
 
-/* CR-8 (DECISIONS D-HSNTC): a divider after the buffer brings room
- * temperature into range; the driver divides the pin voltage by the gain. */
-static void test_divider_gain_brings_room_temperature_into_range(void)
+/* The board's gain is the default (zapote C45, hs-ntc.json gates the value);
+ * a gain above 1 and a divider-fault level inside the calibrated range are
+ * rejected. */
+static void test_default_parameters_are_the_cr8_board(void)
 {
     hs_ntc_params_t p;
     hs_ntc_default_params(&p);
-    p.adc_gain = 0.85f;
-    TEST_ASSERT_TRUE(hs_ntc_init(&s_h, &p));
-    s_m.gain = 0.85;
-    s_m.node_mv = node_for_ohm(k_pts_ohm[0], 3300.0);
-    const hs_ntc_reading_t rd = steps(30u);
-    TEST_ASSERT_EQUAL_INT(HS_NTC_VALID, rd.state);
-    TEST_ASSERT_FLOAT_WITHIN(0.15f, 25.0f, rd.t_c);
+    TEST_ASSERT_EQUAL_FLOAT(0.855072f, p.adc_gain);
+    TEST_ASSERT_EQUAL_FLOAT(HS_NTC_ADC_GAIN, p.adc_gain);
+    TEST_ASSERT_EQUAL_FLOAT(2950.0f, p.divider_fault_mv);
+    TEST_ASSERT_EQUAL_FLOAT(55.0f, p.sat_margin_mv);
     p.adc_gain = 1.2f;
     TEST_ASSERT_FALSE(hs_ntc_init(&s_h, &p));
+    hs_ntc_default_params(&p);
+    p.divider_fault_mv = 2900.0f;
+    TEST_ASSERT_FALSE(hs_ntc_init(&s_h, &p));
+    p.divider_fault_mv = 0.0f;                     /* no divider: no check */
+    TEST_ASSERT_TRUE(hs_ntc_init(&s_h, &p));
 }
 
 static void test_board_binding_reads_adc1_ch5_only(void)
@@ -269,7 +374,7 @@ static void test_board_binding_reads_adc1_ch5_only(void)
     mock_adc_reset();
     const hs_ntc_hal_t *bh = hs_ntc_board_hal();
     TEST_ASSERT_NOT_NULL(bh);
-    mock_adc_set_value(5, 0u, 1340.0f);            /* 95 degC node */
+    mock_adc_set_value(5, 0u, 1146.0f);            /* 95 degC: node 1340 mV x 0.855 */
     mock_adc_set_value(8, 0u, 100.0f);             /* the rim channel: must not be read */
     hs_ntc_reading_t rd;
     hs_ntc_step(&s_h, bh, &rd);
@@ -288,12 +393,16 @@ void run_c1_hs_ntc_tests(void)
 {
     RUN_TEST(test_table_conversion_matches_the_datasheet_points);
     RUN_TEST(test_chain_accuracy_at_the_trip_points);
-    RUN_TEST(test_room_temperature_is_saturated_with_an_upper_bound);
+    RUN_TEST(test_room_and_cold_temperatures_are_valid);
+    RUN_TEST(test_saturated_readings_give_an_upper_bound);
+    RUN_TEST(test_divider_bottom_open_latches_at_a_cold_start);
+    RUN_TEST(test_intact_divider_at_its_extreme_is_not_a_divider_fault);
+    RUN_TEST(test_divider_top_open_reads_short_and_infinite);
     RUN_TEST(test_short_latches_after_three_periods_and_reads_infinite);
     RUN_TEST(test_over_range_above_the_table_latches);
     RUN_TEST(test_adc_failure_reads_infinite_then_latches);
     RUN_TEST(test_filter_time_constant_is_one_second);
     RUN_TEST(test_poll_runs_one_period_per_100ms);
-    RUN_TEST(test_divider_gain_brings_room_temperature_into_range);
+    RUN_TEST(test_default_parameters_are_the_cr8_board);
     RUN_TEST(test_board_binding_reads_adc1_ch5_only);
 }
