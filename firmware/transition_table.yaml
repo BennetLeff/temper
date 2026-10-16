@@ -14,6 +14,9 @@ transitions:
   # INIT
   - { from: STATE_INIT, event: EVENT_SELFTEST_PASS,       to: STATE_IDLE }
   - { from: STATE_INIT, event: EVENT_SELFTEST_FAIL,       to: STATE_FAULT, fault: FAULT_SELF_TEST_FAILED }
+  # B13 H2 (power board s48, J4.1 BIAS_GOOD): high at the boot sample of a power-on reset, before
+  # the heartbeat can have started, or unreadable (power_bias_post_ok, platform_logic.c).
+  - { from: STATE_INIT, event: EVENT_BIAS_GOOD_POST_FAIL, to: STATE_FAULT, fault: FAULT_BIAS_GOOD_POST }
 
   # IDLE
   - { from: STATE_IDLE, event: EVENT_START_BUTTON,        to: STATE_PAN_DET }
@@ -21,6 +24,11 @@ transitions:
   # PAN_DET
   - { from: STATE_PAN_DET, event: EVENT_PAN_DETECTED,     to: STATE_PREHEAT }
   - { from: STATE_PAN_DET, event: EVENT_PAN_TIMEOUT,      to: STATE_IDLE }
+  # B13 H2: BIAS_GOOD not high when power is about to be requested -> refuse the start (no fault:
+  # the bias may still be coming up, or the TCO loop is open).
+  - { from: STATE_PAN_DET, event: EVENT_BIAS_GOOD_LOW_AT_START, to: STATE_IDLE }
+  # B13 H2: BIAS_GOOD low (debounced, BIAS_GOOD_DROP_DEBOUNCE_MS) while power is requested.
+  - { from: STATE_PAN_DET, event: EVENT_BIAS_GOOD_LOST,   to: STATE_FAULT, fault: FAULT_BIAS_GOOD_LOST }
 
   # PREHEAT
   - { from: STATE_PREHEAT, event: EVENT_NEAR_TARGET,      to: STATE_HEATING }
@@ -30,6 +38,7 @@ transitions:
   - { from: STATE_PREHEAT, event: EVENT_FAN_FAILURE,      to: STATE_FAULT, fault: FAULT_FAN_FAILURE }
   - { from: STATE_PREHEAT, event: EVENT_PROBE_OPEN,       to: STATE_FAULT, fault: FAULT_PROBE_OPEN }
   - { from: STATE_PREHEAT, event: EVENT_PROBE_SHORT,      to: STATE_FAULT, fault: FAULT_PROBE_SHORT }
+  - { from: STATE_PREHEAT, event: EVENT_BIAS_GOOD_LOST,   to: STATE_FAULT, fault: FAULT_BIAS_GOOD_LOST }
   - { from: STATE_PREHEAT, event: EVENT_PAN_REMOVED,      to: STATE_NO_PAN }
   - { from: STATE_PREHEAT, event: EVENT_STOP_BUTTON,      to: STATE_COOLDOWN }
 
@@ -41,6 +50,7 @@ transitions:
   - { from: STATE_HEATING, event: EVENT_PROBE_OPEN,       to: STATE_FAULT, fault: FAULT_PROBE_OPEN }
   - { from: STATE_HEATING, event: EVENT_PROBE_SHORT,      to: STATE_FAULT, fault: FAULT_PROBE_SHORT }
   - { from: STATE_HEATING, event: EVENT_THERMAL_RUNAWAY,  to: STATE_FAULT, fault: FAULT_THERMAL_RUNAWAY }
+  - { from: STATE_HEATING, event: EVENT_BIAS_GOOD_LOST,   to: STATE_FAULT, fault: FAULT_BIAS_GOOD_LOST }
   - { from: STATE_HEATING, event: EVENT_PAN_REMOVED,      to: STATE_NO_PAN }
   - { from: STATE_HEATING, event: EVENT_STOP_BUTTON,      to: STATE_COOLDOWN }
   - { from: STATE_HEATING, event: EVENT_TIMER_EXPIRED,    to: STATE_COOLDOWN }

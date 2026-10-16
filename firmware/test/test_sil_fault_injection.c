@@ -34,6 +34,8 @@ extern void  mock_sm_set_pan_temperature(float temp_c);
 extern void  mock_sm_set_heatsink_temperature(float temp_c);
 extern void  mock_sm_set_power_bus_fault(bool tripped);
 extern void  mock_sm_set_power_tank_trip(bool tripped);
+extern void  mock_sm_set_bias_post_ok(bool ok);
+extern void  mock_sm_set_bias_good(bool high);
 extern void  mock_sm_set_rtd_resistance(float ohms);
 extern void  mock_sm_set_pan_status(int status);
 extern void  mock_sm_set_fan_running(bool running);
@@ -98,6 +100,8 @@ static fault_code_t parse_fault_code(const char *str) {
     if (!strcmp(str, "FAULT_SELF_TEST_FAILED"))        return FAULT_SELF_TEST_FAILED;
     if (!strcmp(str, "FAULT_WATCHDOG_RESET"))          return FAULT_WATCHDOG_RESET;
     if (!strcmp(str, "FAULT_PAN_DETECT_HW"))           return FAULT_PAN_DETECT_HW;
+    if (!strcmp(str, "FAULT_BIAS_GOOD_POST"))          return FAULT_BIAS_GOOD_POST;
+    if (!strcmp(str, "FAULT_BIAS_GOOD_LOST"))          return FAULT_BIAS_GOOD_LOST;
     return FAULT_NONE;
 }
 
@@ -206,6 +210,8 @@ typedef struct {
                                   demonstrated-gap scenarios that are not
                                   expected to reach a safe state */
     bool self_test_pass;     /* initial_conditions */
+    bool bias_post_ok;       /* initial_conditions.bias_good_post_ok (default true): the B13 H2
+                                boot-sample verdict the INIT self-test reads */
     system_state_t origin_state; /* state the manifest defines this fault
                                      path from (INIT/PAN_DET/PREHEAT/HEATING/
                                      COOLDOWN); defaults to HEATING */
@@ -260,6 +266,7 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
         manifest_entry_t *e = &entries[count];
         memset(e, 0, sizeof(*e));
         e->self_test_pass = true; /* default */
+        e->bias_post_ok = true;   /* default */
         e->origin_state = STATE_HEATING; /* default: matches the legacy
                                              single-trajectory scenarios */
         e->expected_state = STATE_INIT;
@@ -305,6 +312,10 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
                             p = skip_ws(p);
                             if (!strncmp(p, "true", 4)) { e->self_test_pass = true; p += 4; }
                             else if (!strncmp(p, "false", 5)) { e->self_test_pass = false; p += 5; }
+                        } else if (!strcmp(ik, "bias_good_post_ok")) {
+                            p = skip_ws(p);
+                            if (!strncmp(p, "true", 4)) { e->bias_post_ok = true; p += 4; }
+                            else if (!strncmp(p, "false", 5)) { e->bias_post_ok = false; p += 5; }
                         } else {
                             skip_value(&p);
                         }
@@ -484,8 +495,10 @@ static int parse_manifest(manifest_entry_t *entries, int max_entries) {
  * CSV parsing
  * --------------------------------------------------------------------------- */
 
-typedef float csvrow_t[7]; /* 0=tick, 1=hs_temp, 2=pan_temp, 3=power_trip,
-                              4=rtd, 5=pan_imp, 6=fan_run */
+typedef float csvrow_t[8]; /* 0=tick, 1=hs_temp, 2=pan_temp, 3=power_trip,
+                              4=rtd, 5=pan_imp, 6=fan_run, 7=bias_good */
+/* bias_good (optional 8th column, default 1): the power board's BIAS_GOOD read-back on J4.1
+ * (s48, OPEN-ITEMS B13 H2). 0 = low: power_bias_lost() true and the start is not permitted. */
 /* power_trip (native-21 over-current sources, design lead decision 2026-10-12): 0 = healthy,
  * 1 = n21 binding CT peak / RMS trip (FAULT_OVER_CURRENT), 2 = BUS_FAULT read-back or PERMIT drop
  * while running (FAULT_IGBT_SHORT). Replaces the legacy dc_current column (> 40 A -> 1,
@@ -513,13 +526,14 @@ static int load_csv(const char *path, csvrow_t *rows, int max_rows) {
         }
 
         int parsed = sscanf(line,
-            "%f,%f,%f,%f,%f,%f,%f",
+            "%f,%f,%f,%f,%f,%f,%f,%f",
             &rows[count][0], &rows[count][1], &rows[count][2],
             &rows[count][3], &rows[count][4], &rows[count][5],
-            &rows[count][6]);
+            &rows[count][6], &rows[count][7]);
 
         if (parsed >= 6) {
             if (parsed < 7) rows[count][6] = 1.0f; /* fan running unless the trace says otherwise */
+            if (parsed < 8) rows[count][7] = 1.0f; /* BIAS_GOOD high unless the trace says otherwise */
             count++;
         }
     }
@@ -603,6 +617,7 @@ static int check_trace_invariants(const csvrow_t *rows, int row_count,
         float curr = rows[t][3];
         float rtd  = rows[t][4];
         bool  fan  = (rows[t][6] > 0.5f);
+        bool  bias = (rows[t][7] > 0.5f);
 
         /* Base case 1: absolute temperature */
         if (pan > INV_MAX_ABSOLUTE_TEMP_C) {
@@ -657,6 +672,12 @@ static int check_trace_invariants(const csvrow_t *rows, int row_count,
         /* Base case 6: fan failure */
         if (!fan) {
             printf("  [INV] tick %d: fan not running\n", t);
+            violations++;
+        }
+
+        /* Base case 7: BIAS_GOOD read-back low (B13 H2) */
+        if (!bias) {
+            printf("  [INV] tick %d: bias_good low\n", t);
             violations++;
         }
     }
@@ -745,6 +766,7 @@ static void run_sil_timing_test(const manifest_entry_t *entry) {
     state_machine_init();
     uint32_t pwm_disable_baseline = mock_sm_get_pwm_disable_count();
 
+    mock_sm_set_bias_post_ok(entry->bias_post_ok);
     sm_boilerplate_to_origin(entry->origin_state, entry->self_test_pass);
 
     if (!entry->self_test_pass) {
@@ -842,6 +864,7 @@ static void run_sil_test(const manifest_entry_t *entry) {
 
     /* Boilerplate: get to the scenario's designed origin state (or FAULT if
      * self-test fails) */
+    mock_sm_set_bias_post_ok(entry->bias_post_ok);
     sm_boilerplate_to_origin(entry->origin_state, entry->self_test_pass);
 
     /* If self-test was set to fail, we should already be in FAULT */
@@ -906,6 +929,9 @@ static void run_sil_test(const manifest_entry_t *entry) {
         /* Derive fan running: fan_running column takes priority */
         bool fan = (rows[t][6] > 0.5f);
         mock_sm_set_fan_running(fan);
+
+        /* BIAS_GOOD read-back (B13 H2) */
+        mock_sm_set_bias_good(rows[t][7] > 0.5f);
 
         /* Advance time */
         mock_sm_advance_time(DT_MS);
@@ -999,6 +1025,14 @@ DECLARE_SIL_TEST(20)
 DECLARE_SIL_TEST(21)
 DECLARE_SIL_TEST(22)
 DECLARE_SIL_TEST(23)
+DECLARE_SIL_TEST(24)
+DECLARE_SIL_TEST(25)
+DECLARE_SIL_TEST(26)
+DECLARE_SIL_TEST(27)
+DECLARE_SIL_TEST(28)
+DECLARE_SIL_TEST(29)
+DECLARE_SIL_TEST(30)
+DECLARE_SIL_TEST(31)
 
 int main(void) {
     g_entry_count = parse_manifest(g_entries, MAX_MANIFEST_ENTRIES);
@@ -1039,6 +1073,14 @@ int main(void) {
             case 21: RUN_TEST(test_sil_21); break;
             case 22: RUN_TEST(test_sil_22); break;
             case 23: RUN_TEST(test_sil_23); break;
+            case 24: RUN_TEST(test_sil_24); break;
+            case 25: RUN_TEST(test_sil_25); break;
+            case 26: RUN_TEST(test_sil_26); break;
+            case 27: RUN_TEST(test_sil_27); break;
+            case 28: RUN_TEST(test_sil_28); break;
+            case 29: RUN_TEST(test_sil_29); break;
+            case 30: RUN_TEST(test_sil_30); break;
+            case 31: RUN_TEST(test_sil_31); break;
             default: break;
         }
     }

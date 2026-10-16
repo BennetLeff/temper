@@ -61,6 +61,16 @@ extern uint8_t thermal_power_cap_pct(void);
  * reported absent (BLW_PG low, debounced and plausible). Unknown BLW_PG does not block. */
 extern bool thermal_blower_start_permitted(void);
 #define MSG_NO_BLOWER_SUPPLY "NO BLOWER PWR"
+/* Power board s48 BIAS_GOOD read-back on J4.1 (OPEN-ITEMS B13 H2; platform_logic.c platform_bias_*).
+ * power_bias_post_ok(): the boot sample (taken first thing in app_main) read low, or the reset was
+ * warm (after a power-on reset the sample must precede the heartbeat; COMMISSIONING.md H2). power_bias_start_permitted(): reads high now.
+ * power_bias_lost(): debounced low while power is requested. power_bias_run_reset(): new request.
+ * Every one passes when the controller has no J4.1 input. */
+extern bool power_bias_post_ok(void);
+extern bool power_bias_start_permitted(void);
+extern bool power_bias_lost(void);
+extern void power_bias_run_reset(void);
+#define MSG_NO_POWER_BIAS "NO POWER BIAS"
 
 /* Pan temperature cap and glass protection (250 C, R32 / R36): every tank power request in
  * PREHEAT and HEATING passes through here. The pan RTD and the rim NTC each derate from 240 C to
@@ -154,12 +164,22 @@ void state_init_update(void) {
     /* Run power-on self-test */
     bool post_passed = run_self_test();
 
-    if (post_passed) {
-        transition_to(STATE_IDLE);
-    } else {
+    if (!post_passed) {
         sm_get_context()->fault_code = FAULT_SELF_TEST_FAILED;
         transition_to(STATE_FAULT);
+        return;
     }
+
+    /* B13 H2 check 1: BIAS_GOOD low before the heartbeat starts. High at the boot sample of a
+     * power-on reset means U40 is stuck high (or Y shorted to VCC), which would mask every bias
+     * monitor. Power has never been requested here. */
+    if (!power_bias_post_ok()) {
+        sm_get_context()->fault_code = FAULT_BIAS_GOOD_POST;
+        transition_to(STATE_FAULT);
+        return;
+    }
+
+    transition_to(STATE_IDLE);
 }
 
 /* ============================================================================
@@ -234,6 +254,8 @@ void state_pan_det_entry(void) {
     /* Wake up from low power */
     peripherals_exit_low_power();
 
+    sm_get_context()->bias_start_refused = false;
+
     /* Every start path (start button, profile, UI) enters here. Without PS3 there is no cooling
      * (C33): no detection power; state_pan_det_update() returns to IDLE. */
     if (!thermal_blower_start_permitted()) {
@@ -242,6 +264,18 @@ void state_pan_det_entry(void) {
         watchdog_set_timeout(WDT_TIMEOUT_MONITOR_MS);
         return;
     }
+
+    /* B13 H2 check 2: BIAS_GOOD must read high before power (and with it PERMIT) is requested.
+     * Low: the HOT-side bias is not up (or the TCO loop is open, or U40's output is open). Refuse
+     * the start; state_pan_det_update() returns to IDLE. Not a fault. */
+    sm_get_context()->bias_start_refused = !power_bias_start_permitted();
+    if (sm_get_context()->bias_start_refused) {
+        power_set_level(0);
+        display_show_message(MSG_NO_POWER_BIAS);
+        watchdog_set_timeout(WDT_TIMEOUT_MONITOR_MS);
+        return;
+    }
+    power_bias_run_reset();
 
     /* Enable low-power detection mode */
     power_set_level(5);
@@ -269,6 +303,20 @@ void state_pan_det_update(void) {
         power_set_level(0);
         show_message_then_transition(MSG_NO_BLOWER_SUPPLY, STATE_IDLE);
         watchdog_feed();
+        return;
+    }
+
+    /* B13 H2 check 2 (EVENT_BIAS_GOOD_LOW_AT_START): refused at entry -> back to IDLE. */
+    if (sm_get_context()->bias_start_refused) {
+        power_set_level(0);
+        show_message_then_transition(MSG_NO_POWER_BIAS, STATE_IDLE);
+        watchdog_feed();
+        return;
+    }
+
+    /* B13 H2 check 3 (EVENT_BIAS_GOOD_LOST): detection power is requested here too. */
+    if (power_bias_lost()) {
+        enter_hardware_latched_fault(FAULT_BIAS_GOOD_LOST);
         return;
     }
 
@@ -321,6 +369,10 @@ void state_pan_det_update(void) {
  * ============================================================================ */
 
 void state_preheat_entry(void) {
+    /* A new power request (from PAN_DET, or from NO_PAN with the pan replaced): BIAS_GOOD's low
+     * run starts afresh; check_safety_interlocks() then requires it high throughout. */
+    power_bias_run_reset();
+
     /* Enable full power */
     power_enable();
 

@@ -138,6 +138,8 @@ class TestDerivedSensorFaultEventSet:
             "EVENT_SELFTEST_FAIL", "EVENT_PREHEAT_TIMEOUT", "EVENT_OVER_TEMP",
             "EVENT_OVER_CURRENT", "EVENT_FAN_FAILURE", "EVENT_PROBE_OPEN",
             "EVENT_PROBE_SHORT", "EVENT_THERMAL_RUNAWAY", "EVENT_COOLDOWN_OVERHEAT",
+            # B13 H2 (power board s48 BIAS_GOOD on J4.1)
+            "EVENT_BIAS_GOOD_POST_FAIL", "EVENT_BIAS_GOOD_LOST",
         }
         assert events == expected
 

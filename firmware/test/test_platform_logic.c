@@ -134,6 +134,92 @@ static void test_power_tank_trip(void)
     assert(platform_power_tank_trip(false, N21_FAULT_NONE)); /* unknown: tripped */
 }
 
+/* ---------------------------------------------------------------- BIAS_GOOD read-back (B13 H2) */
+static void test_bias_post_low_before_heartbeat_passes(void)
+{
+    /* Cold power-on: the heartbeat has not started, J4.1 reads low. */
+    assert(platform_bias_post_ok(PLATFORM_BIAS_LOW, true));
+    assert(platform_bias_post_ok(PLATFORM_BIAS_LOW, false));
+}
+
+static void test_bias_post_high_before_heartbeat_fails(void)
+{
+    /* Cold power-on and already high: U40 stuck high or Y shorted to VCC. */
+    assert(!platform_bias_post_ok(PLATFORM_BIAS_HIGH, true));
+    /* After a warm reset (watchdog, panic, brown-out, software) the heartbeat may already run:
+     * high passes, and stuck-high is simply not excluded on this boot. */
+    assert(platform_bias_post_ok(PLATFORM_BIAS_HIGH, false));
+    /* Unreadable: fail closed, either way. */
+    assert(!platform_bias_post_ok(PLATFORM_BIAS_UNKNOWN, true));
+    assert(!platform_bias_post_ok(PLATFORM_BIAS_UNKNOWN, false));
+    /* No J4.1 input on this controller: nothing to check. */
+    assert(platform_bias_post_ok(PLATFORM_BIAS_NOT_FITTED, true));
+}
+
+static void test_bias_low_before_permit_refuses(void)
+{
+    assert(platform_bias_start_permitted(PLATFORM_BIAS_HIGH));
+    assert(!platform_bias_start_permitted(PLATFORM_BIAS_LOW));
+    assert(!platform_bias_start_permitted(PLATFORM_BIAS_UNKNOWN));
+    assert(platform_bias_start_permitted(PLATFORM_BIAS_NOT_FITTED));
+}
+
+static void test_bias_drop_during_run_trips(void)
+{
+    /* 10 ms control loop: a steady low trips on the third sample, 20 ms after the first. */
+    const uint32_t d = BIAS_GOOD_DROP_DEBOUNCE_MS;
+    assert(d == 20u);
+    platform_bias_run_t r;
+    platform_bias_run_reset(&r);
+    for (uint32_t t = 0; t <= 100; t += 10) assert(!platform_bias_run_step(&r, PLATFORM_BIAS_HIGH, t, d));
+    assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 110, d));
+    assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 120, d));
+    assert(platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 130, d));
+    assert(platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 140, d)); /* stays tripped while low */
+    /* Unknown counts as low (fail closed). */
+    platform_bias_run_reset(&r);
+    assert(!platform_bias_run_step(&r, PLATFORM_BIAS_UNKNOWN, 0, d));
+    assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 10, d));
+    assert(platform_bias_run_step(&r, PLATFORM_BIAS_UNKNOWN, 20, d));
+    /* Not fitted never trips. */
+    platform_bias_run_reset(&r);
+    for (uint32_t t = 0; t <= 1000; t += 10) assert(!platform_bias_run_step(&r, PLATFORM_BIAS_NOT_FITTED, t, d));
+    /* Clock wrap inside a low run. */
+    platform_bias_run_reset(&r);
+    assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, UINT32_MAX - 9u, d));
+    assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 0u, d));
+    assert(platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 10u, d));
+}
+
+static void test_bias_glitch_filter(void)
+{
+    const uint32_t d = BIAS_GOOD_DROP_DEBOUNCE_MS;
+    platform_bias_run_t r;
+    platform_bias_run_reset(&r);
+    /* One low sample in every other tick (a disturbance caught by every second sample) never
+     * trips: each high sample ends the run. */
+    for (uint32_t t = 0; t <= 10000; t += 10)
+        assert(!platform_bias_run_step(&r, (t / 10u) % 2u ? PLATFORM_BIAS_LOW : PLATFORM_BIAS_HIGH, t, d));
+    /* Two consecutive lows 10 ms apart (< 20 ms) then high: no trip. */
+    platform_bias_run_reset(&r);
+    assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 0, d));
+    assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 10, d));
+    assert(!platform_bias_run_step(&r, PLATFORM_BIAS_HIGH, 20, d));
+    assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 30, d));
+    assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 40, d));
+    assert(platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 50, d)); /* 30..50: 20 ms continuous */
+    /* Samples further apart than the debounce are not continuous: lows at 0 and 25 ms are two
+     * separate runs, so one isolated low per 25 ms never trips. */
+    platform_bias_run_reset(&r);
+    for (uint32_t t = 0; t <= 1000; t += 25) assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, t, d));
+    /* reset() forgets a run in progress (a new power request). */
+    platform_bias_run_reset(&r);
+    assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 0, d));
+    assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 10, d));
+    platform_bias_run_reset(&r);
+    assert(!platform_bias_run_step(&r, PLATFORM_BIAS_LOW, 20, d));
+}
+
 /* ---------------------------------------------------------------- blower floor */
 static void test_blower_floor_never_lowers_speed(void)
 {
@@ -430,6 +516,11 @@ int main(void)
     TEST(test_pan_and_rtd_sentinels);
     TEST(test_power_bus_trip);
     TEST(test_power_tank_trip);
+    TEST(test_bias_post_low_before_heartbeat_passes);
+    TEST(test_bias_post_high_before_heartbeat_fails);
+    TEST(test_bias_low_before_permit_refuses);
+    TEST(test_bias_drop_during_run_trips);
+    TEST(test_bias_glitch_filter);
     TEST(test_blower_floor_never_lowers_speed);
     TEST(test_fan_requests);
     TEST(test_fault_log_ring);

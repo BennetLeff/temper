@@ -85,6 +85,11 @@ extern float read_coil_temperature(void);
  * Both return true whenever the status cannot be read (fail closed). */
 extern bool power_bus_fault_tripped(void);
 extern bool power_tank_overcurrent_tripped(void);
+/* Power board s48 BIAS_GOOD read-back on J4.1 (OPEN-ITEMS B13 H2, DECISIONS 67). The platform
+ * decodes the input and debounces it (platform_logic.c platform_bias_*); with no J4.1 input on
+ * the controller every check passes. power_bias_lost(): low for >= BIAS_GOOD_DROP_DEBOUNCE_MS
+ * while power is requested -> FAULT_BIAS_GOOD_LOST. Unreadable counts as low. */
+extern bool power_bias_lost(void);
 extern float read_rtd_resistance(void);
 extern bool is_fan_running(void);
 extern void delay_ms(uint32_t ms);
@@ -201,6 +206,7 @@ void state_machine_init(void) {
     
     /* Reset runaway interlock latch */
     sm_ctx.runaway_latched = false;
+    sm_ctx.bias_start_refused = false;
     /* Discard the previous sample when restarting the state machine.  The
      * runaway-rate guard must never compare a new boot/test epoch against a
      * timestamp and temperature from the prior epoch. */
@@ -426,6 +432,14 @@ bool check_safety_interlocks(void) {
         return true;
     }
 
+    /* BIAS_GOOD (J4.1) must stay high while power is requested (B13 H2). The power board has
+     * already disabled both drivers (DIS = NAND(PERMIT_GATE, BIAS_GOOD)); this latches it. After
+     * the bus fault so a bias collapse that also raises BUS_FAULT (HOT5 UV, TCO) keeps its code. */
+    if (power_bias_lost()) {
+        enter_hardware_latched_fault(FAULT_BIAS_GOOD_LOST);
+        return true;
+    }
+
     /* Fan failure check */
     if (!is_fan_running()) {
         enter_hardware_latched_fault(FAULT_FAN_FAILURE);
@@ -558,6 +572,15 @@ bool fault_cleared(void) {
 
         case FAULT_RUNAWAY_BOUNDARY:
             return false;  /* Never clearable by software */
+
+        case FAULT_BIAS_GOOD_POST:
+            /* The boot sample does not change until the next power-on: power cycle. */
+            return false;
+
+        case FAULT_BIAS_GOOD_LOST:
+            /* A monitored HOT rail or the heartbeat chain failed mid-run: power cycle, as for
+             * FAULT_IGBT_SHORT. */
+            return false;
 
         case FAULT_NONE:
             return true;   /* No active fault */

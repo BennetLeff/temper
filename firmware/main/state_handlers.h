@@ -51,6 +51,8 @@ typedef struct {
     bool thermal_mass_estimation_done;
 
     bool runaway_latched;
+    /* B13 H2: BIAS_GOOD was not high at PAN_DET entry; PAN_DET returns to IDLE. */
+    bool bias_start_refused;
     float last_pan_temp_c;
     uint32_t last_pan_temp_time_ms;
     uint8_t pan_temp_stuck_count;

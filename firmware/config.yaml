@@ -332,3 +332,24 @@ interlocks:
       firmware, 104.6°C hardware high corner) and below the IPW65R018CFD7's
       150°C Tj max with the tank off.
     legacy_define_only: true
+
+  - c_symbol: BIAS_GOOD_DROP_DEBOUNCE_MS
+    value: 20
+    c_type: uint32_t
+    units: "ms"
+    doc: >-
+      BIAS_GOOD read-back (power board s48 J4.1, OPEN-ITEMS B13 H2): a low that
+      persists over consecutive control-loop samples (10 ms apart) spanning
+      this long, while power is requested, latches FAULT_BIAS_GOOD_LOST
+      (platform_bias_run_step, components/platform/platform_logic.c). It has
+      no safety-time role: the power board already holds both drivers' DIS
+      high within the heartbeat hold-node bleed time, <= 90 us (123 us with
+      one pump cap shorted; f6_bias.ato Heartbeat), whatever firmware does, so
+      the firmware latch only has to be certain. 20 ms = three samples: one
+      or two samples caught in a harness transient (bridge edges are ~us at
+      >= 30 kHz; a line-synchronous disturbance repeats every 8.3 ms and is
+      not continuous over three 10 ms samples) cannot latch it, while a real
+      bias loss is static (any rail bad, oscillator, isolator, pump or LS 5 V
+      fault stops the wave until the fault clears) and is latched within
+      30 ms.
+    legacy_define_only: true

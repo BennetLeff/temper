@@ -14,6 +14,7 @@
 
 #include "driver/gpio.h"
 #include "esp_err.h"
+#include "esp_system.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
@@ -122,6 +123,67 @@ bool power_tank_overcurrent_tripped(void)
 #else
     return platform_power_tank_trip(false, 0);
 #endif
+}
+
+/* ---------------------------------------------------------------- BIAS_GOOD read-back (B13 H2) */
+/* Power board s48: BIAS_GOOD (U40) -> R146 220 k -> J4.1 (DECISIONS 67). The controller input is
+ * high-Z: no internal pull (a 45 k internal pull-down would hold 220 k at <= 0.6 V); the board
+ * fits >= 1 M to ground so an open U40 output reads low. The GPIO is CTRL_GPIO_BIAS_GOOD_RB, which
+ * controller_pins.h defines only once the controller ato routes J4.1 to an MCU pin (proposed:
+ * GPIO35, firmware/README.md "BIAS_GOOD read-back"). Until then every check reads NOT_FITTED and
+ * passes. Decisions: platform_bias_* (components/platform/platform_logic.c). */
+static platform_bias_level_t s_bias_boot = PLATFORM_BIAS_NOT_FITTED;
+static bool s_bias_boot_taken, s_bias_cold_boot;
+static platform_bias_run_t s_bias_run;
+
+static platform_bias_level_t bias_read(void)
+{
+#ifdef CTRL_GPIO_BIAS_GOOD_RB
+    static bool configured;
+    if (!configured) {
+        gpio_config_t in = {.pin_bit_mask = 1ULL << CTRL_GPIO_BIAS_GOOD_RB, .mode = GPIO_MODE_INPUT,
+                            .pull_up_en = GPIO_PULLUP_DISABLE, .pull_down_en = GPIO_PULLDOWN_DISABLE,
+                            .intr_type = GPIO_INTR_DISABLE};
+        if (gpio_config(&in) != ESP_OK) return PLATFORM_BIAS_UNKNOWN;
+        configured = true;
+    }
+    return gpio_get_level((gpio_num_t)CTRL_GPIO_BIAS_GOOD_RB) ? PLATFORM_BIAS_HIGH : PLATFORM_BIAS_LOW;
+#else
+    return PLATFORM_BIAS_NOT_FITTED;
+#endif
+}
+
+void platform_bias_good_capture_boot_sample(void)
+{
+    if (s_bias_boot_taken) return;
+    s_bias_boot_taken = true;
+    s_bias_cold_boot = esp_reset_reason() == ESP_RST_POWERON;
+    s_bias_boot = bias_read();
+    static const char *const names[] = {"not fitted", "unknown", "low", "high"};
+    /* The bring-up record (COMMISSIONING.md): this time against the scoped BIAS_GOOD rise. */
+    ESP_LOGI(TAG, "BIAS_GOOD boot sample: %s at %lld us, %s reset", names[s_bias_boot],
+             (long long)esp_timer_get_time(), s_bias_cold_boot ? "power-on" : "warm");
+}
+
+bool power_bias_post_ok(void)
+{
+    platform_bias_good_capture_boot_sample(); /* never judged without a sample */
+    return platform_bias_post_ok(s_bias_boot, s_bias_cold_boot);
+}
+
+bool power_bias_start_permitted(void)
+{
+    return platform_bias_start_permitted(bias_read());
+}
+
+bool power_bias_lost(void)
+{
+    return platform_bias_run_step(&s_bias_run, bias_read(), get_time_ms(), BIAS_GOOD_DROP_DEBOUNCE_MS);
+}
+
+void power_bias_run_reset(void)
+{
+    platform_bias_run_reset(&s_bias_run);
 }
 
 /* ---------------------------------------------------------------- blower request (C28) */

@@ -21,6 +21,7 @@
 #include "nvs_flash.h"
 
 #include "state_machine.h"
+#include "platform/platform_esp32.h"
 #include "hal.h"
 #include "controller_board.h"
 #include "esp_timer.h"
@@ -211,6 +212,11 @@ static void init_peripherals(void) {
  * @brief Application entry point
  */
 void app_main(void) {
+    /* B13 H2: the BIAS_GOOD (J4.1) boot sample first, before NVS, logging or any peripheral: the
+     * power-on self-test needs it taken before the power board's heartbeat starts, which the
+     * supplies' sequencing must allow (COMMISSIONING.md H2, measured at bring-up). */
+    platform_bias_good_capture_boot_sample();
+
     ESP_LOGI(TAG, "=================================");
     ESP_LOGI(TAG, "  Induction Cooker Firmware");
     ESP_LOGI(TAG, "  Version: 1.0.0");

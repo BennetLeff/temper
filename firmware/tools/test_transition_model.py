@@ -123,8 +123,8 @@ class TestErrorPath:
 
 
 class TestCoverage:
-    """Scenario 4: the report enumerates every one of the 9x25 cells
-    (23 declared events + 2 KTD2 wildcard events) as declared/implicit/
+    """Scenario 4: the report enumerates every one of the 9x28 cells
+    (26 declared events + 2 KTD2 wildcard events) as declared/implicit/
     TRANSITION_INVALID."""
 
     def test_full_cell_space_enumerated(self, model):

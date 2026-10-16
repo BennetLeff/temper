@@ -58,6 +58,48 @@ bool platform_power_tank_trip(bool known, int n21_fault)
     }
 }
 
+/* ---------------------------------------------------------------- BIAS_GOOD read-back (B13 H2) */
+bool platform_bias_post_ok(platform_bias_level_t boot_sample, bool cold_boot)
+{
+    switch (boot_sample) {
+    case PLATFORM_BIAS_NOT_FITTED:
+    case PLATFORM_BIAS_LOW:
+        return true;
+    case PLATFORM_BIAS_HIGH:
+        return !cold_boot;
+    default:
+        return false;
+    }
+}
+
+bool platform_bias_start_permitted(platform_bias_level_t level)
+{
+    return level == PLATFORM_BIAS_NOT_FITTED || level == PLATFORM_BIAS_HIGH;
+}
+
+void platform_bias_run_reset(platform_bias_run_t *r)
+{
+    memset(r, 0, sizeof *r);
+}
+
+bool platform_bias_run_step(platform_bias_run_t *r, platform_bias_level_t level, uint32_t now_ms,
+                            uint32_t debounce_ms)
+{
+    if (level == PLATFORM_BIAS_NOT_FITTED || level == PLATFORM_BIAS_HIGH) {
+        r->in_low = false;
+        return false;
+    }
+    /* Unsigned differences: wrap-safe. */
+    if (!r->in_low || now_ms - r->last_ms > debounce_ms) {
+        r->in_low = true;
+        r->first_low_ms = now_ms;
+        r->last_ms = now_ms;
+        return false;
+    }
+    r->last_ms = now_ms;
+    return now_ms - r->first_low_ms >= debounce_ms;
+}
+
 /* ---------------------------------------------------------------- blower request */
 void platform_fan_request_speed(platform_fan_req_t *r, bool speed_is_max)
 {

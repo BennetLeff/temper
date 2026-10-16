@@ -22,6 +22,7 @@ TRANSITIONS = [
     # INIT transitions
     ("STATE_INIT", "SELFTEST_PASS", "STATE_IDLE", None, False),
     ("STATE_INIT", "SELFTEST_FAIL", "STATE_FAULT", "FAULT_SELF_TEST_FAILED", False),
+    ("STATE_INIT", "BIAS_GOOD_POST_FAIL", "STATE_FAULT", "FAULT_BIAS_GOOD_POST", False),
 
     # IDLE transitions
     ("STATE_IDLE", "START_BUTTON", "STATE_PAN_DET", None, False),
@@ -29,6 +30,8 @@ TRANSITIONS = [
     # PAN_DET transitions
     ("STATE_PAN_DET", "PAN_DETECTED", "STATE_PREHEAT", None, False),
     ("STATE_PAN_DET", "PAN_TIMEOUT", "STATE_IDLE", None, False),
+    ("STATE_PAN_DET", "BIAS_GOOD_LOW_AT_START", "STATE_IDLE", None, False),
+    ("STATE_PAN_DET", "BIAS_GOOD_LOST", "STATE_FAULT", "FAULT_BIAS_GOOD_LOST", False),
 
     # PREHEAT transitions
     ("STATE_PREHEAT", "NEAR_TARGET", "STATE_HEATING", None, False),
@@ -38,6 +41,7 @@ TRANSITIONS = [
     ("STATE_PREHEAT", "FAN_FAILURE", "STATE_FAULT", "FAULT_FAN_FAILURE", False),
     ("STATE_PREHEAT", "PROBE_OPEN", "STATE_FAULT", "FAULT_PROBE_OPEN", False),
     ("STATE_PREHEAT", "PROBE_SHORT", "STATE_FAULT", "FAULT_PROBE_SHORT", False),
+    ("STATE_PREHEAT", "BIAS_GOOD_LOST", "STATE_FAULT", "FAULT_BIAS_GOOD_LOST", False),
     ("STATE_PREHEAT", "PAN_REMOVED", "STATE_NO_PAN", None, False),
     ("STATE_PREHEAT", "STOP_BUTTON", "STATE_COOLDOWN", None, False),
 
@@ -49,6 +53,7 @@ TRANSITIONS = [
     ("STATE_HEATING", "PROBE_OPEN", "STATE_FAULT", "FAULT_PROBE_OPEN", False),
     ("STATE_HEATING", "PROBE_SHORT", "STATE_FAULT", "FAULT_PROBE_SHORT", False),
     ("STATE_HEATING", "THERMAL_RUNAWAY", "STATE_FAULT", "FAULT_THERMAL_RUNAWAY", False),
+    ("STATE_HEATING", "BIAS_GOOD_LOST", "STATE_FAULT", "FAULT_BIAS_GOOD_LOST", False),
     ("STATE_HEATING", "PAN_REMOVED", "STATE_NO_PAN", None, False),
     ("STATE_HEATING", "STOP_BUTTON", "STATE_COOLDOWN", None, False),
     ("STATE_HEATING", "TIMER_EXPIRED", "STATE_COOLDOWN", None, False),
@@ -127,6 +132,15 @@ EVENT_STUBS = {
         "    mock_sm_press_button(BUTTON_BACK);"
     ),
     "RUNAWAY_ABSOLUTE_TEMP": "mock_sm_set_pan_temperature(310.0f);",
+    # B13 H2 (BIAS_GOOD on J4.1). POST: the boot-sample verdict fails. LOW_AT_START: PAN_DET is
+    # (re-)entered with BIAS_GOOD low, so its entry refuses the start. LOST: BIAS_GOOD drops while
+    # power is requested (the stub's power_bias_lost() is the platform's debounced verdict).
+    "BIAS_GOOD_POST_FAIL": "mock_sm_set_bias_post_ok(false);",
+    "BIAS_GOOD_LOW_AT_START": (
+        "mock_sm_set_bias_good(false);\n"
+        "    state_machine_force_state(STATE_PAN_DET);"
+    ),
+    "BIAS_GOOD_LOST": "mock_sm_set_bias_good(false);",
     "RUNAWAY_RISE_RATE": (
         "mock_sm_set_pan_temperature(30.0f);\n"
         "    state_machine_update();\n"
@@ -547,6 +561,8 @@ def generate_c_output(transitions, output_path):
         "extern void mock_sm_set_heatsink_temperature(float temp_c);",
         "extern void mock_sm_set_power_bus_fault(bool tripped);",
         "extern void mock_sm_set_power_tank_trip(bool tripped);",
+        "extern void mock_sm_set_bias_post_ok(bool ok);",
+        "extern void mock_sm_set_bias_good(bool high);",
         "extern void mock_sm_set_rtd_resistance(float ohms);",
         "extern void mock_sm_set_pan_status(int status);",
         "extern void mock_sm_set_pan_impedance(float impedance);",

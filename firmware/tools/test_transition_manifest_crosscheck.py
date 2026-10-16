@@ -59,7 +59,7 @@ class TestCurrentTree:
         assert crosscheck_report.codegen_drift == []
 
     def test_row_counts_are_positive(self, crosscheck_report):
-        assert crosscheck_report.production_row_count == 32
+        assert crosscheck_report.production_row_count == 37
         assert crosscheck_report.test_row_count > 0
 
 

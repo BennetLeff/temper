@@ -56,6 +56,47 @@ bool platform_power_bus_trip(bool status_known, bool bus_fault, bool permit, boo
  * channel (N21_FAULT_CT_MON, N21_FAULT_RMS_CHANNEL: the current is unknown), or when unknown. */
 bool platform_power_tank_trip(bool known, int n21_fault);
 
+/* ---------------------------------------------------------------- BIAS_GOOD read-back (B13 H2) */
+/* Power board s48 (zapote/power-stage-120v DECISIONS 67): BIAS_GOOD (U40, the heartbeat hold node)
+ * reaches J4.1 through R146 220 k. It is high only while the LS / HS-A / HS-B bias monitors are all
+ * good and the heartbeat runs; the power board already holds both drivers' DIS high while it is low
+ * (DIS = NAND(PERMIT_GATE, BIAS_GOOD)). The firmware check adds the coverage the FMEA counts
+ * (fmea-s47-2026-10-15 section 4, H2; c48-ldo-en-ref-watch README section 3):
+ *   1. power-on self-test: low before the heartbeat starts (U40 stuck high / Y-VCC);
+ *   2. start: high before PERMIT is requested (U40 Y open, bias not up);
+ *   3. run: high throughout; a low is a latched fault.
+ * NOT_FITTED: the controller has no J4.1 input (no CTRL_GPIO_BIAS_GOOD_RB in controller_pins.h):
+ * every check passes and nothing is claimed. UNKNOWN: the input could not be read (fail closed). */
+typedef enum {
+    PLATFORM_BIAS_NOT_FITTED = 0,
+    PLATFORM_BIAS_UNKNOWN,
+    PLATFORM_BIAS_LOW,
+    PLATFORM_BIAS_HIGH,
+} platform_bias_level_t;
+
+/* Check 1 on the sample taken at the earliest point of boot. cold_boot: a power-on reset. BIAS_GOOD
+ * cannot be high before the controller's 3.3 V (U32's SELV side and U40 run from it), and the
+ * check assumes the boot sample also precedes the heartbeat's start after mains-on (the FMEA's
+ * "sequencing to confirm at bring-up": COMMISSIONING.md H2). After any other reset the heartbeat
+ * may already run: high then passes without excluding a stuck-high U40. Low always passes; unknown
+ * fails. */
+bool platform_bias_post_ok(platform_bias_level_t boot_sample, bool cold_boot);
+/* Check 2: true only for high (or not fitted). */
+bool platform_bias_start_permitted(platform_bias_level_t level);
+
+/* Check 3, one call per control tick while power is requested. Tripped once the input has read
+ * anything but high on consecutive samples spanning at least debounce_ms; a sample more than
+ * debounce_ms after the previous one starts a new run (the samples were not continuous). A single
+ * sample can never trip. reset() before each power request. */
+typedef struct {
+    bool in_low;
+    uint32_t first_low_ms;
+    uint32_t last_ms;
+} platform_bias_run_t;
+void platform_bias_run_reset(platform_bias_run_t *r);
+bool platform_bias_run_step(platform_bias_run_t *r, platform_bias_level_t level, uint32_t now_ms,
+                            uint32_t debounce_ms);
+
 /* ---------------------------------------------------------------- blower request (C28) */
 /* The state machine's fan_set_speed()/fan_set_auto_mode() requests. The fan law in thermal_mgmt.c
  * owns the blower (DECISIONS C28). The only thing a request can do is put a full-speed floor under

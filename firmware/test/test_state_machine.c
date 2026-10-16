@@ -288,6 +288,200 @@ void test_sm_pan_det_refuses_heating_when_ps3_absent(void) {
 }
 
 /* ============================================================================
+ * Power board s48 BIAS_GOOD read-back on J4.1 (OPEN-ITEMS B13 H2, DECISIONS 67).
+ * The level decoding and the debounce are the platform's (platform_logic.c platform_bias_*,
+ * test_platform_logic.c); these tests pin what the state machine does with each verdict.
+ * ============================================================================ */
+extern void mock_sm_set_bias_post_ok(bool ok);
+extern void mock_sm_set_bias_good(bool high);
+extern uint32_t mock_sm_get_bias_run_reset_count(void);
+
+/* Drive IDLE -> PAN_DET -> PREHEAT -> HEATING with a healthy bias. */
+static void bias_to_heating(void) {
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
+    mock_sm_advance_time(100);
+    state_machine_update();  /* PREHEAT -> HEATING */
+}
+
+/* Check 1, healthy: the boot sample read low (the heartbeat had not started): INIT -> IDLE. */
+void test_sm_bias_low_before_heartbeat_passes_post(void) {
+    setup_test();
+    mock_sm_set_bias_post_ok(true);
+    mock_sm_set_bias_good(true);  /* the heartbeat is running by the time INIT is evaluated */
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_IDLE, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_NONE, state_machine_get_fault());
+}
+
+/* Check 1, violated: high before the heartbeat could have started (U40 stuck high): FAULT before
+ * power is ever requested, and no reset clears it (the boot sample stays until a power cycle). */
+void test_sm_bias_high_before_heartbeat_faults_post(void) {
+    setup_test();
+    mock_sm_set_bias_post_ok(false);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_BIAS_GOOD_POST, state_machine_get_fault());
+    TEST_ASSERT_EQUAL(FAULT_BIAS_GOOD_POST, mock_sm_get_last_logged_fault());
+    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_power_level());
+    TEST_ASSERT_FALSE(mock_sm_get_pll_enabled());
+
+    mock_sm_press_button(BUTTON_BACK);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    mock_sm_release_button(BUTTON_BACK);
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_BIAS_GOOD_POST, state_machine_get_fault());
+}
+
+/* A self-test failure keeps its own code when both fail. */
+void test_sm_bias_post_after_self_test(void) {
+    setup_test();
+    mock_sm_set_bias_post_ok(false);
+    mock_sm_fail_selftest_adc();
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_SELF_TEST_FAILED, state_machine_get_fault());
+}
+
+/* Check 2: BIAS_GOOD low when power is about to be requested -> the start is refused (no power,
+ * no fault, back to IDLE with a message); once it reads high the same button starts. */
+void test_sm_bias_low_before_permit_refuses_start(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_set_bias_good(false);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET, entry refuses */
+    mock_sm_release_button(BUTTON_START);
+    TEST_ASSERT_EQUAL(STATE_PAN_DET, state_machine_get_state());
+    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_power_level());
+    TEST_ASSERT_EQUAL_STRING("NO POWER BIAS", mock_sm_get_last_display_message());
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    for (int i = 0; i < 40; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+        TEST_ASSERT_NOT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+        TEST_ASSERT_NOT_EQUAL(STATE_FAULT, state_machine_get_state());
+        TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_power_level());
+    }
+    TEST_ASSERT_EQUAL(STATE_IDLE, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_NONE, state_machine_get_fault());
+
+    /* Bias up: the start goes through and the run monitor starts afresh. */
+    uint32_t resets = mock_sm_get_bias_run_reset_count();
+    mock_sm_set_bias_good(true);
+    mock_sm_set_pan_status(MOCK_PAN_ABSENT);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    mock_sm_release_button(BUTTON_START);
+    TEST_ASSERT_EQUAL(STATE_PAN_DET, state_machine_get_state());
+    TEST_ASSERT_TRUE(mock_sm_get_power_level() > 0);
+    TEST_ASSERT_EQUAL_UINT32(resets + 1, mock_sm_get_bias_run_reset_count());
+}
+
+/* Check 3 in PAN_DET (detection power requested): a drop latches through the hardware path. */
+void test_sm_bias_drop_in_pan_det_latches(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    TEST_ASSERT_TRUE(mock_sm_get_power_level() > 0);
+    mock_sm_set_bias_good(false);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_BIAS_GOOD_LOST, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
+    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_power_level());
+}
+
+/* Check 3 in RUN: a drop during HEATING latches FAULT_BIAS_GOOD_LOST through the same safe path
+ * as the bus fault (RUN_EN kill + shutdown), and it stays latched after the bias returns. */
+void test_sm_bias_drop_during_run_latches_fault(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    bias_to_heating();
+    TEST_ASSERT_EQUAL(STATE_HEATING, state_machine_get_state());
+    mock_sm_set_bias_good(false);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_BIAS_GOOD_LOST, state_machine_get_fault());
+    TEST_ASSERT_EQUAL(FAULT_BIAS_GOOD_LOST, mock_sm_get_last_logged_fault());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
+    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_power_level());
+
+    mock_sm_set_bias_good(true);
+    mock_sm_press_button(BUTTON_BACK);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    mock_sm_release_button(BUTTON_BACK);
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_BIAS_GOOD_LOST, state_machine_get_fault());
+}
+
+/* Check 3 in PREHEAT, and the bus fault keeps priority when the collapse raises both. */
+void test_sm_bias_drop_in_preheat_and_bus_fault_priority(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+    mock_sm_set_bias_good(false);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_BIAS_GOOD_LOST, state_machine_get_fault());
+
+    setup_test();
+    state_machine_update();
+    bias_to_heating();
+    mock_sm_set_bias_good(false);
+    mock_sm_set_power_bus_fault(true);
+    mock_sm_advance_time(100);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(FAULT_IGBT_SHORT, state_machine_get_fault());
+}
+
+/* Every power request restarts the platform's low-run debounce: PAN_DET entry, and PREHEAT entry
+ * (including a resume from NO_PAN). */
+void test_sm_bias_run_reset_per_power_request(void) {
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    TEST_ASSERT_EQUAL_UINT32(0, mock_sm_get_bias_run_reset_count());
+    bias_to_heating();
+    TEST_ASSERT_EQUAL(STATE_HEATING, state_machine_get_state());
+    TEST_ASSERT_EQUAL_UINT32(2, mock_sm_get_bias_run_reset_count()); /* PAN_DET + PREHEAT */
+    state_machine_force_state(STATE_NO_PAN);
+    state_machine_force_state(STATE_PREHEAT);
+    TEST_ASSERT_EQUAL_UINT32(3, mock_sm_get_bias_run_reset_count());
+}
+
+/* ============================================================================
  * Test Cases: STATE_PAN_DET -> STATE_PREHEAT (pan detected)
  * ============================================================================ */
 
@@ -1999,7 +2193,17 @@ void run_state_machine_tests(void) {
     RUN_TEST(test_sm_pan_det_timeout_to_idle);
     RUN_TEST(test_sm_start_refused_when_ps3_absent);
     RUN_TEST(test_sm_pan_det_refuses_heating_when_ps3_absent);
-    
+
+    /* B13 H2: BIAS_GOOD read-back on J4.1 */
+    RUN_TEST(test_sm_bias_low_before_heartbeat_passes_post);
+    RUN_TEST(test_sm_bias_high_before_heartbeat_faults_post);
+    RUN_TEST(test_sm_bias_post_after_self_test);
+    RUN_TEST(test_sm_bias_low_before_permit_refuses_start);
+    RUN_TEST(test_sm_bias_drop_in_pan_det_latches);
+    RUN_TEST(test_sm_bias_drop_during_run_latches_fault);
+    RUN_TEST(test_sm_bias_drop_in_preheat_and_bus_fault_priority);
+    RUN_TEST(test_sm_bias_run_reset_per_power_request);
+
     /* PREHEAT -> HEATING transition */
     RUN_TEST(test_sm_preheat_to_heating_near_target);
     
