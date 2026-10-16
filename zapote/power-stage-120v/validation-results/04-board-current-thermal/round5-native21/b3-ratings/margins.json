@@ -11,7 +11,7 @@
      "model": "hot-iterated",
      "alpha_per_k": 0.00393,
      "max_heated_copper_c": 117.4,
-     "loss_multiplier": 1.3057,
+     "loss_multiplier": 1.3044,
      "max_dT_k": 0.0
     }
    },
@@ -25,7 +25,7 @@
      "model": "hot-iterated",
      "alpha_per_k": 0.00393,
      "max_heated_copper_c": 134.5,
-     "loss_multiplier": 1.3421,
+     "loss_multiplier": 1.3411,
      "max_dT_k": 0.0
     }
    },
@@ -39,7 +39,7 @@
      "model": "hot-iterated",
      "alpha_per_k": 0.00393,
      "max_heated_copper_c": 175.8,
-     "loss_multiplier": 1.4527,
+     "loss_multiplier": 1.4519,
      "max_dT_k": 0.0
     }
    }
@@ -56,7 +56,7 @@
     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
-    "est_c": 130.7,
+    "est_c": 130.6,
     "margin_k": 1.3
    },
    {
@@ -75,7 +75,7 @@
     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
-    "est_c": 127.8,
+    "est_c": 127.7,
     "margin_k": 4.2
    },
    {
@@ -84,22 +84,22 @@
     "limit_c": 80.2,
     "est_c": 76.0,
     "air_rule_k": 15.0,
-    "air_layer_k": 2.87,
+    "air_layer_k": 2.71,
     "limit_curve_c": 82.9,
     "p_out_w": 7.078,
     "loss_w": 1.3482,
-    "pins_w": 0.3482,
-    "case_c": 95.3,
-    "pad_max_c": 91.3,
-    "env_upper_c": 84.0,
+    "pins_w": 0.3554,
+    "case_c": 95.2,
+    "pad_max_c": 91.1,
+    "env_upper_c": 83.9,
     "margin_k": 4.2
    },
    {
     "item": "U26: TJ max (TI SBVS204G p.4)",
     "gated": true,
     "limit_c": 125.0,
-    "est_c": 120.7,
-    "margin_k": 4.3
+    "est_c": 120.6,
+    "margin_k": 4.4
    },
    {
     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
@@ -112,7 +112,7 @@
     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
-    "est_c": 126.6,
+    "est_c": 126.5,
     "margin_k": 5.4
    },
    {
@@ -154,23 +154,23 @@
     "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
     "gated": true,
     "limit_c": 110.0,
-    "est_c": 96.8,
-    "margin_k": 13.2
+    "est_c": 96.7,
+    "margin_k": 13.3
    },
    {
     "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
     "gated": true,
     "limit_c": 128.2,
-    "est_c": 113.0,
-    "margin_k": 15.2
+    "est_c": 112.9,
+    "margin_k": 15.3
    },
    {
     "item": "U3: TPS70950QDBVRQ1 TJ max 125 C (TI SLVSCE6D 5.3 p.4, recommended operating; abs max 150 C 5.1 p.3)",
     "gated": true,
     "limit_c": 125.0,
-    "est_c": 109.1,
+    "est_c": 109.0,
     "self_heat_k": 6.51,
-    "margin_k": 15.9
+    "margin_k": 16.0
    },
    {
     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
@@ -209,13 +209,6 @@
     "margin_k": 21.4
    },
    {
-    "item": "C21: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 82.8,
-    "margin_k": 22.2
-   },
-   {
     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
@@ -223,25 +216,11 @@
     "margin_k": 22.5
    },
    {
-    "item": "L1: B82726 climatic upper (TDK p.4)",
-    "gated": false,
-    "limit_c": 125.0,
-    "est_c": 102.4,
-    "margin_k": 22.6
-   },
-   {
     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 132.0,
-    "margin_k": 23.0
-   },
-   {
-    "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 82.0,
-    "margin_k": 23.0
+    "est_c": 131.9,
+    "margin_k": 23.1
    },
    {
     "item": "U31: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
@@ -274,46 +253,25 @@
     "margin_k": 23.9
    },
    {
-    "item": "C22: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
+    "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
     "gated": false,
     "limit_c": 105.0,
-    "est_c": 80.9,
-    "margin_k": 24.1
+    "est_c": 80.8,
+    "margin_k": 24.2
    },
    {
     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
     "gated": true,
     "limit_c": 128.2,
-    "est_c": 103.4,
+    "est_c": 103.3,
     "margin_k": 24.9
-   },
-   {
-    "item": "C23: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 79.3,
-    "margin_k": 25.7
    },
    {
     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
     "gated": false,
     "limit_c": 105.0,
-    "est_c": 79.2,
-    "margin_k": 25.8
-   },
-   {
-    "item": "C151: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 77.7,
-    "margin_k": 27.3
-   },
-   {
-    "item": "C152: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 76.9,
-    "margin_k": 28.1
+    "est_c": 78.2,
+    "margin_k": 26.8
    },
    {
     "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
@@ -332,12 +290,19 @@
     "margin_k": 31.2
    },
    {
+    "item": "L1: B82726 climatic upper (TDK p.4)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 92.4,
+    "margin_k": 32.6
+   },
+   {
     "item": "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)",
     "gated": true,
     "limit_c": 125.0,
-    "est_c": 91.3,
+    "est_c": 91.2,
     "self_heat_k": 0.2,
-    "margin_k": 33.7
+    "margin_k": 33.8
    },
    {
     "item": "R65: monitor divider, terminal derating at 0.1025 W (20 % margin; Yageo RC1206 thick film 1/4 W, -55..155 C (not re-read))",
@@ -398,12 +363,26 @@
     "margin_k": 42.3
    },
    {
+    "item": "C21: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 82.4,
+    "margin_k": 42.6
+   },
+   {
     "item": "U19: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
     "gated": true,
     "limit_c": 125.0,
     "est_c": 81.9,
     "self_heat_k": 3.44,
     "margin_k": 43.1
+   },
+   {
+    "item": "C22: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 80.6,
+    "margin_k": 44.4
    },
    {
     "item": "U18: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
@@ -421,11 +400,32 @@
     "margin_k": 45.9
    },
    {
+    "item": "C23: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 79.0,
+    "margin_k": 46.0
+   },
+   {
+    "item": "C151: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 77.6,
+    "margin_k": 47.4
+   },
+   {
+    "item": "C152: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 76.8,
+    "margin_k": 48.2
+   },
+   {
     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 105.1,
-    "margin_k": 49.9
+    "est_c": 105.0,
+    "margin_k": 50.0
    },
    {
     "item": "R138: monitor divider, terminal derating at 0.0019 W (20 % margin; UniRoyal 0603WAF thick film 1/10 W, -55..155 C (not re-read))",
@@ -445,22 +445,15 @@
     "item": "R69: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 89.0,
-    "margin_k": 66.0
+    "est_c": 88.1,
+    "margin_k": 66.9
    },
    {
     "item": "R68: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 88.2,
-    "margin_k": 66.8
-   },
-   {
-    "item": "R70: 1206 thick film (unverified)",
-    "gated": false,
-    "limit_c": 155.0,
-    "est_c": 87.7,
-    "margin_k": 67.3
+    "est_c": 87.3,
+    "margin_k": 67.7
    },
    {
     "item": "R85: monitor divider, terminal derating at 0.0022 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
@@ -470,17 +463,17 @@
     "margin_k": 68.0
    },
    {
-    "item": "R67: 1206 thick film (unverified)",
+    "item": "R70: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 86.3,
-    "margin_k": 68.7
+    "est_c": 86.9,
+    "margin_k": 68.1
    },
    {
     "item": "R91: monitor divider, terminal derating at 0.0025 W (20 % margin; UniRoyal 0603WAF thick film 1/10 W, -55..155 C (not re-read))",
     "gated": false,
     "limit_c": 152.3,
-    "est_c": 83.3,
+    "est_c": 83.2,
     "margin_k": 69.1
    },
    {
@@ -491,18 +484,25 @@
     "margin_k": 69.2
    },
    {
+    "item": "R67: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 85.5,
+    "margin_k": 69.5
+   },
+   {
     "item": "R79: monitor divider, terminal derating at 0.0002 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
     "gated": false,
     "limit_c": 154.8,
     "est_c": 85.1,
-    "margin_k": 69.7
+    "margin_k": 69.8
    },
    {
     "item": "R87: monitor divider, terminal derating at 0.0020 W (20 % margin; Viking ARG03 thin film 1/10 W, -55..155 C (p.3))",
     "gated": false,
     "limit_c": 152.9,
     "est_c": 83.1,
-    "margin_k": 69.7
+    "margin_k": 69.8
    },
    {
     "item": "R86: monitor divider, terminal derating at 0.0002 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
@@ -540,32 +540,32 @@
     "margin_k": 71.2
    },
    {
+    "item": "R83: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
+    "gated": false,
+    "limit_c": 154.9,
+    "est_c": 83.4,
+    "margin_k": 71.4
+   },
+   {
     "item": "R82: monitor divider, terminal derating at 0.0002 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
     "gated": false,
     "limit_c": 154.8,
     "est_c": 83.3,
-    "margin_k": 71.4
-   },
-   {
-    "item": "R83: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
-    "gated": false,
-    "limit_c": 154.9,
-    "est_c": 83.5,
-    "margin_k": 71.4
+    "margin_k": 71.5
    },
    {
     "item": "R88: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
     "gated": false,
     "limit_c": 154.8,
     "est_c": 83.4,
-    "margin_k": 71.4
+    "margin_k": 71.5
    },
    {
     "item": "R22: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 82.9,
-    "margin_k": 72.1
+    "est_c": 82.5,
+    "margin_k": 72.5
    },
    {
     "item": "R140: monitor divider, terminal derating at 0.0019 W (20 % margin; UniRoyal 0603WAF thick film 1/10 W, -55..155 C (not re-read))",
@@ -585,8 +585,8 @@
     "item": "R23: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 81.8,
-    "margin_k": 73.2
+    "est_c": 81.3,
+    "margin_k": 73.7
    },
    {
     "item": "R143: monitor divider, terminal derating at 0.0005 W (20 % margin; UniRoyal 0603WAF thick film 1/10 W, -55..155 C (not re-read))",
@@ -599,8 +599,8 @@
     "item": "R24: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 80.5,
-    "margin_k": 74.5
+    "est_c": 79.9,
+    "margin_k": 75.1
    },
    {
     "item": "R141: monitor divider, terminal derating at 0.0005 W (20 % margin; UniRoyal 0603WAF thick film 1/10 W, -55..155 C (not re-read))",
@@ -613,8 +613,8 @@
     "item": "R25: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 79.3,
-    "margin_k": 75.7
+    "est_c": 78.6,
+    "margin_k": 76.4
    },
    {
     "item": "R124: monitor divider, terminal derating at 0.0025 W (20 % margin; UniRoyal 0603WAF thick film 1/10 W, -55..155 C (not re-read))",
@@ -831,7 +831,7 @@
     "gated": true,
     "limit_c": 131.9,
     "est_c": 142.3,
-    "margin_k": -10.4
+    "margin_k": -10.3
    },
    {
     "item": "laminate: FET-row copper",
@@ -851,7 +851,7 @@
     "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
     "gated": true,
     "limit_c": 128.2,
-    "est_c": 132.1,
+    "est_c": 132.0,
     "margin_k": -3.8
    },
    {
@@ -879,7 +879,7 @@
     "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
     "gated": true,
     "limit_c": 128.2,
-    "est_c": 126.4,
+    "est_c": 126.3,
     "margin_k": 1.9
    },
    {
@@ -907,8 +907,8 @@
     "item": "U26: TJ max (TI SBVS204G p.4)",
     "gated": true,
     "limit_c": 125.0,
-    "est_c": 118.2,
-    "margin_k": 6.8
+    "est_c": 118.1,
+    "margin_k": 6.9
    },
    {
     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
@@ -930,22 +930,22 @@
     "limit_c": 80.2,
     "est_c": 70.0,
     "air_rule_k": 15.0,
-    "air_layer_k": 3.72,
+    "air_layer_k": 3.55,
     "limit_curve_c": 82.9,
     "p_out_w": 7.078,
     "loss_w": 1.3482,
-    "pins_w": 0.2867,
-    "case_c": 90.5,
-    "pad_max_c": 86.9,
-    "env_upper_c": 79.2,
+    "pins_w": 0.2939,
+    "case_c": 90.4,
+    "pad_max_c": 86.6,
+    "env_upper_c": 79.1,
     "margin_k": 10.2
    },
    {
     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
     "gated": true,
     "limit_c": 128.2,
-    "est_c": 116.1,
-    "margin_k": 12.1
+    "est_c": 116.0,
+    "margin_k": 12.2
    },
    {
     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
@@ -958,9 +958,9 @@
     "item": "U3: TPS70950QDBVRQ1 TJ max 125 C (TI SLVSCE6D 5.3 p.4, recommended operating; abs max 150 C 5.1 p.3)",
     "gated": true,
     "limit_c": 125.0,
-    "est_c": 108.8,
+    "est_c": 108.7,
     "self_heat_k": 6.51,
-    "margin_k": 16.2
+    "margin_k": 16.3
    },
    {
     "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
@@ -977,32 +977,11 @@
     "margin_k": 17.6
    },
    {
-    "item": "C21: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 86.9,
-    "margin_k": 18.1
-   },
-   {
     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
     "gated": true,
     "limit_c": 150.0,
     "est_c": 130.9,
     "margin_k": 19.1
-   },
-   {
-    "item": "C22: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 84.5,
-    "margin_k": 20.5
-   },
-   {
-    "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 84.1,
-    "margin_k": 20.9
    },
    {
     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
@@ -1012,11 +991,11 @@
     "margin_k": 21.7
    },
    {
-    "item": "C23: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
+    "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
     "gated": false,
     "limit_c": 105.0,
-    "est_c": 82.3,
-    "margin_k": 22.7
+    "est_c": 82.9,
+    "margin_k": 22.1
    },
    {
     "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
@@ -1034,13 +1013,6 @@
     "margin_k": 24.5
    },
    {
-    "item": "C151: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 80.3,
-    "margin_k": 24.7
-   },
-   {
     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
     "gated": true,
     "limit_c": 150.0,
@@ -1051,15 +1023,8 @@
     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
     "gated": false,
     "limit_c": 105.0,
-    "est_c": 80.1,
-    "margin_k": 24.9
-   },
-   {
-    "item": "C152: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 79.2,
-    "margin_k": 25.8
+    "est_c": 79.1,
+    "margin_k": 25.9
    },
    {
     "item": "U16: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
@@ -1078,13 +1043,6 @@
     "margin_k": 27.0
    },
    {
-    "item": "L1: B82726 climatic upper (TDK p.4)",
-    "gated": false,
-    "limit_c": 125.0,
-    "est_c": 97.8,
-    "margin_k": 27.2
-   },
-   {
     "item": "R59: monitor divider, terminal derating at 0.1025 W (20 % margin; Yageo RC1206 thick film 1/4 W, -55..155 C (not re-read))",
     "gated": false,
     "limit_c": 111.4,
@@ -1095,8 +1053,8 @@
     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 127.5,
-    "margin_k": 27.5
+    "est_c": 127.4,
+    "margin_k": 27.6
    },
    {
     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
@@ -1117,9 +1075,9 @@
     "item": "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)",
     "gated": true,
     "limit_c": 125.0,
-    "est_c": 91.4,
+    "est_c": 91.3,
     "self_heat_k": 0.2,
-    "margin_k": 33.6
+    "margin_k": 33.7
    },
    {
     "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
@@ -1130,11 +1088,25 @@
     "margin_k": 34.5
    },
    {
+    "item": "L1: B82726 climatic upper (TDK p.4)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 87.8,
+    "margin_k": 37.2
+   },
+   {
     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 117.9,
-    "margin_k": 37.1
+    "est_c": 117.8,
+    "margin_k": 37.2
+   },
+   {
+    "item": "C21: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 86.5,
+    "margin_k": 38.5
    },
    {
     "item": "R65: monitor divider, terminal derating at 0.1025 W (20 % margin; Yageo RC1206 thick film 1/4 W, -55..155 C (not re-read))",
@@ -1151,12 +1123,40 @@
     "margin_k": 40.5
    },
    {
+    "item": "C22: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 84.2,
+    "margin_k": 40.8
+   },
+   {
+    "item": "C23: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 82.2,
+    "margin_k": 42.8
+   },
+   {
     "item": "U21: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
     "gated": true,
     "limit_c": 125.0,
     "est_c": 81.2,
     "self_heat_k": 3.44,
     "margin_k": 43.8
+   },
+   {
+    "item": "C151: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 80.2,
+    "margin_k": 44.8
+   },
+   {
+    "item": "C152: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 79.2,
+    "margin_k": 45.8
    },
    {
     "item": "U20: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
@@ -1187,7 +1187,7 @@
     "gated": false,
     "limit_c": 153.0,
     "est_c": 93.7,
-    "margin_k": 59.2
+    "margin_k": 59.3
    },
    {
     "item": "R139: monitor divider, terminal derating at 0.0005 W (20 % margin; UniRoyal 0603WAF thick film 1/10 W, -55..155 C (not re-read))",
@@ -1200,36 +1200,29 @@
     "item": "R22: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 85.9,
-    "margin_k": 69.1
-   },
-   {
-    "item": "R69: 1206 thick film (unverified)",
-    "gated": false,
-    "limit_c": 155.0,
     "est_c": 85.5,
     "margin_k": 69.5
    },
    {
-    "item": "R68: 1206 thick film (unverified)",
+    "item": "R69: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
     "est_c": 84.6,
     "margin_k": 70.4
    },
    {
+    "item": "R68: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 83.7,
+    "margin_k": 71.3
+   },
+   {
     "item": "R70: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 84.2,
-    "margin_k": 70.8
-   },
-   {
-    "item": "R23: 1206 thick film (unverified)",
-    "gated": false,
-    "limit_c": 155.0,
-    "est_c": 83.8,
-    "margin_k": 71.2
+    "est_c": 83.4,
+    "margin_k": 71.6
    },
    {
     "item": "R85: monitor divider, terminal derating at 0.0022 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
@@ -1239,18 +1232,18 @@
     "margin_k": 71.6
    },
    {
-    "item": "R67: 1206 thick film (unverified)",
+    "item": "R23: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 82.6,
-    "margin_k": 72.4
+    "est_c": 83.3,
+    "margin_k": 71.7
    },
    {
     "item": "R80: monitor divider, terminal derating at 0.0002 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
     "gated": false,
     "limit_c": 154.8,
     "est_c": 82.2,
-    "margin_k": 72.6
+    "margin_k": 72.7
    },
    {
     "item": "R91: monitor divider, terminal derating at 0.0025 W (20 % margin; UniRoyal 0603WAF thick film 1/10 W, -55..155 C (not re-read))",
@@ -1260,11 +1253,11 @@
     "margin_k": 72.9
    },
    {
-    "item": "R24: 1206 thick film (unverified)",
+    "item": "R67: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 81.7,
-    "margin_k": 73.3
+    "est_c": 81.8,
+    "margin_k": 73.2
    },
    {
     "item": "R79: monitor divider, terminal derating at 0.0002 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
@@ -1278,7 +1271,14 @@
     "gated": false,
     "limit_c": 152.9,
     "est_c": 79.3,
-    "margin_k": 73.5
+    "margin_k": 73.6
+   },
+   {
+    "item": "R24: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 81.1,
+    "margin_k": 73.9
    },
    {
     "item": "R86: monitor divider, terminal derating at 0.0002 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
@@ -1313,7 +1313,7 @@
     "gated": false,
     "limit_c": 154.9,
     "est_c": 79.9,
-    "margin_k": 74.9
+    "margin_k": 75.0
    },
    {
     "item": "R88: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
@@ -1330,18 +1330,18 @@
     "margin_k": 75.1
    },
    {
-    "item": "R25: 1206 thick film (unverified)",
-    "gated": false,
-    "limit_c": 155.0,
-    "est_c": 79.8,
-    "margin_k": 75.2
-   },
-   {
     "item": "R83: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
     "gated": false,
     "limit_c": 154.9,
     "est_c": 79.7,
     "margin_k": 75.2
+   },
+   {
+    "item": "R25: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 79.1,
+    "margin_k": 75.9
    },
    {
     "item": "R142: monitor divider, terminal derating at 0.0019 W (20 % margin; UniRoyal 0603WAF thick film 1/10 W, -55..155 C (not re-read))",
@@ -1498,17 +1498,17 @@
     "margin_k": 85.0
    },
    {
-    "item": "R102: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
-    "gated": false,
-    "limit_c": 154.9,
-    "est_c": 69.6,
-    "margin_k": 85.2
-   },
-   {
     "item": "R100: monitor divider, terminal derating at 0.0002 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
     "gated": false,
     "limit_c": 154.8,
     "est_c": 69.5,
+    "margin_k": 85.3
+   },
+   {
+    "item": "R102: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
+    "gated": false,
+    "limit_c": 154.9,
+    "est_c": 69.6,
     "margin_k": 85.3
    },
    {
@@ -1585,8 +1585,8 @@
     "item": "laminate: FET-row copper",
     "gated": true,
     "limit_c": 130.0,
-    "est_c": 177.9,
-    "margin_k": -47.9
+    "est_c": 177.8,
+    "margin_k": -47.8
    },
    {
     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
@@ -1607,7 +1607,7 @@
     "gated": true,
     "limit_c": 148.4,
     "est_c": 184.3,
-    "margin_k": -36.0
+    "margin_k": -35.9
    },
    {
     "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
@@ -1621,7 +1621,7 @@
     "gated": true,
     "limit_c": 131.9,
     "est_c": 165.5,
-    "margin_k": -33.6
+    "margin_k": -33.5
    },
    {
     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
@@ -1648,22 +1648,22 @@
     "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 180.2,
-    "margin_k": -25.2
+    "est_c": 180.1,
+    "margin_k": -25.1
    },
    {
     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 131.9,
     "est_c": 157.1,
-    "margin_k": -25.2
+    "margin_k": -25.1
    },
    {
     "item": "R5: element max (Bourns CSS2H p.1)",
     "gated": true,
     "limit_c": 170.0,
-    "est_c": 194.5,
-    "margin_k": -24.5
+    "est_c": 194.4,
+    "margin_k": -24.4
    },
    {
     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
@@ -1676,8 +1676,8 @@
     "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
     "gated": true,
     "limit_c": 110.0,
-    "est_c": 132.7,
-    "margin_k": -22.7
+    "est_c": 132.6,
+    "margin_k": -22.6
    },
    {
     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
@@ -1697,8 +1697,8 @@
     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 171.2,
-    "margin_k": -16.2
+    "est_c": 171.1,
+    "margin_k": -16.1
    },
    {
     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
@@ -1722,13 +1722,6 @@
     "margin_k": -5.9
    },
    {
-    "item": "C21: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 105.3,
-    "margin_k": -0.3
-   },
-   {
     "item": "U26: TJ max (TI SBVS204G p.4)",
     "gated": true,
     "limit_c": 125.0,
@@ -1739,37 +1732,16 @@
     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
     "gated": true,
     "limit_c": 155.0,
-    "est_c": 153.3,
-    "margin_k": 1.7
-   },
-   {
-    "item": "C22: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 101.9,
-    "margin_k": 3.1
+    "est_c": 153.2,
+    "margin_k": 1.8
    },
    {
     "item": "U3: TPS70950QDBVRQ1 TJ max 125 C (TI SLVSCE6D 5.3 p.4, recommended operating; abs max 150 C 5.1 p.3)",
     "gated": true,
     "limit_c": 125.0,
-    "est_c": 120.1,
+    "est_c": 120.0,
     "self_heat_k": 6.51,
-    "margin_k": 4.9
-   },
-   {
-    "item": "C23: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 98.8,
-    "margin_k": 6.2
-   },
-   {
-    "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 98.2,
-    "margin_k": 6.8
+    "margin_k": 5.0
    },
    {
     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
@@ -1779,11 +1751,11 @@
     "margin_k": 7.4
    },
    {
-    "item": "C151: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
+    "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
     "gated": false,
     "limit_c": 105.0,
-    "est_c": 95.8,
-    "margin_k": 9.2
+    "est_c": 97.1,
+    "margin_k": 7.9
    },
    {
     "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
@@ -1791,36 +1763,29 @@
     "limit_c": 80.2,
     "est_c": 70.0,
     "air_rule_k": 15.0,
-    "air_layer_k": 5.37,
+    "air_layer_k": 5.2,
     "limit_curve_c": 82.9,
     "p_out_w": 7.078,
     "loss_w": 1.3482,
-    "pins_w": 0.1705,
-    "case_c": 92.7,
-    "pad_max_c": 95.5,
-    "env_upper_c": 81.4,
+    "pins_w": 0.1776,
+    "case_c": 92.6,
+    "pad_max_c": 95.1,
+    "env_upper_c": 81.3,
     "margin_k": 10.2
-   },
-   {
-    "item": "C152: MMKP82 Top,max 105 C (KNSCHA KNS20200505002 p.4)",
-    "gated": false,
-    "limit_c": 105.0,
-    "est_c": 94.1,
-    "margin_k": 10.9
    },
    {
     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
     "gated": true,
     "limit_c": 150.0,
-    "est_c": 137.5,
-    "margin_k": 12.5
+    "est_c": 137.4,
+    "margin_k": 12.6
    },
    {
     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
     "gated": false,
     "limit_c": 105.0,
-    "est_c": 91.9,
-    "margin_k": 13.1
+    "est_c": 90.9,
+    "margin_k": 14.1
    },
    {
     "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
@@ -1829,6 +1794,13 @@
     "est_c": 106.4,
     "self_heat_k": 3.14,
     "margin_k": 18.6
+   },
+   {
+    "item": "C21: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 105.0,
+    "margin_k": 20.0
    },
    {
     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
@@ -1841,23 +1813,23 @@
     "item": "U16: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
     "gated": true,
     "limit_c": 125.0,
-    "est_c": 104.5,
+    "est_c": 104.4,
     "self_heat_k": 1.29,
-    "margin_k": 20.5
+    "margin_k": 20.6
    },
    {
     "item": "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)",
     "gated": true,
     "limit_c": 125.0,
-    "est_c": 102.9,
+    "est_c": 102.8,
     "self_heat_k": 0.2,
-    "margin_k": 22.1
+    "margin_k": 22.2
    },
    {
     "item": "R59: monitor divider, terminal derating at 0.1025 W (20 % margin; Yageo RC1206 thick film 1/4 W, -55..155 C (not re-read))",
     "gated": false,
     "limit_c": 111.4,
-    "est_c": 89.3,
+    "est_c": 89.2,
     "margin_k": 22.2
    },
    {
@@ -1869,11 +1841,25 @@
     "margin_k": 22.3
    },
    {
-    "item": "L1: B82726 climatic upper (TDK p.4)",
+    "item": "C22: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
     "gated": false,
     "limit_c": 125.0,
-    "est_c": 100.4,
-    "margin_k": 24.6
+    "est_c": 101.7,
+    "margin_k": 23.3
+   },
+   {
+    "item": "C23: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 98.7,
+    "margin_k": 26.3
+   },
+   {
+    "item": "C151: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 95.8,
+    "margin_k": 29.2
    },
    {
     "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
@@ -1884,12 +1870,26 @@
     "margin_k": 29.2
    },
    {
+    "item": "C152: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 94.2,
+    "margin_k": 30.8
+   },
+   {
     "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
     "gated": true,
     "limit_c": 125.0,
     "est_c": 94.1,
     "self_heat_k": 3.14,
     "margin_k": 30.9
+   },
+   {
+    "item": "L1: B82726 climatic upper (TDK p.4)",
+    "gated": false,
+    "limit_c": 125.0,
+    "est_c": 90.4,
+    "margin_k": 34.6
    },
    {
     "item": "R65: monitor divider, terminal derating at 0.1025 W (20 % margin; Yageo RC1206 thick film 1/4 W, -55..155 C (not re-read))",
@@ -1941,8 +1941,8 @@
     "item": "R22: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 103.0,
-    "margin_k": 52.0
+    "est_c": 102.7,
+    "margin_k": 52.3
    },
    {
     "item": "R139: monitor divider, terminal derating at 0.0005 W (20 % margin; UniRoyal 0603WAF thick film 1/10 W, -55..155 C (not re-read))",
@@ -1962,43 +1962,29 @@
     "item": "R23: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 99.0,
-    "margin_k": 56.0
+    "est_c": 98.6,
+    "margin_k": 56.4
    },
    {
     "item": "R24: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 95.2,
-    "margin_k": 59.8
+    "est_c": 94.6,
+    "margin_k": 60.4
    },
    {
     "item": "R25: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 92.0,
-    "margin_k": 63.0
+    "est_c": 91.3,
+    "margin_k": 63.7
    },
    {
     "item": "R69: 1206 thick film (unverified)",
     "gated": false,
     "limit_c": 155.0,
-    "est_c": 89.9,
-    "margin_k": 65.1
-   },
-   {
-    "item": "R68: 1206 thick film (unverified)",
-    "gated": false,
-    "limit_c": 155.0,
-    "est_c": 88.7,
-    "margin_k": 66.3
-   },
-   {
-    "item": "R70: 1206 thick film (unverified)",
-    "gated": false,
-    "limit_c": 155.0,
-    "est_c": 88.7,
-    "margin_k": 66.3
+    "est_c": 89.0,
+    "margin_k": 66.0
    },
    {
     "item": "R85: monitor divider, terminal derating at 0.0022 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
@@ -2008,25 +1994,25 @@
     "margin_k": 67.0
    },
    {
+    "item": "R68: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 87.9,
+    "margin_k": 67.1
+   },
+   {
+    "item": "R70: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 87.8,
+    "margin_k": 67.2
+   },
+   {
     "item": "R80: monitor divider, terminal derating at 0.0002 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
     "gated": false,
     "limit_c": 154.8,
     "est_c": 87.1,
-    "margin_k": 67.7
-   },
-   {
-    "item": "R67: 1206 thick film (unverified)",
-    "gated": false,
-    "limit_c": 155.0,
-    "est_c": 86.7,
-    "margin_k": 68.3
-   },
-   {
-    "item": "R91: monitor divider, terminal derating at 0.0025 W (20 % margin; UniRoyal 0603WAF thick film 1/10 W, -55..155 C (not re-read))",
-    "gated": false,
-    "limit_c": 152.3,
-    "est_c": 83.8,
-    "margin_k": 68.5
+    "margin_k": 67.8
    },
    {
     "item": "R79: monitor divider, terminal derating at 0.0002 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
@@ -2034,6 +2020,20 @@
     "limit_c": 154.8,
     "est_c": 86.2,
     "margin_k": 68.6
+   },
+   {
+    "item": "R91: monitor divider, terminal derating at 0.0025 W (20 % margin; UniRoyal 0603WAF thick film 1/10 W, -55..155 C (not re-read))",
+    "gated": false,
+    "limit_c": 152.3,
+    "est_c": 83.8,
+    "margin_k": 68.6
+   },
+   {
+    "item": "R67: 1206 thick film (unverified)",
+    "gated": false,
+    "limit_c": 155.0,
+    "est_c": 85.9,
+    "margin_k": 69.1
    },
    {
     "item": "R87: monitor divider, terminal derating at 0.0020 W (20 % margin; Viking ARG03 thin film 1/10 W, -55..155 C (p.3))",
@@ -2046,8 +2046,8 @@
     "item": "R86: monitor divider, terminal derating at 0.0002 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
     "gated": false,
     "limit_c": 154.8,
-    "est_c": 85.0,
-    "margin_k": 69.8
+    "est_c": 84.9,
+    "margin_k": 69.9
    },
    {
     "item": "R81: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
@@ -2064,16 +2064,16 @@
     "margin_k": 70.3
    },
    {
-    "item": "R78: monitor divider, terminal derating at 0.0002 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
-    "gated": false,
-    "limit_c": 154.8,
-    "est_c": 84.4,
-    "margin_k": 70.4
-   },
-   {
     "item": "R77: monitor divider, terminal derating at 0.0001 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
     "gated": false,
     "limit_c": 154.9,
+    "est_c": 84.4,
+    "margin_k": 70.5
+   },
+   {
+    "item": "R78: monitor divider, terminal derating at 0.0002 W (20 % margin; Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5))",
+    "gated": false,
+    "limit_c": 154.8,
     "est_c": 84.4,
     "margin_k": 70.5
    },
@@ -2130,7 +2130,7 @@
     "item": "R141: monitor divider, terminal derating at 0.0005 W (20 % margin; UniRoyal 0603WAF thick film 1/10 W, -55..155 C (not re-read))",
     "gated": false,
     "limit_c": 154.5,
-    "est_c": 75.0,
+    "est_c": 74.9,
     "margin_k": 79.5
    },
    {
@@ -2318,14 +2318,14 @@
   ]
  },
  "board_sha256": {
-  "c17.5_h10": "0b0ebcf737ec3e00037e02efb1b15ec7b44eb366f9086f288e34f8fb969b3c5a",
-  "c22_h10": "0b0ebcf737ec3e00037e02efb1b15ec7b44eb366f9086f288e34f8fb969b3c5a",
-  "c28_h10": "0b0ebcf737ec3e00037e02efb1b15ec7b44eb366f9086f288e34f8fb969b3c5a"
+  "c17.5_h10": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34",
+  "c22_h10": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34",
+  "c28_h10": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34"
  },
  "metrics": {
   "b3_laminate_margin_K": -50.8,
   "b3_rated_part_margin_K": -51.0,
-  "b3_advisory_margin_K": -0.3,
+  "b3_advisory_margin_K": 7.9,
   "worst_gated": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
   "ratchet_cases": [
    "c22_h10",

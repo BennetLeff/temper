@@ -3,17 +3,17 @@
  "parts": [
   {
    "ref": "L1",
-   "watts_nominal": 2.025,
-   "watts_worst": 2.025,
+   "watts_nominal": 1.4400000000000002,
+   "watts_worst": 1.4400000000000002,
    "board_fraction": 1.0,
    "sink_fraction": 0.0,
    "basis": "task03",
-   "note": "B82726S2203A020, task 03 round 3",
+   "note": "B82726S2243A020, 2 x 3.2 mOhm (TDK p.4, typ at 20 C) x 15 A^2 (task 03 basis)",
    "x_mm": 237.0,
    "y_mm": 43.5,
    "has_unquantified_loss": false,
    "use_as_complete_b3_heat_source": true,
-   "part": "B82726S2203A020, task 03 round 3"
+   "part": "B82726S2243A020, 2 x 3.2 mOhm (TDK p.4, typ at 20 C) x 15 A^2 (task 03 basis)"
   },
   {
    "ref": "R22",
@@ -105,73 +105,73 @@
   },
   {
    "ref": "C21",
-   "watts_nominal": 0.2699071589682079,
-   "watts_worst": 1.882007450741261,
+   "watts_nominal": 0.27495215259378186,
+   "watts_worst": 1.0835800473964836,
    "board_fraction": 0.3,
    "sink_fraction": 0.7,
    "basis": "estimate",
-   "note": "MMK104J3DF1KN208G2: (worst-share 0.234 x I_t)^2 x ESR (typ 10.7 mOhm / tan d limit 39.8 mOhm at 40 kHz)",
+   "note": "B32643H8104J000: (worst-share 0.234 x I_t)^2 x ESR (typ 10.9 mOhm / tan d limit 22.9 mOhm at 40 kHz)",
    "x_mm": 176.75,
    "y_mm": 53.2,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "MMK104J3DF1KN208G2"
+   "part": "B32643H8104J000"
   },
   {
    "ref": "C22",
-   "watts_nominal": 0.2699071589682079,
-   "watts_worst": 1.882007450741261,
+   "watts_nominal": 0.27495215259378186,
+   "watts_worst": 1.0835800473964836,
    "board_fraction": 0.3,
    "sink_fraction": 0.7,
    "basis": "estimate",
-   "note": "MMK104J3DF1KN208G2: (worst-share 0.234 x I_t)^2 x ESR (typ 10.7 mOhm / tan d limit 39.8 mOhm at 40 kHz)",
+   "note": "B32643H8104J000: (worst-share 0.234 x I_t)^2 x ESR (typ 10.9 mOhm / tan d limit 22.9 mOhm at 40 kHz)",
    "x_mm": 176.75,
    "y_mm": 68.2,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "MMK104J3DF1KN208G2"
+   "part": "B32643H8104J000"
   },
   {
    "ref": "C23",
-   "watts_nominal": 0.2699071589682079,
-   "watts_worst": 1.882007450741261,
+   "watts_nominal": 0.27495215259378186,
+   "watts_worst": 1.0835800473964836,
    "board_fraction": 0.3,
    "sink_fraction": 0.7,
    "basis": "estimate",
-   "note": "MMK104J3DF1KN208G2: (worst-share 0.234 x I_t)^2 x ESR (typ 10.7 mOhm / tan d limit 39.8 mOhm at 40 kHz)",
+   "note": "B32643H8104J000: (worst-share 0.234 x I_t)^2 x ESR (typ 10.9 mOhm / tan d limit 22.9 mOhm at 40 kHz)",
    "x_mm": 176.75,
    "y_mm": 83.2,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "MMK104J3DF1KN208G2"
+   "part": "B32643H8104J000"
   },
   {
    "ref": "C151",
-   "watts_nominal": 0.2699071589682079,
-   "watts_worst": 1.882007450741261,
+   "watts_nominal": 0.27495215259378186,
+   "watts_worst": 1.0835800473964836,
    "board_fraction": 0.3,
    "sink_fraction": 0.7,
    "basis": "estimate",
-   "note": "MMK104J3DF1KN208G2: (worst-share 0.234 x I_t)^2 x ESR (typ 10.7 mOhm / tan d limit 39.8 mOhm at 40 kHz)",
+   "note": "B32643H8104J000: (worst-share 0.234 x I_t)^2 x ESR (typ 10.9 mOhm / tan d limit 22.9 mOhm at 40 kHz)",
    "x_mm": 176.75,
    "y_mm": 98.2,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "MMK104J3DF1KN208G2"
+   "part": "B32643H8104J000"
   },
   {
    "ref": "C152",
-   "watts_nominal": 0.2699071589682079,
-   "watts_worst": 1.882007450741261,
+   "watts_nominal": 0.27495215259378186,
+   "watts_worst": 1.0835800473964836,
    "board_fraction": 0.3,
    "sink_fraction": 0.7,
    "basis": "estimate",
-   "note": "MMK104J3DF1KN208G2: (worst-share 0.234 x I_t)^2 x ESR (typ 10.7 mOhm / tan d limit 39.8 mOhm at 40 kHz)",
+   "note": "B32643H8104J000: (worst-share 0.234 x I_t)^2 x ESR (typ 10.9 mOhm / tan d limit 22.9 mOhm at 40 kHz)",
    "x_mm": 176.75,
    "y_mm": 113.2,
    "has_unquantified_loss": true,
    "use_as_complete_b3_heat_source": true,
-   "part": "MMK104J3DF1KN208G2"
+   "part": "B32643H8104J000"
   },
   {
    "ref": "U1",
@@ -573,7 +573,7 @@
   }
  ],
  "totals_W": {
-  "nominal": 8.873,
-  "worst": 16.754
+  "nominal": 8.295,
+  "worst": 14.971
  }
 }

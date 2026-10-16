@@ -1,0 +1,322 @@
+{
+ "board_sha256": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34",
+ "z0_max_ohm": 12.75,
+ "F3_basis": {
+  "F3_J_V": 1683.0,
+  "at_top_A": 118.74,
+  "V_per_A": 14.174
+ },
+ "readings": [
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R0",
+   "hot5": "Q1",
+   "ocp_top_A": 114.572,
+   "F3_V": 1623.9,
+   "Z0max_x_top_V": 1460.8
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R0",
+   "hot5": "phys",
+   "ocp_top_A": 114.963,
+   "F3_V": 1629.5,
+   "Z0max_x_top_V": 1465.7
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R1",
+   "hot5": "Q1",
+   "ocp_top_A": 117.309,
+   "F3_V": 1662.7,
+   "Z0max_x_top_V": 1495.7
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R1",
+   "hot5": "phys",
+   "ocp_top_A": 118.048,
+   "F3_V": 1673.2,
+   "Z0max_x_top_V": 1505.1
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R3",
+   "hot5": "Q1",
+   "ocp_top_A": 115.101,
+   "F3_V": 1631.4,
+   "Z0max_x_top_V": 1467.5
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R3",
+   "hot5": "phys",
+   "ocp_top_A": 115.56,
+   "F3_V": 1637.9,
+   "Z0max_x_top_V": 1473.4
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R4",
+   "hot5": "Q1",
+   "ocp_top_A": 124.211,
+   "F3_V": 1760.5,
+   "Z0max_x_top_V": 1583.7
+  },
+  {
+   "network": "c17.5_h10@61",
+   "reading": "R4",
+   "hot5": "phys",
+   "ocp_top_A": 124.603,
+   "F3_V": 1766.1,
+   "Z0max_x_top_V": 1588.7
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R0",
+   "hot5": "Q1",
+   "ocp_top_A": 115.959,
+   "F3_V": 1643.6,
+   "Z0max_x_top_V": 1478.4
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R0",
+   "hot5": "phys",
+   "ocp_top_A": 116.353,
+   "F3_V": 1649.2,
+   "Z0max_x_top_V": 1483.5
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R1",
+   "hot5": "Q1",
+   "ocp_top_A": 118.712,
+   "F3_V": 1682.6,
+   "Z0max_x_top_V": 1513.5
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R1",
+   "hot5": "phys",
+   "ocp_top_A": 119.455,
+   "F3_V": 1693.1,
+   "Z0max_x_top_V": 1523.0
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R3",
+   "hot5": "Q1",
+   "ocp_top_A": 116.492,
+   "F3_V": 1651.1,
+   "Z0max_x_top_V": 1485.2
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R3",
+   "hot5": "phys",
+   "ocp_top_A": 116.953,
+   "F3_V": 1657.7,
+   "Z0max_x_top_V": 1491.1
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R4",
+   "hot5": "Q1",
+   "ocp_top_A": 125.652,
+   "F3_V": 1781.0,
+   "Z0max_x_top_V": 1602.0
+  },
+  {
+   "network": "c28_h10@55",
+   "reading": "R4",
+   "hot5": "phys",
+   "ocp_top_A": 126.046,
+   "F3_V": 1786.6,
+   "Z0max_x_top_V": 1607.1
+  }
+ ],
+ "worst_R0_R1": {
+  "network": "c28_h10@55",
+  "reading": "R1",
+  "hot5": "phys",
+  "ocp_top_A": 119.455,
+  "F3_V": 1693.1,
+  "Z0max_x_top_V": 1523.0
+ },
+ "worst_any_reading": {
+  "network": "c28_h10@55",
+  "reading": "R4",
+  "hot5": "phys",
+  "ocp_top_A": 126.046,
+  "F3_V": 1786.6,
+  "Z0max_x_top_V": 1607.1
+ },
+ "dVdt": {
+  "V_per_us": 345.4
+ },
+ "parts": {
+  "B32643H8104J000": {
+   "role": "fitted (stage 52 prototype lot)",
+   "VR_V": 2000.0,
+   "VRMS_V": 700.0,
+   "Top_max_C": 125.0,
+   "VC_at_Top_max_V": 1500.0,
+   "dVdt_V_per_us": 3800.0,
+   "source": "TDK B3264*H June 2026 p.14 (VR, VRMS), p.15 (VR at 105 C, 1.25 %/C to 125 C, Top,max), p.16 (dV/dt 22.5 mm 2000 V)",
+   "rows": {
+    "V 28 A": {
+     "stress": 566.0,
+     "limit": 1600.0,
+     "utilisation": 0.3538,
+     "margin": 1034.0
+    },
+    "no-pan": {
+     "stress": 775.0,
+     "limit": 1200.0,
+     "utilisation": 0.6458,
+     "margin": 425.0
+    },
+    "Vrms": {
+     "stress": 268.0,
+     "limit": 560.0,
+     "utilisation": 0.4786,
+     "margin": 292.0
+    },
+    "F3 R0/R1": {
+     "stress": 1693.1,
+     "limit": 1700.0,
+     "utilisation": 0.9959,
+     "margin": 6.9
+    },
+    "F3 any reading": {
+     "stress": 1786.6,
+     "limit": 2000.0,
+     "utilisation": 0.8933,
+     "margin": 213.4
+    },
+    "double fault Z0max x top": {
+     "stress": 1607.1,
+     "limit": 2000.0,
+     "utilisation": 0.8035,
+     "margin": 392.9
+    },
+    "dV/dt": {
+     "stress": 345.4,
+     "limit": 3800.0,
+     "utilisation": 0.0909,
+     "margin": 3454.6
+    }
+   },
+   "pass": true
+  },
+  "MMK104J3DF1KN208G2": {
+   "role": "in-stock fallback (not fitted)",
+   "VR_V": 2000.0,
+   "VRMS_V": 700.0,
+   "Top_max_C": 105.0,
+   "VC_at_Top_max_V": 1500.0,
+   "dVdt_V_per_us": 2200.0,
+   "source": "KNSCHA KNS20200505002 p.1 / p.4 (VR, 40/105/56, 1.6 UR 5 s); MMKP82 family sheet 2026.9.16 (700 VAC, 1.25 %/C above 85 C, 2200 V/us at P27.5)",
+   "rows": {
+    "V 28 A": {
+     "stress": 566.0,
+     "limit": 1600.0,
+     "utilisation": 0.3538,
+     "margin": 1034.0
+    },
+    "no-pan": {
+     "stress": 775.0,
+     "limit": 1200.0,
+     "utilisation": 0.6458,
+     "margin": 425.0
+    },
+    "Vrms": {
+     "stress": 268.0,
+     "limit": 560.0,
+     "utilisation": 0.4786,
+     "margin": 292.0
+    },
+    "F3 R0/R1": {
+     "stress": 1693.1,
+     "limit": 1700.0,
+     "utilisation": 0.9959,
+     "margin": 6.9
+    },
+    "F3 any reading": {
+     "stress": 1786.6,
+     "limit": 2000.0,
+     "utilisation": 0.8933,
+     "margin": 213.4
+    },
+    "double fault Z0max x top": {
+     "stress": 1607.1,
+     "limit": 2000.0,
+     "utilisation": 0.8035,
+     "margin": 392.9
+    },
+    "dV/dt": {
+     "stress": 345.4,
+     "limit": 2200.0,
+     "utilisation": 0.157,
+     "margin": 1854.6
+    }
+   },
+   "pass": true
+  },
+  "B32643B8104J000": {
+   "role": "28 A part (not fitted)",
+   "VR_V": 2000.0,
+   "VRMS_V": 500.0,
+   "Top_max_C": 125.0,
+   "VC_at_Top_max_V": 1000.0,
+   "dVdt_V_per_us": 3800.0,
+   "source": "TDK B3264*B June 2026 p.11 (VR, VRMS), p.12 (VC, Top,max), p.13 (dV/dt 22.5 mm)",
+   "rows": {
+    "V 28 A": {
+     "stress": 566.0,
+     "limit": 1600.0,
+     "utilisation": 0.3538,
+     "margin": 1034.0
+    },
+    "no-pan": {
+     "stress": 775.0,
+     "limit": 800.0,
+     "utilisation": 0.9688,
+     "margin": 25.0
+    },
+    "Vrms": {
+     "stress": 268.0,
+     "limit": 400.0,
+     "utilisation": 0.67,
+     "margin": 132.0
+    },
+    "F3 R0/R1": {
+     "stress": 1693.1,
+     "limit": 1700.0,
+     "utilisation": 0.9959,
+     "margin": 6.9
+    },
+    "F3 any reading": {
+     "stress": 1786.6,
+     "limit": 2000.0,
+     "utilisation": 0.8933,
+     "margin": 213.4
+    },
+    "double fault Z0max x top": {
+     "stress": 1607.1,
+     "limit": 2000.0,
+     "utilisation": 0.8035,
+     "margin": 392.9
+    },
+    "dV/dt": {
+     "stress": 345.4,
+     "limit": 3800.0,
+     "utilisation": 0.0909,
+     "margin": 3454.6
+    }
+   },
+   "pass": true
+  }
+ }
+}

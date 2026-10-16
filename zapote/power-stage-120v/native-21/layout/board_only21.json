@@ -854,6 +854,62 @@
    ]
   },
   {
+   "kind": "text",
+   "lines": [
+    "BANK FIT, TICK ONE:"
+   ],
+   "size": 1.0,
+   "at": [
+    203.5,
+    114.8
+   ],
+   "mark": "bank_fit"
+  },
+  {
+   "kind": "text",
+   "lines": [
+    "H  B32643H8104J000  24 A MAX"
+   ],
+   "size": 1.0,
+   "at": [
+    210.8,
+    117.4
+   ],
+   "mark": "bank_fit"
+  },
+  {
+   "kind": "rect",
+   "box": [
+    194.0,
+    116.4,
+    196.0,
+    118.4
+   ],
+   "mark": "bank_fit"
+  },
+  {
+   "kind": "text",
+   "lines": [
+    "B  B32643B8104J000  28 A"
+   ],
+   "size": 1.0,
+   "at": [
+    208.8,
+    120.0
+   ],
+   "mark": "bank_fit"
+  },
+  {
+   "kind": "rect",
+   "box": [
+    194.0,
+    119.0,
+    196.0,
+    121.0
+   ],
+   "mark": "bank_fit"
+  },
+  {
    "kind": "ring",
    "at": [
     6,

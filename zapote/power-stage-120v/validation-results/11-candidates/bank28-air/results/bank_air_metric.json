@@ -61,7 +61,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 64.7,
      "T_pad_C": 86.3,
-     "T_A_C": 77.55,
+     "T_A_C": 77.58,
      "dT_col_K": 27.71,
      "dT_allowed_K": 20.0,
      "T_op_C": 105.3,
@@ -145,7 +145,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 58.7,
      "T_pad_C": 86.7,
-     "T_A_C": 71.72,
+     "T_A_C": 71.7,
      "dT_col_K": 21.63,
      "dT_allowed_K": 20.0,
      "T_op_C": 93.3,
@@ -153,7 +153,7 @@
      "eff_ratio": 1.0399
     }
    ],
-   "board_sha256_of_pad_runs": "0b0ebcf737ec3e00037e02efb1b15ec7b44eb366f9086f288e34f8fb969b3c5a"
+   "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34"
   },
   "B32643B8104J000": {
    "mpn": "B32643B8104J000",
@@ -167,7 +167,7 @@
     "v_bank_m_s": 3.07,
     "T_air_C": 64.7,
     "T_pad_C": 86.3,
-    "T_A_C": 67.47,
+    "T_A_C": 67.48,
     "dT_col_K": 14.04,
     "dT_allowed_K": 15.0,
     "T_op_C": 81.5,
@@ -185,7 +185,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 64.7,
      "T_pad_C": 86.3,
-     "T_A_C": 67.47,
+     "T_A_C": 67.48,
      "dT_col_K": 14.04,
      "dT_allowed_K": 15.0,
      "T_op_C": 81.5,
@@ -199,7 +199,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 64.7,
      "T_pad_C": 86.3,
-     "T_A_C": 76.38,
+     "T_A_C": 76.4,
      "dT_col_K": 12.3,
      "dT_allowed_K": 15.0,
      "T_op_C": 88.7,
@@ -227,7 +227,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 64.7,
      "T_pad_C": 86.2,
-     "T_A_C": 73.7,
+     "T_A_C": 73.71,
      "dT_col_K": 9.53,
      "dT_allowed_K": 15.0,
      "T_op_C": 83.2,
@@ -269,7 +269,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 58.7,
      "T_pad_C": 86.7,
-     "T_A_C": 61.01,
+     "T_A_C": 61.0,
      "dT_col_K": 9.01,
      "dT_allowed_K": 15.0,
      "T_op_C": 70.0,
@@ -283,7 +283,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 58.7,
      "T_pad_C": 86.7,
-     "T_A_C": 70.41,
+     "T_A_C": 70.39,
      "dT_col_K": 9.5,
      "dT_allowed_K": 15.0,
      "T_op_C": 79.9,
@@ -291,7 +291,7 @@
      "eff_ratio": 0.7959
     }
    ],
-   "board_sha256_of_pad_runs": "0b0ebcf737ec3e00037e02efb1b15ec7b44eb366f9086f288e34f8fb969b3c5a"
+   "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34"
   },
   "MMK104J3DF1KN208G2": {
    "mpn": "MMK104J3DF1KN208G2",
@@ -305,7 +305,7 @@
     "v_bank_m_s": 3.07,
     "T_air_C": 64.7,
     "T_pad_C": 86.3,
-    "T_A_C": 68.8,
+    "T_A_C": 68.81,
     "dT_col_K": 14.9,
     "dT_allowed_K": 10.0,
     "T_op_C": 83.7,
@@ -323,7 +323,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 64.7,
      "T_pad_C": 86.3,
-     "T_A_C": 68.8,
+     "T_A_C": 68.81,
      "dT_col_K": 14.9,
      "dT_allowed_K": 10.0,
      "T_op_C": 83.7,
@@ -337,7 +337,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 64.7,
      "T_pad_C": 86.3,
-     "T_A_C": 78.68,
+     "T_A_C": 78.7,
      "dT_col_K": 11.89,
      "dT_allowed_K": 10.0,
      "T_op_C": 90.6,
@@ -421,7 +421,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 58.7,
      "T_pad_C": 86.7,
-     "T_A_C": 72.91,
+     "T_A_C": 72.88,
      "dT_col_K": 9.31,
      "dT_allowed_K": 10.0,
      "T_op_C": 82.2,
@@ -429,74 +429,212 @@
      "eff_ratio": 0.965
     }
    ],
-   "board_sha256_of_pad_runs": "0b0ebcf737ec3e00037e02efb1b15ec7b44eb366f9086f288e34f8fb969b3c5a",
+   "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34"
+  },
+  "B32643H8104J000": {
+   "mpn": "B32643H8104J000",
+   "ratio_35k_vendor_curve": 0.985,
+   "ratio_40k_vendor_curve": 0.935,
+   "bank_air_ratio_28A_35k": 1.006,
+   "worst": {
+    "point": "design flow (base h20) @61",
+    "position": "interior",
+    "g_board_bound": "lo",
+    "v_bank_m_s": 3.07,
+    "T_air_C": 64.7,
+    "T_pad_C": 86.3,
+    "T_A_C": 67.48,
+    "dT_col_K": 27.24,
+    "dT_allowed_K": 26.92,
+    "T_op_C": 94.7,
+    "Top_max_C": 125.0,
+    "eff_ratio": 1.0058
+   },
+   "T_op_max_C": 99.9,
+   "Top_max_C": 125.0,
+   "T_op_margin_K": 25.1,
+   "rows": [
+    {
+     "point": "design flow (base h20) @61",
+     "position": "interior",
+     "g_board_bound": "lo",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 64.7,
+     "T_pad_C": 86.3,
+     "T_A_C": 67.48,
+     "dT_col_K": 27.24,
+     "dT_allowed_K": 26.92,
+     "T_op_C": 94.7,
+     "Top_max_C": 125.0,
+     "eff_ratio": 1.0058
+    },
+    {
+     "point": "design flow (base h20) @61",
+     "position": "interior",
+     "g_board_bound": "hi",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 64.7,
+     "T_pad_C": 86.3,
+     "T_A_C": 76.4,
+     "dT_col_K": 23.53,
+     "dT_allowed_K": 23.39,
+     "T_op_C": 99.9,
+     "Top_max_C": 125.0,
+     "eff_ratio": 1.003
+    },
+    {
+     "point": "design flow (base h20) @61",
+     "position": "end",
+     "g_board_bound": "lo",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 64.7,
+     "T_pad_C": 86.2,
+     "T_A_C": 66.48,
+     "dT_col_K": 17.57,
+     "dT_allowed_K": 27.33,
+     "T_op_C": 84.1,
+     "Top_max_C": 125.0,
+     "eff_ratio": 0.8019
+    },
+    {
+     "point": "design flow (base h20) @61",
+     "position": "end",
+     "g_board_bound": "hi",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 64.7,
+     "T_pad_C": 86.2,
+     "T_A_C": 73.71,
+     "dT_col_K": 18.24,
+     "dT_allowed_K": 24.44,
+     "T_op_C": 91.9,
+     "Top_max_C": 125.0,
+     "eff_ratio": 0.864
+    },
+    {
+     "point": "design flow (base h20) @55, h15 pads",
+     "position": "interior",
+     "g_board_bound": "lo",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 58.7,
+     "T_pad_C": 86.9,
+     "T_A_C": 62.3,
+     "dT_col_K": 27.09,
+     "dT_allowed_K": 28.92,
+     "T_op_C": 89.4,
+     "Top_max_C": 125.0,
+     "eff_ratio": 0.9678
+    },
+    {
+     "point": "design flow (base h20) @55, h15 pads",
+     "position": "interior",
+     "g_board_bound": "hi",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 58.7,
+     "T_pad_C": 86.9,
+     "T_A_C": 73.9,
+     "dT_col_K": 23.46,
+     "dT_allowed_K": 24.36,
+     "T_op_C": 97.4,
+     "Top_max_C": 125.0,
+     "eff_ratio": 0.9814
+    },
+    {
+     "point": "design flow (base h20) @55, h15 pads",
+     "position": "end",
+     "g_board_bound": "lo",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 58.7,
+     "T_pad_C": 86.7,
+     "T_A_C": 61.0,
+     "dT_col_K": 17.48,
+     "dT_allowed_K": 29.4,
+     "T_op_C": 78.5,
+     "Top_max_C": 125.0,
+     "eff_ratio": 0.7711
+    },
+    {
+     "point": "design flow (base h20) @55, h15 pads",
+     "position": "end",
+     "g_board_bound": "hi",
+     "v_bank_m_s": 3.07,
+     "T_air_C": 58.7,
+     "T_pad_C": 86.7,
+     "T_A_C": 70.39,
+     "dT_col_K": 18.18,
+     "dT_allowed_K": 25.75,
+     "T_op_C": 88.6,
+     "Top_max_C": 125.0,
+     "eff_ratio": 0.8403
+    }
+   ],
+   "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34",
    "release": {
-    "board_sha256_of_release_runs": "0b0ebcf737ec3e00037e02efb1b15ec7b44eb366f9086f288e34f8fb969b3c5a",
+    "board_sha256_of_release_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34",
     "runs": [
      "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs/c17.5_h10_p0p25.json",
      "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs/c17.5_h10_p0p5.json"
     ],
     "T_air_C": 76.0,
     "pads_C": {
-     "C21": 81.05,
-     "C22": 80.27,
-     "C23": 78.85,
-     "C151": 76.89,
-     "C152": 75.49
+     "C21": 80.77,
+     "C22": 80.06,
+     "C23": 78.69,
+     "C151": 76.78,
+     "C152": 75.4
     },
     "18.375 A": {
      "with_radiation": {
       "position": "interior",
       "g_board_bound": "lo",
-      "P_W": 0.169,
-      "T_pad_C": 80.3,
-      "T_A_C": 77.2,
-      "dT_K": 9.17,
-      "dT_allowed_K": 10.0,
-      "T_op_C": 86.3,
-      "eff_ratio": 0.9578
+      "P_W": 0.457,
+      "T_pad_C": 80.1,
+      "T_A_C": 76.8,
+      "dT_K": 17.62,
+      "dT_allowed_K": 23.24,
+      "T_op_C": 94.4,
+      "eff_ratio": 0.8707
      },
      "no_radiation": {
       "position": "interior",
       "g_board_bound": "lo",
-      "P_W": 0.169,
-      "T_pad_C": 80.3,
-      "T_A_C": 77.8,
-      "dT_K": 14.61,
-      "dT_allowed_K": 10.0,
-      "T_op_C": 92.5,
-      "eff_ratio": 1.2088
+      "P_W": 0.457,
+      "T_pad_C": 80.1,
+      "T_A_C": 77.3,
+      "dT_K": 29.58,
+      "dT_allowed_K": 23.03,
+      "T_op_C": 106.9,
+      "eff_ratio": 1.1331
      }
     },
     "17.5 A": {
      "with_radiation": {
       "position": "interior",
       "g_board_bound": "lo",
-      "P_W": 0.153,
-      "T_pad_C": 80.3,
-      "T_A_C": 77.2,
-      "dT_K": 8.38,
-      "dT_allowed_K": 10.0,
-      "T_op_C": 85.5,
-      "eff_ratio": 0.9154
+      "P_W": 0.415,
+      "T_pad_C": 80.1,
+      "T_A_C": 76.8,
+      "dT_K": 16.13,
+      "dT_allowed_K": 23.24,
+      "T_op_C": 92.9,
+      "eff_ratio": 0.8332
      },
      "no_radiation": {
       "position": "interior",
       "g_board_bound": "lo",
-      "P_W": 0.153,
-      "T_pad_C": 80.3,
-      "T_A_C": 77.9,
-      "dT_K": 13.38,
-      "dT_allowed_K": 10.0,
-      "T_op_C": 91.2,
-      "eff_ratio": 1.1569
+      "P_W": 0.415,
+      "T_pad_C": 80.1,
+      "T_A_C": 77.3,
+      "dT_K": 27.16,
+      "dT_allowed_K": 23.03,
+      "T_op_C": 104.5,
+      "eff_ratio": 1.086
      }
     },
-    "eff_trip_rad": 0.9578,
-    "eff_trip_norad": 1.2088
+    "eff_trip_rad": 0.8707,
+    "eff_trip_norad": 1.1331
    }
   }
  },
- "fitted_mpn": "MMK104J3DF1KN208G2",
+ "fitted_mpn": "B32643H8104J000",
  "control_failed": []
 }

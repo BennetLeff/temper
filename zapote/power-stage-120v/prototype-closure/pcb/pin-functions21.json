@@ -1,9 +1,9 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "passive-two-terminal": 250,
-  "native19-reviewed": 86,
-  "passive-untyped": 22,
+  "passive-two-terminal": 252,
+  "native19-reviewed": 83,
+  "passive-untyped": 23,
   "eco-pin-table": 14
  },
  "components": {
@@ -533,32 +533,32 @@
    }
   },
   "L1": {
-   "mpn": "B82726S2203A020",
+   "mpn": "B82726S2243A020",
    "source_instance": "l1",
-   "basis": "native19-reviewed",
+   "basis": "passive-untyped",
    "pins": {
     "1": {
-     "function": "a_in",
+     "function": "p1",
      "type": "passive"
     },
     "2": {
-     "function": "b_in",
+     "function": "p2",
      "type": "passive"
     },
     "3": {
-     "function": "b_out",
+     "function": "p3",
      "type": "passive"
     },
     "4": {
-     "function": "a_out",
+     "function": "p4",
      "type": "passive"
     }
    }
   },
   "C3": {
-   "mpn": "DE1E3RA222MA4BP01F",
+   "mpn": "DE1E3RA222MJ4BH01F",
    "source_instance": "cy1",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -571,9 +571,9 @@
    }
   },
   "C4": {
-   "mpn": "DE1E3RA222MA4BP01F",
+   "mpn": "DE1E3RA222MJ4BH01F",
    "source_instance": "cy2",
-   "basis": "native19-reviewed",
+   "basis": "passive-two-terminal",
    "pins": {
     "1": {
      "function": "p1",
@@ -5257,7 +5257,7 @@
    }
   },
   "C21": {
-   "mpn": "MMK104J3DF1KN208G2",
+   "mpn": "B32643H8104J000",
    "source_instance": "c_res1",
    "basis": "passive-two-terminal",
    "pins": {
@@ -5272,7 +5272,7 @@
    }
   },
   "C22": {
-   "mpn": "MMK104J3DF1KN208G2",
+   "mpn": "B32643H8104J000",
    "source_instance": "c_res2",
    "basis": "passive-two-terminal",
    "pins": {
@@ -5287,7 +5287,7 @@
    }
   },
   "C23": {
-   "mpn": "MMK104J3DF1KN208G2",
+   "mpn": "B32643H8104J000",
    "source_instance": "c_res3",
    "basis": "passive-two-terminal",
    "pins": {
@@ -5302,7 +5302,7 @@
    }
   },
   "C151": {
-   "mpn": "MMK104J3DF1KN208G2",
+   "mpn": "B32643H8104J000",
    "source_instance": "c_res4",
    "basis": "passive-two-terminal",
    "pins": {
@@ -5317,7 +5317,7 @@
    }
   },
   "C152": {
-   "mpn": "MMK104J3DF1KN208G2",
+   "mpn": "B32643H8104J000",
    "source_instance": "c_res5",
    "basis": "passive-two-terminal",
    "pins": {

@@ -1,0 +1,12 @@
+{
+ "fitted_mpn": "DE1E3RA222MJ4BH01F",
+ "source": "Murata Type RA H01F reference specification (Jun. 2023) PDF p.9 part list: 2200 pF +-20 %",
+ "record_mA": 0.24123,
+ "budget_mA": 0.25,
+ "fitted_mA": 0.24123,
+ "fitted_margin_uA": 8.77,
+ "fitted_verdict": "PASS",
+ "control_pm30_mA": 0.25217,
+ "control_pm30_verdict": "FAIL",
+ "failed": []
+}

@@ -12,11 +12,11 @@
   "connectivity_authority": "frozen/default.net",
   "annotation_authority": "../prototype-closure/pcb/pin-functions21.json",
   "annotation_basis_counts": {
-    "passive-two-terminal": 250,
-    "native19-reviewed": 86,
-    "passive-untyped": 22,
+    "passive-two-terminal": 252,
+    "native19-reviewed": 83,
+    "passive-untyped": 23,
     "eco-pin-table": 14
   },
-  "netlist_sha256": "f974c1b2250f96b88322304ac180229cdc3fcd9b51c219927ea2bb11e72bf95e",
+  "netlist_sha256": "78364c8d4de622d563e3336b9b6e555ff4f3cfef6904f4d6a91ba3c5ad65bc86",
   "physical": "NOT_RUN"
 }

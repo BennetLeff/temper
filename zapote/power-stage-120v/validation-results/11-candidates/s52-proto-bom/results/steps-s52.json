@@ -1,0 +1,111 @@
+{
+ "mpn": "B32643H8104J000",
+ "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34",
+ "steps": [
+  {
+   "I_tank_A": 18.0,
+   "vendor_85C": 0.633,
+   "vendor_40k": 0.601,
+   "gate_strict": 0.647,
+   "T_op_max_C": 86.1,
+   "worst": {
+    "point": "design flow (base h20) @61",
+    "position": "interior",
+    "g_board_bound": "lo",
+    "T_A_C": 67.48,
+    "dT_col_K": 11.26,
+    "dT_allowed_K": 26.92
+   },
+   "strict_ok": true,
+   "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34"
+  },
+  {
+   "I_tank_A": 20.0,
+   "vendor_85C": 0.703,
+   "vendor_40k": 0.668,
+   "gate_strict": 0.718,
+   "T_op_max_C": 88.4,
+   "worst": {
+    "point": "design flow (base h20) @61",
+    "position": "interior",
+    "g_board_bound": "lo",
+    "T_A_C": 67.48,
+    "dT_col_K": 13.9,
+    "dT_allowed_K": 26.92
+   },
+   "strict_ok": true,
+   "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34"
+  },
+  {
+   "I_tank_A": 22.0,
+   "vendor_85C": 0.774,
+   "vendor_40k": 0.735,
+   "gate_strict": 0.79,
+   "T_op_max_C": 90.9,
+   "worst": {
+    "point": "design flow (base h20) @61",
+    "position": "interior",
+    "g_board_bound": "lo",
+    "T_A_C": 67.48,
+    "dT_col_K": 16.81,
+    "dT_allowed_K": 26.92
+   },
+   "strict_ok": true,
+   "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34"
+  },
+  {
+   "I_tank_A": 24.0,
+   "vendor_85C": 0.844,
+   "vendor_40k": 0.802,
+   "gate_strict": 0.862,
+   "T_op_max_C": 93.7,
+   "worst": {
+    "point": "design flow (base h20) @61",
+    "position": "interior",
+    "g_board_bound": "lo",
+    "T_A_C": 67.48,
+    "dT_col_K": 20.01,
+    "dT_allowed_K": 26.92
+   },
+   "strict_ok": true,
+   "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34"
+  },
+  {
+   "I_tank_A": 26.0,
+   "vendor_85C": 0.915,
+   "vendor_40k": 0.869,
+   "gate_strict": 0.934,
+   "T_op_max_C": 96.7,
+   "worst": {
+    "point": "design flow (base h20) @61",
+    "position": "interior",
+    "g_board_bound": "lo",
+    "T_A_C": 67.48,
+    "dT_col_K": 23.48,
+    "dT_allowed_K": 26.92
+   },
+   "strict_ok": false,
+   "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34"
+  },
+  {
+   "I_tank_A": 28.0,
+   "vendor_85C": 0.985,
+   "vendor_40k": 0.935,
+   "gate_strict": 1.006,
+   "T_op_max_C": 99.9,
+   "worst": {
+    "point": "design flow (base h20) @61",
+    "position": "interior",
+    "g_board_bound": "lo",
+    "T_A_C": 67.48,
+    "dT_col_K": 27.24,
+    "dT_allowed_K": 26.92
+   },
+   "strict_ok": false,
+   "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34"
+  }
+ ],
+ "highest_step_strict_A": 24.0,
+ "tank_A_at_vendor_0.85": 24.17,
+ "control_failed": []
+}

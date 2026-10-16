@@ -17,37 +17,37 @@
    "min_mm": 8.507,
    "pass": true,
    "between": [
-    "pad n_filt C4",
-    "pad pe C4"
+    "pad l_filt C3",
+    "pad pe C3"
    ],
    "at_mm": [
     225.0,
-    109.1
+    102.8
    ]
   }
  },
  "barrier_crossing_parts": [
   {
    "ref": "C3",
-   "mpn": "DE1E3RA222MA4BP01F",
+   "mpn": "DE1E3RA222MJ4BH01F",
    "land_gap_mm": 8.507,
    "board_pass": true,
    "package": {
     "clr": null,
     "cpg": null,
-    "src": "Murata DE1 Y1 safety capacitor: component approval basis, no package distance table",
+    "src": "Murata DE1 Type RA H01F Y1 (AC400 V) safety capacitor: component approval basis, no package distance table",
     "rating": "Y1 component approval (certificates in the datasheet ledger)"
    }
   },
   {
    "ref": "C4",
-   "mpn": "DE1E3RA222MA4BP01F",
+   "mpn": "DE1E3RA222MJ4BH01F",
    "land_gap_mm": 8.507,
    "board_pass": true,
    "package": {
     "clr": null,
     "cpg": null,
-    "src": "Murata DE1 Y1 safety capacitor: component approval basis, no package distance table",
+    "src": "Murata DE1 Type RA H01F Y1 (AC400 V) safety capacitor: component approval basis, no package distance table",
     "rating": "Y1 component approval (certificates in the datasheet ledger)"
    }
   },
