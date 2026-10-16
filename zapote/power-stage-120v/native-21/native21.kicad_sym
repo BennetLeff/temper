@@ -2335,7 +2335,7 @@
 ))
 (symbol "Part_R135" (pin_names (offset 0.508)) (in_bom yes) (on_board yes)
 (property "Reference" "R" (at 0 7.6200 0) (effects (font (size 1.27 1.27))))
-(property "Value" "0603WAF1002T5E" (at 0 -7.6200 0) (effects (font (size 1.27 1.27))))
+(property "Value" "0603WAF1003T5E" (at 0 -7.6200 0) (effects (font (size 1.27 1.27))))
 (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
 (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
 (symbol "Part_R135_0_1" (rectangle (start -12.7 -5.0800) (end 12.7 5.0800) (stroke (width 0.254) (type default)) (fill (type background))))

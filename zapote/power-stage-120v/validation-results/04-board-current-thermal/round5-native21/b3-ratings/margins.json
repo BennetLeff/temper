@@ -1113,7 +1113,7 @@
     "gated": false,
     "limit_c": 111.4,
     "est_c": 72.6,
-    "margin_k": 38.9
+    "margin_k": 38.8
    },
    {
     "item": "C22: MMKP Top,max 125 C case (TDK B3264*B June 2026 p.2, p.12)",
@@ -1777,8 +1777,8 @@
     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
     "gated": true,
     "limit_c": 150.0,
-    "est_c": 137.5,
-    "margin_k": 12.5
+    "est_c": 137.4,
+    "margin_k": 12.6
    },
    {
     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
@@ -2318,9 +2318,9 @@
   ]
  },
  "board_sha256": {
-  "c17.5_h10": "d04715873768ffbb3dde61ecc54510a0143a5e81ebdbc3949044e170abc5b466",
-  "c22_h10": "d04715873768ffbb3dde61ecc54510a0143a5e81ebdbc3949044e170abc5b466",
-  "c28_h10": "d04715873768ffbb3dde61ecc54510a0143a5e81ebdbc3949044e170abc5b466"
+  "c17.5_h10": "e842d9c8e04f7795f31f026706ab6a1bb74f2ae47d8ad46da1c2fb012b25d59f",
+  "c22_h10": "e842d9c8e04f7795f31f026706ab6a1bb74f2ae47d8ad46da1c2fb012b25d59f",
+  "c28_h10": "e842d9c8e04f7795f31f026706ab6a1bb74f2ae47d8ad46da1c2fb012b25d59f"
  },
  "metrics": {
   "b3_laminate_margin_K": -50.8,
