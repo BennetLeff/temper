@@ -181,17 +181,29 @@ Every IC supply pin (the "vcc" pins of `verify_controller.py`'s part models) has
 | KiCad DRC errors | **0** | `evidence/drc.json` |
 | Unconnected items | **0** | `evidence/drc.json` |
 | Schematic parity | 0 | `evidence/drc.json` |
-| DRC warnings | 35: connection_width 18, silk_edge_clearance 14, lib_footprint_mismatch 2, copper_sliver 1. connection_width is thin necks in zone fills; silk_edge_clearance is designators near the board edge; lib_footprint_mismatch is the two intended footprint edits (U20 pads, WROOM courtyard); copper_sliver is one F.Cu zone-fill sliver. No dangling track or via | `evidence/drc.json` |
-| JLC DFM (1 oz limits) | PASS: 1063 vias (the C34 RTD stitching grid included), 4299 tracks, 59 plated pads, 5 NPTH (J4's 2, J11's 3 TC2050 holes), min track 0.15 mm | `evidence/jlc-dfm.json` |
+| DRC warnings | 34: connection_width 18, silk_edge_clearance 14, lib_footprint_mismatch 2. connection_width is thin necks in zone fills; silk_edge_clearance is designators near the board edge; lib_footprint_mismatch is the two intended footprint edits (U20 pads, WROOM courtyard). No dangling track or via | `evidence/drc.json` |
+| JLC DFM (1 oz limits) | PASS: 1074 vias (the C34 RTD stitching grid included), 4314 tracks, 59 plated pads, 5 NPTH (J4's 2, J11's 3 TC2050 holes), min track 0.15 mm | `evidence/jlc-dfm.json` |
 | Enclosure + layout check | PASS on all 13 checks (C37 adds rtd_j3_protection: J3 cap / TVS edge gaps 2.83–5.45 mm, reported; the CR's 3 mm is set by the XH body, C37). Partition: L2 to the RTD front end 10.5 mm | `evidence/layout-check.json` |
-| Fab review (gerbv) | PASS: 1122 PTH hits (59 component, 1063 via), 5 NPTH, outline 206.0 × 76.0 mm | `evidence/fab-review.json` |
+| Fab review (gerbv) | PASS: 1133 PTH hits (59 component, 1074 via), 5 NPTH, outline 206.0 × 76.0 mm | `evidence/fab-review.json` |
 | Designators | 191 on silk, 94 on F.Fab only (all on the assembly drawing) | `evidence/silk-designators.json` |
 | `tools/verify_controller.py` | PASS, 233 checks in 16 sections; 50/50 mutation tests (`tests/test_verify_mutations.py`) | `evidence/verify.json` |
 | CPL rotations | audit rerun (C44, C45): 16 CORRECTED (U42 SN74LVC74APWR added, 270°), 224 OK, 44 NEEDS-PREVIEW (listed in `fab/fab-notes.md`); all 284 CPL lines equal the proposal | `evidence/fab-loose-ends/cpl-rotation/audit.json` |
-| Routing robustness | **Not re-proved for C1.** One full run from a clean start closed each of the C44 and C45 boards (this board is C45). Earlier C1 runs did not pass: run 1 closed with 10 copper-to-edge errors (an `rtd_sense_p_ext` route along the right edge; the pull-ups moved, C44); run 2 (detector inside the bus) left 1 pair open, also after a gridroute `--eco` attempt; run 3 (detector moved) closed but failed the partition gate. `convergence.json` is the L3 proof | `evidence/route-log.json` |
-| Block validators (C44, C45) | interlock 69 pass / 6 fail / 5 indeterminate, thermal-sense 88 / 9 / 7, RTD 5 / 33 / 5 (C34: 70 / 5 / 5, 88 / 9 / 7, 5 / 18 / 5). The new fails are the C35 HC30 swap (W6) and the C37 RTD filter (W7). Every FAIL and INDETERMINATE is waived line by line | `evidence/block-validators/` (`WAIVERS.md`, `summary.json`) |
+| Routing robustness | **3/3 consecutive full runs from a clean start close the C1 + CR-8 board** with all gates passing (C47; this board is run 3). Before the C44 placement fixes, C1 runs did not pass: run 1 closed with 10 copper-to-edge errors (an `rtd_sense_p_ext` route along the right edge; the pull-ups moved, C44); run 2 (detector inside the bus) left 1 pair open, also after a gridroute `--eco` attempt; run 3 (detector moved) closed but failed the partition gate. those placements were changed, not the router | `evidence/convergence.json`, `evidence/route-log.json` |
+| Block validators (C44, C45, C47) | interlock 69 pass / 6 fail / 5 indeterminate, thermal-sense 88 / 9 / 7, RTD 5 / 33 / 5 (C34: 70 / 5 / 5, 88 / 9 / 7, 5 / 18 / 5). The new fails are the C35 HC30 swap (W6) and the C37 RTD filter (W7). Every FAIL and INDETERMINATE is waived line by line; the same verdict counts on all three C47 convergence boards | `evidence/block-validators/` (`WAIVERS.md`, `summary.json`) |
 
-**Convergence (routing robustness).** `python3 layout/convergence.py --runs 3 --out <dir>` moves `pcb/route/` away before each run, so no run reuses copper, then runs the whole `make.py`. Result (`evidence/convergence.json`): runs 1, 2 and 3 each ended "ALL GATES PASS" (exit 0, about 753 s each), each with 0 errors, 0 unconnected, parity 0, and the same 22 warnings listed above. That L3 proof's committed board was run 3 (315 open pairs after placement; one 3 mm repair; closed in round 7; the three runs' logs were identical). The boards differ slightly between runs (KiCad's DRC lists pairs in varying order), but all close.
+**Convergence (routing robustness).** `python3 layout/convergence.py --runs 3 --out <dir>` moves `pcb/route/` away before each run, so no run reuses copper, then runs the whole `make.py`.
+
+**C47 proof (C1 + CR-8, 285 parts; current `evidence/convergence.json`):**
+
+| Run | Exit | Wall time | DRC errors / unconnected / parity | Warnings |
+|---|---|---|---|---|
+| 1 | 0, ALL GATES PASS | 5867 s | 0 / 0 / 0 | 42: connection_width 26, silk_edge_clearance 14, lib_footprint_mismatch 2 |
+| 2 | 0, ALL GATES PASS | 3670 s | 0 / 0 / 0 | 35: connection_width 19, silk_edge_clearance 14, lib_footprint_mismatch 2 |
+| 3 | 0, ALL GATES PASS | 3319 s | 0 / 0 / 0 | 34: connection_width 18, silk_edge_clearance 14, lib_footprint_mismatch 2 |
+
+The committed board and fab package are run 3's. Block validators on each run's board: identical verdict counts (69 / 6 / 5, 88 / 9 / 7, 5 / 33 / 5). The informative RTD layer-roles run has 69 / 91 / 61 clock-return findings; that routing detail varies per run.
+
+**L3 proof (history):** runs 1, 2 and 3 each ended "ALL GATES PASS" (exit 0, about 753 s each), each with 0 errors, 0 unconnected, parity 0, and the same 22 warnings listed above. That L3 proof's committed board was run 3 (315 open pairs after placement; one 3 mm repair; closed in round 7; the three runs' logs were identical). The boards differ slightly between runs (KiCad's DRC lists pairs in varying order), but all close.
 
 **Stage 16 convergence** (`evidence/convergence.json`, same tool, after the J13 / V15_BLW change): runs 1, 2 and 3 each ended "ALL GATES PASS" (exit 0; 1490, 1485 and 1467 s), each with 0 errors, 0 unconnected, parity 0. Warnings were 28, 29 and 29, all of the four kinds above. The committed board is run 3. Its round log (`evidence/route-log.json`):
 - 315 pairs open after placement; 18 after round 1; 4 after round 2.

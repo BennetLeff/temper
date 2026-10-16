@@ -751,17 +751,17 @@
     "RUN_EN"
    ],
    "route_length_mm": {
-    "permit": 68.6,
+    "permit": 66.1,
     "PERMIT_LATCH": 49.7,
     "RUN_EN": 213.5,
-    "bus_fault": 90.9,
+    "bus_fault": 91.4,
     "all_good": 36.6,
-    "reset_clock": 44.8,
-    "latched_fault": 56.7,
-    "HS_FAULT": 83.8,
-    "COIL_FAULT": 91.0,
-    "line": 195.3,
-    "RUNAWAY_FAULT": 155.2,
+    "reset_clock": 42.2,
+    "latched_fault": 55.8,
+    "HS_FAULT": 82.8,
+    "COIL_FAULT": 91.4,
+    "line": 208.7,
+    "RUNAWAY_FAULT": 155.0,
     "RAIL_FAULT": 34.4,
     "SENSOR_LIVE": 17.0
    }
@@ -769,15 +769,15 @@
   "thermal_relief": {
    "ok": true,
    "zones": [
-    "VIN_3V3",
-    "BLW_FEED2",
-    "SW_12",
-    "BLW_FEED1",
-    "SW_3V3",
     "VIN_12",
+    "BLW_FEED1",
+    "VIN_3V3",
+    "GND_F",
+    "SW_12",
+    "SW_3V3",
     "RTD_AVDD_F",
     "BLW_FEED0",
-    "GND_F",
+    "BLW_FEED2",
     "GND_B",
     "GND_plane",
     "V3V3_plane"
@@ -792,17 +792,17 @@
      "required_mm": 0.8,
      "min_width_mm": 0.8,
      "narrow_segments": [],
-     "stubs": 18,
-     "vias": 8,
-     "length_mm": 66.1
+     "stubs": 13,
+     "vias": 6,
+     "length_mm": 69.0
     },
     "V15_BLW": {
      "pour_outline_per_pad": {
       "C13.1": 0,
       "C14.1": 0,
-      "J13.1": 0,
+      "C15.1": 0,
       "C9.1": 0,
-      "C15.1": 0
+      "J13.1": 0
      },
      "one_pour_region": true,
      "pour_regions": 1,
