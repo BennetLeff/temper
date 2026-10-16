@@ -40,7 +40,7 @@ CHECKS = [
     # Limits are the stage-30 placement (validation-results/08-manufacturing-package/native-21/stage30-heartbeat/
     # spot_scan.py: nearest legal 0603 to each supply pin; U44 / C159 / C160 keep U34 / C141 / C142's stage-29 poses),
     # not manufacturer numbers; the datasheets say "as close as possible".
-    ("U46", "5", "3", 2.0, 4.0, SELV, "SN74LVC1G132 (heartbeat NAND; A held at v3v3 by R135 since stage 40)"),
+    ("U46", "5", "3", 2.0, 4.0, SELV, "SN74LVC1G132 (heartbeat NAND; A on PERMIT through R135 100 k since stage 50, v3v3 stage 40-49)"),
     # U45: until stage 40 C161's n_ls pad had no pour under it on any layer (monitor_ls-ref on F, vsense_in on In1,
     # ocp_kelvin_p on In2 and bus_fault_hot on B wall its pocket), and the limit was its measured 6.0 mm (DECISIONS 33).
     # Stage 40 (candidate 30b): the In1 n_ls LS-block plane reaches into the pocket and C161's own n_ls via at

@@ -62,10 +62,11 @@ def main() -> None:
     assert not any('.d_boot' in path or '.c_boot' in path for path in parts)
     # stage 30 (DECISIONS 33): the heartbeat (U32) carries the LS and HS-A verdicts (HS-A via a default-LOW ISO6721FB
     # link); stage 40 (candidate 30a): HS-B's too, on its own default-LOW ISO6721FB link and vote diode (D20), so U32 is the
-    # group's only HOT -> SELV crossing; the SELV NAND's gate input is held high (rgate); no opto in the monitor group
+    # group's only HOT -> SELV crossing; the SELV NAND's gate input is held high (rgate); no opto in the monitor group.
+    # stage 50 (c50-permit-gate): rgate is 100 k from PERMIT, so the heartbeat stops while PERMIT is low
     assert parts['hb.iso']['mpn'] == 'CA-IS3720HW' and parts['u_iso']['mpn'] == 'CA-IS3720HW'   # stage 31 (DECISIONS 34)
     assert parts['bias_ha.link']['mpn'] == parts['bias_hb.link']['mpn'] == 'ISO6721FBDR' and 'bias_hb.verdict' not in parts
-    assert parts['hb.vote']['mpn'] == parts['hb.vote_b']['mpn'] == 'BAT54S-7-F' and parts['hb.rgate']['mpn'] == '0603WAF1002T5E'
+    assert parts['hb.vote']['mpn'] == parts['hb.vote_b']['mpn'] == 'BAT54S-7-F' and parts['hb.rgate']['mpn'] == '0603WAF1003T5E'
     assert parts['hb.buf']['mpn'] == 'SN74LVC1G132DBVR'
     assert parts['hb.cp1']['mpn'] == parts['hb.cp2']['mpn'] == 'C0603C102J5GACTU' and parts['hb.rbleed']['mpn'] == 'RT0603BRD0749K9L'
     assert not any(path.endswith(('.rnotice', '.dnotice', '.qnotice', '.rbase')) for path in parts)

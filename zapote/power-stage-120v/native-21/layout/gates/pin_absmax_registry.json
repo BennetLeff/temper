@@ -1124,10 +1124,10 @@
    "ref": "selv_gnd",
    "nets": [
     "selv_gnd",
-    "v3v3"
+    "permit"
    ],
-   "cite": "frozen netlist: R135 pin 1 on v3v3 (default.net:3360), pin 2 on hsb_good with U46.1 (default.net:3166-3168)",
-   "derive": "U46 input A tied high through R135 to V3V3; its only other connection is a high-impedance CMOS input, so the node lies in [SELV_GND, V3V3]"
+   "cite": "frozen netlist: R135 pin 1 on permit (default.net:3488), pin 2 on hsb_good with U46.1 (default.net:3253-3255); stage 50 (c50-permit-gate)",
+   "derive": "U46 input A driven from PERMIT through R135 (100 k); its only other connection is a high-impedance CMOS input, so the node lies in [SELV_GND, PERMIT]"
   },
   "hot5_en": {
    "kind": "divider",

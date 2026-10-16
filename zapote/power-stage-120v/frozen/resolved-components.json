@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "b79c6789a67b873b61e808731e92d0c2a8c7835dcee54dfa6ef969d0f82f4a6f",
+    "build/default.csv": "c9b9ee46d780573f6b2705b2777fc49f7bbfdbbca7f14df9878a57502c917218",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "72776e70dfbf0d3ac9c26451a14a32732658c88772af3c7ca1389423ec24e575",
+    "build/default.net": "c209c1015e0a73fa9bb2d7a6798919313cdcc758f8b8c19ab84b3192c9709772",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -3811,8 +3811,8 @@
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
         "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-        "mpn": "0603WAF1002T5E",
-        "value": "10kohm"
+        "mpn": "0603WAF1003T5E",
+        "value": "100kohm"
       }
     },
     {
@@ -4013,10 +4013,10 @@
   "entry": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V",
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
-    "elec/src/f6_bias.ato": "2005b776b02862baa4731cab15d3658c108983a06562fbbe36fb0a4282c22a85",
+    "elec/src/f6_bias.ato": "8996f6daa5ec90f8c359e3effbe0af55dc646f20730e27dbefc74885b080960d",
     "elec/src/f6_parts.ato": "bcca99f9c3b6b33f16a36c900de9d187710624155801f8ba0ec62c797fd69b88",
     "elec/src/parts.ato": "ec5f53118b498c9f2e5555b410093d476dd88facdcae4a23adbcd05485ce399b",
-    "elec/src/power_stage_120v.ato": "96f239e952b6068038af30c78aa460a918a5a88a04283d6a8e7c18a8250a298d",
+    "elec/src/power_stage_120v.ato": "c49f819d68b256d92ba0908c6b9f1efdcd3b8dfd5f9333a8746dd478f75cf6ce",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

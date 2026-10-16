@@ -1006,6 +1006,8 @@ module PowerStage120V:
     hb.ha ~ MON_GOOD_HA
     hb.hb ~ MON_GOOD_HB
     hb.gate ~ HSB_GOOD
+    # stage 50 (c50-permit-gate): U46.A takes PERMIT through R135 100 k
+    hb.permit ~ PERMIT
     hb.v3v3 ~ V3V3
     hb.selv_gnd ~ SELV_GND
     u_bias_flt = new SchmittBuf17

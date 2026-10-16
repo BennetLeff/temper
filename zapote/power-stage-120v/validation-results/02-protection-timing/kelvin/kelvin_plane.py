@@ -51,7 +51,9 @@ DIVIDER = {"native21s13": (12.4e3, 11.7e3), "native21s13b": (12.4e3, 11.7e3), "n
            "native21s17b": (12.6e3, 11.7e3), "native21s18": (12.6e3, 11.7e3),
            "native21s19": (12.6e3, 11.7e3), "native21s19b": (12.6e3, 11.7e3), "native21s19c": (12.6e3, 11.7e3), "native21s20": (12.6e3, 11.7e3), "native21s21": (12.6e3, 11.7e3), "native21s21b": (12.6e3, 11.7e3), "native21s22": (12.6e3, 11.7e3), "native21s26": (12.6e3, 11.7e3), "native21s27": (12.6e3, 11.7e3), "native21s28": (12.6e3, 11.7e3), "native21s29": (12.6e3, 11.7e3), "native21s30": (12.6e3, 11.7e3), "native21s31": (12.6e3, 11.7e3), "native21s32": (12.6e3, 11.7e3), "native21s33": (12.6e3, 11.7e3), "native21s35": (12.6e3, 11.7e3), "native21s38": (12.6e3, 11.7e3), "native21s40": (12.6e3, 11.7e3), "native21s41": (12.6e3, 11.7e3), "native21s42": (12.6e3, 11.7e3), "native21s43": (12.6e3, 11.7e3), "native21s44": (12.6e3, 11.7e3), "native21s45": (12.6e3, 11.7e3), "native21s46": (12.6e3, 11.7e3), "native21s47": (12.6e3, 11.7e3), "native21s48": (12.6e3, 11.7e3),
            # stage 49 (S23 B'-1.02 V): R34 16 k / R35 11 k, and R32 10 k / R33 7.5 k (the offset leg is no longer 1:1)
-           "native21s49": (16e3, 11e3, 10e3, 7.5e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
+           "native21s49": (16e3, 11e3, 10e3, 7.5e3),
+           # stage 50 (c50-permit-gate): divider unchanged from s49
+           "native21s50": (16e3, 11e3, 10e3, 7.5e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
 PLATING_UM, PITCH, TEMP = 18.0, 0.1, 125.0
 
 

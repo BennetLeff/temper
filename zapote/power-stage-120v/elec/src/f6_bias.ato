@@ -440,9 +440,13 @@ module Heartbeat:
     (candidate 30a): HS-B's verdict joins the LS vote as M1b drew it, so the group crosses HOT -> SELV once (U32).
     The LS, HS-A and HS-B verdicts meet on the LS 'good' node (LS wired-AND, plus one BAT54S half per HS link output,
     anode on the node: D18 for HS-A, D20 for HS-B). While all are good, a Schmitt-NAND RC oscillator (0.42-2.09 us)
-    runs and U32 (CA-IS3720HW) carries the square wave to SELV. There the Schmitt NAND U46 (A held high by rgate; it
-    acts as the M1b buffer, and the pump is AC-coupled so its inversion is irrelevant) drives a diode charge pump into
-    C_hold || R_bleed; the hold node feeds U40 (G17) -> BIAS_GOOD. Any static state anywhere (a rail bad, oscillator,
+    runs and U32 (CA-IS3720HW) carries the square wave to SELV. There the Schmitt NAND U46 (A = PERMIT through rgate
+    100 k since stage 50, so the heartbeat runs only while the controller permits; the pump is AC-coupled so its inversion
+    is irrelevant) drives a diode charge pump into C_hold || R_bleed; the hold node feeds U40 (G17) -> BIAS_GOOD.
+    Stage 50 (11-candidates/c50-permit-gate, OPEN-ITEMS B13 H2 option P): BIAS_GOOD is low whenever PERMIT is low, so the
+    controller proves the chain low at every idle tick and high after every PERMIT rise (<= 11.76 us to the hold
+    threshold); DIS = NAND(PERMIT, bias_ok AND PERMIT) = NOT(PERMIT AND bias_ok) is unchanged, and PERMIT gains a second
+    stop path through the heartbeat (<= 90.3 us, 122.9 us with one pump cap shorted). Any static state anywhere (a rail bad, oscillator,
     isolator, NAND, pump or LS 5 V dead or stuck) stops the wave and the hold node bleeds below VT- in <= 90 us (123 us
     with one pump cap shorted): announced, not dormant. A link isolator stuck HIGH is dormant, as in M1b."""
     signal ls_v5
@@ -463,6 +467,7 @@ module Heartbeat:
     signal vote_nc
     signal hb
     signal vote_b_nc
+    signal permit
     # HS-A's link output pulls the LS 'good' node low through one half of a BAT54S (the other half's cathode is open).
     vote = new SchottkyPairSeries
     vote.A1 ~ good
@@ -510,18 +515,20 @@ module Heartbeat:
     civcc2.p1 ~ v3v3
     civcc2.p2 ~ selv_gnd
     # SELV Schmitt NAND: the heartbeat on B (pin 2, the G17's input pad). Stage 40: A (gate, net HSB_GOOD) no longer
-    # carries HS-B's verdict; rgate holds it at v3v3, so the NAND is the M1b buffer (inverting; the pump is AC-coupled).
-    # rgate sits where the stage-30 verdict isolator drove the line, outside the locked SELV spine. Open, A floats: it
-    # can only stop or upset the pump (announced or nuisance), never hold the wave up.
+    # carries HS-B's verdict. Stage 50: rgate (R135) runs from PERMIT, not v3v3, so the NAND passes the wave only while
+    # PERMIT is high. 100 k, not 10 k: with the controller's U37 Hi-Z and a v3v3-level source on hsb_good (double fault)
+    # PERMIT sits at 0.27 V on its 8.33 k pull-downs, below U22 / U23 VIL (1.58 V with 10 k). The net keeps its name
+    # HSB_GOOD (a rename would change the spine's hsb_good track keys). rgate sits outside the locked SELV spine. Open, A
+    # floats: it can only stop or upset the pump (announced or nuisance), never hold the wave up.
     buf = new SchmittNand132
     buf.VCC ~ v3v3
     buf.GND ~ selv_gnd
     buf.B ~ hb_rx
     buf.A ~ gate
     buf.Y ~ hb_bufo
-    rgate = new R10k0603
-    rgate.value = 10kohm
-    rgate.p1 ~ v3v3
+    rgate = new R100k0603
+    rgate.value = 100kohm
+    rgate.p1 ~ permit
     rgate.p2 ~ gate
     cbuf = new C100n0603
     cbuf.value = 100nF

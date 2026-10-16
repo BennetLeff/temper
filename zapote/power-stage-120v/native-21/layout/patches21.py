@@ -915,6 +915,45 @@ def edit_base49(base):
     return 3
 
 
+# Stage 50 (c50-permit-gate, DECISIONS 71): R135.1 leaves v3v3 for PERMIT (U46.A gated by PERMIT through 100 k). The F.Cu
+# v3v3 stub R135.1 -> (32.5, 109.675) goes; the via stays (C168.1's F.Cu stub and the B.Cu v3v3 run share it). A 0.25 mm
+# F.Cu permit stub runs R135.1 (32.525, 108.3) east to PERMIT's leg-B trace at x 33.95, whose polyline takes a vertex at
+# (33.95, 108.3) so the stub ends on a segment end (a T at a vertex, not mid-segment). Stub edge 0.95 mm from the via
+# (edge y 109.375), U46 and every other pad and track unchanged.
+S50_RM = ("v3v3", "F.Cu", "R135.1", (32.5, 109.675))
+S50_STUB = ("permit", "F.Cu", 0.25, ["R135.1", [33.95, 108.3]])
+S50_PERMIT_SEG = ((33.95, 70.165), (33.95, 109.965))
+S50_TEE = (33.95, 108.3)
+
+
+def edit_base50(base):
+    """Stage 50 edit of a frozen base copper dict (in place); a no-op on a base that already carries it."""
+    r3 = lambda q: q if isinstance(q, str) else (round(q[0], 3), round(q[1], 3))
+    tr = base["tracks"]
+    if any(t["net"] == "permit" and "R135.1" in t["points"] for t in tr):
+        return 0
+    net, lay, a, b = S50_RM
+    hit = [t for t in tr if t["net"] == net and t["layer"] == lay and [r3(q) for q in t["points"]] == [a, b]]
+    if len(hit) != 1:
+        raise SystemExit(f"stage 50: v3v3 F.Cu stub R135.1 -> {b} not found once ({len(hit)})")
+    tr.remove(hit[0])
+    if sum(1 for v in base["vias"] if v["net"] == "v3v3" and r3(v["at"]) == b) != 1:
+        raise SystemExit(f"stage 50: v3v3 via {b} (C168.1 / B.Cu v3v3) not found once")
+    p, q = S50_PERMIT_SEG
+    leg = [t for t in tr if t["net"] == "permit" and t["layer"] == "F.Cu"
+           and any(r3(t["points"][i]) == p and r3(t["points"][i + 1]) == q for i in range(len(t["points"]) - 1))]
+    if len(leg) != 1:
+        raise SystemExit(f"stage 50: PERMIT leg-B F.Cu segment {p}..{q} not found once ({len(leg)})")
+    pts = leg[0]["points"]
+    i = next(i for i in range(len(pts) - 1) if r3(pts[i]) == p and r3(pts[i + 1]) == q)
+    leg[0]["points"] = pts[:i + 1] + [list(S50_TEE)] + pts[i + 1:]
+    net, lay, w, pts = S50_STUB
+    tr.append({"net": net, "layer": lay, "width": w, "points": [pts[0], list(pts[1])]})
+    print("stage 50: R135.1 v3v3 F.Cu stub removed (via kept); permit F.Cu stub R135.1 -> (33.95, 108.3), "
+          "T at a new vertex of PERMIT's leg-B trace")
+    return 2
+
+
 def add_stage33(g):
     """Six-layer phase A additions (no-op without image_planes): image pours, then their stitching vias."""
     if not IMAGE_PLANES:

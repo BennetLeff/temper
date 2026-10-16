@@ -501,7 +501,7 @@ const IDENTITY: &[(&str, &str)] = &[
     ("bias_hb.link", "ISO6721FBDR"),   // stage 40 (candidate 30a): HS-B -> LS, default LOW
     ("hb.vote", "BAT54S-7-F"),
     ("hb.vote_b", "BAT54S-7-F"),
-    ("hb.rgate", "0603WAF1002T5E"),
+    ("hb.rgate", "0603WAF1003T5E"),   // stage 50 (c50-permit-gate): 100 k from PERMIT (10 k from v3v3 before)
     ("hb.osc", "SN74LVC1G132DBVR"),
     ("hb.rosc", "0603WAF4991T5E"),
     ("hb.cosc", "CL10C331JB8NNNC"),
@@ -2146,6 +2146,22 @@ mod tests {
         let mut m = built();
         m.rewire("j_selv", "1", "bias_good");
         fails(&m, "j_selv.1");
+    }
+
+    #[test]
+    fn stage50_heartbeat_gated_by_permit() {
+        // c50-permit-gate: U46.A (hsb_good) takes PERMIT through R135 100 k; the stage-40 pull-up to v3v3 and the
+        // 10 k part both fail (10 k: a U37 Hi-Z + v3v3-on-hsb_good double fault would put PERMIT at 1.58 V)
+        let m = built();
+        assert!(audit(&m).is_empty(), "{:#?}", audit(&m));
+        assert_eq!(m.net_of("hb.rgate", "1").as_deref(), Some("permit"));
+        assert_eq!(m.net_of("hb.rgate", "2").as_deref(), Some("hsb_good"));
+        let mut m = built();
+        m.rewire("hb.rgate", "1", "v3v3");
+        fails(&m, "hb.rgate.1");
+        let mut m = built();
+        m.set_part("hb.rgate", "0603WAF1002T5E");
+        fails(&m, "hb.rgate is 0603WAF1002T5E");
     }
 
     #[test]

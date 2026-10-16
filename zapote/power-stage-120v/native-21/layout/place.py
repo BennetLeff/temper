@@ -518,7 +518,8 @@ STAGE40 = {"bias_hb.link": (3.25, 47.25, 270.0),
            # MON_GOOD_HB from the pocket, D18 MON_GOOD_HA from U43, and the GOOD node runs the LS corridor once, in
            # MON_GOOD_HA's old lane, instead of a verdict line per link (the corridor has room for one more lane nowhere)
            "hb.vote_b": (53.75, 51.5, 270.0), "hb.vote": (57.35, 49.5, 270.0),
-           # R135 on the old SELV pocket: pad 1 (v3v3) over the v3v3 via (32.5, 109.675), pad 2 over hsb_good's (30.875, 109.765)
+           # R135 on the old SELV pocket: pad 1 (v3v3) over the v3v3 via (32.5, 109.675), pad 2 over hsb_good's (30.875, 109.765).
+           # Stage 50 (c50-permit-gate): pad 1 is on PERMIT (100 k), stubbed east to PERMIT's x 33.95 trace (edit_base50)
            "hb.rgate": (31.7, 108.3, 180.0),
            # C168 (pwm_hb's fifth v3v3 / selv_gnd transfer cap) beside pwm_hb's B.Cu -> F.Cu via at (34.4, 110.6), in place
            # of the old verdict isolator's SELV decoupler; pad 1 (v3v3) north on R135's v3v3 via, clear of TP17 (PERMIT)

@@ -498,6 +498,9 @@ def load(base_path, patches=True, prune=False):
     # stage 49 (candidate 34): the P22.5 resonant bank's B.Cu strips re-cut and line_zc_raw's y 121.27 run moved to 122.75
     if hasattr(patches21, "edit_base49"):
         patches21.edit_base49(base)
+    # stage 50 (c50-permit-gate): R135.1 re-netted v3v3 -> permit; its v3v3 stub out, a permit stub to the leg-B trace
+    if hasattr(patches21, "edit_base50"):
+        patches21.edit_base50(base)
     # nets renamed in the source since the base was frozen keep their base copper (patches21.RENAME_NETS)
     ren = getattr(patches21, "RENAME_NETS", {}) if patches else {}
     for kind in ("zones", "tracks", "vias"):

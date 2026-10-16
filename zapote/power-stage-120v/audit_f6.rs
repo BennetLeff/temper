@@ -211,14 +211,15 @@ fn connections() -> Vec<(String, String, String)> {
         }
     }
     // Stage 30 heartbeat (f6_bias.ato Heartbeat; FMEA 6a design J). LS: diode-AND vote, gated G132 oscillator,
-    // U32 the heartbeat's reinforced crossing; SELV: G132 NAND (A held high by rgate since stage 40), 220 ohm, 2 x 1 nF
-    // series, BAT54S pump, hold. Stage 40: HS-B's link output joins the vote through D20's K1/A2 -> K2 half.
+    // U32 the heartbeat's reinforced crossing; SELV: G132 NAND (A held high by rgate since stage 40; from PERMIT through
+    // rgate 100 k since stage 50, c50-permit-gate), 220 ohm, 2 x 1 nF series, BAT54S pump, hold. Stage 40: HS-B's link
+    // output joins the vote through D20's K1/A2 -> K2 half.
     for (part, pin, net) in [
         ("vote", "1", "monitor_ls-good"),
         ("vote", "3", "mon_good_ha"),
         ("vote_b", "3", "monitor_ls-good"),
         ("vote_b", "2", "mon_good_hb"),
-        ("rgate", "1", "v3v3"),
+        ("rgate", "1", "permit"),
         ("rgate", "2", "hsb_good"),
         ("osc", "1", "monitor_ls-good"),
         ("osc", "2", "hb_rc"),
