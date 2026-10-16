@@ -296,6 +296,11 @@ At 28 A the 62 A cap binds: with the peak estimate at 2.17 × RMS, the loop's pe
 - Stage-15 board confirmed: R34 = 12.6 kΩ (RT0603BRD0712K6L), R43/R46 = 2.21 kΩ (RT0603BRD072K21L).
 - Steps 0–9a above passed at 17.5 A, with the record filed.
 - The bench R_on gate-row reading (DECISIONS 55 open item: the R_on power basis, 0.217 W charge split against ~0.17 W simulated), filed.
+- **Fitted bank part, per board** (power-stage stage 52, DECISIONS-DRAFT 74; OPEN-ITEMS S28). Read the bank-variant fit mark on F.SilkS beside the bank column (C21–C23 / C151 / C152) and the parts' own marking, and enter the fitted part in the record:
+  - **H** = TDK B32643H8104J000 (the prototype bank): the ladder **stops at 24 A** (vendor ratio 0.844 and bank_air strict 0.862 at 24 A; 26 A fails the 85 % rule at 0.915).
+  - **A board marked H, or with no mark ticked, is never commissioned above 24 A**, whatever its other gates show.
+  - **B** = TDK B32643B8104J000 (the 28 A part, same 22.5 mm hole): 26 and 28 A stay **bench-gated** like every step (gates 0–7, gate 1 on this part); the mark alone raises nothing, and the firmware ceiling for a B board is set only by the per-step record.
+  - A board with the in-stock fallback KNSCHA MMK104J3DF1KN208G2 (27.5 mm hole, stage 51; no tick box) stops at **22 A** (24 A only with the bench gap-flow credit, S25).
 
 **Per step N = 18, then 20, 22, 24, 26, 28 A — never skip a step.** Each step first needs the hot-copper B3 thermal basis at N (gate 0); without it the ceiling stays where it is. Set N only in the bench config, run every gate at N A on the worst-case pan for the gate (and the 132 V line where it matters), and file the evidence:
 
@@ -303,7 +308,7 @@ At 28 A the 62 A cap binds: with the peak estimate at 2.17 × RMS, the loop's pe
    - board-face airflow per `zapote/power-stage-120v/validation-results/11-candidates/airflow28-2026-10-16/README.md` §7 (the cold-copper `ENCLOSURE-REQUEST.md` is superseded), with h **measured on the board** by `11-candidates/bench-h-2026-10-16/results.md` (power-stage DECISIONS 69): step N passes only if the fitted h − U95 at the worst condition (clogged filter + aged fan) is ≥ the step's h_req and the nominal h ≥ 1.2 × h_req, and the gate-0 B3 case at that lower bound passes on the board fitted. The firmware then needs the face fan's tach and stall clamp to 17.5 A and a minimum fan drive for N (power-stage OPEN-ITEMS S26); or
    - a measured bay air below 61 °C in the enclosure (worst case, B3 heat included) and the hot-copper B3 basis re-run at that bay air; or
    - a board revision whose hot-copper B3 basis passes at N in still air at 61 °C.
-1. **Bank hot-spot:** 10 min at N A, IR / thermocouple on the hottest TDK B32654A part. Rise ≤ 20 K at the enclosure ambient, or within TDK's p.57 curve at the measured local ambient (round 6: 0.89× at 22 A, 1.05× at 26 A, 1.12× at 28 A of the 85 °C curve).
+1. **Bank hot-spot:** 10 min at N A, IR / thermocouple on the hottest fitted bank part (the recorded bank variant; B32654A on pre-s49 boards). Rise ≤ 20 K at the enclosure ambient, or within TDK's p.57 curve at the measured local ambient (round 6: 0.89× at 22 A, 1.05× at 26 A, 1.12× at 28 A of the 85 °C curve).
 2. **Coil:** R_ac ≤ 0.23 Ω at 40 kHz / 100 °C on the fitted coil (DECISIONS 10/12; 0.25 Ω is the acceptance limit but holds only 27.2 A), and winding temperature at N A, full blower, within the enclosure's coil limit; the coil-NTC derating loop stays enabled.
 3. **Switching loss** at 45–50 kHz at N A (basis A vs B): FET Tj ≤ 125 °C with the fitted sink (basis A needs R_SA ≤ 0.233 °C/W at 28 A).
 4. **Measured trip points:** the step 3 CT trip (both polarities) and shunt OCP measurements on this board; the derived firmware peak trip at N must be below the measured CT low trip, and the measured CT and shunt low trips must clear the round-6 envelope peak at N + 3 A pickup + 2 A (64.17 A at 28 A, stage-15 PLAN §1 basis A).
@@ -338,6 +343,7 @@ Then one reviewed change sets `CONFIG_TEMPER_POWER_CALIBRATED=y`, enters the mea
 
 | Field | Kconfig | Provisional | Measured | Step |
 |---|---|---|---|---|
+| Fitted bank part (bank-fit mark H / B, or none; parts' marking) | — | H: B32643H8104J000 (24 A max) | | ceiling precondition |
 | VBUS zero offset | `VBUS_OFFSET_UV` | 0 | | 1 |
 | VBUS gain | `VBUS_GAIN_PPM` | 0 (1.0) | | 1, 5 |
 | CT_MON idle zero | `CT_MON_ZERO_MV` | 0 (1650) | | 1 |
