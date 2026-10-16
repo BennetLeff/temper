@@ -431,7 +431,7 @@ Source: the C30 re-run of the interlock, thermal-sense and RTD validators (`evid
 1. **Owner:** confirm D-18 is superseded, so the fan can sit on PS1 through the controller (C9).
 2. **Owner:** M12 probe type and pin map (C14).
 3. **UI board (R33, C26):** the encoder part and its supply (3.3 V, or 5 V within J7.1's 30 mA), the buzzer part (≤ 90 mA on J7.2), and whether STOP should be a hardware trip. The UI board must not pull D/C up (GPIO45 strap).
-4. **Owner:** the runaway band. **DEFAULT** 296.6–319.1 °C (C6). It is set only by the 20k/10k ratio, so a new band is one resistor change. `verify_controller.py` checks that the fitted ratio equals `controller_calcs.py`, and `runaway()` reports the band. The BIAS-on start-up sequence for firmware stays.
+4. **Owner:** the runaway band. **Now 298.8–323.1 °C** with the C1 leads and the divider on S− (C38; the C6 DEFAULT was 296.6–319.1 °C). It is set only by the 20k/10k ratio, so a new band is one resistor change. `verify_controller.py` checks that the fitted ratio equals `controller_calcs.py`, and `runaway()` reports the band. The BIAS-on start-up sequence for firmware stays.
 5. **Bench:** the AD8436 settling with CAVG = 100 nF (the linear scaling from the datasheet's 10 µF figure is an assumption), and the envelope-tracking error over a half line cycle (C19).
 6. **Power-stage:** the J4 harness spec. **DEFAULT:** ≤ 1 m AWG22 (R27's route is 74 mm). `controller_calcs.py harness_sensitivity()` shows native-21 still sees ≥ 3.208 V even at 8 m, so the design does not depend on this default. D-11's ≤ 400 pF/≤ 200 pF capacitance limits apply.
 7. **Procurement:** AD8436BRQZ has zero JLC stock (consign or buy from ADI or a distributor). The TPS3703 Q1 has only 18 at JLC. MCP3202 has 197. Ported parts with JLC stock 0 or near 0: ERA-3AEB1652V and RG2012V-431-W-T1 (RTD block), and CD74HC30PWR (interlock, 7 in stock). See `bom/controller-parts.json`.
@@ -456,6 +456,11 @@ Source: the C30 re-run of the interlock, thermal-sense and RTD validators (`evid
 12. **R32 delta:** the blower output (C28) and the NTC filtering (C29) are designed in. The RTD filter is a change request to the RTD unit (C29).
 13. ~~**Owner / power stage: PS1 at full blower speed (C28).**~~ **Closed by C33 (stage 16):** the blower buck runs from PS3 (IRM-60-15ST) through J13; PS1 now carries 4.83 W of 21 W.
 14. **RTD unit / layout (C34):** the RTD SPI nets' return. Under the controller's own layer roles the RTD validator fails them where they run on B.Cu over the v3v3 plane (WAIVERS W4). Either route them like the RTD analog nets (F/In2, return vias) or accept the v3v3 image; and a per-board `return_planes` in the RTD profile (a change for the RTD unit's owner) would make that check part of the verdict.
+15. **Power stage (C39):** the 2EDR8259X DIS-to-output delay (not in its datasheet). ≤ 190 ns: the capacitive-mode detector vetoes the first S4 edge; under half a period, one S4 edge passes. Bench it with the D-8 double-pulse set-up. Also confirm the CT_ZC polarity and its first-edge behaviour at low current (strap R72 if reversed).
+16. **Bench T3 (C38):** the rim maximum under a 250 °C hold, before the rim trip's 86.6 k is fitted for use. The trip band is 262.1–288.3 °C.
+17. **Procurement (C37):** RG2012V-431-W-T1 (Rref) has stock 0 at JLC/LCSC: consign it. SN74LVC74APWR has 1,588.
+18. **Firmware (C37, C39, C42):** threshold word 35542 (not CR-7's 35544); manual MAX31865 fault cycle; bursts start at or above resonance; RUN_EN raised only with PWM idle; WDI only from the supervisor task.
+19. **Enclosure (C40, C41):** the J12 harness gets a third (drain) contact; J11 is a flush TC2050 land (no header height).
 
 ## Layout inputs from the enclosure (R27, 2026-10-08)
 
@@ -521,3 +526,85 @@ Applied on the C34 board without a re-route: `layout/refresh_parts.py` re-stamps
 - `verify_controller.py`: HC30 and AD8436 models are keyed by the new MPNs (same pin tables and budgets); VERIFY PASS, 33/33 mutation tests.
 - **CPL:** `CPL_ROTATION_OFFSET` in `layout/fab.py` (keyed by LCSC code) folds the 15 audited corrections (U5-U9, U15, U20-U24, U30, U36, U38, U39) into `fab/cpl-jlcpcb.csv`; `fab/cpl-jlcpcb.csv` equals the audit's proposed CPL. The audit was re-run on the C34 board (it moved C31, C18, C51, R43-R45, all symmetric passives, class OK): 197 OK / 15 CORRECTED / 36 NEEDS-PREVIEW (the old 37 included J13, now resolved by the new code). `audit.py` now reads the KiCad rotation from the board so re-running it after the fold is idempotent. The 36 NEEDS-PREVIEW lines are in `fab/fab-notes.md`.
 - **New fab hashes:** frozen netlist sha256 `2f5c40d238bed1f67dfe88a3701d25ba4480784209620a033c7ddc5614d98d1f`; `fab/controller-gerbers.zip` sha256 `9331ee6de5c5e192f582c8d0f38cbce5e7a00d2b60313f38b4fb09085d61938d` (the Gerber files differ from C34 only in their creation-date lines); `fab/bom-jlcpcb.csv` `ca5aa070...`; `fab/cpl-jlcpcb.csv` `b575b4d5...`. Gates: DRC 0 errors / 0 unconnected / parity 0, DFM PASS, layout check 12/12, fab review PASS.
+
+## C37. Pan RTD sense filter and J3 protection (sensor-r3 CR-1, CR-2; 2026-10-15, branch controller-c1-crs)
+Source: `sensor-c1-impulse-mining:output/temper-sensor-r3/pcb/CHANGE-REQUEST.md` (commit 1431caad5). Applied exactly as specified.
+- **Block:** `rtd_pan` is now `RTDSensingC1` (`elec/src/rtd_c1_block.ato`), generated by `tools/port_rtd_c1.py` from the byte-identical library `RTDSensing` plus a listed set of line edits and an appended C1 section. `port_rtd_c1.py --check` is a verifier check (`sources`), so the block cannot drift from the library or from the change request.
+  - Two-stage differential RC per sense line: 1.00 k (RT0603BRD071KL) / 100 nF C0G 1206 (GRM31C5C1H104JA01L) / 1.00 k / 100 nF C0G 1206 across RTDIN±, plus 1 nF C0G from each RTDIN pin to selv_gnd.
+  - 220 nF X7R (CC0603KRX7R9BB224) and an ESD5Z3.3T1G on each J3 pin.
+  - The 499 k open-input pull-ups (RC0603FR-07499KL), the window branch and the low-window return move to the connector-side nodes (`rtd_sense_p_ext` / `rtd_sense_n_ext` = J3.2 / J3.3); 10 nF C0G on the window node.
+  - No series resistance in FORCE±.
+- **CR-2, Rref:** the library's RG2012V-431-W-T1 (0.05 %, 5 ppm/K) again; the C35 RT0805BRD07430RL override is removed. **Sourcing:** JLC/LCSC stock 0 on 2026-10-15 (`evidence/c1-crs/new-parts-snapshot.json`): consign it. Reason: CR-1's accuracy budget (`checks.py` item 1b) is computed with 0.05 % / 5 ppm.
+- **As-built check:** `evidence/sensor-r3-checks/run_as_built.py` reads the frozen netlist, rebuilds the sensor-r3 design dict from the captured parts and runs the unmodified `checks.py` items (two input paths pointed at copies in that folder). Result `checks-as-built.json`: **no difference from the change request; 11/11 gates PASS** (pickup 0.105 LSB worst DM at 20 kHz, runaway shift 0.03 K, open lead detected, protection, ratings).
+- **Firmware (to the sensor/firmware owner):**
+  - High threshold word: `checks.py` and CR-7 give 35544, which is 233.22 Ω and lies outside the 233.21 Ω window; the firmware's **35542** (sensor-r3 `firmware/DECISIONS.md` D-THRESH) is the right one.
+  - With the CR-1 filter the input time constant is far above the MAX31865's 100 µs limit for the **automatic** fault-detection cycle. `checks.py` firmware constants call for the **manual** cycle (5 ms wait). Firmware must not use the automatic cycle with this board.
+- **Layout:** the CR asks for the 220 nF and TVS within 3 mm of the J3 pads. That cannot be met: J3's XH body runs 3.44 mm in front of its pin row (courtyard), and the MAX31865 sits 2.6 mm in front of that. Placement (`floorplan.py`): the TVS (upright) and the sense-line caps (flat) in the strip between the MAX31865 and J3, directly in front of their pins; the J3.4 pair and the pull-ups right of J3; the J3.1 cap left of the strip. Pad-to-pad distances are measured on the routed board and reported in `evidence/layout-check.json` (`rtd_j3_protection`); the TVS-to-pin figure is set by the connector body, not by the layout. R1/C1/R2 sit in two rows right of the MAX31865, in front of the Ø8 hole keep-out; `c_rtd_input` keeps the ≤ 3 mm rule to pins 10 / 11.
+
+## C38. Runaway trip referred to S−, and a rim-NTC hardware trip (sensor-r3 CR-3, CR-5; UL 858 25.3.1 backstop; 2026-10-15)
+- **CR-3:** `r_runaway_bot` returns to `rtd_sense_n_ext` (J3.3), not selv_gnd, and the window branch now taps J3.2. The comparator then compares V(S+) − V(S−) with k (V(BIAS) − V(S−)), so the FORCE− lead and the MAX31865's internal FORCE− switch drop out of the trip. `controller_calcs.py runaway()` (analytic, 256 corners: divider and Rref tolerance + TCR, VBIAS 1.95–2.06 V, Vos ±5.75 mV, leads 0.9–1.1 × 1.80 Ω, FORCE− switch 0.5–20 Ω, unspecified by the vendor so swept) gives **298.8–323.1 °C** (nominal 310.8 °C); the sensor-r3 circuit solve on the as-built values gives 299.2–321.9 °C. Gate: above 250 °C max setpoint + 5 K + 15 K, below the bond's 325 °C. Supersedes open item 4's DEFAULT band (296.6–319.1 °C, which assumed 0–1 Ω leads and no switch; the captured circuit was 237.5–316.3 °C with the C1 leads).
+- **CR-5:** U40 TLV3201 compares `rim_filt` (the 104GT-2 node behind its 10 k / 100 nF filter) with v3v3 × 10 k / (86.6 k + 10 k) (RT0603BRD0786K6L / RT0603BRD0710KL, 0.1 %): high = rim hotter than the trip point, or the NTC shorted. U41 SN74LVC1G32 ORs it with the RTD runaway comparator into `RUNAWAY_FAULT` (the interlock has no free input). `controller_calcs.py rim_trip()` (64 corners: R25 ±3 %, B ±2 %, resistors 0.1 % + 25 ppm/K, Vos referred to 3.135 V, self-heating 1.7 K) gives **262.1–288.3 °C** (nominal 275.6 °C); sensor-r3's figure is 262.3–288.1 °C.
+  - An **open** rim NTC reads cold and does not trip (the firmware's rim-open rule in sensor-r3 item 5 covers it).
+  - **Fit condition** (sensor-r3): enable only after bench T3 logs the rim maximum under a 250 °C hold at or below the band's low end − 10 K. Until then the 86.6 k can be left unfitted; the comparator then reads the rim as cold.
+- **Verifier:** `trip` now checks the window branch on J3.2, the divider on J3.3, the two-stage path from RTDIN± to J3, and the rim comparator's inputs. The PERMIT simulation carries `u_rim_trip` as a source with healthy level 0. `trip_sim.Sim` evaluates the gates in topological order and the trip check simulates only PERMIT's fan-in cone, so the exhaustive enumeration (now 2¹⁴ source states with C39, 262 144 cases) stays at about 15 s.
+
+## C39. Hardware capacitive-mode detector (native-21 OPEN-ITEMS S14; 2026-10-15)
+S14: the S4 body-diode edge breaks the IPW65R018CFD7's reverse-diode dv/dt and diF/dt ratings, and the software latch lets 370–740 S4 edges per leg through before it acts. The controller already has both inputs (the leg-A PWM commands and `ct_zc` on J4.13) and a free interlock fault input (OVP, tied healthy until now). So the detector needs no J4 change and nothing on native-21.
+- **Circuit:**
+  - U45/U46 SN74LVC1G14 invert the MCU-side `pwm_ha` / `pwm_la` commands, so each flip-flop clocks on a turn-off command.
+  - U43 SN74LVC1G86 XORs `ct_zc` (J4 side, ahead of its series resistor, so the MCU pin cannot mask it) with a polarity strap. The strap is fitted as 0 Ω to selv_gnd (non-inverting), with a 100 k pull-up as the alternative.
+  - U42 SN74LVC74A: FF1 samples CM_ZC at the HS turn-off command and FF2 at the LS turn-off command. Inductive operation has current > 0 at HS turn-off and < 0 at LS turn-off (firmware convention: CT_ZC high = current positive). A capacitive sample sets 1Q̄ (HA) or 2Q (LA).
+  - U44 SN74LVC1G32 ORs them into `CAP_FAULT` → `interlock.ovp_fault`. The interlock latch holds the trip, so the detector itself re-samples every edge and needs no latch.
+  - RUN_EN low presets FF1 and clears FF2 to their healthy states. RUN_EN low already forces PERMIT low, so this adds no path to PERMIT; the trip check confirms that RUN_EN still feeds only the PERMIT gate in the cone.
+  - Read-backs 1Q / 2Q̄ go through 10 k to expander P00/P01 (`CM_HA_OK_RB`, `CM_LA_OK_RB`), so firmware can name the cause.
+- **Verified (`verify_controller.py` section `capmode`, 27 checks):** structure from the netlist, then a sequence simulation of the captured gates (16 points per period). Results:
+  - inductive 1–89° never faults;
+  - capacitive −1 to −89° faults on the first turn-off edge;
+  - a one-period capacitive excursion gives a fault pulse of one period (≥ ½ period required, against the LVC1G74's 2.7 ns minimum CLR width);
+  - RUN_EN low clears it and holds it healthy from the power-up fault state;
+  - a stuck CT_ZC (either level) faults within one period;
+  - a reversed CT faults with the fitted strap and runs with the strap swapped;
+  - the fault outputs are in PERMIT's fan-in cone, and the PERMIT simulation treats U42 as a free source (healthy 0).
+  
+  New mutation tests cover tied-off CAP_FAULT, swapped clocks, a removed strap and RUN_EN on the wrong asynchronous pin.
+- **Timing (`controller_calcs.py capmode()`):**
+  - The maximum chain from the HS turn-off command to native-21's DIS pin is **218 ns**: TI maxima at 3.3 V ± 0.3 V, 74HC30 bounded by its 2.0 V figure (165 ns), 10 ns harness allocation, native-21's LVC1G00.
+  - Native-21's dead time is 408–569 ns (2EDR8259X, R9/R17 49.9 k). The partner's gate reaches the 1.9 V hot Vth screen 79 ns after it starts to rise, conservatively: the gate-loop L from the extracted leg B21 matrix (LS 46.85 / HS 55.66 nH, `inputs/native-21/legB21-h0-best.matrix.txt`, from f4ed8b17a), R_on 68 Ω −1 % and Cgs 4.7 nF −5 % (candidate 39), +15 / −2 V drive, FET Ciss left out.
+  - That leaves **190 ns** for the 2EDR8259X DIS-to-output delay before the partner output starts, or 269 ns before its gate reaches Vth. **The DIS-to-output delay is not in the 2EDR8259X datasheet** (power-stage open item). If the bench finds it within that slack, the first S4 edge is vetoed: zero hard edges. If not, but it is under half a period (8.3 µs at 60 kHz), one hard edge passes. Either way this replaces 370–740.
+- **Blind band:** the sample reads `ct_zc` as it was up to 55 ns before the command (TLV3201 tpd max on native-21). A current zero that lands inside the dead time, ≤ 624 ns ≈ 13.5° at 60 kHz, is not seen as capacitive. Partial ZVS loss there stays with the firmware's inductive margin and the S14 software latch.
+- **Burst start:** a normalised series-RLC model driven from rest at f/f₀ 1.02–1.8, Q 1–15 never samples a wrong sign in the first 40 edges, so there is no false trip at burst start above resonance. A start at 0.9 f₀ trips on the first edges (the negative control). The smallest correct-sign sample is 0.056 V/Z₀. CT_ZC must resolve that at the first edges: a bench item, with native-21's "zero-cross behaviour with no tank current".
+- **Firmware:**
+  - start every burst at or above resonance (the 2026-10-03 inductive-side rule);
+  - raise RUN_EN only with the PWM idle (RUN_EN rising re-arms the detector);
+  - after a trip, read `CM_HA_OK_RB` / `CM_LA_OK_RB`;
+  - confirm the CT polarity at bring-up (swap the strap if a reversed CT makes inductive operation trip).
+- **Not done:** per-edge vetoing inside native-21, a ZVS-miss detector at the switch node. That would be a power-board change and is not reserved. The detector watches leg A only. At the approved 180° operating point leg B commutates at the same current zeros.
+
+## C40. J12 harness drain and rim-line TVS (sensor-r3 CR-4, CR-6; 2026-10-15)
+- **CR-4:** J12 is a **B3B-XH-A** (3-pin): 1 RIM_SENSE, 2 NTC return, 3 harness foil drain, all returns on selv_gnd. The body centre stays at world (126, 86). The 3-pin housing is 2.5 mm wider than R36's 2-pin, so the rim follower U36 moves 1.2 mm left. Enclosure: the harness gets a third (drain) contact (ENCLOSURE-HANDOFF).
+- **CR-6:** the RIM_SENSE TVS is **ESD5Z5.0T1G** (VRWM 5.0 V). The ESD5Z3.3 it replaces has VRWM 3.3 V, below the v3v3 maximum 3.465 V that the 1 k pull-up can put on the line with the NTC open. `sensor_io` checks VRWM ≥ the line maximum for every connector TVS, and a mutation test puts the 3.3 V part back.
+
+## C41. No reset/boot control reachable from outside: J11 becomes a TC2050 land (item 4; 2026-10-15)
+- **Audit:** the board has **no tactile switch** (EN has its RC; IO0 has its pull-up; there were never buttons). The exposure was **J11**, an unshrouded 1×8 2.54 mm header carrying EN and IO0. A loose XH housing, a ribbon or a tool against the board could short EN or IO0 to ground or between pins in shipping or service, and hold the module in reset or in download mode: the Impulse failure.
+- **Change:** J11 is a **Tag-Connect TC2050-IDC-NL** footprint (copper pads + 3 NPTH; KiCad attributes exclude it from BOM and CPL), same signals: 1 3V3, 2 EN, 3 IO0, 4 U0TXD, 5 GND, 6 USB D−, 7 USB D+, 8 GND. Nothing protrudes; programming and USB use a TC2050-IDC-NL cable.
+- **Checks (`misc`):** no switch footprint on the board; EN and GPIO0 reach no connector but the TC2050 land; USB 19/20 on the land.
+
+## C42. PERMIT watchdog: the hardware one already exists; no second watchdog (item 3; 2026-10-15)
+Question (native-21 S15): does PERMIT need an MCU watchdog for UL 858 25.3.1 (safe with the control dead or stuck)?
+- **What is on the board:**
+  - PERMIT = latch Q AND RUN_EN (C23).
+  - The latch's CLR input includes U21 **TPS3823-33**. Its WDI is the MCU heartbeat (GPIO18) with a **1 k pull-down**. The TPS3823's own floating-WDI behaviour (it pulses itself and never times out: SLVS165O pin table) cannot hide a dead or tri-stated MCU pin. A heartbeat that stops at either level times out in **0.9–2.5 s** (SLVS165O 6.8 t_tout), which latches the fault and drops PERMIT, firmware-independently.
+  - RUN_EN has a 4.7 k pull-down, so a reset or hung GPIO matrix also drops PERMIT.
+- **Decision: no additional watchdog or PERMIT timer.** A second external watchdog would cover the same failure (no heartbeat). Neither watchdog covers the remaining case: firmware that is wrong but still toggles WDI, such as a hung control loop with a live timer ISR. That case is bounded by firmware-independent trips that act on the hazard itself:
+  - on this board: the RTD runaway (C38, ≤ 323.1 °C), the new rim trip (≤ 288.3 °C), the heatsink/coil thermal comparators (C32), and now the capacitive-mode detector (C39);
+  - on native-21: R5 Kelvin OCP, U7 OVP, the bias heartbeat, the CT trips and the **TCO loop**, which S15 names as the 25.3.1 backstop.
+- **Firmware rule (to the firmware owner):** WDI is toggled only by the supervisor task after it has checked the control loop's progress (sequence counter, RTD read age). Never from an ISR, a hardware timer, LEDC or RMT. The ≤ 400 ms heartbeat stays (inside the 0.9 s minimum).
+- The certifier decides whether the TCO plus these trips satisfy 25.3.1; nothing on this board blocks that argument.
+
+## C43. J4 stays 2 × 8: AMC1301 bus-current pins are a documented option only (item 5; 2026-10-15)
+temper-8d / coil-driver-r1 asked for an AMC1301 on native-21's R5 shunt, with 2 more J4 pins. Native-21 has not adopted it (OPEN-ITEMS S13: "a later candidate"). **No change.** If it is adopted:
+- J4 becomes a 2 × 9 Micro-Fit (43045-1800 class, both ends and the harness), with the AMC1301 OUTP/OUTN pair on the two new pins;
+- a differential receiver like D-11's feeds one free ADC1 channel (`verify.json` `adc1_pins_not_analog` lists them);
+- one MCU budget line is added.
+
+No copper, pins or parts are reserved now.
