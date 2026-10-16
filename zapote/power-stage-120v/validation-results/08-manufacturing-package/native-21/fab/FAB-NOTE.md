@@ -1,14 +1,16 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 47, the board of record (DECISIONS.md item 63: stage 46 with U5 (REF25) on the 125 °C
-LM4050AEM3-2.5/NOPB; item 62: the rail-monitor ICs on their 125 °C grades; item 60: the S16 rail-monitor values on
-stage 44's copper, item 58; the stage history is DECISIONS.md items 12–63). Built by
-`sh native-21/layout/gates/chain.sh native21s47 …`; SHA-256
-`83355da593ae895967b0a72f0b6d30c4cc9855333a18e107d098e3d6e29bd779` (the S18 re-chain, DECISIONS 65; it differs from the s47
-build 63aba33f only by KiCad zone-fill jitter, same copper key 387b3e2d48c8; geometry identical to the s46 build 16a58861 by `c45-s16-monitor/scripts/geom_diff45.py`; only U5 Value / MPN change). U5 is sourced and consigned (JLC stock 50
-against 500; owner pre-order, OPEN-ITEMS owner action 7).
+Board: native-21 stage 48, the board of record (DECISIONS.md item 67: the four TPS70950 ENs on 100 k / 27 k dividers and
+on the 125 °C TPS70950QDBVRQ1, the REF25 watchdog on U14's second channel, BIAS_GOOD read back on J4.1 through R146,
+end-of-line test pads; item 63: U5 (REF25) on the 125 °C LM4050AEM3-2.5/NOPB; item 62: the rail-monitor ICs on their
+125 °C grades; item 60: the S16 rail-monitor values; the stage history is DECISIONS.md items 12–67). Built by
+`sh native-21/layout/gates/chain.sh native21s48 …`; SHA-256
+`2b46d90e5de249aab5fb68f2c1d8098200968306e590157031c319d837e05d19` (the integration build; it differs from the lane build
+23209767 only by KiCad zone-fill jitter, same copper key 659ccad1bab2; geometry identical by
+`c45-s16-monitor/scripts/geom_diff45.py`). U5 is sourced and consigned (JLC stock 50 against 500; owner pre-order,
+OPEN-ITEMS owner action 7); U3 / U37–U39 TPS70950QDBVRQ1 (C485909) are JLC Extended, 11,607 in stock.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`72393b7e71373960bf31ffc8e229f831c89e50061304e5ce623b9e13d36649a4`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
+`ad165685c4934c76d1ed6e1921afa53d55ebb7e890b15d42abaccdb657e4e546`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
 (DECISIONS.md item 61).
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).

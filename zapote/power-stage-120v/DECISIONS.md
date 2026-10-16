@@ -2450,3 +2450,95 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
       - a bench check of the yield basis on real pans.
     - **Reverses if:** the enclosure cannot deliver the required airflow at an acceptable noise and cost, or bench pan
       data shows the 22 A yield is much higher than simulated.
+
+67. **Stage 48 (candidate 48): the four TPS70950 ENs on dividers and on the 125 °C Q1 grade, a REF25 watchdog on U14's
+    second channel, BIAS_GOOD read back on J4.1, and end-of-line test pads (2026-10-16; adopted with a cost override).
+    Board 2b46d90e (integration build), geometry identical to the lane build 23209767, copper key 659ccad1. Card REJECT
+    against s47 on cost alone (+$1.69 / board).**
+    Records: `11-candidates/c48-ldo-en-ref-watch/README.md` (lane chain run 6, `runs-native21/s48/chain6.out`,
+    `SPINE_OWNER=selv`). The integration chain re-ran it on the integration tree with no spine owner
+    (`runs-native21/s48/chain-int2.out`, CHAIN_DONE): the whole-region lock passes on the reissued baseline. Chain inputs
+    from the lane: the routed `copper.json` and `reference-labels.json`; `placement.json`, `pads.json` and the schematic
+    regenerate byte-equal to the lane's. `geom_diff45.py` lane → integration: `geometry_identical`, no field changes
+    (`c48-ldo-en-ref-watch/results/geom-s48-lane-int.json`).
+    - **S19, EN within its rating.** U3 / U37 / U38 / U39 had EN tied to IN: 15.46 V (U3) and 17.43 V (U37–U39) against
+      the 7 V EN absolute maximum ("Do not connect EN to VIN", SBVS186H 7.4 p.13). The clamp would likely have destroyed
+      the parts at first power (OPEN-ITEMS S19, found 2026-10-15).
+      - Now 100 k (0603WAF1003T5E) over 27 k (0603WAF2702T5E) from each LDO's own IN to its own GND, R136–R143 (existing
+        Basic lines). Arithmetic in `audit.rs` `stage48_checks` and `ledger48.py`: ±1 % + 100 ppm/K × 100 K adverse and
+        untracked, plus a 1 µA pull-up bound × the 21.3 k Thevenin resistance.
+
+        | LDO | IN (V) | EN at IN min | EN at IN max | EN at the span-OV corner | IN for EN = 6.5 V |
+        |---|---|---:|---:|---:|---:|
+        | U3 (HOT5) | 14.50–15.46 (16.68 at the corner) | 2.987 V | 3.413 V | 3.681 V | 29.5 V |
+        | U37 (LS monitor) | 16.575–17.43 (18.643) | 3.414 V | 3.845 V | 4.111 V | 29.5 V |
+        | U38 (HS-A monitor) | same | 3.414 V | 3.845 V | 4.111 V | 29.5 V |
+        | U39 (HS-B monitor) | same | 3.414 V | 3.845 V | 4.111 V | 29.5 V |
+
+        Every EN sits between VEN(HI) 0.9 V and the 6.5 V recommended maximum, with ≥ 2.1 V each way.
+      - Floating EN (allowed by TI) was rejected: the 300 nA typical pull-up loses to a few MΩ of contamination on this
+        uncoated board.
+      - `pin_absmax` now reads 0 failures. `pin_absmax_expected.json` is empty and `pin_absmax` has left RELEASE_GATES, so
+        the gate hard-gates: chain.sh runs it with `--fail-stale`, and a card with any pin over its absolute maximum is
+        rejected.
+    - **Grade: TPS70950QDBVRQ1** (TI SLVSCE6D rev. D; LCSC C485909) on all four sockets. It holds ±1 % over TJ, TA
+      −40..125 °C (5.5 p.5); the plain part holds ±1 % only to 85 °C. Same DBV pinout and pads. Abs max VIN 32 V, EN 7 V,
+      TJ 150 °C (5.1 p.3); ψJB 40.7 K/W (5.4 p.4, new chip). JLC Extended, 11,607 in stock; $0.682 at 2,000.
+    - **U3 on its junction (B3, integration board, S18 model).** U3 deposits its 0.160 W bound on pads 1 / 2 / 3 / 5 (pin 4
+      is NC, "No internal connection", Table 4-1 p.3). Its gated row is pad copper + 0.160 W × 40.7 K/W against TJ 125 °C:
+      **release c17.5 @ 61 109.4 °C, +15.6 K**; c22 109.3 °C (+15.7 K); c28 121.1 °C (+3.9 K, ratchet only). The lane
+      read 109.7 / +15.3 K without S18's PS2 body-to-air path. U3 moved beside C26 (its old slot had no routable
+      corridor), and U3.2 leaves 0.4 mm both ways (SLVSCE6D 7.4.1.2). U5 91.5 °C, +33.5 K. **Release margin +1.2 K (R10),
+      unchanged from s47**; `b3_ratings` PASS. PS2 local air 76.0 / 80.2 °C, +4.2 K.
+    - **H1, REF25 watchdog** (B13). R144 63.4 k / R145 11.7 k (0.1 % 25 ppm, existing lines) from REF25 into U14 INB−
+      (pin 4); OUTB joins OUTA on HOT5_UV_RAW, so a trip raises BUS_FAULT.
+      - Trip window 2.526–2.610 V REF25 (VIT+ 396–404 mV, SBVS187G 6.5 p.6, at 0.1 % + 25 ppm × 100 K adverse): 9.7 mV
+        over REF25's 2.5162 V maximum.
+      - U5 open puts REF25 at ≥ 2.845 V, 235 mV over the trip top: always caught. The watchdog draws 33.5 µA; U5 keeps
+        ≥ 0.1075 mA (IRMIN 65 µA). Drift between 2.516 and 2.526 V stays silent, as before.
+      - **U14 VDD and C48 moved from V15_LS to HOT5**, so a pin 4–5 bridge puts ≤ 5.5 V on INB− (abs max 7 V) and trips.
+        VIT is specified the same at VDD 1.8–18 V, and OUTA is driven low below UVLO (SBVS187G 6.5 p.6).
+        `FAULT-INTERFACE.md` is updated.
+    - **H2, BIAS_GOOD → J4.1** through R146 220 k (RC1206FR-07220KL, at the connector). BIAS_GOOD is SELV (U40's output),
+      so no barrier is crossed. 220 k so that a J4.1–J4.9 harness short holds PERMIT_GATE at 0.68 V < VIL 0.8 V. The
+      hand-laid branch changes layer four times: C176–C178 (CC0603KRX7R9BB104) are the SELV transfer caps for three of
+      them, and C174 serves the fourth. Return-path opens stay at 7. The SELV spine lock is reissued on board 596ba3bf, with
+      C176–C178 in `frozen_refs`.
+    - **H3–H5, end-of-line pads.** TP41–TP51 on 11 of the 12 monitor taps, TP52 on REF25, reference pads TP53–TP59;
+      TP1–TP40 keep their numbers. TP6 / TP28 moved to the bottom side. `BRINGUP-PROBES.md`: 34 signal pads (22 at s47).
+    - **Card** (`10-benchmark/scorecard-native21s48.json`, integration build). Every gate True (`pin_absmax` False →
+      True). `--compare` s47:
+      `REJECT native21s48 vs validation-results/10-benchmark/scorecard-native21s47.json: cheaper [], better []; costlier on ['parts_usd_at_500_v2'] with no performance gain`.
+      - parts_usd_at_500_v2 173.99 → 175.68; placements 358 → 372; vias 765 → 777.
+      - Kelvin band low 66.75 → 66.46 A (inside the 0.5 A tolerance; U14's IDD on HOT5 and the watchdog current; U9.1 at
+        the CA-IS3720HW's 4.1 mA, `kelvin_budget.py`); floor 64.17 A.
+      - Right-angle corners 49 → 53 (allowance 5), any-angle 272.6 → 281.6 mm (allowance 25). Return-path opens 7 = 7,
+        acute corners 22 = 22, fuse copper 0.993 = 0.993, coil pickup stack 4.17 A = s47.
+      - Ledger: VERIFIED 3 / PARTIAL 91 / UNAUDITED 0 / VIOLATION 0, gate PASS. TPS70950QDBVRQ1 PARTIAL; its TJ rows are
+        keyed to the B3 margins. The S21 temperatures are re-based on this chain (72 lines / 312 refs, 0 release
+        violations). One new c28 airflow-route gap: U26 TPS7A4700 124.5 → 125.5 °C against 125 °C (release +4.1 K).
+    - **Integration: adopted with a cost override, as for stages 45 and 47.** The card cannot score any of this as a gain.
+      Stage 48 removes an absolute-maximum violation that would likely destroy U3 / U37–U39 at first power (S19), puts the
+      four LDOs on a grade rated for their temperature, and makes a U5 open announce itself (B13 H1). The price is
+      +$1.69 per board. Re-verified on 2b46d90e: `audit.rs` PASS and 90 / 90; `pin_absmax --fail-stale` PASS and its tests;
+      ledger gate and tests PASS; `cu_temp_basis --fail-waived` 0 waived PASS; scoped 16 / 16 and depmap no FAIL; track
+      geometry, spine lock, track cleanup, jet strip, B3 hot-copper and airflow, and bom_pricing tests PASS; firmware host
+      tests 31 / 31.
+    - **Board of record and benchmark: s48.** FAB-NOTE moved to 2b46d90e / gerbers ad165685.
+    - **Not done:**
+      - a controller GPIO for J4.1 and the firmware power-on check. J4.1 must read low before the heartbeat, high before
+        PERMIT, and high throughout PERMIT; a low is a trip. The controller reads it high-Z (pull-down ≥ ~1 MΩ).
+        `firmware/` is unchanged;
+      - pads for `monitor_ls-ov` (no legal spot; probed at C67.1) and U26.6 3P2V (H4; the pin has no copper; probed at the
+        pin toe);
+      - the FMEA update for H1 (and H2) on this board;
+      - a bench check of U3's junction (thermocouple on U3.2 at the release case);
+      - TI's "CIN close to the pins" (7.4.1 p.19) is UNCHECKED: C25 stays ~12 mm away, as at s47 (the input cap is not
+        needed for stability, 7.1.1 p.17);
+      - U37–U39 have no local-temperature row on the Q1 ledger line.
+    - **Reverses if:**
+      - the controller cannot spare a GPIO for J4.1 (R146 then stays as a harmless load on a spare pin; H2 is lost);
+      - bench or a finer model puts U3 above 125 °C at the release case. U3 then needs a pour on In1 / B.Cu, or the WSON-6
+        DRV package with its thermal pad (RθJA 82.5 against 176.5 K/W, 5.4 p.4);
+      - the TPS70950QDBVRQ1 cannot be bought for 500 boards (11,607 in stock today): fall back to the plain part with the
+        same dividers, which fixes S19 but keeps U3's ±1 % specified only to 85 °C.
