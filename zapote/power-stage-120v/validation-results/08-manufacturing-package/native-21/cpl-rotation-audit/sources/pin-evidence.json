@@ -1,0 +1,13 @@
+{
+ "about": "Datasheet pin numbering for LCSC parts whose EasyEDA footprint fit and the JLC rotation DB disagree. An entry lets audit.py trust the EasyEDA pad-number fit over the DB rule, but only when (1) the EasyEDA symbol's pin names equal the datasheet's pin functions by number, (2) the KiCad footprint's pad numbers are the datasheet pin numbers, and (3) the fit is unique. Each entry cites the datasheet page it was read from; the PDF is not committed (hash given).",
+ "parts": {
+  "C41283": {
+   "part": "TL431BIDBZR",
+   "package": "DBZ (SOT-23-3)",
+   "datasheet_pins": {"1": "CATHODE", "2": "REF", "3": "ANODE"},
+   "kicad_pad_is_datasheet_pin": true,
+   "source": "TI SLVS543S (Aug 2004, rev. May 2024), p.4 'Pin Configuration and Functions', TL431, TL431A, TL431B DBZ (SOT-23-3) package, top view: 1 CATHODE, 2 REF, 3 ANODE (the TL432 DBZ differs: 1 REF, 2 CATHODE). https://www.ti.com/lit/ds/symlink/tl431.pdf sha256 ed2e90697de4e2c553195514adf1ee59cda42863716b6ef702b8304a5b921d22, read 2026-10-15",
+   "kicad_check": "native-21 frozen netlist (stage 45): U17 / U19 / U21 pads 1 and 2 on <rail>.monitor-ref (cathode tied to ref, the 2.5 V shunt connection), pad 3 on the island ground n_ls / n_ha / n_hb (anode): KiCad pad n = datasheet pin n"
+  }
+ }
+}

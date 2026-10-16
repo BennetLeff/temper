@@ -5,8 +5,8 @@
   "lines_excluded_not_placed": 11,
   "counts": {
    "OK": 284,
-   "NEEDS-PREVIEW": 55,
-   "CORRECTED": 8
+   "NEEDS-PREVIEW": 52,
+   "CORRECTED": 11
   },
   "controls": {
    "R7": {
@@ -39,6 +39,17 @@
     "got": {
      "class": "CORRECTED",
      "delta": -90
+    },
+    "pass": true
+   },
+   "U17": {
+    "expected": {
+     "class": "CORRECTED",
+     "delta": -180
+    },
+    "got": {
+     "class": "CORRECTED",
+     "delta": -180
     },
     "pass": true
    }
@@ -6237,7 +6248,7 @@
    "mount": "SMD",
    "kicad_rot": 0,
    "proposed_jlc_rot": 180,
-   "class": "NEEDS-PREVIEW",
+   "class": "CORRECTED",
    "db_rule": "^SOT-23",
    "db_offset": -90,
    "easyeda_package": "SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR",
@@ -6247,7 +6258,7 @@
    "fit_method": "pad number",
    "fit_rms_mm": 0.059,
    "pin1_evidence": "KiCad pad 1 at (-0.62,-0.95) mm = up-left of centre at board rotation 0; EasyEDA pad 1 down-right of centre at JLC rot 0",
-   "reason": "CONFLICT: EasyEDA fit needs offset [180] deg (-> rot 180), DB rule '^SOT-23' says -90 (-> rot 270); proposed value is the EasyEDA one, check both in the preview"
+   "reason": "EasyEDA footprint fit needs offset [180] deg, unique; pin numbering confirmed by the datasheet (sources/pin-evidence.json: TI SLVS543S (Aug 2004, rev. May 2024), p.4 'Pin Configuration and Functions', TL...); DB rule '^SOT-23' -90 overridden"
   },
   {
    "designator": "U18",
@@ -6275,7 +6286,7 @@
    "mount": "SMD",
    "kicad_rot": 0,
    "proposed_jlc_rot": 180,
-   "class": "NEEDS-PREVIEW",
+   "class": "CORRECTED",
    "db_rule": "^SOT-23",
    "db_offset": -90,
    "easyeda_package": "SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR",
@@ -6285,7 +6296,7 @@
    "fit_method": "pad number",
    "fit_rms_mm": 0.059,
    "pin1_evidence": "KiCad pad 1 at (-0.62,-0.95) mm = up-left of centre at board rotation 0; EasyEDA pad 1 down-right of centre at JLC rot 0",
-   "reason": "CONFLICT: EasyEDA fit needs offset [180] deg (-> rot 180), DB rule '^SOT-23' says -90 (-> rot 270); proposed value is the EasyEDA one, check both in the preview"
+   "reason": "EasyEDA footprint fit needs offset [180] deg, unique; pin numbering confirmed by the datasheet (sources/pin-evidence.json: TI SLVS543S (Aug 2004, rev. May 2024), p.4 'Pin Configuration and Functions', TL...); DB rule '^SOT-23' -90 overridden"
   },
   {
    "designator": "U20",
@@ -6313,7 +6324,7 @@
    "mount": "SMD",
    "kicad_rot": 0,
    "proposed_jlc_rot": 180,
-   "class": "NEEDS-PREVIEW",
+   "class": "CORRECTED",
    "db_rule": "^SOT-23",
    "db_offset": -90,
    "easyeda_package": "SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR",
@@ -6323,7 +6334,7 @@
    "fit_method": "pad number",
    "fit_rms_mm": 0.059,
    "pin1_evidence": "KiCad pad 1 at (-0.62,-0.95) mm = up-left of centre at board rotation 0; EasyEDA pad 1 down-right of centre at JLC rot 0",
-   "reason": "CONFLICT: EasyEDA fit needs offset [180] deg (-> rot 180), DB rule '^SOT-23' says -90 (-> rot 270); proposed value is the EasyEDA one, check both in the preview"
+   "reason": "EasyEDA footprint fit needs offset [180] deg, unique; pin numbering confirmed by the datasheet (sources/pin-evidence.json: TI SLVS543S (Aug 2004, rev. May 2024), p.4 'Pin Configuration and Functions', TL...); DB rule '^SOT-23' -90 overridden"
   },
   {
    "designator": "U22",

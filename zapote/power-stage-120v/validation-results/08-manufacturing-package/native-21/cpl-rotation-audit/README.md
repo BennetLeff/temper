@@ -5,14 +5,34 @@ this makes that check a confirmation rather than a discovery. Nothing here was u
 the board and `pcb/` are untouched.
 
 **Pass criterion: every line JLC places is classified OK / CORRECTED / NEEDS-PREVIEW with a reason**
-(`audit.csv`, column `reason`). 337 of the 357 CPL lines are placed by JLC (stage 19b: + C153-C156, 0603 caps, OK) (BOM `Assembly` starts with `JLC` and
-has an LCSC number); the other 20 are consigned or hand-assembled and are listed under `excluded` in `audit.json`.
+(`audit.csv`, column `reason`). Stage 45: 347 of the 358 CPL lines are placed by JLC (BOM `Assembly` starts with `JLC` and
+has an LCSC number); the other 11 are consigned or hand-assembled and are listed under `excluded` in `audit.json`.
 
 | Class | Lines | Meaning |
 |---|---|---|
-| OK | 280 | KiCad rotation is what JLC needs |
-| CORRECTED | 10 | non-zero offset, two independent sources agree; applied in `cpl-jlcpcb.corrected.csv` |
-| NEEDS-PREVIEW | 47 | sources disagree, a source is missing, or polarity cannot be settled offline; not changed |
+| OK | 284 | KiCad rotation is what JLC needs |
+| CORRECTED | 11 | non-zero offset, two independent sources agree, or a unique EasyEDA fit with datasheet-confirmed pin numbering (`sources/pin-evidence.json`); applied in `cpl-jlcpcb.corrected.csv` |
+| NEEDS-PREVIEW | 52 | sources disagree, a source is missing, or polarity cannot be settled offline; not changed |
+
+## Datasheet pin evidence (2026-10-15): U17 / U19 / U21 settled at 180
+
+The SOT-23 conflict below (EasyEDA fit +180, DB `^SOT-23` −90) is settled per LCSC part when the datasheet confirms the
+pin numbering. `sources/pin-evidence.json` holds one entry per part. The audit trusts the EasyEDA fit over the DB rule
+only if three conditions hold:
+1. The EasyEDA symbol's pin names equal the datasheet's pin functions, by number.
+2. KiCad pad n is datasheet pin n. This is checked against the frozen netlist and recorded in the entry.
+3. The fit is unique.
+
+A TL432-numbered part (1 REF, 2 CATHODE) does not settle, and the selftest checks this.
+
+- **C41283 TL431BIDBZR (U17 / U19 / U21):** TI SLVS543S p.4, DBZ top view: 1 CATHODE, 2 REF, 3 ANODE. That equals
+  the EasyEDA pins. Pads 1 and 2 are on `<rail>.monitor-ref` and pad 3 is on the island ground.
+  - At JLC rotation 180 all three pins land within 0.06 mm on their pads.
+  - At 270 (the DB value), ANODE lands on the ref net and REF on ground, with about 1.0 mm pad misses. At 0 every pad
+    misses by 0.95 mm.
+  - **Before this, the corrected CPL carried 0 for these three lines:** the part would have been placed on the wrong
+    pads unless the preview caught it.
+- **The other SOT-23-family groups below can be settled the same way** once their datasheet pinouts are entered.
 
 ## Stage 31 isolators (2026-10-14)
 
@@ -51,7 +71,6 @@ at that KiCad rotation (0) is wrong or right together. If 180 is wrong try 270.
 | C20526 MMBT3904 | SOT-23 | Q7, Q8, Q9 |
 | C9421 LM4040 | SOT-23 | U5 |
 | C545172 TLVH431B | SOT-23 | U16, U18, U20 |
-| C23892 TL431 | SOT-23 | U17, U19, U21 |
 | C10096 SN74LVC1G32 | SOT-23-5 | U22, U23 |
 | C105188 TLV3201 | SOT-23-5 | U6, U7, U10, U11, U12 |
 | C7836 SN74LVC1G17 | SOT-23-5 | U15, U24, U40 |
