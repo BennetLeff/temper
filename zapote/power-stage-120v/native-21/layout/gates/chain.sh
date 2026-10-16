@@ -69,6 +69,7 @@ fi
 python3 -I $G/cu_temp_basis.py --fail-waived --report "$B/cu-temp-basis.json" > "$B/cu-temp-basis.log" 2>&1 || {
   tail -20 "$B/cu-temp-basis.log" >&2; echo "cu_temp_basis: FAILED" >&2; exit 1; }
 tail -4 "$B/cu-temp-basis.log"
+lap cu_temp_basis
 # per-pin absolute maximum (found 2026-10-15: four TPS70950 EN pins tied to IN at 15-17 V against a 7 V rating): every IC pin's
 # net range, in the part's own reference frame, against that pin's datasheet abs max (pin_absmax_registry.json, every limit
 # cited to a PDF page). Static, about 1 s, no board data. REPORT-ONLY for now: the exit status is 1 only for a FAIL that is not
@@ -78,6 +79,7 @@ python3 -I $G/pin_absmax.py --expect-fail $G/pin_absmax_expected.json --report "
   tail -30 "$B/pin-absmax.log" >&2; echo "pin_absmax: NEW violation or registry error (not in pin_absmax_expected.json)" >&2; exit 1; }
 head -1 "$B/pin-absmax.log"
 python3 -I -c "import json;d=json.load(open('$B/pin-absmax.json'));print('pin_absmax: failures',len(d['failures']),'(new',len(d['new_failures']),') warnings',len(d['warnings']),'undeclared',len(d['undeclared']))"
+lap pin_absmax
 H=$(shasum -a 256 "$B/section.kicad_pcb" | cut -d' ' -f1); echo "BOARD $H"
 lap report
 if want d5; then
