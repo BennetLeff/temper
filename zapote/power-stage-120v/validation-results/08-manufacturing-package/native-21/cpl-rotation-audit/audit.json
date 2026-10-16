@@ -1,11 +1,11 @@
 {
  "meta": {
   "lines_in_cpl": 372,
-  "lines_placed_by_jlc": 356,
-  "lines_excluded_not_placed": 16,
+  "lines_placed_by_jlc": 355,
+  "lines_excluded_not_placed": 17,
   "counts": {
    "OK": 300,
-   "NEEDS-PREVIEW": 24,
+   "NEEDS-PREVIEW": 23,
    "CORRECTED": 32
   },
   "controls": {
@@ -3430,25 +3430,6 @@
    "fit_method": "",
    "fit_rms_mm": "",
    "pin1_evidence": "KiCad pad 1 at (-7.62,-0.00) mm = left of centre at board rotation 90",
-   "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
-  },
-  {
-   "designator": "L1",
-   "footprint": "B82726S2_ReviewOnly",
-   "lcsc": "C7084710",
-   "mount": "THT",
-   "kicad_rot": 0,
-   "proposed_jlc_rot": 0,
-   "class": "NEEDS-PREVIEW",
-   "db_rule": "",
-   "db_offset": "",
-   "easyeda_package": "",
-   "easyeda_offset": "",
-   "easyeda_rot": "",
-   "db_rot": "",
-   "fit_method": "",
-   "fit_rms_mm": "",
-   "pin1_evidence": "KiCad pad 1 at (-5.00,-12.50) mm = up of centre at board rotation 0",
    "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
   },
   {
@@ -6965,6 +6946,14 @@
    "lcsc": "",
    "kicad_rot": 0,
    "reason": "consign or hand-assemble (not on LCSC / no stock / no exact match)"
+  },
+  {
+   "designator": "L1",
+   "footprint": "B82726S2_ReviewOnly",
+   "mount": "THT",
+   "lcsc": "",
+   "kicad_rot": 0,
+   "reason": "consign or hand-assemble (JLC C7084710 holds 0 on 2026-10-16; buy Mouser / DigiKey, hand-solder or consign / JLC global sourcing)"
   },
   {
    "designator": "U41",

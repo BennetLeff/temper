@@ -118,6 +118,12 @@ CHANGED.update({"UMK325AB7106KM-T": "C386167", "RT0603BRD0712K4L": "C861102", "T
                 # global sourcing) and C3 / C4 Murata DE1E3RA222MJ4BH01F = C7170908 (Extended, 104 in stock). The bank
                 # B32643H8104J000 has no JLC / LCSC listing: it stays a consigned line (no LCSC number).
                 "B82726S2243A020": "C7084710", "DE1E3RA222MJ4BH01F": "C7170908"})
+# Lines with an LCSC code that JLC holds none of for the lot: consigned like the bank (no LCSC number, so JLC neither places
+# nor shortage-blocks them, and the CPL audit lists them as excluded). Stage 52 review (s52-proto-bom/fp3d-review row 17):
+# L1 B82726S2243A020 = C7084710 has JLC stock 0 (sourcing/STOCK-2026-10-16.csv, read 2026-10-16T19:12Z) against Mouser 62 /
+# DigiKey 29; it is bought from a distributor and hand-soldered in house (or consigned / JLC global sourcing at order).
+CONSIGN = {"B82726S2243A020": "consign or hand-assemble (JLC C7084710 holds 0 on 2026-10-16; buy Mouser / DigiKey, "
+                              "hand-solder or consign / JLC global sourcing)"}
 ACCEPT_ALT = set()   # stage 43: the only accepted alternate (GRM31A5C3A102JW01D -> CC1206JKNPOCBN102) is now the source MPN
 bom_path = HERE / "fab" / "bom-jlcpcb.csv"
 rows = list(csv.DictReader(open(bom_path)))
@@ -125,7 +131,10 @@ counts = {"exact": 0, "changed": 0, "substitute": 0, "consign": 0}
 for r in rows:
     mpn = r["Manufacturer Part Number"]
     m = MAP.get(mpn)
-    if mpn in BASIC:
+    if mpn in CONSIGN:
+        r["LCSC Part #"], r["Assembly"] = "", CONSIGN[mpn]
+        counts["consign"] += 1
+    elif mpn in BASIC:
         r["LCSC Part #"], r["Assembly"] = BASIC[mpn], "JLC (Basic)"
         counts["changed"] += 1
     elif mpn in CHANGED:
