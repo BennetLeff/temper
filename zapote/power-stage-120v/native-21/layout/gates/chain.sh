@@ -59,7 +59,7 @@ fi
 # copper-temperature basis (OPEN-ITEMS S17): every consumer of copper resistance / loss in the scorecard input chain
 # carries a declared basis (cu_temp_registry.json) or passes an explicit temperature. Static, about 1 s, no board data.
 # (no pipe: in sh a pipeline takes the exit status of its last command, so `| tail` would hide a failure)
-python3 -I $G/cu_temp_basis.py --report "$B/cu-temp-basis.json" > "$B/cu-temp-basis.log" 2>&1 || {
+python3 -I $G/cu_temp_basis.py --fail-waived --report "$B/cu-temp-basis.json" > "$B/cu-temp-basis.log" 2>&1 || {
   tail -20 "$B/cu-temp-basis.log" >&2; echo "cu_temp_basis: FAILED" >&2; exit 1; }
 tail -4 "$B/cu-temp-basis.log"
 H=$(shasum -a 256 "$B/section.kicad_pcb" | cut -d' ' -f1); echo "BOARD $H"
