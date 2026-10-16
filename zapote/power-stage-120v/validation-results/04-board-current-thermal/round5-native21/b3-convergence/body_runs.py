@@ -136,13 +136,22 @@ def bc_from_global(rise_g, pitch_g, origin_g, brd, pitch, i0, i1, j0, j1):
 
 
 def run_case(brd, op, h, pitch, copper="fraction", source="network", sens=None, window=None, bc=None,
-             use_a4=True, use_parts=True, label="", return_rise=False, leads=None, region=None):
+             use_a4=True, use_parts=True, label="", return_rise=False, leads=None, region=None, copper_tcr=None,
+             probes=False):
     """leads: None (no FET-lead path, the stage-19b model) or {"pad": "2", "g": W/K or {ref: W/K},
     "t_rise": K or {ref: K}} - each FET's drain pad tied to its tab at t_rise over the model ambient (thermal_body
     LeadLink; t_rise = T_case - bay air, since the gate shifts the whole field by bay - 50).
     region: None (still air everywhere, the model to 2026-10-15) or thermal_body.TopRegion - top-face cells centred in it
     convect at region.h_top to air at region.t_air_rise, and the package networks centred in it take body-to-air there
-    (b3-ratings jet-2026-10-15). The run records it under "region"."""
+    (b3-ratings jet-2026-10-15). The run records it under "region".
+    copper_tcr: None or alpha 0 (the A4 fields as solved, 20 C copper - the model to 2026-10-15) or {"alpha": 1/K,
+    "air_c": the case's bay air, C} - the hot-copper fixed point (thermal_body.solve_system tcr): every A4 heat cell at
+    q20 (1 + alpha (T - 20)), T = air_c + rise its absolute temperature, current paths held fixed. Global meshes only.
+    The run records "copper_temp_model" (cold or hot-iterated, alpha, Picard steps, max dT, hottest heated copper,
+    loss multiplier per A4 case).
+    probes: True records "probes", the pad-copper temperature of EVERY footprint on the board ({ref: layer, pad_max_cell_c,
+    pad_mean_c, pad_max_padmean_c, cells, nets}; mounting layer, all pads, as report_entries) - heated or not - for
+    probe rows (b3_ratings_gate MONITORS, the rail monitors of OPEN-ITEMS S16) and the unrated-part sweep."""
     t0 = time.time()
     sens = sens or {}
     case_str, heat_json, mode = op_inputs(op)
@@ -173,14 +182,27 @@ def run_case(brd, op, h, pitch, copper="fraction", source="network", sens=None, 
     if window:
         interior[0, :] = interior[-1, :] = interior[:, 0] = interior[:, -1] = False
     a4_w = 0.0
+    hot = copper_tcr is not None and float(copper_tcr.get("alpha", 0.0)) != 0.0
+    if hot:
+        assert window is None and source == "network", "hot copper: global network solves only"
+    a4_cases = []                                   # (case, flat cell ids, q20 W) for the per-case loss multiplier
     if use_a4:
+        scratch = np.zeros_like(heat) if hot else None
         for item in case_str.split(","):
             c, _, sc = item.partition(":")
             if window:
                 a4_w += remap_a4_window(c, x, y, interior, heat, float(sc))
+            elif hot:
+                scratch[:] = 0.0
+                _, r_ = T.remap_a4(c, x, y, board, scratch, float(sc))
+                a4_w += r_["remapped_w"]
+                nzid = np.flatnonzero(scratch)
+                a4_cases.append((c, nzid, scratch.ravel()[nzid].copy()))
+                heat += scratch
             else:
                 _, r_ = T.remap_a4(c, x, y, board, heat, float(sc))
                 a4_w += r_["remapped_w"]
+    q20 = heat.copy() if hot else None              # network mode: every heat cell is A4 copper
     parts, rows_point, omitted = [], [], []
     if use_parts:
         if source == "point":
@@ -209,8 +231,11 @@ def run_case(brd, op, h, pitch, copper="fraction", source="network", sens=None, 
         assert source == "network", "a TopRegion needs the network source model"
         rmask = region.mask(x, y)
         top_region = (rmask, region.h_top, region.t_air_rise)
+    tcr = None
+    if hot:
+        tcr = {"q20": q20, "alpha": float(copper_tcr["alpha"]), "t_abs0_c": float(copper_tcr["air_c"])}
     rise, riseJ, rec = tb.solve_system(board, k, tb.THK_MM * 1e-3, heat, h, pitch_m, links, parts,
-                                       dirichlet=bc, label=label, leads=lead_links, top_region=top_region)
+                                       dirichlet=bc, label=label, leads=lead_links, top_region=top_region, tcr=tcr)
     # ------------------------------------------------------------------ metrics
     hp = json.loads(Path(heat_json).read_text())["parts"]
     by_net = {p.ref: (s, p) for s, p in enumerate(parts)}
@@ -264,6 +289,21 @@ def run_case(brd, op, h, pitch, copper="fraction", source="network", sens=None, 
         st = pad_stats(rise[T.CU_INDEX[layer]], ent, pitch)
         q_rows.append({"ref": ref, "pad_mean_c": tb.TAMB_C + st["mean_k"], "pad_max_cell_c": tb.TAMB_C + st["max_cell_k"],
                        "pad_area_mm2": st["area_mm2"]})
+    probe_rows = None
+    if probes:
+        nets = {}
+        for it in brd.data["primitives"]:
+            if it["kind"] == "pad" and it["layer"] in T.CU_INDEX:
+                nets.setdefault(it["ref"].partition(".")[0], set()).add(it.get("net"))
+        probe_rows = {}
+        for ref in sorted(nets):
+            layer, ent = report_entries(brd, ref, None, pitch, i0, j0, nx, ny)
+            st = pad_stats(rise[T.CU_INDEX[layer]], ent, pitch)
+            if st is None:
+                continue
+            probe_rows[ref] = {"layer": layer, "pad_max_cell_c": tb.TAMB_C + st["max_cell_k"],
+                               "pad_mean_c": tb.TAMB_C + st["mean_k"], "pad_max_padmean_c": tb.TAMB_C + st["max_pad_mean_k"],
+                               "cells": st["cells"], "nets": sorted(n for n in nets[ref] if n)}
     expo = np.where(np.broadcast_to(interior if window else board, rise.shape), rise, -np.inf)
     zp, ip, jp = np.unravel_index(np.argmax(expo), rise.shape)
     peak = {"temperature_c": tb.TAMB_C + float(rise[zp, ip, jp]), "x_mm": float(x[ip]), "y_mm": float(y[jp]),
@@ -302,6 +342,28 @@ def run_case(brd, op, h, pitch, copper="fraction", source="network", sens=None, 
            "omitted_parts": omitted, "board_cells": int(board.sum()), "runtime_s": round(time.time() - t0, 1)}
     if leads is not None:
         out["leads"] = lead_rows
+    if probe_rows is not None:
+        out["probes"] = probe_rows
+    if hot:
+        a_t, t0 = tcr["alpha"], tcr["t_abs0_c"]
+        flat = rise.ravel()
+        per_case, tmax = {}, -np.inf
+        for c, ids_, q in a4_cases:
+            tc = t0 + flat[ids_]
+            per_case[c] = round(float((q * (1 + a_t * (tc - 20.0))).sum() / q.sum()), 5) if q.sum() > 0 else None
+            if len(tc):
+                tmax = max(tmax, float(tc.max()))
+        out["copper_temp_model"] = {
+            "model": "hot-iterated", "alpha_per_k": a_t, "t_ref_c": 20.0, "air_c": t0,
+            "method": "q affine in T: fixed point solved exactly (-alpha q20 on the cell diagonal), then Picard steps on "
+                      "the unmodified operator to max |dT| < %g K; current paths fixed (A4 J distribution)" % tb.TCR_TOL_K,
+            "picard_steps": rec["tcr"]["picard_steps"], "max_dT_k": rec["tcr"]["max_dT_k"],
+            "loop_gain_rayleigh": rec["tcr"]["loop_gain_rayleigh"],
+            "max_heated_copper_c": tmax, "loss_w_20c": rec["tcr"]["q20_w"], "loss_w_hot": rec["tcr"]["q_hot_w"],
+            "loss_multiplier": rec["tcr"]["q_hot_w"] / rec["tcr"]["q20_w"] if rec["tcr"]["q20_w"] else None,
+            "loss_multiplier_by_case": per_case}
+    elif use_a4:
+        out["copper_temp_model"] = {"model": "cold-20C", "alpha_per_k": 0.0}
     if region is not None:
         live = interior if window else board
         out["region"] = {**region.as_dict(), "h_rest": h, "face": "top (F.Cu, z = 0)",

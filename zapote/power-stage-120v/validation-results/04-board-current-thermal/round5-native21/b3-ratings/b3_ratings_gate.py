@@ -54,9 +54,18 @@ Limits (sources re-read 2026-10-15; see the audit's ratings.py for page-level qu
                    2019-02-12: p.4/9 table 6 1 W at 70 C; p.5/9 table 7 -55..155 C, section 9 figure 1 linear to 0 W
                    at 155 C). Gated on the element (155 C) and on the derating line at the terminal with the R5 20 %
                    power margin; a gate resistor in any other package stops the gate
+  rail monitors    (OPEN-ITEMS S16, monitor-probes-2026-10-15; hot-copper runs only, from the run files' probes):
+                   gated TA rows, pad-copper max + P x RthJA as the die / local-ambient proxy: U17 / U19 / U21 TL431xI
+                   85 C (SLVS543S 6.4 p.5), U29 / U30 / U31 LM339BIDR 85 C (SLCS006Z 6.4 p.6), U16 / U18 / U20
+                   TLVH431BQ 125 C (SLVS555N 5.3 p.5); the monitor and split dividers advisory (terminal derating line)
   advisory (limit known, package path assumed): bank MKP 110 C (board share only), DC-link C5/C6 TDK B32676G1905K000
                    Top,max 105 C case (B3267* June 2026 p.13; 110 C until 2026-10-15), B82726 125 C (p.4), other
                    1206 (MPNs not re-read)
+
+Copper temperature (OPEN-ITEMS S17): run files must carry copper_temp_model "hot-iterated" (body_runs, the A4 copper
+heat at q20 (1 + alpha (T - 20 C)), solved at the case's bay). Run files on 20 C copper (cold-20C, or older files with
+no copper_temp_model) are refused unless --allow-cold-copper is given - for controls only. A hot run solved at another
+air temperature than the case's bay is refused: with hot copper the field is not shift-invariant.
 
 Exit 0 if every gated margin of the release case(s) (or, with none, of every case) is >= 0, else 1. Advisory rows never
 fail the gate.
@@ -86,6 +95,101 @@ PKG_NAME = {"chip1206": "1206", "chip2512": "2512"}
 BASIS = {"c18_h10": {"ceiling_a": 18.0, "h": 10, "bay_c": 61.0, "role": "release"},
          "c22_h10": {"ceiling_a": 22.0, "h": 10, "bay_c": 55.0, "role": "ratchet"},
          "c28_h10": {"ceiling_a": 28.0, "h": 10, "bay_c": 55.0, "role": "ratchet"}}
+
+
+# ---- rail-monitor probe rows (OPEN-ITEMS S16, integration DECISIONS 60; b3-ratings/monitor-probes-2026-10-15)
+# The monitor ICs carry no B3 heat row (uA-mA bias), so the S16 study had to assume an 85 C local temperature. Probe rows
+# read the hot-copper field at each part's pads (run file "probes", body_runs probes=True): est = the part's pad-copper
+# maximum (mounting layer, all pads; the same mesh extrapolation and bay as every row) + self-heat P x RthJA. The pad
+# temperature is the die / local-ambient proxy: conservative in still air at these powers (the air beside a part is
+# cooler than the copper it sits on), and adding P x RthJA on top double-counts the board spreading RthJA includes.
+# Self-heat from the BOM operating point (f6_bias.ato RailMonitor / HsSplit / LS split, s42 values) at the rail bound
+# V_PN = 17.0 V + 3 %:
+V_PN = 17.0 * 1.03
+VREF_TL431, VREF_TLVH431 = 2.495, 1.24              # SLVS543S 6.5 typ; SLVS555N 5.5 typ
+V_SPLIT = VREF_TLVH431 * (1 + 6.2 / 10.0)            # HS / LS split, rtop 6.2 k / rbot 10 k: src - n = 2.01 V
+MONITOR_SELF = {
+    # TL431 reference: K = REF on 'ref', cathode current = (V_PN - Vref) / 2.2 k less the 20 k halfref divider
+    "tl431": ((V_PN - VREF_TL431) / 2200.0 - VREF_TL431 / 20000.0) * VREF_TL431,
+    # TLVH431 split shunt: at most the whole 4.99 k bleed (p -> src) flows in it (static; divider / monitor taps ignored)
+    "tlvh431": (V_PN - V_SPLIT) / 4990.0 * V_SPLIT,
+    # LM339B: IQ <= 1.6 mA (SLCS006Z 6.7 p.7, VS 36 V, -40..85 C) at V_PN, plus four outputs sinking the 10 k pull-up
+    # from 5 V at VOL <= 0.4 V (fault state)
+    "lm339b": 1.6e-3 * V_PN + 0.4 * 5.0 / 10000.0,
+}
+RTHJA = {"tl431": (206.0, "SLVS543S 6.3 p.5 DBZ"), "tlvh431": (206.0, "SLVS555N 5.4 p.5 DBZ"),
+         "lm339b": (111.2, "SLCS006Z 6.6 p.6 D (SOIC)")}
+MONITORS = {   # ref -> (kind, row basis, T_A max C, net pattern the ref must carry: refs that move stop the gate)
+    **{r: ("tl431", "TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)", 85.0, r"monitor(_ls)?-ref$")
+       for r in ("U17", "U19", "U21")},
+    **{r: ("lm339b", "LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)", 85.0, r"monitor(_ls)?-good$")
+       for r in ("U29", "U30", "U31")},
+    **{r: ("tlvh431", "TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)", 125.0, r"(split|bias_ls)-fb$")
+       for r in ("U16", "U18", "U20")},
+}
+# divider / reference resistors on the monitor and split nets (advisory): node role from the net name, voltage over n at
+# V_PN; (role pair) -> (ohm, rated W at 70 C, basis). Terminal row: 155 - 85 P / (0.8 P_rated) (linear to 0 W at 155 C,
+# the gate-resistor 20 % rule). A role pair not in the table stops the gate (the monitor topology changed).
+MON_NET = re.compile(r"(monitor(_ls)?-|split-fb$|bias_ls-fb$)")
+RT0603 = (0.1, "Yageo RT0603 thin film 1/10 W, -55..155 C (RT V.16 p.5)")
+ARG03 = (0.1, "Viking ARG03 thin film 1/10 W, -55..155 C (p.3)")
+RC1206 = (0.25, "Yageo RC1206 thick film 1/4 W, -55..155 C (not re-read)")
+WAF0603 = (0.1, "UniRoyal 0603WAF thick film 1/10 W, -55..155 C (not re-read)")
+MON_R = {frozenset(("p", "ref")): (2200.0, *RC1206), frozenset(("ref", "halfref")): (10e3, *RT0603),
+         frozenset(("halfref", "n")): (10e3, *RT0603), frozenset(("src", "uv")): (4420.0, *RT0603),
+         frozenset(("uv", "n")): (10e3, *RT0603), frozenset(("src", "ov")): (7680.0, *RT0603),
+         frozenset(("ov", "n")): (10e3, *RT0603), frozenset(("p", "spanuv")): (120e3, *RT0603),
+         frozenset(("spanuv", "n")): (10e3, *RT0603), frozenset(("p", "spanov")): (133e3, *ARG03),
+         frozenset(("spanov", "n")): (10e3, *RT0603), frozenset(("v5", "good")): (10e3, *WAF0603),
+         frozenset(("src", "fb")): (6200.0, *RT0603), frozenset(("fb", "n")): (10e3, *RT0603)}
+
+
+def mon_role(net):
+    if net in ("v15_ls",) or net.startswith("p_"):
+        return "p"
+    if net.startswith("n_"):
+        return "n"
+    if net in ("leg_ret", "sw_a", "sw_b"):
+        return "src"
+    if net == "ls_v5" or net.endswith("-v5"):
+        return "v5"
+    return net.rsplit("-", 1)[-1]
+
+
+def mon_volts():
+    return {"p": V_PN, "n": 0.0, "src": V_SPLIT, "fb": VREF_TLVH431, "ref": VREF_TL431, "halfref": VREF_TL431 / 2,
+            "uv": V_SPLIT * 10 / 14.42, "ov": V_SPLIT * 10 / 17.68, "spanuv": V_PN * 10 / 130, "spanov": V_PN * 10 / 143,
+            "v5": 5.0, "good": 0.0}          # good low = fault state: the whole 5 V over the pull-up
+
+
+def probe_rows(c, r25, r05, bay):
+    """Gated monitor-IC rows and advisory divider-resistor rows from the run files' probes (hot-copper runs only)."""
+    if "probes" not in r25 or "probes" not in r05:
+        raise SystemExit(f"b3_ratings_gate: {c} run files carry no probes (re-solve with run_basis.py: body_runs probes)")
+    p25, p05 = r25["probes"], r05["probes"]
+    rows = []
+    for ref, (kind, basis, lim, pat) in MONITORS.items():
+        if ref not in p25 or ref not in p05:
+            raise SystemExit(f"b3_ratings_gate: monitor {ref} not on the board")
+        if not any(re.search(pat, n) for n in p25[ref]["nets"]):
+            raise SystemExit(f"b3_ratings_gate: monitor {ref} does not carry a {pat} net ({p25[ref]['nets']}): ref moved")
+        sh = MONITOR_SELF[kind] * RTHJA[kind][0]
+        rows.append(dict(item=f"{ref}: {basis}", gated=True, limit_c=lim,
+                         est_c=est(p25[ref]["pad_max_cell_c"], p05[ref]["pad_max_cell_c"], bay) + sh,
+                         self_heat_k=round(sh, 2)))
+    v = mon_volts()
+    for ref in sorted((r for r in p25 if r.startswith("R") and any(MON_NET.search(n) for n in p25[r]["nets"])),
+                      key=lambda r: int(r[1:])):
+        roles = frozenset(mon_role(n) for n in p25[ref]["nets"])
+        if roles not in MON_R:
+            raise SystemExit(f"b3_ratings_gate: monitor resistor {ref} nets {p25[ref]['nets']} not in the monitor topology")
+        ohm, rated, basis = MON_R[roles]
+        a, b = sorted(roles)
+        w = (v[a] - v[b]) ** 2 / ohm
+        rows.append(dict(item=f"{ref}: monitor divider, terminal derating at {w:.4f} W (20 % margin; {basis})",
+                         gated=False, limit_c=155.0 - 85.0 * w / (0.8 * rated),
+                         est_c=est(p25[ref]["pad_max_cell_c"], p05[ref]["pad_max_cell_c"], bay)))
+    return rows
 
 
 CASE_RE = re.compile(r"^c(\d+(?:\.\d+)?)_h(\d+)(?:_jet(\d+(?:\.\d+)?)(?:a(\d+(?:\.\d+)?))?)?$")
@@ -173,7 +277,29 @@ def evaluate(r25: dict, r05: dict, bay: float):
     return rows
 
 
-def run(runs: Path, cases, bay: float | None = None, release=None):
+def copper_check(c, r25, r05, bay, allow_cold):
+    """The copper-temperature basis of a case's two run files; None for cold copper (allowed only with allow_cold)."""
+    ms = [r.get("copper_temp_model") or {"model": "unrecorded (20 C copper)"} for r in (r25, r05)]
+    hot = [m["model"] == "hot-iterated" for m in ms]
+    if all(hot):
+        for m in ms:
+            if abs(m["air_c"] - bay) > 1e-9:
+                raise SystemExit(f"b3_ratings_gate: {c} hot copper was solved at air {m['air_c']} C, asked for bay {bay} C "
+                                 "(hot copper is not shift-invariant: solve the bay)")
+        if ms[0]["alpha_per_k"] != ms[1]["alpha_per_k"]:
+            raise SystemExit(f"b3_ratings_gate: {c} meshes use different copper TCR")
+        return {"model": "hot-iterated", "alpha_per_k": ms[0]["alpha_per_k"],
+                "max_heated_copper_c": round(max(m["max_heated_copper_c"] for m in ms), 1),
+                "loss_multiplier": round(ms[0]["loss_multiplier"], 4), "max_dT_k": max(m["max_dT_k"] for m in ms)}
+    if any(hot):
+        raise SystemExit(f"b3_ratings_gate: {c} meshes mix hot and cold copper")
+    if not allow_cold:
+        raise SystemExit(f"b3_ratings_gate: {c} run files are on 20 C copper ({ms[0]['model']}); the gate needs the "
+                         "hot-copper fixed point (run_basis.py default) - --allow-cold-copper is for controls only")
+    return None
+
+
+def run(runs: Path, cases, bay: float | None = None, release=None, allow_cold_copper=False):
     """cases: CASE / CASE@BAY strings or {case: bay}. release: cases whose gated rows decide `pass` (None: the BASIS
     release cases present; empty: every case). Ratchet metrics are over the other cases."""
     cases = parse_cases(cases, bay)
@@ -220,7 +346,16 @@ def run(runs: Path, cases, bay: float | None = None, release=None):
             out["basis"]["cases"][c]["airflow"] = {"region_xy_mm": regs[0]["xy_mm"], "h_top": jet["h_top"],
                                                    "air_c": b + regs[0]["t_air_rise_k"], "face": regs[0].get("face"),
                                                    "body_air_credited": regs[0].get("body_air_credited")}
+        cu = copper_check(c, r25, r05, b, allow_cold_copper)
+        if cu is not None:                   # cold-copper controls keep the pre-S17 margins.json format byte for byte
+            out["basis"]["cases"][c]["copper"] = cu
         rows = evaluate(r25, r05, b)
+        if cu is not None:                   # probe rows are part of the hot-copper basis (cold controls: pre-S17 rows)
+            pr = probe_rows(c, r25, r05, b)
+            for r in pr:
+                r["margin_k"] = round(r["limit_c"] - r["est_c"], 1)
+                r["est_c"], r["limit_c"] = round(r["est_c"], 1), round(r["limit_c"], 1)
+            rows += pr
         out["cases"][c] = sorted(rows, key=lambda r: r["margin_k"])
     ratchet = ([c for c in cases if c not in release and c not in airflow] or [c for c in cases if c not in release]
                or list(cases))
@@ -250,12 +385,14 @@ def main():
     ap.add_argument("--bay-c", type=float, help="bay for cases without @BAY (default: the run files' own, then BASIS)")
     ap.add_argument("--cases", help="default: BASIS; with --bay-c alone, the pre-2026-10-15 pair c22_h10,c28_h10")
     ap.add_argument("--release", help="comma list of release cases (default: BASIS release cases present; '' = none)")
+    ap.add_argument("--allow-cold-copper", action="store_true",
+                    help="accept 20 C copper run files (controls only; OPEN-ITEMS S17)")
     a = ap.parse_args()
     rel = None if a.release is None else [c for c in a.release.split(",") if c]
     if a.cases is None:
         a.cases = ("c22_h10,c28_h10" if a.bay_c is not None else
                    ",".join(f"{c}@{b['bay_c']:g}" for c, b in BASIS.items()))
-    res = run(Path(a.runs), a.cases, a.bay_c, rel)
+    res = run(Path(a.runs), a.cases, a.bay_c, rel, allow_cold_copper=a.allow_cold_copper)
     if a.out:
         Path(a.out).write_text(json.dumps(res, indent=1) + "\n")
     m, bs = res["metrics"], res["basis"]

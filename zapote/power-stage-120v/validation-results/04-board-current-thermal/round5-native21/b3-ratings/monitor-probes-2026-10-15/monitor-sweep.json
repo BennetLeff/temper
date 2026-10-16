@@ -1,0 +1,707 @@
+{
+ "board_sha256": "9e075b4b90320e1e19c7b9740278715a4dabe6c80779fe8082a5bb844083ef86",
+ "cases": {
+  "c18_h10": 61.0,
+  "c22_h10": 55.0,
+  "c28_h10": 55.0
+ },
+ "release_case": "c18_h10",
+ "estimator": "gate.est(pad max 0.25, pad max 0.5, bay): Q25 + 3|Q25 - Q05| + (bay - 50); probes = pad-copper maximum over all pads on the mounting layer (hot-copper BASIS run files)",
+ "monitor_rows": [
+  {
+   "ref": "U17",
+   "row": "TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)",
+   "limit_c": 85.0,
+   "self_heat_w": 0.01672,
+   "rthja": [
+    206.0,
+    "SLVS543S 6.3 p.5 DBZ"
+   ],
+   "self_heat_k": 3.44,
+   "grade125": "TL431BQDBZR",
+   "cases": {
+    "c18_h10": {
+     "bay_c": 61.0,
+     "pad_est_c": 89.3,
+     "est_c": 92.7,
+     "margin_k": -7.7,
+     "margin_125_k": 32.3
+    },
+    "c22_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 85.8,
+     "est_c": 89.3,
+     "margin_k": -4.3,
+     "margin_125_k": 35.7
+    },
+    "c28_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 91.3,
+     "est_c": 94.8,
+     "margin_k": -9.8,
+     "margin_125_k": 30.2
+    }
+   }
+  },
+  {
+   "ref": "U19",
+   "row": "TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)",
+   "limit_c": 85.0,
+   "self_heat_w": 0.01672,
+   "rthja": [
+    206.0,
+    "SLVS543S 6.3 p.5 DBZ"
+   ],
+   "self_heat_k": 3.44,
+   "grade125": "TL431BQDBZR",
+   "cases": {
+    "c18_h10": {
+     "bay_c": 61.0,
+     "pad_est_c": 78.5,
+     "est_c": 81.9,
+     "margin_k": 3.1,
+     "margin_125_k": 43.1
+    },
+    "c22_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 74.1,
+     "est_c": 77.5,
+     "margin_k": 7.5,
+     "margin_125_k": 47.5
+    },
+    "c28_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 77.3,
+     "est_c": 80.8,
+     "margin_k": 4.2,
+     "margin_125_k": 44.2
+    }
+   }
+  },
+  {
+   "ref": "U21",
+   "row": "TL431xIDBZR TA max 85 C (TI SLVS543S 6.4 p.5, TL43xxI)",
+   "limit_c": 85.0,
+   "self_heat_w": 0.01672,
+   "rthja": [
+    206.0,
+    "SLVS543S 6.3 p.5 DBZ"
+   ],
+   "self_heat_k": 3.44,
+   "grade125": "TL431BQDBZR",
+   "cases": {
+    "c18_h10": {
+     "bay_c": 61.0,
+     "pad_est_c": 82.1,
+     "est_c": 85.5,
+     "margin_k": -0.5,
+     "margin_125_k": 39.5
+    },
+    "c22_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 77.8,
+     "est_c": 81.2,
+     "margin_k": 3.8,
+     "margin_125_k": 43.8
+    },
+    "c28_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 81.1,
+     "est_c": 84.5,
+     "margin_k": 0.5,
+     "margin_125_k": 40.5
+    }
+   }
+  },
+  {
+   "ref": "U29",
+   "row": "LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
+   "limit_c": 85.0,
+   "self_heat_w": 0.02822,
+   "rthja": [
+    111.2,
+    "SLCS006Z 6.6 p.6 D (SOIC)"
+   ],
+   "self_heat_k": 3.14,
+   "grade125": "LM2901BIDR",
+   "cases": {
+    "c18_h10": {
+     "bay_c": 61.0,
+     "pad_est_c": 99.8,
+     "est_c": 102.9,
+     "margin_k": -17.9,
+     "margin_125_k": 22.1
+    },
+    "c22_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 96.8,
+     "est_c": 100.0,
+     "margin_k": -15.0,
+     "margin_125_k": 25.0
+    },
+    "c28_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 102.9,
+     "est_c": 106.0,
+     "margin_k": -21.0,
+     "margin_125_k": 19.0
+    }
+   }
+  },
+  {
+   "ref": "U30",
+   "row": "LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
+   "limit_c": 85.0,
+   "self_heat_w": 0.02822,
+   "rthja": [
+    111.2,
+    "SLCS006Z 6.6 p.6 D (SOIC)"
+   ],
+   "self_heat_k": 3.14,
+   "grade125": "LM2901BIDR",
+   "cases": {
+    "c18_h10": {
+     "bay_c": 61.0,
+     "pad_est_c": 93.4,
+     "est_c": 96.6,
+     "margin_k": -11.6,
+     "margin_125_k": 28.4
+    },
+    "c22_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 88.3,
+     "est_c": 91.5,
+     "margin_k": -6.5,
+     "margin_125_k": 33.5
+    },
+    "c28_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 91.1,
+     "est_c": 94.2,
+     "margin_k": -9.2,
+     "margin_125_k": 30.8
+    }
+   }
+  },
+  {
+   "ref": "U31",
+   "row": "LM339BIDR TA max 85 C (TI SLCS006Z 6.4 p.6)",
+   "limit_c": 85.0,
+   "self_heat_w": 0.02822,
+   "rthja": [
+    111.2,
+    "SLCS006Z 6.6 p.6 D (SOIC)"
+   ],
+   "self_heat_k": 3.14,
+   "grade125": "LM2901BIDR",
+   "cases": {
+    "c18_h10": {
+     "bay_c": 61.0,
+     "pad_est_c": 98.4,
+     "est_c": 101.5,
+     "margin_k": -16.5,
+     "margin_125_k": 23.5
+    },
+    "c22_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 94.8,
+     "est_c": 97.9,
+     "margin_k": -12.9,
+     "margin_125_k": 27.1
+    },
+    "c28_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 99.4,
+     "est_c": 102.5,
+     "margin_k": -17.5,
+     "margin_125_k": 22.5
+    }
+   }
+  },
+  {
+   "ref": "U16",
+   "row": "TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+   "limit_c": 125.0,
+   "self_heat_w": 0.00624,
+   "rthja": [
+    206.0,
+    "SLVS555N 5.4 p.5 DBZ"
+   ],
+   "self_heat_k": 1.29,
+   "grade125": "TLVH431BQDBZR (as built)",
+   "cases": {
+    "c18_h10": {
+     "bay_c": 61.0,
+     "pad_est_c": 99.9,
+     "est_c": 101.2,
+     "margin_k": 23.8,
+     "margin_125_k": 23.8
+    },
+    "c22_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 97.0,
+     "est_c": 98.3,
+     "margin_k": 26.7,
+     "margin_125_k": 26.7
+    },
+    "c28_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 103.5,
+     "est_c": 104.8,
+     "margin_k": 20.2,
+     "margin_125_k": 20.2
+    }
+   }
+  },
+  {
+   "ref": "U18",
+   "row": "TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+   "limit_c": 125.0,
+   "self_heat_w": 0.00624,
+   "rthja": [
+    206.0,
+    "SLVS555N 5.4 p.5 DBZ"
+   ],
+   "self_heat_k": 1.29,
+   "grade125": "TLVH431BQDBZR (as built)",
+   "cases": {
+    "c18_h10": {
+     "bay_c": 61.0,
+     "pad_est_c": 78.9,
+     "est_c": 80.2,
+     "margin_k": 44.8,
+     "margin_125_k": 44.8
+    },
+    "c22_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 74.4,
+     "est_c": 75.7,
+     "margin_k": 49.3,
+     "margin_125_k": 49.3
+    },
+    "c28_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 77.7,
+     "est_c": 79.0,
+     "margin_k": 46.0,
+     "margin_125_k": 46.0
+    }
+   }
+  },
+  {
+   "ref": "U20",
+   "row": "TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+   "limit_c": 125.0,
+   "self_heat_w": 0.00624,
+   "rthja": [
+    206.0,
+    "SLVS555N 5.4 p.5 DBZ"
+   ],
+   "self_heat_k": 1.29,
+   "grade125": "TLVH431BQDBZR (as built)",
+   "cases": {
+    "c18_h10": {
+     "bay_c": 61.0,
+     "pad_est_c": 82.3,
+     "est_c": 83.6,
+     "margin_k": 41.4,
+     "margin_125_k": 41.4
+    },
+    "c22_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 77.7,
+     "est_c": 79.0,
+     "margin_k": 46.0,
+     "margin_125_k": 46.0
+    },
+    "c28_h10": {
+     "bay_c": 55.0,
+     "pad_est_c": 80.4,
+     "est_c": 81.7,
+     "margin_k": 43.3,
+     "margin_125_k": 43.3
+    }
+   }
+  }
+ ],
+ "sweep_rated_le_105c": [
+  {
+   "ref": "PS2",
+   "mpn": "MPM-20-24",
+   "ledger_status": "PARTIAL",
+   "pad_est_c": {
+    "c18_h10": 112.2,
+    "c28_h10": 120.7
+   },
+   "rating": {
+    "limit_c": 85.0,
+    "parameter": "T working max",
+    "source": "ledger (PARTIAL): p.2 ENVIRONMENT WORKING TEMP."
+   },
+   "margin_k": {
+    "c18_h10": -27.2,
+    "c28_h10": -35.7
+   },
+   "in_gate": false
+  },
+  {
+   "ref": "U5",
+   "mpn": "LM4040A25IDBZR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 89.5,
+    "c28_h10": 104.5
+   },
+   "rating": {
+    "limit_c": 85.0,
+    "parameter": "TA max",
+    "source": "TI SLOS456Q 6.3 p.5, LM4040xxxI TA -40..85; worktrees/runs-native21/s16-monitor-dl (MANIFEST.json sha256)"
+   },
+   "margin_k": {
+    "c18_h10": -4.5,
+    "c28_h10": -19.5
+   },
+   "in_gate": false
+  }
+ ],
+ "sweep_unrated": [
+  {
+   "ref": "D7",
+   "mpn": "PMEG6030EP,115",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 119.0,
+    "c28_h10": 166.1
+   }
+  },
+  {
+   "ref": "D6",
+   "mpn": "PMEG6030EP,115",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 115.3,
+    "c28_h10": 156.5
+   }
+  },
+  {
+   "ref": "D9",
+   "mpn": "PMEG6030EP,115",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 115.1,
+    "c28_h10": 153.3
+   }
+  },
+  {
+   "ref": "D8",
+   "mpn": "PMEG6030EP,115",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 113.0,
+    "c28_h10": 140.4
+   }
+  },
+  {
+   "ref": "U44",
+   "mpn": "ISO6721FBDR",
+   "ledger_status": "PARTIAL",
+   "pad_est_c": {
+    "c18_h10": 110.3,
+    "c28_h10": 118.4
+   }
+  },
+  {
+   "ref": "U43",
+   "mpn": "ISO6721FBDR",
+   "ledger_status": "PARTIAL",
+   "pad_est_c": {
+    "c18_h10": 110.1,
+    "c28_h10": 114.0
+   }
+  },
+  {
+   "ref": "U3",
+   "mpn": "TPS70950DBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 107.4,
+    "c28_h10": 124.3
+   }
+  },
+  {
+   "ref": "U14",
+   "mpn": "TPS3700DDCR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 100.9,
+    "c28_h10": 116.4
+   }
+  },
+  {
+   "ref": "U37",
+   "mpn": "TPS70950DBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 99.6,
+    "c28_h10": 102.3
+   }
+  },
+  {
+   "ref": "D20",
+   "mpn": "BAT54S-7-F",
+   "ledger_status": "VERIFIED",
+   "pad_est_c": {
+    "c18_h10": 99.4,
+    "c28_h10": 122.9
+   }
+  },
+  {
+   "ref": "D18",
+   "mpn": "BAT54S-7-F",
+   "ledger_status": "VERIFIED",
+   "pad_est_c": {
+    "c18_h10": 98.8,
+    "c28_h10": 124.3
+   }
+  },
+  {
+   "ref": "U8",
+   "mpn": "SN74LVC1G10DBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 93.8,
+    "c28_h10": 111.1
+   }
+  },
+  {
+   "ref": "U7",
+   "mpn": "TLV3201AIDBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 90.4,
+    "c28_h10": 104.7
+   }
+  },
+  {
+   "ref": "U15",
+   "mpn": "SN74LVC1G17DBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 89.6,
+    "c28_h10": 112.1
+   }
+  },
+  {
+   "ref": "U6",
+   "mpn": "TLV3201AIDBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 89.2,
+    "c28_h10": 103.9
+   }
+  },
+  {
+   "ref": "U38",
+   "mpn": "TPS70950DBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 84.6,
+    "c28_h10": 79.9
+   }
+  },
+  {
+   "ref": "U45",
+   "mpn": "SN74LVC1G132DBVR",
+   "ledger_status": "PARTIAL",
+   "pad_est_c": {
+    "c18_h10": 84.5,
+    "c28_h10": 85.7
+   }
+  },
+  {
+   "ref": "U39",
+   "mpn": "TPS70950DBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 84.3,
+    "c28_h10": 81.5
+   }
+  },
+  {
+   "ref": "U9",
+   "mpn": "CA-IS3720HW",
+   "ledger_status": "PARTIAL",
+   "pad_est_c": {
+    "c18_h10": 83.1,
+    "c28_h10": 85.6
+   }
+  },
+  {
+   "ref": "U4",
+   "mpn": "AMC1311BDWVR",
+   "ledger_status": "PARTIAL",
+   "pad_est_c": {
+    "c18_h10": 82.0,
+    "c28_h10": 83.9
+   }
+  },
+  {
+   "ref": "U32",
+   "mpn": "CA-IS3720HW",
+   "ledger_status": "PARTIAL",
+   "pad_est_c": {
+    "c18_h10": 80.0,
+    "c28_h10": 81.1
+   }
+  },
+  {
+   "ref": "U23",
+   "mpn": "SN74LVC1G00DBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 78.9,
+    "c28_h10": 83.8
+   }
+  },
+  {
+   "ref": "U36",
+   "mpn": "VOL628A-2X001T",
+   "ledger_status": "PARTIAL",
+   "pad_est_c": {
+    "c18_h10": 78.2,
+    "c28_h10": 79.6
+   }
+  },
+  {
+   "ref": "U22",
+   "mpn": "SN74LVC1G00DBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 73.7,
+    "c28_h10": 77.2
+   }
+  },
+  {
+   "ref": "D3",
+   "mpn": "30KPA150CA",
+   "ledger_status": "PARTIAL",
+   "pad_est_c": {
+    "c18_h10": 72.3,
+    "c28_h10": 73.0
+   }
+  },
+  {
+   "ref": "D17",
+   "mpn": "30KPA150CA",
+   "ledger_status": "PARTIAL",
+   "pad_est_c": {
+    "c18_h10": 70.7,
+    "c28_h10": 71.4
+   }
+  },
+  {
+   "ref": "D5",
+   "mpn": "BAS116H,115",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 64.1,
+    "c28_h10": 61.6
+   }
+  },
+  {
+   "ref": "D4",
+   "mpn": "BAS116H,115",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 63.4,
+    "c28_h10": 59.9
+   }
+  },
+  {
+   "ref": "U46",
+   "mpn": "SN74LVC1G132DBVR",
+   "ledger_status": "PARTIAL",
+   "pad_est_c": {
+    "c18_h10": 62.7,
+    "c28_h10": 58.1
+   }
+  },
+  {
+   "ref": "D19",
+   "mpn": "BAT54S-7-F",
+   "ledger_status": "VERIFIED",
+   "pad_est_c": {
+    "c18_h10": 62.6,
+    "c28_h10": 57.7
+   }
+  },
+  {
+   "ref": "U12",
+   "mpn": "TLV3201AIDBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 62.6,
+    "c28_h10": 57.3
+   }
+  },
+  {
+   "ref": "U10",
+   "mpn": "TLV3201AIDBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 62.5,
+    "c28_h10": 57.3
+   }
+  },
+  {
+   "ref": "U13",
+   "mpn": "SN74LVC1G332DBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 62.5,
+    "c28_h10": 57.3
+   }
+  },
+  {
+   "ref": "U40",
+   "mpn": "SN74LVC1G17DBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 62.5,
+    "c28_h10": 57.5
+   }
+  },
+  {
+   "ref": "U11",
+   "mpn": "TLV3201AIDBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 62.3,
+    "c28_h10": 57.0
+   }
+  },
+  {
+   "ref": "U24",
+   "mpn": "SN74LVC1G17DBVR",
+   "ledger_status": "UNAUDITED",
+   "pad_est_c": {
+    "c18_h10": 62.1,
+    "c28_h10": 56.7
+   }
+  }
+ ],
+ "semis_with_b3_rows": [
+  "U16",
+  "U17",
+  "U18",
+  "U19",
+  "U20",
+  "U21",
+  "U26",
+  "U29",
+  "U30",
+  "U31",
+  "U41",
+  "U42"
+ ]
+}

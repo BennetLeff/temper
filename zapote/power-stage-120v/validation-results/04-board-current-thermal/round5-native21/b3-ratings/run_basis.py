@@ -7,6 +7,12 @@
     python3 run_basis.py --bay-c 61 --runs DIR --out FILE   # the pre-2026-10-15 form: c22 and c28 at one bay
     python3 run_basis.py --cases c28_h10_jet100@61,c28_h10_jet100a50@61 --runs DIR --out FILE   # airflow cases
     python3 run_basis.py --film-lead-only ...   # C38-C41 without their body-to-air path (the model to 2026-10-15)
+    python3 run_basis.py --copper-tcr 0 ...     # 20 C copper (the A4 fields as solved; a control, gated with
+                                                # --allow-cold-copper)
+
+Hot copper (OPEN-ITEMS S17): every case solves the hot-copper fixed point, q = q20 (1 + alpha (T - 20 C)) per A4 heat
+cell at its absolute temperature T = bay + rise (each case is solved at its own bay, so T is absolute), alpha
+thermal_body.ALPHA_CU = sheet_solver.ALPHA_CU, current paths fixed. Run files record copper_temp_model.
 
 Airflow cases (b3-ratings/jet-2026-10-15): CASE = c<ceiling>_h<h>_jet<h_top>[a<air C>] puts h_top on the top-face cells
 of JET_REGION (below) and on the package networks centred in it, air at <air C> (default: the case's bay); the rest of
@@ -104,7 +110,7 @@ def region_for(case, bay, credit_refs=()):
 
 
 def one(job):
-    name, case, ceil, h, bay, pitch, runs, sens, credit_refs = job
+    name, case, ceil, h, bay, pitch, runs, sens, credit_refs, alpha = job
     op = case.split("_")[0]
     c = inputs(op, ceil, runs)
     br.op_inputs = lambda _op, _c=c: _c
@@ -113,7 +119,8 @@ def one(job):
              "t_rise": {r: t - bay for r, t in fet_case.t_case(ceil, i_line=I_LINE_A).items()}}
     region = region_for(case, bay, credit_refs)
     res = br.run_case(brd, op, h, pitch, "fraction", "network", dict(sens), None, None, True, True, label=name,
-                      leads=leads, region=region)
+                      leads=leads, region=region, copper_tcr=None if alpha == 0 else {"alpha": alpha, "air_c": bay},
+                      probes=True)
     res["board_sha256"] = brd.data["board_sha256"]
     res.update(bay_c=bay, i_line_a=I_LINE_A, i_t_a=i_trip(ceil), ceiling_a=ceil)
     if region is not None:
@@ -134,6 +141,8 @@ def main():
                     help="C38-C41 without their body-to-air path (the model to 2026-10-15; a control)")
     ap.add_argument("--film-air-rise", type=float,
                     help="C38-C41 body air over the bay, K (default thermal_body.FILM_HF_AIR_RISE_K; a sensitivity)")
+    ap.add_argument("--copper-tcr", type=float, default=tb.ALPHA_CU,
+                    help=f"copper TCR, 1/K (default {tb.ALPHA_CU}, hot copper); 0 = the 20 C A4 fields (a control)")
     ap.add_argument("--jet-credit-refs", default="",
                     help="comma list of part bodies credited at h_top in airflow cases although centred outside "
                          "JET_REGION (a sensitivity, e.g. C38,C39,C40,C41; recorded in the run files)")
@@ -159,12 +168,13 @@ def main():
     jobs = []
     for c, bay in cases.items():
         ceil, h = gate.case_ceiling_h(c)
-        jobs += [(f"{c}_p{str(p).replace('.', 'p')}", c, ceil, h, bay, p, str(runs), sens, credit) for p in (0.25, 0.5)]
+        jobs += [(f"{c}_p{str(p).replace('.', 'p')}", c, ceil, h, bay, p, str(runs), sens, credit, a.copper_tcr) for p in (0.25, 0.5)]
     with ProcessPoolExecutor(max_workers=max(1, min(a.workers, 4))) as ex:      # shared machine: at most 4
         for n in ex.map(one, jobs):
             print("  solved", n, flush=True)
     r = subprocess.run([sys.executable, str(HERE / "b3_ratings_gate.py"), "--runs", str(runs), "--out", a.out,
-                        "--cases", ",".join(f"{c}@{b:g}" for c, b in cases.items())])
+                        "--cases", ",".join(f"{c}@{b:g}" for c, b in cases.items())]
+                       + (["--allow-cold-copper"] if a.copper_tcr == 0 else []))
     raise SystemExit(r.returncode)
 
 

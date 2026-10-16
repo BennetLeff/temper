@@ -50,6 +50,12 @@ CU_INDEX = T.CU_INDEX
 THK_MM = T.THICK_MM
 BASE = 0.0625                      # supersampling pitch for copper fill fractions [mm]
 K_AIR = 0.026                      # W/m/K, dry air near 60 C (Incropera table A.4)
+# Copper TCR for the hot-copper fixed point (OPEN-ITEMS S17): the task-04 A4 fields are 20 C DC copper
+# (run_board.py 'assumptions', sheet_solver temp_c=20), so each A4 heat cell is q = q20 (1 + ALPHA_CU (T - 20 C)) at its
+# absolute temperature T. One value: thermal.ALPHA_CU, asserted there against sheet_solver.ALPHA_CU.
+ALPHA_CU = T.ALPHA_CU
+TCR_TOL_K = 1e-3                   # Picard check: max |dT| between successive solves
+TCR_MAX_ITER = 50
 
 # --------------------------------------------------------------------------------------------------------------
 # Package network specifications. Every number carries its source. "derived" = computed here from handbook
@@ -628,18 +634,31 @@ def build_network_parts(board_obj, heat_json, mode, nz, nx, ny, xmin, ymin, pitc
 
 
 def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=None, rtol=1e-10, label="", leads=(),
-                 top_region=None):
+                 top_region=None, tcr=None):
     """Solve for rises. `heat` (nz,nx,ny) W injected into cells (point-source part heat is already in it).
     dirichlet: None or (T_bc array (nz,nx,ny)) - the outer ring of cells (all sheets) is held at T_bc.
     leads: LeadLink fixed-temperature ties (FET drain leads to the sink); their heat to the sink is lead_sink_w.
     top_region: None or (mask (nx, ny), h_top, t_air_rise) - TopRegion cells of the top sheet convect at h_top to air
     at t_air_rise; parts carry their own NetPart.t_air.
+    tcr: None (heat fixed, the 20 C copper model) or {"q20": (nz,nx,ny) W, the part of `heat` that is A4 copper at 20 C,
+    "alpha": 1/K, "t_abs0_c": absolute temperature of zero rise (the case's bay air)} - the hot-copper fixed point
+    T = M^-1 (b + q(T)), q = q20 (1 + alpha (t_abs0 + rise - 20)), fixed current paths. q is affine in T, so the fixed
+    point is the solution of the linear system with -alpha q20 on the cell diagonal (solved exactly by CG); it is then
+    checked by Picard steps on the unmodified operator until max |dT| < TCR_TOL_K. A non-SPD folded operator (CG
+    failure) or a Picard check that does not settle is thermal runaway: RuntimeError, never a silent result.
     Returns rise (nz,nx,ny), rise_J (len(parts)), receipt."""
     nz, nx, ny = k.shape
     nxy = nx * ny
     rows, cols, vals, diag, ids, conv = assemble(board, k, thk_m, h, pitch_m, links,
                                                  None if top_region is None else top_region[:2])
     N = nz * nxy
+    if tcr is not None:
+        assert dirichlet is None, "the hot-copper fixed point is solved on global meshes only"
+        q20 = np.where(np.broadcast_to(board, (nz, nx, ny)), tcr["q20"], 0.0).ravel()
+        a_t, off = float(tcr["alpha"]), float(tcr["t_abs0_c"]) - 20.0
+        d_tcr = a_t * q20                           # dq/dT per cell [W/K]
+        diag = diag - d_tcr
+        heat = heat + (a_t * off) * tcr["q20"]      # q at zero rise: q20 (1 + alpha (t_abs0 - 20))
     nJ = len(parts)
     diagJ = np.zeros(nJ)
     rhs = np.zeros(N + nJ)
@@ -700,10 +719,14 @@ def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=N
     if dirichlet is None:
         iters = [0]
         pre = LinearOperator(M.shape, matvec=lambda v: v / diag_full)
+        if tcr is not None and (diag_full[:N] <= 0).any():
+            raise RuntimeError(f"hot-copper operator lost its diagonal (dq/dT exceeds the cell's conductance): thermal "
+                               f"runaway {label}")
         x, info = cg(M, rhs, rtol=rtol, atol=1e-14, M=pre, maxiter=40000,
                      callback=lambda _: iters.__setitem__(0, iters[0] + 1))
         if info != 0:
-            raise RuntimeError(f"CG failed info={info} it={iters[0]} {label}")
+            raise RuntimeError(f"CG failed info={info} it={iters[0]} {label}"
+                               + (" (hot copper: the folded operator is not SPD - thermal runaway)" if tcr else ""))
         resid = float(np.linalg.norm(M @ x - rhs) / max(np.linalg.norm(rhs), 1e-30))
         TB = None
     else:
@@ -732,6 +755,39 @@ def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=N
         S = -MUB.tocsr()
         bc_flux = float((S.sum(axis=1).A1 * xU).sum() - (S.sum(axis=0).A1 * TBv).sum())
         # interior rows in the ring-adjacent layer carry the ring's convection too: those nodes are fixed, not counted
+    tcr_rec = None
+    if tcr is not None:
+        # Picard check on the unmodified operator M0 = M + diag(d_tcr): x_{k+1} = M0^-1 (b + q(x_k)), warm-started
+        M0 = M + csr_matrix((np.concatenate([d_tcr, np.zeros(nJ)]), (np.arange(N + nJ), np.arange(N + nJ))),
+                            shape=M.shape)
+        d0 = diag_full + np.concatenate([d_tcr, np.zeros(nJ)])
+        pre0 = LinearOperator(M0.shape, matvec=lambda v: v / d0)
+        rhs0 = rhs.copy()
+        steps, dmax = 0, float("inf")
+        while steps < TCR_MAX_ITER:
+            rhs_k = rhs0.copy()
+            rhs_k[:N] += d_tcr * x[:N]
+            xk, info = cg(M0, rhs_k, x0=x, rtol=rtol, atol=1e-14, M=pre0, maxiter=40000)
+            if info != 0:
+                raise RuntimeError(f"hot-copper Picard check: CG failed info={info} {label}")
+            dmax = float(np.abs(xk[:N] - x[:N]).max())
+            x = xk
+            steps += 1
+            if dmax < TCR_TOL_K:
+                break
+        else:
+            raise RuntimeError(f"hot-copper fixed point did not settle (max |dT| {dmax:.3g} K after {steps} Picard "
+                               f"steps): thermal runaway {label}")
+        # loop gain: the Rayleigh quotient x'Dx / x'M0x of the solved field bounds rho(M0^-1 D) from below; >= 1 is a
+        # runaway (the folded operator is then indefinite and its "solution" unphysical)
+        gain = float((d_tcr * x[:N] ** 2).sum() / max(float(x @ (M0 @ x)), 1e-300))
+        if not gain < 1.0:
+            raise RuntimeError(f"hot copper: loop gain {gain:.3g} >= 1 (thermal runaway) {label}")
+        q_hot = q20 * (1.0 + a_t * (off + x[:N]))
+        tcr_rec = {"alpha": a_t, "t_abs0_c": float(tcr["t_abs0_c"]), "picard_steps": steps, "max_dT_k": dmax,
+                   "loop_gain_rayleigh": gain,
+                   "q20_w": float(q20.sum()), "q_hot_w": float(q_hot.sum())}
+        heat = (heat - (a_t * off) * tcr["q20"]) + (q_hot - q20).reshape(nz, nx, ny)   # the heat actually injected
     rise = x[:N].reshape(nz, nx, ny)
     riseJ = x[N:]
     if dirichlet is None:
@@ -766,6 +822,8 @@ def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=N
            "cg_iterations": iters[0], "relative_residual": resid}
     if region_w is not None:
         rec["region_top_convection_w"] = region_w
+    if tcr_rec is not None:
+        rec["tcr"] = tcr_rec
     return rise, riseJ, rec
 
 

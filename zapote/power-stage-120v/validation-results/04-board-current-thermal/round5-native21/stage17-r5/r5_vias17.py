@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Stage 17b: R5 current-via check against the project's via criterion.
 
-    python3 r5_vias17.py [--tag native21s17]   -> r5_vias17.json
+    python3 r5_vias17.py [--tag native21s17] [--copper-tcr A] [--out r5_vias17.json]   -> r5_vias17.json
+
+Copper temperature (OPEN-ITEMS S17): the B3 solve is hot copper by default (thermal.py --copper-tcr, ALPHA_CU), and the
+barrel loss uses rho(T) = RHO_CU (1 + alpha (T - 20 C)) at the via's mid-wall temperature (fixed point of cell max +
+mid-wall rise, three passes; RHO_CU is the 20 C value). --copper-tcr 0 reproduces the 20 C copper record.
 
 Criterion (validation-plan/04-board-current-thermal.md:114): "Report the maximum per-via current and the via
 temperature rise. Flag any via > 3 A (a flag, not a fail; there's no rated limit)". Round 5 accepted the stage-6
@@ -55,8 +59,11 @@ def load(name, path):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", default="native21s17b")
+    ap.add_argument("--copper-tcr", type=float, help="copper TCR 1/K (default thermal.ALPHA_CU, hot copper; 0 = 20 C)")
+    ap.add_argument("--out", default=str(HERE / "r5_vias17.json"))
     a = ap.parse_args()
     th = load("thermal", R5N / "b3/thermal.py")
+    alpha = th.ALPHA_CU if a.copper_tcr is None else a.copper_tcr
     rs = load("run_study", R5N / "b3/run_study.py")
     zmid = np.cumsum(th.THICK_MM) - th.THICK_MM / 2
     vc = json.loads((R5N / "outputs/via_currents.json").read_text())
@@ -74,8 +81,8 @@ def main():
     heat = R5N / "b3/inputs/native21-board-heat-sources-c28.json"
     out = Path(tempfile.mkdtemp()) / "b3_p0p25.json"
     subprocess.run([sys.executable, str(R5N / "b3/thermal.py"), "--geometry", str(geom), "--case", rs.cases("c28"),
-                    "--pitch-mm", "0.25", "--h", "25", "--a6-heat", str(heat), "--a6-mode", "nominal", "--output", str(out)],
-                   check=True, stdout=subprocess.DEVNULL)
+                    "--pitch-mm", "0.25", "--h", "25", "--a6-heat", str(heat), "--a6-mode", "nominal", "--output", str(out),
+                    "--copper-tcr", repr(alpha)], check=True, stdout=subprocess.DEVNULL)
     sol = json.loads(out.read_text())
     f = np.load(out.with_suffix(".npz"))
     xs, ys, rise = f["x_mm"], f["y_mm"], f["rise_k"]
@@ -90,26 +97,32 @@ def main():
         coh_case = max((c for c in COH if c in v["cases"]), key=lambda c: amax[c])
         coh = amax[coh_case]
         worst = max(amax.values())
-        # c28 barrel heat: every hop of the via's worst coherent 34 A case scaled to the trip RMS
-        p_w, dt_k = 0.0, 0.0
-        case = v["cases"][coh_case]
-        for (la, lb), h in zip(case["hop_layers"], case["hop_amps"]):
-            if h is None:
-                continue
-            length = abs(zmid[th.CU_INDEX[lb]] - zmid[th.CU_INDEX[la]]) * 1e-3
-            area = math.pi * d * 1e-3 * PLATING_M
-            i = abs(h) * I_TRIP / I_COH
-            p = i * i * RHO_CU * length / area
-            p_w += p
-            dt_k = max(dt_k, p * (length / (K_CU * area)) / 8)
         ix = np.flatnonzero(abs(xs - x) <= d / 2 + 0.125)
         iy = np.flatnonzero(abs(ys - y) <= d / 2 + 0.125)
         cell = th.TAMB_C + float(rise[:, ix][:, :, iy].max())
+        # c28 barrel heat: every hop of the via's worst coherent 34 A case scaled to the trip RMS, plating resistivity
+        # at the mid-wall temperature (cell max + rise; fixed point, three passes)
+        case = v["cases"][coh_case]
+        dt_k = 0.0
+        for _ in range(3):
+            rho = RHO_CU * (1 + alpha * (cell + dt_k - 20.0))
+            p_w, dt_new = 0.0, 0.0
+            for (la, lb), h in zip(case["hop_layers"], case["hop_amps"]):
+                if h is None:
+                    continue
+                length = abs(zmid[th.CU_INDEX[lb]] - zmid[th.CU_INDEX[la]]) * 1e-3
+                area = math.pi * d * 1e-3 * PLATING_M
+                i = abs(h) * I_TRIP / I_COH
+                p = i * i * rho * length / area
+                p_w += p
+                dt_new = max(dt_new, p * (length / (K_CU * area)) / 8)
+            dt_k = dt_new
         rows.append({"xy_mm": [x, y], "case_max_a": {c: round(q, 2) for c, q in amax.items()}, "coherent_case": coh_case,
                      "worst_a": round(worst, 2), "coherent_34a_a": round(coh, 2),
                      "a_per_mm_circumference": round(worst / circ, 2), "over_3a_flag": worst > 3.0,
                      "c28_rms_a": round(coh * I_TRIP / I_COH, 2), "c28_barrel_w": round(p_w, 4),
                      "c28_barrel_mid_rise_k": round(dt_k, 2), "b3_c28_cell_max_c": round(cell, 2),
+                     "barrel_rho_ohm_m": float(f"{rho:.4g}"),
                      "via_wall_estimate_c": round(cell + dt_k, 2)})
     rows.sort(key=lambda r: -r["worst_a"])
     g6_bound = 148.39
@@ -118,6 +131,8 @@ def main():
                          "text": "Report the maximum per-via current and the via temperature rise. Flag any via > 3 A (a flag, not a fail; there's no rated limit)",
                          "round5_reference": "round5-native21/README.md:37-47: stage 6 accepted 7.27 A worst (34 A coherent), ~7.7 A/mm of barrel circumference; native-17 5.5 A/mm"},
            "geometry": str(geom.relative_to(UNIT)), "board_sha256": sol["board_sha256"],
+           "copper_temp_model": {**(sol.get("copper_temp_model") or {"model": "cold-20C", "alpha_per_k": 0.0}),
+                                 "barrel_rho": f"RHO_CU {RHO_CU} x (1 + {alpha} (T_mid_wall - 20 C))"},
            "r5_pad_cell_max_c": round(r5["conditional_pad_cell_max_c"], 2), "g6_terminal_bound_c": g6_bound,
            "vias": rows, "n_vias": len(rows), "n_over_3a": sum(r["over_3a_flag"] for r in rows),
            "worst": {k: worst[k] for k in ("xy_mm", "worst_a", "a_per_mm_circumference", "c28_rms_a", "c28_barrel_w",
@@ -126,7 +141,7 @@ def main():
            "verdict": None}
     res["verdict"] = ("REPORTED (flag only, no rated limit); every via wall estimate <= the G6 terminal bound"
                       if res["max_via_wall_estimate_c"] <= g6_bound else "via wall estimate above the G6 terminal bound")
-    (HERE / "r5_vias17.json").write_text(json.dumps(res, indent=1) + "\n")
+    Path(a.out).write_text(json.dumps(res, indent=1) + "\n")
     print(json.dumps({k: res[k] for k in ("n_vias", "n_over_3a", "worst", "max_via_wall_estimate_c", "r5_pad_cell_max_c", "verdict")}, indent=1))
 
 

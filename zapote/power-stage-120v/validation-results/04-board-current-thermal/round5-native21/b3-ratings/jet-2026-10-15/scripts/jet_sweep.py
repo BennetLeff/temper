@@ -92,7 +92,8 @@ def solve_air15(workers):
 
 
 def gated(tag, c, bay):
-    return [r for r in gate.run(rdir(tag, bay), [f"{c}@{bay:g}"])["cases"][c] if r["gated"]]
+    # these runs are on 20 C copper (the sweep predates the hot-copper fixed point, OPEN-ITEMS S17): a cold record
+    return [r for r in gate.run(rdir(tag, bay), [f"{c}@{bay:g}"], allow_cold_copper=True)["cases"][c] if r["gated"]]
 
 
 def h_zero(pts):
@@ -135,7 +136,7 @@ def summary():
     ref = json.loads((B3R / "margins.json").read_text())
     # (the committed margins.json is on the film_hf default air since FILM_HF_AIR_RISE_K: compare it with air15's run)
     ctl_dir = rdir("air15", 55) if (rdir("air15", 55) / f"{case(28, 10)}_p0p5.json").exists() else rdir("main", 55)
-    mine = {r["item"]: r["margin_k"] for r in gate.run(ctl_dir, [f"{case(28, 10)}@55"])["cases"][case(28, 10)]}
+    mine = {r["item"]: r["margin_k"] for r in gate.run(ctl_dir, [f"{case(28, 10)}@55"], allow_cold_copper=True)["cases"][case(28, 10)]}
     th = {r["item"]: r["margin_k"] for r in ref["cases"]["c28_h10"]}
     d = [abs(mine[i] - th[i]) for i in th if i in mine]
     out["controls"] = {"ceiling_pair_reproduces_ceilings_py": ctl1,

@@ -1,6 +1,6 @@
 {
   "status": "conditional_experiment",
-  "source_revision": "18187575df37c25a06539adf77dac4df405692a9",
+  "source_revision": "ff921e889cd9b894c03b6eefa0254315cfe6e853",
   "source_dirty": true,
   "board_sha256": "9e075b4b90320e1e19c7b9740278715a4dabe6c80779fe8082a5bb844083ef86",
   "stackup_sha256": "74089acd356f8d96add5d5c7787d1424dd435453ae675092fa5da947594e6a16",
@@ -12,8 +12,8 @@
     "scipy": "1.18.0",
     "shapely": "2.1.2"
   },
-  "script_sha256": "62054ef198a88e10c9240e043b9f5f0a323d9003f7692b5be370d82874d58109",
-  "case": "sw_a-p00625-pl18:1.23589,sw_a_low-p00625-pl18:1.23589,sw_b_high-p00625-pl18:1.23589,sw_b_low-p00625-pl18:1.23589,res_a-p0125-pl18:2.47179,coil_feed-p0125-pl18:2.47179,leg_a_18p7-p00625-pl18:1.23589,leg_b_18p7-p00625-pl18:1.23589,hv_mixed_a-p00625-pl18:0.373858,hv_mixed_b-p00625-pl18:0.373858,bus_mixed_q2-p0125-pl18:0.373858,bus_mixed_q5-p0125-pl18:0.373858,ac_n_main-p0125-pl18:0.5476,ac_l_main-p0125-pl18:0.5476",
+  "script_sha256": "02b3c057e626da13018cb5a9e33d69734c8b858b5b0e7062e3a131ed6c25c8f7",
+  "case": "sw_a-p00625-pl18:1.23589,sw_a_low-p00625-pl18:1.23589,sw_b_high-p00625-pl18:1.23589,sw_b_low-p00625-pl18:1.23589,res_a-p0125-pl18:2.47179,coil_feed-p0125-pl18:2.47179,leg_a_18p7-p00625-pl18:1.23589,leg_b_18p7-p00625-pl18:1.23589,hv_mixed_a-p00625-pl18:0.373858,hv_mixed_b-p00625-pl18:0.373858,bus_mixed_q2-p0125-pl18:0.373858,bus_mixed_q5-p0125-pl18:0.373858,ac_n_main-p0125-pl18:0.81,ac_l_main-p0125-pl18:0.81",
   "pitch_mm": 1.0,
   "h_w_m2k_each_face": 10.0,
   "ambient_c": 50.0,
@@ -26,6 +26,34 @@
     "dielectric 3",
     "B.Cu"
   ],
+  "copper_temp_model": {
+    "model": "hot-iterated",
+    "alpha_per_k": 0.00393,
+    "t_abs0_c": 50.0,
+    "picard_steps": 1,
+    "max_dT_k": 0.0,
+    "loop_gain_rayleigh": 0.29026314331943015,
+    "loss_w_20c": 14.601071504395735,
+    "loss_w_hot": 24.243555826329896,
+    "loss_multiplier": 1.6603956647312654,
+    "max_heated_copper_c": 291.15332454839074,
+    "loss_multiplier_by_case": {
+      "sw_a-p00625-pl18": 1.52712,
+      "sw_a_low-p00625-pl18": 1.69403,
+      "sw_b_high-p00625-pl18": 1.67626,
+      "sw_b_low-p00625-pl18": 1.66028,
+      "res_a-p0125-pl18": 1.38893,
+      "coil_feed-p0125-pl18": 1.4067,
+      "leg_a_18p7-p00625-pl18": 1.90497,
+      "leg_b_18p7-p00625-pl18": 1.91429,
+      "hv_mixed_a-p00625-pl18": 1.77914,
+      "hv_mixed_b-p00625-pl18": 1.8123,
+      "bus_mixed_q2-p0125-pl18": 1.83688,
+      "bus_mixed_q5-p0125-pl18": 1.82346,
+      "ac_n_main-p0125-pl18": 1.26919,
+      "ac_l_main-p0125-pl18": 1.1694
+    }
+  },
   "layer_thickness_mm": [
     0.07,
     0.4355,
@@ -72,13 +100,13 @@
     }
   },
   "heat_w_by_layer": {
-    "F.Cu": 14.708743440991,
+    "F.Cu": 17.135017177217634,
     "dielectric 1": 0.0,
-    "In1.Cu": 1.7928809131482661,
+    "In1.Cu": 3.2462592754221373,
     "dielectric 2": 0.0,
-    "In2.Cu": 1.4737826692270743,
+    "In2.Cu": 2.6799264684389916,
     "dielectric 3": 0.0,
-    "B.Cu": 6.901430218851055
+    "B.Cu": 11.625469514348403
   },
   "thermal_barrel_links": 2529,
   "a4": [
@@ -183,20 +211,20 @@
       "case_json_sha256": "a6cf4300f0b0a5988555b145f67f041f741c19f00ac8cf5c72939d40a439d989",
       "heat_npz_sha256": "b49f4cba837be5d851d1b0540c8f050c3eff0f908040ca231f2165d1905a390a",
       "a4_loss_w": 0.5722968120242105,
-      "scale_i2": 0.5476,
-      "remapped_w": 0.3133897342640015
+      "scale_i2": 0.81,
+      "remapped_w": 0.46356041773893786
     },
     {
       "case": "ac_l_main-p0125-pl18",
       "case_json_sha256": "1f9b0d82112eeddfa212a432504e8474f48f18ed56abb07786e879bae129eee8",
       "heat_npz_sha256": "6dd01cfbe2671b8c53134933efcf247f4e2f235d2d21683f6f63679a17cab2d6",
       "a4_loss_w": 0.06547327667942066,
-      "scale_i2": 0.5476,
-      "remapped_w": 0.035853166309649964
+      "scale_i2": 0.81,
+      "remapped_w": 0.05303335411032961
     }
   ],
   "a6": {
-    "a6_heat_file": "/Users/bennet/Desktop/temper/worktrees/ps-layers/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3/inputs/native21-board-heat-sources-c28.json",
+    "a6_heat_file": "/Users/bennet/Desktop/temper/worktrees/ps-selv/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3/inputs/native21-board-heat-sources-c28.json",
     "a6_heat_sha256": "f8a488281f70a570902e8ee7f1a616a4cb37854145c79a80137216868a871869",
     "a6_status": "native-21 board heat at the 28 A ceiling case (stage 15; watts_nominal = watts_worst = the case)",
     "mode": "nominal",
@@ -216,8 +244,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 237.0,
       "y_mm": 43.5,
-      "conditional_pad_cell_mean_c": 93.10010011833361,
-      "conditional_pad_cell_max_c": 104.48065924718532
+      "conditional_pad_cell_mean_c": 97.44558487753018,
+      "conditional_pad_cell_max_c": 110.85857305567413
     },
     {
       "ref": "R22",
@@ -230,8 +258,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 158.0,
       "y_mm": 41.0,
-      "conditional_pad_cell_mean_c": 95.86999814683415,
-      "conditional_pad_cell_max_c": 96.19579603897014
+      "conditional_pad_cell_mean_c": 114.36072067617513,
+      "conditional_pad_cell_max_c": 115.24477125132157
     },
     {
       "ref": "R23",
@@ -244,8 +272,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 168.0,
       "y_mm": 41.0,
-      "conditional_pad_cell_mean_c": 92.48618368330865,
-      "conditional_pad_cell_max_c": 92.98150685793718
+      "conditional_pad_cell_mean_c": 107.98814352809825,
+      "conditional_pad_cell_max_c": 108.87235118878732
     },
     {
       "ref": "R24",
@@ -258,8 +286,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 178.0,
       "y_mm": 41.0,
-      "conditional_pad_cell_mean_c": 89.56949709944449,
-      "conditional_pad_cell_max_c": 89.9638372434012
+      "conditional_pad_cell_mean_c": 102.80363246934702,
+      "conditional_pad_cell_max_c": 103.50290794044375
     },
     {
       "ref": "R25",
@@ -272,8 +300,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 188.0,
       "y_mm": 41.0,
-      "conditional_pad_cell_mean_c": 87.11967424823663,
-      "conditional_pad_cell_max_c": 87.47753651501876
+      "conditional_pad_cell_mean_c": 98.49356310815443,
+      "conditional_pad_cell_max_c": 99.10826449586014
     },
     {
       "ref": "R39",
@@ -286,8 +314,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 133.795,
       "y_mm": 130.175,
-      "conditional_pad_cell_mean_c": 78.0175357216553,
-      "conditional_pad_cell_max_c": 80.98170217145505
+      "conditional_pad_cell_mean_c": 78.30789780159495,
+      "conditional_pad_cell_max_c": 81.2703738510479
     },
     {
       "ref": "R5",
@@ -300,8 +328,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 37.75,
       "y_mm": 12.6,
-      "conditional_pad_cell_mean_c": 183.88842329956458,
-      "conditional_pad_cell_max_c": 186.81042893464627
+      "conditional_pad_cell_mean_c": 259.19526705201054,
+      "conditional_pad_cell_max_c": 264.52983693839633
     },
     {
       "ref": "C21",
@@ -314,8 +342,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 176.75,
       "y_mm": 53.2,
-      "conditional_pad_cell_mean_c": 106.55062456296073,
-      "conditional_pad_cell_max_c": 113.80922716886259
+      "conditional_pad_cell_mean_c": 119.12145223288603,
+      "conditional_pad_cell_max_c": 128.7465472633424
     },
     {
       "ref": "C22",
@@ -328,8 +356,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 176.75,
       "y_mm": 67.7,
-      "conditional_pad_cell_mean_c": 103.31328872607492,
-      "conditional_pad_cell_max_c": 112.4123536249185
+      "conditional_pad_cell_mean_c": 114.09194829470792,
+      "conditional_pad_cell_max_c": 127.46581377146954
     },
     {
       "ref": "C23",
@@ -342,8 +370,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 176.75,
       "y_mm": 82.5,
-      "conditional_pad_cell_mean_c": 101.00544795166535,
-      "conditional_pad_cell_max_c": 110.00568475406605
+      "conditional_pad_cell_mean_c": 110.57008504483937,
+      "conditional_pad_cell_max_c": 123.87118682729084
     },
     {
       "ref": "C151",
@@ -356,8 +384,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 176.75,
       "y_mm": 97.0,
-      "conditional_pad_cell_mean_c": 97.25658484168659,
-      "conditional_pad_cell_max_c": 104.28942114683544
+      "conditional_pad_cell_mean_c": 104.03557862444238,
+      "conditional_pad_cell_max_c": 116.25879957705834
     },
     {
       "ref": "C152",
@@ -370,8 +398,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 176.75,
       "y_mm": 111.5,
-      "conditional_pad_cell_mean_c": 97.66914255674853,
-      "conditional_pad_cell_max_c": 104.89565426445134
+      "conditional_pad_cell_mean_c": 104.73225265554288,
+      "conditional_pad_cell_max_c": 115.4553629022088
     },
     {
       "ref": "U1",
@@ -384,8 +412,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 80.0,
       "y_mm": 51.0,
-      "conditional_pad_cell_mean_c": 85.98299849669179,
-      "conditional_pad_cell_max_c": 119.81829660434938
+      "conditional_pad_cell_mean_c": 99.98843572315003,
+      "conditional_pad_cell_max_c": 159.02737429921504
     },
     {
       "ref": "R10",
@@ -398,8 +426,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 62.6,
       "y_mm": 12.4,
-      "conditional_pad_cell_mean_c": 188.4423024120349,
-      "conditional_pad_cell_max_c": 200.98079699132768
+      "conditional_pad_cell_mean_c": 256.96643788514587,
+      "conditional_pad_cell_max_c": 265.16824740065135
     },
     {
       "ref": "R12",
@@ -412,8 +440,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 44.6,
       "y_mm": 12.4,
-      "conditional_pad_cell_mean_c": 184.95060632172314,
-      "conditional_pad_cell_max_c": 186.98473003511862
+      "conditional_pad_cell_mean_c": 259.0795140410801,
+      "conditional_pad_cell_max_c": 261.5250373994287
     },
     {
       "ref": "R53",
@@ -426,8 +454,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 73.6,
       "y_mm": 17.9,
-      "conditional_pad_cell_mean_c": 141.61959115035495,
-      "conditional_pad_cell_max_c": 142.80444774993347
+      "conditional_pad_cell_mean_c": 197.41938940093337,
+      "conditional_pad_cell_max_c": 199.17350866852578
     },
     {
       "ref": "R54",
@@ -440,8 +468,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 55.6,
       "y_mm": 17.9,
-      "conditional_pad_cell_mean_c": 174.6714460442946,
-      "conditional_pad_cell_max_c": 175.94985461918185
+      "conditional_pad_cell_mean_c": 241.8771403188051,
+      "conditional_pad_cell_max_c": 244.08123947442004
     },
     {
       "ref": "U2",
@@ -454,8 +482,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 33.0,
       "y_mm": 51.0,
-      "conditional_pad_cell_mean_c": 90.41374381292162,
-      "conditional_pad_cell_max_c": 135.55148370729648
+      "conditional_pad_cell_mean_c": 108.64066911789308,
+      "conditional_pad_cell_max_c": 184.35944096872555
     },
     {
       "ref": "R18",
@@ -468,8 +496,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 4.5,
       "y_mm": 12.4,
-      "conditional_pad_cell_mean_c": 185.3859568453254,
-      "conditional_pad_cell_max_c": 200.58868242791775
+      "conditional_pad_cell_mean_c": 248.22781634688053,
+      "conditional_pad_cell_max_c": 265.0131491270039
     },
     {
       "ref": "R20",
@@ -482,8 +510,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 22.5,
       "y_mm": 12.4,
-      "conditional_pad_cell_mean_c": 188.42062398062305,
-      "conditional_pad_cell_max_c": 205.00087503912584
+      "conditional_pad_cell_mean_c": 255.97634991766427,
+      "conditional_pad_cell_max_c": 272.7021695629915
     },
     {
       "ref": "R57",
@@ -496,8 +524,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 15.5,
       "y_mm": 17.9,
-      "conditional_pad_cell_mean_c": 166.14112449538487,
-      "conditional_pad_cell_max_c": 167.0371675061205
+      "conditional_pad_cell_mean_c": 230.9560738846374,
+      "conditional_pad_cell_max_c": 231.48999178519935
     },
     {
       "ref": "R58",
@@ -510,8 +538,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 33.5,
       "y_mm": 17.9,
-      "conditional_pad_cell_mean_c": 178.36387544615468,
-      "conditional_pad_cell_max_c": 179.00138497770004
+      "conditional_pad_cell_mean_c": 251.43890125074336,
+      "conditional_pad_cell_max_c": 254.1814945426323
     },
     {
       "ref": "U41",
@@ -524,8 +552,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 56.5,
       "y_mm": 66.2,
-      "conditional_pad_cell_mean_c": 107.38916546855906,
-      "conditional_pad_cell_max_c": 133.55399034636045
+      "conditional_pad_cell_mean_c": 118.49336948314512,
+      "conditional_pad_cell_max_c": 157.97774705290328
     },
     {
       "ref": "U42",
@@ -538,8 +566,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 10.2,
       "y_mm": 61.2,
-      "conditional_pad_cell_mean_c": 118.99849542414356,
-      "conditional_pad_cell_max_c": 176.87618505808376
+      "conditional_pad_cell_mean_c": 133.59684055803498,
+      "conditional_pad_cell_max_c": 199.66906126037014
     },
     {
       "ref": "U26",
@@ -552,8 +580,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 115.4,
       "y_mm": 81.05,
-      "conditional_pad_cell_mean_c": 107.60604952695225,
-      "conditional_pad_cell_max_c": 111.95797208656768
+      "conditional_pad_cell_mean_c": 113.30283755736805,
+      "conditional_pad_cell_max_c": 117.71501388002568
     },
     {
       "ref": "PS2",
@@ -566,8 +594,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 186.2,
       "y_mm": 14.0,
-      "conditional_pad_cell_mean_c": 124.51226033409041,
-      "conditional_pad_cell_max_c": 147.16989306288525
+      "conditional_pad_cell_mean_c": 130.09517412139073,
+      "conditional_pad_cell_max_c": 148.3600034917542
     },
     {
       "ref": "C5",
@@ -580,8 +608,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 224.0,
       "y_mm": 75.6,
-      "conditional_pad_cell_mean_c": 80.95303520675726,
-      "conditional_pad_cell_max_c": 86.70138038092736
+      "conditional_pad_cell_mean_c": 83.98186302153428,
+      "conditional_pad_cell_max_c": 91.78860398289811
     },
     {
       "ref": "C6",
@@ -594,8 +622,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 267.0,
       "y_mm": 84.0,
-      "conditional_pad_cell_mean_c": 74.15812634428826,
-      "conditional_pad_cell_max_c": 77.31709632388487
+      "conditional_pad_cell_mean_c": 75.26441149449715,
+      "conditional_pad_cell_max_c": 78.79927417795588
     },
     {
       "ref": "C38",
@@ -608,8 +636,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 53.5,
       "y_mm": 28.2,
-      "conditional_pad_cell_mean_c": 146.51012653056353,
-      "conditional_pad_cell_max_c": 149.26900272702267
+      "conditional_pad_cell_mean_c": 205.07004413137554,
+      "conditional_pad_cell_max_c": 209.36998727287798
     },
     {
       "ref": "C39",
@@ -622,8 +650,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 75.3,
       "y_mm": 28.2,
-      "conditional_pad_cell_mean_c": 133.35945172414358,
-      "conditional_pad_cell_max_c": 137.89980177457898
+      "conditional_pad_cell_mean_c": 182.62964956227552,
+      "conditional_pad_cell_max_c": 190.75828883736494
     },
     {
       "ref": "C40",
@@ -636,8 +664,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 31.7,
       "y_mm": 28.2,
-      "conditional_pad_cell_mean_c": 155.7988635000455,
-      "conditional_pad_cell_max_c": 158.85617978026215
+      "conditional_pad_cell_mean_c": 218.61369130589406,
+      "conditional_pad_cell_max_c": 223.82221093008766
     },
     {
       "ref": "C41",
@@ -650,8 +678,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 9.9,
       "y_mm": 28.2,
-      "conditional_pad_cell_mean_c": 148.16106660299175,
-      "conditional_pad_cell_max_c": 149.3316678196637
+      "conditional_pad_cell_mean_c": 205.20877513273444,
+      "conditional_pad_cell_max_c": 207.26993460477752
     },
     {
       "ref": "U3",
@@ -664,8 +692,8 @@
       "nearest_cell_fallback": true,
       "x_mm": 113.675,
       "y_mm": 53.145,
-      "conditional_pad_cell_mean_c": 103.08377796751952,
-      "conditional_pad_cell_max_c": 103.08377796751952
+      "conditional_pad_cell_mean_c": 115.47752559093222,
+      "conditional_pad_cell_max_c": 115.47752559093222
     },
     {
       "ref": "U37",
@@ -678,8 +706,8 @@
       "nearest_cell_fallback": true,
       "x_mm": 109.995,
       "y_mm": 87.145,
-      "conditional_pad_cell_mean_c": 101.8653985289365,
-      "conditional_pad_cell_max_c": 101.8653985289365
+      "conditional_pad_cell_mean_c": 107.24400831395063,
+      "conditional_pad_cell_max_c": 107.24400831395063
     },
     {
       "ref": "U38",
@@ -692,8 +720,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 60.995,
       "y_mm": 100.645,
-      "conditional_pad_cell_mean_c": 72.74081775327669,
-      "conditional_pad_cell_max_c": 72.77320079957856
+      "conditional_pad_cell_mean_c": 73.96660160327973,
+      "conditional_pad_cell_max_c": 74.00291761806399
     },
     {
       "ref": "U39",
@@ -706,8 +734,8 @@
       "nearest_cell_fallback": true,
       "x_mm": 15.895,
       "y_mm": 96.895,
-      "conditional_pad_cell_mean_c": 121.26451803270324,
-      "conditional_pad_cell_max_c": 121.26451803270324
+      "conditional_pad_cell_mean_c": 123.37596876998253,
+      "conditional_pad_cell_max_c": 123.37596876998253
     },
     {
       "ref": "R67",
@@ -720,8 +748,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 241.5,
       "y_mm": 101.5,
-      "conditional_pad_cell_mean_c": 86.6182902456548,
-      "conditional_pad_cell_max_c": 90.4222267242873
+      "conditional_pad_cell_mean_c": 87.78587119831275,
+      "conditional_pad_cell_max_c": 91.56382753229005
     },
     {
       "ref": "R68",
@@ -734,8 +762,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 233.0,
       "y_mm": 101.5,
-      "conditional_pad_cell_mean_c": 84.44786698727842,
-      "conditional_pad_cell_max_c": 85.30048151405778
+      "conditional_pad_cell_mean_c": 85.67724913848724,
+      "conditional_pad_cell_max_c": 86.55849977644274
     },
     {
       "ref": "R69",
@@ -748,8 +776,8 @@
       "nearest_cell_fallback": false,
       "x_mm": 233.0,
       "y_mm": 95.5,
-      "conditional_pad_cell_mean_c": 83.30970004462668,
-      "conditional_pad_cell_max_c": 84.26157729876485
+      "conditional_pad_cell_mean_c": 84.64356804412697,
+      "conditional_pad_cell_max_c": 85.57556231635931
     },
     {
       "ref": "R70",
@@ -762,28 +790,56 @@
       "nearest_cell_fallback": false,
       "x_mm": 241.5,
       "y_mm": 95.5,
-      "conditional_pad_cell_mean_c": 87.59785180350977,
-      "conditional_pad_cell_max_c": 91.66169175363854
+      "conditional_pad_cell_mean_c": 88.86040796162408,
+      "conditional_pad_cell_max_c": 92.88082497304575
     }
   ],
   "balance": {
-    "source_w": 24.8768372422174,
-    "convection_w": 24.876837244001887,
+    "copper_temp_model": {
+      "model": "hot-iterated",
+      "alpha_per_k": 0.00393,
+      "t_abs0_c": 50.0,
+      "picard_steps": 1,
+      "max_dT_k": 0.0,
+      "loop_gain_rayleigh": 0.29026314331943015,
+      "loss_w_20c": 14.601071504395735,
+      "loss_w_hot": 24.243555826329896,
+      "loss_multiplier": 1.6603956647312654,
+      "max_heated_copper_c": 291.15332454839074,
+      "loss_multiplier_by_case": {
+        "sw_a-p00625-pl18": 1.52712,
+        "sw_a_low-p00625-pl18": 1.69403,
+        "sw_b_high-p00625-pl18": 1.67626,
+        "sw_b_low-p00625-pl18": 1.66028,
+        "res_a-p0125-pl18": 1.38893,
+        "coil_feed-p0125-pl18": 1.4067,
+        "leg_a_18p7-p00625-pl18": 1.90497,
+        "leg_b_18p7-p00625-pl18": 1.91429,
+        "hv_mixed_a-p00625-pl18": 1.77914,
+        "hv_mixed_b-p00625-pl18": 1.8123,
+        "bus_mixed_q2-p0125-pl18": 1.83688,
+        "bus_mixed_q5-p0125-pl18": 1.82346,
+        "ac_n_main-p0125-pl18": 1.26919,
+        "ac_l_main-p0125-pl18": 1.1694
+      }
+    },
+    "source_w": 34.68667243542717,
+    "convection_w": 34.686672436668296,
     "fixed_end_w": 0.0,
     "fixed_bottom_w": 0.0,
-    "balance_w": -1.7844890010110248e-09,
-    "cg_iterations": 1282,
-    "relative_residual": 9.877623153128637e-10
+    "balance_w": -1.2411263128342398e-09,
+    "cg_iterations": 1338,
+    "relative_residual": 9.966290444215481e-10
   },
   "peak": {
-    "temperature_c": 205.00087503912584,
-    "rise_k": 155.00087503912584,
-    "x_mm": 22.5,
-    "y_mm": 15.5,
-    "layer": "F.Cu"
+    "temperature_c": 291.15332454839074,
+    "rise_k": 241.15332454839074,
+    "x_mm": 50.5,
+    "y_mm": 4.5,
+    "layer": "In1.Cu"
   },
   "largest_local_copper_minus_fr4": {
-    "copper_minus_adjacent_fr4_k": 29.846571842310183,
+    "copper_minus_adjacent_fr4_k": 29.831090458023482,
     "x_mm": 13.5,
     "y_mm": 96.5,
     "layer": "F.Cu",
@@ -798,8 +854,8 @@
         93.995
       ],
       "max_abs_hop_amps": 3.776209233264586e-12,
-      "adjacent_board_cell_max_c": 68.5870721524231,
-      "adjacent_board_cell_max_rise_k": 18.587072152423104
+      "adjacent_board_cell_max_c": 70.00947219000716,
+      "adjacent_board_cell_max_rise_k": 20.009472190007152
     },
     {
       "xy_mm": [
@@ -807,8 +863,8 @@
         99.095
       ],
       "max_abs_hop_amps": 4.152743998614076e-12,
-      "adjacent_board_cell_max_c": 66.44298056393114,
-      "adjacent_board_cell_max_rise_k": 16.442980563931137
+      "adjacent_board_cell_max_c": 67.69055473217512,
+      "adjacent_board_cell_max_rise_k": 17.690554732175116
     },
     {
       "xy_mm": [
@@ -816,8 +872,8 @@
         90.6
       ],
       "max_abs_hop_amps": 8.859254315539858e-12,
-      "adjacent_board_cell_max_c": 69.79415703534879,
-      "adjacent_board_cell_max_rise_k": 19.794157035348793
+      "adjacent_board_cell_max_c": 71.31585014935712,
+      "adjacent_board_cell_max_rise_k": 21.315850149357118
     },
     {
       "xy_mm": [
@@ -825,8 +881,8 @@
         116.635
       ],
       "max_abs_hop_amps": 4.3844577003676074e-12,
-      "adjacent_board_cell_max_c": 62.644423771607606,
-      "adjacent_board_cell_max_rise_k": 12.644423771607606
+      "adjacent_board_cell_max_c": 63.58654037820491,
+      "adjacent_board_cell_max_rise_k": 13.586540378204909
     },
     {
       "xy_mm": [
@@ -834,8 +890,8 @@
         15.2
       ],
       "max_abs_hop_amps": 7.329394028591398e-11,
-      "adjacent_board_cell_max_c": 143.8242549397562,
-      "adjacent_board_cell_max_rise_k": 93.82425493975622
+      "adjacent_board_cell_max_c": 202.15178880550377,
+      "adjacent_board_cell_max_rise_k": 152.15178880550377
     },
     {
       "xy_mm": [
@@ -843,8 +899,8 @@
         112.095
       ],
       "max_abs_hop_amps": 1.56044696024644e-12,
-      "adjacent_board_cell_max_c": 63.04754374082954,
-      "adjacent_board_cell_max_rise_k": 13.04754374082954
+      "adjacent_board_cell_max_c": 64.02644795564845,
+      "adjacent_board_cell_max_rise_k": 14.02644795564845
     },
     {
       "xy_mm": [
@@ -852,8 +908,8 @@
         86.8
       ],
       "max_abs_hop_amps": 1.0437978158678623e-11,
-      "adjacent_board_cell_max_c": 71.39853846157466,
-      "adjacent_board_cell_max_rise_k": 21.39853846157466
+      "adjacent_board_cell_max_c": 73.04964887470753,
+      "adjacent_board_cell_max_rise_k": 23.049648874707525
     },
     {
       "xy_mm": [
@@ -861,8 +917,8 @@
         112.635
       ],
       "max_abs_hop_amps": 2.1469722678100667e-12,
-      "adjacent_board_cell_max_c": 63.1471635365541,
-      "adjacent_board_cell_max_rise_k": 13.147163536554102
+      "adjacent_board_cell_max_c": 64.12823948374583,
+      "adjacent_board_cell_max_rise_k": 14.128239483745825
     },
     {
       "xy_mm": [
@@ -870,8 +926,8 @@
         50.4
       ],
       "max_abs_hop_amps": 2.220468957585015e-11,
-      "adjacent_board_cell_max_c": 113.12554865306447,
-      "adjacent_board_cell_max_rise_k": 63.12554865306448
+      "adjacent_board_cell_max_c": 148.36469733246446,
+      "adjacent_board_cell_max_rise_k": 98.36469733246446
     },
     {
       "xy_mm": [
@@ -879,8 +935,8 @@
         13.3
       ],
       "max_abs_hop_amps": 2.165074900759562e-12,
-      "adjacent_board_cell_max_c": 171.54380081473053,
-      "adjacent_board_cell_max_rise_k": 121.54380081473053
+      "adjacent_board_cell_max_c": 250.87554471518536,
+      "adjacent_board_cell_max_rise_k": 200.87554471518536
     },
     {
       "xy_mm": [
@@ -888,8 +944,8 @@
         107.495
       ],
       "max_abs_hop_amps": 1.3721795775716955e-12,
-      "adjacent_board_cell_max_c": 64.24345736384515,
-      "adjacent_board_cell_max_rise_k": 14.243457363845145
+      "adjacent_board_cell_max_c": 65.31343019416002,
+      "adjacent_board_cell_max_rise_k": 15.313430194160025
     },
     {
       "xy_mm": [
@@ -897,8 +953,8 @@
         93.995
       ],
       "max_abs_hop_amps": 4.4315245460362926e-12,
-      "adjacent_board_cell_max_c": 68.5870721524231,
-      "adjacent_board_cell_max_rise_k": 18.587072152423104
+      "adjacent_board_cell_max_c": 70.00947219000716,
+      "adjacent_board_cell_max_rise_k": 20.009472190007152
     },
     {
       "xy_mm": [
@@ -906,8 +962,8 @@
         99.095
       ],
       "max_abs_hop_amps": 4.923916162262548e-12,
-      "adjacent_board_cell_max_c": 66.44298056393114,
-      "adjacent_board_cell_max_rise_k": 16.442980563931137
+      "adjacent_board_cell_max_c": 67.69055473217512,
+      "adjacent_board_cell_max_rise_k": 17.690554732175116
     },
     {
       "xy_mm": [
@@ -915,8 +971,8 @@
         90.6
       ],
       "max_abs_hop_amps": 1.0414473777501416e-11,
-      "adjacent_board_cell_max_c": 69.79415703534879,
-      "adjacent_board_cell_max_rise_k": 19.794157035348793
+      "adjacent_board_cell_max_c": 71.31585014935712,
+      "adjacent_board_cell_max_rise_k": 21.315850149357118
     },
     {
       "xy_mm": [
@@ -924,8 +980,8 @@
         116.635
       ],
       "max_abs_hop_amps": 5.173732496965575e-12,
-      "adjacent_board_cell_max_c": 62.644423771607606,
-      "adjacent_board_cell_max_rise_k": 12.644423771607606
+      "adjacent_board_cell_max_c": 63.58654037820491,
+      "adjacent_board_cell_max_rise_k": 13.586540378204909
     },
     {
       "xy_mm": [
@@ -933,8 +989,8 @@
         15.2
       ],
       "max_abs_hop_amps": 8.599474756327943e-11,
-      "adjacent_board_cell_max_c": 143.8242549397562,
-      "adjacent_board_cell_max_rise_k": 93.82425493975622
+      "adjacent_board_cell_max_c": 202.15178880550377,
+      "adjacent_board_cell_max_rise_k": 152.15178880550377
     },
     {
       "xy_mm": [
@@ -942,8 +998,8 @@
         112.095
       ],
       "max_abs_hop_amps": 1.886294353337344e-12,
-      "adjacent_board_cell_max_c": 63.04754374082954,
-      "adjacent_board_cell_max_rise_k": 13.04754374082954
+      "adjacent_board_cell_max_c": 64.02644795564845,
+      "adjacent_board_cell_max_rise_k": 14.02644795564845
     },
     {
       "xy_mm": [
@@ -951,8 +1007,8 @@
         86.8
       ],
       "max_abs_hop_amps": 1.2255482506807888e-11,
-      "adjacent_board_cell_max_c": 71.39853846157466,
-      "adjacent_board_cell_max_rise_k": 21.39853846157466
+      "adjacent_board_cell_max_c": 73.04964887470753,
+      "adjacent_board_cell_max_rise_k": 23.049648874707525
     },
     {
       "xy_mm": [
@@ -960,8 +1016,8 @@
         112.635
       ],
       "max_abs_hop_amps": 2.494542820440364e-12,
-      "adjacent_board_cell_max_c": 63.1471635365541,
-      "adjacent_board_cell_max_rise_k": 13.147163536554102
+      "adjacent_board_cell_max_c": 64.12823948374583,
+      "adjacent_board_cell_max_rise_k": 14.128239483745825
     },
     {
       "xy_mm": [
@@ -969,8 +1025,8 @@
         50.4
       ],
       "max_abs_hop_amps": 2.604244776114302e-11,
-      "adjacent_board_cell_max_c": 113.12554865306447,
-      "adjacent_board_cell_max_rise_k": 63.12554865306448
+      "adjacent_board_cell_max_c": 148.36469733246446,
+      "adjacent_board_cell_max_rise_k": 98.36469733246446
     },
     {
       "xy_mm": [
@@ -978,8 +1034,8 @@
         13.3
       ],
       "max_abs_hop_amps": 2.9941754898464173e-12,
-      "adjacent_board_cell_max_c": 171.54380081473053,
-      "adjacent_board_cell_max_rise_k": 121.54380081473053
+      "adjacent_board_cell_max_c": 250.87554471518536,
+      "adjacent_board_cell_max_rise_k": 200.87554471518536
     },
     {
       "xy_mm": [
@@ -987,8 +1043,8 @@
         107.495
       ],
       "max_abs_hop_amps": 1.6038932793252273e-12,
-      "adjacent_board_cell_max_c": 64.24345736384515,
-      "adjacent_board_cell_max_rise_k": 14.243457363845145
+      "adjacent_board_cell_max_c": 65.31343019416002,
+      "adjacent_board_cell_max_rise_k": 15.313430194160025
     },
     {
       "xy_mm": [
@@ -996,8 +1052,8 @@
         44.0
       ],
       "max_abs_hop_amps": 1.5862432121994698e-12,
-      "adjacent_board_cell_max_c": 86.77074839207859,
-      "adjacent_board_cell_max_rise_k": 36.77074839207859
+      "adjacent_board_cell_max_c": 97.4515435411202,
+      "adjacent_board_cell_max_rise_k": 47.4515435411202
     },
     {
       "xy_mm": [
@@ -1005,8 +1061,8 @@
         40.8
       ],
       "max_abs_hop_amps": 1.978255728720777e-11,
-      "adjacent_board_cell_max_c": 130.27169520849594,
-      "adjacent_board_cell_max_rise_k": 80.27169520849596
+      "adjacent_board_cell_max_c": 173.93296936489648,
+      "adjacent_board_cell_max_rise_k": 123.93296936489648
     },
     {
       "xy_mm": [
@@ -1014,8 +1070,8 @@
         9.9
       ],
       "max_abs_hop_amps": 2.6248817776767264e-12,
-      "adjacent_board_cell_max_c": 151.1258555988095,
-      "adjacent_board_cell_max_rise_k": 101.1258555988095
+      "adjacent_board_cell_max_c": 207.34569347868188,
+      "adjacent_board_cell_max_rise_k": 157.34569347868188
     },
     {
       "xy_mm": [
@@ -1023,8 +1079,8 @@
         111.195
       ],
       "max_abs_hop_amps": 1.3758001041615944e-12,
-      "adjacent_board_cell_max_c": 63.762654011170014,
-      "adjacent_board_cell_max_rise_k": 13.762654011170012
+      "adjacent_board_cell_max_c": 65.36091746336342,
+      "adjacent_board_cell_max_rise_k": 15.360917463363425
     },
     {
       "xy_mm": [
@@ -1032,8 +1088,8 @@
         115.709
       ],
       "max_abs_hop_amps": 5.593616775870057e-13,
-      "adjacent_board_cell_max_c": 63.420045717367394,
-      "adjacent_board_cell_max_rise_k": 13.420045717367396
+      "adjacent_board_cell_max_c": 64.97712523752146,
+      "adjacent_board_cell_max_rise_k": 14.97712523752146
     },
     {
       "xy_mm": [
@@ -1041,8 +1097,8 @@
         63.0
       ],
       "max_abs_hop_amps": 1.692958233436741e-11,
-      "adjacent_board_cell_max_c": 90.17863573779087,
-      "adjacent_board_cell_max_rise_k": 40.17863573779087
+      "adjacent_board_cell_max_c": 95.6394508453995,
+      "adjacent_board_cell_max_rise_k": 45.6394508453995
     },
     {
       "xy_mm": [
@@ -1050,8 +1106,8 @@
         108.595
       ],
       "max_abs_hop_amps": 4.703064040278713e-12,
-      "adjacent_board_cell_max_c": 64.61800147464864,
-      "adjacent_board_cell_max_rise_k": 14.618001474648633
+      "adjacent_board_cell_max_c": 66.316983161645,
+      "adjacent_board_cell_max_rise_k": 16.316983161645002
     },
     {
       "xy_mm": [
@@ -1059,8 +1115,8 @@
         91.395
       ],
       "max_abs_hop_amps": 1.0535732376605895e-12,
-      "adjacent_board_cell_max_c": 70.2338600597698,
-      "adjacent_board_cell_max_rise_k": 20.233860059769803
+      "adjacent_board_cell_max_c": 72.63651631931958,
+      "adjacent_board_cell_max_rise_k": 22.636516319319586
     },
     {
       "xy_mm": [
@@ -1068,8 +1124,8 @@
         107.995
       ],
       "max_abs_hop_amps": 4.4684268117066e-12,
-      "adjacent_board_cell_max_c": 65.17045053526006,
-      "adjacent_board_cell_max_rise_k": 15.170450535260056
+      "adjacent_board_cell_max_c": 66.93211125796924,
+      "adjacent_board_cell_max_rise_k": 16.93211125796924
     },
     {
       "xy_mm": [
@@ -1077,8 +1133,8 @@
         88.6
       ],
       "max_abs_hop_amps": 6.802872656896299e-12,
-      "adjacent_board_cell_max_c": 71.43095569565826,
-      "adjacent_board_cell_max_rise_k": 21.430955695658252
+      "adjacent_board_cell_max_c": 73.99652784877364,
+      "adjacent_board_cell_max_rise_k": 23.99652784877364
     },
     {
       "xy_mm": [
@@ -1086,8 +1142,8 @@
         23.3
       ],
       "max_abs_hop_amps": 3.003093214698329e-11,
-      "adjacent_board_cell_max_c": 156.6591824000639,
-      "adjacent_board_cell_max_rise_k": 106.6591824000639
+      "adjacent_board_cell_max_c": 221.68838642568718,
+      "adjacent_board_cell_max_rise_k": 171.68838642568718
     },
     {
       "xy_mm": [
@@ -1095,8 +1151,8 @@
         44.0
       ],
       "max_abs_hop_amps": 2.4815089247167286e-11,
-      "adjacent_board_cell_max_c": 86.77074839207859,
-      "adjacent_board_cell_max_rise_k": 36.77074839207859
+      "adjacent_board_cell_max_c": 97.4515435411202,
+      "adjacent_board_cell_max_rise_k": 47.4515435411202
     },
     {
       "xy_mm": [
@@ -1104,8 +1160,8 @@
         40.8
       ],
       "max_abs_hop_amps": 3.3064459082252004e-12,
-      "adjacent_board_cell_max_c": 130.27169520849594,
-      "adjacent_board_cell_max_rise_k": 80.27169520849596
+      "adjacent_board_cell_max_c": 173.93296936489648,
+      "adjacent_board_cell_max_rise_k": 123.93296936489648
     },
     {
       "xy_mm": [
@@ -1113,8 +1169,8 @@
         9.9
       ],
       "max_abs_hop_amps": 4.3446319078787196e-13,
-      "adjacent_board_cell_max_c": 151.1258555988095,
-      "adjacent_board_cell_max_rise_k": 101.1258555988095
+      "adjacent_board_cell_max_c": 207.34569347868188,
+      "adjacent_board_cell_max_rise_k": 157.34569347868188
     },
     {
       "xy_mm": [
@@ -1122,8 +1178,8 @@
         111.195
       ],
       "max_abs_hop_amps": 2.2447264857373385e-13,
-      "adjacent_board_cell_max_c": 63.762654011170014,
-      "adjacent_board_cell_max_rise_k": 13.762654011170012
+      "adjacent_board_cell_max_c": 65.36091746336342,
+      "adjacent_board_cell_max_rise_k": 15.360917463363425
     },
     {
       "xy_mm": [
@@ -1131,8 +1187,8 @@
         115.709
       ],
       "max_abs_hop_amps": 9.37658303469547e-14,
-      "adjacent_board_cell_max_c": 63.420045717367394,
-      "adjacent_board_cell_max_rise_k": 13.420045717367396
+      "adjacent_board_cell_max_c": 64.97712523752146,
+      "adjacent_board_cell_max_rise_k": 14.97712523752146
     },
     {
       "xy_mm": [
@@ -1140,8 +1196,8 @@
         63.0
       ],
       "max_abs_hop_amps": 2.8249158717686424e-12,
-      "adjacent_board_cell_max_c": 90.17863573779087,
-      "adjacent_board_cell_max_rise_k": 40.17863573779087
+      "adjacent_board_cell_max_c": 95.6394508453995,
+      "adjacent_board_cell_max_rise_k": 45.6394508453995
     },
     {
       "xy_mm": [
@@ -1149,8 +1205,8 @@
         108.595
       ],
       "max_abs_hop_amps": 7.883696649504925e-13,
-      "adjacent_board_cell_max_c": 64.61800147464864,
-      "adjacent_board_cell_max_rise_k": 14.618001474648633
+      "adjacent_board_cell_max_c": 66.316983161645,
+      "adjacent_board_cell_max_rise_k": 16.316983161645002
     },
     {
       "xy_mm": [
@@ -1158,8 +1214,8 @@
         91.395
       ],
       "max_abs_hop_amps": 1.7650067125757297e-13,
-      "adjacent_board_cell_max_c": 70.2338600597698,
-      "adjacent_board_cell_max_rise_k": 20.233860059769803
+      "adjacent_board_cell_max_c": 72.63651631931958,
+      "adjacent_board_cell_max_rise_k": 22.636516319319586
     },
     {
       "xy_mm": [
@@ -1167,8 +1223,8 @@
         107.995
       ],
       "max_abs_hop_amps": 7.574015778887634e-13,
-      "adjacent_board_cell_max_c": 65.17045053526006,
-      "adjacent_board_cell_max_rise_k": 15.170450535260056
+      "adjacent_board_cell_max_c": 66.93211125796924,
+      "adjacent_board_cell_max_rise_k": 16.93211125796924
     },
     {
       "xy_mm": [
@@ -1176,8 +1232,8 @@
         88.6
       ],
       "max_abs_hop_amps": 1.1292315947818597e-12,
-      "adjacent_board_cell_max_c": 71.43095569565826,
-      "adjacent_board_cell_max_rise_k": 21.430955695658252
+      "adjacent_board_cell_max_c": 73.99652784877364,
+      "adjacent_board_cell_max_rise_k": 23.99652784877364
     },
     {
       "xy_mm": [
@@ -1185,8 +1241,8 @@
         23.3
       ],
       "max_abs_hop_amps": 5.016471923562076e-12,
-      "adjacent_board_cell_max_c": 156.6591824000639,
-      "adjacent_board_cell_max_rise_k": 106.6591824000639
+      "adjacent_board_cell_max_c": 221.68838642568718,
+      "adjacent_board_cell_max_rise_k": 171.68838642568718
     },
     {
       "xy_mm": [
@@ -1194,8 +1250,8 @@
         67.55
       ],
       "max_abs_hop_amps": 1.4106806822171845,
-      "adjacent_board_cell_max_c": 103.0637547011431,
-      "adjacent_board_cell_max_rise_k": 53.0637547011431
+      "adjacent_board_cell_max_c": 121.36222569322135,
+      "adjacent_board_cell_max_rise_k": 71.36222569322135
     },
     {
       "xy_mm": [
@@ -1203,8 +1259,8 @@
         66.4
       ],
       "max_abs_hop_amps": 1.1669406037658279,
-      "adjacent_board_cell_max_c": 102.11131596770628,
-      "adjacent_board_cell_max_rise_k": 52.11131596770627
+      "adjacent_board_cell_max_c": 120.07476021163039,
+      "adjacent_board_cell_max_rise_k": 70.07476021163039
     },
     {
       "xy_mm": [
@@ -1212,8 +1268,8 @@
         68.7
       ],
       "max_abs_hop_amps": 1.6245097493597742,
-      "adjacent_board_cell_max_c": 103.24653699098351,
-      "adjacent_board_cell_max_rise_k": 53.24653699098351
+      "adjacent_board_cell_max_c": 121.60495859139654,
+      "adjacent_board_cell_max_rise_k": 71.60495859139654
     },
     {
       "xy_mm": [
@@ -1221,8 +1277,8 @@
         73.45
       ],
       "max_abs_hop_amps": 1.426886672057001,
-      "adjacent_board_cell_max_c": 103.30490738416394,
-      "adjacent_board_cell_max_rise_k": 53.30490738416394
+      "adjacent_board_cell_max_c": 121.63818380265533,
+      "adjacent_board_cell_max_rise_k": 71.63818380265533
     },
     {
       "xy_mm": [
@@ -1230,8 +1286,8 @@
         74.6
       ],
       "max_abs_hop_amps": 0.3898840850510992,
-      "adjacent_board_cell_max_c": 100.4802725268308,
-      "adjacent_board_cell_max_rise_k": 50.4802725268308
+      "adjacent_board_cell_max_c": 117.75679237190684,
+      "adjacent_board_cell_max_rise_k": 67.75679237190684
     },
     {
       "xy_mm": [
@@ -1239,8 +1295,8 @@
         74.6
       ],
       "max_abs_hop_amps": 0.4704931841477619,
-      "adjacent_board_cell_max_c": 100.82352337942407,
-      "adjacent_board_cell_max_rise_k": 50.82352337942408
+      "adjacent_board_cell_max_c": 118.2436447689074,
+      "adjacent_board_cell_max_rise_k": 68.2436447689074
     },
     {
       "xy_mm": [
@@ -1248,8 +1304,8 @@
         74.6
       ],
       "max_abs_hop_amps": 1.0753490751507115,
-      "adjacent_board_cell_max_c": 102.27469119494512,
-      "adjacent_board_cell_max_rise_k": 52.27469119494511
+      "adjacent_board_cell_max_c": 120.24840749868709,
+      "adjacent_board_cell_max_rise_k": 70.24840749868709
     },
     {
       "xy_mm": [
@@ -1257,8 +1313,8 @@
         74.6
       ],
       "max_abs_hop_amps": 1.1336541619299039,
-      "adjacent_board_cell_max_c": 102.67132190452601,
-      "adjacent_board_cell_max_rise_k": 52.67132190452601
+      "adjacent_board_cell_max_c": 120.78879313345797,
+      "adjacent_board_cell_max_rise_k": 70.78879313345797
     },
     {
       "xy_mm": [
@@ -1266,8 +1322,8 @@
         66.4
       ],
       "max_abs_hop_amps": 1.2944233830598333,
-      "adjacent_board_cell_max_c": 103.03401967001751,
-      "adjacent_board_cell_max_rise_k": 53.034019670017514
+      "adjacent_board_cell_max_c": 121.32292804260486,
+      "adjacent_board_cell_max_rise_k": 71.32292804260486
     },
     {
       "xy_mm": [
@@ -1275,8 +1331,8 @@
         73.45
       ],
       "max_abs_hop_amps": 0.4331356398944654,
-      "adjacent_board_cell_max_c": 100.47053495421841,
-      "adjacent_board_cell_max_rise_k": 50.470534954218415
+      "adjacent_board_cell_max_c": 117.74749941194307,
+      "adjacent_board_cell_max_rise_k": 67.74749941194307
     },
     {
       "xy_mm": [
@@ -1284,8 +1340,8 @@
         68.7
       ],
       "max_abs_hop_amps": 0.5601555002030824,
-      "adjacent_board_cell_max_c": 100.43051463060118,
-      "adjacent_board_cell_max_rise_k": 50.43051463060119
+      "adjacent_board_cell_max_c": 117.73324501943988,
+      "adjacent_board_cell_max_rise_k": 67.73324501943988
     },
     {
       "xy_mm": [
@@ -1293,8 +1349,8 @@
         67.55
       ],
       "max_abs_hop_amps": 0.5319117053757835,
-      "adjacent_board_cell_max_c": 100.4828365933369,
-      "adjacent_board_cell_max_rise_k": 50.4828365933369
+      "adjacent_board_cell_max_c": 117.81189648352988,
+      "adjacent_board_cell_max_rise_k": 67.81189648352988
     },
     {
       "xy_mm": [
@@ -1302,8 +1358,8 @@
         66.4
       ],
       "max_abs_hop_amps": 1.1899915370338232,
-      "adjacent_board_cell_max_c": 102.46019208442351,
-      "adjacent_board_cell_max_rise_k": 52.460192084423504
+      "adjacent_board_cell_max_c": 120.5493124525166,
+      "adjacent_board_cell_max_rise_k": 70.5493124525166
     },
     {
       "xy_mm": [
@@ -1311,8 +1367,8 @@
         66.4
       ],
       "max_abs_hop_amps": 0.7786825418829149,
-      "adjacent_board_cell_max_c": 101.08279636964221,
-      "adjacent_board_cell_max_rise_k": 51.08279636964221
+      "adjacent_board_cell_max_c": 118.65756938006498,
+      "adjacent_board_cell_max_rise_k": 68.65756938006498
     },
     {
       "xy_mm": [
@@ -1320,8 +1376,8 @@
         72.3
       ],
       "max_abs_hop_amps": 1.633529805909578,
-      "adjacent_board_cell_max_c": 103.37427426563204,
-      "adjacent_board_cell_max_rise_k": 53.37427426563203
+      "adjacent_board_cell_max_c": 121.75716429326779,
+      "adjacent_board_cell_max_rise_k": 71.75716429326779
     },
     {
       "xy_mm": [
@@ -1329,8 +1385,8 @@
         72.3
       ],
       "max_abs_hop_amps": 0.4954065066780706,
-      "adjacent_board_cell_max_c": 100.4280293698269,
-      "adjacent_board_cell_max_rise_k": 50.428029369826895
+      "adjacent_board_cell_max_c": 117.69615496802697,
+      "adjacent_board_cell_max_rise_k": 67.69615496802697
     },
     {
       "xy_mm": [
@@ -1338,8 +1394,8 @@
         74.6
       ],
       "max_abs_hop_amps": 0.6225921587622889,
-      "adjacent_board_cell_max_c": 101.13065816031758,
-      "adjacent_board_cell_max_rise_k": 51.13065816031759
+      "adjacent_board_cell_max_c": 118.67129544543859,
+      "adjacent_board_cell_max_rise_k": 68.67129544543859
     },
     {
       "xy_mm": [
@@ -1347,8 +1403,8 @@
         74.6
       ],
       "max_abs_hop_amps": 1.3099104678288105,
-      "adjacent_board_cell_max_c": 103.2947185053575,
-      "adjacent_board_cell_max_rise_k": 53.294718505357494
+      "adjacent_board_cell_max_c": 121.62339840881359,
+      "adjacent_board_cell_max_rise_k": 71.62339840881359
     },
     {
       "xy_mm": [
@@ -1356,8 +1412,8 @@
         66.4
       ],
       "max_abs_hop_amps": 0.5309191426398787,
-      "adjacent_board_cell_max_c": 100.50090957603828,
-      "adjacent_board_cell_max_rise_k": 50.50090957603829
+      "adjacent_board_cell_max_c": 117.83984719628592,
+      "adjacent_board_cell_max_rise_k": 67.83984719628592
     },
     {
       "xy_mm": [
@@ -1365,8 +1421,8 @@
         66.4
       ],
       "max_abs_hop_amps": 0.6209433971094284,
-      "adjacent_board_cell_max_c": 100.81397933746644,
-      "adjacent_board_cell_max_rise_k": 50.81397933746644
+      "adjacent_board_cell_max_c": 118.28271905408782,
+      "adjacent_board_cell_max_rise_k": 68.28271905408782
     },
     {
       "xy_mm": [
@@ -1374,8 +1430,8 @@
         81.4
       ],
       "max_abs_hop_amps": 0.08002817108484098,
-      "adjacent_board_cell_max_c": 98.63138828242339,
-      "adjacent_board_cell_max_rise_k": 48.63138828242339
+      "adjacent_board_cell_max_c": 115.45629521219838,
+      "adjacent_board_cell_max_rise_k": 65.45629521219838
     },
     {
       "xy_mm": [
@@ -1383,8 +1439,8 @@
         83.7
       ],
       "max_abs_hop_amps": 0.11077487403425827,
-      "adjacent_board_cell_max_c": 99.28089744111357,
-      "adjacent_board_cell_max_rise_k": 49.28089744111357
+      "adjacent_board_cell_max_c": 116.2660539550552,
+      "adjacent_board_cell_max_rise_k": 66.2660539550552
     },
     {
       "xy_mm": [
@@ -1392,8 +1448,8 @@
         82.55
       ],
       "max_abs_hop_amps": 0.07398554348727536,
-      "adjacent_board_cell_max_c": 98.91870124544586,
-      "adjacent_board_cell_max_rise_k": 48.91870124544586
+      "adjacent_board_cell_max_c": 115.89334428514032,
+      "adjacent_board_cell_max_rise_k": 65.89334428514032
     },
     {
       "xy_mm": [
@@ -1401,8 +1457,8 @@
         81.4
       ],
       "max_abs_hop_amps": 0.08480768793987066,
-      "adjacent_board_cell_max_c": 98.7543481188085,
-      "adjacent_board_cell_max_rise_k": 48.754348118808494
+      "adjacent_board_cell_max_c": 115.55992468217185,
+      "adjacent_board_cell_max_rise_k": 65.55992468217185
     },
     {
       "xy_mm": [
@@ -1410,8 +1466,8 @@
         81.4
       ],
       "max_abs_hop_amps": 0.07075540499646288,
-      "adjacent_board_cell_max_c": 98.69313198517085,
-      "adjacent_board_cell_max_rise_k": 48.69313198517085
+      "adjacent_board_cell_max_c": 115.55590706758308,
+      "adjacent_board_cell_max_rise_k": 65.55590706758308
     },
     {
       "xy_mm": [
@@ -1419,8 +1475,8 @@
         81.4
       ],
       "max_abs_hop_amps": 0.0628464043959172,
-      "adjacent_board_cell_max_c": 98.83018767101667,
-      "adjacent_board_cell_max_rise_k": 48.830187671016674
+      "adjacent_board_cell_max_c": 115.76712909568758,
+      "adjacent_board_cell_max_rise_k": 65.76712909568758
     },
     {
       "xy_mm": [
@@ -1428,8 +1484,8 @@
         87.3
       ],
       "max_abs_hop_amps": 0.11541553723590472,
-      "adjacent_board_cell_max_c": 100.42526084386381,
-      "adjacent_board_cell_max_rise_k": 50.42526084386382
+      "adjacent_board_cell_max_c": 118.0267456537856,
+      "adjacent_board_cell_max_rise_k": 68.0267456537856
     },
     {
       "xy_mm": [
@@ -1437,8 +1493,8 @@
         89.6
       ],
       "max_abs_hop_amps": 0.147194958875099,
-      "adjacent_board_cell_max_c": 102.24183576191217,
-      "adjacent_board_cell_max_rise_k": 52.24183576191217
+      "adjacent_board_cell_max_c": 120.52804659734264,
+      "adjacent_board_cell_max_rise_k": 70.52804659734264
     },
     {
       "xy_mm": [
@@ -1446,8 +1502,8 @@
         88.45
       ],
       "max_abs_hop_amps": 0.04758795922348892,
-      "adjacent_board_cell_max_c": 100.69895929951278,
-      "adjacent_board_cell_max_rise_k": 50.69895929951277
+      "adjacent_board_cell_max_c": 118.411163926045,
+      "adjacent_board_cell_max_rise_k": 68.411163926045
     },
     {
       "xy_mm": [
@@ -1455,8 +1511,8 @@
         89.6
       ],
       "max_abs_hop_amps": 0.24049562567024313,
-      "adjacent_board_cell_max_c": 102.09951705217716,
-      "adjacent_board_cell_max_rise_k": 52.09951705217717
+      "adjacent_board_cell_max_c": 120.3126548177738,
+      "adjacent_board_cell_max_rise_k": 70.3126548177738
     },
     {
       "xy_mm": [
@@ -1464,8 +1520,8 @@
         82.55
       ],
       "max_abs_hop_amps": 0.09164535926915715,
-      "adjacent_board_cell_max_c": 99.02623362436698,
-      "adjacent_board_cell_max_rise_k": 49.02623362436698
+      "adjacent_board_cell_max_c": 115.90634313563437,
+      "adjacent_board_cell_max_rise_k": 65.90634313563437
     },
     {
       "xy_mm": [
@@ -1473,8 +1529,8 @@
         89.6
       ],
       "max_abs_hop_amps": 0.10002023779106362,
-      "adjacent_board_cell_max_c": 102.01143747026737,
-      "adjacent_board_cell_max_rise_k": 52.01143747026737
+      "adjacent_board_cell_max_c": 120.23745260124585,
+      "adjacent_board_cell_max_rise_k": 70.23745260124585
     },
     {
       "xy_mm": [
@@ -1482,8 +1538,8 @@
         83.7
       ],
       "max_abs_hop_amps": 0.09584980963242261,
-      "adjacent_board_cell_max_c": 99.11085335488596,
-      "adjacent_board_cell_max_rise_k": 49.11085335488597
+      "adjacent_board_cell_max_c": 116.16770712223976,
+      "adjacent_board_cell_max_rise_k": 66.16770712223976
     },
     {
       "xy_mm": [
@@ -1491,8 +1547,8 @@
         88.45
       ],
       "max_abs_hop_amps": 0.09352302760078156,
-      "adjacent_board_cell_max_c": 101.383480703643,
-      "adjacent_board_cell_max_rise_k": 51.383480703643
+      "adjacent_board_cell_max_c": 119.26639419732493,
+      "adjacent_board_cell_max_rise_k": 69.26639419732493
     },
     {
       "xy_mm": [
@@ -1500,8 +1556,8 @@
         81.4
       ],
       "max_abs_hop_amps": 0.08086296944325666,
-      "adjacent_board_cell_max_c": 98.877409596903,
-      "adjacent_board_cell_max_rise_k": 48.87740959690299
+      "adjacent_board_cell_max_c": 115.69544858451309,
+      "adjacent_board_cell_max_rise_k": 65.69544858451309
     },
     {
       "xy_mm": [
@@ -1509,8 +1565,8 @@
         89.6
       ],
       "max_abs_hop_amps": 0.3200726253268363,
-      "adjacent_board_cell_max_c": 101.81462016256046,
-      "adjacent_board_cell_max_rise_k": 51.814620162560466
+      "adjacent_board_cell_max_c": 119.88325378801581,
+      "adjacent_board_cell_max_rise_k": 69.88325378801581
     },
     {
       "xy_mm": [
@@ -1518,8 +1574,8 @@
         89.6
       ],
       "max_abs_hop_amps": 0.11287186383882662,
-      "adjacent_board_cell_max_c": 101.66599847983056,
-      "adjacent_board_cell_max_rise_k": 51.66599847983057
+      "adjacent_board_cell_max_c": 119.75933648762944,
+      "adjacent_board_cell_max_rise_k": 69.75933648762944
     },
     {
       "xy_mm": [
@@ -1527,8 +1583,8 @@
         89.6
       ],
       "max_abs_hop_amps": 0.04376072335993284,
-      "adjacent_board_cell_max_c": 100.8377719178086,
-      "adjacent_board_cell_max_rise_k": 50.837771917808595
+      "adjacent_board_cell_max_c": 118.60626471227883,
+      "adjacent_board_cell_max_rise_k": 68.60626471227883
     },
     {
       "xy_mm": [
@@ -1536,8 +1592,8 @@
         81.4
       ],
       "max_abs_hop_amps": 0.09075007598687436,
-      "adjacent_board_cell_max_c": 98.67153214757586,
-      "adjacent_board_cell_max_rise_k": 48.67153214757586
+      "adjacent_board_cell_max_c": 115.46314845120617,
+      "adjacent_board_cell_max_rise_k": 65.46314845120617
     },
     {
       "xy_mm": [
@@ -1545,8 +1601,8 @@
         87.3
       ],
       "max_abs_hop_amps": 0.05262926573260009,
-      "adjacent_board_cell_max_c": 100.93041500943114,
-      "adjacent_board_cell_max_rise_k": 50.930415009431144
+      "adjacent_board_cell_max_c": 118.61670567631165,
+      "adjacent_board_cell_max_rise_k": 68.61670567631165
     },
     {
       "xy_mm": [
@@ -1554,8 +1610,8 @@
         23.3
       ],
       "max_abs_hop_amps": 7.684150213239122e-14,
-      "adjacent_board_cell_max_c": 156.17929374051715,
-      "adjacent_board_cell_max_rise_k": 106.17929374051717
+      "adjacent_board_cell_max_c": 220.2700727513308,
+      "adjacent_board_cell_max_rise_k": 170.2700727513308
     },
     {
       "xy_mm": [
@@ -1563,8 +1619,8 @@
         108.535
       ],
       "max_abs_hop_amps": 1.3147037179570496e-12,
-      "adjacent_board_cell_max_c": 75.00341665442451,
-      "adjacent_board_cell_max_rise_k": 25.00341665442451
+      "adjacent_board_cell_max_c": 78.31274513649566,
+      "adjacent_board_cell_max_rise_k": 28.312745136495668
     },
     {
       "xy_mm": [
@@ -1572,8 +1628,8 @@
         110.58
       ],
       "max_abs_hop_amps": 2.0139179156312814e-13,
-      "adjacent_board_cell_max_c": 75.55565916962792,
-      "adjacent_board_cell_max_rise_k": 25.55565916962792
+      "adjacent_board_cell_max_c": 78.98259185323158,
+      "adjacent_board_cell_max_rise_k": 28.98259185323159
     },
     {
       "xy_mm": [
@@ -1581,8 +1637,8 @@
         85.3
       ],
       "max_abs_hop_amps": 2.082707920839361e-12,
-      "adjacent_board_cell_max_c": 95.6211498640173,
-      "adjacent_board_cell_max_rise_k": 45.621149864017305
+      "adjacent_board_cell_max_c": 100.78428864307554,
+      "adjacent_board_cell_max_rise_k": 50.78428864307555
     },
     {
       "xy_mm": [
@@ -1590,8 +1646,8 @@
         40.0
       ],
       "max_abs_hop_amps": 2.484586372318142e-13,
-      "adjacent_board_cell_max_c": 114.517378247558,
-      "adjacent_board_cell_max_rise_k": 64.517378247558
+      "adjacent_board_cell_max_c": 150.77308692781406,
+      "adjacent_board_cell_max_rise_k": 100.77308692781405
     },
     {
       "xy_mm": [
@@ -1599,8 +1655,8 @@
         11.3
       ],
       "max_abs_hop_amps": 0.8010199814051149,
-      "adjacent_board_cell_max_c": 181.00921889068897,
-      "adjacent_board_cell_max_rise_k": 131.00921889068897
+      "adjacent_board_cell_max_c": 254.41845423995034,
+      "adjacent_board_cell_max_rise_k": 204.41845423995034
     },
     {
       "xy_mm": [
@@ -1608,8 +1664,8 @@
         55.4
       ],
       "max_abs_hop_amps": 2.270522737690368e-12,
-      "adjacent_board_cell_max_c": 96.69972227011291,
-      "adjacent_board_cell_max_rise_k": 46.699722270112915
+      "adjacent_board_cell_max_c": 109.0705547512344,
+      "adjacent_board_cell_max_rise_k": 59.0705547512344
     },
     {
       "xy_mm": [
@@ -1617,8 +1673,8 @@
         23.3
       ],
       "max_abs_hop_amps": 9.68038296974227e-12,
-      "adjacent_board_cell_max_c": 154.86143792955136,
-      "adjacent_board_cell_max_rise_k": 104.86143792955136
+      "adjacent_board_cell_max_c": 219.93473039682394,
+      "adjacent_board_cell_max_rise_k": 169.93473039682394
     },
     {
       "xy_mm": [
@@ -1626,8 +1682,8 @@
         7.0
       ],
       "max_abs_hop_amps": 1.6252743049348708,
-      "adjacent_board_cell_max_c": 178.7359170139677,
-      "adjacent_board_cell_max_rise_k": 128.7359170139677
+      "adjacent_board_cell_max_c": 251.82686055144873,
+      "adjacent_board_cell_max_rise_k": 201.82686055144873
     },
     {
       "xy_mm": [
@@ -1635,8 +1691,8 @@
         8.75
       ],
       "max_abs_hop_amps": 1.0253543256304585,
-      "adjacent_board_cell_max_c": 180.42041094404684,
-      "adjacent_board_cell_max_rise_k": 130.42041094404684
+      "adjacent_board_cell_max_c": 253.839943814331,
+      "adjacent_board_cell_max_rise_k": 203.839943814331
     },
     {
       "xy_mm": [
@@ -1644,8 +1700,8 @@
         40.55
       ],
       "max_abs_hop_amps": 6.370769100750908e-12,
-      "adjacent_board_cell_max_c": 133.5700763178777,
-      "adjacent_board_cell_max_rise_k": 83.5700763178777
+      "adjacent_board_cell_max_c": 182.74020712942004,
+      "adjacent_board_cell_max_rise_k": 132.74020712942004
     },
     {
       "xy_mm": [
@@ -1653,8 +1709,8 @@
         39.95
       ],
       "max_abs_hop_amps": 5.118519466469615e-13,
-      "adjacent_board_cell_max_c": 112.18477818725577,
-      "adjacent_board_cell_max_rise_k": 62.184778187255766
+      "adjacent_board_cell_max_c": 146.7106708182943,
+      "adjacent_board_cell_max_rise_k": 96.71067081829429
     },
     {
       "xy_mm": [
@@ -1662,8 +1718,8 @@
         9.7
       ],
       "max_abs_hop_amps": 3.1120555761704794e-13,
-      "adjacent_board_cell_max_c": 166.7930288568747,
-      "adjacent_board_cell_max_rise_k": 116.79302885687471
+      "adjacent_board_cell_max_c": 234.10437488390227,
+      "adjacent_board_cell_max_rise_k": 184.10437488390227
     },
     {
       "xy_mm": [
@@ -1671,8 +1727,8 @@
         11.3
       ],
       "max_abs_hop_amps": 1.3604118708432926,
-      "adjacent_board_cell_max_c": 181.34094872998526,
-      "adjacent_board_cell_max_rise_k": 131.34094872998526
+      "adjacent_board_cell_max_c": 255.00306252426265,
+      "adjacent_board_cell_max_rise_k": 205.00306252426265
     },
     {
       "xy_mm": [
@@ -1680,8 +1736,8 @@
         4.0
       ],
       "max_abs_hop_amps": 0.7814200588024477,
-      "adjacent_board_cell_max_c": 177.5586494547224,
-      "adjacent_board_cell_max_rise_k": 127.55864945472241
+      "adjacent_board_cell_max_c": 250.27504134914335,
+      "adjacent_board_cell_max_rise_k": 200.27504134914335
     },
     {
       "xy_mm": [
@@ -1689,8 +1745,8 @@
         102.095
       ],
       "max_abs_hop_amps": 2.3728026138550124e-12,
-      "adjacent_board_cell_max_c": 76.02399563664683,
-      "adjacent_board_cell_max_rise_k": 26.02399563664683
+      "adjacent_board_cell_max_c": 79.42180334639886,
+      "adjacent_board_cell_max_rise_k": 29.42180334639886
     },
     {
       "xy_mm": [
@@ -1698,8 +1754,8 @@
         5.5
       ],
       "max_abs_hop_amps": 1.055048987703293,
-      "adjacent_board_cell_max_c": 178.1704136413176,
-      "adjacent_board_cell_max_rise_k": 128.1704136413176
+      "adjacent_board_cell_max_c": 251.12190572795484,
+      "adjacent_board_cell_max_rise_k": 201.12190572795484
     },
     {
       "xy_mm": [
@@ -1707,8 +1763,8 @@
         98.695
       ],
       "max_abs_hop_amps": 2.8262735692398538e-12,
-      "adjacent_board_cell_max_c": 79.50039156081154,
-      "adjacent_board_cell_max_rise_k": 29.500391560811533
+      "adjacent_board_cell_max_c": 83.30994873340877,
+      "adjacent_board_cell_max_rise_k": 33.309948733408774
     },
     {
       "xy_mm": [
@@ -1716,8 +1772,8 @@
         23.3
       ],
       "max_abs_hop_amps": 9.416999340879503e-14,
-      "adjacent_board_cell_max_c": 156.17929374051715,
-      "adjacent_board_cell_max_rise_k": 106.17929374051717
+      "adjacent_board_cell_max_c": 220.2700727513308,
+      "adjacent_board_cell_max_rise_k": 170.2700727513308
     },
     {
       "xy_mm": [
@@ -1725,8 +1781,8 @@
         108.535
       ],
       "max_abs_hop_amps": 2.54681417308203e-13,
-      "adjacent_board_cell_max_c": 75.00341665442451,
-      "adjacent_board_cell_max_rise_k": 25.00341665442451
+      "adjacent_board_cell_max_c": 78.31274513649566,
+      "adjacent_board_cell_max_rise_k": 28.312745136495668
     },
     {
       "xy_mm": [
@@ -1734,8 +1790,8 @@
         110.58
       ],
       "max_abs_hop_amps": 3.886409011344636e-14,
-      "adjacent_board_cell_max_c": 75.55565916962792,
-      "adjacent_board_cell_max_rise_k": 25.55565916962792
+      "adjacent_board_cell_max_c": 78.98259185323158,
+      "adjacent_board_cell_max_rise_k": 28.98259185323159
     },
     {
       "xy_mm": [
@@ -1743,8 +1799,8 @@
         85.3
       ],
       "max_abs_hop_amps": 4.036887147737309e-13,
-      "adjacent_board_cell_max_c": 95.6211498640173,
-      "adjacent_board_cell_max_rise_k": 45.621149864017305
+      "adjacent_board_cell_max_c": 100.78428864307554,
+      "adjacent_board_cell_max_rise_k": 50.78428864307555
     },
     {
       "xy_mm": [
@@ -1752,8 +1808,8 @@
         40.0
       ],
       "max_abs_hop_amps": 4.848111386786539e-14,
-      "adjacent_board_cell_max_c": 114.517378247558,
-      "adjacent_board_cell_max_rise_k": 64.517378247558
+      "adjacent_board_cell_max_c": 150.77308692781406,
+      "adjacent_board_cell_max_rise_k": 100.77308692781405
     },
     {
       "xy_mm": [
@@ -1761,8 +1817,8 @@
         11.3
       ],
       "max_abs_hop_amps": 0.37521371266545134,
-      "adjacent_board_cell_max_c": 181.00921889068897,
-      "adjacent_board_cell_max_rise_k": 131.00921889068897
+      "adjacent_board_cell_max_c": 254.41845423995034,
+      "adjacent_board_cell_max_rise_k": 204.41845423995034
     },
     {
       "xy_mm": [
@@ -1770,8 +1826,8 @@
         55.4
       ],
       "max_abs_hop_amps": 4.3989398067272036e-13,
-      "adjacent_board_cell_max_c": 96.69972227011291,
-      "adjacent_board_cell_max_rise_k": 46.699722270112915
+      "adjacent_board_cell_max_c": 109.0705547512344,
+      "adjacent_board_cell_max_rise_k": 59.0705547512344
     },
     {
       "xy_mm": [
@@ -1779,8 +1835,8 @@
         23.3
       ],
       "max_abs_hop_amps": 1.8763379052151214e-12,
-      "adjacent_board_cell_max_c": 154.86143792955136,
-      "adjacent_board_cell_max_rise_k": 104.86143792955136
+      "adjacent_board_cell_max_c": 219.93473039682394,
+      "adjacent_board_cell_max_rise_k": 169.93473039682394
     },
     {
       "xy_mm": [
@@ -1788,8 +1844,8 @@
         7.0
       ],
       "max_abs_hop_amps": 0.05164938045134223,
-      "adjacent_board_cell_max_c": 178.7359170139677,
-      "adjacent_board_cell_max_rise_k": 128.7359170139677
+      "adjacent_board_cell_max_c": 251.82686055144873,
+      "adjacent_board_cell_max_rise_k": 201.82686055144873
     },
     {
       "xy_mm": [
@@ -1797,8 +1853,8 @@
         8.75
       ],
       "max_abs_hop_amps": 0.44550768547772995,
-      "adjacent_board_cell_max_c": 180.42041094404684,
-      "adjacent_board_cell_max_rise_k": 130.42041094404684
+      "adjacent_board_cell_max_c": 253.839943814331,
+      "adjacent_board_cell_max_rise_k": 203.839943814331
     },
     {
       "xy_mm": [
@@ -1806,8 +1862,8 @@
         40.55
       ],
       "max_abs_hop_amps": 1.235674410986912e-12,
-      "adjacent_board_cell_max_c": 133.5700763178777,
-      "adjacent_board_cell_max_rise_k": 83.5700763178777
+      "adjacent_board_cell_max_c": 182.74020712942004,
+      "adjacent_board_cell_max_rise_k": 132.74020712942004
     },
     {
       "xy_mm": [
@@ -1815,8 +1871,8 @@
         39.95
       ],
       "max_abs_hop_amps": 9.86593495747459e-14,
-      "adjacent_board_cell_max_c": 112.18477818725577,
-      "adjacent_board_cell_max_rise_k": 62.184778187255766
+      "adjacent_board_cell_max_c": 146.7106708182943,
+      "adjacent_board_cell_max_rise_k": 96.71067081829429
     },
     {
       "xy_mm": [
@@ -1824,8 +1880,8 @@
         9.7
       ],
       "max_abs_hop_amps": 3.8213617497002444e-13,
-      "adjacent_board_cell_max_c": 166.7930288568747,
-      "adjacent_board_cell_max_rise_k": 116.79302885687471
+      "adjacent_board_cell_max_c": 234.10437488390227,
+      "adjacent_board_cell_max_rise_k": 184.10437488390227
     },
     {
       "xy_mm": [
@@ -1833,8 +1889,8 @@
         11.3
       ],
       "max_abs_hop_amps": 0.6278190678568062,
-      "adjacent_board_cell_max_c": 181.34094872998526,
-      "adjacent_board_cell_max_rise_k": 131.34094872998526
+      "adjacent_board_cell_max_c": 255.00306252426265,
+      "adjacent_board_cell_max_rise_k": 205.00306252426265
     },
     {
       "xy_mm": [
@@ -1842,8 +1898,8 @@
         4.0
       ],
       "max_abs_hop_amps": 0.20395971077012054,
-      "adjacent_board_cell_max_c": 177.5586494547224,
-      "adjacent_board_cell_max_rise_k": 127.55864945472241
+      "adjacent_board_cell_max_c": 250.27504134914335,
+      "adjacent_board_cell_max_rise_k": 200.27504134914335
     },
     {
       "xy_mm": [
@@ -1851,8 +1907,8 @@
         102.095
       ],
       "max_abs_hop_amps": 4.605422963807376e-13,
-      "adjacent_board_cell_max_c": 76.02399563664683,
-      "adjacent_board_cell_max_rise_k": 26.02399563664683
+      "adjacent_board_cell_max_c": 79.42180334639886,
+      "adjacent_board_cell_max_rise_k": 29.42180334639886
     },
     {
       "xy_mm": [
@@ -1860,8 +1916,8 @@
         5.5
       ],
       "max_abs_hop_amps": 0.09772379012502072,
-      "adjacent_board_cell_max_c": 178.1704136413176,
-      "adjacent_board_cell_max_rise_k": 128.1704136413176
+      "adjacent_board_cell_max_c": 251.12190572795484,
+      "adjacent_board_cell_max_rise_k": 201.12190572795484
     },
     {
       "xy_mm": [
@@ -1869,8 +1925,8 @@
         98.695
       ],
       "max_abs_hop_amps": 5.478875003620493e-13,
-      "adjacent_board_cell_max_c": 79.50039156081154,
-      "adjacent_board_cell_max_rise_k": 29.500391560811533
+      "adjacent_board_cell_max_c": 83.30994873340877,
+      "adjacent_board_cell_max_rise_k": 33.309948733408774
     },
     {
       "xy_mm": [
@@ -1878,8 +1934,8 @@
         15.3
       ],
       "max_abs_hop_amps": 3.544975246784622,
-      "adjacent_board_cell_max_c": 179.15202384759348,
-      "adjacent_board_cell_max_rise_k": 129.15202384759348
+      "adjacent_board_cell_max_c": 254.63083662555653,
+      "adjacent_board_cell_max_rise_k": 204.63083662555653
     },
     {
       "xy_mm": [
@@ -1887,8 +1943,8 @@
         66.0
       ],
       "max_abs_hop_amps": 7.270699471832605e-10,
-      "adjacent_board_cell_max_c": 73.65020611838769,
-      "adjacent_board_cell_max_rise_k": 23.650206118387683
+      "adjacent_board_cell_max_c": 77.2694988008329,
+      "adjacent_board_cell_max_rise_k": 27.269498800832906
     },
     {
       "xy_mm": [
@@ -1896,8 +1952,8 @@
         13.95
       ],
       "max_abs_hop_amps": 3.214824334727583,
-      "adjacent_board_cell_max_c": 176.55144226322685,
-      "adjacent_board_cell_max_rise_k": 126.55144226322685
+      "adjacent_board_cell_max_c": 251.3606489654482,
+      "adjacent_board_cell_max_rise_k": 201.3606489654482
     },
     {
       "xy_mm": [
@@ -1905,8 +1961,8 @@
         61.0
       ],
       "max_abs_hop_amps": 8.88530717729983e-09,
-      "adjacent_board_cell_max_c": 74.60446395608282,
-      "adjacent_board_cell_max_rise_k": 24.604463956082828
+      "adjacent_board_cell_max_c": 78.69662148163317,
+      "adjacent_board_cell_max_rise_k": 28.69662148163317
     },
     {
       "xy_mm": [
@@ -1914,8 +1970,8 @@
         13.95
       ],
       "max_abs_hop_amps": 7.335106244448463,
-      "adjacent_board_cell_max_c": 178.00142873262607,
-      "adjacent_board_cell_max_rise_k": 128.00142873262607
+      "adjacent_board_cell_max_c": 253.63947792991283,
+      "adjacent_board_cell_max_rise_k": 203.63947792991283
     },
     {
       "xy_mm": [
@@ -1923,8 +1979,8 @@
         72.6
       ],
       "max_abs_hop_amps": 5.051877311336269e-08,
-      "adjacent_board_cell_max_c": 75.5178637034214,
-      "adjacent_board_cell_max_rise_k": 25.517863703421405
+      "adjacent_board_cell_max_c": 79.65296853579424,
+      "adjacent_board_cell_max_rise_k": 29.65296853579424
     },
     {
       "xy_mm": [
@@ -1932,8 +1988,8 @@
         16.25
       ],
       "max_abs_hop_amps": 9.174020963483054,
-      "adjacent_board_cell_max_c": 178.87245564050255,
-      "adjacent_board_cell_max_rise_k": 128.87245564050255
+      "adjacent_board_cell_max_c": 254.25342389014705,
+      "adjacent_board_cell_max_rise_k": 204.25342389014705
     },
     {
       "xy_mm": [
@@ -1941,8 +1997,8 @@
         66.0
       ],
       "max_abs_hop_amps": 1.2441294662962347e-09,
-      "adjacent_board_cell_max_c": 74.27688044602536,
-      "adjacent_board_cell_max_rise_k": 24.276880446025366
+      "adjacent_board_cell_max_c": 78.14838741166717,
+      "adjacent_board_cell_max_rise_k": 28.148387411667176
     },
     {
       "xy_mm": [
@@ -1950,8 +2006,8 @@
         55.2
       ],
       "max_abs_hop_amps": 1.1068254217669379e-07,
-      "adjacent_board_cell_max_c": 77.56021287968233,
-      "adjacent_board_cell_max_rise_k": 27.56021287968233
+      "adjacent_board_cell_max_c": 83.16593882850697,
+      "adjacent_board_cell_max_rise_k": 33.16593882850697
     },
     {
       "xy_mm": [
@@ -1959,8 +2015,8 @@
         71.0
       ],
       "max_abs_hop_amps": 2.552436045365906e-09,
-      "adjacent_board_cell_max_c": 73.43393040813648,
-      "adjacent_board_cell_max_rise_k": 23.433930408136472
+      "adjacent_board_cell_max_c": 76.91484240666543,
+      "adjacent_board_cell_max_rise_k": 26.914842406665436
     },
     {
       "xy_mm": [
@@ -1968,8 +2024,8 @@
         72.6
       ],
       "max_abs_hop_amps": 3.5365238739972717e-08,
-      "adjacent_board_cell_max_c": 75.24249486804482,
-      "adjacent_board_cell_max_rise_k": 25.24249486804482
+      "adjacent_board_cell_max_c": 79.3087930534193,
+      "adjacent_board_cell_max_rise_k": 29.308793053419286
     },
     {
       "xy_mm": [
@@ -1977,8 +2033,8 @@
         14.6
       ],
       "max_abs_hop_amps": 4.665644266248695,
-      "adjacent_board_cell_max_c": 177.2450062748767,
-      "adjacent_board_cell_max_rise_k": 127.2450062748767
+      "adjacent_board_cell_max_c": 252.0449720221943,
+      "adjacent_board_cell_max_rise_k": 202.0449720221943
     },
     {
       "xy_mm": [
@@ -1986,8 +2042,8 @@
         14.55
       ],
       "max_abs_hop_amps": 6.065428944118317,
-      "adjacent_board_cell_max_c": 181.15499094466185,
-      "adjacent_board_cell_max_rise_k": 131.15499094466185
+      "adjacent_board_cell_max_c": 257.2136540357475,
+      "adjacent_board_cell_max_rise_k": 207.2136540357475
     },
     {
       "xy_mm": [
@@ -1995,8 +2051,8 @@
         61.0
       ],
       "max_abs_hop_amps": 5.720181568090746e-09,
-      "adjacent_board_cell_max_c": 73.89505653128941,
-      "adjacent_board_cell_max_rise_k": 23.895056531289406
+      "adjacent_board_cell_max_c": 77.67216883697915,
+      "adjacent_board_cell_max_rise_k": 27.67216883697915
     },
     {
       "xy_mm": [
@@ -2004,8 +2060,8 @@
         71.0
       ],
       "max_abs_hop_amps": 9.212099042532127e-09,
-      "adjacent_board_cell_max_c": 73.99827923146813,
-      "adjacent_board_cell_max_rise_k": 23.99827923146814
+      "adjacent_board_cell_max_c": 77.69478333406252,
+      "adjacent_board_cell_max_rise_k": 27.694783334062524
     },
     {
       "xy_mm": [
@@ -2013,8 +2069,8 @@
         55.2
       ],
       "max_abs_hop_amps": 1.9885425890313104e-07,
-      "adjacent_board_cell_max_c": 77.24178370723651,
-      "adjacent_board_cell_max_rise_k": 27.24178370723651
+      "adjacent_board_cell_max_c": 82.70265471809262,
+      "adjacent_board_cell_max_rise_k": 32.70265471809261
     },
     {
       "xy_mm": [
@@ -2022,8 +2078,8 @@
         15.3
       ],
       "max_abs_hop_amps": 3.5473637949736356,
-      "adjacent_board_cell_max_c": 179.15202384759348,
-      "adjacent_board_cell_max_rise_k": 129.15202384759348
+      "adjacent_board_cell_max_c": 254.63083662555653,
+      "adjacent_board_cell_max_rise_k": 204.63083662555653
     },
     {
       "xy_mm": [
@@ -2031,8 +2087,8 @@
         66.0
       ],
       "max_abs_hop_amps": 7.101234548265106e-10,
-      "adjacent_board_cell_max_c": 73.65020611838769,
-      "adjacent_board_cell_max_rise_k": 23.650206118387683
+      "adjacent_board_cell_max_c": 77.2694988008329,
+      "adjacent_board_cell_max_rise_k": 27.269498800832906
     },
     {
       "xy_mm": [
@@ -2040,8 +2096,8 @@
         13.95
       ],
       "max_abs_hop_amps": 3.241872907861164,
-      "adjacent_board_cell_max_c": 176.55144226322685,
-      "adjacent_board_cell_max_rise_k": 126.55144226322685
+      "adjacent_board_cell_max_c": 251.3606489654482,
+      "adjacent_board_cell_max_rise_k": 201.3606489654482
     },
     {
       "xy_mm": [
@@ -2049,8 +2105,8 @@
         61.0
       ],
       "max_abs_hop_amps": 8.688042416026815e-09,
-      "adjacent_board_cell_max_c": 74.60446395608282,
-      "adjacent_board_cell_max_rise_k": 24.604463956082828
+      "adjacent_board_cell_max_c": 78.69662148163317,
+      "adjacent_board_cell_max_rise_k": 28.69662148163317
     },
     {
       "xy_mm": [
@@ -2058,8 +2114,8 @@
         13.95
       ],
       "max_abs_hop_amps": 7.268226449764506,
-      "adjacent_board_cell_max_c": 178.00142873262607,
-      "adjacent_board_cell_max_rise_k": 128.00142873262607
+      "adjacent_board_cell_max_c": 253.63947792991283,
+      "adjacent_board_cell_max_rise_k": 203.63947792991283
     },
     {
       "xy_mm": [
@@ -2067,8 +2123,8 @@
         72.6
       ],
       "max_abs_hop_amps": 4.9403579946267124e-08,
-      "adjacent_board_cell_max_c": 75.5178637034214,
-      "adjacent_board_cell_max_rise_k": 25.517863703421405
+      "adjacent_board_cell_max_c": 79.65296853579424,
+      "adjacent_board_cell_max_rise_k": 29.65296853579424
     },
     {
       "xy_mm": [
@@ -2076,8 +2132,8 @@
         16.25
       ],
       "max_abs_hop_amps": 9.14497894318404,
-      "adjacent_board_cell_max_c": 178.87245564050255,
-      "adjacent_board_cell_max_rise_k": 128.87245564050255
+      "adjacent_board_cell_max_c": 254.25342389014705,
+      "adjacent_board_cell_max_rise_k": 204.25342389014705
     },
     {
       "xy_mm": [
@@ -2085,8 +2141,8 @@
         66.0
       ],
       "max_abs_hop_amps": 1.2173389443064095e-09,
-      "adjacent_board_cell_max_c": 74.27688044602536,
-      "adjacent_board_cell_max_rise_k": 24.276880446025366
+      "adjacent_board_cell_max_c": 78.14838741166717,
+      "adjacent_board_cell_max_rise_k": 28.148387411667176
     },
     {
       "xy_mm": [
@@ -2094,8 +2150,8 @@
         55.2
       ],
       "max_abs_hop_amps": 1.082404934894029e-07,
-      "adjacent_board_cell_max_c": 77.56021287968233,
-      "adjacent_board_cell_max_rise_k": 27.56021287968233
+      "adjacent_board_cell_max_c": 83.16593882850697,
+      "adjacent_board_cell_max_rise_k": 33.16593882850697
     },
     {
       "xy_mm": [
@@ -2103,8 +2159,8 @@
         71.0
       ],
       "max_abs_hop_amps": 2.4973037750988766e-09,
-      "adjacent_board_cell_max_c": 73.43393040813648,
-      "adjacent_board_cell_max_rise_k": 23.433930408136472
+      "adjacent_board_cell_max_c": 76.91484240666543,
+      "adjacent_board_cell_max_rise_k": 26.914842406665436
     },
     {
       "xy_mm": [
@@ -2112,8 +2168,8 @@
         72.6
       ],
       "max_abs_hop_amps": 3.458473326722326e-08,
-      "adjacent_board_cell_max_c": 75.24249486804482,
-      "adjacent_board_cell_max_rise_k": 25.24249486804482
+      "adjacent_board_cell_max_c": 79.3087930534193,
+      "adjacent_board_cell_max_rise_k": 29.308793053419286
     },
     {
       "xy_mm": [
@@ -2121,8 +2177,8 @@
         14.6
       ],
       "max_abs_hop_amps": 4.76742179351287,
-      "adjacent_board_cell_max_c": 177.2450062748767,
-      "adjacent_board_cell_max_rise_k": 127.2450062748767
+      "adjacent_board_cell_max_c": 252.0449720221943,
+      "adjacent_board_cell_max_rise_k": 202.0449720221943
     },
     {
       "xy_mm": [
@@ -2130,8 +2186,8 @@
         14.55
       ],
       "max_abs_hop_amps": 6.030136110562442,
-      "adjacent_board_cell_max_c": 181.15499094466185,
-      "adjacent_board_cell_max_rise_k": 131.15499094466185
+      "adjacent_board_cell_max_c": 257.2136540357475,
+      "adjacent_board_cell_max_rise_k": 207.2136540357475
     },
     {
       "xy_mm": [
@@ -2139,8 +2195,8 @@
         61.0
       ],
       "max_abs_hop_amps": 5.592788928219952e-09,
-      "adjacent_board_cell_max_c": 73.89505653128941,
-      "adjacent_board_cell_max_rise_k": 23.895056531289406
+      "adjacent_board_cell_max_c": 77.67216883697915,
+      "adjacent_board_cell_max_rise_k": 27.67216883697915
     },
     {
       "xy_mm": [
@@ -2148,8 +2204,8 @@
         71.0
       ],
       "max_abs_hop_amps": 9.009657900255863e-09,
-      "adjacent_board_cell_max_c": 73.99827923146813,
-      "adjacent_board_cell_max_rise_k": 23.99827923146814
+      "adjacent_board_cell_max_c": 77.69478333406252,
+      "adjacent_board_cell_max_rise_k": 27.694783334062524
     },
     {
       "xy_mm": [
@@ -2157,8 +2213,8 @@
         55.2
       ],
       "max_abs_hop_amps": 1.9445945729852323e-07,
-      "adjacent_board_cell_max_c": 77.24178370723651,
-      "adjacent_board_cell_max_rise_k": 27.24178370723651
+      "adjacent_board_cell_max_c": 82.70265471809262,
+      "adjacent_board_cell_max_rise_k": 32.70265471809261
     },
     {
       "xy_mm": [
@@ -2166,8 +2222,8 @@
         60.5
       ],
       "max_abs_hop_amps": 1.1025568327003983e-12,
-      "adjacent_board_cell_max_c": 64.09627064823016,
-      "adjacent_board_cell_max_rise_k": 14.096270648230162
+      "adjacent_board_cell_max_c": 69.12005502483149,
+      "adjacent_board_cell_max_rise_k": 19.120055024831487
     },
     {
       "xy_mm": [
@@ -2175,8 +2231,8 @@
         60.5
       ],
       "max_abs_hop_amps": 2.4055785440735966e-12,
-      "adjacent_board_cell_max_c": 64.09627064823016,
-      "adjacent_board_cell_max_rise_k": 14.096270648230162
+      "adjacent_board_cell_max_c": 69.12005502483149,
+      "adjacent_board_cell_max_rise_k": 19.120055024831487
     },
     {
       "xy_mm": [
@@ -2184,8 +2240,8 @@
         25.0
       ],
       "max_abs_hop_amps": 5.408161593661531e-14,
-      "adjacent_board_cell_max_c": 68.58062179991688,
-      "adjacent_board_cell_max_rise_k": 18.58062179991689
+      "adjacent_board_cell_max_c": 70.66349338048828,
+      "adjacent_board_cell_max_rise_k": 20.663493380488276
     }
   ],
   "limits": [
