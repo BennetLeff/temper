@@ -108,7 +108,7 @@ Ranked by what they unlock.
    - the EOL veto test (B8);
    - S15 (TCO as the 25.3.1 backstop).
 6. **Ask JLC about the laminate UL scope for 2 oz inner copper** (S12).
-7. **Pre-order the long-lead parts** (`sourcing/study-2026-10-15/README.md` §4): L1 first, then PMEG6030EP (B9).
+7. **Pre-order the long-lead parts** (`sourcing/study-2026-10-15/README.md` §4): L1 first, then PMEG6030EP (B9); LM2901BIDR (U29–U31, DECISIONS 62: 1,966 at JLC against 1,500 for 500 boards); RT0603BRD07750RL (2,661 against 1,500).
    Confirm that DigiKey's "B32676G1106K Z 1" is the catalogue B32676G1106K (S8).
 8. **Bench, first:**
    - the gate-row IR reading (the R_on 0.217 W bound behind the +0.7 K release margin);
