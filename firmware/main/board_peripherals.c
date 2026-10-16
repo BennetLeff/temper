@@ -213,7 +213,7 @@ bool is_fan_running(void)
  * DECISIONS.md D-HSNTC).
  *
  * read_heatsink_temperature() callers and what they get:
- *   state_machine.c check_safety_interlocks()   > OVER_TEMP_THRESHOLD (80)
+ *   state_machine.c check_safety_interlocks()   > OVER_TEMP_THRESHOLD (95)
  *   state_machine.c fault_cleared()             < 70 releases FAULT_OVER_TEMP
  *   state_handlers.c state_idle_update()        background read (discarded)
  *   state_handlers.c state_cooldown_entry/update < SAFE_IDLE_TEMP (50) ends

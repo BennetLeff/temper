@@ -287,16 +287,19 @@ runaway:
 # design, and inventing one would imply a sensing channel that is not fielded.
 interlocks:
   - c_symbol: OVER_TEMP_THRESHOLD
-    value: 80.0
+    value: 95.0
     c_type: float
     units: "°C"
     doc: >-
-      Heatsink over-temperature interlock (firmware trip). Per thermal
-      threshold decision (#1233): 80°C is 5°C below hardware THM-01 latch
-      (85°C). 100°C was dead code — hardware always fired first. Decision
-      ladder: 75°C warn/derate → 80°C firmware shutdown → 85°C hardware
-      latch → 125°C fault-state backstop (docs/evidence/2026-08-15-thermal-
-      threshold-decision.md; committed aaa0af2dd).
+      Heatsink over-temperature interlock (firmware trip), 95°C per the
+      zapote/controller thermal trip ladder (zapote/controller/DECISIONS.md
+      C32): 88.6°C fan-law operating point at full power (R32 airflow
+      REPORT) < 95°C firmware trip < 101.4°C hardware comparator latch
+      (64-corner 98.3-104.6°C, above 95°C + the 2 K NTC tolerance) < 125°C
+      fault-state backstop. At 95°C the IPW65R018CFD7 runs Tj about 123°C at
+      28 A. The earlier 80°C (#1233) sat below the old THM-01 85°C latch and
+      would trip in normal full-power use once the heatsink NTC driver is
+      live (output/temper-sensor-r3/firmware/DECISIONS.md D-HSNTC, item 12).
     legacy_define_only: true
 
   - c_symbol: OVER_CURRENT_THRESHOLD

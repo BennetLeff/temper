@@ -1492,16 +1492,16 @@ pull-up, or a production offset trim of the ADC.
 **`read_heatsink_temperature()`** (`main/board_peripherals.c`) is now real:
 VALID gives the filtered reading, SATURATED the upper bound (below every
 limit and release), and a latched fault or no reading +INF, as the stub
-always returned. Its callers: `check_safety_interlocks()` (> 80 °C,
+always returned. Its callers: `check_safety_interlocks()` (> 95 °C,
 FAULT_OVER_TEMP), `fault_cleared()` (< 70 °C releases it), the IDLE
 background read, COOLDOWN (< 50 °C ends it; > start + 5 K latches), FAULT
 (> 125 °C asserts the hardware shutdown), and `safety.c`
-`check_hardware_interlocks()` / `run_safety_check()` (non-finite or > 80,
+`check_hardware_interlocks()` / `run_safety_check()` (non-finite or > 95,
 linked, no caller in this image). On the target the stub's +INF made every
 PREHEAT entry FAULT_OVER_TEMP; with the driver the interlock passes, so
-**`OVER_TEMP_THRESHOLD` 80 °C now matters**: the sink runs at 88.6 °C at full
-power (airflow-r1), so 80 °C trips in normal use; C32 sets 95 °C (open item
-12, not changed here). `read_heatsink_ntc()` gives the cold-soak check the
+**`OVER_TEMP_THRESHOLD` now matters**: the sink runs at 88.6 °C at full
+power (airflow-r1), so the earlier 80 °C would trip in normal use. It is now
+95 °C per C32 (open item 12, closed). `read_heatsink_ntc()` gives the cold-soak check the
 driver state as well.
 
 Tests (`test_c1_hs_ntc_only`, 10): the table against the data-sheet points;
@@ -1850,11 +1850,15 @@ power and holds, agreement passes, a cold pan placed in the window skips,
     chip shares the RTD SPI bus with the MAX31865. With it the cold-soak
     threshold falls from 12.9 K to 8.8 K and the rim loses up to 4.37 K of
     error. Needs bus arbitration with `rtd_service`.
-12. **`OVER_TEMP_THRESHOLD` 80 °C → 95 °C** (zapote DECISIONS C32). With the
-    heatsink driver live (D-HSNTC) the 80 °C interlock is real, and the sink
-    runs at 88.6 °C at full power (airflow-r1), so 80 °C would trip in normal
-    use. Not changed here: `config.yaml` belongs to the safety owner, and
-    the 70 °C release and 125 °C FAULT shutdown move with it.
+12. **`OVER_TEMP_THRESHOLD` 80 °C → 95 °C: closed (owner decision 2026-10-15).**
+    `config.yaml` now sets 95 °C, the firmware trip in the zapote/controller
+    ladder (DECISIONS C32): 88.6 °C fan-law operating point < 95 °C firmware
+    trip < 101.4 °C hardware comparator (64-corner 98.3–104.6 °C) < 125 °C
+    FAULT-state shutdown. Tj ≈ 123 °C at the trip (C32). The 70 °C release
+    and the 125 °C shutdown are unchanged. Not changed: the Rust
+    `packages/temper-thermal` `FIRMWARE_TRIP_TS_C` (80.0, asserted in its own
+    test), which models the legacy elec board's THM-01 85 °C ladder for the
+    placer; it belongs to that package's owner.
 13. **`temper_pins.h` names GPIO3 / ADC1_CH2 `ADC_CHANNEL_NTC`.** On
     zapote/controller GPIO3 is the blower tach and the heatsink NTC is GPIO6
     / ADC1_CH5 (`hs_ntc_board.c`). The legacy pin map should follow the

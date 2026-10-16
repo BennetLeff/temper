@@ -93,7 +93,7 @@ def frozen(n_rows, start_c, at):
 
 # Pan removed at row 40 (impedance below the 3.0 presence threshold): HEATING
 # -> NO_PAN after the debounce, -> COOLDOWN after NO_PAN_TIMEOUT_MS. The
-# heatsink sits at 55 degC (above SAFE_IDLE_TEMP 50, below OVER_TEMP 80), so
+# heatsink sits at 55 degC (above SAFE_IDLE_TEMP 50, below OVER_TEMP 95), so
 # COOLDOWN does not end on its first update at either cadence: the legacy SIL
 # steps 100 ms per update and reaches COOLDOWN at row 81, the firmware's
 # 10 ms cadence (C1 target) at row 71. Both are in COOLDOWN at row 90.

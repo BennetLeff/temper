@@ -502,8 +502,8 @@ void test_sm_fault_on_over_temperature(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Trigger over-temperature (>80°C heatsink) */
-    mock_sm_set_heatsink_temperature(85.0f);
+    /* Trigger over-temperature (heatsink 5 K over OVER_TEMP_THRESHOLD) */
+    mock_sm_set_heatsink_temperature(OVER_TEMP_THRESHOLD + 5.0f);
     mock_sm_advance_time(100);
     state_machine_update();
     

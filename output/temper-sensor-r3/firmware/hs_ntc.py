@@ -126,8 +126,8 @@ BUF_VOS_V = 0.002       # TLV9062 follower offset allowance (assumption: TLV906x
 NTC_DISSIPATION_W_PER_K = 13e-3   # doc 29092 p. 1, on a 100 cm2 plate
 OPEN_REF_FRAC = 100.0 / 101.21    # thermal_block.ato open_top 1.21 k / open_bottom 100 k
 # The firmware's over-temperature uses of read_heatsink_temperature() (state_machine.c,
-# state_handlers.c, config.yaml): 70 recovery, 80 OVER_TEMP_THRESHOLD, 125 FAULT_STATE_MAX_TEMP_C;
-# 95 is zapote DECISIONS C32's firmware trip (not yet in config.yaml).
+# state_handlers.c, config.yaml): 70 recovery, 95 OVER_TEMP_THRESHOLD (zapote DECISIONS C32; was 80),
+# 125 FAULT_STATE_MAX_TEMP_C. 80 stays in the list as the earlier trip.
 TRIP_POINTS_C = (50.0, 70.0, 80.0, 95.0, 125.0)
 
 # Pt100 chain at soak (the other side of the comparison)
