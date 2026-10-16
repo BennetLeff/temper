@@ -47,6 +47,7 @@ def _grow(g, d):
 TILE = 32
 _TILES = {}      # (id(shape), STEP) -> (shape, {(ti, tj): bool array | True | False})
 _STABLE = {}     # derived outline shapes, kept so their ids (and tiles) stay valid
+_TILE_XY = {}    # (ti, tj, step) -> shared lattice coordinates, independent of the obstacle
 
 
 def _window(bx):
@@ -74,9 +75,12 @@ def _shape_tile(shape, ti, tj, step=None):
         ent = _TILES[(id(shape), step)] = (shape, {})
     t = ent[1].get((ti, tj))
     if t is None:
-        xs, ys = np.meshgrid(np.arange(ti * TILE, ti * TILE + TILE) * step,
-                             np.arange(tj * TILE, tj * TILE + TILE) * step)
-        t = shapely.contains_xy(shape, xs, ys)
+        xy = _TILE_XY.get((ti, tj, step))
+        if xy is None:
+            xy = _TILE_XY[(ti, tj, step)] = np.meshgrid(
+                np.arange(ti * TILE, ti * TILE + TILE) * step,
+                np.arange(tj * TILE, tj * TILE + TILE) * step, sparse=True)
+        t = shapely.contains_xy(shape, *xy)
         t = False if not t.any() else True if t.all() else t
         ent[1][(ti, tj)] = t
     return t
