@@ -1,0 +1,43 @@
+{
+ "identity": {
+  "legA21-h0-s9b2-s51.matrix.txt": "e7efe30ee2875dc101dbb728f47e88405db8a6cd9291430395cd3510a9f4dabe",
+  "legB21-h0-s9b2-s51.matrix.txt": "425ca0d0bee3a46f9bf29793f8861e91b55bc8e363e7673d3911b3b92419904c",
+  "F6.cir": "55a2058f05c366b046ea1d1b2e8b8d0101f81ffeb5a0ed23cde5c8348e3fc342",
+  "f6_legs.py": "af9fcb5aa77a5218420bead35c6f55241ca3639ac24915243b821b4d640bce49",
+  "run_d2.py": "bec75e3212b120853eb4a58286fb3c222094e46b6e88ba6e41edcde73cd24c7a",
+  "PMEG6030EP.txt": "0c2892521c7933b99f405d803cef84240050b71c9e1f412088bd7a6c6352b983"
+ },
+ "diode": "pmeg",
+ "model_screen_V": {
+  "25": 3.5624339999999997,
+  "27": 3.545527,
+  "100": 2.924901,
+  "150": 2.48794
+ },
+ "groups": {
+  "A_T27_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 36,
+   "max_off_V": 0.278,
+   "max_vds_V": 433.9
+  },
+  "A_T100_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 36,
+   "max_off_V": 0.141,
+   "max_vds_V": 429.6
+  },
+  "A_T150_S5": {
+   "cases": 36,
+   "complete": 36,
+   "pass": 36,
+   "pass_hot": 36,
+   "max_off_V": 0.046,
+   "max_vds_V": 427.4
+  }
+ }
+}
