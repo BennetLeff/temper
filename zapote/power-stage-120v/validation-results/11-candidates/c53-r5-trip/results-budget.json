@@ -1,0 +1,35 @@
+{
+ "gain": 100.0,
+ "tau_s": 1.0,
+ "threshold_V": 1.25,
+ "threshold_mean_mV_at_R5": 12.5,
+ "trip_mean_A": 12.5,
+ "trip_rms_equiv_A": 13.884260801954904,
+ "divider_load_uA_from_ref25": 12.5,
+ "errors": {
+  "R5": 0.01,
+  "ref25": 0.001,
+  "divider": 0.002,
+  "RIN/RF": 0.002,
+  "LMV331 offset": 0.0056,
+  "LMV331 bias x Rth": 0.009999999999999998,
+  "OPA333 offset": 0.000808,
+  "OPA333 bias x RF": 0.00016,
+  "sum_worst": 0.031568,
+  "rss": 0.01552541348885755
+ },
+ "sense_line_current_uA": 1.25,
+ "sense_line_drop_uV_per_mohm_of_trace": 0.0012499999999999998,
+ "hold_I_ps_A": [
+  13.24,
+  12.613
+ ],
+ "cap15_I_ps_A": [
+  14.74,
+  14.113
+ ],
+ "margin_over_highest_hold_low_corner_pct": 1.555607680957638,
+ "margin_over_highest_hold_rss_pct": 3.2379298490741393,
+ "under_15A_cap_high_corner_rss": true,
+ "under_15A_cap_high_corner_worst": false
+}
