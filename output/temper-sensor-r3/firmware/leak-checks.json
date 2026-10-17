@@ -1,4 +1,5 @@
 {
+ "reference_platform": "linux-x86_64",
  "scope": "DECISIONS.md D-LEAK, D-RIMLIM: element-parallel Pt100 leakage against the firmware's leak checks.\n\nA leakage resistance R_leak in parallel with the Pt100 element reads low and is\nelectrically invisible to the MAX31865 (pcb/DECISIONS.md D6). The loop then\nholds the reading at the setpoint and the pan runs hot. The C1 leak check\n(components/control/pan_leak_check.c, through the cosim shim) latches\nFAULT_PROBE_LEAKAGE after `cycles` (2) consecutive cross-check suspect ->\nPROBE_PASSED cycles, each suspect within gap_s (120 s) of the previous, with\nthe rim reading not more than rim_fall_k (5 K) lower and the Pt100 reading\nnot more than pt_rise_k (2 K) higher than at the previous suspect. The\nsetpoint-relative rim limit (components/control/pan_rim_limit.c, D-RIMLIM)\nlatches the same fault when the rim is above the glass envelope of\nmax(setpoint, t_hat) plus the rim's hot tolerance stack, not falling, for 5 s;\nit runs passively here too (\"rim_limit\").\n\nThe plant and loop are xcheck_cosim.py's (GlassTruth: glass under the rim NTC\na 60 s lag toward T_c - delta; the rim NTC through the firmware driver at a\nbead tolerance corner; the C loop, D1, the supervisor; gain mode\nid_measured). Every rule is passive here: the leak latch, the rim NTC's\nover-range fault (an existing latch, PROBE_SHORT through the RTD sink) and the\nsupervisor latches are recorded, not acted on, so the steady pan temperature\nis the untripped one and each rule's first time is measured on the same\ntrajectory. Supervisor stage 1 (non-latching) and D1 (LOST zeroes the power)\nact as in the firmware. After a rim fault the loop's rim input falls back to\nthe reading (main/pan_control.c loop_rim_input), as on the device. The CR-5\nhardware rim trip (pcb/DECISIONS.md D6, band 262.3-288.1 degC on the glass)\nis outside the firmware and only reported: when the glass first reaches the\nband's low and top edges.\n\nLeak sweep: R_leak = 13 log-spaced values 300 ohm .. 10 kohm from t = 250 s\n(in the sp1 hold), with three onsets: a step (a sudden breakdown) and the\nleak conductance growing linearly from 0 over 120 s and over 600 s (ingress).\nThe onset changes what the loop and D1 see on the way, not the steady state.\nEach onset runs 4 pans x glass delta {12, 46} K x bead corner {hot, cold}.\nThe frying pans' final setpoint is 250 degC (the highest a user can set), the\nwater pot keeps its own (100 degC). 1800 s runs; steady T_c = the mean of the\nlast 100 s (reported for information).\n\nThe bar (owner, D-LEAK): every leak whose untripped T_c exceeds 300 degC at\nany time must latch (the leak check or any existing latch) before T_c first\nexceeds 300 degC. Hazardous (`hazardous()`) = the untripped trajectory crosses\n300 degC at all, transient overshoot included (owner, 2026-10-16; until then\nit was the steady T_c > 300 degC, 235 runs, 59 latched before 300 and none\nnever; the peak rule adds runs that overshoot and settle below 300 degC, at\n300-2320 ohm). The crossing is the unrounded T_c (`t_T_c_over_300_s`), not\nthe 0.1 K-rounded `T_c_max`. The script evaluates it and records the result; it is not\nmet (D-LEAK gives the numbers and the physical reason) and the gate holds the\nrecorded status, so a change either way fails the run until DECISIONS.md is\nupdated (EXPECTED_BAR); the coverage with the rim limit may not fall below the\nrecorded EXPECTED_BEFORE_300_MIN, nor the never-latched hazardous runs rise\nabove EXPECTED_NEVER_MAX (both re-recorded on 2026-10-16 for the peak rule).\n\nBenign (gated: 0 leak latches, and no other latch or D1 lost):\nxcheck_cosim.py's 28 benign runs, and\nb5_montecarlo.py's nominal / food / probe-on-intact-contact kinds routed\nthrough the glass and rim model over N_SEEDS seeds at both deltas and\ncorners, plus kinds that put the reading below a hot rim without a leak:\nfood_batches (the cooked food replaced by a fresh cold batch every 120 s,\nthree batches: the benign case closest to a leak's repeated cross-check\ncycles), hot_glass (a cold pan placed on glass left at 200 degC) and sp_down (the\nsetpoint lowered by 60 K at 450 s, the glass lagging the cooling pan).\n\nWrites leak-checks.json. Run: python3 leak_checks.py [--lib path]",
  "r_leak_ohm": [
   300.0,
@@ -3065,7 +3066,7 @@
     "glass": 284.5
    },
    "rim_limit": {
-    "t_s": 527.8,
+    "t_s": 527.9,
     "T_c": 299.6,
     "glass": 273.2
    },
@@ -3079,7 +3080,7 @@
    "glass_cr5_top": null,
    "first_latch": {
     "rule": "rim_limit",
-    "t_s": 527.8,
+    "t_s": 527.9,
     "T_c": 299.6,
     "glass": 273.2
    },
@@ -6649,7 +6650,7 @@
    "leak_latch": null,
    "rim_limit": null,
    "rim_fault": {
-    "t_s": 1554.8,
+    "t_s": 1554.4,
     "T_c": 58.0,
     "glass": 46.5
    },
@@ -7630,7 +7631,7 @@
    "leak_latch": null,
    "rim_limit": null,
    "rim_fault": {
-    "t_s": 1325.0,
+    "t_s": 1325.1,
     "T_c": 60.0,
     "glass": 48.6
    },
@@ -8584,7 +8585,7 @@
    "leak_latch": null,
    "rim_limit": null,
    "rim_fault": {
-    "t_s": 1292.1,
+    "t_s": 1291.9,
     "T_c": 59.0,
     "glass": 25.0
    },

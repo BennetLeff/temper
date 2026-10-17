@@ -1,4 +1,5 @@
 {
+ "reference_platform": "linux-x86_64",
  "sources": {
   "table": "Vishay NTCLE100E3 data sheet, document 29049, revision 07-May-2025, page 12 'Resistance values at intermediate temperatures with R25 at (33, 47, 50, 68, 100) kOhm', column NTCLE100E3104*** (100 kOhm, B25/85 4190 K), with its TCR and 'dR/R due to Btol.' columns; page 4 'Parameter for determining nominal resistance values', number 11, Mat. D, B25/85 4190 K +/- 1.5 %. https://www.vishay.com/docs/29049/ntcle100.pdf, retrieved 2026-10-15, sha256 f9d6153738198dc705ed681c3b55e70a6571f8fee13a4ed7b2b41e49973cb9c9.",
   "part": "Vishay NTCALUG01A series data sheet, document 29092, revision 14-Jan-2026, page 2 ordering table: 100 000 Ohm, R25 tol. +/-2 %, B25/85 4190 K, B tol. +/-1.5 %, NTCALUG01A104GA (e4); page 1: -55..+150 degC, thermal time constant 5 s and dissipation factor 13 mW/K screwed on a 100 cm2 aluminium plate; no R-T table (it points to Vishay's NTC curve computation). https://www.vishay.com/docs/29092/ntcalug01a.pdf, retrieved 2026-10-15, sha256 a14f8704e47b483de359bbfc3195d9a2be002215fef82dfd00326cd2f717189b.",

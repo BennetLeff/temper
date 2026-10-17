@@ -858,8 +858,8 @@
     "release_status": "proposed specification, not qualified; complete metrology and supplier/lifetime evidence first"
   },
   "provenance": {
-    "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
-    "derivation_sha256": "7fcc4a7d6f8efd1d189c58ffcb2c65e2425097eab75b985e05894bf68528a678",
+    "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "derivation_sha256": "5547ac134c6cae25bb1c6ca0f52f69541a9218780555016615fd0db09bac05ff",
     "input_sha256": {
       "firmware/components/control/cascade_pid.c": "9918548d1df194a941d17a711e9f2d9bf53382e933ed801c46b5409dfe3114f9",
       "firmware/components/control/cascade_pid.h": "1935ab68a83440018037e6fde531ea8c5bee30adc8405327343ed50b0a9f53e6",
@@ -906,19 +906,19 @@
       "firmware/components/sensors/include/rtd_convert.h": "b0adb83e6d22d167621d81786afccac6e47f3c12495ca00cbf3bdab588fba46c",
       "firmware/components/sensors/rtd_convert.c": "cabe361f5715aab13ad97cdffc74fd96bef6ebc2a67869e6fd769995a1c5ecd5",
       "output/temper-sensor-r2/estimator_study.py": "b8b689db27c6f5bae6e928c3e2c885010f9c85427d7d3da031ce2a989dcb0895",
-      "output/temper-sensor-r3/firmware/build_lib.sh": "44b55f7147aec7811f95dfe187a8635262236ed075276e9ccb6f0f16a12d7cfd",
-      "output/temper-sensor-r3/firmware/cosim.py": "026d0f655d0f4e75db710660fe4cb6da84e9af6a70a1a5047d115091d34fe588",
+      "output/temper-sensor-r3/firmware/build_lib.sh": "7782f1e1ae985e5c6bbc5889ff6ed09c1a73caefd3872ee8cf172afc2dfdcb1a",
+      "output/temper-sensor-r3/firmware/cosim.py": "45e841486764459800c4f410825d3b0c85646255c76bb2ee85d5f4cc3612da71",
       "output/temper-sensor-r3/firmware/cosim_shim.c": "4a8ad32a876f24f3b934c47c905e78a7eb33760cf37ecb67573c47143929a5f6",
-      "output/temper-sensor-r3/firmware/hs-ntc.json": "8b6141e3ea233d0292566a596b3b6d34597d12639f0220da5096690744fe1a36",
-      "output/temper-sensor-r3/firmware/hs_ntc.py": "6e76391f2f18e62d741f3183e65b8c9e4d3a611cda949dd9c1f161790446cf7f",
-      "output/temper-sensor-r3/firmware/leak-checks.json": "40bc8da17e1c5edacb906ae058baaf3b81725b0d1ff926924782bf2ee9e91020",
-      "output/temper-sensor-r3/firmware/leak_checks.py": "d3d372797b22275cda93997ecec35fe8a9550ceabb33a04b4cb78b24afd09429",
+      "output/temper-sensor-r3/firmware/hs-ntc.json": "8b6c36143d18b36826a96ee3af5ca96735055d0e0a1c39309bbb4eafb8554f4c",
+      "output/temper-sensor-r3/firmware/hs_ntc.py": "5fb2cde549aed572438456508db5673447396d5ccdcb5b6db39c65a49dcab5cd",
+      "output/temper-sensor-r3/firmware/leak-checks.json": "cdeb643709022c23a7afca790f97df94f088dc826cf4da33d55a30894704c761",
+      "output/temper-sensor-r3/firmware/leak_checks.py": "7bb35b20d7a630de7fd5ccf3fcab578a0170f0ee4937d87090e4cdd1f5f6102c",
       "output/temper-sensor-r3/firmware/ref.py": "534ed3410630e26a75466746e0bf359727aac0c37c7d6dca84e5c675d755caee",
-      "output/temper-sensor-r3/firmware/xcheck_cosim.py": "c2ace5b567ab333d27e78eba1798fd637b1a0e544c56f8aa556875aa020a9245",
+      "output/temper-sensor-r3/firmware/xcheck_cosim.py": "f20f215ad03506318c3f3594478c19f8442ca9c167be5689100bd6ce9125a231",
       "output/temper-sensor-r3/screen.py": "1dbfcbf158f92af1d551bfb29a97a733c65aaf102165068e33e51b52c3dd5118"
     },
     "numpy_version": "2.4.6",
-    "python_version": "3.12.12",
+    "python_version": "3.12.15",
     "scope": "model/evidence derivation, no physical measurements",
     "seed": "no random draws; reads the committed sweep including its deterministic seeds",
     "source_inputs_dirty": false,
@@ -1223,6 +1223,7 @@
       "true_C": 300.0
     }
   ],
+  "reference_platform": "linux-x86_64",
   "residual_layers": {
     "bead_stack_at_250C_K": 10.2,
     "cold_soak_measured_rail_threshold_K": 16.9,

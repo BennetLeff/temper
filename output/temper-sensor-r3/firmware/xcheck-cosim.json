@@ -1,4 +1,5 @@
 {
+ "reference_platform": "linux-x86_64",
  "scope": "sensor-r3 rim NTC in the loop: the Pt100-vs-rim cross-check (D-XCHK) against a rim truth signal.\n\nWhy a separate co-sim. cosim.py feeds the loop the r2 plant's leak sink,\n25 + 50 (1 - exp(-t/300)) degC + 3 K, as \"the rim NTC\". That never exceeds\n78 degC, below the rim channel's saturation (87-97 degC, rim-ntc.json), so the\nreal channel would read SATURATED for every cosim.py run and the cross-check\ncould never fire there. cosim.py is left unchanged.\n\nThis co-sim gives the plant a rim:\n  - Glass under the rim NTC: a first-order lag toward T_c - delta, with\n    delta 12 or 46 K (the glass underside 12-46 K below the pan, study 08 as\n    cited in pcb/DECISIONS.md D6) and tau_g 60 s (assumption: no transient\n    glass data exists). The truth cartridge leaks to that glass, so the KF's\n    sink is the same physical temperature the NTC reads.\n  - Rim NTC: the 104GT-2 table (extrapolated above its 300 degC top with\n    the last segment's beta) at the R25/B tolerance corners (hot: R25 -3 %,\n    B +2 %, reads high; cold: R25 +3 %, B -2 %, reads low). The node is\n    3300 mV x R/(R + 1 k), rounded to whole mV by the shim's mock ADC, and goes\n    through the firmware driver (components/sensors/rim_ntc.c). It maps onto\n    the loop input as main/pan_control.c loop_rim_input() does.\n  - The C loop, D1 and the supervisor as in cosim.py (gain mode id_measured).\n\nCases:\n  benign  4 pans (h_mid) x nominal/food x delta {12, 46} x corner {hot, cold}.\n          Gate: no D1 contact-lost latch, no guard or rim fault, no supervisor\n          latch. Cross-check suspects are probes on intact contact and are\n          reported, not gated (D-B5: such probes never latch).\n  leak    Pt100 element-parallel leakage from t = 250 s (R_leak 1 k and 3 k\n          ohm; pcb/DECISIONS.md D6: it reads low and is electrically\n          invisible), 4 pans x delta {12, 46}, cold corner. Reported: first\n          cross-check suspect, what D1 concluded, the pan peak, and whether\n          the glass reaches the CR-5 hardware rim trip band (262.3-288.1 degC).\n\nWrites xcheck-cosim.json. Run: python3 xcheck_cosim.py [--lib path]",
  "tau_g_s": 60.0,
  "leak_at_s": 250.0,
@@ -346,7 +347,7 @@
    "rim_valid_frac": 0.0,
    "Tc_max_C": 102.1,
    "glass_max_C": 88.5,
-   "est_err_c_max_K": 0.83
+   "est_err_c_max_K": 0.84
   },
   {
    "kind": "leak",

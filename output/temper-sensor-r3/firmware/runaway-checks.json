@@ -1,4 +1,5 @@
 {
+ "reference_platform": "linux-x86_64",
  "scope": "Firmware runaway checks with the C1 sensor (DECISIONS.md D-RUN).\n\nThe legacy firmware has two checks that C1 trips falsely:\n\n  L-rate  check_runaway_boundary: reading rises > 15 K/s between two 10 ms\n          reads -> RUNAWAY latch (any state).\n  L-over  state_heating_update: reading > setpoint + 10 K -> FAULT_THERMAL_\n          RUNAWAY (armed once PREHEAT hands over at reading >= sp - 10).\n\nC1 builds replace them with components/control/pan_supervisor.c:\n\n  R1      1 s block means of the reading; latch when the block-to-block rise\n          exceeds 15 K/s for 5 consecutive blocks;\n  R2      stage 1 (non-latching): max(T_hat, reading) > sp + 10 K forces the\n          power command to 0; stage 2a: for 0.5 s the bus current exceeds\n          0.5 A with the command 0, or exceeds the recent command's current\n          (P_cmd / 100 V) by 2.5 A -> latch (power stage not obeying);\n          stage 2b: over target with command 0 for rise_hold_s and still\n          rising rise_min_k over rise_window_s -> latch (current sensing\n          broken too).\n\nKept in both builds: the absolute 300 degC / non-finite check on every\n10 ms read (L-abs). C1 builds (D-OPEN) first classify each conversion with\nrtd_convert_classify_failure: a code >= RTD_C1_FAIL_HIGH_CODE (850 degC) or\n<= RTD_C1_FAIL_LOW_CODE (-200 degC), or 07h bits D5..D2, is a sensor failure\nand goes to the recoverable PROBE_OPEN / PROBE_SHORT path (rtd_fail_code)\ninstead of the 300 degC RUNAWAY latch (C_abs); every other reading above\n300 degC still latches RUNAWAY. The legacy equal-reading ADC_STUCK check (49 equal\n10 ms reads, L-stuck) is evaluated here too; C1 builds replace it with the\nrtd_service checks: no conversion (DRDY) for 6 ticks, 60 ms (rtd_stale), and\nRTD_C1_FROZEN_CONVERSIONS = 250 identical 50 Hz codes, 5 s (rtd_frozen).\n\nThe run closes the firmware C1 loop (pan_temp_loop.c, D1 on) and the C\nsupervisor (stage 1 acting, as main/pan_control.c runs it) around the r2/r3\ntruth plant. The MAX31865 is modelled as a 50 Hz conversion stream quantised\nto the 15-bit code (Rref 430 ohm, ~0.034-0.037 K/LSB) with per-conversion\nnoise sigma in {0.3 LSB, 1 LSB, 0.2 K (the screens' design noise)}; the\n10 ms state-machine tick j reads conversion j // 2; the 100 ms control\nperiod reads the latest conversion. Bus current = P / 120 V.\n\nScenarios (each at the three noise levels): design (4 pans x h_c extremes),\nhot pan placed at sp1 and sp1 + 40 K, h_c steps, food drop, contact loss,\nsetpoint decrease by 30 K (user TEMP_DOWN), and the faults: power stage\nstuck on at 600/1200/1800 W from 250 s with current sensing working and\nbroken (reads 0), RTD open / short (MAX31865 fault bit, code saturated),\nconversions stop (no DRDY), and a reading frozen at 250 s with the setpoint\nstep at 360 s (the loop then heats a pan it cannot see: a real runaway with\ncontact).\n\nBus-current sense plausibility (D-ISENSE, components/control/current_sense_\ncheck.c, through the cosim shim): isense = (a) the command in force has been\n>= 300 W for > 0.3 s and the bus current reads <= 0.5 A for 0.5 s;\nisense_pulse = (b) the start-up pulse (360 W for 1.0 s at PREHEAT entry, mean\ncurrent after 0.3 s must exceed 0.5 A). The pulse is evaluated passively at\nt = 0 against the sense as it is at power-up: the plant receives the loop's\ncommand over those 1.1 s, not the pulse's 360 W (the trajectories, and every\nnumber measured on them, stay those of the loop alone). The sense either\nworks throughout, or reads 0 A from sense_dead_at: = fault_t for the\nsimultaneous double fault (the existing current_broken runs; stage 2b's\ncase), 0 (dead at power-up: the pulse) or 100 s (dies mid-cook: (a)) for a\nlatent sense failure before the stage sticks at fault_t. sense_latent runs\nkill the sense with no other fault and measure (a)'s latency per pan; burst\nruns repeat every benign non-loss run with the stage in burst mode below its\nfloor (BURST_FLOOR_W = 160 W, period 20 s, on for P / 160 of it, bus current\n160 W / 120 V while on and 0 between).\n\nEvery run is passive for the trip rules (they are recorded, not acted on) so\neach rule's first-trip time is measured on the same trajectory; fault runs\nare repeated with the C1 trips acting (hardware-latched trips cut the power\nstage, contact loss zeroes the command) to report the pan peak.\n\nStage 2b's three parameters are swept on the same runs (one C supervisor\ninstance per variant, identical inputs) and the chosen values are checked\nagainst every non-fault run.\n\nRun: python runaway_checks.py [--lib path] [--out runaway-checks.json]\nExit 0 iff every C1 check passes (see `checks` in the JSON).",
  "chosen_2b": {
   "hold_s": 20.0,
@@ -151,7 +152,7 @@
     "hot_pan/carbon_steel_28/+40@1LSB"
    ],
    "worst_detect_after_fault_s": 21.9,
-   "worst_T_c_at_detect": 207.9
+   "worst_T_c_at_detect": 207.8
   },
   {
    "hold_s": 5.0,
@@ -219,8 +220,8 @@
     "hot_pan/carbon_steel_28/+40@0.3LSB",
     "burst/hot_pan/cast_iron_26/+40@0.3LSB",
     "burst/hot_pan/carbon_steel_28/+40@0.3LSB",
-    "burst/sp_down/disc_pot_water_1l5@0.3LSB",
-    "hot_pan/cast_iron_26/+40@1LSB"
+    "hot_pan/cast_iron_26/+40@1LSB",
+    "hot_pan/carbon_steel_28/+40@1LSB"
    ],
    "worst_detect_after_fault_s": 30.7,
    "worst_T_c_at_detect": 208.2
@@ -292,7 +293,7 @@
    "of": 15,
    "false_trip_examples": [],
    "worst_detect_after_fault_s": 21.9,
-   "worst_T_c_at_detect": 207.9
+   "worst_T_c_at_detect": 207.8
   },
   {
    "hold_s": 10.0,
@@ -972,7 +973,7 @@
     "sense_dead_at": 100.0,
     "caught_s": 100.4,
     "stuck_on_at_s": 250.0,
-    "acting_peak_T_c": 107.8,
+    "acting_peak_T_c": 107.7,
     "passive_peak_T_c": 680.5
    },
    {
@@ -1425,9 +1426,9 @@
    "noise": "0.3LSB",
    "hazardous": true,
    "passive_peak_T_c": 308.2,
-   "legacy_first_s_after_fault": 19.24,
+   "legacy_first_s_after_fault": 19.22,
    "legacy_rules": {
-    "L_over": 19.24,
+    "L_over": 19.22,
     "L_abs": 308.66
    },
    "c1_first_s_after_fault": 3.1,
@@ -1623,7 +1624,7 @@
      "T_mean": 302.8
     },
     "guard": {
-     "T_c": 321.5,
+     "T_c": 321.4,
      "T_mean": 320.2
     }
    },
@@ -1825,9 +1826,9 @@
    "noise": "0.3LSB",
    "hazardous": true,
    "passive_peak_T_c": 509.8,
-   "legacy_first_s_after_fault": 10.16,
+   "legacy_first_s_after_fault": 10.14,
    "legacy_rules": {
-    "L_over": 10.16,
+    "L_over": 10.14,
     "L_abs": 69.96
    },
    "c1_first_s_after_fault": 23.1,
@@ -1838,8 +1839,8 @@
    },
    "at_trip": {
     "L_over": {
-     "T_c": 190.9,
-     "T_mean": 202.8
+     "T_c": 190.8,
+     "T_mean": 202.7
     },
     "R2b": {
      "T_c": 220.6,
@@ -1872,9 +1873,9 @@
    "noise": "0.3LSB",
    "hazardous": true,
    "passive_peak_T_c": 509.8,
-   "legacy_first_s_after_fault": 10.16,
+   "legacy_first_s_after_fault": 10.14,
    "legacy_rules": {
-    "L_over": 10.16,
+    "L_over": 10.14,
     "L_abs": 69.96
    },
    "c1_first_s_after_fault": 23.1,
@@ -1885,8 +1886,8 @@
    },
    "at_trip": {
     "L_over": {
-     "T_c": 190.9,
-     "T_mean": 202.8
+     "T_c": 190.8,
+     "T_mean": 202.7
     },
     "R2b": {
      "T_c": 220.6,
@@ -1917,9 +1918,9 @@
    "noise": "0.3LSB",
    "hazardous": true,
    "passive_peak_T_c": 509.8,
-   "legacy_first_s_after_fault": 10.16,
+   "legacy_first_s_after_fault": 10.14,
    "legacy_rules": {
-    "L_over": 10.16,
+    "L_over": 10.14,
     "L_abs": 69.96
    },
    "c1_first_s_after_fault": 23.1,
@@ -1930,8 +1931,8 @@
    },
    "at_trip": {
     "L_over": {
-     "T_c": 190.9,
-     "T_mean": 202.8
+     "T_c": 190.8,
+     "T_mean": 202.7
     },
     "R2b": {
      "T_c": 220.6,
@@ -3078,7 +3079,7 @@
     },
     "L_over": {
      "T_c": 191.0,
-     "T_mean": 211.7
+     "T_mean": 211.6
     },
     "L_abs": {
      "T_c": 301.2,
@@ -3577,7 +3578,7 @@
    "passive_peak_T_c": 429.9,
    "legacy_first_s_after_fault": 24.76,
    "legacy_rules": {
-    "L_rate": 0.86,
+    "L_rate": 5.2,
     "L_over": 24.76,
     "L_abs": 103.5
    },
@@ -3593,8 +3594,8 @@
      "T_mean": 182.9
     },
     "L_rate": {
-     "T_c": 198.3,
-     "T_mean": 183.6
+     "T_c": 198.7,
+     "T_mean": 190.9
     },
     "L_over": {
      "T_c": 211.3,
@@ -4788,7 +4789,7 @@
      "T_mean": 319.9
     }
    },
-   "acting_peak_T_c": 107.8,
+   "acting_peak_T_c": 107.7,
    "acting_peak_T_mean": 103.8,
    "acting_c1_rules": [],
    "sense_dead_at": 100.0,
@@ -4870,7 +4871,7 @@
      "T_mean": 177.1
     },
     "L_over": {
-     "T_c": 190.5,
+     "T_c": 190.4,
      "T_mean": 202.4
     },
     "R2b": {
@@ -4922,7 +4923,7 @@
      "T_mean": 177.1
     },
     "L_over": {
-     "T_c": 190.5,
+     "T_c": 190.4,
      "T_mean": 202.4
     },
     "R2b": {
@@ -4972,7 +4973,7 @@
      "T_mean": 177.1
     },
     "L_over": {
-     "T_c": 190.5,
+     "T_c": 190.4,
      "T_mean": 202.4
     },
     "R2b": {
@@ -5379,7 +5380,7 @@
    "passive_peak_T_c": 334.3,
    "legacy_first_s_after_fault": 34.04,
    "legacy_rules": {
-    "L_rate": 0.08,
+    "L_rate": 0.02,
     "L_over": 34.04,
     "L_abs": 214.72
    },
@@ -5393,7 +5394,7 @@
    "at_trip": {
     "L_rate": {
      "T_c": 198.2,
-     "T_mean": 182.2
+     "T_mean": 182.1
     },
     "isense": {
      "T_c": 198.2,
@@ -5436,7 +5437,7 @@
    "passive_peak_T_c": 334.3,
    "legacy_first_s_after_fault": 34.04,
    "legacy_rules": {
-    "L_rate": 0.08,
+    "L_rate": 0.02,
     "L_over": 34.04,
     "L_abs": 214.72
    },
@@ -5449,7 +5450,7 @@
    "at_trip": {
     "L_rate": {
      "T_c": 198.2,
-     "T_mean": 182.2
+     "T_mean": 182.1
     },
     "L_over": {
      "T_c": 210.5,
@@ -5486,7 +5487,7 @@
    "passive_peak_T_c": 334.3,
    "legacy_first_s_after_fault": 34.04,
    "legacy_rules": {
-    "L_rate": 0.08,
+    "L_rate": 0.02,
     "L_over": 34.04,
     "L_abs": 214.72
    },
@@ -5499,7 +5500,7 @@
    "at_trip": {
     "L_rate": {
      "T_c": 198.2,
-     "T_mean": 182.2
+     "T_mean": 182.1
     },
     "L_over": {
      "T_c": 210.5,
@@ -6098,11 +6099,11 @@
    "noise_k": null,
    "acting": false,
    "first": {
-    "L_stuck": 462.47
+    "L_stuck": 386.27
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 28,
+   "max_identical_codes": 35,
    "peak_T_c": 101.8,
    "peak_T_mean": 112.7,
    "stage1_s": 0.0,
@@ -6123,13 +6124,13 @@
    "noise_k": null,
    "acting": false,
    "first": {
-    "L_stuck": 438.43
+    "L_stuck": 418.61
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 30,
+   "max_identical_codes": 29,
    "peak_T_c": 101.5,
-   "peak_T_mean": 112.5,
+   "peak_T_mean": 112.4,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.42,
    "r1_max_block_rise_K_per_s": 0.63,
@@ -6198,7 +6199,7 @@
    "noise_k": null,
    "acting": false,
    "first": {
-    "L_stuck": 261.91
+    "L_stuck": 263.11
    },
    "after": {},
    "at": {},
@@ -6309,7 +6310,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 47,
+   "max_identical_codes": 37,
    "peak_T_c": 229.6,
    "peak_T_mean": 237.0,
    "stage1_s": 1.0,
@@ -6421,9 +6422,9 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 56,
+   "max_identical_codes": 71,
    "peak_T_c": 232.1,
-   "peak_T_mean": 240.8,
+   "peak_T_mean": 240.9,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 1.15,
    "r1_max_block_rise_K_per_s": 1.16,
@@ -6446,8 +6447,8 @@
    "noise_k": null,
    "acting": false,
    "first": {
-    "L_rate": 250.06,
-    "L_stuck": 284.59
+    "L_stuck": 249.37,
+    "L_rate": 250.06
    },
    "after": {},
    "at": {},
@@ -6480,7 +6481,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 42,
+   "max_identical_codes": 36,
    "peak_T_c": 218.4,
    "peak_T_mean": 215.6,
    "stage1_s": 0.0,
@@ -6532,7 +6533,7 @@
    "noise_k": null,
    "acting": false,
    "first": {
-    "L_stuck": 239.25
+    "L_stuck": 221.99
    },
    "after": {},
    "at": {},
@@ -6567,7 +6568,7 @@
    "peak_T_c": 186.1,
    "peak_T_mean": 188.6,
    "stage1_s": 0.0,
-   "r1_max_5block_rise_K_per_s": 0.97,
+   "r1_max_5block_rise_K_per_s": 0.98,
    "r1_max_block_rise_K_per_s": 0.98,
    "sense_dead_at": null
   },
@@ -6594,7 +6595,7 @@
    "peak_T_c": 186.1,
    "peak_T_mean": 188.6,
    "stage1_s": 0.0,
-   "r1_max_5block_rise_K_per_s": 0.97,
+   "r1_max_5block_rise_K_per_s": 0.98,
    "r1_max_block_rise_K_per_s": 0.98,
    "sense_dead_at": null
   },
@@ -6617,10 +6618,10 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 88,
+   "max_identical_codes": 74,
    "peak_T_c": 210.3,
    "peak_T_mean": 207.1,
-   "stage1_s": 90.1,
+   "stage1_s": 90.0,
    "r1_max_5block_rise_K_per_s": 0.98,
    "r1_max_block_rise_K_per_s": 0.98,
    "sense_dead_at": null
@@ -6693,7 +6694,7 @@
    "noise_k": null,
    "acting": false,
    "first": {
-    "L_stuck": 314.81,
+    "L_stuck": 345.47,
     "L_over": 450.0
    },
    "after": {},
@@ -6883,7 +6884,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 44,
+   "max_identical_codes": 62,
    "peak_T_c": 198.7,
    "peak_T_mean": 183.6,
    "stage1_s": 0.0,
@@ -6938,13 +6939,13 @@
    "first": {
     "L_stuck": 223.17,
     "R2a": 253.1,
-    "L_over": 269.24,
+    "L_over": 269.22,
     "L_abs": 558.66,
     "C_abs": 558.66
    },
    "after": {
     "R2a": 253.1,
-    "L_over": 269.24,
+    "L_over": 269.22,
     "L_abs": 558.66,
     "C_abs": 558.66
    },
@@ -6997,7 +6998,7 @@
    },
    "after": {
     "R2a": 253.1,
-    "L_stuck": 257.23
+    "L_stuck": 257.79
    },
    "at": {
     "R2a": {
@@ -7006,7 +7007,7 @@
     },
     "L_stuck": {
      "T_c": 180.4,
-     "T_mean": 175.7
+     "T_mean": 175.3
     }
    },
    "max_identical_codes": 29,
@@ -7366,7 +7367,7 @@
      "T_mean": 302.8
     },
     "guard": {
-     "T_c": 321.5,
+     "T_c": 321.4,
      "T_mean": 320.2
     }
    },
@@ -7856,14 +7857,14 @@
    "acting": false,
    "first": {
     "L_stuck": 238.29,
-    "L_over": 260.16,
+    "L_over": 260.14,
     "R2b": 273.1,
     "L_abs": 319.96,
     "C_abs": 319.96,
     "guard": 335.3
    },
    "after": {
-    "L_over": 260.16,
+    "L_over": 260.14,
     "R2b": 273.1,
     "L_abs": 319.96,
     "C_abs": 319.96,
@@ -7871,8 +7872,8 @@
    },
    "at": {
     "L_over": {
-     "T_c": 190.9,
-     "T_mean": 202.8
+     "T_c": 190.8,
+     "T_mean": 202.7
     },
     "R2b": {
      "T_c": 220.6,
@@ -7918,17 +7919,17 @@
    "acting": true,
    "first": {
     "L_stuck": 238.29,
-    "L_over": 260.16,
+    "L_over": 260.14,
     "R2b": 273.1
    },
    "after": {
-    "L_over": 260.16,
+    "L_over": 260.14,
     "R2b": 273.1
    },
    "at": {
     "L_over": {
-     "T_c": 190.9,
-     "T_mean": 202.8
+     "T_c": 190.8,
+     "T_mean": 202.7
     },
     "R2b": {
      "T_c": 220.6,
@@ -7966,14 +7967,14 @@
    "first": {
     "isense_pulse": 1.0,
     "L_stuck": 238.29,
-    "L_over": 260.16,
+    "L_over": 260.14,
     "R2b": 273.1,
     "L_abs": 319.96,
     "C_abs": 319.96,
     "guard": 335.3
    },
    "after": {
-    "L_over": 260.16,
+    "L_over": 260.14,
     "R2b": 273.1,
     "L_abs": 319.96,
     "C_abs": 319.96,
@@ -7981,8 +7982,8 @@
    },
    "at": {
     "L_over": {
-     "T_c": 190.9,
-     "T_mean": 202.8
+     "T_c": 190.8,
+     "T_mean": 202.7
     },
     "R2b": {
      "T_c": 220.6,
@@ -8071,14 +8072,14 @@
    "first": {
     "isense": 100.4,
     "L_stuck": 238.29,
-    "L_over": 260.16,
+    "L_over": 260.14,
     "R2b": 273.1,
     "L_abs": 319.96,
     "C_abs": 319.96,
     "guard": 335.3
    },
    "after": {
-    "L_over": 260.16,
+    "L_over": 260.14,
     "R2b": 273.1,
     "L_abs": 319.96,
     "C_abs": 319.96,
@@ -8086,8 +8087,8 @@
    },
    "at": {
     "L_over": {
-     "T_c": 190.9,
-     "T_mean": 202.8
+     "T_c": 190.8,
+     "T_mean": 202.7
     },
     "R2b": {
      "T_c": 220.6,
@@ -9494,6 +9495,7 @@
    "noise_k": null,
    "acting": false,
    "first": {
+    "L_stuck": 211.29,
     "L_abs": 250.0,
     "rtd_fail_code": 250.0,
     "L_rtd": 250.0,
@@ -9535,7 +9537,7 @@
      "T_mean": 185.2
     }
    },
-   "max_identical_codes": 20,
+   "max_identical_codes": 27,
    "peak_T_c": 197.9,
    "peak_T_mean": 193.0,
    "stage1_s": 0.0,
@@ -9559,6 +9561,7 @@
    "noise_k": null,
    "acting": true,
    "first": {
+    "L_stuck": 211.29,
     "L_abs": 250.0,
     "rtd_fail_code": 250.0,
     "L_rtd": 250.0,
@@ -9600,7 +9603,7 @@
      "T_mean": 185.2
     }
    },
-   "max_identical_codes": 20,
+   "max_identical_codes": 27,
    "peak_T_c": 197.9,
    "peak_T_mean": 193.0,
    "stage1_s": 0.0,
@@ -10428,7 +10431,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 33,
+   "max_identical_codes": 35,
    "peak_T_c": 101.8,
    "peak_T_mean": 112.7,
    "stage1_s": 0.0,
@@ -10450,16 +10453,16 @@
    "noise_k": null,
    "acting": false,
    "first": {
-    "L_stuck": 562.91
+    "L_stuck": 340.03
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 29,
+   "max_identical_codes": 31,
    "peak_T_c": 101.5,
    "peak_T_mean": 112.4,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.42,
-   "r1_max_block_rise_K_per_s": 0.63,
+   "r1_max_block_rise_K_per_s": 0.62,
    "sense_dead_at": null
   },
   {
@@ -10554,7 +10557,7 @@
    "noise_k": null,
    "acting": false,
    "first": {
-    "L_stuck": 266.31
+    "L_stuck": 255.05
    },
    "after": {},
    "at": {},
@@ -10615,7 +10618,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 56,
+   "max_identical_codes": 45,
    "peak_T_c": 239.3,
    "peak_T_mean": 240.0,
    "stage1_s": 68.9,
@@ -10820,7 +10823,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 41,
+   "max_identical_codes": 36,
    "peak_T_c": 218.4,
    "peak_T_mean": 215.6,
    "stage1_s": 0.0,
@@ -10906,7 +10909,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 88,
+   "max_identical_codes": 87,
    "peak_T_c": 210.3,
    "peak_T_mean": 207.1,
    "stage1_s": 90.1,
@@ -10929,14 +10932,14 @@
    "noise_k": null,
    "acting": false,
    "first": {
-    "L_stuck": 288.47,
+    "L_stuck": 418.45,
     "L_over": 450.0
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 40,
+   "max_identical_codes": 50,
    "peak_T_c": 101.3,
-   "peak_T_mean": 112.6,
+   "peak_T_mean": 112.5,
    "stage1_s": 150.0,
    "r1_max_5block_rise_K_per_s": 0.41,
    "r1_max_block_rise_K_per_s": 0.63,
@@ -11071,7 +11074,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 49,
+   "max_identical_codes": 45,
    "peak_T_c": 210.3,
    "peak_T_mean": 207.6,
    "stage1_s": 0.0,
@@ -11151,16 +11154,16 @@
    "acting": false,
    "first": {
     "isense": 30.4,
-    "L_stuck": 377.13
+    "L_stuck": 466.37
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 34,
+   "max_identical_codes": 28,
    "peak_T_c": 101.7,
-   "peak_T_mean": 112.6,
+   "peak_T_mean": 112.5,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.42,
-   "r1_max_block_rise_K_per_s": 0.62
+   "r1_max_block_rise_K_per_s": 0.63
   },
   {
    "name": "sense_latent/disc_pot_water_1l5/100s",
@@ -11179,16 +11182,16 @@
    "acting": false,
    "first": {
     "isense": 100.4,
-    "L_stuck": 525.51
+    "L_stuck": 465.81
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 28,
+   "max_identical_codes": 32,
    "peak_T_c": 101.7,
    "peak_T_mean": 112.6,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.41,
-   "r1_max_block_rise_K_per_s": 0.69
+   "r1_max_block_rise_K_per_s": 0.68
   },
   {
    "name": "sense_latent/disc_pot_water_1l5/200s",
@@ -11207,16 +11210,16 @@
    "acting": false,
    "first": {
     "isense": 200.4,
-    "L_stuck": 283.07
+    "L_stuck": 281.03
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 36,
+   "max_identical_codes": 32,
    "peak_T_c": 101.7,
-   "peak_T_mean": 112.7,
+   "peak_T_mean": 112.6,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.42,
-   "r1_max_block_rise_K_per_s": 0.66
+   "r1_max_block_rise_K_per_s": 0.67
   },
   {
    "name": "sense_latent/carbon_steel_28/30s",
@@ -11351,7 +11354,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 59,
+   "max_identical_codes": 64,
    "peak_T_c": 230.5,
    "peak_T_mean": 225.4,
    "stage1_s": 0.0,
@@ -11379,7 +11382,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 42,
+   "max_identical_codes": 52,
    "peak_T_c": 230.5,
    "peak_T_mean": 225.4,
    "stage1_s": 0.0,
@@ -11403,7 +11406,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 8,
+   "max_identical_codes": 9,
    "peak_T_c": 210.5,
    "peak_T_mean": 207.9,
    "stage1_s": 0.0,
@@ -11455,7 +11458,7 @@
    "at": {},
    "max_identical_codes": 11,
    "peak_T_c": 101.8,
-   "peak_T_mean": 112.8,
+   "peak_T_mean": 112.7,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.41,
    "r1_max_block_rise_K_per_s": 0.61,
@@ -11483,7 +11486,7 @@
    "peak_T_mean": 112.5,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.4,
-   "r1_max_block_rise_K_per_s": 0.61,
+   "r1_max_block_rise_K_per_s": 0.6,
    "sense_dead_at": null
   },
   {
@@ -12041,9 +12044,9 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 11,
+   "max_identical_codes": 10,
    "peak_T_c": 101.2,
-   "peak_T_mean": 112.6,
+   "peak_T_mean": 112.5,
    "stage1_s": 150.0,
    "r1_max_5block_rise_K_per_s": 0.41,
    "r1_max_block_rise_K_per_s": 0.63,
@@ -12729,7 +12732,7 @@
     },
     "L_over": {
      "T_c": 191.0,
-     "T_mean": 211.7
+     "T_mean": 211.6
     },
     "L_abs": {
      "T_c": 301.2,
@@ -12775,7 +12778,7 @@
    },
    "after": {
     "R2a": 250.4,
-    "L_rate": 262.28
+    "L_rate": 298.86
    },
    "at": {
     "R2a": {
@@ -12783,8 +12786,8 @@
      "T_mean": 179.5
     },
     "L_rate": {
-     "T_c": 176.6,
-     "T_mean": 169.6
+     "T_c": 154.0,
+     "T_mean": 152.4
     }
    },
    "max_identical_codes": 8,
@@ -13936,7 +13939,7 @@
    },
    "after": {
     "R2a": 250.4,
-    "L_rate": 250.86,
+    "L_rate": 255.2,
     "L_over": 274.76,
     "L_abs": 353.5,
     "C_abs": 353.5,
@@ -13948,8 +13951,8 @@
      "T_mean": 182.9
     },
     "L_rate": {
-     "T_c": 198.3,
-     "T_mean": 183.6
+     "T_c": 198.7,
+     "T_mean": 190.9
     },
     "L_over": {
      "T_c": 211.3,
@@ -13999,7 +14002,7 @@
    },
    "after": {
     "R2a": 250.4,
-    "L_rate": 250.86
+    "L_rate": 302.56
    },
    "at": {
     "R2a": {
@@ -14007,8 +14010,8 @@
      "T_mean": 182.9
     },
     "L_rate": {
-     "T_c": 198.3,
-     "T_mean": 182.6
+     "T_c": 179.6,
+     "T_mean": 157.4
     }
    },
    "max_identical_codes": 8,
@@ -15933,7 +15936,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 9,
+   "max_identical_codes": 10,
    "peak_T_c": 101.8,
    "peak_T_mean": 112.8,
    "stage1_s": 0.0,
@@ -15959,7 +15962,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 10,
+   "max_identical_codes": 9,
    "peak_T_c": 101.5,
    "peak_T_mean": 112.5,
    "stage1_s": 0.0,
@@ -16260,7 +16263,7 @@
    "at": {},
    "max_identical_codes": 10,
    "peak_T_c": 232.2,
-   "peak_T_mean": 240.9,
+   "peak_T_mean": 241.0,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 1.15,
    "r1_max_block_rise_K_per_s": 1.16,
@@ -16631,7 +16634,7 @@
    "peak_T_mean": 207.6,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.97,
-   "r1_max_block_rise_K_per_s": 1.0
+   "r1_max_block_rise_K_per_s": 0.99
   },
   {
    "name": "sense_latent/disc_pot_water_1l5/30s",
@@ -16655,7 +16658,7 @@
    "after": {},
    "at": {},
    "max_identical_codes": 11,
-   "peak_T_c": 101.6,
+   "peak_T_c": 101.7,
    "peak_T_mean": 112.6,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.41,
@@ -16682,7 +16685,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 9,
+   "max_identical_codes": 10,
    "peak_T_c": 101.6,
    "peak_T_mean": 112.6,
    "stage1_s": 0.0,
@@ -16712,10 +16715,10 @@
    "at": {},
    "max_identical_codes": 11,
    "peak_T_c": 101.6,
-   "peak_T_mean": 112.7,
+   "peak_T_mean": 112.8,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.41,
-   "r1_max_block_rise_K_per_s": 0.67
+   "r1_max_block_rise_K_per_s": 0.68
   },
   {
    "name": "sense_latent/carbon_steel_28/30s",
@@ -17541,8 +17544,8 @@
    "after": {},
    "at": {},
    "max_identical_codes": 4,
-   "peak_T_c": 100.9,
-   "peak_T_mean": 113.3,
+   "peak_T_c": 100.8,
+   "peak_T_mean": 113.2,
    "stage1_s": 150.0,
    "r1_max_5block_rise_K_per_s": 0.4,
    "r1_max_block_rise_K_per_s": 0.64,
@@ -17923,7 +17926,7 @@
    "peak_T_c": 308.2,
    "peak_T_mean": 305.4,
    "stage1_s": 333.5,
-   "r1_max_5block_rise_K_per_s": 0.96,
+   "r1_max_5block_rise_K_per_s": 0.97,
    "r1_max_block_rise_K_per_s": 1.09,
    "sense_dead_at": 250.0
   },
@@ -17972,7 +17975,7 @@
    "peak_T_c": 198.3,
    "peak_T_mean": 196.8,
    "stage1_s": 28.2,
-   "r1_max_5block_rise_K_per_s": 0.96,
+   "r1_max_5block_rise_K_per_s": 0.97,
    "r1_max_block_rise_K_per_s": 1.09,
    "sense_dead_at": 250.0
   },
@@ -18037,7 +18040,7 @@
    "peak_T_c": 308.2,
    "peak_T_mean": 305.4,
    "stage1_s": 333.5,
-   "r1_max_5block_rise_K_per_s": 0.96,
+   "r1_max_5block_rise_K_per_s": 0.97,
    "r1_max_block_rise_K_per_s": 1.09
   },
   {
@@ -18141,7 +18144,7 @@
    "peak_T_c": 308.2,
    "peak_T_mean": 305.4,
    "stage1_s": 333.5,
-   "r1_max_5block_rise_K_per_s": 0.96,
+   "r1_max_5block_rise_K_per_s": 0.97,
    "r1_max_block_rise_K_per_s": 1.09
   },
   {
@@ -18357,8 +18360,8 @@
    "peak_T_c": 680.5,
    "peak_T_mean": 671.6,
    "stage1_s": 343.8,
-   "r1_max_5block_rise_K_per_s": 3.82,
-   "r1_max_block_rise_K_per_s": 3.89,
+   "r1_max_5block_rise_K_per_s": 3.83,
+   "r1_max_block_rise_K_per_s": 3.88,
    "sense_dead_at": 250.0
   },
   {
@@ -18406,8 +18409,8 @@
    "peak_T_c": 258.8,
    "peak_T_mean": 257.3,
    "stage1_s": 91.9,
-   "r1_max_5block_rise_K_per_s": 3.82,
-   "r1_max_block_rise_K_per_s": 3.89,
+   "r1_max_5block_rise_K_per_s": 3.83,
+   "r1_max_block_rise_K_per_s": 3.88,
    "sense_dead_at": 250.0
   },
   {
@@ -18477,8 +18480,8 @@
    "peak_T_c": 680.5,
    "peak_T_mean": 671.6,
    "stage1_s": 343.8,
-   "r1_max_5block_rise_K_per_s": 3.82,
-   "r1_max_block_rise_K_per_s": 3.89
+   "r1_max_5block_rise_K_per_s": 3.83,
+   "r1_max_block_rise_K_per_s": 3.88
   },
   {
    "name": "stuck_on/triply_clad_24/1800W/current_broken_latent_0s",
@@ -18587,8 +18590,8 @@
    "peak_T_c": 680.5,
    "peak_T_mean": 671.6,
    "stage1_s": 343.8,
-   "r1_max_5block_rise_K_per_s": 3.82,
-   "r1_max_block_rise_K_per_s": 3.89
+   "r1_max_5block_rise_K_per_s": 3.83,
+   "r1_max_block_rise_K_per_s": 3.88
   },
   {
    "name": "stuck_on/triply_clad_24/1800W/current_broken_latent_100s",
@@ -18624,10 +18627,10 @@
     }
    },
    "max_identical_codes": 4,
-   "peak_T_c": 107.8,
+   "peak_T_c": 107.7,
    "peak_T_mean": 103.8,
    "stage1_s": 0.0,
-   "r1_max_5block_rise_K_per_s": 0.9,
+   "r1_max_5block_rise_K_per_s": 0.91,
    "r1_max_block_rise_K_per_s": 1.01
   },
   {
@@ -18779,7 +18782,7 @@
      "T_mean": 177.1
     },
     "L_over": {
-     "T_c": 190.5,
+     "T_c": 190.4,
      "T_mean": 202.4
     },
     "R2b": {
@@ -18840,7 +18843,7 @@
      "T_mean": 177.1
     },
     "L_over": {
-     "T_c": 190.5,
+     "T_c": 190.4,
      "T_mean": 202.4
     },
     "R2b": {
@@ -18899,7 +18902,7 @@
      "T_mean": 177.1
     },
     "L_over": {
-     "T_c": 190.5,
+     "T_c": 190.4,
      "T_mean": 202.4
     },
     "R2b": {
@@ -19009,7 +19012,7 @@
      "T_mean": 177.1
     },
     "L_over": {
-     "T_c": 190.5,
+     "T_c": 190.4,
      "T_mean": 202.4
     },
     "R2b": {
@@ -19991,7 +19994,7 @@
     "guard": 537.9
    },
    "after": {
-    "L_rate": 250.08,
+    "L_rate": 250.02,
     "isense": 250.4,
     "L_over": 284.04,
     "R2b": 285.0,
@@ -20002,7 +20005,7 @@
    "at": {
     "L_rate": {
      "T_c": 198.2,
-     "T_mean": 182.2
+     "T_mean": 182.1
     },
     "isense": {
      "T_c": 198.2,
@@ -20059,13 +20062,13 @@
     "isense": 250.4
    },
    "after": {
-    "L_rate": 250.08,
+    "L_rate": 250.02,
     "isense": 250.4
    },
    "at": {
     "L_rate": {
      "T_c": 198.2,
-     "T_mean": 182.2
+     "T_mean": 182.1
     },
     "isense": {
      "T_c": 198.2,
@@ -20110,7 +20113,7 @@
     "guard": 537.9
    },
    "after": {
-    "L_rate": 250.08,
+    "L_rate": 250.02,
     "L_over": 284.04,
     "R2b": 285.0,
     "L_abs": 464.72,
@@ -20120,7 +20123,7 @@
    "at": {
     "L_rate": {
      "T_c": 198.2,
-     "T_mean": 182.2
+     "T_mean": 182.1
     },
     "L_over": {
      "T_c": 210.5,
@@ -20220,7 +20223,7 @@
     "guard": 537.9
    },
    "after": {
-    "L_rate": 250.08,
+    "L_rate": 250.02,
     "L_over": 284.04,
     "R2b": 285.0,
     "L_abs": 464.72,
@@ -20230,7 +20233,7 @@
    "at": {
     "L_rate": {
      "T_c": 198.2,
-     "T_mean": 182.2
+     "T_mean": 182.1
     },
     "L_over": {
      "T_c": 210.5,
@@ -21437,7 +21440,7 @@
    "after": {},
    "at": {},
    "max_identical_codes": 4,
-   "peak_T_c": 101.8,
+   "peak_T_c": 101.9,
    "peak_T_mean": 113.1,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.44,
@@ -21822,8 +21825,8 @@
    "after": {},
    "at": {},
    "max_identical_codes": 5,
-   "peak_T_c": 218.4,
-   "peak_T_mean": 215.9,
+   "peak_T_c": 214.6,
+   "peak_T_mean": 212.8,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.97,
    "r1_max_block_rise_K_per_s": 1.07,
@@ -21909,7 +21912,7 @@
    "max_identical_codes": 4,
    "peak_T_c": 210.3,
    "peak_T_mean": 207.2,
-   "stage1_s": 90.0,
+   "stage1_s": 89.9,
    "r1_max_5block_rise_K_per_s": 0.98,
    "r1_max_block_rise_K_per_s": 1.06,
    "sense_dead_at": null
@@ -22016,7 +22019,7 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 5,
+   "max_identical_codes": 4,
    "peak_T_c": 198.3,
    "peak_T_mean": 241.0,
    "stage1_s": 0.0,
@@ -22158,7 +22161,7 @@
    "after": {},
    "at": {},
    "max_identical_codes": 4,
-   "peak_T_c": 101.6,
+   "peak_T_c": 101.5,
    "peak_T_mean": 113.3,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.41,
@@ -22186,11 +22189,11 @@
    "after": {},
    "at": {},
    "max_identical_codes": 4,
-   "peak_T_c": 101.5,
-   "peak_T_mean": 112.9,
+   "peak_T_c": 101.6,
+   "peak_T_mean": 113.2,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.4,
-   "r1_max_block_rise_K_per_s": 0.69
+   "r1_max_block_rise_K_per_s": 0.68
   },
   {
    "name": "sense_latent/disc_pot_water_1l5/200s",
@@ -22213,12 +22216,12 @@
    },
    "after": {},
    "at": {},
-   "max_identical_codes": 5,
-   "peak_T_c": 101.8,
-   "peak_T_mean": 113.0,
+   "max_identical_codes": 4,
+   "peak_T_c": 101.9,
+   "peak_T_mean": 112.9,
    "stage1_s": 0.0,
    "r1_max_5block_rise_K_per_s": 0.42,
-   "r1_max_block_rise_K_per_s": 0.65
+   "r1_max_block_rise_K_per_s": 0.67
   },
   {
    "name": "sense_latent/carbon_steel_28/30s",

@@ -1,7 +1,8 @@
 {
+ "reference_platform": "linux-x86_64",
  "scope": "T3: CR-5 true-glass band, setpoint caps, and passive C1 latch coverage.\n\nReuse the unmodified leak_checks and rim_limit apparatus. No board values or\nfirmware thresholds change. Written by a Codex cloud agent on Linux (2aea71687,\nsteady hazard rule); ported to the owner's peak hazard rule (2026-10-16:\n`leak_checks.hazardous()`, the untripped T_c crosses 300 degC at any time) and\nregenerated on the Mac.\n\n    python3 cr5_band.py [--check] [--caps 250,200] [--jobs 5]\n\n--check rebuilds the C library, regenerates every result and compares it with\nthe committed JSON by content; only the toolchain strings in TOOLCHAIN_KEYS\nare exempt. --caps runs a subset (250 always runs first: it is the control\nand sets the margin), for --check only. NOTES-t3.md is regenerated with the\nJSON.",
  "apparatus": {
-  "base_commit": "558f6e8360d823b575bdfdd2b30b6ff347408e18",
+  "base_commit": "68ef097296db106550b2f357c2fae8336784e5db",
   "input_tree_dirty": false,
   "input_sha256": {
    "firmware/components/control/cascade_pid.c": "9918548d1df194a941d17a711e9f2d9bf53382e933ed801c46b5409dfe3114f9",
@@ -68,25 +69,25 @@
    "output/temper-sensor-r2/estimator_study.py": "b8b689db27c6f5bae6e928c3e2c885010f9c85427d7d3da031ce2a989dcb0895",
    "output/temper-sensor-r3/cad/thermal-axisym.json": "353ea1567d8b496bd884f673ec85e21434e37391e7d3404143b4df89c6ffc282",
    "output/temper-sensor-r3/contact_model.py": "7f2c9e8c915a0bde558f6b654eab89902ccd382d895a33b2b0590ac8fa251caa",
-   "output/temper-sensor-r3/firmware/build_lib.sh": "44b55f7147aec7811f95dfe187a8635262236ed075276e9ccb6f0f16a12d7cfd",
-   "output/temper-sensor-r3/firmware/cosim.py": "026d0f655d0f4e75db710660fe4cb6da84e9af6a70a1a5047d115091d34fe588",
+   "output/temper-sensor-r3/firmware/build_lib.sh": "7782f1e1ae985e5c6bbc5889ff6ed09c1a73caefd3872ee8cf172afc2dfdcb1a",
+   "output/temper-sensor-r3/firmware/cosim.py": "45e841486764459800c4f410825d3b0c85646255c76bb2ee85d5f4cc3612da71",
    "output/temper-sensor-r3/firmware/cosim_shim.c": "4a8ad32a876f24f3b934c47c905e78a7eb33760cf37ecb67573c47143929a5f6",
-   "output/temper-sensor-r3/firmware/leak-checks.json": "40bc8da17e1c5edacb906ae058baaf3b81725b0d1ff926924782bf2ee9e91020",
-   "output/temper-sensor-r3/firmware/leak_checks.py": "d3d372797b22275cda93997ecec35fe8a9550ceabb33a04b4cb78b24afd09429",
+   "output/temper-sensor-r3/firmware/leak-checks.json": "cdeb643709022c23a7afca790f97df94f088dc826cf4da33d55a30894704c761",
+   "output/temper-sensor-r3/firmware/leak_checks.py": "7bb35b20d7a630de7fd5ccf3fcab578a0170f0ee4937d87090e4cdd1f5f6102c",
    "output/temper-sensor-r3/firmware/ref.py": "534ed3410630e26a75466746e0bf359727aac0c37c7d6dca84e5c675d755caee",
-   "output/temper-sensor-r3/firmware/rim-limit.json": "770e06e19c3242d7c8641d13186683a27af90f4fb3c1d828c266efe74a90176a",
-   "output/temper-sensor-r3/firmware/rim_limit.py": "66d71316a652e85d8c908f86e1572230ccd2951abf1135d5c8100444efc89e78",
-   "output/temper-sensor-r3/firmware/rim_ntc.py": "2b47ef503535fc8c36d3fd208a3d2887d78c80ccb9f8ad0902d7caf393259554",
-   "output/temper-sensor-r3/firmware/xcheck_cosim.py": "c2ace5b567ab333d27e78eba1798fd637b1a0e544c56f8aa556875aa020a9245",
+   "output/temper-sensor-r3/firmware/rim-limit.json": "fa5d006125a8dba9c40b10b7ed3f204b40411ae3bb0e8adba60566a7b67ab04c",
+   "output/temper-sensor-r3/firmware/rim_limit.py": "fecae938f3059a14333aac6de0bbf57fe5eead7eb12867b325bdbb8212f743c9",
+   "output/temper-sensor-r3/firmware/rim_ntc.py": "21f2fc6e964aba5d8be78527cf3887a01462aec0721592fc58a3a067524f00ea",
+   "output/temper-sensor-r3/firmware/xcheck_cosim.py": "f20f215ad03506318c3f3594478c19f8442ca9c167be5689100bd6ce9125a231",
    "output/temper-sensor-r3/robustness/shift_kf.py": "065be41ed425c3365c7a04a1eeab0d7aa13b6217b47aebdfddbfb7e75c87cf6e",
    "output/temper-sensor-r3/screen.py": "1dbfcbf158f92af1d551bfb29a97a733c65aaf102165068e33e51b52c3dd5118"
   },
-  "script_sha256": "99e88094c47445581f7d788f658aeb8b6cc1b176b119d6ba1253ecbd2139043f",
-  "python": "3.12.12",
+  "script_sha256": "19c45735cd60c54a8b78614df4b736b5f5a1c39046c93847877948964b12fd4d",
+  "python": "3.12.15",
   "numpy": "2.4.6",
   "scipy": "1.18.0",
-  "machine": "arm64",
-  "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+  "machine": "x86_64",
+  "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
   "simulations": 9852
  },
  "assumptions": {
@@ -1722,7 +1723,7 @@
        "rim_fault": {
         "t_s": 407.9,
         "T_c": 485.0,
-        "glass": 303.8
+        "glass": 303.9
        },
        "d1_lost": null,
        "glass_cr5_low": {
@@ -1838,19 +1839,19 @@
      "stress_benign": 132
     },
     "envelope_glass_C": 206.86462,
-    "simulated_glass_max_C": 208.970993,
+    "simulated_glass_max_C": 208.970978,
     "hottest_case": {
      "set": "stress_benign",
      "kind": "food",
      "pan": "carbon_steel_28",
      "seed": 40012,
      "initial_glass_C": 25.0,
-     "glass_max_C": 208.9709930419922,
+     "glass_max_C": 208.97097778320312,
      "firmware_latch": false,
      "d1_lost": false,
      "d1_lost_first": null
     },
-    "glass_bound_C": 208.970994,
+    "glass_bound_C": 208.970978,
     "rim_hot_tolerance_K": 13.5903,
     "rim_reading_limit_C": 220.45492,
     "firmware_latches": 0,
@@ -1863,7 +1864,7 @@
     "top_C": 250.6,
     "width_K": 25.8,
     "required_margin_K": 15.817639,
-    "margin_to_benign_bound_K": 15.829006,
+    "margin_to_benign_bound_K": 15.829022,
     "benign_hardware_trips": 0
    },
    "nominal": {
@@ -2287,7 +2288,7 @@
        "d1_lost": {
         "t_s": 548.0,
         "T_c": 369.6,
-        "glass": 297.1
+        "glass": 297.0
        },
        "glass_cr5_low": {
         "t_s": 444.3,
@@ -2880,7 +2881,7 @@
        "rim_fault": {
         "t_s": 407.9,
         "T_c": 485.0,
-        "glass": 303.8
+        "glass": 303.9
        },
        "d1_lost": null,
        "glass_cr5_low": {
@@ -4034,7 +4035,7 @@
        "rim_fault": {
         "t_s": 407.9,
         "T_c": 485.0,
-        "glass": 303.8
+        "glass": 303.9
        },
        "d1_lost": null,
        "glass_cr5_low": {
@@ -5211,7 +5212,7 @@
        "rim_fault": {
         "t_s": 407.9,
         "T_c": 485.0,
-        "glass": 303.8
+        "glass": 303.9
        },
        "d1_lost": null,
        "glass_cr5_low": {
@@ -6365,7 +6366,7 @@
        "rim_fault": {
         "t_s": 407.9,
         "T_c": 485.0,
-        "glass": 303.8
+        "glass": 303.9
        },
        "d1_lost": null,
        "glass_cr5_low": {
@@ -7564,7 +7565,7 @@
        "rim_fault": {
         "t_s": 407.9,
         "T_c": 485.0,
-        "glass": 303.8
+        "glass": 303.9
        },
        "d1_lost": null,
        "glass_cr5_low": {
@@ -7834,14 +7835,14 @@
    },
    {
     "cap_C": 210,
-    "benign_glass_bound_C": 208.970994,
+    "benign_glass_bound_C": 208.970978,
     "band": {
      "low_C": 224.8,
      "centre_C": 237.7,
      "top_C": 250.6,
      "width_K": 25.8,
      "required_margin_K": 15.817639,
-     "margin_to_benign_bound_K": 15.829006,
+     "margin_to_benign_bound_K": 15.829022,
      "benign_hardware_trips": 0
     },
     "nominal": {
@@ -8790,14 +8791,14 @@
    },
    {
     "cap_C": 210,
-    "benign_glass_bound_C": 208.970994,
+    "benign_glass_bound_C": 208.970978,
     "band": {
      "low_C": 224.8,
      "centre_C": 237.7,
      "top_C": 250.6,
      "width_K": 25.8,
      "required_margin_K": 15.817639,
-     "margin_to_benign_bound_K": 15.829006,
+     "margin_to_benign_bound_K": 15.829022,
      "benign_hardware_trips": 0
     },
     "nominal": {

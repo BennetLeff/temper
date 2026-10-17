@@ -1,4 +1,5 @@
 {
+ "reference_platform": "linux-x86_64",
  "source": "Semitec GT-2 series datasheet (Japanese, 'GT-2シリーズ.pdf', page 18 '抵抗−温度特性' table, column 104GT-2, unit kOhm), https://www.semitec.co.jp/uploads/GT-2シリーズ.pdf, retrieved 2026-10-15, sha256 c0a2841d9db01c672a840100baab1d034fb01295bcdb54b012cb8a52ac2d07b0. 104GT-2: R25 100 k +/-3 %, B25/85 4267 K +/-2 %, -50..+300 C, dissipation ~0.6 mW/C and time constant ~7 s in still air, 3.0 mW rated. The same table (a subset) is in pcb/checks.py GT2_104 and zapote/controller/tools/controller_calcs.py.",
  "table_kohm": {
   "-50": 8743.0,

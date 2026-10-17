@@ -1,4 +1,5 @@
 {
+ "reference_platform": "linux-x86_64",
  "scope": "DECISIONS.md D-FCYC (open item 3): MAX31865 manual fault-detection timing on the CR-1 board.\n\nThe board (zapote/controller C37, sensor-r3 CR-1, as built at controller-c1-crs\n467917c38, `checks-as-built.json` \"no difference from the change request\") puts a\ntwo-stage differential RC between J3 and RTDIN+/- (1.00 k / 100 nF C0G / 1.00 k /\n100 nF C0G, 1 nF C0G from each pin to ground), 220 nF X7R on every J3 pin, the\n499 k open-lead pull-ups, the 100 k / 10 nF window branch and the CR-3 runaway\ndivider on the connector side. C37 tells firmware not to use the automatic\nfault-detection cycle and to use the manual one with a 5 ms wait.\n\nThe MAX31865 data sheet (19-6478 Rev 3, datasheets/max31865.pdf):\n  \"If the external RTD interface circuitry includes an input filter with a time\n   constant greater than 100 us, the fault detection cycle timing should be\n   controlled in the manual mode operation.\"  (Fault Detection Cycle (D3:D2))\n  Manual: \"first ensure that VBIAS has been on for at least 5 time constants.\n   Next, write 100X100Xb ... [checks with FORCE- closed, then FORCE- opens] ...\n   Again, wait at least 5 time constants, and then write 100X110Xb ... [checks with\n   FORCE- open; FORCE- closes] ... D[3:2] self-clear to 00b.\"\n  Comparisons (Fault Status bits): D5 REFIN- > 85 % VBIAS (FORCE- closed),\n   D4 REFIN- < 85 % VBIAS (FORCE- open), D3 RTDIN- < 85 % VBIAS (FORCE- open).\n  \"after a fault detection cycle ... always allow for the settling time of the\n   input filter before restarting the ADC ... at least five time constants plus an\n   additional 1 ms\" (Applications Information); Note 4: \"For 15-bit settling, a wait\n   of at least 10.5 time constants of the input RC network is required.\"\n  Automatic cycle: 100 us internal delays, 550 us typ / 600 us max total\n   (Electrical Characteristics, \"Automatic Fault Detection Cycle Time\").\n\nThis script takes the network from pcb/checks.py (build(), DESIGNS[\"proposed\"], the\nPCB agent's MNA model of exactly these parts, unchanged) and:\n  1. assembles the descriptor system C dx/dt + G x = b for FORCE- closed and open,\n     at every tolerance corner (filter C +/-5 % C0G, J3 caps +/-10 % X7R, CM caps\n     +/-5 %, filter R +/-0.1 %, pull-ups +/-1 %, the unspecified FORCE- switch\n     0.5 / 10 / 20 ohm, leads 0.9 / 1.1 x, element at -40 / 25 / 250 / 360 degC)\n     and takes the slowest finite pole: tau_max;\n  2. integrates the transients (backward Euler, 1 us) of the manual sequence:\n     VBIAS on from rest, step 1 (FORCE- closed, D5), FORCE- open, step 2 (D4, D3),\n     FORCE- closed, conversions restart; and finds, at the worst corner, the\n     shortest waits that give a healthy element no fault bit and an open/shorted\n     input its bit;\n  3. runs the automatic cycle's 100 us timing on the same transients (it\n     false-flags a healthy element: the evidence that it is invalid here);\n  4. sets the firmware waits: step wait = max(5 ms (C37 / CR-7 floor),\n     5 x tau_max, 2 x the worst required), restart wait = max(step wait,\n     5 x tau_max + 1 ms, 10.5 x tau_max), rounded up to 0.5 ms; and gates them\n     against firmware/components/sensors/include/rtd_service.h;\n  5. writes the mock's analog model (firmware/components/temper_hal/mock/\n     mock_max31865_afe.h, generated, deterministic): the per-input DC ratios of\n     REFIN- and RTDIN- to VBIAS in each switch state from the MNA, and a single\n     first-order time constant tau_mock chosen so that the mock reaches each 85 %\n     comparator decision no sooner than the worst MNA corner does.\n\nWrites fault-cycle.json. Run: python3 fault_cycle.py",
  "datasheet": "Maxim MAX31865 19-6478 Rev 3 (datasheets/max31865.pdf, sha256 88f54041...95f7)",
  "board": "zapote/controller C37 (controller-c1-crs 467917c38): CR-1 as specified; pcb/checks.py DESIGNS['proposed'] is that circuit (checks-as-built.json: no difference)",
@@ -110,12 +111,12 @@
    "nominal": {
     "manual_bits": "0x28",
     "automatic_bits": "0x28",
-    "conversion_ratio": 10565796483.50404
+    "conversion_ratio": null
    },
    "slow_corner": {
     "manual_bits": "0x28",
     "automatic_bits": "0x28",
-    "conversion_ratio": -8126428855.38408
+    "conversion_ratio": null
    }
   },
   "sense_n_open": {
@@ -134,12 +135,12 @@
    "nominal": {
     "manual_bits": "0x28",
     "automatic_bits": "0x28",
-    "conversion_ratio": 2920187.59971
+    "conversion_ratio": null
    },
    "slow_corner": {
     "manual_bits": "0x28",
     "automatic_bits": "0x28",
-    "conversion_ratio": -5964898.72849
+    "conversion_ratio": null
    }
   },
   "force_n_open": {
@@ -183,60 +184,60 @@
   "tau_us": 1009.9,
   "dc_ratios_25C": {
    "healthy": {
-    "refn_closed": 0.21174366334467937,
-    "rtdin_n_closed": 0.020774105519236523,
-    "refn_open": 0.997663246391679,
-    "rtdin_n_open": 0.9970877600224657,
-    "refn_rest": 8.085573115668382e-05,
-    "rtdin_n_rest": 0.00011609823838910883
+    "refn_closed": 0.2117436633416566,
+    "rtdin_n_closed": 0.02077410551853059,
+    "refn_open": 0.9976632466865536,
+    "rtdin_n_open": 0.9970877603581899,
+    "refn_rest": 8.08557312052983e-05,
+    "rtdin_n_rest": 0.00011609823846896503
    },
    "element_open": {
-    "refn_closed": 0.9989416357501196,
-    "rtdin_n_closed": 0.000598033623496005,
-    "refn_open": 0.9998877565396681,
-    "rtdin_n_open": 0.8940098405852211,
-    "refn_rest": 1.2513895396635713e-07,
-    "rtdin_n_rest": 0.00011816738274592172
+    "refn_closed": 0.998941635748192,
+    "rtdin_n_closed": 0.0005980336256165038,
+    "refn_open": 0.9998877566802301,
+    "rtdin_n_open": 0.8940098355451066,
+    "refn_rest": 1.251390236914424e-07,
+    "rtdin_n_rest": 0.00011816738277373557
    },
    "sense_n_open": {
-    "refn_closed": 0.21154810992619014,
-    "rtdin_n_closed": 0.8570973499853981,
-    "refn_open": 0.9998877566497674,
-    "rtdin_n_open": 0.8940098370599157,
-    "refn_rest": 3.957921482564298e-05,
-    "rtdin_n_rest": 0.17664336550782064
+    "refn_closed": 0.21154810992611886,
+    "rtdin_n_closed": 0.857097349985737,
+    "refn_open": 0.999887756646251,
+    "rtdin_n_open": 0.8940098370568579,
+    "refn_rest": 3.957921481815073e-05,
+    "rtdin_n_rest": 0.17664336550669277
    },
    "force_p_open": {
-    "refn_closed": 0.99888171729802,
-    "rtdin_n_closed": 0.0006215948650947523,
-    "refn_open": 0.9998860301550982,
-    "rtdin_n_open": 0.8981478132353193,
-    "refn_rest": 1.312838879911365e-07,
-    "rtdin_n_rest": 0.00011816496646773385
+    "refn_closed": 0.998881717242878,
+    "rtdin_n_closed": 0.0006215948666761637,
+    "refn_open": 0.9998860301367306,
+    "rtdin_n_open": 0.8981478158371881,
+    "refn_rest": 1.312838691298626e-07,
+    "rtdin_n_rest": 0.00011816496644896638
    },
    "force_n_open": {
-    "refn_closed": 0.9976632467557851,
-    "rtdin_n_closed": 0.997087760449165,
-    "refn_open": 0.9976632467557442,
-    "rtdin_n_open": 0.9970877604496001,
-    "refn_rest": 0.003894588915042275,
-    "rtdin_n_rest": 0.004853732803298509
+    "refn_closed": 0.9976632467670223,
+    "rtdin_n_closed": 0.9970877604651724,
+    "refn_open": 0.997663246767095,
+    "rtdin_n_open": 0.9970877604658694,
+    "refn_rest": 0.0038945889151738634,
+    "rtdin_n_rest": 0.0048537328035368425
    },
    "sense_n_to_gnd": {
-    "refn_closed": 0.196319981799524,
-    "rtdin_n_closed": 0.00012086237670888582,
-    "refn_open": 0.19641956116439457,
-    "rtdin_n_open": 0.00012736985532215298,
-    "refn_rest": 3.248830808167275e-07,
-    "rtdin_n_rest": 8.262558477198504e-06
+    "refn_closed": 0.19631998179884724,
+    "rtdin_n_closed": 0.00012086237681202209,
+    "refn_open": 0.19641956117377352,
+    "rtdin_n_open": 0.00012736985562292826,
+    "refn_rest": 3.2488309837062906e-07,
+    "rtdin_n_rest": 8.262558446351833e-06
    },
    "force_p_to_gnd": {
-    "refn_closed": 0.002062880221121479,
-    "rtdin_n_closed": 0.0005300634531941815,
-    "refn_open": 0.0020648027921896816,
-    "rtdin_n_open": 0.004773917854217658,
-    "refn_rest": 4.200118892470567e-08,
-    "rtdin_n_rest": 0.00010829591856009443
+    "refn_closed": 0.0020628802211209493,
+    "rtdin_n_closed": 0.0005300634529836699,
+    "refn_open": 0.002064802792189643,
+    "rtdin_n_open": 0.004773917854206387,
+    "refn_rest": 4.200118872704341e-08,
+    "rtdin_n_rest": 0.00010829591848901106
    }
   },
   "rule": "first order from the closed DC point to the open one reaches 85 % no sooner than the worst MNA corner, and tau >= tau_max"
