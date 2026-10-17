@@ -501,6 +501,9 @@ def load(base_path, patches=True, prune=False):
     # stage 50 (c50-permit-gate): R135.1 re-netted v3v3 -> permit; its v3v3 stub out, a permit stub to the leg-B trace
     if hasattr(patches21, "edit_base50"):
         patches21.edit_base50(base)
+    # stage 53 (S10): the ovp_ok_hot In1 run moves to In2 (return_path19 opens a / b)
+    if hasattr(patches21, "edit_base53"):
+        patches21.edit_base53(base)
     # nets renamed in the source since the base was frozen keep their base copper (patches21.RENAME_NETS)
     ren = getattr(patches21, "RENAME_NETS", {}) if patches else {}
     for kind in ("zones", "tracks", "vias"):

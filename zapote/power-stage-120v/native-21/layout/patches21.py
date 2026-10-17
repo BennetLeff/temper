@@ -954,6 +954,27 @@ def edit_base50(base):
     return 2
 
 
+# Stage 53 (S10, return-path19 opens a / b): the ovp_ok_hot In1 run (117.847, 55.095) -> (117.248, 55.695) -> (114.448, 55.695)
+# moves to In2, where it is referenced to the In1 ocp_kelvin_p pour on both sides of its launch and landing vias.
+# Planning model: c53-cert-provisions/stage53/scripts/s10edits53.py (opens c, d, e, f, g stay open; OPEN-ITEMS S10).
+S53_OVP_RUN = ("ovp_ok_hot", "In1.Cu", "In2.Cu", [[117.847, 55.095], [117.248, 55.695], [114.448, 55.695]])
+
+
+def edit_base53(base):
+    """Stage 53 edit of a frozen base copper dict (in place); a no-op on a base that already carries it."""
+    net, l0, l1, pts = S53_OVP_RUN
+    r3 = lambda q: [round(v, 3) for v in q]
+    tr = base["tracks"]
+    if any(t["net"] == net and t["layer"] == l1 and [r3(q) for q in t["points"]] == pts for t in tr):
+        return 0
+    hit = [t for t in tr if t["net"] == net and t["layer"] == l0 and [r3(q) for q in t["points"]] == pts]
+    if len(hit) != 1:
+        raise SystemExit(f"stage 53: {net} {l0} run {pts[0]} .. {pts[-1]} not found once ({len(hit)})")
+    hit[0]["layer"] = l1
+    print(f"stage 53: {net} run {pts[0]} .. {pts[-1]} moved {l0} -> {l1}")
+    return 1
+
+
 def add_stage33(g):
     """Six-layer phase A additions (no-op without image_planes): image pours, then their stitching vias."""
     if not IMAGE_PLANES:
