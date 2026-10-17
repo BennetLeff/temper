@@ -3009,3 +3009,21 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
 
     **Reverses if** the R43 catalogue changes (re-snapshot with `r43_catalog_snapshot.py`) or the lab reads
     return-path opens as a requirement (then hand-shape the four patches).
+
+76. **Order-gate decisions (2026-10-17, owner delegation): mounting holes, controller side, S25 timing.**
+    - **Mounting holes H2, H9, H10 stay empty; the board does not change.** The board has 10 M3 holes (`board_only21.json`, from
+      the D5-legal planner of stage 38); R43 has seven standoffs, at the board's H1 and H3–H8 to 0.00 mm
+      (`c53-astra-results/local/bosses/bosses_vs_r43.py`). H2 (metal-allowed, 29 mm from the nearest standoff), H9 and H10 (nylon,
+      52 and 43 mm) have none. Why: an empty hole has no insulation or mechanical function; deleting holes means a new board hash,
+      chain and order package for no benefit; new bosses are an R44 enclosure change. FAB-NOTE's "H2–H7" were R43's numbers, not the
+      board's (the source of the metal/nylon "conflict" at H2); corrected. **Reverses if** a first-article flex check of the loaded
+      board in R43 shows deflection that needs support: then R44 adds bosses at those three holes.
+    - **Controller J13 merge and J4.1 drop: not an order gate.** Not done on `controller-c1-crs`, `controller-l4`, `controller-layout`,
+      `controller-release` (no J13; J4.1 still `v15_selv`). The request itself records that a stage-38+ board does not power that
+      controller (benign), and that with 15 V on J4.1 R146 limits the current into U40's output to 68 µA
+      (`CONTROLLER-REQUEST.md` items 8 and 11). So the power board can be ordered and bench-run on bench supplies without a
+      controller; the change gates running the two together and the BIAS_GOOD read-back on GPIO35 (item 12). **Reverses if** the
+      lot is to be bench-run with the controller.
+    - **S25 (C22 bank temperature) is a pre-build gate, not an order gate.** The bank is consigned and the board carries both bank
+      footprints (x 185.5 TDK, x 190.5 KNSCHA), so the PCB and JLC order do not depend on it. If it fails the lot is fitted with
+      KNSCHA (22 A strict).

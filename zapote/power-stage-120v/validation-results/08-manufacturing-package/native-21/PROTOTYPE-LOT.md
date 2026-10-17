@@ -101,15 +101,19 @@ pre-compliance decides; fitting the 2203 (12.37 dB) is the fallback.
 
 1. Independent design review (`REVIEW-TRIAGE.md`): every BLOCKER / MAJOR closed. Re-confirm; this regeneration did not
    re-verify it.
-2. Enclosure bosses agreed for H1–H8 against the enclosure revision used (D5-AUDIT.md), or the holes moved to match.
+2. **Enclosure bosses: closed by decision (DECISIONS 76).** The board has 10 mounting holes; R43 supports seven (H1, H3–H8, 0.00 mm
+   offset, `c53-astra-results/local/bosses/`). H2, H9 and H10 stay empty: no hardware, no board change.
 3. JLC's laminate answer (S12), then fix the order remark and `stackup.json` together.
 4. FAB-NOTE's pre-order tier: F6 re-run on the native-21 FEM corrections (S3 re-run on the remote box is pending), M11
    heatsink stack parts sourced, and the no-stock parts above procured.
 5. **Module:** the inlet module with ≥ 100 µH DM per line, or the EMI deviation accepted in writing.
 6. **CPL:** the 23 NEEDS-PREVIEW parts confirmed in JLC's preview (`CPL-PREVIEW-CHECKLIST.md`).
-7. **Bank pre-lot gate** S25 on C22, and the DigiKey bank stock re-read (≥ 100 before purchase, else KNSCHA).
-8. Controller side before any stage-38+ board is powered: the J13 merge and J4.1 dropped
-   (`c23-supply-topology/CONTROLLER-REQUEST.md`; OPEN-ITEMS §5 item 3).
+7. **DigiKey bank stock re-read** (≥ 100 before purchase, else KNSCHA). The S25 test on C22 is a **pre-build** gate, not an order gate
+   (DECISIONS 76): the bank is consigned, not part of the PCB or JLC order, and the board carries both the TDK (x 185.5) and the
+   KNSCHA (x 190.5) holes. Run it on the first bank-fitted board before the lot is built (`c53-astra-results/bank-s25/` protocol).
+8. **Controller side: not an order gate (DECISIONS 76); it gates powering the board together with the controller.** The J13 merge and
+   the J4.1 drop (`c23-supply-topology/CONTROLLER-REQUEST.md`) are not done on any controller branch. A stage-38+ board does not
+   power that controller (benign), so bring-up runs the power board on bench supplies with no controller until they land.
 9. Firmware: the controller image must ship the **18 A tank ceiling** (DECISIONS 56) and the RMS-increment aux allowance
    (B11). The ladder above 17.5 A follows COMMISSIONING.md and the bank-variant rule above.
 10. Owner approval of the spend.
