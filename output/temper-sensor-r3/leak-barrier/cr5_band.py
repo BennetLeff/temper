@@ -38,12 +38,13 @@ REPO = HERE.parents[2]
 sys.path.insert(0, str(FW))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
+import input_manifest as IM  # noqa: E402  (content-hash manifest of the study inputs)
 import leak_checks as LC  # noqa: E402
 import rim_limit as RL  # noqa: E402
 
 X, cosim, es = LC.X, LC.cosim, LC.es
-# Study inputs must match this revision (within the evidence_compare platform rule for
-# generated JSON): sensor-c1-integrate 68ef09729, the sources of the box (reference) evidence.
+# Information only: the commit whose sources produced the box (reference) evidence.
+# The input gate is the content-hash manifest in input_manifest.py (T3_INPUTS), not git.
 BASE = "68ef097296db106550b2f357c2fae8336784e5db"
 TOOLCHAIN_KEYS = ("python", "numpy", "scipy", "compiler", "machine")
 # Benign runs with a D1 LOST (a non-latching contact-loss power cut, not a
@@ -205,34 +206,16 @@ def cohort_summary(rows):
 
 
 def input_hashes():
-    paths = set()
-    for folder in (REPO / "firmware/components/control", REPO / "firmware/components/sensors"):
-        paths.update(folder.rglob("*.c"))
-        paths.update(folder.rglob("*.h"))
-    paths.add(REPO / "firmware/config.h")
-    paths.update(FW / p for p in ("build_lib.sh", "cosim_shim.c", "cosim.py", "ref.py",
-                                "leak_checks.py", "rim_limit.py", "xcheck_cosim.py", "rim_ntc.py"))
-    paths.update(HERE.parent / p for p in ("screen.py", "contact_model.py", "robustness/shift_kf.py",
-                                         "cad/thermal-axisym.json"))
-    paths.add(HERE.parent.parent / "temper-sensor-r2/estimator_study.py")
-    paths.update(FW / p for p in ("leak-checks.json", "rim-limit.json"))
-    return {str(p.relative_to(REPO)): hashlib.sha256(p.read_bytes()).hexdigest()
-            for p in sorted(paths)}
+    return IM.sha256_manifest(REPO, IM.T3_INPUTS)
 
 
 def regenerate(jobs, caps=CAPS):
     hashes = input_hashes()
-    # The input identity remains reproducible after this study is committed.
-    # Generated evidence inputs that differ from BASE only by the platform's float
-    # drift are not dirty (evidence_compare); any source byte change is.
-    dirty = " ".join(EC.dirty_inputs(REPO, BASE, list(hashes)))
-    if dirty:
-        raise RuntimeError("study inputs differ from the requested base: " + dirty)
     source_control = json.loads((FW / "leak-checks.json").read_text())["summary"]["leak"]["all_onsets"]
     source_rim = json.loads((FW / "rim-limit.json").read_text())
     result = {
         "scope": __doc__.strip(),
-        "apparatus": {"base_commit": BASE, "input_tree_dirty": False,
+        "apparatus": {"base_commit_info": BASE,
                       "input_sha256": hashes,
                       "script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                       "python": platform.python_version(), "numpy": np.__version__, "scipy": scipy.__version__,
@@ -364,7 +347,7 @@ def regenerate(jobs, caps=CAPS):
         for c in result["caps"].values())
     result["gate"] = {
         "control_reproduced": result["control"]["reproduced"],
-        "inputs_unchanged": input_hashes() == hashes,
+        "inputs_unchanged": IM.unchanged(hashes, REPO),
         "width_and_minimum_margin_preserved": all(c["band"]["width_K"] == WIDTH
                                          and c["band"]["required_margin_K"] == margin
                                          and math.isclose(c["band"]["top_C"] - c["band"]["low_C"], WIDTH, abs_tol=1e-8)
