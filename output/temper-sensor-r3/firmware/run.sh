@@ -71,13 +71,15 @@
 # first pass of a reference regeneration, when their evidence is regenerated
 # after this run (see D-EVPLAT); a verification run never sets it.
 #
-# Evidence reference platform: the remote box (linux x86_64). Committed
-# evidence is regenerated there and carries "reference_platform"; there the
-# tree is byte-identical after this script. The Mac checks counts,
-# classifications, hazard flags, latch rules and gates exactly and floats within
-# tolerance (../evidence_compare.py; DECISIONS.md D-EVPLAT). On the box:
+# Evidence reference platform: the remote box (linux x86_64); the Mac checks
+# counts exactly and floats within tolerance. Committed evidence is regenerated
+# on the box and carries "reference_platform"; there the tree is byte-identical
+# after this script. Elsewhere counts, classifications, hazard flags, latch
+# rules and gates compare exactly and floats within tolerance
+# (../evidence_compare.py; DECISIONS.md D-EVPLAT). build_lib.sh compiles with
+# -ffp-contract=off, so the Mac's co-simulation matches the box's bits too. On the box:
 #   ssh bennet@100.121.239.87 'bash -lc "cd ~/WS-sensor/temper/output/temper-sensor-r3/firmware &&
-#     PATH=$HOME/router-scratch/env/bin:$HOME/.local/bin:$PATH ./run.sh"'
+#     PATH=$HOME/WS-sensor/venv/bin:$PATH taskset -c 0-5,12-17 ./run.sh"'
 set -eu
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 repo="$here/../../.."

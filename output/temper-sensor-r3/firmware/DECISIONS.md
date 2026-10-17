@@ -2777,6 +2777,99 @@ onset sweeps and bench measurements. The current study establishes the nuisance
 mechanism and a counterexample to one proposed fix; it does not prove no safe
 fix exists.
 
+## D-EVPLAT. 2026-10-17: the remote box is the evidence reference platform; host builds use -ffp-contract=off
+
+**Decision.** Every committed sensor-r3 evidence file is regenerated on the
+remote box (linux x86_64: Ryzen 5900X, Ubuntu 24.04, gcc 13.3.0, Python
+3.12.12, numpy 2.4.6, scipy 1.18.0) and carries `"reference_platform":
+"linux-x86_64"`. The Mac checks counts exactly and floats within tolerance.
+`../evidence_compare.py` implements the rule; T1, T2, T3 and F1 `--check`
+use it, and `run.sh` step 7 runs `tree --base HEAD`.
+
+**Rule.** If both sides come from the same platform (or neither records one),
+comparison is exact. If the platforms differ:
+- dict keys, list lengths, strings, booleans and integers compare exactly;
+- floats compare in two tolerance classes:
+  - tight (summaries, gates, thresholds): |d| ≤ 0.01 or ≤ 1e-4 relative;
+  - row (per-run rows; `ROW_PATH` plus per-file `PROFILES`): |d| ≤ 0.5 or
+    ≤ 1e-3 relative. Each file allows `max_outliers` values past this
+    (only `setpoint-cap-rows.json.gz`, 4), and each one is printed;
+- values rounded to whole W/m²K (`h_model_end`, `h_hat_end`, the h in
+  `cs_events`) get the row tolerance plus one rounding step;
+- hashes of generated artifacts and of the compiled library are skipped, and
+  generated names are dropped from changed/dirty lists. Hand-written source
+  hashes stay exact;
+- text artifacts (generated headers, NOTES-t2/t3) compare their skeleton and
+  integers exactly, and decimals in the tight or row class.
+
+`test_evidence_compare.py` holds 18 mutation tests. Among the changes they
+catch: a count +1, a flipped hazard flag, a changed latch rule, a gate bool,
+a missing key, a source hash, a rounded h off by two steps, and a D1 lost
+count.
+
+**The FMA finding.** The first box pass matched the Mac within the rule
+everywhere except runaway-checks:
+- 28 per-run `max_identical_codes` differed;
+- the legacy equal-reading rule L_stuck tripped in 2 pre-fault runs;
+- legacy L_over/L_rate trip times moved by up to 222 s;
+- 2 stage-2b `false_trip_examples` differed.
+
+The 10 CHECKS and every summary count were identical. Every rule involved
+reads quantised ADC codes, so a last-bit difference in the closed-loop
+trajectory can change which code a tick lands on. The cause was the
+compiler: Apple clang contracts `a*b+c` into fused multiply-adds by default
+(`-ffp-contract=on`), and gcc on baseline x86-64 emits no FMA.
+
+Fix: `build_lib.sh` (and T1's `rtd_convert` build) now pass
+`-ffp-contract=off`. That build gives the same bytes on the box as before.
+With it, `runaway_checks.py` on the Mac (45 s) reproduces the box file
+byte-exact apart from `reference_platform`, so no count-level exemption was
+needed. The ESP-IDF build is unchanged. `gen_sil_traces.py` and
+`export_vectors.py` are pure Python.
+
+Two generator fixes rode along:
+- `fault_cycle.py` writes `conversion_ratio: null` when BIAS − REFN is below
+  1e-6 V. With the element or FORCE+ open, no current flows through R_REF and
+  the denominator is solver roundoff (4e-12 to 1e-10 V): ±1e6 to 1e10, with a
+  platform-dependent sign. No gate read it.
+- T2/T3 `BASE` pins move to 68ef09729, the sources of the box evidence. F1's
+  informational `base_revision` stays 558f6e836.
+
+**Workflow.**
+1. Code changes on the Mac; commit; `git bundle` to the box; fast-forward
+   `~/WS-sensor/temper`.
+2. On the box, in tmux, pinned to `taskset -c 0-5,12-17` (the rest of the box
+   is shared): run `run.sh` with `SENSOR_R3_REGEN=1`, which skips the four
+   study checks.
+3. Regenerate in full: `d1_nuisance.py`, `leak_barrier.py`,
+   `setpoint_cap.py` and `cr5_band.py` (`--jobs 10`).
+4. Commit.
+5. Run `run.sh` again with no flag. It must end `EVIDENCE MATCHES HEAD` and
+   `ALL C1 FIRMWARE CHECKS PASS`, with `git status` clean.
+6. Bundle back and fast-forward the branch on the Mac.
+
+**Result.** The evidence commit is e6820e307. Box timings: run.sh regen
+pass 1706 s, F1 89 s, T1 1 s, T2 2214 s, T3 3273 s. The verification run.sh at e6820e307 took 5982 s, including the
+T2/T3 checks at caps 200 and 250. It printed `EVIDENCE MATCHES HEAD (0
+regenerated file(s) within the platform rule)` and `ALL C1 FIRMWARE CHECKS
+PASS`, and `git status` was clean.
+
+Against the Mac-committed evidence:
+- Counts are identical except for two kinds of difference:
+  - the FMA-built runaway-checks per-run fields above;
+  - source-driven changes. T2's committed copy predated F3: its base was
+    03c28e76b, and 043592952 then changed `pan_cold_soak`. So its
+    cold_benign model counts change, and `cold_reported_latched` goes from 47
+    to 46.
+- Float maxima:
+  - leak-checks: row 0.4;
+  - setpoint-cap rows: row 0.4, with 2 allowed outliers;
+  - cr5-band: row 0.1;
+  - d1-nuisance: row 0.049;
+  - cosim-results and hc-cosim: one rounding step of h;
+  - all else: ≤ 1e-4.
+- The commit message lists every file.
+
 ## Open items for the firmware owner
 
 1. **The ESP-IDF target links** (resolved 2026-10-15, branch

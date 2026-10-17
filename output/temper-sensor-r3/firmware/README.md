@@ -9,6 +9,16 @@ failure. It includes both SIL configurations and their coverage gate. The
 contact-change and contaminated-contact study is in `../robustness/`
 (DECISIONS D-CSW, D-LPG; `../robustness/DECISIONS.md`).
 
+**Evidence reference platform: the remote box (linux x86_64); the Mac checks
+counts exactly and floats within tolerance** (`../evidence_compare.py`,
+DECISIONS D-EVPLAT). Regenerate committed evidence on the box only:
+
+    ssh bennet@100.121.239.87 'bash -lc "cd ~/WS-sensor/temper/output/temper-sensor-r3/firmware &&
+      PATH=$HOME/WS-sensor/venv/bin:$PATH taskset -c 0-5,12-17 ./run.sh"'
+
+A verification run anywhere ends `EVIDENCE MATCHES HEAD` before `ALL C1
+FIRMWARE CHECKS PASS`.
+
 The firmware build uses the C1 runtime when `TEMPER_PAN_CONTROL_C1` is
 defined; `main/CMakeLists.txt` defines it for the ESP-IDF target (DECISIONS
 D-MODE). `main/pan_control.{c,h}` connects the loop to the state machine, the
