@@ -32,6 +32,7 @@ SCRIPTS = [
     "native-21/layout/layers21.py",
     # B3
     f"{R5}/b3/make_heat_sources.py", f"{R5}/b3/run_study.py", f"{R5}/b3/ceiling_sweep.py", f"{R5}/b3/thermal.py",
+    f"{R5}/b3-convergence/thermal_multigrid.py",       # b3/thermal.py's preconditioner
     "validation-results/04-board-current-thermal/round4/reextract-b3/extract_geometry.py",
     "validation-results/03-loss-thermal-budget/round3/outputs/board_heat_sources.json",
 ]

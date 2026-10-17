@@ -10,8 +10,11 @@ from __future__ import annotations
 
 import json
 import math
+from functools import lru_cache
 from pathlib import Path
 
+import numpy as np
+import shapely
 from shapely.geometry import LineString, Point, Polygon, box
 from shapely.strtree import STRtree
 
@@ -22,6 +25,28 @@ HERE = Path(__file__).resolve().parent
 EDGE = [(0, 0), (290, 0), (290, 140), (91, 140), (91, 190), (0, 190)]
 EDGE_CLEARANCE = 0.5
 EPS = 0.01
+
+
+@lru_cache(None)
+def _clearance(net, other, lay):
+    return 0.3 if other == "<npth>" else rules21.clearance_on(net, other, lay)
+
+
+@lru_cache(None)
+def _barrier(net, other):
+    return rules21.barrier(net, other)
+
+
+def _closer(tree, geom, ids, needs):
+    if not ids:
+        return ()
+    shapes = tree.geometries[ids]
+    close = np.flatnonzero(shapely.dwithin(shapes, geom, needs))
+    if not len(close):
+        return ()
+    # dwithin prunes distant envelopes; the exact test still excludes equality.
+    dd = shapely.distance(shapes[close], geom)
+    return [ids[k] for k in close[dd < np.asarray(needs)[close]]]
 
 
 class Geometry:
@@ -78,33 +103,36 @@ class Geometry:
             self._trees[lay] = (STRtree(geoms), self.items[lay])
         return self._trees[lay]
 
-    def conflicts(self, net, layers, geom, limit=3, via=False):
+    def conflicts(self, net, layers, geom, limit=3, via=False, ignore=()):
+        """ignore: ids of copper items the caller checks itself (a pad escape's other pad); the barrier still sees them."""
         out = []
         if not self.outline.contains(geom):
             out.append(("edge", None))
+        dom = rules21.domain(net)
+        reach = rules21.RES_A_CREEPAGE + 0.1 if net in rules21.RES_A_NETS or dom in ("SELV", "PE") else 8.5
+        window = geom.buffer(reach)
         for lay in layers:
             tree, items = self._tree(lay)
-            for i in tree.query(geom.buffer(rules21.RES_A_CREEPAGE + 0.1 if net in rules21.RES_A_NETS or
-                                            rules21.domain(net) in ("SELV", "PE") else 8.5)):
+            ids, needs = [], []
+            for i in tree.query(window):
                 g, other = items[i]
-                if other == net or (via and id(g) in self.via_permeable):
+                if other == net or (via and id(g) in self.via_permeable) or id(g) in ignore:
                     continue
-                need = 0.3 if other == "<npth>" else rules21.clearance_on(net, other, lay)
-                if g.distance(geom) < need + 0.03:
-                    out.append((lay, other))
-                    if len(out) >= limit:
-                        return out
+                ids.append(i)
+                needs.append(_clearance(net, other, lay) + 0.03)
+            for i in _closer(tree, geom, ids, needs):
+                out.append((lay, items[i][1]))
+                if len(out) >= limit:
+                    return out
         # D5 barrier: SELV / PE against HOT is a plan-view distance over every copper layer
-        if rules21.domain(net) in ("SELV", "PE", "HOT"):
+        if dom in ("SELV", "PE", "HOT"):
             tree, items = self._tree("PLAN")
-            for i in tree.query(geom.buffer(8.5)):
-                g, other = items[i]
-                if other in (net, "<npth>") or not rules21.barrier(net, other):
-                    continue
-                if g.distance(geom) < rules21.BARRIER + 0.03:
-                    out.append(("PLAN", other))
-                    if len(out) >= limit:
-                        return out
+            ids = [i for i in tree.query(window if reach == 8.5 else geom.buffer(8.5))
+                   if items[i][1] not in (net, "<npth>") and _barrier(net, items[i][1])]
+            for i in _closer(tree, geom, ids, [rules21.BARRIER + 0.03] * len(ids)):
+                out.append(("PLAN", items[i][1]))
+                if len(out) >= limit:
+                    return out
         return out
 
     def pad(self, ref_pad):

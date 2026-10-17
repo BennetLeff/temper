@@ -3,14 +3,56 @@
 Committed copies of the stage pass / gate scripts (they used to live in a session scratchpad and were lost
 when it was wiped, 2026-10-12).
 
-    sh passes.sh OUTROOT [HISTORY_ROOT ...]    # routing passes until clean (OUTROOT/passes.out)
+    sh passes.sh OUTROOT [BASE.json [FILLS]]   # routing passes on a frozen base until clean (OUTROOT/passes.out)
+    python3 router_bench.py OUTDIR [--seed N] # rip seeded signal nets, re-route, report closure / errors / barrier
     sh chain.sh TAG PASSDIR BUILDDIR          # board build + every gate + Kelvin + B3 + fab package
     sh regate.sh BUILDDIR                     # barrier (Rust), DFM, copper exports, task 04 A4 cases
 
 Before `chain.sh`, add the TAG's `DIVIDER` / `BAND_BEFORE` / `FLOOR` entries to
 `validation-results/02-protection-timing/kelvin/kelvin_{plane,budget}.py`. Keep OUTROOT / BUILDDIR outside
-the repo (they are large). Clear `board_only21.json` test points before routing passes; `chain.sh`
-re-plans them.
+the repo (they are large). `passes.sh` routes on the accepted copper.json (or BASE) frozen, as the stage-33+
+candidate passes scripts did, and builds without the test points (BOARD_ONLY21_NO_TEST_POINTS); `chain.sh` re-plans
+them on the result. `router_bench.py` restores copper.json when it ends; like `passes.sh` and `chain.sh` it is one
+writer of the layout files.
+
+Step timing (laps.sh): `incr_iter.sh`, `passes.sh`, `chain.sh` (and its parallel blocks) and `regate.sh` append each
+step's wall time to `steps.jsonl` in their output dir (BUILDDIR, OUTROOT, OUTROOT/iN); `LAPS=0` turns it off.
+
+    python3 laps.py BUILDDIR_OR_OUTROOT       # per script: seconds per step, slowest first
+
+DRC tiers (2026-10-15, one board, kicad-cli 10.0.4, no refill): the full rules take 146 s, 48 s without the three
+creepage constraints, 2.1 s with no custom rules (refill + connectivity alone, KiCad Python API: 12 s). The routing
+passes and `router_bench.py` check with `DRC_FAST` (`drc_rules_fast.py`: the build's copy of the rules without the
+creepage constraints; every clearance rule stays, and barrier21 bounds the creepage groups in plan view on every build).
+`chain.sh` unsets `DRC_FAST`: the gated board always gets the full rules.
+
+Pour-cut repair (`INCR21_SETTLE=N`, off by default; `router_bench.py --settle N`): incr21 judges pour connectivity
+on the previous build's fills, so a new track that cuts a pour could leave pairs it believes joined. `incr_iter.sh`
+then refills and asks KiCad's own connectivity (`fast_conn.py`, ~12 s; its counts matched kicad-cli DRC on 5 boards)
+and routes what is still open, frozen, up to N rounds before the DRC. Measured 2026-10-15 (`router_bench.py --nets 30
+--max-tracks 40`, seeds 23 / 29 / 31, sorted DRC pairs): open 85 -> 5, 78 -> 4, 92 -> 5 with `--settle 0` and the
+same with `--settle 3`, which added 56-65 s per build. Every pair left open was one incr21 had already tried and
+failed, none a pour cut, so it stays off until a board shows pour cuts.
+
+    $KP fast_conn.py BOARD.kicad_pcb OUT.json [--save]   # refill + KiCad connectivity -> DRC-shaped unconnected pairs
+
+Determinism: KiCad's DRC lists the same unconnected pairs in a different order from run to run, and incr21 joins
+pairs in list order, so incr21 sorts each DRC file's pairs (2026-10-15). Router comparisons made before that
+(different copper from identical inputs) are not like for like.
+
+Router failure classes found with `router_bench.py` (2026-10-15, `--nets 30 --max-tracks 40`) and what closed them:
+- pad escapes: a pad whose part's other pin sits closer than the group clearance (copper.json `escapes`, the KiCad
+  rule apply_copper21 writes) was sealed in the maze; incr21 now offers the maze escape portals (`incr21.portals`)
+  and adds the straight stub inside the escape area (led1 / led2 at R68 / R69, vsense_in at R29);
+- layer clearance: maze21's class rasters used rules21.clearance, not clearance_on, so SELV / PE paths on F.Cu /
+  B.Cu passed through the 8.0-12.6 mm RES_A band and the final check rejected every one (line_zc_raw);
+- pour cuts: maze21 did not see other nets' unprotected pours, and a new F.Cu track split the stage-40 n_ls pours;
+  a step into another net's pour now costs `maze21.POUR_COST` more;
+- congestion: a pair blocked by copper of the same run is retried with one nearby net ripped and re-routed after it,
+  kept only when all close (`incr21.ripup`; `INCR21_RIPUP=0` turns it off) (ovp_thresh behind vsense_in);
+- policy: the accepted copper enters another net's protected pour (stage 40's U44 HS-B link through n_hb on B.Cu,
+  authored before the pour was merged round it); the router may not, and `router_bench.py` reports such pairs as
+  "policy" (`protected_cross.py`) apart from router failures.
 
 `zone_priority_gate.py [copper.json]` (stage 17b, run first by `chain.sh`): fails when two different-net pours on one
 layer sit closer than their clearance at the same priority, since KiCad's fill order would then decide the contested
@@ -37,8 +79,8 @@ Stage 19 (DECISIONS item 19), also run by `chain.sh`:
         # transfer-cap distance; asserts bus_fault_hot on ocp_kelvin_p end to end, every ct_zc / pwm_hb change
         # <= 3 mm and the 19b transfer caps' plane vias (C153-C156)
 
-Clear `board_only21.json` `test_points` before `passes.sh` (stale test pads sit on the router's paths); `chain.sh`
-re-plans them from the clean pass. After the passes, `trim_tails.py DRC.json copper.json --write` drops the router's
+`passes.sh` leaves the test points off its builds (stale test pads sit on the router's paths); `chain.sh` re-plans them
+from the clean pass. After the passes, `trim_tails.py DRC.json copper.json --write` drops the router's
 dangling stubs (K6); rebuild before the chain.
 
 Stage 19c (DECISIONS item 19c) and the benchmark (item 22, `validation-results/10-benchmark/`):

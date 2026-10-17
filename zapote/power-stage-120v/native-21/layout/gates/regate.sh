@@ -15,25 +15,35 @@ U=$(cd "$(dirname "$0")/../../.." && pwd)
 cd "$U"
 B=$BD/section.kicad_pcb
 MODE=${2:-all}
+. "$U/native-21/layout/gates/laps.sh"; laps_init "regate/$MODE" "$BD/steps.jsonl"
 KP=/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3
 MP=${MP:-/Users/bennet/Miniforge3/bin/python3}
 R=validation-results/04-board-current-thermal/round5-native21
 if [ "$MODE" = all ] || [ "$MODE" = core ]; then
   $KP tools/copper_dump.py $B $1/evidence.json >/dev/null 2>&1
+  lap copper_dump
   # REGATE_SKIP_BARRIER=1 (scoped chain only, gates/scoped): the plan reuses the benchmark's barrier-gate-rust.json, which
   # the scoped run copied into BUILDDIR with the benchmark build (same board_sha256); the full chain never sets it
   if [ -n "${REGATE_SKIP_BARRIER:-}" ] && [ -f $1/barrier-gate-rust.json ]; then P_BAR=""
   else
-  ZAPOTE_POWER_BARRIER_BIN=${ZAPOTE_POWER_BARRIER_BIN:-/Users/bennet/Desktop/temper/target-shared/debug/zapote-power-barrier} python3 native-21/layout/barrier_gate21.py $1/evidence.json > $1/barrier-gate-rust.json &
+  # the release barrier binary of this checkout's sources (barrier_bin.sh: ~9x faster than debug, identical report)
+  BAR_BIN=${ZAPOTE_POWER_BARRIER_BIN:-$(sh "$U/native-21/layout/gates/barrier_bin.sh")}
+  lap barrier_bin
+  ZAPOTE_POWER_BARRIER_BIN=$BAR_BIN python3 native-21/layout/barrier_gate21.py $1/evidence.json > $1/barrier-gate-rust.json &
   P_BAR=$!
   fi
   $KP tools/jlc_dfm_check.py $B > $1/jlc-dfm.json 2>/dev/null
+  lap jlc_dfm
   # local bypass: every comparator / Schmitt buffer / rail monitor has its 100 nF within the stage-19 limits (fails the gate)
   $KP native-21/layout/gates/bypass_check.py $B $1/bypass-check.json > $1/bypass-check.txt 2>&1 || { grep -v -i "wxapp\|Debug\|assert" $1/bypass-check.txt >&2; echo "BYPASS GATE FAILED" >&2; exit 1; }
+  lap bypass_check
   $KP validation-results/04-board-current-thermal/round4/reextract-b3/extract_geometry.py $B $1/native21-all-copper.json.gz >/dev/null 2>&1
+  lap extract_geometry
   # exported beside the build; task04 copies it into the study only when it recomputes, so inputs/ always matches outputs/
   $KP tools/export_power_copper.py $B "$BD/power_copper.json.gz" >/dev/null 2>&1
+  lap export_power_copper
   [ -z "$P_BAR" ] || wait $P_BAR
+  lap barrier_gate_wait
 fi
 if [ "$MODE" = all ] || [ "$MODE" = task04 ]; then
   CK=$($KP native-21/layout/gates/copper_key.py "$B" 2>/dev/null | tail -1)
@@ -44,11 +54,13 @@ if [ "$MODE" = all ] || [ "$MODE" = task04 ]; then
   # change gave a task-04 hit and a B3 recompute, which then failed B3's same-board check)
   MK=$(python3 native-21/layout/gates/model_key.py | tail -1)
   case "$MK" in [0-9a-f]*) ;; *) echo "model_key failed" >&2; exit 1;; esac
+  lap copper_and_model_key
   cd $R
   KEY=$(python3 -c "import hashlib,sys;print(hashlib.sha256(('task04|'+sys.argv[1]+'|'+sys.argv[2]).encode()).hexdigest())" "$CK" "$MK")
   BOARD=$(shasum -a 256 "$B" | cut -d' ' -f1)
   # the nodal heat files (*.npz) are gitignored: a hit also needs the local ones to be those the results were computed with
   NPZ=$(python3 -c "import glob,hashlib;h=hashlib.sha256();[h.update(open(f,'rb').read()) for f in sorted(glob.glob('outputs/*.npz'))];print(h.hexdigest())")
+  lap npz_hash
   # TASK04_FORCE=1 recomputes regardless (chain.sh uses it if B3 misses after a task-04 hit; see there)
   if [ -z "${TASK04_FORCE:-}" ] && [ -f outputs/cache.json ] && [ -f outputs/summary.json ] && grep -q "\"key\": \"$KEY\"" outputs/cache.json \
      && grep -q "\"npz_sha256\": \"$NPZ\"" outputs/cache.json; then
@@ -63,6 +75,7 @@ c = json.load(open("outputs/cache.json")); e = json.load(gzip.open("inputs/power
 assert e["board_sha256"] == c["computed_on_board"], ("inputs/power_copper.json.gz is not the computed-on export", e["board_sha256"][:12], c["computed_on_board"][:12])
 print("task04 cache hit (copper inputs unchanged): computed on", c["computed_on_board"][:12])
 PY
+    lap task04_cache_hit
   else
     rm -f outputs/*-pl*.json outputs/*.npz outputs/summary.json outputs/cache.json
     cp "$BD/power_copper.json.gz" inputs/power_copper.json.gz
@@ -70,12 +83,18 @@ PY
     $MP ../round3/scripts/kit_topology_native13.py inputs/power_copper.json.gz outputs/kit_topology_p00625.json 0.0625 >/dev/null &
     # TASK04_WORKERS caps the case runner's processes (default 6, as before); a shared machine sets it lower
     WORKERS=${TASK04_WORKERS:-6} $MP run_cases.py > outputs/run_cases.log 2>&1
+    lap run_cases
     $MP run_board.py --net bus_p --source BR1.1:15 --sink Q2.2 --pitch 0.25 --plating 18 --name bus-dc-q2-p025-pl18 >/dev/null
+    lap run_board_p025
     $MP run_board.py --net bus_p --source BR1.1:15 --sink Q2.2 --pitch 0.0625 --plating 18 --name bus-dc-q2-p00625-pl18 >/dev/null
+    lap run_board_p00625
     wait
     NPZ=$(python3 -c "import glob,hashlib;h=hashlib.sha256();[h.update(open(f,'rb').read()) for f in sorted(glob.glob('outputs/*.npz'))];print(h.hexdigest())")
     printf '{"key": "%s", "copper_key": "%s", "model_key": "%s", "npz_sha256": "%s", "computed_on_board": "%s", "reused_for_boards": []}\n' "$KEY" "$CK" "$MK" "$NPZ" "$BOARD" > outputs/cache.json
+    lap kit_topology_wait_and_cache_write
   fi
   $MP summarize.py | tail -1
+  lap summarize
   python3 compare_native17.py > outputs/compare_native17.txt
+  lap compare_native17
 fi

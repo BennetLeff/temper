@@ -17,6 +17,7 @@ import os
 import math
 import platform
 import subprocess
+import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -27,7 +28,7 @@ import numpy as np
 import scipy
 import shapely
 from scipy.sparse import coo_matrix, diags
-from scipy.sparse.linalg import cg, LinearOperator
+from scipy.sparse.linalg import cg
 from shapely import contains_xy
 from shapely.geometry import LineString, Point, Polygon
 
@@ -36,6 +37,8 @@ ROUND3 = HERE.parent
 UNIT = HERE.parents[3]  # zapote/power-stage-120v
 # Round 5: native-21 stage-6 A4 cases (../outputs); several cases (one per net) may be summed.
 A4 = HERE.parent / "outputs"
+sys.path.insert(0, str(HERE.parent / "b3-convergence"))
+from thermal_multigrid import preconditioner  # noqa: E402  (pip install pyamg==5.3.0)
 # Stage 17: B3_A4_DIR points the solve at another A4 output set (the G6 control re-solves the stage-16 board).
 if os.environ.get("B3_A4_DIR"):
     A4 = Path(os.environ["B3_A4_DIR"])
@@ -221,7 +224,9 @@ def solve_stack(board: np.ndarray, k: np.ndarray, thickness_m: np.ndarray,
     matrix = coo_matrix((vv, (rr, cc)), shape=(nz*nxy, nz*nxy)).tocsr()
     rhs = heat_w.ravel().copy()
     rhs[ids[inactive]] = 0.0
-    pre = LinearOperator(matrix.shape, matvec=lambda v: v/diag)
+    # Symmetric multigrid (the B3 ratings body model's, ../b3-convergence/thermal_multigrid.py) removes the
+    # long-wavelength error that Jacobi leaves in the copper sheets; the outer CG, tolerances and guards are unchanged
+    pre = preconditioner(matrix)
     iterations = [0]
     def callback(_):
         iterations[0] += 1
@@ -233,8 +238,7 @@ def solve_stack(board: np.ndarray, k: np.ndarray, thickness_m: np.ndarray,
     tcr_rec = None
     if tcr is not None:
         m0 = matrix + coo_matrix((d_tcr, (np.arange(nz*nxy), np.arange(nz*nxy))), shape=matrix.shape).tocsr()
-        d0 = diag + d_tcr
-        pre0 = LinearOperator(m0.shape, matvec=lambda v: v/d0)
+        pre0 = pre                              # the Picard operator differs only by the copper-loss diagonal
         steps, dmax = 0, float("inf")
         while steps < 50:
             new, info = cg(m0, rhs + d_tcr*rise, x0=rise, rtol=1e-9, atol=1e-12, M=pre0, maxiter=12000)

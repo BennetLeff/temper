@@ -7,8 +7,13 @@ Bring-up test points (TestPoint_Pad_D1.0mm on their net), fiducials (Fiducial_1m
 mounting holes (MountingHole_3.2mm_M3; nylon-only holes carry a NYLON note on F.Fab). All are board-only
 and excluded from the BOM and position files, so schematic parity, the BOM and the CPL are unchanged.
 Chosen by plan_board_only21.py.
+
+BOARD_ONLY21_NO_TEST_POINTS=1 leaves the test points out (gates/passes.sh, gates/router_bench.py): they sit on
+routed copper of their net, chosen by plan_board_only21.py from the last pass, so while routing they are stale pads on
+the router's paths; chain.sh re-plans and places them. Their labels stay in reference-labels.json.
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -75,7 +80,8 @@ def place(lib, name, ref, value, at, net=None, bottom=False):
     return fp
 
 
-for t in spec["test_points"]:
+placed_tps = [] if os.environ.get("BOARD_ONLY21_NO_TEST_POINTS") else spec["test_points"]
+for t in placed_tps:
     place("TestPoint", "TestPoint_Pad_D1.0mm", t["ref"], t["net"], t["at"], t["net"], bottom=t.get("side") == "B")
 for f in spec["fiducials"]:
     place("Fiducial", "Fiducial_1mm_Mask3mm", f["ref"], "FIDUCIAL", f["at"])
@@ -125,5 +131,5 @@ if labels_path.exists():
         del lab["references"][r]
     if stale:
         labels_path.write_text(json.dumps(lab, indent=1) + "\n")
-print(json.dumps({"test_points": len(spec["test_points"]), "fiducials": len(spec["fiducials"]),
+print(json.dumps({"test_points": len(placed_tps), "fiducials": len(spec["fiducials"]),
                   "mounting_holes": len(spec["mounting_holes"])}))

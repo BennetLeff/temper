@@ -11,12 +11,12 @@ from __future__ import annotations
 import heapq
 import itertools
 import math
+from functools import lru_cache
 
 _TIE = itertools.count()
 
 from shapely.geometry import LineString, Point
 from shapely.prepared import prep
-from shapely.ops import unary_union
 
 from layers21 import CU, OUTER
 
@@ -28,44 +28,481 @@ _RES = 8
 _CIRC = 1 / math.cos(math.pi / (4 * _RES))
 
 
+# Grown obstacles repeat across calls (the same base copper around every connection): cached per (geometry, distance).
+# The geometry is kept in the value so its id cannot be reused by a new object while the entry lives.
+_GROWN = {}
+_BOUNDS = {}
+
+
 def _grow(g, d):
-    return g.buffer(d * _CIRC, resolution=_RES)
+    import shapely
+    gid = id(g)
+    ent = _GROWN.get(gid)
+    if ent is None or ent[0] is not g:
+        ent = _GROWN[gid] = (g, {})
+    grown = ent[1].get(d)
+    if grown is None:
+        grown = ent[1][d] = shapely.buffer(g, d * _CIRC, quad_segs=_RES)
+    return grown
+
+
+def _bounds(shape):
+    hit = _BOUNDS.get(id(shape))
+    if hit is None or hit[0] is not shape:
+        hit = _BOUNDS[id(shape)] = (shape, shape.bounds)
+    return hit[1]
+
+
+# Search grids sit on one board-wide lattice (x = i * STEP, y = j * STEP), the box snapped inward to it, so every
+# grown obstacle is rasterised once per lattice tile and reused by every later search (2026-10-15: rebuilding the
+# union of all grown obstacles for every search was most of incr21's time, and it grew with the box area).
+TILE = 64
+_TILES = {}      # (id(shape), STEP) -> (shape, {(ti, tj): bool array | True | False}, lattice bounds)
+_STABLE = {}     # derived outline shapes, kept so their ids (and tiles) stay valid
+_TILE_XY = {}    # (ti, tj, step) -> shared lattice coordinates, independent of the obstacle
+
+
+def _window(bx):
+    """Lattice cells inside box bx: (i0, j0, nx, ny, x0, y0) with x0 = i0 * STEP."""
+    i0, j0 = math.ceil(bx[0] / STEP - 1e-9), math.ceil(bx[1] / STEP - 1e-9)
+    i1, j1 = max(math.floor(bx[2] / STEP + 1e-9), i0), max(math.floor(bx[3] / STEP + 1e-9), j0)
+    return i0, j0, i1 - i0 + 1, j1 - j0 + 1, i0 * STEP, j0 * STEP
+
+
+def _stable(key, make):
+    hit = _STABLE.get(key)
+    if hit is None:
+        hit = _STABLE[key] = make()
+    return hit
+
+
+def _shape_entry(shape, step):
+    import shapely
+    ent = _TILES.get((id(shape), step))
+    if ent is None or ent[0] is not shape:
+        shapely.prepare(shape)
+        bx0, by0, bx1, by1 = _bounds(shape)
+        # Keep a cell beyond the bounds so division rounding cannot discard an interior point.
+        bounds = (0, 0, -1, -1) if math.isnan(bx0) else (
+            math.floor(bx0 / step) - 1, math.floor(by0 / step) - 1,
+            math.ceil(bx1 / step) + 1, math.ceil(by1 / step) + 1)
+        ent = _TILES[(id(shape), step)] = (shape, {}, bounds)
+    return ent
+
+
+def _shape_tile(shape, ti, tj, step=None, blocks=None):
+    """Lattice tile (ti, tj) of one shape: True / False when wholly inside / outside, else a bool array."""
+    import numpy as np
+    import shapely
+    step = STEP if step is None else step
+    ent = _shape_entry(shape, step)
+    t = ent[1].get((ti, tj))
+    if t is None:
+        xy = _TILE_XY.get((ti, tj, step))
+        if xy is None:
+            xy = _TILE_XY[(ti, tj, step)] = np.meshgrid(
+                np.arange(ti * TILE, ti * TILE + TILE) * step,
+                np.arange(tj * TILE, tj * TILE + TILE) * step, sparse=True)
+        a0, b0, a1, b1 = ent[2]
+        c0, c1 = max(a0 - ti * TILE, 0), min(a1 - ti * TILE + 1, TILE)
+        r0, r1 = max(b0 - tj * TILE, 0), min(b1 - tj * TILE + 1, TILE)
+        if c0 >= c1 or r0 >= r1:
+            t = False
+        elif (c1 - c0) * (r1 - r0) >= 1024:
+            block = TILE // 8
+            rects = _stable(("blocks", ti, tj, step), lambda: shapely.box(
+                xy[0][:, ::block], xy[1][::block, :],
+                xy[0][:, block - 1::block], xy[1][block - 1::block, :]))
+            # Boundary blocks still use the exact point predicate.
+            if blocks is None:
+                inside = shapely.contains_properly(shape, rects)
+                hits = shapely.intersects(shape, rects)
+            else:
+                inside, hits = blocks
+            t = inside.repeat(block, axis=0).repeat(block, axis=1)
+            boundary = (hits & ~inside).repeat(block, axis=0).repeat(block, axis=1)
+            rows, cols = np.nonzero(boundary[r0:r1, c0:c1])
+            rows += r0
+            cols += c0
+            t[rows, cols] = shapely.contains_xy(shape, xy[0][0, cols], xy[1][rows, 0])
+            t = False if not t.any() else True if t.all() else t
+        else:
+            part = shapely.contains_xy(shape, xy[0][:, c0:c1], xy[1][r0:r1, :])
+            if not part.any():
+                t = False
+            elif c0 == r0 == 0 and c1 == r1 == TILE:
+                t = True if part.all() else part
+            else:
+                t = np.zeros((TILE, TILE), dtype=bool)
+                t[r0:r1, c0:c1] = part
+        ent[1][(ti, tj)] = t
+    return t
+
+
+def _paint(mask, shape, i0, j0, nx, ny, add=False):
+    """mask[j - j0, i - i0] |= lattice point (i, j) lies inside shape (strictly: contains_xy), tile by tile."""
+    import numpy as np
+    import shapely
+    bx0, by0, bx1, by1 = _bounds(shape)
+    a0, a1 = max(math.ceil(bx0 / STEP - 1e-9), i0), min(math.floor(bx1 / STEP + 1e-9), i0 + nx - 1)
+    b0, b1 = max(math.ceil(by0 / STEP - 1e-9), j0), min(math.floor(by1 / STEP + 1e-9), j0 + ny - 1)
+    if a0 > a1 or b0 > b1:
+        return
+    for ti in range(a0 // TILE, a1 // TILE + 1):
+        for tj in range(b0 // TILE, b1 // TILE + 1):
+            t = _shape_tile(shape, ti, tj)
+            if t is False:
+                continue
+            c0, c1 = max(ti * TILE, a0), min(ti * TILE + TILE - 1, a1)
+            r0, r1 = max(tj * TILE, b0), min(tj * TILE + TILE - 1, b1)
+            win = mask[r0 - j0:r1 - j0 + 1, c0 - i0:c1 - i0 + 1]
+            if t is True:
+                if add:
+                    win += 1
+                else:
+                    win[...] = True
+            else:
+                part = t[r0 - tj * TILE:r1 - tj * TILE + 1, c0 - ti * TILE:c1 - ti * TILE + 1]
+                if add:
+                    win += part
+                else:
+                    win |= part
+
+
+def _goal_distance(goal_cells, nx, ny):
+    """h for A*: Euclidean distance in cells from every grid cell to its nearest goal cell (one distance transform
+    instead of a min over all goals on every push), as a (ny, nx) array."""
+    import numpy as np
+    from scipy.ndimage import distance_transform_edt
+    far = np.ones((ny, nx), dtype=bool)
+    for i, j in goal_cells:
+        far[j, i] = False
+    _, (gj, gi) = distance_transform_edt(far, return_indices=True)
+    jj, ii = np.indices((ny, nx))
+    return np.hypot(ii - gi, jj - gj)
+
+
+# Shared obstacle rasters (2026-10-15). rules21.clearance(net, other) depends on the routed net only through its
+# class (domain, tank node, HOT group), so the obstacle grid of every net of one class is the same count raster:
+# per lattice tile, how many grown obstacles cover each point (each obstacle grown by the class's clearance to its
+# net). A net's grid is that count minus its own copper's share, > 0. The plan-view barrier is one boolean raster per
+# barrier side. Tiles are computed when a search first needs them and dropped when copper is added near them.
+_CLS = {}        # geo key -> {"seen": {layer: (id(list), len, id(last))}, "own": {layer: {net: [i]}}, "rasters": {...}}
+
+
+@lru_cache(None)
+def _cls(net):
+    import rules21
+    return (rules21.domain(net), net in rules21.TANK, rules21.GROUP.get(net), net in rules21.RES_A_NETS)
+
+
+@lru_cache(None)
+def _clr(c, other, layer):
+    """rules21.clearance_on(a, other, layer) for a net a of class c, a != other (checked against rules21 by
+    _check_cls). The layer matters for RES_A against SELV / PE: 12.6 mm on the outer layers (stage 18)."""
+    import rules21
+    if other == "<npth>":
+        return 0.3
+    if not other:
+        return rules21.FLOOR
+    da, ta, ga, ra = c
+    db = rules21.domain(other)
+    if layer in OUTER and ((ra and db in ("SELV", "PE")) or (other in rules21.RES_A_NETS and da in ("SELV", "PE"))):
+        return max(rules21.BARRIER if {da, db} in ({"SELV", "HOT"}, {"PE", "HOT"}) else rules21.FLOOR,
+                   rules21.RES_A_CREEPAGE)
+    if {da, db} in ({"SELV", "HOT"}, {"PE", "HOT"}):
+        return rules21.BARRIER
+    if da == db == "HOT":
+        tb = other in rules21.TANK
+        if ta != tb or (ta and tb):
+            return rules21._m.wr.TANK_CREEPAGE_MM
+        if ga != rules21.GROUP[other]:
+            return rules21._m.wr.FUNCTIONAL_CREEPAGE_MM
+    return rules21.FLOOR
+
+
+def _check_cls(nets):
+    import rules21
+    nets = sorted(n for n in nets if n and n != "<npth>")
+    for a in nets:
+        c = _cls(a)
+        for b in nets:
+            for lay in CU:
+                if a != b and _clr(c, b, lay) != rules21.clearance_on(a, b, lay):
+                    raise AssertionError(f"maze21 class clearance {a} / {b} on {lay}: {_clr(c, b, lay)} != "
+                                         f"{rules21.clearance_on(a, b, lay)}")
+
+
+def _state(geo):
+    st = _CLS.get(id(geo))
+    if st is None or st["geo"] is not geo:
+        st = _CLS[id(geo)] = {"geo": geo, "seen": {}, "own": {}, "rasters": {}, "grow": {}, "indexes": {}}
+        _check_cls({n for its in geo.items.values() for _, n in its})
+    return st
+
+
+def forget(geo):
+    """After items were removed from or restored into geo (incr21's rip-up): every layer's rasters are rebuilt on
+    the next query. (_sync alone could miss it: a list cut and refilled to its old length keeps its fingerprint
+    when a new item reuses a freed item's id.)"""
+    st = _CLS.get(id(geo))
+    if st is not None:
+        st["seen"].clear()
+
+
+def _sync(st, layer):
+    """Bring the caches of one layer up to date with geo.items[layer]: an appended item is added into every computed
+    tile its grown shape reaches (the count a rebuild would give), anything else (a patch deleting or replacing items)
+    drops the layer's rasters."""
+    items = st["geo"].items[layer]
+    seen = st["seen"].get(layer)
+    fp = (id(items), len(items), id(items[-1]) if items else 0)
+    if seen == fp:
+        return
+    rasters = [k for k in st["rasters"] if k[1] == layer]
+    own = st["own"].setdefault(layer, {})
+    if seen is None or seen[0] != fp[0] or seen[1] > fp[1] or (seen[1] and id(items[seen[1] - 1]) != seen[2]):
+        for k in rasters:
+            del st["rasters"][k]
+            st["indexes"].pop(k, None)
+        own.clear()
+        start = 0
+    else:
+        start = seen[1]
+        import numpy as np
+        for k in rasters:
+            tiles, step, grow_of = st["rasters"][k], k[-1], st["grow"][k]   # each raster on its own lattice
+            for g, other in items[start:]:
+                sh = grow_of(g, other)
+                if sh is None:
+                    continue
+                bx0, by0, bx1, by1 = _bounds(sh)
+                for ti in range(math.floor(bx0 / step) // TILE, math.floor(bx1 / step) // TILE + 1):
+                    for tj in range(math.floor(by0 / step) // TILE, math.floor(by1 / step) // TILE + 1):
+                        old = tiles.get((ti, tj))
+                        if old is None:
+                            continue                       # not computed yet: it will include the item
+                        t = _shape_tile(sh, ti, tj, step)
+                        if t is False:
+                            continue
+                        if k[0] == "bar":
+                            tiles[(ti, tj)] = np.ones((TILE, TILE), dtype=bool) if t is True else (
+                                t.copy() if isinstance(old, int) else old | t)
+                        else:
+                            base = np.zeros((TILE, TILE), dtype=np.int16) if isinstance(old, int) else old
+                            tiles[(ti, tj)] = base + t
+    for i in range(start, len(items)):
+        own.setdefault(items[i][1], []).append(i)
+    st["seen"][layer] = fp
+
+
+def _reach(c, layer, width):
+    """How far a grown obstacle of class c's grid on `layer` can reach past its copper: the class's largest clearance
+    there plus the trace and margins. RES_A against SELV / PE on F.Cu / B.Cu is 12.6 mm; a fixed 9 mm query missed
+    RES_A copper 9-12.6 mm from a SELV path, which the final check then rejected (2026-10-15)."""
+    import rules21
+    big = max(rules21.BARRIER, rules21._m.wr.TANK_CREEPAGE_MM)
+    if layer in OUTER and (c[3] or c[0] in ("SELV", "PE")):
+        big = max(big, rules21.RES_A_CREEPAGE)
+    return big + width / 2 + 0.1
+
+
+def _shape_index(items, grow_of):
+    from shapely.strtree import STRtree
+    shapes, bounds = [], []
+    for g, other in items:
+        sh = grow_of(g, other)
+        if sh is not None:
+            shapes.append(sh)
+            bounds.append(_bounds(g))
+    return STRtree(shapes), shapes, bounds
+
+
+def _tile_shapes(st, key, ti, tj, grow_of, r=9):
+    """Grown obstacles reaching a tile, indexed after growth so distant copper needs no per-tile growth lookup."""
+    from shapely.geometry import box as _box
+    items = st["geo"].items[key[1]]
+    ent = st["indexes"].get(key)
+    # A small append index avoids rebuilding all grown obstacles for every new track.
+    if ent is None or len(items) - ent[0] > 64:
+        ent = st["indexes"][key] = [len(items), _shape_index(items, grow_of), len(items), None]
+    elif ent[2] != len(items):
+        ent[2], ent[3] = len(items), _shape_index(items[ent[0]:], grow_of)
+    x0, y0 = ti * TILE * STEP, tj * TILE * STEP
+    x1, y1 = x0 + (TILE - 1) * STEP, y0 + (TILE - 1) * STEP
+    win = _stable(("tile", ti, tj, STEP), lambda: _box(x0, y0, x1, y1))
+    out = []
+    for index in (ent[1], ent[3]):
+        if index is None:
+            continue
+        tree, shapes, bounds = index
+        for i in tree.query(win):
+            b = bounds[i]   # preserve the original raw-copper reach filter
+            if b[2] >= x0 - r and b[0] <= x1 + r and b[3] >= y0 - r and b[1] <= y1 + r:
+                out.append(shapes[i])
+    return out
+
+
+def _raster_window(st, key, i0, j0, nx, ny, compute, dtype):
+    """Assemble a window of raster `key` from its tiles (computed on first use by compute(ti, tj))."""
+    import numpy as np
+    tiles = st["rasters"].setdefault(key, {})
+    out = np.zeros((ny, nx), dtype=dtype)
+    for ti in range(i0 // TILE, (i0 + nx - 1) // TILE + 1):
+        for tj in range(j0 // TILE, (j0 + ny - 1) // TILE + 1):
+            t = tiles.get((ti, tj))
+            if t is None:
+                t = tiles[(ti, tj)] = compute(ti, tj)
+            if isinstance(t, int):      # 0: nothing in this tile
+                continue
+            c0, c1 = max(ti * TILE, i0), min(ti * TILE + TILE - 1, i0 + nx - 1)
+            r0, r1 = max(tj * TILE, j0), min(tj * TILE + TILE - 1, j0 + ny - 1)
+            out[r0 - j0:r1 - j0 + 1, c0 - i0:c1 - i0 + 1] = t[r0 - tj * TILE:r1 - tj * TILE + 1, c0 - ti * TILE:c1 - ti * TILE + 1]
+    return out
+
+
+def _batch_tiles(entries, ti, tj):
+    import numpy as np
+    import shapely
+    large = []
+    for ent in entries:
+        if (ti, tj) in ent[1]:
+            continue
+        a0, b0, a1, b1 = ent[2]
+        c0, c1 = max(a0 - ti * TILE, 0), min(a1 - ti * TILE + 1, TILE)
+        r0, r1 = max(b0 - tj * TILE, 0), min(b1 - tj * TILE + 1, TILE)
+        if c0 < c1 and r0 < r1 and (c1 - c0) * (r1 - r0) >= 1024:
+            large.append(ent[0])
+    if not large:
+        return
+    xy = _TILE_XY.get((ti, tj, STEP))
+    if xy is None:
+        xy = _TILE_XY[(ti, tj, STEP)] = np.meshgrid(
+            np.arange(ti * TILE, ti * TILE + TILE) * STEP,
+            np.arange(tj * TILE, tj * TILE + TILE) * STEP, sparse=True)
+    block = TILE // 8
+    rects = _stable(("blocks", ti, tj, STEP), lambda: shapely.box(
+        xy[0][:, ::block], xy[1][::block, :],
+        xy[0][:, block - 1::block], xy[1][block - 1::block, :]))
+    shapes = np.asarray(large, dtype=object)[:, None, None]
+    inside = shapely.contains_properly(shapes, rects)
+    hits = shapely.intersects(shapes, rects)
+    for shape, ins, hit in zip(large, inside, hits):
+        _shape_tile(shape, ti, tj, blocks=(ins, hit))
+
+
+def _cover(shapes, ti, tj, count):
+    """Per lattice point of tile (ti, tj): how many shapes contain it (count) or whether any does, from the shapes'
+    own cached tiles (shared by every class whose growth gives the same shape); 0 when none."""
+    import numpy as np
+    entries = [_shape_entry(sh, STEP) for sh in shapes]
+    _batch_tiles(entries, ti, tj)
+    acc = np.zeros((TILE, TILE), dtype=np.int16 if count else bool)
+    for ent in entries:
+        t = ent[1].get((ti, tj))
+        if t is None:
+            t = _shape_tile(ent[0], ti, tj)
+        if t is False:
+            continue
+        if count:
+            acc += t
+        elif t is True:
+            return np.ones((TILE, TILE), dtype=bool)
+        else:
+            acc |= t
+    return acc if acc.any() else 0
+
+
+def _copper_grid(geo, net, layer, i0, j0, nx, ny, width, via):
+    """Cells within clearance of other nets' copper on `layer` for a trace (or via, via=True) of `width`:
+    the class count raster minus the net's own copper."""
+    import numpy as np
+    st = _state(geo)
+    _sync(st, layer)
+    c = _cls(net)
+    perm = geo.via_permeable
+
+    key = ("via" if via else "trk", layer, c, width, STEP)
+    grow_of = st["grow"].get(key)
+    if grow_of is None:
+        grown, distances = {}, {}
+        half = width / 2
+
+        def grow_of(g, other):
+            gid = id(g)
+            if via and gid in perm:
+                return None
+            sh = grown.get(gid)
+            if sh is None:
+                d = distances.get(other)
+                if d is None:
+                    d = distances[other] = _clr(c, other, layer) + half + 0.03
+                sh = grown[gid] = _grow(g, d)
+            return sh
+        st["grow"][key] = grow_of
+    reach = _reach(c, layer, width)
+    count = _raster_window(st, key, i0, j0, nx, ny,
+                           lambda ti, tj: _cover(_tile_shapes(st, key, ti, tj, grow_of, reach), ti, tj, True), np.int16)
+    own = st["own"][layer].get(net, ())
+    if own:
+        items = geo.items[layer]
+        mine = np.zeros((ny, nx), dtype=np.int16)
+        for i in own:
+            sh = grow_of(*items[i])
+            if sh is not None:
+                _paint(mine, sh, i0, j0, nx, ny, add=True)
+        count = count - mine
+    return count > 0
+
+
+def _barrier_grid(geo, net, i0, j0, nx, ny, width):
+    """Cells within the plan-view barrier of the other side's copper (SELV / PE against HOT), or None."""
+    import numpy as np
+    import rules21
+    side = rules21.domain(net)
+    if side not in ("SELV", "PE", "HOT"):
+        return None
+    side = "hot" if side == "HOT" else "low"
+    st = _state(geo)
+    _sync(st, "PLAN")
+
+    key = ("bar", "PLAN", side, width, STEP)
+    grow_of = st["grow"].get(key)
+    if grow_of is None:
+        grown, barriers = {}, {}
+        d = rules21.BARRIER + width / 2 + 0.03
+
+        def grow_of(g, other):
+            blocked = barriers.get(other)
+            if blocked is None:
+                blocked = barriers[other] = other not in ("<npth>", net) and rules21.barrier(net, other)
+            if not blocked:
+                return None
+            gid = id(g)
+            sh = grown.get(gid)
+            if sh is None:
+                sh = grown[gid] = _grow(g, d)
+            return sh
+        st["grow"][key] = grow_of
+    return _raster_window(st, key, i0, j0, nx, ny,
+                          lambda ti, tj: _cover(_tile_shapes(st, key, ti, tj, grow_of), ti, tj, False), bool)
 
 
 def _blocked(geo, net, layer, bx, width):
-    x0, y0, x1, y1 = bx
-    nx, ny = int(round((x1 - x0) / STEP)) + 1, int(round((y1 - y0) / STEP)) + 1
-    tree, items = geo._tree(layer)
-    import rules21
-    shapes = []
-    from shapely.geometry import box as _box
-    for i in tree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
-        g, other = items[i]
-        if other == net:
-            continue
-        need = 0.3 if other == "<npth>" else rules21.clearance(net, other)
-        shapes.append(_grow(g, need + width / 2 + 0.03))
-    shapes.append(geo.outline.exterior.buffer(width / 2 - 0.005))
-    ptree, pitems = geo._tree("PLAN")
-    for i in ptree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
-        g, other = pitems[i]
-        if other != net and other != "<npth>" and rules21.barrier(net, other):
-            shapes.append(_grow(g, rules21.BARRIER + width / 2 + 0.03))
     import numpy as np
-    import shapely
-    xs, ys = np.meshgrid(x0 + np.arange(nx) * STEP, y0 + np.arange(ny) * STEP)
-    if shapes:
-        bad = unary_union(shapes)
-        shapely.prepare(bad)
-        mask = shapely.contains_xy(bad, xs.ravel(), ys.ravel())
-    else:
-        mask = np.zeros(nx * ny, dtype=bool)
+    i0, j0, nx, ny, _, _ = _window(bx)
+    mask = _copper_grid(geo, net, layer, i0, j0, nx, ny, width, via=False)
+    _paint(mask, _stable(("band", id(geo.outline), width), lambda: geo.outline.exterior.buffer(width / 2 - 0.005)),
+           i0, j0, nx, ny)
+    bar = _barrier_grid(geo, net, i0, j0, nx, ny, width)
+    if bar is not None:
+        mask |= bar
     return bytearray(mask.astype(np.uint8).tobytes()), nx, ny
 
 
 def connect(geo, net, layer, bx, width, starts, goals):
     """Shortest legal path from any start point to any goal point (lists of (x, y))."""
-    x0, y0 = bx[0], bx[1]
+    x0, y0 = _window(bx)[4:]
     grid, nx, ny = _blocked(geo, net, layer, bx, width)
 
     def cell(p):
@@ -76,11 +513,10 @@ def connect(geo, net, layer, bx, width, starts, goals):
         grid[c[1] * nx + c[0]] = 0
     start_cells = {cell(s): s for s in starts}
     openq, came, cost = [], {}, {}
-    gx = [c[0] for c in goal_cells]
-    gy = [c[1] for c in goal_cells]
+    hd = _goal_distance(goal_cells, nx, ny).tolist()
 
     def h(c):
-        return min(math.hypot(c[0] - a, c[1] - b) for a, b in zip(gx, gy))
+        return hd[c[1]][c[0]]
     for c in start_cells:
         grid[c[1] * nx + c[0]] = 0
         cost[c] = 0.0
@@ -121,53 +557,147 @@ def connect(geo, net, layer, bx, width, starts, goals):
     return [[round(x, 3), round(y, 3)] for x, y in simple]
 
 
+# Other nets' pours, [(layer, net, polygon)] (incr21 sets it from the board's zone outlines; route21 leaves it empty):
+# a track may cross one (the fill knocks out round it) but can cut it in two, as a re-route across the stage-40 n_ls
+# "GOOD change" pour did (2026-10-15), so each step into a cell inside one costs POUR_COST more.
+POURS = []
+POUR_COST = 2.0
+
+
+def _pour_mask(net, layer, i0, j0, nx, ny):
+    """Cells inside another net's pour on `layer`."""
+    import numpy as np
+    from shapely.geometry import box as _box
+    from shapely.strtree import STRtree
+
+    def build():
+        polys = [poly for lay, _, poly in POURS if lay == layer]
+        return STRtree(polys), [n for lay, n, _ in POURS if lay == layer], polys
+    tree, nets, polys = _stable(("pours", id(POURS), len(POURS), layer), build)
+    mask = np.zeros((ny, nx), dtype=bool)
+    win = _box(i0 * STEP, j0 * STEP, (i0 + nx - 1) * STEP, (j0 + ny - 1) * STEP)
+    for k in sorted(tree.query(win)):
+        if nets[k] != net:
+            _paint(mask, polys[k], i0, j0, nx, ny)
+    return mask
+
+
 def _via_ok(geo, net, bx, size):
     """Grid of cells where a through via of `size` is legal on every copper layer."""
     import numpy as np
     import shapely
     from shapely.geometry import box as _box
     import rules21
-    x0, y0, x1, y1 = bx
-    nx, ny = int(round((x1 - x0) / STEP)) + 1, int(round((y1 - y0) / STEP)) + 1
-    xs, ys = np.meshgrid(x0 + np.arange(nx) * STEP, y0 + np.arange(ny) * STEP)
-    mask = np.zeros(nx * ny, dtype=bool)
+    i0, j0, nx, ny, _, _ = _window(bx)
+    grid = np.zeros((ny, nx), dtype=bool)
     for lay in CU:
-        tree, items = geo._tree(lay)
-        shapes = []
-        for i in tree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
-            g, other = items[i]
-            if other == net or id(g) in geo.via_permeable:
+        grid |= _copper_grid(geo, net, lay, i0, j0, nx, ny, size, via=True)
+    bar = _barrier_grid(geo, net, i0, j0, nx, ny, size)
+    if bar is not None:
+        grid |= bar
+    inside = np.zeros((ny, nx), dtype=bool)
+    _paint(inside, _stable(("inner", id(geo.outline), size), lambda: geo.outline.buffer(-size / 2 - 0.03)), i0, j0, nx, ny)
+    return (grid | ~inside).ravel()
+
+
+_DX = (1, -1, 0, 0, 1, 1, -1, -1)
+_DY = (0, 0, 1, -1, 1, -1, 1, -1)
+_W = (1.0, 1.0, 1.0, 1.0, 1.414, 1.414, 1.414, 1.414)
+
+
+def _astar_core(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost, pour_cost, cost, came):
+    """8-connected A* over nl layers of an nx x ny grid with through-via moves; node = layer * nx * ny + j * nx + i.
+    blocked: 0 free, 1 blocked, 2 inside another net's pour (pour_cost more per step into it). 0.6 per bend, via_cost
+    per layer change. Pushes in the order the tuple-keyed version did (same tie counter), so it
+    returns the same path. Returns the goal node reached or -1; came[] holds each node's predecessor (-1: none)."""
+    P = nx * ny
+    heap = [(0.0, 0, 0, 0)]
+    heap.pop()
+    tie = 0
+    for s in start_nodes:
+        cost[s] = 0.0
+        heapq.heappush(heap, (hd[s % P], tie, s, -1))
+        tie += 1
+    end = -1
+    while len(heap) > 0:
+        _, _, c, d = heapq.heappop(heap)
+        if goal_mask[c]:
+            end = c
+            break
+        li = c // P
+        r = c - li * P
+        j = r // nx
+        i = r - j * nx
+        cc = cost[c]
+        for k in range(8):
+            ni = i + _DX[k]
+            nj = j + _DY[k]
+            if ni < 0 or ni >= nx or nj < 0 or nj >= ny:
                 continue
-            need = 0.3 if other == "<npth>" else rules21.clearance(net, other)
-            shapes.append(_grow(g, need + size / 2 + 0.03))
-        if shapes:
-            bad = unary_union(shapes)
-            shapely.prepare(bad)
-            mask |= shapely.contains_xy(bad, xs.ravel(), ys.ravel())
-    ptree, pitems = geo._tree("PLAN")
-    pshapes = []
-    for i in ptree.query(_box(x0 - 9, y0 - 9, x1 + 9, y1 + 9)):
-        g, other = pitems[i]
-        if other != net and other != "<npth>" and rules21.barrier(net, other):
-            pshapes.append(_grow(g, rules21.BARRIER + size / 2 + 0.03))
-    if pshapes:
-        bad = unary_union(pshapes)
-        shapely.prepare(bad)
-        mask |= shapely.contains_xy(bad, xs.ravel(), ys.ravel())
-    inner = geo.outline.buffer(-size / 2 - 0.03)
-    shapely.prepare(inner)
-    mask |= ~shapely.contains_xy(inner, xs.ravel(), ys.ravel())
-    return mask
+            n = li * P + nj * nx + ni
+            b = blocked[n]
+            if b == 1:
+                continue
+            nc = cc + _W[k] + (0.0 if d == -1 or d == k else 0.6) + (pour_cost if b == 2 else 0.0)
+            if nc < cost[n]:
+                cost[n] = nc
+                came[n] = c
+                heapq.heappush(heap, (nc + hd[n - li * P], tie, n, k))
+                tie += 1
+        if vok[r]:
+            for lj in range(nl):  # through vias: any layer change
+                n = lj * P + r
+                if lj == li or blocked[n] == 1:
+                    continue
+                nc = cc + via_cost + (pour_cost if blocked[n] == 2 else 0.0)
+                if nc < cost[n]:
+                    cost[n] = nc
+                    came[n] = c
+                    heapq.heappush(heap, (nc + hd[r], tie, n, -1))
+                    tie += 1
+    return end
+
+
+_CORE = None
+
+
+def _astar(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost, pour_cost=0.0):
+    """Run the core JIT-compiled (numba, cached beside this file) or, without numba or with MAZE21_NO_JIT, as plain
+    Python on lists: the same code either way."""
+    global _CORE
+    import os
+    import numpy as np
+    N = nl * nx * ny
+    if _CORE is None:
+        _CORE = _astar_core
+        if not os.environ.get("MAZE21_NO_JIT"):
+            try:
+                import numba
+                _CORE = numba.njit(cache=True)(_astar_core)
+            except ImportError:
+                pass
+    if _CORE is _astar_core:
+        came = [-1] * N
+        end = _astar_core(blocked.tolist(), vok.tolist(), hd.tolist(), start_nodes.tolist(), goal_mask.tolist(),
+                          nx, ny, nl, via_cost, pour_cost, [1e18] * N, came)
+        return end, came
+    came = np.full(N, -1, dtype=np.int64)
+    end = _CORE(blocked, vok, hd, start_nodes, goal_mask, nx, ny, nl, via_cost, pour_cost, np.full(N, 1e18), came)
+    return int(end), came
 
 
 def connect2(geo, net, bx, width, starts, goals, layers=OUTER, via=0.75, via_cost=8.0):
     """Multi-layer variant: starts/goals are (x, y, layer_index or None for any layer).
     Returns (segments [(layer, pts)], vias [(x, y)]) or None."""
     import numpy as np
-    x0, y0 = bx[0], bx[1]
+    x0, y0 = _window(bx)[4:]
     grids = []
     for lay in layers:
         g, nx, ny = _blocked(geo, net, lay, bx, width)
+        if POURS:
+            i0, j0 = _window(bx)[:2]
+            a = np.frombuffer(g, dtype=np.uint8)
+            a[(a == 0) & _pour_mask(net, lay, i0, j0, nx, ny).ravel()] = 2
         grids.append(g)
     vok = ~_via_ok(geo, net, bx, via)
 
@@ -180,53 +710,27 @@ def connect2(geo, net, bx, width, starts, goals, layers=OUTER, via=0.75, via_cos
         for li in (range(len(layers)) if gl is None else [gl]):
             goal[(c[0], c[1], li)] = (gx, gy)
             grids[li][c[1] * nx + c[0]] = 0
-    gl_ = [(c[0], c[1]) for c in goal]
-
-    def h(c):
-        return min(math.hypot(c[0] - a, c[1] - b) for a, b in gl_)
-    openq, came, cost = [], {}, {}
-    startpt = {}
+    nl, P = len(layers), nx * ny
+    hd = _goal_distance({(c[0], c[1]) for c in goal}, nx, ny).ravel()
+    goal_mask = np.zeros(nl * P, dtype=np.uint8)
+    for (i, j, li) in goal:
+        goal_mask[li * P + j * nx + i] = 1
+    startpt, start_nodes = {}, []
     for sx, sy, sl in starts:
         c = cell((sx, sy))
-        for li in (range(len(layers)) if sl is None else [sl]):
-            s = (c[0], c[1], li)
+        for li in (range(nl) if sl is None else [sl]):
             grids[li][c[1] * nx + c[0]] = 0
-            cost[s] = 0.0
-            startpt[s] = (sx, sy)
-            heapq.heappush(openq, (h(s), next(_TIE), s, None))
-    moves = [(1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0),
-             (1, 1, 1.414), (1, -1, 1.414), (-1, 1, 1.414), (-1, -1, 1.414)]
-    end = None
-    while openq:
-        _, _, c, d = heapq.heappop(openq)
-        if c in goal:
-            end = c
-            break
-        i, j, li = c
-        for dx, dy, w in moves:
-            n = (i + dx, j + dy, li)
-            if not (0 <= n[0] < nx and 0 <= n[1] < ny) or grids[li][n[1] * nx + n[0]]:
-                continue
-            nc = cost[c] + w + (0.0 if d is None or d == (dx, dy) else 0.6)
-            if nc < cost.get(n, 1e18):
-                cost[n] = nc
-                came[n] = c
-                heapq.heappush(openq, (nc + h(n), next(_TIE), n, (dx, dy)))
-        if vok[j * nx + i]:
-            for lj in range(len(layers)):  # through vias: any layer change
-                if lj == li or grids[lj][j * nx + i]:
-                    continue
-                n = (i, j, lj)
-                nc = cost[c] + via_cost
-                if nc < cost.get(n, 1e18):
-                    cost[n] = nc
-                    came[n] = c
-                    heapq.heappush(openq, (nc + h(n), next(_TIE), n, None))
-    if end is None:
+            startpt[(c[0], c[1], li)] = (sx, sy)
+            start_nodes.append(li * P + c[1] * nx + c[0])
+    blocked = np.frombuffer(b"".join(bytes(g) for g in grids), dtype=np.uint8)
+    end, came = _astar(blocked, np.ascontiguousarray(vok, dtype=np.uint8), hd, np.array(start_nodes, dtype=np.int64),
+                       goal_mask, nx, ny, nl, float(via_cost), float(POUR_COST))
+    if end < 0:
         return None
     cells = [end]
-    while cells[-1] in came:
-        cells.append(came[cells[-1]])
+    while came[cells[-1]] >= 0:
+        cells.append(int(came[cells[-1]]))
+    cells = [(c % P % nx, c % P // nx, c // P) for c in cells]
     cells.reverse()
     segs, vias, cur = [], [], []
     for k, c in enumerate(cells):

@@ -833,10 +833,12 @@ def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=N
     bc_flux = 0.0
     if dirichlet is None:
         iters = [0]
-        pre = LinearOperator(M.shape, matvec=lambda v: v / diag_full)
         if tcr is not None and (diag_full[:N] <= 0).any():
             raise RuntimeError(f"hot-copper operator lost its diagonal (dq/dT exceeds the cell's conductance): thermal "
                                f"runaway {label}")
+        from thermal_multigrid import preconditioner
+        # Symmetric multigrid removes the long-wavelength error that Jacobi leaves in the copper sheets.
+        pre = preconditioner(M)
         x, info = cg(M, rhs, rtol=rtol, atol=1e-14, M=pre, maxiter=40000,
                      callback=lambda _: iters.__setitem__(0, iters[0] + 1))
         if info != 0:
@@ -875,8 +877,7 @@ def solve_system(board, k, thk_m, heat, h, pitch_m, links, parts=(), dirichlet=N
         # Picard check on the unmodified operator M0 = M + diag(d_tcr): x_{k+1} = M0^-1 (b + q(x_k)), warm-started
         M0 = M + csr_matrix((np.concatenate([d_tcr, np.zeros(nJ)]), (np.arange(N + nJ), np.arange(N + nJ))),
                             shape=M.shape)
-        d0 = diag_full + np.concatenate([d_tcr, np.zeros(nJ)])
-        pre0 = LinearOperator(M0.shape, matvec=lambda v: v / d0)
+        pre0 = pre                              # the Picard operator differs only by the copper-loss diagonal
         rhs0 = rhs.copy()
         steps, dmax = 0, float("inf")
         while steps < TCR_MAX_ITER:

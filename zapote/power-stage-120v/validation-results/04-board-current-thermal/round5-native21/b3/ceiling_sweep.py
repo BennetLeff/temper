@@ -16,14 +16,23 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import run_study as rs  # noqa: E402
 
-out = []
-for ceiling in (22.0, 24.0, 26.0, 28.0):
+
+def solve(ceiling):
     it = round(1.05 * ceiling, 2)
     rs.OPS["sweep"] = {"I_t": it, "I_line": rs.I_LINE_A, "parts": "nominal", "heat": "c28"}
+    case = rs.cases("sweep")          # reads OPS["sweep"]: built before the next ceiling replaces it
     path = HERE / "outputs" / f"sweep_c{int(ceiling)}_h25_p1p0.json"
-    subprocess.run([sys.executable, str(HERE / "thermal.py"), "--geometry", str(rs.GEOM), "--case", rs.cases("sweep"),
-                    "--pitch-mm", "1.0", "--h", "25", "--a6-heat", str(rs.HEAT_C28), "--a6-mode", "nominal",
-                    "--output", str(path)], check=True, stdout=subprocess.DEVNULL)
+    return ceiling, it, path, subprocess.Popen(
+        [sys.executable, str(HERE / "thermal.py"), "--geometry", str(rs.GEOM), "--case", case,
+         "--pitch-mm", "1.0", "--h", "25", "--a6-heat", str(rs.HEAT_C28), "--a6-mode", "nominal",
+         "--output", str(path)], stdout=subprocess.DEVNULL)
+
+
+out = []
+# the four solves are independent single-threaded processes: start them together, read them in order
+for ceiling, it, path, proc in [solve(c) for c in (22.0, 24.0, 26.0, 28.0)]:
+    if proc.wait():
+        raise subprocess.CalledProcessError(proc.returncode, proc.args)
     r = json.loads(path.read_text())
     out.append({"ceiling_A": ceiling, "I_t_A": it, "peak": r["peak"]})
     print(ceiling, it, round(r["peak"]["temperature_c"], 1), r["peak"]["x_mm"], r["peak"]["y_mm"], r["peak"]["layer"], flush=True)
