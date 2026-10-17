@@ -35,6 +35,8 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import cosim  # noqa: E402
 import leak_checks as LC  # noqa: E402
 import rim_limit as RL  # noqa: E402
@@ -566,11 +568,17 @@ def main():
     matches = True
     if args.check:
         expected = json.loads(args.out.read_text())
-        matches = comparable(result) == comparable(expected)
+        # Exact on the reference platform; elsewhere floats within evidence_compare's
+        # rule and generated-artifact hashes skipped. Toolchain strings excluded.
+        res = EC.compare(json.loads(comparable(expected)), json.loads(comparable(EC.stamp(result))),
+                         name=args.out.name)
+        matches = res.ok
+        for line in (res.outliers if res.ok else []) + res.diffs[:20]:
+            print(f"  {line}")
         print(f"D1 nuisance evidence: {'MATCH' if matches else 'MISMATCH'} "
-              "(exact values and source hashes; toolchain strings excluded)")
+              "(source hashes and every value; toolchain strings excluded)")
     else:
-        args.out.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
+        args.out.write_text(json.dumps(EC.stamp(result), indent=2, allow_nan=False) + "\n")
         print(f"Wrote {args.out}")
     passed = result["gate"] and matches
     print(f"D1 NUISANCE {'PASS' if passed else 'FAIL'}")

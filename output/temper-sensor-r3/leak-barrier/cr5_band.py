@@ -36,6 +36,8 @@ HERE = Path(__file__).resolve().parent
 FW = HERE.parent / "firmware"
 REPO = HERE.parents[2]
 sys.path.insert(0, str(FW))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import leak_checks as LC  # noqa: E402
 import rim_limit as RL  # noqa: E402
 
@@ -220,8 +222,9 @@ def input_hashes():
 def regenerate(jobs, caps=CAPS):
     hashes = input_hashes()
     # The input identity remains reproducible after this study is committed.
-    dirty = subprocess.check_output(["git", "diff", "--name-only", BASE, "--", *hashes],
-                                    cwd=REPO, text=True).strip()
+    # Generated evidence inputs that differ from BASE only by the platform's float
+    # drift are not dirty (evidence_compare); any source byte change is.
+    dirty = " ".join(EC.dirty_inputs(REPO, BASE, list(hashes)))
     if dirty:
         raise RuntimeError("study inputs differ from the requested base: " + dirty)
     source_control = json.loads((FW / "leak-checks.json").read_text())["summary"]["leak"]["all_onsets"]
@@ -519,7 +522,7 @@ def notes(result):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--check", action="store_true",
-                    help="regenerate without writing; fail on any evidence difference (toolchain strings excepted)")
+                    help="regenerate without writing; fail on an evidence difference (toolchain strings excepted; cross-platform floats within evidence_compare's rule)")
     ap.add_argument("--caps", default=",".join(str(c) for c in CAPS),
                     help="comma-separated subset of caps (250 always runs); --check only")
     ap.add_argument("--out", type=Path, default=HERE / "cr5-band.json")
@@ -536,12 +539,16 @@ def main():
         result = regenerate(args.jobs, caps)
         if args.check:
             committed = json.loads(args.out.read_text())
-            if comparable(committed, caps) != comparable(result, caps):
+            res = EC.compare(comparable(committed, caps), comparable(EC.stamp(result), caps), name=args.out.name)
+            for o in res.outliers if res.ok else []:
+                print(f"T3: allowed cross-platform outlier {o}")
+            if not res.ok:
+                print("T3 differences:\n  " + "\n  ".join(res.diffs[:20]))
                 cand = Path(tempfile.gettempdir()) / f"temper-t3-regenerated-{os.getpid()}.json"
                 cand.write_text(json.dumps(result, indent=1, allow_nan=False) + "\n")
                 raise RuntimeError(f"regenerated JSON differs from {args.out}; candidate saved to {cand}")
         else:
-            args.out.write_text(json.dumps(result, indent=1, allow_nan=False) + "\n")
+            args.out.write_text(json.dumps(EC.stamp(result), indent=1, allow_nan=False) + "\n")
             if args.out == HERE / "cr5-band.json":
                 (HERE / "NOTES-t3.md").write_text(notes(result))
         failed = [k for k, v in result["gate"].items() if not v]

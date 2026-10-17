@@ -49,6 +49,8 @@ import numpy as np
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import cosim  # noqa: E402
 import ref  # noqa: E402
 import rim_ntc  # noqa: E402
@@ -288,7 +290,7 @@ def main():
             "benign_no_rim_fault": b["rim_faults"] == 0, "benign_no_supervisor_latch": b["sup_latches"] == 0}
     res = {"scope": __doc__.strip(), "tau_g_s": TAU_G, "leak_at_s": LEAK_AT, "cr5_band_C": CR5_BAND,
            "summary": summ, "gate": gate, "all_pass": all(gate.values()), "rows": rows}
-    Path(args.out).write_text(json.dumps(res, indent=1, default=float) + "\n")
+    Path(args.out).write_text(json.dumps(EC.stamp(res), indent=1, default=float) + "\n")
     for k, v in summ.items():
         print(k, v)
     for r in leak:

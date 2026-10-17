@@ -42,6 +42,8 @@ import numpy as np
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import leak_checks as LC  # noqa: E402
 import ref  # noqa: E402
 import xcheck_cosim as X  # noqa: E402
@@ -193,7 +195,7 @@ def main():
                 "arrhenius_equal_to_hazardous_at_300C": arr,
                 "arrhenius_Ea_max_caught_eV": ea_max(thr),
                 "arrhenius_Ea_max_caught_rail_corrected_eV": ea_max(thr_c)}
-    Path(HERE / "leak-alternatives.json").write_text(json.dumps(out, indent=1) + "\n")
+    Path(HERE / "leak-alternatives.json").write_text(json.dumps(EC.stamp(out), indent=1) + "\n")
     print(json.dumps({k: v for k, v in out["B"].items() if k not in ("compression_dReading_dT_by_r_leak",
                                                                       "plant_gain_by_class")}, indent=1))
     print({r: v["reading_250"] for r, v in comp.items()})

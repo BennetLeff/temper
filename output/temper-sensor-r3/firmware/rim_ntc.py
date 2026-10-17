@@ -40,6 +40,8 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import rail_adc  # noqa: E402
 HEADER = REPO / "firmware" / "components" / "sensors" / "rim_ntc_table.h"
 PCB_CHECKS = HERE.parent / "pcb" / "checks.py"
@@ -284,7 +286,7 @@ def main() -> int:
                     "rail_with_MCP3202_tol_pct": round(rail_adc.FULL_TOL * 100, 3)},
         "checks": checks, "all_pass": all(checks.values()),
     }
-    args.out.write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    args.out.write_text(json.dumps(EC.stamp(out), indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     for k, v in checks.items():
         print(f"{'PASS' if v else 'FAIL'} {k}")
     print(f"leave-one-out worst: piecewise-beta {worst_pb:.4f} K, log-linear {worst_ll:.4f} K")

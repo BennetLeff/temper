@@ -93,6 +93,8 @@ import numpy as np
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import cosim  # noqa: E402
 import ref  # noqa: E402
 from ref import es, screen  # noqa: E402
@@ -673,7 +675,7 @@ def main():
            "margins": margins,
            "stage_2b_sweep": sweep, "current_sense": isense, "faults": fault_table, "contact_loss": loss,
            "rows": [{k: v for k, v in r.items() if k not in ("sweep_2b", "trace_T_c_1s")} for r in rows]}
-    Path(args.out).write_text(json.dumps(out, indent=1, default=float) + "\n")
+    Path(args.out).write_text(json.dumps(EC.stamp(out), indent=1, default=float) + "\n")
     print("legacy false trips (benign runs):", {k: f"{v['runs']}/{v['of']}" for k, v in legacy_false.items()})
     print("C1 false trips:", c1_false or "none")
     print("margins:", margins)

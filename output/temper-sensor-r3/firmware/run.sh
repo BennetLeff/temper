@@ -63,7 +63,18 @@
 #      (about 30 min), is manual:
 #      python3 ../leak-barrier/cr5_band.py --check   (NOTES-t3.md)
 #   6. plant-gain sensitivity (sensitivity.json, reported only)
+#   7. evidence vs HEAD (../evidence_compare.py tree, reported only): every
+#      regenerated artifact against its committed version under the platform
+#      rule below. A verification run must print "EVIDENCE MATCHES HEAD".
 # Exits non-zero if any step fails. Build products go to a temp dir.
+#
+# Evidence reference platform: the remote box (linux x86_64). Committed
+# evidence is regenerated there and carries "reference_platform"; there the
+# tree is byte-identical after this script. The Mac checks counts,
+# classifications, hazard flags, latch rules and gates exactly and floats within
+# tolerance (../evidence_compare.py; DECISIONS.md D-EVPLAT). On the box:
+#   ssh bennet@100.121.239.87 'bash -lc "cd ~/WS-sensor/temper/output/temper-sensor-r3/firmware &&
+#     PATH=$HOME/router-scratch/env/bin:$HOME/.local/bin:$PATH ./run.sh"'
 set -eu
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 repo="$here/../../.."
@@ -168,4 +179,7 @@ tail -1 "$tmp/cr5.log"
 
 echo "== 6. plant-gain sensitivity (reported, not gated)"
 "$py" "$here/sensitivity.py" --lib "$lib" --out "$here/sensitivity.json" > /dev/null
+echo "== 7. evidence vs HEAD (reported, not gated)"
+"$py" "$here/../evidence_compare.py" tree --base HEAD > "$tmp/ev.log" 2>&1 || true
+grep -E "^(DIFF|NEW|EVIDENCE)" "$tmp/ev.log" || true
 echo "ALL C1 FIRMWARE CHECKS PASS"

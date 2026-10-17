@@ -67,6 +67,8 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 sys.path.insert(0, str(HERE.parent / "pcb"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import checks as K  # noqa: E402  (pcb/checks.py: MNA network of the CR-1 board)
 
 RTD_H = REPO / "firmware" / "components" / "sensors" / "include" / "rtd_service.h"
@@ -442,7 +444,7 @@ def main() -> int:
                          "the worst MNA corner, and tau >= tau_max"},
         "checks": checks, "all_pass": all(checks.values()),
     }
-    (HERE / "fault-cycle.json").write_text(json.dumps(out, indent=1, default=float) + "\n", encoding="utf-8")
+    (HERE / "fault-cycle.json").write_text(json.dumps(EC.stamp(out), indent=1, default=float) + "\n", encoding="utf-8")
     print(f"corners {n}; tau_max {tau_max * 1e6:.1f} us; required (us): "
           + ", ".join(f"{k} {v * 1e6:.0f}" for k, v in req.items()))
     print(f"firmware waits: step {step_ms} ms, restart {restart_ms} ms (header {fw_step} / {fw_restart} ms); "

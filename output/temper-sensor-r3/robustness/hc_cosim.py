@@ -52,6 +52,8 @@ import numpy as np
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 sys.path.insert(0, str(HERE.parent / "firmware"))
 import cases as cs  # noqa: E402
 import cosim  # noqa: E402
@@ -162,7 +164,7 @@ def main():
         before = [r for r in old.get("rows", []) if r["version"] == "before"]
         out["rows"] = rows + before
         out["summary"] = summary(out["rows"])
-    Path(args.out).write_text(json.dumps(out, indent=1, default=float) + "\n")
+    Path(args.out).write_text(json.dumps(EC.stamp(out), indent=1, default=float) + "\n")
     for k, d in out["summary"].items():
         print("==", k)
         for g, x in d.items():

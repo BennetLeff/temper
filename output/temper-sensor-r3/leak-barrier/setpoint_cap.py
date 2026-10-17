@@ -39,14 +39,16 @@ HERE = Path(__file__).resolve().parent
 FW = HERE.parent / "firmware"
 REPO = HERE.parents[2]
 sys.path.insert(0, str(FW))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import cold_soak as CS  # noqa: E402
 import leak_checks as LC  # noqa: E402
 import rim_limit as RL  # noqa: E402
 import xcheck_cosim as X  # noqa: E402
 from ref import es  # noqa: E402
 
-# Source inputs as of the peak hazard rule (sensor-c1-impulse-mining 03c28e76b).
-BASE = "03c28e76bd893a716c1b080bd34ccbfffd42993e"
+# Source inputs as integrated with F1-F3 (sensor-c1-integrate 8a5b47a50; was 03c28e76b).
+BASE = "8a5b47a50edba30e9c8a88549149fd21a778adbd"
 CAPS = (200, 210, 220, 230, 240, 250)
 OUT = HERE / "setpoint-cap.json"
 ROWS_OUT = HERE / "setpoint-cap-rows.json.gz"
@@ -382,9 +384,9 @@ def apparatus(lib_path):
             REPO / "firmware/main/pan_control.c",
         }
     )
-    dirty = subprocess.check_output(
-        ["git", "diff", "--name-only", BASE, "--", *[str(p) for p in inputs]], cwd=REPO, text=True
-    ).splitlines()
+    # Generated evidence inputs that differ from BASE only by the platform's float
+    # drift are not dirty (evidence_compare); any source byte change is.
+    dirty = EC.dirty_inputs(REPO, BASE, inputs)
     return {
         "base_revision": BASE,
         "source_inputs_dirty_against_base": dirty,
@@ -797,14 +799,25 @@ def main():
                 json.loads(OUT.read_text()),
                 json.loads(gzip.decompress(ROWS_OUT.read_bytes())),
             )
-            if comparable(*committed, caps) != comparable(result, rows, caps):
+            fresh = comparable(EC.stamp(result), rows, caps)
+            old = comparable(*committed, caps)
+            # The rows carry no platform of their own: they follow the summary's.
+            cross = EC.cross_platform(old[0], fresh[0])
+            problems = []
+            for label, a, b, name in (("summary", old[0], fresh[0], OUT.name), ("rows", old[1], fresh[1], ROWS_OUT.name)):
+                res = EC.compare(a, b, name=name, cross=cross)
+                for o in res.outliers if res.ok else []:
+                    print(f"T2 {label}: allowed cross-platform outlier {o}", flush=True)
+                problems += [f"{label}: {d}" for d in res.diffs[:10]]
+            if problems:
                 cand = Path(tempfile.gettempdir()) / f"temper-t2-regenerated-{os.getpid()}"
                 cand.mkdir(exist_ok=True)
                 (cand / OUT.name).write_text(json.dumps(result, indent=1, allow_nan=False) + "\n")
                 write_rows(rows, cand / ROWS_OUT.name)
-                raise RuntimeError(f"regenerated evidence differs; candidate saved to {cand}")
+                raise RuntimeError(f"regenerated evidence differs; candidate saved to {cand}:\n  "
+                                   + "\n  ".join(problems))
         else:
-            OUT.write_text(json.dumps(result, indent=1, allow_nan=False) + "\n")
+            OUT.write_text(json.dumps(EC.stamp(result), indent=1, allow_nan=False) + "\n")
             write_rows(rows, ROWS_OUT)
             plot(result, HERE / "setpoint-cap.png")
             (HERE / "NOTES-t2.md").write_text(notes(result))

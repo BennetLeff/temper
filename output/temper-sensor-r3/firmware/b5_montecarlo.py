@@ -33,6 +33,8 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import cosim  # noqa: E402
 
 VARIANTS = {
@@ -104,8 +106,8 @@ def main():
         rows = pool.map(cosim.run_case, jobs(args.seeds))
     summ = summarise(rows)
     verdict = {name: passes(d) for name, d in summ.items()}
-    Path(args.out).write_text(json.dumps({"scope": __doc__.strip(), "seeds": args.seeds, "variants": VARIANTS,
-                                          "summary": summ, "passes": verdict}, indent=1, default=float) + "\n")
+    Path(args.out).write_text(json.dumps(EC.stamp({"scope": __doc__.strip(), "seeds": args.seeds, "variants": VARIANTS,
+                                          "summary": summ, "passes": verdict}), indent=1, default=float) + "\n")
     for name, d in summ.items():
         print(f"== {name}: {'PASS' if verdict[name] else 'FAIL'}")
         for k, v in d.items():

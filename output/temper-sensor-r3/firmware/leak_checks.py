@@ -78,6 +78,8 @@ import numpy as np
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import cosim  # noqa: E402
 import ref  # noqa: E402
 import xcheck_cosim as X  # noqa: E402
@@ -468,7 +470,7 @@ def main():
            "all_pass": all(gate.values()), "leak_rows": rows_out,
            "benign_rows": [{k: b[k] for k in ("set", "kind", "pan", "delta", "corner", "seed", "suspects")}
                            | {"first": b["first"]} for b in benign]}
-    Path(args.out).write_text(json.dumps(res, indent=1, default=float) + "\n")
+    Path(args.out).write_text(json.dumps(EC.stamp(res), indent=1, default=float) + "\n")
     for onset, L in summ["leak"]["by_onset"].items():
         print(f"onset {onset}: by R (ohm): runs, steady T_c min..max, peak T_c, hazardous, latched before 300, "
               "leak-check latched, any latch, runs with a suspect, D1 lost")

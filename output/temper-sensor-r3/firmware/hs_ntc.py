@@ -80,6 +80,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import rail_adc  # noqa: E402
 REPO = HERE.parents[2]
 HEADER = REPO / "firmware" / "components" / "sensors" / "hs_ntc_table.h"
@@ -807,7 +809,7 @@ def main() -> int:
         "soak_timing": soak_argument(),
         "checks": checks, "all_pass": all(checks.values()),
     }
-    args.out.write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    args.out.write_text(json.dumps(EC.stamp(out), indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     for k, v in checks.items():
         print(f"{'PASS' if v else 'FAIL'} {k}")
     print(f"gain {ADC_GAIN:.6f} band {GAIN_LO:.6f}-{GAIN_HI:.6f}; pin max {vr['pin_max_at_minus40C_V']} V at -40 C; "

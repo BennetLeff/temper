@@ -74,6 +74,8 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 REPO = HERE.parents[2]
 RAIL_H = REPO / "firmware" / "components" / "sensors" / "include" / "rail_adc.h"
 
@@ -239,7 +241,7 @@ def main() -> int:
                 "bus_time_per_reading_us": round(n * 24.0 / clk * 1e6, 1)},
         "checks": checks, "all_pass": all(checks.values()),
     }
-    args.out.write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    args.out.write_text(json.dumps(EC.stamp(out), indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     for r in rows:
         print(f"board {r['board_C']:6.1f} C: {r['total_pct']:.3f} % ({r['total_mV_at_3300']} mV)")
     print(f"soak band {SOAK_BOARD_C} C: {SOAK_TOL * 100:.3f} % (MCP3202 x2: {SOAK_TOL_MCP_X2 * 100:.3f} %); "

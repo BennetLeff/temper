@@ -19,6 +19,8 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
+import evidence_compare as EC  # noqa: E402  (platform stamp and cross-platform check)
 
 
 def rounded(value):
@@ -273,9 +275,9 @@ def derive(repo):
     controls = repo / "firmware/components/control"
     paths += sorted(controls.glob("*.c")) + sorted(controls.glob("*.h"))
     input_names = [str(p.relative_to(repo)) for p in paths]
-    dirty = subprocess.run(["git", "diff", "--quiet", "HEAD", "--", *input_names], cwd=repo).returncode
-    if dirty not in (0, 1):
-        raise ValueError("cannot establish input working-tree state")
+    # Generated evidence inputs that differ from HEAD only by the platform's float
+    # drift (evidence_compare) are not dirty; any source byte change is.
+    dirty = bool(EC.dirty_inputs(repo, "HEAD", input_names))
     provenance = {"input_sha256": {str(p.relative_to(repo)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},
                   "study_base_revision": "87edb1b329a39ffff54c4cc13e6a2bbac7f0c0e4",
                   "source_inputs_dirty": bool(dirty),
@@ -310,25 +312,23 @@ TOOLCHAIN_KEYS = ("compiler", "numpy_version", "python_version")
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--check", action="store_true", help="compare regenerated evidence byte-for-byte, without writing")
+    ap.add_argument("--check", action="store_true", help="compare regenerated evidence with the committed file (evidence_compare rule), without writing")
     ap.add_argument("--repo", type=Path, default=HERE.parent.parent.parent)
     ap.add_argument("--out", type=Path, default=HERE / "leak-barrier.json")
     args = ap.parse_args()
     try:
         result = derive(args.repo.resolve())
+        result = EC.stamp(result)
         encoded = json.dumps(result, indent=2, sort_keys=True, allow_nan=False) + "\n"
         if not result["all_pass"]:
             failed = [k for k, passed in result["gates"].items() if not passed]
             raise ValueError("derivation gates failed: " + ", ".join(failed))
         if args.check:
-            # The toolchain strings record where the file was written; every derived
-            # value must still match exactly on any machine.
-            committed = json.loads(args.out.read_text())
-            for key in TOOLCHAIN_KEYS:
-                committed["provenance"].pop(key, None)
-                result["provenance"].pop(key, None)
-            if committed != json.loads(json.dumps(result, allow_nan=False)):
-                raise ValueError("regenerated JSON differs from " + str(args.out))
+            # Toolchain strings are ignored; on the reference platform every other
+            # value must match exactly, elsewhere within evidence_compare's rule.
+            EC.assert_same(EC.strip_keys(json.loads(args.out.read_text()), "provenance", TOOLCHAIN_KEYS),
+                           EC.strip_keys(result, "provenance", TOOLCHAIN_KEYS),
+                           name="leak-barrier.json", label="T1")
         else:
             args.out.write_text(encoded)
         print("T1 PASS")

@@ -99,6 +99,8 @@ import numpy as np
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import hs_ntc as H  # noqa: E402
 import leak_checks as LC  # noqa: E402  (the bar's hazard predicate)
 
@@ -517,7 +519,7 @@ def main() -> int:
                       "coverage": coverage, "per_leak_value": per_value},
         "gate": gate, "all_pass": all(gate.values()),
     }
-    Path(args.out).write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8")
+    Path(args.out).write_text(json.dumps(EC.stamp(out), indent=1) + "\n", encoding="utf-8")
     for v in VARIANTS:
         print(f"benign gated ({v}):", {k: (d["trajectories"], d["ran"], d["latches"])
                                        for k, d in ben_sum[v].items()})

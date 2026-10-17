@@ -28,6 +28,8 @@ import numpy as np
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import ref  # noqa: E402
 from ref import es, screen  # noqa: E402
 
@@ -181,7 +183,7 @@ def main():
                               "replay_lost_t": None if r["lost_k"] is None else (WIN[0] + r["lost_k"]) / 10,
                               "replay_probes_in_window": r["probes"], "closed_loop": c["closed"],
                               "probe_log": [(WIN[0] + k) / 10 for k, *_ in r["probe_log"]]})
-    (HERE / "vectors-summary.json").write_text(json.dumps(summary, indent=1) + "\n")
+    (HERE / "vectors-summary.json").write_text(json.dumps(EC.stamp(summary), indent=1) + "\n")
     print(json.dumps(summary, indent=1))
 
 

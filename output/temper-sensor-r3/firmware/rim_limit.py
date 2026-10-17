@@ -72,6 +72,8 @@ import numpy as np
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import cosim  # noqa: E402
 import leak_checks as LC  # noqa: E402
 import ref  # noqa: E402
@@ -458,7 +460,7 @@ def main():
                    "chosen_no_false_latch": chosen["sweep"]["false_benign"] == 0
                    and chosen["sweep"]["false_stress_benign"] == 0 and chosen["sweep"]["false_latch_before_leak"] == 0}
     res["all_pass"] = all(res["gate"].values())
-    Path(args.out).write_text(json.dumps(res, indent=1, default=float) + "\n")
+    Path(args.out).write_text(json.dumps(EC.stamp(res), indent=1, default=float) + "\n")
     print("baseline", base)
     print("chosen variant, benign closest approach to the limit (K, sustained, not falling):",
           res["chosen_benign_closest_approach_K"])

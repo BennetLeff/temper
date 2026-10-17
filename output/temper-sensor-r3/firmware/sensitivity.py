@@ -22,6 +22,8 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import cosim  # noqa: E402
 
 A_SCALES = (0.5, 0.7, 1.4, 2.0)
@@ -57,7 +59,7 @@ def main():
             rat = [r["a_ratio_end_ramp1"] for r in G]
             d["a_ratio_end_ramp1"] = [min(rat), max(rat)]
         summ[v] = d
-    Path(args.out).write_text(json.dumps({"scope": __doc__.strip(), "summary": summ}, indent=1) + "\n")
+    Path(args.out).write_text(json.dumps(EC.stamp({"scope": __doc__.strip(), "summary": summ}), indent=1) + "\n")
     for v, d in summ.items():
         print(v, d)
     return 0

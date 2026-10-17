@@ -34,6 +34,8 @@ import yaml
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 sys.path.insert(0, str(REPO / "firmware" / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 from board_derivation_lib import max31865_high_threshold_word, max31865_low_threshold_word  # noqa: E402
 
 A, B, C = 3.9083e-3, -5.775e-7, -4.183e-12
@@ -99,7 +101,7 @@ def main() -> int:
                         (("high_35542", 35542), ("high_35544", 35544), ("low_12844", 12844))},
         "checks": checks, "all_pass": all(checks.values()),
     }
-    (HERE / "cr7-thresholds.json").write_text(json.dumps(out, indent=1) + "\n")
+    (HERE / "cr7-thresholds.json").write_text(json.dumps(EC.stamp(out), indent=1) + "\n")
     print(f"R(-40) = {r_lo:.5f} ohm, code {r_lo / RREF * CODES:.3f}; R(360) = {r_hi:.5f} ohm, code "
           f"{r_hi / RREF * CODES:.3f}")
     print(f"exact inputs -> {exact}; printed 2-dp ohms -> {printed}; CR-7 lists {cr7}; firmware {fw}")

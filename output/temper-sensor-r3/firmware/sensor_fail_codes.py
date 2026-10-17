@@ -43,6 +43,8 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import evidence_compare as EC  # noqa: E402  (reference_platform on the evidence written)
 import ref  # noqa: E402
 from ref import es, screen  # noqa: E402
 
@@ -132,7 +134,7 @@ def main() -> int:
            "fastest_fault_heating_K_per_s": fastest,
            "climb_300_to_850C_s": round(climb_s, 1), "climb_300_to_850C_conversions": int(climb_s * 50),
            "bands": bands, "checks": checks, "all_pass": all(checks.values())}
-    (HERE / "sensor-fail-codes.json").write_text(json.dumps(out, indent=1) + "\n")
+    (HERE / "sensor-fail-codes.json").write_text(json.dumps(EC.stamp(out), indent=1) + "\n")
     print(f"fail codes: open >= {hi_code} ({bands['fail_high_code']['ohm']} ohm, "
           f"{bands['fail_high_code']['degC']} degC), short <= {lo_code}; header {hdr}")
     print(f"hottest uncontrolled element (eta {max(es.ETA_SWEEP)}): {hottest} degC; chip rating {T_CHIP_RATING}; "
