@@ -2719,6 +2719,68 @@ checks. The two other B5 variants retain their expected report-only FAILs.
 Leakage reports `hazardous: 277 latched before 300: 69 after: 204 never: 4`;
 its 69-minimum / 4-maximum ratchets remain unchanged.
 
+The requested short baseline commands were rerun after the change. Exact
+before/after output is recorded below; “same” means the displayed output matched
+literally, not merely that both commands returned success.
+
+| Command | Before | After |
+|---|---|---|
+| `cmake -S . -B build` in `firmware/test` | `-- Build files have been written to: /workspace/temper/firmware/test/build` | Same |
+| `cmake --build build -j -- -k` | `gmake: Target 'default_target' not remade because of errors.` | Same known profiles failure |
+| `ctest` in `firmware/test/build` | `100% tests passed, 0 tests failed out of 26` | Same |
+| `test_sil_coverage.py --gate` | `SUMMARY legacy: 31 scenarios, 20/20 designed pairs covered`; `SUMMARY c1: 52 scenarios, 28/28 designed pairs covered`; `SUMMARY c1 mechanisms: 27/27 cells covered`; `PASS` | Same |
+| `gen_sil_traces.py --check` | `SIL traces up to date (27 generated traces)` | Same |
+| `check_firmware_invariants.py` | `OK: all 5 invariants verified and proof_record.json is fresh` | Same |
+| `check_state_machine_model.py` | `OK: state machine model check passed (reachability, P1-P4, manifest cross-check)` | Same |
+| `check_fault_list_consistency.py` | `fault list consistency check passed`; manifest 14, generated 16, supplemental 3 | Same |
+| `check_board_pin_map.py` | `PASSED: temper_pins.h agrees with zapote/controller controller-c1-crs at 467917c38 (36 GPIOs, 10 expander pins)` | Same |
+
+The first unadjusted Linux baseline additionally failed to link power_gate_tests
+(`undefined reference to 'exp'` and `'floor'`), with `96% tests passed, 1 tests
+failed out of 26`. The build-cache-only `-lm` adjustment described above was
+applied before measuring the comparable 26/26 baseline and after results.
+
+The post-change runner also passes B5 and the new exact diagnostic check:
+
+```text
+== firmware: PASS
+D1 cap=250: 132 stress_benign; LOST cases=2 events=2 max=2 PASS
+D1 cap=230: 132 stress_benign; LOST cases=1 events=1 max=1 PASS
+D1 nuisance evidence: MATCH (exact values and source hashes; toolchain strings excluded)
+D1 NUISANCE PASS
+```
+
+Comparing the two independently generated Linux evidence sets reports
+`LEAK PARITY: all 624 leak and 548 benign rows, summaries and gates exactly equal PASS`
+and `B5 PARITY: all variant summaries and gates exactly equal PASS`. These are
+whole-object comparisons, including all report-only B5 variants. The measured
+firmware real-lift rows are:
+
+| Pan | Detected, before→after | Worst suspect (s), before→after | Worst confirm (s), before→after | False restores, before→after |
+|---|---|---|---|---|
+| carbon_steel_28 | 20/20→20/20 | 2.6→2.6 | 20.6→20.6 | 0→0 |
+| cast_iron_26 | 20/20→20/20 | 2.6→2.6 | 20.6→20.6 | 0→0 |
+| disc_pot_water_1l5 | 20/20→20/20 | 3.4→3.4 | 21.4→21.4 | 0→0 |
+| triply_clad_24 | 20/20→20/20 | 2.7→2.7 | 20.7→20.7 | 0→0 |
+
+D1 LOST per leak resistance (48 cases per resistance) is unchanged:
+
+| Resistance (Ω) | Before | After |
+|---:|---:|---:|
+| 300.0 | 2 | 2 |
+| 401.8 | 4 | 4 |
+| 538.2 | 6 | 6 |
+| 720.8 | 16 | 16 |
+| 965.5 | 11 | 11 |
+| 1293.2 | 8 | 8 |
+| 1732.1 | 0 | 0 |
+| 2319.9 | 0 | 0 |
+| 3107.2 | 0 | 0 |
+| 4161.8 | 0 | 0 |
+| 5574.3 | 0 | 0 |
+| 7466.1 | 0 | 0 |
+| 10000.0 | 0 | 0 |
+
 The runner then stops at `T1 FAIL: derivation gates failed: source_inputs_clean`:
 its freshly generated Linux `leak-checks.json` differs from the committed Mac
 file. Restoring the six changed tracked JSON files yields `T1 PASS` on the
@@ -2730,6 +2792,22 @@ cross-platform drift is five stored event-time fields: 527.8→527.9 s (rim-limi
 and first latch), and rim-fault times 1554.8→1554.4, 1325.0→1325.1 and
 1292.1→1291.9 s. The 69/204/4 coverage counts and all D1 leak classifications
 are unchanged from the retained evidence.
+
+The completed post-change full runner also reports `ALL RUNAWAY CHECKS PASS`
+and `SENSOR FAIL CODES PASS`, then ends with the same
+`T1 FAIL: derivation gates failed: source_inputs_clean`. Thus the requested
+before/after `./run.sh` final lines are identical failures; neither run reaches
+T2, sensitivity, or `ALL C1 FIRMWARE CHECKS PASS`. All six regenerated JSON
+objects match the independent Linux baseline exactly, including runaway data.
+Their after-run copies were saved and the tracked originals restored.
+
+After restoration and committing the F1 sources/documentation, a direct
+`leak_barrier.py --check` still exits 1:
+`T1 FAIL: regenerated JSON differs from /workspace/temper/output/temper-sensor-r3/leak-barrier/leak-barrier.json`.
+The clean-tree gate is then satisfied, but the retained evidence's source hashes
+are stale for the new decision record and shim. The existing T1 JSON is left
+unchanged as required; resolving its provenance belongs to the authorized Mac
+evidence refresh, not a relaxed comparison here.
 
 T1 also fingerprints this decision record and the host shim; T2 fingerprints
 all firmware study Python files and the shim and demands unchanged inputs
