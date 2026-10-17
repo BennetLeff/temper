@@ -116,7 +116,9 @@ def derive(repo):
     sensors = repo / "firmware/components/sensors"
     with tempfile.TemporaryDirectory(prefix="temper-t1-") as tmp:
         lib_path = Path(tmp) / "rtd.so"
-        subprocess.run(["cc", "-std=c99", "-O2", "-shared", "-fPIC", "-Wall", "-Wextra", "-Werror",
+        # -ffp-contract=off: Apple clang contracts FMAs by default and gcc on x86-64
+        # does not; off keeps the evidence reproducible across platforms (as build_lib.sh).
+        subprocess.run(["cc", "-std=c99", "-O2", "-ffp-contract=off", "-shared", "-fPIC", "-Wall", "-Wextra", "-Werror",
                         f"-I{sensors / 'include'}", str(sensors / "rtd_convert.c"), "-lm", "-o", str(lib_path)],
                        check=True, capture_output=True, text=True)
         lib = ctypes.CDLL(str(lib_path))
