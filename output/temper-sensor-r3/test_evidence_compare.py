@@ -130,3 +130,19 @@ def test_stamp_puts_platform_first():
 def test_no_platform_on_either_side_is_exact():
     a = {"x": 1.0}
     assert not EC.compare(a, {"x": 1.0 + 1e-9}).ok
+
+
+def test_rounded_h_model_is_a_row_float_but_other_ints_stay_exact():
+    a = {"reference_platform": BOX, "rows": [{"h_model_end": 386, "cs_events": [[12.0, "accept", 386]],
+                                              "cs_accepts": 3}]}
+    b = copy.deepcopy(a)
+    b["reference_platform"] = MAC
+    b["rows"][0]["h_model_end"] = 387
+    b["rows"][0]["cs_events"][0][2] = 387
+    assert EC.compare(a, b).ok
+    b["rows"][0]["h_model_end"] = 389
+    assert not EC.compare(a, b).ok
+    b["rows"][0]["h_model_end"] = 387
+    assert not EC.compare(a, {**b, "reference_platform": BOX}).ok
+    b["rows"][0]["cs_accepts"] = 4
+    assert not EC.compare(a, b).ok

@@ -3,14 +3,17 @@
 The evidence reference platform is the remote box (linux x86_64): every
 committed evidence file is regenerated there, and each carries a top-level
 `reference_platform`. Re-running a study elsewhere (the Mac) gives the same
-counts, classifications, hazard flags, latch rules and gate booleans, but the
-closed-loop simulations drift in the last float digits (measured Linux vs Mac:
-per-run latch times <= 0.4 s, temperatures <= 0.2 K, one chaotic steady T_c
-1.8 K; summaries <= 1.6e-5 K; the D1 diagnostic < 1e-4 relative). So:
+counts, classifications, hazard flags, latch rules and gate booleans. Most of
+the Linux-vs-Mac drift came from Apple clang contracting FMAs in the host
+co-simulation library (per-run latch times up to 222 s and flipped legacy
+equal-code trips in runaway-checks); build_lib.sh now compiles with
+-ffp-contract=off, after which runaway-checks reproduces byte-exact on both.
+The tolerances below stay as a guard against residual libm/numpy differences:
 
 - same platform on both sides (or no platform on either): exact equality;
 - different platforms: dict keys, list lengths, strings, booleans and ints
-  exact; floats within a tolerance class chosen by what the number means:
+  exact (except the values in ROUNDED: floats round()ed to whole units, which
+  get the row tolerance plus one rounding step); floats within a tolerance class chosen by what the number means:
     tight  (summaries, gates, thresholds): |a-b| <= 0.01 or <= 1e-4 relative;
     row    (per-run diagnostic rows):      |a-b| <= 0.5  or <= 1e-3 relative,
            plus at most `max_outliers` floats beyond that per file, each listed;
@@ -64,6 +67,14 @@ GENERATED_BINARY = {"output/temper-sensor-r3/leak-barrier/setpoint-cap.png"}
 ROW_PATH = re.compile(
     r"(^|/)(leak_rows|benign_rows|rows|runs|cases|missed_example|hottest_case|d1_lost_runs|"
     r"lost_episodes|episodes|records|trace|traces|windows|late_thermal)(\[|/|$)")
+
+# Values that are a float round()ed to whole units, not a count: the contact
+# model h and the estimator's h-hat (W/m^2K) at the end of a run and in each
+# contact-shift event (cosim.py, robustness/pyloop.py: (t, event, h);
+# temper-sensor-r2/estimator_study.py). One closed-loop run each, so row class,
+# and a drift across a .5 boundary moves them by one whole unit.
+ROUNDED = re.compile(r"/h_model_end$|/h_hat_end$|/cs_events\[\d+\]\[2\]$")
+ROUNDED_STEP = 1.0
 
 # Per-file extras: more row paths (each an aggregate taken over per-run rows,
 # so it inherits their drift) and the number of floats allowed past the row
@@ -216,6 +227,12 @@ def _walk(a, b, path: str, cross: bool, res: Result, row_extra: re.Pattern | Non
     elif isinstance(a, bool) or isinstance(b, bool):
         if a is not b:
             res.diffs.append(f"{path}: {a!r} != {b!r}")
+    elif isinstance(a, (int, float)) and isinstance(b, (int, float)) and ROUNDED.search(path):
+        d = abs(float(a) - float(b))
+        if d <= ROUNDED_STEP:
+            res.max_drift["row"] = max(res.max_drift["row"], d)
+        else:
+            _cmp_float(float(a), float(b), path, "row", res)
     elif isinstance(a, int) and isinstance(b, int):
         if a != b:
             res.diffs.append(f"{path}: {a} != {b}")

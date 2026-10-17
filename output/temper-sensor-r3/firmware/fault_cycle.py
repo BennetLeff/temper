@@ -311,9 +311,13 @@ def detection(step_s, restart_s):
             on2, op2, _ = sequence(s, 12e-3, 12e-3, 1e-4)
             ba = bits_at(on2, op2, 12e-3, AUTO_DELAY_S)
             xc = s.dc(True, K.VB_NOM)
-            ratio = (xc[s.idx["Ap"]] - xc[s.idx["An"]]) / (xc[s.idx["BIAS"]] - xc[s.idx["REFN"]])
+            # With the element or FORCE+ open no current flows through R_REF, so
+            # BIAS - REFN is solver roundoff (~1e-10 V) and the ratio is undefined
+            # (its value and sign differ by platform): null, the fault bits carry it.
+            den = xc[s.idx["BIAS"]] - xc[s.idx["REFN"]]
+            ratio = (xc[s.idx["Ap"]] - xc[s.idx["An"]]) / den if abs(den) >= 1e-6 else None
             row[lab] = {"manual_bits": f"0x{b:02X}", "automatic_bits": f"0x{ba:02X}",
-                        "conversion_ratio": round(float(ratio), 5)}
+                        "conversion_ratio": None if ratio is None else round(float(ratio), 5)}
         out[name] = row
     return out
 
@@ -418,7 +422,8 @@ def main() -> int:
             all(det[c][k]["manual_bits"] != "0x00" for k in det[c]) for c in CASES
             if c not in ("healthy",) + NOT_A_CYCLE_CONDITION),
         "sense_n_open_converts_below_the_low_threshold": all(
-            det["sense_n_open"][k]["conversion_ratio"] <= 0.0 for k in det["sense_n_open"]),
+            det["sense_n_open"][k]["conversion_ratio"] is not None
+            and det["sense_n_open"][k]["conversion_ratio"] <= 0.0 for k in det["sense_n_open"]),
         "mock_tau_not_faster_than_mna": tau_mock >= tau_max,
     }
     out = {
