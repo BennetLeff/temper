@@ -3027,3 +3027,10 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **S25 (C22 bank temperature) is a pre-build gate, not an order gate.** The bank is consigned and the board carries both bank
       footprints (x 185.5 TDK, x 190.5 KNSCHA), so the PCB and JLC order do not depend on it. If it fails the lot is fitted with
       KNSCHA (22 A strict).
+
+77. **S3 closed for F6 on the s51 matrices; the ledger's 490 V is not yet updated (2026-10-17, owner delegation).** F6 re-run on the s51 FEM matrices (recomposed by round 17's recipe): 504/504 pass, but
+    leg B S4 worst die VDS 490.2 -> 504.5 V against the 520 V screen (margin 29.8 -> 15.5 V). 504.5 V is 0.5045 of the 1 kV C0G snubber capacitors' rating and breaks their ledger derating rule (max 0.5, 500 V), so
+    the ledger's two 490 V stress entries are stale-optimistic and were left unchanged rather than loosening the rule. Record: `01-switching-parasitics/round17/results/matrices-s51/README.md`, OPEN-ITEMS S3.
+    **Decision:** re-run the as-built gate-network grid (68 ohm 2512 + 4.7 nF Cgs, diode Tt 125 ns, `gate-network-2026-10-15/scripts/gn.py full --cfg split68_1_cgs4p7_tt125`, 640 cases) on both the committed
+    n21 matrices (control) and the s51 matrices, and take the snubber-cap stress and the S14 diode dv/dt ratio from that run. If its worst die VDS is at or below 500 V the ledger is updated from it; if not, the snubber moves
+    to a higher-rated capacitor. **Reverses if** the grid is not reproducible on the n21 control.
