@@ -60,7 +60,9 @@ list exactly which lookups the owner must do and with which file numbers.
 **Problem.** With L1 = B82726S2243A020 (8 µH stray) the s19b EMI model gives 6.03 / 1.57 dB (INCONCLUSIVE) with today's 2 x 41 µH
 module and 11.14 / 6.95 dB (PASS) with >= 100 µH DM per line at 21 A. (OPEN-ITEMS B15, `MODULE-REQUEST.md` item 3.)
 
-**Do.** Find catalogue inlet filter modules (IEC inlet with filter, 120 V, >= 15 A rating, UL / CSA recognised) whose DM
+**Correction (2026-10-17): the "module" is the board's own off-board D-22 inlet filter, not a catalogue IEC inlet filter; the open part is a single discrete DM inductor per line (>= 100 uH at 21 A, both within 3.6 W). See `c53-astra-results/local/s3/CANDIDATE.md`.**
+
+**Do (original, superseded).** Find catalogue inlet filter modules (IEC inlet with filter, 120 V, >= 15 A rating, UL / CSA recognised) whose DM
 inductance per line can be established from a datasheet (leakage inductance of the CM choke or separate DM chokes). Use
 `11-candidates/b15-proto-alternates/scripts/run_emi_l1.py` unchanged to compute the margins for each candidate's DM value.
 

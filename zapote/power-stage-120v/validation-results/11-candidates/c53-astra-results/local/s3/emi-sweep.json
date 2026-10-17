@@ -1,0 +1,35 @@
+{
+ "command": "python3 -I validation-results/11-candidates/b15-proto-alternates/scripts/run_emi_l1.py B82726S2243A020_moduleDM<N>u OUT",
+ "model": "07-conducted-emi/s19b/emi_s19b.py",
+ "pass_rule": "PASS if nominal and every sensitivity >= 6 dB",
+ "results": {
+  "110uH": {
+   "nominal_min_margin_dB": 11.145506176007927,
+   "sensitivity_min_margin_22A_dB": 8.28312343598462,
+   "sensitivity_min_margin_all_dB": 6.957398319361204,
+   "verdict": "PASS",
+   "controls_ok": true
+  },
+  "88uH": {
+   "nominal_min_margin_dB": 10.513366285856293,
+   "sensitivity_min_margin_22A_dB": 8.010099936141287,
+   "sensitivity_min_margin_all_dB": 6.118415399102389,
+   "verdict": "PASS",
+   "controls_ok": true
+  },
+  "77uH": {
+   "nominal_min_margin_dB": 9.659705847007231,
+   "sensitivity_min_margin_22A_dB": 7.144366940192086,
+   "sensitivity_min_margin_all_dB": 5.252682371415261,
+   "verdict": "INCONCLUSIVE",
+   "controls_ok": true
+  },
+  "65uH": {
+   "nominal_min_margin_dB": 8.615731460945497,
+   "sensitivity_min_margin_22A_dB": 6.086190033732464,
+   "sensitivity_min_margin_all_dB": 4.194505429845918,
+   "verdict": "INCONCLUSIVE",
+   "controls_ok": true
+  }
+ }
+}
