@@ -728,6 +728,61 @@ static void test_soak_skips_on_a_saturated_or_warm_or_drifting_reference(void)
     TEST_ASSERT_EQUAL_INT(PCS_SKIP_HS_DRIFT, pcs_evaluate(&soak, t, 15.0f, true, 37.5f, true).verdict);
 }
 
+static void test_soak_slow_heatsink_does_not_false_latch(void)
+{
+    /* A slow tail can fit inside the 1 K range while its offset still looks
+     * like leakage. F3: tau_h 3600 s, measured rail, a cold room. */
+    soak_new(0u);
+    const float pt = 4.3f;
+    float hs = 0.0f;
+    uint32_t t = 0u;
+    for (uint32_t k = 0u; k <= 10870u; k++, t += 1000u) {
+        hs = 18.0f + 67.0f * expf(-(float)k / 3600.0f);
+        pcs_note_rail(&soak, t, k == 0u, pt, true, hs, true);
+    }
+    TEST_ASSERT_TRUE(hs - pt > PCS_THRESHOLD_MEASURED_K);
+    TEST_ASSERT_EQUAL_INT(PCS_SKIP_HS_DRIFT,
+                         pcs_evaluate_rail(&soak, t - 1000u, pt, true, hs, true, true).verdict);
+    /* Once the reference settles, the original check runs again. */
+    for (uint32_t k = 10871u; k <= 18000u; k++, t += 1000u) {
+        hs = 18.0f + 67.0f * expf(-(float)k / 3600.0f);
+        pcs_note_rail(&soak, t, false, pt, true, hs, true);
+    }
+    TEST_ASSERT_EQUAL_INT(PCS_PASS,
+                         pcs_evaluate_rail(&soak, t - 1000u, pt, true, hs, true, true).verdict);
+}
+
+static void test_soak_rate_keeps_leaks_below_limit_and_skips_both_directions(void)
+{
+    for (int measured = 0; measured <= 1; measured++) {
+        for (int sign = -1; sign <= 1; sign += 2) {
+            for (int over = 0; over <= 1; over++) {
+                soak_new(0u);
+                const float rate = (float)sign * (over ? 0.021f : 0.019f) / 60.0f;
+                float hs = 0.0f;
+                uint32_t t = 0u;
+                for (uint32_t k = 0u; k < 2400u; k++, t += 1000u) {
+                    hs = 35.0f + rate * (float)k;
+                    pcs_note_rail(&soak, t, false, 10.0f, true, hs, measured != 0);
+                }
+                const pcs_result_t r = pcs_evaluate_rail(&soak, t, 10.0f, true, hs, true,
+                                                          measured != 0);
+                TEST_ASSERT_EQUAL_INT(over ? PCS_SKIP_HS_DRIFT : PCS_LEAK, r.verdict);
+            }
+        }
+    }
+}
+
+static void test_soak_rate_uses_complete_buckets(void)
+{
+    soak_new(0u);
+    uint32_t t = soak_feed(0u, 2400u, 10.0f, true, 35.0f);
+    /* One sample in the current minute must not stand for a whole minute.
+     * The existing 1 K range check still bounds this excursion. */
+    pcs_note(&soak, t, false, 10.0f, true, 35.4f);
+    TEST_ASSERT_EQUAL_INT(PCS_LEAK, pcs_evaluate(&soak, t, 10.0f, true, 35.4f, true).verdict);
+}
+
 static void test_soak_skips_when_the_pt100_moved_or_the_rim_is_warm(void)
 {
     /* a cold pan placed 5 min before the evaluation: the reading stepped */
@@ -1018,6 +1073,9 @@ void run_c1_units_tests(void)
     RUN_TEST(test_soak_leak_after_the_soak_and_not_before);
     RUN_TEST(test_soak_coil_activity_restarts_the_soak_and_the_history);
     RUN_TEST(test_soak_skips_on_a_saturated_or_warm_or_drifting_reference);
+    RUN_TEST(test_soak_slow_heatsink_does_not_false_latch);
+    RUN_TEST(test_soak_rate_keeps_leaks_below_limit_and_skips_both_directions);
+    RUN_TEST(test_soak_rate_uses_complete_buckets);
     RUN_TEST(test_soak_skips_when_the_pt100_moved_or_the_rim_is_warm);
     RUN_TEST(test_soak_needs_the_whole_window_and_survives_clock_steps);
     RUN_TEST(test_soak_agreement_and_parameters);

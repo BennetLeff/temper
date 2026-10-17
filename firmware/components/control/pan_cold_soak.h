@@ -32,6 +32,9 @@
  *            VALID from -40 degC, so the check runs at room temperature
  *            (DECISIONS D-HSNTC); the threshold is budgeted for rooms down
  *            to 5 degC (5 K under the rated 10 degC);
+ *   rate     heatsink midranges in the oldest and most recent completed
+ *            buckets change by <= 0.02 K/min (840 s apart at defaults); this
+ *            rejects a slow cooling tail that fits the range (D-SOAKTAU);
  *   flat     the heatsink within hs_flat_k (1.0 K) and the Pt100 within
  *            pt_flat_k (0.25 K) over the window: a single exponential with
  *            tau <= 1800 s that moved that little is then within 1.54 K /
@@ -92,7 +95,7 @@ typedef enum {
     PCS_SKIP_HISTORY = 4,      /**< the window's history is incomplete            */
     PCS_SKIP_HS_INVALID = 5,   /**< heatsink not VALID (saturated cold, or fault)  */
     PCS_SKIP_HS_WARM = 6,      /**< heatsink above hs_max_c                        */
-    PCS_SKIP_HS_DRIFT = 7,     /**< heatsink moved more than hs_flat_k             */
+    PCS_SKIP_HS_DRIFT = 7,     /**< heatsink range or rate exceeded                */
     PCS_SKIP_PT_INVALID = 8,   /**< no Pt100 reading through the window            */
     PCS_SKIP_PT_DRIFT = 9,     /**< Pt100 moved more than pt_flat_k                */
     PCS_SKIP_RIM_WARM = 10,    /**< rim NTC not saturated: the glass is warm       */

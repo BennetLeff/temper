@@ -1,5 +1,5 @@
 {
- "scope": "DECISIONS.md D-SOAK: the cold-soak Pt100 leakage check through the firmware's C sources.\n\nThe check (components/control/pan_cold_soak.c, evaluated by main/pan_control.c at\nPREHEAT entry, before the first power): after the coil has been off >= 30 min,\nwith 15 min of flat history, the heatsink NTC VALID and <= 45 degC and the rim NTC\nsaturated, latch FAULT_PROBE_LEAKAGE when the heatsink exceeds the Pt100 by more\nthan PCS_THRESHOLD_K (19.4 K, hs-ntc.json cold_soak_budget) through the window and\nnow (PCS_THRESHOLD_MEASURED_K, 16.9 K, when the heatsink reading used a measured\nrail at every note through the window and now; D-RAIL). Here the heatsink driver\n(components/sensors/hs_ntc.c), the Pt100 conversion\n(components/sensors/rtd_convert.c) and the check run in C through the cosim shim\n(soak_run: one sample per second, the check evaluated every EVAL_EVERY_S as a\nPREHEAT entry then would), fed by a thermal model of an idle unit:\n\n  heatsink  the NTC lug on the heatsink: ambient + standby offset, relaxing with\n            tau_h from its start value (88.6 degC after a full-power cook, the\n            airflow-r1 sink setpoint; the arrival temperature after transport);\n  glass     under the probe: relaxing with tau_g (408-816 s estimated, 1800 s the\n            bound the flatness tests are sized for), or following a placed pan;\n  Pt100     slaved to the glass through the cartridge's off-pan lag (73 s,\n            screen-results.json tau_off); a leak in parallel with the element;\n  rim       SATURATED while the glass is below 87.05 degC (rim-ntc.json, the\n            lowest saturation temperature over the v3v3 contract).\nThe channel is the board as built since zapote C45: the CR-8 divider after the\nfollower, gain 0.855072 (the driver's HS_NTC_ADC_GAIN), so the heatsink is VALID\nfrom -40 degC up. The channel errors are set per corner as hs_ntc.py budgets them,\nbut applied physically (resistances, rail, ADC error at the attenuation the driver\npicks):\n  false     the heatsink reads high and the Pt100 low: NTC R25 -2 % and B column,\n            pull-up +1.2 %, divider gain 0.854421 (C45 low corner), ADC -50 / -10\n            / -5 mV and the SAR sampling bound -3.19 mV at the pin, buffer -2 mV,\n            v3v3 3.242 V read as 3.300 V, standby offset +1 K; Pt100 class -,\n            Rref +0.15 %, converter -3 LSB, no off-pan self-heating;\n  nominal   every term zero;\n  miss      the other way (gain 0.855722), with the Pt100's off-pan self-heating\n            (2.7 K at 30 degC, hs_ntc.py pt_off_pan_self_heating) and v3v3 3.367 V.\nADC noise (3 mV rms per one-shot sample) runs in every corner.\nTwo variants, both gated, each with the threshold the firmware itself picks:\n  rail_fallback  no rail reading (rail_adc.c \"rail unknown\"): the driver divides by\n                 3.300 V, the true rail at the contract corner (3.242 / 3.367 V);\n                 the check uses PCS_THRESHOLD_K;\n  rail_measured  the MCP3202 CH1 reading (rail_adc.c), off by rail_adc.py's\n                 soak-band error (0.93 %: LM4040A25 tolerance, tempco, current,\n                 typical drift and hysteresis, MCP3202 offset/gain/INL, half an\n                 LSB, ripple) in the corner's direction; the check uses\n                 PCS_THRESHOLD_MEASURED_K.\nThe pre-C45 network (100 R, no divider, gain 1) is no longer run: its results are\nthis file's output at 75e512eab (variant as_built there).\n\n1. Threshold cross-check: the C path's steady false-corner gap over the band plus\n   the soak residuals (hs-ntc.json) must not exceed PCS_THRESHOLD_K (gated).\n2. Benign cold starts (gated, both variants, every corner): 0 latches at any evaluation\n   time. Sets: ambient 5-40 degC from power-up; warm restart after a 250 degC cook\n   (glass from 250 degC, heatsink from 88.6 degC, tau_g 408/816/1800 s x tau_h\n   450/900/1800 s, evaluated every 10 s for 4 h, which includes idle 0, 10, 20,\n   30, 45, 60, 90, 120 min); a hot pan (100/200 degC) placed on a soaked unit; a\n   cold pan (4 / -18 degC, warming with tau 900/1800 s) placed on a soaked unit;\n   transport (a unit at -20 (the storage minimum, docs/ENVIRONMENTAL_SPEC.md), 5,\n   50 or 60 degC carried into a 5-40 degC room and powered up on arrival, tau_h\n   450/900/1800 s, tau_g 408/816 s); and the\n   existing sets' cold starts (every leak-checks.json benign kind starts from a\n   unit at 25 degC, hot_glass from glass at 200 degC just after use).\n   Reported, not gated (outside the assumptions, D-SOAK limits): tau_h 3600 s; a\n   large pot of cold water (tau 20000 s); a pot of frozen food whose melting\n   plateau holds the glass at ~2 degC for hours; a unit run in a 0 or -5 degC\n   room (below the 5 degC the threshold is budgeted for; rated 10 degC).\n3. Hazardous leaks (leak-checks.json, the 277 runs whose untripped T_c exceeds\n   300 degC at any time, `leak_checks.hazardous`, owner 2026-10-16; 8 leak values\n   300-2320 ohm) at a cold start, soaked steady at\n   5-40 degC: caught before heating by the cold-soak check (FAULT_PROBE_LEAKAGE)\n   or the existing C1 window (the leaky element below 84.27 ohm,\n   FAULT_PROBE_SHORT), for a temperature-independent leak and an Arrhenius family\n   R(T) = R_300 exp(Ea/k (1/T - 1/573.15 K)) equal to the sweep's value at 300 degC\n   (Ea 0.01-0.2 eV). The sweep's leaks start mid-cook (t = 250 s); this is the\n   same leak present at a cold start: a leak that was there before the cook, or\n   the next cook after one developed. The miss corner adds the soak residuals\n   (heatsink still 1.54 K below the room, Pt100 0.39 K above). The as-built\n   nominal coverage of the temperature-independent family is gated, per variant,\n   against the recorded EXPECTED_INDEP_NOMINAL (a change either way fails until\n   DECISIONS.md is updated).\n\nWrites cold-soak.json. Run: python3 cold_soak.py [--lib path]",
+ "scope": "DECISIONS.md D-SOAK: the cold-soak Pt100 leakage check through the firmware's C sources.\n\nThe check (components/control/pan_cold_soak.c, evaluated by main/pan_control.c at\nPREHEAT entry, before the first power): after the coil has been off >= 30 min,\nwith 15 min of flat history and heatsink drift <= 0.02 K/min (D-SOAKTAU),\nthe heatsink NTC VALID and <= 45 degC and the rim NTC saturated, latch FAULT_PROBE_LEAKAGE when the heatsink exceeds the Pt100 by more\nthan PCS_THRESHOLD_K (19.4 K, hs-ntc.json cold_soak_budget) through the window and\nnow (PCS_THRESHOLD_MEASURED_K, 16.9 K, when the heatsink reading used a measured\nrail at every note through the window and now; D-RAIL). Here the heatsink driver\n(components/sensors/hs_ntc.c), the Pt100 conversion\n(components/sensors/rtd_convert.c) and the check run in C through the cosim shim\n(soak_run: one sample per second, the check evaluated every EVAL_EVERY_S as a\nPREHEAT entry then would), fed by a thermal model of an idle unit:\n\n  heatsink  the NTC lug on the heatsink: ambient + standby offset, relaxing with\n            tau_h from its start value (88.6 degC after a full-power cook, the\n            airflow-r1 sink setpoint; the arrival temperature after transport);\n  glass     under the probe: relaxing with tau_g (408-816 s estimated, 1800 s the\n            bound the flatness tests are sized for), or following a placed pan;\n  Pt100     slaved to the glass through the cartridge's off-pan lag (73 s,\n            screen-results.json tau_off); a leak in parallel with the element;\n  rim       SATURATED while the glass is below 87.05 degC (rim-ntc.json, the\n            lowest saturation temperature over the v3v3 contract).\nThe channel is the board as built since zapote C45: the CR-8 divider after the\nfollower, gain 0.855072 (the driver's HS_NTC_ADC_GAIN), so the heatsink is VALID\nfrom -40 degC up. The channel errors are set per corner as hs_ntc.py budgets them,\nbut applied physically (resistances, rail, ADC error at the attenuation the driver\npicks):\n  false     the heatsink reads high and the Pt100 low: NTC R25 -2 % and B column,\n            pull-up +1.2 %, divider gain 0.854421 (C45 low corner), ADC -50 / -10\n            / -5 mV and the SAR sampling bound -3.19 mV at the pin, buffer -2 mV,\n            v3v3 3.242 V read as 3.300 V, standby offset +1 K; Pt100 class -,\n            Rref +0.15 %, converter -3 LSB, no off-pan self-heating;\n  nominal   every term zero;\n  miss      the other way (gain 0.855722), with the Pt100's off-pan self-heating\n            (2.7 K at 30 degC, hs_ntc.py pt_off_pan_self_heating) and v3v3 3.367 V.\nADC noise (3 mV rms per one-shot sample) runs in every corner.\nTwo variants, both gated, each with the threshold the firmware itself picks:\n  rail_fallback  no rail reading (rail_adc.c \"rail unknown\"): the driver divides by\n                 3.300 V, the true rail at the contract corner (3.242 / 3.367 V);\n                 the check uses PCS_THRESHOLD_K;\n  rail_measured  the MCP3202 CH1 reading (rail_adc.c), off by rail_adc.py's\n                 soak-band error (0.93 %: LM4040A25 tolerance, tempco, current,\n                 typical drift and hysteresis, MCP3202 offset/gain/INL, half an\n                 LSB, ripple) in the corner's direction; the check uses\n                 PCS_THRESHOLD_MEASURED_K.\nThe pre-C45 network (100 R, no divider, gain 1) is no longer run: its results are\nthis file's output at 75e512eab (variant as_built there).\n\n1. Threshold cross-check: the C path's steady false-corner gap over the band plus\n   the soak residuals (hs-ntc.json) must not exceed PCS_THRESHOLD_K (gated).\n2. Benign cold starts (gated, both variants, every corner): 0 latches at any evaluation\n   time. Sets: ambient 5-40 degC from power-up; warm restart after a 250 degC cook\n   (glass from 250 degC, heatsink from 88.6 degC, tau_g 408/816/1800 s x tau_h\n   450/900/1800 s, evaluated every 10 s for 4 h, which includes idle 0, 10, 20,\n   30, 45, 60, 90, 120 min), plus tau_h 3600 s for 5 h (D-SOAKTAU); a hot pan\n   (100/200 degC) placed on a soaked unit; a cold pan (4 / -18 degC, warming with tau 900/1800 s) placed on a soaked unit;\n   transport (a unit at -20 (the storage minimum, docs/ENVIRONMENTAL_SPEC.md), 5,\n   50 or 60 degC carried into a 5-40 degC room and powered up on arrival, tau_h\n   450/900/1800 s, tau_g 408/816 s, plus tau_h 3600 s with tau_g 816 s\n   for 5 h); and the\n   existing sets' cold starts (every leak-checks.json benign kind starts from a\n   unit at 25 degC, hot_glass from glass at 200 degC just after use).\n   Reported, not gated (outside the assumptions, D-SOAK limits): a large pot\n   of cold water (tau 20000 s); a pot of frozen food whose melting\n   plateau holds the glass at ~2 degC for hours; a unit run in a 0 or -5 degC\n   room (below the 5 degC the threshold is budgeted for; rated 10 degC).\n3. Hazardous leaks (leak-checks.json, the 277 runs whose untripped T_c exceeds\n   300 degC at any time, `leak_checks.hazardous`, owner 2026-10-16; 8 leak values\n   300-2320 ohm) at a cold start, soaked steady at\n   5-40 degC: caught before heating by the cold-soak check (FAULT_PROBE_LEAKAGE)\n   or the existing C1 window (the leaky element below 84.27 ohm,\n   FAULT_PROBE_SHORT), for a temperature-independent leak and an Arrhenius family\n   R(T) = R_300 exp(Ea/k (1/T - 1/573.15 K)) equal to the sweep's value at 300 degC\n   (Ea 0.01-0.2 eV). The sweep's leaks start mid-cook (t = 250 s); this is the\n   same leak present at a cold start: a leak that was there before the cook, or\n   the next cook after one developed. The miss corner adds the soak residuals\n   (heatsink still 1.54 K below the room, Pt100 0.39 K above). The as-built\n   nominal coverage of the temperature-independent family is gated, per variant,\n   against the recorded EXPECTED_INDEP_NOMINAL (a change either way fails until\n   DECISIONS.md is updated).\n\nWrites cold-soak.json. Run: python3 cold_soak.py [--lib path]",
  "firmware_params": {
   "threshold_k": 19.399999618530273,
   "soak_n_s": 1800.0,
@@ -1317,12 +1317,12 @@
     "max_gap_K": 16.654
    },
    "warm_restart": {
-    "trajectories": 162,
-    "evaluations": 233280,
-    "ran": 86332,
+    "trajectories": 216,
+    "evaluations": 330480,
+    "ran": 95530,
     "latched_trajectories": 0,
     "latches": 0,
-    "max_gap_K": 17.714
+    "max_gap_K": 17.925
    },
    "hot_pan": {
     "trajectories": 72,
@@ -1341,12 +1341,12 @@
     "max_gap_K": 16.974
    },
    "transport": {
-    "trajectories": 432,
-    "evaluations": 622080,
-    "ran": 352180,
+    "trajectories": 504,
+    "evaluations": 751680,
+    "ran": 366593,
     "latched_trajectories": 0,
     "latches": 0,
-    "max_gap_K": 17.876
+    "max_gap_K": 17.837
    }
   },
   "rail_measured": {
@@ -1359,12 +1359,12 @@
     "max_gap_K": 14.185
    },
    "warm_restart": {
-    "trajectories": 162,
-    "evaluations": 233280,
-    "ran": 88554,
+    "trajectories": 216,
+    "evaluations": 330480,
+    "ran": 97689,
     "latched_trajectories": 0,
     "latches": 0,
-    "max_gap_K": 15.335
+    "max_gap_K": 15.365
    },
    "hot_pan": {
     "trajectories": 72,
@@ -1383,25 +1383,25 @@
     "max_gap_K": 14.503
    },
    "transport": {
-    "trajectories": 432,
-    "evaluations": 622080,
-    "ran": 360898,
+    "trajectories": 504,
+    "evaluations": 751680,
+    "ran": 375900,
     "latched_trajectories": 0,
     "latches": 0,
-    "max_gap_K": 15.333
+    "max_gap_K": 15.394
    }
   }
  },
  "benign_false_latch_margin": {
   "rail_fallback": {
    "threshold_K": 19.4,
-   "largest_benign_gap_K": 17.876,
-   "margin_K": 1.524
+   "largest_benign_gap_K": 17.925,
+   "margin_K": 1.475
   },
   "rail_measured": {
    "threshold_K": 16.9,
-   "largest_benign_gap_K": 15.335,
-   "margin_K": 1.565
+   "largest_benign_gap_K": 15.394,
+   "margin_K": 1.506
   }
  },
  "benign_gated_rail_fallback_verdicts_at_idle_min": {
@@ -1448,101 +1448,92 @@
   },
   "warm_restart": {
    "0": {
-    "skip_not_soaked": 162
+    "skip_not_soaked": 216
    },
    "10": {
-    "skip_not_soaked": 162
+    "skip_not_soaked": 216
    },
    "20": {
-    "skip_not_soaked": 162
+    "skip_not_soaked": 216
    },
    "30": {
     "skip_hs_drift": 54,
     "skip_hs_invalid": 3,
-    "skip_hs_warm": 105
+    "skip_hs_warm": 159
    },
    "45": {
-    "skip_hs_drift": 106,
+    "skip_hs_drift": 108,
     "skip_hs_invalid": 3,
-    "skip_hs_warm": 51,
-    "skip_pt_drift": 2
+    "skip_hs_warm": 105
    },
    "60": {
-    "skip_pt_drift": 44,
-    "skip_hs_drift": 85,
+    "skip_pt_drift": 42,
+    "skip_hs_drift": 93,
     "skip_hs_invalid": 6,
-    "skip_hs_warm": 27
+    "skip_hs_warm": 75
    },
    "90": {
-    "pass": 29,
+    "pass": 24,
     "skip_hs_invalid": 9,
-    "skip_hs_drift": 54,
-    "skip_pt_drift": 58,
-    "skip_hs_warm": 12
+    "skip_hs_drift": 98,
+    "skip_pt_drift": 49,
+    "skip_hs_warm": 36
    },
    "120": {
-    "pass": 78,
+    "pass": 60,
     "skip_hs_invalid": 9,
-    "skip_hs_drift": 28,
-    "skip_pt_drift": 38,
-    "skip_hs_warm": 9
+    "skip_hs_drift": 96,
+    "skip_pt_drift": 30,
+    "skip_hs_warm": 21
    }
   },
   "transport": {
    "0": {
-    "skip_not_soaked": 432
+    "skip_not_soaked": 504
    },
    "10": {
-    "skip_not_soaked": 432
+    "skip_not_soaked": 504
    },
    "20": {
-    "skip_not_soaked": 432
+    "skip_not_soaked": 504
    },
    "30": {
-    "skip_hs_drift": 328,
-    "skip_hs_invalid": 32,
-    "skip_hs_warm": 60,
-    "pass": 12
+    "skip_hs_drift": 364,
+    "skip_hs_invalid": 41,
+    "skip_hs_warm": 85,
+    "pass": 14
    },
    "45": {
-    "skip_pt_drift": 78,
-    "skip_hs_drift": 280,
-    "skip_hs_invalid": 24,
-    "skip_hs_warm": 33,
-    "pass": 17
+    "skip_pt_drift": 14,
+    "skip_hs_drift": 391,
+    "skip_hs_invalid": 32,
+    "skip_hs_warm": 49,
+    "pass": 18
    },
    "60": {
-    "pass": 88,
-    "skip_hs_invalid": 22,
-    "skip_pt_drift": 75,
-    "skip_hs_drift": 223,
-    "skip_hs_warm": 24
+    "pass": 72,
+    "skip_hs_invalid": 28,
+    "skip_pt_drift": 59,
+    "skip_hs_drift": 312,
+    "skip_hs_warm": 33
    },
    "90": {
-    "pass": 268,
-    "skip_hs_invalid": 24,
-    "skip_hs_drift": 110,
-    "skip_pt_drift": 7,
-    "skip_hs_warm": 23
+    "pass": 235,
+    "skip_hs_invalid": 27,
+    "skip_hs_drift": 207,
+    "skip_pt_drift": 6,
+    "skip_hs_warm": 29
    },
    "120": {
-    "pass": 345,
-    "skip_hs_invalid": 24,
-    "skip_hs_drift": 39,
-    "skip_hs_warm": 24
+    "pass": 287,
+    "skip_hs_invalid": 27,
+    "skip_hs_drift": 162,
+    "skip_hs_warm": 28
    }
   }
  },
  "benign_reported_outside_assumptions": {
   "rail_fallback": {
-   "warm_restart": {
-    "trajectories": 54,
-    "evaluations": 97200,
-    "ran": 27620,
-    "latched_trajectories": 0,
-    "latches": 0,
-    "max_gap_K": 19.364
-   },
    "cold_pot_large": {
     "trajectories": 36,
     "evaluations": 165240,
@@ -1566,25 +1557,9 @@
     "latched_trajectories": 1,
     "latches": 900,
     "max_gap_K": 21.553
-   },
-   "transport": {
-    "trajectories": 72,
-    "evaluations": 129600,
-    "ran": 56092,
-    "latched_trajectories": 0,
-    "latches": 0,
-    "max_gap_K": 19.239
    }
   },
   "rail_measured": {
-   "warm_restart": {
-    "trajectories": 54,
-    "evaluations": 97200,
-    "ran": 28561,
-    "latched_trajectories": 1,
-    "latches": 2,
-    "max_gap_K": 16.951
-   },
    "cold_pot_large": {
     "trajectories": 36,
     "evaluations": 165240,
@@ -1608,49 +1583,10 @@
     "latched_trajectories": 1,
     "latches": 900,
     "max_gap_K": 18.503
-   },
-   "transport": {
-    "trajectories": 72,
-    "evaluations": 129600,
-    "ran": 57611,
-    "latched_trajectories": 0,
-    "latches": 0,
-    "max_gap_K": 16.876
    }
   }
  },
  "benign_reported_latched": [
-  {
-   "kind": "warm_restart",
-   "A": 5.0,
-   "tau_g": 408.0,
-   "tau_h": 3600.0,
-   "t_end": 18000,
-   "corner": "false",
-   "variant": "rail_measured",
-   "evaluations": 1800,
-   "ran": 676,
-   "latches": 2,
-   "first_latch_s": 10870.0,
-   "max_gap_K": 16.951,
-   "verdicts": {
-    "skip_not_soaked": 180,
-    "skip_hs_warm": 247,
-    "skip_hs_drift": 697,
-    "leak": 2,
-    "pass": 674
-   },
-   "at_idle_min": {
-    "0": "skip_not_soaked",
-    "10": "skip_not_soaked",
-    "20": "skip_not_soaked",
-    "30": "skip_hs_warm",
-    "45": "skip_hs_warm",
-    "60": "skip_hs_warm",
-    "90": "skip_hs_drift",
-    "120": "skip_hs_drift"
-   }
-  },
   {
    "kind": "frozen_plateau",
    "A": 5.0,

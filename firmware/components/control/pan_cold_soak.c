@@ -175,6 +175,16 @@ pcs_result_t pcs_evaluate_rail(const pcs_t *s, uint32_t now_ms, float pt_c, bool
         r.verdict = PCS_SKIP_HS_WARM;
         return r;
     }
+    /* A slow cooling tail can fit the 1 K range while its residual looks like
+     * leakage. Compare completed buckets: the current partial minute is not
+     * a like-for-like noise envelope (D-SOAKTAU). Keep the range guard too. */
+    const pcs_bucket_t *previous = &s->b[(s->head + PCS_BUCKET_MAX - 1u) % PCS_BUCKET_MAX];
+    const float span_s = (float)(uint32_t)(previous->t0_ms - oldest->t0_ms) / 1000.0f;
+    const float drift = 0.5f * ((previous->hs_min + previous->hs_max) - (oldest->hs_min + oldest->hs_max));
+    if (span_s > 0.0f && fabsf(drift) > (0.02f / 60.0f) * span_s) {
+        r.verdict = PCS_SKIP_HS_DRIFT;
+        return r;
+    }
     if (hs_hi - hs_lo > p->hs_flat_k) {
         r.verdict = PCS_SKIP_HS_DRIFT;
         return r;
