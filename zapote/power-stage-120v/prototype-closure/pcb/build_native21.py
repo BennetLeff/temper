@@ -201,8 +201,15 @@ def main():
         # (${KIPRJMOD}/../models3d/ with KIPRJMOD = native-21), as the vendored libraries already point. The native-20
         # assignments named ${KIPRJMOD}/models3d/, an untracked copy, so a clean checkout exported the STEP without L1,
         # C1-C6, C38-C41, BR1, RV1, J4, J6 and T1 (gates/model_gate.py now fails the chain on that).
-        for model in fp.Models():
-            model.m_Filename = model.m_Filename.replace("${KIPRJMOD}/models3d/", "${KIPRJMOD}/../models3d/")
+        # pcbnew returns copies from Models(), so an in-place m_Filename edit is lost: rebuild the list
+        old_models = [(m.m_Filename, m.m_Offset, m.m_Rotation, m.m_Scale, m.m_Show, m.m_Opacity) for m in fp.Models()]
+        if any("${KIPRJMOD}/models3d/" in o[0] for o in old_models):
+            fp.Models().clear()
+            for fn, off, rot, sc, show, opa in old_models:
+                m = pcbnew.FP_3DMODEL()
+                m.m_Filename = fn.replace("${KIPRJMOD}/models3d/", "${KIPRJMOD}/../models3d/")
+                m.m_Offset, m.m_Rotation, m.m_Scale, m.m_Show, m.m_Opacity = off, rot, sc, show, opa
+                fp.Models().append(m)
         board.Add(fp)
         for pad in fp.Pads():
             n = pin_net.get((ref, pad.GetNumber()))
