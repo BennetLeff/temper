@@ -40,7 +40,7 @@ inlet relay provision and the F1 tabs of `11-candidates/c53-stuck-on/S53-SCOPE.m
 
 ```
 R=../../runs-native21/s53
-git show 902faaa5c:zapote/power-stage-120v/native-21/layout/copper.json   # (the s52 copper is the committed copper.json before this stage)
+git show 9e0034ec5:zapote/power-stage-120v/native-21/layout/copper.json > $R/base-s52-copper.json   # the s52 copper, as committed before edit_base53
 sh validation-results/11-candidates/c53-cert-provisions/stage53/scripts/passes53.sh $R/base-s52-copper.json $R/p1
 TASK04_WORKERS=4 sh native-21/layout/gates/chain.sh native21s53 $R/p1/j1 $R/c53int
 (cd validation-results/02-protection-timing/shoot-through-f1 && python3 -I s21_necks.py s53)
