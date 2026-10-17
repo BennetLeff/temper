@@ -766,7 +766,8 @@ def write_rows(rows, path):
     # mtime 0 and no file name in the header: the same rows give the same bytes
     # with the same zlib; --check compares content, not bytes.
     with open(path, "wb") as fh, gzip.GzipFile(filename="", mode="wb", fileobj=fh, mtime=0) as gz:
-        gz.write((json.dumps(rows, allow_nan=False) + "\n").encode())
+        # The platform travels with the rows so evidence_compare can pick its rule.
+        gz.write((json.dumps(EC.stamp(rows), allow_nan=False) + "\n").encode())
 
 
 def main():

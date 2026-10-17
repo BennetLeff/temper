@@ -67,6 +67,9 @@
 #      regenerated artifact against its committed version under the platform
 #      rule below. A verification run must print "EVIDENCE MATCHES HEAD".
 # Exits non-zero if any step fails. Build products go to a temp dir.
+# SENSOR_R3_REGEN=1 skips the four study checks (4b, 5c-5e): use it only for the
+# first pass of a reference regeneration, when their evidence is regenerated
+# after this run (see D-EVPLAT); a verification run never sets it.
 #
 # Evidence reference platform: the remote box (linux x86_64). Committed
 # evidence is regenerated there and carries "reference_platform"; there the
@@ -149,9 +152,13 @@ grep '^==' "$tmp/mc.log"
 
 # Task F1 uses its own fresh build for portable exact evidence verification.
 echo "== 4b. D1 nuisance cuts on stressed benign cooking (F1)"
-"$py" "$here/d1_nuisance.py" --check > "$tmp/d1n.log" 2>&1 \
-    || { cat "$tmp/d1n.log"; exit 1; }
-grep -E '^(D1 cap=|D1 nuisance evidence:|D1 NUISANCE)' "$tmp/d1n.log"
+if [ -n "${SENSOR_R3_REGEN:-}" ]; then
+  echo "   skipped: regeneration pass (the study evidence is regenerated after this run)"
+else
+  "$py" "$here/d1_nuisance.py" --check > "$tmp/d1n.log" 2>&1 \
+      || { cat "$tmp/d1n.log"; exit 1; }
+  grep -E '^(D1 cap=|D1 nuisance evidence:|D1 NUISANCE)' "$tmp/d1n.log"
+fi
 
 echo "== 5. runaway checks"
 "$py" "$here/runaway_checks.py" --lib "$lib" --out "$here/runaway-checks.json" > "$tmp/rc.log" \
@@ -163,19 +170,31 @@ echo "== 5b. sensor-failure codes"
 tail -1 "$tmp/sfc.log"
 
 echo "== 5c. leak barrier: insulation, production test, qualification (../leak-barrier, T1)"
-"$py" "$here/../leak-barrier/leak_barrier.py" --check > "$tmp/lb.log" 2>&1 \
-    || { cat "$tmp/lb.log"; exit 1; }
-tail -1 "$tmp/lb.log"
+if [ -n "${SENSOR_R3_REGEN:-}" ]; then
+  echo "   skipped: regeneration pass (the study evidence is regenerated after this run)"
+else
+  "$py" "$here/../leak-barrier/leak_barrier.py" --check > "$tmp/lb.log" 2>&1 \
+      || { cat "$tmp/lb.log"; exit 1; }
+  tail -1 "$tmp/lb.log"
+fi
 
 echo "== 5d. setpoint cap vs leak coverage, caps 250 and 200 (../leak-barrier, T2)"
-"$py" "$here/../leak-barrier/setpoint_cap.py" --check --caps 250,200 > "$tmp/sc.log" 2>&1 \
-    || { tail -20 "$tmp/sc.log"; exit 1; }
-tail -1 "$tmp/sc.log"
+if [ -n "${SENSOR_R3_REGEN:-}" ]; then
+  echo "   skipped: regeneration pass (the study evidence is regenerated after this run)"
+else
+  "$py" "$here/../leak-barrier/setpoint_cap.py" --check --caps 250,200 > "$tmp/sc.log" 2>&1 \
+      || { tail -20 "$tmp/sc.log"; exit 1; }
+  tail -1 "$tmp/sc.log"
+fi
 
 echo "== 5e. CR-5 band vs leak coverage, caps 250 and 200 (../leak-barrier, T3)"
-"$py" "$here/../leak-barrier/cr5_band.py" --check --caps 250,200 > "$tmp/cr5.log" 2>&1 \
-    || { tail -20 "$tmp/cr5.log"; exit 1; }
-tail -1 "$tmp/cr5.log"
+if [ -n "${SENSOR_R3_REGEN:-}" ]; then
+  echo "   skipped: regeneration pass (the study evidence is regenerated after this run)"
+else
+  "$py" "$here/../leak-barrier/cr5_band.py" --check --caps 250,200 > "$tmp/cr5.log" 2>&1 \
+      || { tail -20 "$tmp/cr5.log"; exit 1; }
+  tail -1 "$tmp/cr5.log"
+fi
 
 echo "== 6. plant-gain sensitivity (reported, not gated)"
 "$py" "$here/sensitivity.py" --lib "$lib" --out "$here/sensitivity.json" > /dev/null
