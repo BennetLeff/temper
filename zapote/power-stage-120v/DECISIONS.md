@@ -3034,3 +3034,7 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     **Decision:** re-run the as-built gate-network grid (68 ohm 2512 + 4.7 nF Cgs, diode Tt 125 ns, `gate-network-2026-10-15/scripts/gn.py full --cfg split68_1_cgs4p7_tt125`, 640 cases) on both the committed
     n21 matrices (control) and the s51 matrices, and take the snubber-cap stress and the S14 diode dv/dt ratio from that run. If its worst die VDS is at or below 500 V the ledger is updated from it; if not, the snubber moves
     to a higher-rated capacitor. **Reverses if** the grid is not reproducible on the n21 control.
+
+    **Addendum (2026-10-17, same day).** The decision was carried out: the as-built grid on the s51 matrices passes 640/640 at typical and at maximum Qrr with no flips against the n21 control; worst die VDS 435.7 V (S2 fault), maximum-Qrr S4 slew
+    67.43 V/ns (0.963 of the diode rating). The ledger's two 490 V stress entries and their two stored ratios were updated to 435.7 V (checks 0.4357 and 0.6703); the 0.5 derating rule is unchanged. The superseded F6 deck's 504.5 V stays recorded as that
+    network's bound. S3 is closed. Evidence: `gate-network-2026-10-15/results/s51-matrices/`.

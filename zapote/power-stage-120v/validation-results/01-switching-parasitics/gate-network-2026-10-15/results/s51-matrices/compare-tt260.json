@@ -1,0 +1,126 @@
+{
+ "runs": {
+  "n21": {
+   "path": "/private/tmp/claude-501/-Users-bennet-Desktop-temper/235214aa-8a7f-49e7-b61c-f25adee30179/scratchpad/s3/gn6/n21/split68_1_cgs4p7_tt260/full/results.json",
+   "rows": 640,
+   "complete": 640,
+   "all_screens": 640,
+   "by_case": {
+    "S1": {
+     "n": 80,
+     "all_screens": 80,
+     "max_vds_pk": 353.6184,
+     "max_off_V": -1.7182,
+     "max_vgs_abs": 14.9775,
+     "max_slew2080_Vns": 20.6194,
+     "max_t_trans_ns": 190.2,
+     "zvs": 80
+    },
+    "S2": {
+     "n": 56,
+     "all_screens": 56,
+     "max_vds_pk": 434.9831,
+     "max_off_V": -2.5668,
+     "max_vgs_abs": 14.9637,
+     "max_slew2080_Vns": 20.5317,
+     "max_t_trans_ns": 171.66
+    },
+    "S4": {
+     "n": 336,
+     "all_screens": 336,
+     "max_vds_pk": 383.8908,
+     "max_off_V": 1.5671,
+     "max_vgs_abs": 15.0159,
+     "max_slew2080_Vns": 68.1604,
+     "max_difdt_75_25_Apus": 243.6769,
+     "max_t_trans_ns": 1392.82
+    },
+    "S5": {
+     "n": 168,
+     "all_screens": 168,
+     "max_vds_pk": 360.3553,
+     "max_off_V": -0.2155,
+     "max_vgs_abs": 14.9911,
+     "max_slew2080_Vns": 22.1223,
+     "max_difdt_75_25_Apus": 50.0,
+     "max_t_trans_ns": 1076.61
+    }
+   }
+  },
+  "s51": {
+   "path": "/private/tmp/claude-501/-Users-bennet-Desktop-temper/235214aa-8a7f-49e7-b61c-f25adee30179/scratchpad/s3/gn6/s51/split68_1_cgs4p7_tt260/full/results.json",
+   "rows": 640,
+   "complete": 640,
+   "all_screens": 640,
+   "by_case": {
+    "S1": {
+     "n": 80,
+     "all_screens": 80,
+     "max_vds_pk": 353.1219,
+     "max_off_V": -1.7447,
+     "max_vgs_abs": 14.9775,
+     "max_slew2080_Vns": 20.5942,
+     "max_t_trans_ns": 190.24,
+     "zvs": 80
+    },
+    "S2": {
+     "n": 56,
+     "all_screens": 56,
+     "max_vds_pk": 435.7122,
+     "max_off_V": -2.5918,
+     "max_vgs_abs": 14.9637,
+     "max_slew2080_Vns": 20.5718,
+     "max_t_trans_ns": 172.22
+    },
+    "S4": {
+     "n": 336,
+     "all_screens": 336,
+     "max_vds_pk": 381.4948,
+     "max_off_V": 1.5813,
+     "max_vgs_abs": 15.0174,
+     "max_slew2080_Vns": 67.4296,
+     "max_difdt_75_25_Apus": 243.8552,
+     "max_t_trans_ns": 1393.19
+    },
+    "S5": {
+     "n": 168,
+     "all_screens": 168,
+     "max_vds_pk": 360.0927,
+     "max_off_V": -0.2189,
+     "max_vgs_abs": 14.9911,
+     "max_slew2080_Vns": 21.2205,
+     "max_difdt_75_25_Apus": 50.0,
+     "max_t_trans_ns": 1077.29
+    }
+   }
+  }
+ },
+ "delta": {
+  "rows": 640,
+  "vds_pk": [
+   -8.753,
+   2.7147
+  ],
+  "off_V": [
+   -0.3167,
+   0.065
+  ],
+  "vgs_abs": [
+   -0.0749,
+   0.0112
+  ],
+  "slew2080_Vns": [
+   -1.6802,
+   0.468
+  ],
+  "difdt_75_25_Apus": [
+   -47.7273,
+   25.0
+  ],
+  "t_trans_ns": [
+   -1.55,
+   2.19
+  ],
+  "flips": []
+ }
+}
