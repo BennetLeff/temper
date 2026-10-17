@@ -101,7 +101,9 @@ def main():
             board_only.append(ref)
             continue
         pads = list(fp.Pads())
-        tht = any(p.GetAttribute() == pcbnew.PAD_ATTRIB_PTH for p in pads)
+        # C48: the footprint's own type decides, not the presence of a plated hole. The WROOM module (U4)
+        # is an SMD footprint whose ground pad carries 12 plated thermal vias; it is reflowed, not hand-soldered
+        tht = bool(fp.GetAttributes() & pcbnew.FP_THROUGH_HOLE)
         lib = fp.GetFPID().GetLibItemName().wx_str()
         lines[(mpn, lib, "THT" if tht else "SMD")].append(ref)
         x0 = min(p.GetBoundingBox().GetLeft() for p in pads)

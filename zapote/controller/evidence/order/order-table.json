@@ -1,0 +1,1617 @@
+{
+ "boards": 5,
+ "bom_lines": 87,
+ "placements_per_board": 284,
+ "parts_cost_per_board_usd_qty1_priced_lines": 65.32,
+ "lines_without_price": [],
+ "extended_library_lines": 82,
+ "attention": [
+  {
+   "mpn": "RG2012V-431-W-T1",
+   "lcsc": "C4260028",
+   "refs": [
+    "R39"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 0,
+   "stock_read": "2026-10-15T17:47:42Z",
+   "source": "new-parts-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 1.3158,
+   "line_cost_per_board_usd": 1.3158,
+   "status": "zero"
+  }
+ ],
+ "rows": [
+  {
+   "mpn": "EEE-FK1E101P",
+   "lcsc": "C178539",
+   "refs": [
+    "C1",
+    "C9"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 823,
+   "stock_read": "2026-10-12T16:36:27Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.3077,
+   "line_cost_per_board_usd": 0.6154,
+   "status": "ok"
+  },
+  {
+   "mpn": "CL10B103KB8NNNC",
+   "lcsc": "C1589",
+   "refs": [
+    "C2",
+    "C11"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 1669217,
+   "stock_read": "2026-10-12T16:36:28Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0097,
+   "line_cost_per_board_usd": 0.0194,
+   "status": "ok"
+  },
+  {
+   "mpn": "CC0603KRX7R9BB104",
+   "lcsc": "C14663",
+   "refs": [
+    "C3",
+    "C5",
+    "C12",
+    "C14",
+    "C20",
+    "C52",
+    "C53",
+    "C54",
+    "C55",
+    "C56",
+    "C57",
+    "C58",
+    "C59",
+    "C60",
+    "C61",
+    "C62",
+    "C63",
+    "C65",
+    "C66",
+    "C67",
+    "C68",
+    "C69",
+    "C70",
+    "C71",
+    "C72",
+    "C73",
+    "C74",
+    "C75",
+    "C76",
+    "C77",
+    "C78",
+    "C79",
+    "C85",
+    "C90",
+    "C92",
+    "C93",
+    "C94"
+   ],
+   "qty_per_board": 37,
+   "mount": "SMD",
+   "jlc_stock": 54638819,
+   "stock_read": "2026-10-12T16:36:30Z",
+   "source": "stock-snapshot.json",
+   "library": "base",
+   "unit_price_usd": 0.014,
+   "line_cost_per_board_usd": 0.518,
+   "status": "ok"
+  },
+  {
+   "mpn": "CL31A106KAHNNNE",
+   "lcsc": "C9807",
+   "refs": [
+    "C4",
+    "C13",
+    "C15"
+   ],
+   "qty_per_board": 3,
+   "mount": "SMD",
+   "jlc_stock": 235215,
+   "stock_read": "2026-10-12T16:36:31Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0551,
+   "line_cost_per_board_usd": 0.1653,
+   "status": "ok"
+  },
+  {
+   "mpn": "CL21A226MAQNNNE",
+   "lcsc": "C45783",
+   "refs": [
+    "C6",
+    "C7",
+    "C8",
+    "C89"
+   ],
+   "qty_per_board": 4,
+   "mount": "SMD",
+   "jlc_stock": 3591972,
+   "stock_read": "2026-10-12T16:36:33Z",
+   "source": "stock-snapshot.json",
+   "library": "base",
+   "unit_price_usd": 0.2369,
+   "line_cost_per_board_usd": 0.9476,
+   "status": "ok"
+  },
+  {
+   "mpn": "CL10A105KB8NNNC",
+   "lcsc": "C15849",
+   "refs": [
+    "C10",
+    "C19",
+    "C83",
+    "C86",
+    "C88",
+    "C91",
+    "C95",
+    "C96"
+   ],
+   "qty_per_board": 8,
+   "mount": "SMD",
+   "jlc_stock": 8293251,
+   "stock_read": "2026-10-12T16:36:35Z",
+   "source": "stock-snapshot.json",
+   "library": "base",
+   "unit_price_usd": 0.0163,
+   "line_cost_per_board_usd": 0.1304,
+   "status": "ok"
+  },
+  {
+   "mpn": "CL31A226KAHNNNE",
+   "lcsc": "C12891",
+   "refs": [
+    "C16",
+    "C17"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 615719,
+   "stock_read": "2026-10-12T16:36:36Z",
+   "source": "stock-snapshot.json",
+   "library": "base",
+   "unit_price_usd": 0.1172,
+   "line_cost_per_board_usd": 0.2344,
+   "status": "ok"
+  },
+  {
+   "mpn": "CL10C102JB8NNNC",
+   "lcsc": "C163508",
+   "refs": [
+    "C18",
+    "C64"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 488174,
+   "stock_read": "2026-10-12T16:36:38Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0083,
+   "line_cost_per_board_usd": 0.0166,
+   "status": "ok"
+  },
+  {
+   "mpn": "C0603C104K5RACTU",
+   "lcsc": "C127833",
+   "refs": [
+    "C21",
+    "C22",
+    "C23",
+    "C24",
+    "C25",
+    "C26",
+    "C27",
+    "C28",
+    "C29",
+    "C30",
+    "C32",
+    "C33",
+    "C34",
+    "C35",
+    "C36",
+    "C37",
+    "C46",
+    "C47",
+    "C48",
+    "C49",
+    "C50",
+    "C51"
+   ],
+   "qty_per_board": 22,
+   "mount": "SMD",
+   "jlc_stock": 2490,
+   "stock_read": "2026-10-12T16:36:39Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0445,
+   "line_cost_per_board_usd": 0.979,
+   "status": "ok"
+  },
+  {
+   "mpn": "GRM31C5C1H104JA01L",
+   "lcsc": "C97946",
+   "refs": [
+    "C31",
+    "C38",
+    "C80",
+    "C81",
+    "C82"
+   ],
+   "qty_per_board": 5,
+   "mount": "SMD",
+   "jlc_stock": 43125,
+   "stock_read": "2026-10-15T17:47:55Z",
+   "source": "new-parts-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.1854,
+   "line_cost_per_board_usd": 0.927,
+   "status": "ok"
+  },
+  {
+   "mpn": "C0603C102J5GACTU",
+   "lcsc": "C2181873",
+   "refs": [
+    "C39",
+    "C40"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 7102,
+   "stock_read": "2026-10-15T17:47:56Z",
+   "source": "new-parts-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0265,
+   "line_cost_per_board_usd": 0.053,
+   "status": "ok"
+  },
+  {
+   "mpn": "GRM1885C1H103JA01D",
+   "lcsc": "C85973",
+   "refs": [
+    "C41",
+    "C84",
+    "C87"
+   ],
+   "qty_per_board": 3,
+   "mount": "SMD",
+   "jlc_stock": 199825,
+   "stock_read": "2026-10-15T17:47:53Z",
+   "source": "new-parts-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0354,
+   "line_cost_per_board_usd": 0.1062,
+   "status": "ok"
+  },
+  {
+   "mpn": "CC0603KRX7R9BB224",
+   "lcsc": "C107083",
+   "refs": [
+    "C42",
+    "C43",
+    "C44",
+    "C45"
+   ],
+   "qty_per_board": 4,
+   "mount": "SMD",
+   "jlc_stock": 388053,
+   "stock_read": "2026-10-15T17:47:39Z",
+   "source": "new-parts-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0152,
+   "line_cost_per_board_usd": 0.0608,
+   "status": "ok"
+  },
+  {
+   "mpn": "ESD5Z3.3T1G",
+   "lcsc": "C61148",
+   "refs": [
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6"
+   ],
+   "qty_per_board": 6,
+   "mount": "SMD",
+   "jlc_stock": 103324,
+   "stock_read": "2026-10-12T16:36:46Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0486,
+   "line_cost_per_board_usd": 0.29159999999999997,
+   "status": "ok"
+  },
+  {
+   "mpn": "ESD5Z5.0T1G",
+   "lcsc": "C82044",
+   "refs": [
+    "D7"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 369270,
+   "stock_read": "2026-10-15T17:47:38Z",
+   "source": "new-parts-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0369,
+   "line_cost_per_board_usd": 0.0369,
+   "status": "ok"
+  },
+  {
+   "mpn": "BAT54S-7-F",
+   "lcsc": "C83574",
+   "refs": [
+    "D8"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 13106,
+   "stock_read": "2026-10-12T16:36:47Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.1147,
+   "line_cost_per_board_usd": 0.1147,
+   "status": "ok"
+  },
+  {
+   "mpn": "B2B-XH-A(LF)(SN)",
+   "lcsc": "C158012",
+   "refs": [
+    "J1",
+    "J2"
+   ],
+   "qty_per_board": 2,
+   "mount": "THT",
+   "jlc_stock": 265637,
+   "stock_read": "2026-10-12T16:36:49Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0406,
+   "line_cost_per_board_usd": 0.0812,
+   "status": "ok"
+  },
+  {
+   "mpn": "B4B-XH-A(LF)(SN)",
+   "lcsc": "C144395",
+   "refs": [
+    "J3"
+   ],
+   "qty_per_board": 1,
+   "mount": "THT",
+   "jlc_stock": 162015,
+   "stock_read": "2026-10-12T16:36:50Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0593,
+   "line_cost_per_board_usd": 0.0593,
+   "status": "ok"
+  },
+  {
+   "mpn": "0430451600",
+   "lcsc": "C277731",
+   "refs": [
+    "J4"
+   ],
+   "qty_per_board": 1,
+   "mount": "THT",
+   "jlc_stock": 1307,
+   "stock_read": "2026-10-12T16:36:52Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 1.518,
+   "line_cost_per_board_usd": 1.518,
+   "status": "ok"
+  },
+  {
+   "mpn": "B12B-XH-A(LF)(SN)",
+   "lcsc": "C158027",
+   "refs": [
+    "J7"
+   ],
+   "qty_per_board": 1,
+   "mount": "THT",
+   "jlc_stock": 1950,
+   "stock_read": "2026-10-12T16:36:54Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.2106,
+   "line_cost_per_board_usd": 0.2106,
+   "status": "ok"
+  },
+  {
+   "mpn": "B3B-XH-A(LF)(SN)",
+   "lcsc": "C144394",
+   "refs": [
+    "J9",
+    "J10",
+    "J12"
+   ],
+   "qty_per_board": 3,
+   "mount": "THT",
+   "jlc_stock": 163197,
+   "stock_read": "2026-10-12T16:36:56Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0543,
+   "line_cost_per_board_usd": 0.1629,
+   "status": "ok"
+  },
+  {
+   "mpn": "B2P-VH(LF)(SN)",
+   "lcsc": "C160315",
+   "refs": [
+    "J13"
+   ],
+   "qty_per_board": 1,
+   "mount": "THT",
+   "jlc_stock": 283039,
+   "stock_read": "2026-10-12T16:38:39Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0623,
+   "line_cost_per_board_usd": 0.0623,
+   "status": "ok"
+  },
+  {
+   "mpn": "SWPA6045S100MT",
+   "lcsc": "C79272",
+   "refs": [
+    "L1"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 19092,
+   "stock_read": "2026-10-12T16:37:01Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0834,
+   "line_cost_per_board_usd": 0.0834,
+   "status": "ok"
+  },
+  {
+   "mpn": "SWRB1205S-100MT",
+   "lcsc": "C169383",
+   "refs": [
+    "L2"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 65,
+   "stock_read": "2026-10-12T16:37:03Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.417,
+   "line_cost_per_board_usd": 0.417,
+   "status": "ok"
+  },
+  {
+   "mpn": "2N7002",
+   "lcsc": "C8545",
+   "refs": [
+    "Q1"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 1336543,
+   "stock_read": "2026-10-12T16:37:05Z",
+   "source": "stock-snapshot.json",
+   "library": "base",
+   "unit_price_usd": 0.0178,
+   "line_cost_per_board_usd": 0.0178,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603FR-0733RL",
+   "lcsc": "C108661",
+   "refs": [
+    "R1",
+    "R2",
+    "R3",
+    "R4",
+    "R42",
+    "R43",
+    "R44",
+    "R45",
+    "R107"
+   ],
+   "qty_per_board": 9,
+   "mount": "SMD",
+   "jlc_stock": 779756,
+   "stock_read": "2026-10-12T16:37:06Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0032,
+   "line_cost_per_board_usd": 0.028800000000000003,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603FR-0710KL",
+   "lcsc": "C98220",
+   "refs": [
+    "R5",
+    "R6",
+    "R7",
+    "R8",
+    "R19",
+    "R25",
+    "R28",
+    "R29",
+    "R33",
+    "R55",
+    "R56",
+    "R61",
+    "R62",
+    "R63",
+    "R64",
+    "R65",
+    "R66",
+    "R67",
+    "R68",
+    "R70",
+    "R71",
+    "R74",
+    "R75",
+    "R88",
+    "R91",
+    "R94",
+    "R97",
+    "R103",
+    "R108",
+    "R109",
+    "R119",
+    "R120"
+   ],
+   "qty_per_board": 32,
+   "mount": "SMD",
+   "jlc_stock": 9215356,
+   "stock_read": "2026-10-12T16:37:08Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0034,
+   "line_cost_per_board_usd": 0.1088,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603FR-071KL",
+   "lcsc": "C22548",
+   "refs": [
+    "R9",
+    "R10",
+    "R26",
+    "R27",
+    "R69",
+    "R82",
+    "R106"
+   ],
+   "qty_per_board": 7,
+   "mount": "SMD",
+   "jlc_stock": 10974774,
+   "stock_read": "2026-10-12T16:37:10Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0036,
+   "line_cost_per_board_usd": 0.0252,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603FR-07100KL",
+   "lcsc": "C14675",
+   "refs": [
+    "R11",
+    "R17",
+    "R20",
+    "R38",
+    "R51",
+    "R52",
+    "R73",
+    "R110"
+   ],
+   "qty_per_board": 8,
+   "mount": "SMD",
+   "jlc_stock": 8971200,
+   "stock_read": "2026-10-12T16:37:11Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0026,
+   "line_cost_per_board_usd": 0.0208,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603FR-0712K1L",
+   "lcsc": "C123417",
+   "refs": [
+    "R12",
+    "R18",
+    "R21"
+   ],
+   "qty_per_board": 3,
+   "mount": "SMD",
+   "jlc_stock": 125439,
+   "stock_read": "2026-10-12T16:37:13Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.003,
+   "line_cost_per_board_usd": 0.009000000000000001,
+   "status": "ok"
+  },
+  {
+   "mpn": "RT0603BRD0722K1L",
+   "lcsc": "C723484",
+   "refs": [
+    "R13"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 27401,
+   "stock_read": "2026-10-12T16:37:14Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0584,
+   "line_cost_per_board_usd": 0.0584,
+   "status": "ok"
+  },
+  {
+   "mpn": "RT0603BRD077K06L",
+   "lcsc": "C861561",
+   "refs": [
+    "R14",
+    "R35"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 11869,
+   "stock_read": "2026-10-12T16:37:16Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0455,
+   "line_cost_per_board_usd": 0.091,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603FR-0720KL",
+   "lcsc": "C105575",
+   "refs": [
+    "R15"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 3437252,
+   "stock_read": "2026-10-12T16:37:18Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0032,
+   "line_cost_per_board_usd": 0.0032,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603FR-074K7L",
+   "lcsc": "C99782",
+   "refs": [
+    "R16",
+    "R102",
+    "R111",
+    "R112"
+   ],
+   "qty_per_board": 4,
+   "mount": "SMD",
+   "jlc_stock": 9775163,
+   "stock_read": "2026-10-12T16:37:19Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0033,
+   "line_cost_per_board_usd": 0.0132,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603FR-0756K2L",
+   "lcsc": "C482887",
+   "refs": [
+    "R22"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 153,
+   "stock_read": "2026-10-12T16:37:20Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0059,
+   "line_cost_per_board_usd": 0.0059,
+   "status": "ok"
+  },
+  {
+   "mpn": "RT0603BRD07140KL",
+   "lcsc": "C861125",
+   "refs": [
+    "R23",
+    "R36"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 8308,
+   "stock_read": "2026-10-12T16:37:21Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0357,
+   "line_cost_per_board_usd": 0.0714,
+   "status": "ok"
+  },
+  {
+   "mpn": "RT0603BRD0711K5L",
+   "lcsc": "C705719",
+   "refs": [
+    "R24"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 8811,
+   "stock_read": "2026-10-12T16:37:23Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0458,
+   "line_cost_per_board_usd": 0.0458,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603FR-0711K5L",
+   "lcsc": "C137802",
+   "refs": [
+    "R30"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 17868,
+   "stock_read": "2026-10-12T16:37:24Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0029,
+   "line_cost_per_board_usd": 0.0029,
+   "status": "ok"
+  },
+  {
+   "mpn": "RT0603BRD078K06L",
+   "lcsc": "C861587",
+   "refs": [
+    "R31"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 2718,
+   "stock_read": "2026-10-12T16:38:37Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0359,
+   "line_cost_per_board_usd": 0.0359,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603FR-0734K8L",
+   "lcsc": "C137741",
+   "refs": [
+    "R32"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 2654,
+   "stock_read": "2026-10-12T16:37:27Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0061,
+   "line_cost_per_board_usd": 0.0061,
+   "status": "ok"
+  },
+  {
+   "mpn": "RT0603BRD0790K9L",
+   "lcsc": "C728600",
+   "refs": [
+    "R34",
+    "R83"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 18603,
+   "stock_read": "2026-10-12T16:37:28Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.043,
+   "line_cost_per_board_usd": 0.086,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603FR-071K21L",
+   "lcsc": "C137779",
+   "refs": [
+    "R37"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 30141,
+   "stock_read": "2026-10-12T16:37:30Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0027,
+   "line_cost_per_board_usd": 0.0027,
+   "status": "ok"
+  },
+  {
+   "mpn": "RG2012V-431-W-T1",
+   "lcsc": "C4260028",
+   "refs": [
+    "R39"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 0,
+   "stock_read": "2026-10-15T17:47:42Z",
+   "source": "new-parts-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 1.3158,
+   "line_cost_per_board_usd": 1.3158,
+   "status": "zero"
+  },
+  {
+   "mpn": "RC0603FR-07499KL",
+   "lcsc": "C131054",
+   "refs": [
+    "R40",
+    "R41"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 316655,
+   "stock_read": "2026-10-15T17:47:41Z",
+   "source": "new-parts-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0053,
+   "line_cost_per_board_usd": 0.0106,
+   "status": "ok"
+  },
+  {
+   "mpn": "BLM18AG121SN1D",
+   "lcsc": "C76892",
+   "refs": [
+    "R46"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 74069,
+   "stock_read": "2026-10-12T16:37:34Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0125,
+   "line_cost_per_board_usd": 0.0125,
+   "status": "ok"
+  },
+  {
+   "mpn": "ERA-3AEB6192V",
+   "lcsc": "C4019122",
+   "refs": [
+    "R47"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 181,
+   "stock_read": "2026-10-12T16:37:35Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0994,
+   "line_cost_per_board_usd": 0.0994,
+   "status": "ok"
+  },
+  {
+   "mpn": "ERA-3AEB103V",
+   "lcsc": "C190610",
+   "refs": [
+    "R48",
+    "R50",
+    "R54"
+   ],
+   "qty_per_board": 3,
+   "mount": "SMD",
+   "jlc_stock": 72261,
+   "stock_read": "2026-10-12T16:37:36Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.1062,
+   "line_cost_per_board_usd": 0.3186,
+   "status": "ok"
+  },
+  {
+   "mpn": "ERA-3AEB5901V",
+   "lcsc": "C491142",
+   "refs": [
+    "R49",
+    "R90"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 1646,
+   "stock_read": "2026-10-12T16:37:38Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0818,
+   "line_cost_per_board_usd": 0.1636,
+   "status": "ok"
+  },
+  {
+   "mpn": "RT0603BRD0716K5L",
+   "lcsc": "C728584",
+   "refs": [
+    "R53"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 18103,
+   "stock_read": "2026-10-12T16:38:30Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0595,
+   "line_cost_per_board_usd": 0.0595,
+   "status": "ok"
+  },
+  {
+   "mpn": "RT0603BRD071KL",
+   "lcsc": "C110776",
+   "refs": [
+    "R57",
+    "R58",
+    "R59",
+    "R60",
+    "R89",
+    "R96"
+   ],
+   "qty_per_board": 6,
+   "mount": "SMD",
+   "jlc_stock": 1815730,
+   "stock_read": "2026-10-15T17:47:57Z",
+   "source": "new-parts-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0296,
+   "line_cost_per_board_usd": 0.1776,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603JR-070RL",
+   "lcsc": "C95177",
+   "refs": [
+    "R72"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 3735493,
+   "stock_read": "2026-10-12T16:37:40Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0024,
+   "line_cost_per_board_usd": 0.0024,
+   "status": "ok"
+  },
+  {
+   "mpn": "RT0603BRD0720KL",
+   "lcsc": "C723637",
+   "refs": [
+    "R76",
+    "R78",
+    "R79"
+   ],
+   "qty_per_board": 3,
+   "mount": "SMD",
+   "jlc_stock": 68200,
+   "stock_read": "2026-10-12T16:37:42Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0346,
+   "line_cost_per_board_usd": 0.1038,
+   "status": "ok"
+  },
+  {
+   "mpn": "RT0603BRD0710KL",
+   "lcsc": "C95204",
+   "refs": [
+    "R77",
+    "R80",
+    "R81",
+    "R84",
+    "R93",
+    "R100",
+    "R105"
+   ],
+   "qty_per_board": 7,
+   "mount": "SMD",
+   "jlc_stock": 2219352,
+   "stock_read": "2026-10-12T16:37:43Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0328,
+   "line_cost_per_board_usd": 0.22960000000000003,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603FR-07100RL",
+   "lcsc": "C105588",
+   "refs": [
+    "R85",
+    "R87",
+    "R92",
+    "R95",
+    "R98",
+    "R113",
+    "R114",
+    "R115",
+    "R116",
+    "R117",
+    "R118"
+   ],
+   "qty_per_board": 11,
+   "mount": "SMD",
+   "jlc_stock": 2982369,
+   "stock_read": "2026-10-12T16:37:44Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0024,
+   "line_cost_per_board_usd": 0.026399999999999996,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC0603FR-0710ML",
+   "lcsc": "C114606",
+   "refs": [
+    "R86",
+    "R101"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 847503,
+   "stock_read": "2026-10-12T16:37:46Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.005,
+   "line_cost_per_board_usd": 0.01,
+   "status": "ok"
+  },
+  {
+   "mpn": "RT0603BRD0786K6L",
+   "lcsc": "C861580",
+   "refs": [
+    "R99"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 10896,
+   "stock_read": "2026-10-15T17:47:43Z",
+   "source": "new-parts-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0392,
+   "line_cost_per_board_usd": 0.0392,
+   "status": "ok"
+  },
+  {
+   "mpn": "RT0603BRD0730KL",
+   "lcsc": "C723585",
+   "refs": [
+    "R104"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 407945,
+   "stock_read": "2026-10-12T16:37:49Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0308,
+   "line_cost_per_board_usd": 0.0308,
+   "status": "ok"
+  },
+  {
+   "mpn": "RC1206FR-07100RL",
+   "lcsc": "C137392",
+   "refs": [
+    "R121",
+    "R122"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 853401,
+   "stock_read": "2026-10-12T16:37:50Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0111,
+   "line_cost_per_board_usd": 0.0222,
+   "status": "ok"
+  },
+  {
+   "mpn": "TPS62933FDRLR",
+   "lcsc": "C5219272",
+   "refs": [
+    "U1"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 1914,
+   "stock_read": "2026-10-12T16:37:52Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 1.1483,
+   "line_cost_per_board_usd": 1.1483,
+   "status": "ok"
+  },
+  {
+   "mpn": "TPS62933DRLR",
+   "lcsc": "C3200405",
+   "refs": [
+    "U2"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 32029,
+   "stock_read": "2026-10-12T16:37:53Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.6059,
+   "line_cost_per_board_usd": 0.6059,
+   "status": "ok"
+  },
+  {
+   "mpn": "TPS3703A4330DSERQ1",
+   "lcsc": "C1850327",
+   "refs": [
+    "U3"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 18,
+   "stock_read": "2026-10-12T16:37:54Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 4.0978,
+   "line_cost_per_board_usd": 4.0978,
+   "status": "ok"
+  },
+  {
+   "mpn": "ESP32-S3-WROOM-1U-N8",
+   "lcsc": "C2980297",
+   "refs": [
+    "U4"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 1486,
+   "stock_read": "2026-10-12T16:37:55Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 4.8079,
+   "line_cost_per_board_usd": 4.8079,
+   "status": "ok"
+  },
+  {
+   "mpn": "OPA2388IDR",
+   "lcsc": "C1517414",
+   "refs": [
+    "U5"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 7979,
+   "stock_read": "2026-10-12T16:37:57Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 2.3112,
+   "line_cost_per_board_usd": 2.3112,
+   "status": "ok"
+  },
+  {
+   "mpn": "TLV9062IDR",
+   "lcsc": "C398355",
+   "refs": [
+    "U6",
+    "U7"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 165833,
+   "stock_read": "2026-10-12T16:37:58Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.1211,
+   "line_cost_per_board_usd": 0.2422,
+   "status": "ok"
+  },
+  {
+   "mpn": "TCA9555PWR",
+   "lcsc": "C465732",
+   "refs": [
+    "U8"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 38372,
+   "stock_read": "2026-10-12T16:37:59Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.7313,
+   "line_cost_per_board_usd": 0.7313,
+   "status": "ok"
+  },
+  {
+   "mpn": "SN74LVC244APWR",
+   "lcsc": "C7668",
+   "refs": [
+    "U9"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 88993,
+   "stock_read": "2026-10-12T16:38:00Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.2974,
+   "line_cost_per_board_usd": 0.2974,
+   "status": "ok"
+  },
+  {
+   "mpn": "TLV3201AIDBVR",
+   "lcsc": "C105188",
+   "refs": [
+    "U10",
+    "U17",
+    "U18",
+    "U31",
+    "U32",
+    "U40"
+   ],
+   "qty_per_board": 6,
+   "mount": "SMD",
+   "jlc_stock": 4404,
+   "stock_read": "2026-10-12T16:38:02Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.974,
+   "line_cost_per_board_usd": 5.843999999999999,
+   "status": "ok"
+  },
+  {
+   "mpn": "SN74LVC1G08DBVR",
+   "lcsc": "C7666",
+   "refs": [
+    "U11",
+    "U25",
+    "U33",
+    "U37"
+   ],
+   "qty_per_board": 4,
+   "mount": "SMD",
+   "jlc_stock": 81931,
+   "stock_read": "2026-10-12T16:38:03Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0448,
+   "line_cost_per_board_usd": 0.1792,
+   "status": "ok"
+  },
+  {
+   "mpn": "SN74LVC1G14DBVR",
+   "lcsc": "C7835",
+   "refs": [
+    "U12",
+    "U45",
+    "U46"
+   ],
+   "qty_per_board": 3,
+   "mount": "SMD",
+   "jlc_stock": 289436,
+   "stock_read": "2026-10-12T16:38:04Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0597,
+   "line_cost_per_board_usd": 0.1791,
+   "status": "ok"
+  },
+  {
+   "mpn": "LM4040A25IDBZR",
+   "lcsc": "C9421",
+   "refs": [
+    "U13"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 4811,
+   "stock_read": "2026-10-12T16:38:06Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 1.9805,
+   "line_cost_per_board_usd": 1.9805,
+   "status": "ok"
+  },
+  {
+   "mpn": "AD8436ARQZ-R7",
+   "lcsc": "C495329",
+   "refs": [
+    "U14"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 106,
+   "stock_read": "2026-10-12T16:38:28Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 12.1045,
+   "line_cost_per_board_usd": 12.1045,
+   "status": "ok"
+  },
+  {
+   "mpn": "MCP3202-CI/SN",
+   "lcsc": "C56997",
+   "refs": [
+    "U15"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 188,
+   "stock_read": "2026-10-12T16:38:08Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 2.0636,
+   "line_cost_per_board_usd": 2.0636,
+   "status": "ok"
+  },
+  {
+   "mpn": "TLV76050DBZR",
+   "lcsc": "C2867465",
+   "refs": [
+    "U16"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 19130,
+   "stock_read": "2026-10-12T16:38:10Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.1388,
+   "line_cost_per_board_usd": 0.1388,
+   "status": "ok"
+  },
+  {
+   "mpn": "TLV9031DBVR",
+   "lcsc": "C29777121",
+   "refs": [
+    "U19",
+    "U26"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 167,
+   "stock_read": "2026-10-12T16:38:11Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 1.3861,
+   "line_cost_per_board_usd": 2.7722,
+   "status": "ok"
+  },
+  {
+   "mpn": "SN74LVC1G74DCUR",
+   "lcsc": "C70285",
+   "refs": [
+    "U20"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 10878,
+   "stock_read": "2026-10-12T16:38:13Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.2961,
+   "line_cost_per_board_usd": 0.2961,
+   "status": "ok"
+  },
+  {
+   "mpn": "TPS3823-33DBVR",
+   "lcsc": "C7719",
+   "refs": [
+    "U21"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 61130,
+   "stock_read": "2026-10-12T16:38:14Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.4597,
+   "line_cost_per_board_usd": 0.4597,
+   "status": "ok"
+  },
+  {
+   "mpn": "74HC30PW,118",
+   "lcsc": "C546857",
+   "refs": [
+    "U22"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 144,
+   "stock_read": "2026-10-12T16:38:29Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.2437,
+   "line_cost_per_board_usd": 0.2437,
+   "status": "ok"
+  },
+  {
+   "mpn": "SN74LVC14ADR",
+   "lcsc": "C133541",
+   "refs": [
+    "U23",
+    "U24"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 39235,
+   "stock_read": "2026-10-12T16:38:17Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.2491,
+   "line_cost_per_board_usd": 0.4982,
+   "status": "ok"
+  },
+  {
+   "mpn": "SN74LVC1G32DBVR",
+   "lcsc": "C10096",
+   "refs": [
+    "U27",
+    "U28",
+    "U41",
+    "U44"
+   ],
+   "qty_per_board": 4,
+   "mount": "SMD",
+   "jlc_stock": 139641,
+   "stock_read": "2026-10-15T17:47:59Z",
+   "source": "new-parts-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0711,
+   "line_cost_per_board_usd": 0.2844,
+   "status": "ok"
+  },
+  {
+   "mpn": "REF2025AIDDCR",
+   "lcsc": "C962078",
+   "refs": [
+    "U29"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 5053,
+   "stock_read": "2026-10-12T16:38:19Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 1.4577,
+   "line_cost_per_board_usd": 1.4577,
+   "status": "ok"
+  },
+  {
+   "mpn": "MAX31865AAP+",
+   "lcsc": "C89608",
+   "refs": [
+    "U30"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 186,
+   "stock_read": "2026-10-12T16:38:20Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 8.8666,
+   "line_cost_per_board_usd": 8.8666,
+   "status": "ok"
+  },
+  {
+   "mpn": "TPS389001DSER",
+   "lcsc": "C1509297",
+   "refs": [
+    "U34"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 314,
+   "stock_read": "2026-10-12T16:38:22Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 1.7558,
+   "line_cost_per_board_usd": 1.7558,
+   "status": "ok"
+  },
+  {
+   "mpn": "SN74LVC1G38DBVR",
+   "lcsc": "C2867613",
+   "refs": [
+    "U35"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 7919,
+   "stock_read": "2026-10-12T16:38:23Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.153,
+   "line_cost_per_board_usd": 0.153,
+   "status": "ok"
+  },
+  {
+   "mpn": "TLV9061IDBVR",
+   "lcsc": "C398358",
+   "refs": [
+    "U36"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 284027,
+   "stock_read": "2026-10-12T16:38:24Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.093,
+   "line_cost_per_board_usd": 0.093,
+   "status": "ok"
+  },
+  {
+   "mpn": "SRV05-4",
+   "lcsc": "C2836319",
+   "refs": [
+    "U38",
+    "U39"
+   ],
+   "qty_per_board": 2,
+   "mount": "SMD",
+   "jlc_stock": 401990,
+   "stock_read": "2026-10-12T16:38:25Z",
+   "source": "stock-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0289,
+   "line_cost_per_board_usd": 0.0578,
+   "status": "ok"
+  },
+  {
+   "mpn": "SN74LVC74APWR",
+   "lcsc": "C350561",
+   "refs": [
+    "U42"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 1588,
+   "stock_read": "2026-10-15T17:47:52Z",
+   "source": "new-parts-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.5104,
+   "line_cost_per_board_usd": 0.5104,
+   "status": "ok"
+  },
+  {
+   "mpn": "SN74LVC1G86DBVR",
+   "lcsc": "C402161",
+   "refs": [
+    "U43"
+   ],
+   "qty_per_board": 1,
+   "mount": "SMD",
+   "jlc_stock": 92190,
+   "stock_read": "2026-10-15T17:47:46Z",
+   "source": "new-parts-snapshot.json",
+   "library": "expand",
+   "unit_price_usd": 0.0733,
+   "line_cost_per_board_usd": 0.0733,
+   "status": "ok"
+  }
+ ]
+}
