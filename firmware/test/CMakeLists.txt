@@ -279,6 +279,7 @@ add_executable(test_power_gate_only
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_power_gate.c
 )
 target_include_directories(test_power_gate_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_power_gate_only m)
 
 # PLL control tests only
 add_executable(test_pll_only
@@ -485,6 +486,7 @@ add_executable(test_profiles_only
 )
 target_include_directories(test_profiles_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_profiles_only m)
+add_test(NAME profiles_tests COMMAND test_profiles_only)
 
 # SIL Fault Injection Tests
 add_executable(test_sil_fault_injection

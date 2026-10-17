@@ -86,13 +86,16 @@ typedef struct {
      * @brief Configure input capture
      * 
      * Sets up edge capture on a GPIO pin for timing measurements.
+     * The ESP32 backend returns HAL_ERROR_NOT_SUPPORTED without configuring
+     * hardware or registering callbacks: main/board_power.c owns PLL and
+     * pan-detect capture through MCPWM. The host mock supports injected captures.
      * 
      * @param timer Timer identifier
      * @param pin GPIO pin for capture input
      * @param edge Edge to capture on
      * @param callback Capture event callback
      * @param arg Callback argument
-     * @return HAL_OK on success
+     * @return HAL_OK on success, HAL_ERROR_NOT_SUPPORTED if capture is unavailable
      */
     hal_status_t (*configure_capture)(hal_timer_t timer, hal_pin_t pin,
                                       hal_gpio_intr_t edge,

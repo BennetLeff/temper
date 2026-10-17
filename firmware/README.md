@@ -302,3 +302,116 @@ void state_machine_force_state(system_state_t new_state);  // Testing only
 2. Run full test suite before committing: `ctest --output-on-failure`
 3. Follow existing code style (K&R braces, 4-space indent)
 4. Update this README for any API changes
+
+## 2026-10-16 — F2 firmware hygiene
+
+Base: `cloud/sensor-c1-leak` at `ebf8a777b50ecb81040fc0c56fa8bde706720638`.
+Checked with Python 3.12.14, CMake 3.31.10 and Debian GCC 14.2.0.
+
+- Keep the current cooking-profile tests. `profiles.c` still implements
+  their API; `state_machine.c` starts profiles and `state_handlers.c`
+  advances stages and applies their settings. The build failure was the
+  local Unity `TEST_ASSERT_EQUAL` macro passing pointers to its integer
+  assertion (`UnityAssertEqualInt`), not a removed API. Compare the pointers
+  directly with `TEST_ASSERT_TRUE`, and register `profiles_tests` with CTest.
+- Link `test_power_gate_only` with `m`, as the other mock-HAL targets do.
+  On this Linux host the shared converter mocks require `exp` and `floor`;
+  this target previously failed to link and CTest could not run it.
+- Keep `hal_timer_ops_t.configure_capture` and the host mock's injected
+  capture support. A firmware-wide search finds only `pwm_guard_init` calling
+  the op. Its only caller is `test_pwm_guard.c`, where `hal_timer` is NULL;
+  `pwm_guard.c` is not in the ESP-IDF source list. The target instead creates
+  MCPWM channels in `main/board_power.c` and attaches the PLL and pan detector
+  directly (D-BRINGUP). Remove the unused ESP32 capture-context type/array
+  and document the existing unsupported result, with no hardware allocation
+  or callback registration. Remove the misleading GPIO fallback/TODO text.
+- Remove `state_handlers.c`'s unused `TAG` and explicitly discard the
+  completion return from `thermal_mass_update`, retaining the call and its
+  state updates. A true return also covers sensor failure; it is not a
+  classification-valid signal. The handler already checks the persistent
+  `thermal_mass_is_classified` state when pan confidence is sufficient.
+  This preserves the existing control behavior. Host build warnings from
+  this file fell from 9 to 0; ESP-IDF-only declarations were not compiled
+  here. The estimator audit suite reported `36 Tests 0 Failures 0 Ignored`.
+
+Before/after verification (no thresholds, gates or existing expected counts
+changed):
+
+| Check | Before | After |
+|---|---|---|
+| Profile target | `error: passing argument 1 of ‘UnityAssertEqualInt’ makes integer from pointer without a cast [-Wint-conversion]` | `5 Tests 0 Failures 0 Ignored` |
+| Profile CTest selection (`--no-tests=error`) | `No tests were found!!!` (exit 8) | `100% tests passed, 0 tests failed out of 1` (exit 0) |
+| Power-gate target | unresolved `exp` and `floor` | `10 Tests 0 Failures 0 Ignored` |
+| Complete host build / CTest | `gmake: Target 'default_target' not remade because of errors.` (exit 2); `96% tests passed, 1 tests failed out of 26` (`power_gate_tests` not run) | `[100%] Built target test_c1_rtd_service_only` (exit 0); `100% tests passed, 0 tests failed out of 27` |
+| SIL coverage | `SUMMARY legacy: 31 scenarios, 20/20 designed pairs covered`; `SUMMARY c1: 52 scenarios, 28/28 designed pairs covered`; `SUMMARY c1 mechanisms: 27/27 cells covered`; `PASS` | Same (exit 0) |
+| Trace freshness | `SIL traces up to date (27 generated traces)` | Same (exit 0) |
+| Invariants | `OK: all 5 invariants verified and proof_record.json is fresh` | Same (exit 0) |
+| State-machine model | `OK: state machine model check passed (reachability, P1-P4, manifest cross-check)` | Same (exit 0) |
+| Fault list | `fault list consistency check passed`; `manifest codes: 14`; `generated codes: 16`; `supplemental codes: 3` | Same (exit 0) |
+| Board pin map | `PASSED: temper_pins.h agrees with zapote/controller controller-c1-crs at 467917c38 (36 GPIOs, 10 expander pins)` | Same (exit 0) |
+| Full C1 `run.sh` | `T1 FAIL: derivation gates failed: source_inputs_clean` (exit 1) | Same (exit 1); 23 selected result lines identical |
+
+The model gate retains its one existing manifest-divergence backlog entry.
+ESP-IDF compilation was not run: `idf.py is not on PATH`, `IDF_PATH is unset`,
+and `No ~/esp/esp-idf-*/export.sh found`. Target warning verification remains
+for the Mac build. `scripts/check_firmware_board_contract.py` was skipped as
+requested because it needs the unpushed board branch.
+
+The prepared environment needed SciPy for `run.sh` (the first invocation
+stopped with `ModuleNotFoundError: No module named 'scipy'`). Installing
+SciPy 1.18.1 and the T2 metadata dependency matplotlib 3.11.2 required no
+repository dependency or lockfile changes.
+
+Additional repository check: `Import boundary gate PASSED — 0 new violations`
+after installing the missing import-linter tool. `make regen-check` reports
+the pre-existing unrelated error: `[gen_repo_state] ERROR: tracked top-level
+directories have no description in DIRECTORY_PURPOSE: output. Add one so
+the map stays complete.` The post-edit output was identical
+(`REGEN_CHECK_OUTPUT_IDENTICAL=True`).
+No unrelated derived artifacts were re-baselined.
+
+Both C1 runs retained the expected report-only `== screen_d1: FAIL` and
+`== stretch_3_6_3: FAIL`, with `== firmware: PASS`. The unmodified full C1
+run reached `ALL RUNAWAY CHECKS PASS` and
+`SENSOR FAIL CODES PASS`, then stopped at T1 because its earlier Linux
+regeneration changed the tracked `leak-checks.json` input. After restoring
+all six generated JSON files, the unchanged T1 command reported `T1 PASS`.
+The subsequent T2 and sensitivity stages were run directly to measure the
+parts that `run.sh` did not reach. Baseline sensitivity exited 0. The clean
+T2 run reported `250 C controls match committed C and offline headlines`
+and `cap 200: nominal 99/179; worst 14/90`, then `T2 FAIL: regenerated
+evidence differs`. Its candidate had all eight internal gates true and an
+empty dirty-input list. After applying T2's own comparison normalization,
+the summary had 0 differing leaves, while the detailed rows had 173,
+including `r_leak` 720.8434242404265 versus 720.8434242404264 and one
+rim-limit time 527.8 versus 527.9 s. No evidence was re-baselined.
+
+T2 also pins source bytes against `03c28e76bd893a716c1b080bd34ccbfffd42993e`,
+including `firmware/main/state_handlers.c`. The post-edit T2 run exited 1:
+`T2 FAIL: regenerated evidence differs`. Its candidate reports
+`"source_inputs_unchanged": false`, with the dirty-input list containing
+only `firmware/main/state_handlers.c`; the other seven internal gates remain
+true. This is a worse gate result caused by the requested hygiene edit
+against T2's fixed source pin. No gate, pin or committed hash was changed.
+
+The saved Linux candidates report `T2_ROWS_BEFORE_AFTER_IDENTICAL=True` and
+`T2_ROWS_BEFORE_AFTER_DIFFERING_LEAVES=0`. Comparing the simulation summaries
+separately from apparatus, cap-inventory line numbers and gate status gives
+`T2_SIMULATION_SUMMARIES_BEFORE_AFTER_IDENTICAL=True`. That diagnostic
+comparison does not waive the actual gate. The post-edit candidate still
+has 173 detailed-row differences against the committed evidence, as the
+baseline did. Owner follow-up is needed to reconcile the fixed source pin
+with approved source edits and reproduce the exact evidence on the Mac.
+
+Generated JSON restored after the first full C1 run: `firmware/cosim-results.json`,
+`firmware/fault-cycle.json`, `firmware/leak-checks.json`,
+`firmware/runaway-checks.json`, `firmware/xcheck-cosim.json`, and
+`robustness/hc-cosim.json` (all under `output/temper-sensor-r3/`). The recorded
+post-restore result was `TRACKED_TREE_CLEAN`. The same six files were
+restored after the post-edit run; each was byte-identical
+to its saved Linux baseline output (`JSON_REPEAT IDENTICAL` for every file).
+The checkout again reported `TRACKED_TREE_CLEAN`, and the clean-input T1
+rerun reported `T1 PASS` (exit 0). Sensitivity exited 0 before and after,
+with `SENSITIVITY_BEFORE_AFTER_IDENTICAL=True`. The full harness never
+reached `ALL C1 FIRMWARE CHECKS PASS`; this is a recorded validation blocker,
+not a passing full run.
