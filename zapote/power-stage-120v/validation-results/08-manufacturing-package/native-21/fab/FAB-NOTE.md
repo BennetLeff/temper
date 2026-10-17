@@ -1,6 +1,6 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 52, the board of record (DECISIONS.md item 74: the prototype bank C21–C23 / C151 / C152 is TDK
+Board: native-21 stage 53, the board of record (DECISIONS.md item 75: the S10 ovp_ok_hot In1 run moves to In2, the R43 real-pose fit gate and the 3D-model gate; item 74: the prototype bank C21–C23 / C151 / C152 is TDK
 B32643H8104J000 (24 A strict ladder; DigiKey 306 on the 2026-10-16 read), consigned into the 22.5 mm holes; L1 is
 B82726S2243A020, consigned / hand-assembled (JLC C7084710 holds 0); C3 / C4 are Murata DE1E3RA222MJ4BH01F. Item 73:
 the dual-pitch footprint
@@ -12,15 +12,14 @@ OCP divider, R33 7.5 k / R34 16 k / R35 11 k, and the bank-area re-cut for a 200
 ENs on 100 k / 27 k dividers and on the 125 °C TPS70950QDBVRQ1, the REF25 watchdog on U14's second channel, BIAS_GOOD
 read back on J4.1 through R146, end-of-line test pads; item 63: U5 (REF25) on the 125 °C LM4050AEM3-2.5/NOPB; item 62:
 the rail-monitor ICs on their 125 °C grades; item 60: the S16 rail-monitor values; the stage history is DECISIONS.md
-items 12–74). Built by `sh native-21/layout/gates/chain.sh native21s52 …`; SHA-256
-`5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34` (the integration build; same copper key 3a4c616e7870 as
-the lane build 32665572, geometry identical by `s52-proto-bom/results/geom-s52-lane-int.json`). Plated holes 876: the
+items 12–75). Built by `sh native-21/layout/gates/chain.sh native21s53 …`; SHA-256
+`82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27` (the integration build; copper key b7a0bc5790b9; the s52 copper key was 3a4c616e7870). Plated holes 876: the
 bank is consigned into the 22.5 mm holes (pad 2 at x 185.5); the five x 190.5 holes are plated and stay open at assembly.
 The silk bank-variant fit mark ("BANK FIT, TICK ONE") carries H = B32643H8104J000 24 A MAX and B = B32643B8104J000
 28 A: tick H on the prototype boards. U5 is sourced and consigned (JLC stock 50 against 500; owner pre-order,
 OPEN-ITEMS owner action 7); U3 / U37–U39 TPS70950QDBVRQ1 (C485909) are JLC Extended, 11,607 in stock.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`ad585c16167e33a8cdd87b8bc9f2e1ca718432fd8fa09390f0c9849fe43797e2`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
+`a6afd37a4f4e0039de8de7fd86755ff65328f21e43501a23d0904e78ffbd4ddc`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
 (DECISIONS.md item 61).
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).

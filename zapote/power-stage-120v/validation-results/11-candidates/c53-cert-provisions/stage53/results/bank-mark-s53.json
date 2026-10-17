@@ -1,0 +1,82 @@
+{
+ "board": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s53/c53int/section.kicad_pcb",
+ "window_mm": [
+  180.0,
+  100.0,
+  245.0,
+  135.0
+ ],
+ "mark_bbox_mm": [
+  193.9,
+  113.24,
+  228.87,
+  121.1
+ ],
+ "texts": [
+  {
+   "text": "BANK FIT, TICK ONE:",
+   "height_mm": 1.2,
+   "stroke_mm": 0.2
+  },
+  {
+   "text": "B  B32643B8104J000  28 A",
+   "height_mm": 1.2,
+   "stroke_mm": 0.2
+  },
+  {
+   "text": "H  B32643H8104J000  24 A MAX",
+   "height_mm": 1.2,
+   "stroke_mm": 0.2
+  }
+ ],
+ "tick_boxes_mm": [
+  [
+   193.9,
+   115.9,
+   196.1,
+   118.1
+  ],
+  [
+   193.9,
+   118.9,
+   196.1,
+   121.1
+  ]
+ ],
+ "tick_box_stroke_mm": [
+  0.2,
+  0.2
+ ],
+ "clearances": {
+  "mask_openings": {
+   "min_mm": 3.183,
+   "nearest": "C152 2",
+   "of": "pads / mask openings on F.Mask, with mask expansion"
+  },
+  "other_silk": {
+   "min_mm": 0.97,
+   "nearest": "C152 PCB_SHAPE",
+   "of": "footprint silk, fields and board silk"
+  },
+  "courtyards": {
+   "min_mm": 0.625,
+   "nearest": "C152",
+   "of": "footprint courtyards (F.CrtYd)"
+  },
+  "board_edge": {
+   "min_mm": 18.85,
+   "of": "Edge.Cuts"
+  }
+ },
+ "rule": {
+  "clearance_mm": 0.5,
+  "edge_mm": 1.5,
+  "jlc_min_stroke_mm": 0.15
+ },
+ "controls": {
+  "C152 courtyard distance > 0": true,
+  "C3 pads overlap C3 courtyard (distance 0)": true
+ },
+ "failed": [],
+ "verdict": "PASS"
+}

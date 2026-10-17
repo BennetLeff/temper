@@ -2968,3 +2968,38 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - B32643B8104J000 is sourced, or an 11-body re-floorplan lands (S28): 28 A becomes possible on B-marked boards, after
       the bench gates;
     - DigiKey stock of B32643H8104J000 falls below 100 before purchase: fit KNSCHA.
+
+75. **Stage 53 (c53-cert-provisions, first part): the S10 ovp_ok_hot return-path fix, the R43 real-pose fit gate and the
+    3D-model gate (2026-10-16; adopted as the board of record). Integration board 82af7bd93e62 (copper key b7a0bc5790b9).
+    Card ACCEPT against s52: cheaper [], better ['return_path_open_changes'], nothing worse. The BOM is s52's, unchanged.**
+    Records: `11-candidates/c53-cert-provisions/stage53/README.md`. Lane chain (branch `claude/native21-s53-cert-provisions`)
+    board 2c2f2223, same copper; integration chain `runs-native21/s53/chain-int.out` (CHAIN_DONE).
+
+    **Change.**
+    - **Copper (S10).** `patches21.edit_base53` moves the `ovp_ok_hot` In1 run (117.847, 55.095) → (117.248, 55.695) →
+      (114.448, 55.695) to In2. On KiCad's fill the return_path19 opens at (117.847, 55.095), (114.448, 55.695) and, as a
+      consequence, the `ocp_ok_hot` launch at (117.0, 54.995) are closed: 7 → 4 opens. The pass is clean (unconnected 0,
+      DRC errors 0). The Kelvin band stays 69.18–114.57 A (floor 64.17 A).
+    - **Opens left, as documented residuals (S10):** `bus_fault_hot` at (101.1, 74.9), (100.6, 114.0) and
+      (113.635, 114.5), and `monitor_ls-good` at (104.4, 99.65). They sit in crowded areas with other-net vias and no usable
+      reference pour on the neighbouring layers (the nearest is an In1 n_ls pour 1.0–1.5 mm away at two of them); the planning simulator (`stage53/scripts/s10sim53.py`) did not clear them with pour patches, and a
+      hand-shaped patch risks the Kelvin band for a reported (not asserted) metric.
+    - **Fit gate.** `board_in_r43.py` measures the board against the frozen R43 catalogue with exact solids, in place of the
+      mirror-pose R4 check. `r43-expected-hits.json` ratchets the 4 known pairs under 1.0 mm (T1–coil lug 0.5 mm, J11–PS3
+      anchor 0.555 mm, F2–J11 mate 0.755 mm, and the board edge against the controller's right-angle J4 header box at
+      0.0 mm). The 0.0 mm pair is an envelope abutment at the tongue edge, not a mating contact: it stays an open
+      enclosure / controller placement item.
+    - **Model gate.** `model_gate.py` fails the chain on a missing or untracked 3D model. It found a real bug on first use:
+      the 0690d5602 repoint to `${KIPRJMOD}/../models3d/` edited pcbnew copies and never took effect (16 parts kept the
+      untracked path); `build_native21.py` now rebuilds the model list. 360 model refs, 33 files, 0 failures.
+    - **L1 model** at the datasheet maximum 45 × 25.5 × 41 mm; **fit mark** 1.2 mm text / 0.2 mm stroke
+      (`stage53/results/bank-mark-s53.json`: PASS, 0.625 mm to the C152 courtyard, 0.97 mm to other silk, 3.18 mm to a mask
+      opening).
+    - **Ledger.** Cited temperatures moved by 0.1 K between builds of the same copper (thermal results are not bit-stable
+      across builds); five were re-read.
+
+    **Not in this stage.** The R5 hardware average-current trip, the inlet relay provision and the F1 wire-out tabs
+    (S53-SCOPE items 2–4) are not built here. S10's four residuals stay open.
+
+    **Reverses if** the R43 catalogue changes (re-snapshot with `r43_catalog_snapshot.py`) or the lab reads
+    return-path opens as a requirement (then hand-shape the four patches).

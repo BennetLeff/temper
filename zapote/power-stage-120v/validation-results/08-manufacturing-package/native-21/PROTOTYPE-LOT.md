@@ -1,6 +1,6 @@
 # Native-21 prototype lot: order plan (prepared, NOT ordered)
 
-Regenerated for s52 (integration board `5e7c12c144b6…`, copper key `3a4c616e7870`) on 2026-10-16. Sources, one per block:
+Regenerated for s52 on 2026-10-16 and re-pointed to s53 (integration board `82af7bd93e62…`, copper key `b7a0bc5790b9`; the s53 BOM is the s52 BOM). Sources, one per block:
 
 | Block | Committed source |
 | --- | --- |
@@ -8,7 +8,7 @@ Regenerated for s52 (integration board `5e7c12c144b6…`, copper key `3a4c616e78
 | BOM and CPL | `fab/bom-jlcpcb.csv` (95 lines), `fab/cpl-jlcpcb.csv` (372 rows), `cpl-rotation-audit/audit.csv` |
 | Stock at 20 boards | `owner-items/order/proto-stock-s52-20boards.csv`, from `owner-items/order/scripts/proto_stock.py` (asserts agreement with the scorecard's `bom_lines_short_proto`); dated reads `sourcing/STOCK-2026-10-16.csv`, `STOCK-2026-10-16-bank-s52.csv` over `SNAPSHOT-2026-10-15.csv` |
 | Bank, L1, Y caps, EMI, 24 A ceiling | DECISIONS 74; `../../11-candidates/s52-proto-bom/README.md` |
-| Scorecard | `../../10-benchmark/scorecard-native21s52.json` |
+| Scorecard | `../../10-benchmark/scorecard-native21s53.json` |
 | Owner decisions | OWNER 2026-10-16: lot of 10–20 boards, stock gate sized at 20; prototype bank B32643H8104J000; certifier-driven provisions go in s53 (`S53-SCOPE.md`) |
 | Bench plan | `../../../COMMISSIONING.md`, D-8, `native-21/BRINGUP-PROBES.md`, `owner-items/CERTIFIER-CHECKLIST.md`, OPEN-ITEMS S1, S6, S14, S15 |
 
@@ -20,7 +20,7 @@ is carted or ordered. `owner-items/order/ORDER-PACKAGE.md` holds the supporting 
 
 | Item | Choice | Source |
 | --- | --- | --- |
-| Bare PCBs | **10 to 20** from `fab/native-21-gerbers.zip` (SHA-256 `ad585c16…97e2`); the stock gate is sized at 20 | owner decision 2026-10-16; FAB-NOTE |
+| Bare PCBs | **10 to 20** from `fab/native-21-gerbers.zip` (SHA-256 `a6afd37a…ddc`); the stock gate is sized at 20 | owner decision 2026-10-16; FAB-NOTE |
 | Size / layers | 290 × 190 mm L outline, **4 layers** (six layers was accepted on the data and not adopted on price, DECISIONS 40) | FAB-NOTE; DECISIONS 40 |
 | Stack-up | JLCPCB **JLC041622-7628**, 1.6 mm nominal; no thickness remark (DECISIONS 44) | FAB-NOTE; `stackup.json` |
 | Copper | **2 oz outer and 2 oz inner** | FAB-NOTE |

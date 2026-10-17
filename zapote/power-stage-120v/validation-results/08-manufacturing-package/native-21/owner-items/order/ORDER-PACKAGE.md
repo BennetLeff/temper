@@ -1,12 +1,12 @@
 # Native-21 prototype lot at JLCPCB: order package for owner approval
 
-> **Current for s52 (2026-10-16). Prepared, NOT ordered.** Nothing was ordered, carted, logged into or submitted. The order plan is
+> **Current for s53 (BOM = s52; 2026-10-16). Prepared, NOT ordered.** Nothing was ordered, carted, logged into or submitted. The order plan is
 > `../../PROTOTYPE-LOT.md`. This package supplies its files:
 > - `proto-stock-s52-20boards.csv`: every fitted BOM line against 20 boards, 0 short, on the scorecard's stock-gate rules
 >   (`scripts/proto_stock.py`);
 > - `CPL-PREVIEW-CHECKLIST.md`: the 23 NEEDS-PREVIEW parts to confirm in JLC's CPL preview (`scripts/cpl_preview_checklist.py`);
-> - board `5e7c12c144b6…` (SHA-256 `5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34`), gerbers
->   `fab/native-21-gerbers.zip` SHA-256 `ad585c16167e33a8cdd87b8bc9f2e1ca718432fd8fa09390f0c9849fe43797e2` (FAB-NOTE.md);
+> - board `82af7bd93e62…` (SHA-256 `82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27`), gerbers
+>   `fab/native-21-gerbers.zip` SHA-256 `a6afd37a4f4e0039de8de7fd86755ff65328f21e43501a23d0904e78ffbd4ddc` (FAB-NOTE.md);
 > - consigned or hand-assembled: the bank (TDK B32643H8104J000, DigiKey 306 against 100) and L1 (B82726S2243A020, Mouser 62 /
 >   DigiKey 29 against 20), with F1, C1 / C2, C5 / C6, J3 / J11, D3 / D17 and U41 / U42.
 >
