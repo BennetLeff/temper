@@ -2591,3 +2591,160 @@ power-cycle scenario in D-SOAK.
     coil never runs. D-BRINGUP lists what the power stage's driver must do:
     burst start ≥ 1.02 × last resonance, RUN_EN only with the gates idle,
     PWM_HA loop-back for the PLL capture, and pan evidence.
+
+## F1. 2026-10-17: diagnose D1 nuisance cuts; retain the detector
+
+**Decision: no D1 behavior change.** The measured nuisance counts are retained
+as upper-bound gates: **2 at 250 °C and 1 at 230 °C**, on 132 stress-benign cases
+per cap. A tested curvature veto removed the three known nuisance losses but
+missed a genuine contact loss late in a probe. No threshold, expected count,
+retry rule, SIL coverage requirement, B5 safety bar, or leakage ratchet is
+relaxed. `contact_check.c/.h`, `pan_temp_loop.c`, and `pan_control.c` are unchanged.
+
+`d1_nuisance.py` uses the unchanged `rim_limit.stress_benign()` factory and
+`leak_checks.run_case`, with exactly `setpoint_cap.capped_cases` cap semantics:
+set `LC.SP_FRY` **before** constructing cases, then cap the setpoint profile.
+The factory is authoritative: its named benign corner is `hot_stack` (hot bead,
+3242 mV rail, 4.53 K self-heating), not the `cold_stack` used for stress leaks.
+The 230 °C down-step is 230→130 °C, not a clipped 250→150 °C case. Existing
+hot-glass initial conditions are preserved.
+
+The script records every LOST event, complete probe/retry windows with the
+float32 C inputs, actual C outputs and parameters, independent regression
+checks, trigger sources, true pan/glass temperatures, restoration and zero-power
+intervals. A read-only host-shim getter avoids duplicating the C struct layout.
+`--check` compares every value and source hash exactly; only the six explicitly
+named toolchain strings are excluded. The acquisition base is
+`ebf8a777b50ecb81040fc0c56fa8bde706720638`; changed/new source bytes are listed
+independently of the current branch HEAD. The new `d1-nuisance.json` is the
+requested diagnostic evidence; pre-existing regenerated JSON is not replaced.
+
+### Reproduction and rule that fires
+
+All three failures are `sp_down`, `tau_g=106 s`, `t_eye=139.7 °C`, `delta=0`,
+`hot_stack`. The target drops at 900 s. These are intact-contact simulations.
+
+| Cap | Case | Pan / seed | h (W/m²K) | Glass weight | LOST (s) | d / d_expected (K/kJ) | Decay RMS / change (K) |
+|---|---|---|---:|---:|---:|---|---|
+| 250 | stress_benign/73 | carbon_steel_28 / 40014 | 3633.271253 | 0.9554 | 1195.5 | −0.220356 / 2.036979 | 0.485260 / 2.197325 |
+| 250 | stress_benign/109 | cast_iron_26 / 40020 | 3396.469932 | 0.9554 | 1261.6 | −0.139180 / 1.026852 | 0.278492 / 1.005648 |
+| 230 | stress_benign/91 | carbon_steel_28 / 40017 | 3633.271253 | 0.6457 | 1177.9 | −0.247776 / 1.905633 | 0.474339 / 1.600528 |
+
+The rim cross-check requests the decisive probes at 1177.5, 1243.6 and 1159.9 s.
+They are ordinary first probes, not retry or contact-shift escalation decisions.
+Each lasts 18 s, including an 8 s, 900 W pulse. The `[1,t,t²,E_lag]` response
+fit gives a **negative** energy coefficient, below `0.25*d_expected`; the
+free-decay fit nevertheless passes RMS ≤0.5 K and change ≥1 K, so D1 declares
+LOST. The delayed intact-pan response is absorbed into the polynomial terms.
+The free-decay fit's residual tolerance accepts the incompatible curvature.
+For carbon steel at 250 °C, the independent response coefficient is −6.017
+standard errors, so this is not a marginal three-sigma classification.
+
+During that probe, true pan temperature rises from 147.033 to 150.167 °C;
+the effective rim falls from 180.703 to 177.144 °C. The corresponding rise and
+curvature coefficients are 37.878 and 23.644 standard errors above zero.
+The other two cases show the same shape (20.115/12.588 and 29.407/25.006 sigma).
+These shape statistics are diagnostic evidence, **not an active firmware rule**.
+
+| Case | LOST duration (s) | Cumulative zero power after LOST (s) | Zero power while PID wanted heat (s) |
+|---|---:|---:|---:|
+| 250 / 73 | ≥304.5, censored at 1500 s | 240.5 | 2.7 |
+| 250 / 109 | ≥238.4, censored at 1500 s | 190.4 | 97.7 |
+| 230 / 91 | 190.0, restored at 1367.9 s | 156.1 | 0.0 |
+
+The zero-power interval containing the initial LOST event is **30 s in each case**. Retry
+pulses interrupt subsequent off time: LOST duration is not continuous power-off
+duration. The diagnostic reports these separately and marks horizon censoring.
+
+### Rejected fix and a safety regression test
+
+An isolated candidate rejected the first-probe decay hypothesis when both rise
+and upward curvature exceeded the existing three-sigma bar and every effective
+rim sample was non-increasing. It left retry behavior unchanged. Under the
+single-node passive model, `y''=(rim'-y')/tau`, so a rising detached sensor with
+a cooling rim cannot accelerate. The three original failing trajectories then
+had `D1 LOST 0/3`; a broader candidate sweep was stopped after the counterexample
+below, so no 264-case candidate pass is claimed.
+
+That argument assumes the whole probe describes detached relaxation. A real
+loss **during** the probe leaves an intact prefix. In stress_benign/73, changing
+contact conductance from 3633.271253 to 2 W/m²K at **1193.5 s**, matching the
+existing `cosim.run_case` lift convention, gives:
+
+- Original controller: LOST at **1195.5 s**, latency **2.0 s**; all eight retry
+  probes stay LOST through 1500 s.
+- Candidate: PROBE_PASSED at 1195.5 s and **no LOST through 1500 s** (306.5 s
+  after the lift). There are no later probes, including after its 30 s holdoff.
+  The passive rim-limit report reaches **232.7 °C at 1480.7 s against a 150 °C
+  target**; the supervisor reports R2b at 1499.6 s.
+
+At the changed decision, d=−0.125010, d_expected=2.036979, decay RMS=0.446454 K,
+change=2.079746 K. Rise/curvature still measure 37.05/22.11 sigma because the
+window contains 16 s intact and only 2 s detached. Tuning the significance bar
+is not a justified remedy. This is a model counterexample, not a bench result.
+
+`test_late_lift_during_probe_remains_lost` replays those exact C input samples
+and requires LOST, its event, and a zero-power override. With unchanged D1:
+`12 Tests 0 Failures 0 Ignored`; with the rejected candidate:
+`test_late_lift_during_probe_remains_lost:FAIL: Expected 2 Was 0` and
+`12 Tests 1 Failures 0 Ignored`. No candidate detector code is landed.
+
+The five Python diagnostic tests cover exact evidence comparison (including a
+one-ULP numerical change), both cap factories/down-steps, zero intervals that
+continue after RESTORED, censoring, and a supplied library inconsistent with
+current sources. The full diagnostic is gated in `run.sh` after B5.
+
+### Validation and remaining work
+
+Untouched baseline: host CTest `100% tests passed, 0 tests failed out of 26`;
+the all-target build retains the known unregistered `test_profiles.c` failure.
+On Linux, the build directory alone needs `CMAKE_C_STANDARD_LIBRARIES=-lm`
+for the existing power-gate test; no CMake source was changed. Coverage remains
+`31 scenarios, 20/20 designed pairs covered` (legacy), `52 scenarios, 28/28
+designed pairs covered` (C1), and `27/27` mechanism cells. Trace freshness,
+invariants, state-machine model, fault-list consistency and pin map pass.
+The new diagnostic tests report `5 passed`. All 264 full LC result rows match
+the independently acquired baseline exactly. All 22 existing D1 vector lines,
+28 legacy SIL latency lines and 49 C1 SIL latency lines match before/after
+exactly. The four golden real-loss confirm delays remain 20.6, 20.2, 20.3 and
+19.7 s (triply clad, water pot, carbon steel and cast iron respectively).
+The new late-lift unit reports `12 Tests 0 Failures 0 Ignored`.
+`Import boundary gate PASSED — 0 new violations`; Ruff reports
+`All checks passed!`. These results are measured, not inferred from the
+unchanged source.
+
+The untouched full runner passes co-simulation, cross-check, h_c robustness,
+leakage, rim-limit, cold-soak, B5 (`== firmware: PASS`), runaway and sensor-code
+checks. The two other B5 variants retain their expected report-only FAILs.
+Leakage reports `hazardous: 277 latched before 300: 69 after: 204 never: 4`;
+its 69-minimum / 4-maximum ratchets remain unchanged.
+
+The runner then stops at `T1 FAIL: derivation gates failed: source_inputs_clean`:
+its freshly generated Linux `leak-checks.json` differs from the committed Mac
+file. Restoring the six changed tracked JSON files yields `T1 PASS` on the
+untouched sources. Those files are cosim-results.json, fault-cycle.json,
+leak-checks.json, runaway-checks.json, xcheck-cosim.json, and
+../robustness/hc-cosim.json; their generated copies were preserved for comparison.
+No existing generated JSON is committed. In leak-checks.json the observed
+cross-platform drift is five stored event-time fields: 527.8→527.9 s (rim-limit
+and first latch), and rim-fault times 1554.8→1554.4, 1325.0→1325.1 and
+1292.1→1291.9 s. The 69/204/4 coverage counts and all D1 leak classifications
+are unchanged from the retained evidence.
+
+T1 also fingerprints this decision record and the host shim; T2 fingerprints
+all firmware study Python files and the shim and demands unchanged inputs
+against its fixed base. A metadata-only T2 preflight after instrumentation
+reports `source_inputs_unchanged: False` and
+`input_sha256 matches retained evidence: False`. Its full numerical sweep was
+not reached by the baseline runner. These provenance/evidence gates are not
+waived or rebased, and no `ALL C1 FIRMWARE CHECKS PASS` claim is made.
+
+`idf.py` is absent, so no ESP-IDF build is claimed. The firmware-board-contract
+check is deliberately skipped because its required board branch is unpushed.
+The environment check used live KiCad 10.99 nightly IPC; no boards were edited.
+
+A future fix needs a probe design or model that separates the delayed intact
+response from a late loss within the same window, including cooling-glass lift
+onset sweeps and bench measurements. The current study establishes the nuisance
+mechanism and a counterexample to one proposed fix; it does not prove no safe
+fix exists.

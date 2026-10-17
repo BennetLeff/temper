@@ -148,6 +148,40 @@ int sim_start(void *h, double t0)
     return ptl_init(&s->loop, &s->p, (float)t0) ? 0 : -1;
 }
 
+/* Read-only D1 parameters after sim_start; no C struct layout in Python. */
+int sim_cc_params(void *h, const char *key, double *out)
+{
+    const cc_params_t *p = &((const sim_t *)h)->loop.cc.p;
+#define CC_PARAM(field) if (strcmp(key, #field) == 0) { *out = (double)p->field; return 0; }
+    CC_PARAM(dt_s)
+    CC_PARAM(p_max_w)
+    CC_PARAM(trig_window)
+    CC_PARAM(trig_rate_k_per_s)
+    CC_PARAM(trig_hold_s)
+    CC_PARAM(trig_pmin_frac)
+    CC_PARAM(probe_off_s)
+    CC_PARAM(probe_on_s)
+    CC_PARAM(probe_p_frac)
+    CC_PARAM(probe_lag_s)
+    CC_PARAM(retry_off_s)
+    CC_PARAM(retry_on_s)
+    CC_PARAM(retry_p_frac)
+    CC_PARAM(retry_lag_s)
+    CC_PARAM(probe_frac)
+    CC_PARAM(retry_s)
+    CC_PARAM(holdoff_s)
+    CC_PARAM(decay_tau_s)
+    CC_PARAM(decay_tau_tol)
+    CC_PARAM(decay_steps)
+    CC_PARAM(decay_asym_k)
+    CC_PARAM(decay_rms_k)
+    CC_PARAM(probe_min_sigma)
+    CC_PARAM(retry_decay_only)
+    CC_PARAM(decay_min_change_k)
+#undef CC_PARAM
+    return -1;
+}
+
 /* out: t_hat, p_cmd, p_pid, a, a_valid, sp_eff, cc_state, cc_event, fault, diag, ui, src_mask,
  *      last probe d (K/kJ), d_exp (K/kJ), free-decay rms (K), fitted decay change (K) */
 void sim_step(void *h, double y, double rim, double sp, double p_applied, int src, int fresh, int spi_ok,

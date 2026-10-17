@@ -40,6 +40,9 @@
 #      cross-checks, benign cold starts (gated: 0 latches in both), hazardous
 #      leaks caught before heating (cold-soak.json; DECISIONS.md D-SOAK, D-RAIL)
 #   4. D1 seed-to-seed Monte Carlo (b5-montecarlo.json, gates safety only)
+#   4b. task F1: D1 nuisance cuts on 132 rim-limit stress benign cases per cap
+#      (250 / 230 degC; d1-nuisance.py --check; LOST ratchets 2 / 1 because
+#      no safe correction was established; full decision and off-time evidence)
 #   5. runaway checks: legacy vs C1 rules on false-trip and fault scenarios,
 #      with the current-sense checks (runaway-checks.json, gates the C1 rules;
 #      DECISIONS.md D-RUN, D-ISENSE, D-OPEN)
@@ -126,6 +129,12 @@ echo "== 4. D1 Monte Carlo"
 "$py" "$here/b5_montecarlo.py" --lib "$lib" --out "$here/b5-montecarlo.json" > "$tmp/mc.log" \
     || { cat "$tmp/mc.log"; exit 1; }
 grep '^==' "$tmp/mc.log"
+
+# Task F1 uses its own fresh build for portable exact evidence verification.
+echo "== 4b. D1 nuisance cuts on stressed benign cooking (F1)"
+"$py" "$here/d1_nuisance.py" --check > "$tmp/d1n.log" 2>&1 \
+    || { cat "$tmp/d1n.log"; exit 1; }
+grep -E '^(D1 cap=|D1 nuisance evidence:|D1 NUISANCE)' "$tmp/d1n.log"
 
 echo "== 5. runaway checks"
 "$py" "$here/runaway_checks.py" --lib "$lib" --out "$here/runaway-checks.json" > "$tmp/rc.log" \
