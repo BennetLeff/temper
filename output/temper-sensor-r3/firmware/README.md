@@ -161,6 +161,7 @@ The C1 run found two defects, both fixed in `main/state_machine.c`:
 | `cosim.py` | Copy of screen.py `run()` with the C loop in it. Runs the cases below and writes `cosim-results.json`; gates the bars. The shadow is `../robustness/shift_kf.py` (KF plus window). |
 | `../robustness/hc_cosim.py` | The 64 gated h_c steps and 100 oil / water / crud cases through the same C loop, before vs after. Writes `../robustness/hc-cosim.json`; gates R-HS / R-CT. |
 | `b5_montecarlo.py` | D1 over 20 seeds and 3 rule sets. Writes `b5-montecarlo.json`; gates safety. |
+| `d1_nuisance.py` | F1: 132 rim-limit stress benign cases at each of 250 and 230 °C through the unchanged C loop. Writes `d1-nuisance.json`; gates recorded D1 LOST ceilings of 2 and 1, with exact evidence verification via `--check`. |
 | `sensitivity.py` | Tolerance to errors in a, and the loss-term variant. Writes `sensitivity.json`; reported only. |
 | `runaway_checks.py` | Legacy vs C1 runaway rules on 50 Hz quantised readings: false trips (also with the stage in burst mode), fault detection times, the stage-2b sweep, and the current-sense checks against latent and simultaneous sense failures. Writes `runaway-checks.json`; gates the C1 rules (DECISIONS D-RUN, D-ISENSE, D-OPEN). |
 | `sensor_fail_codes.py` | Recomputes the sensor-failure codes from IEC 60751 and shows 850 °C is out of the plant's reach. Writes `sensor-fail-codes.json`; gates `rtd_convert.h` (DECISIONS D-OPEN). |
@@ -189,6 +190,44 @@ Each case runs in three gain modes:
 - **id_measured:** a identified, with measured power;
 - **id_estimated:** a identified from the commanded power, while the coil
   delivers P·(1.10 − 0.20·P/P_max).
+
+## F1: D1 nuisance power cuts
+
+`d1_nuisance.py` runs `rim_limit.stress_benign()` through the unchanged
+`leak_checks.run_case`: 132 cases at each final-setpoint cap, 250 and 230 °C.
+It preserves the cap study's factory ordering, down-step targets, seeds,
+and glass/NTC corners. Production D1 is unchanged: the investigated correction
+missed a real lift, so the gate retains the recorded ceilings of 2 LOST events
+at 250 °C and 1 at 230 °C. Curvature fields describe that rejected counterfactual
+candidate, never active detector behavior.
+
+From this folder:
+
+```sh
+python3 d1_nuisance.py                 # write d1-nuisance.json beside the script
+python3 d1_nuisance.py --check         # rerun and compare without rewriting it
+```
+
+`--out PATH` selects another evidence file; `--jobs N` changes concurrency.
+Every invocation rebuilds the C library. `run.sh` step 4b invokes `--check`
+without `--lib`, keeping the fresh build portable across host toolchains.
+The comparison is exact for every count, float, and source-content hash; it
+ignores only the six strings `python`, `numpy`, `scipy`, `matplotlib`, `machine`,
+and `compiler` inside the `toolchain` object. Source provenance includes the
+fixed task base and content changes from that base, independent of HEAD.
+
+A transparent proxy reruns cases containing LOST and records every LOST event,
+trigger source, complete 181-sample decision window, original C `d`, `d_exp`,
+decay RMS and change, reconstructed significance, retry episode, and actual
+zero-power interval. State restoration and continuous power-off time have
+separate censoring flags. The read-only host shim `sim_cc_params` reports the
+live C parameters after initialization; Python does not mirror C struct layouts.
+
+T2 (`../leak-barrier/setpoint_cap.py --check`, step 5d) freezes its source inputs,
+including this folder's Python files and `cosim_shim.c`. The new diagnostic and
+parameter getter change those inputs and therefore cause its existing source
+and evidence checks to fail. T2 and all existing gates remain unchanged; an F1
+pass does not establish a full `run.sh` pass.
 
 ## Results (`cosim-results.json`)
 

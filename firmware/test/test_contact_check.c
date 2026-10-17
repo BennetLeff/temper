@@ -16,6 +16,7 @@
 #include "unity/unity.h"
 #include "../components/control/contact_check.h"
 #include "contact_check_vectors.h"
+#include "contact_check_late_lift_vector.h"
 
 /* screen.py's D1 exactly: the firmware additions D-D1a/b/c switched off. */
 static cc_params_t screen_params_for(float tau_off)
@@ -297,6 +298,31 @@ static void test_external_request_starts_probe(void)
     TEST_ASSERT_EQUAL_INT(CC_EVT_SUSPECT, o.event);
 }
 
+/* A late lift can retain a strongly rising, accelerating intact prefix.
+ * This complete measured probe must remain LOST even with a falling rim. */
+static void test_late_lift_during_probe_remains_lost(void)
+{
+    cc_params_t p;
+    cc_default_params(&p);
+    cc_t c;
+    TEST_ASSERT_TRUE(cc_init(&c, &p));
+    cc_request_probe(&c);
+    cc_output_t o = {0};
+    for (uint16_t i = 0u; i < 181u; i++) {
+        const float power = i == 0u ? cc_late_lift_initial_power
+                                    : (i >= 51u && i <= 130u ? 900.0f : 0.0f);
+        cc_step(&c, cc_late_lift_y[i], cc_late_lift_y[i], power, cc_late_lift_a,
+                cc_late_lift_rim[i], &o);
+    }
+    printf("  late lift: state=%d d=%.6f expected=%.6f rms=%.6f change=%.6f\n",
+           (int)o.state, (double)c.last_d, (double)c.last_d_exp,
+           (double)c.last_decay_rms, (double)c.last_decay_change);
+    TEST_ASSERT_EQUAL_INT(CC_LOST, o.state);
+    TEST_ASSERT_EQUAL_INT(CC_EVT_LOST, o.event);
+    TEST_ASSERT_TRUE(o.override);
+    TEST_ASSERT_FLOAT_WITHIN(1e-6f, 0.0f, o.p_override_w);
+}
+
 void run_contact_check_tests(void)
 {
     RUN_TEST(test_defaults_match_screen);
@@ -310,4 +336,5 @@ void run_contact_check_tests(void)
     RUN_TEST(test_probe_regression_sees_power);
     RUN_TEST(test_flat_reading_is_not_evidence_of_loss);
     RUN_TEST(test_external_request_starts_probe);
+    RUN_TEST(test_late_lift_during_probe_remains_lost);
 }
