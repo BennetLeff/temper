@@ -107,7 +107,9 @@ def audit_contacts(net, barrels) -> dict:
     bad = []
     count = 0
     coordinates = {}
+    buffered = {}
     for layer, grid in grids.items():
+        buffered[layer] = grid['geom'].buffer(1e-7)
         ii, jj = np.nonzero(grid['ids'] >= 0)
         coordinates[layer] = {int(grid['ids'][i,j]):(float(grid['xs'][i]),float(grid['ys'][j])) for i,j in zip(ii,jj)}
     for via, by_layer, barrel in zip(net.vias, nodes, barrels):
@@ -125,7 +127,7 @@ def audit_contacts(net, barrels) -> dict:
                     dist = math.hypot(x-cx,y-cy)
                     start=(cx+(x-cx)*(radius+1e-6)/dist,cy+(y-cy)*(radius+1e-6)/dist)
                     edge=LineString([start,(x,y)])
-                    missing=edge.difference(grid['geom'].buffer(1e-7)).length
+                    missing=edge.difference(buffered[layer]).length
                     if missing > 1e-6:
                         bad.append({'layer':layer,'barrel':barrel,'cell_mm':[x,y],
                                     'uncovered_length_mm':missing})

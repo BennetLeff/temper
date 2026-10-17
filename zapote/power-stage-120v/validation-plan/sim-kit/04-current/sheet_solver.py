@@ -168,6 +168,7 @@ class Net:
         offset = 0
         grids = {}
         rows, cols, vals = [], [], []
+        sheet_rows, sheet_cols, sheet_vals = [], [], []
 
         def g(a, b, cond):
             rows.extend([a, b, a, b]); cols.extend([a, b, b, a]); vals.extend([cond, cond, -cond, -cond])
@@ -200,8 +201,11 @@ class Net:
                                 np.stack([xs[ia + di], ys[ja + dj]], axis=1)], axis=1)
                 ok = covers(geom, linestrings(seg))
                 dropped += int((~ok).sum())
-                for aa, bb in zip(a[m][ok], b[m][ok]):
-                    g(int(aa), int(bb), gs)
+                aa, bb = a[m][ok], b[m][ok]
+                # Keep the scalar edge order, including duplicate diagonals.
+                sheet_rows.append(np.column_stack((aa, bb, aa, bb)).ravel())
+                sheet_cols.append(np.column_stack((aa, bb, bb, aa)).ravel())
+                sheet_vals.append(np.tile([gs, gs, -gs, -gs], len(aa)))
             grids[name] = {"xs": xs, "ys": ys, "ids": ids, "geom": geom, "gs": gs, "dropped_edges": dropped}
         # Barrel nodes and annulus contacts. nodes[layer] is a list: one node
         # for a filled barrel, VIA_SECTORS nodes (by angle) for an empty one.
@@ -242,6 +246,9 @@ class Net:
                 for s_ in range(k):
                     g(nodes[a][s_], nodes[b][s_], 1.0 / (r_hop * k))
             via_nodes.append(nodes)
+        rows = np.concatenate([*sheet_rows, np.asarray(rows, dtype=np.int64)])
+        cols = np.concatenate([*sheet_cols, np.asarray(cols, dtype=np.int64)])
+        vals = np.concatenate([*sheet_vals, np.asarray(vals, dtype=float)])
         G = coo_matrix((vals, (rows, cols)), shape=(offset, offset)).tocsr()
         self._built = (grids, via_nodes, G, offset)
         return self._built
