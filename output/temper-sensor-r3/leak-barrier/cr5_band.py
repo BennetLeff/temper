@@ -42,8 +42,9 @@ import leak_checks as LC  # noqa: E402
 import rim_limit as RL  # noqa: E402
 
 X, cosim, es = LC.X, LC.cosim, LC.es
-# Study inputs must match this revision: the peak hazard rule's evidence.
-BASE = "558f6e8360d823b575bdfdd2b30b6ff347408e18"
+# Study inputs must match this revision (within the evidence_compare platform rule for
+# generated JSON): sensor-c1-integrate 68ef09729, the sources of the box (reference) evidence.
+BASE = "68ef097296db106550b2f357c2fae8336784e5db"
 TOOLCHAIN_KEYS = ("python", "numpy", "scipy", "compiler", "machine")
 # Benign runs with a D1 LOST (a non-latching contact-loss power cut, not a
 # fault) per cap, as recorded on the Mac at the port. The rim-limit

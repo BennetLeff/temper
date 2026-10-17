@@ -47,8 +47,9 @@ import rim_limit as RL  # noqa: E402
 import xcheck_cosim as X  # noqa: E402
 from ref import es  # noqa: E402
 
-# Source inputs as integrated with F1-F3 (sensor-c1-integrate 8a5b47a50; was 03c28e76b).
-BASE = "8a5b47a50edba30e9c8a88549149fd21a778adbd"
+# Source inputs: sensor-c1-integrate 68ef09729, the sources of the box (reference) evidence;
+# was 8a5b47a50 (Mac), 03c28e76b.
+BASE = "68ef097296db106550b2f357c2fae8336784e5db"
 CAPS = (200, 210, 220, 230, 240, 250)
 OUT = HERE / "setpoint-cap.json"
 ROWS_OUT = HERE / "setpoint-cap-rows.json.gz"
