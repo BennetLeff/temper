@@ -884,16 +884,36 @@ If you discover foreign work in your tree:
     the commit you need onto a clean base rather than carrying three
     commits belonging to two other agents into your PR.
 
-### Never Background a Long Run and Wait For It
+### Waiting on Long Runs
 
-Long pipeline stages -- `route_board.py` (~250-400 s), a full placement
-solve, a `cargo build` of the workspace -- must be run **in the foreground**,
-or launched and then polled by reading their log/output file directly.
+Waiting is the largest single cost in this repo's agent sessions: of 287
+agent-hours profiled on 2026-10-15 (`scripts/profile_agent_sessions.py`), 41 %
+was foreground waiting and polling, 573 tool calls (92 h) ran into the shell
+tool's timeout, and 175 `pgrep -f` poll loops took 15 h. Long pipeline
+stages -- `route_board.py` (~250-400 s), a full placement solve, a `cargo
+build` of the workspace, `chain.sh` (~25 min) -- are run one of two ways:
 
-Do not background one and stop, expecting to be woken. Nothing wakes you —
-four dispatched agents did this in a single session; one did it twice after
-being told explicitly. Treat "I'll wait for the background task" as a bug
-in your own plan.
+*   **Where the harness notifies you when a background job exits** (Claude
+    Code's Bash tool with `run_in_background`, which re-invokes the session
+    on exit): start the run that way and end your turn or do other work.
+    Do not poll its output file, and do not wrap it in `sleep` loops.
+*   **Where nothing notifies you** (a dispatched subagent that ends when it
+    stops, Codex `exec`, a plain shell): run it **in the foreground** with
+    a tool timeout above its expected runtime, or poll its log at an
+    interval sized to it (a 25-minute chain gets a few checks, not one a
+    minute). Do not background it and stop, expecting to be woken: four
+    dispatched agents did that in one session.
+
+**Never wait with `until ! pgrep -f PATTERN` / `while pgrep -f PATTERN`.**
+The loop runs as one `sh -c` whose own argv holds PATTERN: on Linux pgrep
+finds that shell and the loop never ends; on macOS two such loops on one job
+(a wait the tool timeout moved to the background, then a retry) find each
+other and never end after the job does. Wait on the PID, or use
+`sh scripts/wait_for.sh [--timeout S] pid PID | pattern 'PATTERN'`, which
+skips itself, its ancestors and other waiters (tests:
+`scripts/tests/test_wait_for.py`). `scripts/agent-hooks/block_pgrep_wait.py`
+is a Claude Code PreToolUse hook that refuses such loops (opt-in: register
+it in your settings; its docstring has the snippet).
 
 Two consequences worth stating separately:
 

@@ -21,6 +21,8 @@ set -e
 # a failing step must stop the chain even when its output is piped through grep / tail (a wrong PASSDIR once
 # ran a whole chain on the previous test-point plan because `planner | grep` hid the traceback)
 set -o pipefail
+# the gated board always gets the full DRC rules (incr_iter.sh DRC_FAST is for routing passes only)
+unset DRC_FAST
 TAG=$1; PASS=$2; B=$3
 [ -f "$PASS/copper-dump.json" ] || { echo "chain: no $PASS/copper-dump.json (PASSDIR is a pass's iN dir)" >&2; exit 1; }
 U=$(cd "$(dirname "$0")/../../.." && pwd)
@@ -29,13 +31,16 @@ KP=/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/C
 KC=/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli
 E=validation-plan/enclosure-fit; O=validation-results/08-manufacturing-package/native-21/fab
 cd "$U"
+. "$G/laps.sh"; laps_init chain "$B/steps.jsonl"
 want() {
   [ -z "${SCOPED_PLAN:-}" ] && return 0
   python3 -I -c "import json,sys;sys.exit(json.load(open(sys.argv[1]))['steps'][sys.argv[2]]['do'] not in ('RUN','RUN?'))" "$SCOPED_PLAN" "$1"
 }
 if want build; then
 python3 native-21/layout/plan_board_only21.py "$PASS/copper-dump.json" | grep -E "TPs|^holes|fiducials" | cut -c1-200
+lap plan_board_only21
 python3 $G/zone_priority_gate.py native-21/layout/copper.json   # stage 17b: no fill-order-dependent pours
+lap zone_priority_gate
 mkdir -p "$B"
 # ---- build, then settle: trim KiCad-reported dangling tracks / vias and rebuild the board only
 # Every trim is followed by a rebuild, so the gated board is always the build of the committed copper.json (stage 27: a
@@ -44,10 +49,12 @@ k=0
 while :; do
   k=$((k + 1))
   sh native-21/layout/incr_iter.sh native-21/layout/copper.json - "$B" > "$B.log" 2>&1
+  lap "build$k"
   N=$(python3 -c "import json;print(sum(v['type'] in ('track_dangling','via_dangling') for v in json.load(open('$B/drc.json'))['violations']))")
   [ "$N" = 0 ] && break
   [ "$k" -ge 8 ] && { echo "settle: still $N dangling item(s) after $k builds" >&2; exit 1; }
   echo "settle $k: $N dangling item(s)"; python3 $G/trim_tails.py "$B/drc.json" native-21/layout/copper.json --write | sed 's/^/  /'
+  lap "trim$k"
 done
 grep -E "^unconnected|thermal reliefs|labels|plane splits" "$B.log"; head -1 "$B/barrier.txt"
 echo "errors $(python3 $G/count_errors.py $B/drc.json)"; tail -3 "$B.log" | grep violations
@@ -62,6 +69,7 @@ fi
 python3 -I $G/cu_temp_basis.py --fail-waived --report "$B/cu-temp-basis.json" > "$B/cu-temp-basis.log" 2>&1 || {
   tail -20 "$B/cu-temp-basis.log" >&2; echo "cu_temp_basis: FAILED" >&2; exit 1; }
 tail -4 "$B/cu-temp-basis.log"
+lap cu_temp_basis
 # per-pin absolute maximum (found 2026-10-15: four TPS70950 EN pins tied to IN at 15-17 V against a 7 V rating): every IC pin's
 # net range, in the part's own reference frame, against that pin's datasheet abs max (pin_absmax_registry.json, every limit
 # cited to a PDF page). Static, about 1 s, no board data. The exit status is 1 for a FAIL not listed in
@@ -71,17 +79,22 @@ python3 -I $G/pin_absmax.py --expect-fail $G/pin_absmax_expected.json --fail-sta
   tail -30 "$B/pin-absmax.log" >&2; echo "pin_absmax: NEW violation or registry error (not in pin_absmax_expected.json)" >&2; exit 1; }
 head -1 "$B/pin-absmax.log"
 python3 -I -c "import json;d=json.load(open('$B/pin-absmax.json'));print('pin_absmax: failures',len(d['failures']),'(new',len(d['new_failures']),') warnings',len(d['warnings']),'undeclared',len(d['undeclared']))"
+lap pin_absmax
 H=$(shasum -a 256 "$B/section.kicad_pcb" | cut -d' ' -f1); echo "BOARD $H"
+lap report
 if want d5; then
 $KP native-21/layout/dump_pads.py "$B/section.kicad_pcb" "$B/pads-board.json" >/dev/null 2>&1
 python3 native-21/verification/d5_audit.py "$B/copper-dump.json" "$B/pads-board.json" >/dev/null 2>&1
 fi
 python3 -c "import json;d=json.load(open('native-21/verification/d5-audit.json'));print('D5',d['verdict_pcb'],d['copper']['HOT-SELV']['min_mm'],d['copper']['HOT-PE']['min_mm'])"
+lap d5_audit
 python3 native-21/layout/probe_map21.py
+lap probe_map21
 $KC sch erc --format json --output "$B/erc.json" "$B/section.kicad_sch" >/dev/null 2>&1 || true
 python3 -c "
 import json,collections;d=json.load(open('$B/erc.json'));c=collections.Counter()
 [c.update([(v['severity'],v['type'])]) for sh in d.get('sheets',[]) for v in sh.get('violations',[])];print('ERC',dict(c))"
+lap erc
 # Kelvin pin and B3 geometry path for this TAG (edits two scripts; must precede the parallel blocks)
 python3 - "$H" "$TAG" <<'PY'
 import re, sys
@@ -102,46 +115,68 @@ BP=$B/section.kicad_pcb
 # copper layers for the Gerbers, top to bottom, from native-21/stackup.json (stage 33)
 CUL=$(python3 -c "import sys; sys.path.insert(0, 'native-21/layout'); import layers21; print(','.join(layers21.CU))")
 case "$CUL" in F.Cu,*,B.Cu) ;; *) echo "layers21 failed: $CUL" >&2; exit 1;; esac
+lap pin_tag_and_layers
 # ---- parallel blocks ---------------------------------------------------------------------------------------------
 ( $KC pcb export step --force --subst-models --define-var KIPRJMOD=$U/native-21 --output "$B/board.step" "$BP" > "$B/step.log" 2>&1
+  LAPS_SCRIPT=chain/fit; lap step_export
   uv run --offline --no-project --with cadquery-ocp python $E/board_boxes.py "$B/board.step" $E/native21-boxes.json >/dev/null 2>&1
+  lap board_boxes
   $KP $E/body_collisions.py --dump-courtyards "$BP" $E/native21-courtyards.json >/dev/null 2>&1
+  lap courtyards
   python3 $E/body_collisions.py $E/native21-boxes.json $E/native21-courtyards.json $E/native21-envelopes.json > $E/native21-body-collisions.json 2>&1
+  lap body_collisions
   python3 $E/board_in_enclosure.py $E/native21-boxes.json $E/native21-courtyards.json $E/native21-envelopes.json > $E/native21-in-r4.json 2>&1 || echo "R4 FAIL"
+  lap board_in_enclosure
   # OPEN-ITEMS S2 airflow route: nothing over 4 mm under the jet box (temper-8d airflow-r1 D6.2)
   python3 native-21/layout/gates/jet_strip_height.py $E/native21-boxes.json $E/native21-courtyards.json $E/native21-jet-strip.json || echo "JET STRIP FAIL"
+  lap jet_strip_height
   python3 -c "import json;a=json.load(open('$E/native21-body-collisions.json'));b=json.load(open('$E/native21-in-r4.json'));print('FIT',a['solids'],a['unattributed'],len(a['part_overlaps']),b['bodies'],len(b['hits']))"
 ) > "$B/blk-fit.log" 2>&1 &
 P_FIT=$!
 ( $KC pcb export gerbers --output $O/gerbers/ --layers $CUL,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,F.Mask,B.Mask,Edge.Cuts --subtract-soldermask $BP >/dev/null 2>&1
+  LAPS_SCRIPT=chain/fab; lap gerbers
   $KC pcb export drill --output $O/gerbers/ --format excellon --excellon-units mm --excellon-separate-th --generate-map --map-format gerberx2 --generate-report --report-path $O/drill-report.txt $BP >/dev/null 2>&1
+  lap drill
   $KC pcb export pos --output $O/positions-kicad.csv --format csv --units mm --side both $BP >/dev/null 2>&1
+  lap pos
   $KP validation-results/08-manufacturing-package/native-21/scripts/bom_cpl_jlc.py $BP native-21/frozen/default.csv $O 2>&1 | grep -v -i "wxapp\|Debug:" | tail -1
+  lap bom_cpl_jlc
   python3 validation-results/08-manufacturing-package/native-21/scripts/apply_lcsc.py
+  lap apply_lcsc
   # CPL rotation audit on this board (stage 22 committed a stale audit that never saw U22 / U23 / U40)
   ( cd validation-results/08-manufacturing-package/native-21/cpl-rotation-audit && python3 -I extract_kicad.py $BP >/dev/null && python3 -I audit.py | tail -1 ) || exit 1
+  lap cpl_rotation_audit
   python3 -c "import csv;import json;A='validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/';lc={d.strip():r['LCSC Part #'].strip() for r in csv.DictReader(open('$O/bom-jlcpcb.csv')) for d in r['Designator'].split(',')};a={r['designator'] for r in csv.DictReader(open(A+'audit.csv'))}|{x['designator'] for x in json.load(open(A+'audit.json'))['excluded'] if not lc.get(x['designator'])};c={r['Designator'] for r in csv.DictReader(open('$O/cpl-jlcpcb.csv'))};m=sorted(c-a);print('CPL audit covers',len(c&a),'of',len(c));assert not m,('CPL lines not audited (or excluded although they now have an LCSC code)',m)" || exit 1
   python3 native-21/layout/gates/bom_cpl_check.py $O/bom-jlcpcb.csv $O/cpl-jlcpcb.csv validation-results/08-manufacturing-package/native-21/cpl-rotation-audit/cpl-jlcpcb.corrected.csv || exit 1
+  lap cpl_coverage_and_bom_cpl_check
   $KC pcb export pdf --mode-multipage --scale 0 --output $O/assembly-drawing.pdf --layers F.Fab,F.Silkscreen,Edge.Cuts --cl Edge.Cuts --sketch-pads-on-fab-layers --black-and-white $BP >/dev/null 2>&1
+  lap assembly_pdf
   python3 validation-results/08-manufacturing-package/native-21/scripts/review_fab.py $O/gerbers validation-results/08-manufacturing-package/native-21/review.json | tail -1
+  lap review_fab
   grep "Total plated\|Total unplated" $O/drill-report.txt
   rm -f $O/native-21-gerbers.zip; (cd $O/gerbers && zip -X -q ../native-21-gerbers.zip $(ls)); echo "ZIP $(shasum -a 256 $O/native-21-gerbers.zip | cut -d' ' -f1)"
+  lap zip
 ) > "$B/blk-fab.log" 2>&1 &
 P_FAB=$!
 # core regate (barrier, DFM, bypass, copper exports) must finish before the copper-dependent blocks
 SKIP_BAR=""; want core_barrier || SKIP_BAR=1
 REGATE_SKIP_BARRIER=$SKIP_BAR sh $G/regate.sh "$B" core > "$B/blk-core.log" 2>&1 || { cat "$B/blk-core.log"; echo "REGATE CORE FAILED"; exit 1; }
+lap regate_core
 cp "$B/native21-all-copper.json.gz" native-21/verification/$TAG-all-copper.json.gz
 cp "$B/bypass-check.json" native-21/verification/bypass-check-$TAG.json
 cp "$B/jlc-dfm.json" validation-results/08-manufacturing-package/native-21/jlc-dfm.json
 CK=$($KP $G/copper_key.py "$B/section.kicad_pcb" 2>/dev/null | tail -1)
 case "$CK" in [0-9a-f]*) ;; *) echo "copper_key failed" >&2; exit 1;; esac
+lap copy_and_copper_key
 # scoped: decide the keyed thermal steps and the manual card inputs on this build's keys (writes SCOPED_PLAN)
 if [ -n "${SCOPED_PLAN:-}" ]; then python3 -I $G/scoped/scoped_chain.py decide "$B" "$SCOPED_PLAN" || { echo "SCOPED DECIDE FAILED"; exit 1; }; fi
+lap scoped_decide
 ( # B3's heat inputs first: they are part of the shared model key (model_key.py) that task 04's cache key also takes
   ( cd validation-results/04-board-current-thermal/round5-native21/b3 && python3 make_heat_sources.py >/dev/null )
+  LAPS_SCRIPT=chain/thermal; lap make_heat_sources
   if want task04; then
   sh $G/regate.sh "$B" task04 > "$B/task04.log" 2>&1 || { tail -5 "$B/task04.log"; exit 1; }
+  lap task04
   tail -2 "$B/task04.log"
   else echo "scoped: task 04 reused from the benchmark (key in $SCOPED_PLAN)" | tee "$B/task04.log"; fi
   # key: the board's copper inputs (copper_key.py; the refilled copper is not bit-reproducible), the shared model key
@@ -158,6 +193,7 @@ PY
   cd validation-results/04-board-current-thermal/round5-native21/b3
   if want b3_study; then
   KEY=$(b3key)
+  lap b3_key
   b3hit() { [ -f outputs/cache.json ] && [ -f outputs/summary.json ] && grep -q "\"key\": \"$KEY\"" outputs/cache.json; }
   if ! b3hit && grep -q "task04 cache hit" "$B/task04.log"; then
     # B3 must recompute but task 04 reused results computed on another build of this copper; B3's same-board check
@@ -178,6 +214,7 @@ PY
   python3 -c "
 import json;d=json.load(open('outputs/summary.json'))
 print('B3',[(r,round(d['runs'][r]['peak']['temperature_c'],1)) for r in ('nominal_h10_p1p0','nominal_h25_p1p0','extreme_h10_p1p0','c28_h10_p1p0','c28_h25_p1p0')])"
+  lap b3_study
   # B3 ratings (DECISIONS 46): body-model margins to the laminate MOT and part limits, ~9 min (b3_ratings_gate.BASIS:
   # release case c18_h10 at bay 61 C, ratchet cases c22_h10 / c28_h10 at bay 55 C, all at I_line 13.5 A; six solves,
   # at most 4 workers). Its FAIL is a release verdict the scorecard reads, not a chain failure; a margins.json not solved
@@ -186,6 +223,7 @@ print('B3',[(r,round(d['runs'][r]['peak']['temperature_c'],1)) for r in ('nomina
   # that fails the release gate (all of them today), so its status is not used: the board check below catches a crash
   if want b3_ratings; then
   ( cd ../b3-ratings && python3 run_basis.py --workers 4 > "$B/b3-ratings.log" 2>&1 ) || true; tail -1 "$B/b3-ratings.log"
+  lap b3_ratings
   python3 -c "import json,sys;m=json.load(open('../b3-ratings/margins.json'));sys.exit(set(m['board_sha256'].values())!={'$H'})" \
     || { echo "B3_RATINGS: margins.json not solved on board $H"; tail -5 "$B/b3-ratings.log"; exit 1; }
   # bank self-heating under the declared airflow (stage 49, DECISIONS 68; 11-candidates/bank28-air): the card metric
@@ -211,15 +249,20 @@ print('B3',[(r,round(d['runs'][r]['peak']['temperature_c'],1)) for r in ('nomina
 ) > "$B/blk-thermal.log" 2>&1 &
 P_TH=$!
 ( cd validation-results/02-protection-timing/kelvin && python3 kelvin_plane.py ../../../native-21/verification/$TAG-all-copper.json.gz $TAG | tail -1 && python3 kelvin_budget.py $TAG | tail -1
+  LAPS_SCRIPT=chain/kelvin; lap kelvin
 ) > "$B/blk-kelvin.log" 2>&1 &
 P_KV=$!
 ( python3 validation-results/08-manufacturing-package/native-21/stage18-res-a-creepage/res_a_creepage18.py "$B/copper-dump.json" --json "$B/res-a-creepage.json" | tail -1
+  LAPS_SCRIPT=chain/copper; lap res_a_creepage18
   S19=validation-results/08-manufacturing-package/native-21/stage19-pi-si
   $KP $S19/pi_distances19.py "$BP" --json "$B/pi-distances.json" 2>/dev/null | grep -v -i "wxapp\|Debug" | tail -1
+  lap pi_distances19
   python3 $G/return_path19.py "$B/copper-dump.json" --json "$B/return-path.json" | tail -1
+  lap return_path19
   # SELV-spine lock (13-coupling WS4 <-> WS5; gates/README.md): SPINE_OWNER=selv only for the SELV-side lane
   python3 -I $G/spine_lock.py native-21/verification/$TAG-all-copper.json.gz ${SPINE_OWNER:+--owner "$SPINE_OWNER"} > "$B/spine-lock.json" \
     && echo "SPINE_LOCK PASS (owner ${SPINE_OWNER:-none})" || { echo "SPINE_LOCK FAIL: $(cut -c1-300 "$B/spine-lock.json")"; exit 1; }
+  lap spine_lock
 ) > "$B/blk-copper.log" 2>&1 &
 P_CU=$!
 FAIL=""
@@ -227,12 +270,14 @@ for pair in "fit:$P_FIT" "fab:$P_FAB" "thermal:$P_TH" "kelvin:$P_KV" "copper:$P_
   wait "${pair#*:}" || FAIL="$FAIL ${pair%%:*}"
 done
 # ---- summary, in the order the serial chain printed it -----------------------------------------------------------
+lap wait_blocks
 cat "$B/blk-fit.log"
 tail -1 "$B/blk-core.log"
 python3 -c "import json;g=json.load(open('$B/barrier-gate-rust.json'));print('RUST',g['violations'],g['board_sha256'][:12],g['census']['items'],'RES_A outer 12.6',g['res_a_outer_violations'],{l:r['census']['items'] for l,r in g['res_a_outer'].items()});d=json.load(open('$B/jlc-dfm.json'));print('DFM',d['status'],d['vias'],d['min_track_mm'])"
 cat "$B/blk-copper.log"
 python3 -c "import json;d=json.load(open('$B/bypass-check.json'));print('BYPASS',d['all_pass'],{k:(v['nearest_cap']['ref'],v['nearest_cap']['supply_pad_to_pad_mm']) for k,v in d['checks'].items()})"
 cat "$B/blk-kelvin.log" "$B/blk-thermal.log" "$B/blk-fab.log"
+lap summary
 [ -z "$FAIL" ] || { echo "BLOCK FAILED:$FAIL"; exit 1; }
 # content keys of this build (board, copper, per-net, thermal steps), so a later scoped run can prove what it reuses
 python3 -I $G/scoped/scoped_chain.py manifest "$B" "$TAG" || echo "scoped manifest not written (non-fatal)"
