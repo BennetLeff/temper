@@ -65,7 +65,7 @@ GENERATED_BINARY = {"output/temper-sensor-r3/leak-barrier/setpoint-cap.png"}
 # Per-run diagnostic rows: one closed-loop run each, so they carry the chaotic
 # float drift. Everything else is a summary, gate or threshold (tight).
 ROW_PATH = re.compile(
-    r"(^|/)(leak_rows|benign_rows|rows|runs|cases|missed_example|hottest_case|d1_lost_runs|"
+    r"(^|/)(leak_rows|benign_rows|rows|runs|cases|lost_cases|missed_example|hottest_case|d1_lost_runs|"
     r"lost_episodes|episodes|records|trace|traces|windows|late_thermal)(\[|/|$)")
 
 # Values that are a float round()ed to whole units, not a count: the contact

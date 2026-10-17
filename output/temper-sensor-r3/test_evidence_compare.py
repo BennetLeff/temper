@@ -146,3 +146,14 @@ def test_rounded_h_model_is_a_row_float_but_other_ints_stay_exact():
     assert not EC.compare(a, {**b, "reference_platform": BOX}).ok
     b["rows"][0]["cs_accepts"] = 4
     assert not EC.compare(a, b).ok
+
+
+def test_d1_lost_case_diagnostics_are_rows_but_their_count_is_exact():
+    a = {"reference_platform": BOX, "caps": {"230": {"lost_count": 1, "lost_cases": [
+        {"diagnostics": {"events": [{"point": {"p_applied_W": 88.99288940429688}}]}}]}}}
+    b = copy.deepcopy(a)
+    b["reference_platform"] = MAC
+    b["caps"]["230"]["lost_cases"][0]["diagnostics"]["events"][0]["point"]["p_applied_W"] = 88.9818115234375
+    assert EC.compare(a, b).ok
+    b["caps"]["230"]["lost_count"] = 2
+    assert not EC.compare(a, b).ok
