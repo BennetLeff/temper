@@ -153,7 +153,7 @@
      "eff_ratio": 1.0399
     }
    ],
-   "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34"
+   "board_sha256_of_pad_runs": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27"
   },
   "B32643B8104J000": {
    "mpn": "B32643B8104J000",
@@ -291,7 +291,7 @@
      "eff_ratio": 0.7959
     }
    ],
-   "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34"
+   "board_sha256_of_pad_runs": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27"
   },
   "MMK104J3DF1KN208G2": {
    "mpn": "MMK104J3DF1KN208G2",
@@ -429,7 +429,7 @@
      "eff_ratio": 0.965
     }
    ],
-   "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34"
+   "board_sha256_of_pad_runs": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27"
   },
   "B32643H8104J000": {
    "mpn": "B32643H8104J000",
@@ -567,9 +567,9 @@
      "eff_ratio": 0.8403
     }
    ],
-   "board_sha256_of_pad_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34",
+   "board_sha256_of_pad_runs": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27",
    "release": {
-    "board_sha256_of_release_runs": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34",
+    "board_sha256_of_release_runs": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27",
     "runs": [
      "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs/c17.5_h10_p0p25.json",
      "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs/c17.5_h10_p0p5.json"
@@ -579,7 +579,7 @@
      "C21": 80.77,
      "C22": 80.06,
      "C23": 78.69,
-     "C151": 76.78,
+     "C151": 76.79,
      "C152": 75.4
     },
     "18.375 A": {

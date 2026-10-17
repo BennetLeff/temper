@@ -1,5 +1,5 @@
 {
-  "board_sha256": "5e7c12c144b6c1c3137fa27cfbfe1cc8cd40f8ad7756231a8b2bc1c2692fcc34",
+  "board_sha256": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27",
   "pitch_mm": 0.125,
   "kit": "sheet_solver.py",
   "layers": {
@@ -95,7 +95,7 @@
       "grid_components_spanning_two_physical": 0
     },
     "coil_feed/F.Cu": {
-      "grid_nodes": 12243,
+      "grid_nodes": 12241,
       "grid_components": 1,
       "physical_components": 1,
       "dropped_edges": 0,

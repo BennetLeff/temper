@@ -1,0 +1,287 @@
+{
+ "step_sha256": "1300b1b278f7033d4637952ccaf0ee7b650430233f284495fbc396397c7f7561",
+ "revision": "R43",
+ "catalog_sha256": "aca70907b7c8f45467a8abb1de5fad460410ad626cdc3493231c13981e9ddf6e",
+ "pose": "translate (x - 141, 236 - y, 26 + z)",
+ "gap_mm": 1.0,
+ "lead_trim_mm": 2.5,
+ "bodies": 425,
+ "exact_pairs_checked": 80,
+ "interfaces": [
+  [
+   "BOARD",
+   "electronics_native21_J11_mate",
+   "PS3 mains plug mated in J11 (seated on the board face)"
+  ],
+  [
+   "BOARD",
+   "electronics_native21_standoff_H1",
+   "standoff / top screw at a mounting hole"
+  ],
+  [
+   "BOARD",
+   "electronics_native21_standoff_H2",
+   "standoff / top screw at a mounting hole"
+  ],
+  [
+   "BOARD",
+   "electronics_native21_standoff_H3",
+   "standoff / top screw at a mounting hole"
+  ],
+  [
+   "BOARD",
+   "electronics_native21_standoff_H4",
+   "standoff / top screw at a mounting hole"
+  ],
+  [
+   "BOARD",
+   "electronics_native21_standoff_H5",
+   "standoff / top screw at a mounting hole"
+  ],
+  [
+   "BOARD",
+   "electronics_native21_standoff_H6",
+   "standoff / top screw at a mounting hole"
+  ],
+  [
+   "BOARD",
+   "electronics_native21_standoff_H7",
+   "standoff / top screw at a mounting hole"
+  ],
+  [
+   "BOARD",
+   "electronics_native21_top_screw_H1",
+   "standoff / top screw at a mounting hole"
+  ],
+  [
+   "BOARD",
+   "electronics_native21_top_screw_H2",
+   "standoff / top screw at a mounting hole"
+  ],
+  [
+   "BOARD",
+   "electronics_native21_top_screw_H3",
+   "standoff / top screw at a mounting hole"
+  ],
+  [
+   "BOARD",
+   "electronics_native21_top_screw_H4",
+   "standoff / top screw at a mounting hole"
+  ],
+  [
+   "BOARD",
+   "electronics_native21_top_screw_H5",
+   "standoff / top screw at a mounting hole"
+  ],
+  [
+   "BOARD",
+   "electronics_native21_top_screw_H6",
+   "standoff / top screw at a mounting hole"
+  ],
+  [
+   "BOARD",
+   "electronics_native21_top_screw_H7",
+   "standoff / top screw at a mounting hole"
+  ],
+  [
+   "BOARD",
+   "electronics_sink_AlN_tile_A",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "BOARD",
+   "electronics_sink_AlN_tile_B",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "BR1",
+   "electronics_sink_AlN_tile_B",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "BR1",
+   "electronics_sink_BR1_gap_pad",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "BR1",
+   "electronics_sink_FR4_pressure_strip",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "J11",
+   "electronics_native21_J11_mate",
+   "PS3 mains plug mated in J11 (seated on the board face)"
+  ],
+  [
+   "J2",
+   "electronics_coil_lug_J2",
+   "coil lead lug bolted to J2"
+  ],
+  [
+   "J3",
+   "electronics_native21_J3_mate",
+   "TCO loop plug mated in J3 (seated on the board face)"
+  ],
+  [
+   "J4",
+   "electronics_native21_J4_mate",
+   "controller harness plug mated in J4 (seated on the board face)"
+  ],
+  [
+   "J5",
+   "electronics_coil_lug_J5",
+   "coil lead lug bolted to J5"
+  ],
+  [
+   "Q2",
+   "electronics_sink_AlN_tile_B",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "Q2",
+   "electronics_sink_FR4_pressure_strip",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "Q2",
+   "electronics_sink_clamp_comb",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "Q3",
+   "electronics_sink_AlN_tile_B",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "Q3",
+   "electronics_sink_FR4_pressure_strip",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "Q3",
+   "electronics_sink_clamp_comb",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "Q5",
+   "electronics_sink_AlN_tile_A",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "Q5",
+   "electronics_sink_FR4_pressure_strip",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "Q5",
+   "electronics_sink_clamp_comb",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "Q6",
+   "electronics_sink_AlN_tile_A",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "Q6",
+   "electronics_sink_FR4_pressure_strip",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ],
+  [
+   "Q6",
+   "electronics_sink_clamp_comb",
+   "heatsink stack (AlN tiles, gap pad, FR-4 strip, comb) clamps the TO-247 row and BR1 at the board's rear edge"
+  ]
+ ],
+ "outside_interior": [],
+ "hits": [
+  {
+   "ref": "T1",
+   "part": "electronics_coil_lug_J2",
+   "distance_mm": 0.5,
+   "local": [
+    124.0,
+    97.5,
+    4.11,
+    146.0,
+    119.5,
+    16.81
+   ],
+   "world": [
+    -17.0,
+    116.5,
+    30.11,
+    5.0,
+    138.5,
+    42.81
+   ]
+  },
+  {
+   "ref": "BOARD",
+   "part": "electronics_controller_J4_right_angle",
+   "distance_mm": 0.0,
+   "local": [
+    -0.0,
+    -0.0,
+    -0.0,
+    290.0,
+    190.0,
+    1.49
+   ],
+   "world": [
+    -141.0,
+    46.0,
+    26.0,
+    149.0,
+    236.0,
+    27.49
+   ]
+  },
+  {
+   "ref": "J11",
+   "part": "electronics_PS3_J11_anchor",
+   "distance_mm": 0.555,
+   "local": [
+    260.05,
+    121.0,
+    1.6,
+    272.95,
+    130.59,
+    26.6
+   ],
+   "world": [
+    119.04,
+    105.4,
+    27.6,
+    131.96,
+    115.0,
+    52.6
+   ]
+  },
+  {
+   "ref": "F2",
+   "part": "electronics_native21_J11_mate",
+   "distance_mm": 0.755,
+   "local": [
+    260.31,
+    114.5,
+    1.6,
+    278.39,
+    120.69,
+    7.0
+   ],
+   "world": [
+    119.3,
+    115.3,
+    27.6,
+    137.4,
+    121.5,
+    33.0
+   ]
+  }
+ ],
+ "new_hits": [],
+ "worse_hits": [],
+ "stale_expected": []
+}
