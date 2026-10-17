@@ -341,6 +341,7 @@ def interp(t):
 
 def l1_entry(old):
     e = copy.deepcopy(old)
+    e.pop("status_as_alternate", None)   # a re-run takes the old part from `alternates` (integration fix)
     b3, key, board = b3_rows(["L1"], "B82726 climatic", 125.0, 1)
     lr = jl(L1R)[L1N]
     IR = 24.0
@@ -427,6 +428,7 @@ def fit_margin(r):
 
 def ycap_entry(old):
     e = copy.deepcopy(old)
+    e.pop("status_as_alternate", None)   # a re-run takes the old part from `alternates` (integration fix)
     s1 = jl(S1)
     assert s1["fitted_mpn"] == YN and s1["fitted_verdict"] == "PASS" and not s1["failed"], s1
     e.update(mpn=YN, function="Y1 line-to-PE capacitors C3/C4, 2.2 nF (Murata Type RA H01F, J4 crimped leads)")

@@ -171,7 +171,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R11",
-     "ratio": 0.85,
+     "ratio": 0.8493,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -202,7 +202,7 @@
    "gaps": [
     "Not audited (outside SAFETY/POWER).",
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
-    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) R13 is 174.8 C against 142.0 C (-32.8 K); the firmware ships 17.5 A (DECISIONS 61), where it is 120.7 C (+21.4 K)",
+    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) R13 is 174.8 C against 142.0 C (-32.8 K); the firmware ships 17.5 A (DECISIONS 61), where it is 120.6 C (+21.4 K)",
     "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
    "status": "PARTIAL",
@@ -293,7 +293,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R137",
-     "ratio": 0.6395,
+     "ratio": 0.6388,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -377,7 +377,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R75",
-     "ratio": 1.3526,
+     "ratio": 1.3516,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -395,7 +395,7 @@
    "gaps": [
     "Not audited (outside SAFETY/POWER).",
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
-    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) R75 is 140.4 C against 103.8 C (-36.5 K); the firmware ships 17.5 A (DECISIONS 61), where it is 101.4 C (+2.5 K)",
+    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) R75 is 140.3 C against 103.8 C (-36.5 K); the firmware ships 17.5 A (DECISIONS 61), where it is 101.4 C (+2.5 K)",
     "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
    "status": "PARTIAL",
@@ -417,7 +417,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R31",
-     "ratio": 0.6641,
+     "ratio": 0.6634,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -523,7 +523,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R2",
-     "ratio": 0.6187,
+     "ratio": 0.5828,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -532,7 +532,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R2",
-     "ratio": 0.594,
+     "ratio": 0.559,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -705,7 +705,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (upper limiting temperature (ambient + own rise))",
-     "ratio": 0.9952,
+     "ratio": 0.9819,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -714,7 +714,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (upper limiting temperature (ambient + own rise))",
-     "ratio": 0.9381,
+     "ratio": 0.9248,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -740,7 +740,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "Power derated at the c17.5 terminal estimate (release)",
-     "ratio": 0.759,
+     "ratio": 0.7558,
      "severity": "violation",
      "stress": "R_on dissipation, 60 kHz window top"
     },
@@ -963,7 +963,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TJ)",
-     "ratio": 0.4767,
+     "ratio": 0.4713,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -972,7 +972,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TJ)",
-     "ratio": 0.4793,
+     "ratio": 0.474,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -1029,7 +1029,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (ambient)",
-     "ratio": 0.5264,
+     "ratio": 0.524,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -1038,7 +1038,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (ambient)",
-     "ratio": 0.5016,
+     "ratio": 0.4984,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -1060,7 +1060,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (category (ambient / case))",
-     "ratio": 0.9543,
+     "ratio": 0.9533,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -1086,7 +1086,7 @@
    "gaps": [
     "Not audited (outside SAFETY/POWER).",
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement; life: 2000 h at 105 C; at the release-case estimate the 10-degree rule gives only a few thousand hours, a life item outside this temperature check",
-    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) C129 is 138.6 C against 105.0 C (-33.6 K); the firmware ships 17.5 A (DECISIONS 61), where it is 100.2 C (+4.8 K)",
+    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) C129 is 138.6 C against 105.0 C (-33.6 K); the firmware ships 17.5 A (DECISIONS 61), where it is 100.1 C (+4.9 K)",
     "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
    "status": "PARTIAL",
@@ -1184,7 +1184,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R130",
-     "ratio": 0.2768,
+     "ratio": 0.2755,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -1193,7 +1193,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R130",
-     "ratio": 0.2623,
+     "ratio": 0.261,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -1300,7 +1300,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TA)",
-     "ratio": 0.7224,
+     "ratio": 0.7216,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -1353,7 +1353,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (connector incl. temperature rise)",
-     "ratio": 0.6657,
+     "ratio": 0.6562,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -1362,7 +1362,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (connector incl. temperature rise)",
-     "ratio": 0.6295,
+     "ratio": 0.62,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -1381,6 +1381,196 @@
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
+  },
+  "B32643H8104J000": {
+   "checks": [
+    {
+     "id": "V 28 A",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "VR DC",
+     "ratio": 0.283,
+     "severity": "violation",
+     "stress": "V peak 28 A"
+    },
+    {
+     "id": "V no-pan fault hot",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "VC at Top,max",
+     "ratio": 0.5167,
+     "severity": "violation",
+     "stress": "V peak no-pan fault"
+    },
+    {
+     "id": "Vrms",
+     "max_ratio": 0.8,
+     "ok": true,
+     "rating": "VRMS",
+     "ratio": 0.3829,
+     "severity": "violation",
+     "stress": "V rms 28 A"
+    },
+    {
+     "id": "I release",
+     "max_ratio": 0.85,
+     "ok": true,
+     "rating": "I tank allowed @35kHz",
+     "ratio": 0.6472,
+     "severity": "violation",
+     "stress": "I tank release trip"
+    },
+    {
+     "id": "I ladder 24 A (strict)",
+     "max_ratio": 0.85,
+     "ok": true,
+     "rating": "I tank allowed @35kHz",
+     "ratio": 0.8442,
+     "severity": "violation",
+     "stress": "I tank ladder 24 A (strict)"
+    },
+    {
+     "id": "self-heating 24 A, declared airflow",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Self-heating allowance at T_A (declared airflow, 24 A step)",
+     "ratio": 0.7433,
+     "severity": "violation",
+     "stress": "Self-heating 24 A, declared airflow"
+    },
+    {
+     "id": "I ladder 26 A",
+     "max_ratio": 0.85,
+     "ok": false,
+     "rating": "I tank allowed @35kHz",
+     "ratio": 0.9145,
+     "severity": "gap",
+     "stress": "I tank ladder 26 A"
+    },
+    {
+     "id": "I design 28 A",
+     "max_ratio": 0.85,
+     "ok": false,
+     "rating": "I tank allowed @35kHz",
+     "ratio": 0.9849,
+     "severity": "gap",
+     "stress": "I tank design"
+    },
+    {
+     "id": "self-heating 28 A",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Self-heating allowance",
+     "ratio": 0.97,
+     "severity": "gap",
+     "stress": "Self-heating 28 A"
+    },
+    {
+     "id": "self-heating 28 A, declared airflow",
+     "max_ratio": 1.0,
+     "ok": false,
+     "rating": "Self-heating allowance at T_A (declared airflow)",
+     "ratio": 1.0119,
+     "severity": "gap",
+     "stress": "Self-heating 28 A, declared airflow"
+    },
+    {
+     "id": "case 28 A, declared airflow",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Top,max",
+     "ratio": 0.7992,
+     "severity": "gap",
+     "stress": "Case temperature 28 A, declared airflow"
+    },
+    {
+     "id": "self-heating release, still air",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Self-heating allowance at T_A (release, still air)",
+     "ratio": 0.7582,
+     "severity": "gap",
+     "stress": "Self-heating release, still air"
+    },
+    {
+     "id": "V third fault",
+     "max_ratio": 0.85,
+     "ok": true,
+     "rating": "VR DC",
+     "ratio": 0.8465,
+     "severity": "violation",
+     "stress": "V third fault"
+    },
+    {
+     "id": "V double fault",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "VR DC",
+     "ratio": 0.8035,
+     "severity": "violation",
+     "stress": "V double fault Z0max x OCP top"
+    },
+    {
+     "id": "dV/dt",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "dV/dt",
+     "ratio": 0.0909,
+     "severity": "violation",
+     "stress": "dV/dt at turn-off"
+    },
+    {
+     "id": "body c17.5 (release)",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Top,max",
+     "ratio": 0.6592,
+     "severity": "violation",
+     "stress": "Body temperature c17.5 (release)"
+    },
+    {
+     "id": "body c22",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Top,max",
+     "ratio": 0.692,
+     "severity": "gap",
+     "stress": "Body temperature c22"
+    },
+    {
+     "id": "body c28",
+     "max_ratio": 1.0,
+     "ok": true,
+     "rating": "Top,max",
+     "ratio": 0.84,
+     "severity": "gap",
+     "stress": "Body temperature c28"
+    }
+   ],
+   "class": "POWER",
+   "designators": [
+    "C151",
+    "C152",
+    "C21",
+    "C22",
+    "C23"
+   ],
+   "finding": null,
+   "function": "Resonant tank bank C21-C23/C151/C152, 5 x 100 nF +/-5 %, 2000 VDC MMKP (TDK B3264*H), 22.5 mm, on the dual-pitch footprint's 22.5 mm hole (stage 52 prototype BOM, DECISIONS-DRAFT 74; KNSCHA MMK104J3DF1KN208G2 is the in-stock fallback, B32643B8104J000 the 28 A part)",
+   "gaps": [
+    "bench: current rating basis. The p.19 curve is digitised (6.155 A at 35 kHz, 6.481 A at 40 kHz; 100 kHz reads 0.989 x the table's 9.17 A); confirm the rise at 6.2 A / 35 kHz sine on a single part (case, or core by a thermocouple through the lead).",
+    "bench: ESR / tan d at 35 and 40 kHz, at 25 C and about 80 C. ESRtyp 10.9 mOhm is at 100 kHz; the p.15 upper limits fit R_s 11.25 mOhm + D 2.93e-4 / (2 pi f C), 22.9 mOhm at 40 kHz (B3's worst heat row). The rating already contains TDK's own ESR, so bank_air depends on it only through the column model.",
+    "desk: the F_T credit. The ladder's T_A is below 85 C, so F_T(T_A) > 1 raises the allowance (1.22 at 60 C, p.22 digitised; the 60 C table point gives 1.203). The 24 A step uses 26.92 K at T_A 67.48 C.",
+    "bench (S24 / S25): the strict bank_air at 28 A is 1.006 on this board and the release self-heating in still air without radiation is eff 1.1331; the S25 pre-lot gate (C151 interior hot spot + unpowered dummy) confirms the column model before the lot ships.",
+    "bench: body dimensions. The datasheet gives 14.5 x 29.5 x 26.5 mm at 15.0 mm row pitch (0.5 mm gaps, no gap-flow credit): measure 10 bodies.",
+    "owner: ceiling. This bank caps the commissioned ladder at 24 A strict (vendor 0.844, gate 0.862; 26 A fails the 85 % rule at 0.915). 28 A needs B32643B8104J000 on the same hole (vendor 0.831) or the 11-body re-floorplan (S28). A board marked H, or with no bank-fit mark, is never commissioned above 24 A.",
+    "owner: sourcing. Single source (DigiKey 306 on 2026-10-16 against 25 for 5 boards and 2,500 for 500); TDK lead 28 weeks, untaped MOQ 2080; not on JLC: consigned. Prototype part; the production bank is S28.",
+    "desk: approval basis. HOT-side tank part, no UL / ENEC file needed or listed; case UL 94 V-0 (p.2); AEC-Q200D and IEC 60384-16:2019 (p.15); THB 85 C / 85 % RH 1000 h (p.24)."
+   ],
+   "status": "PARTIAL",
+   "unchecked_layout": [
+    "22.5 mm pitch (the dual-pitch footprint's 22.5 mm pad-2 hole; the 27.5 mm hole stays empty), 0.8 mm leads in 1.2 mm drills; 14.5 mm bodies at 15.0 mm row pitch (about 0.5 mm gaps) in the bank column x 161-193, y 46-119 kept open for the >= 3 m/s airflow (DECISIONS 68)"
+   ]
   },
   "B32652A0104K000": {
    "checks": [
@@ -1507,7 +1697,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Top,max case",
-     "ratio": 0.781,
+     "ratio": 0.7695,
      "severity": "violation",
      "stress": "Case temperature c17.5 (release)"
     },
@@ -1516,7 +1706,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Top,max case",
-     "ratio": 0.801,
+     "ratio": 0.7895,
      "severity": "gap",
      "stress": "Case temperature c22"
     },
@@ -1525,7 +1715,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Top,max case",
-     "ratio": 0.9352,
+     "ratio": 0.9248,
      "severity": "gap",
      "stress": "Case temperature c28"
     },
@@ -1573,14 +1763,14 @@
    "status": "PARTIAL",
    "unchecked_layout": []
   },
-  "B82726S2203A020": {
+  "B82726S2243A020": {
    "checks": [
     {
      "id": "I at TR",
      "max_ratio": 0.8,
      "ok": true,
      "rating": "I_rated",
-     "ratio": 0.75,
+     "ratio": 0.625,
      "severity": "violation",
      "stress": "I inlet trip"
     },
@@ -1589,7 +1779,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "I_op at 50 C design inlet air",
-     "ratio": 0.75,
+     "ratio": 0.625,
      "severity": "violation",
      "stress": "I inlet trip"
     },
@@ -1598,15 +1788,15 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "I_op at 61 C release bay",
-     "ratio": 0.7553,
+     "ratio": 0.6295,
      "severity": "violation",
      "stress": "I inlet trip"
     },
     {
-     "id": "I at 67.7 C",
+     "id": "I at 82.5 C",
      "max_ratio": 0.8,
      "ok": true,
-     "rating": "I_op at 67.7 C",
+     "rating": "I_op at 82.5 C",
      "ratio": 0.8,
      "severity": "gap",
      "stress": "I inlet trip"
@@ -1616,7 +1806,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "I_rated",
-     "ratio": 0.825,
+     "ratio": 0.6875,
      "severity": "gap",
      "stress": "I inlet envelope"
     },
@@ -1634,7 +1824,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Climatic upper temperature",
-     "ratio": 0.8192,
+     "ratio": 0.7392,
      "severity": "violation",
      "stress": "Body temperature c17.5 (release)"
     },
@@ -1643,7 +1833,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Climatic upper temperature",
-     "ratio": 0.7824,
+     "ratio": 0.7024,
      "severity": "gap",
      "stress": "Body temperature c22"
     },
@@ -1652,7 +1842,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Climatic upper temperature",
-     "ratio": 0.8032,
+     "ratio": 0.7232,
      "severity": "gap",
      "stress": "Body temperature c28"
     }
@@ -1662,12 +1852,15 @@
     "L1"
    ],
    "finding": null,
-   "function": "Mains common-mode choke L1, 20 A 1.6 mH",
+   "function": "Mains common-mode choke L1, 24 A 0.75 mH (stage 52 prototype lot; B82726S2203A020 20 A 1.6 mH stays the production part)",
    "gaps": [
-    "bench: L1 local air is not evidenced; the B3 body (102.2 C at the c18 release case, bay 61 C; 97.6 / 100.0 C at c22 / c28; inlet 13.5 A) is a body, not the TDK ambient TA. At the 61 C release bay taken as local air, 15 A is 76 % of Iop. 15 A meets 80 % of Iop only up to 67.7 C local air, and IR itself only up to 85.3 C (13.5 A: 77.0 / 91.0 C). Bench IR item (DECISIONS.md:836).",
-    "desk: derating curve digitised from the p.5 figure (+/-3 % of full scale); the 67.7 C boundary moves about +/-2 C.",
+    "bench: L1 local air is not evidenced; the B3 body (92.4 C at the release case, bay 61 C; 87.8 / 90.4 C at c22 / c28; inlet 13.5 A) is a body, not the TDK ambient TA. At the 61 C release bay taken as local air, 15 A is 63 % of Iop. 15 A meets 80 % of Iop up to 82.5 C local air, and IR itself up to 94.4 C (13.5 A: 89.0 / 98.7 C).",
+    "desk: derating curve digitised from the p.5 figure (+/-3 % of full scale); the boundary moves about +/-2 C.",
     "certifier: TDK lists EN 60938-2 design compliance only, no UL / CSA recognition, so the end-product evaluation must cover L1.",
-    "owner: core stock zero, 29 weeks (DECISIONS.md:846); sets the build date (DECISIONS 45)."
+    "owner / EMI deviation: the 8 uH stray (2203: 18 uH) loses the DM pole with C2. On the stage-38 EMI model with the board alone it is INCONCLUSIVE (nominal 6.03 dB, worst sensitivity 1.57 dB, INCONCLUSIVE); with a supply module that brings >= 100 uH DM per line at 21 A it passes (nominal 11.14 dB, worst sensitivity 6.95 dB, PASS). MODULE-REQUEST.md item 3 now states that requirement (validation-results/11-candidates/c23-supply-topology/MODULE-REQUEST.md). Prototype lot only: the production part stays the 2203 (owner pre-order).",
+    "bench: measure a sample's stray inductance (8 uH typical) and the 70 kHz DM line.",
+    "desk: the ALT-D3 surge model carries the CMC's 18 uH DM stray inside a 250-500 uH line-inductance sensitivity range; 8 uH moves the total by under 4 % (not re-run).",
+    "owner: stock. DigiKey 29 / Mouser 62 on 2026-10-16 (sourcing/STOCK-2026-10-13-addendum-s52.csv), JLC C7084710 0: consigned for the prototype lot."
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
@@ -1784,7 +1977,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (operating (surface))",
-     "ratio": 0.8152,
+     "ratio": 0.8144,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -1872,7 +2065,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TA)",
-     "ratio": 0.688,
+     "ratio": 0.6872,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -1919,7 +2112,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (operating (surface))",
-     "ratio": 0.9608,
+     "ratio": 0.9616,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -2182,7 +2375,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (operating (surface))",
-     "ratio": 0.7712,
+     "ratio": 0.7704,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -2411,7 +2604,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "T operating max",
-     "ratio": 1.1441,
+     "ratio": 1.1435,
      "severity": "gap",
      "stress": "T element c28"
     },
@@ -2482,14 +2675,14 @@
    "status": "PARTIAL",
    "unchecked_layout": []
   },
-  "DE1E3RA222MA4BP01F": {
+  "DE1E3RA222MJ4BH01F": {
    "checks": [
     {
      "id": "V",
      "max_ratio": 0.8,
      "ok": true,
      "rating": "Y1 rated voltage",
-     "ratio": 0.4657,
+     "ratio": 0.3492,
      "severity": "violation",
      "stress": "Line high corner to PE"
     },
@@ -2518,10 +2711,10 @@
     "C4"
    ],
    "finding": null,
-   "function": "Y1 line-to-PE capacitors C3/C4, 2.2 nF",
+   "function": "Y1 line-to-PE capacitors C3/C4, 2.2 nF (Murata Type RA H01F, J4 crimped leads)",
    "gaps": [
     "certifier: the 0.5 mA limit clause (UL 1026 portable) is unconfirmed; owner: the 0.2412 mA pass depends on the off-board D-22 module Y removal and PS3 = MPM-65-15ST, and fails with +0.15 nF Y per line.",
-    "owner: the spec is Murata's Jun 2023 reference specification from a distributor; Murata asks buyers to consult the approval sheet before ordering, and murata.com serves no PDF to a script (2026-10-15).",
+    "owner: the spec is Murata's Jun 2023 reference specification from a distributor; Murata asks buyers to consult the approval sheet before ordering.",
     "bench: surface temperature (125 C limit incl. self-heating) is not evidenced; B3 has no C3/C4 row."
    ],
    "status": "PARTIAL",
@@ -2646,7 +2839,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (operating (surface))",
-     "ratio": 0.8136,
+     "ratio": 0.8128,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -2677,7 +2870,7 @@
    "gaps": [
     "Not audited (outside SAFETY/POWER).",
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
-    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) C59 is 136.0 C against 125.0 C (-11.0 K); the firmware ships 17.5 A (DECISIONS 61), where it is 101.7 C (+23.3 K)",
+    "[temp-ratings 2026-10-15] owner: airflow route (c22/c28): at c28_h10 (28 A, bay 55 C, still air) C59 is 136.0 C against 125.0 C (-11.0 K); the firmware ships 17.5 A (DECISIONS 61), where it is 101.6 C (+23.4 K)",
     "[temp-ratings 2026-10-15] only the temperature rating is audited; the electrical ratings (voltage, current, power) of this line are not yet in the ledger"
    ],
    "status": "PARTIAL",
@@ -2911,7 +3104,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TA)",
-     "ratio": 0.9784,
+     "ratio": 0.9776,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -2983,7 +3176,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (ambient at the fuse (implied: end of the rerating curve))",
-     "ratio": 0.6184,
+     "ratio": 0.5904,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -2992,7 +3185,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (ambient at the fuse (implied: end of the rerating curve))",
-     "ratio": 0.5848,
+     "ratio": 0.556,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -3110,7 +3303,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Free-air / junction temperature max",
-     "ratio": 0.7304,
+     "ratio": 0.7296,
      "severity": "violation",
      "stress": "Local temperature, release case"
     },
@@ -3119,7 +3312,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Free-air / junction temperature max",
-     "ratio": 0.8232,
+     "ratio": 0.8224,
      "severity": "violation",
      "stress": "Local temperature, BASIS max"
     }
@@ -3136,187 +3329,6 @@
    ],
    "status": "PARTIAL",
    "unchecked_layout": []
-  },
-  "MMK104J3DF1KN208G2": {
-   "checks": [
-    {
-     "id": "V 28 A",
-     "max_ratio": 0.8,
-     "ok": true,
-     "rating": "VR DC",
-     "ratio": 0.283,
-     "severity": "violation",
-     "stress": "V peak 28 A"
-    },
-    {
-     "id": "V no-pan fault hot",
-     "max_ratio": 0.8,
-     "ok": true,
-     "rating": "VC at Top,max",
-     "ratio": 0.5167,
-     "severity": "violation",
-     "stress": "V peak no-pan fault"
-    },
-    {
-     "id": "Vrms",
-     "max_ratio": 0.8,
-     "ok": true,
-     "rating": "VRMS",
-     "ratio": 0.3829,
-     "severity": "violation",
-     "stress": "V rms 28 A"
-    },
-    {
-     "id": "I release",
-     "max_ratio": 0.85,
-     "ok": true,
-     "rating": "I tank allowed @35kHz",
-     "ratio": 0.6425,
-     "severity": "violation",
-     "stress": "I tank release trip"
-    },
-    {
-     "id": "I ladder 22 A (strict)",
-     "max_ratio": 0.85,
-     "ok": true,
-     "rating": "I tank allowed @35kHz",
-     "ratio": 0.7682,
-     "severity": "violation",
-     "stress": "I tank ladder 22 A (strict)"
-    },
-    {
-     "id": "I ladder 24 A (gap credit)",
-     "max_ratio": 0.85,
-     "ok": true,
-     "rating": "I tank allowed @35kHz",
-     "ratio": 0.838,
-     "severity": "gap",
-     "stress": "I tank ladder 24 A (gap credit)"
-    },
-    {
-     "id": "I design 28 A",
-     "max_ratio": 0.85,
-     "ok": false,
-     "rating": "I tank allowed @35kHz",
-     "ratio": 0.9777,
-     "severity": "gap",
-     "stress": "I tank design"
-    },
-    {
-     "id": "self-heating 28 A",
-     "max_ratio": 1.0,
-     "ok": true,
-     "rating": "Self-heating allowance",
-     "ratio": 0.956,
-     "severity": "gap",
-     "stress": "Self-heating 28 A"
-    },
-    {
-     "id": "self-heating 28 A, declared airflow",
-     "max_ratio": 1.0,
-     "ok": false,
-     "rating": "Self-heating allowance at T_A (declared airflow)",
-     "ratio": 1.49,
-     "severity": "gap",
-     "stress": "Self-heating 28 A, declared airflow"
-    },
-    {
-     "id": "case 28 A, declared airflow",
-     "max_ratio": 1.0,
-     "ok": true,
-     "rating": "Top,max",
-     "ratio": 0.8629,
-     "severity": "gap",
-     "stress": "Case temperature 28 A, declared airflow"
-    },
-    {
-     "id": "self-heating release, still air",
-     "max_ratio": 1.0,
-     "ok": true,
-     "rating": "Self-heating allowance",
-     "ratio": 0.917,
-     "severity": "gap",
-     "stress": "Self-heating release, still air"
-    },
-    {
-     "id": "V third fault",
-     "max_ratio": 0.85,
-     "ok": true,
-     "rating": "VR DC",
-     "ratio": 0.8466,
-     "severity": "violation",
-     "stress": "V third fault"
-    },
-    {
-     "id": "V double fault",
-     "max_ratio": 1.0,
-     "ok": true,
-     "rating": "VR DC",
-     "ratio": 0.8035,
-     "severity": "violation",
-     "stress": "V double fault Z0max x OCP top"
-    },
-    {
-     "id": "dV/dt",
-     "max_ratio": 1.0,
-     "ok": true,
-     "rating": "dV/dt",
-     "ratio": 0.157,
-     "severity": "violation",
-     "stress": "dV/dt at turn-off"
-    },
-    {
-     "id": "body c17.5 (release)",
-     "max_ratio": 1.0,
-     "ok": true,
-     "rating": "Top,max",
-     "ratio": 0.7886,
-     "severity": "violation",
-     "stress": "Body temperature c17.5 (release)"
-    },
-    {
-     "id": "body c22",
-     "max_ratio": 1.0,
-     "ok": true,
-     "rating": "Top,max",
-     "ratio": 0.8276,
-     "severity": "gap",
-     "stress": "Body temperature c22"
-    },
-    {
-     "id": "body c28",
-     "max_ratio": 1.0,
-     "ok": false,
-     "rating": "Top,max",
-     "ratio": 1.0029,
-     "severity": "gap",
-     "stress": "Body temperature c28"
-    }
-   ],
-   "class": "POWER",
-   "designators": [
-    "C151",
-    "C152",
-    "C21",
-    "C22",
-    "C23"
-   ],
-   "finding": null,
-   "function": "Resonant tank bank C21-C23/C151/C152, 5 x 100 nF +/-5 %, 2000 VDC MMKP82, 27.5 mm, on the dual-pitch footprint (stage 51, DECISIONS 73; TDK B32643B8104J000 is the not-fitted 28 A alternate)",
-   "gaps": [
-    "bench: current rating basis. The curve is digitised from an embedded JPEG (6.2 A at 35 kHz, 6.16 A at 40 kHz, 10 K internal rise at ambient <= 85 C); confirm the rise at 6.2 A / 35 kHz sine on a single part in still air (case, or core by a thermocouple through the lead).",
-    "bench: ESR / tan d at 35 and 40 kHz, at 25 C and about 80 C. The rating implies ESR <= 10.7 mOhm at 35 kHz; bank_air scales as sqrt(ESR / 10.7 mOhm) (the strict 22 A step tolerates 11.6 mOhm, the +gap 28 A row 14.1). B3's worst heat row ASSUMES 39.8 mOhm at 40 kHz (the 1 kHz tan d limit held flat).",
-    "bench / vendor: behaviour above 85 C ambient. The sheet gives no current derating above 85 C; the model ASSUMES it linear to 0 at Top,max 105 C (and a 1.25 %/C DC derating); confirm 40/105/56 and the rule with KNSCHA or by a hot soak with a bench current.",
-    "bench (S24 / S25): gap-flow credit. Strict bank_air at 28 A is 1.221 (crosses 1.00 at 22.9 A); with the 3.5 mm gap-channel credit 0.869. The worst interior part (C22 / C23 / C151) at 28 A under the S24 flow must show <= 10 K internal rise over its local air (model: 7.6 K with the credit, 14.9 K strict); measure the gap velocity too (model 2.5 m/s). This decides 22 A (strict) vs 24 A (+gap) for the ladder.",
-    "bench: body dimensions. The datasheet gives 31.5 x 19.5 x 11 +-0.5 mm; the model uses 32 x 20 x 11.5 and the gap width (3.5-4 mm) drives the credit: measure 10 bodies.",
-    "owner: ceiling. The bank caps the commissioned ladder at 22 A strict, 24 A if the bench shows the gap credit (vendor ratio 0.838, the 85 % rule binds at 24.3 A); 28 A needs the TDK B32643B8104J000 alternate fitted (28-week, MOQ 2080) or a better-rated part (DECISIONS 73; OPEN-ITEMS 28 A bank route).",
-    "owner: sourcing. Single source (JLC C528962, 4,952 on 2026-10-16 against 2,500 for 500 boards; Unikey broker 400); no second stocked 2 kV part qualifies (c51-bank-source).",
-    "desk: approval basis. HOT-side tank part, no UL / ENEC file needed or listed, no AEC; flammability grade B (p.4); the UL 94 V-0 case grade the sourcing study reports is not in the spec's text layer (confirm with KNSCHA if a V-0 claim is ever needed)."
-   ],
-   "status": "PARTIAL",
-   "unchecked_layout": [
-    "27.5 mm pitch (the dual-pitch footprint's 27.5 mm pad-2 hole; the 22.5 mm hole stays empty), 0.8 mm leads in 1.2 mm drills; bodies at 15.0 mm row pitch (about 3.5 mm air gaps) in the bank column x 161-193, y 46-119 kept open for the >= 3 m/s airflow (DECISIONS 68)"
-   ]
   },
   "MPM-20-24": {
    "checks": [
@@ -3499,7 +3511,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Tj abs max",
-     "ratio": 0.9167,
+     "ratio": 0.916,
      "severity": "gap",
      "stress": "Tj U42 c28"
     }
@@ -3570,7 +3582,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R69",
-     "ratio": 0.7045,
+     "ratio": 0.6972,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -3579,7 +3591,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R69",
-     "ratio": 0.7117,
+     "ratio": 0.7045,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     },
@@ -3588,7 +3600,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (element)",
-     "ratio": 0.5742,
+     "ratio": 0.5684,
      "severity": "violation",
      "stress": "Element temperature, c17.5_h10"
     },
@@ -3597,7 +3609,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (element)",
-     "ratio": 0.58,
+     "ratio": 0.5742,
      "severity": "gap",
      "stress": "Element temperature, c28_h10"
     }
@@ -3671,7 +3683,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R3",
-     "ratio": 0.6286,
+     "ratio": 0.6216,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -3680,7 +3692,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R3",
-     "ratio": 0.632,
+     "ratio": 0.6251,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -3717,7 +3729,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R59",
-     "ratio": 0.8016,
+     "ratio": 0.8007,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -3843,7 +3855,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "T operating max",
-     "ratio": 0.5348,
+     "ratio": 0.5323,
      "severity": "violation",
      "stress": "T body R22 c17.5 (release)"
     },
@@ -3861,7 +3873,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "T operating max",
-     "ratio": 0.6645,
+     "ratio": 0.6626,
      "severity": "gap",
      "stress": "T body R22 c28"
     },
@@ -4015,7 +4027,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R48",
-     "ratio": 0.6544,
+     "ratio": 0.6537,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -4093,7 +4105,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R35",
-     "ratio": 0.6256,
+     "ratio": 0.6249,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -4145,7 +4157,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R37",
-     "ratio": 0.6458,
+     "ratio": 0.6452,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -4357,7 +4369,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R83",
-     "ratio": 0.5391,
+     "ratio": 0.5384,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -4479,7 +4491,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R144",
-     "ratio": 0.6888,
+     "ratio": 0.6882,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -4728,7 +4740,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TA)",
-     "ratio": 0.6288,
+     "ratio": 0.628,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -4773,7 +4785,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TA)",
-     "ratio": 0.86,
+     "ratio": 0.8592,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -4843,7 +4855,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TA)",
-     "ratio": 0.7128,
+     "ratio": 0.712,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -4988,7 +5000,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TA)",
-     "ratio": 0.8304,
+     "ratio": 0.8296,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -5027,7 +5039,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TA)",
-     "ratio": 0.836,
+     "ratio": 0.8352,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -5110,7 +5122,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R145",
-     "ratio": 0.7136,
+     "ratio": 0.7128,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -5145,7 +5157,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TJ)",
-     "ratio": 0.7168,
+     "ratio": 0.716,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -5154,7 +5166,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TJ)",
-     "ratio": 0.8672,
+     "ratio": 0.8664,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -5270,7 +5282,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "TJ operating max",
-     "ratio": 0.8728,
+     "ratio": 0.872,
      "severity": "violation",
      "stress": "U3 junction, release case"
     },
@@ -5279,7 +5291,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "TJ operating max",
-     "ratio": 0.9608,
+     "ratio": 0.96,
      "severity": "gap",
      "stress": "U3 junction, ratchet max"
     }
@@ -5310,7 +5322,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TJ)",
-     "ratio": 0.9656,
+     "ratio": 0.9648,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -5399,7 +5411,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TA)",
-     "ratio": 0.7018,
+     "ratio": 0.6936,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -5408,7 +5420,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TA)",
-     "ratio": 0.7091,
+     "ratio": 0.7009,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -5457,9 +5469,10 @@
   "AC05000001507JAC00",
   "AMC1311BDWVR",
   "B2P3-VH(LF)(SN)",
+  "B32643H8104J000",
   "B32652A0104K000",
   "B32676G1905K000",
-  "B82726S2203A020",
+  "B82726S2243A020",
   "BAS116H,115",
   "C0603C102J5GACTU",
   "CA-IS3720HW",
@@ -5473,7 +5486,7 @@
   "CL32B106KBJNNNE",
   "CSS2H-2512R-1L00F",
   "CST3015-200ED",
-  "DE1E3RA222MA4BP01F",
+  "DE1E3RA222MJ4BH01F",
   "GBJ2510-F",
   "GRM1885C1H472JA01D",
   "GRM188R71E105KA12D",
@@ -5484,7 +5497,6 @@
   "KLDR025.TXP",
   "LM2901BIDR",
   "LM4050AEM3-2.5/NOPB",
-  "MMK104J3DF1KN208G2",
   "MPM-20-24",
   "PMEG6030EP,115",
   "R24C2T25/R-R",
