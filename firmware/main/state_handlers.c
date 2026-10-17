@@ -17,7 +17,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
-static const char *TAG = "state_handlers";
 #endif
 
 /* External function stubs - implement in peripherals module */
@@ -211,7 +210,9 @@ void state_pan_det_update(void) {
     /* Update thermal mass estimation */
     float current_temp = read_pan_temperature();
     uint32_t current_time = get_time_ms();
-    bool estimation_complete = thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
+    /* Completion also reports failed estimates; use the stored classification
+     * below when pan confidence is sufficient. */
+    (void)thermal_mass_update(&sm_get_context()->thermal_mass, current_temp, current_time);
 
     if (result == PAN_PRESENT) {
         sm_get_context()->pan_detect_confidence++;

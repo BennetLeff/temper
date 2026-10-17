@@ -3,7 +3,8 @@
  * @brief ESP32 Timer HAL Implementation
  * 
  * Uses ESP-IDF esp_timer for high-resolution timestamps and gptimer
- * for hardware timer callbacks. Supports input capture for ZCD timing.
+ * for hardware timer callbacks. PLL and pan-detect input capture is owned
+ * by main/board_power.c through MCPWM, not this timer HAL.
  */
 
 #include "../include/hal_timer.h"
@@ -30,15 +31,6 @@ typedef struct {
 } timer_instance_t;
 
 static timer_instance_t s_timers[MAX_TIMERS];
-
-/* Capture callback storage */
-typedef struct {
-    hal_capture_callback_t callback;
-    void *arg;
-    hal_timer_t timer;
-} capture_context_t;
-
-static capture_context_t s_capture_contexts[MAX_TIMERS];
 
 /* ============================================================================
  * Internal Callback Handler
@@ -230,8 +222,8 @@ static hal_status_t esp32_timer_configure_capture(hal_timer_t timer, hal_pin_t p
                                                    hal_gpio_intr_t edge,
                                                    hal_capture_callback_t callback, void *arg)
 {
-    /* For simplicity, we use GPIO interrupt + esp_timer timestamp for capture.
-     * A more accurate implementation would use MCPWM capture peripheral. */
+    /* Keep the shared HAL op, but do not allocate hardware or register callbacks.
+     * PLL and pan detection use board_power.c's MCPWM path (D-BRINGUP). */
     
     (void)timer;
     (void)pin;
@@ -239,8 +231,7 @@ static hal_status_t esp32_timer_configure_capture(hal_timer_t timer, hal_pin_t p
     (void)callback;
     (void)arg;
     
-    /* TODO: Implement using MCPWM capture or GPIO interrupt with timestamp */
-    ESP_LOGW(TAG, "Input capture not yet implemented - use GPIO interrupt for now");
+    ESP_LOGW(TAG, "Timer HAL capture unsupported; board_power.c owns MCPWM capture");
     return HAL_ERROR_NOT_SUPPORTED;
 }
 
