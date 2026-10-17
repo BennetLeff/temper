@@ -859,7 +859,7 @@
   },
   "provenance": {
     "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
-    "derivation_sha256": "28cc033568abd9017450c9070ddf98f92e90d31eb184f8a9869cc41c8ba3e109",
+    "derivation_sha256": "7fcc4a7d6f8efd1d189c58ffcb2c65e2425097eab75b985e05894bf68528a678",
     "input_sha256": {
       "firmware/components/control/cascade_pid.c": "9918548d1df194a941d17a711e9f2d9bf53382e933ed801c46b5409dfe3114f9",
       "firmware/components/control/cascade_pid.h": "1935ab68a83440018037e6fde531ea8c5bee30adc8405327343ed50b0a9f53e6",
@@ -906,7 +906,6 @@
       "firmware/components/sensors/include/rtd_convert.h": "b0adb83e6d22d167621d81786afccac6e47f3c12495ca00cbf3bdab588fba46c",
       "firmware/components/sensors/rtd_convert.c": "cabe361f5715aab13ad97cdffc74fd96bef6ebc2a67869e6fd769995a1c5ecd5",
       "output/temper-sensor-r2/estimator_study.py": "b8b689db27c6f5bae6e928c3e2c885010f9c85427d7d3da031ce2a989dcb0895",
-      "output/temper-sensor-r3/firmware/DECISIONS.md": "96cfcaff37c02eb1ab8bd0e36c4ce2615e0e3c36c1681ad9c8da1354aaa04005",
       "output/temper-sensor-r3/firmware/build_lib.sh": "44b55f7147aec7811f95dfe187a8635262236ed075276e9ccb6f0f16a12d7cfd",
       "output/temper-sensor-r3/firmware/cosim.py": "026d0f655d0f4e75db710660fe4cb6da84e9af6a70a1a5047d115091d34fe588",
       "output/temper-sensor-r3/firmware/cosim_shim.c": "455e1abc0cb626bddf5cc8a23cf107b83eb8bdb8c20d21122f98637bfba74bea",
@@ -916,8 +915,6 @@
       "output/temper-sensor-r3/firmware/leak_checks.py": "d3d372797b22275cda93997ecec35fe8a9550ceabb33a04b4cb78b24afd09429",
       "output/temper-sensor-r3/firmware/ref.py": "534ed3410630e26a75466746e0bf359727aac0c37c7d6dca84e5c675d755caee",
       "output/temper-sensor-r3/firmware/xcheck_cosim.py": "c2ace5b567ab333d27e78eba1798fd637b1a0e544c56f8aa556875aa020a9245",
-      "output/temper-sensor-r3/pcb/DECISIONS.md": "7796dbde220b4a561c34d648ea596ed528c5481d973f282b5381ba8e55dfd60a",
-      "output/temper-sensor-r3/pcb/REQUIREMENTS.md": "a36b2a343b507575d0722cb03d9a70dd0350613624f33be61d652175423a6c46",
       "output/temper-sensor-r3/screen.py": "1dbfcbf158f92af1d551bfb29a97a733c65aaf102165068e33e51b52c3dd5118"
     },
     "numpy_version": "2.4.6",

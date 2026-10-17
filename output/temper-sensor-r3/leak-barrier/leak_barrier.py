@@ -264,13 +264,12 @@ def derive(repo):
         "D_LEAK_3": {"post_requirement_ohm": r0, "post_temperature_C": bar,
                      "status": "requirement input; no seal qualification evidence in this study"},
     }
+    # Model and evidence inputs only: the decision documents are not read, and
+    # hashing them failed this gate on every documentation edit.
     paths = [fw / name for name in ("leak-checks.json", "leak_checks.py", "xcheck_cosim.py", "hs_ntc.py",
-                                   "hs-ntc.json", "ref.py", "cosim.py", "cosim_shim.c", "build_lib.sh",
-                                   "DECISIONS.md")]
+                                   "hs-ntc.json", "ref.py", "cosim.py", "cosim_shim.c", "build_lib.sh")]
     paths += [sensors / "rtd_convert.c", sensors / "include/rtd_convert.h",
-              repo / "output/temper-sensor-r3/screen.py", repo / "output/temper-sensor-r2/estimator_study.py",
-              repo / "output/temper-sensor-r3/pcb/REQUIREMENTS.md",
-              repo / "output/temper-sensor-r3/pcb/DECISIONS.md"]
+              repo / "output/temper-sensor-r3/screen.py", repo / "output/temper-sensor-r2/estimator_study.py"]
     controls = repo / "firmware/components/control"
     paths += sorted(controls.glob("*.c")) + sorted(controls.glob("*.h"))
     input_names = [str(p.relative_to(repo)) for p in paths]
