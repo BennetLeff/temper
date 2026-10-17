@@ -96,7 +96,10 @@ def load_reads(sourcing=None):
         R.jlc[rec["mpn"]] = rec
     R.octo = json.load(open(snap / "octopart-2026-10-15.json"))
     dk = json.load(open(snap / "digikey-2026-10-15.json"))
-    R.dk = {r["mpn"].replace(" ", ""): r for r in dk["records"]}
+    R.dk = {}
+    for p in sorted(glob.glob(str(snap / "digikey-2026-*.json"))):     # a later page read of the same MPN wins
+        for r in json.load(open(p))["records"]:
+            R.dk[r["mpn"].replace(" ", "")] = r
     R.dk_early = {k: v for k, v in dk.get("earlier_fetch_ok", {}).items() if not k.startswith("_")}
     R.survey = {}
     for p in sorted(glob.glob(str(S / "STOCK-2026-10-13*.csv"))):
@@ -109,7 +112,7 @@ def load_reads(sourcing=None):
                 r["_file"] = Path(p).name
                 R.survey[k] = r
     R.files = ["study-2026-10-15/snapshot/jlc-2026-10-15.json", "study-2026-10-15/snapshot/octopart-2026-10-15.json",
-               "study-2026-10-15/snapshot/digikey-2026-10-15.json", "study-2026-10-15/scripts/jlc-raw/detail_*.json",
+               "study-2026-10-15/snapshot/digikey-2026-10-1*.json", "study-2026-10-15/scripts/jlc-raw/detail_*.json",
                "STOCK-2026-10-13*.csv"]
     return R
 
@@ -187,9 +190,15 @@ def ladder_at(ladder, need):
 
 
 def price_at(c, boards, need):
-    if c["points"] is not None:
-        return c["points"].get(boards), False
-    return ladder_at(c["ladder"], need)
+    if c["ladder"]:
+        return ladder_at(c["ladder"], need)
+    # a read with only the 5- and 500-board points (a survey row, a two-point DigiKey read): the nearest point at or
+    # below `boards`, never above, so a board count between them is not under-priced; below 5 boards, the 5-board point
+    pts = {b: p for b, p in (c["points"] or {}).items() if p is not None}
+    if not pts:
+        return None, False
+    at = [b for b in pts if b <= boards]
+    return pts[max(at) if at else min(pts)], False
 
 
 def artefact_reasons(c, price, others):

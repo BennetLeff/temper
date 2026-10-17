@@ -1,0 +1,15 @@
+{
+ "source": "DigiKey public product page read live 2026-10-17 (DigiKey 448-IPW65R018CFD7XKSA1, tube of 30); USD ladder, tariff may apply when shipping to the US, shipping not priced. Same schema as digikey-2026-10-15.json; the BOM MPN IPW65R018CFD7 is the XKSA1 ordering code.",
+ "records": [
+  {
+   "mpn": "IPW65R018CFD7",
+   "digikey_pn": "448-IPW65R018CFD7XKSA1",
+   "orderable_mpn": "IPW65R018CFD7XKSA1",
+   "stock": 459,
+   "lead_wk": 8,
+   "tiers": [[1, 19.72], [30, 12.30267], [60, 11.4205], [120, 10.67925], [510, 10.17612]],
+   "url": "https://www.digikey.com/en/products/detail/infineon-technologies/IPW65R018CFD7XKSA1/15283592",
+   "t": "2026-10-17"
+  }
+ ]
+}
