@@ -646,3 +646,44 @@ mesh: native-21 moved the film caps C38/C39 6.2 mm lower and further right
 also fails S4 on die VDS, so F6 (or an equivalent turn-on slow-down) is required on two counts.
 The F6 margins improve on off-gate and cost about 60 V of S2 die VDS. Both native-21 legs
 are closed.
+
+## Native-21 s51 / s52 / s53 copper (OPEN-ITEMS S3, 2026-10-17)
+
+The final matrices above use the first routed board (76ec8cca, 2026-10-08 export). Stage 51 moved R5 and
+the R10/R12/R18/R20 gate-resistor ends inside both leg regions. The four-layer board stayed (DECISIONS 40).
+Another session's remote campaign (`~/temper-fem/s3-s51/v2`) re-extracted the coarse reference (h 1 mm,
+1.0 mm edges, 10 mm crop, scaling off, gmsh HXT outer air gated on q_min > 0) on s51 and on 76ec8cca as a
+control. The control reproduces round 17's n21 coarse matrices to ≤ 0.005 nH, so the meshing change is
+neutral. Matrices: `../../round18-speedup/matrices/leg{A,B}21-h1-e1p0-m10-{s51v2,n21v2}.matrix.txt`.
+
+`leg{A,B}21-h0-best-s51` = `leg{A,B}21-h0-best` + (coarse s51 − coarse n21 control). Min eigenvalue 7.93 /
+7.78 nH. s52 has no copper edit relative to s51. s53's only copper edit (the `ovp_ok_hot` In1 → In2 run at
+x 114.4–117.8 mm) lies outside every leg crop (leg A's 20 mm crop ends at x 109.6 mm). These matrices therefore
+stand for the board of record.
+
+| s51 − n21 (nH) | L11 | L22 | M12 | L33 | L44 | M14 / M24 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| leg A | −3.66 | −3.98 | −3.59 | +5.02 | +3.94 | +0.08 / +0.19 |
+| leg B | +0.40 | +0.54 | +0.50 | +2.94 | +1.44 | +0.82 / +0.75 |
+
+Leg A's power loop shrinks (parallel loop 37.6 → 33.9 nH at the reference). Both gate loops grow, by more
+than the stage-9 +2 nH bound on leg A.
+
+F6 at the −1.6 V bound, PMEG, 27/100/150 °C (`results/f6-vneg-m1p6-leg21-best-s51{,-startup}/`):
+**504/504 pass**, the 1.9 V hot screen included.
+
+| Worst case | n21 final | s51 | Limit |
+| --- | ---: | ---: | ---: |
+| A S4 off-gate / die VDS | 0.89 V / 471 V | 0.91 V / 478 V | 1.9 V / 520 V |
+| A S2 die VDS | 451 V | 468 V | 585 V |
+| B S4 off-gate / die VDS | 1.15 V / 489 V | 1.26 V / **508 V** | 1.9 V / 520 V |
+| B S2 die VDS | 412 V | 421 V | 585 V |
+| S5 off-gate A / B | 0.49 / 0.37 V | 0.35 / 0.50 V | 1.9 V |
+
+**Leg B S4 die VDS is now the thinnest margin: 12 V.** The worst case is 170 V, IL −20 A, dir 1, 391 ns, at the
+10 nH ESL corner. At the TDK-model ESL of 1.06 nH (M4) leg B's S4 worst is 486 V, a 34 V margin. The
+power loop barely changed. The rise comes with the larger gate loop and the larger power-to-gate couplings
+M14/M24 (inference; not isolated). This is still a pass, so the 2026-10-08 placement decision's reverse condition
+is not met. If this margin needs widening, the decision's first lever applies: a C0G bus decoupler across the FET
+row.
+
