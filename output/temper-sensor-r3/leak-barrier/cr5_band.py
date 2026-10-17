@@ -420,11 +420,16 @@ def notes(result):
          "(`leak_checks.hazardous()`, owner 2026-10-16). The cloud run used the steady rule (final-100-s mean > 300 °C); "
          "each coverage row keeps that count as `steady_rule_hazardous_info`, and `hazardous_settling_at_or_below_bar` "
          "counts the hazardous runs that only overshoot.", "",
-         "## Reproduce", "", "```sh", "cd output/temper-sensor-r3/leak-barrier",
+         "## Reproduce", "",
+         "Evidence reference platform: the remote box (linux x86_64; `reference_platform` in the JSON). Regenerate "
+         "there; elsewhere `--check` compares counts, flags and gates exactly and floats within "
+         "`../evidence_compare.py`'s tolerance (DECISIONS.md D-EVPLAT).", "",
+         "```sh", "cd output/temper-sensor-r3/leak-barrier",
          "python3 cr5_band.py --check --caps 250,200   # run.sh step 5e (caps 250 and 200)",
          "python3 cr5_band.py --check                  # every cap (manual; see run.sh header)",
-         "python3 cr5_band.py                          # regenerate cr5-band.json and this file", "```", "",
-         "`--check` compares by content; only the toolchain strings in `TOOLCHAIN_KEYS` are exempt. "
+         "python3 cr5_band.py --jobs 8                 # regenerate cr5-band.json and this file (on the box)", "```", "",
+         "`--check` compares by content; only the toolchain strings in `TOOLCHAIN_KEYS` are exempt, and off the "
+         "reference platform floats follow `evidence_compare.py`. "
          f"A full run is {result['apparatus'].get('simulations', 'n/a')} simulations (`apparatus.simulations`). "
          "`T3 PASS` means the control, input-identity, band-margin and benign gates pass; it does not mean the bar is met.", "",
          "## Control (cap 250 °C, today's band)", "",
