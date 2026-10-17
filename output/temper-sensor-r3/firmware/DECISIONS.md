@@ -2353,6 +2353,94 @@ of uptime before any power and PREHEAT revokes the token; the same unit
 without a token skips; a failing erase does not stop heating. SIL: the
 power-cycle scenario in D-SOAK.
 
+## D-SOAKTAU. 2026-10-16 — reject the slow heatsink tail without changing leak coverage
+
+F3 adds a rate condition to `pan_cold_soak.c`: the absolute change between
+heatsink **midranges** (half of min + max) in the oldest and most recent
+completed minute buckets must be ≤ 0.02 K/min. The default separation is
+840 s, hence ≤ 0.28 K. An incomplete current bucket does not stand for a
+whole minute; the existing 1 K range condition still includes it. Failure
+uses `PCS_SKIP_HS_DRIFT`. The thresholds, soak/history timers, NVS credit,
+Pt100 flatness and clearability rule are unchanged.
+
+The reason is a slowly decaying reference offset that fits the old range
+limit. The reported failing trajectory is a warm restart into a 5 °C room,
+τ_g 408 s, τ_h 3600 s, false corner, measured rail. At the first latch,
+10870 s, the Pt100 is 4.291079 °C and the heatsink 21.287645 °C: simultaneous
+gap 16.996566 K, window gap 16.950741 K, threshold 16.9 K. There are two
+latching evaluations on that one trajectory. F3 skips both and later
+allows evaluations once the reference settles.
+
+`F3-STUDY.md` gives every baseline false-latch trajectory, its first-latch
+readings/gaps, eight candidate comparisons and all ambient/rail/family/corner
+coverage counts. `cold_soak_guards.py --out /absolute/scratch/directory`
+reproduces the comparison using the pinned pre-F3 C, the existing drivers,
+noise seeds and hazard weights. Its quoted output includes:
+
+```text
+LOST_HAZARD_CELLS rate_002 0
+SELECTED rail_fallback report-only latched trajectories 23 -> 23
+SELECTED rail_measured report-only latched trajectories 24 -> 23
+ALL F3 GUARD COMPARISONS PASS
+```
+
+Every candidate has 0 false-latch trajectories on the original 828 gated
+trajectories per rail variant (276 physical trajectories × 3 corners).
+Only the rate candidate preserves every recorded coverage cell while
+reducing report-only latches. The nominal temperature-independent counts
+remain, at 5 / 15 / 25 / 30 / 35 / 40 °C, out of 277:
+
+```text
+COVERAGE rate_002 rail_fallback nominal independent [180, 212, 212, 212, 212, 212] / 277
+COVERAGE rate_002 rail_measured nominal independent [212, 212, 212, 248, 248, 248] / 277
+```
+
+Neither `EXPECTED_INDEP_NOMINAL` nor any existing threshold/gate is changed.
+`cold_soak.py` promotes all 126 slow-heatsink trajectories (warm restart and
+transport, all corners and both rails) into the zero-latch gate: 954 gated
+trajectories per rail variant, with 78 remaining report-only. The frozen
+pot still latches in 22/36 and the −5 °C room in 1/6, in each rail variant.
+A 6 °C Pt100 floor removes those latches but loses real leaks; e.g. nominal
+fallback coverage at 25 °C falls from 212/277 to 36/277. Longer timers also
+lose the original 2399 s cold-start coverage. Their apparent elimination of
+frozen/cold-room latches within the original horizon is delay: 24-hour
+continuations latch at 14400 s. The tau-adjusted threshold and tighter
+0.437823499 K total-range guard also lose coverage (full table in the study).
+
+Tests: a 3600 s exponential that falsely latched; both rate directions and
+both rails just above/below the limit; the incomplete-current-minute case.
+Against unchanged C, the new test suite reports `54 Tests 2 Failures 0 Ignored`;
+with the candidate C it reports `54 Tests 0 Failures 0 Ignored`. The paired
+nominal independent-leak noise sweep reports:
+
+```text
+PAIRED_NOISE_SWEEP nominal independent cells= 3072 seeds=1..32 additional_misses= 0
+```
+
+**Limits and bench data.** The credible maximum τ_h and the 1 K standby
+heatsink-to-ambient offset remain unmeasured. The modeled channel/noise
+corners and single-exponential tails are assumptions. A noise-free 3600 s
+exponential moving 0.28 K over 840 s has residual 1.065440 K versus the
+existing 1.541494 K allowance; this is a sizing argument, not a hardware
+certificate for noisy midranges and a nonlinear sensor. Measure post-cook
+and transport tails, standby offsets and minute-scale noise on the bench.
+Preserved coverage means the recorded **steady cold-start** grid: on a
+still-drifting leaking unit, the additional skip can defer detection, and
+skip permits heating as before. No evaluated guard removes all frozen-pot
+and below-rated-room false latches while retaining the required coverage.
+
+**Validation constraint.** On the unmodified base, `run.sh` passes through
+runaway and sensor-failure checks, then reports
+`T1 FAIL: derivation gates failed: source_inputs_clean` because earlier
+steps regenerate a provenance input (`leak-checks.json`) on this Linux
+image. Restoring the recorded generated JSON gives `T1 PASS`. T1 also pins
+control-source hashes in its evidence; T2 pins firmware/study inputs to
+`03c28e76b`. A new guard and even this decision record therefore need the
+canonical Mac evidence refreshed before those provenance comparisons can
+pass. No gate, pin or committed JSON is changed here. Full before/after
+command results and the exact limitations are recorded in `F3-STUDY.md`.
+
+
 ## Open items for the firmware owner
 
 1. **The ESP-IDF target links** (resolved 2026-10-15, branch

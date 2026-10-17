@@ -2,8 +2,8 @@
 
 The check (components/control/pan_cold_soak.c, evaluated by main/pan_control.c at
 PREHEAT entry, before the first power): after the coil has been off >= 30 min,
-with 15 min of flat history, the heatsink NTC VALID and <= 45 degC and the rim NTC
-saturated, latch FAULT_PROBE_LEAKAGE when the heatsink exceeds the Pt100 by more
+with 15 min of flat history and heatsink drift <= 0.02 K/min (D-SOAKTAU),
+the heatsink NTC VALID and <= 45 degC and the rim NTC saturated, latch FAULT_PROBE_LEAKAGE when the heatsink exceeds the Pt100 by more
 than PCS_THRESHOLD_K (19.4 K, hs-ntc.json cold_soak_budget) through the window and
 now (PCS_THRESHOLD_MEASURED_K, 16.9 K, when the heatsink reading used a measured
 rail at every note through the window and now; D-RAIL). Here the heatsink driver
@@ -53,15 +53,16 @@ this file's output at 75e512eab (variant as_built there).
    time. Sets: ambient 5-40 degC from power-up; warm restart after a 250 degC cook
    (glass from 250 degC, heatsink from 88.6 degC, tau_g 408/816/1800 s x tau_h
    450/900/1800 s, evaluated every 10 s for 4 h, which includes idle 0, 10, 20,
-   30, 45, 60, 90, 120 min); a hot pan (100/200 degC) placed on a soaked unit; a
-   cold pan (4 / -18 degC, warming with tau 900/1800 s) placed on a soaked unit;
+   30, 45, 60, 90, 120 min), plus tau_h 3600 s for 5 h (D-SOAKTAU); a hot pan
+   (100/200 degC) placed on a soaked unit; a cold pan (4 / -18 degC, warming with tau 900/1800 s) placed on a soaked unit;
    transport (a unit at -20 (the storage minimum, docs/ENVIRONMENTAL_SPEC.md), 5,
    50 or 60 degC carried into a 5-40 degC room and powered up on arrival, tau_h
-   450/900/1800 s, tau_g 408/816 s); and the
+   450/900/1800 s, tau_g 408/816 s, plus tau_h 3600 s with tau_g 816 s
+   for 5 h); and the
    existing sets' cold starts (every leak-checks.json benign kind starts from a
    unit at 25 degC, hot_glass from glass at 200 degC just after use).
-   Reported, not gated (outside the assumptions, D-SOAK limits): tau_h 3600 s; a
-   large pot of cold water (tau 20000 s); a pot of frozen food whose melting
+   Reported, not gated (outside the assumptions, D-SOAK limits): a large pot
+   of cold water (tau 20000 s); a pot of frozen food whose melting
    plateau holds the glass at ~2 degC for hours; a unit run in a 0 or -5 degC
    room (below the 5 degC the threshold is budgeted for; rated 10 degC).
 3. Hazardous leaks (leak-checks.json, the 277 runs whose untripped T_c exceeds
@@ -301,7 +302,7 @@ def benign_cases():
         for tg in (408.0, 816.0, 1800.0):
             for th in (450.0, 900.0, 1800.0):
                 gated.append(("warm_restart", {"A": a, "tau_g": tg, "tau_h": th, "t_end": 4 * 3600}))
-            reported.append(("warm_restart", {"A": a, "tau_g": tg, "tau_h": 3600.0, "t_end": 5 * 3600}))
+            gated.append(("warm_restart", {"A": a, "tau_g": tg, "tau_h": 3600.0, "t_end": 5 * 3600}))
         for tp in (1800.0, 3600.0):
             for th_pan in (100.0, 200.0):
                 gated.append(("hot_pan", {"A": a, "T_pan": th_pan, "tau_pan": 1800.0, "t_place": tp,
@@ -320,7 +321,7 @@ def benign_cases():
             for th in (450.0, 900.0, 1800.0):
                 for tg in (408.0, 816.0):
                     gated.append(("transport", {"A": a, "T0": t0, "tau_h": th, "tau_g": tg, "t_end": 4 * 3600}))
-            reported.append(("transport", {"A": a, "T0": t0, "tau_h": 3600.0, "tau_g": 816.0, "t_end": 5 * 3600}))
+            gated.append(("transport", {"A": a, "T0": t0, "tau_h": 3600.0, "tau_g": 816.0, "t_end": 5 * 3600}))
     return gated, reported
 
 
