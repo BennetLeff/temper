@@ -2435,10 +2435,18 @@ runaway and sensor-failure checks, then reports
 steps regenerate a provenance input (`leak-checks.json`) on this Linux
 image. Restoring the recorded generated JSON gives `T1 PASS`. T1 also pins
 control-source hashes in its evidence; T2 pins firmware/study inputs to
-`03c28e76b`. A new guard and even this decision record therefore need the
-canonical Mac evidence refreshed before those provenance comparisons can
-pass. No gate, pin or committed JSON is changed here. Full before/after
+`03c28e76b`. T1 therefore needs a canonical Mac evidence refresh for this source revision.
+T2 additionally requires an owner decision about its unchanged-source
+contract: regenerating evidence alone cannot make the new guard equal the
+fixed base. No gate, pin or committed JSON is changed here. Full before/after
 command results and the exact limitations are recorded in `F3-STUDY.md`.
+The completed post-change runner passes through runaway and sensor codes,
+then stops at the same T1 `source_inputs_clean` failure. Direct T2 repeats
+both cap summaries and every detailed Linux-baseline row exactly; its only
+failed derivation gate is `source_inputs_unchanged`. All seven regenerated
+JSON files were recorded and restored. The actual patched unit suite has
+54/54 passing tests, CTest has 26/26, and the expanded cold-soak gate passes
+in both the separate check and the standard runner.
 
 
 ## Open items for the firmware owner

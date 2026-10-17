@@ -341,12 +341,13 @@ server: 10.99.0 (10.99.0-5431-g444312064)
 client_schema: 10.99.0 (10.99.0-4383-gdcadf9baa)
 board: temper-onboarding.kicad_pcb; footprints: 1; tracks: 6
 NumPy 2.5.4 SciPy 1.18.1
+Python 3.12.14; Matplotlib 3.11.2
 cc (Debian 14.2.0-19) 14.2.0
 cmake version 3.31.10
 idf.py: unavailable
 ```
 
-The GUI scratch-board lock restored from the snapshot was dismissed with the GUI; KiPy then passed the live version/document check. No board edits. SciPy was absent and installed into the prepared venv without changing manifests/lockfiles. The initial Linux host build also lacked `-lm` for the power-gate target; `cmake -S firmware/test -B firmware/test/build -DCMAKE_C_STANDARD_LIBRARIES=-lm` supplies it in the untracked build cache. With that setting CTest passed all 26 suites; the brief’s pre-existing `test_profiles.c` compilation failure remains.
+The GUI scratch-board lock restored from the snapshot was dismissed with the GUI; KiPy then passed the live version/document check. No board edits. SciPy and Matplotlib were absent and installed into the prepared venv without changing manifests/lockfiles; NumPy stayed at 2.5.4. The initial Linux host build also lacked `-lm` for the power-gate target; `cmake -S firmware/test -B firmware/test/build -DCMAKE_C_STANDARD_LIBRARIES=-lm` supplies it in the untracked build cache. With that setting CTest passed all 26 suites; the brief’s pre-existing `test_profiles.c` compilation failure remains.
 
 The board-contract script is skipped as instructed: its unpushed board branch is unavailable. The ESP-IDF target build cannot run here (`idf.py: unavailable`). Broader repository checks were also sampled before changes: import-linter is unavailable in the prepared venv (`Failed to spawn: lint-imports`); the derived-artifact check already fails because `output` has no entry in `DIRECTORY_PURPOSE`. The pre-existing `cold_soak.py` Ruff findings are C416 and C420; they are unchanged. These are not represented as firmware passes.
 
@@ -376,4 +377,204 @@ The preceding steps had regenerated `leak-checks.json`, which is a T1 provenance
 T1 PASS
 ```
 
-A separate constraint applies to F3: T1 also pins hashes of all control C/header inputs in its committed evidence, while T2 compares firmware/study inputs against fixed base `03c28e76bd893a716c1b080bd34ccbfffd42993e`. The requested implementation therefore requires a future canonical evidence refresh to pass those provenance comparisons. This task does not change those gates, pins or committed JSON. The full run must not be reported as `ALL C1 FIRMWARE CHECKS PASS`.
+A separate constraint applies to F3: T1 also pins hashes of all control C/header inputs in its committed evidence, while T2 compares firmware/study inputs against fixed base `03c28e76bd893a716c1b080bd34ccbfffd42993e`. T1 requires a future canonical evidence refresh for the changed source hashes. T2 additionally requires an owner decision about its unchanged-source contract: a Mac evidence refresh alone cannot make F3 match the fixed base. This task does not change those gates, pins or committed JSON. The full run must not be reported as `ALL C1 FIRMWARE CHECKS PASS`.
+
+
+The remainder of the unmodified baseline was checked directly after restoring the JSON. T2's cap summaries match exactly; its detailed row comparison has 173 differences (including a 0.4 s event-time shift), so it still fails. Its unchanged-source and behavioral gates all pass on the base. Quoted commands/results:
+
+```text
+python3 output/temper-sensor-r3/leak-barrier/setpoint_cap.py --check --caps 250,200
+250 C controls match committed C and offline headlines
+cap 250: nominal 69/277; worst 3/137
+cap 200: nominal 99/179; worst 14/90
+T2 FAIL: regenerated evidence differs; candidate saved to /tmp/temper-t2-regenerated-7456
+T2_BASELINE_CAP_DIFFS {}
+T2_BASELINE_COMPARABLE_DIFF_COUNT 173
+T2_BASELINE_ALL_PASS True
+```
+
+Direct T1 check after the F3 source commit, before the long runner rewrote its leak input:
+
+```text
+T1 FAIL: regenerated JSON differs from /workspace/temper/output/temper-sensor-r3/leak-barrier/leak-barrier.json
+T1_CHECK_EXIT 1
+```
+
+The actual T2 `apparatus()` result against the unchanged fixed base:
+
+```text
+T2_SOURCE_INPUTS_UNCHANGED False
+firmware/components/control/pan_cold_soak.c
+firmware/components/control/pan_cold_soak.h
+output/temper-sensor-r3/firmware/cold_soak.py
+output/temper-sensor-r3/firmware/cold_soak_guards.py
+```
+
+## Regression and source-build results
+
+`cold_soak.py` with the expanded set and the rebuilt **original** library:
+
+```text
+FAIL benign_rail_measured_no_latch
+COLD SOAK CHECK FAILURE
+EXPANDED_GATE_BEFORE_EXIT 1
+```
+
+The same expanded set with the rebuilt **patched** library:
+
+```text
+PASS benign_rail_fallback_no_latch
+PASS benign_rail_measured_no_latch
+PASS hazardous_indep_nominal_as_recorded_rail_fallback
+PASS hazardous_indep_nominal_as_recorded_rail_measured
+ALL COLD SOAK CHECKS PASS
+EXPANDED_GATE_AFTER_EXIT 0
+ACTUAL_C_COVERAGE all 144 ambient/rail/corner/family cells unchanged
+ACTUAL_C_PARAMETERS existing parameters and thresholds unchanged
+54 Tests 0 Failures 0 Ignored
+```
+
+Both rails now have 0/954 gated false-latch trajectories; the remaining reported set is 23/78 in each rail. This is distinct from the fixed-original-partition candidate comparison (23/204 in each rail). The existing parameter structure and values are unchanged; the rate limit is an additional C condition.
+
+
+## Baseline command comparison
+
+Commands run from the repository root except the explicitly named working directories. The host cache has the Linux-only `CMAKE_C_STANDARD_LIBRARIES=-lm` setting described above. Exact output lines are quoted; the known profiles build error is not a CTest failure.
+
+| Command | Before | After |
+|---|---|---|
+| In `firmware/test`: `cmake -S . -B build && cmake --build build -j -- -k` | `gmake: Target 'default_target' not remade because of errors.` (known `test_profiles.c` pointer/int assertion error) | Same error and final line |
+| In `firmware/test/build`: `ctest` | `100% tests passed, 0 tests failed out of 26` | `100% tests passed, 0 tests failed out of 26` |
+| `python3 firmware/test/test_sil_coverage.py --gate` | `SUMMARY legacy: 31 scenarios, 20/20 designed pairs covered`; `SUMMARY c1: 52 scenarios, 28/28 designed pairs covered`; `SUMMARY c1 mechanisms: 27/27 cells covered`; `PASS` | Same four lines |
+| `python3 firmware/test/gen_sil_traces.py --check` | `SIL traces up to date (27 generated traces)` | `SIL traces up to date (27 generated traces)` |
+| `python3 scripts/check_firmware_invariants.py` | `OK: all 5 invariants verified and proof_record.json is fresh` | Same line |
+| `python3 scripts/check_state_machine_model.py` | `OK: state machine model check passed (reachability, P1-P4, manifest cross-check)` | Same line; existing backlog divergence remains |
+| `python3 scripts/check_fault_list_consistency.py` | `fault list consistency check passed`; `manifest codes: 14`; `generated codes: 16`; `supplemental codes: 3` | Same lines/counts |
+| `python3 firmware/tools/check_board_pin_map.py` | `PASSED: temper_pins.h agrees with zapote/controller controller-c1-crs at 467917c38 (36 GPIOs, 10 expander pins)` | Same line |
+
+The initial full runner regenerated the following tracked files. Their complete diff was saved in the scratch validation logs and all were restored before implementation; no generated JSON is in the commits. Some diagnostics/event times differ as well as float representations, so these are not described as universally negligible noise:
+
+```text
+output/temper-sensor-r3/firmware/cosim-results.json
+output/temper-sensor-r3/firmware/fault-cycle.json
+output/temper-sensor-r3/firmware/leak-checks.json
+output/temper-sensor-r3/firmware/runaway-checks.json
+output/temper-sensor-r3/firmware/xcheck-cosim.json
+output/temper-sensor-r3/robustness/hc-cosim.json
+```
+
+
+The selected trajectory through the actual patched library (same seed and parameters):
+
+```text
+SLOW_BASELINE_LATCH_TIMES [10870.0, 10880.0]
+SLOW_AFTER 10870 skip_hs_drift hs_C 21.28764533996582 pt_C 4.291079044342041
+SLOW_AFTER 10880 skip_hs_drift hs_C 21.27863311767578 pt_C 4.291079044342041
+SLOW_AFTER_FIRST_LATER_PASS 13870 gap_K 15.356141090393066 hs_C 19.86531639099121 pt_C 4.291079044342041
+RESIDUAL tau_3600_K 1.065440 old_allowance_K 1.541494
+```
+
+The four-hour timer was also evaluated beyond the original horizon; these summaries are extracted from the retained study’s `EXTENDED` rows:
+
+```text
+EXTENDED_24H rail_fallback ambient first_latch_s=14400.0 latching_evaluations=7200
+EXTENDED_24H rail_fallback frozen_plateau first_latch_s=14400.0 latching_evaluations=7200
+EXTENDED_24H rail_measured ambient first_latch_s=14400.0 latching_evaluations=7200
+EXTENDED_24H rail_measured frozen_plateau first_latch_s=14400.0 latching_evaluations=7200
+```
+
+
+The retained study rerun from the repository, after promoting the slow-sink cases, ends:
+
+```text
+ALL F3 GUARD COMPARISONS PASS
+RETAINED_STUDY_EXIT 0
+```
+
+A structural comparison of the Python function definitions and pinned gate sources reports:
+
+```text
+COLD_SOAK_STUDY only benign_cases function changed; hazard calculations and gates identical
+T1_T2_GATE_SOURCES byte-identical to required base
+COMMITTED_JSON_CHANGES []
+```
+
+The new study script passes Ruff (`All checks passed!`). The two pre-existing `cold_soak.py` findings C416/C420 remain. With `UV_NO_SYNC=1` to retain the prepared environment, the import-boundary check remains unavailable (`Failed to spawn: lint-imports`, exit 5). `make regen-check` still reports:
+
+```text
+DRIFT  gen_repo_state.py: [gen_repo_state] ERROR: tracked top-level directories have no description in DIRECTORY_PURPOSE: output. Add one so the map stays complete.
+1 item(s) need attention -- see above
+```
+
+
+The separately rerun plant-gain sensitivity study returns `SENSITIVITY_EXIT 0`; its JSON comparison reports `SENSITIVITY_COMMITTED_MATCH True`. It writes only to scratch for the post-change check.
+
+
+The standard runner’s cold-soak output exactly matches the separate patched-library run (`FULL_RUN_COLD_SOAK_MATCH separate patched-library result is identical`). Its benign lines are shown below; each gated tuple is `(trajectories, evaluations that ran, latched trajectories)`, while reported tuples are `(trajectories, latched trajectories)`.
+
+Before:
+
+```text
+benign gated (rail_fallback): {'ambient': (18, 13500, 0), 'warm_restart': (162, 86332, 0), 'hot_pan': (72, 5459, 0), 'cold_pan': (144, 61403, 0), 'transport': (432, 352180, 0)}
+benign reported (rail_fallback): {'warm_restart': (54, 0), 'cold_pot_large': (36, 0), 'frozen_plateau': (36, 22), 'ambient': (6, 1), 'transport': (72, 0)}
+benign gated (rail_measured): {'ambient': (18, 14061, 0), 'warm_restart': (162, 88554, 0), 'hot_pan': (72, 5497, 0), 'cold_pan': (144, 63765, 0), 'transport': (432, 360898, 0)}
+benign reported (rail_measured): {'warm_restart': (54, 1), 'cold_pot_large': (36, 0), 'frozen_plateau': (36, 22), 'ambient': (6, 1), 'transport': (72, 0)}
+```
+
+After:
+
+```text
+benign gated (rail_fallback): {'ambient': (18, 13500, 0), 'warm_restart': (216, 95530, 0), 'hot_pan': (72, 5459, 0), 'cold_pan': (144, 61403, 0), 'transport': (504, 366593, 0)}
+benign reported (rail_fallback): {'cold_pot_large': (36, 0), 'frozen_plateau': (36, 22), 'ambient': (6, 1)}
+benign gated (rail_measured): {'ambient': (18, 14061, 0), 'warm_restart': (216, 97689, 0), 'hot_pan': (72, 5497, 0), 'cold_pan': (144, 63765, 0), 'transport': (504, 375900, 0)}
+benign reported (rail_measured): {'cold_pot_large': (36, 0), 'frozen_plateau': (36, 22), 'ambient': (6, 1)}
+```
+
+
+## Completed full validation
+
+Both invocations of `cd output/temper-sensor-r3/firmware && ./run.sh` end at the same T1 provenance failure. Neither returned the requested `ALL C1 FIRMWARE CHECKS PASS`; the gate was preserved. Their final stage lines are:
+
+| Output | Before | After |
+|---|---|---|
+| Runaway | `ALL RUNAWAY CHECKS PASS` | `ALL RUNAWAY CHECKS PASS` |
+| Sensor codes | `SENSOR FAIL CODES PASS` | `SENSOR FAIL CODES PASS` |
+| Runner terminal line | `T1 FAIL: derivation gates failed: source_inputs_clean` | `T1 FAIL: derivation gates failed: source_inputs_clean` |
+
+Earlier stages match their gated outcomes: `ALL BARS PASS`, `XCHECK COSIM PASS`, `ALL HC BARS PASS`, `LEAK CHECKS PASS`, `RIM LIMIT STUDY PASS`, `ALL COLD SOAK CHECKS PASS`. D1 reports `== firmware: PASS`; `== screen_d1: FAIL` and `== stretch_3_6_3: FAIL` are unchanged report-only results. The leak-bar ratchet still records the existing unmet bar; it is not a claim of complete leak protection. The exact before/after headline is:
+
+```text
+hazardous: 277 latched before 300: 69 after: 204 never: 4 ; R_leak 300.0 .. 2319.9 ohm
+```
+
+The post-change T2 subset was run directly with `python3 output/temper-sensor-r3/leak-barrier/setpoint_cap.py --check --caps 250,200 --jobs 3` (the runner stops before reaching it). It reports:
+
+```text
+250 C controls match committed C and offline headlines
+cap 250: nominal 69/277; worst 3/137
+cap 200: nominal 99/179; worst 14/90
+T2 FAIL: regenerated evidence differs; candidate saved to /tmp/temper-t2-regenerated-11003
+AFTER_T2_EXIT 1
+T2_POST_GATES {'all_caps_complete': True, 'control_250_matches': True, 'source_inputs_unchanged': False, 'rim_constants_match': True, 'no_benign_false_latches': True, 'benign_no_d1_lost': True, 'cold_benign_no_latches': True, 'no_pre_leak_latches': True}
+T2_POST_FAILED_GATES ['source_inputs_unchanged']
+T2_CAP_SUMMARY_UNCHANGED 250 True
+T2_CAP_SUMMARY_UNCHANGED 200 True
+T2_DETAILED_ROWS_UNCHANGED True
+```
+
+Thus both cap summaries **and every detailed row** are unchanged versus the live Linux baseline. All T2 behavioral gates pass; its only failed derivation gate is the fixed-base `source_inputs_unchanged`. The pre-existing Mac/Linux exact-row differences also remain. This is a preserved, reported failure, not a waiver or a changed expectation.
+
+The post-change runner rewrote these seven files. All were saved with their full diffs in scratch and restored with `git checkout --`; the cold-soak changes include the intentional new behavior and expanded population, not just platform noise. No regenerated JSON is committed:
+
+```text
+output/temper-sensor-r3/firmware/cold-soak.json
+output/temper-sensor-r3/firmware/cosim-results.json
+output/temper-sensor-r3/firmware/fault-cycle.json
+output/temper-sensor-r3/firmware/leak-checks.json
+output/temper-sensor-r3/firmware/runaway-checks.json
+output/temper-sensor-r3/firmware/xcheck-cosim.json
+output/temper-sensor-r3/robustness/hc-cosim.json
+RESTORED_GENERATED_JSON 7
+```
+
+Remaining work belongs to the canonical evidence/bench workflow: refresh T1 and the cold-soak evidence on the Mac, decide how the T2 unchanged-source contract should apply to a firmware-changing follow-up, and measure the thermal/noise assumptions. The fixed T2 base and every gate/expected count remain untouched in this branch. No board edits, target ESP-IDF build, board-contract check, or PR to main was made.
